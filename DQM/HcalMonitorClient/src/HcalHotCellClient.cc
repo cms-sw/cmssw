@@ -48,18 +48,20 @@ HcalHotCellClient::HcalHotCellClient(std::string myname, const edm::ParameterSet
 
   ProblemCellsByDepth=0;
   ProblemCells=0;
+  
+  doProblemCellSetup_ = true;
 }
 
-void HcalHotCellClient::analyze()
+void HcalHotCellClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalHotCellClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 }
 
-void HcalHotCellClient::calculateProblems()
+void HcalHotCellClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\t\tHcalHotCellClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -103,26 +105,26 @@ void HcalHotCellClient::calculateProblems()
       HotNeighborsByDepth[i]=0;
 
       std::string s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above ET Threshold";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0)HotAboveETThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAboveETThresholdByDepth[i], debug_);
 
       s=subdir_+"hot_rechit_always_above_threshold/"+name[i]+"Hot Cells Persistently Above ET Threshold";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0)HotAlwaysAboveETThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAlwaysAboveETThresholdByDepth[i], debug_);
 
       s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above Energy Threshold";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0)HotAboveThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAboveThresholdByDepth[i], debug_);
 
       s=subdir_+"hot_rechit_always_above_threshold/"+name[i]+"Hot Cells Persistently Above Energy Threshold";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0)HotAlwaysAboveThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAlwaysAboveThresholdByDepth[i], debug_);
 
       s=subdir_+"hot_neighbortest/"+name[i]+"Hot Cells Failing Neighbor Test";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0)HotNeighborsByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotNeighborsByDepth[i], debug_);
       s=subdir_+"hot_neighbortest/NeighborTestEnabled";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0 && me->getIntValue()==1)
 	neighbortest=true;
     }
@@ -213,45 +215,38 @@ void HcalHotCellClient::calculateProblems()
 }
 
 
-void HcalHotCellClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalHotCellClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 
 void HcalHotCellClient::endJob(){}
 
-void HcalHotCellClient::beginRun(void)
+void HcalHotCellClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter & ig)
 {
-  enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalHotCellClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
-  ProblemCells=dqmStore_->book2D(" ProblemHotCells",
+  ProblemCells=ib.book2D(" ProblemHotCells",
 				 " Problem Hot Cell Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_hotcells");
+  ib.setCurrentFolder(subdir_+"problem_hotcells");
   ProblemCellsByDepth=new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem Hot Cell Rate");
+  ProblemCellsByDepth->setup(ib," Problem Hot Cell Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
 
+  doProblemCellSetup_ = false;
+
+}
+
+void HcalHotCellClient::beginRun(void)
+{
+  enoughevents_=false;
   nevts_=0;
 }
 
-void HcalHotCellClient::endRun(void){analyze();}
+//void HcalHotCellClient::endRun(void){analyze();}
 
 void HcalHotCellClient::setup(void){}
 void HcalHotCellClient::cleanup(void){}
@@ -377,4 +372,6 @@ void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 } //void HcalHotCellClient::updateChannelStatus
 
 HcalHotCellClient::~HcalHotCellClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

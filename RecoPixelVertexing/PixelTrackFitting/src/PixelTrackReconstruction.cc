@@ -56,6 +56,7 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
     if(theConfig.exists("useFilterWithES")) {
       edm::LogInfo("Obsolete") << "useFilterWithES parameter is obsolete and can be removed";
     }
+    useClusterShape = filterPSet.exists("useClusterShape");
   }
 
   ParameterSet orderedPSet =
@@ -129,10 +130,12 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       reco::Track* track = theFitter->run( ev, es, hits, region);
       if (!track) continue;
 
-      // decide if track should be skipped according to filter
-      if (theFilter && !(*theFilter)(track, hits) ) {
-        delete track;
-        continue;
+      if (theFilter) {
+	if ((useClusterShape && !(*theFilter)(track, hits, tTopo)) ||
+	    (!useClusterShape && !(*theFilter)(track, hits))) {
+	  delete track;
+	  continue;
+	}
       }
 
       // add tracks

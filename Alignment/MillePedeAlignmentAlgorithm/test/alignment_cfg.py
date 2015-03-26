@@ -41,7 +41,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 # geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #del process.CaloTopologyBuilder etc. to speed up...???
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -56,7 +56,7 @@ process.GlobalTag.globaltag = 'MC_310_V1::All' # take your favourite
 #    toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
 #                               tag = cms.string("TrackerIdealGeometry210_mc")
 #                               ),
-#                      cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+#                      cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
 #                               tag = cms.string("TrackerIdealGeometryErrors210_mc")
 #                               )
 #                      )
@@ -250,7 +250,7 @@ process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*proc
 #      tag = cms.string('testTagAlignment')
 #    ),
 #    #                  cms.PSet(
-#    #  record = cms.string('TrackerAlignmentErrorRcd'),
+#    #  record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #    #  tag = cms.string('testTagAPE') # needed is saveApeToDB = True
 #    #),
 #                      cms.PSet(

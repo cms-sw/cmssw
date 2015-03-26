@@ -15,19 +15,14 @@
 
 class CSCBaseValidation {
 public:
-  CSCBaseValidation(DQMStore* dbe,
-                    const edm::InputTag & inputTag);
+  CSCBaseValidation(const edm::InputTag & inputTag);
   virtual ~CSCBaseValidation() {}
-
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
   void setSimHitMap(const  PSimHitMap * simHitMap) {theSimHitMap = simHitMap;}
-
   virtual void analyze(const edm::Event&e, const edm::EventSetup& eventSetup) = 0;
 
 protected:
   const CSCLayer * findLayer(int detId) const;
-
-  DQMStore* dbe_;
   edm::InputTag theInputTag;
   const PSimHitMap * theSimHitMap;
   const CSCGeometry * theCSCGeometry;

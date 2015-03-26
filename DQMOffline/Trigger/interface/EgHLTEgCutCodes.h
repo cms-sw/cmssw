@@ -57,7 +57,7 @@ namespace egHLT {
     };
 
   private:
-    static ComCodes codes_;
+    static const ComCodes codes_;
     
   private:
     EgCutCodes(){} //not going to allow instainitiation

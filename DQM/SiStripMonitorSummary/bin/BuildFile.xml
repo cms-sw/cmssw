@@ -1,5 +1,4 @@
 <use   name="root"/>
-<use   name="rootcintex"/>
 <use   name="rootgraphics"/>
 <bin   name="makePlots" file="makePlots.cc"></bin>
 <bin   name="makeTKTrend" file="makeTKTrend.cc"></bin>

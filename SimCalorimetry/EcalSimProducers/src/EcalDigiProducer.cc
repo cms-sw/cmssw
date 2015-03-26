@@ -266,6 +266,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
 					addNoise            ) ;
 }
 
+
 // duplicate version for Pre-Mixing, for use outside of MixingModule 
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::ConsumesCollector& iC) :
    DigiAccumulatorMixMod(),
@@ -380,7 +381,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::Consu
    const bool applyConstantTerm          = params.getParameter<bool>       ("applyConstantTerm");
    const double rmsConstantTerm          = params.getParameter<double>     ("ConstantTerm");
 
-   const bool addNoise                   = params.getParameter<bool>       ("doNoise"); 
+   const bool addNoise                   = params.getParameter<bool>       ("doENoise"); 
    const bool cosmicsPhase               = params.getParameter<bool>       ("cosmicsPhase");
    const double cosmicsShift             = params.getParameter<double>     ("cosmicsShift");
 
@@ -816,7 +817,6 @@ EcalDigiProducer::updateGeometry()
 	 m_ESDigitizer->setDetIds( *theESDets ) ; 
    }
 }
-
 
 CLHEP::HepRandomEngine* EcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
   unsigned int index = streamID.value();

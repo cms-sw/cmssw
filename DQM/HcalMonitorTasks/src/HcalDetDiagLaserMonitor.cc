@@ -282,7 +282,7 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       }
       return &calib_data[SD][ETA+2][PHI-1];
       };   
-      void beginRun(const edm::Run& run, const edm::EventSetup& c) override;  
+      void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c) override;  
       void endRun(const edm::Run& run, const edm::EventSetup& c) override;
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override ;
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;
@@ -378,7 +378,9 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       std::map<unsigned int, int> KnownBadCells_;
 };
 
-HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig) {
+HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig):
+ HcalBaseDQMonitor(iConfig)
+ {
  
 
   ievt_=-1;
@@ -422,8 +424,16 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
   tok_ho_  = consumes<HODigiCollection>(inputLabelDigi_);
   tok_hf_ = consumes<HFDigiCollection>(inputLabelDigi_);
 
+
+  ProblemCellsByDepth_timing=0;
+  ProblemCellsByDepth_energy=0;
+  ProblemCellsByDepth_timing_val=0;
+  ProblemCellsByDepth_energy_val=0;
+
 }
-void HcalDetDiagLaserMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c){
+
+
+void HcalDetDiagLaserMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c){
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get("withTopo",p);
   const HcalChannelQuality* chanquality= p.product();
@@ -443,68 +453,67 @@ void HcalDetDiagLaserMonitor::beginRun(const edm::Run& run, const edm::EventSetu
   c.get<HcalDbRecord>().get(conditions_);
   emap=conditions_->getHcalMapping();
   
-  HcalBaseDQMonitor::setup();
-  if (!dbe_) return;
+  HcalBaseDQMonitor::setup(ib);
   std::string name;
  
-  dbe_->setCurrentFolder(subdir_);   
-  meEVT_ = dbe_->bookInt("HcalDetDiagLaserMonitor Event Number");
-  meRUN_ = dbe_->bookInt("HcalDetDiagLaserMonitor Run Number");
+  ib.setCurrentFolder(subdir_);   
+  meEVT_ = ib.bookInt("HcalDetDiagLaserMonitor Event Number");
+  meRUN_ = ib.bookInt("HcalDetDiagLaserMonitor Run Number");
 
   ReferenceRun="UNKNOWN";
   LoadReference();
   LoadDataset();
   if(DatasetName.size()>0 && createHTMLonly){
      char str[200]; sprintf(str,"%sHcalDetDiagLaserData_run%i_%i/",htmlOutputPath.c_str(),run_number,dataset_seq_number);
-     htmlFolder=dbe_->bookString("HcalDetDiagLaserMonitor HTML folder",str);
+     htmlFolder=ib.bookString("HcalDetDiagLaserMonitor HTML folder",str);
      MonitorElement *me;
-     dbe_->setCurrentFolder(prefixME_+"HcalInfo");
-     me=dbe_->bookInt("HBpresent");
+     ib.setCurrentFolder(prefixME_+"HcalInfo");
+     me=ib.bookInt("HBpresent");
      if(nHB>0) me->Fill(1);
-     me=dbe_->bookInt("HEpresent");
+     me=ib.bookInt("HEpresent");
      if(nHE>0) me->Fill(1);
-     me=dbe_->bookInt("HOpresent");
+     me=ib.bookInt("HOpresent");
      if(nHO>0) me->Fill(1);
-     me=dbe_->bookInt("HFpresent");
+     me=ib.bookInt("HFpresent");
      if(nHF>0) me->Fill(1);
   }
   ProblemCellsByDepth_timing = new EtaPhiHists();
-  ProblemCellsByDepth_timing->setup(dbe_," Problem Bad Laser Timing");
+  ProblemCellsByDepth_timing->setup(ib," Problem Bad Laser Timing");
   for(unsigned int i=0;i<ProblemCellsByDepth_timing->depth.size();i++)
           problemnames_.push_back(ProblemCellsByDepth_timing->depth[i]->getName());
   ProblemCellsByDepth_energy = new EtaPhiHists();
-  ProblemCellsByDepth_energy->setup(dbe_," Problem Bad Laser Energy");
+  ProblemCellsByDepth_energy->setup(ib," Problem Bad Laser Energy");
   for(unsigned int i=0;i<ProblemCellsByDepth_energy->depth.size();i++)
           problemnames_.push_back(ProblemCellsByDepth_energy->depth[i]->getName());
 
-  dbe_->setCurrentFolder(subdir_+"Summary Plots");
+  ib.setCurrentFolder(subdir_+"Summary Plots");
      
-  name="HBHE Laser Energy Distribution";                hbheEnergy        = dbe_->book1D(name,name,200,0,3000);
-  name="HBHE Laser Timing Distribution";                hbheTime          = dbe_->book1D(name,name,200,0,10);
-  name="HBHE Laser Energy RMS_div_Energy Distribution"; hbheEnergyRMS     = dbe_->book1D(name,name,200,0,0.5);
-  name="HBHE Laser Timing RMS Distribution";            hbheTimeRMS       = dbe_->book1D(name,name,200,0,1);
-  name="HO Laser Energy Distribution";                  hoEnergy          = dbe_->book1D(name,name,200,0,3000);
-  name="HO Laser Timing Distribution";                  hoTime            = dbe_->book1D(name,name,200,0,10);
-  name="HO Laser Energy RMS_div_Energy Distribution";   hoEnergyRMS       = dbe_->book1D(name,name,200,0,0.5);
-  name="HO Laser Timing RMS Distribution";              hoTimeRMS         = dbe_->book1D(name,name,200,0,1);
-  name="HF Laser Energy Distribution";                  hfEnergy          = dbe_->book1D(name,name,200,0,3000);
-  name="HF Laser Timing Distribution";                  hfTime            = dbe_->book1D(name,name,200,0,10);
-  name="HF Laser Energy RMS_div_Energy Distribution";   hfEnergyRMS       = dbe_->book1D(name,name,200,0,0.7);
-  name="HF Laser Timing RMS Distribution";              hfTimeRMS         = dbe_->book1D(name,name,200,0,1);
+  name="HBHE Laser Energy Distribution";                hbheEnergy        = ib.book1D(name,name,200,0,3000);
+  name="HBHE Laser Timing Distribution";                hbheTime          = ib.book1D(name,name,200,0,10);
+  name="HBHE Laser Energy RMS_div_Energy Distribution"; hbheEnergyRMS     = ib.book1D(name,name,200,0,0.5);
+  name="HBHE Laser Timing RMS Distribution";            hbheTimeRMS       = ib.book1D(name,name,200,0,1);
+  name="HO Laser Energy Distribution";                  hoEnergy          = ib.book1D(name,name,200,0,3000);
+  name="HO Laser Timing Distribution";                  hoTime            = ib.book1D(name,name,200,0,10);
+  name="HO Laser Energy RMS_div_Energy Distribution";   hoEnergyRMS       = ib.book1D(name,name,200,0,0.5);
+  name="HO Laser Timing RMS Distribution";              hoTimeRMS         = ib.book1D(name,name,200,0,1);
+  name="HF Laser Energy Distribution";                  hfEnergy          = ib.book1D(name,name,200,0,3000);
+  name="HF Laser Timing Distribution";                  hfTime            = ib.book1D(name,name,200,0,10);
+  name="HF Laser Energy RMS_div_Energy Distribution";   hfEnergyRMS       = ib.book1D(name,name,200,0,0.7);
+  name="HF Laser Timing RMS Distribution";              hfTimeRMS         = ib.book1D(name,name,200,0,1);
      
-  name="Laser Timing HBHEHF";                           Time2Dhbhehf      = dbe_->book2D(name,name,87,-43,43,74,0,73);
-  name="Laser Timing HO";                               Time2Dho          = dbe_->book2D(name,name,33,-16,16,74,0,73);
-  name="Laser Energy HBHEHF";                           Energy2Dhbhehf    = dbe_->book2D(name,name,87,-43,43,74,0,73);
-  name="Laser Energy HO";                               Energy2Dho        = dbe_->book2D(name,name,33,-16,16,74,0,73);
-  name="HBHEHF Laser (Timing-Ref)+1";                   refTime2Dhbhehf   = dbe_->book2D(name,name,87,-43,43,74,0,73);
-  name="HO Laser (Timing-Ref)+1";                       refTime2Dho       = dbe_->book2D(name,name,33,-16,16,74,0,73);
-  name="HBHEHF Laser Energy_div_Ref";                   refEnergy2Dhbhehf = dbe_->book2D(name,name,87,-43,43,74,0,73);
-  name="HO Laser Energy_div_Ref";                       refEnergy2Dho     = dbe_->book2D(name,name,33,-16,16,74,0,73);
+  name="Laser Timing HBHEHF";                           Time2Dhbhehf      = ib.book2D(name,name,87,-43,43,74,0,73);
+  name="Laser Timing HO";                               Time2Dho          = ib.book2D(name,name,33,-16,16,74,0,73);
+  name="Laser Energy HBHEHF";                           Energy2Dhbhehf    = ib.book2D(name,name,87,-43,43,74,0,73);
+  name="Laser Energy HO";                               Energy2Dho        = ib.book2D(name,name,33,-16,16,74,0,73);
+  name="HBHEHF Laser (Timing-Ref)+1";                   refTime2Dhbhehf   = ib.book2D(name,name,87,-43,43,74,0,73);
+  name="HO Laser (Timing-Ref)+1";                       refTime2Dho       = ib.book2D(name,name,33,-16,16,74,0,73);
+  name="HBHEHF Laser Energy_div_Ref";                   refEnergy2Dhbhehf = ib.book2D(name,name,87,-43,43,74,0,73);
+  name="HO Laser Energy_div_Ref";                       refEnergy2Dho     = ib.book2D(name,name,33,-16,16,74,0,73);
      
-  name="HB RBX average Time-Ref";                       hb_time_rbx       = dbe_->book1D(name,name,36,0.5,36.5);
-  name="HE RBX average Time-Ref";                       he_time_rbx       = dbe_->book1D(name,name,36,0.5,36.5);
-  name="HO RBX average Time-Ref";                       ho_time_rbx       = dbe_->book1D(name,name,36,0.5,36.5);
-  name="HF RoBox average Time-Ref";                     hf_time_rbx       = dbe_->book1D(name,name,24,0.5,24.5);
+  name="HB RBX average Time-Ref";                       hb_time_rbx       = ib.book1D(name,name,36,0.5,36.5);
+  name="HE RBX average Time-Ref";                       he_time_rbx       = ib.book1D(name,name,36,0.5,36.5);
+  name="HO RBX average Time-Ref";                       ho_time_rbx       = ib.book1D(name,name,36,0.5,36.5);
+  name="HF RoBox average Time-Ref";                     hf_time_rbx       = ib.book1D(name,name,24,0.5,24.5);
   
   char str[200];
   for(int i=1;i<=18;i++){ sprintf(str,"HBM%02i",i);     hb_time_rbx->setBinLabel(i,str);    }
@@ -541,24 +550,29 @@ void HcalDetDiagLaserMonitor::beginRun(const edm::Run& run, const edm::EventSetu
   refEnergy2Dhbhehf->setAxisRange(0.5,1.5,3);
   refEnergy2Dho->setAxisRange(0.5,1.5,3);
 
-  dbe_->setCurrentFolder(subdir_);
-  RefRun_= dbe_->bookString("HcalDetDiagLaserMonitor Reference Run",ReferenceRun);
+  ib.setCurrentFolder(subdir_);
+  RefRun_= ib.bookString("HcalDetDiagLaserMonitor Reference Run",ReferenceRun);
 
-  dbe_->setCurrentFolder(subdir_+"Raddam Plots");
+  ib.setCurrentFolder(subdir_+"Raddam Plots");
   for(int i=0;i<56;i++){
      sprintf(str,"RADDAM (%i %i)",RADDAM_CH[i].eta,RADDAM_CH[i].phi);
-     Raddam[i] = dbe_->book1D(str,str,10,-0.5,9.5); 
+     Raddam[i] = ib.book1D(str,str,10,-0.5,9.5); 
   }
 
-  dbe_->setCurrentFolder(subdir_+"Plots for client");
+  ib.setCurrentFolder(subdir_+"Plots for client");
   ProblemCellsByDepth_timing_val = new EtaPhiHists();
-  ProblemCellsByDepth_timing_val->setup(dbe_," Laser Timing difference");
+  ProblemCellsByDepth_timing_val->setup(ib," Laser Timing difference");
   ProblemCellsByDepth_energy_val = new EtaPhiHists();
-  ProblemCellsByDepth_energy_val->setup(dbe_," Laser Energy difference");
+  ProblemCellsByDepth_energy_val->setup(ib," Laser Energy difference");
 }
 
 
 HcalDetDiagLaserMonitor::~HcalDetDiagLaserMonitor(){
+
+  if ( ProblemCellsByDepth_timing ) delete ProblemCellsByDepth_timing;
+  if ( ProblemCellsByDepth_energy ) delete ProblemCellsByDepth_energy;
+  if ( ProblemCellsByDepth_timing_val ) delete ProblemCellsByDepth_timing_val;
+  if ( ProblemCellsByDepth_energy_val ) delete ProblemCellsByDepth_energy_val;
 
 }
 
@@ -575,7 +589,6 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
        ievt_hbhe=0,ievt_ho=0,ievt_hf=0;
    }
 
-   if(!dbe_) return; 
    bool LaserEvent=false;
    bool LaserRaddam=false;
    int orbit=iEvent.orbitNumber();
@@ -1541,6 +1554,7 @@ char   Subdet[10],str[500];
        } 
        theFile->Write();
        theFile->Close();
+       theFile->Delete();
    }
    if(XmlFilePath.size()>0){
       char TIME[40];
@@ -1795,6 +1809,7 @@ TFile *f;
          if(strcmp(subdet,"CALIB_HF")==0) calib_data[4][Eta+2][Phi-1].set_reference(amp,rms,time,time_rms);
      }
       f->Close();
+      f->Delete();
       IsReference=true;
 } 
 void HcalDetDiagLaserMonitor::LoadDataset(){
@@ -1873,6 +1888,7 @@ TFile *f;
       TObjString *STR3=(TObjString *)f->Get("Dataset number");
       if(STR3){ int ds; sscanf(STR3->String(),"%i",&ds); dataset_seq_number=ds;}
       f->Close(); 
+      f->Delete();
 } 
 
 void HcalDetDiagLaserMonitor::SaveRaddamData(){
@@ -2019,6 +2035,7 @@ char str[100];
          }
          theFile->Write();
          theFile->Close();
+	 theFile->Delete();
       } 
 }
 

@@ -22,6 +22,10 @@ displacedStandAloneMuons.TrackLoaderParameters.VertexConstraint = cms.bool(False
 
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
+from RecoMuon.Configuration.iterativeTkDisplaced_cff import *
+displacedGlobalMuons = globalMuons.clone()
+displacedGlobalMuons.MuonCollectionLabel = cms.InputTag("displacedStandAloneMuons","")
+displacedGlobalMuons.TrackerCollectionLabel = cms.InputTag("displacedTracks")
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
@@ -45,7 +49,8 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 
 # Muon Tracking sequence
 standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*displacedMuonSeeds*displacedStandAloneMuons)
-globalmuontracking = cms.Sequence(globalMuons*tevMuons)
+displacedGlobalMuonTracking = cms.Sequence(iterDisplcedTracking*displacedGlobalMuons)
+globalmuontracking = cms.Sequence(globalMuons*tevMuons*displacedGlobalMuonTracking)
 muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)
 
 # Muon Reconstruction

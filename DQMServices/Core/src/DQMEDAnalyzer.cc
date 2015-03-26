@@ -95,14 +95,13 @@ void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
 thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() {}
 
 void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
-                             edm::EventSetup const &iSetup) {
+					    edm::EventSetup const &iSetup) {
   dqmBeginRun(iRun, iSetup);
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
-                           this->bookHistograms(b, iRun, iSetup);
-                         },
-                         iRun.run(),
-                         0,
-                         0);
+      this->bookHistograms(b, iRun, iSetup);
+    },
+    iRun.run(),
+    0,
+    0);
 }
-

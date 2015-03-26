@@ -56,7 +56,9 @@ namespace edm {
    class GlobalContext;
    class StreamContext;
    class PathContext;
+   class ProcessContext;
    class ModuleCallingContext;
+   class PathsAndConsumesOfModulesBase;
    namespace service {
      class SystemBounds;
    }
@@ -72,12 +74,12 @@ namespace edm {
          ObsoleteSignal() = default;
 
          template<typename U>
-         void connect(U iFunc) {
+         void connect(U /*  iFunc */) {
             throwObsoleteSignalException();
          }
          
          template<typename U>
-         void connect_front(U iFunc) {
+         void connect_front(U /*  iFunc*/) {
             throwObsoleteSignalException();
          }
 
@@ -97,7 +99,16 @@ namespace edm {
         preallocateSignal_.connect(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPreallocate)
-     
+
+      typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
+      ///signal is emitted before all modules have gotten their beginJob called
+      PreBeginJob preBeginJobSignal_;
+      ///convenience function for attaching to signal
+      void watchPreBeginJob(PreBeginJob::slot_type const& iSlot) {
+         preBeginJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreBeginJob)
+
       typedef signalslot::Signal<void()> PostBeginJob;
       ///signal is emitted after all modules have gotten their beginJob called
       PostBeginJob postBeginJobSignal_;
@@ -106,6 +117,14 @@ namespace edm {
          postBeginJobSignal_.connect(iSlot);
       }
       AR_WATCH_USING_METHOD_0(watchPostBeginJob)
+
+      typedef signalslot::Signal<void()> PreEndJob;
+      ///signal is emitted before any modules have gotten their endJob called
+      PreEndJob preEndJobSignal_;
+      void watchPreEndJob(PreEndJob::slot_type const& iSlot) {
+         preEndJobSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPreEndJob)
 
       typedef signalslot::Signal<void()> PostEndJob;
       ///signal is emitted after all modules have gotten their endJob called

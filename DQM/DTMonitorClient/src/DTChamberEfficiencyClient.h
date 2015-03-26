@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  M. Pelliccioni - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -23,6 +26,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -34,7 +39,8 @@ class DTGeometry;
 class DTChamberId;
 class DTLayerId;
 
-class DTChamberEfficiencyClient: public edm::EDAnalyzer{
+//-class DTChamberEfficiencyClient: public edm::EDAnalyzer{
+class DTChamberEfficiencyClient: public DQMEDHarvester{
 
 public:
 
@@ -46,27 +52,18 @@ public:
 
 protected:
 
-  void beginJob();
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
+  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the report summary
-  void bookHistos();
-  
-  /// DQM Client Diagnostic
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  void endRun(edm::Run const& run, edm::EventSetup const& c);
+  void bookHistos(DQMStore::IBooker &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
 
-  int nevents;
   unsigned int nLumiSegs;
   int prescaleFactor;
-
-  DQMStore* dbe;
 
   edm::ESHandle<DTGeometry> muonGeom;
 

@@ -11,6 +11,7 @@
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerRAW.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // need access to class objects being referenced to get their content!
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -45,7 +46,7 @@ HLTEventAnalyzerRAW::HLTEventAnalyzerRAW(const edm::ParameterSet& ps) :
   using namespace std;
   using namespace edm;
 
-  cout << "HLTEventAnalyzerRAW configuration: " << endl
+  LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW configuration: " << endl
        << "   ProcessName = " << processName_ << endl
        << "   TriggerName = " << triggerName_ << endl
        << "   TriggerResultsTag = " << triggerResultsTag_.encode() << endl
@@ -71,6 +72,9 @@ HLTEventAnalyzerRAW::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 void
+HLTEventAnalyzerRAW::endRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {}
+
+void
 HLTEventAnalyzerRAW::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   using namespace std;
@@ -84,16 +88,16 @@ HLTEventAnalyzerRAW::beginRun(edm::Run const & iRun, edm::EventSetup const& iSet
 	const unsigned int n(hltConfig_.size());
 	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
 	if (triggerIndex>=n) {
-	  cout << "HLTEventAnalyzerRAW::analyze:"
+	  LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyze:"
 	       << " TriggerName " << triggerName_ 
 	       << " not available in (new) config!" << endl;
-	  cout << "Available TriggerNames are: " << endl;
+	  LogVerbatim("HLTEventAnalyzerRAW") << "Available TriggerNames are: " << endl;
 	  hltConfig_.dump("Triggers");
 	}
       }
     }
   } else {
-    cout << "HLTEventAnalyzerRAW::analyze:"
+    LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyze:"
 	 << " config extraction failure with process name "
 	 << processName_ << endl;
   }
@@ -107,17 +111,17 @@ HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
   using namespace edm;
   
-  cout << endl;
+  LogVerbatim("HLTEventAnalyzerRAW") << endl;
 
   // get event products
   iEvent.getByToken(triggerResultsToken_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
-    cout << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerResults product from Event!" << endl;
+    LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerResults product from Event!" << endl;
     return;
   }
   iEvent.getByToken(triggerEventWithRefsToken_,triggerEventWithRefsHandle_);
   if (!triggerEventWithRefsHandle_.isValid()) {
-    cout << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerEventWithRefs product from Event!" << endl;
+    LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerEventWithRefs product from Event!" << endl;
     return;
   }
   // sanity check
@@ -144,7 +148,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   using namespace reco;
   using namespace trigger;
 
-  cout << endl;
+  LogVerbatim("HLTEventAnalyzerRAW") << endl;
 
   const unsigned int n(hltConfig_.size());
   const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName));
@@ -152,25 +156,25 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
 
   // abort on invalid trigger name
   if (triggerIndex>=n) {
-    cout << "HLTEventAnalyzerRAW::analyzeTrigger: path "
+    LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyzeTrigger: path "
 	 << triggerName << " - not found!" << endl;
     return;
   }
   
-  cout << "HLTEventAnalyzerRAW::analyzeTrigger: path "
+  LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyzeTrigger: path "
        << triggerName << " [" << triggerIndex << "]" << endl;
   // modules on this trigger path
   const unsigned int m(hltConfig_.size(triggerIndex));
   const vector<string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
 
   // Results from TriggerResults product
-  cout << " Trigger path status:"
+  LogVerbatim("HLTEventAnalyzerRAW") << " Trigger path status:"
        << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
        << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
        << " Error =" << triggerResultsHandle_->error(triggerIndex)
        << endl;
   const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
-  cout << " Last active module - label/type: "
+  LogVerbatim("HLTEventAnalyzerRAW") << " Last active module - label/type: "
        << moduleLabels[moduleIndex] << "/" << hltConfig_.moduleType(moduleLabels[moduleIndex])
        << " [" << moduleIndex << " out of 0-" << (m-1) << " on this path]"
        << endl;
@@ -216,16 +220,16 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
     // check whether the module is packed up in TriggerEventWithRef product
     const unsigned int filterIndex(triggerEventWithRefsHandle_->filterIndex(InputTag(moduleLabel,"",processName_)));
     if (filterIndex<triggerEventWithRefsHandle_->size()) {
-      cout << " Filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
-      cout << " Filter packed up at: " << filterIndex << endl;
-      cout << "  Accepted objects:" << endl;
+      LogVerbatim("HLTEventAnalyzerRAW") << " Filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
+      LogVerbatim("HLTEventAnalyzerRAW") << " Filter packed up at: " << filterIndex << endl;
+      LogVerbatim("HLTEventAnalyzerRAW") << "  Accepted objects:" << endl;
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,photonIds_,photonRefs_);
       const unsigned int nPhotons(photonIds_.size());
       if (nPhotons>0) {
-	cout << "   Photons: " << nPhotons << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   Photons: " << nPhotons << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nPhotons; ++i) {
-	  cout << "   " << i << " " << photonIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << photonIds_[i]
 	       << " " << photonRefs_[i]->pt()
 	       << endl;
 	}
@@ -234,9 +238,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,electronIds_,electronRefs_);
       const unsigned int nElectrons(electronIds_.size());
       if (nElectrons>0) {
-	cout << "   Electrons: " << nElectrons << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   Electrons: " << nElectrons << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nElectrons; ++i) {
-	  cout << "   " << i << " " << electronIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << electronIds_[i]
 	       << " " << electronRefs_[i]->pt()
 	       << endl;
 	}
@@ -245,9 +249,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,muonIds_,muonRefs_);
       const unsigned int nMuons(muonIds_.size());
       if (nMuons>0) {
-	cout << "   Muons: " << nMuons << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   Muons: " << nMuons << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nMuons; ++i) {
-	  cout << "   " << i << " " << muonIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << muonIds_[i]
 	       << " " << muonRefs_[i]->pt()
 	       << endl;
 	}
@@ -256,9 +260,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,jetIds_,jetRefs_);
       const unsigned int nJets(jetIds_.size());
       if (nJets>0) {
-	cout << "   Jets: " << nJets << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   Jets: " << nJets << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nJets; ++i) {
-	  cout << "   " << i << " " << jetIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << jetIds_[i]
 	       << " " << jetRefs_[i]->pt()
 	       << endl;
 	}
@@ -267,9 +271,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,compositeIds_,compositeRefs_);
       const unsigned int nComposites(compositeIds_.size());
       if (nComposites>0) {
-	cout << "   Composites: " << nComposites << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   Composites: " << nComposites << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nComposites; ++i) {
-	  cout << "   " << i << " " << compositeIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << compositeIds_[i]
 	       << " " << compositeRefs_[i]->pt()
 	       << endl;
 	}
@@ -278,9 +282,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,basemetIds_,basemetRefs_);
       const unsigned int nBaseMETs(basemetIds_.size());
       if (nBaseMETs>0) {
-	cout << "   BaseMETs: " << nBaseMETs << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   BaseMETs: " << nBaseMETs << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nBaseMETs; ++i) {
-	  cout << "   " << i << " " << basemetIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << basemetIds_[i]
 	       << " " << basemetRefs_[i]->pt()
 	       << endl;
 	}
@@ -289,9 +293,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,calometIds_,calometRefs_);
       const unsigned int nCaloMETs(calometIds_.size());
       if (nCaloMETs>0) {
-	cout << "   CaloMETs: " << nCaloMETs << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   CaloMETs: " << nCaloMETs << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nCaloMETs; ++i) {
-	  cout << "   " << i << " " << calometIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << calometIds_[i]
 	       << " " << calometRefs_[i]->pt()
 	       << endl;
 	}
@@ -300,9 +304,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,pixtrackIds_,pixtrackRefs_);
       const unsigned int nPixTracks(pixtrackIds_.size());
       if (nPixTracks>0) {
-	cout << "   PixTracks: " << nPixTracks << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   PixTracks: " << nPixTracks << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nPixTracks; ++i) {
-	  cout << "   " << i << " " << pixtrackIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pixtrackIds_[i]
 	       << " " << pixtrackRefs_[i]->pt()
 	       << endl;
 	}
@@ -311,9 +315,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1emIds_,l1emRefs_);
       const unsigned int nL1EM(l1emIds_.size());
       if (nL1EM>0) {
-	cout << "   L1EM: " << nL1EM << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   L1EM: " << nL1EM << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1EM; ++i) {
-	  cout << "   " << i << " " << l1emIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1emIds_[i]
 	       << " " << l1emRefs_[i]->pt()
 	       << endl;
 	}
@@ -322,9 +326,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1muonIds_,l1muonRefs_);
       const unsigned int nL1Muon(l1muonIds_.size());
       if (nL1Muon>0) {
-	cout << "   L1Muon: " << nL1Muon << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   L1Muon: " << nL1Muon << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1Muon; ++i) {
-	  cout << "   " << i << " " << l1muonIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1muonIds_[i]
 	       << " " << l1muonRefs_[i]->pt()
 	       << endl;
 	}
@@ -333,9 +337,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1jetIds_,l1jetRefs_);
       const unsigned int nL1Jet(l1jetIds_.size());
       if (nL1Jet>0) {
-	cout << "   L1Jet: " << nL1Jet << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   L1Jet: " << nL1Jet << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1Jet; ++i) {
-	  cout << "   " << i << " " << l1jetIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1jetIds_[i]
 	       << " " << l1jetRefs_[i]->pt()
 	       << endl;
 	}
@@ -344,9 +348,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1etmissIds_,l1etmissRefs_);
       const unsigned int nL1EtMiss(l1etmissIds_.size());
       if (nL1EtMiss>0) {
-	cout << "   L1EtMiss: " << nL1EtMiss << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   L1EtMiss: " << nL1EtMiss << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1EtMiss; ++i) {
-	  cout << "   " << i << " " << l1etmissIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1etmissIds_[i]
 	       << " " << l1etmissRefs_[i]->pt()
 	       << endl;
 	}
@@ -355,9 +359,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1hfringsIds_,l1hfringsRefs_);
       const unsigned int nL1HfRings(l1hfringsIds_.size());
       if (nL1HfRings>0) {
-	cout << "   L1HfRings: " << nL1HfRings << "  - the objects: # id 4 4" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   L1HfRings: " << nL1HfRings << "  - the objects: # id 4 4" << endl;
 	for (unsigned int i=0; i!=nL1HfRings; ++i) {
-	  cout << "   " << i << " " << l1hfringsIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1hfringsIds_[i]
 	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing1PosEta)
 	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing1NegEta)
 	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing2PosEta)
@@ -373,9 +377,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
       const unsigned int nPFJets(pfjetIds_.size());
       if (nPFJets>0) {
-	cout << "   PFJets: " << nPFJets << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   PFJets: " << nPFJets << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nPFJets; ++i) {
-	  cout << "   " << i << " " << pfjetIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pfjetIds_[i]
 	       << " " << pfjetRefs_[i]->pt()
 	       << endl;
 	}
@@ -384,9 +388,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
       triggerEventWithRefsHandle_->getObjects(filterIndex,pftauIds_,pftauRefs_);
       const unsigned int nPFTaus(pftauIds_.size());
       if (nPFTaus>0) {
-	cout << "   PFTaus: " << nPFTaus << "  - the objects: # id pt" << endl;
+	LogVerbatim("HLTEventAnalyzerRAW") << "   PFTaus: " << nPFTaus << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nPFTaus; ++i) {
-	  cout << "   " << i << " " << pftauIds_[i]
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pftauIds_[i]
 	       << " " << pftauRefs_[i]->pt()
 	       << endl;
 	}

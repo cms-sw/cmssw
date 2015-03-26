@@ -29,6 +29,12 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -41,7 +47,6 @@ namespace reco {
 }
 
 
-
 class Chi2MeasurementEstimator;
 class MuonServiceProxy;
 
@@ -52,7 +57,7 @@ class DetLayer;
 class DetId;
 class NavigationSchool;
 
-class DTChamberEfficiency : public edm::EDAnalyzer
+class DTChamberEfficiency : public DQMEDAnalyzer
 {
 
  public:
@@ -64,9 +69,11 @@ class DTChamberEfficiency : public edm::EDAnalyzer
 
   //Operations
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-  void beginJob();
-  void beginRun(const edm::Run& , const edm::EventSetup&);
-  void endJob();
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+
+ protected:
+// Book the histograms
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
 
@@ -74,8 +81,6 @@ class DTChamberEfficiency : public edm::EDAnalyzer
   std::vector<const DetLayer*> compatibleLayers(const NavigationSchool& navigationSchool, const DetLayer *initialLayer,
 						const FreeTrajectoryState& fts, PropagationDirection propDir);
 
-
-  void bookHistos();
   MeasurementContainer segQualityCut(const MeasurementContainer& seg_list) const;
   bool chamberSelection(const DetId& idDetLay, reco::TransientTrack& trans_track) const;
   inline edm::ESHandle<Propagator> propagator() const;
@@ -98,16 +103,12 @@ class DTChamberEfficiency : public edm::EDAnalyzer
 
   edm::ESHandle<DTGeometry> dtGeom;
 
-  DQMStore* theDbe;
-
   MuonServiceProxy* theService;
   MuonDetLayerMeasurements* theMeasurementExtractor;
   Chi2MeasurementEstimator* theEstimator;
 
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-
-  //std::map<DTChamberId, std::vector<MonitorElement*> > histosPerW;
 
   std::vector<std::vector<MonitorElement*> > histosPerW;
 

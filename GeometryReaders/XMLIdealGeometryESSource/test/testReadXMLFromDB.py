@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DBGeometryTest")
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load('Configuration/StandardSequences/GeometryDB_cff')
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('CondCore.DBCommon.CondDBSetup_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                             tag = cms.string('XMLFILE_Geometry_Extended_TagXX'),
-                                             connect = cms.untracked.string("sqlite_file:./myfile.db")
+                                             tag = cms.string('XMLFILE_Geometry_TagXX_Extended2015_mc'),
+                                             connect = cms.untracked.string('sqlite_file:./myfile.db')
                                              )
                                     )
 
@@ -28,17 +28,17 @@ XMLFromDBSource = cms.ESProducer("XMLIdealGeometryESProducer",
                                  rootDDName = cms.string('cms:OCMS'),
                                  )
 
-process.pDB = cms.EDAnalyzer("PerfectGeometryAnalyzer"
-                               ,dumpPosInfo = cms.untracked.bool(True)
-                               ,label = cms.untracked.string("")
-                               ,isMagField = cms.untracked.bool(False)
-                               ,dumpSpecs = cms.untracked.bool(True)
-                               ,dumpGeoHistory = cms.untracked.bool(True)
-                               ,outFileName = cms.untracked.string("LocDB")
-                               ,numNodesToDump = cms.untracked.uint32(0)
-                               ,fromDB = cms.untracked.bool(True)
-                               ,ddRootNodeName = cms.untracked.string("cms:OCMS")
-                               )
+process.pDB = cms.EDAnalyzer("PerfectGeometryAnalyzer",
+                             dumpPosInfo = cms.untracked.bool(True),
+                             label = cms.untracked.string(''),
+                             isMagField = cms.untracked.bool(False),
+                             dumpSpecs = cms.untracked.bool(True),
+                             dumpGeoHistory = cms.untracked.bool(True),
+                             outFileName = cms.untracked.string('LocDB'),
+                             numNodesToDump = cms.untracked.uint32(0),
+                             fromDB = cms.untracked.bool(True),
+                             ddRootNodeName = cms.untracked.string('cms:OCMS')
+                             )
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     readDBerrors = cms.untracked.PSet( threshold = cms.untracked.string('ERROR'),

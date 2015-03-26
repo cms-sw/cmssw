@@ -44,7 +44,7 @@
 #include <cmath>
 #include <iostream>
 
-class HcalDigisValidation : public thread_unsafe::DQMEDAnalyzer {
+class HcalDigisValidation : public DQMEDAnalyzer {
 public:
     explicit HcalDigisValidation(const edm::ParameterSet&);
 

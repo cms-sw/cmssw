@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+
 generator = cms.EDFilter("Herwig6GeneratorFilter",
 	comEnergy = cms.double(8000.0),
 	crossSection = cms.untracked.double(4.92395e+07),

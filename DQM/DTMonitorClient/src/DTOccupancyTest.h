@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  G. Cerminara - University and INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -16,6 +19,9 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
+
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
 
 #include "TH2F.h"
 
@@ -30,7 +36,7 @@ class DQMStore;
 #include "TFile.h"
 #include "TNtuple.h"
 
-class DTOccupancyTest: public edm::EDAnalyzer{
+class DTOccupancyTest: public DQMEDHarvester{
 
 public:
 
@@ -42,28 +48,20 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
 
   /// Endjob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
   
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
 
-
-  /// Analyze
-  void analyze(const edm::Event& event, const edm::EventSetup& context);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
 
   /// book the summary histograms
-  void bookHistos(const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker &, const int wheelId, std::string folder, std::string histoTag);
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId& chId);
@@ -74,8 +72,6 @@ private:
   std::string topFolder() const;
 
   int nevents;
-
-  DQMStore* dbe;
 
   edm::ESHandle<DTGeometry> muonGeom;
 
@@ -98,6 +94,8 @@ private:
   bool runOnNoiseOccupancies;
   bool runOnInTimeOccupancies;
   std::string nameMonitoredHisto;
+
+  bool bookingdone;
 
 };
 

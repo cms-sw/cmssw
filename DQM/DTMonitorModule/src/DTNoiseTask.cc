@@ -42,8 +42,6 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 
    LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: Constructor"<<endl;
 
-  dbe = edm::Service<DQMStore>().operator->();
-
   //switch for timeBox booking
   doTimeBoxHistos = ps.getUntrackedParameter<bool>("doTbHistos", false);
 
@@ -67,17 +65,6 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 
 
 DTNoiseTask::~DTNoiseTask(){}
-
-
-
-/// BeginJob
-void DTNoiseTask::beginJob() {
-
-   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: BeginJob"<<endl;
-
-}
-
-
 
 /// To reset the MEs
 void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
@@ -167,19 +154,14 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 }
 
-
-
-/// Endjob
-void DTNoiseTask::endJob() {}
-
-
-void DTNoiseTask::bookHistos(DTChamberId chId) {
+void DTNoiseTask::bookHistos(DQMStore::IBooker & ibooker,DTChamberId chId) {
 
   // set the folder
   stringstream wheel; wheel << chId.wheel();
   stringstream station; station << chId.station();
   stringstream sector; sector << chId.sector();
-  dbe->setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
+
+  ibooker.setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
 // 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -211,7 +193,7 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
     }
   }
 
-  noiseHistos[chId] = dbe->book2D(histoName,"Noise rate (Hz) per channel", nWires_max,1, nWires_max+1,12,1,13);
+  noiseHistos[chId] = ibooker.book2D(histoName,"Noise rate (Hz) per channel", nWires_max,1, nWires_max+1,12,1,13);
   noiseHistos[chId]->setAxisTitle("wire number",1);
   noiseHistos[chId]->setBinLabel(1,"SL1-L1",2);
   noiseHistos[chId]->setBinLabel(2,"SL1-L2",2);
@@ -229,14 +211,15 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
 }
 
 
-void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
+void DTNoiseTask::bookHistos(DQMStore::IBooker & ibooker,DTSuperLayerId slId) {
 
   // set the folder
   stringstream wheel; wheel << slId.chamberId().wheel();
   stringstream station; station << slId.chamberId().station();
   stringstream sector; sector << slId.chamberId().sector();
   stringstream superlayer; superlayer << slId.superlayer();
-  dbe->setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
+
+  ibooker.setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -253,24 +236,31 @@ void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
     "/Sector" + sector.str() + "/" << endl;
    LogVerbatim("DTNoiseTask") <<"              histoName "<<histoName<<endl;
 
-  tbHistos[slId] = dbe->book1D(histoName,"Time Box (TDC counts)", 1000, 0, 6000);
+  tbHistos[slId] = ibooker.book1D(histoName,"Time Box (TDC counts)", 1000, 0, 6000);
 
 }
 
-
-void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
+void DTNoiseTask::dqmBeginRun(const Run& run, const EventSetup& setup) {
 
   LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Begin of run"<<endl;
 
   // tTrig Map
-  edm::ESHandle<DTTtrig> tTrigMap;
   setup.get<DTTtrigRcd>().get(tTrigMap);
 
   // get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
-  dbe->setCurrentFolder("DT/EventInfo/Counters");
-  nEventMonitor = dbe->bookFloat("nProcessedEventsNoise");
+
+}
+
+void DTNoiseTask::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & run,
+                                             edm::EventSetup const & setup){
+
+  ibooker.setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = ibooker.bookFloat("nProcessedEventsNoise");
+
+
 
   // Loop over all the chambers
   vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
@@ -278,14 +268,14 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chId = (*ch_it)->id();
     // histo booking
-    bookHistos(chId);
+    bookHistos(ibooker,chId);
     vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
     for(; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slId = (*sl_it)->id();
       if(doTimeBoxHistos)
-	bookHistos(slId);
+	bookHistos(ibooker,slId);
       float tTrig, tTrigRMS, kFactor;
       tTrigMap->get(slId, tTrig, tTrigRMS,kFactor,DTTimeUnits::ns);
       // tTrig mapping per station

@@ -25,23 +25,32 @@ using namespace std;
 using namespace edm;
 
 
-DTDCSByLumiSummary::DTDCSByLumiSummary(const ParameterSet& pset) {}
+DTDCSByLumiSummary::DTDCSByLumiSummary(const ParameterSet& pset) {
+
+  bookingdone = 0;
+
+}
 
 
 DTDCSByLumiSummary::~DTDCSByLumiSummary() {}
 
 
-void DTDCSByLumiSummary::beginJob(){
+void  DTDCSByLumiSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
 
-  theDQMStore = Service<DQMStore>().operator->();
+}
 
-  // book the ME
-  theDQMStore->setCurrentFolder("DT/EventInfo/DCSContents");
+void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & lumi, 
+                        edm::EventSetup const & setup) {
 
-  totalDCSFraction = theDQMStore->bookFloat("DTDCSSummary");  
+  if (!bookingdone) {
+  
+
+  ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
+
+  totalDCSFraction = ibooker.bookFloat("DTDCSSummary");  
   totalDCSFraction->setLumiFlag(); // set LumiFlag to DCS content value (save it by lumi)
 
-  globalHVSummary = theDQMStore->book2D("HVGlbSummary","HV Status Summary",1,1,13,5,-2,3);
+  globalHVSummary = ibooker.book2D("HVGlbSummary","HV Status Summary",1,1,13,5,-2,3);
   globalHVSummary->setAxisTitle("Sectors",1);
   globalHVSummary->setAxisTitle("Wheel",2);
 
@@ -49,18 +58,13 @@ void DTDCSByLumiSummary::beginJob(){
 
     stringstream wheel_str; wheel_str << wh;
 
-    MonitorElement* FractionWh = theDQMStore->bookFloat("DT_Wheel"+wheel_str.str());  
+    MonitorElement* FractionWh = ibooker.bookFloat("DT_Wheel"+wheel_str.str());  
     FractionWh->setLumiFlag(); // set LumiFlag to DCS content value (save it by lumi)
 
     totalDCSFractionWh.push_back(FractionWh);
   }
 
   globalHVSummary->Reset();
-
-}
-
-
-void DTDCSByLumiSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
 
   // CB LumiFlag marked products are reset on LS boundaries
   totalDCSFraction->Reset(); 
@@ -69,10 +73,8 @@ void DTDCSByLumiSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const
     totalDCSFractionWh[wh+2]->Reset();
   }
 
-}
-
-
-void DTDCSByLumiSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){
+  }
+  bookingdone = 1; 
 
   // Get the by lumi product plot from the task
   int lumiNumber = lumi.id().luminosityBlock();
@@ -86,7 +88,8 @@ void DTDCSByLumiSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const 
     stringstream wheel_str; wheel_str << wh;	
 
     string hActiveUnitsPath = "DT/EventInfo/DCSContents/hActiveUnits"+wheel_str.str();
-    MonitorElement *hActiveUnits = theDQMStore->get(hActiveUnitsPath);
+
+    MonitorElement *hActiveUnits = igetter.get(hActiveUnitsPath);
 
     if (hActiveUnits) {
       float activeFrac = static_cast<float>(hActiveUnits->getBinContent(2)) /  // CB 2nd bin is # of active channels
@@ -113,11 +116,17 @@ void DTDCSByLumiSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const 
 
   if(!null_pointer_histo) dcsFracPerLumi[lumiNumber] = wh_activeFrac; // Fill map to be used to compute trend plots
 
+
+  // CB LumiFlag marked products are reset on LS boundaries
+  totalDCSFraction->Reset(); 
+
+  for(int wh=-2;wh<=2;wh++){
+    totalDCSFractionWh[wh+2]->Reset();
+  }
+
 }
 
-
-void DTDCSByLumiSummary::endRun(const edm::Run& run, const edm::EventSetup& setup) {
-
+void DTDCSByLumiSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Book trend plots ME & loop on map to fill it with by lumi info
   map<int,std::vector<float> >::const_iterator fracPerLumiIt  = dcsFracPerLumi.begin();
@@ -126,7 +135,8 @@ void DTDCSByLumiSummary::endRun(const edm::Run& run, const edm::EventSetup& setu
   if (fracPerLumiIt != fracPerLumiEnd ) {
     int fLumi = dcsFracPerLumi.begin()->first;
     int lLumi = dcsFracPerLumi.rbegin()->first;
-    theDQMStore->setCurrentFolder("DT/EventInfo/DCSContents");
+
+    ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
 
     int nLumis = lLumi-fLumi + 1.;
     
@@ -137,7 +147,7 @@ void DTDCSByLumiSummary::endRun(const edm::Run& run, const edm::EventSetup& setu
       
       DTTimeEvolutionHisto* trend;
       
-      trend = new DTTimeEvolutionHisto(theDQMStore, "hDCSFracTrendWh" + wheel_str.str(), "Fraction of DT-HV ON Wh" + wheel_str.str(),
+      trend = new DTTimeEvolutionHisto(ibooker, "hDCSFracTrendWh" + wheel_str.str(), "Fraction of DT-HV ON Wh" + wheel_str.str(),
 				       nLumis, fLumi, 1, false, 2);
       
       hDCSFracTrend.push_back(trend);
@@ -189,16 +199,6 @@ void DTDCSByLumiSummary::endRun(const edm::Run& run, const edm::EventSetup& setu
     }
 
   }
-
-}
-
-
-void DTDCSByLumiSummary::endJob() {  
-
-}
-
-
-void DTDCSByLumiSummary::analyze(const Event& event, const EventSetup& setup){ 
 
 }
 

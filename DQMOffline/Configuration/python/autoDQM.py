@@ -18,7 +18,9 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                               '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal'],
             'allForPrompt':  ['@common+@muon+@hcal+@jetmet+@ecal',
                               '@common+@muon+@hcal+@jetmet+@ecal'],
-            'miniAOD': ['DQMOfflineMiniAOD',
-                        'DQMHarvestMiniAOD']
+            'miniAODDQM': ['DQMOfflineMiniAOD',
+                        'DQMHarvestMiniAOD'],
+            'standardDQM': ['DQMOffline',
+                            'dqmHarvesting']
             }
 

@@ -14,4 +14,8 @@ l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
     disableROOToutput = cms.untracked.bool(True)
 )
 
-
+#
+# Make changes for running in Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2_common.toModify( l1tCsctf, gangedME11a = False )

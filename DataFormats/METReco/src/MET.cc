@@ -84,8 +84,8 @@ double MET::significance() const {
   metvec(1)=this->py();
   double signif = -1;
   double det=0;
-  metmat.Det(det);
-  if(std::fabs(det)>0.000001){
+  metmat.Det2(det);
+  if(std::abs(det)>0.000001){
     metmat.Invert();
     signif = ROOT::Math::Dot(metvec, (metmat * metvec) );
   }

@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
-HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
+HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
@@ -82,7 +82,7 @@ HcalDeadCellMonitor::~HcalDeadCellMonitor()
 
 /* ------------------------------------ */ 
 
-void HcalDeadCellMonitor::setup()
+void HcalDeadCellMonitor::setup(DQMStore::IBooker &ib)
 {
   if (setupDone_)
   {
@@ -96,42 +96,40 @@ void HcalDeadCellMonitor::setup()
   else
     setupDone_=true;
   
-  HcalBaseDQMonitor::setup();
+  HcalBaseDQMonitor::setup(ib);
   if (debug_>0)
     std::cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<std::endl;
 
-  if (!dbe_) return;
-
-  dbe_->setCurrentFolder(subdir_);
-  MonitorElement* excludeHO2=dbe_->bookInt("ExcludeHOring2");
+  ib.setCurrentFolder(subdir_);
+  MonitorElement* excludeHO2=ib.bookInt("ExcludeHOring2");
   // Fill with 0 if ring is not to be excluded; fill with 1 if it is to be excluded
   if (excludeHO2) excludeHO2->Fill(excludeHORing2_==true ? 1 : 0);
 
-  Nevents = dbe_->book1D("NumberOfDeadCellEvents","Number of Events Seen by DeadCellMonitor",2,0,2);
+  Nevents = ib.book1D("NumberOfDeadCellEvents","Number of Events Seen by DeadCellMonitor",2,0,2);
   Nevents->setBinLabel(1,"allEvents");
   Nevents->setBinLabel(2,"lumiCheck");
  // 1D plots count number of bad cells vs. luminosity block
-  ProblemsVsLB=dbe_->bookProfile("TotalDeadCells_HCAL_vs_LS",
+  ProblemsVsLB=ib.bookProfile("TotalDeadCells_HCAL_vs_LS",
 				  "Total Number of Dead Hcal Cells (excluding known problems) vs LS;Lumi Section;Dead Cells", 
 				  NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				  100,0,10000);
-  ProblemsVsLB_HB=dbe_->bookProfile("TotalDeadCells_HB_vs_LS",
+  ProblemsVsLB_HB=ib.bookProfile("TotalDeadCells_HB_vs_LS",
 				     "Total Number of Dead HB Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				     100,0,10000);
-  ProblemsVsLB_HE=dbe_->bookProfile("TotalDeadCells_HE_vs_LS",
+  ProblemsVsLB_HE=ib.bookProfile("TotalDeadCells_HE_vs_LS",
 				     "Total Number of Dead HE Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
-  ProblemsVsLB_HO=dbe_->bookProfile("TotalDeadCells_HO_vs_LS",
+  ProblemsVsLB_HO=ib.bookProfile("TotalDeadCells_HO_vs_LS",
 				      "Total Number of Dead HO Cells Ring 0,1 |ieta|<=10 (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
-  ProblemsVsLB_HO2=dbe_->bookProfile("TotalDeadCells_HO2_vs_LS",
+  ProblemsVsLB_HO2=ib.bookProfile("TotalDeadCells_HO2_vs_LS",
 				     "Total Number of Dead HO Cells Ring 2 |ieta|>10 (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
-  ProblemsVsLB_HF=dbe_->bookProfile("TotalDeadCells_HF_vs_LS",
+  ProblemsVsLB_HF=ib.bookProfile("TotalDeadCells_HF_vs_LS",
 				     "Total Number of Dead HF Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
-  ProblemsVsLB_HBHEHF=dbe_->bookProfile("TotalDeadCells_HBHEHF_vs_LS",
+  ProblemsVsLB_HBHEHF=ib.bookProfile("TotalDeadCells_HBHEHF_vs_LS",
 				     "Total Number of Dead HBHEHF Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   
@@ -143,39 +141,39 @@ void HcalDeadCellMonitor::setup()
   (ProblemsVsLB_HF->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HBHEHF->getTProfile())->SetMarkerStyle(20);
 
-  RBX_loss_VS_LB=dbe_->book2D("RBX_loss_VS_LB",
+  RBX_loss_VS_LB=ib.book2D("RBX_loss_VS_LB",
 			      "RBX loss vs LS; Lumi Section; Index of lost RBX", 
 			      NLumiBlocks_,0.5,NLumiBlocks_+0.5,156,0,156);
 
-  ProblemsInLastNLB_HBHEHF_alarm=dbe_->book1D("ProblemsInLastNLB_HBHEHF_alarm",
+  ProblemsInLastNLB_HBHEHF_alarm=ib.book1D("ProblemsInLastNLB_HBHEHF_alarm",
 					      "Total Number of Dead HBHEHF Cells in last 10 LS. Last bin contains OverFlow",
 					      100,0,100);
-  ProblemsInLastNLB_HO01_alarm=dbe_->book1D("ProblemsInLastNLB_HO01_alarm",
+  ProblemsInLastNLB_HO01_alarm=ib.book1D("ProblemsInLastNLB_HO01_alarm",
 					    "Total Number of Dead Cells Ring 0,1 (abs(ieta)<=10) in last 10 LS. Last bin contains OverFlow",
 					    100,0,100);
 
 
-  dbe_->setCurrentFolder(subdir_+"dead_cell_parameters");
-  MonitorElement* me=dbe_->bookInt("Test_NeverPresent_Digis");
+  ib.setCurrentFolder(subdir_+"dead_cell_parameters");
+  MonitorElement* me=ib.bookInt("Test_NeverPresent_Digis");
   me->Fill(1);
-  me=dbe_->bookInt("Test_DigiMissing_Periodic_Lumi_Check");
+  me=ib.bookInt("Test_DigiMissing_Periodic_Lumi_Check");
   if (deadmon_test_digis_)
     me->Fill(1);
   else 
     me->Fill(0);
-  me=dbe_->bookInt("Min_Events_Required_Periodic_Lumi_Check");
+  me=ib.bookInt("Min_Events_Required_Periodic_Lumi_Check");
   me->Fill(minDeadEventCount_);
-  me=dbe_->bookInt("Test_NeverPresent_RecHits");
+  me=ib.bookInt("Test_NeverPresent_RecHits");
   deadmon_test_rechits_>0 ? me->Fill(1) : me->Fill(0);
-  me=dbe_->bookFloat("HBMinimumRecHitEnergy");
+  me=ib.bookFloat("HBMinimumRecHitEnergy");
   me->Fill(HBenergyThreshold_);
-  me=dbe_->bookFloat("HEMinimumRecHitEnergy");
+  me=ib.bookFloat("HEMinimumRecHitEnergy");
   me->Fill(HEenergyThreshold_);
-  me=dbe_->bookFloat("HOMinimumRecHitEnergy");
+  me=ib.bookFloat("HOMinimumRecHitEnergy");
   me->Fill(HOenergyThreshold_);
-  me=dbe_->bookFloat("HFMinimumRecHitEnergy");
+  me=ib.bookFloat("HFMinimumRecHitEnergy");
   me->Fill(HFenergyThreshold_);
-  me=dbe_->bookInt("Test_RecHitsMissing_Periodic_Lumi_Check");
+  me=ib.bookInt("Test_RecHitsMissing_Periodic_Lumi_Check");
   deadmon_test_rechits_>0 ? me->Fill(1) : me->Fill(0);
 
   // ProblemCells plots are in HcalDeadCellClient!
@@ -186,27 +184,27 @@ void HcalDeadCellMonitor::setup()
 
   // Never-present test will always be called, by definition of dead cell
 
-  dbe_->setCurrentFolder(subdir_+"dead_digi_never_present");
-  SetupEtaPhiHists(DigiPresentByDepth,
+  ib.setCurrentFolder(subdir_+"dead_digi_never_present");
+  SetupEtaPhiHists(ib,DigiPresentByDepth,
 		   "Digi Present At Least Once","");
   // 1D plots count number of bad cells
-  NumberOfNeverPresentDigis=dbe_->bookProfile("Problem_NeverPresentDigis_HCAL_vs_LS",
+  NumberOfNeverPresentDigis=ib.bookProfile("Problem_NeverPresentDigis_HCAL_vs_LS",
 					       "Total Number of Never-Present Hcal Cells vs LS;Lumi Section;Dead Cells",
 					       NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       
-  NumberOfNeverPresentDigisHB=dbe_->bookProfile("Problem_NeverPresentDigis_HB_vs_LS",
+  NumberOfNeverPresentDigisHB=ib.bookProfile("Problem_NeverPresentDigis_HB_vs_LS",
 						 "Total Number of Never-Present HB Cells vs LS;Lumi Section;Dead Cells",
 						 NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       
-  NumberOfNeverPresentDigisHE=dbe_->bookProfile("Problem_NeverPresentDigis_HE_vs_LS",
+  NumberOfNeverPresentDigisHE=ib.bookProfile("Problem_NeverPresentDigis_HE_vs_LS",
 						 "Total Number of Never-Present HE Cells vs LS;Lumi Section;Dead Cells",
 						 NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       
-  NumberOfNeverPresentDigisHO=dbe_->bookProfile("Problem_NeverPresentDigis_HO_vs_LS",
+  NumberOfNeverPresentDigisHO=ib.bookProfile("Problem_NeverPresentDigis_HO_vs_LS",
 						 "Total Number of Never-Present HO Cells vs LS;Lumi Section;Dead Cells",
 						 NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       
-  NumberOfNeverPresentDigisHF=dbe_->bookProfile("Problem_NeverPresentDigis_HF_vs_LS",
+  NumberOfNeverPresentDigisHF=ib.bookProfile("Problem_NeverPresentDigis_HF_vs_LS",
 						 "Total Number of Never-Present HF Cells vs LS;Lumi Section;Dead Cells",
 						 NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   (NumberOfNeverPresentDigis->getTProfile())->SetMarkerStyle(20);
@@ -219,10 +217,10 @@ void HcalDeadCellMonitor::setup()
 
   if (deadmon_test_digis_)
     {
-      dbe_->setCurrentFolder(subdir_+"dead_digi_often_missing");
+      ib.setCurrentFolder(subdir_+"dead_digi_often_missing");
       //units<<"("<<deadmon_checkNevents_<<" consec. events)";
       name<<"Dead Cells with No Digis";
-      SetupEtaPhiHists(RecentMissingDigisByDepth,
+      SetupEtaPhiHists(ib,RecentMissingDigisByDepth,
 		       name.str(),
 		       "");
       name.str("");
@@ -244,27 +242,27 @@ void HcalDeadCellMonitor::setup()
 
       // 1D plots count number of bad cells
       name<<"Total Number of Hcal Digis Unoccupied for at least 1 Full Luminosity Block"; 
-      NumberOfRecentMissingDigis=dbe_->bookProfile("Problem_RecentMissingDigis_HCAL_vs_LS",
+      NumberOfRecentMissingDigis=ib.bookProfile("Problem_RecentMissingDigis_HCAL_vs_LS",
 						    name.str(),
 						    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HB Digis Unoccupied for at least 1 Full LS vs LS;Lumi Section; Dead Cells";
-      NumberOfRecentMissingDigisHB=dbe_->bookProfile("Problem_RecentMissingDigis_HB_vs_LS",
+      NumberOfRecentMissingDigisHB=ib.bookProfile("Problem_RecentMissingDigis_HB_vs_LS",
 						      name.str(),
 						      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HE Digis Unoccupied for at least 1 Full LS vs LS;Lumi Section; Dead Cells";
-      NumberOfRecentMissingDigisHE=dbe_->bookProfile("Problem_RecentMissingDigis_HE_vs_LS",
+      NumberOfRecentMissingDigisHE=ib.bookProfile("Problem_RecentMissingDigis_HE_vs_LS",
 						      name.str(),
 						      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HO Digis Unoccupied for at least 1 Full LS vs LS;Lumi Section; Dead Cells";
-      NumberOfRecentMissingDigisHO=dbe_->bookProfile("Problem_RecentMissingDigis_HO_vs_LS",
+      NumberOfRecentMissingDigisHO=ib.bookProfile("Problem_RecentMissingDigis_HO_vs_LS",
 						      name.str(),
 						      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HF Digis Unoccupied for at least 1 Full LS vs LS;Lumi Section; Dead Cells";
-      NumberOfRecentMissingDigisHF=dbe_->bookProfile("Problem_RecentMissingDigis_HF_vs_LS",
+      NumberOfRecentMissingDigisHF=ib.bookProfile("Problem_RecentMissingDigis_HF_vs_LS",
 						      name.str(),
 						      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       (NumberOfRecentMissingDigis->getTProfile())->SetMarkerStyle(20);
@@ -278,8 +276,8 @@ void HcalDeadCellMonitor::setup()
   if (deadmon_test_rechits_)
     {
       // test 1:  energy never above threshold
-      dbe_->setCurrentFolder(subdir_+"dead_rechit_neverpresent");
-      SetupEtaPhiHists(RecHitPresentByDepth,"RecHit Above Threshold At Least Once","");
+      ib.setCurrentFolder(subdir_+"dead_rechit_neverpresent");
+      SetupEtaPhiHists(ib,RecHitPresentByDepth,"RecHit Above Threshold At Least Once","");
       // set more descriptive titles for threshold plots
       units.str("");
       units<<"Cells Above Energy Threshold At Least Once: Depth 1 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
@@ -296,27 +294,27 @@ void HcalDeadCellMonitor::setup()
       units.str("");
 
       // 1D plots count number of bad cells
-      NumberOfNeverPresentRecHits=dbe_->bookProfile("Problem_RecHitsNeverPresent_HCAL_vs_LS",
+      NumberOfNeverPresentRecHits=ib.bookProfile("Problem_RecHitsNeverPresent_HCAL_vs_LS",
 						     "Total Number of Hcal Rechits with Low Energy;Lumi Section;Dead Cells",
 						     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HB RecHits with Energy Never >= "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfNeverPresentRecHitsHB=dbe_->bookProfile("Problem_RecHitsNeverPresent_HB_vs_LS",
+      NumberOfNeverPresentRecHitsHB=ib.bookProfile("Problem_RecHitsNeverPresent_HB_vs_LS",
 						       name.str(),
 						       NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HE RecHits with Energy Never >= "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfNeverPresentRecHitsHE=dbe_->bookProfile("Problem_RecHitsNeverPresent_HE_vs_LS",
+      NumberOfNeverPresentRecHitsHE=ib.bookProfile("Problem_RecHitsNeverPresent_HE_vs_LS",
 						       name.str(),
 						       NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HO RecHits with Energy Never >= "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfNeverPresentRecHitsHO=dbe_->bookProfile("Problem_RecHitsNeverPresent_HO_vs_LS",
+      NumberOfNeverPresentRecHitsHO=ib.bookProfile("Problem_RecHitsNeverPresent_HO_vs_LS",
 						       name.str(),
 						       NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HF RecHits with Energy Never >= "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfNeverPresentRecHitsHF=dbe_->bookProfile("Problem_RecHitsNeverPresent_HF_vs_LS",
+      NumberOfNeverPresentRecHitsHF=ib.bookProfile("Problem_RecHitsNeverPresent_HF_vs_LS",
 						       name.str(),
 						       NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       (NumberOfNeverPresentRecHits->getTProfile())->SetMarkerStyle(20);
@@ -325,8 +323,8 @@ void HcalDeadCellMonitor::setup()
       (NumberOfNeverPresentRecHitsHO->getTProfile())->SetMarkerStyle(20);
       (NumberOfNeverPresentRecHitsHF->getTProfile())->SetMarkerStyle(20);
  
-      dbe_->setCurrentFolder(subdir_+"dead_rechit_often_missing");
-      SetupEtaPhiHists(RecentMissingRecHitsByDepth,"RecHits Failing Energy Threshold Test","");
+      ib.setCurrentFolder(subdir_+"dead_rechit_often_missing");
+      SetupEtaPhiHists(ib,RecentMissingRecHitsByDepth,"RecHits Failing Energy Threshold Test","");
       // set more descriptive titles for threshold plots
       units.str("");
       units<<"RecHits with Consistent Low Energy Depth 1 -- HB <"<<HBenergyThreshold_<<" GeV, HE < "<<HEenergyThreshold_<<", HF <"<<HFenergyThreshold_<<" GeV";
@@ -346,27 +344,27 @@ void HcalDeadCellMonitor::setup()
       // 1D plots count number of bad cells
       name.str("");
       name<<"Total Number of Hcal RecHits with Consistent Low Energy;Lumi Section;Dead Cells";
-      NumberOfRecentMissingRecHits=dbe_->bookProfile("Problem_BelowEnergyRecHits_HCAL_vs_LS",
+      NumberOfRecentMissingRecHits=ib.bookProfile("Problem_BelowEnergyRecHits_HCAL_vs_LS",
 						      name.str(),
 						      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HB RecHits with Consistent Low Energy < "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfRecentMissingRecHitsHB=dbe_->bookProfile("Problem_BelowEnergyRecHits_HB_vs_LS",
+      NumberOfRecentMissingRecHitsHB=ib.bookProfile("Problem_BelowEnergyRecHits_HB_vs_LS",
 							name.str(),
 							NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HE RecHits with Consistent Low Energy < "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfRecentMissingRecHitsHE=dbe_->bookProfile("Problem_BelowEnergyRecHits_HE_vs_LS",
+      NumberOfRecentMissingRecHitsHE=ib.bookProfile("Problem_BelowEnergyRecHits_HE_vs_LS",
 							name.str(),
 							NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HO RecHits with Consistent Low Energy < "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfRecentMissingRecHitsHO=dbe_->bookProfile("Problem_BelowEnergyRecHits_HO_vs_LS",
+      NumberOfRecentMissingRecHitsHO=ib.bookProfile("Problem_BelowEnergyRecHits_HO_vs_LS",
 							name.str(),
 							NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       name.str("");
       name<<"Total Number of HF RecHits with Consistent Low Energy < "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
-      NumberOfRecentMissingRecHitsHF=dbe_->bookProfile("Problem_BelowEnergyRecHits_HF_vs_LS",
+      NumberOfRecentMissingRecHitsHF=ib.bookProfile("Problem_BelowEnergyRecHits_HF_vs_LS",
 							name.str(),
 							NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
       (NumberOfRecentMissingRecHits->getTProfile())->SetMarkerStyle(20);
@@ -380,23 +378,23 @@ void HcalDeadCellMonitor::setup()
 
   if (makeDiagnostics_)
     {
-      dbe_->setCurrentFolder(subdir_+"DiagnosticPlots");
-      HBDeadVsEvent=dbe_->book1D("HBDeadVsEvent","HB Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
-      HEDeadVsEvent=dbe_->book1D("HEDeadVsEvent","HE Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
-      HODeadVsEvent=dbe_->book1D("HODeadVsEvent","HO Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
-      HFDeadVsEvent=dbe_->book1D("HFDeadVsEvent","HF Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      ib.setCurrentFolder(subdir_+"DiagnosticPlots");
+      HBDeadVsEvent=ib.book1D("HBDeadVsEvent","HB Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      HEDeadVsEvent=ib.book1D("HEDeadVsEvent","HE Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      HODeadVsEvent=ib.book1D("HODeadVsEvent","HO Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      HFDeadVsEvent=ib.book1D("HFDeadVsEvent","HF Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
     }
 
   return;
 
 } // void HcalDeadCellMonitor::setup(...)
 
-void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalDeadCellMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>1) std::cout <<"HcalDeadCellMonitor::beginRun"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run,c);
+  if (debug_>1) std::cout <<"HcalDeadCellMonitor::bookHistograms"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
-  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (tevt_==0) this->setup(ib); // set up histograms if they have not been created before
   if (mergeRuns_==false)
     this->reset();
 
@@ -422,7 +420,7 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
 	} 
     } // if (badChannelStatusMask_>0)
   return;
-} //void HcalDeadCellMonitor::beginRun(...)
+} //void HcalDeadCellMonitor::bookHistograms(...)
 
 void HcalDeadCellMonitor::reset()
 {
@@ -501,31 +499,6 @@ void HcalDeadCellMonitor::reset()
 
 /* ------------------------------------------------------------------------- */
 
-
-void HcalDeadCellMonitor::cleanup()
-{
-  if (!enableCleanup_) return;
-  if (dbe_)
-    {
-      dbe_->setCurrentFolder(subdir_);
-      dbe_->removeContents();
-      dbe_->setCurrentFolder(subdir_+"dead_digi_never_present");
-      dbe_->removeContents();
-      dbe_->setCurrentFolder(subdir_+"dead_digi_often_missing");
-      dbe_->removeContents();
-      dbe_->setCurrentFolder(subdir_+"dead_rechit_neverpresent");
-      dbe_->removeContents();
-      dbe_->setCurrentFolder(subdir_+"dead_rechit_often_missing");
-      dbe_->removeContents();
-      dbe_->setCurrentFolder(subdir_+"dead_cell_parameters");
-      dbe_->removeContents();
-      dbe_->setCurrentFolder(subdir_+"LSvalues");
-      dbe_->removeContents();
-    }
-  return;
-} // void HcalDeadCellMonitor::cleanup()
-
-/* ------------------------------------------------------------------------- */
 
 void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					     const edm::EventSetup& c)
@@ -631,6 +604,7 @@ void HcalDeadCellMonitor::endJob()
 
 void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   endLumiProcessed_=false;
 
@@ -714,17 +688,10 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       edm::LogWarning("HcalDeadCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
       return;
     }
-  if (!(e.getByToken(tok_gtEvm_, gtEvm_handle)))
-    {
-      edm::LogWarning("HcalDeadCellMonitor")<< "gtEvmDigis"<<" gtEvmDigis not available";
-      return;
-    }
-  L1GtfeExtWord gtfeEvmExtWord = gtEvm_handle.product()->gtfeWord();
 
   if (debug_>1) std::cout <<"\t<HcalDeadCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
   // Good event found; increment counter (via base class analyze method)
   // This also runs the allowed calibration /lumi in order tests again;  remove?
-  HcalBaseDQMonitor::analyze(e,s);
   
   ++deadevt_; //increment local counter
   
@@ -758,13 +725,19 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	    rbxlost[i] = 1;
 	  }
       
-      int intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
-      int intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
-      
-      is_stable_beam = gtfeEvmExtWord.beamMode() == 11 ? true : false; 
+	  //
+	  //  Modified: not to use gtfeEvmExtWord
+	  //  is_stable_beam = false for now! 
+	  //  Set beamMode to NOBEAM
+	  //  TODO: Obtain these values from TCDS Record
+	  //
+      int intensity1_ = 101;
+      int intensity2_ = 101;
+      is_stable_beam = false;
+	  int beamMode = 21;
       
       for (unsigned int i=132;i<156;++i)
-	if(occupancy_RBX[i] == 0 && gtfeEvmExtWord.beamMode() == 11) 
+	if(occupancy_RBX[i] == 0 && beamMode == 11) 
 	  if(intensity1_>100 && intensity2_>100)                     // only in stable beam mode (11) and with circulating beams, otherwise 
 	  {                                                          // this check is too sensitive in HF
 	    is_RBX_loss_ = 1;

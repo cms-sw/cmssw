@@ -29,8 +29,9 @@
 PileUpProducer::PileUpProducer(edm::ParameterSet const & p) : hprob(0), currentValuesWereSet(false)
 {    
 
-  // This producer produces an object PileupMixingContent, needed by PileupSummaryInfo
+  // This producer produces an object PileupMixingContent and PileupVertexContent, needed by PileupSummaryInfo
   produces<PileupMixingContent>();
+  produces<PileupVertexContent>();
   // This producer produces a HepMCProduct, with all pileup vertices/particles
   produces<edm::HepMCProduct>("PileUpEvents");
   
@@ -257,6 +258,7 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   // Save this information in the PileupMixingContent object
   // IMPORTANT: the bunch crossing number is always 0 because FastSim has no out-of-time PU
   std::auto_ptr< PileupMixingContent > PileupMixing_;
+  std::auto_ptr< PileupVertexContent > PileupVertexing_;
 
   std::vector<int> bunchCrossingList;
   bunchCrossingList.push_back(0);
@@ -266,9 +268,27 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   
   std::vector<float> trueInteractionList;
   trueInteractionList.push_back(truePUevts);
+
+  std::vector<edm::EventID> eventInfoList;
+
+  std::vector<float> pThatList;
+  std::vector<float> zposList;
+
+  // generate fake EventID list to prevent crash in PileupInfo
+
+  for(uint32_t index=0; index!=uint(PUevts); ++index) {
+    edm::EventID Fake(index,index,index);
+    eventInfoList.push_back(Fake);
+    pThatList.push_back(0.);
+    zposList.push_back(0.);
+  }
   
-  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList,450)); // it shouldn't matter what the assumed bunchspacing is if there is no OOT PU. Add argument for compatibility.
+  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList,eventInfoList,450)); // it shouldn't matter what the assumed bunchspacing is if there is no OOT PU. Add argument for compatibility.
   iEvent.put(PileupMixing_);
+
+  PileupVertexing_ = std::auto_ptr< PileupVertexContent >(new PileupVertexContent(pThatList, zposList));
+
+  iEvent.put(PileupVertexing_);
 
   // Get N events from random files
   for ( int ievt=0; ievt<PUevts; ++ievt ) { 

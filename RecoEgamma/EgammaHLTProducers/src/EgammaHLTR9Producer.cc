@@ -14,14 +14,11 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTR9Producer::EgammaHLTR9Producer(const edm::ParameterSet& config) : conf_(config)
-{
- // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEB"));
-  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEE"));
-
-  useSwissCross_   = conf_.getParameter< bool > ("useSwissCross");
+EgammaHLTR9Producer::EgammaHLTR9Producer(const edm::ParameterSet& config):
+  recoEcalCandidateProducer_(consumes<reco::RecoEcalCandidateCollection> (config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  ecalRechitEBToken_(consumes<EcalRecHitCollection>(config.getParameter< edm::InputTag > ("ecalRechitEB"))),
+  ecalRechitEEToken_(consumes<EcalRecHitCollection>(config.getParameter< edm::InputTag > ("ecalRechitEE"))),
+  useSwissCross_(config.getParameter< bool > ("useSwissCross")) {
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
@@ -43,7 +40,7 @@ void EgammaHLTR9Producer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 
-void EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTR9Producer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;

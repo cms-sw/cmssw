@@ -18,7 +18,6 @@
 //
 
 #include "HLTrigger/JetMET/interface/HLTCATopTagFilter.h"
-#include <typeinfo>
 
 using namespace std;
 using namespace reco;

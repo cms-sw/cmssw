@@ -242,7 +242,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     	     }
 	   }
 	   if(produceETmidRap_){
-	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2.);
+	      if(std::abs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2.);
 	   }else if(reuseAny_) creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
@@ -267,14 +267,14 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for(unsigned int i = 0; i < ebHits->size(); ++i){
         const EcalRecHit & hit= (*ebHits)[i];
         const GlobalPoint& pos=cGeo->getPosition(hit.id());
-        double et = hit.energy()*sin(pos.theta());
+        double et = hit.energy()*(pos.perp()/pos.mag());
         creco->etEBSum_ += et;
      }
 
      for(unsigned int i = 0; i < eeHits->size(); ++i){
         const EcalRecHit & hit= (*eeHits)[i];
         const GlobalPoint& pos=cGeo->getPosition(hit.id());
-        double et = hit.energy()*sin(pos.theta());
+        double et = hit.energy()*(pos.perp()/pos.mag());
         if(pos.z() > 0){
            creco->etEESumPlus_ += et;
         }else{
@@ -310,7 +310,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (tGeo->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
 	    math::XYZVector rechitPos(gpos.x(),gpos.y(),gpos.z());
-	    double abeta = fabs(rechitPos.eta());
+	    double abeta = std::abs(rechitPos.eta());
 	    int clusterSize = recHit->cluster()->size();
             if (                abeta < 0.5 && clusterSize < 1) continue;
 	    if ( abeta > 0.5 && abeta < 1   && clusterSize < 2) continue;
@@ -373,20 +373,26 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(useQuality_ && !track.quality(trackQuality_)) continue;
 
        if( track.pt() > trackPtCut_)  trackCounter++;
-       if(fabs(track.eta())<trackEtaCut_) {
+       if(std::abs(track.eta())<trackEtaCut_) {
 	 trackCounterEta++;
 	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
        }
 
        math::XYZPoint v1(vx,vy, vz);    
        double dz= track.dz(v1);
-       double dzsigma = sqrt(track.dzError()*track.dzError()+vzError*vzError);    
+       double dzsigma2 = track.dzError()*track.dzError()+vzError*vzError;    
        double dxy= track.dxy(v1);
-       double dxysigma = sqrt(track.dxyError()*track.dxyError()+vxError*vyError);
+       double dxysigma2 = track.dxyError()*track.dxyError()+vxError*vyError;
+
+       const double pterrcut = 0.1;
+       const double dzrelcut = 3.0;
+       const double dxyrelcut = 3.0;
+
        if( track.quality(trackQuality_) && 
-	   track.pt()>0.4 && fabs(track.eta())<2.4 && 
-	   track.ptError()/track.pt()<0.1 && fabs(dz/dzsigma)<3.0 && 
-	   fabs(dxy/dxysigma)<3.0){
+	   track.pt()>0.4 && std::abs(track.eta())<2.4 && 
+	   track.ptError()/track.pt() < pterrcut &&
+	   dz*dz < dzrelcut*dzrelcut * dzsigma2 && 
+	   dxy*dxy < dxyrelcut*dxyrelcut * dxysigma2 ){
 	 nTracks++;
        }
      }

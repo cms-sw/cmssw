@@ -8,8 +8,8 @@
 using namespace std;
 
 SimpleVertexTree::SimpleVertexTree(const char * filterName,
-	TrackAssociatorByChi2 * associator) :
-	theFitterName(filterName), associatorForParamAtPca(associator)
+	const MagneticField * magField) :
+     theFitterName(filterName)
 {
 
   vertexTree = new TTree(filterName, "Vertex fit results");
@@ -19,7 +19,7 @@ SimpleVertexTree::SimpleVertexTree(const char * filterName,
 //     maxTrack = SimpleConfigurable<int> (100, "SimpleVertexTree:maximumTracksToStore").value();
 //   } else 
   maxTrack = 0;
-  result = new VertexFitterResult(maxTrack, associator);
+  result = new VertexFitterResult(maxTrack, magField);
 
   vertexTree->Branch("vertex",(void *)result->vertexPresent(),"vertex/I");
   vertexTree->Branch("simPos",(void *)result->simVertexPos(),"X/F:Y/F:Z/F");

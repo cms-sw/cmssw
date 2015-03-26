@@ -1,5 +1,6 @@
 <lcgdict>
- <class name="SiPixelRawDataError" ClassVersion="10">
+ <class name="SiPixelRawDataError" ClassVersion="11">
+  <version ClassVersion="11" checksum="3705435043"/>
   <version ClassVersion="10" checksum="3703023458"/>
    <field name="errorMessage_" transient="true"/>
  </class>

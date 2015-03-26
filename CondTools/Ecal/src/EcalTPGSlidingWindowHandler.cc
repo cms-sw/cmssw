@@ -338,6 +338,7 @@ void  popcon::EcalTPGSlidingWindowHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGSlidingWindowHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

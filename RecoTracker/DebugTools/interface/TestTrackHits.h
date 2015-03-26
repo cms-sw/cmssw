@@ -39,7 +39,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
@@ -91,7 +91,7 @@ private:
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<TrajectoryStateUpdator> theUpdator;
-  edm::ESHandle<TrackAssociatorBase> trackAssociator;
+  edm::Handle<reco::TrackToTrackingParticleAssociator> trackAssociator;
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   edm::Handle<edm::View<reco::Track> > trackCollectionHandle;
   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationCollectionHandle;

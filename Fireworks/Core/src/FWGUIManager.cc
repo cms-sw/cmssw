@@ -18,10 +18,13 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
+#include <thread>
+#include <future>
 
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TSystem.h"
+#include "TGLIncludes.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TEveManager.h"
@@ -37,6 +40,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/FWTEveViewer.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -873,15 +877,15 @@ FWGUIManager::exportImagesOfAllViews()
          if (name.find(ext) == name.npos)
             name += ext;
          // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%u_%u_%llu_%s");
-         exportAllViews(name);
+         name.insert(name.rfind('.'), "-%u_%u_%u_%s");
+         exportAllViews(name, -1);
       }
    }
    catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void
-FWGUIManager::exportAllViews(const std::string& format)
+FWGUIManager::exportAllViews(const std::string& format, int height)
 {
    // Save all GL views.
    // Expects format to have "%u %u %llu %s" which are replaced with
@@ -890,17 +894,17 @@ FWGUIManager::exportAllViews(const std::string& format)
    // If several views shave the same name, they are post-fixed
    // with "_%d". They are sorted by view diagonal.
 
-   typedef std::list<TEveViewer*>           viewer_list_t;
-   typedef viewer_list_t::iterator          viewer_list_i;
+   typedef std::list<FWTEveViewer*>           viewer_list_t;
+   typedef viewer_list_t::iterator            viewer_list_i;
 
-   typedef std::map<TString, viewer_list_t> name_map_t;
-   typedef name_map_t::iterator             name_map_i;
+   typedef std::map<TString, viewer_list_t>   name_map_t;
+   typedef name_map_t::iterator               name_map_i;
 
    name_map_t vls;
 
    for (ViewMap_i i = m_viewMap.begin(); i != m_viewMap.end(); ++i)
    {
-      TEveViewer *ev = dynamic_cast<TEveViewer*>(i->first);
+      FWTEveViewer *ev = dynamic_cast<FWTEveViewer*>(i->first);
       if (ev)
       {
          TString name(ev->GetElementName());
@@ -913,6 +917,8 @@ FWGUIManager::exportAllViews(const std::string& format)
       }
    }
 
+   std::vector<std::future<int>> futures;
+   
    const edm::EventBase *event = getCurrentEvent();
    for (name_map_i i = vls.begin(); i != vls.end(); ++i)
    {
@@ -929,8 +935,26 @@ FWGUIManager::exportAllViews(const std::string& format)
          TString file;
          file.Form(format.c_str(), event->id().run(), event->id().event(),
                    event->luminosityBlock(), view_name.Data());
-         (*j)->GetGLViewer()->SavePicture(file);
+
+         if (GLEW_EXT_framebuffer_object)
+         {
+            // Multi-threaded save
+            futures.push_back((*j)->CaptureAndSaveImage(file, height));
+         }
+         else
+         {
+            // Single-threaded save
+            if (height == -1)
+               (*j)->GetGLViewer()->SavePicture(file);
+            else 
+               (*j)->GetGLViewer()->SavePictureHeight(file, height);
+         }
       }
+   }
+
+   for (auto &f : futures)
+   {
+      f.get();
    }
 }
 

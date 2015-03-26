@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 higenp = cms.EDFilter("PdgIdAndStatusCandViewSelector",
     status = cms.vint32(3),
-    src = cms.InputTag("hiGenParticles"),
+    src = cms.InputTag("genParticles"),
     pdgId = cms.vint32(22)
 )
 

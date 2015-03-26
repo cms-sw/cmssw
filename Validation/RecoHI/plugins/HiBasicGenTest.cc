@@ -16,53 +16,45 @@ using namespace HepMC;
 
 HiBasicGenTest::HiBasicGenTest(const edm::ParameterSet& iPSet)
 {
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
   generatorToken_ = consumes<edm::HepMCProduct> (
       iPSet.getParameter<edm::InputTag>("generatorLabel"));
 }
 
 HiBasicGenTest::~HiBasicGenTest() {}
 
-void HiBasicGenTest::beginJob()
-{
-  if(dbe){
-    ///Setting the DQM top directories
-    dbe->setCurrentFolder("Generator/Particles");
+void HiBasicGenTest::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
-    ///Booking the ME's
-    for(int ibin=0; ibin<3; ibin++) {
-      dnchdeta[ibin] = dbe->book1D(Form("dnchdeta%d",ibin), ";#eta;dN^{ch}/d#eta", 100, -6.0, 6.0);
-      dnchdpt[ibin] = dbe->book1D(Form("dnchdpt%d",ibin), ";p_{T};dN^{ch}/dp_{T}", 200, 0.0, 100.0);
-      b[ibin] = dbe->book1D(Form("b%d",ibin),";b[fm];events",100, 0.0, 20.0);
-      dnchdphi[ibin] = dbe->book1D(Form("dnchdphi%d",ibin),";#phi;dN^{ch}/d#phi",100, -3.2, 3.2);
+  ///Setting the DQM top directories
+  ibooker.setCurrentFolder("Generator/Particles");
 
-      dbe->tag(dnchdeta[ibin]->getFullname(),1+ibin*4);
-      dbe->tag(dnchdpt[ibin]->getFullname(),2+ibin*4);
-      dbe->tag(b[ibin]->getFullname(),3+ibin*4);
-      dbe->tag(dnchdphi[ibin]->getFullname(),4+ibin*4);
-    }
+  ///Booking the ME's
+  for (int ibin = 0; ibin < 3; ibin++) {
+    dnchdeta[ibin] = ibooker.book1D(Form("dnchdeta%d", ibin), ";#eta;dN^{ch}/d#eta",
+        100, -6.0, 6.0);
 
-    rp = dbe->book1D("phi0",";#phi_{RP};events",100,-3.2,3.2);
-    dbe->tag(rp->getFullname(),13);
+    dnchdpt[ibin] = ibooker.book1D(Form("dnchdpt%d", ibin), ";p_{T};dN^{ch}/dp_{T}",
+        200, 0.0, 100.0);
 
+    b[ibin] = ibooker.book1D(Form("b%d",ibin),";b[fm];events", 100, 0.0, 20.0);
+    dnchdphi[ibin] = ibooker.book1D(Form("dnchdphi%d", ibin), ";#phi;dN^{ch}/d#phi",
+        100, -3.2, 3.2);
 
+    ibooker.tag(dnchdeta[ibin], 1+ibin*4);
+    ibooker.tag(dnchdpt[ibin], 2+ibin*4);
+    ibooker.tag(b[ibin], 3+ibin*4);
+    ibooker.tag(dnchdphi[ibin], 4+ibin*4);
   }
-  return;
+
+  rp = ibooker.book1D("phi0", ";#phi_{RP};events", 100, -3.2, 3.2);
+  ibooker.tag(rp, 13);
 }
 
-void HiBasicGenTest::endJob(){
-  // normalization of histograms can be done here (or in post-processor)
-  return;
-}
-
-void HiBasicGenTest::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
+void HiBasicGenTest::dqmBeginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
 {
   iSetup.getData(pdt);
-  return;
 }
 
-void HiBasicGenTest::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 
 void HiBasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 {

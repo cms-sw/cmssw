@@ -353,13 +353,15 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     auto ih = selHits->size();
     assert(ih==hidx);
     t2t(*theTraj,*selHits,false);
-    auto ie = selHits->size();
+    auto const ie = selHits->size();
+    unsigned int nHitsAdded = 0;
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit);
-      tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+      ++nHitsAdded;
     }
-
+    tx.setHits( rHits, hidx, nHitsAdded);
+    hidx +=nHitsAdded;
     /*
     if (theTraj->direction() == alongMomentum) {
       for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();

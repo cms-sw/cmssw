@@ -40,6 +40,9 @@
 //#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloConfigHelper.h"
+#include "CondFormats/DataRecord/interface/L1TCaloConfigRcd.h"
+
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 
@@ -80,12 +83,10 @@ using namespace l1t;
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
+    unsigned long long m_configCacheId; // Cache-ID from current parameters, to check if needs to be updated.
     CaloParamsStage1* m_params;
+    CaloConfigHelper m_config;
 
-    //boost::shared_ptr<const CaloParamsStage1> m_params; // Database parameters for the trigger, to be updated as needed.
-    //boost::shared_ptr<const FirmwareVersion> m_fwv;
-    //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
-    int m_fwv;
 
     boost::shared_ptr<Stage1Layer2MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
@@ -117,40 +118,15 @@ using namespace l1t;
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
     candsToken = consumes<BXVector<CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
-    int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
+    //int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
 
     m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
 
-    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
-
-    if (ifwv == 1){
-      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
-      //std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
-    }else if (ifwv == 2){
-      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running pp implementation\n";
-      //std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
-    } else if (ifwv == 3){
-      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running SimpleHW implementation\n";
-      //std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
-    }else{
-      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Unknown implementation.\n";
-      //std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
-    }
-    //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
-    // m_fw = m_factory.create(*m_fwv /*,*m_params*/);
-    m_fwv = ifwv;
-
     m_params = new CaloParamsStage1;
-
-    m_fw = m_factory.create(m_fwv ,m_params);
-    //printf("Success create.\n");
-    if (! m_fw) {
-      // we complain here once per job
-      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
-    }
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
+    m_configCacheId = 0;
   }
 
 
@@ -213,6 +189,7 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     //make local outputs
     std::vector<EGamma> *localEGammas = new std::vector<EGamma>();
     std::vector<Tau> *localTaus = new std::vector<Tau>();
+    std::vector<Tau> *localIsoTaus = new std::vector<Tau>();
     std::vector<Jet> *localJets = new std::vector<Jet>();
     std::vector<Jet> *localPreGtJets = new std::vector<Jet>();
     std::vector<EtSum> *localEtSums = new std::vector<EtSum>();
@@ -231,34 +208,22 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
-		       localEGammas, localTaus, localJets, localPreGtJets, localEtSums,
+		       localEGammas, localTaus, localIsoTaus, localJets, localPreGtJets, localEtSums,
 		       localHfSums, localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(i, *eg);
-    for(std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau){
+    for(std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
       taus->push_back(i, *tau);
-      if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
-    }
-    taus->resize(i,4); //FIXME proper tau handling with hardware sorting
-    //isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
-    int itsize=isoTaus->size(i);
-    while (itsize < 4){
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
-	Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
-	isoTaus->push_back(i,theTau);
-	itsize++;
-    }
-
+    for(std::vector<Tau>::const_iterator isotau = localIsoTaus->begin(); isotau != localIsoTaus->end(); ++isotau)
+      isoTaus->push_back(i, *isotau);
     for(std::vector<Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
     for(std::vector<Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
       preGtJets->push_back(i, *jet);
     for(std::vector<EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
-    // for(std::vector<CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
-    //   calospares->push_back(i, *calospare);
     hfSums->push_back(i, *localHfSums);
     hfCounts->push_back(i, *localHfCounts);
 
@@ -266,10 +231,10 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     delete localEmCands;
     delete localEGammas;
     delete localTaus;
+    delete localIsoTaus;
     delete localJets;
     delete localPreGtJets;
     delete localEtSums;
-    //delete localCaloSpares;
     delete localHfSums;
     delete localHfCounts;
   }
@@ -281,7 +246,6 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(jets);
   iEvent.put(preGtJets,"preGtJets");
   iEvent.put(etsums);
-  // iEvent.put(calospares);
   iEvent.put(hfSums,"HFRingSums");
   iEvent.put(hfCounts,"HFBitCounts");
 }
@@ -300,9 +264,9 @@ L1TStage1Layer2Producer::endJob() {
 // ------------ method called when starting to processes a run ------------
 
 void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
+  unsigned long long id = 0;
 
-  unsigned long long id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();
-
+  id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
@@ -322,6 +286,29 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     }
 
   }
+
+  id = iE.get<L1TCaloConfigRcd>().cacheIdentifier();
+  if (id != m_configCacheId) {
+    m_configCacheId = id;
+
+    edm::ESHandle<CaloConfig> configHandle;
+
+    iE.get<L1TCaloConfigRcd>().get(m_conditionsLabel, configHandle);
+
+
+    if (! configHandle.product()){
+      edm::LogError("l1t|caloStage1") << "Could not retrieve config from Event Setup" << std::endl;
+    } else {
+      //update our DB payload in CaloConfigHelper:
+      m_config.UpdatePayload(configHandle.product());
+      //cout << "DEBUG:  L1T Calo Config reports the Layer2 firmware version is " << m_config.fwv() << "\n";
+    }      
+  }
+
+
+
+
+
 
   LogDebug("l1t|stage 1 jets") << "L1TStage1Layer2Producer::beginRun function called...\n";
 
@@ -376,6 +363,36 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     //  LogError("l1t|stage 1 jets") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
     //}
   }
+
+
+
+    int ifwv=m_config.fwv_layer2();
+    //cout << "DEBUG:  ifwv is " << ifwv << "\n";
+    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    if (ifwv == 1){
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
+    }else if (ifwv == 2){
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running pp implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
+    } else if (ifwv == 3){
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running SimpleHW implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
+    }else{
+      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Unknown implementation.\n";
+      //std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
+    }
+    //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
+    // m_fw = m_factory.create(*m_fwv /*,*m_params*/);
+    //m_fwv = ifwv;
+    m_fw = m_factory.create(ifwv ,m_params);
+    //printf("Success create.\n");
+    if (! m_fw) {
+      // we complain here once per job
+      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
+    }
+
+
 
 
 }

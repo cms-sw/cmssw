@@ -86,10 +86,6 @@
 #include <sched.h>
 #endif
 
-//Needed for introspection
-#include "Cintex/Cintex.h"
-
-
 namespace {
   //Sentry class to only send a signal if an
   // exception occurs. An exception is identified
@@ -400,8 +396,6 @@ namespace edm {
 
     //std::cerr << processDesc->dump() << std::endl;
    
-    ROOT::Cintex::Cintex::Enable();
-
     // register the empty parentage vector , once and for all
     ParentageRegistry::instance()->insertMapped(Parentage());
 
@@ -593,6 +587,9 @@ namespace edm {
                                  preallocations_.numberOfRuns(),
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
+    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
+
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will
@@ -642,6 +639,8 @@ namespace edm {
         c.call([this,i](){ this->subProcess_->doEndStream(i); } );
       }
     }
+    auto actReg = actReg_.get();
+    c.call([actReg](){actReg->preEndJobSignal_();});
     schedule_->endJob(c);
     if(hasSubProcess()) {
       c.call(std::bind(&SubProcess::doEndJob, subProcess_.get()));
@@ -650,7 +649,6 @@ namespace edm {
     if(looper_) {
       c.call(std::bind(&EDLooperBase::endOfJob, looper_));
     }
-    auto actReg = actReg_.get();
     c.call([actReg](){actReg->postEndJobSignal_();});
     if(c.hasThrown()) {
       c.rethrow();

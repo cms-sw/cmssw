@@ -17,8 +17,11 @@ public:
     typedef edm::AssociationMap<edm::OneToMany<Collection, reco::VertexCollection> > Association;
 
     //! Constructor by ParameterSet.
-    VertexClassifierByProxy(edm::ParameterSet const & config) : VertexClassifier(config),
-            proxy_( config.getUntrackedParameter<edm::InputTag>("vertexProducer") ) {}
+    VertexClassifierByProxy(edm::ParameterSet const & config,
+                            edm::ConsumesCollector&& collector) : VertexClassifier(config,std::move(collector)),
+            proxy_( config.getUntrackedParameter<edm::InputTag>("vertexProducer") ) {
+      collector.consumes<Association>(proxy_);
+    }
 
     //! Pre-process event information (for accessing reconstraction information).
     virtual void newEvent(edm::Event const & event, edm::EventSetup const & config)

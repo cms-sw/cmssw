@@ -77,3 +77,8 @@ print "Running with run type = ", process.runType.getRunType()
 if (process.runType.getRunType() == process.runType.hi_run):
     process.esRawToDigi.sourceTag = cms.InputTag("rawDataRepacker")
     process.ecalPreshowerRawDataTask.FEDRawDataCollection = cms.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

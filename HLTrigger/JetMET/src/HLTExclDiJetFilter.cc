@@ -5,10 +5,7 @@
  *
  */
 
-#include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include <cmath>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,9 +14,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include <cmath>
-#include <typeinfo>
 
 //
 // constructors and destructor
@@ -59,7 +58,7 @@ HLTExclDiJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minHFe",50.0);
   desc.add<bool>("HF_OR",false);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTExclDiJetFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTExclDiJetFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------

@@ -20,18 +20,19 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         if not getattr(self.cfg_ana, 'saveTLorentzVectors', False):
             fourVectorType.removeVariable("p4")
 
-        ## Declare how we store floats by default
-        self.tree.setDefaultFloatType("F"); # otherwise it's "D"
  
-	self.collections = {}      
+        self.collections = {}      
         self.globalObjects = {}
-	self.globalVariables = {}
-	if hasattr(cfg_ana,"collections"):
-		self.collections=cfg_ana.collections
-	if hasattr(cfg_ana,"globalObjects"):
-		self.globalObjects=cfg_ana.globalObjects
-	if hasattr(cfg_ana,"globalVariables"):
-		self.globalVariables=cfg_ana.globalVariables
+        self.globalVariables = []
+        if hasattr(cfg_ana,"collections"):
+                self.collections=cfg_ana.collections
+        if hasattr(cfg_ana,"globalObjects"):
+                self.globalObjects=cfg_ana.globalObjects
+        if hasattr(cfg_ana,"globalVariables"):
+                self.globalVariables=cfg_ana.globalVariables
+
+    def beginLoop(self, setup) :
+        super(AutoFillTreeProducer, self).beginLoop(setup)
 
     def declareHandles(self):
         super(AutoFillTreeProducer, self).declareHandles()
@@ -58,6 +59,8 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 #                self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
  
         if isMC:
+            ## cross section
+            tr.var('xsec', float)
             ## PU weights
             tr.var("puWeight")
             ## number of true interactions
@@ -74,10 +77,19 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                     else:
                         tr.vector('pdfWeight_%s' % pdf, nvals)
 
-    def declareVariables(self):
+    def declareVariables(self,setup):
         isMC = self.cfg_comp.isMC 
         tree = self.tree
         self.declareCoreVariables(tree, isMC)
+
+        if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBooking :
+            #import variables declared by the analyzers
+            if hasattr(setup,"globalVariables"):
+                self.globalVariables+=setup.globalVariables
+            if hasattr(setup,"globalObjects"):
+                self.globalObjects.update(setup.globalObjects)
+            if hasattr(setup,"collections"):
+                self.collections.update(setup.collections)
 
         for v in self.globalVariables:
             v.makeBranch(tree, isMC)
@@ -102,19 +114,21 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 #           tr.fill("HLT_"+T, TC.check(event.object(), triggerResults))
 
         if isMC:
+            ## xsection, if available
+            tr.fill('xsec', getattr(self.cfg_comp,'xSection',1.0))
             ## PU weights, check if a PU analyzer actually filled it
-	    if event.hasattr("nPU"):
-	            tr.fill("nTrueInt", event.nPU)
-	            tr.fill("puWeight", event.eventWeight)
-	    else :
+            if hasattr(event,"nPU"):
+                    tr.fill("nTrueInt", event.nPU)
+                    tr.fill("puWeight", event.eventWeight)
+            else :
                     tr.fill("nTrueInt", -1)
-	            tr.fill("puWeight", 1.0)
-		
+                    tr.fill("puWeight", 1.0)
+                
             tr.fill("genWeight", self.mchandles['GenInfo'].product().weight())
             ## PDF weights
-            if event.hasattr("pdfWeights") :
+            if hasattr(event,"pdfWeights") :
               for (pdf,nvals) in self.pdfWeights:
-		if len(event.pdfWeights[pdf]) != nvals:
+                if len(event.pdfWeights[pdf]) != nvals:
                     raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf])
                 if self.scalar:
                     for i,w in enumerate(event.pdfWeights[pdf]):

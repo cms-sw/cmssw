@@ -76,7 +76,7 @@ void RPCHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
 }
 // end of constructor
 
-std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(const TrackingRecHit & hit) {
+std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(const TrackingRecHit & hit) const {
   
   std::vector<SimHitIdpr> matched;
 
@@ -108,7 +108,7 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
   return  matched;
 }
   
-std::set<RPCDigiSimLink>  RPCHitAssociator::findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx){
+std::set<RPCDigiSimLink>  RPCHitAssociator::findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx) const {
 
   std::set<RPCDigiSimLink> links;
 

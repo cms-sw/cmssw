@@ -21,6 +21,7 @@ hiRegitMuPixelLessStepClusters = RecoTracker.IterativeTracking.PixelLessStep_cff
     oldClusterRemovalInfo = cms.InputTag("hiRegitMuMixedTripletStepClusters"),
     trajectories     = cms.InputTag("hiRegitMuMixedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('hiRegitMuMixedTripletStepSelector','hiRegitMuMixedTripletStep'),
+    TrackQuality          = cms.string('tight')
 )
 
 # SEEDING LAYERS
@@ -28,6 +29,9 @@ hiRegitMuPixelLessStepSeedLayers =  RecoTracker.IterativeTracking.PixelLessStep_
 hiRegitMuPixelLessStepSeedLayers.TIB.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 hiRegitMuPixelLessStepSeedLayers.TID.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 hiRegitMuPixelLessStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
+hiRegitMuPixelLessStepSeedLayers.MTIB.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
+hiRegitMuPixelLessStepSeedLayers.MTID.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
+hiRegitMuPixelLessStepSeedLayers.MTEC.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 
 
 # seeding
@@ -43,42 +47,50 @@ hiRegitMuPixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                
 
 # building: feed the new-named seeds
 hiRegitMuPixelLessStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryFilter.clone()
-hiRegitMuPixelLessStepTrajectoryFilter.minPt = 1.7
-hiRegitMuPixelLessStepTrajectoryFilter.minimumNumberOfHits = 6
-hiRegitMuPixelLessStepTrajectoryFilter.minHitsMinPt = 4
+hiRegitMuPixelLessStepTrajectoryFilter.minPt                = 1.7
+hiRegitMuPixelLessStepTrajectoryFilter.minimumNumberOfHits  = 6
+hiRegitMuPixelLessStepTrajectoryFilter.minHitsMinPt         = 4
 
 hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryFilter')),
-    clustersToSkip       = cms.InputTag('hiRegitMuPixelLessStepClusters'),
+    trajectoryFilter = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryFilter')
+       ),
     minNrOfHitsForRebuild = 6 #change from default 4
 )
 
 hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelLessStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')
+       ),
+    clustersToSkip       = cms.InputTag('hiRegitMuPixelLessStepClusters'),
     maxNSeeds         = cms.uint32(1000000)
     )
 
 # fitting: feed new-names
 hiRegitMuPixelLessStepTracks                 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTracks.clone(
+    AlgorithmName = cms.string('iter8'),
     src                 = 'hiRegitMuPixelLessStepTrackCandidates'
 )
 
-import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 hiRegitMuPixelLessStepSelector               = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSelector.clone( 
     src                 ='hiRegitMuPixelLessStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors = cms.VPSet(  
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-            name = 'hiRegitMuPixelLessStepLoose',
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuPixelLessStepLoose',
+           qualityBit = cms.string('loose'),
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuPixelLessStepTight',
             preFilterName = 'hiRegitMuPixelLessStepLoose',
+            qualityBit = cms.string('loose'),
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuPixelLessStep',
             preFilterName = 'hiRegitMuPixelLessStepTight',
+            qualityBit = cms.string('tight'),
             ),
         ) #end of vpset
 )

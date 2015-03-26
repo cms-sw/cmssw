@@ -1,17 +1,5 @@
 # The following comments couldn't be translated into the new config version:
 
-# DT 
-
-# CSC
-
-# RPC
-
-# DT
-
-# CSC
-
-# RPC
-
 import FWCore.ParameterSet.Config as cms
 
 # Full Event content 
@@ -34,7 +22,11 @@ RecoLocalMuonRECO = cms.PSet(
 )
 # AOD content
 RecoLocalMuonAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring()
+    outputCommands = cms.untracked.vstring(
+        'keep *_dt4DSegments_*_*', 
+        'keep *_dt4DCosmicSegments_*_*',
+        'keep *_cscSegments_*_*', 
+        'keep *_rpcRecHits_*_*')
 )
 
 

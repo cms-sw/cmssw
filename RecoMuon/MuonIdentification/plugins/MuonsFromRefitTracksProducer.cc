@@ -6,7 +6,7 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,15 +63,13 @@ reco::Muon::MuonTrackTypePair tevOptimizedTMR(const reco::Muon& muon, const reco
   return delta > threshold ? make_pair(trackerTrack,reco::Muon::InnerTrack) : make_pair(combinedTrack,reco::Muon::CombinedTrack);
 }
 
-class MuonsFromRefitTracksProducer : public edm::EDProducer {
+class MuonsFromRefitTracksProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonsFromRefitTracksProducer(const edm::ParameterSet&);
   ~MuonsFromRefitTracksProducer() {}
 
 private:
-  virtual void beginJob() override {}
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {}
 
   // Store the track-to-track map(s) used when using TeV refit tracks.
   bool storeMatchMaps(const edm::Event& event);

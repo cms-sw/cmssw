@@ -68,19 +68,13 @@ class FourVectorHLT : public edm::EDAnalyzer {
       int nev_;
       DQMStore * dbe_;
 
-      MonitorElement* total_;
-
       bool plotAll_;
-      bool resetMe_;
-      int currentRun_;
  
       unsigned int nBins_; 
       double ptMin_ ;
       double ptMax_ ;
       
       std::string dirname_;
-      bool monitorDaemon_;
-      int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultLabel_;
 

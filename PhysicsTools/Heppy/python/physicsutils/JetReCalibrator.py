@@ -23,7 +23,11 @@ class JetReCalibrator:
             self.vPar.push_back(self.ResJetPar);
         #Step3 (Construct a FactorizedJetCorrector object) 
         self.JetCorrector = ROOT.FactorizedJetCorrector(self.vPar)
-        self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour));
+        if os.path.exists("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour)):
+            self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour));
+        else:
+            print 'Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour)
+            self.JetUncertainty = None
     def correctAll(self,jets,rho,delta=0,metShift=[0,0]):
         """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0)"""
         badJets = []
@@ -44,16 +48,18 @@ class JetReCalibrator:
         self.JetCorrector.setJetA(jet.jetArea())
         self.JetCorrector.setRho(rho)
         corr = self.JetCorrector.getCorrection()
-        self.JetUncertainty.setJetEta(jet.eta())
-        self.JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
-        try:
-            jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True) 
-        except RuntimeError, r:
-            print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
-            jet.jetEnergyCorrUncertainty = 0.5
-        if jet.component(4).fraction() < 0.9 and jet.pt()*corr*jet.rawFactor() > 10:
-            metShift[0] -= jet.px()*(corr*jet.rawFactor() - 1)*(1-jet.component(3).fraction())
-            metShift[1] -= jet.py()*(corr*jet.rawFactor() - 1)*(1-jet.component(3).fraction()) 
+        if delta != 0:
+            if not self.JetUncertainty: raise RuntimeError, "Jet energy scale uncertainty shifts requested, but not available"
+            self.JetUncertainty.setJetEta(jet.eta())
+            self.JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
+            try:
+                jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True) 
+            except RuntimeError, r:
+                print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
+                jet.jetEnergyCorrUncertainty = 0.5
+        if jet.photonEnergyFraction() < 0.9 and jet.pt()*corr*jet.rawFactor() > 10:
+            metShift[0] -= jet.px()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction())
+            metShift[1] -= jet.py()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction()) 
         if delta != 0:
             #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
             corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)

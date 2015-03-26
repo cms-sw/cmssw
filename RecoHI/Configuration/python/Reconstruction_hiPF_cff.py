@@ -22,6 +22,8 @@ gedGsfElectronsTmp.maxHOverEEndcaps = cms.double(0.25)
 
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
+particleFlowClusterECAL.energyCorrector.verticesLabel = cms.InputTag('hiPixelAdaptiveVertex')
+
 mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
 
 particleFlowBlock.elementImporters = cms.VPSet(

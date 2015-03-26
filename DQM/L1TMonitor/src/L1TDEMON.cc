@@ -47,16 +47,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
         deSysCount[i] = 0;
         nEvtWithSys[i] = 0;
     }
-
-    dbe = NULL;
-    if (iConfig.getUntrackedParameter<bool> ("DQMStore", false)) {
-        dbe = edm::Service<DQMStore>().operator->();
-        dbe->setVerbose(0);
-    }
-
-    if (dbe != NULL)
-        dbe->setCurrentFolder(histFolder_);
-
+    
     hasRecord_ = true;
 
     if (verbose())
@@ -69,17 +60,12 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
 L1TDEMON::~L1TDEMON() {
 }
 
-void L1TDEMON::beginJob(void) {
+void L1TDEMON::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) {
 
     if (verbose())
         std::cout << "L1TDEMON::beginJob()  start\n" << std::flush;
 
-    DQMStore* dbe = 0;
-    dbe = edm::Service<DQMStore>().operator->();
-    if (dbe) {
-        dbe->setCurrentFolder(histFolder_);
-        // dbe->rmdir(histFolder_);
-    }
+    ibooker.setCurrentFolder(histFolder_);
 
     //physical values disabled now, waiting for scale procedure
     //const double tpi = 6.2832;
@@ -122,110 +108,106 @@ void L1TDEMON::beginJob(void) {
      CTP: rank is quality 0..15
      */
 
-    if (dbe) {
+    if (!runInFF_)
+        ibooker.setCurrentFolder(std::string(histFolder_ + "/common"));
 
-        if (!runInFF_)
-            dbe->setCurrentFolder(std::string(histFolder_ + "/common"));
+    for (int j = 0; j < 2; j++) {
+        std::string lbl("sysncand");
+        lbl += (j == 0 ? "Data" : "Emul");
+        sysncand[j] = ibooker.book1D(lbl.data(), lbl.data(), DEnsys, 0, DEnsys);
+    }
 
-        for (int j = 0; j < 2; j++) {
-            std::string lbl("sysncand");
-            lbl += (j == 0 ? "Data" : "Emul");
-            sysncand[j]
-                    = dbe->book1D(lbl.data(), lbl.data(), DEnsys, 0, DEnsys);
-        }
+    sysrates = ibooker.book1D("sysrates", "sysrates", DEnsys, 0, DEnsys);
+    const int nerr = 5;
+    errordist = ibooker.book1D("errorflag", "errorflag", nerr, 0, nerr);
 
-        sysrates = dbe->book1D("sysrates", "sysrates", DEnsys, 0, DEnsys);
-        const int nerr = 5;
-        errordist = dbe->book1D("errorflag", "errorflag", nerr, 0, nerr);
-
-        for (int j = 0; j < DEnsys; j++) {
+    for (int j = 0; j < DEnsys; j++) {
 
             // skip if system disabled
-            if (!m_doSys[j]) {
-                continue;
-            }
+        if (!m_doSys[j]) {
+            continue;
+        }
 
-            if (!runInFF_) {
-                dbe->setCurrentFolder(
+        if (!runInFF_) {
+            ibooker.setCurrentFolder(
                         std::string(histFolder_ + "/" + SystLabelExt[j]));
-            }
+        }
 
-            std::string lbl("");
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "ErrorFlag";
-            errortype[j] = dbe->book1D(lbl.data(), lbl.data(), nerr, 0, nerr);
+        std::string lbl("");
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "ErrorFlag";
+        errortype[j] = ibooker.book1D(lbl.data(), lbl.data(), nerr, 0, nerr);
 
             // skip next histos if running in filter farm
-            if (runInFF_) {
-                continue;
-            }
+        if (runInFF_) {
+            continue;
+        }
 
             //
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "eta";
-            eta[j] = dbe->book1D(lbl.data(), lbl.data(), etaNBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "eta";
+        eta[j] = ibooker.book1D(lbl.data(), lbl.data(), etaNBins[j],
                     etaMinim[j], etaMaxim[j]);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "phi";
-            phi[j] = dbe->book1D(lbl.data(), lbl.data(), phiNBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "phi";
+        phi[j] = ibooker.book1D(lbl.data(), lbl.data(), phiNBins[j],
                     phiMinim[j], phiMaxim[j]);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "x3";
-            x3[j] = dbe->book1D(lbl.data(), lbl.data(), x3NBins[j], x3Minim[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "x3";
+        x3[j] = ibooker.book1D(lbl.data(), lbl.data(), x3NBins[j], x3Minim[j],
                     x3Maxim[j]);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "etaphi";
-            etaphi[j] = dbe->book2D(lbl.data(), lbl.data(), etaNBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "etaphi";
+        etaphi[j] = ibooker.book2D(lbl.data(), lbl.data(), etaNBins[j],
                     etaMinim[j], etaMaxim[j], phiNBins[j], phiMinim[j],
                     phiMaxim[j]);
             //
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "eta";
-            lbl += "Data";
-            etaData[j] = dbe->book1D(lbl.data(), lbl.data(), etaNBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "eta";
+        lbl += "Data";
+        etaData[j] = ibooker.book1D(lbl.data(), lbl.data(), etaNBins[j],
                     etaMinim[j], etaMaxim[j]);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "phi";
-            lbl += "Data";
-            phiData[j] = dbe->book1D(lbl.data(), lbl.data(), phiNBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "phi";
+        lbl += "Data";
+        phiData[j] = ibooker.book1D(lbl.data(), lbl.data(), phiNBins[j],
                     phiMinim[j], phiMaxim[j]);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "x3";
-            lbl += "Data";
-            x3Data[j] = dbe->book1D(lbl.data(), lbl.data(), x3NBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "x3";
+        lbl += "Data";
+        x3Data[j] = ibooker.book1D(lbl.data(), lbl.data(), x3NBins[j],
                     x3Minim[j], x3Maxim[j]);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "rank";
-            lbl += "Data";
-            rnkData[j] = dbe->book1D(lbl.data(), lbl.data(), rnkNBins[j],
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "rank";
+        lbl += "Data";
+        rnkData[j] = ibooker.book1D(lbl.data(), lbl.data(), rnkNBins[j],
                     rnkMinim[j], rnkMaxim[j]);
 
-            const int nbit = (j == GLT) ? 128 : 32;
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "dword";
-            dword[j] = dbe->book1D(lbl.data(), lbl.data(), nbit, 0, nbit);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "eword";
-            eword[j] = dbe->book1D(lbl.data(), lbl.data(), nbit, 0, nbit);
-            lbl.clear();
-            lbl += SystLabel[j];
-            lbl += "deword";
-            deword[j] = dbe->book1D(lbl.data(), lbl.data(), nbit, 0, nbit);
+        const int nbit = (j == GLT) ? 128 : 32;
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "dword";
+        dword[j] = ibooker.book1D(lbl.data(), lbl.data(), nbit, 0, nbit);
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "eword";
+        eword[j] = ibooker.book1D(lbl.data(), lbl.data(), nbit, 0, nbit);
+        lbl.clear();
+        lbl += SystLabel[j];
+        lbl += "deword";
+        deword[j] = ibooker.book1D(lbl.data(), lbl.data(), nbit, 0, nbit);
             //lbl.clear();
             //lbl+=SystLabel[j];lbl+="masked";
             //masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-        }
     }
 
   
@@ -235,7 +217,7 @@ void L1TDEMON::beginJob(void) {
         sysncand[0]->setBinLabel(i + 1, SystLabel[i]);
         sysncand[1]->setBinLabel(i + 1, SystLabel[i]);
     }
-    const int nerr = 5;
+    //const int nerr = 5;
     std::string errLabel[nerr] = { "Agree", "Loc. Agree", "L.Disagree",
             "Data only", "Emul only" };
     for (int j = 0; j < nerr; j++) {
@@ -296,35 +278,16 @@ void L1TDEMON::beginJob(void) {
     assert(GLT == 11);
 
     if (verbose())
-        std::cout << "L1TDEMON::beginJob()  end.\n" << std::flush;
+        std::cout << "L1TDEMON::bookHistograms()  end.\n" << std::flush;
 }
 
-void L1TDEMON::endJob() {
 
-    if (verbose())
-        std::cout << "L1TDEMON::endJob Nevents: " << nEvt_ << "\n"
-                << std::flush;
-
-    if (verbose()) {
-        std::cout << "[L1TDEMON] systems disagreement rate:\n\t";
-        for (int i = 0; i < DEnsys; i++)
-            printf("%4.2f ", sysrates->getBinContent(i));
-        std::cout << std::endl;
-    }
-
-    if (verbose()) {
-        std::cout << "[L1TDEMON] verbose fill histo: ";
-        for (int i = 0; i < DEnsys; i++)
-            std::cout << deSysCount[i] << " ";
-        std::cout << std::endl;
-    }
-
-    if (histFile_.size() != 0 && dbe)
-        dbe->save(histFile_);
-
-    if (verbose())
-        std::cout << "L1TDEMON::endJob()  end.\n" << std::flush;
+void L1TDEMON::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }
+
+void L1TDEMON::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
+}
+
 
 
 // ------------ method called to for each event  ------------
@@ -606,10 +569,5 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
         }
 
     }//close loop over dedigi-cands
-
-
-
-    if (verbose())
-        std::cout << "L1TDEMON::analyze() end.\n" << std::flush;
 
 }

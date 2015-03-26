@@ -35,7 +35,7 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
        jet.p()*jec > pRecJetMax ) return false;
 
   if ( !infos.isValid() ) {
-    edm::LogWarning("infos not valid") << "A valid SoftLeptonTagInfoCollection was not found!"
+    LogDebug("infos not valid") << "A valid SoftLeptonTagInfoCollection was not found!"
                                      << " Skipping ratio check.";
   }
   else {

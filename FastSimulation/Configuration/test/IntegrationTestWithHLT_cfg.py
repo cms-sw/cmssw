@@ -21,6 +21,9 @@ process.load("Configuration.Generator.TTbar_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
+# vertex smearing
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
+
 # L1 Emulator and HLT Setup
 #process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
 
@@ -43,7 +46,7 @@ process.simulation = cms.Sequence( process.dummyModule )
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.generator)
-process.simulation_step = cms.Path(process.simulationWithFamos)
+process.simulation_step = cms.Path(process.VtxSmeared*process.simulationWithFamos)
 process.reconstruction_step = cms.Path(process.reconstructionWithFamos)
 
 # Only events accepted by L1 + HLT are reconstructed
@@ -73,10 +76,12 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-# Number of pileup events per crossing
-process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff')
-#process.load('FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff')
-#process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+
+# If you want to turn on/off pile-up
+process.load('SimGeneral.MixingModule.mix_2012_Startup_50ns_PoissonOOTPU_cfi')
+from FastSimulation.Configuration.MixingModule_Full2Fast import prepareGenMixing
+process = prepareGenMixing(process)
+
 
 # Get frontier conditions   - not applied in the HCAL, see below
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
@@ -84,8 +89,6 @@ process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 
 # Apply ECAL miscalibration 
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-if(CaloMode==0 or CaloMode==2):
-    process.ecalRecHit.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True

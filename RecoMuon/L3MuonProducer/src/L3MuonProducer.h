@@ -11,7 +11,7 @@
  *   \author  A. Everett - Purdue University
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,7 +28,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class L3MuonProducer : public edm::EDProducer {
+class L3MuonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -39,7 +39,7 @@ class L3MuonProducer : public edm::EDProducer {
   virtual ~L3MuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   
  private:

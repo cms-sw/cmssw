@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# This object modifies the event content for different scenarios
+from Configuration.StandardSequences.Eras import eras
+
 SimCalorimetryFEVTDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_simEcalDigis_*_*', 
         'keep *_simEcalPreshowerDigis_*_*', 
@@ -20,3 +23,8 @@ SimCalorimetryAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
+#
+# Add extra event content if running in Run 2
+#
+eras.run2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
+eras.run2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )

@@ -984,10 +984,6 @@ class AdHocNTupler : public NTupler {
    Handle<reco::TrackCollection> trks;
    iEvent.getByLabel("generalTracks",trks);
   
-   int pxlmin = 4; // iteration 0 (InitialStep)
-   int pxlmax = 6; // iteration 2 (PixelPairStep)
-   int itertobtec = 10; // iteration 6 (TobTecStep)
-
    int phiIterPixelTrks[phibins][2] = { {0} };
    int phiIterTobTecTrks[phibins][2] = { {0} };
    double n_iterPixelTrks = 0;
@@ -1001,15 +997,36 @@ class AdHocNTupler : public NTupler {
    // Also count up pixel seeded and TOBTEC seeded tracks in bins of phi in the transition region
    for (reco::TrackCollection::const_iterator trk=trks->begin(); trk!=trks->end(); ++trk){
      trkalgo = trk->algo();
-     if (trkalgo >= pxlmin && trkalgo <= pxlmax) ++n_iterPixelTrks;
-     if (trkalgo == itertobtec) ++n_iterTobTecTrks;
+     switch(trkalgo) {
+     case reco::TrackBase::initialStep:
+     case reco::TrackBase::lowPtTripletStep:
+     case reco::TrackBase::pixelPairStep:
+       ++n_iterPixelTrks;
+         break;
+     case reco::TrackBase::tobTecStep:
+       ++n_iterTobTecTrks;
+       break;
+     default:
+       break;
+     }
+
      trkabseta = fabs(trk->eta());
      int zside = 0;
      if (trk->eta() > 0) zside = 1;
      if (trkabseta < 1.6 && trkabseta > 0.9) { // hardcode eta range from 0.9 to 1.6
        i_trkphi = std::max(0,std::min(phibins-1,(int) ((trk->phi()+piconst)/phibinsize)));
-       if (trkalgo >= pxlmin && trkalgo <= pxlmax) ++phiIterPixelTrks[i_trkphi][zside];
-       if (trkalgo == itertobtec) ++phiIterTobTecTrks[i_trkphi][zside];
+       switch(trkalgo) {
+       case reco::TrackBase::initialStep:
+       case reco::TrackBase::lowPtTripletStep:
+       case reco::TrackBase::pixelPairStep:
+         ++phiIterPixelTrks[i_trkphi][zside];
+           break;
+       case reco::TrackBase::tobTecStep:
+         ++phiIterTobTecTrks[i_trkphi][zside];
+         break;
+       default:
+         break;
+       }
      }
    }
    if (n_iterPixelTrks < 0.5) n_iterPixelTrks = 1.0; // avoid divide by zero

@@ -7,7 +7,7 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -20,7 +20,7 @@ namespace reco {class Track;}
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
-class GlobalMuonToMuonProducer : public edm::EDProducer {
+class GlobalMuonToMuonProducer : public edm::global::EDProducer<> {
 public:
 
   /// Constructor
@@ -30,7 +30,7 @@ public:
   virtual ~GlobalMuonToMuonProducer();
 
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 protected:
 

@@ -1,37 +1,12 @@
-// HepMC Headers
-#include "HepMC/PythiaWrapper6_4.h"
-
-// Pythia6 framework integration service Headers
-#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-
-// FAMOS Headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/PythiaDecays.h"
-#include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
-
-#include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
-
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
-// Needed for Pythia6 
-#define PYTHIA6PYDECY pythia6pydecy_
+#include <Pythia8/Pythia.h>
+#include "Pythia8Plugins/HepMC2.h"
 
-extern "C" {
-  void PYTHIA6PYDECY(int *ip);
-}
-
-PythiaDecays::PythiaDecays(std::string program)
+PythiaDecays::PythiaDecays()
 {
-  program_=program;
-  if (program_ == "pythia6") {
-    //// Pythia6:
-    pyjets = new Pythia6jets();
-    pyservice = new gen::Pythia6Service();
-    // The PYTHIA decay tables will be initialized later 
-  } else if (program_ == "pythia8") {
-
-    //// Pythia8:
-
     // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
     decayer.reset(new Pythia8::Pythia);
     p8RndmEngine.reset(new gen::P8RndmEngine);
@@ -41,29 +16,18 @@ PythiaDecays::PythiaDecays(std::string program)
     decayer->settings.flag("ProcessLevel:resonanceDecays",false);
     decayer->init();
 
-    // forbid all decays    
+    // forbid all decays
+    // (decays are allowed selectively in the particleDaughters function)
     Pythia8::ParticleData & pdt = decayer->particleData;
     int pid = 1;
     while(pdt.nextId(pid) > pid){
       pid = pdt.nextId(pid);
       pdt.mayDecay(pid,false);
     }
-
-  } else {
-    std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
-  }
-
-}
-
-PythiaDecays::~PythiaDecays() {
-  if (program_ == "pythia6") {
-    delete pyjets;
-    delete pyservice;
-  }
 }
 
 const DaughterParticleList&
-PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle, CLHEP::HepRandomEngine* engine)
+PythiaDecays::particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine* engine)
 {
   edm::RandomEngineSentry<gen::P8RndmEngine> sentry(p8RndmEngine.get(), engine);
 
@@ -105,51 +69,4 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle, CLHEP::HepRando
     }
 
   return theList;
-}
-
-const DaughterParticleList&
-PythiaDecays::particleDaughtersPy6(ParticlePropagator& particle, CLHEP::HepRandomEngine* engine)
-{
-  edm::RandomEngineSentry<gen::Pythia6Service> sentry(pyservice, engine);
-
-  gen::Pythia6Service::InstanceWrapper guard(pyservice); // grab Py6 context
-
-  //  Pythia6jets pyjets;
-  int ip;
-
-  pyjets->k(1,1) = 1;
-  pyjets->k(1,2) = particle.pid();
-  pyjets->p(1,1) = particle.Px();
-  pyjets->p(1,2) = particle.Py();
-  pyjets->p(1,3) = particle.Pz();
-  pyjets->p(1,4) = std::max(particle.mass(),particle.e());
-  pyjets->p(1,5) = particle.mass();
-  pyjets->v(1,1) = particle.X();
-  pyjets->v(1,2) = particle.Y();
-  pyjets->v(1,3) = particle.Z();
-  pyjets->v(1,4) = particle.T();
-  pyjets->n() = 1;
-  
-  ip = 1;
-  PYTHIA6PYDECY(&ip);
-
-  // Fill the list of daughters
-  theList.clear();
-  if ( pyjets->n()==1 ) return theList; 
-
-  theList.resize(pyjets->n()-1,RawParticle());
-
-  for (int i=2;i<=pyjets->n();++i) {
-    
-    theList[i-2].SetXYZT(pyjets->p(i,1),pyjets->p(i,2),
-			 pyjets->p(i,3),pyjets->p(i,4)); 
-    theList[i-2].setVertex(pyjets->v(i,1),pyjets->v(i,2),
-			   pyjets->v(i,3),pyjets->v(i,4));
-    theList[i-2].setID(pyjets->k(i,2));
-    theList[i-2].setMass(pyjets->p(i,5));
-
-  }
-
-  return theList;
-  
 }

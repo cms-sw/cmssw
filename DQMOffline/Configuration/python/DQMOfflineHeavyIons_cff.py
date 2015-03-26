@@ -44,6 +44,13 @@ egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
 egammaDQMOffline.remove(zmumugammaOldAnalysis)
 egammaDQMOffline.remove(photonAnalysis)
+
+triggerOfflineDQMSource.remove(ak4PFL1FastL2L3CorrectorChain)
+from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import getFSQHI
+fsqHLTOfflineSource.todo = getFSQHI()
+
+
+
 stdPhotonAnalysis.isHeavyIon = True
 stdPhotonAnalysis.barrelRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
 stdPhotonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEE")

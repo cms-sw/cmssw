@@ -95,7 +95,6 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
   }
 
   theParams = ps;
-  theDQMStore = edm::Service<DQMStore>().operator->();
 
 }
 
@@ -108,35 +107,18 @@ DTLocalTriggerBaseTask::~DTLocalTriggerBaseTask() {
 
 }
 
+void DTLocalTriggerBaseTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-void DTLocalTriggerBaseTask::beginJob() {
-
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: BeginJob" << endl;
-
-}
-
-
-void DTLocalTriggerBaseTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: BeginRun" << endl;
-
-  ESHandle<DTGeometry> theGeom;
-  context.get<MuonGeometryRecord>().get(theGeom);
-  theTrigGeomUtils = new DTTrigGeomUtils(theGeom);
-
-  theDQMStore->setCurrentFolder("DT/EventInfo/Counters");
-  nEventMonitor = theDQMStore->bookFloat("nProcessedEventsTrigger");
+  ibooker.setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = ibooker.bookFloat("nProcessedEventsTrigger");
   for (int wh=-2;wh<3;++wh){
     for (int stat=1;stat<5;++stat){
       for (int sect=1;sect<13;++sect){
-	bookHistos(DTChamberId(wh,stat,sect));
+	bookHistos(ibooker, DTChamberId(wh,stat,sect));
       }
     }
-    bookHistos(wh);
+    bookHistos(ibooker, wh);
   }
-
 }
 
 
@@ -177,13 +159,14 @@ void DTLocalTriggerBaseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 }
 
 
-void DTLocalTriggerBaseTask::endJob() {
+void DTLocalTriggerBaseTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
-  LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: analyzed " << nEvents << " events" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
+    << "[DTLocalTriggerBaseTask]: BeginRun" << endl;
 
-  if (processDCC) theDQMStore->rmdir(topFolder("DCC"));
-  if (processDDU) theDQMStore->rmdir(topFolder("DDU"));
+  ESHandle<DTGeometry> theGeom;
+  context.get<MuonGeometryRecord>().get(theGeom);
+  theTrigGeomUtils = new DTTrigGeomUtils(theGeom);
 
 }
 
@@ -236,7 +219,7 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
 }
 
 
-void DTLocalTriggerBaseTask::bookHistos(const DTChamberId& dtCh) {
+void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh) {
 
   uint32_t rawId = dtCh.rawId();
 
@@ -267,22 +250,22 @@ void DTLocalTriggerBaseTask::bookHistos(const DTChamberId& dtCh) {
       << wheel.str() << "/Sector" << sector.str() << "/Station"<< station.str() << endl;
 
     // Book Phi View Related Plots
-    theDQMStore->setCurrentFolder(topFolder(*typeIt) + "Wheel" + wheel.str() + "/Sector"
+    ibooker.setCurrentFolder(topFolder(*typeIt) + "Wheel" + wheel.str() + "/Sector"
 			  + sector.str() + "/Station" + station.str() + "/LocalTriggerPhi");
 
     string histoTag = (*typeIt) + "_BXvsQual";
-    chamberHistos[rawId][histoTag] = theDQMStore->book2D(histoTag+chTag,"BX vs trigger quality",
+    chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,"BX vs trigger quality",
        7,-0.5,6.5,(int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5);
     setQLabels((chamberHistos[rawId])[histoTag],1);
 
     if (!tpMode) {
       histoTag = (*typeIt) + "_BestQual";
-      chamberHistos[rawId][histoTag] = theDQMStore->book1D(histoTag+chTag,
+      chamberHistos[rawId][histoTag] = ibooker.book1D(histoTag+chTag,
 	         "Trigger quality of best primitives",7,-0.5,6.5);
       setQLabels(chamberHistos[rawId][histoTag],1);
 
       histoTag = (*typeIt) + "_Flag1stvsQual";
-      chamberHistos[dtCh.rawId()][histoTag] = theDQMStore->book2D(histoTag+chTag,
+      chamberHistos[dtCh.rawId()][histoTag] = ibooker.book2D(histoTag+chTag,
 	          "1st/2nd trig flag vs quality",7,-0.5,6.5,2,-0.5,1.5);
       setQLabels(chamberHistos[rawId][histoTag],1);
     }
@@ -292,34 +275,34 @@ void DTLocalTriggerBaseTask::bookHistos(const DTChamberId& dtCh) {
       theTrigGeomUtils->phiRange(dtCh,minPh,maxPh,nBinsPh);
 
       histoTag = (*typeIt) + "_QualvsPhirad";
-      chamberHistos[rawId][histoTag] = theDQMStore->book2D(histoTag+chTag,
+      chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,
            "Trigger quality vs local position",nBinsPh,minPh,maxPh,7,-0.5,6.5);
       setQLabels(chamberHistos[rawId][histoTag],2);
 
       if (detailedAnalysis && !tpMode) {
 	histoTag = (*typeIt) + "_QualvsPhibend";
-	chamberHistos[rawId][histoTag] = theDQMStore->book2D(histoTag+chTag,
+	chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,
 	      "Trigger quality vs local direction",200,-40.,40.,7,-0.5,6.5);
 	setQLabels((chamberHistos[dtCh.rawId()])[histoTag],2);
       }
     }
 
     // Book Theta View Related Plots
-    theDQMStore->setCurrentFolder(topFolder(*typeIt) + "Wheel" + wheel.str() + "/Sector"
+    ibooker.setCurrentFolder(topFolder(*typeIt) + "Wheel" + wheel.str() + "/Sector"
 	         + sector.str() + "/Station" + station.str() + "/LocalTriggerTheta");
 
     if((*typeIt)=="DCC") {
       histoTag = (*typeIt) + "_PositionvsBX";
-      chamberHistos[rawId][histoTag] = theDQMStore->book2D(histoTag+chTag,"Theta trigger position vs BX",
+      chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,"Theta trigger position vs BX",
 			      (int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5,7,-0.5,6.5);
     } else {
       histoTag = (*typeIt) + "_ThetaBXvsQual";
-      chamberHistos[rawId][histoTag] =  theDQMStore->book2D(histoTag+chTag,"BX vs trigger quality",7,-0.5,6.5,
+      chamberHistos[rawId][histoTag] =  ibooker.book2D(histoTag+chTag,"BX vs trigger quality",7,-0.5,6.5,
 					   (int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5);
       setQLabels((chamberHistos[dtCh.rawId()])[histoTag],1);
 
       histoTag = (*typeIt) + "_ThetaBestQual";
-      chamberHistos[rawId][histoTag] = theDQMStore->book1D(histoTag+chTag,
+      chamberHistos[rawId][histoTag] = ibooker.book1D(histoTag+chTag,
       "Trigger quality of best primitives (theta)",7,-0.5,6.5);
       setQLabels((chamberHistos[dtCh.rawId()])[histoTag],1);
     }
@@ -328,27 +311,27 @@ void DTLocalTriggerBaseTask::bookHistos(const DTChamberId& dtCh) {
 
   if (processDCC && processDDU) {
     // Book DCC/DDU Comparison Plots
-    theDQMStore->setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
+    ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
 		       + sector.str() + "/Station" + station.str() + "/LocalTriggerPhi");
 
     string histoTag = "COM_QualDDUvsQualDCC";
-    chamberHistos[rawId][histoTag] = theDQMStore->book2D(histoTag+chTag,
+    chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,
 			"DDU quality vs DCC quality",8,-1.5,6.5,8,-1.5,6.5);
     setQLabels((chamberHistos[rawId])[histoTag],1);
     setQLabels((chamberHistos[rawId])[histoTag],2);
 
     histoTag = "COM_MatchingTrend";
-    trendHistos[rawId] = new DTTimeEvolutionHisto(&(*theDQMStore),histoTag+chTag,
+    trendHistos[rawId] = new DTTimeEvolutionHisto(ibooker,histoTag+chTag,
 						  "Fraction of DDU-DCC matches w.r.t. proc evts",
 						  nTimeBins,nLSTimeBin,true,0);
   }
 
 }
 
-void DTLocalTriggerBaseTask::bookHistos(int wh) {
+void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, int wh) {
 
   stringstream wheel; wheel << wh;
-  theDQMStore->setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/");
+  ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/");
   string whTag = "_W" + wheel.str();
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
@@ -356,7 +339,7 @@ void DTLocalTriggerBaseTask::bookHistos(int wh) {
     << topFolder("DDU") << "Wheel" << wh << endl;
 
   string histoTag = "COM_BXDiff";
-  MonitorElement *me = theDQMStore->bookProfile2D(histoTag+whTag,
+  MonitorElement *me = ibooker.bookProfile2D(histoTag+whTag,
         "DDU-DCC BX Difference",12,1,13,4,1,5,0.,20.);
   me->setAxisTitle("Sector",1);
   me->setAxisTitle("station",2);

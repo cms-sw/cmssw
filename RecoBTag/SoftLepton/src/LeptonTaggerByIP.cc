@@ -1,6 +1,6 @@
 #include <limits>
 
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerByIP.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 
@@ -8,7 +8,7 @@
 float LeptonTaggerByIP::discriminator(const TagInfoHelper & tagInfo) const {
   // default value, used if there are no leptons associated to this jet
   float bestTag = - std::numeric_limits<float>::infinity();
-  const reco::SoftLeptonTagInfo & info = tagInfo.get<reco::SoftLeptonTagInfo>();
+  const reco::CandSoftLeptonTagInfo & info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
   // if there are multiple leptons, look for the one with the highest pT_rel
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);

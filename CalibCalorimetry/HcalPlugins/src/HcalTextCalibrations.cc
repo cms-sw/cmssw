@@ -123,6 +123,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceLongRecoParams);
       findingRecord <HcalLongRecoParamsRcd> ();
     }
+    else if (objectName == "ZDCLowGainFractions") {
+      setWhatProduced (this, &HcalTextCalibrations::produceZDCLowGainFractions);
+      findingRecord <HcalZDCLowGainFractionsRcd> ();
+    }
     else if (objectName == "MCParams") {
       setWhatProduced (this, &HcalTextCalibrations::produceMCParams);
       findingRecord <HcalMCParamsRcd> ();
@@ -137,7 +141,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
-		<< "RecoParams LongRecoParams FlagHFDigiTimeParams MCParams "
+		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
 		<< std::endl;
     }
   }
@@ -331,6 +335,14 @@ std::auto_ptr<HcalLongRecoParams> HcalTextCalibrations::produceLongRecoParams (c
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalLongRecoParams> (topo,mInputs ["LongRecoParams"]);
 }
+
+std::auto_ptr<HcalZDCLowGainFractions> HcalTextCalibrations::produceZDCLowGainFractions (const HcalZDCLowGainFractionsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalZDCLowGainFractions> (topo,mInputs ["ZDCLowGainFractions"]);
+}
+
 std::auto_ptr<HcalTimingParams> HcalTextCalibrations::produceTimingParams (const HcalTimingParamsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<IdealGeometryRecord>().get(htopo);

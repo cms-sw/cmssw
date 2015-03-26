@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/Records/interface/PZdcRcd.h"
 #include "boost/mpl/vector.hpp"
@@ -27,6 +28,7 @@ class ZDCGeometryRecord :
                 IdealGeometryRecord,
 		ZDCAlignmentRcd, 
 		ZDCAlignmentErrorRcd,
+                ZDCAlignmentErrorExtendedRcd,
 		GlobalPositionRcd,
 		PZdcRcd         	> > {};
 

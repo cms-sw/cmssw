@@ -5,6 +5,7 @@ jetDQMParameters = cms.PSet(
     eMax        = cms.double(1000.0),
     eMin        = cms.double(0.0),
 
+    #if changed here, change certification module input in same manner
     etaBin      = cms.int32(100),
     etaMax      = cms.double(5.0),
     etaMin      = cms.double(-5.0),
@@ -26,7 +27,8 @@ jetDQMParameters = cms.PSet(
     pVMin       = cms.double(0.0),
 
     ptThreshold     = cms.double(20.),
-    ptThresholdUnc  = cms.double(17.5),
+    #ptThresholdUnc  = cms.double(17.5),
+    ptThresholdUnc  = cms.double(30),# dicuss to raise thresholds
     asymmetryThirdJetCut = cms.double(30),
     balanceThirdJetCut   = cms.double(0.2),
     fillJIDPassFrac   = cms.int32(1),

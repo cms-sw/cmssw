@@ -16,7 +16,7 @@ unpackGtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.c
 
 import EventFilter.CastorRawToDigi.CastorRawToDigi_cfi
 unpackCastorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone(
-    InputLabel = cms.InputTag( 'rawDataCollector' )
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 )
 
 ##

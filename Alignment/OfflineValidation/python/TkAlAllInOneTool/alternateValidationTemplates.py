@@ -80,11 +80,11 @@ process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep
 process.TrackerTrackHitFilter.detsToIgnore = [
      # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
     # TIB / TID
-    369136710, 369136714, 402668822,
+    #369136710, 369136714, 402668822,
     # TOB
-    436310989, 436310990, 436299301, 436299302,
+    #436310989, 436310990, 436299301, 436299302,
     # TEC
-    470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
 ]
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
@@ -152,12 +152,12 @@ process.es_prefer_SiStripLorentzAngle = cms.ESPrefer("PoolDBESSource","SiStripLo
  ##
  ## Geometry
  ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
@@ -191,7 +191,7 @@ process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                                    tag = cms.string('TrackerIdealGeometryErrors210_mc')
                                                                    ))
                                         )
@@ -206,20 +206,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("OfflineValidator") 
    
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+.oO[datasetDefinition]Oo.
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(False),
    Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
-#   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
 )
-
- ##
- ## Maximum number of Events
- ##
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
- )
 
  ##   
  ## Messages & Convenience
@@ -270,7 +263,7 @@ process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits = True
-process.TrackerTrackHitFilter.TrackAngleCut = 0.1# in rads, starting from the module surface; small value since we have bows!
+process.TrackerTrackHitFilter.TrackAngleCut = 0.35 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
 
 #-- TrackProducer
@@ -305,31 +298,20 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 ##
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 ##
 ## Magnetic Field
 ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-
-process.conditionsInTrackerAlignmentRcd = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1193/jobData/jobm/alignments_MP.db'),
-          toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-          tag = cms.string('Alignments')
-          )
-          )
-          )
-
-process.prefer_conditionsInTrackerAlignmentRcd = cms.ESPrefer("PoolDBESSource", "conditionsInTrackerAlignmentRcd")
-
-          
 .oO[LorentzAngleTemplate]Oo.
   
  ##
  ## Geometry
  ##
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.Geometry.GeometryDB_cff")
+
  
 .oO[condLoad]Oo.
 
@@ -368,20 +350,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("OfflineValidator") 
    
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+.oO[datasetDefinition]Oo.
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(False),
    Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
    fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
 )
-
- ##
- ## Maximum number of Events
- ## 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
- )
 
  ##   
  ## Messages & Convenience
@@ -407,7 +382,7 @@ process.AlignmentTrackSelector.filter = True
 
 .oO[TrackSelectionTemplate]Oo.
 # Override the pmin setting since not meaningful with B=0T
-process.AlignmentTrackSelector.pMin    = 4.
+process.AlignmentTrackSelector.pMin = 4.
 
 #### momentum constraint for 0T
 # First momentum constraint
@@ -431,10 +406,10 @@ process.AliMomConstraint1.fixedMomentumError = 0.005
 #now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
 process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-    src = 'TrackerTrackHitFilter'
-###    ,
+    src = 'TrackerTrackHitFilter',
+    NavigationSchool = "",
 ###    TrajectoryInEvent = True,
-###    TTRHBuilder = "WithAngleAndTemplate"    
+    TTRHBuilder = "WithAngleAndTemplate"    
 )
 
  ##
@@ -451,15 +426,15 @@ process.TrackRefitter1 = process.TrackRefitterP5.clone(
    src =  '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
    TrajectoryInEvent = True,
    TTRHBuilder = "WithAngleAndTemplate",
-   NavigationSchool = "",
-   constraint = 'momentum', ### SPECIFIC FOR CRUZET
-   srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
+   NavigationSchool = ""
+   #constraint = 'momentum', ### SPECIFIC FOR CRUZET
+   #srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
     src = 'AlignmentTrackSelector',
     srcConstr='AliMomConstraint1',
-    constraint = 'momentum' ### SPECIFIC FOR CRUZET
+    #constraint = 'momentum' ### SPECIFIC FOR CRUZET
 )
 
 
@@ -480,13 +455,12 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
  ##
  ## Geometry
  ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field
  ##
-#process.load("Configuration/StandardSequences/MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.MagneticField_0T_cff") # 0T runs
+process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
@@ -1070,12 +1044,12 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
  ##
  ## Geometry
  ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 

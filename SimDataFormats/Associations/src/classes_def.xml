@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="reco::TrackToTrackingParticleAssociator" persistent="false"/>
+  <class name="edm::Wrapper<reco::TrackToTrackingParticleAssociator>" persistent="false"/>
+  <class name="reco::TrackToGenParticleAssociator" persistent="false"/>
+  <class name="edm::Wrapper<reco::TrackToGenParticleAssociator>" persistent="false"/>
+  <class name="reco::MuonToTrackingParticleAssociator" persistent="false"/>
+  <class name="edm::Wrapper<reco::MuonToTrackingParticleAssociator>" persistent="false"/>
+</lcgdict>

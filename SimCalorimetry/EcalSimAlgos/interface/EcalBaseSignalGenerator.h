@@ -12,8 +12,6 @@ public:
     
   virtual ~EcalBaseSignalGenerator() {}
 
-  //  void setParameterMap(EcalSimParameterMap * map) {theParameterMap = map;}
-
   
 protected:
 
@@ -24,8 +22,6 @@ protected:
   //  samples *= factor;
   // }
 
-  //EcalSimParameterMap * theParameterMap;
-  //EcalElectronicsSim * theElectronicsSim;
 };
 
 #endif

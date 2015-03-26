@@ -18,7 +18,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 class TTree;
 class TFile;
@@ -49,7 +49,7 @@ class TPNtuplizer : public edm::EDAnalyzer
   bool UseAssociators_;
   std::vector<std::string> associators_;
   TrackingParticleSelector tpSelector_;
-  std::vector<const TrackAssociatorBase*> associator_;
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associator_;
 
   void init();
   

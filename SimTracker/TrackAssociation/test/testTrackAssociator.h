@@ -13,7 +13,9 @@
 #include <map>
 #include <set>
 
-class TrackAssociatorBase;
+namespace reco {
+  class TrackToTrackingParticleAssociator;
+}
 
 class testTrackAssociator : public edm::EDAnalyzer {
   
@@ -24,8 +26,8 @@ class testTrackAssociator : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
-  TrackAssociatorBase * associatorByChi2;
-  TrackAssociatorBase * associatorByHits;
+  reco::TrackToTrackingParticleAssociator const * associatorByChi2;
+  reco::TrackToTrackingParticleAssociator const * associatorByHits;
   edm::InputTag tracksTag, tpTag, simtracksTag, simvtxTag;
 };
 

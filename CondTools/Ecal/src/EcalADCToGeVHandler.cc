@@ -44,6 +44,9 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 	unsigned int max_since=0;
 	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
 	std::cout << "max_since : "  << max_since << std::endl;
+  bool magnet_high = false; 
+  bool something_to_transfer = false;
+  if(tagInfo().size) {
 	Ref ped_db = lastPayload();
 	
 	// we parse the last record in the DB and check if it is low or high field 
@@ -53,19 +56,26 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 
 	EcalADCToGeVConstant the_cal ;
 
-	float adc_eb=ped_db->getEBValue();
+	//unused	float adc_eb=ped_db->getEBValue();
 	float adc_ee=ped_db->getEEValue();
  
-	float the_value_high_eb=0.03894;
-	float the_value_high_ee=0.06285;
+	//	float the_value_high_eb=0.03894;
+	//      float the_value_high_ee=0.06285;
+	// float the_value_high_eb=0.03894;
+	// float the_value_high_ee=0.06378;
 
 	
-	bool magnet_high=true; 
-	if(adc_eb!= the_value_high_eb || adc_ee!= the_value_high_ee ) magnet_high=false; 
+	// bool magnet_high=true; 
+	// if(adc_eb!= the_value_high_eb || adc_ee!= the_value_high_ee ) magnet_high=false; 
 
 
-	// here we connect to the online DB to check the value of the magnetic field 
+	//unused	float the_value_low_eb=0.03894;
+	float the_value_low_ee=0.05678;
+	if( adc_ee!= the_value_low_ee ) magnet_high=true; 
+  }  // check if there is already a payload
+  else something_to_transfer = true;
 
+  // here we connect to the online DB to check the value of the magnetic field 
 	std::cout << "Connecting to ONLINE DB ... " << std::endl;
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
 	std::cout << "Connection done" << std::endl;
@@ -88,9 +98,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 
 	std::cout<< "retrieved run number "<< irun <<std::endl;  
 
-	if(irun>max_since) {
-
-
+  if(irun>max_since) {
 	  // retrieve from last value data record 
 	  // always call this method at first run
 	  
@@ -117,7 +125,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 	  
 	  
 	  std::string file_=m_file_highfield;
-	  bool something_to_transfer=false;
+    if(tagInfo().size) {
 	  if(mag_cur>7000. && magnet_high ) {
 	    
 	    std::cout << " the magnet is ON and the constants are for magnet ON " << std::endl; 
@@ -144,9 +152,19 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 	    std::cout << " the magnet is in a strange situation I do nothing ... just be patient "<< std::endl;
 	    
 	  }
+    }
+    else {
+      if(mag_cur>7000.)
+	std::cout <<" first payload, the magnet is ON " << std::endl;
+      else if( mag_cur<6000.) {
+	std::cout <<" first payload, the magnet is OFF " << std::endl;
+	file_=m_file_lowfield;
+      }
+      else
+	std::cout << " the magnet is in a strange situation I do nothing ... just be patient "<< std::endl;
+    }
 	  
-	  
-	  if(something_to_transfer){
+    if(something_to_transfer) {
 	    
 	    std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
 	    std::cout << "going to open file "<<file_ << std::flush;
@@ -165,27 +183,23 @@ void popcon::EcalADCToGeVHandler::getNewObjects()
 	    ss << "Run=" << irun << "_Magnet_changed_"<<std::endl; 
 	    m_userTextLog = ss.str()+";";
 	    
-	    
-	  } else {
+    } else {
 	    std::cout << "Run " << irun << " nothing sent to the DB"<< std::endl;
 	  
 	    ss<< "Run=" << irun << "_Magnet_NOT_changed_"<<std::endl; 
 	    m_userTextLog = ss.str()+";";
-	  }
-	  
+    }
 	
-	  delete econn;
-	} else {
+    delete econn;
+  }  // irun > max_since
+  else {
 	    std::cout << "Run " << irun << " nothing sent to the DB"<< std::endl;
 	    ss<< "Run=" << irun << "_no_new_runs_"<<std::endl; 
 	    m_userTextLog = ss.str()+";";
 
 
-	}
-
-	
+  }
 
 	std::cout << "Ecal - > end of getNewObjects -----------\n";
-
 }
 

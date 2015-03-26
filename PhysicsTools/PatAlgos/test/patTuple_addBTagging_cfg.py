@@ -11,73 +11,127 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
+# b-tag discriminators
+btagDiscriminators = [
+     # legacy framework (supported with RECO/AOD but not MiniAOD)
+     'jetBProbabilityBJetTags'
+    ,'jetProbabilityBJetTags'
+    ,'positiveOnlyJetBProbabilityBJetTags'
+    ,'positiveOnlyJetProbabilityBJetTags'
+    ,'negativeOnlyJetBProbabilityBJetTags'
+    ,'negativeOnlyJetProbabilityBJetTags'
+    ,'trackCountingHighPurBJetTags'
+    ,'trackCountingHighEffBJetTags'
+    ,'negativeTrackCountingHighEffBJetTags'
+    ,'negativeTrackCountingHighPurBJetTags'
+    ,'simpleSecondaryVertexHighEffBJetTags'
+    ,'simpleSecondaryVertexHighPurBJetTags'
+    ,'negativeSimpleSecondaryVertexHighEffBJetTags'
+    ,'negativeSimpleSecondaryVertexHighPurBJetTags'
+    ,'combinedSecondaryVertexBJetTags'
+    ,'positiveCombinedSecondaryVertexBJetTags'
+    ,'negativeCombinedSecondaryVertexBJetTags'
+    ,'combinedSecondaryVertexV2BJetTags'
+    ,'positiveCombinedSecondaryVertexV2BJetTags'
+    ,'negativeCombinedSecondaryVertexV2BJetTags'
+    ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'negativeSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'negativeSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'doubleSecondaryVertexHighEffBJetTags'
+    ,'combinedInclusiveSecondaryVertexBJetTags'
+    ,'positiveCombinedInclusiveSecondaryVertexBJetTags'
+    ,'negativeCombinedInclusiveSecondaryVertexBJetTags'
+    ,'combinedInclusiveSecondaryVertexV2BJetTags'
+    ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'combinedMVABJetTags'
+    ,'positiveCombinedMVABJetTags'
+    ,'negativeCombinedMVABJetTags'
+     # new candidate-based framework (supported with RECO/AOD/MiniAOD)
+    ,'pfJetBProbabilityBJetTags'
+    ,'pfJetProbabilityBJetTags'
+    ,'pfPositiveOnlyJetBProbabilityBJetTags'
+    ,'pfPositiveOnlyJetProbabilityBJetTags'
+    ,'pfNegativeOnlyJetBProbabilityBJetTags'
+    ,'pfNegativeOnlyJetProbabilityBJetTags'
+    ,'pfTrackCountingHighPurBJetTags'
+    ,'pfTrackCountingHighEffBJetTags'
+    ,'pfNegativeTrackCountingHighPurBJetTags'
+    ,'pfNegativeTrackCountingHighEffBJetTags'
+    ,'pfSimpleSecondaryVertexHighEffBJetTags'
+    ,'pfSimpleSecondaryVertexHighPurBJetTags'
+    ,'pfNegativeSimpleSecondaryVertexHighEffBJetTags'
+    ,'pfNegativeSimpleSecondaryVertexHighPurBJetTags'
+    ,'pfCombinedSecondaryVertexBJetTags'
+    ,'pfPositiveCombinedSecondaryVertexBJetTags'
+    ,'pfNegativeCombinedSecondaryVertexBJetTags'
+    ,'pfCombinedSecondaryVertexV2BJetTags'
+    ,'pfPositiveCombinedSecondaryVertexV2BJetTags'
+    ,'pfNegativeCombinedSecondaryVertexV2BJetTags'
+    ,'pfCombinedInclusiveSecondaryVertexBJetTags'
+    ,'pfPositiveCombinedInclusiveSecondaryVertexBJetTags'
+    ,'pfNegativeCombinedInclusiveSecondaryVertexBJetTags'
+    ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'softPFMuonBJetTags'
+    ,'softPFMuonByPtBJetTags'
+    ,'softPFMuonByIP3dBJetTags'
+    ,'softPFMuonByIP2dBJetTags'
+    ,'positiveSoftPFMuonBJetTags'
+    ,'positiveSoftPFMuonByPtBJetTags'
+    ,'positiveSoftPFMuonByIP3dBJetTags'
+    ,'positiveSoftPFMuonByIP2dBJetTags'
+    ,'negativeSoftPFMuonBJetTags'
+    ,'negativeSoftPFMuonByPtBJetTags'
+    ,'negativeSoftPFMuonByIP3dBJetTags'
+    ,'negativeSoftPFMuonByIP2dBJetTags'
+    ,'softPFElectronBJetTags'
+    ,'softPFElectronByPtBJetTags'
+    ,'softPFElectronByIP3dBJetTags'
+    ,'softPFElectronByIP2dBJetTags'
+    ,'positiveSoftPFElectronBJetTags'
+    ,'positiveSoftPFElectronByPtBJetTags'
+    ,'positiveSoftPFElectronByIP3dBJetTags'
+    ,'positiveSoftPFElectronByIP2dBJetTags'
+    ,'negativeSoftPFElectronBJetTags'
+    ,'negativeSoftPFElectronByPtBJetTags'
+    ,'negativeSoftPFElectronByIP3dBJetTags'
+    ,'negativeSoftPFElectronByIP2dBJetTags'
+    ,'pfCombinedSecondaryVertexSoftLeptonBJetTags'
+    ,'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags'
+    ,'pfCombinedMVABJetTags'
+    ,'pfPositiveCombinedMVABJetTags'
+    ,'pfNegativeCombinedMVABJetTags'
+]
+
 # uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
    labelName = 'AK4PF',
    jetSource = cms.InputTag('ak4PFJets'),
-   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
-   btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-      ,'jetProbabilityBJetTags'
-      ,'positiveOnlyJetBProbabilityBJetTags'
-      ,'positiveOnlyJetProbabilityBJetTags'
-      ,'negativeOnlyJetBProbabilityBJetTags'
-      ,'negativeOnlyJetProbabilityBJetTags'
-      ,'trackCountingHighPurBJetTags'
-      ,'trackCountingHighEffBJetTags'
-      ,'negativeTrackCountingHighEffBJetTags'
-      ,'negativeTrackCountingHighPurBJetTags'
-      ,'simpleSecondaryVertexHighEffBJetTags'
-      ,'simpleSecondaryVertexHighPurBJetTags'
-      ,'negativeSimpleSecondaryVertexHighEffBJetTags'
-      ,'negativeSimpleSecondaryVertexHighPurBJetTags'
-      ,'pfCombinedSecondaryVertexBJetTags'
-      ,'combinedSecondaryVertexBJetTags'
-      ,'positiveCombinedSecondaryVertexBJetTags'
-      ,'negativeCombinedSecondaryVertexBJetTags'
-      ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
-      ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
-      ,'negativeSimpleInclusiveSecondaryVertexHighEffBJetTags'
-      ,'negativeSimpleInclusiveSecondaryVertexHighPurBJetTags'
-      ,'doubleSecondaryVertexHighEffBJetTags'
-      ,'combinedInclusiveSecondaryVertexBJetTags'
-      ,'positiveCombinedInclusiveSecondaryVertexBJetTags'
-      ,'negativeCombinedInclusiveSecondaryVertexBJetTags'
-      ,'combinedInclusiveSecondaryVertexV2BJetTags'
-      ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
-      ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
-      ,'combinedSecondaryVertexMVABJetTags'
-      ,'softPFMuonBJetTags'
-      ,'softPFMuonByPtBJetTags'
-      ,'softPFMuonByIP3dBJetTags'
-      ,'softPFMuonByIP2dBJetTags'
-      ,'positiveSoftPFMuonBJetTags'
-      ,'positiveSoftPFMuonByPtBJetTags'
-      ,'positiveSoftPFMuonByIP3dBJetTags'
-      ,'positiveSoftPFMuonByIP2dBJetTags'
-      ,'negativeSoftPFMuonBJetTags'
-      ,'negativeSoftPFMuonByPtBJetTags'
-      ,'negativeSoftPFMuonByIP3dBJetTags'
-      ,'negativeSoftPFMuonByIP2dBJetTags'
-      ,'softPFElectronBJetTags'
-      ,'softPFElectronByPtBJetTags'
-      ,'softPFElectronByIP3dBJetTags'
-      ,'softPFElectronByIP2dBJetTags'
-      ,'positiveSoftPFElectronBJetTags'
-      ,'positiveSoftPFElectronByPtBJetTags'
-      ,'positiveSoftPFElectronByIP3dBJetTags'
-      ,'positiveSoftPFElectronByIP2dBJetTags'
-      ,'negativeSoftPFElectronBJetTags'
-      ,'negativeSoftPFElectronByPtBJetTags'
-      ,'negativeSoftPFElectronByIP3dBJetTags'
-      ,'negativeSoftPFElectronByIP2dBJetTags'
-      ,'combinedMVABJetTags'
-      ,'positiveCombinedMVABJetTags'
-      ,'negativeCombinedMVABJetTags'
-    ],
-  )
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = btagDiscriminators
+)
 process.patJetsAK4PF.addTagInfos = True
+
+# uncomment the following lines to add subjets of ak8PFJetsCHSSoftDrop with new b-tags to your PAT output
+addJetCollection(
+   process,
+   labelName = 'AK8PFCHSSoftDropSubjets',
+   jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop','SubJets'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # Using AK4 JECs for subjets which might not be completely appropriate
+   algo = 'AK',  # needed for subjet flavor clustering
+   rParam = 0.8, # needed for subjet flavor clustering
+   btagDiscriminators = btagDiscriminators,
+   explicitJTA = True,  # needed for subjet b tagging
+   svClustering = True, # needed for subjet b tagging
+   fatJets = cms.InputTag("ak8PFJetsCHS"),               # needed for subjet flavor clustering
+   groomedFatJets = cms.InputTag("ak8PFJetsCHSSoftDrop") # needed for subjet flavor clustering
+)
+process.patJetsAK8PFCHSSoftDropSubjets.addTagInfos = True
+
 ## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
 #process.patJets.addJetID=True
 #process.load("RecoJets.JetProducers.ak4JetID_cfi")
@@ -89,7 +143,7 @@ process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 #  parameters:
 ## ------------------------------------------------------
 #
-#   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#process.GlobalTag.globaltag =  'MCRUN1_74_V2::All'     ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 ## switch to RECO input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM

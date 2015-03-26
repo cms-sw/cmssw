@@ -68,12 +68,10 @@ ESElectronicsSimFast::analogToDigital( CLHEP::HepRandomEngine* engine,
    {
       const double noi ( isNoise || (!m_addNoise) ? 0 :
 			 sigma*CLHEP::RandGaussQ::shoot(engine, 0, 1) ) ;
-    
       double signal;
 
       if(!m_PreMix1) signal = cs[i]*ADCGeV + noi + baseline ;
       else signal = cs[i]*ADCGeV ;
-
 
       if( 0 <= signal )
       { 

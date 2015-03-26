@@ -45,8 +45,9 @@
 #include <string>
 
 // Include DQM core
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 typedef math::XYZTLorentzVectorD  LV;
 typedef std::vector<LV>  LVCollection;
@@ -68,19 +69,15 @@ struct hinfo{
 };
 
 // class declaration
-class TauTagValidation : public edm::EDAnalyzer {
+class TauTagValidation : public DQMEDAnalyzer{
 
 public:
   explicit TauTagValidation(const edm::ParameterSet&);
   ~TauTagValidation();
 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 private:
   /// label of the current module
@@ -186,8 +183,6 @@ private:
   MonitorElement* nEMIsolated_signalTracks_;
 
   // book-keeping variables
-
-  DQMStore* dbeTau_;
   int numEvents_;
 
  protected:

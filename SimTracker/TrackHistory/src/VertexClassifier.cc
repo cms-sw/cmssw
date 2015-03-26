@@ -14,9 +14,13 @@
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
 
-VertexClassifier::VertexClassifier(edm::ParameterSet const & config) : VertexCategories(), tracer_(config),
+VertexClassifier::VertexClassifier(edm::ParameterSet const & config,
+                                   edm::ConsumesCollector&& collector) : 
+        VertexCategories(), 
+        tracer_(config,std::move(collector)),
         hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") )
 {
+    collector.consumes<edm::HepMCProduct>(hepMCLabel_);
     // Set the history depth after hadronization
     tracer_.depth(-2);
 
@@ -304,7 +308,7 @@ void VertexClassifier::vertexInformation()
     GeneratedPrimaryVertex const & genpv = genpvs_.back();
 
     // Get the generated history of the tracks
-    VertexHistory::GenVertexTrail & genVertexTrail = const_cast<VertexHistory::GenVertexTrail &> (tracer_.genVertexTrail());
+    const VertexHistory::GenVertexTrail & genVertexTrail = tracer_.genVertexTrail();
 
     // Unit transformation from mm to cm
     double const mm = 0.1;
@@ -364,11 +368,11 @@ void VertexClassifier::vertexInformation()
         }
     }
 
-    VertexHistory::SimVertexTrail & simVertexTrail = const_cast<VertexHistory::SimVertexTrail &> (tracer_.simVertexTrail());
+    const VertexHistory::SimVertexTrail & simVertexTrail = tracer_.simVertexTrail();
 
     // Loop over the generated particles
     for (
-        VertexHistory::SimVertexTrail::reverse_iterator ivertex = simVertexTrail.rbegin();
+        VertexHistory::SimVertexTrail::const_reverse_iterator ivertex = simVertexTrail.rbegin();
         ivertex != simVertexTrail.rend();
         ++ivertex
     )

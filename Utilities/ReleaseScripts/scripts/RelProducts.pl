@@ -32,7 +32,6 @@ foreach my $pack (sort keys %$data)
   $str=~s/,$//;
   print "$pack:$str\n"; 
 }
-
 exit 0;
 
 sub doSearch()

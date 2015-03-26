@@ -1,8 +1,13 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 import ROOT
 class Lepton( PhysicsObject):
+    def ip3D(self):
+        '''3D impact parameter value.'''
+        return abs(self.dB(self.PV3D))
+
+
     def sip3D(self):
-        '''3D impact parameter, for H to ZZ to 4l analysis.'''
+        '''3D impact parameter significance.'''
         return abs(self.dB(self.PV3D) / self.edB(self.PV3D))
 
     def absIsoFromEA(self,rho,eta,effectiveArea1 = None,effectiveArea2 = None):

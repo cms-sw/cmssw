@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoBTag.ImpactParameter.impactParameterTagInfos_cfi import *
 from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import *
-#tmp fix, use fake/frontier
-#include "RecoBTag/Configuration/data/RecoBTag_FakeConditions.cff"
 from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
 # MVA
 from RecoBTag.ImpactParameter.impactParameterMVAComputer_cfi import *
@@ -47,3 +45,41 @@ from RecoBTag.ImpactParameter.positiveOnlyJetProbabilityComputer_cfi import *
 from RecoBTag.ImpactParameter.positiveOnlyJetProbabilityBJetTags_cfi import *
 
 
+# New candidate based fwk
+
+# Jet BProb
+from RecoBTag.ImpactParameter.candidateJetBProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfJetBProbabilityBJetTags_cfi import *
+# Jet Prob
+from RecoBTag.ImpactParameter.candidateJetProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfJetProbabilityBJetTags_cfi import *
+# High Eff
+from RecoBTag.ImpactParameter.candidateTrackCounting3D2ndComputer_cfi import *
+from RecoBTag.ImpactParameter.pfTrackCountingHighEffBJetTags_cfi import *
+# High Purity
+from RecoBTag.ImpactParameter.candidateTrackCounting3D3rdComputer_cfi import *
+from RecoBTag.ImpactParameter.pfTrackCountingHighPurBJetTags_cfi import *
+
+# Negative Tags
+
+# Jet BProb
+from RecoBTag.ImpactParameter.candidateNegativeOnlyJetBProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeOnlyJetBProbabilityBJetTags_cfi import *
+# Jet Prob
+from RecoBTag.ImpactParameter.candidateNegativeOnlyJetProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeOnlyJetProbabilityBJetTags_cfi import *
+# High Eff
+from RecoBTag.ImpactParameter.candidateNegativeTrackCounting3D2ndComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeTrackCountingHighEffBJetTags_cfi import *
+# High Purity
+from RecoBTag.ImpactParameter.candidateNegativeTrackCounting3D3rdComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeTrackCountingHighPurBJetTags_cfi import *
+
+# Positive-only Tags
+
+# Jet BProb
+from RecoBTag.ImpactParameter.candidatePositiveOnlyJetBProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfPositiveOnlyJetBProbabilityBJetTags_cfi import *
+# Jet Prob
+from RecoBTag.ImpactParameter.candidatePositiveOnlyJetProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfPositiveOnlyJetProbabilityBJetTags_cfi import *

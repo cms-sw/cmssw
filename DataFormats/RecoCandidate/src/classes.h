@@ -8,6 +8,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h" 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h" 
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidateFwd.h" 
 #include "DataFormats/RecoCandidate/interface/RecoStandAloneMuonCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoStandAloneMuonCandidateFwd.h"
@@ -52,6 +53,10 @@ namespace DataFormats_RecoCandidate {
     edm::Ref<reco::RecoChargedRefCandidateCollection> rr1;
     edm::RefProd<reco::RecoChargedRefCandidateCollection> rpr1;
     edm::RefVector<reco::RecoChargedRefCandidateCollection> rvr1;
+
+    reco::RecoChargedCandidateIsolationMap vrm3;
+    edm::Wrapper<reco::RecoChargedCandidateIsolationMap> wrm3;
+    edm::helpers::Key<edm::RefProd<reco::RecoChargedCandidateCollection > > hrm3;
 
     reco::RecoEcalCandidateCollection v2;
     edm::Wrapper<reco::RecoEcalCandidateCollection> w2;

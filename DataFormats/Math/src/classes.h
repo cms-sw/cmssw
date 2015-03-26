@@ -1,7 +1,6 @@
 #define G__DICTIONARY
-
-
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 #ifdef CMS_NOCXX11
 #define SMATRIX_USE_COMPUTATION
 #else
@@ -25,6 +24,7 @@
 #include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include <vector>
 
 namespace DataFormats_Math {
@@ -227,5 +227,9 @@ namespace DataFormats_Math {
     //Used by TauReco
     std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
     std::vector<std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> > vcalotti_ppf;
+
+    // Used by CommonTools/PileupModules
+    edm::ValueMap< math::XYZTLorentzVector > vmp4;
+    edm::Wrapper< edm::ValueMap< math::XYZTLorentzVector > > wvmp4;
    };
 }

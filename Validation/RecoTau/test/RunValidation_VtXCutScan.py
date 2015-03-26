@@ -99,7 +99,7 @@ if myFile == 'none':
    #myFile = os.path.join(ReleaseBase, "Validation/RecoTau/test", "EventSource_%s_RECO_cff.py" % options.eventType)
 LoadDataCffFile(myFile)
 #Reruns PFTau
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")

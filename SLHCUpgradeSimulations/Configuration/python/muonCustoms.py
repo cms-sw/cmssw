@@ -63,8 +63,10 @@ def customise_csc_cond_ungangedME11A_mc(process):
 def customise_csc_Indexing(process):
     """Settings for the upgrade raw vs offline condition channel translation
     """
-    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    if hasattr(process,"CSCIndexerESProducer"):
+        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    if hasattr(process,"CSCChannelMapperESProducer"):
+        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
     return process
 
 
@@ -100,9 +102,9 @@ def csc_PathVsModule_SanityCheck(process):
         ('digi2raw_step', 'cscpacker'),
         ('digi2raw_step', 'csctfpacker'),
         ('reconstruction', 'csc2DRecHits'),
-        ('dqmoffline_step', 'muonAnalyzer'),
+        ('dqmoffline_step', 'muonAnalyzer')
         #('dqmHarvesting', ''),
-        ('validation_step', 'relvalMuonBits')
+#        ('validation_step', 'relvalMuonBits')
     ]
     # verify:
     for path_name, module_name in paths_modules:
@@ -272,16 +274,5 @@ def customise_csc_PostLS1(process):
     # Validation
     if hasattr(process, 'relvalMuonBits'):
         process = customise_csc_Validation(process)
-
-    return process
-
-def customise_csc_hlt(process):
-    
-    process.CSCGeometryESModule.useGangedStripsInME1a = False
-    
-    process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
-    
-    process = customise_csc_Indexing(process)
 
     return process

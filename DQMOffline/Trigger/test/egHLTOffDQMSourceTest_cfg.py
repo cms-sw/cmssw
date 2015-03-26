@@ -11,7 +11,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #load and setup E/g HLT Offline DQM module
 process.load("DQMOffline.Trigger.EgHLTOfflineSource_cfi")
 #load calo geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 

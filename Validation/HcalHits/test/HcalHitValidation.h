@@ -2,7 +2,6 @@
 #define Validation_HcalHitValidation_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -26,7 +26,7 @@
 #include <map>
 #include <string>
 
-class HcalHitValidation: public edm::EDAnalyzer{
+class HcalHitValidation: public DQMEDAnalyzer {
 public:
 
   HcalHitValidation(const edm::ParameterSet& ps);
@@ -34,9 +34,9 @@ public:
 
 protected:
 
-  void beginJob ();
-  void endJob   ();
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
 
   void analyzeHits  (std::vector<PCaloHit> &);
   void analyzeLayer (edm::Handle<PHcalValidInfoLayer> &);
@@ -53,7 +53,6 @@ private:
   std::string    outFile_;
   bool           verbose_, scheme_;
   bool           checkHit_, checkLay_, checkNxN_, checkJet_;
-  DQMStore       *dbe_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;

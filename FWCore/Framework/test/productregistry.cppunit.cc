@@ -14,7 +14,6 @@
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
@@ -32,6 +31,7 @@ CPPUNIT_TEST(testWatch);
 CPPUNIT_TEST_EXCEPTION(testCircular,cms::Exception);
 
 CPPUNIT_TEST(testProductRegistration);
+CPPUNIT_TEST(testAddAlias);
 
 CPPUNIT_TEST_SUITE_END();
 
@@ -43,6 +43,7 @@ public:
   void testWatch();
   void testCircular();
   void testProductRegistration();
+  void testAddAlias();
 
  private:
   std::shared_ptr<edm::BranchDescription> intBranch_;
@@ -97,7 +98,6 @@ testProductRegistry::testProductRegistry() :
 
 
 void testProductRegistry::setUp() {
-  edm::RootAutoLibraryLoader::enable();
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
   auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
@@ -105,12 +105,12 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  intBranch_.reset(new edm::BranchDescription(edm::InEvent, "labeli", "PROD",
                                           "int", "int", "int",
                                           "", pset.id(),
                                           edm::TypeWithDict(typeid(int))));
 
-  floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "labelf", "PROD",
                                             "float", "float", "float",
                                             "", pset.id(),
                                             edm::TypeWithDict(typeid(float))));
@@ -214,4 +214,21 @@ void testProductRegistry:: testProductRegistration() {
     std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;
   }
+}
+
+void testProductRegistry::testAddAlias() {
+  edm::ProductRegistry reg;
+
+  reg.addProduct(*intBranch_);
+  reg.addLabelAlias(*intBranch_, "aliasi", "instanceAlias");
+
+  reg.addProduct(*floatBranch_);
+  reg.addLabelAlias(*floatBranch_, "aliasf", "instanceAlias");
+
+  reg.setFrozen(false);
+  std::vector<std::pair<std::string, std::string> > const& v = reg.aliasToOriginal();
+  CPPUNIT_ASSERT(v.at(0).first == "aliasf" &&
+                 v.at(0).second == "labelf" &&
+                 v.at(1).first == "aliasi" &&
+                 v.at(1).second == "labeli");
 }

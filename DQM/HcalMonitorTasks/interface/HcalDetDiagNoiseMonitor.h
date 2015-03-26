@@ -38,14 +38,13 @@ public:
   HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps); 
   ~HcalDetDiagNoiseMonitor(); 
 
-  void setup();
+  void setup(DQMStore::IBooker &);
   void analyze(edm::Event const&e, edm::EventSetup const&s);
   void done();
   void reset();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
 
-  void cleanup(); 
   void UpdateHistos();
   int  GetStatistics(){ return ievt_; }
 private:

@@ -13,8 +13,8 @@ B2GDQM = cms.EDAnalyzer(
     jetLabels = cms.VInputTag(
         'ak4PFJets',
         'ak4PFJetsCHS',
-        'ca8PFJetsCHS',
-        'ca8PFJetsCHSPruned',
+        'ak8PFJetsCHS',
+        'ak8PFJetsCHSSoftDrop',
         'cmsTopTagPFJetsCHS'
         ),
     jetPtMins = cms.vdouble(

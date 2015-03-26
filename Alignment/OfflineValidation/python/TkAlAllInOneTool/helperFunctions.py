@@ -16,7 +16,16 @@ def replaceByMap(target, the_map):
         iteration = 0
         while ".oO[" in result and "]Oo." in result:
             for key in the_map:
-                result = result.replace(".oO["+key+"]Oo.",the_map[key])
+                try:
+                    result = result.replace(".oO["+key+"]Oo.",the_map[key])
+                except TypeError:   #try a dict
+                    try:
+                        for keykey, value in the_map[key].iteritems():
+                           result = result.replace(".oO[" + key + "['" + keykey + "']]Oo.", value)
+                           result = result.replace(".oO[" + key + '["' + keykey + '"]]Oo.', value)
+                    except AttributeError:   #try a list
+                        for index, value in enumerate(the_map[key]):
+                            result = result.replace(".oO[" + key + "[" + str(index) + "]]Oo.", value)
                 iteration += 1
             if iteration > lifeSaver:
                 problematicLines = ""
@@ -64,3 +73,24 @@ def castorDirExists(path):
             if line.split()[8] == dirInQuestion:
                 return True
     return False
+
+def replacelast(string, old, new, count = 1):
+    """Replace the last occurances of a string"""
+    return new.join(string.rsplit(old,count))
+
+fileExtensions = ["_cfg.py", ".sh", ".root"]
+
+def addIndex(filename, njobs, index = None):
+    if index is None:
+        return [addIndex(filename, njobs, i) for i in range(njobs)]
+    if njobs == 1:
+        return filename
+
+    fileExtension = None
+    for extension in fileExtensions:
+        if filename.endswith(extension):
+            fileExtension = extension
+    if fileExtension is None:
+        raise AllInOneError(fileName + " does not end with any of the extensions "
+                                     + str(fileExtensions))
+    return replacelast(filename, fileExtension, "_" + str(index) + fileExtension)

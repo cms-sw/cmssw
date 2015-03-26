@@ -37,7 +37,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string dname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
 	CXXMethodDecl * MD = CE->getMethodDecl();
 	if (!MD) return;
 	std::string mname = MD->getQualifiedNameAsString();
@@ -50,7 +50,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	llvm::SmallString<100> buf;
 	llvm::raw_svector_ostream os(buf);
 	if ( mname == "edm::Event::getByLabel" || mname == "edm::Event::getManyByType" ) {
-//			if (const CXXRecordDecl * RD = llvm::dyn_cast<CXXMethodDecl>(D)->getParent() ) {
+//			if (const CXXRecordDecl * RD = llvm::dyn_cast_or_null<CXXMethodDecl>(D)->getParent() ) {
 //				llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 //				llvm::errs()<<"\n";
 //				}

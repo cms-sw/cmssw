@@ -57,7 +57,7 @@ void GlobalMuonToMuonProducer::printTrackRecHits(const reco::Track &track,
 
 
 /// reconstruct muons
-void GlobalMuonToMuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
+void GlobalMuonToMuonProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& eventSetup) const {
 
    const std::string metname = "Muon|RecoMuon|MuonIdentification|GlobalMuonToMuonProducer";
 

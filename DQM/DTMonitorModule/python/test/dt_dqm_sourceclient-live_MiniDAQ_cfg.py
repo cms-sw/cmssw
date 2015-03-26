@@ -37,7 +37,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 
 # DT reco and DQM sequences
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 
 #---- for P5 (online) DB access

@@ -7,41 +7,39 @@ from TkAlExceptions import AllInOneError
 
 
 class ZMuMuValidation(GenericValidationData):
-    def __init__(self, valName, alignment,config):
+    def __init__(self, valName, alignment, config,
+                 configBaseName = "TkAlZMuMuValidation", scriptBaseName = "TkAlZMuMuValidation", crabCfgBaseName = "TkAlZMuMuValidation",
+                 resultBaseName = "ZMuMuValidation", outputBaseName = "ZMuMuValidation"):
         defaults = {
             "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
             "resonance": "Z"
             }
-        mandatories = ["dataset", "maxevents",
-                       "etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
+        mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
+        self.configBaseName = configBaseName
+        self.scriptBaseName = scriptBaseName
+        self.crabCfgBaseName = crabCfgBaseName
+        self.resultBaseName = resultBaseName
+        self.outputBaseName = outputBaseName
+        self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
                                        addMandatories=mandatories)
+        if self.NJobs > 1:
+            raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
+                                "Please set parallelJobs = 1.")
     
-    def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
-        cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
+    def createConfiguration(self, path):
+        cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
-        cfgs = {cfgName:replaceByMap(configTemplates.ZMuMuValidationTemplate,
-                                     repMap)}
-        GenericValidationData.createConfiguration(self, cfgs, path)
-        
-    def createScript(self, path, scriptBaseName = "TkAlZMuMuValidation"):
-        scriptName = "%s.%s.%s.sh"%(scriptBaseName, self.name,
-                                    self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
-                                                  "postProcess":""
-                                                  }
-        scripts = {scriptName: replaceByMap(configTemplates.zMuMuScriptTemplate,
-                                            repMap ) }
-        return GenericValidationData.createScript(self, scripts, path)
+        cfgs = {cfgName: configTemplates.ZMuMuValidationTemplate}
+        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
-        
-    def createCrabCfg(self, path, crabCfgBaseName = "TkAlZMuMuValidation"):
-        return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)
+    def createScript(self, path):
+        return GenericValidationData.createScript(self, path, template = configTemplates.zMuMuScriptTemplate)
+
+    def createCrabCfg(self, path):
+        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
         repMap = GenericValidationData.getRepMap(self, alignment) 

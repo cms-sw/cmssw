@@ -340,6 +340,7 @@ void  popcon::EcalTPGBadTTHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGBadTTHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

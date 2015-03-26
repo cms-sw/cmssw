@@ -69,14 +69,10 @@ namespace edm {
         curr_job_time_(0.),
         curr_job_cpu_(0.),
         curr_events_time_(),
-        curr_events_cpu_(),
-        total_events_cpu_(),
         summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
         report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
         max_events_time_(),
-        max_events_cpu_(),
         min_events_time_(),
-        min_events_cpu_(),
         total_event_count_(0) {
       iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
       iRegistry.watchPostEndJob(this, &Timing::postEndJob);
@@ -92,12 +88,14 @@ namespace edm {
       iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds){
         auto nStreams = iBounds.maxNumberOfStreams();
         curr_events_time_.resize(nStreams,0.);
-        curr_events_cpu_.resize(nStreams,0.);
-        total_events_cpu_.resize(nStreams,0.);
+        sum_events_time_.resize(nStreams,0.);
         max_events_time_.resize(nStreams,0.);
-        max_events_cpu_.resize(nStreams,0.);
         min_events_time_.resize(nStreams,1.E6);
-        min_events_cpu_.resize(nStreams,1.E6);
+      });
+      
+      iRegistry.postGlobalEndRunSignal_.connect([this](edm::GlobalContext const&) {
+        last_run_time_ = getTime();
+        last_run_cpu_ = getCPU();
       });
     }
 
@@ -105,8 +103,8 @@ namespace edm {
     }
     
     void Timing::addToCPUTime(StreamID id, double iTime) {
-      //For accounting purposes we effectively can saw we started earlier
-      curr_events_cpu_[id.value()] -= iTime;
+      //For accounting purposes we effectively can say we started earlier
+      curr_job_cpu_ -= iTime;
     }
 
 
@@ -138,23 +136,20 @@ namespace edm {
 
     void Timing::postEndJob() {
       double total_job_time = getTime() - curr_job_time_;
-      double average_event_time = total_job_time / total_event_count_;
 
       double total_job_cpu = getCPU() - curr_job_cpu_;
-      double total_event_cpu = 0.;
-      for(auto t : total_events_cpu_) {
-        total_event_cpu +=t;
-      }
-      double average_event_cpu = total_event_cpu / total_event_count_;
 
       double min_event_time = *(std::min_element(min_events_time_.begin(),
                                                  min_events_time_.end()));
       double max_event_time = *(std::max_element(max_events_time_.begin(),
                                                max_events_time_.end()));
-      double min_event_cpu = *(std::min_element(min_events_cpu_.begin(),
-                                                 min_events_cpu_.end()));
-      double max_event_cpu = *(std::max_element(max_events_cpu_.begin(),
-                                                 max_events_cpu_.end()));
+      auto total_loop_time = last_run_time_ - curr_job_time_;
+      auto total_loop_cpu = last_run_cpu_ - curr_job_cpu_;
+
+      double sum_all_events_time = 0;
+      for(auto t : sum_events_time_) { sum_all_events_time += t; }
+      double average_event_time = sum_all_events_time / total_event_count_;
+      
       LogImportant("TimeReport")
         << "TimeReport> Time report complete in "
         << total_job_time << " seconds"
@@ -163,13 +158,12 @@ namespace edm {
         << " - Min event:   " << min_event_time << "\n"
         << " - Max event:   " << max_event_time << "\n"
         << " - Avg event:   " << average_event_time << "\n"
+        << " - Total loop:  " <<total_loop_time <<"\n"
         << " - Total job:   " << total_job_time << "\n"
+        << " Event Throughput: "<<total_event_count_/ total_loop_time<<" ev/s\n"
         << " CPU Summary: \n"
-        << " - Min event:   " << min_event_cpu << "\n"
-        << " - Max event:   " << max_event_cpu << "\n"
-        << " - Avg event:   " << average_event_cpu << "\n"
-        << " - Total job:   " << total_job_cpu << "\n"
-        << " - Total event: " << total_event_cpu << "\n";
+        << " - Total loop:  " << total_loop_cpu << "\n"
+        << " - Total job:   " << total_job_cpu << "\n";
 
       if(report_summary_) {
         Service<JobReport> reportSvc;
@@ -178,12 +172,10 @@ namespace edm {
         reportData.insert(std::make_pair("MinEventTime", d2str(min_event_time)));
         reportData.insert(std::make_pair("MaxEventTime", d2str(max_event_time)));
         reportData.insert(std::make_pair("AvgEventTime", d2str(average_event_time)));
+        reportData.insert(std::make_pair("EventThroughput", d2str(total_event_count_/total_loop_time)));
         reportData.insert(std::make_pair("TotalJobTime", d2str(total_job_time)));
-        reportData.insert(std::make_pair("MinEventCPU", d2str(min_event_cpu)));
-        reportData.insert(std::make_pair("MaxEventCPU", d2str(max_event_cpu)));
-        reportData.insert(std::make_pair("AvgEventCPU", d2str(average_event_cpu)));
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
-        reportData.insert(std::make_pair("TotalEventCPU", d2str(total_event_cpu)));
+        reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
 
         reportSvc->reportPerformanceSummary("Timing", reportData);
       }
@@ -192,15 +184,13 @@ namespace edm {
     void Timing::preEvent(StreamContext const& iStream) {
       auto index = iStream.streamID().value();
       curr_events_time_[index] = getTime();
-      curr_events_cpu_[index] = getCPU();
     }
 
     void Timing::postEvent(StreamContext const& iStream) {
       auto index = iStream.streamID().value();
-      double curr_event_cpu = getCPU() - curr_events_cpu_[index];
-      total_events_cpu_[index] += curr_event_cpu;
 
       double curr_event_time = getTime() - curr_events_time_[index];
+      sum_events_time_[index] +=curr_event_time;
 
       if(not summary_only_) {
         auto const & eventID = iStream.eventID();
@@ -208,14 +198,10 @@ namespace edm {
         << "TimeEvent> "
         << eventID.event() << " "
         << eventID.run() << " "
-        << curr_event_time << " "
-        << curr_event_cpu << " "
-        << total_events_cpu_[index];
+        << curr_event_time ;
       }
       if(curr_event_time > max_events_time_[index]) max_events_time_[index] = curr_event_time;
       if(curr_event_time < min_events_time_[index]) min_events_time_[index] = curr_event_time;
-      if(curr_event_cpu > max_events_cpu_[index]) max_events_cpu_[index] = curr_event_cpu;
-      if(curr_event_cpu < min_events_cpu_[index]) min_events_cpu_[index] = curr_event_cpu;
       ++total_event_count_;
     }
 

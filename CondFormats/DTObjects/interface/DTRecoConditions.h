@@ -19,6 +19,9 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 
 class DTWireId;
 class TFormula;
@@ -29,6 +32,8 @@ public:
 
   /// Constructor
   DTRecoConditions();
+  DTRecoConditions(const DTRecoConditions&);
+  const DTRecoConditions& operator=(const DTRecoConditions&);
 
   /// Destructor
   virtual ~DTRecoConditions();
@@ -65,10 +70,18 @@ public:
 private:
 
   // The formula used for parametrization (transient pointer)
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  mutable std::atomic<TFormula*> formula COND_TRANSIENT;
+#else
   mutable TFormula* formula COND_TRANSIENT;
+#endif
   
   // Formula evalaution strategy, derived from expression and cached for efficiency reasons
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  mutable std::atomic<int> formulaType COND_TRANSIENT;
+#else
   mutable int formulaType COND_TRANSIENT;
+#endif
 
   // String with the expression representing the formula used for parametrization
   std::string expression;

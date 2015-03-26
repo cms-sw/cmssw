@@ -27,6 +27,12 @@
 
 #include "Rtypes.h"
 
+namespace edm {
+   class BasicHandle;
+   class ProductID;
+   class WrapperBase;
+}
+
 namespace fwlite
 {
    class EventBase : public edm::EventBase
@@ -42,6 +48,8 @@ namespace fwlite
                                   char const*,
                                   char const*,
                                   void*) const = 0;
+
+         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const = 0;
 
          using edm::EventBase::getByLabel;
 
@@ -62,6 +70,7 @@ namespace fwlite
       private:
 
          virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
+         virtual edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const;
    };
 } // fwlite namespace
 

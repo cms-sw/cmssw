@@ -18,7 +18,3 @@ l1tSyncHltFilter.HLTPaths = ['HLT_ZeroBias_v*',
 
 
 
-# L1 synchronization DQM module
-from DQMOffline.L1Trigger.L1TSync_Harvest_cfi import *
-
-

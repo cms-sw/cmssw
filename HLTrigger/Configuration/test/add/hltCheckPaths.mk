@@ -38,7 +38,7 @@ HLT_1E31_SOURCE     := file:RelVal_DigiL1Raw_1E31.root
 
 # more configuration, useful to debug the Makefile itself
 CMSRUN    := cmsRun
-GETCONFIG := edmConfigFromDB
+GETCONFIG := hltConfigFromDB
 
 # check for cmsRun environmnt
 ifeq (,$(CMSSW_RELEASE_BASE))
@@ -63,17 +63,17 @@ LUMI = $(strip $(word 1, $(subst _, , $@)) )
 NAME = $(strip $(subst $(LUMI)_, , $(word 1, $(subst ., , $@))) )
 TYPE = $(strip $(word 2, $(subst ., , $@)) )
 
-LIST_OF_GRun_PATHS := $(shell edmConfigFromDB --configName $(HLT_GRun_CONFIG) --nopsets --noedsources --noes --noservices --nooutput --nosequences --nomodules --format python | gawk '/^process\..*(AlCa|HLT)_.* = cms.Path/ { print gensub(/^process\.(.*(AlCa|HLT)_.*) = cms.Path.*/, "\\1", 1) }' | sort)
+LIST_OF_GRun_PATHS := $(shell hltConfigFromDB --configName $(HLT_GRun_CONFIG) --nopsets --noedsources --noes --noservices --nooutput --nosequences --nomodules --format python | gawk '/^process\..*(AlCa|HLT)_.* = cms.Path/ { print gensub(/^process\.(.*(AlCa|HLT)_.*) = cms.Path.*/, "\\1", 1) }' | sort)
 LIST_OF_GRun_PYS   := $(patsubst %, GRun_%.py,   $(LIST_OF_GRun_PATHS))
 LIST_OF_GRun_LOGS  := $(patsubst %, GRun_%.log,  $(LIST_OF_GRun_PATHS))
 LIST_OF_GRun_DIFFS := $(patsubst %, GRun_%.diff, $(LIST_OF_GRun_PATHS))
 
-LIST_OF_8E29_PATHS := $(shell edmConfigFromDB --configName $(HLT_8E29_CONFIG) --nopsets --noedsources --noes --noservices --nooutput --nosequences --nomodules --format python | gawk '/^process\..*(AlCa|HLT)_.* = cms.Path/ { print gensub(/^process\.(.*(AlCa|HLT)_.*) = cms.Path.*/, "\\1", 1) }' | sort)
+LIST_OF_8E29_PATHS := $(shell hltConfigFromDB --configName $(HLT_8E29_CONFIG) --nopsets --noedsources --noes --noservices --nooutput --nosequences --nomodules --format python | gawk '/^process\..*(AlCa|HLT)_.* = cms.Path/ { print gensub(/^process\.(.*(AlCa|HLT)_.*) = cms.Path.*/, "\\1", 1) }' | sort)
 LIST_OF_8E29_PYS   := $(patsubst %, 8E29_%.py,   $(LIST_OF_8E29_PATHS))
 LIST_OF_8E29_LOGS  := $(patsubst %, 8E29_%.log,  $(LIST_OF_8E29_PATHS))
 LIST_OF_8E29_DIFFS := $(patsubst %, 8E29_%.diff, $(LIST_OF_8E29_PATHS))
 
-LIST_OF_1E31_PATHS := $(shell edmConfigFromDB --configName $(HLT_1E31_CONFIG) --nopsets --noedsources --noes --noservices --nooutput --nosequences --nomodules --format python | gawk '/^process\..*(AlCa|HLT)_.* = cms.Path/ { print gensub(/^process\.(.*(AlCa|HLT)_.*) = cms.Path.*/, "\\1", 1) }' | sort)
+LIST_OF_1E31_PATHS := $(shell hltConfigFromDB --configName $(HLT_1E31_CONFIG) --nopsets --noedsources --noes --noservices --nooutput --nosequences --nomodules --format python | gawk '/^process\..*(AlCa|HLT)_.* = cms.Path/ { print gensub(/^process\.(.*(AlCa|HLT)_.*) = cms.Path.*/, "\\1", 1) }' | sort)
 LIST_OF_1E31_PYS   := $(patsubst %, 1E31_%.py,   $(LIST_OF_1E31_PATHS))
 LIST_OF_1E31_LOGS  := $(patsubst %, 1E31_%.log,  $(LIST_OF_1E31_PATHS))
 LIST_OF_1E31_DIFFS := $(patsubst %, 1E31_%.diff, $(LIST_OF_1E31_PATHS))

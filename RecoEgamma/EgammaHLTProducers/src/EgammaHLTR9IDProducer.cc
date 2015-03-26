@@ -9,34 +9,24 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9IDProducer.h"
 
 // Framework
-//#include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-//#include "DataFormats/Common/interface/Handle.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config) : conf_(config)
-{
- // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-
-  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEB"));
-  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEE"));
+EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config):
+  recoEcalCandidateProducer_(consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  ecalRechitEBToken_(consumes<EcalRecHitCollection>(config.getParameter< edm::InputTag > ("ecalRechitEB"))),
+  ecalRechitEEToken_(consumes<EcalRecHitCollection>(config.getParameter< edm::InputTag > ("ecalRechitEE"))) {
   
-
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
   produces < reco::RecoEcalCandidateIsolationMap >("r95x5");
 }
 
-EgammaHLTR9IDProducer::~EgammaHLTR9IDProducer(){}
+EgammaHLTR9IDProducer::~EgammaHLTR9IDProducer()
+{}
 
 void EgammaHLTR9IDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
@@ -49,7 +39,7 @@ void EgammaHLTR9IDProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 
 
 // ------------ method called to produce the data  ------------
-void EgammaHLTR9IDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTR9IDProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;

@@ -7,6 +7,7 @@
 <use   name="DQM/SiStripCommon"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
+<use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/RecoCandidate"/>

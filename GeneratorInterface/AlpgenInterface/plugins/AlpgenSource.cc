@@ -36,7 +36,7 @@ public:
   virtual ~AlpgenSource();
 
 private:
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) override;
+  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
   virtual void produce(edm::Event &event) override;
   virtual void beginRun(edm::Run &run) override;
 
@@ -403,7 +403,7 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
   return true;
 }
 
-bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
+bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
 {
   // The LHE Event Record
   hepeup_.reset(new lhef::HEPEUP);

@@ -35,6 +35,7 @@
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "PhysicsTools/PatUtils/interface/PATJetCorrExtractor.h"
 
 #include <TFile.h>
 #include <TFormula.h>
@@ -241,7 +242,7 @@ template <typename T, typename Textractor>
         edm::Handle<reco::JetCorrector> jetCorr;
         evt.getByToken(jetCorrToken_, jetCorr);
 	corrJetP4 =
-	std::is_base_of<class PATJetCorrExtractor, Textractor>::value ?
+	std::is_base_of<PATJetCorrExtractor, Textractor>::value ?
 	  jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4) :
 	  jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
       }

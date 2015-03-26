@@ -173,6 +173,152 @@ TrackerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & descriptio
   ttc.add<unsigned int>("tob_sterMask",0x3);
   
   descriptions.add( "trackerTopologyConstants", ttc );
+
+  edm::ParameterSetDescription ttcphase1;
+  ttcphase1.add<unsigned int>("pxb_layerStartBit",20);
+  ttcphase1.add<unsigned int>("pxb_ladderStartBit",12);
+  ttcphase1.add<unsigned int>("pxb_moduleStartBit",2);
+  ttcphase1.add<unsigned int>("pxb_layerMask",0xF);
+  ttcphase1.add<unsigned int>("pxb_ladderMask",0xFF);
+  ttcphase1.add<unsigned int>("pxb_moduleMask",0x3FF);
+  
+  ttcphase1.add<unsigned int>("pxf_sideStartBit",23);
+  ttcphase1.add<unsigned int>("pxf_diskStartBit",18);
+  ttcphase1.add<unsigned int>("pxf_bladeStartBit",12); 
+  ttcphase1.add<unsigned int>("pxf_panelStartBit",10);
+  ttcphase1.add<unsigned int>("pxf_moduleStartBit",2);
+  ttcphase1.add<unsigned int>("pxf_sideMask",0x3);
+  ttcphase1.add<unsigned int>("pxf_diskMask",0xF);
+  ttcphase1.add<unsigned int>("pxf_bladeMask",0x3F);
+  ttcphase1.add<unsigned int>("pxf_panelMask",0x3);
+  ttcphase1.add<unsigned int>("pxf_moduleMask",0xFF);
+  
+  ttcphase1.add<unsigned int>("tec_sideStartBit",18);
+  ttcphase1.add<unsigned int>("tec_wheelStartBit",14);
+  ttcphase1.add<unsigned int>("tec_petal_fw_bwStartBit",12);
+  ttcphase1.add<unsigned int>("tec_petalStartBit",8);
+  ttcphase1.add<unsigned int>("tec_ringStartBit",5);
+  ttcphase1.add<unsigned int>("tec_moduleStartBit",2);
+  ttcphase1.add<unsigned int>("tec_sterStartBit",0);  
+  ttcphase1.add<unsigned int>("tec_sideMask",0x3);
+  ttcphase1.add<unsigned int>("tec_wheelMask",0xF);
+  ttcphase1.add<unsigned int>("tec_petal_fw_bwMask",0x3);
+  ttcphase1.add<unsigned int>("tec_petalMask",0xF);
+  ttcphase1.add<unsigned int>("tec_ringMask",0x7);  
+  ttcphase1.add<unsigned int>("tec_moduleMask",0x7);
+  ttcphase1.add<unsigned int>("tec_sterMask",0x3);
+  
+  ttcphase1.add<unsigned int>("tib_layerStartBit",14);
+  ttcphase1.add<unsigned int>("tib_str_fw_bwStartBit",12);
+  ttcphase1.add<unsigned int>("tib_str_int_extStartBit",10);
+  ttcphase1.add<unsigned int>("tib_strStartBit",4);
+  ttcphase1.add<unsigned int>("tib_moduleStartBit",2);
+  ttcphase1.add<unsigned int>("tib_sterStartBit",0);
+  ttcphase1.add<unsigned int>("tib_layerMask",0x7);
+  ttcphase1.add<unsigned int>("tib_str_fw_bwMask",0x3);
+  ttcphase1.add<unsigned int>("tib_str_int_extMask",0x3);
+  ttcphase1.add<unsigned int>("tib_strMask",0x3F);
+  ttcphase1.add<unsigned int>("tib_moduleMask",0x3);
+  ttcphase1.add<unsigned int>("tib_sterMask",0x3);
+  
+  ttcphase1.add<unsigned int>("tid_sideStartBit",13); 
+  ttcphase1.add<unsigned int>("tid_wheelStartBit",11);
+  ttcphase1.add<unsigned int>("tid_ringStartBit",9);
+  ttcphase1.add<unsigned int>("tid_module_fw_bwStartBit",7);
+  ttcphase1.add<unsigned int>("tid_moduleStartBit",2);
+  ttcphase1.add<unsigned int>("tid_sterStartBit",0);
+  ttcphase1.add<unsigned int>("tid_sideMask",0x3);
+  ttcphase1.add<unsigned int>("tid_wheelMask",0x3);
+  ttcphase1.add<unsigned int>("tid_ringMask",0x3);
+  ttcphase1.add<unsigned int>("tid_module_fw_bwMask",0x3);
+  ttcphase1.add<unsigned int>("tid_moduleMask",0x1F);
+  ttcphase1.add<unsigned int>("tid_sterMask",0x3);
+  
+  ttcphase1.add<unsigned int>("tob_layerStartBit",14);
+  ttcphase1.add<unsigned int>("tob_rod_fw_bwStartBit",12);
+  ttcphase1.add<unsigned int>("tob_rodStartBit",5);  
+  ttcphase1.add<unsigned int>("tob_moduleStartBit",2);
+  ttcphase1.add<unsigned int>("tob_sterStartBit",0);
+  ttcphase1.add<unsigned int>("tob_layerMask",0x7);
+  ttcphase1.add<unsigned int>("tob_rod_fw_bwMask",0x3);
+  ttcphase1.add<unsigned int>("tob_rodMask",0x7F);
+  ttcphase1.add<unsigned int>("tob_moduleMask",0x7);
+  ttcphase1.add<unsigned int>("tob_sterMask",0x3);
+  
+  descriptions.add( "trackerTopology2017Constants", ttcphase1 );
+
+  edm::ParameterSetDescription ttcphase2;
+  ttcphase2.add<unsigned int>("pxb_layerStartBit",20);
+  ttcphase2.add<unsigned int>("pxb_ladderStartBit",12);
+  ttcphase2.add<unsigned int>("pxb_moduleStartBit",2);
+  ttcphase2.add<unsigned int>("pxb_layerMask",0xF);
+  ttcphase2.add<unsigned int>("pxb_ladderMask",0xFF);
+  ttcphase2.add<unsigned int>("pxb_moduleMask",0x3FF);
+  
+  ttcphase2.add<unsigned int>("pxf_sideStartBit",23);
+  ttcphase2.add<unsigned int>("pxf_diskStartBit",18);
+  ttcphase2.add<unsigned int>("pxf_bladeStartBit",12); 
+  ttcphase2.add<unsigned int>("pxf_panelStartBit",10);
+  ttcphase2.add<unsigned int>("pxf_moduleStartBit",2);
+  ttcphase2.add<unsigned int>("pxf_sideMask",0x3);
+  ttcphase2.add<unsigned int>("pxf_diskMask",0xF);
+  ttcphase2.add<unsigned int>("pxf_bladeMask",0x3F);
+  ttcphase2.add<unsigned int>("pxf_panelMask",0x3);
+  ttcphase2.add<unsigned int>("pxf_moduleMask",0xFF);
+  
+  ttcphase2.add<unsigned int>("tec_sideStartBit",18);
+  ttcphase2.add<unsigned int>("tec_wheelStartBit",14);
+  ttcphase2.add<unsigned int>("tec_petal_fw_bwStartBit",12);
+  ttcphase2.add<unsigned int>("tec_petalStartBit",8);
+  ttcphase2.add<unsigned int>("tec_ringStartBit",5);
+  ttcphase2.add<unsigned int>("tec_moduleStartBit",2);
+  ttcphase2.add<unsigned int>("tec_sterStartBit",0);  
+  ttcphase2.add<unsigned int>("tec_sideMask",0x3);
+  ttcphase2.add<unsigned int>("tec_wheelMask",0xF);
+  ttcphase2.add<unsigned int>("tec_petal_fw_bwMask",0x3);
+  ttcphase2.add<unsigned int>("tec_petalMask",0xF);
+  ttcphase2.add<unsigned int>("tec_ringMask",0x7);  
+  ttcphase2.add<unsigned int>("tec_moduleMask",0x7);
+  ttcphase2.add<unsigned int>("tec_sterMask",0x3);
+  
+  ttcphase2.add<unsigned int>("tib_layerStartBit",14);
+  ttcphase2.add<unsigned int>("tib_str_fw_bwStartBit",12);
+  ttcphase2.add<unsigned int>("tib_str_int_extStartBit",10);
+  ttcphase2.add<unsigned int>("tib_strStartBit",4);
+  ttcphase2.add<unsigned int>("tib_moduleStartBit",2);
+  ttcphase2.add<unsigned int>("tib_sterStartBit",0);
+  ttcphase2.add<unsigned int>("tib_layerMask",0x7);
+  ttcphase2.add<unsigned int>("tib_str_fw_bwMask",0x3);
+  ttcphase2.add<unsigned int>("tib_str_int_extMask",0x3);
+  ttcphase2.add<unsigned int>("tib_strMask",0x3F);
+  ttcphase2.add<unsigned int>("tib_moduleMask",0x3);
+  ttcphase2.add<unsigned int>("tib_sterMask",0x3);
+  
+  ttcphase2.add<unsigned int>("tid_sideStartBit",23); 
+  ttcphase2.add<unsigned int>("tid_wheelStartBit",18);
+  ttcphase2.add<unsigned int>("tid_ringStartBit",12);
+  ttcphase2.add<unsigned int>("tid_module_fw_bwStartBit",10);
+  ttcphase2.add<unsigned int>("tid_moduleStartBit",2);
+  ttcphase2.add<unsigned int>("tid_sterStartBit",0);
+  ttcphase2.add<unsigned int>("tid_sideMask",0x3);
+  ttcphase2.add<unsigned int>("tid_wheelMask",0xF);
+  ttcphase2.add<unsigned int>("tid_ringMask",0x3F);
+  ttcphase2.add<unsigned int>("tid_module_fw_bwMask",0x3);
+  ttcphase2.add<unsigned int>("tid_moduleMask",0xFF);
+  ttcphase2.add<unsigned int>("tid_sterMask",0x3);
+  
+  ttcphase2.add<unsigned int>("tob_layerStartBit",20);
+  ttcphase2.add<unsigned int>("tob_rod_fw_bwStartBit",12);
+  ttcphase2.add<unsigned int>("tob_rodStartBit",12);  
+  ttcphase2.add<unsigned int>("tob_moduleStartBit",2);
+  ttcphase2.add<unsigned int>("tob_sterStartBit",0);
+  ttcphase2.add<unsigned int>("tob_layerMask",0xF);
+  ttcphase2.add<unsigned int>("tob_rod_fw_bwMask",0x0);
+  ttcphase2.add<unsigned int>("tob_rodMask",0xFF);
+  ttcphase2.add<unsigned int>("tob_moduleMask",0x3FF);
+  ttcphase2.add<unsigned int>("tob_sterMask",0x3);
+
+  descriptions.add( "trackerTopology2023Constants", ttcphase2 );
 }
 
 //

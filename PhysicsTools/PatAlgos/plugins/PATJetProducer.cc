@@ -450,7 +450,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // track association
   iDesc.add<bool>("addAssociatedTracks", true);
-  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ic5JetTracksAssociatorAtVertex"));
+  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ak4JTA"));
 
   // tag info
   iDesc.add<bool>("addTagInfos", true);

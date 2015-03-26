@@ -38,7 +38,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 
-class HWWAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class HWWAnalyzer : public DQMEDAnalyzer {
 
    public:
 

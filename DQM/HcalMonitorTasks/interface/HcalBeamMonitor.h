@@ -23,8 +23,8 @@ class HcalBeamMonitor:  public HcalBaseDQMonitor {
   HcalBeamMonitor(const edm::ParameterSet& ps);
   ~HcalBeamMonitor();
   
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			    const edm::EventSetup& c);
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -38,7 +38,6 @@ class HcalBeamMonitor:  public HcalBaseDQMonitor {
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);
   void reset();
-  void cleanup();
 
  private:
   void SetEtaLabels(MonitorElement* h);

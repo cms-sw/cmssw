@@ -46,10 +46,11 @@ private:
 };
 
 
-TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     // Get the track collection
     trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+    consumes<edm::View<reco::Track>>(trackProducer_);
 
     // Get the file service
     edm::Service<TFileService> fs;

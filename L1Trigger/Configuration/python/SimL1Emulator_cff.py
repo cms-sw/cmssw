@@ -6,6 +6,11 @@ import FWCore.ParameterSet.Config as cms
 # Jim Brooke, 24 April 2008
 # Vasile Mihai Ghete, 2009
 
+
+# This object is used to make changes for different running scenarios. In
+# this case for Run 2
+from Configuration.StandardSequences.Eras import eras
+
 # ECAL TPG emulator and HCAL TPG run in the simulation sequence in order to be able 
 # to use unsuppressed digis produced by ECAL and HCAL simulation, respectively
 # in Configuration/StandardSequences/python/Digi_cff.py
@@ -120,7 +125,11 @@ simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
     cms.InputTag( 'simHcalTechTrigDigis' ),
     cms.InputTag( 'simCastorTechTrigDigis' )
     )
-
+#
+# Make some changes if using the Stage 1 trigger
+#
+eras.stage1L1Trigger.toModify( simGtDigis, GctInputTag = 'simCaloStage1LegacyFormatDigis' )
+eras.stage1L1Trigger.toModify( simGtDigis, TechnicalTriggersInputTags = cms.VInputTag() )
 
 ### L1 Trigger sequences
 
@@ -148,3 +157,21 @@ SimL1Emulator = cms.Sequence(
     simGmtDigis + 
     SimL1TechnicalTriggers + 
     simGtDigis )
+##
+## Make changes for Run 2
+##
+def _extendForStage1Trigger( theProcess ) :
+    """
+    ProcessModifier that loads config fragments required for Run 2 into the process object.
+    Also switches the GCT digis for the Stage1 digis in the SimL1Emulator sequence
+    """
+    theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    # Note that this function is applied before the objects in this file are added
+    # to the process. So things declared in this file should be used "bare", i.e.
+    # not with "theProcess." in front of them. L1TCaloStage1 is an exception because
+    # it is not declared in this file but loaded into the process in one of the "load"
+    # statements above.
+    SimL1Emulator.replace( simGctDigis, theProcess.L1TCaloStage1 )
+
+# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+modifyL1TriggerConfigurationSimL1EmulatorForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _extendForStage1Trigger )

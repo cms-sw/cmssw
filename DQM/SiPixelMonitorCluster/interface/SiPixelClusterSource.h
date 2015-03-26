@@ -69,7 +69,9 @@
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs(DQMStore::IBooker &);
+       virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
+
+       std::string topFolderName_;
 
     private:
        edm::ParameterSet conf_;
@@ -95,16 +97,12 @@
        int bigEventSize;
        bool isUpgrade;
 
-  MonitorElement* meClPosLayer1;
-  MonitorElement* meClPosLayer2;
-  MonitorElement* meClPosLayer3;
-  MonitorElement* meClPosLayer4;
-  MonitorElement* meClPosDisk1pz;
-  MonitorElement* meClPosDisk2pz;
-  MonitorElement* meClPosDisk3pz;
-  MonitorElement* meClPosDisk1mz;
-  MonitorElement* meClPosDisk2mz;
-  MonitorElement* meClPosDisk3mz;
+       std::vector<MonitorElement*> meClPosLayer;
+       std::vector<MonitorElement*> meClPosDiskpz;
+       std::vector<MonitorElement*> meClPosDiskmz;
+  
+       int noOfLayers;
+       int noOfDisks;
 
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;

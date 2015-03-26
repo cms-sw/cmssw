@@ -162,7 +162,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
          "in the configuration file.";
   }
 
-
   // need to make copies, because they might get different noise generators
   theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
@@ -374,7 +373,8 @@ void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
 void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
   noiseGenerator->setParameterMap(theParameterMap);
   noiseGenerator->setElectronicsSim(theHOElectronicsSim);
-  theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
+  if(theHODigitizer) theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
+  if(theHOSiPMDigitizer) theHOSiPMDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
@@ -644,6 +644,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
 
 void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
   // all HPD
+
   if(theHOSiPMCode == 0) {
     theHODigitizer->setDetIds(allCells);
   } else if(theHOSiPMCode == 1) {

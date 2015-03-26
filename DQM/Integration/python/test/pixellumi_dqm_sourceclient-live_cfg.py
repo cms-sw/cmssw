@@ -32,7 +32,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #---------
 # GEOMETRY
 #---------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #----------
 # GLOBALTAG
@@ -182,5 +182,10 @@ process.schedule = cms.Schedule(process.raw2digi_step,
                                 process.plumdqm_alca_zerobias_step,
                                 #process.plumdqm_alca_random_step,
                                 process.dqm_step)
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
 
 ######################################################################

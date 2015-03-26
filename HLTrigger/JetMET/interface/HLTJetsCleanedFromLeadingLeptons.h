@@ -1,14 +1,16 @@
 #ifndef HLTJetsCleanedFromLeadingLeptons_h
 #define HLTJetsCleanedFromLeadingLeptons_h
 
+#include <vector>
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include <vector>
 
 
 /**
@@ -25,7 +27,7 @@
  * HLTJetCollectionsFilter plugin.
  */
 template <typename JetType>
-class HLTJetsCleanedFromLeadingLeptons: public edm::EDProducer
+class HLTJetsCleanedFromLeadingLeptons: public edm::stream::EDProducer<>
 {
 public:
     typedef std::vector<JetType> JetCollection;
@@ -178,8 +180,7 @@ void HLTJetsCleanedFromLeadingLeptons<JetType>::fillDescriptions(
     desc.add<unsigned>("numLeptons", 1)->
      setComment("Number of leading leptons against which the jets are cleaned");
     
-    descriptions.add(std::string("hlt") +
-     std::string(typeid(HLTJetsCleanedFromLeadingLeptons<JetType>).name()), desc);
+    descriptions.add(defaultModuleLabel<HLTJetsCleanedFromLeadingLeptons<JetType>>(), desc);
 }
 
 

@@ -1,6 +1,4 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -83,13 +81,12 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     detrawid = detid;
     subdetid = detectorId.subdetId();
     number_strips = (int)(it->second.get())->GetNbinsX();
-    if (SiStripDetId(detrawid).stereo() !=0 ) isstereo = 1; // It's a stereo module
-    else                                      isstereo = 0; // It's an rphi module
     switch (detectorId.subdetId())
       {
       case StripSubdetector::TIB :
 	layer_ring = tTopo->tibLayer(detrawid);
 	disc       = -1;
+	isstereo = tTopo->tibIsStereo(detrawid);
 	isback     = -1;
 	if (tTopo->tibIsExternalString(detrawid)) isexternalstring = 1;
 	else                                       isexternalstring = 0;
@@ -102,6 +99,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       case StripSubdetector::TID :
 	layer_ring = tTopo->tidRing(detrawid);
 	disc       = tTopo->tidWheel(detrawid);
+	isstereo = tTopo->tidIsStereo(detrawid);
 	if (tTopo->tidIsBackRing(detrawid)) isback = 1;
 	else                                 isback = 0;
 	if (tTopo->tidIsZMinusSide(detrawid)) iszminusside = 1;
@@ -114,6 +112,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       case StripSubdetector::TOB :
 	layer_ring = tTopo->tobLayer(detrawid);
 	disc       = -1;
+	isstereo = tTopo->tobIsStereo(detrawid);
 	isback     = -1;
 	if (tTopo->tobIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
@@ -125,6 +124,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       case StripSubdetector::TEC :
 	layer_ring = tTopo->tecRing(detrawid);
 	disc       = tTopo->tecWheel(detrawid);
+	isstereo = tTopo->tecIsStereo(detrawid);
 	if (tTopo->tecIsBackPetal(detrawid)) isback = 1;
 	else                                  isback = 0;
 	if (tTopo->tecIsZMinusSide(detrawid)) iszminusside = 1;

@@ -24,11 +24,11 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
+
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 #include <TFile.h>
 
@@ -40,7 +40,6 @@ using namespace std;
 class CentralityTableProducer : public edm::EDAnalyzer {
    public:
       explicit CentralityTableProducer(const edm::ParameterSet&);
-      explicit CentralityTableProducer(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       ~CentralityTableProducer();
 
    private:
@@ -63,7 +62,6 @@ class CentralityTableProducer : public edm::EDAnalyzer {
    string rootTag_;
    ofstream text_;
 
-   CentralityProvider *cent;
    CentralityTable* CT;
    const CentralityBins* CB;
 
@@ -82,9 +80,7 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig){}
-
-CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector && iC):
+CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig):
    text_("bins.txt"),
    runnum_(0)
 {
@@ -99,7 +95,6 @@ CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfi
       inputTFile_  = new TFile(inputTFileName_.data(),"read");
       cout<<inputTFileName_.data()<<endl;
    }
-   cent =  new CentralityProvider(iSetup, std::move(iC));
 }
 
 CentralityTableProducer::~CentralityTableProducer()
@@ -120,10 +115,8 @@ CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   if((!firstRunOnly_ && runnum_ != iEvent.id().run()) || (firstRunOnly_ && runnum_ == 0)){
     runnum_ = iEvent.id().run();
     cout<<"Adding table for run : "<<runnum_<<endl;
-    cent->newRun(iSetup);
-    if(debug_) cent->print();
     TFileDirectory subDir = fs->mkdir(Form("run%d",runnum_));
-    CB = subDir.make<CentralityBins>((CentralityBins) *cent);
+    CB = subDir.make<CentralityBins>();
   }    
 }
 

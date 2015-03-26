@@ -7,7 +7,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 ###
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

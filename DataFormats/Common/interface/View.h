@@ -121,8 +121,6 @@ namespace edm {
     const_reference operator[](size_type pos) const;
     RefToBase<value_type> refAt(size_type i) const;
     Ptr<value_type> ptrAt(size_type i) const;
-    RefToBaseVector<T> const& refVector() const { return refs_; }
-    PtrVector<T> const& ptrVector() const { return ptrs_; }
     std::vector<Ptr<value_type> > const& ptrs() const;
 
     const_reference front() const;

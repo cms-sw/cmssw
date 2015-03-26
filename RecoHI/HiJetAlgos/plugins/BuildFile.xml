@@ -8,10 +8,13 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
+<use   name="JetMETCorrections/Objects"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="cgal"/>
+<use   name="f77compiler"/>
 
-<Flags CXXFLAGS="-frounding-math"/>
+<Flags CXXFLAGS="-frounding-math -Wno-unknown-pragmas"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="*.cc" name="HiJetAlgosPlugins">
+<library   file="*.cc,*.f" name="HiJetAlgosPlugins">
 </library>
 

@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -113,6 +115,38 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
 
 }
 
+void
+SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("IncludeErrors",true);
+  desc.add<bool>("UseQualityInfo",false);
+  {
+    std::vector<int> temp1;
+    temp1.reserve(1);
+    temp1.push_back(29);
+    desc.add<std::vector<int> >("ErrorList",temp1)->setComment("## ErrorList: list of error codes used by tracking to invalidate modules");
+  }
+  {
+    std::vector<int> temp1;
+    temp1.reserve(1);
+    temp1.push_back(40);
+    desc.add<std::vector<int> >("UserErrorList",temp1)->setComment("## UserErrorList: list of error codes used by Pixel experts for investigation");
+  }
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("siPixelRawData"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addOptional<std::vector<edm::InputTag>>("inputs");
+    psd0.addOptional<std::vector<double>>("deltaPhi");
+    psd0.addOptional<std::vector<double>>("maxZ");
+    psd0.addOptional<edm::InputTag>("beamSpot");
+    desc.add<edm::ParameterSetDescription>("Regions",psd0)->setComment("## Empty Regions PSet means complete unpacking");
+  }
+  desc.addUntracked<bool>("Timing",false);
+  desc.add<bool>("UsePilotBlade",false)->setComment("##  Use pilot blades");
+  desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
+  desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
+  descriptions.add("siPixelRawToDigi",desc);
+}
 
 // -----------------------------------------------------------------------------
 

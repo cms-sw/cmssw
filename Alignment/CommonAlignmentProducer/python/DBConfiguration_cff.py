@@ -12,7 +12,7 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
         tag = cms.string('TrackerIdealGeometry200')
     ), 
         cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
+            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
             tag = cms.string('TrackerIdealGeometryErrors200')
         )),
     connect = cms.string('sqlite_file:Alignments.db')
@@ -27,7 +27,7 @@ PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('<output tag>')
     ), 
         cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
+            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
             tag = cms.string('<output error tag>')
         ))
 )

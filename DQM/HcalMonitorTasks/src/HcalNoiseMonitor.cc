@@ -18,11 +18,11 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
-HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
+HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
    Online_                = ps.getUntrackedParameter<bool>("online",false);
    mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
@@ -67,24 +67,15 @@ void HcalNoiseMonitor::reset()
 {
 }
 
-void HcalNoiseMonitor::cleanup()
-{
-   if(dbe_)
-   {
-      dbe_->setCurrentFolder(subdir_);
-      dbe_->removeContents();
-   }
-}
-
-void HcalNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalNoiseMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
    if(debug_ > 1)
-      std::cout <<"HcalNoiseMonitor::beginRun"<< std::endl;
+      std::cout <<"HcalNoiseMonitor::bookHistograms"<< std::endl;
 
-   HcalBaseDQMonitor::beginRun(run,c);
+   HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
    if(tevt_ == 0)
-      setup();
+      setup(ib);
 
    if(mergeRuns_ == false)
       reset();
@@ -92,99 +83,96 @@ void HcalNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
    return;
 }
 
-
-void HcalNoiseMonitor::setup()
+void HcalNoiseMonitor::setup(DQMStore::IBooker &ib)
 {
    if (setupDone_)
      return;
    setupDone_ = true;
-   HcalBaseDQMonitor::setup();
+   HcalBaseDQMonitor::setup(ib);
 
    if(debug_ > 1)
       std::cout << "<HcalNoiseMonitor::setup> Creating histograms" << std::endl;
 
-   if(dbe_)
-   {
-      dbe_->setCurrentFolder(subdir_);
+      ib.setCurrentFolder(subdir_);
 
       // Fit-based
-      dbe_->setCurrentFolder(subdir_ + "DoubleChi2/");
+      ib.setCurrentFolder(subdir_ + "DoubleChi2/");
 
-      hNominalChi2 = dbe_->book1D("Nominal_fit_chi2", "Nominal fit chi2, total charge > 20 fC", 100, 0, 200);
+      hNominalChi2 = ib.book1D("Nominal_fit_chi2", "Nominal fit chi2, total charge > 20 fC", 100, 0, 200);
       hNominalChi2->setAxisTitle("Nominal fit #chi^{2}", 1);
 
-      hLinearChi2 = dbe_->book1D("Linear_fit_chi2", "Linear fit chi2, total charge > 20 fC", 100, 0, 200);
+      hLinearChi2 = ib.book1D("Linear_fit_chi2", "Linear fit chi2, total charge > 20 fC", 100, 0, 200);
       hLinearChi2->setAxisTitle("Linear fit #chi^{2}", 1);
       
-      hLinearTestStatistics = dbe_->book1D("Lambda_linear", "#Lambda_{linear}, total charge > 20 fC", 100, -10, 10);
+      hLinearTestStatistics = ib.book1D("Lambda_linear", "#Lambda_{linear}, total charge > 20 fC", 100, -10, 10);
       hLinearTestStatistics->setAxisTitle("#Lambda_{linear}", 1);
 
-      hRMS8OverMax = dbe_->book1D("RMS8_over_Max", "RMS8/max, total charge > 20 fC", 100, 0, 2);
+      hRMS8OverMax = ib.book1D("RMS8_over_Max", "RMS8/max, total charge > 20 fC", 100, 0, 2);
       hRMS8OverMax->setAxisTitle("RMS8/max", 1);
 
-      hRMS8OverMaxTestStatistics = dbe_->book1D("Lambda_RMS8_over_max", "#Lambda_{RMS8/Max}, total charge > 20 fC",
+      hRMS8OverMaxTestStatistics = ib.book1D("Lambda_RMS8_over_max", "#Lambda_{RMS8/Max}, total charge > 20 fC",
          100, -30, 10);
       hRMS8OverMaxTestStatistics->setAxisTitle("#Lambda_{RMS8/Max}", 1);
 
-      hLambdaLinearVsTotalCharge = dbe_->book2D("Lambda_linear_vs_total_charge", "#Lambda_{Linear}",
+      hLambdaLinearVsTotalCharge = ib.book2D("Lambda_linear_vs_total_charge", "#Lambda_{Linear}",
          50, -5, 5, 25, 0, 500);
       hLambdaLinearVsTotalCharge->setAxisTitle("#Lambda_{linear}", 1);
       hLambdaLinearVsTotalCharge->setAxisTitle("Total charge", 2);
 
-      hLambdaRMS8MaxVsTotalCharge = dbe_->book2D("Lambda_RMS8Max_vs_total_charge", "#Lambda_{RMS8/Max}",
+      hLambdaRMS8MaxVsTotalCharge = ib.book2D("Lambda_RMS8Max_vs_total_charge", "#Lambda_{RMS8/Max}",
          50, -15, 5, 25, 0, 500);
       hLambdaRMS8MaxVsTotalCharge->setAxisTitle("#Lambda_{RMS8/Max}", 1);
       hLambdaRMS8MaxVsTotalCharge->setAxisTitle("Total charge", 2);
 
-      hTriangleLeftSlopeVsTS4 = dbe_->book2D("Triangle_fit_left_slope",
+      hTriangleLeftSlopeVsTS4 = ib.book2D("Triangle_fit_left_slope",
          "Triangle fit left distance vs. TS4", 50, 0, 10, 25, 0, 500);
       hTriangleLeftSlopeVsTS4->setAxisTitle("Left slope", 1);
       hTriangleLeftSlopeVsTS4->setAxisTitle("Peak time slice", 2);
 
-      hTriangleRightSlopeVsTS4 = dbe_->book2D("Triangle_fit_right_slope",
+      hTriangleRightSlopeVsTS4 = ib.book2D("Triangle_fit_right_slope",
          "Triangle fit right distance vs. peak time slice", 50, 0, 10, 25, 0, 500);
       hTriangleRightSlopeVsTS4->setAxisTitle("Left slope", 1);
       hTriangleRightSlopeVsTS4->setAxisTitle("Peak time slice", 2);
 
-      SetupEtaPhiHists(hFailLinearEtaPhi, "Fail_linear_Eta_Phi_Map", "");
-      SetupEtaPhiHists(hFailRMSMaxEtaPhi, "Fail_RMS8Max_Eta_Phi_Map", "");
-      SetupEtaPhiHists(hFailTriangleEtaPhi, "Fail_triangle_Eta_Phi_Map", "");
+      SetupEtaPhiHists(ib,hFailLinearEtaPhi, "Fail_linear_Eta_Phi_Map", "");
+      SetupEtaPhiHists(ib,hFailRMSMaxEtaPhi, "Fail_RMS8Max_Eta_Phi_Map", "");
+      SetupEtaPhiHists(ib,hFailTriangleEtaPhi, "Fail_triangle_Eta_Phi_Map", "");
 
       // High-level isolation filter
-      dbe_->setCurrentFolder(subdir_ + "IsolationVariable/");
+      ib.setCurrentFolder(subdir_ + "IsolationVariable/");
 
-      SetupEtaPhiHists(hFailIsolationEtaPhi, "Fail_isolation_Eta_Phi_Map", "");
+      SetupEtaPhiHists(ib,hFailIsolationEtaPhi, "Fail_isolation_Eta_Phi_Map", "");
       
       // TS4 vs. TS5 variable
-      dbe_->setCurrentFolder(subdir_ + "TS4TS5Variable/");
+      ib.setCurrentFolder(subdir_ + "TS4TS5Variable/");
       
-      hTS4TS5RelativeDifference = dbe_->book1D("TS4_TS5_relative_difference",
+      hTS4TS5RelativeDifference = ib.book1D("TS4_TS5_relative_difference",
          "(TS4-TS5)/(TS4+TS5), total charge > 20 fC", 100, -1, 1);
       hTS4TS5RelativeDifference->setAxisTitle("(TS4 - TS5) / (TS4 + TS5)", 1);
 
-      hTS4TS5RelativeDifferenceVsCharge = dbe_->book2D("TS4_TS5_relative_difference_charge",
+      hTS4TS5RelativeDifferenceVsCharge = ib.book2D("TS4_TS5_relative_difference_charge",
          "(TS4-TS5)/(TS4+TS5) vs. Charge", 25, 0, 400, 75, -1, 1);
       hTS4TS5RelativeDifferenceVsCharge->setAxisTitle("Charge", 1);
       hTS4TS5RelativeDifferenceVsCharge->setAxisTitle("(TS4 - TS5) / (TS4 + TS5)", 2);
 
       // Noise summary object
-      dbe_->setCurrentFolder(subdir_ + "NoiseMonitoring/");
+      ib.setCurrentFolder(subdir_ + "NoiseMonitoring/");
    
-      hMaxZeros = dbe_->book1D("Max_Zeros", "Max zeros", 15, -0.5, 14.5);
+      hMaxZeros = ib.book1D("Max_Zeros", "Max zeros", 15, -0.5, 14.5);
       
-      hTotalZeros = dbe_->book1D("Total_Zeros", "Total zeros", 15, -0.5, 14.5);
+      hTotalZeros = ib.book1D("Total_Zeros", "Total zeros", 15, -0.5, 14.5);
       
-      hE2OverE10Digi = dbe_->book1D("E2OverE10Digi", "E2/E10 of the highest digi in an HPD", 100, 0, 2);
+      hE2OverE10Digi = ib.book1D("E2OverE10Digi", "E2/E10 of the highest digi in an HPD", 100, 0, 2);
       
-      hE2OverE10Digi5 = dbe_->book1D("E2OverE10Digi5", "E2/E10 of the highest 5 digi in an HPD", 100, 0, 2);
+      hE2OverE10Digi5 = ib.book1D("E2OverE10Digi5", "E2/E10 of the highest 5 digi in an HPD", 100, 0, 2);
       
-      hE2OverE10RBX = dbe_->book1D("E2OverE10RBX", "E2/E10 of RBX", 100, 0, 2);
+      hE2OverE10RBX = ib.book1D("E2OverE10RBX", "E2/E10 of RBX", 100, 0, 2);
       
-      hHPDHitCount = dbe_->book1D("HPDHitCount", "HPD hit count (1.5 GeV)", 19, -0.5, 18.5);
+      hHPDHitCount = ib.book1D("HPDHitCount", "HPD hit count (1.5 GeV)", 19, -0.5, 18.5);
       
-      hRBXHitCount = dbe_->book1D("RBXHitCount", "Number of hits in RBX", 74, -0.5, 73.5);
+      hRBXHitCount = ib.book1D("RBXHitCount", "Number of hits in RBX", 74, -0.5, 73.5);
 
-      hHcalNoiseCategory = dbe_->book1D("Hcal_noise_category", "Hcal noise category", 10, 0.5, 10.5);
+      hHcalNoiseCategory = ib.book1D("Hcal_noise_category", "Hcal noise category", 10, 0.5, 10.5);
       hHcalNoiseCategory->setBinLabel(1, "RBX noise", 1);
       hHcalNoiseCategory->setBinLabel(2, "RBX pedestal flatter", 1);
       hHcalNoiseCategory->setBinLabel(3, "RBX pedestal sharper", 1);
@@ -193,11 +181,10 @@ void HcalNoiseMonitor::setup()
       hHcalNoiseCategory->setBinLabel(7, "HPD discharge", 1);
       hHcalNoiseCategory->setBinLabel(8, "HPD ion feedback", 1);
 
-      hBadZeroRBX = dbe_->book1D("BadZeroRBX", "RBX with bad ADC zero counts", 72, 0.5, 72.5);
-      hBadCountHPD = dbe_->book1D("BadCountHPD", "HPD with bad hit counts", 72 * 4, 0.5, 72 * 4 + 0.5);
-      hBadNoOtherCountHPD = dbe_->book1D("BadNoOtherCountHPD", "HPD with bad \"no other\" hit counts", 72 * 4, 0.5, 72 * 4 + 0.5);
-      hBadE2E10RBX = dbe_->book1D("BadE2E10RBX", "RBX with bad E2/E10 value", 72, 0.5, 72.5);
-   }
+      hBadZeroRBX = ib.book1D("BadZeroRBX", "RBX with bad ADC zero counts", 72, 0.5, 72.5);
+      hBadCountHPD = ib.book1D("BadCountHPD", "HPD with bad hit counts", 72 * 4, 0.5, 72 * 4 + 0.5);
+      hBadNoOtherCountHPD = ib.book1D("BadNoOtherCountHPD", "HPD with bad \"no other\" hit counts", 72 * 4, 0.5, 72 * 4 + 0.5);
+      hBadE2E10RBX = ib.book1D("BadE2E10RBX", "RBX with bad E2/E10 value", 72, 0.5, 72.5);
 
    ReadHcalPulse();
 
@@ -221,12 +208,6 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
 
    HcalBaseDQMonitor::analyze(iEvent, iSetup);
 
-   if(dbe_ == NULL)
-   {
-      if(debug_ > 0)
-         std::cout << "HcalNoiseMonitor::processEvent DQMStore not instantiated!!!"<< std::endl;
-      return;
-   }
 
    // loop over digis
    for(HBHEDigiCollection::const_iterator iter = hHBHEDigis->begin(); iter != hHBHEDigis->end(); iter++)

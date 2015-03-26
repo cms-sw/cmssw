@@ -6,7 +6,7 @@ process.options = cms.untracked.PSet(
  fileMode = cms.untracked.string('FULLMERGE')
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")

@@ -347,6 +347,7 @@ void  popcon::EcalTPGBadXTHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGBadXTHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

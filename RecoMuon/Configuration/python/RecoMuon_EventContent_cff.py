@@ -36,14 +36,17 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_tevMuons_*_*', 
                                            'keep recoTrackExtras_tevMuons_*_*', 
                                            'keep recoTracks_generalTracks_*_*',
+                                           'keep recoTracks_displacedTracks_*_*',
                                            'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*', 
+                                           # Displaced Global Muons
+                                           'keep recoTracks_displacedGlobalMuons_*_*',
+                                           'keep recoTrackExtras_displacedGlobalMuons_*_*', 
+                                           'keep TrackingRecHitsOwned_displacedGlobalMuons_*_*',
                                            # Cosmics
                                            'keep recoTracks_cosmicMuons_*_*',
-                                           'keep recoTracks_globalCosmicMuons_*_*', 
                                            'keep recoMuons_muonsFromCosmics_*_*',
                                            # Cosmics 1 leg
                                            'keep recoTracks_cosmicMuons1Leg_*_*',
-                                           'keep recoTracks_globalCosmicMuons1Leg_*_*', 
                                            'keep recoMuons_muonsFromCosmics1Leg_*_*',
                                            # Additional tracks
                                            'keep recoTracks_refittedStandAloneMuons_*_*', 
@@ -67,12 +70,8 @@ RecoMuonRECO = cms.PSet(
                                            'keep *_CosmicMuonSeed_*_*',
                                            'keep recoTrackExtras_cosmicMuons_*_*', 
                                            'keep TrackingRecHitsOwned_cosmicMuons_*_*',
-                                           'keep recoTrackExtras_globalCosmicMuons_*_*', 
-                                           'keep TrackingRecHitsOwned_globalCosmicMuons_*_*',
                                            'keep recoTrackExtras_cosmicMuons1Leg_*_*', 
                                            'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*',
-                                           'keep recoTrackExtras_globalCosmicMuons1Leg_*_*', 
-                                           'keep TrackingRecHitsOwned_globalCosmicMuons1Leg_*_*',
                                            'keep recoTracks_cosmicsVetoTracks_*_*',
                                            # SET muons
                                            'keep *_SETMuonSeed_*_*',

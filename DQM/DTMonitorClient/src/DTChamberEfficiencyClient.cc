@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author M. Pelliccioni - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 #include <DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h>
@@ -30,9 +33,8 @@ DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet)
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: Constructor called";
 
-  dbe = Service<DQMStore>().operator->();
-
   prescaleFactor = pSet.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
 
 DTChamberEfficiencyClient::~DTChamberEfficiencyClient()
@@ -41,57 +43,28 @@ DTChamberEfficiencyClient::~DTChamberEfficiencyClient()
      << "DTChamberEfficiencyClient: Destructor called";
 }
 
-void DTChamberEfficiencyClient::beginJob()
-{
-  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
-    << "DTChamberEfficiencyClient: BeginJob";
-
-  nevents = 0;
-
-  bookHistos();
-
-  return;
-}
-
-void DTChamberEfficiencyClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
-{
-  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
-    << "[DTChamberEfficiencyClient]: Begin of LS transition";
-
-  return;
-}
-
-void DTChamberEfficiencyClient::beginRun(const Run& run, const EventSetup& setup)
-{
-  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
-    << "DTChamberEfficiencyClient: beginRun";
+void DTChamberEfficiencyClient::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
 
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(muonGeom);
 
-  return;
 }
 
-void DTChamberEfficiencyClient::analyze(const Event& e, const EventSetup& context)
-{
 
-  nevents++;
-  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
-    << "[DTChamberEfficiencyClient]: " << nevents << " events";
-  return;
-}
-
-void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
+void DTChamberEfficiencyClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & setup)
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: endluminosityBlock";
 }  
 
-
-void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context)
+void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) 
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: endRun";
+
+  bookHistos(ibooker);  
+
   // reset the global summary
   globalEffSummary->Reset();
 
@@ -101,9 +74,10 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
 
     // Get the ME produced by EfficiencyTask Source
     // All means no selection on segments, Qual means segments with at least 12 hits
-    MonitorElement* MECountAll = dbe->get("DT/05-ChamberEff/Task/hCountSectVsChamb_All_W" + wheel_str.str());	
-    MonitorElement* MECountQual = dbe->get("DT/05-ChamberEff/Task/hCountSectVsChamb_Qual_W" + wheel_str.str());	
-    MonitorElement* MEExtrap = dbe->get("DT/05-ChamberEff/Task/hExtrapSectVsChamb_W" + wheel_str.str());	
+	
+    MonitorElement* MECountAll = igetter.get("DT/05-ChamberEff/Task/hCountSectVsChamb_All_W" + wheel_str.str());	
+    MonitorElement* MECountQual = igetter.get("DT/05-ChamberEff/Task/hCountSectVsChamb_Qual_W" + wheel_str.str());	
+    MonitorElement* MEExtrap = igetter.get("DT/05-ChamberEff/Task/hExtrapSectVsChamb_W" + wheel_str.str());	
 
     //get the TH2F
     if(!MECountAll || !(MECountAll->getTH2F())) {
@@ -135,8 +109,6 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
 
 	  const float effQual= numerQual/denom;
 	  const float eff_error_Qual = sqrt((effQual+effQual*effQual)/denom);
-
-	  //if(wheel == 2 && k == 2 && j == 2) cout << "Eff ch " << effAll << " " << lumiSeg.id() << endl;
 
 	  summaryHistos[wheel+2][0]->setBinContent(j,k,effAll);
 	  summaryHistos[wheel+2][0]->setBinError(j,k,eff_error_All);
@@ -170,8 +142,6 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
 	  
 	  const double tmpefficiency = segmentWheelSummary->getBinContent(sector, station);
 	  const double tmpvariance = pow(segmentWheelSummary->getBinError(sector, station),2);
-
-	  //if(wheel == 2 && sector == 9) cout << "ch " << station << " " << tmpefficiency << " " << tmpvariance << " " << lumiSeg.id() << endl;
 	  
 	  if(tmpefficiency < 0.2 || tmpvariance == 0){
 	    nFailingChambers++;
@@ -213,31 +183,22 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
 	else if(eff_result < 0.5 && eff_result > 0.3) globalEffSummary->Fill(sector,wheel,0.4);
 	else if(eff_result < 0.3 && eff_result > 0.) globalEffSummary->Fill(sector,wheel,0.15);
 
-	//if(wheel == 2 && sector == 9) cout << "eff_result " << eff_result << endl;
-	//if(wheel == 2 && sector == 9) cout << "nfail " << nFailingChambers++ << endl;
-
       }
     }
   }
   return;
 }
 
-void DTChamberEfficiencyClient::endJob()
-{
-  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
-    << "DTChamberEfficiencyClient: endJob";
-  return;
-}
-
-void DTChamberEfficiencyClient::bookHistos()
+void DTChamberEfficiencyClient::bookHistos(DQMStore::IBooker & ibooker)
 {
 
-  dbe->setCurrentFolder("DT/05-ChamberEff");
-  globalEffSummary = dbe->book2D("EfficiencyGlbSummary","Efficiency Summary",12,1,13,5,-2,3);
+  ibooker.setCurrentFolder("DT/05-ChamberEff");
+
+  globalEffSummary = ibooker.book2D("EfficiencyGlbSummary","Efficiency Summary",12,1,13,5,-2,3);
   globalEffSummary->setAxisTitle("sector",1);
   globalEffSummary->setAxisTitle("wheel",2);
 
-  globalEffDistr = dbe->book1D("TotalEfficiency","Total efficiency",51,0.,1.02);
+  globalEffDistr = ibooker.book1D("TotalEfficiency","Total efficiency",51,0.,1.02);
   globalEffDistr -> setAxisTitle("Eff",1);
 
   for(int wh=-2; wh<=2; wh++){
@@ -251,21 +212,21 @@ void DTChamberEfficiencyClient::bookHistos()
     string histoNameEff =  "Efficiency_W" + wheel.str();
     string histoTitleEff =  "Segment efficiency, wheel " + wheel.str();
 
-    dbe->setCurrentFolder("DT/05-ChamberEff");
+    ibooker.setCurrentFolder("DT/05-ChamberEff");
 
-    summaryHistos[wh+2][0] = dbe->book2D(histoNameAll.c_str(),histoTitleAll.c_str(),14,1.,15.,4,1.,5.);
+    summaryHistos[wh+2][0] = ibooker.book2D(histoNameAll.c_str(),histoTitleAll.c_str(),14,1.,15.,4,1.,5.);
     summaryHistos[wh+2][0]->setAxisTitle("Sector",1);
     summaryHistos[wh+2][0]->setBinLabel(1,"MB1",2);
     summaryHistos[wh+2][0]->setBinLabel(2,"MB2",2);
     summaryHistos[wh+2][0]->setBinLabel(3,"MB3",2);
     summaryHistos[wh+2][0]->setBinLabel(4,"MB4",2);
 
-    EffDistrPerWh[wh+2] = dbe -> book1D(histoNameEff.c_str(),histoTitleEff.c_str(),51,0.,1.02);
+    EffDistrPerWh[wh+2] = ibooker.book1D(histoNameEff.c_str(),histoTitleEff.c_str(),51,0.,1.02);
     EffDistrPerWh[wh+2] -> setAxisTitle("Eff",1);
 
-    dbe->setCurrentFolder("DT/05-ChamberEff/HighQual");
+    ibooker.setCurrentFolder("DT/05-ChamberEff/HighQual");
 
-    summaryHistos[wh+2][1] = dbe->book2D(histoNameQual.c_str(),histoTitleQual.c_str(),14,1.,15.,4,1.,5.);
+    summaryHistos[wh+2][1] = ibooker.book2D(histoNameQual.c_str(),histoTitleQual.c_str(),14,1.,15.,4,1.,5.);
     summaryHistos[wh+2][1]->setAxisTitle("Sector",1);
     summaryHistos[wh+2][1]->setBinLabel(1,"MB1",2);
     summaryHistos[wh+2][1]->setBinLabel(2,"MB2",2);

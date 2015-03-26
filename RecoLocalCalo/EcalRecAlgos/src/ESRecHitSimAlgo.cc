@@ -12,8 +12,8 @@
 EcalRecHit::ESFlags ESRecHitSimAlgo::evalAmplitude(float * results, const ESDataFrame& digi, float ped) const {
   
   float energy = 0;
-  float adc[3];
-  float pw[3];
+  float adc[3] {};
+  float pw[3] {};
   pw[0] = w0_;
   pw[1] = w1_;
   pw[2] = w2_;
@@ -51,7 +51,7 @@ EcalRecHit::ESFlags ESRecHitSimAlgo::evalAmplitude(float * results, const ESData
 
   // A from analytical formula:
   constexpr float t1 = 20.;
-  #ifdef __clang__
+  #if defined(__clang__) || defined(__INTEL_COMPILER)
   const float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
   #else
   constexpr float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
@@ -80,7 +80,7 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   auto const & ang = ang_->getMap().preshower(ind);
   auto const & statusCh = channelStatus_->getMap().preshower(ind);
 
-  float results[3];
+  float results[3] {};
 
   auto status = evalAmplitude(results, digi, ped.getMean());
 
@@ -150,10 +150,10 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
 double* ESRecHitSimAlgo::oldEvalAmplitude(const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const {
   
-  double *results = new double[4];
+  double *results = new double[4] {};
   float energy = 0;
-  double adc[3];
-  float pw[3];
+  double adc[3] {};
+  float pw[3] {};
   pw[0] = w0;
   pw[1] = w1;
   pw[2] = w2;

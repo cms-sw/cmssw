@@ -67,7 +67,7 @@
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public thread_unsafe::DQMEDAnalyzer
+class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
 {
  public:
   

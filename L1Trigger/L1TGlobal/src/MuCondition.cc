@@ -300,7 +300,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             }
 
 	    // check delta eta
-	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEta(), (candVec->at(useBx,1))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
+	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEta(), (candVec->at(useBx,1))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 8) ){
 	      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
 	      continue;
 	    }
@@ -413,10 +413,9 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
       << "\n\t hwPt   = " <<  cand.hwPt()
       << "\n\t hwEta  = " << cand.hwEta()
       << "\n\t hwPhi  = " << cand.hwPhi()
-      << "\n\t hwCharge = " << cand.charge()
+      << "\n\t hwCharge = " << cand.hwCharge()
       << "\n\t hwQual = " << cand.hwQual()
       << "\n\t hwIso  = " << cand.hwIso()
-      << "\n\t hwMip  = " << cand.hwMip()
       << std::endl;
 
 
@@ -429,7 +428,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower) ){
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower, 8) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
@@ -441,8 +440,8 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     }
 
     // check charge
-    if( objPar.charge!=0 ){
-      if( (cand.charge() * objPar.charge) < 0 ){
+    if( objPar.charge>=0 ){
+      if( cand.hwCharge() != objPar.charge ){
 	LogDebug("l1t|Global") << "\t\t l1t::Candidate failed charge requirement" << std::endl;
 	return false;
       }
@@ -497,10 +496,10 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
     // check mip
     if (objPar.enableMip) {
-        if (!cand.hwMip()) {
-	  LogDebug("l1t|Global") << "\t\t Muon Failed enableMip" << std::endl;
-            return false;
-        }
+   //      if (!cand.hwMip()) {
+	  // LogDebug("l1t|Global") << "\t\t Muon Failed enableMip" << std::endl;
+   //          return false;
+   //      }
     }
 
     // particle matches if we get here

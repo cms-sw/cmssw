@@ -368,6 +368,11 @@ Jet::tagInfoTrackIP(const std::string &label) const {
     return tagInfoByTypeOrLabel<reco::TrackIPTagInfo>(label);
 }
 
+const reco::CandSoftLeptonTagInfo *
+Jet::tagInfoCandSoftLepton(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandSoftLeptonTagInfo>(label);
+}
+
 const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
     return tagInfoByTypeOrLabel<reco::SoftLeptonTagInfo>(label);
@@ -558,4 +563,35 @@ void Jet::cachePFCandidates() const {
   }
   // Set the cache
   pfCandidatesTemp_.set(std::move(pfCandidatesTemp));
+}
+
+
+
+
+/// Access to subjet list
+pat::JetPtrCollection const & Jet::subjets( unsigned int index) const { 
+  if ( index < subjetCollections_.size() ) 
+    return subjetCollections_[index]; 
+  else {
+    throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+  }
+}
+
+
+/// String access to subjet list
+pat::JetPtrCollection const & Jet::subjets( std::string label ) const { 
+  auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
+  if ( found != subjetLabels_.end() ){
+    auto index = std::distance( found , subjetLabels_.begin() );
+    return subjetCollections_[index]; 
+  }
+  else {
+    throw cms::Exception("SubjetsNotFound") << "Label " << label << " does not match any subjet collection" << std::endl;
+  }
+}
+
+/// Add new set of subjets
+void Jet::addSubjets( pat::JetPtrCollection const & pieces, std::string label  ) {
+  subjetCollections_.push_back( pieces );
+  subjetLabels_.push_back( label );
 }

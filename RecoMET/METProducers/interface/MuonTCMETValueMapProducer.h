@@ -77,7 +77,7 @@ private:
   double  vertexMaxDZ_;
   double  maxpt_eta25_;
   double  maxpt_eta20_;
-  int     maxTrackAlgo_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
   double  minpt_;
   double  maxpt_;
   double  maxeta_;
@@ -92,7 +92,7 @@ private:
   double  d0cutb_;
   bool    usePvtxd0_;
   std::vector<int> trkQuality_;
-  std::vector<int> trkAlgos_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
   int     muonMinValidStaHits_;
   double  muonpt_;

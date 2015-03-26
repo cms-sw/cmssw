@@ -61,7 +61,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #--------------------------
 # Calibration

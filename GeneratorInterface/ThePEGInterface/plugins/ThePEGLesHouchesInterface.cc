@@ -160,10 +160,14 @@ bool LesHouchesInterface::doReadEvent()
 
 	hepeup.NUP	= orig.NUP;
 	hepeup.IDPRUP	= orig.IDPRUP;
-	hepeup.XWGTUP	= orig.XWGTUP;
 	hepeup.SCALUP	= orig.SCALUP;
 	hepeup.AQEDUP	= orig.AQEDUP;
 	hepeup.AQCDUP	= orig.AQCDUP;
+        
+        //workaround, since Herwig++ is not passing LHE weights to the hepmc product anyways
+        //as currently run in CMSSW
+        hepeup.XWGTUP   = 1.0;
+        
 	hepeup.resize();
 
 	std::copy(orig.IDUP.begin(), orig.IDUP.end(), hepeup.IDUP.begin());

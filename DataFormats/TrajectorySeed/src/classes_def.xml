@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="TrajectorySeed" ClassVersion="10">
+  <class name="TrajectorySeed" ClassVersion="11">
+   <version ClassVersion="11" checksum="1603723857"/>
    <version ClassVersion="10" checksum="611162820"/>
   </class>
   <class name="edm::RefToBase<TrajectorySeed>"/>

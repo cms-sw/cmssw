@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 SiPixelTrackResidualSource = cms.EDAnalyzer("SiPixelTrackResidualSource",
+    TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelTrackResiduals"),
     clustersrc = cms.InputTag("siPixelClusters"),                            
+    tracksrc   = cms.InputTag("generalTracks"),
     debug = cms.untracked.bool(False),                          
     saveFile = cms.untracked.bool(False),
     outputFile = cms.string('Pixel_DQM_TrackResidual.root'),

@@ -59,6 +59,7 @@ namespace egHLT {
   class OffHelper {
 
   private:
+
     OffEgSel eleLooseCuts_; //loose selection cuts (loose has no relation to other 'loose' cuts)
     OffEgSel eleCuts_; //normal selection cuts
     OffEgSel phoLooseCuts_; //loose selection cuts (loose has no relation to other 'loose' cuts)
@@ -156,25 +157,24 @@ namespace egHLT {
     std::vector<edm::ParameterSet> trigCutParams_; //probably the least bad option
 
   private: //disabling copy / assignment
-    OffHelper& operator=(const OffHelper& rhs){return *this;}
-    OffHelper(const OffHelper& rhs){}
+    OffHelper & operator=(const OffHelper&) = delete;
+    OffHelper(const OffHelper&) = delete;
     
   public:
-    OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
+    OffHelper(): eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
     ~OffHelper();
     
     void setup(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
-    void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed);
+    void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed, const TrigCodes& trigCodes);
 
     //int is the error code, 0 = no error
     //it should never throw, print to screen or crash, this is the only error reporting it does
-    int makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setup,egHLT::OffEvt& offEvent);
-    
+    int makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setup,egHLT::OffEvt& offEvent,const TrigCodes& trigCodes);
     
     int getHandles(const edm::Event& event,const edm::EventSetup& setup);
     int fillOffEleVec(std::vector<OffEle>& offEles);
     int fillOffPhoVec(std::vector<OffPho>& offPhos);
-    int setTrigInfo(const edm::Event & edmEvent, egHLT::OffEvt& offEvent);
+    int setTrigInfo(const edm::Event & edmEvent, egHLT::OffEvt& offEvent, const TrigCodes& trigCodes);
 
     void fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isolData);
     void fillClusShapeData(const reco::GsfElectron& ele,OffEle::ClusShapeData& clusShapeData);

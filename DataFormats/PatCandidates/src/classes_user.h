@@ -34,6 +34,7 @@ namespace DataFormats_PatCandidates {
   pat::UserHolder<AlgebraicVector5>              p_udh_vec_5;
   pat::UserHolder<reco::Track>                   p_udh_tk;
   pat::UserHolder<reco::Vertex>                  p_udh_vtx;
+  pat::UserHolder<std::vector<unsigned int> >    p_udh_vunit;
 
   };
 

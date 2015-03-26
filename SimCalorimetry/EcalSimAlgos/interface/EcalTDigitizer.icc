@@ -80,28 +80,26 @@ EcalTDigitizer<Traits>::run( DigiCollection& output, CLHEP::HepRandomEngine* eng
 
 
 template <class Traits>
+void 
+EcalTDigitizer<Traits>::addNoiseSignals()
+  {
+    std::vector<CaloSamples> noiseSignals;
+    // noise signals need to be in units of photoelectrons.  Fractional is OK
+    theNoiseSignalGenerator->fillEvent();
+    theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
+    for(typename std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
+        signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
+    {
+      m_hitResponse->add(*signalItr);
+    }
+  }
+
+template <class Traits>
 bool
 EcalTDigitizer<Traits>::addNoise() const 
 {
    return m_addNoise ;
 }
-
-template <class Traits> 
-void 
-EcalTDigitizer<Traits>::addNoiseSignals()
-      {
-	std::vector<CaloSamples> noiseSignals;
-	// noise signals need to be in units of photoelectrons.  Fractional is OK
-	theNoiseSignalGenerator->fillEvent();
-	theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
-	//for(auto& signalItr: noiseSignals) 
-	for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
-	  {
-	    m_hitResponse->add(*signalItr);
-	  }
-      }
-
-
 
 
 template <class Traits>

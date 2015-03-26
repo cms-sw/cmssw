@@ -36,10 +36,10 @@ class DTHitAssociator {
 
   virtual ~DTHitAssociator(){}
 
-  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & hit);
-  std::vector<SimHitIdpr> associateDTHitId(const DTRecHit1D * dtrechit);
+  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & hit) const;
+  std::vector<SimHitIdpr> associateDTHitId(const DTRecHit1D * dtrechit) const;
   
-  std::vector<PSimHit> associateHit(const TrackingRecHit & hit);
+  std::vector<PSimHit> associateHit(const TrackingRecHit & hit) const;
 
   SimHitMap mapOfSimHit;
   RecHitMap mapOfRecHit;

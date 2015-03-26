@@ -32,6 +32,8 @@
 
 #include "TMVA/Reader.h"
 
+#include "trackAlgoPriorityOrder.h"
+
 using namespace reco;
 
     class dso_hidden DuplicateListMerger final : public edm::stream::EDProducer<> {
@@ -268,7 +270,10 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     reco::TrackRef inTrkRef2 = matchIter0->second->second.second;
     const reco::Track& inTrk1 = *(inTrkRef1.get());
     const reco::Track& inTrk2 = *(inTrkRef2.get());
-    reco::TrackBase::TrackAlgorithm newTrkAlgo = std::min(inTrk1.algo(),inTrk2.algo());
+    reco::TrackBase::TrackAlgorithm newTrkAlgo = std::min(inTrk1.algo(),inTrk2.algo(),
+                                                          [](reco::TrackBase::TrackAlgorithm a, reco::TrackBase::TrackAlgorithm b) {
+                                                            return trackAlgoPriorityOrder[a] < trackAlgoPriorityOrder[b];
+                                                          });
     int combinedQualityMask = (inTrk1.qualityMask() | inTrk2.qualityMask());
     inputTracks.push_back(inTrk1);
     inputTracks.push_back(inTrk2);
@@ -339,11 +344,12 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       tx.setResiduals(track.residuals());
       // fill TrackingRecHits
       unsigned nh1=track.recHitsSize();
+      auto const firstTrackIndex = outputTrkHits->size();
       for ( unsigned ih=0; ih<nh1; ++ih ) { 
 	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
 	outputTrkHits->push_back( track.recHit(ih)->clone() );
-	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
       }
+      tx.setHits(  refTrkHits, firstTrackIndex, outputTrkHits->size() - firstTrackIndex );
     }
     edm::Ref< std::vector<Trajectory> > trajRef(mergedTrajHandle, (*matchIter0).first);
     TrajTrackAssociationCollection::const_iterator match = mergedTrajTrackHandle->find(trajRef);

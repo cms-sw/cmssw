@@ -86,7 +86,7 @@ private:
 	//for filling identifiers
 	void fillIdentifiers( int subdetlevel, int rawid, const TrackerTopology* tTopo);
 	//converts surveyRcd into alignmentRcd
-	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
+	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrorsExtended* alignErrors);
 	//need for conversion for surveyToTracker
 	void addSurveyInfo(Alignable* ali);
 	//void createDBGeometry(const edm::EventSetup& iSetup);

@@ -42,6 +42,7 @@ class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<reco::SuperClusterCollection> InputSuperClusterEE_;
   std::string OutputLabelES_;
   std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollections_;
+  std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollectionsNotToClean_; //theres a hard coded cut on rec-hit quality which some collections would prefer not to have...
 
   std::set<DetId> collectedIds_;
   

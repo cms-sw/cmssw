@@ -46,10 +46,11 @@ private:
 };
 
 
-TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     // Get the track collection
     trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
+    consumes<TrackingParticleCollection>(trackingTruth_);
 
     // Get the file service
     edm::Service<TFileService> fs;

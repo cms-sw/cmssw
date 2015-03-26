@@ -17,7 +17,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
@@ -52,7 +52,7 @@ HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<int>("triggerType",0);
   desc.add<std::string>("cut","1>0");
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTSmartSinglet<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTSmartSinglet<T>>(), desc);
 }
 
 //

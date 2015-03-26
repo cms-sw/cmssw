@@ -25,7 +25,7 @@ print 'trigger set name (default=HLT) = '+str(trigger_set)
 process = cms.Process("test")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -40,7 +40,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 #
 # BeamHaloData producer
 #
-process.load("Configuration/StandardSequences/Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")

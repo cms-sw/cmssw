@@ -20,6 +20,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -40,6 +42,7 @@ class ScalersRawToDigi : public edm::stream::EDProducer<>
   public:
     explicit ScalersRawToDigi(const edm::ParameterSet&);
     ~ScalersRawToDigi();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -69,6 +72,12 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
 
 // Destructor
 ScalersRawToDigi::~ScalersRawToDigi() {}
+
+void ScalersRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("scalersInputTag",edm::InputTag("rawDataCollector"));
+  descriptions.add("scalersRawToDigi",desc);
+}
 
 // Method called to produce the data 
 void ScalersRawToDigi::produce(edm::Event& iEvent, 

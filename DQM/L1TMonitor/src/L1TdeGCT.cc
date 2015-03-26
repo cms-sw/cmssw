@@ -3,6 +3,9 @@
 
 using namespace dedefs;
 
+const int L1TdeGCT::nGctColl_;
+const int L1TdeGCT::nerr;
+
 L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
 
   verbose_ = iConfig.getUntrackedParameter<int>("VerboseFlag",0);
@@ -12,12 +15,6 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
   
   DEsource_ = consumes<L1DataEmulRecord>(iConfig.getParameter<edm::InputTag>("DataEmulCompareSource"));
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/GCTexpert");
-  
-  dbe = NULL;
-  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
-    dbe = edm::Service<DQMStore>().operator->();
-    dbe->setVerbose(0);
-  }
   
   histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
   if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
@@ -30,114 +27,110 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
       << std::endl;
   }
 
-  if(dbe!=NULL)
-    dbe->setCurrentFolder(histFolder_);
-
   hasRecord_=true;
   
   if(verbose())
     std::cout << "L1TdeGCT::L1TdeGCT()...done.\n" << std::flush;
+  
 }
 
 L1TdeGCT::~L1TdeGCT() {}
 
-void L1TdeGCT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+void L1TdeGCT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evSetup){
+}
+
+void L1TdeGCT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup){
+}
+
+void L1TdeGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
 
   if(verbose())
     std::cout << "L1TdeGCT::beginRun()  start\n" << std::flush;
 
-  if(dbe) {
-    dbe->setCurrentFolder(histFolder_);
-    dbe->rmdir(histFolder_);
+  ibooker.setCurrentFolder(histFolder_);
+
+  // book histograms here 
+  sysrates = ibooker.book1D("sysrates","RATE OF COMPARISON FAILURES",nGctColl_, 0, nGctColl_ );
+
+  for(int j=0; j<2; j++) {
+    std::string lbl("sysncand"); 
+    lbl += (j==0?"Data":"Emul");
+    std::string title("GCT OBJECT MULTIPLICITY ");
+    title += (j==0?"(DATA)":"(EMULATOR)");
+    sysncand[j] = ibooker.book1D(lbl.data(),title.data(),nGctColl_, 0, nGctColl_ );
   }
-  
-  if(dbe) {
-    dbe->setCurrentFolder(histFolder_);
-
-    // book histograms here 
-    sysrates = dbe->book1D("sysrates","RATE OF COMPARISON FAILURES",nGctColl_, 0, nGctColl_ );
-
-    for(int j=0; j<2; j++) {
-      std::string lbl("sysncand"); 
-      lbl += (j==0?"Data":"Emul");
-      std::string title("GCT OBJECT MULTIPLICITY ");
-      title += (j==0?"(DATA)":"(EMULATOR)");
-      sysncand[j] = dbe->book1D(lbl.data(),title.data(),nGctColl_, 0, nGctColl_ );
-    }
     
-    for(int j=0; j<nGctColl_; j++) {
+  for(int j=0; j<nGctColl_; j++) {
       
-      dbe->setCurrentFolder(std::string(histFolder_+"/"+cLabel[j]));
+    ibooker.setCurrentFolder(std::string(histFolder_+"/"+cLabel[j]));
       
-      std::string lbl("");
-      std::string title("");
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="ErrorFlag"; 
-      title+=cLabel[j];title+=" ErrorFlag"; 
-      errortype[j] = dbe->book1D(lbl.data(),title.data(), nerr, 0, nerr);
+    std::string lbl("");
+    std::string title("");
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="ErrorFlag"; 
+    title+=cLabel[j];title+=" ErrorFlag"; 
+    errortype[j] = ibooker.book1D(lbl.data(),title.data(), nerr, 0, nerr);
       
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Eta"; 
-      title+=cLabel[j];title+=" ETA OF COMPARISON FAILURES"; 
-      eta[j] = dbe->book1D(lbl.data(),title.data(),
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Eta"; 
+    title+=cLabel[j];title+=" ETA OF COMPARISON FAILURES"; 
+    eta[j] = ibooker.book1D(lbl.data(),title.data(),
 			   etaNBins, etaMinim, etaMaxim);
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Phi"; 
-      title+=cLabel[j];title+=" PHI OF COMPARISON FAILURES"; 
-      phi[j] = dbe->book1D(lbl.data(),title.data(),
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Phi"; 
+    title+=cLabel[j];title+=" PHI OF COMPARISON FAILURES"; 
+    phi[j] = ibooker.book1D(lbl.data(),title.data(),
 			   phiNBins, phiMinim, phiMaxim);
 
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Etaphi"; 
-      title+=cLabel[j];title+=" ETA PHI OF COMPARISON FAILURES"; 
-      etaphi[j] = dbe->book2D(lbl.data(),title.data(), 
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Etaphi"; 
+    title+=cLabel[j];title+=" ETA PHI OF COMPARISON FAILURES"; 
+    etaphi[j] = ibooker.book2D(lbl.data(),title.data(), 
 			      etaNBins, etaMinim, etaMaxim,
 			      phiNBins, phiMinim, phiMaxim
 			      );
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Rank";
-      title+=cLabel[j];title+=" RANK OF COMPARISON FAILURES"; 
-      rnk[j] = dbe->book1D(lbl.data(),title.data(),
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Rank";
+    title+=cLabel[j];title+=" RANK OF COMPARISON FAILURES"; 
+    rnk[j] = ibooker.book1D(lbl.data(),title.data(),
 			       rnkNBins, rnkMinim, rnkMaxim);
       //
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Eta"; lbl+="Data";
-      title+=cLabel[j];title+=" ETA (DATA)"; 
-      etaData[j] = dbe->book1D(lbl.data(),title.data(),
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Eta"; lbl+="Data";
+    title+=cLabel[j];title+=" ETA (DATA)"; 
+    etaData[j] = ibooker.book1D(lbl.data(),title.data(),
 			       etaNBins, etaMinim, etaMaxim);
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Phi";  lbl+="Data";
-      title+=cLabel[j];title+=" PHI (DATA)"; 
-      phiData[j] = dbe->book1D(lbl.data(),title.data(),
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Phi";  lbl+="Data";
+    title+=cLabel[j];title+=" PHI (DATA)"; 
+    phiData[j] = ibooker.book1D(lbl.data(),title.data(),
 			       phiNBins, phiMinim, phiMaxim);
 
-      lbl.clear();
-      title.clear();
-      lbl+=cLabel[j];lbl+="Rank";  lbl+="Data";
-      title+=cLabel[j];title+=" RANK (DATA)"; 
-      rnkData[j] = dbe->book1D(lbl.data(),title.data(),
+    lbl.clear();
+    title.clear();
+    lbl+=cLabel[j];lbl+="Rank";  lbl+="Data";
+    title+=cLabel[j];title+=" RANK (DATA)"; 
+    rnkData[j] = ibooker.book1D(lbl.data(),title.data(),
 			       rnkNBins, rnkMinim, rnkMaxim);
-      lbl.clear();
-      lbl+=cLabel[j];lbl+="Dword"; 
-      dword[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-      lbl.clear();
-      lbl+=cLabel[j];lbl+="Eword"; 
-      eword[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-      lbl.clear();
-      lbl+=cLabel[j];lbl+="DEword"; 
-      deword[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-      //lbl.clear();
-      //lbl+=cLabel[j];lbl+="Masked"; 
-      //masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-    }
-
+    lbl.clear();
+    lbl+=cLabel[j];lbl+="Dword"; 
+    dword[j] = ibooker.book1D(lbl.data(),lbl.data(),nbit,0,nbit);
+    lbl.clear();
+    lbl+=cLabel[j];lbl+="Eword"; 
+    eword[j] = ibooker.book1D(lbl.data(),lbl.data(),nbit,0,nbit);
+    lbl.clear();
+    lbl+=cLabel[j];lbl+="DEword"; 
+    deword[j] = ibooker.book1D(lbl.data(),lbl.data(),nbit,0,nbit);
+    //lbl.clear();
+    //lbl+=cLabel[j];lbl+="Masked"; 
+    //masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
   }
     
   for(int i=0; i<nGctColl_; i++) {
@@ -171,31 +164,16 @@ void L1TdeGCT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
     colCount[i]=0;
     nWithCol[i]=0;
   }
+
   
   if(verbose())
     std::cout << "L1TdeGCT::beginJob()  end.\n" << std::flush;
 }
 
-void 
-L1TdeGCT::beginJob(void) {
-}
-
-void 
-L1TdeGCT::endJob() {
-  if(verbose())
-    std::cout << "L1TdeGCT::endJob()...\n" << std::flush;
-
-  if(histFile_.size()!=0  && dbe) 
-    dbe->save(histFile_);
-
-  if(verbose())
-    std::cout << "L1TdeGCT::endJob()  end.\n" << std::flush;
-}
-
- 
 // ------------ method called to for each event  ------------
-void
-  L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+
+void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   if(!hasRecord_)
     return;
@@ -216,7 +194,7 @@ void
     hasRecord_=false;
     return;
   }
-
+  
   bool isComp = deRecord->get_isComp(GCT);
   if(!isComp) {
     if(verbose()) 
@@ -234,7 +212,6 @@ void
 	      << " data: " << DEncand[0]
 	      << " emul: " << DEncand[1]
 	      << std::endl;
-
 
   /// get the de candidates
   L1DEDigiCollection deColl;
@@ -413,11 +390,6 @@ void
 		  <<" is "<<sysrates->getBinContent(ibin)
 		  << "\n" << std::flush;
     }
-  }
-
-    
-  if(verbose())
-    std::cout << "L1TdeGCT::analyze() end.\n" << std::flush;
-  
+  }     
 }
 

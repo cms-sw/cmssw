@@ -30,6 +30,7 @@
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 
@@ -70,6 +71,7 @@ namespace pat {
   typedef std::vector<edm::FwdPtr<reco::BaseTagInfo> > TagInfoFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCandidateFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<CaloTower> > CaloTowerFwdPtrCollection;
+  typedef std::vector<edm::Ptr<pat::Jet> > JetPtrCollection;
 
 
   class Jet : public PATObject<reco::Jet> {
@@ -187,6 +189,7 @@ namespace pat {
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
+      const reco::CandSoftLeptonTagInfo  * tagInfoCandSoftLepton(const std::string &label="") const;
       const reco::SoftLeptonTagInfo      * tagInfoSoftLepton(const std::string &label="") const;
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
@@ -407,7 +410,12 @@ namespace pat {
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
 
+      /// hoEnergy
+      float hoEnergy () const {return pfSpecific().mHOEnergy;}
+      /// hoEnergyFraction (relative to corrected jet energy)
+      float hoEnergyFraction () const {return hoEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// convert generic constituent to specific type
+
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
       /// get specific constituent of the CaloJet.
       /// if the caloTowers were embedded, this reference is transient only and must not be persisted
@@ -472,7 +480,30 @@ namespace pat {
       }
 
       /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const Jet& obj);
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Jet& obj);
+
+
+
+      /// Access to subjet list
+      pat::JetPtrCollection const & subjets( unsigned int index = 0 ) const;
+
+
+      /// String access to subjet list
+      pat::JetPtrCollection const & subjets( std::string label ) const ;
+
+      /// Add new set of subjets
+      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
+
+      /// Check to see if the subjet collection exists
+      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      
+      /// Number of subjet collections
+      unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
+      
+      /// Subjet collection names
+      std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
+
+
 
     protected:
 
@@ -489,6 +520,10 @@ namespace pat {
       reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
       reco::PFCandidateFwdPtrVector pfCandidatesFwdPtr_; // Refactorized content embedding
 
+
+      // ---- Jet Substructure ----
+      std::vector< pat::JetPtrCollection> subjetCollections_;
+      std::vector< std::string>          subjetLabels_; 
 
       // ---- MC info ----
 

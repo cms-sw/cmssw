@@ -40,7 +40,7 @@ public:
   explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationProducersRegional();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

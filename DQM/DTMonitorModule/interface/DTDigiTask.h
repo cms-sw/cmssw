@@ -16,6 +16,12 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -43,7 +49,7 @@ class DTT0;
 class DQMStore;
 class MonitorElement;
 
-class DTDigiTask: public edm::EDAnalyzer{
+class DTDigiTask: public DQMEDAnalyzer{
 
 public:
 
@@ -55,15 +61,16 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
 
   /// Book the ME
-  void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
-  void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag);
-  void bookHistos(const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker & ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker & ibooker, const int wheelId, std::string folder, std::string histoTag);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
@@ -75,8 +82,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
-  void endJob();
 
   /// get the L1A source
   std::string triggerSource();
@@ -97,16 +102,13 @@ private:
   float kFactor;
 
   //check for sync noise
-  //  bool newChamber;
-  //  DTChamberId chDone;
+
   std::map<DTChamberId,int> hitMap;
   std::set<DTChamberId> syncNoisyChambers;
   int syncNumTot;
   int syncNum;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
-
-  DQMStore* dbe;
 
   edm::ESHandle<DTGeometry> muonGeom;
   edm::ESHandle<DTReadOutMapping> mapping;

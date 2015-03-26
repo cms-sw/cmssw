@@ -8,10 +8,6 @@ globalMixedTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # reco::Tracks
 globalMixedWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-# Merging
-ctfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
-    TrackProducers = cms.VInputTag(cms.InputTag("globalMixedTrackCandidates"), cms.InputTag("globalMixedWithMaterialTracks"))
-)
 
 # The sequence
 ctfTracking = cms.Sequence(globalMixedSeeds*globalMixedTrackCandidates*globalMixedWithMaterialTracks*ctfWithMaterialTracks)

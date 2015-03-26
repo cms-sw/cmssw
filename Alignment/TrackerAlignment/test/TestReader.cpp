@@ -22,9 +22,9 @@
 
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 //
 //
@@ -56,8 +56,8 @@ TestTrackerReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   // Retrieve alignment[Error]s from DBase
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
-  edm::ESHandle<AlignmentErrors> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
 
   edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
   for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();
@@ -78,15 +78,15 @@ TestTrackerReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	}
   edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
-  edm::LogVerbatim("DumpAlignmentErrors")  << "\n----------------------\n";
+  edm::LogVerbatim("DumpAlignmentErrorsExtended")  << "\n----------------------\n";
 
-  std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
-  for ( std::vector<AlignTransformError>::const_iterator it = alignErrors.begin();
+  std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
+  for ( std::vector<AlignTransformErrorExtended>::const_iterator it = alignErrors.begin();
 		it != alignErrors.end(); it++ )
 	{
 	  edm::LogVerbatim("DumpAlignments") << (*it).rawId() << (*it).matrix();
 	}
-  edm::LogVerbatim("DumpAlignmentErrors")  << "\n----------------------\n";
+  edm::LogVerbatim("DumpAlignmentErrorsExtended")  << "\n----------------------\n";
 
   edm::LogInfo("TrackerAlignment") << "Done!";
 

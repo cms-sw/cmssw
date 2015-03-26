@@ -26,7 +26,7 @@ FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset,
 }
 
 
-bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime)
+bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime, edm::EventAuxiliary::ExperimentType& eType)
 {
   if ( fin_.peek() == EOF ) {
     if ( ++itFileName_==fileNames().end() ) {
@@ -105,6 +105,7 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
       evf::evtn::TCDSRecord record((unsigned char *)(event + eventSize ));
       id = edm::EventID(frdEventMsg->run(),record.getHeader().getData().header.lumiSection,
 			record.getHeader().getData().header.eventNumber);
+      eType = ((edm::EventAuxiliary::ExperimentType)FED_EVTY_EXTRACT(fedHeader->eventid));
       //evf::evtn::evm_board_setformat(fedSize);
       uint64_t gpsh = record.getBST().getBST().gpstimehigh;
       uint32_t gpsl = record.getBST().getBST().gpstimelow;

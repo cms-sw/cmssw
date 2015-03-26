@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 

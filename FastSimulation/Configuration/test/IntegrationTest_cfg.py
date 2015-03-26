@@ -20,6 +20,10 @@ process.load("Configuration.Generator.TTbar_cfi")
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
+
+# vertex smearing
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
+
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
@@ -28,8 +32,11 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # If you want to turn on/off pile-up
-process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff')
-#process.load('FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff')
+# If you want to turn on/off pile-up
+process.load('SimGeneral.MixingModule.mix_2012_Startup_50ns_PoissonOOTPU_cfi')
+from FastSimulation.Configuration.MixingModule_Full2Fast import prepareGenMixing
+process = prepareGenMixing(process)
+
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
@@ -42,8 +49,6 @@ process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_n
 
 # Apply ECAL miscalibration
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-if(CaloMode==0 or CaloMode==2):
-    process.ecalRecHit.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
@@ -59,7 +64,7 @@ process.misalignedCSCGeometry.applyAlignment = True
 # Famos with everything !
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 process.source = cms.Source("EmptySource")
-process.p1 = cms.Path(process.generator*process.famosWithEverything)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.famosWithEverything)
 
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")

@@ -34,6 +34,7 @@ namespace edm {
 
   class ParameterSet {
   public:
+    template<typename T> friend class ParameterDescription;
     enum Bool {
       False = 0,
       True = 1,

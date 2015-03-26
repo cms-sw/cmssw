@@ -104,7 +104,7 @@ float TkRadialStripTopology::localStripLength(const LocalPoint& lp) const {
 
 float TkRadialStripTopology::xOfStrip(int strip, float y) const { 
   return   
-    yAxisOrientation() * yDistanceToIntersection( y ) * std::tan( stripAngle(static_cast<float>(strip) - 0.5 ) );
+    yAxisOrientation() * yDistanceToIntersection( y ) * std::tan( stripAngle(static_cast<float>(strip) - 0.5f ) );
 }
 
 float TkRadialStripTopology::strip(const LocalPoint& lp) const {
@@ -117,15 +117,24 @@ float TkRadialStripTopology::strip(const LocalPoint& lp) const {
 float TkRadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
   // http://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
   // atan(a)-atan(b) = atan( (a-b)/(1+a*b) )  
-  float t1 = lp1.x()/yDistanceToIntersection( lp1.y() );
-  float t2 = lp2.x()/yDistanceToIntersection( lp2.y() );
-  float t = (t1-t2)/(1.+t1*t2);
+  // avoid divisions
+  // float t1 = lp1.x()/yDistanceToIntersection( lp1.y() );
+  // float t2 = lp2.x()/yDistanceToIntersection( lp2.y() );
+  // float t = (t1-t2)/(1.+t1*t2);
+  auto y1 = yDistanceToIntersection( lp1.y() );
+  auto y2 = yDistanceToIntersection( lp2.y() );
+  auto x1 = lp1.x();
+  auto x2 = lp2.x();
+
+  auto t = (y2*x1 -y1*x2)/(y1*y2 + x1*x2);
+
+
 #ifdef MATH_STS
   statS.add(t);
 #endif
-  // std::cout << "atans " << std::copysign(atan0(at),t) 
-  //                      <<" "<< std::atan2(lp1.x(),yDistanceToIntersection(lp1.y()) ) 
-  //                             -std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()) ) << std::endl;
+//   std::cout << "atans " << atanClip(t)
+//                        <<" "<< std::atan2(lp1.x(),yDistanceToIntersection(lp1.y()) ) 
+//                               -std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()) ) << std::endl;
   // clip???
   return atanClip(t)*theAWidthInverse;
   //   return (measurementPosition(lp1)-measurementPosition(lp2)).x();

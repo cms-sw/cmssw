@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 HcalTrigPrimMonitor::HcalTrigPrimMonitor (const edm::ParameterSet& ps) :
+   HcalBaseDQMonitor(ps),
    dataLabel_(ps.getParameter<edm::InputTag>("dataLabel")),
    emulLabel_(ps.getParameter<edm::InputTag>("emulLabel")),
    ZSBadTPThreshold_(ps.getParameter< std::vector<int> >("ZSBadTPThreshold")),
@@ -39,18 +40,15 @@ HcalTrigPrimMonitor::reset () {
 
 
 void
-HcalTrigPrimMonitor::setup() {
-   HcalBaseDQMonitor::setup();
+HcalTrigPrimMonitor::setup(DQMStore::IBooker &ib) {
+   HcalBaseDQMonitor::setup(ib);
    
-   if (dbe_ == 0)
-      return;
-
-   dbe_->setCurrentFolder(subdir_ + "TP Occupancy");
-   TPOccupancyEta_ = dbe_->book1D("TPOccupancyVsEta", "TPOccupancyVsEta", 65, -32.5, 32.5);
-   TPOccupancyPhi_ = dbe_->book1D("TPOccupancyVsPhi", "TPOccupancyVsPhi", 72, 0.5, 72.5);
-   TPOccupancyPhiHFP_ = dbe_->book1D("TPOccupancyHFPVsPhi", "TPOccupancyHFPVsPhi", 72, 0.5, 72.5);
-   TPOccupancyPhiHFM_ = dbe_->book1D("TPOccupancyHFMVsPhi", "TPOccupancyHFMVsPhi", 72, 0.5, 72.5);
-   TPOccupancy_ = create_map(subdir_ + "TP Occupancy", "TPOccupancy");
+   ib.setCurrentFolder(subdir_ + "TP Occupancy");
+   TPOccupancyEta_ = ib.book1D("TPOccupancyVsEta", "TPOccupancyVsEta", 65, -32.5, 32.5);
+   TPOccupancyPhi_ = ib.book1D("TPOccupancyVsPhi", "TPOccupancyVsPhi", 72, 0.5, 72.5);
+   TPOccupancyPhiHFP_ = ib.book1D("TPOccupancyHFPVsPhi", "TPOccupancyHFPVsPhi", 72, 0.5, 72.5);
+   TPOccupancyPhiHFM_ = ib.book1D("TPOccupancyHFMVsPhi", "TPOccupancyHFMVsPhi", 72, 0.5, 72.5);
+   TPOccupancy_ = create_map(ib, subdir_ + "TP Occupancy", "TPOccupancy");
 
    for (int isZS = 0; isZS <= 1; ++isZS) {
 
@@ -65,28 +63,28 @@ HcalTrigPrimMonitor::setup() {
       std::string problem_folder(folder);
       problem_folder += "Problem TPs/";
       
-      good_tps[isZS] = create_map(folder, "Good TPs"+zsname);
-      bad_tps[isZS] = create_map(folder, "Bad TPs"+zsname);
+      good_tps[isZS] = create_map(ib,folder, "Good TPs"+zsname);
+      bad_tps[isZS] = create_map(ib,folder, "Bad TPs"+zsname);
 
-      errorflag[isZS] = create_errorflag(folder, "Error Flag"+zsname);
-      problem_map[isZS][kMismatchedEt] = create_map(problem_folder, "Mismatched Et"+zsname);
-      problem_map[isZS][kMismatchedFG] = create_map(problem_folder, "Mismatched FG"+zsname);
-      problem_map[isZS][kMissingData] = create_map(problem_folder, "Missing Data"+zsname);
-      problem_map[isZS][kMissingEmul] = create_map(problem_folder, "Missing Emul"+zsname);
+      errorflag[isZS] = create_errorflag(ib,folder, "Error Flag"+zsname);
+      problem_map[isZS][kMismatchedEt] = create_map(ib,problem_folder, "Mismatched Et"+zsname);
+      problem_map[isZS][kMismatchedFG] = create_map(ib,problem_folder, "Mismatched FG"+zsname);
+      problem_map[isZS][kMissingData] = create_map(ib,problem_folder, "Missing Data"+zsname);
+      problem_map[isZS][kMissingEmul] = create_map(ib,problem_folder, "Missing Emul"+zsname);
 
       for (int isHF = 0; isHF <= 1; ++isHF) {
          std::string subdet = (isHF == 0 ? "HBHE " : "HF ");
-         tp_corr[isZS][isHF] = create_tp_correlation(folder, subdet + "TP Correlation"+zsname);
-         fg_corr[isZS][isHF] = create_fg_correlation(folder, subdet + "FG Correlation"+zsname);
+         tp_corr[isZS][isHF] = create_tp_correlation(ib,folder, subdet + "TP Correlation"+zsname);
+         fg_corr[isZS][isHF] = create_fg_correlation(ib,folder, subdet + "FG Correlation"+zsname);
 
          problem_et[isZS][isHF][kMismatchedFG]
-            = create_et_histogram(problem_folder + "TP Values/", subdet + "Mismatched FG"+zsname);
+            = create_et_histogram(ib,problem_folder + "TP Values/", subdet + "Mismatched FG"+zsname);
 
          problem_et[isZS][isHF][kMissingData]
-            = create_et_histogram(problem_folder + "TP Values/", subdet + "Missing Data"+zsname);
+            = create_et_histogram(ib,problem_folder + "TP Values/", subdet + "Missing Data"+zsname);
 
          problem_et[isZS][isHF][kMissingEmul]
-            = create_et_histogram(problem_folder + "TP Values/", subdet + "Missing Emul"+zsname);
+            = create_et_histogram(ib,problem_folder + "TP Values/", subdet + "Missing Emul"+zsname);
       }//isHF
    }//isZS
 
@@ -104,54 +102,54 @@ HcalTrigPrimMonitor::setup() {
       std::string problem_folder(folder);
       problem_folder += "Problem OOT TPs/";
       
-      good_tps_oot[isZS] = create_map(folder, "Good OOT TPs"+zsname);
-      bad_tps_oot[isZS] = create_map(folder, "Bad OOT TPs"+zsname);
+      good_tps_oot[isZS] = create_map(ib,folder, "Good OOT TPs"+zsname);
+      bad_tps_oot[isZS] = create_map(ib,folder, "Bad OOT TPs"+zsname);
 
-      errorflag_oot[isZS] = create_errorflag(folder, "Error Flag OOT"+zsname);
-      problem_map_oot[isZS][kMismatchedEt] = create_map(problem_folder, "Mismatched OOT Et"+zsname);
-      problem_map_oot[isZS][kMismatchedFG] = create_map(problem_folder, "Mismatched OOT FG"+zsname);
-      problem_map_oot[isZS][kMissingData] = create_map(problem_folder, "Missing OOT Data"+zsname);
-      problem_map_oot[isZS][kMissingEmul] = create_map(problem_folder, "Missing OOT Emul"+zsname);
+      errorflag_oot[isZS] = create_errorflag(ib,folder, "Error Flag OOT"+zsname);
+      problem_map_oot[isZS][kMismatchedEt] = create_map(ib,problem_folder, "Mismatched OOT Et"+zsname);
+      problem_map_oot[isZS][kMismatchedFG] = create_map(ib,problem_folder, "Mismatched OOT FG"+zsname);
+      problem_map_oot[isZS][kMissingData] = create_map(ib,problem_folder, "Missing OOT Data"+zsname);
+      problem_map_oot[isZS][kMissingEmul] = create_map(ib,problem_folder, "Missing OOT Emul"+zsname);
 
       for (int isHF = 0; isHF <= 1; ++isHF) {
          std::string subdet = (isHF == 0 ? "HBHE " : "HF ");
-         tp_corr_oot[isZS][isHF] = create_tp_correlation(folder, subdet + "OOT TP Correlation"+zsname);
-         fg_corr_oot[isZS][isHF] = create_fg_correlation(folder, subdet + "OOT FG Correlation"+zsname);
+         tp_corr_oot[isZS][isHF] = create_tp_correlation(ib,folder, subdet + "OOT TP Correlation"+zsname);
+         fg_corr_oot[isZS][isHF] = create_fg_correlation(ib,folder, subdet + "OOT FG Correlation"+zsname);
 
          problem_et_oot[isZS][isHF][kMismatchedFG]
-            = create_et_histogram(problem_folder + "TP Values/", subdet + "OOT Mismatched FG"+zsname);
+            = create_et_histogram(ib,problem_folder + "TP Values/", subdet + "OOT Mismatched FG"+zsname);
 
          problem_et_oot[isZS][isHF][kMissingData]
-            = create_et_histogram(problem_folder + "TP Values/", subdet + "OOT Missing Data"+zsname);
+            = create_et_histogram(ib,problem_folder + "TP Values/", subdet + "OOT Missing Data"+zsname);
 
          problem_et_oot[isZS][isHF][kMissingEmul]
-            = create_et_histogram(problem_folder + "TP Values/", subdet + "OOT Missing Emul"+zsname);
+            = create_et_histogram(ib,problem_folder + "TP Values/", subdet + "OOT Missing Emul"+zsname);
       }//isHF
    }//isZS
 
    // Number of bad cells vs. luminosity block
-   ProblemsVsLB = dbe_->bookProfile(
+   ProblemsVsLB = ib.bookProfile(
          "TotalBadTPs_HCAL_vs_LS",
          "Total Number of Bad HCAL TPs vs lumi section",
          NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
 
-   ProblemsVsLB_HB = dbe_->bookProfile(
+   ProblemsVsLB_HB = ib.bookProfile(
          "TotalBadTPs_HB_vs_LS",
          "Total Number of Bad HB TPs vs lumi section",
          NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
 
-   ProblemsVsLB_HE = dbe_->bookProfile(
+   ProblemsVsLB_HE = ib.bookProfile(
          "TotalBadTPs_HE_vs_LS",
          "Total Number of Bad HE TPs vs lumi section",
          NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
 
-   ProblemsVsLB_HF = dbe_->bookProfile(
+   ProblemsVsLB_HF = ib.bookProfile(
          "TotalBadTPs_HF_vs_LS",
          "Total Number of Bad HF TPs vs lumi section",
          NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
 
    // No TPs for HO, DO NOT fill this histogram
-   ProblemsVsLB_HO = dbe_->bookProfile(
+   ProblemsVsLB_HO = ib.bookProfile(
          "TotalBadTPs_HO_vs_LS",
          "Total Number of Bad HO TPs vs lumi section",
          NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
@@ -163,16 +161,18 @@ HcalTrigPrimMonitor::setup() {
    ProblemsVsLB_HF->getTProfile()->SetMarkerStyle(20);
 }
 
-void HcalTrigPrimMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalTrigPrimMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  HcalBaseDQMonitor::beginRun(run,c);
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
   if (mergeRuns_ && tevt_>0) return; // don't reset counters if merging runs
-  if (tevt_==0) this->setup(); // create all histograms; not necessary if merging runs together
+  if (tevt_==0) this->setup(ib); // create all histograms; not necessary if merging runs together
   if (mergeRuns_==false) this->reset(); // call reset at start of all runs
-} // void HcalTrigPrimMonitor::beginRun()
+} // void HcalTrigPrimMonitor::bookHistograms()
 
 void
-HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) {
+HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) 
+{
+   HcalBaseDQMonitor::analyze(e,s);
    if (!IsAllowedCalibType()) return;
    if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -188,7 +188,7 @@ HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) {
       return;
    }
 
-   HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
+//   HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
    processEvent(data_tp_col, emul_tp_col);
 }
 
@@ -197,9 +197,6 @@ void
 HcalTrigPrimMonitor::processEvent (
       const edm::Handle <HcalTrigPrimDigiCollection>& data_tp_col,
       const edm::Handle <HcalTrigPrimDigiCollection>& emul_tp_col) {
-
-   if(dbe_ == 0) 
-      return;
 
    std::vector<int> errorflag_per_event[2][2];
    std::vector<int> errorflag_per_event_oot[2][2];
@@ -537,7 +534,7 @@ HcalTrigPrimMonitor::processEvent (
    }//for isZS
 }
 
-void
+/*void
 HcalTrigPrimMonitor::cleanup() {
    if (!enableCleanup_) return;
    if (dbe_) {
@@ -560,7 +557,7 @@ HcalTrigPrimMonitor::cleanup() {
       dbe_->setCurrentFolder(subdir_ + "Problem OOT TPs");
       dbe_->removeContents();
    }
-}
+}*/
 
 void HcalTrigPrimMonitor::endJob()
 {
@@ -593,19 +590,19 @@ void HcalTrigPrimMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 
 
 MonitorElement*
-HcalTrigPrimMonitor::create_summary(const std::string& folder, const std::string& name) {
+HcalTrigPrimMonitor::create_summary(DQMStore::IBooker &ib, const std::string& folder, const std::string& name) {
    edm::LogInfo("HcalTrigPrimMonitor") << "Creating MonitorElement " << name << " in folder " << folder << "\n";
 
-   dbe_->setCurrentFolder(folder);
-   return dbe_->book2D(name, name, 65, -32.5, 32.5, 72, 0.5, 72.5);
+   ib.setCurrentFolder(folder);
+   return ib.book2D(name, name, 65, -32.5, 32.5, 72, 0.5, 72.5);
 }
 
 MonitorElement*
-HcalTrigPrimMonitor::create_errorflag(const std::string& folder, const std::string& name) {
+HcalTrigPrimMonitor::create_errorflag(DQMStore::IBooker &ib, const std::string& folder, const std::string& name) {
    edm::LogInfo("HcalTrigPrimMonitor") << "Creating MonitorElement " << name << " in folder " << folder << "\n";
 
-   dbe_->setCurrentFolder(folder);
-   MonitorElement* element = dbe_->book2D(name, name, 4, 1, 5, 2, 0, 2);
+   ib.setCurrentFolder(folder);
+   MonitorElement* element = ib.book2D(name, name, 4, 1, 5, 2, 0, 2);
    element->setBinLabel(1, "Mismatched E");
    element->setBinLabel(2, "Mismatched FG");
    element->setBinLabel(3, "Missing Data");
@@ -616,42 +613,42 @@ HcalTrigPrimMonitor::create_errorflag(const std::string& folder, const std::stri
 }
 
 MonitorElement*
-HcalTrigPrimMonitor::create_tp_correlation(const std::string& folder, const std::string& name) {
+HcalTrigPrimMonitor::create_tp_correlation(DQMStore::IBooker &ib, const std::string& folder, const std::string& name) {
    edm::LogInfo("HcalTrigPrimMonitor") << "Creating MonitorElement " << name << " in folder " << folder << "\n";
 
-   dbe_->setCurrentFolder(folder);
-   MonitorElement* element = dbe_->book2D(name, name, 50, 0, 256, 50, 0, 256);
+   ib.setCurrentFolder(folder);
+   MonitorElement* element = ib.book2D(name, name, 50, 0, 256, 50, 0, 256);
    element->setAxisTitle("data TP", 1);
    element->setAxisTitle("emul TP", 2);
    return element;
 }
 
 MonitorElement*
-HcalTrigPrimMonitor::create_fg_correlation(const std::string& folder, const std::string& name) {
+HcalTrigPrimMonitor::create_fg_correlation(DQMStore::IBooker &ib, const std::string& folder, const std::string& name) {
    edm::LogInfo("HcalTrigPrimMonitor") << "Creating MonitorElement " << name << " in folder " << folder << "\n";
 
-   dbe_->setCurrentFolder(folder);
-   MonitorElement* element = dbe_->book2D(name, name, 2, 0, 2, 2, 0, 2);
+   ib.setCurrentFolder(folder);
+   MonitorElement* element = ib.book2D(name, name, 2, 0, 2, 2, 0, 2);
    element->setAxisTitle("data FG", 1);
    element->setAxisTitle("emul FG", 2);
    return element;
 }
 
 MonitorElement*
-HcalTrigPrimMonitor::create_map(const std::string& folder, const std::string& name) {
+HcalTrigPrimMonitor::create_map(DQMStore::IBooker &ib, const std::string& folder, const std::string& name) {
    edm::LogInfo("HcalTrigPrimMonitor") << "Creating MonitorElement " << name << " in folder " << folder << "\n";
 
-   dbe_->setCurrentFolder(folder);
+   ib.setCurrentFolder(folder);
    std::string title = name +";ieta;iphi";
-   return dbe_->book2D(name, title, 65, -32.5, 32.5, 72, 0.5, 72.5);
+   return ib.book2D(name, title, 65, -32.5, 32.5, 72, 0.5, 72.5);
 }
 
 MonitorElement*
-HcalTrigPrimMonitor::create_et_histogram(const std::string& folder, const std::string& name) {
+HcalTrigPrimMonitor::create_et_histogram(DQMStore::IBooker &ib, const std::string& folder, const std::string& name) {
    edm::LogInfo("HcalTrigPrimMonitor") << "Creating MonitorElement " << name << " in folder " << folder << "\n";
 
-   dbe_->setCurrentFolder(folder);
-   return dbe_->book1D(name, name, 256, 0, 256);
+   ib.setCurrentFolder(folder);
+   return ib.book1D(name, name, 256, 0, 256);
 }
 
 DEFINE_FWK_MODULE (HcalTrigPrimMonitor);

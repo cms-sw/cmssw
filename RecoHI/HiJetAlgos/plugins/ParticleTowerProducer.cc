@@ -124,6 +124,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if(!useHF_ && fabs(eta) > 3. ) continue;
 
     int ieta = eta2ieta(eta);
+    if(ieta==-1) continue;
     if(eta<0) ieta  *= -1;
 
     int iphi = phi2iphi(particle.phi(),ieta);
@@ -466,9 +467,10 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 int ParticleTowerProducer::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
 
-  if(fabs(eta)>etaedge[41]) return 41;
   int size = 42;
   if(!useHF_) size = 30;
+
+  if(fabs(eta)>etaedge[size-1]) return -1;
 
   double x = fabs(eta);
   int curr = size / 2;

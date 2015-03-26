@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 #include "Math/Vector3D.h"
 
@@ -76,8 +75,8 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   edm::EDGetTokenT <reco::VertexCollection> vtxCollection_;
   edm::Service<TFileService> fs;
-  //  const CentralityBins * cbins_;
-  CentralityProvider * centrality_;
+  edm::Handle<int> cbin_;
+  edm::EDGetTokenT<int> ctag_;
   int vs_sell;   // vertex collection size
   float vzr_sell;
   float vzErr_sell;
@@ -120,6 +119,7 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
 HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
 {
   genFlatPsi_ = iConfig.getUntrackedParameter<bool>("genFlatPsi_",true);
+  ctag_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centralityBinLabel"));
   vtxCollection_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxCollection_"));
 
   //  NumCentBins=9;
@@ -135,8 +135,7 @@ HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
   wcent[9] = 100;
 
   //now do what ever other initialization is needed
-  //  cbins_ = 0;
-  centrality_ = 0;
+
   hcent = fs->make<TH1D>("cent","cent",41,0,40);
   hvtx = fs->make<TH1D>("vtx","vtx",1000,-50,50);
   //setting before 8:35 CDT on 11Jan2011
@@ -195,10 +194,9 @@ HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //
   //Get Centrality
   //
-  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+  iEvent.getByToken(ctag_,cbin_);
 
-   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-   int bin = centrality_->getBin();
+  int bin = *cbin_;
   double centval = 2.5*bin+1.25;
   hcent->Fill(bin);
   //

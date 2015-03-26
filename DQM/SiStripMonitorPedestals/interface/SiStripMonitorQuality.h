@@ -43,7 +43,7 @@ class DQMStore;
 class SiStripDetCabling;
 class SiStripQuality;
 
-class SiStripMonitorQuality : public thread_unsafe::DQMEDAnalyzer {
+class SiStripMonitorQuality : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorQuality(const edm::ParameterSet&);
   ~SiStripMonitorQuality();

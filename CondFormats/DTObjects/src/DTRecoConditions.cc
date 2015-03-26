@@ -20,13 +20,30 @@ using std::endl;
 
 
 DTRecoConditions::DTRecoConditions() : 
-  formula(0), 
+  formula(nullptr),
   formulaType(0),  
   expression("[0]")
 {}
 
+DTRecoConditions::DTRecoConditions(const DTRecoConditions& iOther):
+  formula(nullptr),
+  formulaType(0),
+  expression(iOther.expression)
+{}
+
+const DTRecoConditions& 
+DTRecoConditions::operator=(const DTRecoConditions& iOther)
+{
+  delete formula.load();
+  formula=nullptr;
+  formulaType =0;
+  expression = iOther.expression;
+  return *this;
+}
+
+
 DTRecoConditions::~DTRecoConditions(){
-  delete formula;
+  delete formula.load();
 }
 
 
@@ -45,8 +62,13 @@ float DTRecoConditions::get(const DTWireId& wireid, double* x) const {
     } else if  (expression=="par[step]") {
       formulaType = 2;
     } else { 
+      std::unique_ptr<TFormula> temp{new TFormula("DTExpr",expression.c_str())};
+      TFormula* expected = nullptr;
+      if(formula.compare_exchange_strong(expected,temp.get())) {
+        //This thread set the value
+        temp.release();
+      }
       formulaType = 99;
-      formula  = new TFormula("DTExpr",expression.c_str());
     }
   }
   
@@ -58,7 +80,7 @@ float DTRecoConditions::get(const DTWireId& wireid, double* x) const {
     return par[unsigned (x[0])];
   } else {
     // Use the formula corresponding to expression. 
-    return formula->EvalPar(x,par.data());
+    return (*formula).EvalPar(x,par.data());
   }
 }
 

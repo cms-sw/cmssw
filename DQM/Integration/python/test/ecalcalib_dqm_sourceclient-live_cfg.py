@@ -37,8 +37,19 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
-    categories = cms.untracked.vstring('EcalLaserDbService'),
-    destinations = cms.untracked.vstring('cerr')
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalDQM = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        threshold = cms.untracked.string('INFO')
+    ),
+    categories = cms.untracked.vstring('EcalDQM', 
+        'EcalLaserDbService'),
+    destinations = cms.untracked.vstring('cerr', 
+        'cout')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -62,19 +73,19 @@ process.ecalLaserLedUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
 )
 
 process.ecalLaserLedFilter = cms.EDFilter("EcalMonitorPrescaler",
-    laserPrescaleFactor = cms.untracked.int32(1),
-    ledPrescaleFactor = cms.untracked.int32(1),
+    laser = cms.untracked.uint32(1),
+    led = cms.untracked.uint32(1),
     EcalRawDataCollection = cms.InputTag("ecalDigis")
 )
 
 process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalDigis"),
-    pedestalPrescaleFactor = cms.untracked.int32(1)
+    pedestal = cms.untracked.uint32(1),
+    EcalRawDataCollection = cms.InputTag("ecalDigis")
 )
 
 process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler",
-    testpulsePrescaleFactor = cms.untracked.int32(1),
-    EcalRawDataCollection = cms.InputTag("ecalDigis")
+    EcalRawDataCollection = cms.InputTag("ecalDigis"),
+    testPulse = cms.untracked.uint32(1)
 )
 
 process.ecalDigis = cms.EDProducer("EcalRawToDigi",
@@ -128,14 +139,6 @@ process.ecalDigis = cms.EDProducer("EcalRawToDigi",
     memUnpacking = cms.bool(True)
 )
 
-process.ecalCalibrationFilter = cms.EDFilter("EcalMonitorPrescaler",
-    laserPrescaleFactor = cms.untracked.int32(1),
-    testpulsePrescaleFactor = cms.untracked.int32(1),
-    ledPrescaleFactor = cms.untracked.int32(1),
-    EcalRawDataCollection = cms.InputTag("ecalDigis"),
-    pedestalPrescaleFactor = cms.untracked.int32(1)
-)
-
 process.ecalTestPulseUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
     EEhitCollection = cms.string('EcalUncalibRecHitsEE'),
@@ -153,10 +156,15 @@ process.source.streamLabel = "streamDQMCalibration"
 
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
-process.ecalPNDiodeMonitorTask.verbosity = 0
-process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
+process.ecalPedestalMonitorTask.verbosity = 0
+process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
 
 process.dqmSaver.convention = cms.untracked.string('Online')
+
+process.ecalLaserLedMonitorTask.verbosity = 0
+process.ecalLaserLedMonitorTask.collectionTags.EBLaserLedUncalibRecHit = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEB"
+process.ecalLaserLedMonitorTask.collectionTags.EELaserLedUncalibRecHit = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEE"
+process.ecalLaserLedMonitorTask.commonParameters.onlineMode = True
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalDQMChannelStatusRcd'),
@@ -169,14 +177,14 @@ process.GlobalTag.toGet = cms.VPSet(cms.PSet(
         connect = cms.untracked.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
     ))
 
-process.ecalLaserLedMonitorTask.verbosity = 0
-process.ecalLaserLedMonitorTask.commonParameters.onlineMode = True
-
-process.ecalPedestalMonitorTask.verbosity = 0
-process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
-
 process.ecalTestPulseMonitorTask.verbosity = 0
 process.ecalTestPulseMonitorTask.commonParameters.onlineMode = True
+
+process.ecalRecHit.EEuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
+process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
+
+process.ecalPNDiodeMonitorTask.verbosity = 0
+process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('EcalCalibration')
 
@@ -190,7 +198,7 @@ process.ecalPreRecoSequence = cms.Sequence(process.ecalDigis)
 process.ecalLaserLedPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalLaserLedFilter+process.ecalRecoSequence+process.ecalLaserLedUncalibRecHit+process.ecalLaserLedMonitorTask+process.ecalPNDiodeMonitorTask)
 process.ecalTestPulsePath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalTestPulseFilter+process.ecalRecoSequence+process.ecalTestPulseUncalibRecHit+process.ecalTestPulseMonitorTask+process.ecalPNDiodeMonitorTask)
 process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPedestalFilter+process.ecalRecoSequence+process.ecalPedestalMonitorTask+process.ecalPNDiodeMonitorTask)
-process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalCalibrationFilter+process.ecalCalibMonitorClient)
+process.ecalClientPath = cms.Path(process.ecalCalibMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
 process.dqmOutputPath = cms.EndPath(process.dqmSaver)
@@ -198,3 +206,7 @@ process.dqmOutputPath = cms.EndPath(process.dqmSaver)
 ### Schedule ###
 
 process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePath,process.ecalPedestalPath,process.ecalClientPath,process.dqmEndPath,process.dqmOutputPath)
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

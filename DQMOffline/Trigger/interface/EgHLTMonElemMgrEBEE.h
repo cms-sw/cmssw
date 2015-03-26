@@ -25,9 +25,9 @@ namespace egHLT {
     MonElemManager<T,varType> endcap_;
     
   public: 
-    MonElemMgrEBEE(const std::string& name,const std::string& title,int nrBins,float min,float max,varType (T::*varFunc)()const):
-      barrel_(name+"_eb","Barrel "+title,nrBins,min,max,varFunc),
-      endcap_(name+"_ee","Endcap "+title,nrBins,min,max,varFunc){}
+    MonElemMgrEBEE(DQMStore::IBooker &iBooker, const std::string& name,const std::string& title,int nrBins,float min,float max,varType (T::*varFunc)()const):
+      barrel_(iBooker, name+"_eb","Barrel "+title,nrBins,min,max,varFunc),
+      endcap_(iBooker, name+"_ee","Endcap "+title,nrBins,min,max,varFunc){}
     
     ~MonElemMgrEBEE(){}
     
@@ -52,10 +52,10 @@ namespace egHLT {
     MonElemManager2D<T,varTypeX,varTypeY> endcap_;
     
   public:
-    MonElemMgr2DEBEE(const std::string& name,const std::string& title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
+    MonElemMgr2DEBEE(DQMStore::IBooker &iBooker, const std::string& name,const std::string& title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
 		     varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const):
-      barrel_(name+"_eb","Barrel "+title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY),
-      endcap_(name+"_ee","Endcap "+title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY){}
+      barrel_(iBooker, name+"_eb","Barrel "+title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY),
+      endcap_(iBooker, name+"_ee","Endcap "+title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY){}
     
     ~MonElemMgr2DEBEE(){}
     

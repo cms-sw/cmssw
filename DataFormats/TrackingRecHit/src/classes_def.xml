@@ -5,24 +5,30 @@
    <version ClassVersion="10" checksum="1481465852"/>
    <field name="m_det" transient="true" />
   </class>
-  <class name="RecHit1D" ClassVersion="10">
+  <class name="RecHit1D" ClassVersion="11">
+   <version ClassVersion="11" checksum="312395919"/>
    <version ClassVersion="10" checksum="2579934268"/>
   </class>
-  <class name="InvalidTrackingRecHit" ClassVersion="10">
+  <class name="InvalidTrackingRecHit" ClassVersion="11">
+   <version ClassVersion="11" checksum="2642266668"/>
    <version ClassVersion="10" checksum="3356557851"/>
   </class>
-  <class name="InvalidTrackingRecHitNoDet" ClassVersion="10">
+  <class name="InvalidTrackingRecHitNoDet" ClassVersion="11">
+   <version ClassVersion="11" checksum="3858174036"/>
    <version ClassVersion="10" checksum="405302456"/>
    <field name="m_surface" transient="true" />
   </class>
-  <class name="RecHit2DLocalPos" ClassVersion="10">
+  <class name="RecHit2DLocalPos" ClassVersion="11">
+   <version ClassVersion="11" checksum="373569091"/>
    <version ClassVersion="10" checksum="1168669560"/>
   </class>
-  <class name="RecSegment" ClassVersion="10">
+  <class name="RecSegment" ClassVersion="11">
+   <version ClassVersion="11" checksum="754678582"/>
    <version ClassVersion="10" checksum="1295706057"/>
   </class>
   <class name="std::vector<TrackingRecHit*>"/>
   <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >"/>
+  <class name="edm::ClonePolicy<TrackingRecHit>"/> <!-- Root6 -->
   <class name="edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
   <class name="edm::RefVectorIterator<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
   <class pattern="std::iterator<*edm::Ref*>"/>

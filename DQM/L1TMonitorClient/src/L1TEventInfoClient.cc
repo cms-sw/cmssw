@@ -67,10 +67,7 @@ L1TEventInfoClient::~L1TEventInfoClient() {
 }
 
 void L1TEventInfoClient::initialize() {
-
-    // get back-end interface
-    m_dbe = edm::Service<DQMStore>().operator->();
-
+  
     if (m_verbose) {
         std::cout << "\nMonitor directory =             " << m_monitorDir
                 << std::endl;
@@ -236,101 +233,45 @@ void L1TEventInfoClient::initialize() {
 
 }
 
+void L1TEventInfoClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
 
-void L1TEventInfoClient::beginJob() {
+  
+  if (m_runInEndLumi) {
+    
+    book(ibooker, igetter);
+    readQtResults(ibooker, igetter);
 
+    if (m_verbose) {
 
-    // get backend interface
-    m_dbe = edm::Service<DQMStore>().operator->();
-
-}
-
-
-void L1TEventInfoClient::beginRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-
-    bookHistograms();
-
-}
-
-
-void L1TEventInfoClient::beginLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
-
-}
-
-
-void L1TEventInfoClient::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
-
-    // there is no loop on events in the offline harvesting step
-    // code here will not be executed offline
-
-    if (m_runInEventLoop) {
-
-        readQtResults();
-
+        std::cout << "\n  L1TEventInfoClient::endLuminosityBlock\n"
+                << std::endl;
+        dumpContentMonitorElements(ibooker, igetter);
     }
+
+  }
 }
 
 
-void L1TEventInfoClient::endLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
+void L1TEventInfoClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
-    if (m_runInEndLumi) {
+  book(ibooker, igetter);
 
-        readQtResults();
+  readQtResults(ibooker, igetter);
 
-        if (m_verbose) {
+  if (m_verbose) {
 
-            std::cout << "\n  L1TEventInfoClient::endLuminosityBlock\n"
-                    << std::endl;
-            dumpContentMonitorElements();
-        }
-
-    }
+    std::cout << "\n  L1TEventInfoClient::endRun\n" << std::endl;
+    dumpContentMonitorElements(ibooker, igetter);
+  }
 }
 
-
-void L1TEventInfoClient::endRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-
-    if (m_runInEndRun) {
-
-        readQtResults();
-
-        if (m_verbose) {
-
-            std::cout << "\n  L1TEventInfoClient::endRun\n" << std::endl;
-            dumpContentMonitorElements();
-        }
-
-    }
-}
-
-
-void L1TEventInfoClient::endJob() {
-
-    if (m_runInEndJob) {
-
-        readQtResults();
-
-        if (m_verbose) {
-
-            std::cout << "\n  L1TEventInfoClient::endRun\n" << std::endl;
-            dumpContentMonitorElements();
-        }
-    }
-}
-
-
-void L1TEventInfoClient::dumpContentMonitorElements() {
+void L1TEventInfoClient::dumpContentMonitorElements(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
     std::cout << "\nSummary report " << std::endl;
 
     // summary content
 
-    MonitorElement* me = m_dbe->get(m_meReportSummaryMap->getName());
+    MonitorElement* me = igetter.get(m_meReportSummaryMap->getName());
 
     std::cout
             << "\nSummary content per system and object as filled in histogram\n  "
@@ -410,19 +351,19 @@ void L1TEventInfoClient::dumpContentMonitorElements() {
 
 
 
-void L1TEventInfoClient::bookHistograms() {
+void L1TEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
     std::string dirEventInfo = m_monitorDir + "/EventInfo";
 
-    m_dbe->setCurrentFolder(dirEventInfo);
+    ibooker.setCurrentFolder(dirEventInfo);
 
     // remove m_meReportSummary if it exists
-    if ((m_meReportSummary = m_dbe->get(dirEventInfo + "/reportSummary"))) {
-        m_dbe->removeElement(m_meReportSummary->getName());
+    if ((m_meReportSummary = igetter.get(dirEventInfo + "/reportSummary"))) {
+        igetter.removeElement(m_meReportSummary->getName());
     }
 
     // ...and book it again
-    m_meReportSummary = m_dbe->bookFloat("reportSummary");
+    m_meReportSummary = ibooker.bookFloat("reportSummary");
 
     // initialize reportSummary to 1
 
@@ -434,7 +375,7 @@ void L1TEventInfoClient::bookHistograms() {
     // initialize them to zero
     // initialize also m_summaryContent to dqm::qstatus::DISABLED
 
-    m_dbe->setCurrentFolder(dirEventInfo + "/reportSummaryContents");
+    ibooker.setCurrentFolder(dirEventInfo + "/reportSummaryContents");
     // general counters:
     //   iAllQTest: all quality tests for all systems and objects
     //   iAllMon:   all monitored systems and objects
@@ -453,7 +394,7 @@ void L1TEventInfoClient::bookHistograms() {
 
             const std::string hStr = m_monitorDir + "_L1Sys_" +m_systemLabel[iMon] + "_" + (*itQtName);
 
-            m_meReportSummaryContent.push_back(m_dbe->bookFloat(hStr));
+            m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
             iAllQTest++;
@@ -473,10 +414,9 @@ void L1TEventInfoClient::bookHistograms() {
         for (std::vector<std::string>::const_iterator itQtName =
                 objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
 
-            const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_"
-                    + (*itQtName);
+            const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_" + (*itQtName);
 
-            m_meReportSummaryContent.push_back(m_dbe->bookFloat(hStr));
+            m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
             iAllQTest++;
@@ -486,17 +426,17 @@ void L1TEventInfoClient::bookHistograms() {
 
     }
 
-    m_dbe->setCurrentFolder(dirEventInfo);
+    ibooker.setCurrentFolder(dirEventInfo);
 
-    if ((m_meReportSummaryMap = m_dbe->get(dirEventInfo + "/reportSummaryMap"))) {
-        m_dbe->removeElement(m_meReportSummaryMap->getName());
+    if ((m_meReportSummaryMap = igetter.get(dirEventInfo + "/reportSummaryMap"))) {
+        igetter.removeElement(m_meReportSummaryMap->getName());
     }
 
     // define a histogram with two bins on X and maximum of m_nrL1Systems, m_nrL1Objects on Y
 
     int nBinsY = std::max(m_nrL1Systems, m_nrL1Objects);
 
-    m_meReportSummaryMap = m_dbe->book2D("reportSummaryMap",
+    m_meReportSummaryMap = ibooker.book2D("reportSummaryMap",
             "reportSummaryMap", 2, 1, 3, nBinsY, 1, nBinsY + 1);
 
     if (m_monitorDir == "L1TEMU") {
@@ -524,7 +464,7 @@ void L1TEventInfoClient::bookHistograms() {
 }
 
 
-void L1TEventInfoClient::readQtResults() {
+void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
     // initialize summary content, summary sum and ReportSummaryContent float histograms
     // for all L1 systems and L1 objects
@@ -575,7 +515,7 @@ void L1TEventInfoClient::readQtResults() {
 
             // get results, status and message
 
-            MonitorElement* qHist = m_dbe->get(sysQtHist[iSysQTest]);
+            MonitorElement* qHist = igetter.get(sysQtHist[iSysQTest]);
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
@@ -695,7 +635,7 @@ void L1TEventInfoClient::readQtResults() {
 
             // get results, status and message
 
-            MonitorElement* qHist = m_dbe->get(objQtHist[iObjQTest]);
+            MonitorElement* qHist = igetter.get(objQtHist[iObjQTest]);
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();

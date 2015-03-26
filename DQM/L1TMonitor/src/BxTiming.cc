@@ -43,17 +43,6 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
     std::cout << "\n" << std::flush;
   }
 
-  nfed_ = FEDNumbering::MAXFEDID+1;
-
-  dbe = NULL;
-  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
-    dbe = edm::Service<DQMStore>().operator->();
-    dbe->setVerbose(0);
-  }
-  
-  if(dbe!=NULL)
-    dbe->setCurrentFolder(histFolder_);
-  
   nEvt_ = 0;
   
   if(verbose())
@@ -63,23 +52,13 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
 BxTiming::~BxTiming() {}
 
 void 
-BxTiming::beginJob(void) {
-
-  if(verbose())
-    std::cout << "BxTiming::beginJob()  start\n" << std::flush;
-
-  if(verbose())
-    std::cout << "BxTiming::beginJob()  end.\n" << std::flush;
-}
-
-
-
-void 
-BxTiming::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
- if(dbe) {
-    dbe->setCurrentFolder(histFolder_);
-  }
+  ibooker.setCurrentFolder(histFolder_);
+
+  runId_=ibooker.bookInt("iRun");
+  runId_->Fill(-1);
+  runStartTimeStamp_=ibooker.bookFloat("eventTimeStamp");
 
   /// initialize counters  
   for(int i=0; i<nfed_;i++) {
@@ -124,37 +103,34 @@ BxTiming::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
   const int dbx = nbig_;
 
-  if(dbe) {
+  ibooker.setCurrentFolder(histFolder_);
 
-    dbe->setCurrentFolder(histFolder_);
-
-    hBxDiffAllFed = dbe->bookProfile("BxDiffAllFed", "BxDiffAllFed", 
+  hBxDiffAllFed = ibooker.bookProfile("BxDiffAllFed", "BxDiffAllFed", 
 				     nfed_ + 1, -0.5, nfed_+0.5, 
                                      2*dbx+1, -1*dbx-0.5,dbx+0.5
                                      );
 
-    for(int i=0; i<nspr_; i++) {
-      lbl.clear();lbl+="BxDiffAllFed";lbl+=spreadLabel[i];
-      hBxDiffAllFedSpread[i] = dbe->book1D(lbl.data(),lbl.data(), nfed_ + 1, -0.5, nfed_+0.5); 
-      lbl.clear();lbl+="BxOccyAllFed";lbl+=spreadLabel[i];
-      hBxOccyAllFedSpread[i] = dbe->book1D(lbl.data(),lbl.data(), nfed_ + 1, -0.5, nfed_+0.5); 
-    }
+  for(int i=0; i<nspr_; i++) {
+    lbl.clear();lbl+="BxDiffAllFed";lbl+=spreadLabel[i];
+    hBxDiffAllFedSpread[i] = ibooker.book1D(lbl.data(),lbl.data(), nfed_ + 1, -0.5, nfed_+0.5); 
+    lbl.clear();lbl+="BxOccyAllFed";lbl+=spreadLabel[i];
+    hBxOccyAllFedSpread[i] = ibooker.book1D(lbl.data(),lbl.data(), nfed_ + 1, -0.5, nfed_+0.5); 
 
     lbl.clear();lbl+="BxOccyAllFed";
-    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+    hBxOccyAllFed = ibooker.book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
 
   }
 
   // following histos defined only when not runing in the ff
-  if(dbe && !runInFF_) {
+  if(!runInFF_) {
     
-    dbe->setCurrentFolder(histFolder_);
+    ibooker.setCurrentFolder(histFolder_);
     
     for(int i=0; i<NSYS; i++) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
       int nfeds = fedRange_[i].second - fedRange_[i].first + 1;
       nfeds = (nfeds>0)? nfeds:1;
-      hBxDiffSysFed[i] = dbe->bookProfile(lbl.data(),lbl.data(), nfeds, 
+      hBxDiffSysFed[i] = ibooker.bookProfile(lbl.data(),lbl.data(), nfeds, 
 					  fedRange_[i].first-0.5, fedRange_[i].second+0.5,
 					  2*dbx+1,-1*dbx-0.5,dbx+0.5);
 					  
@@ -163,29 +139,29 @@ BxTiming::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
     lbl.clear();lbl+="BxOccyAllFed";
     hBxOccyOneFed = new MonitorElement*[nfed_];
-    dbe->setCurrentFolder(histFolder_+"/SingleFed");
+    ibooker.setCurrentFolder(histFolder_+"/SingleFed");
     for(int i=0; i<nfed_; i++) {
       lbl.clear(); lbl+="BxOccyOneFed";
       char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii;
-      hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+      hBxOccyOneFed[i] = ibooker.book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
       delete [] ii;
     }
 
-    dbe->setCurrentFolder(histFolder_);
+    ibooker.setCurrentFolder(histFolder_);
     for(int i=0; i<nttype_; i++) {
       lbl.clear();lbl+="BxOccyGtTrigType";
       char *ii = new char[10]; std::sprintf(ii,"%d",i+1);lbl+=ii;
-      hBxOccyGtTrigType[i] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+      hBxOccyGtTrigType[i] = ibooker.book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
       delete [] ii;
     }
 
-    dbe->setCurrentFolder(histFolder_+"/SingleBit");
+    ibooker.setCurrentFolder(histFolder_+"/SingleBit");
     for(int i=0; i<NSYS; i++) {
       hBxOccyTrigBit[i] = new MonitorElement*[listGtBits_.size()];
       for(size_t j=0; j<listGtBits_.size(); j++) {
       	lbl.clear();lbl+=SysLabel[i];lbl+="BxOccyGtBit"; 
       	char *ii = new char[1000]; std::sprintf(ii,"%d",listGtBits_.at(j)); lbl+=ii;
-      	hBxOccyTrigBit[i][j] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+      	hBxOccyTrigBit[i][j] = ibooker.book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
 	delete [] ii;
       }
     }
@@ -244,19 +220,10 @@ BxTiming::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   }
 }
 
-void 
-BxTiming::endJob() {
-
-  if(verbose())
-    std::cout << "BxTiming::endJob Nevents: " << nEvt_ << "\n" << std::flush;
-
-  if(histFile_.size()!=0  && dbe) 
-    dbe->save(histFile_);
-  
-  if(verbose())
-    std::cout << "BxTiming::endJob()  end.\n" << std::flush;
+void
+BxTiming::dqmBeginRun(edm::Run const& r, edm::EventSetup const& iSetup) {
+  //runId_->Fill(r.id().run());
 }
-
 
 // ------------ method called to for each event  ------------
 void
@@ -311,8 +278,8 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int bxRef = FEDHeader(rawdata->FEDData(fedRef_).data()).bxID();
 
   // triggerType
-  //trigger types: physics (1), calibration (2), random (3), traced physics (5),  test (6) 
-  int ttype = FEDHeader(rawdata->FEDData(812).data()).triggerType();
+  // trigger types: physics (1), calibration (2), random (3), traced physics (5),  test (6) 
+  int ttype = static_cast<double> (iEvent.eventAuxiliary().experimentType());
 
   // loop over feds
   for (int i = 0; i<FEDNumbering::MAXFEDID+1; i++){
@@ -321,8 +288,8 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
     if(!size) continue;
     FEDHeader header(data.data());
-    //int lvl1id = header.lvl1ID();//Level-1 event number generated by the TTC system
-    int bx = header.bxID(); // The bunch crossing number
+    //int lvl1id = header.lvl1ID(); //Level-1 event number generated by the TTC system
+    int bx = header.bxID();  // The bunch crossing number
 
     int bxDiff = calcBxDiff(bx,bxRef); // deviation from reference bx
 

@@ -21,44 +21,35 @@
 #include "Rtypes.h"
 #include <string>
 
-#include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
+#include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 
-class TH2F;
+class FWHistSliceSelector;
 //
 // base
 //
 
-class FWCaloTowerProxyBuilderBase : public FWCaloDataProxyBuilderBase {
-
+class FWCaloTowerProxyBuilderBase : public FWCaloDataHistProxyBuilder
+{
 public:
    FWCaloTowerProxyBuilderBase();
    virtual ~FWCaloTowerProxyBuilderBase();
 
-   // ---------- const member functions ---------------------
    virtual double getEt(const CaloTower&) const = 0;
-
-   // ---------- static member functions --------------------
-   // ---------- member functions ---------------------------
-
+   
 protected:
-   virtual void setCaloData(const fireworks::Context&);
    virtual void fillCaloData();
-   bool assertCaloDataSlice();
+   virtual FWHistSliceSelector* instantiateSliceSelector();
+   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
 
-   virtual void itemBeingDestroyed(const FWEventItem*);
 private:
    FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
    const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&); // stop default
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList* product, const FWViewContext*);
 
-   // ---------- member data --------------------------------
    const CaloTowerCollection* m_towers;
-   TH2F* m_hist;
 };
 
 //
@@ -132,6 +123,5 @@ private:
    FWHOCaloTowerProxyBuilder(const FWHOCaloTowerProxyBuilder&); // stop default   
    const FWHOCaloTowerProxyBuilder& operator=(const FWHOCaloTowerProxyBuilder&); // stop default
 };
-
 
 #endif

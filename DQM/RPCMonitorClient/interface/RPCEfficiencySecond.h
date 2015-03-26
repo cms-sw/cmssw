@@ -83,7 +83,7 @@ class RPCEfficiencySecond :public DQMEDHarvester{
       edm::ESHandle<RPCGeometry> rpcGeo_;
 	  
     
-      std::map<std::string, MonitorElement*> bookDetUnitSeg(DQMStore::IBooker & ,RPCDetId & ,int nstrips,std::string );
+
   std::map<int, std::map<std::string, MonitorElement*> >  meCollection;
   
   bool init_;

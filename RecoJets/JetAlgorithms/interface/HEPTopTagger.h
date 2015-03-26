@@ -275,6 +275,7 @@ void HEPTopTagger::run_tagger()
   for(unsigned rr=0; rr<_top_parts.size(); rr++){
     for(unsigned ll=rr+1; ll<_top_parts.size(); ll++){
       for(unsigned kk=ll+1; kk<_top_parts.size(); kk++){
+	if (_candjets.size() > 32767) continue;//limit combinatorics; FIXME: consider a better solution
 	// define top_constituents candidate before filtering 	      
 	std::vector <PseudoJet> top_constits = _cs->constituents(_top_parts[rr]);
 	_cs->add_constituents(_top_parts[ll],top_constits);

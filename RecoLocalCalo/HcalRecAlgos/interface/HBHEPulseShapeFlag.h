@@ -18,7 +18,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 //---------------------------------------------------------------------------
@@ -73,12 +73,16 @@ private:
    TriangleFitResult PerformTriangleFit(const std::vector<double> &Charge);
    double PerformNominalFit(const std::vector<double> &Charge);
    double PerformDualNominalFit(const std::vector<double> &Charge);
-   double DualNominalFitSingleTry(const std::vector<double> &Charge, int Offset, int Distance);
+   double DualNominalFitSingleTry(const std::vector<double> &Charge, int Offset, int Distance, bool newCharges=true);
    double CalculateRMS8Max(const std::vector<double> &Charge);
    double PerformLinearFit(const std::vector<double> &Charge);
 private:
    bool CheckPassFilter(double Charge, double Discriminant, std::vector<std::pair<double, double> > &Cuts,
       int Side);
+   std::vector<double> f1_;
+   std::vector<double> f2_;
+   std::vector<double> errors_;
+
 };
 //---------------------------------------------------------------------------
 struct TriangleFitResult

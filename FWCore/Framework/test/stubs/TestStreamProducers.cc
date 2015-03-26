@@ -27,7 +27,8 @@ for testing purposes only.
 namespace edmtest {
 namespace stream {
 
-namespace {
+// anonymous namespace here causes build warnings
+namespace cache {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -43,8 +44,10 @@ struct UnsafeCache {
    unsigned int lumi;
 };
 
-} //end anonymous namespace
+} //end cache namespace
 
+  using Cache = cache::Cache;
+  using UnsafeCache = cache::UnsafeCache;
 
   class GlobalIntProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
   public:

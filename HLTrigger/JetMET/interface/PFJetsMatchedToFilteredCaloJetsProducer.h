@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,7 +19,7 @@
 #include <map>
 #include <vector>
 
-class PFJetsMatchedToFilteredCaloJetsProducer: public edm::EDProducer {
+class PFJetsMatchedToFilteredCaloJetsProducer: public edm::stream::EDProducer<> {
  public:
   explicit PFJetsMatchedToFilteredCaloJetsProducer(const edm::ParameterSet&);
   ~PFJetsMatchedToFilteredCaloJetsProducer();

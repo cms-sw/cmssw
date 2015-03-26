@@ -52,5 +52,13 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 # disable adding noise to HCAL cells with no MC signal
 #mixData.doEmpty = False
 
-pdatamix = cms.Sequence(mixData+postDMDigi)
+#
+# TrackingParticle Producer is now part of the mixing module, so
+# it is no longer run here.
+#
+from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
+
+
+
+pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
 

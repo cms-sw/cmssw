@@ -11,5 +11,5 @@ from RecoMET.METProducers.genMetTrue_cfi import *
 from RecoMET.METProducers.genMetFromGenJets_cfi import *
 #
 
-recoGenMET = cms.Sequence(genMetCalo+genMetCaloAndNonPrompt+genMetTrue*genMetIC5GenJets)
+recoGenMET = cms.Sequence(genMetCalo+genMetTrue)
 

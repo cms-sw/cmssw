@@ -43,7 +43,7 @@
 
 // simulated track
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 // pile-up
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -145,6 +145,9 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   void fillGenAssociatedRecoVertexHistograms(const std::string &,
                                              int,
                                              recoPrimaryVertex &v);
+  void fillResolutionAndPullHistograms(const std::string &,
+                                       int,
+                                       recoPrimaryVertex &v);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);
@@ -169,7 +172,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
   // TODO(rovere) possibly reuse an object from the event and do not
   // re-run the associator(s)
-  const TrackAssociatorBase * associatorByHits_;
+  const reco::TrackToTrackingParticleAssociator * associatorByHits_;
 
   edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
   std::vector<edm::EDGetTokenT<reco::VertexCollection> > reco_vertex_collection_tokens_;
@@ -178,6 +181,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> recoTrackToTrackingParticleAssociatorToken_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_

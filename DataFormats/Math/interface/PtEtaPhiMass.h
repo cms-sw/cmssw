@@ -20,7 +20,7 @@ public:
 
   //positional constructor (still compatible with Root, c++03)
   PtEtaPhiMass(float ipt, float ieta, float iphi, float imass):
-    pt_(ipt), eta_(ieta), phi_(ieta), mass_(imass){}
+    pt_(ipt), eta_(ieta), phi_(iphi), mass_(imass){}
 
   /// transverse momentum                                                               
   float pt() const { return pt_;}

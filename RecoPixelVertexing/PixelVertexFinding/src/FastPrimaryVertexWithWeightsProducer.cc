@@ -23,7 +23,7 @@
 #include <math.h>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,7 +53,7 @@
 
 using namespace std;
 
-class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
+class FastPrimaryVertexWithWeightsProducer : public edm::stream::EDProducer<> {
    public:
       explicit FastPrimaryVertexWithWeightsProducer(const edm::ParameterSet&);
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -63,117 +63,113 @@ class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
 
 
 
-  double m_maxZ;		// Use only pixel clusters with |z| < maxZ
-  edm::InputTag m_clusters;	// PixelClusters InputTag
+  const double m_maxZ;		// Use only pixel clusters with |z| < maxZ
+  const edm::InputTag m_clusters;	// PixelClusters InputTag
   std::string m_pixelCPE; 	// PixelCPE (PixelClusterParameterEstimator)
-  edm::InputTag m_beamSpot;	// BeamSpot InputTag
-  edm::InputTag m_jets;		// Jet InputTag
   edm::EDGetTokenT<SiPixelClusterCollectionNew> clustersToken;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken;
 
 // PARAMETERS USED IN THE BARREL PIXEL CLUSTERS PROJECTION
-  int m_njets;			// Use only the first njets
-  double m_maxJetEta;		// Use only jets with |eta| < maxJetEta
-  double m_minJetPt;		// Use only jets with Pt > minJetPt
-  bool m_barrel;		// Use clusters from pixel endcap 
-  double m_maxSizeX;		// Use only pixel clusters with sizeX <= maxSizeX
-  double m_maxDeltaPhi;		// Use only pixel clusters with DeltaPhi(Jet,Cluster) < maxDeltaPhi
-  double m_weight_charge_down;	// Use only pixel clusters with ClusterCharge > weight_charge_down
-  double m_weight_charge_up;	// Use only pixel clusters with ClusterCharge < weight_charge_up
-  double m_PixelCellHeightOverWidth;//It is the ratio between pixel cell height and width along z coordinate about 285µm/150µm=1.9
-  double m_minSizeY_q;		// Use only pixel clusters with sizeY > PixelCellHeightOverWidth * |jetZOverRho| + minSizeY_q
-  double m_maxSizeY_q;		// Use only pixel clusters with sizeY < PixelCellHeightOverWidth * |jetZOverRho| + maxSizeY_q
+  const int m_njets;			// Use only the first njets
+  const double m_maxJetEta;		// Use only jets with |eta| < maxJetEta
+  const double m_minJetPt;		// Use only jets with Pt > minJetPt
+  const bool m_barrel;		// Use clusters from pixel endcap 
+  const double m_maxSizeX;		// Use only pixel clusters with sizeX <= maxSizeX
+  const double m_maxDeltaPhi;		// Use only pixel clusters with DeltaPhi(Jet,Cluster) < maxDeltaPhi
+  const double m_weight_charge_down;	// Use only pixel clusters with ClusterCharge > weight_charge_down
+  const double m_weight_charge_up;	// Use only pixel clusters with ClusterCharge < weight_charge_up
+  const double m_PixelCellHeightOverWidth;//It is the ratio between pixel cell height and width along z coordinate about 285µm/150µm=1.9
+  const double m_minSizeY_q;		// Use only pixel clusters with sizeY > PixelCellHeightOverWidth * |jetZOverRho| + minSizeY_q
+  const double m_maxSizeY_q;		// Use only pixel clusters with sizeY < PixelCellHeightOverWidth * |jetZOverRho| + maxSizeY_q
   
 // PARAMETERS USED TO WEIGHT THE BARREL PIXEL CLUSTERS   
   // The cluster weight is defined as weight = weight_dPhi * weight_sizeY  * weight_rho * weight_sizeX1 * weight_charge
 
-  double m_weight_dPhi;		// used in weight_dPhi = exp(-|DeltaPhi(JetCluster)|/m_weight_dPhi)    
-  double  m_weight_SizeX1;	// used in weight_SizeX1 = (ClusterSizeX==2)*1+(ClusterSizeX==1)*m_weight_SizeX1;    
-  double m_weight_rho_up; 	// used in weight_rho = (m_weight_rho_up - ClusterRho)/m_weight_rho_up 
-  double m_weight_charge_peak; 	// Give the maximum weight_charge for a cluster with Charge = m_weight_charge_peak
-  double m_peakSizeY_q;		// Give the maximum weight_sizeY for a cluster with sizeY = PixelCellHeightOverWidth * |jetZOverRho| + peakSizeY_q
+  const double m_weight_dPhi;		// used in weight_dPhi = exp(-|DeltaPhi(JetCluster)|/m_weight_dPhi)    
+  const double  m_weight_SizeX1;	// used in weight_SizeX1 = (ClusterSizeX==2)*1+(ClusterSizeX==1)*m_weight_SizeX1;    
+  const double m_weight_rho_up; 	// used in weight_rho = (m_weight_rho_up - ClusterRho)/m_weight_rho_up 
+  const double m_weight_charge_peak; 	// Give the maximum weight_charge for a cluster with Charge = m_weight_charge_peak
+  const double m_peakSizeY_q;		// Give the maximum weight_sizeY for a cluster with sizeY = PixelCellHeightOverWidth * |jetZOverRho| + peakSizeY_q
 
 // PARAMETERS USED IN THE ENDCAP PIXEL CLUSTERS PROJECTION
-  bool m_endCap;		// Use clusters from pixel endcap 
-  double m_minJetEta_EC;	// Use only jets with |eta| > minJetEta_EC
-  double m_maxJetEta_EC;	// Use only jets with |eta| < maxJetEta_EC
-  double m_maxDeltaPhi_EC;	// Use only pixel clusters with DeltaPhi(Jet,Cluster) < maxDeltaPhi_EC
+  const bool m_endCap;		// Use clusters from pixel endcap 
+  const double m_minJetEta_EC;	// Use only jets with |eta| > minJetEta_EC
+  const double m_maxJetEta_EC;	// Use only jets with |eta| < maxJetEta_EC
+  const double m_maxDeltaPhi_EC;	// Use only pixel clusters with DeltaPhi(Jet,Cluster) < maxDeltaPhi_EC
 
 // PARAMETERS USED TO WEIGHT THE ENDCAP PIXEL CLUSTERS
-  double m_EC_weight;		// In EndCap the weight is defined as weight = m_EC_weight*(weight_dPhi) 
-  double m_weight_dPhi_EC; 	// Used in weight_dPhi = exp(-|DeltaPhi|/m_weight_dPhi_EC )
+  const double m_EC_weight;		// In EndCap the weight is defined as weight = m_EC_weight*(weight_dPhi) 
+  const double m_weight_dPhi_EC; 	// Used in weight_dPhi = exp(-|DeltaPhi|/m_weight_dPhi_EC )
    
 // PARAMETERS USED TO FIND THE FASTPV AS PEAK IN THE Z-PROJECTIONS DISTRIBUTION
   // First Iteration: look for a cluster with a width = m_zClusterWidth_step1
-  double m_zClusterWidth_step1;          // cluster width in step1
+  const double m_zClusterWidth_step1;          // cluster width in step1
 
   // Second Iteration: use only z-projections with weight > weightCut_step2 and look for a cluster with a width = m_zClusterWidth_step2, within of weightCut_step2 of the previous result 
-  double m_zClusterWidth_step2; 	// cluster width in step2
-  double m_zClusterSearchArea_step2; 	// cluster width in step2
-  double m_weightCut_step2;		// minimum z-projections weight required in step2
+  const double m_zClusterWidth_step2; 	// cluster width in step2
+  const double m_zClusterSearchArea_step2; 	// cluster width in step2
+  const double m_weightCut_step2;		// minimum z-projections weight required in step2
 
   // Third Iteration: use only z-projections with weight > weightCut_step3 and look for a cluster with a width = m_zClusterWidth_step3, within of weightCut_step3 of the previous result 
-  double m_zClusterWidth_step3; 	// cluster width in step3
-  double m_zClusterSearchArea_step3;	// cluster width in step3
-  double m_weightCut_step3; 		// minimum z-projections weight required in step3
+  const double m_zClusterWidth_step3; 	// cluster width in step3
+  const double m_zClusterSearchArea_step3;	// cluster width in step3
+  const double m_weightCut_step3; 		// minimum z-projections weight required in step3
 
   // use the jetPt weighting
-  bool m_ptWeighting;				// use weight=weight*pt_weigth ?;
-  double m_ptWeighting_slope;		// pt_weigth= pt*ptWeighting_slope +m_ptWeighting_offset;
-  double m_ptWeighting_offset;		// 
+  const bool m_ptWeighting;				// use weight=weight*pt_weigth ?;
+  const double m_ptWeighting_slope;		// pt_weigth= pt*ptWeighting_slope +m_ptWeighting_offset;
+  const double m_ptWeighting_offset;		// 
 };
 
-FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const edm::ParameterSet& iConfig)
-{
-  m_maxZ	      		= iConfig.getParameter<double>("maxZ");
-  m_clusters          		= iConfig.getParameter<edm::InputTag>("clusters");
-  clustersToken                 = consumes<SiPixelClusterCollectionNew>(m_clusters);
-  m_pixelCPE          		= iConfig.getParameter<std::string>("pixelCPE");
-  m_beamSpot          		= iConfig.getParameter<edm::InputTag>("beamSpot");
-  beamSpotToken                 = consumes<reco::BeamSpot>(m_beamSpot);
-  m_jets              		= iConfig.getParameter<edm::InputTag>("jets");
-  jetsToken                     = consumes<edm::View<reco::Jet> >(m_jets);
+FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const edm::ParameterSet& iConfig):
+  m_maxZ(iConfig.getParameter<double>("maxZ")),
+  m_pixelCPE(iConfig.getParameter<std::string>("pixelCPE")),
 
-  m_njets     			= iConfig.getParameter<int>("njets");
-  m_maxJetEta     		= iConfig.getParameter<double>("maxJetEta");
-  m_minJetPt     		= iConfig.getParameter<double>("minJetPt");
+  m_njets(iConfig.getParameter<int>("njets")),
+  m_maxJetEta(iConfig.getParameter<double>("maxJetEta")),
+  m_minJetPt(iConfig.getParameter<double>("minJetPt")),
 
-  m_barrel     			= iConfig.getParameter<bool>("barrel");
-  m_maxSizeX	      		= iConfig.getParameter<double>("maxSizeX");
-  m_maxDeltaPhi       		= iConfig.getParameter<double>("maxDeltaPhi");
-  m_PixelCellHeightOverWidth    = iConfig.getParameter<double>("PixelCellHeightOverWidth");
-  m_weight_charge_down     	= iConfig.getParameter<double>("weight_charge_down");
-  m_weight_charge_up     	= iConfig.getParameter<double>("weight_charge_up");
-  m_minSizeY_q     		= iConfig.getParameter<double>("minSizeY_q");
-  m_maxSizeY_q     		= iConfig.getParameter<double>("maxSizeY_q");
+  m_barrel(iConfig.getParameter<bool>("barrel")),
+  m_maxSizeX(iConfig.getParameter<double>("maxSizeX")),
+  m_maxDeltaPhi(iConfig.getParameter<double>("maxDeltaPhi")),
+  m_weight_charge_down(iConfig.getParameter<double>("weight_charge_down")),
+  m_weight_charge_up(iConfig.getParameter<double>("weight_charge_up")),
+  m_PixelCellHeightOverWidth(iConfig.getParameter<double>("PixelCellHeightOverWidth")),
+  m_minSizeY_q(iConfig.getParameter<double>("minSizeY_q")),
+  m_maxSizeY_q(iConfig.getParameter<double>("maxSizeY_q")),
   
-  m_weight_dPhi     		= iConfig.getParameter<double>("weight_dPhi");
-  m_weight_SizeX1      		= iConfig.getParameter<double>("weight_SizeX1");
-  m_weight_rho_up      		= iConfig.getParameter<double>("weight_rho_up");
-  m_weight_charge_peak     	= iConfig.getParameter<double>("weight_charge_peak");
-  m_peakSizeY_q     		= iConfig.getParameter<double>("peakSizeY_q");
+  m_weight_dPhi(iConfig.getParameter<double>("weight_dPhi")),
+  m_weight_SizeX1(iConfig.getParameter<double>("weight_SizeX1")),
+  m_weight_rho_up(iConfig.getParameter<double>("weight_rho_up")),
+  m_weight_charge_peak(iConfig.getParameter<double>("weight_charge_peak")),
+  m_peakSizeY_q(iConfig.getParameter<double>("peakSizeY_q")),
 
-  m_endCap     			= iConfig.getParameter<bool>("endCap");
-  m_minJetEta_EC     		= iConfig.getParameter<double>("minJetEta_EC");
-  m_maxJetEta_EC     		= iConfig.getParameter<double>("maxJetEta_EC");
-  m_maxDeltaPhi_EC     		= iConfig.getParameter<double>("maxDeltaPhi_EC");
-  m_EC_weight     		= iConfig.getParameter<double>("EC_weight");
-  m_weight_dPhi_EC     		= iConfig.getParameter<double>("weight_dPhi_EC");
+  m_endCap(iConfig.getParameter<bool>("endCap")),
+  m_minJetEta_EC(iConfig.getParameter<double>("minJetEta_EC")),
+  m_maxJetEta_EC(iConfig.getParameter<double>("maxJetEta_EC")),
+  m_maxDeltaPhi_EC(iConfig.getParameter<double>("maxDeltaPhi_EC")),
+  m_EC_weight(iConfig.getParameter<double>("EC_weight")),
+  m_weight_dPhi_EC(iConfig.getParameter<double>("weight_dPhi_EC")),
 
-  m_zClusterWidth_step1      	= iConfig.getParameter<double>("zClusterWidth_step1");
+  m_zClusterWidth_step1(iConfig.getParameter<double>("zClusterWidth_step1")),
 
-  m_zClusterWidth_step2      	= iConfig.getParameter<double>("zClusterWidth_step2");
-  m_zClusterSearchArea_step2    = iConfig.getParameter<double>("zClusterSearchArea_step2");
-  m_weightCut_step2      	= iConfig.getParameter<double>("weightCut_step2");
+  m_zClusterWidth_step2(iConfig.getParameter<double>("zClusterWidth_step2")),
+  m_zClusterSearchArea_step2(iConfig.getParameter<double>("zClusterSearchArea_step2")),
+  m_weightCut_step2(iConfig.getParameter<double>("weightCut_step2")),
 
-  m_zClusterWidth_step3      	= iConfig.getParameter<double>("zClusterWidth_step3");
-  m_zClusterSearchArea_step3    = iConfig.getParameter<double>("zClusterSearchArea_step3");
-  m_weightCut_step3      	= iConfig.getParameter<double>("weightCut_step3");
+  m_zClusterWidth_step3(iConfig.getParameter<double>("zClusterWidth_step3")),
+  m_zClusterSearchArea_step3(iConfig.getParameter<double>("zClusterSearchArea_step3")),
+  m_weightCut_step3(iConfig.getParameter<double>("weightCut_step3")),
 
-  m_ptWeighting		      	= iConfig.getParameter<bool>("ptWeighting");
-  m_ptWeighting_slope	= iConfig.getParameter<double>("ptWeighting_slope");
-  m_ptWeighting_offset		= iConfig.getParameter<double>("ptWeighting_offset");
+  m_ptWeighting(iConfig.getParameter<bool>("ptWeighting")),
+  m_ptWeighting_slope(iConfig.getParameter<double>("ptWeighting_slope")),
+  m_ptWeighting_offset(iConfig.getParameter<double>("ptWeighting_offset"))
+{
+
+  clustersToken = consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("clusters"));
+  beamSpotToken = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
+  jetsToken = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
 
   produces<reco::VertexCollection>();
   produces<float>();

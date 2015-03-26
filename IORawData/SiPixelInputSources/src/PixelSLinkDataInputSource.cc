@@ -172,7 +172,7 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 
 }
 
-bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) {
+bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
   Storage & m_file = *storage;
 
   // create product (raw data)

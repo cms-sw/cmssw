@@ -15,11 +15,11 @@ SiStripCcu::SiStripCcu( const FedChannelConnection& conn )
 // -----------------------------------------------------------------------------
 //
 void SiStripCcu::addDevices( const FedChannelConnection& conn ) {
-  std::vector<SiStripModule>::const_iterator imod = modules().begin();
-  while ( imod != modules().end() && (*imod).ccuChan() != conn.ccuChan() ) { imod++; }
-  if ( imod == modules().end() ) { 
+  auto imod = modules_.begin();
+  while ( imod != modules_.end() && (*imod).ccuChan() != conn.ccuChan() ) { imod++; }
+  if ( imod == modules_.end() ) { 
     modules_.push_back( SiStripModule( conn ) ); 
   } else { 
-    const_cast<SiStripModule&>(*imod).addDevices( conn ); 
+    imod->addDevices( conn ); 
   }
 }

@@ -141,10 +141,10 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			jecCor_->setRho(rho);
 			jec = jecCor_->getCorrection();
 		}
-		
-		// If it was requested or the input is an uncorrected jet apply the JEC
-		bool applyJec = applyJec_ || !inputIsCorrected_;  //( ! ispat && ! inputIsCorrected_ );
+		// If it was requested AND the input is an uncorrected jet apply the JEC
+		bool applyJec = applyJec_ && !inputIsCorrected_;  //( ! ispat && ! inputIsCorrected_ );
 		reco::Jet * corrJet = 0;
+		
 		if( applyJec ) {
 			float scale = jec;
 			//if( ispat ) {
@@ -155,14 +155,14 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			corrJet->scaleEnergy(scale);
 		}
 		const reco::Jet * theJet = ( applyJec ? corrJet : &jet );
-		
+	
 		PileupJetIdentifier puIdentifier;
 		if( produceJetIds_ ) {
-			// Compute the input variables
+		        // Compute the input variables
 			puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, runMvas_);
 			ids.push_back( puIdentifier );
 		} else {
-			// Or read it from the value map
+		        // Or read it from the value map
 			puIdentifier = (*vmap)[jets.refAt(i)]; 
 			puIdentifier.jetPt(theJet->pt());    // make sure JEC is applied when computing the MVA
 			puIdentifier.jetEta(theJet->eta());
@@ -172,7 +172,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		}
 		
 		if( runMvas_ ) {
-			// Compute the MVA and WP
+		        // Compute the MVA and WP
 			mvas[algoi->first].push_back( puIdentifier.mva() );
 			idflags[algoi->first].push_back( puIdentifier.idFlag() );
 			for( ++algoi; algoi!=algos_.end(); ++algoi) {

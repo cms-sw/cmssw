@@ -114,7 +114,7 @@ namespace
     return std::unique_ptr<const TGraph>{ new TGraph(*graphPayload.product()) };
   }  
 
-  std::unique_ptr<TFormula> loadTFormulaFromDB(const edm::EventSetup& es, const std::string& formulaName, const int& verbosity_ = 0)
+  std::unique_ptr<TFormula> loadTFormulaFromDB(const edm::EventSetup& es, const std::string& formulaName, const TString& newName, const int& verbosity_ = 0)
   {
     if(verbosity_){
       std::cout << "<loadTFormulaFromDB>:" << std::endl;
@@ -124,7 +124,7 @@ namespace
     es.get<PhysicsTFormulaPayloadRcd>().get(formulaName, formulaPayload);
 
     if ( formulaPayload->formulas().size() == 1 && formulaPayload->limits().size() == 1 ) {
-      return std::unique_ptr<TFormula> {new TFormula("mvaNormalizationFormula", formulaPayload->formulas().at(0).data()) };
+      return std::unique_ptr<TFormula> {new TFormula(newName, formulaPayload->formulas().at(0).data()) };
     } else {
       throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadTFormulaFromDB") 
 	<< "Failed to load TFormula = " << formulaName << " from Database !!\n";
@@ -151,7 +151,9 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
 
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
   if ( !loadMVAfromDB_ ) {
-    inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName"); 
+    if(cfg.exists("inputFileName")){
+      inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+    }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
   }
   if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
   if ( cfg.exists("mvaOutput_normalization") ) {
@@ -201,8 +203,7 @@ void RecoTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const 
 	inputFile = openInputFile(inputFileName_);
 	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
       } else {
-	auto temp = loadTFormulaFromDB(es, mvaOutputNormalizationName_, verbosity_);
-	temp->SetName(Form("%s_mvaOutput_normalization", moduleLabel_.data()));
+	auto temp = loadTFormulaFromDB(es, mvaOutputNormalizationName_, Form("%s_mvaOutput_normalization", moduleLabel_.data()), verbosity_);
 	mvaOutput_normalization_.reset(temp.release());
       }
     }

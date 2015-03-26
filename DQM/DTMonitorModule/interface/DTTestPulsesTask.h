@@ -20,6 +20,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 
@@ -35,7 +37,7 @@ class DTGeometry;
 class DTLayerId;
 class DTRangeT0;
 
-class DTTestPulsesTask: public edm::EDAnalyzer{
+class DTTestPulsesTask: public DQMEDAnalyzer{
 
 public:
 
@@ -47,14 +49,14 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   /// Book the ME
-  void bookHistos(const DTLayerId& dtLayer, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker & ibooker, std::string folder, std::string histoTag);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -63,8 +65,6 @@ protected:
 private:
 
   int nevents;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

@@ -43,6 +43,8 @@ namespace l1t{
 
     int link[nObjects];
     int indexfromMP7toRCT[36];
+    int indexfromoRSCtoMP7[36];
+    
 
   public:
     rctDataBase();
@@ -64,7 +66,9 @@ namespace l1t{
         if (oRSClink%2==0) RCTeven=true;
         else RCTeven=false;
     }
-
+    void GetLinkMP7(unsigned int RCTcrate, bool RCTeven, int &linkMP7){
+        linkMP7=indexfromoRSCtoMP7[RCTcrate*2+(1-(int)RCTeven)];
+    }
 
     int GetIndices(rctObjectType t, int firstindex, int secondindex = -1)
     {

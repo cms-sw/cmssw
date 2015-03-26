@@ -52,16 +52,20 @@
   <class name="PV3DBase<float,VectorTag,LocalTag>" ClassVersion="10">
    <version ClassVersion="10" checksum="388964730"/>
   </class>
-  <class name="Point2DBase<float,LocalTag>" ClassVersion="10">
+  <class name="Point2DBase<float,LocalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="3419280653"/>
    <version ClassVersion="10" checksum="1080427394"/>
   </class>
-  <class name="Point3DBase<float,LocalTag>" ClassVersion="10">
+  <class name="Point3DBase<float,LocalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="4176894391"/>
    <version ClassVersion="10" checksum="103124692"/>
   </class>
-  <class name="Vector2DBase<float,LocalTag>" ClassVersion="10">
+  <class name="Vector2DBase<float,LocalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="1674632992"/>
    <version ClassVersion="10" checksum="2683233520"/>
   </class>
-  <class name="Vector3DBase<float,LocalTag>" ClassVersion="10">
+  <class name="Vector3DBase<float,LocalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="3937908268"/>
    <version ClassVersion="10" checksum="4046292710"/>
   </class>
   <class name="PV2DBase<float,PointTag,GlobalTag>" ClassVersion="10">
@@ -76,16 +80,20 @@
   <class name="PV3DBase<float,VectorTag,GlobalTag>" ClassVersion="10">
    <version ClassVersion="10" checksum="4109669568"/>
   </class>
-  <class name="Point2DBase<float,GlobalTag>" ClassVersion="10">
+  <class name="Point2DBase<float,GlobalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="1562950867"/>
    <version ClassVersion="10" checksum="2222182910"/>
   </class>
-  <class name="Point3DBase<float,GlobalTag>" ClassVersion="10">
+  <class name="Point3DBase<float,GlobalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="122348193"/>
    <version ClassVersion="10" checksum="3782271882"/>
   </class>
-  <class name="Vector2DBase<float,GlobalTag>" ClassVersion="10">
+  <class name="Vector2DBase<float,GlobalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="2993275990"/>
    <version ClassVersion="10" checksum="662089398"/>
   </class>
-  <class name="Vector3DBase<float,GlobalTag>" ClassVersion="10">
+  <class name="Vector3DBase<float,GlobalTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="2956869326"/>
    <version ClassVersion="10" checksum="1047389018"/>
   </class>
   <class name="PV2DBase<float,PointTag,MeasurementTag>" ClassVersion="10">
@@ -100,16 +108,20 @@
   <class name="PV3DBase<float,VectorTag,MeasurementTag>" ClassVersion="10">
    <version ClassVersion="10" checksum="701099545"/>
   </class>
-  <class name="Point2DBase<float,MeasurementTag>" ClassVersion="10">
+  <class name="Point2DBase<float,MeasurementTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="4194988688"/>
    <version ClassVersion="10" checksum="2592467486"/>
   </class>
-  <class name="Point3DBase<float,MeasurementTag>" ClassVersion="10">
+  <class name="Point3DBase<float,MeasurementTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="3655526554"/>
    <version ClassVersion="10" checksum="1804359160"/>
   </class>
-  <class name="Vector2DBase<float,MeasurementTag>" ClassVersion="10">
+  <class name="Vector2DBase<float,MeasurementTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="55528429"/>
    <version ClassVersion="10" checksum="1606483826"/>
   </class>
-  <class name="Vector3DBase<float,MeasurementTag>" ClassVersion="10">
+  <class name="Vector3DBase<float,MeasurementTag>" ClassVersion="11">
+   <version ClassVersion="11" checksum="2722543385"/>
    <version ClassVersion="10" checksum="3537126144"/>
   </class>
 </lcgdict>

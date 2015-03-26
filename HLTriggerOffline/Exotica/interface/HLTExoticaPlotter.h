@@ -50,7 +50,9 @@ public:
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void plotterBookHistos(DQMStore::IBooker & iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
     void analyze(const bool & isPassTrigger, const std::string & source,
-                 const std::vector<reco::LeafCandidate> & matches);
+                 const std::vector<reco::LeafCandidate> & matches,
+		 std::map<int,double> theSumEt,
+                 std::vector<float> & dxys);
 
     inline const std::string gethltpath() const
     {
@@ -73,6 +75,7 @@ private:
     std::vector<double> _parametersEta;
     std::vector<double> _parametersPhi;
     std::vector<double> _parametersTurnOn;
+    std::vector<double> _parametersDxy;
 
     std::map<std::string, MonitorElement *> _elements;
 };

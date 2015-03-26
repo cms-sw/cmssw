@@ -72,7 +72,7 @@
 class SiStripDetCabling;
 class SiStripDCSStatus;
 
-class SiStripTrackingRecHitsValid : public thread_unsafe::DQMEDAnalyzer
+class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
 {
  public:
   

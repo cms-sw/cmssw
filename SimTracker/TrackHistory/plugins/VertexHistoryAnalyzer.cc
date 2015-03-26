@@ -67,9 +67,10 @@ private:
 };
 
 
-VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     vertexProducer_ = config.getUntrackedParameter<edm::InputTag> ("vertexProducer");
+    consumes<edm::View<reco::Vertex>>(vertexProducer_);
 }
 
 

@@ -29,6 +29,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 // forward declarations
+class TEveCaloData;
 
 class FWCaloDataProxyBuilderBase : public FWProxyBuilderBase
 {

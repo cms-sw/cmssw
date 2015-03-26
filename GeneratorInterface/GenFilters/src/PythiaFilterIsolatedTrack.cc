@@ -80,7 +80,7 @@ double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double e
 }
 
 PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iConfig) :
-  ModuleLabel_(iConfig.getUntrackedParameter("ModuleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("ModuleLabel",std::string("generator")))),
   MaxSeedEta_(iConfig.getUntrackedParameter<double>("MaxSeedEta", 2.3)),
   MinSeedMom_(iConfig.getUntrackedParameter<double>("MinSeedMom", 20.)),
   MinIsolTrackMom_(iConfig.getUntrackedParameter<double>("MinIsolTrackMom",2.0)),
@@ -109,7 +109,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
   iSetup.getData( pdt );
 
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(ModuleLabel_, evt);
+  iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 

@@ -119,3 +119,7 @@ def dqmSeq(args,default):
     else:
         return default
             
+def gtNameAndConnect(globalTag, args):
+    if args.has_key('globalTagConnect') and args['globalTagConnect'] != '':
+        return globalTag + ','+args['globalTagConnect']
+    return globalTag

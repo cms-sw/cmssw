@@ -5,22 +5,34 @@ using namespace edm;
 
 
 // constructors and destructor
-TrackAlgoCompareUtil::TrackAlgoCompareUtil(const edm::ParameterSet& iConfig)
+TrackAlgoCompareUtil::TrackAlgoCompareUtil(const edm::ParameterSet& iConfig):
+  trackLabel_algoA(consumes<View<reco::Track>>(iConfig.getParameter<edm::InputTag>("trackLabel_algoA"))),
+  trackLabel_algoB(consumes<View<reco::Track>>(iConfig.getParameter<edm::InputTag>("trackLabel_algoB"))),
+  trackingParticleLabel_fakes(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticleLabel_fakes"))),
+  trackingParticleLabel_effic(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticleLabel_effic"))),
+  beamSpotLabel(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotLabel"))),
+  UseAssociators(iConfig.getParameter< bool >("UseAssociators")),
+  UseVertex(iConfig.getParameter< bool >("UseVertex"))
 {
     //now do what ever other initialization is needed
-    trackLabel_algoA = iConfig.getParameter<edm::InputTag>("trackLabel_algoA");
-    trackLabel_algoB = iConfig.getParameter<edm::InputTag>("trackLabel_algoB");
-    trackingParticleLabel_fakes = iConfig.getParameter<edm::InputTag>("trackingParticleLabel_fakes");
-    trackingParticleLabel_effic = iConfig.getParameter<edm::InputTag>("trackingParticleLabel_effic");
-    vertexLabel_algoA = iConfig.getParameter<edm::InputTag>("vertexLabel_algoA");
-    vertexLabel_algoB = iConfig.getParameter<edm::InputTag>("vertexLabel_algoB");
-    beamSpotLabel = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-    assocLabel_algoA = iConfig.getUntrackedParameter<std::string>("assocLabel_algoA", "TrackAssociatorByHits");
-    assocLabel_algoB = iConfig.getUntrackedParameter<std::string>("assocLabel_algoB", "TrackAssociatorByHits");
-    associatormap_algoA = iConfig.getParameter< edm::InputTag >("associatormap_algoA");
-    associatormap_algoB = iConfig.getParameter< edm::InputTag >("associatormap_algoB");
-    UseAssociators = iConfig.getParameter< bool >("UseAssociators");
-    UseVertex = iConfig.getParameter< bool >("UseVertex");
+  if(UseVertex) {
+    vertexLabel_algoA = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexLabel_algoA"));
+    vertexLabel_algoB = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexLabel_algoB"));
+  }
+
+  if(UseAssociators) {
+    assocLabel_algoA = consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<std::string>("assocLabel_algoA", "trackAssociatorByHits"));
+    assocLabel_algoB = consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<std::string>("assocLabel_algoB", "trackAssociatorByHits"));
+  }
+  else {
+    edm::InputTag algoA = iConfig.getParameter< edm::InputTag >("associatormap_algoA");
+    edm::InputTag algoB = iConfig.getParameter< edm::InputTag >("associatormap_algoB");
+
+    associatormap_algoA_recoToSim = consumes<reco::RecoToSimCollection>(algoA);
+    associatormap_algoB_recoToSim = consumes<reco::RecoToSimCollection>(algoB);
+    associatormap_algoA_simToReco = consumes<reco::SimToRecoCollection>(algoA);
+    associatormap_algoB_simToReco = consumes<reco::SimToRecoCollection>(algoB);
+  }
   
     produces<RecoTracktoTPCollection>("AlgoA");
     produces<RecoTracktoTPCollection>("AlgoB");
@@ -33,15 +45,9 @@ TrackAlgoCompareUtil::~TrackAlgoCompareUtil()
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void TrackAlgoCompareUtil::beginJob()
-{
-}
-
-
 // ------------ method called to produce the data  ------------
 void
-TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
      // create output collection instance
     std::auto_ptr<RecoTracktoTPCollection> outputAlgoA(new RecoTracktoTPCollection());
@@ -50,27 +56,27 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
     // Get Inputs
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel(beamSpotLabel, recoBeamSpotHandle);
+    iEvent.getByToken(beamSpotLabel, recoBeamSpotHandle);
     reco::BeamSpot beamSpot = *recoBeamSpotHandle; 
   
     edm::Handle<View<reco::Track> > trackCollAlgoA;
-    iEvent.getByLabel(trackLabel_algoA, trackCollAlgoA);
+    iEvent.getByToken(trackLabel_algoA, trackCollAlgoA);
   
     edm::Handle< View<reco::Track> > trackCollAlgoB;
-    iEvent.getByLabel(trackLabel_algoB, trackCollAlgoB);
+    iEvent.getByToken(trackLabel_algoB, trackCollAlgoB);
   
     edm::Handle<TrackingParticleCollection> trackingParticleCollFakes;
-    iEvent.getByLabel(trackingParticleLabel_fakes, trackingParticleCollFakes);
+    iEvent.getByToken(trackingParticleLabel_fakes, trackingParticleCollFakes);
   
     edm::Handle<TrackingParticleCollection> trackingParticleCollEffic;
-    iEvent.getByLabel(trackingParticleLabel_effic, trackingParticleCollEffic);
+    iEvent.getByToken(trackingParticleLabel_effic, trackingParticleCollEffic);
   
     edm::Handle<reco::VertexCollection> vertexCollAlgoA;
     edm::Handle<reco::VertexCollection> vertexCollAlgoB;
     if(UseVertex) 
     {
-        iEvent.getByLabel(vertexLabel_algoA, vertexCollAlgoA);
-        iEvent.getByLabel(vertexLabel_algoB, vertexCollAlgoB);
+        iEvent.getByToken(vertexLabel_algoA, vertexCollAlgoA);
+        iEvent.getByToken(vertexLabel_algoB, vertexCollAlgoB);
     }
   
     // call the associator functions:
@@ -82,34 +88,34 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if(UseAssociators)
     {
-        edm::ESHandle<TrackAssociatorBase> theAssociator_algoA;
-        iSetup.get<TrackAssociatorRecord>().get(assocLabel_algoA, theAssociator_algoA);
+        edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator_algoA;
+        iEvent.getByToken(assocLabel_algoA, theAssociator_algoA);
   
-        edm::ESHandle<TrackAssociatorBase> theAssociator_algoB;
-        iSetup.get<TrackAssociatorRecord>().get(assocLabel_algoB, theAssociator_algoB);
+        edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator_algoB;
+        iEvent.getByToken(assocLabel_algoB, theAssociator_algoB);
   
-        recSimColl_AlgoA = theAssociator_algoA->associateRecoToSim(trackCollAlgoA, trackingParticleCollFakes, &iEvent, &iSetup);
-        recSimColl_AlgoB = theAssociator_algoB->associateRecoToSim(trackCollAlgoB, trackingParticleCollFakes, &iEvent, &iSetup);
+        recSimColl_AlgoA = theAssociator_algoA->associateRecoToSim(trackCollAlgoA, trackingParticleCollFakes);
+        recSimColl_AlgoB = theAssociator_algoB->associateRecoToSim(trackCollAlgoB, trackingParticleCollFakes);
 
-        simRecColl_AlgoA = theAssociator_algoA->associateSimToReco(trackCollAlgoA, trackingParticleCollEffic, &iEvent, &iSetup);
-        simRecColl_AlgoB = theAssociator_algoB->associateSimToReco(trackCollAlgoB, trackingParticleCollEffic, &iEvent, &iSetup);
+        simRecColl_AlgoA = theAssociator_algoA->associateSimToReco(trackCollAlgoA, trackingParticleCollEffic);
+        simRecColl_AlgoB = theAssociator_algoB->associateSimToReco(trackCollAlgoB, trackingParticleCollEffic);
     }
     else
     {
         Handle<reco::RecoToSimCollection > recotosimCollectionH_AlgoA;
-        iEvent.getByLabel(associatormap_algoA,recotosimCollectionH_AlgoA);
+        iEvent.getByToken(associatormap_algoA_recoToSim,recotosimCollectionH_AlgoA);
         recSimColl_AlgoA  = *(recotosimCollectionH_AlgoA.product());
         
         Handle<reco::RecoToSimCollection > recotosimCollectionH_AlgoB;
-        iEvent.getByLabel(associatormap_algoB,recotosimCollectionH_AlgoB);
+        iEvent.getByToken(associatormap_algoB_recoToSim,recotosimCollectionH_AlgoB);
         recSimColl_AlgoB  = *(recotosimCollectionH_AlgoB.product());
         
         Handle<reco::SimToRecoCollection > simtorecoCollectionH_AlgoA;
-        iEvent.getByLabel(associatormap_algoA, simtorecoCollectionH_AlgoA);
+        iEvent.getByToken(associatormap_algoA_simToReco, simtorecoCollectionH_AlgoA);
         simRecColl_AlgoA = *(simtorecoCollectionH_AlgoA.product());
 
         Handle<reco::SimToRecoCollection > simtorecoCollectionH_AlgoB;
-        iEvent.getByLabel(associatormap_algoB, simtorecoCollectionH_AlgoB);
+        iEvent.getByToken(associatormap_algoB_simToReco, simtorecoCollectionH_AlgoB);
         simRecColl_AlgoB = *(simtorecoCollectionH_AlgoB.product());
     }
     
@@ -262,14 +268,8 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(outputTP, "TP");
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void TrackAlgoCompareUtil::endJob() 
-{
-}
-
-
 // ------------ Producer Specific Meber Fucntions ----------------------------------------
-void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT)
+void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const
 {
     GlobalPoint trackingParticleVertex( tp->vertex().x(), tp->vertex().y(), tp->vertex().z() );
     GlobalVector trackingParticleP3(tp->g4Track_begin()->momentum().x(),
@@ -297,7 +297,7 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const
 }
 
 
-void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP)
+void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const
 {
     GlobalPoint trackingParticleVertex( tp->vertex().x(), tp->vertex().y(), tp->vertex().z() );
     GlobalVector trackingParticleP3(tp->g4Track_begin()->momentum().x(),

@@ -74,7 +74,6 @@ class MuonServiceProxy;
 //
 DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC)
   :
-  DTSegmentTags_(iConfig.getParameter<edm::InputTag>("DTsegments")),
   theHitsMin_(iConfig.getParameter<int>("HitsMin")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
   theTimeOffset_(iConfig.getParameter<double>("DTTimeOffset")),

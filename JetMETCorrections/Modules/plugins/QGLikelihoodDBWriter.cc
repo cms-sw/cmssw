@@ -27,13 +27,15 @@ class  QGLikelihoodDBWriter : public edm::EDAnalyzer{
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
   virtual void endJob() override {}
-  ~QGLikelihoodDBWriter() {}
+  ~QGLikelihoodDBWriter(){}
 
  private:
-  bool extractString(std::string, std::string&);
-  std::string inputRootFile;
-  std::string payloadTag;
+  bool getVectorFromFile(TFile*, std::vector<float>&, const TString&);
+  void tryToMerge(std::map<std::vector<int>, QGLikelihoodCategory>&, std::map<std::vector<int>, TH1*>&, std::vector<int>&, int);
+  QGLikelihoodObject::Histogram transformToHistogramObject(TH1*);
+  std::string inputRootFile, payloadTag;
 };
+
 
 // Constructor
 QGLikelihoodDBWriter::QGLikelihoodDBWriter(const edm::ParameterSet& pSet){
@@ -41,114 +43,141 @@ QGLikelihoodDBWriter::QGLikelihoodDBWriter(const edm::ParameterSet& pSet){
   payloadTag       = pSet.getParameter<std::string>("payload");
 }
 
-bool QGLikelihoodDBWriter::extractString(std::string mySubstring, std::string& myString){
-  size_t subStringPos = myString.find(mySubstring);
-  if(subStringPos != std::string::npos){
-    myString = myString.substr(subStringPos + mySubstring.length(), std::string::npos);
-    return true;
-  } else return false;
+
+// Get vector from input file (includes translating TVector to std::vector)
+bool QGLikelihoodDBWriter::getVectorFromFile(TFile* f, std::vector<float>& vector, const TString& name){
+  TVectorT<float> *tVector = nullptr;
+  f->GetObject(name, tVector);
+  if(!tVector) return false;
+  for(int i = 0; i < tVector->GetNoElements(); ++i) vector.push_back((*tVector)[i]);
+  return true;
 }
+
+
+// Transform ROOT TH1 to QGLikelihoodObject (same indexing)
+QGLikelihoodObject::Histogram QGLikelihoodDBWriter::transformToHistogramObject(TH1* th1){
+  QGLikelihoodObject::Histogram histogram(th1->GetNbinsX(), th1->GetXaxis()->GetBinLowEdge(1), th1->GetXaxis()->GetBinUpEdge(th1->GetNbinsX()));
+  for(int ibin = 0; ibin <= th1->GetNbinsX() + 1; ++ibin) histogram.setBinContent(ibin, th1->GetBinContent(ibin));
+  return histogram;
+}
+
+
+// Try to merge bin with neighbouring bin (index = 2,3,4 for eta,pt,rho)
+void QGLikelihoodDBWriter::tryToMerge(std::map<std::vector<int>, QGLikelihoodCategory>& categories, std::map<std::vector<int>, TH1*>& pdfs, std::vector<int>& binNumbers, int index){
+  if(!pdfs[binNumbers]) return;
+  std::vector<int> neighbour = binNumbers;
+  do {
+    if(--(neighbour[index]) < 0) return;
+  } while (!pdfs[neighbour]);
+  if(TString(pdfs[binNumbers]->GetTitle()) != TString(pdfs[neighbour]->GetTitle())) return;
+  if(index != 4 && categories[neighbour].RhoMax != categories[binNumbers].RhoMax)   return;
+  if(index != 4 && categories[neighbour].RhoMin != categories[binNumbers].RhoMin)   return;
+  if(index != 3 && categories[neighbour].PtMax  != categories[binNumbers].PtMax)    return;
+  if(index != 3 && categories[neighbour].PtMin  != categories[binNumbers].PtMin)    return;
+  if(index != 2 && categories[neighbour].EtaMax != categories[binNumbers].EtaMax)   return;
+  if(index != 2 && categories[neighbour].EtaMin != categories[binNumbers].EtaMin)   return;
+
+  if(index == 4) categories[neighbour].RhoMax = categories[binNumbers].RhoMax;
+  if(index == 3) categories[neighbour].PtMax  = categories[binNumbers].PtMax;
+  if(index == 2) categories[neighbour].EtaMax = categories[binNumbers].EtaMax;
+  pdfs.erase(binNumbers);
+  categories.erase(binNumbers);
+}
+
 
 // Begin Job
 void QGLikelihoodDBWriter::beginJob(){
-
   QGLikelihoodObject *payload = new QGLikelihoodObject();
   payload->data.clear();
 
-  // Get the ROOT file and the vectors with binning information
+  // Get the ROOT file
   TFile *f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
-  TVectorT<float> *etaBins; 	f->GetObject("etaBins", etaBins);
-  TVectorT<float> *ptBinsC; 	f->GetObject("ptBinsC", ptBinsC);
-  TVectorT<float> *ptBinsF; 	f->GetObject("ptBinsF", ptBinsF);
-  TVectorT<float> *rhoBins; 	f->GetObject("rhoBins", rhoBins);
 
-  // Get keys to the histograms
-  TList *keys = f->GetListOfKeys();
-  if(!keys){
-    edm::LogError("NoKeys") << "There are no keys in the input file." << std::endl;
-    return;
-  }
- 
-  // Loop over directories/histograms
-  TIter nextdir(keys);
-  TKey *keydir;
-  while((keydir = (TKey*)nextdir())){
-    if(!keydir->IsFolder()) continue;
-    TDirectory *dir = (TDirectory*)keydir->ReadObj() ;
-    TIter nexthist(dir->GetListOfKeys());
-    TKey *keyhist;
-    while((keyhist = (TKey*)nexthist())){
-      std::string histname = keyhist->GetName();
-      int varIndex, qgIndex;
-
-      // First check the variable name, and use index in same order as RecoJets/JetProducers/plugins/QGTagger.cc:73
-      if(extractString("mult", histname)) varIndex = 0;
-      else if(extractString("ptD", histname)) varIndex = 1;
-      else if(extractString("axis2", histname)) varIndex = 2;
-      else continue;
-
-      // Check quark or gluon
-      if(extractString("quark", histname)) qgIndex = 0;
-      else if(extractString("gluon", histname)) qgIndex = 1;
-      else continue;
-
-      // Get eta, pt and rho ranges
-      extractString("eta-", histname);
-      int etaBin = std::atoi(histname.substr(0, histname.find("_")).c_str());
-      extractString("pt-", histname);
-      int ptBin = std::atoi(histname.substr(0, histname.find("_")).c_str());
-      extractString("rho-", histname);
-      int rhoBin = std::atoi(histname.substr(0, histname.find("_")).c_str());
-
-      float etaMin = (*etaBins)[etaBin];
-      float etaMax = (*etaBins)[etaBin+1];
-      TVectorT<float> *ptBins = (etaBin == 0? ptBinsC : ptBinsF);
-      float ptMin = (*ptBins)[ptBin];
-      float ptMax = (*ptBins)[ptBin+1];
-      float rhoMin = (*rhoBins)[rhoBin];
-      float rhoMax = (*rhoBins)[rhoBin+1];
-
-      // Print out for debugging      
-      char buff[1000];
-      sprintf(buff, "%50s : var=%1d, qg=%1d, etaMin=%6.2f, etaMax=%6.2f, ptMin=%8.2f, ptMax=%8.2f, rhoMin=%6.2f, rhoMax=%6.2f", keyhist->GetName(), varIndex, qgIndex, etaMin, etaMax, ptMin, ptMax, rhoMin, rhoMax );
-      edm::LogVerbatim("HistName") << buff << std::endl;
-
-      // Define category parameters
-      QGLikelihoodCategory category;
-      category.RhoMin = rhoMin;
-      category.RhoMax = rhoMax;
-      category.PtMin = ptMin;
-      category.PtMax = ptMax;
-      category.EtaMin = etaMin;
-      category.EtaMax = etaMax;
-      category.QGIndex = qgIndex;
-      category.VarIndex = varIndex;
-
-      // Get TH1 
-      TH1* th1hist = (TH1*) keyhist->ReadObj();
-
-      // Transform ROOT TH1 to QGLikelihoodObject (same indexing)
-      QGLikelihoodObject::Histogram histogram(th1hist->GetNbinsX(), th1hist->GetXaxis()->GetBinLowEdge(1), th1hist->GetXaxis()->GetBinUpEdge(th1hist->GetNbinsX()));
-      for(int ibin = 0; ibin <= th1hist->GetNbinsX() + 1; ++ibin){
-	histogram.setBinContent(ibin, th1hist->GetBinContent(ibin));
-      }
-
-      // Add this entry with its category parameters, histogram and mean
-      QGLikelihoodObject::Entry entry;
-      entry.category = category;
-      entry.histogram = histogram; 
-      entry.mean = th1hist->GetMean();
-      payload->data.push_back(entry);
+  // The ROOT file contains the binning for each variable, needed to set up the binning grid
+  std::map<TString, std::vector<float>> gridOfBins;
+  for(TString binVariable : {"eta", "pt", "rho"}){
+    if(!getVectorFromFile(f, gridOfBins[binVariable], binVariable + "Bins")){
+      edm::LogError("NoBins") << "Missing bin information for " << binVariable << " in input file" << std::endl;
+      return;
     }
   }
+
+  // Get pdf's from file and associate them to a QGLikelihoodCategory
+  // Some pdf's in the ROOT-file are copies from each other, with the same title: those are merged bins in pt and rho
+  // Here we do not store the copies, but try to extend the range of the neighbouring category (will result in less comparisons during application phase)
+  std::map<std::vector<int>, TH1*> pdfs;
+  std::map<std::vector<int>, QGLikelihoodCategory> categories;
+  for(TString type : {"gluon","quark"}){
+    int qgIndex = (type == "gluon");									// Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
+    for(TString likelihoodVar : {"mult","ptD","axis2"}){
+      int varIndex = (likelihoodVar == "mult" ? 0 : (likelihoodVar == "ptD" ? 1 : 2));			// Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
+      for(int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i){
+        for(int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j){
+          for(int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k){
+
+            QGLikelihoodCategory category;
+            category.EtaMin   = gridOfBins["eta"][i];
+            category.EtaMax   = gridOfBins["eta"][i+1];
+            category.PtMin    = gridOfBins["pt"][j];
+            category.PtMax    = gridOfBins["pt"][j+1];
+            category.RhoMin   = gridOfBins["rho"][k];
+            category.RhoMax   = gridOfBins["rho"][k+1];
+            category.QGIndex  = qgIndex;
+            category.VarIndex = varIndex;
+
+            TString key = TString::Format(likelihoodVar + "/" + likelihoodVar + "_" + type + "_eta%d_pt%d_rho%d", i, j, k);
+            TH1* pdf = (TH1*) f->Get(key);
+            if(!pdf){
+              edm::LogError("NoPDF") << "Could not found pdf with key  " << key << " in input file" << std::endl;
+              return;
+            }
+
+            std::vector<int> binNumbers = {qgIndex, varIndex, i,j,k};
+            pdfs[binNumbers]       = pdf; 
+            categories[binNumbers] = category;
+
+            tryToMerge(categories, pdfs, binNumbers, 4);
+          }
+          for(int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k){
+            std::vector<int> binNumbers = {qgIndex, varIndex, i,j,k};
+            tryToMerge(categories, pdfs, binNumbers, 3);
+          }
+        }
+        for(int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j){
+          for(int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k){
+            std::vector<int> binNumbers = {qgIndex, varIndex, i,j,k};
+            tryToMerge(categories, pdfs, binNumbers, 2);
+          }
+        }
+      }
+    }
+  }
+
+
+  // Write all categories with their histograms to file
+  int i = 0;
+  for(auto category : categories){
+    QGLikelihoodObject::Entry entry;
+    entry.category  = category.second;
+    entry.histogram = transformToHistogramObject(pdfs[category.first]);
+    entry.mean      = 0; // not used by the algorithm, is an old data member used in the past, but DB objects are not allowed to change
+    payload->data.push_back(entry);
+    
+    char buff[1000];
+    sprintf(buff, "%6d) var=%1d\t\tqg=%1d\t\teta={%5.2f,%5.2f}\t\tpt={%8.2f,%8.2f}\t\trho={%6.2f,%8.2f}", i++,
+                        category.second.VarIndex, category.second.QGIndex, category.second.EtaMin, category.second.EtaMax, 
+                        category.second.PtMin,    category.second.PtMax,   category.second.RhoMin, category.second.RhoMax);
+    edm::LogVerbatim("HistName") << buff << std::endl;
+  }
+
   // Define the valid range, if no category is found within these bounds a warning will be thrown
-  payload->qgValidRange.RhoMin = rhoBins->Min();
-  payload->qgValidRange.RhoMax = rhoBins->Max();
-  payload->qgValidRange.EtaMin = etaBins->Min();
-  payload->qgValidRange.EtaMax = etaBins->Max();
-  payload->qgValidRange.PtMin  = ptBinsC->Min();
-  payload->qgValidRange.PtMax  = ptBinsC->Max();
-  payload->qgValidRange.QGIndex = -1;
+  payload->qgValidRange.EtaMin   = gridOfBins["eta"].front();
+  payload->qgValidRange.EtaMax   = gridOfBins["eta"].back();
+  payload->qgValidRange.PtMin    = gridOfBins["pt"].front();
+  payload->qgValidRange.PtMax    = gridOfBins["pt"].back();
+  payload->qgValidRange.RhoMin   = gridOfBins["rho"].front();
+  payload->qgValidRange.RhoMax   = gridOfBins["rho"].back();
+  payload->qgValidRange.QGIndex  = -1;
   payload->qgValidRange.VarIndex = -1;
 
   // Now write it into the DB

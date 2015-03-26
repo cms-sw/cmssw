@@ -9,9 +9,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLineBarrelCylinderCrossing.h"
-#include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
-#include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+#include "TrackingTools/GeomPropagators/interface/OptimalHelixPlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationDirectionFromPath.h"
@@ -95,7 +93,7 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   //
 
   //try {
-    ReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
+    ConstReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
     return propagatedStateWithPath(fts,*plane,gtp,s);
   /*
   } catch(...) {
@@ -207,8 +205,7 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   //
   // Helix case 
   //
-  GlobalVector u = plane.normalVector();
-  constexpr float small = 1.e-6; // for orientation of planes
+
   //
   // Frame-independant point and vector are created explicitely to 
   // avoid confusing gcc (refuses to compile with temporary objects
@@ -217,22 +214,8 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   HelixPlaneCrossing::PositionType helixPos(x);
   HelixPlaneCrossing::DirectionType helixDir(p);
   if likely(isOldPropagationType) {
-      if (std::abs(u.z()) < small) {
-	// barrel plane:
-	// instantiate HelixBarrelPlaneCrossing, get vector of solutions and check for existance
-	HelixBarrelPlaneCrossingByCircle planeCrossing(helixPos,helixDir,rho,propagationDirection());
-	return propagateWithHelixCrossing(planeCrossing,plane,fts.momentum().mag(),x,p,s);
-      }
-      if ( (std::abs(u.x()) < small) & (std::abs(u.y()) < small) ) {
-	// forward plane:
-	// instantiate HelixForwardPlaneCrossing, get vector of solutions and check for existance
-	HelixForwardPlaneCrossing planeCrossing(helixPos,helixDir,rho,propagationDirection());
-	return propagateWithHelixCrossing(planeCrossing,plane,fts.momentum().mag(),x,p,s);
-      }
-      // arbitrary plane:
-      // instantiate HelixArbitraryPlaneCrossing, get vector of solutions and check for existance
-      HelixArbitraryPlaneCrossing planeCrossing(helixPos,helixDir,rho,propagationDirection());
-      return propagateWithHelixCrossing(planeCrossing,plane,fts.momentum().mag(),x,p,s);
+      OptimalHelixPlaneCrossing planeCrossing(plane,helixPos,helixDir,rho,propagationDirection());
+      return propagateWithHelixCrossing(*planeCrossing,plane,fts.momentum().mag(),x,p,s);
     }
 
 
@@ -257,7 +240,7 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   HelixPlaneCrossing::PositionType helixPos1(gp1);
   HelixPlaneCrossing::DirectionType helixDir1(gm1);
   LogDebug("AnalyticalPropagator") << "gp1 before calling planeCrossing1: " << gp1 << "\n";
-  HelixArbitraryPlaneCrossing planeCrossing1(helixPos1,helixDir1,rho1,propagationDirection());
+  OptimalHelixPlaneCrossing planeCrossing1(plane,helixPos1,helixDir1,rho1,propagationDirection());
   
   HelixPlaneCrossing::PositionType xGen;
   HelixPlaneCrossing::DirectionType pGen;
@@ -266,7 +249,7 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   if(propagationDirection()==oppositeToMomentum)
     tolerance *=-1;
   
-  bool check1 = propagateWithHelixCrossing(planeCrossing1,plane,fts.momentum().mag(),gp1,gm1,s1);
+  bool check1 = propagateWithHelixCrossing(*planeCrossing1,plane,fts.momentum().mag(),gp1,gm1,s1);
   double dphi1 = fabs(fts.momentum().phi()-gm1.phi());
   LogDebug("AnalyticalPropagator") << "check1, s1, dphi, gp1: " 
 				   << check1 << " , "
@@ -276,8 +259,8 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   
   //move forward a bit to avoid that the propagator doesn't propagate because the state is already on surface.
   //we want to go to the other point of intersection between the helix and the plane
-  xGen = planeCrossing1.position(s1+tolerance);
-  pGen = planeCrossing1.direction(s1+tolerance);
+  xGen = (*planeCrossing1).position(s1+tolerance);
+  pGen = (*planeCrossing1).direction(s1+tolerance);
   
   /*
     if(!check1 || s1>170 ){
@@ -306,9 +289,9 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   double rho2 = rho1;
   HelixPlaneCrossing::PositionType helixPos2(gp2);
   HelixPlaneCrossing::DirectionType helixDir2(gm2);
-  HelixArbitraryPlaneCrossing planeCrossing2(helixPos2,helixDir2,rho2,propagationDirection());
+  OptimalHelixPlaneCrossing planeCrossing2(plane,helixPos2,helixDir2,rho2,propagationDirection());
   
-  bool check2 = propagateWithHelixCrossing(planeCrossing2,plane,gm2.mag(),gp2,gm2,s2);
+  bool check2 = propagateWithHelixCrossing(*planeCrossing2,plane,gm2.mag(),gp2,gm2,s2);
   
   if(!check2){
     x = gp1;

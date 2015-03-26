@@ -2,6 +2,10 @@
  *  See header file for a description of this class.
  *
  *  \author M. Giunta, C. Battilana 
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
+ *
  */
 
 
@@ -53,8 +57,7 @@ DTFineDelayCorr::~DTFineDelayCorr(){
 
 }
 
-
-void DTFineDelayCorr::beginJob(){
+void DTFineDelayCorr::beginRun(edm::Run const & run, edm::EventSetup const & evSU) {
 
   // Tag for Hardware Source (DDU or DCC)
   hwSource = parameters.getParameter<string>("hwSource");
@@ -73,17 +76,13 @@ void DTFineDelayCorr::beginJob(){
   // Require Minimum Number Of Entries in the t0Mean Histogram
   minEntries =  parameters.getUntrackedParameter<int>("minEntries",5);
 
-}
-
-void DTFineDelayCorr::beginRun(const Run& run, const EventSetup& evSU){
-
   DTLocalTriggerBaseTest::beginRun(run,evSU);
   evSU.get< DTConfigManagerRcd >().get(dtConfig);
   evSU.get< DTTPGParametersRcd >().get(worstPhaseMap);
 
 }
 
-void DTFineDelayCorr::runClientDiagnostic() {
+void DTFineDelayCorr::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   int coarseDelay = -999;
   float oldFineDelay = -999;
   if(!readOldFromDb) { // read old delays from txt file
@@ -136,7 +135,7 @@ void DTFineDelayCorr::runClientDiagnostic() {
     }
 
     // ** Retrieve t0Mean histograms **
-    TH1F *t0H = getHisto<TH1F>(dbe->get(getMEName(t0MeanHistoTag,"", chId)));
+    TH1F *t0H = getHisto<TH1F>(igetter.get(getMEName(t0MeanHistoTag,"", chId)));
     float newFineDelay = -999;   // initialize to dummy number
     cout <<"MG: " << getMEName(t0MeanHistoTag,"", chId) << " entries: " << t0H->GetEntries() << endl; 
     if (t0H->GetEntries() > minEntries) {
@@ -182,9 +181,9 @@ void DTFineDelayCorr::runClientDiagnostic() {
    }
 }
 
-void DTFineDelayCorr::endJob(){
+void DTFineDelayCorr::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
-  DTLocalTriggerBaseTest::endJob();
+  DTLocalTriggerBaseTest::dqmEndJob( ibooker,igetter);
 
    if (writeDB) {
      // to be added if needed

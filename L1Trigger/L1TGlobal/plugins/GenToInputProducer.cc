@@ -40,6 +40,8 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 
 #include "TMath.h"
+#include "TRandom3.h"
+#include <stdlib.h>
 
 using namespace std;
 using namespace edm;
@@ -77,6 +79,8 @@ namespace l1t {
     //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
     //boost::shared_ptr<const FirmwareVersion> m_fwv;
     //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+
+    TRandom3* gRandom;
 
     // BX parameters
     int bxFirst_;
@@ -276,9 +280,9 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
     int eta  = convertEtaToHW( mcParticle.eta(), -MaxMuonEta_, MaxMuonEta_, EtaStepMuon_);
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepMuon_ );
-    int qual = 0;//4;
-    int iso  = 0;//1;
-    int charge = ( mcParticle.charge()>0 ) ? 1 : 0;
+    int qual = gRandom->Integer(16);//4;
+    int iso  = gRandom->Integer(4);//1;
+    int charge = ( mcParticle.charge()<0 ) ? 1 : 0;
     int chargeValid = 1;
     int mip = 1;
     int tag = 1;
@@ -632,6 +636,9 @@ void GenToInputProducer::beginRun(Run const&iR, EventSetup const&iE){
   LogDebug("l1t|Global") << "GenToInputProducer::beginRun function called...\n";
 
   counter_ = 0;
+  srand( 0 );
+
+  gRandom = new TRandom3();
 }
 
 // ------------ method called when ending the processing of a run ------------

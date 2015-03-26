@@ -5,7 +5,7 @@ import os
 process = cms.Process("CONV")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('MC_60_V5::All')

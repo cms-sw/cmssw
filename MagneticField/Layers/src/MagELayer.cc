@@ -10,7 +10,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 
-// #include "MagneticField/MagLayers/interface/MagVerbosity.h"
+#include "MagneticField/Layers/interface/MagVerbosity.h"
 #include <iostream>
 
 using namespace std;
@@ -30,14 +30,17 @@ MagELayer::~MagELayer(){
 }
 
 
-MagVolume * 
+const MagVolume * 
 MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
   for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
 	ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
-    // TOFIX
-//     if (verbose.debugOut) cout << "        Trying volume "
-// 		    << (static_cast<MagVolume6Faces*> (*ivol))->name << endl;
+#ifdef MF_DEBUG
+    {
+      MagVolume6Faces* mv = static_cast<MagVolume6Faces*> (*ivol);
+      cout << "        Trying volume " << mv->volumeNo << " " << int(mv->copyno) << endl;
+    }
+#endif
     if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
   }
 

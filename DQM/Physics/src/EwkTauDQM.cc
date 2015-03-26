@@ -20,17 +20,7 @@ std::string dqmDirectoryName(const std::string& dqmRootDirectory,
 }
 
 EwkTauDQM::EwkTauDQM(const edm::ParameterSet& cfg)
-    : dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
-      dqmError_(0) {
-  if (!edm::Service<DQMStore>().isAvailable()) {
-    edm::LogError("EwkTauDQM") << " Failed to access dqmStore --> histograms "
-                                  "will NEITHER be booked NOR filled !!";
-    dqmError_ = 1;
-    return;
-  }
-
-  DQMStore* dqmStore = &(*edm::Service<DQMStore>());
-
+    : dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")) {
   maxNumWarnings_ = cfg.exists("maxNumWarnings")
                         ? cfg.getParameter<int>("maxNumWarnings")
                         : 1;
@@ -46,7 +36,7 @@ EwkTauDQM::EwkTauDQM(const edm::ParameterSet& cfg)
       "dqmDirectory",
       dqmDirectoryName(dqmDirectory_, dqmSubDirectoryElecTauChannel));
   cfgElecTauChannel.addParameter<int>("maxNumWarnings", maxNumWarnings_);
-  elecTauHistManager_ = new EwkElecTauHistManager(cfgElecTauChannel, dqmStore);
+  elecTauHistManager_ = new EwkElecTauHistManager(cfgElecTauChannel);
 
   edm::ParameterSet cfgMuTauChannel =
       cfgChannels.getParameter<edm::ParameterSet>("muTauChannel");
@@ -56,7 +46,7 @@ EwkTauDQM::EwkTauDQM(const edm::ParameterSet& cfg)
       "dqmDirectory",
       dqmDirectoryName(dqmDirectory_, dqmSubDirectoryMuTauChannel));
   cfgMuTauChannel.addParameter<int>("maxNumWarnings", maxNumWarnings_);
-  muTauHistManager_ = new EwkMuTauHistManager(cfgMuTauChannel, dqmStore);
+  muTauHistManager_ = new EwkMuTauHistManager(cfgMuTauChannel);
 }
 
 EwkTauDQM::~EwkTauDQM() {
@@ -64,23 +54,19 @@ EwkTauDQM::~EwkTauDQM() {
   delete muTauHistManager_;
 }
 
-void EwkTauDQM::beginJob() {
-  if (dqmError_) return;
-
-  elecTauHistManager_->bookHistograms();
-  muTauHistManager_->bookHistograms();
+void EwkTauDQM::bookHistograms(DQMStore::IBooker &iBooker,
+                                     edm::Run const &,
+                                     edm::EventSetup const &) {
+  elecTauHistManager_->bookHistograms(iBooker);
+  muTauHistManager_->bookHistograms(iBooker);
 }
 
 void EwkTauDQM::analyze(const edm::Event& evt, const edm::EventSetup& es) {
-  if (dqmError_) return;
-
   elecTauHistManager_->fillHistograms(evt, es);
   muTauHistManager_->fillHistograms(evt, es);
 }
 
-void EwkTauDQM::endJob() {
-  if (dqmError_) return;
-
+void EwkTauDQM::endRun(const edm::Run &, const edm::EventSetup &) {
   elecTauHistManager_->finalizeHistograms();
   muTauHistManager_->finalizeHistograms();
 }
@@ -117,10 +103,8 @@ void EwkTauDQM::endJob() {
 #include <iostream>
 #include <iomanip>
 
-EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg,
-                                             DQMStore* dqmStore)
-    : dqmStore_(dqmStore),
-      dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
+EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg)
+    : dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
       numEventsAnalyzed_(0),
       numEventsSelected_(0),
       cfgError_(0),
@@ -137,7 +121,7 @@ EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg,
       numWarningsTauDiscrAgainstElectrons_(0),
       numWarningsTauDiscrAgainstMuons_(0),
       numWarningsCaloMEt_(0),
-      numWarningsPFMEt_(0) {
+       numWarningsPFMEt_(0) {
   triggerResultsSource_ =
       cfg.getParameter<edm::InputTag>("triggerResultsSource");
   vertexSource_ = cfg.getParameter<edm::InputTag>("vertexSource");
@@ -178,78 +162,35 @@ EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg,
                         : 1;
 }
 
-void EwkElecTauHistManager::bookHistograms() {
-  dqmStore_->setCurrentFolder(dqmDirectory_);
-
-  // hNumIdElectrons_ = dqmStore_->book1D("NumIdElectronsMuons" , "Num. id.
-  // Muons", 5, -0.5, 4.5);
-  hElectronPt_ = dqmStore_->book1D("ElectronPt", "P_{T}^{e}", 20, 0., 100.);
-  hElectronEta_ = dqmStore_->book1D("ElectronEta", "#eta_{e}", 20, -4.0, +4.0);
-  hElectronPhi_ = dqmStore_->book1D("ElectronPhi", "#phi_{e}", 20, -TMath::Pi(),
+void EwkElecTauHistManager::bookHistograms(DQMStore::IBooker &iBooker) {
+  iBooker.setCurrentFolder(dqmDirectory_);
+  hElectronPt_ = iBooker.book1D("ElectronPt", "P_{T}^{e}", 20, 0., 100.);
+  hElectronEta_ = iBooker.book1D("ElectronEta", "#eta_{e}", 20, -4.0, +4.0);
+  hElectronPhi_ = iBooker.book1D("ElectronPhi", "#phi_{e}", 20, -TMath::Pi(),
                                     +TMath::Pi());
-  hElectronTrackIsoPt_ = dqmStore_->book1D(
+  hElectronTrackIsoPt_ = iBooker.book1D(
       "ElectronTrackIsoPt", "Electron Track Iso.", 20, -0.01, 0.5);
-  hElectronEcalIsoPt_ = dqmStore_->book1D("ElectronEcalIsoPt",
+  hElectronEcalIsoPt_ = iBooker.book1D("ElectronEcalIsoPt",
                                           "Electron Ecal Iso.", 20, -0.01, 0.5);
-  // hElectronHcalIsoPt_ = dqmStore_->book1D("ElectronHcalIsoPt" , "Electron
-  // Hcal Iso.", 20, -0.01, 0.5);
-
-  hTauJetPt_ = dqmStore_->book1D("TauJetPt", "P_{T}^{#tau-Jet}", 20, 0., 100.);
+  hTauJetPt_ = iBooker.book1D("TauJetPt", "P_{T}^{#tau-Jet}", 20, 0., 100.);
   hTauJetEta_ =
-      dqmStore_->book1D("TauJetEta", "#eta_{#tau-Jet}", 20, -4.0, +4.0);
-  // hTauJetPhi_ = dqmStore_->book1D("TauJetPhi" , "#phi_{#tau-Jet}", 20,
-  // -TMath::Pi(), +TMath::Pi());
-  // hTauLeadTrackPt_ = dqmStore_->book1D("TauLeadTrackPt" , "P_{T}^{#tau-Jet}",
-  // 20, 0., 50.);
-  // hTauTrackIsoPt_ = dqmStore_->book1D("TauTrackIsoPt" , "Tau Track Iso.", 20,
-  // -0.01, 40.);
-  // hTauEcalIsoPt_ = dqmStore_->book1D("TauEcalIsoPt" , "Tau Ecal Iso.", 10,
-  // -0.01, 10.);
-  // hTauDiscrAgainstElectrons_ = dqmStore_->book1D("TauDiscrAgainstElectrons" ,
-  // "Tau Discr. against Electrons", 2, -0.5, +1.5);
-  // hTauDiscrAgainstMuons_ = dqmStore_->book1D("TauDiscrAgainstMuons" , "Tau
-  // Discr. against Muons", 2, -0.5, +1.5);
-  // hTauJetCharge_ = dqmStore_->book1D("TauJetCharge" , "Q_{#tau-Jet}", 11,
-  // -5.5, +5.5);
-  // hTauJetNumSignalTracks_ = dqmStore_->book1D("TauJetNumSignalTracks" , "Num.
-  // Tau signal Cone Tracks", 20, -0.5, +19.5);
-  // hTauJetNumIsoTracks_ = dqmStore_->book1D("TauJetNumIsoTracks" , "Num. Tau
-  // isolation Cone Tracks", 20, -0.5, +19.5);
-
+      iBooker.book1D("TauJetEta", "#eta_{#tau-Jet}", 20, -4.0, +4.0);
   hVisMass_ =
-      dqmStore_->book1D("VisMass", "e + #tau-Jet visible Mass", 20, 20., 120.);
-  // hMtElecCaloMEt_ = dqmStore_->book1D("MtElecCaloMEt", "e + E_{T}^{miss}
-  // (Calo) transverse Mass", 20, 20., 120.);
-  hMtElecPFMEt_ = dqmStore_->book1D(
+      iBooker.book1D("VisMass", "e + #tau-Jet visible Mass", 20, 20., 120.);
+  hMtElecPFMEt_ = iBooker.book1D(
       "MtElecPFMEt", "e + E_{T}^{miss} (PF) transverse Mass", 20, 20., 120.);
-  // hPzetaCaloMEt_ = dqmStore_->book1D("PzetaCaloMEt", "P_{#zeta} -
-  // 1.5*P_{#zeta}^{vis} (Calo)", 20, -40., 40.);
-  // hPzetaPFMEt_ = dqmStore_->book1D("PzetaPFMEt", "P_{#zeta} -
-  // 1.5*P_{#zeta}^{vis} (PF)", 20, -40., 40.);
   hElecTauAcoplanarity_ =
-      dqmStore_->book1D("ElecTauAcoplanarity", "#Delta #phi_{e #tau-Jet}", 20,
+      iBooker.book1D("ElecTauAcoplanarity", "#Delta #phi_{e #tau-Jet}", 20,
                         -TMath::Pi(), +TMath::Pi());
   hElecTauCharge_ =
-      dqmStore_->book1D("ElecTauCharge", "Q_{e * #tau-Jet}", 5, -2.5, +2.5);
-
-  // hVertexChi2_ = dqmStore_->book1D("VertexChi2", "Event Vertex #chi^{2} /
-  // n.d.o.f.", 20, 0., 2.0);
+      iBooker.book1D("ElecTauCharge", "Q_{e * #tau-Jet}", 5, -2.5, +2.5);
   hVertexZ_ =
-      dqmStore_->book1D("VertexZ", "Event Vertex z-Position", 20, -25., +25.);
-  // hVertexD0_ = dqmStore_->book1D("VertexD0", "Event Vertex d_{0}", 20,
-  // -0.0001, 0.05);
-
+      iBooker.book1D("VertexZ", "Event Vertex z-Position", 20, -25., +25.);
   hCaloMEtPt_ =
-      dqmStore_->book1D("CaloMEtPt", "E_{T}^{miss} (Calo)", 20, 0., 100.);
-  // hCaloMEtPhi_ = dqmStore_->book1D("CaloMEtPhi", "#phi^{miss} (Calo)", 20,
-  // -TMath::Pi(), +TMath::Pi());
-
-  hPFMEtPt_ = dqmStore_->book1D("PFMEtPt", "E_{T}^{miss} (PF)", 20, 0., 100.);
-  // hPFMEtPhi_ = dqmStore_->book1D("PFMEtPhi", "#phi^{miss} (PF)", 20,
-  // -TMath::Pi(), +TMath::Pi());
-
+      iBooker.book1D("CaloMEtPt", "E_{T}^{miss} (Calo)", 20, 0., 100.);
+  hPFMEtPt_ = iBooker.book1D("PFMEtPt", "E_{T}^{miss} (PF)", 20, 0., 100.);
   hCutFlowSummary_ =
-      dqmStore_->book1D("CutFlowSummary", "Cut-flow Summary", 11, 0.5, 11.5);
+      iBooker.book1D("CutFlowSummary", "Cut-flow Summary", 11, 0.5, 11.5);
   hCutFlowSummary_->setBinLabel(kPassedPreselection, "Preselection");
   hCutFlowSummary_->setBinLabel(kPassedTrigger, "HLT");
   hCutFlowSummary_->setBinLabel(kPassedElectronId, "e ID");
@@ -264,7 +205,7 @@ void EwkElecTauHistManager::bookHistograms() {
                                 "#tau anti-#mu Discr.");
   hCutFlowSummary_->setBinLabel(kPassedTauTrackIso, "#tau Track Iso.");
   hCutFlowSummary_->setBinLabel(kPassedTauEcalIso, "#tau Ecal Iso.");
-}
+} 
 
 void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
                                            const edm::EventSetup& es) {
@@ -565,19 +506,18 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
 }
 
 void EwkElecTauHistManager::finalizeHistograms() {
-  edm::LogInfo("EwkElecTauHistManager") << "Filter-Statistics Summary:"
-                                        << std::endl << " Events analyzed = "
-                                        << numEventsAnalyzed_ << std::endl
-                                        << " Events selected = "
-                                        << numEventsSelected_;
+  edm::LogInfo("EwkElecTauHistManager")
+      << "Filter-Statistics Summary:" << std::endl
+      << " Events analyzed = " << numEventsAnalyzed_ << std::endl
+      << " Events selected = " << numEventsSelected_;
   if (numEventsAnalyzed_ > 0) {
     double eff = numEventsSelected_ / (double)numEventsAnalyzed_;
     edm::LogInfo("") << "Overall efficiency = " << std::setprecision(4)
                      << eff * 100. << " +/- " << std::setprecision(4)
                      << TMath::Sqrt(eff * (1 - eff) / numEventsAnalyzed_) * 100.
                      << ")%";
-  }
-}
+   }
+} 
 
 //-------------------------------------------------------------------------------
 // code specific to Z --> mu + tau-jet channel
@@ -611,10 +551,8 @@ void EwkElecTauHistManager::finalizeHistograms() {
 #include <iostream>
 #include <iomanip>
 
-EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg,
-                                         DQMStore* dqmStore)
-    : dqmStore_(dqmStore),
-      dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
+EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg)
+    : dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
       numEventsAnalyzed_(0),
       numEventsSelected_(0),
       cfgError_(0),
@@ -670,79 +608,56 @@ EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg,
                         : 1;
 }
 
-void EwkMuTauHistManager::bookHistograms() {
-  dqmStore_->setCurrentFolder(dqmDirectory_);
+void EwkMuTauHistManager::bookHistograms(DQMStore::IBooker &iBooker) {
+  iBooker.setCurrentFolder(dqmDirectory_);
 
-  // hNumGlobalMuons_ = dqmStore_->book1D("NumGlobalMuons" , "Num. global
-  // Muons", 5, -0.5, 4.5);
-  hMuonPt_ = dqmStore_->book1D("MuonPt", "P_{T}^{#mu}", 20, 0., 100.);
-  hMuonEta_ = dqmStore_->book1D("MuonEta", "#eta_{#mu}", 20, -4.0, +4.0);
-  hMuonPhi_ = dqmStore_->book1D("MuonPhi", "#phi_{#mu}", 20, -TMath::Pi(),
+  hMuonPt_ = iBooker.book1D("MuonPt", "P_{T}^{#mu}", 20, 0., 100.);
+  hMuonEta_ = iBooker.book1D("MuonEta", "#eta_{#mu}", 20, -4.0, +4.0);
+  hMuonPhi_ = iBooker.book1D("MuonPhi", "#phi_{#mu}", 20, -TMath::Pi(),
                                 +TMath::Pi());
   hMuonTrackIsoPt_ =
-      dqmStore_->book1D("MuonTrackIsoPt", "Muon Track Iso.", 20, -0.01, 10.);
+      iBooker.book1D("MuonTrackIsoPt", "Muon Track Iso.", 20, -0.01, 10.);
   hMuonEcalIsoPt_ =
-      dqmStore_->book1D("MuonEcalIsoPt", "Muon Ecal Iso.", 20, -0.01, 10.);
+      iBooker.book1D("MuonEcalIsoPt", "Muon Ecal Iso.", 20, -0.01, 10.);
   hMuonCombIsoPt_ =
-      dqmStore_->book1D("MuonCombIsoPt", "Muon Comb Iso.", 20, -0.01, 1.);
+      iBooker.book1D("MuonCombIsoPt", "Muon Comb Iso.", 20, -0.01, 1.);
 
-  hTauJetPt_ = dqmStore_->book1D("TauJetPt", "P_{T}^{#tau-Jet}", 20, 0., 100.);
+  hTauJetPt_ = iBooker.book1D("TauJetPt", "P_{T}^{#tau-Jet}", 20, 0., 100.);
   hTauJetEta_ =
-      dqmStore_->book1D("TauJetEta", "#eta_{#tau-Jet}", 20, -4.0, +4.0);
-  hTauJetPhi_ = dqmStore_->book1D("TauJetPhi", "#phi_{#tau-Jet}", 20,
+      iBooker.book1D("TauJetEta", "#eta_{#tau-Jet}", 20, -4.0, +4.0);
+  hTauJetPhi_ = iBooker.book1D("TauJetPhi", "#phi_{#tau-Jet}", 20,
                                   -TMath::Pi(), +TMath::Pi());
-  hTauLeadTrackPt_ = dqmStore_->book1D("TauLeadTrackPt",
+  hTauLeadTrackPt_ = iBooker.book1D("TauLeadTrackPt",
                                        "P_{T}^{#tau-Jetldg trk}", 20, 0., 50.);
   hTauTrackIsoPt_ =
-      dqmStore_->book1D("TauTrackIsoPt", "Tau Track Iso.", 20, -0.01, 40.);
+      iBooker.book1D("TauTrackIsoPt", "Tau Track Iso.", 20, -0.01, 40.);
   hTauEcalIsoPt_ =
-      dqmStore_->book1D("TauEcalIsoPt", "Tau Ecal Iso.", 10, -0.01, 10.);
-  hTauDiscrAgainstMuons_ = dqmStore_->book1D(
+      iBooker.book1D("TauEcalIsoPt", "Tau Ecal Iso.", 10, -0.01, 10.);
+  hTauDiscrAgainstMuons_ = iBooker.book1D(
       "TauDiscrAgainstMuons", "Tau Discr. against Muons", 2, -0.5, +1.5);
-  // hTauJetCharge_ = dqmStore_->book1D("TauJetCharge" , "Q_{#tau-Jet}", 11,
-  // -5.5, +5.5);
-  hTauJetNumSignalTracks_ = dqmStore_->book1D(
+  hTauJetNumSignalTracks_ = iBooker.book1D(
       "TauJetNumSignalTracks", "Num. Tau signal Cone Tracks", 20, -0.5, +19.5);
-  hTauJetNumIsoTracks_ = dqmStore_->book1D(
+  hTauJetNumIsoTracks_ = iBooker.book1D(
       "TauJetNumIsoTracks", "Num. Tau isolation Cone Tracks", 20, -0.5, +19.5);
 
   hVisMass_ =
-      dqmStore_->book1D("VisMass", "#mu + #tau-Jet visible Mass", 20, 0., 120.);
-  hVisMassFinal_ = dqmStore_->book1D(
+      iBooker.book1D("VisMass", "#mu + #tau-Jet visible Mass", 20, 0., 120.);
+  hVisMassFinal_ = iBooker.book1D(
       "VisMassFinal", "#mu + #tau-Jet visible final Mass", 20, 0., 120.);
-  // hMtMuCaloMEt_ = dqmStore_->book1D("MtMuCaloMEt", "#mu + E_{T}^{miss} (Calo)
-  // transverse Mass", 20, 20., 120.);
-  hMtMuPFMEt_ = dqmStore_->book1D(
+  hMtMuPFMEt_ = iBooker.book1D(
       "MtMuPFMEt", "#mu + E_{T}^{miss} (PF) transverse Mass", 20, 0., 120.);
-  // hPzetaCaloMEt_ = dqmStore_->book1D("PzetaCaloMEt", "P_{#zeta} -
-  // 1.5*P_{#zeta}^{vis} (Calo)", 20, -40., 40.);
-  // hPzetaPFMEt_ = dqmStore_->book1D("PzetaPFMEt", "P_{#zeta} -
-  // 1.5*P_{#zeta}^{vis} (PF)", 20, -40., 40.);
   hMuTauAcoplanarity_ =
-      dqmStore_->book1D("MuTauAcoplanarity", "#Delta #phi_{#mu #tau-Jet}", 20,
+      iBooker.book1D("MuTauAcoplanarity", "#Delta #phi_{#mu #tau-Jet}", 20,
                         -TMath::Pi(), +TMath::Pi());
-  // hMuTauCharge_ = dqmStore_->book1D("MuTauCharge" , "Q_{#mu + #tau-Jet}", 11,
-  // -5.5, +5.5);
   hMuTauDeltaR_ =
-      dqmStore_->book1D("MuTauDeltaR", "#Delta R_{#mu #tau-Jet}", 20, 0, 5);
-  // hVertexChi2_ = dqmStore_->book1D("VertexChi2", "Event Vertex #chi^{2} /
-  // n.d.o.f.", 20, 0., 2.0);
+      iBooker.book1D("MuTauDeltaR", "#Delta R_{#mu #tau-Jet}", 20, 0, 5);
   hVertexZ_ =
-      dqmStore_->book1D("VertexZ", "Event Vertex z-Position", 20, -25., +25.);
-  // hVertexD0_ = dqmStore_->book1D("VertexD0", "Event Vertex d_{0}", 20,
-  // -0.0001, 0.05);
-
+      iBooker.book1D("VertexZ", "Event Vertex z-Position", 20, -25., +25.);
   hCaloMEtPt_ =
-      dqmStore_->book1D("CaloMEtPt", "E_{T}^{miss} (Calo)", 20, 0., 100.);
-  // hCaloMEtPhi_ = dqmStore_->book1D("CaloMEtPhi", "#phi^{miss} (Calo)", 20,
-  // -TMath::Pi(), +TMath::Pi());
-
-  hPFMEtPt_ = dqmStore_->book1D("PFMEtPt", "E_{T}^{miss} (PF)", 20, 0., 100.);
-  // hPFMEtPhi_ = dqmStore_->book1D("PFMEtPhi", "#phi^{miss} (PF)", 20,
-  // -TMath::Pi(), +TMath::Pi());
-
+      iBooker.book1D("CaloMEtPt", "E_{T}^{miss} (Calo)", 20, 0., 100.);
+  hPFMEtPt_ = iBooker.book1D("PFMEtPt", "E_{T}^{miss} (PF)", 20, 0., 100.);
   hCutFlowSummary_ =
-      dqmStore_->book1D("CutFlowSummary", "Cut-flow Summary", 11, 0.5, 11.5);
+      iBooker.book1D("CutFlowSummary", "Cut-flow Summary", 11, 0.5, 11.5);
   hCutFlowSummary_->setBinLabel(kPassedPreselection, "Preselection");
   hCutFlowSummary_->setBinLabel(kPassedTrigger, "HLT");
   hCutFlowSummary_->setBinLabel(kPassedMuonId, "#mu ID");
@@ -755,8 +670,6 @@ void EwkMuTauHistManager::bookHistograms() {
   hCutFlowSummary_->setBinLabel(kPassedTauEcalIso, "#tau Ecal Iso.");
   hCutFlowSummary_->setBinLabel(kPassedTauDiscrAgainstMuons,
                                 "#tau anti-#mu Discr.");
-  // hCutFlowSummary_->setBinLabel(kPassedMuonCombIso, "#mu Comb Iso.");
-
   hCutFlowSummary_->setBinLabel(kPassedDeltaR, "#DeltaR(#mu,#tau) ");
 }
 
@@ -1076,11 +989,10 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt,
 }
 
 void EwkMuTauHistManager::finalizeHistograms() {
-  edm::LogInfo("EwkMuTauHistManager") << "Filter-Statistics Summary:"
-                                      << std::endl << " Events analyzed = "
-                                      << numEventsAnalyzed_ << std::endl
-                                      << " Events selected = "
-                                      << numEventsSelected_;
+  edm::LogInfo("EwkMuTauHistManager")
+      << "Filter-Statistics Summary:" << std::endl
+      << " Events analyzed = " << numEventsAnalyzed_ << std::endl
+      << " Events selected = " << numEventsSelected_;
   if (numEventsAnalyzed_ > 0) {
     double eff = numEventsSelected_ / (double)numEventsAnalyzed_;
     edm::LogInfo("") << "Overall efficiency = " << std::setprecision(4)
@@ -1105,17 +1017,13 @@ int getIsoMode(const std::string& isoMode_string, int& error) {
   } else if (isoMode_string == "relativeIso") {
     isoMode_int = kRelativeIso;
   } else {
-    edm::LogError("getIsoMode") << " Failed to decode isoMode string = "
-                                << isoMode_string << " !!";
+    edm::LogError("getIsoMode")
+        << " Failed to decode isoMode string = " << isoMode_string << " !!";
     isoMode_int = kUndefinedIso;
     error = 1;
   }
   return isoMode_int;
 }
-
-//
-//-----------------------------------------------------------------------------------------------------------------------
-//
 
 double calcDeltaPhi(double phi1, double phi2) {
   double deltaPhi = phi1 - phi2;
@@ -1163,10 +1071,6 @@ double calcPzeta(const reco::Candidate::LorentzVector& p1,
   return pZeta - 1.5 * pZetaVis;
 }
 
-//
-//-----------------------------------------------------------------------------------------------------------------------
-//
-
 bool passesElectronPreId(const reco::GsfElectron& electron) {
   if ((TMath::Abs(electron.eta()) < 1.479 ||
        TMath::Abs(electron.eta()) > 1.566) &&  // cut ECAL barrel/endcap crack
@@ -1196,10 +1100,6 @@ bool passesElectronId(const reco::GsfElectron& electron) {
     return false;
   }
 }
-
-//
-//-----------------------------------------------------------------------------------------------------------------------
-//
 
 const reco::GsfElectron* getTheElectron(
     const reco::GsfElectronCollection& electrons, double electronEtaCut,
@@ -1253,17 +1153,8 @@ const reco::PFTau* getTheTauJet(const reco::PFTauCollection& tauJets,
   return theTauJet;
 }
 
-//
-//-----------------------------------------------------------------------------------------------------------------------
-//
-
 double getVertexD0(const reco::Vertex& vertex, const reco::BeamSpot& beamSpot) {
   double dX = vertex.x() - beamSpot.x0();
   double dY = vertex.y() - beamSpot.y0();
   return TMath::Sqrt(dX * dX + dY * dY);
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

@@ -42,7 +42,7 @@ public:
   virtual void
   getThinnedProducts(edm::ProductID const& pid,
                      std::vector<edm::WrapperBase const*>& wrappers,
-                     std::vector<unsigned int>& keys) const { }
+                     std::vector<unsigned int>& keys) const override { }
 
 
 private:

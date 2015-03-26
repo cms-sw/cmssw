@@ -32,9 +32,6 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1TriggerReco = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvL1TriggerReco.subSystemFolder = 'L1T/L1TriggerVsReco'
 
-from DQMOffline.L1Trigger.L1TriggerRecoDQM_cff import *
-
-
 #
 # DQM L1 Trigger Emulator in offline environment
 # Run also the L1HwVal producers (L1 Trigger emulators)
@@ -50,7 +47,6 @@ from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *  
 
 # DQM Offline Step 2 cfi/cff imports
-from DQMOffline.L1Trigger.L1TSync_Harvest_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 
@@ -66,7 +62,6 @@ l1TriggerOnline = cms.Sequence(
                                     
 l1TriggerOffline = cms.Sequence(
                                 l1TriggerOnline
-                                 * l1TriggerRecoDQM
                                  * dqmEnvL1TriggerReco
                                 )
  
@@ -93,7 +88,6 @@ l1TriggerDqmOffline = cms.Sequence(
 # DQM Offline Step 2 sequence                                 
 l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tMonitorClient
-                                * l1tSync_Harvest
                                 * l1EmulatorMonitorClient
                                 )
 
@@ -121,7 +115,6 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 #
 
 #l1TriggerOffline.remove(l1TriggerOnline)
-#l1TriggerOffline.remove(l1TriggerRecoDQM)
 
 
 # l1tMonitorOnline sequence, defined in DQM/L1TMonitor/python/L1TMonitor_cff.py
@@ -158,10 +151,6 @@ l1tMonitorOnline.remove(l1tBPTX)
 #l1HwValEmulatorMonitor.remove(L1HardwareValidation)
 #
 #l1HwValEmulatorMonitor.remove(l1EmulatorMonitor)
-
-
-# DQM second step (harvesting)
-#
 
 #l1TriggerDqmOfflineClient.remove(l1tMonitorClient)
 #l1TriggerDqmOfflineClient.remove(l1EmulatorMonitorClient)

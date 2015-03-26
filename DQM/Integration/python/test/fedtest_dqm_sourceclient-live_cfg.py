@@ -81,7 +81,7 @@ process.SiPixelHLTSource.saveFile = False
 process.SiPixelHLTSource.slowDown = False
 process.SiPixelHLTSource.DirName = cms.untracked.string('Pixel/FEDIntegrity_SM/')
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # SiStrip DQM sequences
 process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
@@ -167,3 +167,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
     process.l1tfed.rawTag = cms.InputTag("rawDataRepacker")
     process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

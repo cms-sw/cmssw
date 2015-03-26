@@ -14,13 +14,12 @@ class HcalBeamClient : public HcalBaseDQClient {
   HcalBeamClient(std::string myname);//{ name_=myname;};
   HcalBeamClient(std::string myname, const edm::ParameterSet& ps);
 
-  void analyze(void);
-  void calculateProblems(void); // calculates problem histogram contents
+  void analyze(DQMStore::IBooker &, DQMStore::IGetter &);
+  void calculateProblems(DQMStore::IBooker &, DQMStore::IGetter &); // calculates problem histogram contents
   void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
-  void beginJob(void);
   void endJob(void);
   void beginRun(void);
-  void endRun(void); 
+  //void endRun(void); 
   void setup(void);  
   void cleanup(void);
 
@@ -34,6 +33,14 @@ class HcalBeamClient : public HcalBaseDQClient {
 
  private:
   int nevts_;
+
+  // -- setup the problem cells monitor
+  bool setupProblemCells_;   // defaults to true in constructor
+  
+  // perform the setup of the problem cells monitor elements and EtaPhiHists
+  // This function sets the above setupProblemCells_ to false.
+  void doProblemCellSetup(DQMStore::IBooker &, DQMStore::IGetter &);
+  
 };
 
 #endif

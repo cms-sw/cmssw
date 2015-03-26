@@ -2,15 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 
 # NEW CLUSTERS (remove previously used clusters)
-pixelPairStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("mixedTripletStepClusters"),
-    trajectories = cms.InputTag("mixedTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('mixedTripletStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+pixelPairStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("mixedTripletStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("mixedTripletStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('mixedTripletStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -51,6 +52,7 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
     )
 pixelPairStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement =  cms.uint32(0)
+pixelPairStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -73,7 +75,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     maxCand = 3,
     estimator = cms.string('pixelPairStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -84,6 +85,7 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('pixelPairStepSeeds'),
+    clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
@@ -104,7 +106,7 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     AlgorithmName = cms.string('pixelPairStep'),
     src = 'pixelPairStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
+    TTRHBuilder=cms.string('WithTrackAngle')
     )
 
 # Final selection

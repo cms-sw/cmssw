@@ -2,32 +2,34 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+const int egHLT::TrigCodes::maxNrBits_;
+
 using namespace egHLT;
 
-TrigCodes::TrigBitSetMap TrigCodes::trigBitSetMap_;
-
-void TrigCodes::setCodes(std::vector<std::string>& filterNames)
+TrigCodes* TrigCodes::makeCodes(std::vector<std::string>& filterNames)
 {
-  if(trigBitSetMap_.size()!=0){
-    edm::LogWarning("TrigCodes") <<" Warning trigBitSetMap already filled ";
-  }else{
-    for(size_t i=0;i<filterNames.size();i++) trigBitSetMap_.setCode(filterNames[i].c_str(),i);
-    trigBitSetMap_.sort();
+  TrigCodes *p = new TrigCodes();
+
+  for (size_t i=0;i<filterNames.size();i++) { 
+    p->setCode(filterNames[i].c_str(),i);
   }
+  p->sort();
+
+  return p;
 }
 
-void TrigCodes::TrigBitSetMap::setCode(const char* descript,int bitNr)
+void TrigCodes::setCode(const char* descript,int bitNr)
 {
-  if(bitNr<maxNrBits()){
+  if(bitNr < maxNrBits_){
     TrigBitSet code;
     code.set(bitNr);
     setCode(descript,code);
   }else{
-    edm::LogWarning("TrigCodes::TrigBitSetMap") <<" Warning, trying to store at bit "<<bitNr<<" but max nr bits is "<<maxNrBits();
+    edm::LogWarning("TrigCodes::TrigBitSetMap") <<" Warning, trying to store at bit "<<bitNr<<" but max nr bits is "<<maxNrBits_;
   }
 }
 
-void TrigCodes::TrigBitSetMap::setCode(const char* descript,TrigBitSet code)
+void TrigCodes::setCode(const char* descript,TrigBitSet code)
 {
   bool found=false;
   for(size_t i=0;i<codeDefs_.size() && !found;i++){
@@ -39,7 +41,7 @@ void TrigCodes::TrigBitSetMap::setCode(const char* descript,TrigBitSet code)
 
 
 
-TrigCodes::TrigBitSet TrigCodes::TrigBitSetMap::getCode(const char* descript)const
+TrigCodes::TrigBitSet TrigCodes::getCode(const char* descript)const
 { 
   //first copy the character string to a local array so we can manipulate it
   char localDescript[512];
@@ -66,12 +68,12 @@ TrigCodes::TrigBitSet TrigCodes::TrigBitSetMap::getCode(const char* descript)con
   return code;
 }
 
-bool TrigCodes::TrigBitSetMap::keyComp(const std::pair<std::string,TrigBitSet>& lhs,const std::pair<std::string,TrigBitSet>& rhs)
+bool TrigCodes::keyComp(const std::pair<std::string,TrigBitSet>& lhs,const std::pair<std::string,TrigBitSet>& rhs)
 {
   return lhs.first < rhs.first;
 }
 
-void TrigCodes::TrigBitSetMap::getCodeName(TrigBitSet code,std::string& id)const
+void TrigCodes::getCodeName(TrigBitSet code,std::string& id)const
 {
   id.clear();
   for(size_t i=0;i<codeDefs_.size();i++){ 
@@ -84,7 +86,7 @@ void TrigCodes::TrigBitSetMap::getCodeName(TrigBitSet code,std::string& id)const
  
 }
 
-void TrigCodes::TrigBitSetMap::printCodes()
+void TrigCodes::printCodes()
 {
   std::ostringstream msg;
   msg <<" trig bits defined: "<<std::endl;

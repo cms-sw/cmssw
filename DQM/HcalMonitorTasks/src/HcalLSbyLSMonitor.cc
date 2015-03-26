@@ -7,7 +7,7 @@
 */
 
 // constructor
-HcalLSbyLSMonitor::HcalLSbyLSMonitor(const edm::ParameterSet& ps) 
+HcalLSbyLSMonitor::HcalLSbyLSMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
@@ -35,31 +35,31 @@ HcalLSbyLSMonitor::~HcalLSbyLSMonitor()
 {
 } //destructor
 
-void HcalLSbyLSMonitor::setup()
+void HcalLSbyLSMonitor::setup(DQMStore::IBooker &ib)
 {
   // Call base class setup
-  HcalBaseDQMonitor::setup();
+  HcalBaseDQMonitor::setup(ib);
 
   if (debug_>1)
     std::cout <<"<HcalLSbyLSMonitor::setup>  Setting up histograms"<<std::endl;
 
-  dbe_->setCurrentFolder(subdir_);
+  ib.setCurrentFolder(subdir_);
   // This will cause this information to be kept for every lumi block
   if (ProblemsCurrentLB)
     ProblemsCurrentLB->setLumiFlag();
   this->reset();
 }
-void HcalLSbyLSMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalLSbyLSMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>1) std::cout <<"HcalLSbyLSMonitor::beginRun"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run,c);
+  if (debug_>1) std::cout <<"HcalLSbyLSMonitor::bookHistograms"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
-  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (tevt_==0) this->setup(ib); // set up histograms if they have not been created before
   if (mergeRuns_==false)
     this->reset();
 
   return;
-} //void HcalLSbyLSMonitor::beginRun(...)
+} //void HcalLSbyLSMonitor::bookHistograms(...)
 
 
 void HcalLSbyLSMonitor::reset()
@@ -80,8 +80,7 @@ void HcalLSbyLSMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 void HcalLSbyLSMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& c)
 {
-  // Processing should go here
-  if (!dbe_) return;
+  /*// Processing should go here
   bool enoughEvents=true;
   int Nevents=0;
   int TotalEvents=0;
@@ -136,7 +135,7 @@ void HcalLSbyLSMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   ProblemsCurrentLB->setBinContent(4,1,badHF);
   ProblemsCurrentLB->setBinContent(5,1,badHO0);
   ProblemsCurrentLB->setBinContent(6,1,badHO12);
-  ProblemsCurrentLB->setBinContent(7,1,badHFLUMI);
+  ProblemsCurrentLB->setBinContent(7,1,badHFLUMI); */
   return;
 }
 
@@ -156,7 +155,7 @@ void HcalLSbyLSMonitor::endJob()
 }
 
 
-void HcalLSbyLSMonitor::cleanup()
+/*void HcalLSbyLSMonitor::cleanup()
 {
   if (!enableCleanup_) return;
   if (dbe_)
@@ -166,6 +165,6 @@ void HcalLSbyLSMonitor::cleanup()
       dbe_->setCurrentFolder(subdir_+"LSvalues");
       dbe_->removeContents();
     }
-}
+}*/
 
 DEFINE_FWK_MODULE(HcalLSbyLSMonitor);

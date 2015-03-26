@@ -2,10 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 PureMETPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_PFMET180_NoiseCleaned_v",    # Run2
-        "HLT_MET120_HBHENoiseCleaned_v" # Run1
+        "HLT_PFMET180_NoiseCleaned_v",  # Run2
+        "HLT_CaloMET200_NoiseCleaned_v"
+        #"HLT_MET120_HBHENoiseCleaned_v" # Run1
         ),
     recPFMETLabel  = cms.InputTag("pfMet"),
+    recCaloMETLabel = cms.InputTag("caloMet"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings

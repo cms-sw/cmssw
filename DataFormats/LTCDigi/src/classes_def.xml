@@ -1,5 +1,6 @@
 <lcgdict>
-<class name="LTCDigi" ClassVersion="10">
+<class name="LTCDigi" ClassVersion="11">
+ <version ClassVersion="11" checksum="596026425"/>
  <version ClassVersion="10" checksum="3405171392"/>
 </class>
 <class name="std::vector<LTCDigi>"/>

@@ -14,7 +14,8 @@
  <class name="edmNew::DetSetVector<SiStripDigi>" />
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripDigi> >" />
 
- <class name="SiStripRawDigi" ClassVersion="10">
+ <class name="SiStripRawDigi" ClassVersion="11">
+  <version ClassVersion="11" checksum="170739553"/>
   <version ClassVersion="10" checksum="1489666272"/>
  </class>
  <class name="std::vector<SiStripRawDigi>"/>
@@ -28,7 +29,8 @@
  <class name="edmNew::DetSetVector<SiStripRawDigi>" />
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripRawDigi> >" />
 
- <class name="SiStripProcessedRawDigi" ClassVersion="10">
+ <class name="SiStripProcessedRawDigi" ClassVersion="11">
+  <version ClassVersion="11" checksum="778765822"/>
   <version ClassVersion="10" checksum="1849443551"/>
  </class>
  <class name="std::vector<SiStripProcessedRawDigi>"/>

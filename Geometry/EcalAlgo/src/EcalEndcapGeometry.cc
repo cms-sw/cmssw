@@ -22,7 +22,7 @@ EcalEndcapGeometry::EcalEndcapGeometry( void )
     m_borderMgr( nullptr ),
     m_borderPtrVec( nullptr ),
     m_avgZ( -1 ),
-    m_check( nullptr ),
+    m_check( false ),
     m_cellVec( k_NumberOfCellsForCorners )
 {
   m_xlo[0] = 999.;

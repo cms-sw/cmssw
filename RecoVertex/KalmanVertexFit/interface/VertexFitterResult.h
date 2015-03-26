@@ -9,7 +9,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 
 #include <vector>
 
@@ -27,7 +28,7 @@ public:
 //   typedef std::vector<const TkSimTrack*>	SimTrackCont;
   typedef std::vector<reco::TransientTrack>		TTrackCont;
 
-  VertexFitterResult(const int maxTracks = 100, TrackAssociatorByChi2 *associator = 0);
+  VertexFitterResult(const int maxTracks = 100, const MagneticField* = 0);
   ~VertexFitterResult();
 
   void fill(const TransientVertex & recv, const TrackingVertex * simv = 0, 
@@ -111,7 +112,7 @@ private:
 
   // NumberOfSharedTracks numberOfSharedTracks;
 
-  TrackAssociatorByChi2 * associatorForParamAtPca;
+  const MagneticField * theMagField;
 
   float simPos[3];
   float recPos[3];

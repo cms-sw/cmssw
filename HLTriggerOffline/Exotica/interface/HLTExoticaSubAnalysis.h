@@ -32,6 +32,12 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -40,13 +46,12 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaPlotter.h"
+
 #include<vector>
 #include<set>
 #include<map>
@@ -100,7 +105,9 @@ private:
     /// This function applies the selectors initialized previously to the objects,
     /// and matches the passing objects to HLT objects.
     void insertCandidates(const unsigned int & objtype, const EVTColContainer * col,
-                          std::vector<reco::LeafCandidate> * matches);
+                          std::vector<reco::LeafCandidate> * matches, 
+                          std::map<int,double> & theSumEt,
+                          std::map<int, std::vector<const reco::Track*> > & trkObjs);
 
     /// The internal functions to book and fill histograms
     void bookHist(DQMStore::IBooker &iBooker, const std::string & source, const std::string & objType,
@@ -128,16 +135,19 @@ private:
     std::string _hltProcessName;
     edm::InputTag _genParticleLabel;
     edm::InputTag _trigResultsLabel;
+    edm::InputTag _beamSpotLabel;
     std::map<unsigned int, edm::InputTag> _recLabels;
     /// And also the tokens to get the object collections
     edm::EDGetTokenT<reco::GenParticleCollection> _genParticleToken;
     edm::EDGetTokenT<edm::TriggerResults> _trigResultsToken;
+    edm::EDGetTokenT<reco::BeamSpot> _bsToken;
     std::map<unsigned int, edm::EDGetToken> _tokens;
 
     /// Some kinematical parameters
     std::vector<double> _parametersEta;
     std::vector<double> _parametersPhi;
     std::vector<double> _parametersTurnOn;
+    std::vector<double> _parametersDxy;
 
     /// gen/rec objects cuts
     std::map<unsigned int, std::string> _genCut;
@@ -150,9 +160,15 @@ private:
     /// via the config python)
     std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
     StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
-    StringCutObjectSelector<reco::Track>        * _recMuonTrkSelector;
+    StringCutObjectSelector<reco::Track>       * _recMuonTrkSelector;
+    StringCutObjectSelector<reco::Track>       * _recTrackSelector;
     StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
+    StringCutObjectSelector<reco::MET>         * _recMETSelector;
     StringCutObjectSelector<reco::PFMET>       * _recPFMETSelector;
+    StringCutObjectSelector<reco::PFMET>       * _recPFMHTSelector;
+    StringCutObjectSelector<reco::GenMET>      * _genMETSelector;
+    StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+    StringCutObjectSelector<l1extra::L1EtMissParticle> * _l1METSelector;
     StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
     StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
     StringCutObjectSelector<reco::PFJet>       * _recPFJetSelector;

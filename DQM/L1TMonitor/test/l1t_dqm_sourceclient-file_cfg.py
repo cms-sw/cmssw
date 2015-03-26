@@ -109,7 +109,7 @@ else :
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------

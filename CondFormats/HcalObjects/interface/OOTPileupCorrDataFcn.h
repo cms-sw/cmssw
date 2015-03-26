@@ -35,6 +35,12 @@ public:
         ts[tsTrig+1] = a1_(ts[tsTrig]);
     }
 
+    // Access the correction functions
+    inline const PiecewiseScalingPolynomial& getA1() const {return a1_;}
+    inline const PiecewiseScalingPolynomial& getA2() const {return a2_;}
+    inline const PiecewiseScalingPolynomial& getA3() const {return a3_;}
+    inline const ScalingExponential& getA_1() const {return a_1_;}
+
 private:
     PiecewiseScalingPolynomial a1_, a2_, a3_;
     ScalingExponential a_1_;

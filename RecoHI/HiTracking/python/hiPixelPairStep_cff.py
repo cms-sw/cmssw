@@ -5,9 +5,9 @@ import FWCore.ParameterSet.Config as cms
 # NEW CLUSTERS (remove previously used clusters)
 hiPixelPairClusters = cms.EDProducer("HITrackClusterRemover",
                                      clusterLessSolution= cms.bool(True),
-                                     oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
-                                     trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
-                                     overrideTrkQuals = cms.InputTag('hiSecondPixelTripletStepSelector','hiSecondPixelTripletStep'),
+                                     oldClusterRemovalInfo = cms.InputTag("hiLowPtTripletStepClusters"),
+                                     trajectories = cms.InputTag("hiLowPtTripletStepTracks"),
+                                     overrideTrkQuals = cms.InputTag('hiLowPtTripletStepSelector','hiLowPtTripletStep'),
                                      TrackQuality = cms.string('highPurity'),
                                      minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
                                      pixelClusters = cms.InputTag("siPixelClusters"),

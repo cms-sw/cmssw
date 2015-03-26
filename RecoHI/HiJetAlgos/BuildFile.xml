@@ -1,10 +1,7 @@
-<use   name="cgal"/>
 <use   name="boost"/>
-<use   name="f77compiler"/>
 <use   name="FWCore/Framework"/>
 <use   name="RecoJets/JetProducers"/>
 <use   name="DataFormats/HeavyIonEvent"/>
-<Flags CXXFLAGS="-frounding-math"/>
 <export>
   <lib   name="1"/>
 </export>

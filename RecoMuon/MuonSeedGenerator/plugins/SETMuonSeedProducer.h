@@ -10,7 +10,7 @@
 //---- provided need to be fitted properly (starting from the initial estimates also provided).
 //---- Technically all this information is stored as a TrajectorySeed. SS 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
@@ -27,7 +27,7 @@ class STAFilter;
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-class SETMuonSeedProducer : public edm::EDProducer {
+class SETMuonSeedProducer : public edm::stream::EDProducer<> {
   
  public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;

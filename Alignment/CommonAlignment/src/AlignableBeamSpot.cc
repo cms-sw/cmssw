@@ -9,7 +9,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -137,16 +137,16 @@ Alignments* AlignableBeamSpot::alignments() const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrors* AlignableBeamSpot::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( void ) const
 {
-  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add associated alignment position error
   uint32_t detId = theId;
-  CLHEP::HepSymMatrix clhepSymMatrix(3,0);
+  CLHEP::HepSymMatrix clhepSymMatrix(6,0);
   if ( theAlignmentPositionError ) // Might not be set
     clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
-  AlignTransformError transformError( clhepSymMatrix, detId );
+  AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
   
   return m_alignmentErrors;

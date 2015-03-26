@@ -13,6 +13,8 @@
  *  \author G. Cerminara - INFN Torino
  */
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -29,7 +31,7 @@ class DQMStore;
 class MonitorElement;
 class DTGeometry;
 
-class DTResolutionAnalysisTask: public edm::EDAnalyzer{
+class DTResolutionAnalysisTask: public DQMEDAnalyzer{
 public:
   /// Constructor
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);
@@ -37,14 +39,14 @@ public:
   /// Destructor
   virtual ~DTResolutionAnalysisTask();
 
+  /// BookHistograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
   /// BeginRun
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -53,7 +55,6 @@ public:
 protected:
 
 private:
-  DQMStore* theDbe;
 
   edm::ESHandle<DTGeometry> dtGeom;
 
@@ -67,7 +68,7 @@ private:
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Book a set of histograms for a give chamber
-  void bookHistos(DTSuperLayerId slId);
+  void bookHistos(DQMStore::IBooker & ibooker, DTSuperLayerId slId);
   // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
 		  float distExtr,

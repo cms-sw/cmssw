@@ -236,7 +236,7 @@ namespace edm {
                                           EDConsumerBase const* consumer,
                                           ModuleCallingContext const* mcc) const;
 
-    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {}
+    virtual void readFromSource_(ProductHolderBase const& /* phb */, ModuleCallingContext const* /* mcc */) const {}
 
     virtual bool isComplete_() const {return true;}
 

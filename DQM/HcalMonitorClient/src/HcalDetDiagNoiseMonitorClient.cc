@@ -44,18 +44,20 @@ HcalDetDiagNoiseMonitorClient::HcalDetDiagNoiseMonitorClient(std::string myname,
 						ps.getUntrackedParameter<int>("minevents",1));
   ProblemCells=0;
   ProblemCellsByDepth=0;
+
+  doProblemCellSetup_ = true;
 }
 
-void HcalDetDiagNoiseMonitorClient::analyze()
+void HcalDetDiagNoiseMonitorClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalDetDiagNoiseMonitorClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 }
 
-void HcalDetDiagNoiseMonitorClient::calculateProblems()
+void HcalDetDiagNoiseMonitorClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalDetDiagNoiseMonitorClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   //double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -182,45 +184,38 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
   return;
 }
 
-void HcalDetDiagNoiseMonitorClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalDetDiagNoiseMonitorClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
-void HcalDetDiagNoiseMonitorClient::endJob(){}
+//void HcalDetDiagNoiseMonitorClient::endJob(){}
 
-void HcalDetDiagNoiseMonitorClient::beginRun(void)
+void HcalDetDiagNoiseMonitorClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
-  enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
 
   // Put the appropriate name of your problem summary here
-  ProblemCells=dqmStore_->book2D(" ProblemDetDiagNoiseMonitor",
+  ProblemCells=ib.book2D(" ProblemDetDiagNoiseMonitor",
 				 " Problem DetDiagNoiseMonitor Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_DetDiagNoiseMonitor");
+  ib.setCurrentFolder(subdir_+"problem_DetDiagNoiseMonitor");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem DetDiagNoiseMonitor Rate");
+  ProblemCellsByDepth->setup(ib," Problem DetDiagNoiseMonitor Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+
+  doProblemCellSetup_ = false;
+}
+
+void HcalDetDiagNoiseMonitorClient::beginRun(void)
+{
+  enoughevents_=false;
   nevts_=0;
 }
 
-void HcalDetDiagNoiseMonitorClient::endRun(void){analyze();}
+//void HcalDetDiagNoiseMonitorClient::endRun(void){analyze();}
 
 void HcalDetDiagNoiseMonitorClient::setup(void){}
 void HcalDetDiagNoiseMonitorClient::cleanup(void){}
@@ -272,4 +267,6 @@ void HcalDetDiagNoiseMonitorClient::updateChannelStatus(std::map<HcalDetId, unsi
 } //void HcalDetDiagNoiseMonitorClient::updateChannelStatus
 
 HcalDetDiagNoiseMonitorClient::~HcalDetDiagNoiseMonitorClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

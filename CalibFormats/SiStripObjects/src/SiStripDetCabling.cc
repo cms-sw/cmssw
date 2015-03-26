@@ -7,19 +7,16 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <iostream>
 
 //---- default constructor / destructor
-SiStripDetCabling::SiStripDetCabling() : fedCabling_(0) {}
+SiStripDetCabling::SiStripDetCabling(const TrackerTopology* const topology) : fedCabling_(0), tTopo(topology) {}
 SiStripDetCabling::~SiStripDetCabling() {}
 
 //---- construct detector view (DetCabling) out of readout view (FedCabling)
-SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : fullcabling_(), connected_(), detected_(), undetected_(), fedCabling_(&fedcabling)
+SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling,const TrackerTopology* const topology) : fullcabling_(), connected_(), detected_(), undetected_(), fedCabling_(&fedcabling), tTopo(topology)
 {
   // --- CONNECTED = have fedid and i2cAddr
   // create fullcabling_, loop over vector of FedChannelConnection, either make new element of map, or add to appropriate vector of existing map element
@@ -49,7 +46,7 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
       if(vector_of_connected_apvs.size() != 0){ // add only is smth. there, obviously
         std::map<uint32_t, std::vector<int> > map_of_connected_apvs;
         map_of_connected_apvs.insert(std::make_pair(iconn->detId(),vector_of_connected_apvs));
-        addFromSpecificConnection(connected_, map_of_connected_apvs, 0);
+        addFromSpecificConnection(connected_, map_of_connected_apvs, &(connectionCount[0]));
       }
     }
   }
@@ -67,7 +64,7 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
     if(vector_of_detected_apvs.size() != 0){ // add only is smth. there, obviously
       std::map<uint32_t,std::vector<int> > map_of_detected_apvs;
       map_of_detected_apvs.insert(std::make_pair(idtct->detId(),vector_of_detected_apvs));
-      addFromSpecificConnection(detected_, map_of_detected_apvs, 1);
+      addFromSpecificConnection(detected_, map_of_detected_apvs, &(connectionCount[1]) );
     }
   }
   // --- UNDETECTED = have neither fedid nor i2caddr
@@ -84,7 +81,7 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
     if(vector_of_undetected_apvs.size() != 0){ // add only is smth. there, obviously
       std::map<uint32_t, std::vector<int> > map_of_undetected_apvs;
       map_of_undetected_apvs.insert(std::make_pair(iudtct->detId(),vector_of_undetected_apvs));
-      addFromSpecificConnection(undetected_, map_of_undetected_apvs, 2);
+      addFromSpecificConnection(undetected_, map_of_undetected_apvs, &(connectionCount[2]));
     }
   }
 }
@@ -214,7 +211,7 @@ void SiStripDetCabling::addNotConnectedAPVs( std::map<uint32_t, std::vector<int>
 //----
 void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & map_to_add_to,
                                                    const std::map< uint32_t, std::vector<int> > & specific_connection,
-                                                   const int connectionType ) const {
+                                                   std::map< int16_t, uint32_t >* connectionsToFill ) const {
   for(std::map< uint32_t, std::vector<int> >::const_iterator conn_it = specific_connection.begin(); conn_it!=specific_connection.end(); ++conn_it){
     uint32_t new_detid = conn_it->first;
     std::vector<int> new_apv_vector = conn_it->second;
@@ -232,9 +229,10 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
       // TID : each disk has 48+48+40 (ring1+ring2+ring3)
       // TOB1 : 504, TOB2 : 576, TOB3 : 648, TOB4 : 720, TOB5 : 792, TOB6 : 888
       // TEC1 : Total number of modules = 6400.
-      if( connectionType != -1 ) {
-        connectionCount[connectionType][layerSearch(new_detid)]++;
+      if( connectionsToFill ) {
+        (*connectionsToFill)[layerSearch(new_detid)]++;
       }
+
     }else{                    // detid exists already, add to its vector - if its not there already . . .
       std::vector<int> existing_apv_vector = it->second;
       for(std::vector<int>::iterator inew = new_apv_vector.begin(); inew != new_apv_vector.end(); inew++ ){
@@ -258,20 +256,18 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
 
 int16_t SiStripDetCabling::layerSearch( const uint32_t detId ) const
 {
-  if(SiStripDetId(detId).subDetector()==SiStripDetId::TIB){
-    TIBDetId D(detId);
-    return D.layerNumber();
-  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TID){
-    TIDDetId D(detId);
+  const DetId detectorId=DetId(detId);
+  const int subdet = detectorId.subdetId();
+  if(subdet==StripSubdetector::TIB){
+    return tTopo->layer(detId);
+  } else if (subdet==StripSubdetector::TID){
     // side: 1 = negative, 2 = positive
-    return 10+(D.side() -1)*3 + D.wheel();
-  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TOB){
-    TOBDetId D(detId);
-    return 100+D.layerNumber();
-  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TEC){
-    TECDetId D(detId);
+    return 10+(tTopo->side(detId) -1)*3 + tTopo->layer(detId);
+  } else if (subdet==StripSubdetector::TOB){
+    return 100+tTopo->layer(detId);
+  } else if (subdet==StripSubdetector::TEC){
     // side: 1 = negative, 2 = positive
-    return 1000+(D.side() -1)*9 + D.wheel();
+    return 1000+(tTopo->side(detId) -1)*9 +tTopo->layer(detId);
   }
   return 0;
 }
@@ -289,7 +285,11 @@ uint32_t SiStripDetCabling::detNumber(const std::string & subDet, const uint16_t
     LogDebug("SiStripDetCabling") << "Error: Wrong subDet. Please use one of TIB, TID, TOB, TEC." << std::endl;
     return 0;
   }
-  return connectionCount[connectionType][subDetLayer];
+  auto found = connectionCount[connectionType].find(subDetLayer);
+  if(found != connectionCount[connectionType].end()) {
+    return found->second;
+  }
+  return 0;
 }
 
 //---- map of all connected, detected, undetected to contiguous Ids - map reset first!

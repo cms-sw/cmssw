@@ -31,20 +31,32 @@ class NTupleObjectType:
         self.baseObjectTypes = baseObjectTypes
         self.mcOnly = mcOnly
         self.variables = variables
+    def ownVars(self,isMC):
+        """Return only my vars, not including the ones from the bases"""
+        return [ v for v in self.variables if (isMC or not v.mcOnly) ]
     def allVars(self,isMC):
+        """Return all vars, including the base ones. Duplicate bases are not added twice"""
         ret = []; names = {}
         if not isMC and self.mcOnly: return []
-        for base in self.baseObjectTypes:
+        for base in self.allBases():
             if not isMC and base.mcOnly: continue
-            for var in base.allVars(isMC):
+            for var in base.ownVars(isMC):
                 if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, base.name, names[var.name])
                 names[var.name] = base.name
                 ret.append(var)
-        for var in self.variables:
-            if not isMC and var.mcOnly: continue
+        for var in self.ownVars(isMC):
             if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, self.name, names[var.name])
             names[var.name] = self.name
             ret.append(var)
+        return ret
+    def allBases(self):
+        ret = []
+        for b in self.baseObjectTypes:
+            if b not in ret: 
+                ret.append(b)
+            for b2 in b.allBases():
+                if b2 not in ret:
+                    ret.append(b2)
         return ret
     def removeVariable(self,name):
         self.variables = [ v for v in self.variables if v.name != name]
@@ -100,7 +112,8 @@ class NTupleCollection:
         for v in allvars:
             h = v.help
             if self.help: h = "%s for %s" % ( h if h else v.name, self.help )
-            treeNumpy.vector("%s_%s" % (self.name, v.name), "n"+self.name, self.maxlen, type=v.type, default=v.default, title=h, filler=v.filler)
+            name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
+            treeNumpy.vector(name, "n"+self.name, self.maxlen, type=v.type, default=v.default, title=h, filler=v.filler)
     def fillBranchesScalar(self,treeNumpy,collection,isMC):
         if not isMC and self.objectType.mcOnly: return
         if self.filter != None: collection = [ o for o in collection if self.filter(o) ]
@@ -122,6 +135,7 @@ class NTupleCollection:
         treeNumpy.fill("n"+self.name, num)
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
-            treeNumpy.vfill("%s_%s" % (self.name, v.name), [ v(collection[i]) for i in xrange(num) ])
+            name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
+            treeNumpy.vfill(name, [ v(collection[i]) for i in xrange(num) ])
 
 

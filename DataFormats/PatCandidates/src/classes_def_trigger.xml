@@ -1,7 +1,9 @@
 <lcgdict>
  <selection>
 
-  <class name="pat::TriggerObject"  ClassVersion="10">
+  <class name="pat::TriggerObject"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2628734905"/>
+   <version ClassVersion="11" checksum="2574350865"/>
    <version ClassVersion="10" checksum="2299474032"/>
   </class>
   <class name="std::vector&lt;pat::TriggerObject&gt;" />
@@ -24,7 +26,9 @@
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />
 
-  <class name="pat::TriggerObjectStandAlone"  ClassVersion="11">
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="13">
+   <version ClassVersion="13" checksum="54935316"/>
+   <version ClassVersion="12" checksum="2923001116"/>
    <version ClassVersion="10" checksum="3478292234"/>
    <version ClassVersion="11" checksum="167266363"/>
   </class>
@@ -68,7 +72,8 @@
   <class name="std::vector&lt;pat::L1Seed&gt;" />
   <class name="std::vector&lt;pat::L1Seed&gt;::const_iterator" />
 
-  <class name="pat::TriggerCondition"  ClassVersion="10">
+  <class name="pat::TriggerCondition"  ClassVersion="11">
+   <version ClassVersion="11" checksum="296420442"/>
    <version ClassVersion="10" checksum="4134787846"/>
   </class>
   <class name="std::vector&lt;pat::TriggerCondition&gt;" />

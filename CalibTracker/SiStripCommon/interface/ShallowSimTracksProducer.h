@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 
 class ShallowSimTracksProducer : public edm::EDProducer {
 
@@ -17,9 +16,9 @@ class ShallowSimTracksProducer : public edm::EDProducer {
   const std::string Prefix;
   const std::string Suffix;
   const edm::InputTag trackingParticles_tag;
-  const edm::ESInputTag associator_tag;
+  const edm::InputTag associator_tag;
   const edm::InputTag tracks_tag;
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 
 };
 #endif

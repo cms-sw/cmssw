@@ -39,7 +39,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('DT100InversepbScenario')
     ), 
         cms.PSet(
-            record = cms.string('DTAlignmentErrorRcd'),
+            record = cms.string('DTAlignmentErrorExtendedRcd'),
             tag = cms.string('DT100InversepbScenarioErrors')
         ), 
         cms.PSet(
@@ -47,7 +47,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('CSC100InversepbScenario')
         ), 
         cms.PSet(
-            record = cms.string('CSCAlignmentErrorRcd'),
+            record = cms.string('CSCAlignmentErrorExtendedRcd'),
             tag = cms.string('CSC100InversepbScenarioErrors')
         )),
     connect = cms.string('sqlite_file:Alignments.db')

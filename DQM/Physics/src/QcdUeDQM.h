@@ -7,11 +7,11 @@
 #ifndef QcdUeDQM_H
 #define QcdUeDQM_H
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
@@ -29,9 +29,12 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
 #include <TMath.h>
 #include <vector>
+
 #define PI 3.141592654
+
 class DQMStore;
 class MonitorElement;
 class TrackerGeometry;
@@ -48,43 +51,25 @@ class PtSorter {
   }
 };
 
-class QcdUeDQM : public edm::EDAnalyzer {
+class QcdUeDQM : public DQMEDAnalyzer {
  public:
   QcdUeDQM(const edm::ParameterSet &parameters);
   virtual ~QcdUeDQM();
-
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-  void beginJob(void);
-  void beginLuminosityBlock(const edm::LuminosityBlock &l,
-                            const edm::EventSetup &iSetup);
-  void beginRun(const edm::Run &r, const edm::EventSetup &iSetup);
-  void endJob(void);
-  void endRun(const edm::Run &r, const edm::EventSetup &iSetup);
-  void endLuminosityBlock(const edm::LuminosityBlock &l,
-                          const edm::EventSetup &iSetup);
 
  private:
   bool isHltConfigSuccessful_;  // to prevent processing in case of problems
 
-  void book1D(std::vector<MonitorElement *> &mes, const std::string &name,
-              const std::string &title, int nx, double x1, double x2,
-              bool sumw2 = 1, bool sbox = 1);
-  void book2D(std::vector<MonitorElement *> &mes, const std::string &name,
-              const std::string &title, int nx, double x1, double x2, int ny,
-              double y1, double y2, bool sumw2 = 1, bool sbox = 1);
-  void bookProfile(std::vector<MonitorElement *> &mes, const std::string &name,
-                   const std::string &title, int nx, double x1, double x2,
-                   double y1, double y2, bool sumw2 = 1, bool sbox = 1);
-  void create1D(std::vector<TH1F *> &mes, const std::string &name,
-                const std::string &title, int nx, double x1, double x2,
-                bool sumw2 = 1, bool sbox = 1);
-  void create2D(std::vector<TH2F *> &mes, const std::string &name,
-                const std::string &title, int nx, double x1, double x2, int ny,
-                double y1, double y2, bool sumw2 = 1, bool sbox = 1);
-  void createProfile(std::vector<TProfile *> &mes, const std::string &name,
-                     const std::string &title, int nx, double x1, double x2,
-                     double y1, double y2, bool sumw2 = 1, bool sbox = 1);
-  void createHistos();
+  void book1D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes,
+              const std::string &name, const std::string &title, int nx,
+              double x1, double x2, bool sumw2 = 1, bool sbox = 1);
+  void bookProfile(DQMStore::IBooker &, std::vector<MonitorElement *> &mes,
+                   const std::string &name, const std::string &title, int nx,
+                   double x1, double x2, double y1, double y2, bool sumw2 = 1,
+                   bool sbox = 1);
   void fill1D(std::vector<TH1F *> &hs, double val, double w = 1.);
   void fill1D(std::vector<MonitorElement *> &mes, double val, double w = 1.);
   void fill2D(std::vector<TH2F *> &hs, double valx, double valy, double w = 1.);
@@ -100,23 +85,14 @@ class QcdUeDQM : public edm::EDAnalyzer {
   bool trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
                       const reco::Vertex &vtx, int sizevtx);
   void fillHltBits(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-
   bool fillVtxPlots(const reco::BeamSpot *bs,
                     const edm::Handle<reco::VertexCollection> vtxColl);
   void fillpTMaxRelated(const std::vector<const reco::Track *> &track);
-
   void fillChargedJetSpectra(
       const edm::Handle<reco::TrackJetCollection> trackJets);
-
-  // void                          fillCaloJetSpectra(const
-  // edm::Handle<reco::CaloJetCollection> caloJets);
-
   void fillUE_with_ChargedJets(
       const std::vector<const reco::Track *> &track,
       const edm::Handle<reco::TrackJetCollection> &trackJets);
-  // void                          fillUE_with_CaloJets(const std::vector<const
-  // reco::Track *>  &track, const edm::Handle<reco::CaloJetCollection>
-  // &caloJets);
   void fillUE_with_MaxpTtrack(const std::vector<const reco::Track *> &track);
 
   template <typename TYPE>
@@ -138,7 +114,6 @@ class QcdUeDQM : public edm::EDAnalyzer {
   std::string hltUsedResName_;                // used HLT trigger results name
   int verbose_;                  // verbosity (0=debug,1=warn,2=error,3=throw)
   const TrackerGeometry *tgeo_;  // tracker geometry
-  DQMStore *theDbe_;             // dqm store
   MonitorElement *repSumMap_;    // report summary map
   MonitorElement *repSummary_;   // report summary
   MonitorElement *h2TrigCorr_;   // trigger correlation plot
@@ -458,8 +433,7 @@ inline bool QcdUeDQM::getProductSafe(const std::string name,
   try {
     event.getByLabel(edm::InputTag(name), prod);
     if (!prod.isValid()) return false;
-  }
-  catch (...) {
+  } catch (...) {
     return false;
   }
   return true;

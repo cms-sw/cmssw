@@ -5,11 +5,6 @@
 *
 */
 
-#include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,8 +13,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include<typeinfo>
 
 //
 // constructors and destructor
@@ -51,7 +50,7 @@ HLTMonoJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("maxPtSecondJet",9999.);
   desc.add<double>("maxDeltaPhi",99.);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTMonoJetFilter<T>>(), desc);
 }
 
 //

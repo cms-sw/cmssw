@@ -16,12 +16,13 @@
 #include <vector>
 #include <string>
 #include <map>
+class TrackerTopology;
 class SiStripDetCabling
 {
  public:
-  SiStripDetCabling();
+  SiStripDetCabling(const TrackerTopology* const topology);
   virtual ~SiStripDetCabling();
-  SiStripDetCabling(const SiStripFedCabling &);
+  SiStripDetCabling(const SiStripFedCabling &,const TrackerTopology* const topology);
   void addDevices(const FedChannelConnection &, std::map< uint32_t, std::vector<const FedChannelConnection *> >&);
   void addDevices(const FedChannelConnection &); // special case of above addDevices
   // getters
@@ -58,13 +59,14 @@ class SiStripDetCabling
   uint32_t detectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 1); }
   uint32_t undetectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 2); }
   inline const SiStripFedCabling * fedCabling() const {return fedCabling_;}
+  inline const TrackerTopology* const trackerTopology() const {return tTopo;}
 
   std::map< uint32_t, std::vector<int> > const & connected() const { return connected_;}
 
  private:
   SiStripDetCabling(const SiStripDetCabling&); // stop default
   const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default
-  void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &, const int connectionType = -1 ) const;
+  void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &, std::map< int16_t, uint32_t >* connectionsToFill = nullptr ) const;
   bool IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > &) const;
   int16_t layerSearch( const uint32_t detId ) const;
   uint32_t detNumber(const std::string & subDet, const uint16_t layer, const int connectionType) const;
@@ -81,8 +83,8 @@ class SiStripDetCabling
   // 0 = connected
   // 1 = detected
   // 2 = undetected
-  // Note: it is mutable because the method changing it must be const.
-  mutable std::map< int16_t, uint32_t > connectionCount[3];
+  std::map< int16_t, uint32_t > connectionCount[3];
   const SiStripFedCabling * fedCabling_;
+  const TrackerTopology* const tTopo;
 };
 #endif

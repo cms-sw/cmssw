@@ -1,3 +1,4 @@
+
 #ifndef DTRunConditionVar_H
 #define DTRunConditionVar_H
 
@@ -13,6 +14,7 @@
  *
  */
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -40,7 +42,7 @@ class MonitorElement;
 class DetLayer;
 class DetId;
 
-class DTRunConditionVar : public edm::EDAnalyzer
+class DTRunConditionVar : public DQMEDAnalyzer
 {
 
   public:
@@ -50,15 +52,16 @@ class DTRunConditionVar : public edm::EDAnalyzer
     //Destructor
     ~DTRunConditionVar() ;
 
+    //BookHistograms
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
     //Operations
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-    void beginJob();
-    void beginRun(const edm::Run& , const edm::EventSetup&);
-    void endJob();
+    void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   private:
 
-    void bookChamberHistos(const DTChamberId& dtCh, std::string histoType, int , float , float);
+    void bookChamberHistos(DQMStore::IBooker &,const DTChamberId& dtCh, std::string histoType, int , float , float);
 
     bool debug;
     int nMinHitsPhi;
@@ -70,8 +73,6 @@ class DTRunConditionVar : public edm::EDAnalyzer
 
     edm::ESHandle<DTMtime> mTime;
     const DTMtime* mTimeMap_;
-
-    DQMStore* theDbe;
 
     std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
 

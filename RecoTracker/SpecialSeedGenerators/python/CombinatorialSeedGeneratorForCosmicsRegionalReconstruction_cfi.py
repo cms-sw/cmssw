@@ -1,13 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
 layerInfo = cms.PSet(
     TOB = cms.PSet(
       TTRHBuilder = cms.string('WithTrackAngle'),
+      clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
       ),
     TEC = cms.PSet(
       minRing = cms.int32(6),
       useRingSlector = cms.bool(False),
       TTRHBuilder = cms.string('WithTrackAngle'),
+      clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
       maxRing = cms.int32(7)
       )
 )
@@ -24,6 +28,12 @@ layerList = cms.vstring('TOB6+TOB5',
                         'TEC1_pos+TOB5',
                         'TEC1_pos+TOB4'                                   
                         )
+from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import SeedFromConsecutiveHitsCreator as _SeedFromConsecutiveHitsCreator
+CosmicSeedCreator = _SeedFromConsecutiveHitsCreator.clone()
+CosmicSeedCreator.ComponentName = cms.string('CosmicSeedCreator')
+# extra parameter specific to CosmicSeedCreator
+CosmicSeedCreator.maxseeds = cms.int32(10000)
+ 
 
 regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
    RegionFactoryPSet = cms.PSet(                                 
@@ -69,14 +79,7 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
 
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
 
-    TTRHBuilder = cms.string( "WithTrackAngle" ) ,
-
-    SeedCreatorPSet = cms.PSet(
-      ComponentName = cms.string('CosmicSeedCreator'),
-      propagator = cms.string('PropagatorWithMaterial'),
-      maxseeds = cms.int32(10000)
-      )
-
+    SeedCreatorPSet = CosmicSeedCreator
           
 )
 

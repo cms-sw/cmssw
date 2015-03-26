@@ -1,0 +1,14 @@
+{
+  "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_RUN_INFO",
+  "authenticationPath": "/nfshome0/popcondev/conddb/",
+  "authenticationSystem": 2, 
+  "logDbFileName": "log.db",
+  "records": {    
+	"RunInfoRcd":{
+		"destinationTag":"RunInfo_CondDBv2_test_v1",
+		"timetype":"runnumber",
+		"outputRecord":"RunInfoRcd",
+		"comment":"test for RunInfo upload."	
+	}
+  }
+}

@@ -44,18 +44,20 @@ HcalNZSClient::HcalNZSClient(std::string myname, const edm::ParameterSet& ps)
 						ps.getUntrackedParameter<int>("minevents",1));
   ProblemCells=0;
   ProblemCellsByDepth=0;
+
+  doProblemCellSetup_ = true;
 }
 
-void HcalNZSClient::analyze()
+void HcalNZSClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalNZSClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 }
 
-void HcalNZSClient::calculateProblems()
+void HcalNZSClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalNZSClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -167,45 +169,39 @@ void HcalNZSClient::calculateProblems()
   return;
 }
 
-void HcalNZSClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalNZSClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 void HcalNZSClient::endJob(){}
 
-void HcalNZSClient::beginRun(void)
+void HcalNZSClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig) 
 {
-  enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalNZSClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
 
   // Put the appropriate name of your problem summary here
-  ProblemCells=dqmStore_->book2D(" ProblemNZS",
+  ProblemCells=ib.book2D(" ProblemNZS",
 				 " Problem NZS Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_NZS");
+  ib.setCurrentFolder(subdir_+"problem_NZS");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem NZS Rate");
+  ProblemCellsByDepth->setup(ib," Problem NZS Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+
+  doProblemCellSetup_ = false;
+
+}
+
+void HcalNZSClient::beginRun(void)
+{
+  enoughevents_=false;
   nevts_=0;
 }
 
-void HcalNZSClient::endRun(void){analyze();}
+//void HcalNZSClient::endRun(void){analyze();}
 
 void HcalNZSClient::setup(void){}
 void HcalNZSClient::cleanup(void){}
@@ -257,4 +253,6 @@ void HcalNZSClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqua
 } //void HcalNZSClient::updateChannelStatus
 
 HcalNZSClient::~HcalNZSClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

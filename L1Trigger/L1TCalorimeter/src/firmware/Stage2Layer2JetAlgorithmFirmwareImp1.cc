@@ -16,12 +16,14 @@
 #include <algorithm>
 #include <math.h>
 
-inline bool operator > ( l1t::Jet& a, l1t::Jet& b )
-{
-  if ( a.hwPt() > b.hwPt() ){ 
-    return true;
-  } else {
-    return false;
+namespace l1t {
+  bool operator > ( l1t::Jet& a, l1t::Jet& b )
+  {
+    if ( a.hwPt() > b.hwPt() ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -452,7 +454,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     return;
 
   } else {
-    if(params_->jetCalibrationType() != "None" || params_->jetCalibrationType() != "none") 
+    if(params_->jetCalibrationType() != "None" && params_->jetCalibrationType() != "none") 
       edm::LogError("l1t|stage 2") << "Invalid calibration type in calo params. Not calibrating Stage 2 Jets" << std::endl;
     return;
   }

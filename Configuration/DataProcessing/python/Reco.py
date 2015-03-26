@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
@@ -40,7 +40,7 @@ class Reco(Scenario):
         options.scenario = self.cbSc
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True)
@@ -76,7 +76,7 @@ class Reco(Scenario):
         options.scenario = self.cbSc
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
         options.filein = 'tobeoverwritten.xyz'
         if 'inputSource' in args:
             options.filetype = args['inputSource']
@@ -108,7 +108,7 @@ class Reco(Scenario):
 
 
         dictIO(options,args)
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
         options.timeoutOutput = True
         # FIXME: maybe can go...maybe not
         options.filein = 'tobeoverwritten.xyz'
@@ -147,12 +147,11 @@ class Reco(Scenario):
 
         step = ""
         pclWflws = [x for x in skims if "PromptCalibProd" in x]
+        skims = filter(lambda x: x not in pclWflws, skims)
+
         if len(pclWflws):
-            step = 'ALCA:'
-        for wfl in pclWflws:
-            step += wfl
-            skims.remove(wfl)
-        
+            step += 'ALCA:'+('+'.join(pclWflws))
+
         if len( skims ) > 0:
             if step != "":
                 step += ","
@@ -163,6 +162,9 @@ class Reco(Scenario):
         options.scenario = self.cbSc
         options.step = step
         options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
+        if args.has_key('globalTagConnect') and args['globalTagConnect'] != '':
+            options.conditions += ','+args['globalTagConnect']
+
         options.triggerResultsProcess = 'RECO'
         
         process = cms.Process('ALCA')
@@ -196,7 +198,7 @@ class Reco(Scenario):
         options.scenario = self.cbSc
         options.step = "HARVESTING"+dqmSeq(args,':dqmHarvesting')
         options.name = "EDMtoMEConvert"
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
  
         process = cms.Process("HARVESTING")
         process.source = dqmIOSource(args)
@@ -214,12 +216,21 @@ class Reco(Scenario):
         Proton collisions data taking AlCa Harvesting
 
         """
-        if not 'skims' in args: return None
+        skims = []
+        if 'skims' in args:
+            print 'here'
+            skims = args['skims']
+
+
+        if 'alcapromptdataset' in args:
+            skims.append('@'+args['alcapromptdataset'])
+
+        if len(skims) == 0: return None
         options = defaultOptions
         options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__ 
-        options.step = "ALCAHARVEST:"+('+'.join(args['skims']))
+        options.step = "ALCAHARVEST:"+('+'.join(skims))
         options.name = "ALCAHARVEST"
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
  
         process = cms.Process("ALCAHARVEST")
         process.source = cms.Source("PoolSource")
@@ -247,7 +258,7 @@ class Reco(Scenario):
         options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__
         options.step = "SKIM:"+('+'.join(skims))
         options.name = "SKIM"
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
         process = cms.Process("SKIM")
         process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)

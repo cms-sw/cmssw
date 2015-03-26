@@ -39,68 +39,79 @@ PFEnergyCalibration::initializeCalibrationFunctions() {
   threshH = 2.5;
 
   // Barrel (fit made with |eta| < 1.2)
-  faBarrel = new TF1("faBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fbBarrel = new TF1("fbBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fcBarrel = new TF1("fcBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  faBarrel = new TF1("faBarrel","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  faBarrel->SetParameter(0,-13.8672);
+  faBarrel->SetParameter(1,14.9688);
+  faBarrel->SetParameter(2,3.42084);
+  faBarrel->SetParameter(3,1.02649);
+  faBarrel->SetParameter(4,-0.0197432);
+  faBarrel->SetParameter(5,6.776e-16);
+  faBarrel->SetParameter(6,-1.3274);
+  faBarrel->SetParameter(7,-7.14684);
+  fbBarrel = new TF1("fbBarrel","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fbBarrel->SetParameter(0,1.70114);
+  fbBarrel->SetParameter(1,0.404676);
+  fbBarrel->SetParameter(2,-3.88962);
+  fbBarrel->SetParameter(3,1.2109e+06);
+  fbBarrel->SetParameter(4,0.970741);
+  fbBarrel->SetParameter(5,0.0527482);
+  fbBarrel->SetParameter(6,2.60552);
+  fbBarrel->SetParameter(7,-0.8956);
+  fcBarrel = new TF1("fcBarrel","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fcBarrel->SetParameter(0,1.91262);
+  fcBarrel->SetParameter(1,0.631347);
+  fcBarrel->SetParameter(2,-4.11001);
+  fcBarrel->SetParameter(3,58.2297);
+  fcBarrel->SetParameter(4,1.10332);
+  fcBarrel->SetParameter(5,0.0372895);
+  fcBarrel->SetParameter(6,0.86592);
+  fcBarrel->SetParameter(7,-1.33708);
   faEtaBarrel = new TF1("faEtaBarrel","[0]+[1]*exp(-x/[2])",1.,1000.);
-  fbEtaBarrel = new TF1("fbEtaBarrel","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",1.,1000.);
-  faBarrel->SetParameter(0,1.15665);
-  fbBarrel->SetParameter(0,0.994603);
-  fcBarrel->SetParameter(0,0.956544);
-  faEtaBarrel->SetParameter(0,0.014664);
-  fbEtaBarrel->SetParameter(0,0.00975451);
-  faBarrel->SetParameter(1,0.165627);
-  fbBarrel->SetParameter(1,0.13632);
-  fcBarrel->SetParameter(1,0.0857207);
-  faEtaBarrel->SetParameter(1,-0.0426776);
-  fbEtaBarrel->SetParameter(1,0.102247);
-  faBarrel->SetParameter(2,0.827718);
-  fbBarrel->SetParameter(2,-0.758013);
-  fcBarrel->SetParameter(2,-0.44347);
-  faEtaBarrel->SetParameter(2,431.054);
-  fbEtaBarrel->SetParameter(2,436.21);
-  faBarrel->SetParameter(3,231.339);
-  fbBarrel->SetParameter(3,183.627);
-  fcBarrel->SetParameter(3,63.3479);
-  faBarrel->SetParameter(4,2.45332);
-  fbBarrel->SetParameter(4,1);
-  fcBarrel->SetParameter(4,1.24174);
-  faBarrel->SetParameter(5,29.6603);
-  fbBarrel->SetParameter(5,39.6784);
-  fcBarrel->SetParameter(5,12.322);
+  faEtaBarrel->SetParameter(0,0.0114108);
+  faEtaBarrel->SetParameter(1,-0.0394225);
+  faEtaBarrel->SetParameter(2,177.569);
+  fbEtaBarrel = new TF1("fbEtaBarrel","[0]+[1]*exp(-x/[2])",1.,1000.);
+  fbEtaBarrel->SetParameter(0,0.049778);
+  fbEtaBarrel->SetParameter(1,0.0971732);
+  fbEtaBarrel->SetParameter(2,136.546);
 
   // End-caps (fit made with eta 
-  faEndcap = new TF1("faEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fbEndcap = new TF1("fbEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fcEndcap = new TF1("fcEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  faEndcap = new TF1("faEndcap","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  faEndcap->SetParameter(0,0.930193);
+  faEndcap->SetParameter(1,11.9536);
+  faEndcap->SetParameter(2,-30.0337);
+  faEndcap->SetParameter(3,0.76133);
+  faEndcap->SetParameter(4,0.0776373);
+  faEndcap->SetParameter(5,7.3809e-10);
+  faEndcap->SetParameter(6,0.158734);
+  faEndcap->SetParameter(7,-6.92163);
+  fbEndcap = new TF1("fbEndcap","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fbEndcap->SetParameter(0,-0.436687);
+  fbEndcap->SetParameter(1,2.73698);
+  fbEndcap->SetParameter(2,-3.1509);
+  fbEndcap->SetParameter(3,1.20536);
+  fbEndcap->SetParameter(4,-1.39685);
+  fbEndcap->SetParameter(5,0.0180331);
+  fbEndcap->SetParameter(6,0.270058);
+  fbEndcap->SetParameter(7,-2.30372);
+  fcEndcap = new TF1("fcEndcap","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fcEndcap->SetParameter(0,1.13795);
+  fcEndcap->SetParameter(1,1.21698);
+  fcEndcap->SetParameter(2,-3.81192);
+  fcEndcap->SetParameter(3,115.409);
+  fcEndcap->SetParameter(4,0.673456);
+  fcEndcap->SetParameter(5,0.217077);
+  fcEndcap->SetParameter(6,1.95596);
+  fcEndcap->SetParameter(7,-0.252215);
   faEtaEndcap = new TF1("faEtaEndcap","[0]+[1]*exp(-x/[2])",1.,1000.);
-  fbEtaEndcap = new TF1("fbEtaEndcap","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",1.,1000.);
-  faEndcap->SetParameter(0,1.1272);
-  fbEndcap->SetParameter(0,0.982824);
-  fcEndcap->SetParameter(0,0.950244);
-  faEtaEndcap->SetParameter(0,-0.000582903);
-  fbEtaEndcap->SetParameter(0,0.0267319);
-  faEndcap->SetParameter(1,0.258536);
-  fbEndcap->SetParameter(1,0.0977533);
-  fcEndcap->SetParameter(1,0.00564779);
-  faEtaEndcap->SetParameter(1,-0.000482148);
-  fbEtaEndcap->SetParameter(1,-0.554552);
-  faEndcap->SetParameter(2,0.808071);
-  fbEndcap->SetParameter(2,0.155416);
-  fcEndcap->SetParameter(2,0.227162);
-  faEtaEndcap->SetParameter(2,209.466);
-  fbEtaEndcap->SetParameter(2,1.71188);
-  faEndcap->SetParameter(3,214.039);
-  fbEndcap->SetParameter(3,240.379);
-  fcEndcap->SetParameter(3,207.786);
-  fbEtaEndcap->SetParameter(3,0.235834);
-  faEndcap->SetParameter(4,2);
-  fbEndcap->SetParameter(4,1.2);
-  fcEndcap->SetParameter(4,1.32824);
-  fbEtaEndcap->SetParameter(4,-135.431);
-  faEndcap->SetParameter(5,47.2602);
-  fbEndcap->SetParameter(5,78.3083);
-  fcEndcap->SetParameter(5,22.1825);
+  faEtaEndcap->SetParameter(0,0.00706648);
+  faEtaEndcap->SetParameter(1,-0.0279056);
+  faEtaEndcap->SetParameter(2,45.9808);
+  fbEtaEndcap = new TF1("fbEtaEndcap","[0]+[1]*exp(-x/[2])",1.,1000.);
+  fbEtaEndcap->SetParameter(0,0.000368865);
+  fbEtaEndcap->SetParameter(1,0.309993);
+  fbEtaEndcap->SetParameter(2,29.5954);
+ 
   
 }
 
@@ -120,7 +131,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
   if ( t < 1. ) return;
 
   // Barrel calibration
-  if ( fabs(eta) < 1.48 ) { 
+  if ( std::abs(eta) < 1.48 ) { 
 
     // The energy correction
     a = e>0. ? aBarrel(t) : 1.;
@@ -138,7 +149,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     t = min(999.9,max(tt, thresh+a*e+b*h));
 
     // The angular correction for ECAL hadronic deposits
-    etaCorrE = 1. + aEtaBarrel(t) + bEtaBarrel(t)*fabs(eta)*fabs(eta);
+    etaCorrE = 1. + aEtaBarrel(t) + 1.3*bEtaBarrel(t)*std::abs(eta)*std::abs(eta);
     etaCorrH = 1.;
     // etaCorr = 1.;
     t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
@@ -147,20 +158,6 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
     if ( h > 0. && thresh > 0. ) 
       h = threshH + etaCorrH * b * h;
-
-    /*
-    if ( e < 0. || h < 0. ) { 
-      std::cout << "Warning : Energy correction ! " << std::endl
-		<< "eta,tt,e,h,a,b = " << eta << " " << tt << " " 
-		<< ee << "/" << e << " " << hh << "/" << h << " " << a << " " << b << std::endl;
-    }
-      
-    if ( etaCorrE > 2. || etaCorrE < 0.5 || 
-	 etaCorrH > 2. || etaCorrH < 0.5 ) 
-      std::cout << "Warning : Angular correction ! " << std::endl
-		<< "etaCorrE,etaCorrH,eta,t = " 
-		<< etaCorrE << " " << etaCorrH << " " << eta << " " << t << std::endl;
-    */
 
   // Endcap calibration   
   } else {
@@ -179,20 +176,13 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     // The new estimate of the true energy
     t = min(999.9,max(tt, thresh+a*e+b*h));
     
-    // The angular correction
-    double dEta = fabs ( fabs(eta) - 1.5 );
+    // The angular correction 
+    //MM: only necessary for EH-hadrons only. 1.3 factor just helps the parametrization
+    double dEta = std::abs( std::abs(eta) - 1.5 );
     double etaPow = dEta * dEta * dEta * dEta;
-    //etaCorrE = 1. + aEtaEndcap(t) + 0.5*bEtaEndcap(t)*etaPow;
-    etaCorrE = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
-    etaCorrH = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
-    /*
-    if ( etaCorr > 2. || etaCorr < 0.5 ) 
-      std::cout << "Warning : Angular correction ! " << std::endl
-		<< "etaCorr,eta,t = " << etaCorr << " " << eta << " " << tt 
-		<< " ee,hh,e,h = " << e << " " << h << " " << a*e << " " << b*h  
-		<< std::endl;
-    */
-
+    etaCorrE = 1. + aEtaEndcap(t) + 1.3*bEtaEndcap(t)*etaPow;
+    etaCorrH = 1.;
+    
     t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
 
     if ( e > 0. && thresh > 0. ) 
@@ -205,11 +195,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
 
   // Protection
   if ( e < 0. || h < 0. ) {
-    /*
-    std::cout << "Warning : Energy correction ! " << std::endl
-	      << "eta,tt,e,h,a,b = " << eta << " " << tt << " " 
-	      << ee << "/" << e << " " << hh << "/" << h << " " << a << " " << b << std::endl;
-    */
+  
     // Some protection against crazy calibration
     if ( e < 0. ) e = ee;
     if ( h < 0. ) h = hh;
@@ -405,7 +391,7 @@ PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
   double phi = myPFCluster.positionREP().phi();
 
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi, crackCorrection);
-  if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
+  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
   return calibrated; 
 }
 
@@ -430,7 +416,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
   double phi = myPFCluster.positionREP().phi();
 
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2,crackCorrection);
-  if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
+  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
   return calibrated; 
 }
 

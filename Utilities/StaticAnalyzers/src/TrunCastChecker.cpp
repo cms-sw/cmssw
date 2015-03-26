@@ -50,7 +50,7 @@ void ICEVisitor::VisitChildren( clang::Stmt *S ) {
 
 void ICEVisitor::VisitBinaryOperator( BinaryOperator *BO )
 {
-	const NamedDecl * ACD = dyn_cast<NamedDecl>(AC->getDecl());
+	const NamedDecl * ACD = dyn_cast_or_null<NamedDecl>(AC->getDecl());
 	VisitChildren(BO);
 	std::string ename = "EventNumber_t";
 	clang::Expr * LHS = BO->getLHS();
@@ -64,12 +64,12 @@ void ICEVisitor::VisitBinaryOperator( BinaryOperator *BO )
 	clang::QualType OTy;
 	clang::QualType TTy;
 	if (lname == ename && ImplicitCastExpr::classof(RHS) ) {
-		ImplicitCastExpr * ICE = dyn_cast<ImplicitCastExpr>(RHS);
+		ImplicitCastExpr * ICE = dyn_cast_or_null<ImplicitCastExpr>(RHS);
 		TTy = BR.getContext().getCanonicalType(LHS->getType());
 		OTy = BR.getContext().getCanonicalType(ICE->getSubExprAsWritten()->getType());
 	}
 	if (rname == ename && ImplicitCastExpr::classof(LHS) ) {
-		ImplicitCastExpr * ICE = dyn_cast<ImplicitCastExpr>(LHS);
+		ImplicitCastExpr * ICE = dyn_cast_or_null<ImplicitCastExpr>(LHS);
 		TTy = BR.getContext().getCanonicalType(RHS->getType());
 		OTy = BR.getContext().getCanonicalType(ICE->getSubExprAsWritten()->getType());
 	}

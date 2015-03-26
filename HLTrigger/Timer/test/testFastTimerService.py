@@ -13,7 +13,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.source.fileNames = (
-    '/store/group/comm_trigger/TriggerStudiesGroup/Timing/sample.root',
+    '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/Timing/sample.root',
 )
 
 process.maxEvents.input = -1
@@ -38,7 +38,6 @@ process.FastTimerService.enableDQMbyPathCounters  = True
 process.FastTimerService.enableDQMbyPathExclusive = True
 process.FastTimerService.enableDQMbyModule        = True
 process.FastTimerService.enableDQMbyModuleType    = True
-process.FastTimerService.enableDQMbyLuminosity    = True
+process.FastTimerService.enableDQMSummary         = True
 process.FastTimerService.enableDQMbyLumiSection   = True
 process.FastTimerService.enableDQMbyProcesses     = True
-process.FastTimerService.enableDQMSummary         = True

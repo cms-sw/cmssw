@@ -49,8 +49,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -87,6 +86,7 @@ private:
 
   edm::EDGetTokenT<TrackingParticleCollection> m_tpcollToken;
   edm::EDGetTokenT<edm::View<reco::Track> > m_trkcollToken;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> m_associatorToken;
 };
 
 //
@@ -103,8 +103,8 @@ private:
 OverlapProblemTPAnalyzer::OverlapProblemTPAnalyzer(const edm::ParameterSet& iConfig):
   m_simhitytecr(),  m_assosimhitytecr(),
   m_tpcollToken(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticlesCollection"))),
-  m_trkcollToken(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("trackCollection")))
-
+  m_trkcollToken(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("trackCollection"))),
+  m_associatorToken(consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits")))
 {
    //now do what ever initialization is needed
 
@@ -172,14 +172,12 @@ OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   Handle<TrackingParticleCollection> tpcoll;
   iEvent.getByToken(m_tpcollToken,tpcoll);
     
-  // TrackAssociator ESHandle
-  
-  ESHandle<TrackAssociatorBase> tahandle;
-  iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",tahandle);
+  Handle<reco::TrackToTrackingParticleAssociator> tahandle;
+  iEvent.getByToken(m_associatorToken,tahandle);
   
   // associate reco to sim tracks
   
-  reco::SimToRecoCollection srcoll = tahandle->associateSimToReco(trkcoll,tpcoll,&iEvent,&iSetup);
+  reco::SimToRecoCollection srcoll = tahandle->associateSimToReco(trkcoll,tpcoll);
   
   // loop on Handle with index and use find
   

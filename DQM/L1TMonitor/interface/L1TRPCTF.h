@@ -35,43 +35,37 @@
 #include <vector>
 #include <set>
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 //
 // class decleration
 //
 
-class L1TRPCTF : public edm::EDAnalyzer {
+class L1TRPCTF : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
-L1TRPCTF(const edm::ParameterSet& ps);
+ L1TRPCTF(const edm::ParameterSet& ps);
 
 // Destructor
-virtual ~L1TRPCTF();
+ virtual ~L1TRPCTF();
 
 protected:
 // Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(void);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
-// EndJob
-void endJob(void);
-
-void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& context);
-void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                        const edm::EventSetup& c);
-                        
-void endRun(const edm::Run & r, const edm::EventSetup & c);
+ virtual void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
+ void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
 
 
 private:
 
   
   // ----------member data ---------------------------
-  DQMStore * m_dbe;
 
   MonitorElement* rpctfetavalue[3];
   MonitorElement* rpctfphivalue[3];
@@ -87,11 +81,12 @@ private:
   
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
+
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
+  
   std::set<unsigned long long int>  m_globBX;
   
-  
-
-
   edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_ ;
 
   int nev_; // Number of events processed

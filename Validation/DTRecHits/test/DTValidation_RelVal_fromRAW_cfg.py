@@ -29,7 +29,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.prefer = cms.ESPrefer("PoolDBESSource","calibDB")
 
 #Geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 ## DT unpacker
 process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")

@@ -94,7 +94,8 @@ std::string PFJet::print () const {
       << "      charged/neutral hadrons energy: " << chargedHadronEnergy () << '/' << neutralHadronEnergy () << std::endl
       << "      charged/neutral em energy: " << chargedEmEnergy () << '/' << neutralEmEnergy () << std::endl
       << "      charged muon energy: " << chargedMuEnergy () << '/' << std::endl
-      << "      charged/neutral multiplicity: " << chargedMultiplicity () << '/' << neutralMultiplicity () << std::endl;
+      << "      charged/neutral multiplicity: " << chargedMultiplicity () << '/' << neutralMultiplicity () << std::endl
+      << "      HO energy: " << hoEnergy () << std::endl;
   out << "      PFCandidate constituents:" << std::endl;
   std::vector <PFCandidatePtr> constituents = getPFConstituents ();
   for (unsigned i = 0; i < constituents.size (); ++i) {

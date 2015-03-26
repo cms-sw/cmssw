@@ -42,7 +42,9 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-
+   static bool inheritsFrom(const edm::TypeWithDict& iChild,
+                            const std::string& iParentTypeName, unsigned int& distance);
+                                                
 private:
    FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&); // stop default
 
@@ -51,6 +53,5 @@ private:
    // ---------- member data --------------------------------
    const std::string m_typeidName;
 };
-
 
 #endif

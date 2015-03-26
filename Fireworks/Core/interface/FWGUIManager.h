@@ -120,7 +120,7 @@ public:
    void createViews(TEveWindowSlot *slot);
    void exportImageOfMainView();
    void exportImagesOfAllViews();
-   void exportAllViews(const std::string& format);
+   void exportAllViews(const std::string& format, int height);
 
    void createEDIFrame();
    ///Allowed values are -1 or ones from FWDataCategories enum

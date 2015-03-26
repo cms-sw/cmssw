@@ -24,9 +24,6 @@ void L1TCSCTFClient::initialize(){
   counterLS  = 0;
   counterEvt = 0;
 
-  // get back-end interface
-  dbe = Service<DQMStore>().operator->();
-
   input_dir   = parameters.getUntrackedParameter<string>("input_dir","");
   output_dir  = parameters.getUntrackedParameter<string>("output_dir","");
   prescaleLS  = parameters.getUntrackedParameter<int>("prescaleLS",-1);
@@ -39,80 +36,28 @@ void L1TCSCTFClient::initialize(){
 
 }
 
-//--------------------------------------------------------
-void L1TCSCTFClient::beginJob(void){
-  // get backendinterface
-  dbe = Service<DQMStore>().operator->();
-
-  // do your thing
-  dbe->setCurrentFolder(output_dir);
-  csctferrors_ = dbe->book1D("csctferrors_","CSCTF Errors",6,0,6);
-  dbe->setCurrentFolder(input_dir);
+void L1TCSCTFClient::dqmEndLuminosityBlock(DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
 }
 
 //--------------------------------------------------------
-void L1TCSCTFClient::beginRun(const Run& r, const EventSetup& context) {}
+void L1TCSCTFClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
 
-//--------------------------------------------------------
-void L1TCSCTFClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-   // optionally reset histograms here
-}
+    ibooker.setCurrentFolder(output_dir);
+    csctferrors_ = ibooker.book1D("csctferrors_","CSCTF Errors",6,0,6);
 
-void L1TCSCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
-
-    if (m_runInEndLumi) {
-
-        processHistograms();
-    }
+    processHistograms(igetter);
 
 }
 
 //--------------------------------------------------------
-void L1TCSCTFClient::analyze(const Event& e, const EventSetup& context){
+void L1TCSCTFClient::processHistograms(DQMStore::IGetter &igetter) {
 
-   counterEvt++;
-   if (prescaleEvt<1) return;
-   if (prescaleEvt>0 && counterEvt%prescaleEvt!=0) return;
-   
-   // there is no loop on events in the offline harvesting step
-   // code here will not be executed offline
+    igetter.setCurrentFolder(input_dir);
 
-   if (m_runInEventLoop) {
-
-       processHistograms();
-   }
-
-}
-
-//--------------------------------------------------------
-void L1TCSCTFClient::endRun(const Run& r, const EventSetup& context) {
-
-    if (m_runInEndRun) {
-
-        processHistograms();
-    }
-
-}
-
-//--------------------------------------------------------
-void L1TCSCTFClient::endJob(void){
-
-    if (m_runInEndJob) {
-
-        processHistograms();
-    }
-
-}
-
-//--------------------------------------------------------
-void L1TCSCTFClient::processHistograms() {
-
-    dbe->setCurrentFolder(input_dir);
-
-    vector<string> meVec = dbe->getMEs();
+    vector<string> meVec = igetter.getMEs();
     for(vector<string>::const_iterator it=meVec.begin(); it!=meVec.end(); it++){
       string full_path = input_dir + "/" + (*it);
-      MonitorElement *me =dbe->get(full_path);
+      MonitorElement *me =igetter.get(full_path);
       if( !me ){
          LogInfo("TriggerDQM")<<full_path<<" NOT FOUND.";
          continue;

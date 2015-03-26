@@ -11,3 +11,6 @@ typedef Eigen::Matrix<double,10,Eigen::Dynamic,0,10,10> SamplePulseMatrix;
 typedef Eigen::LLT<SampleMatrix> SampleDecompLLT;
 typedef Eigen::LLT<PulseMatrix> PulseDecompLLT;
 typedef Eigen::LDLT<PulseMatrix> PulseDecompLDLT;
+
+typedef Eigen::Matrix<double,1,1> SingleMatrix;
+typedef Eigen::Matrix<double,1,1> SingleVector;

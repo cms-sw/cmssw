@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#        pi+      pi-    K0L      K+      K-      p      pbar     n      nbar
-#	0.2508, 0.2549, 0.3380, 0.2879, 0.3171, 0.3282, 0.5371, 0.3859, 0.5086 # before 170 tuning
-
 import FWCore.ParameterSet.Config as cms
 
 # Material effects to be simulated in the tracker material and associated cuts
@@ -41,27 +36,29 @@ MaterialEffectsBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.2),
 	# Enable Nuclear Interactions
-        NuclearInteraction = cms.bool(True),
-	# The energies of the pions used in the above files (same order)
-        pionEnergies = cms.untracked.vdouble(
+        NuclearInteraction = cms.bool(True), # buggy, should be removed on long term
+        #
+        G4NuclearInteraction = cms.bool(False), 	
+        # The energies of the pions used in the above files (same order)
+        hadronEnergies = cms.untracked.vdouble(
             1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 12.0, 15.0, 20.0, 
             30.0, 50.0, 100.0, 200.0, 300.0, 500.0, 700.0, 1000.0
         ),
 	# The particle types simulated
-        pionTypes = cms.untracked.vint32(
+        hadronTypes = cms.untracked.vint32(
             211, -211, 130, 321, -321, 2212, -2212, 2112, -2112
         ),
 	# The corresponding particle names
-        pionNames = cms.untracked.vstring(
+        hadronNames = cms.untracked.vstring(
             'piplus', 'piminus', 'K0L', 'Kplus', 'Kminus', 'p', 'pbar', 'n', 'nbar'
         ),
 	# The corresponding particle masses
-        pionMasses = cms.untracked.vdouble(
+        hadronMasses = cms.untracked.vdouble(
             0.13957, 0.13957, 0.497648, 0.493677, 0.493677, 
 	    0.93827, 0.93827, 0.939565, 0.939565 
 	),
 	# The corresponding smallest momenta for which an inleatic interaction may occur
-        pionMinP = cms.untracked.vdouble( 
+        hadronMinP = cms.untracked.vdouble( 
 	    0.7, 0.0, 1.0, 1.0, 0.0, 1.1, 0.0, 1.1, 0.0 
 	),
 
@@ -180,6 +177,7 @@ MaterialEffectsForMuonsBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
 	# Enable Nuclear Interactions
+        G4NuclearInteraction = cms.bool(False), 	
         NuclearInteraction = cms.bool(False)
 
     )
@@ -220,6 +218,7 @@ MaterialEffectsForMuonsInECALBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
 	# Enable Nuclear Interactions
+        G4NuclearInteraction = cms.bool(False), 	
         NuclearInteraction = cms.bool(False)
     )
 )
@@ -259,6 +258,7 @@ MaterialEffectsForMuonsInHCALBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
 	# Enable Nuclear Interactions
+        G4NuclearInteraction = cms.bool(False), 	
         NuclearInteraction = cms.bool(False)
 
     )

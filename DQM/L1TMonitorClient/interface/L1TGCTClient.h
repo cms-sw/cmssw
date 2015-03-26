@@ -7,6 +7,7 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -15,7 +16,7 @@
 #include <vector>
 #include <map>
 
-class L1TGCTClient: public edm::EDAnalyzer {
+class L1TGCTClient: public DQMEDHarvester {
 
  public:
 
@@ -26,37 +27,17 @@ class L1TGCTClient: public edm::EDAnalyzer {
   virtual ~L1TGCTClient();
  
  protected:
-
-  /// BeginJob
-  void beginJob(void);
-
-  /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
-
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
+  virtual void dqmEndJob(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter) override;
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
  private:
 
-  void processHistograms();
+  void book(DQMStore::IBooker &ibooker);
+  void processHistograms(DQMStore::IGetter &igetter);
 
   void makeXProjection(TH2F* input, MonitorElement* output);
   void makeYProjection(TH2F* input, MonitorElement* output);
 
-  DQMStore* dbe_;   
   std::string monitorDir_; 
   int counterLS_;      ///counter 
   int counterEvt_;     ///counter 

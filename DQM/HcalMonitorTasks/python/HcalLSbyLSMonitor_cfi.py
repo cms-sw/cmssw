@@ -20,5 +20,6 @@ hcalLSbyLSMonitor=cms.EDAnalyzer("HcalLSbyLSMonitor",
                                                                                 "DigiMonitor_Hcal/",
                                                                                 "HotCellMonitor_Hcal/",
                                                                                 "BeamMonitor_Hcal/"),
-                                 minEvents              = cms.untracked.int32(500)
+                                 minEvents              = cms.untracked.int32(500),
+                             	 FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                                  )

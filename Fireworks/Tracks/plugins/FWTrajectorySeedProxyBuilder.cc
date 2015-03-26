@@ -63,7 +63,8 @@ FWTrajectorySeedProxyBuilder::build( const TrajectorySeed& iData, unsigned int i
    // TEveVector startPos(pnt.x(), pnt.y(), pnt.z());
 
    TEvePointSet* pointSet = new TEvePointSet;
-   TEveLine* lineSet = new TEveLine;
+   TEveLine* line = new TEveLine;
+   TEveStraightLineSet* lineSet = new TEveStraightLineSet;
    TrajectorySeed::const_iterator hit = iData.recHits().first;
 
    for(; hit != iData.recHits().second; hit++) {	 
@@ -95,13 +96,33 @@ FWTrajectorySeedProxyBuilder::build( const TrajectorySeed& iData, unsigned int i
          geom->localToGlobal( id, localPoint, globalPoint );
 
          pointSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
-         lineSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
+         line->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
+
+      }
+
+      else {
+         const SiStripCluster *cluster = fireworks::extractClusterFromTrackingRecHit( &*hit );
+
+         if (cluster) {
+	 short firststrip = cluster->firstStrip();
+         float localTop[3] = { 0.0, 0.0, 0.0 };
+	 float localBottom[3] = { 0.0, 0.0, 0.0 };
+
+         fireworks::localSiStrip( firststrip, localTop, localBottom, pars, id );
+
+         float globalTop[3];
+         float globalBottom[3];
+         geom->localToGlobal( id, localTop, globalTop, localBottom, globalBottom );
+  
+         lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
+                           globalBottom[0], globalBottom[1], globalBottom[2] );
+         }
       }
    }
 
    setupAddElement( pointSet, &itemHolder );
+   setupAddElement( line, &itemHolder );
    setupAddElement( lineSet, &itemHolder );
-   setupElement(pointSet);
 }
 
 //

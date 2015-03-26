@@ -40,18 +40,18 @@ namespace reco {
  
    /// default constructor. Sets energy and position to zero
     CaloCluster() : 
-      energy_(0), correctedEnergy_(-1.0), 
+      energy_(0), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), 
       algoID_( undefined ), flags_(0) {}
 
     /// constructor with algoId, to be used in all child classes
     CaloCluster(AlgoID algoID) : 
-      energy_(0), correctedEnergy_(-1.0), 
+      energy_(0), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0),
       algoID_( algoID ), flags_(0) {}
 
     CaloCluster( double energy,
                  const math::XYZPoint& position,
                  const CaloID& caloID) :
-      energy_ (energy), correctedEnergy_(-1.0), position_ (position), caloID_(caloID),algoID_( undefined ), flags_(0) {}
+      energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position), caloID_(caloID),algoID_( undefined ), flags_(0) {}
 
 
     /// resets the CaloCluster (position, energy, hitsAndFractions)
@@ -107,6 +107,7 @@ namespace reco {
 
     void setEnergy(double energy){energy_ = energy;}
     void setCorrectedEnergy(double cenergy){correctedEnergy_ = cenergy;}
+    void setCorrectedEnergyUncertainty(float energyerr) { correctedEnergyUncertainty_ = energyerr; }
     
     void setPosition(const math::XYZPoint& p){position_ = p;}
 
@@ -119,6 +120,7 @@ namespace reco {
     /// cluster energy
     double energy() const { return energy_; }
     double correctedEnergy() const { return correctedEnergy_; }
+    float correctedEnergyUncertainty() const { return correctedEnergyUncertainty_; }
 
     /// cluster centroid position
     const math::XYZPoint & position() const { return position_; }
@@ -204,6 +206,7 @@ namespace reco {
     /// cluster energy
     double              energy_;
     double              correctedEnergy_;
+    float               correctedEnergyUncertainty_;
 
     /// cluster centroid position
     math::XYZPoint      position_;

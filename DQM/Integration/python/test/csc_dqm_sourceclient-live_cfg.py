@@ -72,7 +72,7 @@ process.dqmSaver.dirName = '.'
 # GEOMETRY
 #-------------------------------------------------
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------------------
 # Global Tag
@@ -212,3 +212,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.cscMonitor.FEDRawDataCollectionTag = cms.InputTag("rawDataRepacker")
     process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

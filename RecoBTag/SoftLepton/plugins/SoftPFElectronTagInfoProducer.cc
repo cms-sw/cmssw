@@ -24,15 +24,19 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <cmath>
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
 
 SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf)
 {
 	token_jets          = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
+	token_elec          = consumes<edm::View<reco::GsfElectron> >(conf.getParameter<edm::InputTag>("electrons"));
 	token_primaryVertex = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
 	token_BeamSpot      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
 	token_allConversions= consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
-
-        produces<reco::SoftLeptonTagInfoCollection>();
+	DeltaRElectronJet   = conf.getParameter<double>("DeltaRElectronJet");
+	MaxSip3D            = conf.getParameter<double>("MaxSip3D");
+        produces<reco::CandSoftLeptonTagInfoCollection>();
 }
 
 SoftPFElectronTagInfoProducer::~SoftPFElectronTagInfoProducer()
@@ -42,104 +46,97 @@ SoftPFElectronTagInfoProducer::~SoftPFElectronTagInfoProducer()
 
 void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  	reco::SoftLeptonTagInfoCollection *ElecTI = new reco::SoftLeptonTagInfoCollection;
-
+	std::auto_ptr<reco::CandSoftLeptonTagInfoCollection> theElecTagInfo(new reco::CandSoftLeptonTagInfoCollection);
 	edm::ESHandle<TransientTrackBuilder> builder;
  	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
  	transientTrackBuilder=builder.product();
  
  	edm::Handle<reco::VertexCollection> PVCollection;
 	iEvent.getByToken(token_primaryVertex, PVCollection);
-// 	if(!PVCollection.isValid() || PVCollection->empty()) return;
  	if(!PVCollection.isValid()) return;
  	if(!PVCollection->empty()){
 		goodvertex = true;
 		vertex=&PVCollection->front();
 	}else goodvertex = false; 
-	
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken(token_BeamSpot, bsHandle);
-  const reco::BeamSpot &beamspot = *bsHandle.product();
-
-  edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByToken(token_allConversions, hConversions);
+  	edm::Handle<reco::ConversionCollection> hConversions;
+  	iEvent.getByToken(token_allConversions, hConversions);
  
- 	std::vector<edm::RefToBase<reco::Jet> > jets;
- 
- 	edm::Handle<edm::View<reco::Jet> > inputJets;
- 	iEvent.getByToken(token_jets, inputJets);
- 	unsigned int size = inputJets->size();
- 	jets.resize(size);
- 	for (unsigned int i = 0; i < size; i++){
- 		jets[i] = inputJets->refAt(i);
- 		reco::PFCandidateCollection Elec;
- 		const std::vector<reco::CandidatePtr> JetConst = jets[i]->getJetConstituents();
-     		for (unsigned ic=0;ic<JetConst.size();++ic){
-       			const reco::PFCandidate* pfc = dynamic_cast <const reco::PFCandidate*> (JetConst[ic].get());
-			if(JetConst[ic].get()!=NULL && pfc==NULL) continue;
- 			if(pfc->particleId()==2){
-				bool matchConv=ConversionTools::hasMatchedConversion(*((*pfc).gsfElectronRef().get()),hConversions,beamspot.position());
- 				if(!isElecClean(iEvent,pfc) || matchConv)continue;
- 				reco::TransientTrack transientTrack=transientTrackBuilder->build(pfc->gsfTrackRef().get());
-  				float sip3d= IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jets[i]->px(), jets[i]->py(), jets[i]->pz()), *vertex).second.significance();
- 				if(fabs(sip3d<200)) Elec.push_back(*(pfc));			
- 			}
-	}
-//	std::cout<< "push_back the softleptontaginfo..." << std::endl;
-        reco::SoftLeptonTagInfo result_electrons = tagElec( jets[i], Elec );
-        ElecTI->push_back(result_electrons);
+  	edm::Handle<edm::View<reco::Jet> > theJetCollection;
+  	iEvent.getByToken(token_jets, theJetCollection);
 
-  }
-  std::auto_ptr<reco::SoftLeptonTagInfoCollection> ElecTagInfoCollection(ElecTI);
-  iEvent.put(ElecTagInfoCollection);
+	edm::Handle<edm::View<reco::GsfElectron > > theGEDGsfElectronCollection;
+  	iEvent.getByToken(token_elec, theGEDGsfElectronCollection);
+
+	edm::Handle<reco::BeamSpot> bsHandle;
+  	iEvent.getByToken(token_BeamSpot, bsHandle);
+  	const reco::BeamSpot &beamspot = *bsHandle.product();
+
+	 for (unsigned int i = 0; i < theJetCollection->size(); i++){
+    		edm::RefToBase<reco::Jet> jetRef = theJetCollection->refAt(i);
+		reco::CandSoftLeptonTagInfo tagInfo;
+                tagInfo.setJetRef(jetRef);
+    		std::vector<const reco::GsfElectron *> Elec;
+		for(unsigned int ie=0, ne=theGEDGsfElectronCollection->size(); ie<ne; ++ie){
+			//Get the edm::Ptr and the GsfElectron
+			edm::Ptr<reco::Candidate> lepPtr=theGEDGsfElectronCollection->ptrAt(ie);
+			const reco::GsfElectron* recoelectron=theGEDGsfElectronCollection->refAt(ie).get();
+			const pat::Electron* patelec=dynamic_cast<const pat::Electron*>(recoelectron);
+			if(patelec){
+				if(!patelec->passConversionVeto()) continue;
+			}
+			else{
+				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position())) continue;
+			}
+			//Make sure that the electron is inside the jet
+			if(reco::deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet) continue;
+			// Need a gsfTrack
+			if(recoelectron->gsfTrack().get()==NULL) continue;
+			reco::SoftLeptonProperties properties;
+			// reject if it has issues with the track
+			if(!isElecClean(iEvent,recoelectron) ) continue;
+			//Compute the TagInfos members
+			math::XYZVector pel=recoelectron->p4().Vect();
+  			math::XYZVector pjet=jetRef->p4().Vect();
+  			reco::TransientTrack transientTrack=transientTrackBuilder->build(recoelectron->gsfTrack());
+  			properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+  			properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+  			properties.deltaR   = reco::deltaR((*jetRef), (*recoelectron));
+  			properties.ptRel    = ( (pjet-pel).Cross(pel) ).R() / pjet.R();
+  			float mag = pel.R()*pjet.R();
+  			float dot = recoelectron->p4().Dot(jetRef->p4());
+  			properties.etaRel   = -log((mag - dot)/(mag + dot)) / 2.;
+  			properties.ratio    = recoelectron->pt() / jetRef->pt();
+  			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
+  			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
+			properties.elec_mva    = recoelectron->mva_e_pi();
+			 if(std::abs(properties.sip3d>MaxSip3D)) continue;
+			// Fill the TagInfos
+			tagInfo.insert(lepPtr, properties );
+		}
+		theElecTagInfo->push_back(tagInfo);
+  	}
+  	iEvent.put(theElecTagInfo);
 }
 
-
-reco::SoftLeptonTagInfo SoftPFElectronTagInfoProducer::tagElec (
-    const edm::RefToBase<reco::Jet> & jet,
-    reco::PFCandidateCollection    & leptons
-) {
-  reco::SoftLeptonTagInfo info;
-  info.setJetRef( jet );
-  if(goodvertex){	
-  	for(reco::PFCandidateCollection::const_iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
-    	reco::TrackBaseRef trkRef(lepton->gsfTrackRef());
-    	reco::SoftLeptonProperties properties=fillElecProperties(*lepton, *jet);
-    	info.insert(trkRef, properties );
-		}	
-	}
-  return info;
-}
-
-reco::SoftLeptonProperties SoftPFElectronTagInfoProducer::fillElecProperties(const reco::PFCandidate &elec, const reco::Jet &jet) {
-  reco::SoftLeptonProperties prop;
-  reco::TransientTrack transientTrack=transientTrackBuilder->build(elec.gsfTrackRef().get());
-  prop.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jet.px(), jet.py(), jet.pz()), *vertex).second.significance();
-  prop.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jet.px(), jet.py(), jet.pz()), *vertex).second.significance();
-  prop.deltaR   = deltaR(jet, elec);
-  prop.ptRel    = ( (jet.p4().Vect()-elec.gsfElectronRef().get()->p4().Vect()).Cross(elec.gsfElectronRef().get()->p4().Vect()) ).R() / jet.p4().Vect().R(); // | (Pj-Pu) X Pu | / | Pj |
-  float mag = elec.gsfElectronRef().get()->p4().Vect().R()*jet.p4().Vect().R();
-  float dot = elec.gsfElectronRef().get()->p4().Dot(jet.p4());
-  prop.etaRel   = -log((mag - dot)/(mag + dot)) / 2.;
-  prop.ratio    = elec.gsfElectronRef().get()->p() / jet.energy();
-  prop.ratioRel = elec.gsfElectronRef().get()->p4().Dot(jet.p4()) / jet.p4().Vect().Mag2();
-  return prop;
-}
-
-
-bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent,const reco::PFCandidate* PFcandidate)
+bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent,const reco::GsfElectron*candidate)
 {
     using namespace reco;
-	const HitPattern &hitPattern = PFcandidate->gsfTrackRef().get()->hitPattern();
-    //check that the first hit is a pixel hit
+    const HitPattern &hitPattern = candidate->gsfTrack().get()->hitPattern();
     uint32_t hit = hitPattern.getHitPattern(HitPattern::TRACK_HITS, 0);
     bool hitCondition = !(HitPattern::validHitFilter(hit) 
             && ((HitPattern::pixelBarrelHitFilter(hit) 
                         && HitPattern::getLayer(hit) < 3) 
                     || HitPattern::pixelEndcapHitFilter(hit))); 
-	if(hitCondition) return false;
-   //     if(PFcandidate->mva_e_pi()<0.6)return false;
+    if(hitCondition) return false;
 
-  return true;
+    return true;
 }
 
+float SoftPFElectronTagInfoProducer::boostedPPar(const math::XYZVector& vector, const math::XYZVector& axis) {
+	static const double lepton_mass = 0.00; 
+	static const double jet_mass    = 5.279; 
+  	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > lepton(vector.Dot(axis) / axis.r(), ROOT::Math::VectorUtil::Perp(vector, axis), 0., lepton_mass);
+  	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > jet( axis.r(), 0., 0., jet_mass );
+  	ROOT::Math::BoostX boost( -jet.Beta() );
+  	return boost(lepton).x();
+}

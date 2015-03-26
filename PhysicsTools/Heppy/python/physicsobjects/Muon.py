@@ -27,6 +27,10 @@ class Muon( Lepton ):
                                                  self.numberOfMatchedStations()>1 and \
                                                  self.innerTrack().hitPattern().numberOfValidPixelHits()>0 and \
                                                  self.innerTrack().hitPattern().trackerLayersWithMeasurement() > 5
+            if name == "POG_ID_Medium":
+                if not self.looseId(): return False
+                goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20;
+                return self.physObj.innerTrack().validFraction() >= 0.8 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
         return self.physObj.muonID(name)
             
     def mvaId(self):
@@ -59,27 +63,27 @@ class Muon( Lepton ):
             vertex = self.associatedVertex
         return self.innerTrack().dz( vertex.position() )
 
-    def chargedHadronIso(self,R=0.4):
+    def chargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumChargedHadronPt 
         elif R == 0.4: return self.physObj.pfIsolationR04().sumChargedHadronPt 
         raise RuntimeError, "Muon chargedHadronIso missing for R=%s" % R
 
-    def neutralHadronIso(self,R=0.4):
+    def neutralHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumNeutralHadronEt 
         elif R == 0.4: return self.physObj.pfIsolationR04().sumNeutralHadronEt 
         raise RuntimeError, "Muon neutralHadronIso missing for R=%s" % R
 
-    def photonIso(self,R=0.4):
+    def photonIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumPhotonEt 
         elif R == 0.4: return self.physObj.pfIsolationR04().sumPhotonEt 
         raise RuntimeError, "Muon photonIso missing for R=%s" % R
 
-    def chargedAllIso(self,R=0.4):
+    def chargedAllIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumChargedParticlePt 
         elif R == 0.4: return self.physObj.pfIsolationR04().sumChargedParticlePt 
         raise RuntimeError, "Muon chargedAllIso missing for R=%s" % R
 
-    def puChargedHadronIso(self,R=0.4):
+    def puChargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumPUPt 
         elif R == 0.4: return self.physObj.pfIsolationR04().sumPUPt 
         raise RuntimeError, "Muon chargedHadronIso missing for R=%s" % R

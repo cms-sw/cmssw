@@ -415,22 +415,23 @@
  </SpecParSection>
  <SpecParSection label="muonGEMnumbering" eval="true">
   <SpecPar name="MuonGEMEndcap">
-   <PartSelector path="//GE11.*"/>
-   <PartSelector path="//GE21S.*"/>
-   <PartSelector path="//GE21L.*"/>
+   <PartSelector path="//GEMDisk11.*"/>
+   <PartSelector path="//GEMDisk21S.*"/>
+   <Parameter name="CopyNoTag" value="[mg_ring]"/>
+   <Parameter name="CopyNoOffset" value="1*[super]"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMEndcap2">
+   <PartSelector path="//GEMDisk21L.*"/>
    <Parameter name="CopyNoTag" value="[mg_ring]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
   </SpecPar>
   <SpecPar name="MuonGEMSector">
-   <PartSelector path="//GEMBox11"/>
-   <PartSelector path="//GEMBox21"/>
-   <PartSelector path="//GEMBox21L"/>
+   <PartSelector path="//GEMBox.*"/>
    <Parameter name="CopyNoTag" value="[mg_sector]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
   </SpecPar>
   <SpecPar name="MuonGEMChamber">
-   <PartSelector path="//GHA1.*"/>
-   <PartSelector path="//GHA2.*"/>
+   <PartSelector path="//GHA.*"/>
    <Parameter name="CopyNoTag" value="[mg_roll]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
   </SpecPar>

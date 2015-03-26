@@ -172,6 +172,7 @@ sistrip::FedReadoutMode sistrip::RawToDigiUnpacker::fedReadoutMode( const uint16
   else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::FED_PROC_RAW; }
   else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::FED_ZERO_SUPPR; }
   else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
+  else if ( ((register_value>>1)&0x7) == 0x7 ) { return sistrip::FED_PREMIX_RAW; } //new mode
   else { return sistrip::UNKNOWN_FED_READOUT_MODE; }
 }
 

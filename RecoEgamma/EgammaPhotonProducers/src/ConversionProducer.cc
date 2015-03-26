@@ -195,7 +195,11 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //build map of ConversionTracks ordered in eta
   std::multimap<float, edm::Ptr<reco::ConversionTrack> > convTrackMap;
-  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackCollectionHandle->ptrVector().begin(); tk_ref != trackCollectionHandle->ptrVector().end(); ++tk_ref ){
+  edm::PtrVector<reco::ConversionTrack> trackPtrVector;
+  for (size_t i = 0; i < trackCollectionHandle->size(); ++i)
+    trackPtrVector.push_back(trackCollectionHandle->ptrAt(i));
+
+  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackPtrVector.begin(); tk_ref != trackPtrVector.end(); ++tk_ref ){
     convTrackMap.insert(std::make_pair((*tk_ref)->track()->eta(),*tk_ref));
   }
 
@@ -434,9 +438,9 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       double approachDist = -999.;
       //apply preselection to track pair, overriding preselection for gsf+X or ecalseeded+X pairs if so configured
       bool preselected = preselectTrackPair(ttk_l,ttk_r, approachDist);
-      preselected = preselected || (bypassPreselGsf_ && (left->algo()==29 || right->algo()==29));
-      preselected = preselected || (bypassPreselEcal_ && (left->algo()==15 || right->algo()==15 || left->algo()==16 || right->algo()==16));
-      preselected = preselected || (bypassPreselEcalEcal_ && (left->algo()==15 || left->algo()==16) && (right->algo()==15 || right->algo()==16));
+      preselected = preselected || (bypassPreselGsf_ && (left->algo()==reco::TrackBase::gsf || right->algo()==reco::TrackBase::gsf));
+      preselected = preselected || (bypassPreselEcal_ && (left->algo()==reco::TrackBase::outInEcalSeededConv || right->algo()==reco::TrackBase::outInEcalSeededConv || left->algo()==reco::TrackBase::inOutEcalSeededConv || right->algo()==reco::TrackBase::inOutEcalSeededConv));
+      preselected = preselected || (bypassPreselEcalEcal_ && (left->algo()==reco::TrackBase::outInEcalSeededConv || left->algo()==reco::TrackBase::inOutEcalSeededConv) && (right->algo()==reco::TrackBase::outInEcalSeededConv || right->algo()==reco::TrackBase::inOutEcalSeededConv));
       
       if (!preselected) {
         continue;

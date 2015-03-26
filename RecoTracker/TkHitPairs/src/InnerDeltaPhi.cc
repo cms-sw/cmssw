@@ -10,8 +10,6 @@
 
 using namespace std;
 
-#include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
-
 namespace {
   template <class T> inline T sqr( T t) {return t*t;}
   template <class T> 

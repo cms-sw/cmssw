@@ -58,7 +58,6 @@ class CastorDbService {
   bool makeCastorCalibrationWidth (const HcalGenericDetId& fId, CastorCalibrationWidths* fObject, 
 				 bool pedestalInADC) const;
   void buildCalibWidths();
-  mutable reco::castor::QieShape* mQieShapeCache;
   const CastorPedestals* mPedestals;
   const CastorPedestalWidths* mPedestalWidths;
   const CastorGains* mGains;

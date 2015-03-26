@@ -59,7 +59,8 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
   s2InterThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10InterThres"))*10.,2);
   s2ForwardThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10ForwardThres"))*10.,2);
   
-  useS_      = iConfig.getParameter< bool >("useS" );
+  isPixelVeto_ = iConfig.getParameter< bool >("pixelVeto" );
+  useS_        = iConfig.getParameter< bool >("useS" );
 
 }
 
@@ -113,6 +114,8 @@ void HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("tanhSO10InterThres",1);
   desc.add<double>("tanhSO10ForwardThres",1);
   desc.add<bool>  ("useS"     , false);
+  desc.add<bool>  ("pixelVeto", false);
+
   descriptions.add("hltElectronPixelMatchFilter",desc);
 }
 
@@ -153,9 +156,16 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
     int nmatch = getNrOfMatches(L1IsoSeeds,recr2);
     if(!doIsolated_) nmatch+=getNrOfMatches(L1NonIsoSeeds,recr2);
 
-    if ( nmatch >= npixelmatchcut_) {
-      n++;
-      filterproduct.addObject(TriggerCluster, ref);
+    if (!isPixelVeto_) {
+      if ( nmatch >= npixelmatchcut_) {
+	n++;
+	filterproduct.addObject(TriggerCluster, ref);
+      }
+    } else {
+      if ( nmatch == 0) {
+	n++;
+	filterproduct.addObject(TriggerCluster, ref);
+      }
     }
  
   }//end of loop over candidates

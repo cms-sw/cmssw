@@ -17,5 +17,9 @@ int main()
     testSerialization<std::vector<CombinedTauTagCalibration::Entry>>();
     testSerialization<std::vector<TrackProbabilityCalibration::Entry>>();
 
+    testSerialization<BTagEntry>();
+    testSerialization<BTagEntry::Parameters>();
+    testSerialization<BTagCalibration>();
+
     return 0;
 }

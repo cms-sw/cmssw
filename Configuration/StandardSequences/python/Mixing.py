@@ -50,7 +50,8 @@ addMixingScenario("E8TeV_AVE_16_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_P
 addMixingScenario("E8TeV_AVE_16_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-3,2), 'N': 16})
 addMixingScenario("E8TeV_AVE_10_BX_50ns_300ns_spread",{'file':'SimGeneral.MixingModule.mix_E8TeV_AVE_10_BX_50ns_300ns_spread_cfi'})
 addMixingScenario("E8TeV_AVE_10_BX_25ns_300ns_spread",{'file':'SimGeneral.MixingModule.mix_E8TeV_AVE_10_BX_25ns_300ns_spread_cfi'})
-addMixingScenario("HiMix",{'file': 'SimGeneral.MixingModule.HiEventMixing_cff'})
+addMixingScenario("HiMix",{'file': 'SimGeneral.MixingModule.HiMix_cff'})
+addMixingScenario("HiMixGEN",{'file': 'SimGeneral.MixingModule.HiMixGEN_cff'})
 addMixingScenario("HighLumiPileUp",{'file': 'SimGeneral.MixingModule.mixHighLumPU_cfi'})
 addMixingScenario("InitialLumiPileUp",{'file': 'SimGeneral.MixingModule.mixInitialLumPU_cfi'})
 addMixingScenario("LowLumiPileUp",{'file': 'SimGeneral.MixingModule.mixLowLumPU_cfi'})
@@ -105,24 +106,6 @@ addMixingScenario("CSA14_inTimeOnly",{'file': 'SimGeneral.MixingModule.mix_CSA14
 addMixingScenario("Phys14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_Phys14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
-##fastsim section
-addMixingScenario("FS_NoPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff'})
-addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_LowLumiPileUp_cff'})
-addMixingScenario("FS_FlatDist10_2011EarlyData_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_inTimeOnly_cff'})
-addMixingScenario("FS_E7TeV_Fall2011_Reprocess_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_Fall2011_Reprocess_inTimeOnly_cff'})
-addMixingScenario("FS_E7TeV_ProbDist_2011Data_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_ProbDist_2011Data_inTimeOnly_cff'})
-addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff'})
-addMixingScenario("FS_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly_cff'})
-addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
-addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
-addMixingScenario("FS_mix_2012_Summer_50ns_PoissonOOTPU",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_50ns_PoissonOOTPU_cfi'}) # note: eventually we want absolute synchronization between FastSim and FullSim PU scenarios, and files like this one should be moved to SimGeneral/MixingModule ; to be done after full validation
-addMixingScenario("FS_CSA14_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_CSA14_inTimeOnly_cff'})
-addMixingScenario("FS_E13TeV_AVE_10_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_10_inTimeOnly_cff'})
-addMixingScenario("FS_E13TeV_AVE_20_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_20_inTimeOnly_cff'})
-addMixingScenario("FS_E8TeV_2012_run198588",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run198588_cff'})
-addMixingScenario("FS_E8TeV_2012_run203002",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run203002_cff'})
-addMixingScenario("FS_E8TeV_2012_run209148",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run209148_cff'})
-addMixingScenario("FS_E8TeV_2012_ZmumugSkim",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_zmmg_skim_cff'})
 
 #scenarios for L1 tdr work
 addMixingScenario("AVE_4_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 4})
@@ -134,6 +117,8 @@ addMixingScenario("AVE_20_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON
 addMixingScenario("AVE_25_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 25})
 addMixingScenario("AVE_25_BX_50ns_m8",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-8,3), 'N': 25})
 addMixingScenario("AVE_25_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 25})
+addMixingScenario("AVE_30_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 30})
+addMixingScenario("AVE_30_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 30})
 addMixingScenario("AVE_35_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 35})
 addMixingScenario("AVE_35_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 35})
 addMixingScenario("AVE_40_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 40})
@@ -161,9 +146,10 @@ addMixingScenario("AVE_140_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSO
 addMixingScenario("flatPU_0_10",{'file': 'SimGeneral.MixingModule.mix_flat_0_10_cfi'})
 addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_cfi'})
 addMixingScenario("Flat_20_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_50ns_cfi'})
+addMixingScenario("Flat_0_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_25ns_cfi'})
+addMixingScenario("Flat_0_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_50ns_cfi'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
-MixingFSDefaultKey = '2012_Summer_inTimeOnly'
 
 def printMe():
     global Mixing
@@ -171,22 +157,12 @@ def printMe():
     keys.sort()
     fskeys=[]
     for key in keys:
-        if '_FS' in key:
-            fskeys.append(key)
-        else:
-            print 'addMixingScenario("%s",%s)'%(key,repr(Mixing[key]))
-
-    for key in fskeys:
         print 'addMixingScenario("%s",%s)'%(key,repr(Mixing[key]))
 
-
-def defineMixing(dict,FS=False):
+def defineMixing(dict):
     commands=[]
     if 'N' in dict:
-        if FS:
-            commands.append('process.famosPileUp.PileUpSimulator.averageNumber = cms.double(%f)'%(dict['N'],))
-        else:
-            commands.append('process.mix.input.nbPileupEvents.averageNumber = cms.double(%f)'%(dict['N'],))
+        commands.append('process.mix.input.nbPileupEvents.averageNumber = cms.double(%f)'%(dict['N'],))
         dict.pop('N')
     if 'BX' in dict:
         commands.append('process.mix.bunchspace = cms.int32(%d)'%(dict['BX'],))

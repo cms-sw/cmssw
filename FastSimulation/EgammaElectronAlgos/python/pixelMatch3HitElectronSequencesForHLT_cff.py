@@ -18,7 +18,6 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkf3HitL1SeededTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltCkf3HitL1SeededTrackCandidates.SeedProducer = cms.InputTag("hltL1SeededStartUpElectronPixelSeeds")
-hltCkf3HitL1SeededTrackCandidates.TrackProducers = []
 hltCkf3HitL1SeededTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkf3HitL1SeededTrackCandidates.SeedCleaning = True
 hltCkf3HitL1SeededTrackCandidates.SplitHits = False
@@ -47,7 +46,6 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkf3HitL1IsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltCkf3HitL1IsoTrackCandidates.SeedProducer = cms.InputTag("hltL1IsoStartUpElectronPixelSeeds")
-hltCkf3HitL1IsoTrackCandidates.TrackProducers = []
 hltCkf3HitL1IsoTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkf3HitL1IsoTrackCandidates.SeedCleaning = True
 hltCkf3HitL1IsoTrackCandidates.SplitHits = False
@@ -77,7 +75,6 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkf3HitL1NonIsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltCkf3HitL1NonIsoTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
-hltCkf3HitL1NonIsoTrackCandidates.TrackProducers = []
 hltCkf3HitL1NonIsoTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkf3HitL1NonIsoTrackCandidates.SeedCleaning = True
 hltCkf3HitL1NonIsoTrackCandidates.SplitHits = False
@@ -107,7 +104,6 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkf3HitActivityTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltCkf3HitActivityTrackCandidates.SeedProducer = cms.InputTag("hltActivityStartUpElectronPixelSeeds")
-hltCkf3HitActivityTrackCandidates.TrackProducers = []
 hltCkf3HitActivityTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkf3HitActivityTrackCandidates.SeedCleaning = True
 hltCkf3HitActivityTrackCandidates.SplitHits = False

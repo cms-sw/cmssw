@@ -80,7 +80,8 @@ process.ecalDigis = cms.EDProducer("EcalRawToDigi",
 )
 
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
-    clusterPrescaleFactor = cms.untracked.int32(1),
+    cosmics = cms.untracked.uint32(1),
+    physics = cms.untracked.uint32(1),
     EcalRawDataCollection = cms.InputTag("ecalDigis")
 )
 
@@ -96,17 +97,29 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
-    categories = cms.untracked.vstring('EcalLaserDbService'),
-    destinations = cms.untracked.vstring('cerr')
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalDQM = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        threshold = cms.untracked.string('INFO')
+    ),
+    categories = cms.untracked.vstring('EcalDQM', 
+        'EcalLaserDbService'),
+    destinations = cms.untracked.vstring('cerr', 
+        'cout')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
-process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
-process.simEcalTriggerPrimitiveDigis.Label = "ecalDigis"
+process.ecalMonitorClient.verbosity = 0
+process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
+process.ecalMonitorClient.commonParameters.onlineMode = True
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalDQMChannelStatusRcd'),
@@ -127,10 +140,12 @@ process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
 
 process.dqmSaver.convention = cms.untracked.string('Online')
 
-process.ecalMonitorClient.verbosity = 0
-process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
-process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
-process.ecalMonitorClient.commonParameters.onlineMode = True
+process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
+process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
+process.simEcalTriggerPrimitiveDigis.Label = "ecalDigis"
+
+process.ecalRecHit.EEuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
+process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
 
 process.ecalMonitorTask.workers = ['ClusterTask', 'EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
 process.ecalMonitorTask.verbosity = 0
@@ -174,11 +189,16 @@ if runTypeName == 'pp_run':
 elif runTypeName == 'cosmic_run':
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_cosmic.root')
 #    process.dqmEndPath.remove(process.dqmQTest)
-    process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
-    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
-    process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'HotCell']
+    process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
+    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+    process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
 elif runTypeName == runType.hi_run:
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hi.root')
 elif runTypeName == runType.hpu_run:
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hpu.root')
     process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

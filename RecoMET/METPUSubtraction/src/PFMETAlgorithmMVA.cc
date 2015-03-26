@@ -58,12 +58,7 @@ PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg)
 {
   mvaType_ = kBaseline;
 
-  dZcut_ = cfg.getParameter<double>("dZcut");
-  isOld42_ = cfg.getParameter<bool>("useOld42");
-  
   loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
-  
-  is42_ = cfg.getParameter<bool>("is42");
   
   mvaInputU_     = new Float_t[25];
   mvaInputDPhi_  = new Float_t[23];
@@ -89,7 +84,6 @@ PFMETAlgorithmMVA::~PFMETAlgorithmMVA()
 void PFMETAlgorithmMVA::initialize(const edm::EventSetup& es)
 {
   if ( loadMVAfromDB_ ) {
-    //std::cout << "<PFMETAlgorithmMVA::initialize>: loading BDTs from Database." << std::endl;
     edm::ParameterSet cfgInputRecords = cfg_.getParameter<edm::ParameterSet>("inputRecords");
     mvaNameU_       = cfgInputRecords.getParameter<std::string>("U");
     mvaReaderU_     = loadMVAfromDB(es, mvaNameU_);
@@ -100,7 +94,6 @@ void PFMETAlgorithmMVA::initialize(const edm::EventSetup& es)
     mvaNameCovU2_   = cfgInputRecords.getParameter<std::string>("CovU2");
     mvaReaderCovU2_ = loadMVAfromDB(es, mvaNameCovU2_);
   } else {
-    //std::cout << "<PFMETAlgorithmMVA::initialize>: loading BDTs from ROOT files." << std::endl;
     edm::ParameterSet cfgInputFileNames = cfg_.getParameter<edm::ParameterSet>("inputFileNames");
     
     mvaNameU_      = "U1Correction";
@@ -120,33 +113,28 @@ void PFMETAlgorithmMVA::initialize(const edm::EventSetup& es)
 }
 
 //-------------------------------------------------------------------------------
-void PFMETAlgorithmMVA::setInput(const std::vector<mvaMEtUtilities::leptonInfo>& leptons,
-				 const std::vector<mvaMEtUtilities::JetInfo>& jets,
-				 const std::vector<mvaMEtUtilities::pfCandInfo>& pfCandidates,
+void PFMETAlgorithmMVA::setInput(const std::vector<reco::PUSubMETCandInfo>& leptons,
+				 const std::vector<reco::PUSubMETCandInfo>& jets,
+				 const std::vector<reco::PUSubMETCandInfo>& pfCandidates,
 				 const std::vector<reco::Vertex::Point>& vertices)
 {
-  //std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_leptons = utils_.cleanPFCands(pfCandidates, leptons, 0.3, true);
-  ///CommonMETData sumLeptons = utils_.computePFCandSum(pfCandidates_leptons, dZcut_, 2);
-  //const std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_cleaned = utils_.cleanPFCands(pfCandidates, leptons, 0.3, false);
 
-  CommonMETData        sumLeptons = utils_.computeSumLeptons(leptons, false);
-  CommonMETData chargedSumLeptons = utils_.computeSumLeptons(leptons, true);
   
-  sumLeptonPx_        = sumLeptons.mex;
-  sumLeptonPy_        = sumLeptons.mey;
+  utils_.computeAllSums( jets, leptons, pfCandidates);
+  
+  sumLeptonPx_        = utils_.getLeptonsSumMEX();
+  sumLeptonPy_        = utils_.getLeptonsSumMEY();
 
-  chargedSumLeptonPx_ = chargedSumLeptons.mex;
-  chargedSumLeptonPy_ = chargedSumLeptons.mey;
+  chargedSumLeptonPx_ = utils_.getLeptonsChSumMEX();
+  chargedSumLeptonPy_ = utils_.getLeptonsChSumMEY();
 
-  double ptThreshold = -1000.;
-  if ( is42_ ) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
-  std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons, ptThreshold, 0.5);
+  const std::vector<reco::PUSubMETCandInfo> jets_cleaned = utils_.getCleanedJets();
 
-  CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil   (sumLeptons       , pfCandidates,               dZcut_);
-  CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(chargedSumLeptons, pfCandidates,               dZcut_);
-  CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil (chargedSumLeptons, pfCandidates, jets_cleaned, dZcut_);
-  CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil  (sumLeptons       , pfCandidates, jets_cleaned, dZcut_);
-  CommonMETData puMEt_data     = utils_.computePUMEt         (                   pfCandidates, jets_cleaned, 0.2); //dZCut bug
+  CommonMETData pfRecoil_data  = utils_.computeRecoil( MvaMEtUtilities::kPF );
+  CommonMETData chHSRecoil_data  = utils_.computeRecoil( MvaMEtUtilities::kChHS );
+  CommonMETData hsRecoil_data = utils_.computeRecoil( MvaMEtUtilities::kHS );
+  CommonMETData puRecoil_data = utils_.computeRecoil( MvaMEtUtilities::kPU );
+  CommonMETData hsMinusNeutralPUMEt_data = utils_.computeRecoil( MvaMEtUtilities::kHSMinusNeutralPU );
 
   reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets_cleaned);
   reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets_cleaned);
@@ -154,18 +142,18 @@ void PFMETAlgorithmMVA::setInput(const std::vector<mvaMEtUtilities::leptonInfo>&
   double pfSumEt       = pfRecoil_data.sumet;
   double pfU           = pfRecoil_data.met;
   double pfPhi         = pfRecoil_data.phi;
-  double tkSumEt       = tkRecoil_data.sumet;
-  double tkU           = tkRecoil_data.met;
-  double tkPhi         = tkRecoil_data.phi;
-  double npuSumEt      = npuRecoil_data.sumet;
-  double npuU          = npuRecoil_data.met; 
-  double npuPhi        = npuRecoil_data.phi;
-  double puSumEt       = puMEt_data.sumet;
-  double puMEt         = puMEt_data.met;
-  double puPhi         = puMEt_data.phi;
-  double pucSumEt      = pucRecoil_data.sumet; 
-  double pucU          = pucRecoil_data.met; 
-  double pucPhi        = pucRecoil_data.phi;
+  double tkSumEt       = chHSRecoil_data.sumet;
+  double tkU           = chHSRecoil_data.met;
+  double tkPhi         = chHSRecoil_data.phi;
+  double npuSumEt      = hsRecoil_data.sumet;
+  double npuU          = hsRecoil_data.met; 
+  double npuPhi        = hsRecoil_data.phi;
+  double puSumEt       = puRecoil_data.sumet;
+  double puMEt         = puRecoil_data.met;
+  double puPhi         = puRecoil_data.phi;
+  double pucSumEt      = hsMinusNeutralPUMEt_data.sumet; 
+  double pucU          = hsMinusNeutralPUMEt_data.met; 
+  double pucPhi        = hsMinusNeutralPUMEt_data.phi;
   double jet1Pt        = jet1P4.pt();
   double jet1Eta       = jet1P4.eta();
   double jet1Phi       = jet1P4.phi();
@@ -198,7 +186,7 @@ void PFMETAlgorithmMVA::setInput(double pfSumEt, double pfU, double pfPhi,
 				 double numJetsPtGt30, double numJets, 
 				 double numVertices)
 {
-  // CV: add protection against "empty events"
+  // protection against "empty events"
   if ( pfSumEt < 1. ) pfSumEt = 1.;
   
   pfSumEt_       = pfSumEt;
@@ -250,7 +238,7 @@ void PFMETAlgorithmMVA::evaluateMVA()
   if ( U < 0. ) Phi += Pi;
   double cosPhi = cos(Phi);
   double sinPhi = sin(Phi);
-  double metPx  = U*cosPhi - sumLeptonPx_; // CV: U is actually minus the hadronic recoil in the event
+  double metPx  = U*cosPhi - sumLeptonPx_;
   double metPy  = U*sinPhi - sumLeptonPy_;
   double metPt  = sqrt(metPx*metPx + metPy*metPy);
   mvaMEt_.SetCoordinates(metPx, metPy, 0., metPt);
@@ -352,7 +340,6 @@ void PFMETAlgorithmMVA::evaluateCovU1()
   mvaInputCovU1_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaInputCovU1_[25] = mvaOutputU_*pfU_;
   mvaOutputCovU1_    = mvaReaderCovU1_->GetResponse(mvaInputCovU1_)*mvaOutputU_*pfU_;
-  if ( !isOld42_ ) mvaOutputCovU1_ *= mvaOutputCovU1_; // PH: Training is not on the square anymore
 }
 
 void PFMETAlgorithmMVA::evaluateCovU2() 
@@ -384,7 +371,6 @@ void PFMETAlgorithmMVA::evaluateCovU2()
   mvaInputCovU2_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaInputCovU2_[25] = mvaOutputU_*pfU_;
   mvaOutputCovU2_    = mvaReaderCovU2_->GetResponse(mvaInputCovU2_)*mvaOutputU_*pfU_;
-  if ( !isOld42_ ) mvaOutputCovU2_ *= mvaOutputCovU2_; // PH: Training is not on the square anymore
 }
 void PFMETAlgorithmMVA::print(std::ostream& stream) const
 {

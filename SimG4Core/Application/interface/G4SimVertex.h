@@ -14,9 +14,9 @@ public:
       ilv_(ip),itime_(it),itrack_(iv),procType_(typ) {}
     /// index of the parent (-1 if no parent)
     const math::XYZVectorD & vertexPosition() const { return  ilv_; }
-    const double vertexGlobalTime() const     { return  itime_; }
-    const int parentIndex() const	      { return  itrack_; }
-    const unsigned int processType() const    { return  procType_; }
+    double vertexGlobalTime() const     { return  itime_; }
+    int parentIndex() const	      { return  itrack_; }
+    unsigned int processType() const    { return  procType_; }
 private:
     math::XYZVectorD ilv_;
     double itime_;

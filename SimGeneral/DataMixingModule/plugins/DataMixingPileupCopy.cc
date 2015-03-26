@@ -3,7 +3,6 @@
 // Author:  Mike Hildreth, University of Notre Dame
 //
 //--------------------------------------------
-
 #include <map>
 #include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -36,10 +35,14 @@ namespace edm
     // Pileup/Playback information
 
     PileupInfoInputTag_ = ps.getParameter<edm::InputTag>("PileupInfoInputTag");
+    BunchSpacingInputTag_ = ps.getParameter<edm::InputTag>("BunchSpacingInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
-    iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
-    iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
+
+    // apparently, we don't need consumes from Secondary input stream
+    //iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
+    //iC.consumes<int>(BunchSpacingInputTag_);
+    //iC.consumes<CrossingFramePlaybackInfoNew>(CFPlaybackInputTag_);
   }
 	       
   // Virtual destructor needed.
@@ -59,63 +62,50 @@ namespace edm
     std::shared_ptr<Wrapper< std::vector<PileupSummaryInfo> >  const> PileupInfoPTR =
       getProductByTag<std::vector<PileupSummaryInfo>>(*ep,PileupInfoInputTag_, mcc);
 
+    std::shared_ptr<Wrapper< int >  const> bsPTR =
+      getProductByTag<int>(*ep,BunchSpacingInputTag_, mcc);
+
     if(PileupInfoPTR ) {
-
       PileupSummaryStorage_ = *(PileupInfoPTR->product()) ;
-
       LogDebug("DataMixingEMWorker") << "PileupInfo Size: " << PileupSummaryStorage_.size();
+    }
 
+    if(bsPTR ) {
+      bsStorage_ = *(bsPTR->product()) ;
+    }
+    else {
+      bsStorage_=10000;
     }
 
     // Playback
-
-    std::shared_ptr<Wrapper<CrossingFramePlaybackInfoExtended>  const> PlaybackPTR =
-      getProductByTag<CrossingFramePlaybackInfoExtended>(*ep,CFPlaybackInputTag_, mcc);
-
+    std::shared_ptr<Wrapper<CrossingFramePlaybackInfoNew>  const> PlaybackPTR =
+      getProductByTag<CrossingFramePlaybackInfoNew>(*ep,CFPlaybackInputTag_, mcc);
     FoundPlayback_ = false;
-
     if(PlaybackPTR ) {
-
       CrossingFramePlaybackStorage_ = *(PlaybackPTR->product()) ;
-
       FoundPlayback_ = true;
-
     }
-
   }
  
   void DataMixingPileupCopy::putPileupInfo(edm::Event &e) {
-
     std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+    std::auto_ptr<int> bsInt(new int);
 
     std::vector<PileupSummaryInfo>::const_iterator PSiter;
-
     for(PSiter = PileupSummaryStorage_.begin(); PSiter != PileupSummaryStorage_.end(); PSiter++){
-
       PSIVector->push_back(*PSiter);
-
     }
+
+    *bsInt=bsStorage_;
 
     if(FoundPlayback_ ) {
-
-      std::vector<std::vector<edm::EventID> > IdVect; 
-
-      CrossingFramePlaybackStorage_.getEventStartInfo(IdVect, 0);
-
-      std::auto_ptr< CrossingFramePlaybackInfoExtended  > CFPlaybackInfo( new CrossingFramePlaybackInfoExtended(0, IdVect.size(), 1 ));
-
-      CFPlaybackInfo->setEventStartInfo(IdVect, 0);
-
+      std::auto_ptr<CrossingFramePlaybackInfoNew> CFPlaybackInfo(new CrossingFramePlaybackInfoNew(CrossingFramePlaybackStorage_));
       e.put(CFPlaybackInfo);
-
     }
-
     e.put(PSIVector);
-
+    e.put(bsInt,"bunchSpacing");
 
     // clear local storage after this event
     PileupSummaryStorage_.clear();
-
   }
-
 } //edm

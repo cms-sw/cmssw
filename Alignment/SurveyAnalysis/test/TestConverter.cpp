@@ -29,10 +29,10 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include <boost/cstdint.hpp> 
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -154,10 +154,10 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   // Retrieve alignment[Error]s from DBase
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
-  edm::ESHandle<AlignmentErrors> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
   
-  std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
+  std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
   // int countDet = 0;
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
@@ -211,7 +211,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
               int thecomparison = (int)locPos[1] - (int)(*iGeomDet).rawId();
 	      if (thecomparison == 0) {
                 
-		for ( std::vector<AlignTransformError>::const_iterator it = alignErrors.begin();
+		for ( std::vector<AlignTransformErrorExtended>::const_iterator it = alignErrors.begin();
 		      it != alignErrors.end(); it++ ) {
 		  
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,7 +45,7 @@
 // class declaration
 //
 
-class TestPythiaDecays : public edm::EDAnalyzer {
+class TestPythiaDecays : public edm::stream::EDAnalyzer <> {
 public:
   explicit TestPythiaDecays(const edm::ParameterSet&);
   ~TestPythiaDecays();
@@ -54,9 +54,7 @@ public:
   
   
 private:
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -377,17 +375,6 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TestPythiaDecays::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TestPythiaDecays::endJob() 
-{
-}
 
 // ------------ method called when starting to processes a run  ------------
 /*

@@ -24,23 +24,12 @@
   <class name="std::vector<metsig::SigInputObj>"/> 
   <class name="edm::Wrapper<std::vector<metsig::SigInputObj> >"/> 
 
-  <class name="reco::MVAMEtJetInfo" ClassVersion="13">
-   <version ClassVersion="10" checksum="695030979"/>
-   <version ClassVersion="11" checksum="2096949665"/>
-   <version ClassVersion="12" checksum="774362219"/>
-   <version ClassVersion="13" checksum="619222758"/>
+  <class name="reco::PUSubMETCandInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="4117401603"/>
   </class>
-  <class name="reco::MVAMEtJetInfoCollection" />
-  <class name="edm::Wrapper<reco::MVAMEtJetInfoCollection>" />
-
-  <class name="reco::MVAMEtPFCandInfo" ClassVersion="12">
-   <version ClassVersion="10" checksum="2500257969"/>
-   <version ClassVersion="11" checksum="1494751375"/>
-   <version ClassVersion="12" checksum="1973163836"/>
-  </class>
-  <class name="reco::MVAMEtPFCandInfoCollection" />
-  <class name="edm::Wrapper<reco::MVAMEtPFCandInfoCollection>" />
-
+  <class name="reco::PUSubMETCandInfoCollection" />
+  <class name="edm::Wrapper<reco::PUSubMETCandInfoCollection>" />
+ 
   <class name="SpecificCaloMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="3022746385"/>
    <version ClassVersion="11" checksum="747083523"/>
@@ -57,7 +46,9 @@
    <version ClassVersion="11" checksum="2260055190"/>
   </class>
 
-  <class name="reco::MET" ClassVersion="10">
+  <class name="reco::MET" ClassVersion="12">
+   <version ClassVersion="12" checksum="2052216433"/>
+   <version ClassVersion="11" checksum="1997832393"/>
    <version ClassVersion="10" checksum="3898304931"/>
   </class>
   <class name="edm::Wrapper<reco::MET>"/>
@@ -67,21 +58,27 @@
   <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
-  <class name="reco::CaloMET" ClassVersion="10">
+  <class name="reco::CaloMET" ClassVersion="12">
+   <version ClassVersion="12" checksum="3921700739"/>
+   <version ClassVersion="11" checksum="159132251"/>
    <version ClassVersion="10" checksum="3207121440"/>
   </class>
   <class name="edm::Wrapper<reco::CaloMET>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
 
-  <class name="reco::PFMET" ClassVersion="10">
+  <class name="reco::PFMET" ClassVersion="12">
+   <version ClassVersion="12" checksum="3350721210"/>
+   <version ClassVersion="11" checksum="3463342610"/>
    <version ClassVersion="10" checksum="3708270533"/>
   </class>
   <class name="edm::Wrapper<reco::PFMET>"/>
   <class name="edm::Wrapper<std::vector<reco::PFMET> >"/>
   <class name="std::vector<reco::PFMET>"/>
 
-  <class name="reco::PFClusterMET" ClassVersion="10">
+  <class name="reco::PFClusterMET" ClassVersion="12">
+   <version ClassVersion="12" checksum="3688821779"/>
+   <version ClassVersion="11" checksum="3634437739"/>
    <version ClassVersion="10" checksum="3408846646"/>
   </class>
   <class name="edm::Wrapper<reco::PFClusterMET>"/>
@@ -89,7 +86,9 @@
   <class name="std::vector<reco::PFClusterMET>"/>
 
 
-  <class name="reco::GenMET" ClassVersion="10">
+  <class name="reco::GenMET" ClassVersion="12">
+   <version ClassVersion="12" checksum="77942440"/>
+   <version ClassVersion="11" checksum="1091535040"/>
    <version ClassVersion="10" checksum="595237107"/>
   </class>
   <class name="edm::Wrapper<reco::GenMET>"/>

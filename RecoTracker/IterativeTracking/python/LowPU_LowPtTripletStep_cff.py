@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-lowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    trajectories = cms.InputTag("initialStepTracks"),
-    overrideTrkQuals = cms.InputTag('initialStepSelector','initialStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+lowPtTripletStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("initialStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    overrideTrkQuals                         = cms.InputTag('initialStepSelector','initialStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS

@@ -2,11 +2,11 @@
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -20,7 +20,7 @@ class TH1F;
 class TH2F;
 class TH3F;
 
-class QcdLowPtDQM : public edm::EDAnalyzer {
+class QcdLowPtDQM : public DQMEDAnalyzer {
  public:
   class Pixel {
    public:
@@ -119,22 +119,19 @@ class QcdLowPtDQM : public edm::EDAnalyzer {
 
   QcdLowPtDQM(const edm::ParameterSet &parameters);
   virtual ~QcdLowPtDQM();
-
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-  void beginJob(void);
-  void beginLuminosityBlock(const edm::LuminosityBlock &l,
-                            const edm::EventSetup &iSetup);
-  void beginRun(const edm::Run &r, const edm::EventSetup &iSetup);
-  void endJob(void);
-  void endRun(const edm::Run &r, const edm::EventSetup &iSetup);
   void endLuminosityBlock(const edm::LuminosityBlock &l,
                           const edm::EventSetup &iSetup);
+  void endRun(const edm::Run &r, const edm::EventSetup &iSetup);
 
  private:
-  void book1D(std::vector<MonitorElement *> &mes, const std::string &name,
+  void book1D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes, const std::string &name,
               const std::string &title, int nx, double x1, double x2,
               bool sumw2 = 1, bool sbox = 1);
-  void book2D(std::vector<MonitorElement *> &mes, const std::string &name,
+  void book2D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes, const std::string &name,
               const std::string &title, int nx, double x1, double x2, int ny,
               double y1, double y2, bool sumw2 = 1, bool sbox = 1);
   void create1D(std::vector<TH1F *> &mes, const std::string &name,
@@ -143,7 +140,6 @@ class QcdLowPtDQM : public edm::EDAnalyzer {
   void create2D(std::vector<TH2F *> &mes, const std::string &name,
                 const std::string &title, int nx, double x1, double x2, int ny,
                 double y1, double y2, bool sumw2 = 1, bool sbox = 1);
-  void createHistos();
   void fill1D(std::vector<TH1F *> &hs, double val, double w = 1.);
   void fill1D(std::vector<MonitorElement *> &mes, double val, double w = 1.);
   void fill2D(std::vector<TH2F *> &hs, double valx, double valy, double w = 1.);
@@ -342,8 +338,7 @@ inline bool QcdLowPtDQM::getProductSafe(const std::string name,
   try {
     event.getByLabel(edm::InputTag(name), prod);
     if (!prod.isValid()) return false;
-  }
-  catch (...) {
+  } catch (...) {
     return false;
   }
   return true;

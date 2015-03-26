@@ -11,12 +11,17 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace edm {
 
   class ModuleCallingContext;
+  class ModuleDescription;
   class ProductHolderIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
@@ -103,6 +108,16 @@ namespace edm {
 
     virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const override {
       module_->modulesDependentUpon(module_->moduleDescription().processName(),oModuleLabels);
+    }
+
+    virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                                 ProductRegistry const& preg,
+                                                 std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
+      module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
+    }
+
+    virtual std::vector<ConsumesInfo> consumesInfo() const override {
+      return module_->consumesInfo();
     }
 
     virtual void itemsToGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {

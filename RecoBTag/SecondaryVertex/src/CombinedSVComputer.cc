@@ -219,7 +219,7 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 		numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).numberOfSourceCandidatePtrs();
 
 		const reco::VertexCompositePtrCandidate &vertex = svInfo.secondaryVertex(i);
-		const std::vector<CandidatePtr> tracks = vertex.daughterPtrVector();
+		const std::vector<CandidatePtr> & tracks = vertex.daughterPtrVector();
 		for(std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
 			vertexKinematics.add(*(*track)->bestTrack(), 1.0);
 			vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);

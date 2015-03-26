@@ -12,7 +12,7 @@
 <use   name="RecoTauTag/TauTagTools"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="RecoTauTag/RecoTau"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

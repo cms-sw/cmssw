@@ -1,43 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
 trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
+    # the name of the output seeds
+    outputSeedCollectionName = cms.string("seeds"),
     # The smallest number of layer crossed to create a track candidate
-    minRecHits = cms.vuint32(5),
+    minRecHits = cms.uint32(5),
+    skipSimTrackIdTags = cms.untracked.VInputTag(),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    originHalfLength = cms.vdouble(15.9),
+    originHalfLength = cms.double(15.9),
     # The number of hits needed to make a seed
-    numberOfHits = cms.vuint32(2),
-    zVertexConstraint = cms.vdouble(-1.0),
-    originRadius = cms.vdouble(0.2),
+    numberOfHits = cms.uint32(2),
+    zVertexConstraint = cms.double(-1.0),
+    originRadius = cms.double(0.2),
     # Inputs: tracker rechits, beam spot position.
     HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits"),
-    originpTMin = cms.vdouble(1.0),
+    originpTMin = cms.double(1.0),
+    #this skips the test to have two seeds compatible with the PV
+    #Note: if no PV is set, BeamSpot is used.
+    skipPVCompatibility = cms.bool(False),
     # The primary vertex collection
-    primaryVertices = cms.VInputTag(cms.InputTag("none")),
+    primaryVertex = cms.InputTag("none"),
+    
     # The smallest pT (true, in GeV/c) to create a track candidate 
-    pTMin = cms.vdouble(0.9),
-    seedingAlgo = cms.vstring('GlobalPixel'),
-    maxZ0 = cms.vdouble(30.0),
+    pTMin = cms.double(0.9),
+    
+    maxZ0 = cms.double(30.0),
     # The seed cuts for compatibility with originating from the beam axis.
     seedCleaning = cms.bool(True),
     # The smallest d0 and z0 (true, in cm) to create a track candidate
-    maxD0 = cms.vdouble(1.0),
-    # The possible subdetectors for the first, second and third  hit
-    # No seed with more than three hits are foreseen, but the code can certainly be 
-    # modified to include this possibility.
-    # 1 = PXB, 2 = PXD, 3 = TIB, 4 = TID, 5 = TOB, 6 = TEC 
-    firstHitSubDetectorNumber = cms.vuint32(2),
-    secondHitSubDetectorNumber = cms.vuint32(2),
-    thirdHitSubDetectorNumber = cms.vuint32(0),
-    firstHitSubDetectors = cms.vuint32(1, 2),
-    secondHitSubDetectors = cms.vuint32(1, 2),
-    thirdHitSubDetectors = cms.vuint32(),
-    selectMuons = cms.bool(False),                                        
-    newSyntax = cms.bool(True),                                        
+    maxD0 = cms.double(1.0),                     
+                                     
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
                             'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
                             'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
 )
-
 

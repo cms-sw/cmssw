@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -9,7 +9,7 @@
 namespace edm { class Event; class EventSetup; }
 
 
-class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::EDProducer {
+class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::stream::EDProducer<> {
 public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
   virtual ~SeedGeneratorFromProtoTracksEDProducer(){}
@@ -17,15 +17,15 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  edm::ParameterSet theConfig;
-  edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
-  edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
-  double originHalfLength;
-  double originRadius;
-  bool useProtoTrackKinematics;
-  bool useEventsWithNoVertex;
-  std::string builderName;
-  bool usePV_;
+  const edm::ParameterSet theConfig;
+  const double originHalfLength;
+  const double originRadius;
+  const bool useProtoTrackKinematics;
+  const bool useEventsWithNoVertex;
+  const std::string builderName;
+  const bool usePV_;
+  const edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
+  const edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
 
 };
 #endif

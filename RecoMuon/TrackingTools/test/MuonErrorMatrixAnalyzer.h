@@ -30,7 +30,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 class MagneticField;
-class TrackAssociatorBase;
 class TH1;
 class TH2;
 class Propagator;
@@ -70,7 +69,6 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
 
   /// The associator used for reco/gen association (configurable)
   std::string theAssocLabel;
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
 
   /// hold on the magnetic field
   edm::ESHandle<MagneticField> theField;

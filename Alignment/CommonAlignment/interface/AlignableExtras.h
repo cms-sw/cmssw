@@ -39,7 +39,7 @@ class AlignableExtras
   Alignments* alignments() const;
 
   /// Return alignment errors, sorted by DetId
-  AlignmentErrors* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const;
 
   void dump(void) const;
 

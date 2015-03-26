@@ -1,13 +1,13 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h" 
 #include "CondFormats/Alignment/interface/Definitions.h" 
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -251,7 +251,7 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 	
 	if (_writeToDB){
 		Alignments* myAlignments = currentTracker->alignments();
-		AlignmentErrors* myAlignmentErrors = currentTracker->alignmentErrors();
+		AlignmentErrorsExtended* myAlignmentErrorsExtended = currentTracker->alignmentErrors();
 		
 		// 2. Store alignment[Error]s to DB
 		edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -260,7 +260,7 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 			throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 		
 		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), "TrackerAlignmentRcd");
-		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd");
+		poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd");
 		
 	}		
 
@@ -281,7 +281,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 
 	//declare alignments
 	Alignments* alignments1 = new Alignments();
-	AlignmentErrors* alignmentErrors1 = new AlignmentErrors();	
+	AlignmentErrorsExtended* alignmentErrors1 = new AlignmentErrorsExtended();	
 	if (_inputFilename1 != "IDEAL"){
 		_inputRootFile1 = new TFile(_inputFilename1.c_str());
 		TTree* _inputTree01 = (TTree*) _inputRootFile1->Get(_inputTreenameAlign.c_str());
@@ -306,17 +306,17 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			
 			//dummy errors
 			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
-			AlignTransformError transformError(clhepSymMatrix, detid1);
+			AlignTransformErrorExtended transformError(clhepSymMatrix, detid1);
 			alignmentErrors1->m_alignError.push_back(transformError);
 		}		
 		
 		// to get the right order
 		std::sort( alignments1->m_align.begin(), alignments1->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
 	}
 	//------------------
 	Alignments* alignments2 = new Alignments();
-	AlignmentErrors* alignmentErrors2 = new AlignmentErrors();
+	AlignmentErrorsExtended* alignmentErrors2 = new AlignmentErrorsExtended();
 	if (_inputFilename2 != "IDEAL"){	
 		_inputRootFile2 = new TFile(_inputFilename2.c_str());
 		TTree* _inputTree02 = (TTree*) _inputRootFile2->Get(_inputTreenameAlign.c_str());
@@ -341,13 +341,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			
 			//dummy errors
 			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
-			AlignTransformError transformError(clhepSymMatrix, detid2);
+			AlignTransformErrorExtended transformError(clhepSymMatrix, detid2);
 			alignmentErrors2->m_alignError.push_back(transformError); 
 		}			
 		
 		//to get the right order
 		std::sort( alignments2->m_align.begin(), alignments2->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
 	}
 	
 	//accessing the initial geometry
@@ -835,7 +835,7 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, const AlgebraicVector& 
 	
 }
 
-void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors){
+void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrorsExtended* alignErrors){
 	
 	//getting the right alignables for the alignment record
 	std::vector<Alignable*> detPB = ali->pixelHalfBarrelGeomDets();
@@ -876,14 +876,14 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 		CLHEP::Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
 		CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
 		AlignTransform transform(clhepVector, clhepRotation, (*k)->id());
-		AlignTransformError transformError(CLHEP::HepSymMatrix(3,1), (*k)->id());
+		AlignTransformErrorExtended transformError(CLHEP::HepSymMatrix(3,1), (*k)->id());
 		alignVals->m_align.push_back(transform);
 		alignErrors->m_alignError.push_back(transformError);
 	}
 	
 	//to get the right order
 	std::sort( alignVals->m_align.begin(), alignVals->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
 	
 }
 

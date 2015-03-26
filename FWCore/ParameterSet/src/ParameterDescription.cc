@@ -71,6 +71,9 @@ namespace edm {
     exists = pset.existsAs<ParameterSet>(label(), isTracked());
 
     if(exists) {
+      if(pset.isRegistered()) {
+         pset.invalidateRegistration("");
+      }
       ParameterSet * containedPSet = pset.getPSetForUpdate(label());
       psetDesc_->validate(*containedPSet);
     }

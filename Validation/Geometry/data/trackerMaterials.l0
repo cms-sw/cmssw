@@ -147,7 +147,15 @@ Pix_Fwd_End_Electro_2            0.130 0.000 0.847 0.000 0.023
 
 Pix_Fwd_End_Coil_Fiber           0.152 0.000 0.848 0.000 0.000
 
+Pix_Fwd_DCDC_Converter           0.644 0.000 0.298 0.000 0.059
+
+Pix_Fwd_Pilot_DOH                0.000 0.000 1.000 0.000 0.000
+
+Pix_Fwd_Pilot_Cables             0.000 0.000 1.000 0.000 0.000
+
 Pix_Fwd_Port_Cards               0.000 0.000 0.176 0.000 0.824
+
+Pix_Fwd_Port_Cards_Pilot         0.000 0.000 0.176 0.000 0.824
 
 Pix_Fwd_End_Pipe_1               0.000 0.000 0.490 0.510 0.000
 

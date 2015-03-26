@@ -3,7 +3,6 @@
 <use   name="FWCore/FWLite"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PythonParameterSet"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <use   name="boost"/>
 <use   name="boost_python"/>

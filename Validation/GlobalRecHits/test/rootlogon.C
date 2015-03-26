@@ -1,6 +1,4 @@
 {
-gSystem->Load("libCintex");
-Cintex::Enable();
 cout << "Loading FWLite..." << endl;    // load CMSSW libraries
 gSystem->Load("libFWCoreFWLite");
 AutoLibraryLoader::enable();

@@ -61,16 +61,16 @@ void FWalker::VisitChildren( clang::Stmt *S) {
 
 
 void FWalker::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
-  if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
-	if ( support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
+  if (const clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl()) ) {
+	if ( D && support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 	ReportDeclRef(DRE);
   }
 }
 
 void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   
-        const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl());
-	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
+        const clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl());
+	if ( D && ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())) return;
 	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
@@ -81,7 +81,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
 	std::string sdname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) {
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(PD)) {
 		sdname = support::getQualifiedName(*ND);
 		dname = ND->getQualifiedNameAsString();
 	}

@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
@@ -52,6 +53,9 @@ namespace evf {
 		),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
+    requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
+    selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
+    hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -178,10 +182,33 @@ namespace evf {
 	tryInitializeFuLockFile();
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
+
+        if (hltSourceDirectory_.size())
+	{
+	  struct stat buf;
+	  if (stat(hltSourceDirectory_.c_str(),&buf)==0) {
+	    std::string hltdir=bu_run_dir_+"/hlt";
+	    std::string tmphltdir=bu_run_open_dir_+"/hlt";
+	    retval = mkdir(tmphltdir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+            boost::filesystem::copy_file(hltSourceDirectory_+"/HltConfig.py",tmphltdir+"/HltConfig.py");
+            try {
+              boost::filesystem::copy_file(hltSourceDirectory_+"/CMSSW_VERSION",tmphltdir+"/CMSSW_VERSION");
+              boost::filesystem::copy_file(hltSourceDirectory_+"/SCRAM_ARCH",tmphltdir+"/SCRAM_ARCH");
+            } catch (...) {}
+
+            boost::filesystem::copy_file(hltSourceDirectory_+"/fffParameters.jsn",tmphltdir+"/fffParameters.jsn");
+
+            boost::filesystem::rename(tmphltdir,hltdir);
+	  }
+          else
+	    throw cms::Exception("DaqDirector") << " Error looking for HLT configuration -: " << hltSourceDirectory_;
+	}
+        //else{}//no configuration specified
       }
     else
-      {
-	// for FU, check if bu base dir exists
+    {
+      // for FU, check if bu base dir exists
 
 	retval = mkdir(bu_base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (retval != 0 && errno != EEXIST) {
@@ -196,6 +223,7 @@ namespace evf {
 
     pthread_mutex_init(&init_lock_,NULL);
 
+    stopFilePath_ = run_dir_+"/CMSSW_STOP";
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -228,11 +256,13 @@ namespace evf {
     }
     nThreads_=bounds.maxNumberOfStreams();
     nStreams_=bounds.maxNumberOfThreads();
+
+    checkTransferSystemPSet();
   }
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
-//    assert(run_ == id.run());
+    //assert(run_ == id.run());
 
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
@@ -328,6 +358,10 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::streamerDataChecksumFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
+  std::string EvFDaqDirector::getOpenInitFilePath(std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::initFileNameWithPid(run_,0,stream);
+  }
+
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
   }
@@ -364,6 +398,10 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::eolsFileName(run_,ls);
   }
 
+  std::string EvFDaqDirector::getBoLSFilePathOnFU(const unsigned int ls) const {
+    return run_dir_ + "/" + fffnaming::bolsFileName(run_,ls);
+  }
+
   std::string EvFDaqDirector::getEoRFilePath() const {
     return bu_run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
@@ -390,6 +428,14 @@ namespace evf {
     int retval = -1;
     int lock_attempts = 0;
 
+    struct stat buf;
+    int stopFileLS = -1;
+    if (stat(stopFilePath_.c_str(),&buf)==0) {
+        stopFileLS = readLastLSEntry(stopFilePath_);
+        edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process after LS -: " << stopFileLS;
+        //return runEnded;
+    }
+
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
       if (retval==-1) usleep(50000);
@@ -400,9 +446,9 @@ namespace evf {
         if (errno==116)
           edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
         else
-          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "<< errno <<":"<< strerror(errno) << std::endl;
+          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "
+                                            << errno <<":"<< strerror(errno) << std::endl;
 
-        struct stat buf;
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
@@ -433,7 +479,7 @@ namespace evf {
         }
 
 	// try to bump
-	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize);
+	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
@@ -505,6 +551,10 @@ namespace evf {
       //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf)!=0)
         fileStatus = runEnded;
+      if (stopFileLS>=0 && (int)ls > stopFileLS) {
+         edm::LogInfo("EvFDaqDirector") << "Reached maximum lumisection set by hltd";
+         fileStatus = runEnded;
+      }
     }
     return fileStatus;
   }
@@ -570,7 +620,7 @@ namespace evf {
     return boost::lexical_cast<int>(data);
   }
 
-  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS) {
 
     if (previousFileSize_ != 0) {
       if (!fms_) {
@@ -627,6 +677,10 @@ namespace evf {
 	// this lumi ended, check for files
 	++ls;
         index = 0;
+
+        //reached limit
+        if (maxLS>=0 && ls > (unsigned int)maxLS) return false; 
+
 	nextFile = getInputJsonFilePath(ls,0);
 	if (stat(nextFile.c_str(), &buf) == 0) {
 	  // a new file was found at new lumisection, index 0
@@ -749,6 +803,124 @@ namespace evf {
       LogDebug("EvFDaqDirector") << "<open> FU dir not found. Creating... -:" << openPath.string();
       boost::filesystem::create_directories(openPath);
     }
+  }
+
+
+  int EvFDaqDirector::readLastLSEntry(std::string const& file) {
+
+    boost::filesystem::ifstream ij(file);
+    Json::Value deserializeRoot;
+    Json::Reader reader;
+
+    if (!reader.parse(ij, deserializeRoot)) {
+      edm::LogError("EvFDaqDirector") << "Cannot deserialize input JSON file -:" << file;
+      return -1;
+    }
+
+    int ret = deserializeRoot.get("lastLS","").asInt();
+    return ret;
+
+  }
+
+  //if transferSystem PSet is present in the menu, we require it to be complete and consistent for all specified streams
+  void EvFDaqDirector::checkTransferSystemPSet()
+  {
+    transferSystemJson_.reset(new Json::Value);
+    if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
+    {
+      const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
+
+      Json::Value destinationsVal(Json::arrayValue);
+      std::vector<std::string> destinations = tsPset.getParameter<std::vector<std::string>>("destinations");
+      for (auto & dest: destinations) destinationsVal.append(dest);
+      (*transferSystemJson_)["destinations"]=destinationsVal;
+
+      Json::Value modesVal(Json::arrayValue);
+      std::vector<std::string> modes = tsPset.getParameter< std::vector<std::string> >("transferModes");
+      for (auto & mode: modes) modesVal.append(mode);
+      (*transferSystemJson_)["transferModes"]=modesVal;
+
+      for (auto psKeyItr =tsPset.psetTable().begin();psKeyItr!=tsPset.psetTable().end(); ++ psKeyItr) {
+        if (psKeyItr->first!="destinations" && psKeyItr->first!="transferModes") {
+          const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
+          Json::Value streamVal;
+          for (auto & mode : modes) {
+            //validation
+            if (!streamDef.existsAs<std::vector<std::string>>(mode,true))
+              throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (transferMode " << mode << ")";
+            std::vector<std::string> streamDestinations =  streamDef.getParameter<std::vector<std::string>>(mode);
+
+            Json::Value sDestsValue(Json::arrayValue);
+
+            if (!streamDestinations.size())
+              throw cms::Exception("EvFDaqDirector") << " Missing transter system destination(s) for -: "<< psKeyItr->first << ", mode:" << mode;
+
+            for (auto & sdest:streamDestinations) {
+              bool sDestValid=false;
+              sDestsValue.append(sdest);
+              for (auto & dest: destinations) {
+                if (dest==sdest) sDestValid=true;
+              }
+              if (!sDestValid)
+                throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first << ", mode:" << mode << ", dest:"<<sdest;
+            }
+            streamVal[mode]=sDestsValue;
+          }
+          (*transferSystemJson_)[psKeyItr->first] = streamVal;
+        }
+      }
+    }
+    else {
+      if (requireTSPSet_)
+        throw cms::Exception("EvFDaqDirector") << "transferSystem PSet not found";
+    }
+  }
+
+  std::string EvFDaqDirector::getStreamDestinations(std::string const& stream) const
+  {
+    std::string streamRequestName;
+    if (transferSystemJson_->isMember(stream.c_str()))
+      streamRequestName = stream;
+    else {
+      std::stringstream msg;
+      msg << "Transfer system mode definitions missing for -: " << stream;
+      if (requireTSPSet_)
+        throw cms::Exception("EvFDaqDirector") << msg.str();
+      else {
+        edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)";
+        return std::string();
+      }
+    }
+    //return empty if strict check parameter is not on
+    if (!requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
+      edm::LogWarning("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter."
+                                        << "Switch on requireTSPSet parameter to enforce this requirement. Setting mode to empty string.";
+      return std::string();
+    }
+    if (requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
+      throw cms::Exception("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter.";
+    }
+    //check if stream has properly listed transfer stream
+    if  (!transferSystemJson_->get(streamRequestName, "").isMember(selectedTransferMode_.c_str()))
+    {
+         std::stringstream msg;
+         msg << "Selected transfer mode " << selectedTransferMode_ << " is not specified for stream " << streamRequestName;
+         if (requireTSPSet_)
+           throw cms::Exception("EvFDaqDirector") << msg.str();
+         else
+           edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)"; 
+           return std::string();
+    }
+    Json::Value destsVec = transferSystemJson_->get(streamRequestName, "").get(selectedTransferMode_,"");
+
+    //flatten string json::Array into CSV std::string
+    std::string ret;
+    for (Json::Value::iterator it = destsVec.begin(); it!=destsVec.end(); it++)
+    {
+      if (ret!="") ret +=",";
+      ret+=(*it).asString();
+    }
+    return ret;
   }
 
 }

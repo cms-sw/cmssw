@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 
@@ -79,8 +79,9 @@ namespace edm
     // gen::ExternalDecayDriver* decayer_;
     Decayer* decayer_;
     HepMCFilterDriver *filter_;
-    bool fromSource_;
     InputTag runInfoProductTag_;
+    EDGetTokenT<LHERunInfoProduct> runInfoProductToken_;
+    EDGetTokenT<LHEEventProduct> eventProductToken_;
     unsigned int counterRunInfoProducts_;
     unsigned int nAttempts_;
   };
@@ -95,8 +96,9 @@ namespace edm
     hadronizer_(ps),
     decayer_(0),
     filter_(0),
-    fromSource_(true),
     runInfoProductTag_(),
+    runInfoProductToken_(),
+    eventProductToken_(),
     counterRunInfoProducts_(0),
     nAttempts_(1)
   {
@@ -105,8 +107,9 @@ namespace edm
       if (iBD.unwrappedTypeID() == edm::TypeID(typeid(LHERunInfoProduct)) &&
           iBD.branchType() == InRun) {
         ++(this->counterRunInfoProducts_);
-        if(iBD.moduleLabel()=="externalLHEProducer") { this->fromSource_=false; }
+        this->eventProductToken_ = consumes<LHEEventProduct>(InputTag((iBD.moduleLabel()=="externalLHEProducer") ? "externalLHEProducer" : "source"));
         this->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
+        this->runInfoProductToken_ = consumes<LHERunInfoProduct,InRun>(InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
       }
     });
 
@@ -179,10 +182,7 @@ namespace edm
     // get LHE stuff and pass to hadronizer!
     //
     edm::Handle<LHEEventProduct> product;
-    if ( fromSource_ ) 
-      ev.getByLabel("source", product);
-    else
-      ev.getByLabel("externalLHEProducer", product);
+    ev.getByToken(eventProductToken_, product);
     
     std::auto_ptr<HepMC::GenEvent> finalEvent;
     std::auto_ptr<GenEventInfoProduct> finalGenEventInfo;
@@ -260,9 +260,13 @@ namespace edm
     
     //adjust event weights if necessary (in case input event was attempted multiple times)
     if (nAttempts_>1) {
-      std::vector<double> genEventInfoWeights = finalGenEventInfo->weights();
-      genEventInfoWeights.push_back(double(naccept)/double(nAttempts_));
-      finalGenEventInfo->setWeights(genEventInfoWeights);
+      double multihadweight = double(naccept)/double(nAttempts_);
+      
+      //adjust weight for GenEventInfoProduct
+      finalGenEventInfo->weights()[0] *= multihadweight;
+      
+      //adjust weight for HepMC GenEvent (used e.g for RIVET)
+      finalEvent->weights()[0] *= multihadweight;
     }
     
     
@@ -294,6 +298,9 @@ namespace edm
 
     edm::Handle<LHERunInfoProduct> lheRunInfoProduct;
     run.getByLabel(runInfoProductTag_, lheRunInfoProduct);
+    //TODO: fix so that this actually works with getByToken commented below...
+    //run.getByToken(runInfoProductToken_, lheRunInfoProduct);
+    
     hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*lheRunInfoProduct) );
     lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
     lheRunInfo->initLumi();
@@ -369,7 +376,7 @@ namespace edm
       throw edm::Exception(errors::Configuration) 
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
-	<< " for internal parton generation\n";
+	<< " for external parton generation\n";
   }
 
   template <class HAD, class DEC>

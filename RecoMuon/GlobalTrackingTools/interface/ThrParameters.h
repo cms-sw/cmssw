@@ -10,10 +10,10 @@
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
 class ThrParameters {
 

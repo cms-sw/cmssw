@@ -16,40 +16,30 @@
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <Math/Minimizer.h>
 #include <Math/Factory.h>
 #include <Math/Functor.h>
 
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
-
-Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
+Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
 {
   debugMode   = true;
-  nLumiReset  = 1;     // Number of integrated lumis to perform the fit
+  nLumiReset  = 2;     // Number of integrated lumis to perform the fit
   dataFromFit = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
-  minNentries = 35;    // Minimum number of good vertices to perform the fit
-  xRange      = 2.;    // [cm]
+  minNentries = 20;    // Minimum number of good vertices to perform the fit
+  xRange      = 1.;    // [cm]
   xStep       = 0.001; // [cm]
-  yRange      = 2.;    // [cm]
+  yRange      = 1.;    // [cm]
   yStep       = 0.001; // [cm]
   zRange      = 30.;   // [cm]
   zStep       = 0.05;  // [cm]
-  VxErrCorr   = 1.5;
+  VxErrCorr   = 1.3;
   fileName    = "BeamPixelResults.txt";
 
-
-  vertexCollection   = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexCollection", edm::InputTag("pixelVertices")));
-  pixelHitCollection = consumes<SiPixelRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("pixelHitCollection", edm::InputTag("siPixelRecHits")));
+  vertexCollection   = consumes<VertexCollection>       (iConfig.getUntrackedParameter<InputTag>("vertexCollection",   InputTag("pixelVertices")));
+  pixelHitCollection = consumes<SiPixelRecHitCollection>(iConfig.getUntrackedParameter<InputTag>("pixelHitCollection", InputTag("siPixelRecHits")));
 
   debugMode          = iConfig.getParameter<bool>("debugMode");
   nLumiReset         = iConfig.getParameter<unsigned int>("nLumiReset");
@@ -66,14 +56,14 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 }
 
 
-Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer()
+Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer ()
 {
 }
 
 
-void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
+void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 {
-  edm::Handle<reco::VertexCollection> Vx3DCollection;
+  Handle<VertexCollection> Vx3DCollection;
   iEvent.getByToken(vertexCollection, Vx3DCollection);
 
   unsigned int i,j;
@@ -115,7 +105,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 		  for (j = 0; j < DIM; j++)
 		    {
 		      MyVertex.Covariance[i][j] = it3DVx->covariance(i,j);
-		      if (edm::isNotFinite(MyVertex.Covariance[i][j]) == true) break;
+		      if (isNotFinite(MyVertex.Covariance[i][j]) == true) break;
 		    }
 		  if (j != DIM) break;
 		}
@@ -150,9 +140,9 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 }
 
 
-unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
+unsigned int Vx3DHLTAnalyzer::HitCounter (const Event& iEvent)
 {
-  edm::Handle<SiPixelRecHitCollection> rechitspixel;
+  Handle<SiPixelRecHitCollection> rechitspixel;
   iEvent.getByToken(pixelHitCollection, rechitspixel);
   
   unsigned int counter = 0;
@@ -164,12 +154,12 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 }
 
 
-std::string Vx3DHLTAnalyzer::formatTime (const time_t& t)
+string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
   char ts[25];
   strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
   
-  std::string ts_string(ts);
+  string ts_string(ts);
 
   return ts_string;
 }
@@ -244,7 +234,7 @@ double Gauss3DFunc(const double* par)
 }
 
 
-int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
+int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 {
   // RETURN CODE:
   //  0 == OK
@@ -321,8 +311,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (edm::isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	  else if (isNotFinite(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -375,8 +365,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (edm::isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	  else if (isNotFinite(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -430,8 +420,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (edm::isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	  else if (isNotFinite(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -474,8 +464,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       edm = Gauss3D->Edm();
       
       if (counterVx < minNentries) goodData = -2;
-      else if (edm::isNotFinite(edm) == true) goodData = -1;
-      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+      else if (isNotFinite(edm) == true) goodData = -1;
+      else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
       if (goodData == 0)
 	{
 	  covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -520,8 +510,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      edm = Gauss3D->Edm();
       
 	      if (counterVx < minNentries) goodData = -2;
-	      else if (edm::isNotFinite(edm) == true) goodData = -1;
-	      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	      else if (isNotFinite(edm) == true) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	      if (goodData == 0)
 		{
 		  covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -550,7 +540,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 }
 
 
-void Vx3DHLTAnalyzer::reset(string ResetType)
+void Vx3DHLTAnalyzer::reset (string ResetType)
 {
   if (ResetType.compare("scratch") == 0)
     {
@@ -649,12 +639,12 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
 }
 
 
-void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
-				  edm::TimeValue_t BeginTimeOfFit,
-				  edm::TimeValue_t EndTimeOfFit,
-				  unsigned int BeginLumiOfFit,
-				  unsigned int EndLumiOfFit,
-				  int dataType)
+void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
+				   TimeValue_t BeginTimeOfFit,
+				   TimeValue_t EndTimeOfFit,
+				   unsigned int BeginLumiOfFit,
+				   unsigned int EndLumiOfFit,
+				   int dataType)
 {
   stringstream BufferString;
   BufferString.precision(5);
@@ -780,8 +770,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 }
 
 
-void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock, 
-					   const EventSetup& iSetup)
+void Vx3DHLTAnalyzer::beginLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup)
 {
   if ((lumiCounter == 0) && (lumiBlock.luminosityBlock() > lastLumiOfFit))
     {
@@ -794,8 +783,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock,
 }
 
 
-void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
-					 const EventSetup& iSetup)
+void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup)
 {
   stringstream histTitle;
   int goodData;
@@ -1038,13 +1026,30 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit(myLinFit,"QR");
 
+      delete myLinFit;
+
+      // Exponential fit to the historical plots
+      TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCountHistory->getTH1()->GetXaxis()->GetXmin(), hitCountHistory->getTH1()->GetXaxis()->GetXmax());
+      myExpFit->SetLineColor(2);
+      myExpFit->SetLineWidth(2);
+      myExpFit->SetParName(0,"Amplitude");
+      myExpFit->SetParName(1,"#tau");
+
+      myExpFit->SetParameter(0, hitCountHistory->getTH1()->GetBinContent(1));
+      myExpFit->SetParameter(1, nBinsWholeHistory/2);
+      hitCountHistory->getTH1()->Fit(myExpFit,"QR");
+
       if (lastLumiOfFit % prescaleHistory == 0)
 	{
 	  goodVxCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
 	  goodVxCountHistory->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
+	  
+	  myExpFit->SetParameter(0, goodVxCountHistory->getTH1()->GetBinContent(1));
+	  myExpFit->SetParameter(1, nBinsWholeHistory/2);
+	  goodVxCountHistory->getTH1()->Fit(myExpFit,"QR");
 	}
 
-      delete myLinFit;
+      delete myExpFit;
 
       vals.clear();
     }
@@ -1059,10 +1064,9 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 }
 
 
-void Vx3DHLTAnalyzer::beginJob()
+void Vx3DHLTAnalyzer::beginJob ()
 {
   // ### Set internal variables ###
-  reset("scratch");
   prescaleHistory      = 1;    // Set the number of lumis to update historical plot
   maxLumiIntegration   = 15;   // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
   minVxDoF             = 10.;  // Good vertex selection cut
@@ -1075,10 +1079,10 @@ void Vx3DHLTAnalyzer::beginJob()
 }
 
 
-void Vx3DHLTAnalyzer::endJob() { reset("scratch"); }
+void Vx3DHLTAnalyzer::endJob () { reset("scratch"); }
 
 
-void Vx3DHLTAnalyzer::beginRun()
+void Vx3DHLTAnalyzer::beginRun (const Run& iRun, const EventSetup& iSetup)
 {
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
@@ -1088,7 +1092,7 @@ void Vx3DHLTAnalyzer::beginRun()
   nBinsWholeHistory   = 3000; // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
   // ##############################
 
-  if ( dbe ) 
+  if ( dbe )
     {
       dbe->setCurrentFolder("BeamPixel");
 
@@ -1102,30 +1106,30 @@ void Vx3DHLTAnalyzer::beginRun()
       Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_Z->setAxisTitle("Entries [#]",2);
  
-      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mXlumi = dbe->book1D("muX vs lumi", "#mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mYlumi = dbe->book1D("muY vs lumi", "#mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mZlumi = dbe->book1D("muZ vs lumi", "#mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       mXlumi->setAxisTitle("Lumisection [#]",1);
-      mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
+      mXlumi->setAxisTitle("#mu_{x} [cm]",2);
       mXlumi->getTH1()->SetOption("E1");
       mYlumi->setAxisTitle("Lumisection [#]",1);
-      mYlumi->setAxisTitle("\\mu_{y} [cm]",2);
+      mYlumi->setAxisTitle("#mu_{y} [cm]",2);
       mYlumi->getTH1()->SetOption("E1");
       mZlumi->setAxisTitle("Lumisection [#]",1);
-      mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
+      mZlumi->setAxisTitle("#mu_{z} [cm]",2);
       mZlumi->getTH1()->SetOption("E1");
 
-      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sXlumi = dbe->book1D("sigmaX vs lumi", "#sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sYlumi = dbe->book1D("sigmaY vs lumi", "#sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sZlumi = dbe->book1D("sigmaZ vs lumi", "#sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       sXlumi->setAxisTitle("Lumisection [#]",1);
-      sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
+      sXlumi->setAxisTitle("#sigma_{x} [cm]",2);
       sXlumi->getTH1()->SetOption("E1");
       sYlumi->setAxisTitle("Lumisection [#]",1);
-      sYlumi->setAxisTitle("\\sigma_{y} [cm]",2);
+      sYlumi->setAxisTitle("#sigma_{y} [cm]",2);
       sYlumi->getTH1()->SetOption("E1");
       sZlumi->setAxisTitle("Lumisection [#]",1);
-      sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
+      sZlumi->setAxisTitle("#sigma_{z} [cm]",2);
       sZlumi->getTH1()->SetOption("E1");
 
       dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
@@ -1175,11 +1179,11 @@ void Vx3DHLTAnalyzer::beginRun()
       fitResults->setBinLabel(9, "X", 2);
       fitResults->setBinLabel(8, "Y", 2);
       fitResults->setBinLabel(7, "Z", 2);
-      fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
+      fitResults->setBinLabel(6, "#sigma_{Z}", 2);
       fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
       fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
-      fitResults->setBinLabel(3, "\\sigma_{X}", 2);
-      fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
+      fitResults->setBinLabel(3, "#sigma_{X}", 2);
+      fitResults->setBinLabel(2, "#sigma_{Y}", 2);
       fitResults->setBinLabel(1, "Vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
@@ -1195,6 +1199,8 @@ void Vx3DHLTAnalyzer::beginRun()
       // Convention for reportSummary and reportSummaryMap:
       // - 0%  at the moment of creation of the histogram
       // - n%  numberGoodFits / numberFits
+      
+      reset("scratch"); // Initialize histograms after creation
     }
 }
 

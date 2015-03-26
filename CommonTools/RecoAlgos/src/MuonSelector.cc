@@ -81,16 +81,19 @@ namespace helper
 
 	TrackExtra & tx = selTracksExtras_->back();
 
+        auto const firstHitIndex = hidx_;
+        unsigned int nHitsAdded = 0;
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd();
 	     ++ hit, ++ hidx_) {
   	  selTracksHits_->push_back( (*hit)->clone() );
           TrackingRecHit * newHit = & (selTracksHits_->back());
-	  tx.add( TrackingRecHitRef( rHits_, hidx_ ) );
+          ++nHitsAdded;
 	  if (cloneClusters() && newHit->isValid()
 	      && ((*hit)->geographicalId().det() == DetId::Tracker)) {
 	    clusterStorer_.addCluster( *selTracksHits_, hidx_ );
 	  }
 	} // end of for loop over tracking rec hits on this track
+        tx.setHits( rHits_, firstHitIndex, nHitsAdded );
 	
 	trk.setExtra( TrackExtraRef( rTrackExtras_, idx_ ++ ) );
 
@@ -109,17 +112,21 @@ namespace helper
 						trk.outerStateCovariance(), trk.outerDetId(),
 						trk.innerStateCovariance(), trk.innerDetId(), trk.seedDirection() ) );
 	TrackExtra & tx = selGlobalMuonTracksExtras_->back();
+        auto const firstHitIndex = higbdx_;
+        unsigned int nHitsAdded = 0;
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd();
 	     ++ hit, ++ higbdx_) {
             selGlobalMuonTracksHits_->push_back( (*hit)->clone() );
             TrackingRecHit * newHit = & (selGlobalMuonTracksHits_->back()); 
-            tx.add( TrackingRecHitRef( rGBHits_, higbdx_ ) );
+            ++nHitsAdded;
 	    if (cloneClusters() && newHit->isValid()
 		&& ((*hit)->geographicalId().det() == DetId::Tracker)) {
 	      clusterStorer_.addCluster( *selGlobalMuonTracksHits_, higbdx_ );
 	  }
 
 	}
+        tx.setHits( rGBHits_, firstHitIndex, nHitsAdded );
+
 	trk.setExtra( TrackExtraRef( rGBTrackExtras_, igbdx_ ++ ) );
 
 	} // GB trkRef.isNonnull()
@@ -136,10 +143,14 @@ namespace helper
 						trk.outerStateCovariance(), trk.outerDetId(),
 						trk.innerStateCovariance(), trk.innerDetId(), trk.seedDirection() ) );
 	TrackExtra & tx = selStandAloneTracksExtras_->back();
+        auto const firstHitIndex = hisadx_;
+        unsigned int nHitsAdded = 0;
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selStandAloneTracksHits_->push_back( (*hit)->clone() );
-	  tx.add( TrackingRecHitRef( rSAHits_, hisadx_ ++ ) );
+          ++nHitsAdded;
+          hisadx_ ++;
 	}
+        tx.setHits( rSAHits_, firstHitIndex, nHitsAdded );
 	trk.setExtra( TrackExtraRef( rSATrackExtras_, isadx_ ++ ) );
 
 	} // SA trkRef.isNonnull()

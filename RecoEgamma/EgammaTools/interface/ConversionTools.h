@@ -68,11 +68,11 @@ class ConversionTools
                                                   const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float dRMax = 0.1, float dEtaMax = 999., float dPhiMax = 999., float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);
 
     static bool                        hasMatchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
 
 
     static reco::GsfElectronRef        matchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
 
 };
 #endif

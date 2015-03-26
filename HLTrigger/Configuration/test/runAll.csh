@@ -14,7 +14,7 @@ echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
 
 foreach gtag ( Data Mc )
   set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
-  foreach table ( FULL Fake GRun HIon PIon )
+  foreach table ( FULL Fake GRun HIon PIon 50nsGRun )
     set oldfile = On${gtag}_HLT_${table}.py
     set newfile = OnLine_HLT_${table}_${GTAG}.py
     rm -f $newfile

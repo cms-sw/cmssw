@@ -11,11 +11,11 @@ date +%F\ %a\ %T
 echo Starting $0 $1 $2
 
 if ( $2 == "" ) then
-  set tables = ( GRun )
+  set tables = ( GRun 50nsGRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( FULL Fake GRun HIon PIon )
+  set tables = ( Fake GRun HIon PIon 50nsGRun )
 else if ( ($2 == dev) || ($2 == DEV) ) then
-  set tables = ( GRun HIon PIon )
+  set tables = ( GRun HIon PIon 50nsGRun )
 else if ( ($2 == full) || ($2 == FULL) ) then
   set tables = ( FULL )
 else if ( ($2 == fake) || ($2 == FAKE) ) then

@@ -1,3 +1,4 @@
+
 #ifndef DTMonitorClient_DTDCSByLumiSummary_H
 #define DTMonitorClient_DTDCSByLumiSummary_H
 
@@ -7,11 +8,15 @@
  *  \author C. Battilana - CIEMAT
  *  \author P. Bellan - INFN PD
  *  \author A. Branca = INFN PD
-
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
@@ -21,7 +26,7 @@ class DQMStore;
 class MonitorElement;
 class DTTimeEvolutionHisto;
 
-class DTDCSByLumiSummary : public edm::EDAnalyzer {
+class DTDCSByLumiSummary : public DQMEDHarvester {
 
 public:
 
@@ -32,17 +37,16 @@ public:
   virtual ~DTDCSByLumiSummary();
 
 
+ protected:
+
+  void beginRun (const edm::Run& r, const edm::EventSetup& c);
+
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
+                             edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
+  void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+
 private:
 
-  // Operations
-  virtual void beginJob();
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& setup);
-  virtual void endJob() ;
-  
-  DQMStore *theDQMStore;  
   
   MonitorElement*       totalDCSFraction;
   MonitorElement*       globalHVSummary;
@@ -51,6 +55,8 @@ private:
   std::vector<MonitorElement*> totalDCSFractionWh;
   
  std::map<int, std::vector<float> > dcsFracPerLumi;
+
+  bool bookingdone;
 
 };
 

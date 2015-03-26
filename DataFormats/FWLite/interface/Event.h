@@ -62,7 +62,6 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
@@ -144,7 +143,7 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
+         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
          edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
          void getThinnedProducts(edm::ProductID const& pid,
                                  std::vector<edm::WrapperBase const*>& foundContainers,

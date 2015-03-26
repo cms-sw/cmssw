@@ -39,6 +39,11 @@ ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::
 		   }
 		   );
 
+ interestingDetIdCollectionsNotToClean_ = edm::vector_transform(ps.getParameter<std::vector<edm::InputTag>>("interestingDetIdsNotToClean"),
+								[this](edm::InputTag const & tag) 
+								{ return consumes<DetIdCollection>(tag); }
+								);
+
  produces< EcalRecHitCollection > (OutputLabelES_);
  
 }
@@ -120,10 +125,36 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
     }
 
 
+  //screw it, cant think of a better solution, not the best but lets run over all the rec hits, remove the ones failing cleaning
+  //and then merge in the collection not to be cleaned
+  //mainly as I suspect its more efficient to find an object in the DetIdSet rather than the rec-hit in the rec-hit collecition
+  //with only a det id
+  //if its a CPU issues then revisit
+  for(const auto& hit : *ESRecHits_) {
+    if(hit.recoFlag()==1 || hit.recoFlag()==14 || (hit.recoFlag()<=10 && hit.recoFlag()>=5)){ //right we might need to erase it from the collection
+      auto idIt = collectedIds_.find(hit.id());
+      if(idIt!=collectedIds_.end()) collectedIds_.erase(idIt);
+    }
+  }
+   
+  
+  for(const auto& token : interestingDetIdCollectionsNotToClean_) {
+    e.getByToken(token,detId);    
+    if(!detId.isValid()){ //meh might as well keep the warning
+      Labels labels;
+      labelsForToken(token, labels);
+      edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
+				   << labels.productInstance << ", "
+				   << labels.process << ")" << std::endl;
+      continue;
+    }
+    collectedIds_.insert(detId->begin(),detId->end());
+  }
+  
+
   output->reserve( collectedIds_.size());
   EcalRecHitCollection::const_iterator it;
   for (it = ESRecHits_->begin(); it != ESRecHits_->end(); ++it) {
-    if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
     if (collectedIds_.find(it->id())!=collectedIds_.end()){
       output->push_back(*it);
     }
@@ -133,6 +164,7 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   e.put(output, OutputLabelES_);
 
 }
+
 
 void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const ESDetId esDetId2, const int & row) {
 

@@ -29,13 +29,11 @@ TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet& iConfig) {
   trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
   referenceTrackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
   jetCollection_ = mayConsume<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
-  
-  dqmStore_ = edm::Service<DQMStore>().operator->();
 }
 
 TkAlCaRecoMonitor::~TkAlCaRecoMonitor() { } 
 
-void TkAlCaRecoMonitor::beginJob() {
+void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
 
   std::string histname;  //for naming the histograms according to algorithm used
 
@@ -46,7 +44,7 @@ void TkAlCaRecoMonitor::beginJob() {
 
   maxJetPt_ = conf_.getParameter<double>("maxJetPt");
 
-  dqmStore_->setCurrentFolder(MEFolderName+"/TkAlignmentSpecific");
+  iBooker.setCurrentFolder(MEFolderName+"/TkAlignmentSpecific");
   fillInvariantMass_ = conf_.getParameter<bool>("fillInvariantMass");
   runsOnReco_ = conf_.getParameter<bool>("runsOnReco");
   useSignedR_ = conf_.getParameter<bool>("useSignedR");
@@ -59,7 +57,7 @@ void TkAlCaRecoMonitor::beginJob() {
 
   if(fillInvariantMass_){
     histname = "InvariantMass_";
-    invariantMass_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MassBin, MassMin, MassMax);
+    invariantMass_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, MassBin, MassMin, MassMax);
     invariantMass_->setAxisTitle("invariant Mass / GeV");
   }else{
     invariantMass_ = 0;
@@ -70,7 +68,7 @@ void TkAlCaRecoMonitor::beginJob() {
   double TrackPtPositiveMax = conf_.getParameter<double>("TrackPtMax");
 
   histname = "TrackPtPositive_";
-  TrackPtPositive_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPtPositiveBin, TrackPtPositiveMin, TrackPtPositiveMax);
+  TrackPtPositive_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, TrackPtPositiveBin, TrackPtPositiveMin, TrackPtPositiveMax);
   TrackPtPositive_->setAxisTitle("p_{T} of tracks charge > 0");
 
   unsigned int TrackPtNegativeBin = conf_.getParameter<unsigned int>("TrackPtBin");
@@ -78,11 +76,11 @@ void TkAlCaRecoMonitor::beginJob() {
   double TrackPtNegativeMax = conf_.getParameter<double>("TrackPtMax");
 
   histname = "TrackPtNegative_";
-  TrackPtNegative_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPtNegativeBin, TrackPtNegativeMin, TrackPtNegativeMax);
+  TrackPtNegative_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, TrackPtNegativeBin, TrackPtNegativeMin, TrackPtNegativeMax);
   TrackPtNegative_->setAxisTitle("p_{T} of tracks charge < 0");
 
   histname = "TrackQuality_";
-  TrackQuality_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 
+  TrackQuality_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, 
 				 reco::TrackBase::qualitySize, -0.5, reco::TrackBase::qualitySize-0.5);
   TrackQuality_->setAxisTitle("quality");
   for ( int i = 0; i<reco::TrackBase::qualitySize; ++i){
@@ -95,7 +93,7 @@ void TkAlCaRecoMonitor::beginJob() {
   double SumChargeMax = conf_.getParameter<double>("SumChargeMax");
 
   histname = "SumCharge_";
-  sumCharge_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, SumChargeBin, SumChargeMin, SumChargeMax);
+  sumCharge_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, SumChargeBin, SumChargeMin, SumChargeMax);
   sumCharge_->setAxisTitle("#SigmaCharge");
 
   unsigned int TrackCurvatureBin = conf_.getParameter<unsigned int>("TrackCurvatureBin");
@@ -103,7 +101,7 @@ void TkAlCaRecoMonitor::beginJob() {
   double TrackCurvatureMax = conf_.getParameter<double>("TrackCurvatureMax");
   
   histname = "TrackCurvature_";
-  TrackCurvature_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
+  TrackCurvature_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
   TrackCurvature_->setAxisTitle("#kappa track");
 
   if( runsOnReco_ ){
@@ -113,7 +111,7 @@ void TkAlCaRecoMonitor::beginJob() {
     double JetPtMax = conf_.getParameter<double>("JetPtMax");
 
     histname = "JetPt_";
-    jetPt_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, JetPtBin, JetPtMin, JetPtMax);
+    jetPt_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, JetPtBin, JetPtMin, JetPtMax);
     jetPt_->setAxisTitle("jet p_{T} / GeV");
 
     unsigned int    MinJetDeltaRBin = conf_.getParameter<unsigned int>("MinJetDeltaRBin");
@@ -121,7 +119,7 @@ void TkAlCaRecoMonitor::beginJob() {
     double MinJetDeltaRMax = conf_.getParameter<double>("MinJetDeltaRMax");
 
     histname = "MinJetDeltaR_";
-    minJetDeltaR_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MinJetDeltaRBin, MinJetDeltaRMin, MinJetDeltaRMax);
+    minJetDeltaR_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, MinJetDeltaRBin, MinJetDeltaRMin, MinJetDeltaRMax);
     minJetDeltaR_->setAxisTitle("minimal Jet #DeltaR / rad");
   }else{
     jetPt_ = NULL;
@@ -133,7 +131,7 @@ void TkAlCaRecoMonitor::beginJob() {
   double MinTrackDeltaRMax = conf_.getParameter<double>("MinTrackDeltaRMax");
 
   histname = "MinTrackDeltaR_";
-  minTrackDeltaR_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MinTrackDeltaRBin, MinTrackDeltaRMin, MinTrackDeltaRMax);
+  minTrackDeltaR_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, MinTrackDeltaRBin, MinTrackDeltaRMin, MinTrackDeltaRMax);
   minTrackDeltaR_->setAxisTitle("minimal Track #DeltaR / rad");
 
   unsigned int TrackEfficiencyBin = conf_.getParameter<unsigned int>("TrackEfficiencyBin");
@@ -141,7 +139,7 @@ void TkAlCaRecoMonitor::beginJob() {
   double TrackEfficiencyMax = conf_.getParameter<double>("TrackEfficiencyMax");
 
   histname = "AlCaRecoTrackEfficiency_";
-  AlCaRecoTrackEfficiency_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackEfficiencyBin, TrackEfficiencyMin, TrackEfficiencyMax);
+  AlCaRecoTrackEfficiency_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, TrackEfficiencyBin, TrackEfficiencyMin, TrackEfficiencyMax);
   Labels l_tp, l_rtp;
   labelsForToken(referenceTrackProducer_, l_rtp);
   labelsForToken(trackProducer_, l_tp);
@@ -158,18 +156,18 @@ void TkAlCaRecoMonitor::beginJob() {
   if( useSignedR_ )
     rMin = -rMax;
 
-  Hits_ZvsR_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, zBin, -zMax, zMax, rBin, rMin, rMax);
+  Hits_ZvsR_ = iBooker.book2D(histname+AlgoName, histname+AlgoName, zBin, -zMax, zMax, rBin, rMin, rMax);
 
   histname = "Hits_XvsY_";
-  Hits_XvsY_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, rBin, -rMax, rMax, rBin, -rMax, rMax);
+  Hits_XvsY_ = iBooker.book2D(histname+AlgoName, histname+AlgoName, rBin, -rMax, rMax, rBin, -rMax, rMax);
 
   if( fillRawIdMap_){
     histname = "Hits_perDetId_";
     
     //leads to differences in axsis between samples??
     //int nModules = binByRawId_.size();
-    //Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, nModules, static_cast<double>(nModules) -0.5, static_cast<double>(nModules) -0.5);
-    Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 16601,-0.5, 16600.5 );
+    //Hits_perDetId_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, nModules, static_cast<double>(nModules) -0.5, static_cast<double>(nModules) -0.5);
+    Hits_perDetId_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, 16601,-0.5, 16600.5 );
     Hits_perDetId_->setAxisTitle("rawId Bins");
 
     //// impossible takes too much memory :(  
@@ -327,15 +325,4 @@ void TkAlCaRecoMonitor::fillRawIdMap(const TrackerGeometry &geometry)
   }
 }
 
-
-void TkAlCaRecoMonitor::endJob(void) {
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    //dqmStore_->showDirStructure();
-    dqmStore_->save(outputFileName);
-  }
-}
-
 DEFINE_FWK_MODULE(TkAlCaRecoMonitor);
-

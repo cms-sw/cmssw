@@ -35,7 +35,7 @@ static const int TRIG_GCT=4;
 static const int TRIG_CSC=8;
 static const int TRIG_RPCF=16;
 
-HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps) 
+HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps) :HcalBaseDQMonitor(ps)
 {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
@@ -74,39 +74,31 @@ HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps)
 
 HcalDetDiagTimingMonitor::~HcalDetDiagTimingMonitor(){}
 
-void HcalDetDiagTimingMonitor::cleanup(){
-  if(dbe_){
-    dbe_->setCurrentFolder(subdir_);
-    dbe_->removeContents();
-    dbe_ = 0;
-  }
-} 
 void HcalDetDiagTimingMonitor::reset(){}
 
-void HcalDetDiagTimingMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalDetDiagTimingMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>1) std::cout <<"HcalDetDiagTimingMonitor::beginRun"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run,c);
+  if (debug_>1) std::cout <<"HcalDetDiagTimingMonitor::bookHistograms"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
-  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (tevt_==0) this->setup(ib); // set up histograms if they have not been created before
   if (mergeRuns_==false)
     this->reset();
 
   return;
 
-} // void HcalNDetDiagTimingMonitor::beginRun(...)
+} // void HcalNDetDiagTimingMonitor::bookHistograms(...)
 
 
 
-void HcalDetDiagTimingMonitor::setup()
+void HcalDetDiagTimingMonitor::setup(DQMStore::IBooker &ib)
 {
   
-  HcalBaseDQMonitor::setup();
+  HcalBaseDQMonitor::setup(ib);
 
   std::string str;
-  if(dbe_!=NULL){    
-     dbe_->setCurrentFolder(subdir_);   
-     str="Hcal Timing summary"; Summary = dbe_->book2D(str,str,6,0,6,6,0,6); 
+     ib.setCurrentFolder(subdir_);   
+     str="Hcal Timing summary"; Summary = ib.book2D(str,str,6,0,6,6,0,6); 
      Summary->setBinLabel(1,"DT",1);
      Summary->setBinLabel(2,"RPC",1);
      Summary->setBinLabel(3,"GCT",1);
@@ -121,37 +113,37 @@ void HcalDetDiagTimingMonitor::setup()
      Summary->setBinLabel(6,"HFP",2);
      for(int i=1;i<=6;i++) for(int j=1;j<=6;j++) Summary->setBinContent(i,j,-1);
      
-     dbe_->setCurrentFolder(subdir_+"Timing Plots");
-     str="HB Timing (DT Trigger)";                      HBTimeDT  = dbe_->book1D(str,str,100,0,10); 
-     str="HO Timing (DT Trigger)";                      HOTimeDT  = dbe_->book1D(str,str,100,0,10); 
-     str="HB Timing (RPC Trigger)";                     HBTimeRPC = dbe_->book1D(str,str,100,0,10); 
-     str="HO Timing (RPC Trigger)";                     HOTimeRPC = dbe_->book1D(str,str,100,0,10); 
-     str="HB Timing (HO SelfTrigger tech bit 11)";      HBTimeHO  = dbe_->book1D(str,str,100,0,10); 
-     str="HO Timing (HO SelfTrigger tech bit 11)";      HOTimeHO  = dbe_->book1D(str,str,100,0,10); 
+     ib.setCurrentFolder(subdir_+"Timing Plots");
+     str="HB Timing (DT Trigger)";                      HBTimeDT  = ib.book1D(str,str,100,0,10); 
+     str="HO Timing (DT Trigger)";                      HOTimeDT  = ib.book1D(str,str,100,0,10); 
+     str="HB Timing (RPC Trigger)";                     HBTimeRPC = ib.book1D(str,str,100,0,10); 
+     str="HO Timing (RPC Trigger)";                     HOTimeRPC = ib.book1D(str,str,100,0,10); 
+     str="HB Timing (HO SelfTrigger tech bit 11)";      HBTimeHO  = ib.book1D(str,str,100,0,10); 
+     str="HO Timing (HO SelfTrigger tech bit 11)";      HOTimeHO  = ib.book1D(str,str,100,0,10); 
      
-     str="HB Timing (GCT Trigger alg bit 15 16 17 18)"; HBTimeGCT  =dbe_->book1D(str,str,100,0,10); 
-     str="HO Timing (GCT Trigger alg bit 15 16 17 18)"; HOTimeGCT  =dbe_->book1D(str,str,100,0,10); 
+     str="HB Timing (GCT Trigger alg bit 15 16 17 18)"; HBTimeGCT  =ib.book1D(str,str,100,0,10); 
+     str="HO Timing (GCT Trigger alg bit 15 16 17 18)"; HOTimeGCT  =ib.book1D(str,str,100,0,10); 
      
-     str="HEP Timing (CSC Trigger)";                    HETimeCSCp =dbe_->book1D(str,str,100,0,10); 
-     str="HEM Timing (CSC Trigger)";                    HETimeCSCm =dbe_->book1D(str,str,100,0,10);
-     str="HEP Timing (RPCf Trigger)";                   HETimeRPCp =dbe_->book1D(str,str,100,0,10); 
-     str="HEM Timing (RPCf Trigger)";                   HETimeRPCm =dbe_->book1D(str,str,100,0,10);
-     str="HFP Timing (CSC Trigger)";                    HFTimeCSCp =dbe_->book1D(str,str,100,0,10); 
-     str="HFM Timing (CSC Trigger)";                    HFTimeCSCm =dbe_->book1D(str,str,100,0,10);     
-     str="HBHE Shape";                                  HBHEShape  =dbe_->book1D(str,str,10,-0.5,9.5);
-     str="HO Shape";                                    HOShape    =dbe_->book1D(str,str,10,-0.5,9.5);
-  }   
+     str="HEP Timing (CSC Trigger)";                    HETimeCSCp =ib.book1D(str,str,100,0,10); 
+     str="HEM Timing (CSC Trigger)";                    HETimeCSCm =ib.book1D(str,str,100,0,10);
+     str="HEP Timing (RPCf Trigger)";                   HETimeRPCp =ib.book1D(str,str,100,0,10); 
+     str="HEM Timing (RPCf Trigger)";                   HETimeRPCm =ib.book1D(str,str,100,0,10);
+     str="HFP Timing (CSC Trigger)";                    HFTimeCSCp =ib.book1D(str,str,100,0,10); 
+     str="HFM Timing (CSC Trigger)";                    HFTimeCSCm =ib.book1D(str,str,100,0,10);     
+     str="HBHE Shape";                                  HBHEShape  =ib.book1D(str,str,10,-0.5,9.5);
+     str="HO Shape";                                    HOShape    =ib.book1D(str,str,10,-0.5,9.5);
+
 } 
 
 void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(iEvent.luminosityBlock())==false) return;
-  HcalBaseDQMonitor::analyze(iEvent, iSetup);
+//  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   
   int eta,phi,depth,nTS,BXinEVENT=1,TRIGGER=0;
   
-  if(!dbe_) return;
   // We do not want to look at Abort Gap events
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByToken(tok_raw_,rawdata);

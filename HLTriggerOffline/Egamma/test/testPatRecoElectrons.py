@@ -62,7 +62,7 @@ from PhysicsTools.PatAlgos.patSequences_cff import *
 
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 

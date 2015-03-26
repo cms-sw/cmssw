@@ -9,7 +9,7 @@
 #include "MagneticField/Layers/interface/MagESector.h"
 #include "MagneticField/Layers/interface/MagELayer.h"
 
-// #include "MagneticField/MagLayers/interface/MagVerbosity.h"
+#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include <iostream>
 
@@ -29,11 +29,9 @@ MagESector::~MagESector(){
 }
 
 
-MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) const {
-  MagVolume * result = 0;
+const MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) const {
+  const MagVolume * result = 0;
   float Z = gp.z();
-
-  //  int count = 0;
 
   // FIXME : use a binfinder
   for(vector<MagELayer*>::const_reverse_iterator ilay = theLayers.rbegin();
@@ -41,14 +39,13 @@ MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) con
 
     if (Z+tolerance>(*ilay)->minZ()) {
       if (Z-tolerance<(*ilay)->maxZ()) {
-// 	if (verbose.debugOut) cout << "  Trying layer at Z " << (*ilay)->minZ()
-// 			<< " " << Z << endl ;
-	result = (*ilay)->findVolume(gp, tolerance);
-// 	if (verbose.debugOut) {
-// 	  cout << "***In elayer " << count << " " 
-// 	       << (result==0? " failed " : " OK ") <<endl;
-// 	  ++count;
-// 	}
+#ifdef MF_DEBUG
+	cout << "  Trying elayer at Z " << (*ilay)->minZ() << " " << Z << endl ;
+#endif
+      	result = (*ilay)->findVolume(gp, tolerance);
+#ifdef MF_DEBUG
+	cout << "***In elayer " << (result==0? " failed " : " OK ") << endl;
+#endif
       } else {
 	// break;  // FIXME: OK if sorted by maxZ
       }

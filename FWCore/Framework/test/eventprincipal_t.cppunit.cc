@@ -27,7 +27,6 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -139,8 +138,6 @@ test_ep::fake_single_process_branch(std::string const& tag,
 }
 
 void test_ep::setUp() {
-
-  edm::RootAutoLibraryLoader::enable();
 
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.

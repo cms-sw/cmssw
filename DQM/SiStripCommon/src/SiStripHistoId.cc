@@ -60,7 +60,7 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   size_t pos2 = description.find( "__", 0 ); // check if std::string 'description' contains by mistake the 'separator2'
   std::string local_histo_id;
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
-    if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer"){ // ok! is one of the accepted id_type-s
+    if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer" || id_type=="ring"){ // ok! is one of the accepted id_type-s
       if(flag.size() > 0)
 	local_histo_id = description + "__" + flag + "__" + path;
       else 
@@ -81,9 +81,8 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   return local_histo_id;
 }
 
+//std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring, bool flag_thickness){
 std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring){
-  std::string rest1;
-  
   const int buf_len = 50;
   char temp_str[buf_len];
 
@@ -95,16 +94,16 @@ std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTop
   }else if( subdet.subdetId() == StripSubdetector::TID){
     // ---------------------------  TID  --------------------------- //
     
-    std::string side = "";
+    const char *side = "";
     if (tTopo->tidSide(id) == 1)
       side = "MINUS";
     else if (tTopo->tidSide(id) == 2)
       side = "PLUS";
 
     if (flag_ring)
-      snprintf(temp_str, buf_len, "TID__%s__ring__%i",  side.c_str(), tTopo->tidRing(id) );
+      snprintf(temp_str, buf_len, "TID__%s__ring__%i",  side, tTopo->tidRing(id) );
     else
-      snprintf(temp_str, buf_len, "TID__%s__wheel__%i", side.c_str(), tTopo->tidWheel(id));
+      snprintf(temp_str, buf_len, "TID__%s__wheel__%i", side, tTopo->tidWheel(id));
 
   }else if(subdet.subdetId() == StripSubdetector::TOB){ 
     // ---------------------------  TOB  --------------------------- //
@@ -113,16 +112,27 @@ std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTop
   }else if(subdet.subdetId() == StripSubdetector::TEC){
     // ---------------------------  TEC  --------------------------- //
     
-    std::string side = "";
+    const char *side = "";
     if (tTopo->tecSide(id) == 1)
       side = "MINUS";
     else if (tTopo->tecSide(id) == 2)
       side = "PLUS";
 
     if (flag_ring) 
-      snprintf(temp_str, buf_len, "TEC__%s__ring__%i",  side.c_str(), tTopo->tecRing(id) );
-    else 
-      snprintf(temp_str, buf_len, "TEC__%s__wheel__%i", side.c_str(), tTopo->tecWheel(id)); 
+      snprintf(temp_str, buf_len, "TEC__%s__ring__%i",  side, tTopo->tecRing(id) );
+    else {
+      /*
+      if (flag_thickness) {
+	uint32_t ring = tTopo->tecRing(id);
+	if ( ring >= 1 && ring <= 4 )
+	  snprintf(temp_str, buf_len, "TEC__%s__wheel__%i__THIN", side.c_str(), tTopo->tecWheel(id));       
+	else 
+	  snprintf(temp_str, buf_len, "TEC__%s__wheel__%i__THICK", side.c_str(), tTopo->tecWheel(id));       
+      }
+      else
+*/
+      snprintf(temp_str, buf_len, "TEC__%s__wheel__%i", side, tTopo->tecWheel(id)); 
+    }
   }else{
     // ---------------------------  ???  --------------------------- //
     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;

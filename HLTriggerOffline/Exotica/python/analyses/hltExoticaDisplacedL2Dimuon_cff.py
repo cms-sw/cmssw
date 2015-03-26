@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 DisplacedL2DimuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_v" # Run2 
+        "HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_v", # Run2 
+        "HLT_L2DoubleMu23_NoVertex_v", # Run2 
+        "HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_v" # Run2 
         ),
     #recMuonLabel  = cms.InputTag("muons"),
     recMuonTrkLabel  = cms.InputTag("refittedStandAloneMuons"),

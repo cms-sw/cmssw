@@ -24,7 +24,7 @@ namespace edm {
   namespace service {
     class Timing : public TimingServiceBase {
     public:
-      Timing(ParameterSet const&,ActivityRegistry&);
+      Timing(ParameterSet const&, ActivityRegistry&);
       ~Timing();
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
@@ -44,19 +44,19 @@ namespace edm {
 
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
+      //use last run time for determining end of processing
+      std::atomic<double> last_run_time_;
+      std::atomic<double> last_run_cpu_;
       std::vector<double> curr_events_time_;  // seconds
-      std::vector<double> curr_events_cpu_;   // seconds
-      std::vector<double> total_events_cpu_;  // seconds
       bool summary_only_;
       bool report_summary_;
 
       //
-      // Min Max and average event times for each Stream.
+      // Min Max and total event times for each Stream.
       //  Used for summary at end of job
       std::vector<double> max_events_time_; // seconds
-      std::vector<double> max_events_cpu_;  // seconds
       std::vector<double> min_events_time_; // seconds
-      std::vector<double> min_events_cpu_;  // seconds
+      std::vector<double> sum_events_time_;
       std::atomic<unsigned long> total_event_count_;
     };
   }

@@ -46,7 +46,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
  private:
 
   // private member functions
-
+  
   bool processHit1D(const AlignableDetOrUnitPtr& alidet,
 		    const Alignable* ali,
 		    const TrajectoryStateOnSurface & tsos,
@@ -114,7 +114,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   // variables for event-wise tree
   static const int MAXREC = 99;
   //int m_Run,m_Event;
-  int m_Ntracks,m_Nhits[MAXREC],m_nhPXB[MAXREC],m_nhPXF[MAXREC];
+  int m_Ntracks,m_Nhits[MAXREC],m_nhPXB[MAXREC],m_nhPXF[MAXREC],m_nhTIB[MAXREC],m_nhTOB[MAXREC],m_nhTID[MAXREC],m_nhTEC[MAXREC];
   float m_Pt[MAXREC],m_Eta[MAXREC],m_Phi[MAXREC],m_Chi2n[MAXREC],m_P[MAXREC],m_d0[MAXREC],m_dz[MAXREC];
 
   // variables for alignable-wise tree

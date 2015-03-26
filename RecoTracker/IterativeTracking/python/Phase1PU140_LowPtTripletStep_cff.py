@@ -1,14 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-lowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    trajectories = cms.InputTag("lowPtQuadStepTracks"),
-    overrideTrkQuals = cms.InputTag('lowPtQuadStepSelector','lowPtQuadStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+lowPtTripletStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("lowPtQuadStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("lowPtQuadStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('lowPtQuadStepSelector','lowPtQuadStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -45,6 +47,7 @@ import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cf
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 lowPtTripletStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+lowPtTripletStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -72,7 +75,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
     maxCand = 4,
     estimator = cms.string('lowPtTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -85,6 +87,7 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('lowPtTripletStepSeeds'),
+    clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -99,7 +102,7 @@ lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     src = 'lowPtTripletStepTrackCandidates',
     AlgorithmName = cms.string('lowPtTripletStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
+    TTRHBuilder=cms.string('WithTrackAngle')
     )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits

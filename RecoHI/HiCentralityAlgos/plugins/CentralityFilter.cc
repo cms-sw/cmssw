@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 //
 // class declaration
@@ -25,7 +24,6 @@
 
 class CentralityFilter : public edm::EDFilter {
    public:
-      explicit CentralityFilter(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       explicit CentralityFilter(const edm::ParameterSet&);
       ~CentralityFilter();
 
@@ -35,46 +33,26 @@ class CentralityFilter : public edm::EDFilter {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-   CentralityProvider * centrality_;
+
   std::vector<int> selectedBins_;
+  edm::Handle<int> cbin_;
+  edm::EDGetTokenT<int> tag_;
+
+
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig){}
-
-CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector && iC):
-  centrality_(0),
+CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig):
   selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins"))
 {
-   //now do what ever initialization is needed
   using namespace edm;
-  if(!centrality_) centrality_ = new CentralityProvider(iSetup, std::move(iC));
+  tag_ = consumes<int>(iConfig.getParameter<edm::InputTag>("BinLabel"));
 
 }
 
 
 CentralityFilter::~CentralityFilter()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called on each new Event  ------------
 bool
@@ -83,8 +61,9 @@ CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool result = false;
 
    using namespace edm;
-   centrality_->newEvent(iEvent,iSetup);
-   int bin = centrality_->getBin();
+   iEvent.getByToken(tag_,cbin_);
+
+   int bin = *cbin_;
 
    for(unsigned int i = 0; i < selectedBins_.size(); ++i){
      if(bin == selectedBins_[i]) result = true;

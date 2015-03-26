@@ -18,7 +18,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class HcalDigiTester : public thread_unsafe::DQMEDAnalyzer {
+class HcalDigiTester : public DQMEDAnalyzer {
 public:
 
   explicit HcalDigiTester(const edm::ParameterSet&);

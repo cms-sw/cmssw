@@ -15,7 +15,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 HiggsValidation::HiggsValidation(const edm::ParameterSet& iPSet): 
@@ -39,15 +39,15 @@ void HiggsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm
     ///Setting the DQM top directories
     TString dir="Generator/";
     dir+=particle_name;
-    i.setCurrentFolder(dir.Data());
+    DQMHelper dqm(&i); i.setCurrentFolder(dir.Data());
     
     // Number of analyzed events
-    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
     
     //decay type
     
     std::string channel = particle_name+"_DecayChannels";
-    HiggsDecayChannels = i.book1D(channel.c_str(),(particle_name+" decay channels").c_str(),monitoredDecays->size(),0,monitoredDecays->size());
+    HiggsDecayChannels = dqm.book1dHisto(channel.c_str(),(particle_name+" decay channels").c_str(),monitoredDecays->size(),0,monitoredDecays->size());
     
     for(size_t j = 0; j < monitoredDecays->size(); ++j){
       HiggsDecayChannels->setBinLabel(1+j,monitoredDecays->channel(j));
@@ -55,14 +55,14 @@ void HiggsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm
   
 
   //Kinematics 
-  Higgs_pt = i.book1D((particle_name+"_pt"),(particle_name+" p_{t}"),50,0,250);
-  Higgs_eta  = i.book1D((particle_name+"_eta"),(particle_name+" #eta"),50,-5,5); 
-  Higgs_mass = i.book1D((particle_name+"_m"),(particle_name+" M"),500,0,500);
+  Higgs_pt = dqm.book1dHisto((particle_name+"_pt"),(particle_name+" p_{t}"),50,0,250);
+  Higgs_eta  = dqm.book1dHisto((particle_name+"_eta"),(particle_name+" #eta"),50,-5,5); 
+  Higgs_mass = dqm.book1dHisto((particle_name+"_m"),(particle_name+" M"),500,0,500);
 
   int idx=0;
   for(unsigned int j=0;j<monitoredDecays->NDecayParticles();j++){
-    HiggsDecayProd_pt.push_back(i.book1D((monitoredDecays->ConvertIndex(idx)+"_pt"),(monitoredDecays->ConvertIndex(idx)+" p_{t}"),50,0,250));
-    HiggsDecayProd_eta.push_back(i.book1D((monitoredDecays->ConvertIndex(idx)+"_eta"),(monitoredDecays->ConvertIndex(idx)+" #eta"),50,-5,5));
+    HiggsDecayProd_pt.push_back(dqm.book1dHisto((monitoredDecays->ConvertIndex(idx)+"_pt"),(monitoredDecays->ConvertIndex(idx)+" p_{t}"),50,0,250));
+    HiggsDecayProd_eta.push_back(dqm.book1dHisto((monitoredDecays->ConvertIndex(idx)+"_eta"),(monitoredDecays->ConvertIndex(idx)+" #eta"),50,-5,5));
     idx++;
   }
 

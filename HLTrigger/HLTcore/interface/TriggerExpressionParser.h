@@ -5,8 +5,8 @@
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 
-#include "HLTrigger/HLTcore/interface/TriggerExpressionHLTReader.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionL1Reader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionPathReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1AlgoReader.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionL1TechReader.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionOperators.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionPrescaler.h"
@@ -24,26 +24,18 @@ template <typename Iterator>
 class Parser : public qi::grammar<Iterator, Evaluator*(), ascii::space_type>
 {
 public:
-  Parser() : 
+  Parser() :
     Parser::base_type(expression)
   {
-    token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_dqm       %= qi::raw[qi::lexeme["DQM_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_dst       %= qi::raw[qi::lexeme["DST_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_step      %= qi::raw[qi::lexeme["generation_step"]];
-    token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_l1algo    %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_path      %= qi::raw[qi::lexeme[             +(qi::char_("a-zA-Z0-9_*?"))]];
 
-    token            = ( token_hlt                      [qi::_val = new_<HLTReader>(qi::_1)]
-                       | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
-                       | token_dqm                      [qi::_val = new_<HLTReader>(qi::_1)]
-                       | token_dst                      [qi::_val = new_<HLTReader>(qi::_1)]
-                       | token_step                     [qi::_val = new_<HLTReader>(qi::_1)]
-                       | token_l1                       [qi::_val = new_<L1Reader>(qi::_1)]
-                       | token_l1tech                   [qi::_val = new_<L1TechReader>(qi::_1)]
-                       | qi::lit("TRUE")                [qi::_val = new_<Constant>(true)]
+    token            = ( qi::lit("TRUE")                [qi::_val = new_<Constant>(true)]
                        | qi::lit("FALSE")               [qi::_val = new_<Constant>(false)]
+                       | token_l1algo                   [qi::_val = new_<L1AlgoReader>(qi::_1)]
+                       | token_l1tech                   [qi::_val = new_<L1TechReader>(qi::_1)]
+                       | token_path                     [qi::_val = new_<PathReader>(qi::_1)]
                        );
 
     parenthesis     %= ('(' >> expression >> ')');
@@ -58,25 +50,20 @@ public:
                        | (qi::lit("NOT") >> operand)    [qi::_val = new_<OperatorNot> (qi::_1)]
                        );
 
-    expression       = unary                            [qi::_val = qi::_1] 
+    expression       = unary                            [qi::_val = qi::_1]
                        >> *(
-                              (qi::lit("AND") >> unary) [qi::_val = new_<OperatorAnd> (qi::_val, qi::_1)] 
-                            | (qi::lit("OR")  >> unary) [qi::_val = new_<OperatorOr>  (qi::_val, qi::_1)] 
+                              (qi::lit("AND") >> unary) [qi::_val = new_<OperatorAnd> (qi::_val, qi::_1)]
+                            | (qi::lit("OR")  >> unary) [qi::_val = new_<OperatorOr>  (qi::_val, qi::_1)]
                        );
   }
 
 private:
-  typedef qi::rule<Iterator, unused_type(), ascii::space_type> void_rule;
   typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
   typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
 
-  name_rule token_hlt;
-  name_rule token_alca;
-  name_rule token_dqm;
-  name_rule token_dst;
-  name_rule token_step;
-  name_rule token_l1;
+  name_rule token_l1algo;
   name_rule token_l1tech;
+  name_rule token_path;
 
   rule token;
   rule parenthesis;

@@ -34,93 +34,62 @@ GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
       << "    PrintProv     = " << printProvenanceInfo << "\n"
       << "===============================\n";
   }
- 
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  
-  if(dbe){
-    meTestString = 0;
-    meTestInt = 0;
-    meTestFloat = 0;
-    meTestTH1F = 0;
-    meTestTH2F = 0;
-    meTestTH3F = 0;
-    meTestProfile1 = 0;
-    meTestProfile2 = 0;
-    Random = new TRandom3();
-    
-    dbe->setCurrentFolder("GlobalTestV/String");
-    meTestString = dbe->bookString("TestString","Hello World" );
-
-    dbe->setCurrentFolder("GlobalTestV/Int");
-    meTestInt = dbe->bookInt("TestInt");
-
-    dbe->setCurrentFolder("GlobalTestV/Float");
-    meTestFloat = dbe->bookFloat("TestFloat");
-
-    dbe->setCurrentFolder("GlobalTestV/TH1F");
-    meTestTH1F = dbe->book1D("Random1D", "Random1D", 100, -10., 10.);
-
-    dbe->setCurrentFolder("GlobalTestV/TH2F");
-    meTestTH2F = dbe->book2D("Random2D", "Random2D", 100, -10, 10., 100, -10., 
-			     10.);
-
-    dbe->setCurrentFolder("GlobalTestV/TH3F");
-    meTestTH3F = dbe->book3D("Random3D", "Random3D", 100, -10., 10., 100, 
-			     -10., 10., 100, -10., 10.);
-
-    dbe->setCurrentFolder("GlobalTestV/TProfile");
-    meTestProfile1 = dbe->bookProfile("Profile1", "Profile1", 100, -10., 10., 
-				      100, -10., 10.);
-
-    dbe->setCurrentFolder("GlobalTestV/TProfile2D");
-    meTestProfile2 = dbe->bookProfile2D("Profile2", "Profile2", 100, -10., 
-					10., 100, -10, 10., 100, -10., 10.);
-
-    dbe->tag(meTestTH1F->getFullname(),1);
-    dbe->tag(meTestTH2F->getFullname(),2);
-    dbe->tag(meTestTH3F->getFullname(),3);
-    dbe->tag(meTestProfile1->getFullname(),4);
-    dbe->tag(meTestProfile2->getFullname(),5);
-    dbe->tag(meTestString->getFullname(),6);
-    dbe->tag(meTestInt->getFullname(),7);
-    dbe->tag(meTestFloat->getFullname(),8);
-  }
 }
 
 GlobalHitsTester::~GlobalHitsTester() 
 {
-  if (doOutput)
-    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalHitsTester::beginJob( void )
-{
-  return;
-}
+void GlobalHitsTester::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
-void GlobalHitsTester::endJob()
-{
-  std::string MsgLoggerCat = "GlobalHitsTester_endJob";
-  if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " events.";
-  return;
-}
+  meTestString = 0;
+  meTestInt = 0;
+  meTestFloat = 0;
+  meTestTH1F = 0;
+  meTestTH2F = 0;
+  meTestTH3F = 0;
+  meTestProfile1 = 0;
+  meTestProfile2 = 0;
+  Random = new TRandom3();
 
-void GlobalHitsTester::beginRun(const edm::Run& iRun, 
-				const edm::EventSetup& iSetup)
-{
-  return;
-}
+  ibooker.setCurrentFolder("GlobalTestV/String");
+  meTestString = ibooker.bookString("TestString", "Hello World" );
 
-void GlobalHitsTester::endRun(const edm::Run& iRun, 
-			      const edm::EventSetup& iSetup)
-{
-  meTestInt->Fill(100);
-  meTestFloat->Fill(3.141592);
+  ibooker.setCurrentFolder("GlobalTestV/Int");
+  meTestInt = ibooker.bookInt("TestInt");
 
-  return;
+  ibooker.setCurrentFolder("GlobalTestV/Float");
+  meTestFloat = ibooker.bookFloat("TestFloat");
+
+  ibooker.setCurrentFolder("GlobalTestV/TH1F");
+  meTestTH1F = ibooker.book1D("Random1D", "Random1D", 100, -10., 10.);
+
+  ibooker.setCurrentFolder("GlobalTestV/TH2F");
+  meTestTH2F = ibooker.book2D("Random2D", "Random2D", 100, -10, 10., 100, -10.,
+      10.);
+
+  ibooker.setCurrentFolder("GlobalTestV/TH3F");
+  meTestTH3F = ibooker.book3D("Random3D", "Random3D", 100, -10., 10., 100,
+      -10., 10., 100, -10., 10.);
+
+  ibooker.setCurrentFolder("GlobalTestV/TProfile");
+  meTestProfile1 = ibooker.bookProfile("Profile1", "Profile1", 100, -10., 10.,
+      100, -10., 10.);
+
+  ibooker.setCurrentFolder("GlobalTestV/TProfile2D");
+  meTestProfile2 = ibooker.bookProfile2D("Profile2", "Profile2", 100, -10.,
+      10., 100, -10, 10., 100, -10., 10.);
+
+  ibooker.tag(meTestTH1F, 1);
+  ibooker.tag(meTestTH2F, 2);
+  ibooker.tag(meTestTH3F, 3);
+  ibooker.tag(meTestProfile1, 4);
+  ibooker.tag(meTestProfile2, 5);
+  ibooker.tag(meTestString, 6);
+  ibooker.tag(meTestInt, 7);
+  ibooker.tag(meTestFloat, 8);
+
 }
 
 void GlobalHitsTester::analyze(const edm::Event& iEvent, 
@@ -138,4 +107,7 @@ void GlobalHitsTester::analyze(const edm::Event& iEvent,
     meTestProfile1->Fill(RandomVal1, RandomVal2);
     meTestProfile2->Fill(RandomVal1, RandomVal2, RandomVal3);
   }
+
+  meTestInt->Fill(100);
+  meTestFloat->Fill(3.141592);
 }

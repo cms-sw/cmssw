@@ -22,16 +22,18 @@ namespace pat {
 
             virtual void produce(edm::Event&, const edm::EventSetup&);
         private:
-            edm::EDGetTokenT<std::vector<reco::Vertex> > src_;
+            edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> src_;
+            edm::EDGetTokenT<std::vector<reco::Vertex> > srcLegacy_;
             edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
             edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map2_;
     };
 }
 
 pat::PATSecondaryVertexSlimmer::PATSecondaryVertexSlimmer(const edm::ParameterSet& iConfig) :
-    src_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
+    src_(mayConsume<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+    srcLegacy_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
     map_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
-    map2_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracksCandidates")))
+    map2_(mayConsume<edm::Association<pat::PackedCandidateCollection> >(iConfig.existsAs<edm::InputTag>("lostTracksCandidates") ? iConfig.getParameter<edm::InputTag>("lostTracksCandidates") : edm::InputTag("lostTracks") ))
 {
   produces< reco::VertexCompositePtrCandidateCollection >();
 }
@@ -39,34 +41,63 @@ pat::PATSecondaryVertexSlimmer::PATSecondaryVertexSlimmer(const edm::ParameterSe
 pat::PATSecondaryVertexSlimmer::~PATSecondaryVertexSlimmer() {}
 
 void pat::PATSecondaryVertexSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::Handle<std::vector<reco::Vertex> > vertices;
-    iEvent.getByToken(src_, vertices);
-    std::auto_ptr<reco::VertexCompositePtrCandidateCollection > outPtr(new reco::VertexCompositePtrCandidateCollection);
+
+    std::auto_ptr<reco::VertexCompositePtrCandidateCollection> outPtr(new reco::VertexCompositePtrCandidateCollection);
  
+    edm::Handle<reco::VertexCompositePtrCandidateCollection> candVertices;
+    iEvent.getByToken(src_, candVertices);
+        
     edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
     iEvent.getByToken(map_,pf2pc);
-    edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc2;
-    iEvent.getByToken(map2_,pf2pc2);
 
+    // if reco::VertexCompositePtrCandidate secondary vertices are present
+    if( candVertices.isValid() )
+    {
+        outPtr->reserve(candVertices->size());
+        for (unsigned int i = 0, n = candVertices->size(); i < n; ++i) {
 
-    outPtr->reserve(vertices->size());
-    for (unsigned int i = 0, n = vertices->size(); i < n; ++i) { 
-	    const reco::Vertex &v = (*vertices)[i];
-	    outPtr->push_back(reco::VertexCompositePtrCandidate(0,v.p4(),v.position(), v.error(), v.chi2(), v.ndof()));
+                reco::VertexCompositePtrCandidate v = (*candVertices)[i];
 
-	    for(reco::Vertex::trackRef_iterator  it=v.tracks_begin(); it != v.tracks_end(); it++) {
-		    if(v.trackWeight(*it)>0.5) {
-			    if((*pf2pc)[*it].isNonnull() && (*pf2pc)[*it]->numberOfHits() > 0) {
-				    outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc)[*it]) ));
-			    }
-			    else {
-				    if((*pf2pc2)[*it].isNonnull()) {
-					    outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc2)[*it]) ));
-				    }	
-				    else { std::cout << "HELPME" << std::endl;}	
-			    }
-		    }
-	    }
+                std::vector<reco::CandidatePtr> daughters = v.daughterPtrVector();
+                v.clearDaughters();
+
+                for(std::vector<reco::CandidatePtr>::const_iterator it = daughters.begin(); it != daughters.end(); ++it) {
+
+                    if((*pf2pc)[*it].isNonnull() && (*pf2pc)[*it]->numberOfHits() > 0)
+                        v.addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc)[*it]) ));
+                }
+
+                outPtr->push_back( v );
+        }
+    }
+    // otherwise fallback to reco::Vertex secondary vertices
+    else
+    {
+        edm::Handle<std::vector<reco::Vertex> > vertices;
+        iEvent.getByToken(srcLegacy_, vertices);
+
+        edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc2;
+        iEvent.getByToken(map2_,pf2pc2);
+
+        outPtr->reserve(vertices->size());
+        for (unsigned int i = 0, n = vertices->size(); i < n; ++i) {
+                const reco::Vertex &v = (*vertices)[i];
+                outPtr->push_back(reco::VertexCompositePtrCandidate(0,v.p4(),v.position(), v.error(), v.chi2(), v.ndof()));
+
+                for(reco::Vertex::trackRef_iterator  it=v.tracks_begin(); it != v.tracks_end(); it++) {
+                        if(v.trackWeight(*it)>0.5) {
+                                if((*pf2pc)[*it].isNonnull() && (*pf2pc)[*it]->numberOfHits() > 0) {
+                                        outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc)[*it]) ));
+                                }
+                                else {
+                                        if((*pf2pc2)[*it].isNonnull()) {
+                                                outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc2)[*it]) ));
+                                        }	
+                                        else { std::cout << "HELPME" << std::endl;}	
+                                }
+                        }
+                }
+        }
     }
 
     iEvent.put(outPtr);

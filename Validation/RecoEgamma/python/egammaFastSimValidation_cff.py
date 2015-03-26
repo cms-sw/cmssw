@@ -9,4 +9,4 @@ photonValidation.fastSim = True
 pfPhotonValidation.isRunCentrally = True
 pfPhotonValidation.fastSim = True
 
-egammaFastSimValidation = cms.Sequence(photonValidation*pfPhotonValidation)
+egammaFastSimValidation = cms.Sequence(trackAssociatorByHitsForPhotonValidation*photonValidation*pfPhotonValidation)

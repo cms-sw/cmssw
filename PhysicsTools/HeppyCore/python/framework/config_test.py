@@ -45,6 +45,7 @@ class ConfigTestCase(unittest.TestCase):
         from PhysicsTools.HeppyCore.framework.chain import Chain as Events
         config = Config( components = [comp1],
                          sequence = [ana1], 
+                         services = [],
                          events_class = Events )
 
 

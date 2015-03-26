@@ -8,14 +8,11 @@
  */
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/Framework/interface/EventSetup.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -32,20 +29,25 @@
 
 #include "SimMuon/DTDigitizer/test/Histograms.h"
 
-#include<vector>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <vector>
+
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 class TH1F;
 class TFile;
-
 class PSimHit;
+class hDigis;
 
-class   hDigis;
+namespace edm
+{
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
-namespace edm {
-class ParameterSet; class Event; class EventSetup;}
-
-class MuonDTDigis : public edm::EDAnalyzer{
+class MuonDTDigis : public DQMEDAnalyzer{
 
  public:
   // Constructor
@@ -55,30 +57,20 @@ class MuonDTDigis : public edm::EDAnalyzer{
   virtual ~MuonDTDigis();
 
  protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // Analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   hDigis* WheelHistos(int wheel);
-
-  // BeginJob
-  //void beginJob();
-
-  // EndJob
-  //void endJob(void);
-
 
  private:
   typedef std::map<DTWireId, std::vector<const PSimHit*> > DTWireIdMap;
 
   edm::EDGetTokenT<edm::PSimHitContainer> SimHitToken_;
   edm::EDGetTokenT<DTDigiCollection> DigiToken_;
-  std::string outputFile_;
 
   // Switch for debug output
   bool verbose_;
-
-  // DaqMonitor element
-  DQMStore* dbe_;
 
   // Monitor elements
   MonitorElement* meDigiTimeBox_;

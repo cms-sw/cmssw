@@ -4,10 +4,12 @@ from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 # Configurations for MuonTrackValidators
 import Validation.RecoMuon.MuonTrackValidator_cfi
+from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
+from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
 trkMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 trkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociation'
-trkMuonTrackVTrackAssoc.associators = ('TrackAssociatorByHits',)
+trkMuonTrackVTrackAssoc.associators = ('trackAssociatorByHits',)
 #trkMuonTrackVTrackAssoc.label = ('generalTracks',)
 trkMuonTrackVTrackAssoc.label = ('probeTracks',)
 trkMuonTrackVTrackAssoc.usetracker = True
@@ -15,84 +17,84 @@ trkMuonTrackVTrackAssoc.usemuon = False
 
 trkCosmicMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 trkCosmicMuonTrackVTrackAssoc.associatormap = 'tpToTkCosmicTrackAssociation'
-trkCosmicMuonTrackVTrackAssoc.associators = ('TrackAssociatorByHits',)
+trkCosmicMuonTrackVTrackAssoc.associators = ('trackAssociatorByHits',)
 trkCosmicMuonTrackVTrackAssoc.label = ('ctfWithMaterialTracksP5LHCNavigation',)
 trkCosmicMuonTrackVTrackAssoc.usetracker = True
 trkCosmicMuonTrackVTrackAssoc.usemuon = False
 
 staMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staMuonTrackVTrackAssoc.associatormap = 'tpToStaTrackAssociation'
-staMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 staMuonTrackVTrackAssoc.label = ('standAloneMuons',)
 staMuonTrackVTrackAssoc.usetracker = False
 staMuonTrackVTrackAssoc.usemuon = True
 
 staUpdMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaUpdTrackAssociation'
-staUpdMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staUpdMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 staUpdMuonTrackVTrackAssoc.label = ('standAloneMuons:UpdatedAtVtx',)
 staUpdMuonTrackVTrackAssoc.usetracker = False
 staUpdMuonTrackVTrackAssoc.usemuon = True
 
 glbMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 glbMuonTrackVTrackAssoc.associatormap = 'tpToGlbTrackAssociation'
-glbMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+glbMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 glbMuonTrackVTrackAssoc.label = ('globalMuons',)
 glbMuonTrackVTrackAssoc.usetracker = True
 glbMuonTrackVTrackAssoc.usemuon = True
 
 staSETMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staSETMuonTrackVTrackAssoc.associatormap = 'tpToStaSETTrackAssociation'
-staSETMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staSETMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 staSETMuonTrackVTrackAssoc.label = ('standAloneSETMuons',)
 staSETMuonTrackVTrackAssoc.usetracker = False
 staSETMuonTrackVTrackAssoc.usemuon = True
 
 staSETUpdMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staSETUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaSETUpdTrackAssociation'
-staSETUpdMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staSETUpdMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 staSETUpdMuonTrackVTrackAssoc.label = ('standAloneSETMuons:UpdatedAtVtx',)
 staSETUpdMuonTrackVTrackAssoc.usetracker = False
 staSETUpdMuonTrackVTrackAssoc.usemuon = True
 
 glbSETMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 glbSETMuonTrackVTrackAssoc.associatormap = 'tpToGlbSETTrackAssociation'
-glbSETMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+glbSETMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 glbSETMuonTrackVTrackAssoc.label = ('globalSETMuons',)
 glbSETMuonTrackVTrackAssoc.usetracker = True
 glbSETMuonTrackVTrackAssoc.usemuon = True
 
 tevMuonFirstTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 tevMuonFirstTrackVTrackAssoc.associatormap = 'tpToTevFirstTrackAssociation'
-tevMuonFirstTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+tevMuonFirstTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 tevMuonFirstTrackVTrackAssoc.label = ('tevMuons:firstHit',)
 tevMuonFirstTrackVTrackAssoc.usetracker = True
 tevMuonFirstTrackVTrackAssoc.usemuon = True
 
 tevMuonPickyTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 tevMuonPickyTrackVTrackAssoc.associatormap = 'tpToTevPickyTrackAssociation'
-tevMuonPickyTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+tevMuonPickyTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 tevMuonPickyTrackVTrackAssoc.label = ('tevMuons:picky',)
 tevMuonPickyTrackVTrackAssoc.usetracker = True
 tevMuonPickyTrackVTrackAssoc.usemuon = True
 
 tevMuonDytTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 tevMuonDytTrackVTrackAssoc.associatormap = 'tpToTevDytTrackAssociation'
-tevMuonDytTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+tevMuonDytTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 tevMuonDytTrackVTrackAssoc.label = ('tevMuons:dyt',)
 tevMuonDytTrackVTrackAssoc.usetracker = True
 tevMuonDytTrackVTrackAssoc.usemuon = True
 
 staCosmicMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staCosmicMuonTrackVTrackAssoc.associatormap = 'tpToStaCosmicTrackAssociation'
-staCosmicMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staCosmicMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 staCosmicMuonTrackVTrackAssoc.label = ('cosmicMuons',)
 staCosmicMuonTrackVTrackAssoc.usetracker = False
 staCosmicMuonTrackVTrackAssoc.usemuon = True
 
 glbCosmicMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 glbCosmicMuonTrackVTrackAssoc.associatormap = 'tpToGlbCosmicTrackAssociation'
-glbCosmicMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+glbCosmicMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
 glbCosmicMuonTrackVTrackAssoc.label = ('globalCosmicMuons',)
 glbCosmicMuonTrackVTrackAssoc.usetracker = True
 glbCosmicMuonTrackVTrackAssoc.usemuon = True
@@ -148,12 +150,23 @@ staRefitUpdMuonTrackVMuonAssoc.label = ('refittedStandAloneMuons:UpdatedAtVtx',)
 staRefitUpdMuonTrackVMuonAssoc.usetracker = False
 staRefitUpdMuonTrackVMuonAssoc.usemuon = True
 
+displacedTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+displacedTrackVMuonAssoc.associatormap = 'tpToDisplacedTrkMuonAssociation'
+displacedTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+displacedTrackVMuonAssoc.label = ('displacedTracks',)
+displacedTrackVMuonAssoc.usetracker = True
+displacedTrackVMuonAssoc.usemuon = False
+displacedTrackVMuonAssoc.tipTP = cms.double(85.)
+displacedTrackVMuonAssoc.lipTP = cms.double(210.)
+
 displacedStaSeedTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaSeedTrackVMuonAssoc.associatormap = 'tpToDisplacedStaSeedAssociation'
 displacedStaSeedTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 displacedStaSeedTrackVMuonAssoc.label = ('seedsOfDisplacedSTAmuons',)
 displacedStaSeedTrackVMuonAssoc.usetracker = False
 displacedStaSeedTrackVMuonAssoc.usemuon = True
+displacedStaSeedTrackVMuonAssoc.tipTP = cms.double(85.)
+displacedStaSeedTrackVMuonAssoc.lipTP = cms.double(210.)
 
 displacedStaMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedStaMuonAssociation'
@@ -161,6 +174,17 @@ displacedStaMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 displacedStaMuonTrackVMuonAssoc.label = ('displacedStandAloneMuons',)
 displacedStaMuonTrackVMuonAssoc.usetracker = False
 displacedStaMuonTrackVMuonAssoc.usemuon = True
+displacedStaMuonTrackVMuonAssoc.tipTP = cms.double(85.)
+displacedStaMuonTrackVMuonAssoc.lipTP = cms.double(210.)
+
+displacedGlbMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+displacedGlbMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedGlbMuonAssociation'
+displacedGlbMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+displacedGlbMuonTrackVMuonAssoc.label = ('displacedGlobalMuons',)
+displacedGlbMuonTrackVMuonAssoc.usetracker = True
+displacedGlbMuonTrackVMuonAssoc.usemuon = True
+displacedGlbMuonTrackVMuonAssoc.tipTP = cms.double(85.)
+displacedGlbMuonTrackVMuonAssoc.lipTP = cms.double(210.)
 
 staSETMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staSETMuonTrackVMuonAssoc.associatormap = 'tpToStaSETMuonAssociation'
@@ -204,157 +228,235 @@ tevMuonDytTrackVMuonAssoc.label = ('tevMuons:dyt',)
 tevMuonDytTrackVMuonAssoc.usetracker = True
 tevMuonDytTrackVMuonAssoc.usemuon = True
 
-staCosmicMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-staCosmicMuonTrackVMuonAssoc.associatormap = 'tpToStaCosmicMuonAssociation'
-staCosmicMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-staCosmicMuonTrackVMuonAssoc.label = ('cosmicMuons',)
-staCosmicMuonTrackVMuonAssoc.usetracker = False
-staCosmicMuonTrackVMuonAssoc.usemuon = True
+# cosmics 2-leg reco
+trkCosmicMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+trkCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToTkCosmicSelMuonAssociation'
+trkCosmicMuonTrackVSelMuonAssoc.associators = ('MuonAssociationByHits',)
+trkCosmicMuonTrackVSelMuonAssoc.label = ('ctfWithMaterialTracksP5LHCNavigation',)
+trkCosmicMuonTrackVSelMuonAssoc.usetracker = True
+trkCosmicMuonTrackVSelMuonAssoc.usemuon = False
+trkCosmicMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
+trkCosmicMuonTrackVSelMuonAssoc.ptMinTP = cms.double(1.)
+trkCosmicMuonTrackVSelMuonAssoc.tipTP = cms.double(80.)
+trkCosmicMuonTrackVSelMuonAssoc.lipTP = cms.double(212.)
+trkCosmicMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
 
-glbCosmicMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-glbCosmicMuonTrackVMuonAssoc.associatormap = 'tpToGlbCosmicMuonAssociation'
-glbCosmicMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-glbCosmicMuonTrackVMuonAssoc.label = ('globalCosmicMuons',)
-glbCosmicMuonTrackVMuonAssoc.usetracker = True
-glbCosmicMuonTrackVMuonAssoc.usemuon = True
+staCosmicMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+staCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToStaCosmicSelMuonAssociation'
+staCosmicMuonTrackVSelMuonAssoc.associators = ('MuonAssociationByHits',)
+staCosmicMuonTrackVSelMuonAssoc.label = ('cosmicMuons',)
+staCosmicMuonTrackVSelMuonAssoc.usetracker = False
+staCosmicMuonTrackVSelMuonAssoc.usemuon = True
+staCosmicMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
+staCosmicMuonTrackVSelMuonAssoc.ptMinTP = cms.double(1.)
+staCosmicMuonTrackVSelMuonAssoc.tipTP = cms.double(80.)
+staCosmicMuonTrackVSelMuonAssoc.lipTP = cms.double(212.)
+staCosmicMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
 
+glbCosmicMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+glbCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToGlbCosmicSelMuonAssociation'
+glbCosmicMuonTrackVSelMuonAssoc.associators = ('MuonAssociationByHits',)
+glbCosmicMuonTrackVSelMuonAssoc.label = ('globalCosmicMuons',)
+glbCosmicMuonTrackVSelMuonAssoc.usetracker = True
+glbCosmicMuonTrackVSelMuonAssoc.usemuon = True
+glbCosmicMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
+glbCosmicMuonTrackVSelMuonAssoc.ptMinTP = cms.double(1.)
+glbCosmicMuonTrackVSelMuonAssoc.tipTP = cms.double(80.)
+glbCosmicMuonTrackVSelMuonAssoc.lipTP = cms.double(212.)
+glbCosmicMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
+
+# cosmics 1-leg reco
+trkCosmic1LegMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+trkCosmic1LegMuonTrackVSelMuonAssoc.associatormap = 'tpToTkCosmic1LegSelMuonAssociation'
+trkCosmic1LegMuonTrackVSelMuonAssoc.associators = ('MuonAssociationByHits',)
+trkCosmic1LegMuonTrackVSelMuonAssoc.label = ('ctfWithMaterialTracksP5',)
+trkCosmic1LegMuonTrackVSelMuonAssoc.usetracker = True
+trkCosmic1LegMuonTrackVSelMuonAssoc.usemuon = False
+trkCosmic1LegMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
+trkCosmic1LegMuonTrackVSelMuonAssoc.ptMinTP = cms.double(1.)
+trkCosmic1LegMuonTrackVSelMuonAssoc.tipTP = cms.double(80.)
+trkCosmic1LegMuonTrackVSelMuonAssoc.lipTP = cms.double(212.)
+trkCosmic1LegMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
+
+staCosmic1LegMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+staCosmic1LegMuonTrackVSelMuonAssoc.associatormap = 'tpToStaCosmic1LegSelMuonAssociation'
+staCosmic1LegMuonTrackVSelMuonAssoc.associators = ('MuonAssociationByHits',)
+staCosmic1LegMuonTrackVSelMuonAssoc.label = ('cosmicMuons1Leg',)
+staCosmic1LegMuonTrackVSelMuonAssoc.usetracker = False
+staCosmic1LegMuonTrackVSelMuonAssoc.usemuon = True
+staCosmic1LegMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
+staCosmic1LegMuonTrackVSelMuonAssoc.ptMinTP = cms.double(1.)
+staCosmic1LegMuonTrackVSelMuonAssoc.tipTP = cms.double(80.)
+staCosmic1LegMuonTrackVSelMuonAssoc.lipTP = cms.double(212.)
+staCosmic1LegMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
+
+glbCosmic1LegMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+glbCosmic1LegMuonTrackVSelMuonAssoc.associatormap = 'tpToGlbCosmic1LegSelMuonAssociation'
+glbCosmic1LegMuonTrackVSelMuonAssoc.associators = ('MuonAssociationByHits',)
+glbCosmic1LegMuonTrackVSelMuonAssoc.label = ('globalCosmicMuons1Leg',)
+glbCosmic1LegMuonTrackVSelMuonAssoc.usetracker = True
+glbCosmic1LegMuonTrackVSelMuonAssoc.usemuon = True
+glbCosmic1LegMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
+glbCosmic1LegMuonTrackVSelMuonAssoc.ptMinTP = cms.double(1.)
+glbCosmic1LegMuonTrackVSelMuonAssoc.tipTP = cms.double(80.)
+glbCosmic1LegMuonTrackVSelMuonAssoc.lipTP = cms.double(212.)
+glbCosmic1LegMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
 
 # Configurations for RecoMuonValidators
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from Validation.RecoMuon.RecoMuonValidator_cfi import *
 
 #import SimGeneral.MixingModule.mixNoPU_cfi
-from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi import *
+from SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi import *
 from SimMuon.MCTruth.MuonAssociatorByHits_cfi import muonAssociatorByHitsCommonParameters
 
 #tracker
-muonAssociatorByHitsESProducerNoSimHits_trk = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_trk.ComponentName = 'muonAssociatorByHits_NoSimHits_tracker'
-muonAssociatorByHitsESProducerNoSimHits_trk.UseTracker = True
-muonAssociatorByHitsESProducerNoSimHits_trk.UseMuon  = False
+muonAssociatorByHitsNoSimHitsHelperTrk = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperTrk.UseTracker = True
+muonAssociatorByHitsNoSimHitsHelperTrk.UseMuon  = False
 recoMuonVMuAssoc_trk = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_trk.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk'
 recoMuonVMuAssoc_trk.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_trk.muAssocLabel = 'muonAssociatorByHits_NoSimHits_tracker'
+recoMuonVMuAssoc_trk.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTrk'
 recoMuonVMuAssoc_trk.trackType = 'inner'
 recoMuonVMuAssoc_trk.selection = "isTrackerMuon"
 
 #tracker and PF
-muonAssociatorByHitsESProducerNoSimHits_trkPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_trkPF.ComponentName = 'muonAssociatorByHits_NoSimHits_trackerPF'
-muonAssociatorByHitsESProducerNoSimHits_trkPF.UseTracker = True
-muonAssociatorByHitsESProducerNoSimHits_trkPF.UseMuon  = False
+muonAssociatorByHitsNoSimHitsHelperTrkPF = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperTrkPF.UseTracker = True
+muonAssociatorByHitsNoSimHitsHelperTrkPF.UseMuon  = False
 recoMuonVMuAssoc_trkPF = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_trkPF.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF'
 recoMuonVMuAssoc_trkPF.usePFMuon = True
 recoMuonVMuAssoc_trkPF.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_trkPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_trackerPF'
+recoMuonVMuAssoc_trkPF.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTrkPF'
 recoMuonVMuAssoc_trkPF.trackType = 'inner'
 recoMuonVMuAssoc_trkPF.selection = "isTrackerMuon & isPFMuon"
 
 #standalone
-muonAssociatorByHitsESProducerNoSimHits_sta = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_sta.ComponentName = 'muonAssociatorByHits_NoSimHits_standalone'
-muonAssociatorByHitsESProducerNoSimHits_sta.UseTracker = False
-muonAssociatorByHitsESProducerNoSimHits_sta.UseMuon  = True
+muonAssociatorByHitsNoSimHitsHelperStandalone = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperStandalone.UseTracker = False
+muonAssociatorByHitsNoSimHitsHelperStandalone.UseMuon  = True
 recoMuonVMuAssoc_sta = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_sta.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta'
 recoMuonVMuAssoc_sta.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_sta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
+recoMuonVMuAssoc_sta.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperStandalone'
 recoMuonVMuAssoc_sta.trackType = 'outer'
 recoMuonVMuAssoc_sta.selection = "isStandAloneMuon"
 
 #seed of StandAlone
-muonAssociatorByHitsESProducerNoSimHits_Seedsta = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_Seedsta.ComponentName = 'muonAssociatorByHits_NoSimHits_seedOfStandalone'
-muonAssociatorByHitsESProducerNoSimHits_Seedsta.UseTracker = False
-muonAssociatorByHitsESProducerNoSimHits_Seedsta.UseMuon  = True
+muonAssociatorByHitsNoSimHitsHelperSeedStandalone = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperSeedStandalone.UseTracker = False
+muonAssociatorByHitsNoSimHitsHelperSeedStandalone.UseMuon  = True
 recoMuonVMuAssoc_seedSta = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_seedSta.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_SeedSta'
 recoMuonVMuAssoc_seedSta.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_seedSta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
+recoMuonVMuAssoc_seedSta.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperStandalone'
 recoMuonVMuAssoc_seedSta.trackType = 'outer'
 recoMuonVMuAssoc_seedSta.selection = ""
 
 #standalone and PF
-muonAssociatorByHitsESProducerNoSimHits_staPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_staPF.ComponentName = 'muonAssociatorByHits_NoSimHits_standalonePF'
-muonAssociatorByHitsESProducerNoSimHits_staPF.UseTracker = False
-muonAssociatorByHitsESProducerNoSimHits_staPF.UseMuon  = True
+muonAssociatorByHitsNoSimHitsHelperStandalonePF = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperStandalonePF.UseTracker = False
+muonAssociatorByHitsNoSimHitsHelperStandalonePF.UseMuon  = True
 recoMuonVMuAssoc_staPF = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_staPF.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF'
 recoMuonVMuAssoc_staPF.usePFMuon = True
 recoMuonVMuAssoc_staPF.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_staPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalonePF'
+recoMuonVMuAssoc_staPF.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperStandalonePF'
 recoMuonVMuAssoc_staPF.trackType = 'outer'
 recoMuonVMuAssoc_staPF.selection = "isStandAloneMuon & isPFMuon"
 
 #global
-muonAssociatorByHitsESProducerNoSimHits_glb = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_glb.ComponentName = 'muonAssociatorByHits_NoSimHits_global'
-muonAssociatorByHitsESProducerNoSimHits_glb.UseTracker = True
-muonAssociatorByHitsESProducerNoSimHits_glb.UseMuon  = True
+muonAssociatorByHitsNoSimHitsHelperGlobal = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperGlobal.UseTracker = True
+muonAssociatorByHitsNoSimHitsHelperGlobal.UseMuon  = True
 recoMuonVMuAssoc_glb = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_glb.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb'
 recoMuonVMuAssoc_glb.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_glb.muAssocLabel = 'muonAssociatorByHits_NoSimHits_global'
+recoMuonVMuAssoc_glb.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperGlobal'
 recoMuonVMuAssoc_glb.trackType = 'global'
 recoMuonVMuAssoc_glb.selection = "isGlobalMuon"
 
 #global and PF
-muonAssociatorByHitsESProducerNoSimHits_glbPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_glbPF.ComponentName = 'muonAssociatorByHits_NoSimHits_globalPF'
-muonAssociatorByHitsESProducerNoSimHits_glbPF.UseTracker = True
-muonAssociatorByHitsESProducerNoSimHits_glbPF.UseMuon  = True
+muonAssociatorByHitsNoSimHitsHelperGlobalPF = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperGlobalPF.UseTracker = True
+muonAssociatorByHitsNoSimHitsHelperGlobalPF.UseMuon  = True
 recoMuonVMuAssoc_glbPF = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_glbPF.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF'
 recoMuonVMuAssoc_glbPF.usePFMuon = True
 recoMuonVMuAssoc_glbPF.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_glbPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_globalPF'
+recoMuonVMuAssoc_glbPF.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperGlobalPF'
 recoMuonVMuAssoc_glbPF.trackType = 'global'
 recoMuonVMuAssoc_glbPF.selection = "isGlobalMuon & isPFMuon"
 
 #tight
-muonAssociatorByHitsESProducerNoSimHits_tgt = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
-muonAssociatorByHitsESProducerNoSimHits_tgt.ComponentName = 'muonAssociatorByHits_NoSimHits_tight'
-muonAssociatorByHitsESProducerNoSimHits_tgt.UseTracker = True
-muonAssociatorByHitsESProducerNoSimHits_tgt.UseMuon  = True
+muonAssociatorByHitsNoSimHitsHelperTight = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
+muonAssociatorByHitsNoSimHitsHelperTight.UseTracker = True
+muonAssociatorByHitsNoSimHitsHelperTight.UseMuon  = True
 recoMuonVMuAssoc_tgt = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 recoMuonVMuAssoc_tgt.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt'
 recoMuonVMuAssoc_tgt.simLabel = 'mix:MergedTrackTruth'
-recoMuonVMuAssoc_tgt.muAssocLabel = 'muonAssociatorByHits_NoSimHits_tight'
+recoMuonVMuAssoc_tgt.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTight'
 recoMuonVMuAssoc_tgt.trackType = 'global'
 recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon'
 recoMuonVMuAssoc_tgt.wantTightMuon = True
 recoMuonVMuAssoc_tgt.beamSpot = 'offlineBeamSpot'
 recoMuonVMuAssoc_tgt.primaryVertex = 'offlinePrimaryVertices'
 
-# Muon validation sequence
+# Muon validation sequences
+muonValidation_seq = cms.Sequence(
+    probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc
+    +trackAssociatorByHits + tpToTkmuTrackAssociation + trkMuonTrackVTrackAssoc
+    +seedsOfSTAmuons_seq + tpToStaSeedAssociation + staSeedTrackVMuonAssoc
+    +tpToStaMuonAssociation + staMuonTrackVMuonAssoc
+    +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc
+    +extractedMuonTracks_seq + tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc
+    +muonAssociatorByHitsNoSimHitsHelperTrk +recoMuonVMuAssoc_trk
+    +muonAssociatorByHitsNoSimHitsHelperStandalone +recoMuonVMuAssoc_sta
+    +muonAssociatorByHitsNoSimHitsHelperGlobal +recoMuonVMuAssoc_glb
+    +muonAssociatorByHitsNoSimHitsHelperTight +recoMuonVMuAssoc_tgt
+)
 
-muonValidation_seq = cms.Sequence(trkProbeTrackVMuonAssoc+trkMuonTrackVTrackAssoc
-                                 +staSeedTrackVMuonAssoc
-                                 +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
-                                 +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt)
-                                  
-muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc+tevMuonDytTrackVMuonAssoc)
+muonValidationTEV_seq = cms.Sequence(
+    tpToTevFirstMuonAssociation + tevMuonFirstTrackVMuonAssoc
+    +tpToTevPickyMuonAssociation + tevMuonPickyTrackVMuonAssoc
+    +tpToTevDytMuonAssociation + tevMuonDytTrackVMuonAssoc
+)
 
-muonValidationRefit_seq = cms.Sequence(staRefitMuonTrackVMuonAssoc+staRefitUpdMuonTrackVMuonAssoc)
+muonValidationRefit_seq = cms.Sequence(
+    tpToStaRefitMuonAssociation + staRefitMuonTrackVMuonAssoc
+    +tpToStaRefitUpdMuonAssociation + staRefitUpdMuonTrackVMuonAssoc
+)
 
-muonValidationDisplaced_seq = cms.Sequence(displacedStaSeedTrackVMuonAssoc+
- displacedStaMuonTrackVMuonAssoc)
+muonValidationDisplaced_seq = cms.Sequence(
+    seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
+    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
+    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
+    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
+)
 
-muonValidationSET_seq = cms.Sequence(staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
+muonValidationSET_seq = cms.Sequence(
+    tpToStaSETMuonAssociation + staSETMuonTrackVMuonAssoc
+    +tpToStaSETUpdMuonAssociation + staSETUpdMuonTrackVMuonAssoc
+    +tpToGlbSETMuonAssociation + glbSETMuonTrackVMuonAssoc
+)
 
-muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
-                                 +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
+muonValidationCosmic_seq = cms.Sequence(
+    tpToTkCosmicSelMuonAssociation + trkCosmicMuonTrackVSelMuonAssoc
+    +tpToTkCosmic1LegSelMuonAssociation + trkCosmic1LegMuonTrackVSelMuonAssoc
+    +tpToStaCosmicSelMuonAssociation + staCosmicMuonTrackVSelMuonAssoc
+    +tpToStaCosmic1LegSelMuonAssociation + staCosmic1LegMuonTrackVSelMuonAssoc
+    +tpToGlbCosmicSelMuonAssociation + glbCosmicMuonTrackVSelMuonAssoc
+    +tpToGlbCosmic1LegSelMuonAssociation + glbCosmic1LegMuonTrackVSelMuonAssoc
+)
 
-# The muon association and validation sequence
+# The full offline muon validation sequence
+recoMuonValidation = cms.Sequence(
+    muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationSET_seq
+)
 
-recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)
-                                 +(muonAssociationTEV_seq*muonValidationTEV_seq)
-                                 +(muonAssociationSET_seq*muonValidationSET_seq)
-                                 +(muonAssociationRefit_seq*muonValidationRefit_seq)
-                                 +(muonAssociationDisplaced_seq*muonValidationDisplaced_seq)
-                                 )
-
-recoCosmicMuonValidation = cms.Sequence(muonAssociationCosmic_seq*muonValidationCosmic_seq)
+# sequence for cosmic muons
+recoCosmicMuonValidation = cms.Sequence(
+    muonValidationCosmic_seq
+)

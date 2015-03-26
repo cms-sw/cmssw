@@ -155,7 +155,7 @@ void MCatNLOSource::beginRun(edm::Run &run)
   return;
 }
 
-bool MCatNLOSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
+bool MCatNLOSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
 {
   InstanceWrapper wrapper(this);
 

@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -18,7 +19,7 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-class L1TRPCTFClient: public edm::EDAnalyzer {
+class L1TRPCTFClient: public DQMEDHarvester {
 
 public:
 
@@ -30,33 +31,15 @@ public:
  
 protected:
 
-  /// BeginJob
-  void beginJob(void);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
-  /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context);
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
-
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
 
 private:
 
   void initialize();
-  
-  void processHistograms();
+  void book(DQMStore::IBooker &ibooker);
+  void processHistograms(DQMStore::IGetter &igetter);
 
 
   MonitorElement * m_phipackedbad;
@@ -65,7 +48,6 @@ private:
   MonitorElement * m_noisyChannels;
   
   edm::ParameterSet parameters_;
-  DQMStore* dbe_;  
   std::string monitorName_;
   std::string input_dir_;
   std::string output_dir_;

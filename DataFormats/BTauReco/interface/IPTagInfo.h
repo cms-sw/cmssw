@@ -21,6 +21,7 @@
 namespace reco {
 namespace btag {
 
+inline  const reco::Track * toTrack(const reco::TrackBaseRef & t) {return &(*t);}
 inline  const reco::Track * toTrack(const reco::TrackRef & t) {return &(*t);}
 inline  const reco::Track * toTrack(const reco::CandidatePtr & c) {return (*c).bestTrack();}
  

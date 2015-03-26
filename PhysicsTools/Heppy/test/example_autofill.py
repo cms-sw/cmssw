@@ -22,9 +22,9 @@ treeProducer= cfg.Analyzer(
 		#dump of gen objects
                 "gentopquarks"    : NTupleCollection("GenTop",     genParticleType, 2, help="Generated top quarks from hard scattering"),
                 "genbquarks"      : NTupleCollection("GenBQuark",  genParticleType, 2, help="Generated bottom quarks from top quark decays"),
-                "genwzquarks"     : NTupleCollection("GenQuark",   genParticleWithSourceType, 6, help="Generated quarks from W/Z decays"),
-                "genleps"         : NTupleCollection("GenLep",     genParticleWithSourceType, 6, help="Generated leptons from W/Z decays"),
-                "gentauleps"      : NTupleCollection("GenLepFromTau", genParticleWithSourceType, 6, help="Generated leptons from decays of taus from W/Z/h decays"),
+                 "genwzquarks"     : NTupleCollection("GenQuark",   genParticleType, 6, help="Generated quarks from W/Z decays"),
+                 "genleps"         : NTupleCollection("GenLep",     genParticleType, 6, help="Generated leptons from W/Z decays"),
+                "gentauleps"      : NTupleCollection("GenLepFromTau", genParticleType, 6, help="Generated leptons from decays of taus from W/Z/h decays"),
 
 	}
 	)
@@ -47,7 +47,17 @@ TauAna = TauAnalyzer.defaultConfig
 from PhysicsTools.Heppy.analyzers.objects.JetAnalyzer import JetAnalyzer
 JetAna = JetAnalyzer.defaultConfig
 
-sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,treeProducer]
+from PhysicsTools.Heppy.analyzers.core.TriggerBitAnalyzer import TriggerBitAnalyzer
+TrigAna= cfg.Analyzer(
+    verbose=False,
+    class_object=TriggerBitAnalyzer,
+    triggerBits={'any':'HLT_.*'},
+#   processName='HLT',
+#   outprefix='HLT'
+    )
+
+
+sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,TrigAna,treeProducer]
 
 
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
@@ -61,12 +71,13 @@ sample = cfg.Component(
 selectedComponents = [sample]
 from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
-                     sequence = sequence, 
+                     sequence = sequence,
+                     services = [],  
                      events_class = Events)
 
 # and the following runs the process directly 
 if __name__ == '__main__':
     from PhysicsTools.HeppyCore.framework.looper import Looper 
-    looper = Looper( 'Loop', sample, sequence, Events, nPrint = 5)
+    looper = Looper( 'Loop', config, nPrint = 5)
     looper.loop()
     looper.write()

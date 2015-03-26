@@ -111,7 +111,7 @@ void  HLTEgammaDoubleLegCombFilter::matchCands(const std::vector<math::XYZPoint>
 
   for(size_t secondLegNr=0;secondLegNr<secondLegP3s.size();secondLegNr++){
     if(!std::binary_search(matched2ndLegs.begin(),matched2ndLegs.end(),secondLegNr)){ //wasnt matched already
-      matchedCands.push_back(std::make_pair<int,int>(-1,secondLegNr));
+      matchedCands.push_back(std::make_pair<int,int>(-1, static_cast<int>(secondLegNr)));
     }
   }
 }

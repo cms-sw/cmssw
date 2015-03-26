@@ -1,3 +1,5 @@
+#ifdef HAVE_BOOST_TIMER
+
 #ifndef boost_timer_h
 #define boost_timer_h
 
@@ -49,3 +51,5 @@ struct clock_boost_timer_realtime
 };
 
 #endif // boost_timer_h
+
+#endif // HAVE_BOOST_TIMER

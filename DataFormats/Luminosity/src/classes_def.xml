@@ -3,7 +3,8 @@
   <class name="LumiSummaryRunHeader" ClassVersion="10">
    <version ClassVersion="10" checksum="2308070716"/>
   </class>
-  <class name="LumiSummary" ClassVersion="11">
+  <class name="LumiSummary" ClassVersion="12">
+   <version ClassVersion="12" checksum="554374187"/>
    <version ClassVersion="11" checksum="2908285481"/>
    <version ClassVersion="10" checksum="2670120703"/>
   </class>

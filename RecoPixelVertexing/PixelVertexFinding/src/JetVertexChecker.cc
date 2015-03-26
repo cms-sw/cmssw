@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,7 +44,7 @@
 // class declaration
 //
 
-class JetVertexChecker : public edm::EDFilter {
+class JetVertexChecker : public edm::stream::EDFilter<> {
    public:
       explicit JetVertexChecker(const edm::ParameterSet&);
       ~JetVertexChecker();
@@ -54,20 +54,24 @@ class JetVertexChecker : public edm::EDFilter {
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
-     edm::EDGetTokenT<reco::JetTracksAssociationCollection> m_associator; 
-     edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
-     bool m_doFilter;
-     double m_cutMinPt;
-     double m_cutMinPtRatio; 
-     double m_maxTrackPt;
-     double m_maxChi2;
-     int32_t m_maxNjets;
-     int32_t m_maxNjetsOutput;
-     
-
-     bool m_newMethod;
-
+  // ----------member data ---------------------------
+  const edm::EDGetTokenT<reco::JetTracksAssociationCollection> m_associator; 
+  const edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
+  const bool m_doFilter;
+  const double m_cutMinPt;
+  const double m_cutMinPtRatio; 
+  const double m_maxTrackPt;
+  const double m_maxChi2;
+  const int32_t m_maxNjets;
+  const int32_t m_maxNjetsOutput;
+  
+  const bool m_newMethod;
+  
+  const double m_maxETA;
+  const double m_pvErr_x;
+  const double m_pvErr_y;
+  const double m_pvErr_z;
+  
 };
 
 //
@@ -82,18 +86,22 @@ class JetVertexChecker : public edm::EDFilter {
 // constructors and destructor
 //
 JetVertexChecker::JetVertexChecker(const edm::ParameterSet& iConfig)
+ : m_associator ( consumes<reco::JetTracksAssociationCollection>(iConfig.getParameter<edm::InputTag>("jetTracks")) )
+ , m_beamSpot   ( consumes<reco::BeamSpot>                      (iConfig.getParameter<edm::InputTag>("beamSpot") ) )
+ , m_doFilter       ( iConfig.getParameter<bool>   ("doFilter")        )
+ , m_cutMinPt       ( iConfig.getParameter<double> ("minPt")           )
+ , m_cutMinPtRatio  ( iConfig.getParameter<double> ("minPtRatio")      )
+ , m_maxTrackPt     ( iConfig.getParameter<double> ("maxTrackPt")      )
+ , m_maxChi2        ( iConfig.getParameter<double> ("maxChi2")         )
+ , m_maxNjets       ( iConfig.getParameter<int32_t>("maxNJetsToCheck") )
+ , m_maxNjetsOutput ( iConfig.getParameter<int32_t>("maxNjetsOutput")  )
+ , m_newMethod      ( iConfig.getParameter<bool>   ("newMethod")       )
+ , m_maxETA         ( iConfig.getParameter<double> ("maxETA")          )
+ , m_pvErr_x        ( iConfig.getParameter<double> ("pvErr_x")         )
+ , m_pvErr_y        ( iConfig.getParameter<double> ("pvErr_y")         )
+ , m_pvErr_z        ( iConfig.getParameter<double> ("pvErr_z")         )
 {
    //now do what ever initialization is needed
-  m_beamSpot          	    = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
-  m_associator              = consumes<reco::JetTracksAssociationCollection>(iConfig.getParameter<edm::InputTag>("jetTracks"));
-  m_doFilter                = iConfig.getParameter<bool>("doFilter");
-  m_cutMinPt                = iConfig.getParameter<double>("minPt");
-  m_cutMinPtRatio           = iConfig.getParameter<double>("minPtRatio");
-  m_maxNjets         	    = iConfig.getParameter<int32_t>("maxNJetsToCheck");
-  m_maxNjetsOutput          = iConfig.getParameter<int32_t>("maxNjetsOutput");
-  m_newMethod                = iConfig.getParameter<bool>("newMethod");
-  m_maxTrackPt           = iConfig.getParameter<double>("maxTrackPt");
-  m_maxChi2           = iConfig.getParameter<double>("maxChi2");
   produces<std::vector<reco::CaloJet> >(); 
   produces<reco::VertexCollection >(); 
 }
@@ -126,9 +134,9 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    float calopt=0;
    float trkpt=0;
    //limit to first two jets
-   for(reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
-       it != jetTracksAssociation->end() && i < m_maxNjets; it++, i++) {
-     if(std::abs(it->first->eta()) < 2.4)
+   for (reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin(), et = jetTracksAssociation->end();
+       it != et && i < m_maxNjets; it++, i++) {
+     if(std::abs(it->first->eta()) < m_maxETA)
      {
       reco::TrackRefVector tracks = it->second;
       math::XYZVector jetMomentum = it->first->momentum();
@@ -154,9 +162,9 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(m_beamSpot,beamSpot);
  
    reco::Vertex::Error e;
-   e(0, 0) = 0.0015 * 0.0015;
-   e(1, 1) = 0.0015 * 0.0015;
-   e(2, 2) = 1.5 * 1.5;
+   e(0, 0) = m_pvErr_x * m_pvErr_x;
+   e(1, 1) = m_pvErr_y * m_pvErr_y;
+   e(2, 2) = m_pvErr_z * m_pvErr_z;
    reco::Vertex::Point p(beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
    reco::Vertex thePV(p, e, 0, 0, 0);
    std::auto_ptr<reco::VertexCollection> pOut2(new reco::VertexCollection);
@@ -172,16 +180,20 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 JetVertexChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
-   desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
+   desc.add<edm::InputTag> ("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
    desc.add<edm::InputTag> ("jetTracks",edm::InputTag("hltFastPVJetTracksAssociator"));
-   desc.add<double> ("minPtRatio",0.1);
-   desc.add<double> ("minPt",0.0);
-   desc.add<bool> ("doFilter",false);
-   desc.add<int> ("maxNJetsToCheck",2);
-   desc.add<int> ("maxNjetsOutput",2);
-   desc.add<double> ("maxChi2",20.0);
-   desc.add<double> ("maxTrackPt",20.0);
-   desc.add<bool> ("newMethod",false);		// <---- newMethod 
+   desc.add<double> ("minPtRatio",     0.1);
+   desc.add<double> ("minPt",          0.0);
+   desc.add<bool>   ("doFilter",       false);
+   desc.add<int>    ("maxNJetsToCheck",2);
+   desc.add<int>    ("maxNjetsOutput", 2);
+   desc.add<double> ("maxChi2",        20.0);
+   desc.add<double> ("maxTrackPt",     20.0);
+   desc.add<bool>   ("newMethod",      false);		// <---- newMethod 
+   desc.add<double> ("maxETA",         2.4   );
+   desc.add<double> ("pvErr_x",        0.0015);
+   desc.add<double> ("pvErr_y",        0.0015);
+   desc.add<double> ("pvErr_z",        1.5   );
    descriptions.add("jetVertexChecker",desc);
 }
 //define this as a plug-in

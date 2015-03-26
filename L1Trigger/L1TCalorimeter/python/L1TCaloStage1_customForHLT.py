@@ -43,9 +43,14 @@ def customiseL1EmulatorFromRaw(process):
     process.csctfReEmulTrackDigis.SectorProcessor.gangedME1a = cms.untracked.bool(False)
     process.csctfReEmulTrackDigis.SectorProcessor.firmwareSP = cms.uint32(20140515) #core 20120730
     process.csctfReEmulTrackDigis.SectorProcessor.initializeFromPSet = cms.bool(True) 
+    process.csctfReEmulTrackDigis.SectorReceiverInput = cms.untracked.InputTag("cscReEmulTriggerPrimitiveDigis","MPCSORTED")
+
+    process.cscReEmulTriggerPrimitiveDigis = process.simCscTriggerPrimitiveDigis.clone()
+    process.cscReEmulTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
+    process.cscReEmulTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCWireDigi")
 
     process.csctfReEmulSequence = cms.Sequence(
-        process.simCscTriggerPrimitiveDigis
+        process.cscReEmulTriggerPrimitiveDigis
         * process.csctfReEmulTrackDigis
         * process.csctfReEmulDigis
     )
@@ -104,7 +109,7 @@ def customiseL1EmulatorFromRaw(process):
     # GT
     from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
     simGtDigis.GmtInputTag = 'gmtReEmulDigis'
-    simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
+    simGtDigis.GctInputTag = 'simCaloStage1LegacyFormatDigis'
     simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
 
     # run Calo TPGs, L1 GCT, technical triggers, L1 GT

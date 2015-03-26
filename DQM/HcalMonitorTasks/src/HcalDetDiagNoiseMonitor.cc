@@ -152,7 +152,9 @@ public:
   HcalDetDiagNoiseRMData rm[HcalFrontEndId::maxRmIndex];
 };
 
-HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) {
+HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps):
+  HcalBaseDQMonitor(ps)
+ {
 
   tok_tb_ = consumes<HcalTBTriggerData>(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
 
@@ -200,22 +202,15 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) {
   setupDone_ = false;
 }
 
-void HcalDetDiagNoiseMonitor::cleanup(){
-  if(dbe_){
-    dbe_->setCurrentFolder(subdir_);
-    dbe_->removeContents();
-    dbe_ = 0;
-  }
-} 
 void HcalDetDiagNoiseMonitor::reset(){}
 
 
-void HcalDetDiagNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalDetDiagNoiseMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>1) std::cout <<"HcalDetDiagNoiseMonitor::beginRun"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run,c);
+  if (debug_>1) std::cout <<"HcalDetDiagNoiseMonitor::bookHistograms"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
-  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (tevt_==0) this->setup(ib); // set up histograms if they have not been created before
   if (mergeRuns_==false)
     this->reset();
 
@@ -223,52 +218,50 @@ void HcalDetDiagNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetu
 
 } 
 
-void HcalDetDiagNoiseMonitor::setup(){
+void HcalDetDiagNoiseMonitor::setup(DQMStore::IBooker &ib){
   if (setupDone_)
     return;
   setupDone_ = true;
   // Call base class setup
-  HcalBaseDQMonitor::setup();
-  if (!dbe_) return;
+  HcalBaseDQMonitor::setup(ib);
   RMSummary = new HcalDetDiagNoiseRMSummary();
 
   std::string name;
-  if(dbe_!=NULL){    
-     dbe_->setCurrentFolder(subdir_);   
-     meEVT_ = dbe_->bookInt("HcalNoiseMonitor Event Number");
-     dbe_->setCurrentFolder(subdir_+"Common Plots");
+     ib.setCurrentFolder(subdir_);   
+     meEVT_ = ib.bookInt("HcalNoiseMonitor Event Number");
+     ib.setCurrentFolder(subdir_+"Common Plots");
      
-     name="RBX Pixel multiplicity";     PixelMult        = dbe_->book1D(name,name,73,0,73);
-     name="HPD energy";                 HPDEnergy        = dbe_->book1D(name,name,200,0,2500);
-     name="RBX energy";                 RBXEnergy        = dbe_->book1D(name,name,200,0,3500);
-     name="Number of zero TS per RBX";  NZeroes          = dbe_->book1D(name,name,100,0,100);
-     name="Trigger BX Tbit11";          TriggerBx11      = dbe_->book1D(name,name,4000,0,4000);
-     name="Trigger BX Tbit12";          TriggerBx12      = dbe_->book1D(name,name,4000,0,4000);
+     name="RBX Pixel multiplicity";     PixelMult        = ib.book1D(name,name,73,0,73);
+     name="HPD energy";                 HPDEnergy        = ib.book1D(name,name,200,0,2500);
+     name="RBX energy";                 RBXEnergy        = ib.book1D(name,name,200,0,3500);
+     name="Number of zero TS per RBX";  NZeroes          = ib.book1D(name,name,100,0,100);
+     name="Trigger BX Tbit11";          TriggerBx11      = ib.book1D(name,name,4000,0,4000);
+     name="Trigger BX Tbit12";          TriggerBx12      = ib.book1D(name,name,4000,0,4000);
 
-     dbe_->setCurrentFolder(subdir_+"HBHE Plots");
-     name="HBP HPD Noise Rate Pixel above 50fC"; HBP_Rate50    = dbe_->book1D(name,name,73,0,73);
-     name="HBM HPD Noise Rate Pixel above 50fC"; HBM_Rate50    = dbe_->book1D(name,name,73,0,73);
-     name="HEP HPD Noise Rate Pixel above 50fC"; HEP_Rate50    = dbe_->book1D(name,name,73,0,73);
-     name="HEM HPD Noise Rate Pixel above 50fC"; HEM_Rate50    = dbe_->book1D(name,name,73,0,73);
-     name="HBP HPD Noise Rate HPD above 300fC";  HBP_Rate300   = dbe_->book1D(name,name,73,0,73);
-     name="HBM HPD Noise Rate HPD above 300fC";  HBM_Rate300   = dbe_->book1D(name,name,73,0,73);
-     name="HEP HPD Noise Rate HPD above 300fC";  HEP_Rate300   = dbe_->book1D(name,name,73,0,73);
-     name="HEM HPD Noise Rate HPD above 300fC";  HEM_Rate300   = dbe_->book1D(name,name,73,0,73);
+     ib.setCurrentFolder(subdir_+"HBHE Plots");
+     name="HBP HPD Noise Rate Pixel above 50fC"; HBP_Rate50    = ib.book1D(name,name,73,0,73);
+     name="HBM HPD Noise Rate Pixel above 50fC"; HBM_Rate50    = ib.book1D(name,name,73,0,73);
+     name="HEP HPD Noise Rate Pixel above 50fC"; HEP_Rate50    = ib.book1D(name,name,73,0,73);
+     name="HEM HPD Noise Rate Pixel above 50fC"; HEM_Rate50    = ib.book1D(name,name,73,0,73);
+     name="HBP HPD Noise Rate HPD above 300fC";  HBP_Rate300   = ib.book1D(name,name,73,0,73);
+     name="HBM HPD Noise Rate HPD above 300fC";  HBM_Rate300   = ib.book1D(name,name,73,0,73);
+     name="HEP HPD Noise Rate HPD above 300fC";  HEP_Rate300   = ib.book1D(name,name,73,0,73);
+     name="HEM HPD Noise Rate HPD above 300fC";  HEM_Rate300   = ib.book1D(name,name,73,0,73);
 
-     dbe_->setCurrentFolder(subdir_+"HO Plots");
-     name="HO0  HPD Noise Rate Pixel above 50fC"; HO0_Rate50   = dbe_->book1D(name,name,49,0,49);
-     name="HO1P HPD Noise Rate Pixel above 50fC"; HO1P_Rate50   = dbe_->book1D(name,name,48,0,48);
-     name="HO1M HPD Noise Rate Pixel above 50fC"; HO1M_Rate50   = dbe_->book1D(name,name,48,0,48);
-     name="HO0 HPD Noise Rate HPD above 300fC";   HO0_Rate300  = dbe_->book1D(name,name,48,0,48);
-     name="HO1P HPD Noise Rate HPD abGetRMindexove 300fC";  HO1P_Rate300 = dbe_->book1D(name,name,48,0,48);
-     name="HO1M HPD Noise Rate HPD above 300fC";  HO1M_Rate300 = dbe_->book1D(name,name,48,0,48);
+     ib.setCurrentFolder(subdir_+"HO Plots");
+     name="HO0  HPD Noise Rate Pixel above 50fC"; HO0_Rate50   = ib.book1D(name,name,49,0,49);
+     name="HO1P HPD Noise Rate Pixel above 50fC"; HO1P_Rate50   = ib.book1D(name,name,48,0,48);
+     name="HO1M HPD Noise Rate Pixel above 50fC"; HO1M_Rate50   = ib.book1D(name,name,48,0,48);
+     name="HO0 HPD Noise Rate HPD above 300fC";   HO0_Rate300  = ib.book1D(name,name,48,0,48);
+     name="HO1P HPD Noise Rate HPD abGetRMindexove 300fC";  HO1P_Rate300 = ib.book1D(name,name,48,0,48);
+     name="HO1M HPD Noise Rate HPD above 300fC";  HO1M_Rate300 = ib.book1D(name,name,48,0,48);
       
 
-     dbe_->setCurrentFolder(subdir_+"Noise Spike Plots");
+     ib.setCurrentFolder(subdir_+"Noise Spike Plots");
 
-     name="HB RM Spike Map";          HB_RBXmapSpikeCnt= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HE RM Spike Map";          HE_RBXmapSpikeCnt= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HO RM Spike Map";          HO_RBXmapSpikeCnt= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HB RM Spike Map";          HB_RBXmapSpikeCnt= ib.book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HE RM Spike Map";          HE_RBXmapSpikeCnt= ib.book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HO RM Spike Map";          HO_RBXmapSpikeCnt= ib.book2D(name,name,4,0.5,4.5,36,0.5,36.5);
 
      std::string title="RM";
      HB_RBXmapSpikeCnt->setAxisTitle(title);
@@ -280,7 +273,6 @@ void HcalDetDiagNoiseMonitor::setup(){
         HE_RBXmapSpikeCnt->setBinLabel(i+1,HE_RBX[i],2);
         HO_RBXmapSpikeCnt->setBinLabel(i+1,HO_RBX[i],2);
      }
-  } 
 
 
   return;
@@ -288,11 +280,11 @@ void HcalDetDiagNoiseMonitor::setup(){
 
 void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   getLogicalMap(iSetup);
+  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(iEvent.luminosityBlock())==false) return;
-  HcalBaseDQMonitor::analyze(iEvent, iSetup);
+//  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   bool isNoiseEvent=false;  
-  if(!dbe_) return;
   int orbit=-1111;
   int bx=-1111;
 
@@ -625,6 +617,7 @@ char str[500];
        }
        theFile->Write();
        theFile->Close();
+       theFile->Delete();
        dataset_seq_number++;
 
    }
@@ -633,6 +626,11 @@ char str[500];
 
 void HcalDetDiagNoiseMonitor::done(){}
  
-HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor(){if(LocalRun) UpdateHistos(); SaveRates(); }
+HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor()
+{
+  if(LocalRun) UpdateHistos(); SaveRates(); 
+
+  if ( RMSummary ) delete RMSummary;
+}
 
 DEFINE_FWK_MODULE (HcalDetDiagNoiseMonitor);

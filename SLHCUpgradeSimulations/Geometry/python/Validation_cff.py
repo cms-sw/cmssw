@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoTrack.cutsTPEffic_cfi import *
 from Validation.RecoTrack.cutsTPFake_cfi import *
 
-from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
-from SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi import *
+from SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi import *
+from SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi import *
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 
 
 quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
@@ -69,6 +69,7 @@ slhcTracksValidation = cms.Sequence(cutsRecoTracksHp*
                                  #cutsRecoTracksSecondHpUpg*
                                  #cutsRecoTracksThirdHpUpg*
                                  #cutsRecoTracksFourthHpUpg*
+                                 quickTrackAssociatorByHits*
                                  trackValidator)
 
 

@@ -443,6 +443,10 @@ bool SiStripFedZeroSuppression::IsAValidDigi()
 	       )
 	      );
     break;
+  case 5:
+    accept = adc > 0;
+    break;
+
   }
   return accept;
 }

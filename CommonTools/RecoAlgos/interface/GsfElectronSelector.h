@@ -62,10 +62,13 @@ namespace helper {
 						  trk.seedDirection() ) );
 	  selGsfTrackExtras_->push_back( GsfTrackExtra( *(trk.gsfExtra()) ) );
   	  TrackExtra & tx = selTrackExtras_->back();
+          unsigned int nHitsToAdd = 0;
 	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	    selHits_->push_back( (*hit)->clone() );
-	    tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+            ++nHitsToAdd;
 	  }
+          tx.setHits( rHits, hidx, nHitsToAdd );
+          hidx += nHitsToAdd;
  	  trk.setGsfExtra( GsfTrackExtraRef( rGsfTrackExtras, tidx ) ); 
  	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) ); 
 	} 

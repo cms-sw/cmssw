@@ -7,7 +7,7 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 

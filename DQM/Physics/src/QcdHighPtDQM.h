@@ -10,8 +10,8 @@
  *  By Keith Rose
  */
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -20,27 +20,15 @@
 class DQMStore;
 class MonitorElement;
 
-class QcdHighPtDQM : public edm::EDAnalyzer {
+class QcdHighPtDQM : public DQMEDAnalyzer {
  public:
-  /// Constructor
   QcdHighPtDQM(const edm::ParameterSet&);
-
-  /// Destructor
   virtual ~QcdHighPtDQM();
-
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
-  /// Get the analysis
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&);
 
-  void endJob(void);
-
  private:
-  // ----------member data ---------------------------
-
-  DQMStore* theDbe;
-
   // input tags/Tokens for Jets/MET
   edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> metToken1_;

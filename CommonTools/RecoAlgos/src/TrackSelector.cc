@@ -36,12 +36,14 @@ namespace helper
 					    trk.innerStateCovariance(), trk.innerDetId(),
 					    trk.seedDirection() ) );
     TrackExtra & tx = selTrackExtras_->back();
+    auto const firstHitIndex = hidx_;
+    unsigned int nHitsAdded = 0;
     for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd();
 	 ++ hit, ++ hidx_ ) {
 
         selHits_->push_back( (*hit)->clone() );
         TrackingRecHit * newHit = & (selHits_->back());
-        tx.add( TrackingRecHitRef( rHits_, hidx_ ) );
+        ++nHitsAdded;
 
         //--- Skip the rest for this hit if we don't want to clone the cluster.
         //--- The copy constructer in the rec hit will copy the link properly.
@@ -50,6 +52,8 @@ namespace helper
 	  clusterStorer_.addCluster( *selHits_, hidx_ );
         }
     } // end of for loop over tracking rec hits on this track
+    tx.setHits( rHits_, firstHitIndex, nHitsAdded );
+
   } // end of track, and function
 
 

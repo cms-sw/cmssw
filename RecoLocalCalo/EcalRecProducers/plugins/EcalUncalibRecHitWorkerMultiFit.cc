@@ -14,7 +14,13 @@
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <FWCore/ParameterSet/interface/EmptyGroupDescription.h>
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c),
@@ -23,10 +29,6 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   noisecorEBg1(SampleMatrix::Zero()), noisecorEEg1(SampleMatrix::Zero()),
   fullpulseEB(FullSampleVector::Zero()),fullpulseEE(FullSampleVector::Zero()),
   fullpulsecovEB(FullSampleMatrix::Zero()),fullpulsecovEE(FullSampleMatrix::Zero()) {
-
-  // get the pulse shape, amplitude covariances and noise correlations
-  EcalPulseShapeParameters_ = ps.getParameter<edm::ParameterSet>("EcalPulseShapeParameters");
-  fillInputs(EcalPulseShapeParameters_);
 
   // get the BX for the pulses to be activated
   std::vector<int32_t> activeBXs = ps.getParameter< std::vector<int32_t> >("activeBXs");
@@ -43,6 +45,12 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
   }
 
+  doPrefitEB_ = ps.getParameter<bool>("doPrefitEB");
+  doPrefitEE_ = ps.getParameter<bool>("doPrefitEE");
+
+  prefitMaxChiSqEB_ = ps.getParameter<double>("prefitMaxChiSqEB");
+  prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
+
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
   
@@ -57,6 +65,21 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
   EBtimeConstantTerm_=ps.getParameter<double>("EBtimeConstantTerm");
   EEtimeConstantTerm_=ps.getParameter<double>("EEtimeConstantTerm");
+  EBtimeNconst_=ps.getParameter<double>("EBtimeNconst");
+  EEtimeNconst_=ps.getParameter<double>("EEtimeNconst");
+  outOfTimeThreshG12pEB_ = ps.getParameter<double>("outOfTimeThresholdGain12pEB");
+  outOfTimeThreshG12mEB_ = ps.getParameter<double>("outOfTimeThresholdGain12mEB");
+  outOfTimeThreshG61pEB_ = ps.getParameter<double>("outOfTimeThresholdGain61pEB");
+  outOfTimeThreshG61mEB_ = ps.getParameter<double>("outOfTimeThresholdGain61mEB");
+  outOfTimeThreshG12pEE_ = ps.getParameter<double>("outOfTimeThresholdGain12pEE");
+  outOfTimeThreshG12mEE_ = ps.getParameter<double>("outOfTimeThresholdGain12mEE");
+  outOfTimeThreshG61pEE_ = ps.getParameter<double>("outOfTimeThresholdGain61pEE");
+  outOfTimeThreshG61mEE_ = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
+  amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
+  amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
+
+  // spike threshold
+  ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
 
   // leading edge parameters
   ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
@@ -72,39 +95,6 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
 
 
-// EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps) :
-//   EcalUncalibRecHitWorkerBaseClass(ps)
-// {
-//         // ratio method parameters
-//         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
-//         EEtimeFitParameters_ = ps.getParameter<std::vector<double> >("EEtimeFitParameters"); 
-//         EBamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EBamplitudeFitParameters");
-//         EEamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EEamplitudeFitParameters");
-//         EBtimeFitLimits_.first  = ps.getParameter<double>("EBtimeFitLimits_Lower");
-//         EBtimeFitLimits_.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
-//         EEtimeFitLimits_.first  = ps.getParameter<double>("EEtimeFitLimits_Lower");
-//         EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
-//         EBtimeConstantTerm_=ps.getParameter<double>("EBtimeConstantTerm");
-//         EEtimeConstantTerm_=ps.getParameter<double>("EEtimeConstantTerm");
-// 
-//         // leading edge parameters
-//         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
-//         eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
-// 
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
 void
 EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 {
@@ -115,6 +105,9 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 
         // for the multifit method
         if(!ampErrorCalculation_) multiFitMethod_.disableErrorCalculation();
+        es.get<EcalSamplesCorrelationRcd>().get(noisecovariances);
+        es.get<EcalPulseShapesRcd>().get(pulseshapes);
+        es.get<EcalPulseCovariancesRcd>().get(pulsecovariances);
 
         // weights parameters for the time
         es.get<EcalWeightXtalGroupsRcd>().get(grps);
@@ -252,22 +245,34 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         
         // intelligence for recHit computation
         EcalUncalibratedRecHit uncalibRecHit;
-        
+        float offsetTime = 0;
         
         const EcalPedestals::Item * aped = 0;
         const EcalMGPAGainRatio * aGain = 0;
         const EcalXtalGroupId * gid = 0;
+        const EcalPulseShapes::Item * aPulse = 0;
+        const EcalPulseCovariances::Item * aPulseCov = 0;
 
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();
-                aped  = &peds->endcap(hashedIndex);
-                aGain = &gains->endcap(hashedIndex);
-                gid   = &grps->endcap(hashedIndex);
+                aped      = &peds->endcap(hashedIndex);
+                aGain     = &gains->endcap(hashedIndex);
+                gid       = &grps->endcap(hashedIndex);
+                aPulse    = &pulseshapes->endcap(hashedIndex);
+                aPulseCov = &pulsecovariances->endcap(hashedIndex);
+                multiFitMethod_.setDoPrefit(doPrefitEE_);
+		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
+		offsetTime = offtime->getEEValue();
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
-                aped  = &peds->barrel(hashedIndex);
-                aGain = &gains->barrel(hashedIndex);
-                gid   = &grps->barrel(hashedIndex);
+                aped      = &peds->barrel(hashedIndex);
+                aGain     = &gains->barrel(hashedIndex);
+                gid       = &grps->barrel(hashedIndex);
+                aPulse    = &pulseshapes->barrel(hashedIndex);
+                aPulseCov = &pulsecovariances->barrel(hashedIndex);
+                multiFitMethod_.setDoPrefit(doPrefitEB_);
+		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
+		offsetTime = offtime->getEBValue();
         }
 
         pedVec[0] = aped->mean_x12;
@@ -280,7 +285,42 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         gainRatios[1] = aGain->gain12Over6();
         gainRatios[2] = aGain->gain6Over1()*aGain->gain12Over6();
 
+        int nnoise = noisecovariances->EBG12SamplesCorrelation.size();
+        for (int i=0; i<nnoise; ++i) {
+          for (int j=0; j<nnoise; ++j) {
+            int vidx = std::abs(j-i);
+            noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
+            noisecorEEg12(i,j) = noisecovariances->EEG12SamplesCorrelation[vidx];
+            noisecorEBg6(i,j)  = noisecovariances->EBG6SamplesCorrelation[vidx];
+            noisecorEEg6(i,j)  = noisecovariances->EEG6SamplesCorrelation[vidx];
+            noisecorEBg1(i,j)  = noisecovariances->EBG1SamplesCorrelation[vidx];
+            noisecorEEg1(i,j)  = noisecovariances->EEG1SamplesCorrelation[vidx];        
+          }
+        }
         
+        for (int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) {
+          fullpulseEB(i+7) = aPulse->pdfval[i];
+          fullpulseEE(i+7) = aPulse->pdfval[i];
+        }
+
+        for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
+          int i = k/EcalPulseShape::TEMPLATESAMPLES;
+          int j = k%EcalPulseShape::TEMPLATESAMPLES;
+          fullpulsecovEB(i+7,j+7) = aPulseCov->covval[i][j];
+          fullpulsecovEE(i+7,j+7) = aPulseCov->covval[i][j];
+        }
+        
+	// compute the right bin of the pulse shape using time calibration constants
+	EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
+	EcalTimeCalibConstant itimeconst = 0;
+	if( it != itime->end() ) {
+		  itimeconst = (*it);
+	} else {
+		  edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
+		  << detid.rawId()
+		  << "! something wrong with EcalTimeCalibConstants in your DB? ";
+	}
+
         // === amplitude computation ===
         int leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
 
@@ -354,6 +394,32 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
                     uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                     
+                    // consider flagging as kOutOfTime only if above noise
+                    if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEE_){
+                      float outOfTimeThreshP = outOfTimeThreshG12pEE_;
+                      float outOfTimeThreshM = outOfTimeThreshG12mEE_;
+                      // determine if gain has switched away from gainId==1 (x12 gain)
+                      // and determine cuts (number of 'sigmas') to ose for kOutOfTime
+                      // >3k ADC is necessasry condition for gain switch to occur
+                      if (uncalibRecHit.amplitude() > 3000.){
+                        for (int iSample = 0; iSample < EEDataFrame::MAXSAMPLES; iSample++) {
+                          int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+                          if (GainId!=1) {
+                            outOfTimeThreshP = outOfTimeThreshG61pEE_;
+                            outOfTimeThreshM = outOfTimeThreshG61mEE_;
+                            break;
+                          }
+                        }}
+                      float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime;
+                      float cterm         = EEtimeConstantTerm_;
+                      float sigmaped      = pedRMSVec[0];  // approx for lower gains
+                      float nterm         = EEtimeNconst_*sigmaped/uncalibRecHit.amplitude();
+                      float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
+                      if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
+                           ( correctedTime < (-1.*sigmat*outOfTimeThreshM) )) 
+                        {  uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime ); }
+                    }
+
                   } else {
                     ratioMethod_barrel_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
                     ratioMethod_barrel_.fixMGPAslew(*itdg);
@@ -365,8 +431,33 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                                                                 timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
                     
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
-                    
                     uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
+
+                    // consider flagging as kOutOfTime only if above noise
+                    if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEB_){
+                      float outOfTimeThreshP = outOfTimeThreshG12pEB_;
+                      float outOfTimeThreshM = outOfTimeThreshG12mEB_;
+                      // determine if gain has switched away from gainId==1 (x12 gain)
+                      // and determine cuts (number of 'sigmas') to ose for kOutOfTime
+                      // >3k ADC is necessasry condition for gain switch to occur
+                      if (uncalibRecHit.amplitude() > 3000.){
+                        for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; iSample++) {
+                          int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+                          if (GainId!=1) {
+                            outOfTimeThreshP = outOfTimeThreshG61pEB_;
+                            outOfTimeThreshM = outOfTimeThreshG61mEB_;
+                            break;}
+                        } }
+                      float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime;
+                      float cterm         = EBtimeConstantTerm_;
+                      float sigmaped      = pedRMSVec[0];  // approx for lower gains
+                      float nterm         = EBtimeNconst_*sigmaped/uncalibRecHit.amplitude();
+                      float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
+                      if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
+                           ( correctedTime < (-1.*sigmat*outOfTimeThreshM) )) 
+                        {   uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );  }
+                    }
+
                   }
                 } else if(timealgo_.compare("WeightsMethod")==0) {
                   //  weights method on the PU subtracted pulse shape
@@ -483,50 +574,98 @@ const SampleMatrix &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int g
   
 }
 
-void EcalUncalibRecHitWorkerMultiFit::fillInputs(const edm::ParameterSet& params) {
-
-  const std::vector<double> ebCorMatG12 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG12");
-  const std::vector<double> eeCorMatG12 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG12");
-  const std::vector<double> ebCorMatG06 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG06");
-  const std::vector<double> eeCorMatG06 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG06");
-  const std::vector<double> ebCorMatG01 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG01");
-  const std::vector<double> eeCorMatG01 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG01");
+edm::ParameterSetDescription 
+EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
   
-  int nnoise = ebCorMatG12.size();
-
-  // fill correlation matrices: noise (HF (+) LF)
-  for (int i=0; i<nnoise; ++i) {
-    for (int j=0; j<nnoise; ++j) {
-      int vidx = std::abs(j-i);
-      noisecorEBg12(i,j) = ebCorMatG12[vidx];
-      noisecorEEg12(i,j) = eeCorMatG12[vidx];
-      noisecorEBg6(i,j)  = ebCorMatG06[vidx];
-      noisecorEEg6(i,j)  = eeCorMatG06[vidx];
-      noisecorEBg1(i,j)  = ebCorMatG01[vidx];
-      noisecorEEg1(i,j)  = eeCorMatG01[vidx];        
-    }
-  }
+  edm::ParameterSetDescription psd0;
+  psd0.addNode((edm::ParameterDescription<std::vector<double>>("EBPulseShapeTemplate", {1.13979e-02, 7.58151e-01, 1.00000e+00, 8.87744e-01, 6.73548e-01, 4.74332e-01, 3.19561e-01, 2.15144e-01, 1.47464e-01, 1.01087e-01, 6.93181e-02, 4.75044e-02}, true) and
+		edm::ParameterDescription<std::vector<double>>("EEPulseShapeTemplate", {1.16442e-01, 7.56246e-01, 1.00000e+00, 8.97182e-01, 6.86831e-01, 4.91506e-01, 3.44111e-01, 2.45731e-01, 1.74115e-01, 1.23361e-01, 8.74288e-02, 6.19570e-02}, true)));
   
-  // fill shape: from simulation for samples 3-9, from alpha/beta shape for 10-14
-  const std::vector<double> ebPulse = params.getParameter< std::vector<double> >("EBPulseShapeTemplate");
-  const std::vector<double> eePulse = params.getParameter< std::vector<double> >("EEPulseShapeTemplate");
-  int nShapeSamples = ebPulse.size();
-  for (int i=0; i<nShapeSamples; ++i) {
-    fullpulseEB(i+7) = ebPulse[i];
-    fullpulseEE(i+7) = eePulse[i];
-  }
+  psd0.addNode((edm::ParameterDescription<std::string>("EEdigiCollection", "", true) and
+		edm::ParameterDescription<std::string>("EBdigiCollection", "", true) and
+		edm::ParameterDescription<std::string>("ESdigiCollection", "", true) and
+		edm::ParameterDescription<bool>("UseLCcorrection", true, false) and
+		edm::ParameterDescription<std::vector<double>>("EBCorrNoiseMatrixG12", {1.00000, 0.71073, 0.55721, 0.46089, 0.40449, 0.35931, 0.33924, 0.32439, 0.31581, 0.30481 }, true) and
+		edm::ParameterDescription<std::vector<double>>("EECorrNoiseMatrixG12", {1.00000, 0.71373, 0.44825, 0.30152, 0.21609, 0.14786, 0.11772, 0.10165, 0.09465, 0.08098 }, true) and
+		edm::ParameterDescription<std::vector<double>>("EBCorrNoiseMatrixG06", {1.00000, 0.70946, 0.58021, 0.49846, 0.45006, 0.41366, 0.39699, 0.38478, 0.37847, 0.37055 }, true) and
+		edm::ParameterDescription<std::vector<double>>("EECorrNoiseMatrixG06", {1.00000, 0.71217, 0.47464, 0.34056, 0.26282, 0.20287, 0.17734, 0.16256, 0.15618, 0.14443 }, true) and
+		edm::ParameterDescription<std::vector<double>>("EBCorrNoiseMatrixG01", {1.00000, 0.73354, 0.64442, 0.58851, 0.55425, 0.53082, 0.51916, 0.51097, 0.50732, 0.50409 }, true) and
+		edm::ParameterDescription<std::vector<double>>("EECorrNoiseMatrixG01", {1.00000, 0.72698, 0.62048, 0.55691, 0.51848, 0.49147, 0.47813, 0.47007, 0.46621, 0.46265 }, true) and
+		edm::ParameterDescription<bool>("EcalPreMixStage1", false, true) and
+		edm::ParameterDescription<bool>("EcalPreMixStage2", false, true)));
 
-  const std::vector<double> ebPulseCov = params.getParameter< std::vector<double> >("EBPulseShapeCovariance");
-  const std::vector<double> eePulseCov = params.getParameter< std::vector<double> >("EEPulseShapeCovariance");
-  for(int k=0; k<std::pow(nShapeSamples,2); ++k) {
-    int i = k/nShapeSamples;
-    int j = k%nShapeSamples;
-    fullpulsecovEB(i+7,j+7) = ebPulseCov[k];
-    fullpulsecovEE(i+7,j+7) = eePulseCov[k];
-  }
+  psd0.addOptionalNode((edm::ParameterDescription<std::vector<double>>("EBPulseShapeCovariance", {3.001e-06,  1.233e-05,  0.000e+00, -4.416e-06, -4.571e-06, -3.614e-06, -2.636e-06, -1.286e-06, -8.410e-07, -5.296e-07,  0.000e+00,  0.000e+00, 
+ 	   1.233e-05,  6.154e-05,  0.000e+00, -2.200e-05, -2.309e-05, -1.838e-05, -1.373e-05, -7.334e-06, -5.088e-06, -3.745e-06, -2.428e-06,  0.000e+00, 
+ 	   0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00, 
+ 	   -4.416e-06, -2.200e-05,  0.000e+00,  8.319e-06,  8.545e-06,  6.792e-06,  5.059e-06,  2.678e-06,  1.816e-06,  1.223e-06,  8.245e-07,  5.589e-07, 
+ 	   -4.571e-06, -2.309e-05,  0.000e+00,  8.545e-06,  9.182e-06,  7.219e-06,  5.388e-06,  2.853e-06,  1.944e-06,  1.324e-06,  9.083e-07,  6.335e-07, 
+ 	   -3.614e-06, -1.838e-05,  0.000e+00,  6.792e-06,  7.219e-06,  6.016e-06,  4.437e-06,  2.385e-06,  1.636e-06,  1.118e-06,  7.754e-07,  5.556e-07, 
+ 	   -2.636e-06, -1.373e-05,  0.000e+00,  5.059e-06,  5.388e-06,  4.437e-06,  3.602e-06,  1.917e-06,  1.322e-06,  9.079e-07,  6.529e-07,  4.752e-07, 
+ 	   -1.286e-06, -7.334e-06,  0.000e+00,  2.678e-06,  2.853e-06,  2.385e-06,  1.917e-06,  1.375e-06,  9.100e-07,  6.455e-07,  4.693e-07,  3.657e-07, 
+ 	   -8.410e-07, -5.088e-06,  0.000e+00,  1.816e-06,  1.944e-06,  1.636e-06,  1.322e-06,  9.100e-07,  9.115e-07,  6.062e-07,  4.436e-07,  3.422e-07, 
+ 	   -5.296e-07, -3.745e-06,  0.000e+00,  1.223e-06,  1.324e-06,  1.118e-06,  9.079e-07,  6.455e-07,  6.062e-07,  7.217e-07,  4.862e-07,  3.768e-07, 
+ 	   0.000e+00, -2.428e-06,  0.000e+00,  8.245e-07,  9.083e-07,  7.754e-07,  6.529e-07,  4.693e-07,  4.436e-07,  4.862e-07,  6.509e-07,  4.418e-07, 
+ 	   0.000e+00,  0.000e+00,  0.000e+00,  5.589e-07,  6.335e-07,  5.556e-07,  4.752e-07,  3.657e-07,  3.422e-07,  3.768e-07,  4.418e-07,  6.142e-07}, true) and
+     edm::ParameterDescription<std::vector<double>>("EEPulseShapeCovariance", {3.941e-05,  3.333e-05,  0.000e+00, -1.449e-05, -1.661e-05, -1.424e-05, -1.183e-05, -6.842e-06, -4.915e-06, -3.411e-06,  0.000e+00,  0.000e+00, 
+ 	   3.333e-05,  2.862e-05,  0.000e+00, -1.244e-05, -1.431e-05, -1.233e-05, -1.032e-05, -5.883e-06, -4.154e-06, -2.902e-06, -2.128e-06,  0.000e+00, 
+ 	   0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00,  0.000e+00, 
+ 	   -1.449e-05, -1.244e-05,  0.000e+00,  5.840e-06,  6.649e-06,  5.720e-06,  4.812e-06,  2.708e-06,  1.869e-06,  1.330e-06,  9.186e-07,  6.446e-07, 
+ 	   -1.661e-05, -1.431e-05,  0.000e+00,  6.649e-06,  7.966e-06,  6.898e-06,  5.794e-06,  3.157e-06,  2.184e-06,  1.567e-06,  1.084e-06,  7.575e-07, 
+ 	   -1.424e-05, -1.233e-05,  0.000e+00,  5.720e-06,  6.898e-06,  6.341e-06,  5.347e-06,  2.859e-06,  1.991e-06,  1.431e-06,  9.839e-07,  6.886e-07, 
+ 	   -1.183e-05, -1.032e-05,  0.000e+00,  4.812e-06,  5.794e-06,  5.347e-06,  4.854e-06,  2.628e-06,  1.809e-06,  1.289e-06,  9.020e-07,  6.146e-07, 
+ 	   -6.842e-06, -5.883e-06,  0.000e+00,  2.708e-06,  3.157e-06,  2.859e-06,  2.628e-06,  1.863e-06,  1.296e-06,  8.882e-07,  6.108e-07,  4.283e-07, 
+ 	   -4.915e-06, -4.154e-06,  0.000e+00,  1.869e-06,  2.184e-06,  1.991e-06,  1.809e-06,  1.296e-06,  1.217e-06,  8.669e-07,  5.751e-07,  3.882e-07, 
+ 	   -3.411e-06, -2.902e-06,  0.000e+00,  1.330e-06,  1.567e-06,  1.431e-06,  1.289e-06,  8.882e-07,  8.669e-07,  9.522e-07,  6.717e-07,  4.293e-07, 
+ 	   0.000e+00, -2.128e-06,  0.000e+00,  9.186e-07,  1.084e-06,  9.839e-07,  9.020e-07,  6.108e-07,  5.751e-07,  6.717e-07,  7.911e-07,  5.493e-07, 
+ 	   0.000e+00,  0.000e+00,  0.000e+00,  6.446e-07,  7.575e-07,  6.886e-07,  6.146e-07,  4.283e-07,  3.882e-07,  4.293e-07,  5.493e-07,  7.027e-07}, true)), true);
 
+ edm::ParameterSetDescription psd;
+ psd.addNode(edm::ParameterDescription<std::vector<int>>("activeBXs", {-5,-4,-3,-2,-1,0,1,2,3,4}, true) and
+	      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
+	      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
+	      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
+	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
+	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
+	      edm::ParameterDescription<double>("prefitMaxChiSqEE", 10., true) and
+	      edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
+	      edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters", {-2.015452e+00, 3.130702e+00, -1.234730e+01, 4.188921e+01, -8.283944e+01, 9.101147e+01, -5.035761e+01, 1.105621e+01}, true) and
+	      edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters", {-2.390548e+00, 3.553628e+00, -1.762341e+01, 6.767538e+01, -1.332130e+02, 1.407432e+02, -7.541106e+01, 1.620277e+01}, true) and
+	      edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138,1.652}, true) and
+	      edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.890,1.400}, true) and
+	      edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
+	      edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true) and
+	      edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
+	      edm::ParameterDescription<double>("EEtimeFitLimits_Upper", 1.4, true) and
+	      edm::ParameterDescription<double>("EBtimeConstantTerm", .6, true) and
+	      edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
+	      edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
+	      edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
+	      edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
+	      edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
+	      edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
+	      edm::ParameterDescription<double>("ebSpikeThreshold", 1.042, true) and
+	      edm::ParameterDescription<std::vector<double>>("ebPulseShape", {5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194}, true) and
+	      edm::ParameterDescription<std::vector<double>>("eePulseShape", {5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194}, true) and
+	      edm::ParameterDescription<bool>("kPoorRecoFlagEB", true, true) and
+	      edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
+	      edm::ParameterDescription<double>("chi2ThreshEB_", 65.0, true) and
+	      edm::ParameterDescription<double>("chi2ThreshEE_", 50.0, true) and
+	      edm::ParameterDescription<edm::ParameterSetDescription>("EcalPulseShapeParameters", psd0, true));
+
+ return psd;
 }
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerMultiFit, "EcalUncalibRecHitWorkerMultiFit" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerMultiFit, "EcalUncalibRecHitWorkerMultiFit" );

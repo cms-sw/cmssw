@@ -273,7 +273,7 @@ void DQMStore::IBooker::cd(const std::string &dir) {
 
 void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
-}
+} 
 
 void DQMStore::IBooker::goUp(void) {
   owner_->goUp();
@@ -281,10 +281,14 @@ void DQMStore::IBooker::goUp(void) {
 
 const std::string & DQMStore::IBooker::pwd(void) {
   return owner_->pwd();
-}
+} 
 
 void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
   owner_->tag(me, tag);
+}
+
+void DQMStore::IBooker::tagContents(const std::string &path, unsigned int myTag) {
+  owner_->tagContents(path, myTag);
 }
 
 //IGetter methods
@@ -595,7 +599,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   // concurrency problems because the print_trace method is always called behind
   // a lock (see bookTransaction).
   if (!stream_)
-    stream_ = new ofstream("histogramBookingBT.log");
+    stream_ = new std::ofstream("histogramBookingBT.log");
   
   void *array[10];
   size_t size;
@@ -1017,7 +1021,7 @@ DQMStore::book1DD(const std::string &name, const std::string &title,
 /// Book 1D variable bin histogram.
 MonitorElement *
 DQMStore::book1D(const char *name, const char *title,
-                 int nchX, float *xbinsize)
+                 int nchX, const float *xbinsize)
 {
   return book1D(pwd_, name, new TH1F(name, title, nchX, xbinsize));
 }
@@ -1025,7 +1029,7 @@ DQMStore::book1D(const char *name, const char *title,
 /// Book 1D variable bin histogram.
 MonitorElement *
 DQMStore::book1D(const std::string &name, const std::string &title,
-                 int nchX, float *xbinsize)
+                 int nchX, const float *xbinsize)
 {
   return book1D(pwd_, name, new TH1F(name.c_str(), title.c_str(), nchX, xbinsize));
 }
@@ -1163,7 +1167,7 @@ DQMStore::book2DD(const std::string &name, const std::string &title,
 /// Book 2D variable bin histogram.
 MonitorElement *
 DQMStore::book2D(const char *name, const char *title,
-                 int nchX, float *xbinsize, int nchY, float *ybinsize)
+                 int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
   return book2D(pwd_, name, new TH2F(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
@@ -1172,7 +1176,7 @@ DQMStore::book2D(const char *name, const char *title,
 /// Book 2D variable bin histogram.
 MonitorElement *
 DQMStore::book2D(const std::string &name, const std::string &title,
-                 int nchX, float *xbinsize, int nchY, float *ybinsize)
+                 int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
   return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(),
                                      nchX, xbinsize, nchY, ybinsize));
@@ -1343,7 +1347,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -1358,7 +1362,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -1373,7 +1377,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -1388,7 +1392,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -2541,6 +2545,11 @@ void DQMStore::savePB(const std::string &filename,
                                options);
   dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
 
+  // we need to flush it before we close the fd
+  gzip_stream.Close();
+  file_stream.Close();
+  ::close(filedescriptor);
+
   // Maybe make some noise.
   if (verbose_)
     std::cout << "DQMStore::savePB: successfully wrote " << nme
@@ -3071,6 +3080,7 @@ DQMStore::readFilePB(const std::string &filename,
     raiseDQMError("DQMStore", "Fatal parsing file '%s'", filename.c_str());
     return false;
   }
+  ::close(filedescriptor);
 
   for (int i = 0; i < dqmstore_message.histo_size(); i++) {
     std::string path;

@@ -10,6 +10,7 @@
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimTracker/Common"/>
+<use   name="SimGeneral/MixingModule"/>
 <use   name="clhep"/>
 <library   file="*.cc" name="SimGeneralPileupInformationPlugins">
   <flags   EDM_PLUGIN="1"/>

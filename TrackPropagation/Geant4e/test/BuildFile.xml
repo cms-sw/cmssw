@@ -1,0 +1,21 @@
+<use   name="root"/>
+<use   name="geant4"/>
+<use   name="TrackPropagation/Geant4e"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/VolumeBasedEngine"/>
+<use   name="MagneticField/Records"/>
+<use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="SimG4Core/Geometry"/>
+<use   name="DetectorDescription/Core"/>
+<library   file="Geant4ePropagatorAnalyzer.cc" name="Geant4ePropagatorAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>

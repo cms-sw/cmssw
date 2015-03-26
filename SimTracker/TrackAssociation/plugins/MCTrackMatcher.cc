@@ -18,7 +18,7 @@ class MCTrackMatcher : public edm::EDProducer {
 
  private:
   void produce( edm::Event& evt, const edm::EventSetup& es ) override;
-  std::string associator_;
+  edm::InputTag associator_;
   edm::InputTag tracks_, genParticles_, trackingParticles_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
 };
@@ -28,8 +28,7 @@ class MCTrackMatcher : public edm::EDProducer {
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 using namespace edm;
 using namespace std;
@@ -41,12 +40,17 @@ MCTrackMatcher::MCTrackMatcher(const ParameterSet & p) :
   genParticles_( p.getParameter<InputTag>("genParticles")),
   trackingParticles_( p.getParameter<InputTag>("trackingParticles")) {
   produces<GenParticleMatch>();
+  
+  consumes<reco::TrackToTrackingParticleAssociator>(associator_);
+  consumes<edm::View<reco::Track>>(tracks_);
+  consumes<GenParticleCollection>(genParticles_);
+  consumes<TrackingParticleCollection>(trackingParticles_);
 }
 
 void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
-  ESHandle<TrackAssociatorBase> assoc;  
-  es.get<TrackAssociatorRecord>().get(associator_,assoc);
-  const TrackAssociatorBase * associator = assoc.product();
+  Handle<reco::TrackToTrackingParticleAssociator> assoc;  
+  evt.getByLabel(associator_,assoc);
+  const reco::TrackToTrackingParticleAssociator * associator = assoc.product();
   Handle<View<Track> > tracks;
   evt.getByLabel(tracks_, tracks);
   Handle<TrackingParticleCollection> trackingParticles;
@@ -55,7 +59,7 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   evt.getByLabel(genParticles_,barCodes );
   Handle<GenParticleCollection> genParticles;
   evt.getByLabel(genParticles_, genParticles );
-  RecoToSimCollection associations = associator->associateRecoToSim ( tracks, trackingParticles, & evt, &es ); 
+  RecoToSimCollection associations = associator->associateRecoToSim ( tracks, trackingParticles);
   auto_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
   GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();

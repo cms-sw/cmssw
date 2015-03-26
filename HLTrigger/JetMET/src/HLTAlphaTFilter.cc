@@ -12,7 +12,6 @@
  */
 
 #include <vector>
-#include <typeinfo>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,6 +23,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
 #include "HLTrigger/JetMET/interface/AlphaT.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzV  ;
 
@@ -42,6 +42,7 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
   minAlphaT_           = iConfig.getParameter<double> ("minAlphaT");
   triggerType_         = iConfig.getParameter<int>("triggerType");
   dynamicAlphaT_       = iConfig.getParameter<bool>("dynamicAlphaT");
+  setDHtZero_          = iConfig.getParameter<bool>("setDHtZero");
   // sanity checks
 
   if (       (minPtJet_.size()    !=  etaJet_.size())
@@ -86,7 +87,8 @@ void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("minAlphaT",0.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
   desc.add<bool>("dynamicAlphaT",true); //Set to reproduce old behaviour
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTAlphaTFilter<T>).name()),desc);
+  desc.add<bool>("setDHtZero",false); //Set to reproduce old behaviour
+  descriptions.add(defaultModuleLabel<HLTAlphaTFilter<T>>(), desc);
 }
 
 
@@ -164,7 +166,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
           // Add to JetVector
           LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
           jets.push_back( JetLVec );
-          aT = AlphaT(jets).value();
+          aT = AlphaT(jets,setDHtZero_).value();
           if(htFast > minHt_ && aT > minAlphaT_){
             // set flat to one so that we don't carry on looping though the jets
             flag = 1;
@@ -237,7 +239,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
         if(flag!=1){ //Added for efficiency
           //Calculate the value for alphaT
-          float aT = AlphaT(jets).value();
+          float aT = AlphaT(jets,setDHtZero_).value();
 
           // Trigger decision!
           if(aT > minAlphaT_){

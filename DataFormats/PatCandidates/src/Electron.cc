@@ -21,9 +21,6 @@ Electron::Electron() :
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
     ecalDrivenMomentum_(Candidate::LorentzVector(0.,0.,0.,0.)),
-    cachedDB_(false),
-    dB_(0.0),
-    edB_(0.0),   
     ecalRegressionEnergy_(0.0),
     ecalTrackRegressionEnergy_(0.0),
     ecalRegressionError_(0.0),
@@ -51,10 +48,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
-    ecalDrivenMomentum_(anElectron.p4()),
-    cachedDB_(false),
-    dB_(0.0),
-    edB_(0.0)
+    ecalDrivenMomentum_(anElectron.p4())
 {
   initImpactParameters();
 }
@@ -70,10 +64,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
-    ecalDrivenMomentum_(anElectronRef->p4()),
-    cachedDB_(false),
-    dB_(0.0),
-    edB_(0.0)
+    ecalDrivenMomentum_(anElectronRef->p4())
 {
   initImpactParameters();
 }
@@ -89,10 +80,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
-    ecalDrivenMomentum_(anElectronRef->p4()),
-    cachedDB_(false),
-    dB_(0.0),
-    edB_(0.0)
+    ecalDrivenMomentum_(anElectronRef->p4())
 {
   initImpactParameters();
 }
@@ -121,11 +109,9 @@ reco::operator<<(std::ostream& out, const pat::Electron& obj)
 
 /// initializes the impact parameter container vars
 void Electron::initImpactParameters() {
-  for (int i_ = 0; i_<5; ++i_){
-    ip_.push_back(0.0);
-    eip_.push_back(0.0);
-    cachedIP_.push_back(false);
-  }
+  std::fill(ip_, ip_+IpTypeSize, 0.0f);
+  std::fill(eip_, eip_+IpTypeSize, 0.0f);
+  cachedIP_ = 0;
 }
 
 
@@ -412,16 +398,8 @@ reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
 /// will return the electron transverse impact parameter
 /// relative to the primary vertex.
 double Electron::dB(IpType type_) const {
-  // preserve old functionality exactly
-  if (type_ == None){
-    if ( cachedDB_ ) {
-      return dB_;
-    } else {
-      return std::numeric_limits<double>::max();
-    }
-  }
   // more IP types (new)
-  else if ( cachedIP_[type_] ) {
+  if ( cachedIP_ & (1 << int(type_))) {
     return ip_[type_];
   } else {
     return std::numeric_limits<double>::max();
@@ -439,33 +417,17 @@ double Electron::dB(IpType type_) const {
 /// will return the electron transverse impact parameter uncertainty
 /// relative to the primary vertex.
 double Electron::edB(IpType type_) const {
-  // preserve old functionality exactly
-  if (type_ == None) {
-    if ( cachedDB_ ) {
-      return edB_;
-    } else {
-      return std::numeric_limits<double>::max();
-    }
-  }
   // more IP types (new)
-  else if ( cachedIP_[type_] ) {
+  if ( cachedIP_ & (1 << int(type_))) {
     return eip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
-
 }
 
 /// Sets the impact parameter and its error wrt the beamline and caches it.
 void Electron::setDB(double dB, double edB, IpType type){
-  if (type == None) { // Preserve  old functionality exactly
-    dB_ = dB; edB_ = edB;
-    cachedDB_ = true;
-  } else {
-    ip_[type] = dB; 
-    eip_[type] = edB; 
-    cachedIP_[type] = true;
-  }
+  ip_[type] = dB; eip_[type] = edB; cachedIP_ |= (1 << int(type));
 }
 
 /// Set additional missing mva input variables for new mva ID (71X update)
@@ -473,11 +435,6 @@ void Electron::setMvaVariables( double sigmaIetaIphi, double ip3d){
   sigmaIetaIphi_ = sigmaIetaIphi;
   ip3d_ = ip3d;
 } 
-
-void Electron::setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) {
-    if (!associatedPackedFCandidateIndices_.empty()) throw cms::Exception("Unsupported", "You can't call setPackedPFCandidateCollection _after_ having called setAssociatedPackedPFCandidates");
-    packedPFCandidates_ = refprod;
-}
 
 edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandidates() const {
     edm::RefVector<pat::PackedCandidateCollection> ret(packedPFCandidates_.id());
@@ -487,17 +444,4 @@ edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandi
     return ret;
 }
 
-void Electron::setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) {
-    if (packedPFCandidates_.isNonnull()) {
-        if (refvector.id().isValid() && refvector.id() != packedPFCandidates_.id()) {
-            throw cms::Exception("Unsupported", "setAssociatedPackedPFCandidates pointing to a collection other than the one from setPackedPFCandidateCollection");
-        }
-    } else {
-        packedPFCandidates_ = edm::RefProd<pat::PackedCandidateCollection>(refvector);
-    }
-    associatedPackedFCandidateIndices_.clear();
-    for (const edm::Ref<pat::PackedCandidateCollection> & ref : refvector) {
-        associatedPackedFCandidateIndices_.push_back(ref.key());
-    }
-}
 

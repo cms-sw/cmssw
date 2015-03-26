@@ -29,6 +29,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+namespace edm {
+  class HepMCProduct;
+}
+
 class PythiaFilterIsolatedTrack : public edm::EDFilter {
    public:
       explicit PythiaFilterIsolatedTrack(const edm::ParameterSet&);
@@ -44,7 +48,7 @@ class PythiaFilterIsolatedTrack : public edm::EDFilter {
    private:
       
       // parameters
-      std::string ModuleLabel_; // label to get the generated particles
+      edm::EDGetTokenT<edm::HepMCProduct> token_; // token to get the generated particles
       double MaxSeedEta_;       // maximum eta of the isolated track seed
       double MinSeedMom_;       // minimum momentum of the isolated track seed
       double MinIsolTrackMom_;  // minimum prohibited momentum of a nearby track

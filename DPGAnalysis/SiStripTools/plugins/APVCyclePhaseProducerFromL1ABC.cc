@@ -77,9 +77,9 @@ private:
   TH1F** _hdbx;
   TH1F** _hdorbit;
   const unsigned int _firstgoodrun;
-  std::map<unsigned int, long long> _offsets;
+  std::map<edm::EventNumber_t, long long> _offsets;
   long long _curroffset;
-  unsigned int _curroffevent;
+  edm::EventNumber_t _curroffevent;
 
 };
 
@@ -176,7 +176,7 @@ APVCyclePhaseProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSetup&)
   // summary of absolute bx offset vector
 
   edm::LogInfo("L1AcceptBunchCrossingAbsoluteBXOffsetSummary") << "Absolute BX offset summary:";
-  for(std::map<unsigned int, long long>::const_iterator offset=_offsets.begin();offset!=_offsets.end();++offset) {
+  for(std::map<edm::EventNumber_t, long long>::const_iterator offset=_offsets.begin();offset!=_offsets.end();++offset) {
     edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetSummary") << offset->first << " " << offset->second;
   }
 

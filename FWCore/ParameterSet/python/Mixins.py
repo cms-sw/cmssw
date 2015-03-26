@@ -231,7 +231,7 @@ class _Parameterizable(object):
     def dumpPython(self, options=PrintOptions()):
         others = []
         usings = []
-        for name in self.parameterNames_():
+        for name in sorted(self.parameterNames_()):
             param = self.__dict__[name]
             # we don't want minuses in names
             name2 = name.replace('-','_')
@@ -376,7 +376,7 @@ class _TypedParameterizable(_Parameterizable):
     def dumpPythonAttributes(self, myname, options):
         """ dumps the object with all attributes declared after the constructor"""
         result = ""
-        for name in self.parameterNames_():
+        for name in sorted(self.parameterNames_()):
             param = self.__dict__[name]
             result += options.indentation() + myname + "." + name + " = " + param.dumpPython(options) + "\n"
         return result

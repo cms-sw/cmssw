@@ -10,7 +10,7 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -19,8 +19,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,33 +32,23 @@
 // class decleration
 //
 
-class TrackAssociatorEDProducer : public edm::EDProducer {
+class TrackAssociatorEDProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackAssociatorEDProducer(const edm::ParameterSet&);
   ~TrackAssociatorEDProducer();
   
 private:
-  virtual void beginJob() override {}
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  bool first;
-  edm::InputTag label_tr;
-  edm::InputTag label_tp;
-  std::string associator;
   bool  theIgnoremissingtrackcollection;
 
   edm::EDGetTokenT<TrackingParticleCollection> TPCollectionToken_;
   edm::EDGetTokenT<edm::View<reco::Track> > trackCollectionToken_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associatorToken_;
 
 };
 
 TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& pset):
-  first(true),
-  label_tr(pset.getParameter< edm::InputTag >("label_tr")),
-  label_tp(pset.getParameter< edm::InputTag >("label_tp")),
-  associator(pset.getParameter< std::string >("associator")),
   theIgnoremissingtrackcollection(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false))
 {
   produces<reco::SimToRecoCollection>();
@@ -67,6 +56,7 @@ TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& ps
 
   TPCollectionToken_    = consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp"));
   trackCollectionToken_ = consumes<edm::View<reco::Track> >(pset.getParameter< edm::InputTag >("label_tr")); 
+  associatorToken_      = consumes<reco::TrackToTrackingParticleAssociator>(pset.getParameter<edm::InputTag>("associator") );
 
 }
 
@@ -82,18 +72,16 @@ TrackAssociatorEDProducer::~TrackAssociatorEDProducer() {
 
 // ------------ method called to produce the data  ------------
 void
-TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+TrackAssociatorEDProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
    using namespace edm;
-   if(first){
-     iSetup.get<TrackAssociatorRecord>().get(associator,theAssociator);
-     first = false;
-   }
+
+   edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+   iEvent.getByToken(associatorToken_,theAssociator);
+
    Handle<TrackingParticleCollection>  TPCollection ;
-   //   iEvent.getByLabel(label_tp, TPCollection);
    iEvent.getByToken(TPCollectionToken_,TPCollection);
 
    Handle<edm::View<reco::Track> > trackCollection;
-   //   bool trackAvailable = iEvent.getByLabel (label_tr, trackCollection );
    bool trackAvailable = iEvent.getByToken(trackCollectionToken_, trackCollection );
 
    std::auto_ptr<reco::RecoToSimCollection> rts;
@@ -106,12 +94,11 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      //associate tracks
      LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
      reco::RecoToSimCollection recSimColl=theAssociator->associateRecoToSim(trackCollection,
-									    TPCollection,
-									    &iEvent, &iSetup);
+									    TPCollection);
+
      LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
      reco::SimToRecoCollection simRecColl=theAssociator->associateSimToReco(trackCollection,
-									    TPCollection, 
-									    &iEvent, &iSetup);
+									    TPCollection);
      
      rts.reset(new reco::RecoToSimCollection(recSimColl));
      str.reset(new reco::SimToRecoCollection(simRecColl));
@@ -119,13 +106,6 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      iEvent.put(rts);
      iEvent.put(str);
    }
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrackAssociatorEDProducer::endJob() {
 }
 
 //define this as a plug-in

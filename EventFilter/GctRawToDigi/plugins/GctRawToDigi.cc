@@ -6,6 +6,8 @@
 #include <iostream>
 
 // Framework headers
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -117,6 +119,27 @@ GctRawToDigi::~GctRawToDigi()
   delete formatTranslator_;
 }
 
+void GctRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("unpackSharedRegions",false);
+  desc.add<unsigned int>("numberOfGctSamplesToUnpack",1);
+  desc.add<unsigned int>("numberOfRctSamplesToUnpack",1);
+  desc.add<bool>("hltMode",false);
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
+  static const char* const kComment=
+    " \n"
+    "   value   |                        Unpacker/RAW Format Version \n"
+    "-----------|---------------------------------------------------------------------------- \n"
+    "     0     |   Auto-detects RAW Format in use - the recommended option \n"
+    "     1     |   Force usage of the Monte-Carlo Legacy unpacker (unpacks DigiToRaw events) \n"
+    "     2     |   Force usage of the RAW Format V35 unpacker \n"
+    "     3     |   Force usage of the RAW Format V38 unpacker \n";
+  desc.add<unsigned int>("unpackerVersion",0)->setComment(kComment);
+  desc.addUntracked<int>("gctFedId",745);
+  desc.addUntracked<bool>("checkHeaders",false),
+  desc.addUntracked<bool>("verbose",false);
+  descriptions.add("gctRawToDigi",desc);
+}
 
 //
 // member functions

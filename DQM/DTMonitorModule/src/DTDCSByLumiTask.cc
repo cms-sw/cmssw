@@ -36,7 +36,6 @@ using namespace std;
 
 DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps) : theEvents(0) , theLumis(0) {
 
-  theDQMStore = Service<DQMStore>().operator->();
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
     << "[DTDCSByLumiTask]: Constructor" << endl;
 
@@ -54,28 +53,10 @@ DTDCSByLumiTask::~DTDCSByLumiTask(){
 
 }
 
-
-void DTDCSByLumiTask::endJob(){
-
-  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    <<"[DTDCSByLumiTask] endjob called!"<<endl;
-
-}
-
-
-void DTDCSByLumiTask::beginJob(){
-
-  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    <<"[DTDCSByLumiTask]: BeginJob"<<endl;
-
-}
-
-void DTDCSByLumiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+void DTDCSByLumiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
     << "[DTDCSByLumiTask]: begin run" << endl;
-
-  bookHistos();
 
   context.get<MuonGeometryRecord>().get(theDTGeom);
 
@@ -96,6 +77,22 @@ void DTDCSByLumiTask::beginRun(const edm::Run& run, const edm::EventSetup& conte
 
 }
 
+
+void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
+
+  // Book bylumi histo (# of bins as reduced as possible)
+  ibooker.setCurrentFolder(topFolder());
+
+  for(int wheel=-2; wheel <=2; wheel++) {
+
+    stringstream wheel_str; wheel_str << wheel;
+
+    MonitorElement* ME = ibooker.book1D("hActiveUnits"+wheel_str.str(),"Active Untis x LS Wh"+wheel_str.str(),2,0.5,2.5);
+    ME->setLumiFlag();// Set LumiFlag in order to save histo every LS
+
+    hActiveUnits.push_back(ME);
+  }
+}
 
 void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
@@ -156,32 +153,8 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
     hActiveUnits[wheel+2]->Fill(2,nActiveWires); // CB 2nd bin is the list of wires wit HV ON
 
   }
-
-  /* LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-     << "[DTDCSByLumiTask]: processed lumi # : " << lumiSeg.id().luminosityBlock()
-     << "\t# of wires " << hActiveUnits->getBinContent(1)
-     << "\t# of Active wires (anodes && cathodes && strips ON) : "
-     << hActiveUnits->getBinContent(2) << endl;
-   */
 }
 
-
-void DTDCSByLumiTask::bookHistos() {
-
-  // Book bylumi histo (# of bins as reduced as possible)
-  theDQMStore->setCurrentFolder(topFolder());
-
-  for(int wheel=-2; wheel <=2; wheel++) {
-
-    stringstream wheel_str; wheel_str << wheel;
-
-    MonitorElement* ME = theDQMStore->book1D("hActiveUnits"+wheel_str.str(),"Active Untis x LS Wh"+wheel_str.str(),2,0.5,2.5);
-    ME->setLumiFlag();// Set LumiFlag in order to save histo every LS
-
-    hActiveUnits.push_back(ME);
-  }
-
-}
 
 void DTDCSByLumiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 

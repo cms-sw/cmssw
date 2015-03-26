@@ -205,6 +205,10 @@ namespace l1t {
             // getBlock() returns a non-null auto_ptr on success
             std::auto_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
+               // skip empty filler blocks
+               if (block->header().getID() == 0 and block->header().getSize() == 0)
+                  continue;
+
                auto unpacker = unpackers.find(block->header().getID());
 
                block->amc(amc.header());

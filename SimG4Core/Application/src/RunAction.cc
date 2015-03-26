@@ -5,32 +5,54 @@
 #include "SimG4Core/Notification/interface/EndOfRun.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
- 
+
+#include "G4Timer.hh" 
 #include <iostream>
 #include <fstream>
+
+//using std::cout;
+//using std::endl;
  
 RunAction::RunAction(const edm::ParameterSet& p, SimRunInterface* rm) 
    : m_runInterface(rm), 
-     m_stopFile(p.getParameter<std::string>("StopFile")) {}
+     m_stopFile(p.getParameter<std::string>("StopFile")), m_timer(0) 
+{}
 
 void RunAction::BeginOfRunAction(const G4Run * aRun)
 {
   if (std::ifstream(m_stopFile.c_str()))
     {
       edm::LogWarning("SimG4CoreApplication")
-        << "BeginOfRunAction: termination signal received";
+        << "RunAction::BeginOfRunAction: termination signal received";
       m_runInterface->abortRun(true);
     }
-    BeginOfRun r(aRun);
-    m_beginOfRunSignal(&r);
+  BeginOfRun r(aRun);
+  m_beginOfRunSignal(&r);
+  /*
+  if (isMaster) {
+    m_timer = new G4Timer();
+    m_timer->Start();
+  }
+  */
 }
 
 void RunAction::EndOfRunAction(const G4Run * aRun)
 {
+  if (isMaster) {
+    edm::LogInfo("SimG4CoreApplication") 
+      << "RunAction: total number of events "  << aRun->GetNumberOfEvent();
+    if(m_timer) {
+      m_timer->Stop();
+      edm::LogInfo("SimG4CoreApplication") 
+	<< "RunAction: Master thread time  "  << *m_timer;
+      // std::cout << "\n" << "Master thread time:  "  << *m_timer << std::endl;
+      delete m_timer;
+    }
+  }
   if (std::ifstream(m_stopFile.c_str()))
     {
       edm::LogWarning("SimG4CoreApplication")
-        << "EndOfRunAction: termination signal received";
+        << "RunAction::EndOfRunAction: termination signal received";
       m_runInterface->abortRun(true);
     }
   EndOfRun r(aRun);

@@ -1,5 +1,4 @@
 #include <iostream>
-#include "FWCore/Integration/test/OtherThingAnalyzer.h"
 #include "DataFormats/TestObjects/interface/OtherThing.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,8 +6,28 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 namespace edmtest {
+  
+  class OtherThingAnalyzer : public edm::stream::EDAnalyzer<> {
+  public:
+    
+    explicit OtherThingAnalyzer(edm::ParameterSet const& pset);
+    
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    
+    void doit(edm::Event const& event, std::string const& label);
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  private:
+    bool thingWasDropped_;
+    edm::InputTag otherTag_;
+  };
+  
   OtherThingAnalyzer::OtherThingAnalyzer(edm::ParameterSet const& pset) :
     thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped")),
     otherTag_(pset.getUntrackedParameter<edm::InputTag>("other"))

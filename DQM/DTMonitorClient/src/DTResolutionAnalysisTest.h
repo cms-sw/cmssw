@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -17,6 +20,8 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
 #include <string>
 #include <map>
 
@@ -25,8 +30,7 @@ class DTSuperLayerId;
 class DQMStore;
 class MonitorElement;
 
-
-class DTResolutionAnalysisTest: public edm::EDAnalyzer {
+class DTResolutionAnalysisTest: public DQMEDHarvester {
 
 public:
 
@@ -36,30 +40,18 @@ public:
   /// Destructor
   virtual ~DTResolutionAnalysisTest();
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// book the summary histograms
-  void bookHistos();
-  void bookHistos(int wh);
-  void bookHistos(int wh, int sect);
+  void bookHistos(DQMStore::IBooker &);
+  void bookHistos(DQMStore::IBooker &,int wh);
+  void bookHistos(DQMStore::IBooker &,int wh, int sect);
 
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& c);
-
-
+protected:
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
 private:
   void resetMEs();
@@ -69,8 +61,6 @@ private:
   int prescaleFactor;
   int run;
   int percentual;
-
-  DQMStore* dbe;
 
   // permitted test ranges
   double  maxGoodMeanValue;

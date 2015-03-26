@@ -20,6 +20,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
@@ -33,7 +40,7 @@ class DQMStore;
 class MonitorElement;
 class DTTimeEvolutionHisto;
 
-class DTSegmentAnalysisTask: public edm::EDAnalyzer{
+class DTSegmentAnalysisTask: public DQMEDAnalyzer{
 
 
 public:
@@ -44,10 +51,7 @@ public:
   virtual ~DTSegmentAnalysisTask();
 
   /// BeginRun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
-
-  /// Endjob
-  void endJob();
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -59,11 +63,10 @@ public:
 
 protected:
 
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-
-  // The BE interface
-  DQMStore* theDbe;
 
   // Switch for detailed analysis
   bool detailedAnalysis;
@@ -80,7 +83,7 @@ private:
   edm::ParameterSet parameters;
 
   // book the histos
-  void bookHistos(DTChamberId chamberId);
+  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chamberId);
   // Fill a set of histograms for a given chamber
   void fillHistos(DTChamberId chamberId,
 		  int nHits,

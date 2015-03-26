@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from SimG4Core.Application.hectorParameter_cfi import *
 
+## This object is used to customise g4SimHits for different running scenarios
+from Configuration.StandardSequences.Eras import eras
+
 common_heavy_suppression = cms.PSet(
     NeutronThreshold = cms.double(30.0),
     ProtonThreshold = cms.double(30.0),
@@ -50,6 +53,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     G4Commands = cms.vstring(''),
     FileNameField = cms.untracked.string(''),
     FileNameGDML = cms.untracked.string(''),
+    FileNameRegions = cms.untracked.string(''),
     Watchers = cms.VPSet(),
     HepMCProductLabel = cms.InputTag("generator"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
@@ -109,10 +113,12 @@ g4SimHits = cms.EDProducer("OscarProducer",
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),
         GflashEcal    = cms.bool(False),
+        GflashHcal    = cms.bool(False),
+        GflashEcalHad = cms.bool(False),
+        GflashHcalHad = cms.bool(False),
         bField        = cms.double(3.8),
         energyScaleEB = cms.double(1.032),
         energyScaleEE = cms.double(1.024),
-        GflashHcal    = cms.bool(False),
         ExoticaPhysicsSS = cms.untracked.bool(False),
         RusRoElectronEnergyLimit  = cms.double(0.0),
         RusRoEcalElectron         = cms.double(1.0),
@@ -304,7 +310,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ParametrizeLast   = cms.untracked.bool(False)
     ),
     HFShowerLibrary = cms.PSet(
-        FileName        = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_oldpmt_noatt_eta4_16en.root'),
+        FileName        = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_oldpmt_noatt_eta4_16en_v3.root'),
         BackProbability = cms.double(0.2),
         TreeEMID        = cms.string('emParticles'),
         TreeHadID       = cms.string('hadParticles'),
@@ -410,4 +416,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
 )
 
 
-
+##
+## Change the HFShowerLibrary file used for Run 2
+##
+eras.run2_common.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )

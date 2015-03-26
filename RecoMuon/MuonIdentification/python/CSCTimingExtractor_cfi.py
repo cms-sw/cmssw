@@ -11,7 +11,6 @@ CSCTimingExtractorBlock = cms.PSet(
             'PropagatorWithMaterialOpposite'),
         RPCLayers = cms.bool(True)
     ),
-    CSCsegments = cms.InputTag("csc2DSegments"),
     PruneCut = cms.double(9.),
     CSCStripTimeOffset = cms.double(0.),
     CSCWireTimeOffset = cms.double(0.),

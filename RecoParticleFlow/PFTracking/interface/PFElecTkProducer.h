@@ -73,15 +73,15 @@ class PFElecTkProducer final : public edm::stream::EDProducer<> {
       float minTangDist(const reco::GsfPFRecTrack& primGsf,
 			const reco::GsfPFRecTrack& secGsf); 
       
-      bool isSameEgSC(const reco::ElectronSeedRef& nSeedRef,
-		      const reco::ElectronSeedRef& iSeedRef,
+      bool isSameEgSC(const reco::ElectronSeed& nSeed,
+		      const reco::ElectronSeed& iSeed,
 		      bool& bothGsfEcalDriven,
 		      float& SCEnergy);
 
       bool isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFRecTrack,
 				       const reco::GsfPFRecTrack& iGsfPFRecTrack,
-				       const reco::ElectronSeedRef& nSeedRef,
-				       const reco::ElectronSeedRef& iSeedRef,
+				       const reco::ElectronSeed& nSeed,
+				       const reco::ElectronSeed& iSeed,
 				       const reco::PFClusterCollection& theEClus,
 				       bool& bothGsfTrackerDriven,
 				       bool& nEcalDriven,

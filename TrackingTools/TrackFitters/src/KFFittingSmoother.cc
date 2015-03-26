@@ -73,7 +73,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     double log_pixel_prob_cut = theLogPixelProbabilityCut;  // ggiurgiu@fnal.gov
 
 
-    unsigned int outlierId = 0;
+    unsigned int outlierId = 0xffffffff;
     const GeomDet* outlierDet = 0;
 
     unsigned int low_pixel_prob_Id = 0; // ggiurgiu@fnal.gov
@@ -104,7 +104,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     //}
 
     if (!checkForNans(smoothed)) {
-      edm::LogError("TrackNaN")<<"Track has NaN";
+      edm::LogWarning("TrackNaN")<<"Track has NaN";
       return Trajectory();
     }
 
@@ -137,7 +137,9 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 	double estimate = tm->estimate();
 
 	// --- here is the block of code about generic chi2-based Outlier Rejection ---
-	if ( estimate > cut && theEstimateCut > 0 ) {
+	if ( ( (estimate>cut) & (theEstimateCut>0) ) && 
+             tm->recHit()->det()!=nullptr // do not consider outliers constraints and other special "hits" 
+           ) {  
 	  hasoutliers = true;
 	  cut = estimate;
 	  outlierId  = tm->recHit()->geographicalId().rawId();

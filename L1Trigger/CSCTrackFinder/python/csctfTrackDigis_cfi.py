@@ -1,5 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+# This function makes all the changes to csctfTrackDigis required for it to work
+# in Run 2. It is declared here to be obvious when this file is opened, but not
+# applied until after csctfTrackDigis is declared (and then only if the "run2"
+# era is active).
+def _modifyCsctfTrackDigisForRun2( object ) :
+	object.SectorProcessor.PTLUT.PtMethod = 34
+	object.SectorProcessor.gangedME1a = False
+	object.SectorProcessor.firmwareSP = 20140515
+	object.SectorProcessor.initializeFromPSet = False 
+
+
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 	DTproducer = cms.untracked.InputTag("dtTriggerPrimitiveDigis"),
@@ -112,4 +123,9 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 	readDtDirect = cms.bool(False),
 )
 
+#
+# If the run2 era is active, make the required changes
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2_common.toModify( csctfTrackDigis, _modifyCsctfTrackDigisForRun2 )
 

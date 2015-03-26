@@ -23,6 +23,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
@@ -41,7 +42,7 @@ class DTGeometry;
 class DTChamberId;
 class DTTrigGeomUtils;
 
-class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
+class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
 
  public:
 
@@ -53,17 +54,16 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
 
  protected:
 
-  // BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& context);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   /// Book chamber granularity histograms
-  void bookChamberHistos(const DTChamberId& dtCh, std::string histoTag, std::string folder="");
+  void bookChamberHistos(DQMStore::IBooker & ibooker,const DTChamberId& dtCh, std::string histoTag, std::string folder="");
 
   /// Book wheel granularity histograms
-  void bookWheelHistos(int wheel, std::string histoTag, std::string folder="");
+  void bookWheelHistos(DQMStore::IBooker & ibooker,int wheel, std::string histoTag, std::string folder="");
 
   /// checks for RPC Triggers
   bool hasRPCTriggers(const edm::Event& e);
@@ -76,9 +76,6 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-
-  /// EndJob
-  void endJob(void);
 
  private:
 
@@ -99,7 +96,6 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   edm::InputTag inputTagSEG;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 
-  DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   DTTrigGeomUtils* trigGeomUtils;

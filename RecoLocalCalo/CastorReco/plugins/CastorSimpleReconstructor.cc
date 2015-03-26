@@ -16,7 +16,7 @@ using namespace std;
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>

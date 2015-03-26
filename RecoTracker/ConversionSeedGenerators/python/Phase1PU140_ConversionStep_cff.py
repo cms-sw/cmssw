@@ -1,18 +1,21 @@
+### who is using this python file ?
+### I found it obsolete, at least in terms of the TrackClusterRemover setting
+### now, it is ok, but ....
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.ConversionSeedGenerators.Phase1PU140_PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
-convClusters = cms.EDProducer("TrackClusterRemover",
-                              clusterLessSolution = cms.bool(True),
-                              oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
-                              trajectories = cms.InputTag("pixelPairStepTracks"),
-                              overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
-                              TrackQuality = cms.string('highPurity'),
-                              pixelClusters = cms.InputTag("siPixelClusters"),
-                              stripClusters = cms.InputTag("siStripClusters"),
-                              Common = cms.PSet(maxChi2 = cms.double(30.0))
-                              )
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+convClusters = trackClusterRemover.clone(
+   maxChi2               = cms.double(30.0),
+   trajectories          = cms.InputTag("pixelPairStepTracks"),
+   pixelClusters         = cms.InputTag("siPixelClusters"),
+   stripClusters         = cms.InputTag("siStripClusters"),
+   oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
+   overrideTrkQuals      = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
+   TrackQuality          = cms.string('highPurity'),
+)
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
@@ -222,7 +225,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
     minNrOfHitsForRebuild = 3,
-    clustersToSkip = cms.InputTag('convClusters'),
     maxCand = 2
     )
 
@@ -230,6 +232,7 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cf
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
+    clustersToSkip = cms.InputTag("convClusters"),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
 )
 

@@ -5,7 +5,7 @@
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class AlignmentErrors;
+class AlignmentErrorsExtended;
 class AlignmentParameters;
 class AlignmentPositionError;
 class Alignments;
@@ -186,7 +186,7 @@ public:
   virtual Alignments* alignments() const = 0;
   
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const = 0;
+  virtual AlignmentErrorsExtended* alignmentErrors() const = 0;
 
   /// Return surface deformations, sorted by DetId
   AlignmentSurfaceDeformations* surfaceDeformations() const;

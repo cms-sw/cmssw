@@ -33,26 +33,26 @@ class EgammaHLTPFChargedIsolationProducer : public edm::EDProducer {
   explicit EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTPFChargedIsolationProducer() {};
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
 private:
 
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
   
-  bool useGsfTrack_;
-  bool useSCRefs_;
+  const bool useGsfTrack_;
+  const bool useSCRefs_;
   
-  double drMax_;
-  double drVetoBarrel_;
-  double drVetoEndcap_;
-  double ptMin_;
-  double dzMax_;
-  double dxyMax_;
-  int pfToUse_;
+  const double drMax_;
+  const double drVetoBarrel_;
+  const double drVetoEndcap_;
+  const double ptMin_;
+  const double dzMax_;
+  const double dxyMax_;
+  const int pfToUse_;
 
 };
 

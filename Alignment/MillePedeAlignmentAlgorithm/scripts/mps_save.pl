@@ -78,7 +78,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
 
   @FILENAMES = ("treeFile_merge.root","histograms_merge.root","millePedeMonitor_merge.root",
 		"alignment_merge.py","alignment.log*","millepede.log*",
-		"millepede.res*","millepede.his*","pede.dump*",
+		"millepede.res*","millepede.his*","pede.dump*", "millepede.end",
 		"alignments_MP.db","pedeSteer*.txt*","theScript.sh");
 
   while ($theFile = shift @FILENAMES) {

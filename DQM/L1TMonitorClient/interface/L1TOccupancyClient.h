@@ -11,6 +11,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DQM/L1TMonitorClient/interface/L1TOccupancyClientHistogramService.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -26,7 +27,7 @@
 #include <TNamed.h>
 #include <TRandom3.h>
 
-class L1TOccupancyClient: public edm::EDAnalyzer {
+class L1TOccupancyClient: public DQMEDHarvester {
 
   public:
 
@@ -37,20 +38,10 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
     virtual ~L1TOccupancyClient();
  
   protected:
-
-    /// BeginJob
-    void beginJob(void);
-    void endJob();
-
-    /// BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    void endRun  (const edm::Run& r, const edm::EventSetup& c);
-
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context);
-    void endLuminosityBlock  (const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);       // DQM Client Diagnostic
-
-    /// Fake Analyze
-    void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+    
+    void dqmEndJob  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
+    void book   (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    void dqmEndLuminosityBlock  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);       // DQM Client Diagnostic
   
     //DQM test routines
     double xySymmetry(const edm::ParameterSet& ps, 
@@ -62,9 +53,8 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
   private:
 
     edm::ParameterSet                   parameters_; //parameter set from python
-    DQMStore*                           dbe_;        //store service
-    L1TOccupancyClientHistogramService* hservice_;   //histogram service
-    TFile*                              file_;       //output file for test results
+    L1TOccupancyClientHistogramService*  hservice_;   //histogram service
+    TFile*                               file_;       //output file for test results
 
     // bool
     bool verbose_;    //verbose mode

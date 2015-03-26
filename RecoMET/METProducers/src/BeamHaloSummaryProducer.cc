@@ -143,7 +143,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Access selected SuperClusters
   for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
     {
-      edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
+      edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n] );
       
       float angle = vm_Angle[cluster];
       float roundness = vm_Roundness[cluster];

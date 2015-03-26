@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# This object modifies hcalSimParameters for different scenarios
+from Configuration.StandardSequences.Eras import eras
+
 hcalSimParameters = cms.PSet(
     #  In HF, the SimHits energy is actually
     # the number of photoelectrons from the shower
@@ -97,3 +100,19 @@ hcalSimParameters.hoZecotek.photoelectronsToAnalog = [3.0]*16
 hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
 hcalSimParameters.hoHamamatsu.pixels = cms.int32(960)
 hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = [3.0]*16
+
+#
+# Need to change the HO parameters for post LS1 running
+#
+def _modifyHcalSimParametersForPostLS1( object ) :
+    """
+    Customises the HCal digitiser for post LS1 running
+    """
+    object.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+    object.ho.siPMCode = cms.int32(1)
+    object.ho.pixels = cms.int32(2500)
+    object.ho.doSiPMSmearing = cms.bool(False)
+    object.hf1.samplingFactor = cms.double(0.60)
+    object.hf2.samplingFactor = cms.double(0.60)
+
+eras.run2_common.toModify( hcalSimParameters, func=_modifyHcalSimParametersForPostLS1 )

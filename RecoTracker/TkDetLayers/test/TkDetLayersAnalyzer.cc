@@ -12,7 +12,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -113,6 +115,9 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
     << " Top node is  "<< &(*pDD) << "\n"
     << " And Contains  Daughters: "<< (*pDD).components().size() ;   
 
+  ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
 
   // -------- here it constructs only a TOBLayer -------------------------
   vector<const GeometricDet*> geometricDetLayers = (*pDD).components();
@@ -144,7 +149,7 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
   */
   
   TOBLayerBuilder myTOBBuilder;
-  TOBLayer* testTOBLayer = myTOBBuilder.build(geometricDetTOBlayer,&(*pTrackerGeometry));
+  TOBLayer* testTOBLayer = myTOBBuilder.build(geometricDetTOBlayer,&(*pTrackerGeometry),&(*tTopo));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTOBLayer: " << testTOBLayer;
   // ------------- END -------------------------
 

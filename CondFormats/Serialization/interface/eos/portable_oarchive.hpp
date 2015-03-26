@@ -92,7 +92,7 @@
 #include <boost/archive/basic_binary_oprimitive.hpp>
 #include <boost/archive/basic_binary_oarchive.hpp>
 
-#if BOOST_VERSION >= 103500
+#if BOOST_VERSION >= 103500 && BOOST_VERSION <= 105500
 #include <boost/archive/shared_ptr_helper.hpp>
 #endif
 
@@ -194,7 +194,7 @@ namespace eos {
 		// save_override functions so we chose to stay one level higher
 		, public boost::archive::basic_binary_oarchive<portable_oarchive>
 
-	#if BOOST_VERSION >= 103500
+	#if BOOST_VERSION >= 103500 && BOOST_VERSION <= 105500
 		// mix-in helper class for serializing shared_ptr
 		, public boost::archive::detail::shared_ptr_helper
 	#endif

@@ -152,13 +152,8 @@ void DQMFileIterator::monUpdateLumi(const LumiEntry& lumi) {
   if (! mon_.isAvailable())
     return;
 
-  ptree lumi_doc;
-  lumi_doc.put("filename", lumi.filename);
-  lumi_doc.put("file_ls", lumi.file_ls);
-  lumi_doc.put("state", lumi.state);
-
   ptree doc;
-  doc.add_child(str(boost::format("extra.lumi_seen.lumi%06d") % lumi.file_ls), lumi_doc);
+  doc.put(str(boost::format("extra.lumi_seen.lumi%06d") % lumi.file_ls), lumi.state);
   mon_->outputUpdate(doc);
 }
 

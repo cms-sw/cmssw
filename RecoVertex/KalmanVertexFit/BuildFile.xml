@@ -9,7 +9,6 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="rootcore"/>

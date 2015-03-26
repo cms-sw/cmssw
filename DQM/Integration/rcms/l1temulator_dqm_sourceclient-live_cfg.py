@@ -10,7 +10,7 @@ process.load("DQM.Integration.test.environment_cfi")
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")    
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    

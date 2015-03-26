@@ -26,7 +26,7 @@ MixedLayerTriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
 MixedLayerTriplets.TEC = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
-    ,minGoodCharge = cms.double(-2069.)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 MixedLayerTriplets.FPix = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -35,7 +35,7 @@ MixedLayerTriplets.FPix = cms.PSet(
 MixedLayerTriplets.TID = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
-    ,minGoodCharge = cms.double(-2069.)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 MixedLayerTriplets.BPix = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -44,7 +44,7 @@ MixedLayerTriplets.BPix = cms.PSet(
 MixedLayerTriplets.TIB = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
-    ,minGoodCharge = cms.double(-2069.)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 

@@ -21,7 +21,6 @@
 <use name="boost_regex"/>
 <use name="boost_system"/>
 <use name="opengl"/>
-<use name="rootcintex"/>
 <use name="rootinteractive"/>
 <use name="rootgraphics"/>
 <use name="sigcpp"/>
@@ -32,6 +31,7 @@
 <lib name="GuiHtml"/>
 <lib name="GX11"/>
 <lib name="RGL"/>
+<lib name="GLEW"/>
 <export>
   <lib name="1"/>
 </export>

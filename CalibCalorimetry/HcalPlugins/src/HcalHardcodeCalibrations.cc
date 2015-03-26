@@ -247,6 +247,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLongRecoParams);
       findingRecord <HcalLongRecoParamsRcd> ();
     }
+    if ((*objectName == "ZDCLowGainFractions") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceZDCLowGainFractions);
+      findingRecord <HcalZDCLowGainFractionsRcd> ();
+    }
     if ((*objectName == "MCParams") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceMCParams);
       findingRecord <HcalMCParamsRcd> ();
@@ -632,6 +636,21 @@ std::auto_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParam
 	HcalLongRecoParam item(cell->rawId(),mSignal,mNoise);
 	result->addValues(item);
       }
+  }
+  return result;
+}
+
+std::auto_ptr<HcalZDCLowGainFractions> HcalHardcodeCalibrations::produceZDCLowGainFractions (const HcalZDCLowGainFractionsRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceZDCLowGainFractions-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rec.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  std::auto_ptr<HcalZDCLowGainFractions> result (new HcalZDCLowGainFractions (topo));
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalZDCLowGainFraction item(cell->rawId(),0.0);
+    result->addValues(item);
   }
   return result;
 }

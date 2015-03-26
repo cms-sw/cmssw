@@ -4,6 +4,9 @@
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
+ *
  */
 
 
@@ -40,8 +43,6 @@ DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
 
   parameters = ps;
   
-  dbe = edm::Service<DQMStore>().operator->();
-
   theFitter = new DTTimeBoxFitter();
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 3);
@@ -60,52 +61,20 @@ DTtTrigCalibrationTest::~DTtTrigCalibrationTest(){
 }
 
 
-void DTtTrigCalibrationTest::beginJob(){
-
-  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: BeginJob";
-
-  nevents = 0;
-
-}
-
-
 void DTtTrigCalibrationTest::beginRun(Run const& run, EventSetup const& context) {
 
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: BeginRun";
+
+  nevents = 0;
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 
-void DTtTrigCalibrationTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: Begin of LS transition";
-
-  // Get the run number
-  run = lumiSeg.run();
-
-}
-
-
-void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-
-  nevents++;
-  edm::LogVerbatim ("tTrigCalibration") << "[DTtTrigCalibrationTest]: "<<nevents<<" events";
-
-}
-
-
-void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-
-  // counts number of updats (online mode) or number of events (standalone mode)
-  //nevents++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-  //   nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
-  //edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nevents<<" updates";
-
+  void DTtTrigCalibrationTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: End of LS transition, performing the DQM client operation";
 
@@ -145,7 +114,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
       
       DTSuperLayerId slID = (*sl_it)->id();
       
-      MonitorElement * tb_histo = dbe->get(getMEName(slID));
+      MonitorElement * tb_histo = igetter.get(getMEName(slID));
       if (tb_histo) {
 	
 	edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: I've got the histo!!";	
@@ -157,7 +126,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
         // ttrig and rms are counts
 	tTrigMap->get(slID, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
 
-	if (histos.find((*ch_it)->id().rawId()) == histos.end()) bookHistos((*ch_it)->id());
+	if (histos.find((*ch_it)->id().rawId()) == histos.end()) bookHistos(ibooker,(*ch_it)->id());
 	histos.find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), meanAndSigma.first-tTrig);
 
       }
@@ -171,7 +140,8 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
 	  edm::LogError ("tTrigCalibration") <<"Chamber ID : "<<(*ch_it)->id()<<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
-	  if(wheelHistos.find((*ch_it)->id().wheel()) == wheelHistos.end()) bookHistos((*ch_it)->id(), (*ch_it)->id().wheel());
+
+	  if(wheelHistos.find((*ch_it)->id().wheel()) == wheelHistos.end()) bookHistos(ibooker,(*ch_it)->id(), (*ch_it)->id().wheel());
 	  // fill the wheel summary histos if the SL has not passed the test
 	  if(!((*ch_it)->id().station() == 4 && (*channel).getBin() == 3))
 	    wheelHistos[(*ch_it)->id().wheel()]->Fill((*ch_it)->id().sector()-1,((*channel).getBin()-1)+3*((*ch_it)->id().station()-1));
@@ -190,8 +160,6 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	    wheelHistos[3]->Fill((*ch_it)->id().sector()-1,(*ch_it)->id().wheel());
 	  }
 	}
-	// FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-	// edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
       } 
     }
 
@@ -199,12 +167,10 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 
 }
 
-
-void DTtTrigCalibrationTest::endJob(){
+void DTtTrigCalibrationTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest] endjob called!";
 
-  dbe->rmdir("DT/Tests/DTtTrigCalibration");
 }
 
 
@@ -235,29 +201,26 @@ string DTtTrigCalibrationTest::getMEName(const DTSuperLayerId & slID) {
   
 }
 
-
-
-void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch) {
+void DTtTrigCalibrationTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & ch) {
 
   stringstream wheel; wheel << ch.wheel();	
   stringstream station; station << ch.station();	
   stringstream sector; sector << ch.sector();	
 
   string histoName =  "tTrigTest_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
-
-  dbe->setCurrentFolder("DT/Tests/DTtTrigCalibration");
+  ibooker.setCurrentFolder("DT/Tests/DTtTrigCalibration");
   
-  histos[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,2);
+  histos[ch.rawId()] = ibooker.book1D(histoName.c_str(),histoName.c_str(),3,0,2);
 
 }
 
-void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch, int wh) {
+void DTtTrigCalibrationTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & ch, int wh) {
   
-  dbe->setCurrentFolder("DT/Tests/DTtTrigCalibration/SummaryPlot");
+  ibooker.setCurrentFolder("DT/Tests/DTtTrigCalibration/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
     string histoName =  "t_TrigSummary_testFailedByAtLeastBadSL";
-    wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
+    wheelHistos[3] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(2,"Sector2",1);
@@ -282,7 +245,8 @@ void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch, int wh) {
 
   stringstream wheel; wheel <<wh;
   string histoName =  "t_TrigSummary_testFailed_W" + wheel.str();
-  wheelHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+
+  wheelHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
   wheelHistos[wh]->setBinLabel(1,"Sector1",1);
   wheelHistos[wh]->setBinLabel(2,"Sector2",1);
   wheelHistos[wh]->setBinLabel(3,"Sector3",1);

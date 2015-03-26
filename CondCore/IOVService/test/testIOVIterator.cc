@@ -85,7 +85,7 @@ int main(){
     connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db");
+    pooldb.open("sqlite_file:testIOVIterator.db");
     pooldb.transaction().start(false);
     cond::IOVEditor editor( pooldb );
     editor.create(cond::timestamp,60);
@@ -169,7 +169,7 @@ int main(){
       std::cout << " size " << data.iov().size() << std::endl;
       {
         cond::DbSession pooldb2 = connection.createSession();
-        pooldb2.open("sqlite_file:mytest.db");
+        pooldb2.open("sqlite_file:testIOVIterator.db");
         pooldb2.transaction().start(false);
 	cond::IOVEditor editor(pooldb2,iovtok);
         Add add(pooldb2, editor);

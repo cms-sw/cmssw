@@ -10,7 +10,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+//#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -62,7 +62,7 @@ MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
 
 MuonRefProducer::~MuonRefProducer(){}
 
-void MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonRefProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    std::auto_ptr<edm::RefVector<std::vector<reco::Muon> > > outputCollection(new edm::RefVector<std::vector<reco::Muon> >);
 

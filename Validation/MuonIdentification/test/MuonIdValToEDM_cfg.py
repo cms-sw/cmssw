@@ -13,7 +13,7 @@ process.source = cms.Source("PoolSource",
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'MC_3XY_V15::All'
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 
 process.load("Validation.MuonIdentification.muonIdVal_cff")

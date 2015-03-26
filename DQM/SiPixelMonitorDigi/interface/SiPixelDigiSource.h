@@ -57,7 +57,9 @@
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs(DQMStore::IBooker &);
+       virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
+
+       std::string topFolderName_;
 
     private:
        edm::ParameterSet conf_;
@@ -143,10 +145,7 @@
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
        MonitorElement* meNDigisCHANBarrel_;
-       MonitorElement* meNDigisCHANBarrelL1_;
-       MonitorElement* meNDigisCHANBarrelL2_;
-       MonitorElement* meNDigisCHANBarrelL3_;
-       MonitorElement* meNDigisCHANBarrelL4_;
+       std::vector<MonitorElement*> meNDigisCHANBarrelLs_;
        MonitorElement* meNDigisCHANBarrelCh1_;
        MonitorElement* meNDigisCHANBarrelCh2_;
        MonitorElement* meNDigisCHANBarrelCh3_;
@@ -184,12 +183,8 @@
        MonitorElement* meNDigisCHANBarrelCh35_;
        MonitorElement* meNDigisCHANBarrelCh36_;
        MonitorElement* meNDigisCHANEndcap_;
-       MonitorElement* meNDigisCHANEndcapDp1_;
-       MonitorElement* meNDigisCHANEndcapDp2_;
-       MonitorElement* meNDigisCHANEndcapDp3_;
-       MonitorElement* meNDigisCHANEndcapDm1_;
-       MonitorElement* meNDigisCHANEndcapDm2_;
-       MonitorElement* meNDigisCHANEndcapDm3_;
+       std::vector<MonitorElement*> meNDigisCHANEndcapDps_;
+       std::vector<MonitorElement*> meNDigisCHANEndcapDms_;
        
        int bigEventSize;
        bool isUpgrade;
@@ -209,6 +204,8 @@
        
        //define Token(-s)
        edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
+       int noOfLayers;
+       int noOfDisks;
  };
 
 #endif

@@ -3,16 +3,16 @@ import FWCore.ParameterSet.Config as cms
 ###############################################################
 # Large impact parameter Tracking using mixed-triplet seeding #
 ###############################################################
-
-mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("detachedQuadStepClusters"),
-    trajectories = cms.InputTag("detachedQuadStepTracks"),
-    overrideTrkQuals = cms.InputTag('detachedQuadStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+mixedTripletStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("detachedQuadStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("detachedQuadStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('detachedQuadStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -36,7 +36,7 @@ mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-1.0),
         minRing = cms.int32(1),
         maxRing = cms.int32(2),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
@@ -66,6 +66,7 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
     )
 mixedTripletStepSeedsA.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+mixedTripletStepSeedsA.SeedCreatorPSet.SimpleMagneticField = ''
 
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
@@ -100,6 +101,7 @@ mixedTripletStepSeedsB.SeedComparitorPSet = cms.PSet(
     )
 mixedTripletStepSeedsB.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+mixedTripletStepSeedsB.SeedCreatorPSet.SimpleMagneticField = ''
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
@@ -142,7 +144,6 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('mixedTripletStepTrajectoryFilter')),
     propagatorAlong = cms.string('mixedTripletStepPropagator'),
     propagatorOpposite = cms.string('mixedTripletStepPropagatorOpposite'),
-    clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     maxCand = 2,
     estimator = cms.string('mixedTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -153,6 +154,7 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('mixedTripletStepSeeds'),
+    clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -175,7 +177,7 @@ mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     AlgorithmName = cms.string('mixedTripletStep'),
     src = 'mixedTripletStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
+    TTRHBuilder=cms.string('WithTrackAngle')
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.

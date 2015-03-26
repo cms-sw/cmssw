@@ -29,6 +29,8 @@ bTagCommonBlock = cms.PSet(
     softLeptonInfo = cms.InputTag("softPFElectronsTagInfos"),
     # Section for the jet flavour identification
     jetMCSrc = cms.InputTag("mcJetFlavour"),
+    caloJetMCSrc = cms.InputTag(""), #To define only if you use the old flavour tool
+    useOldFlavourTool = cms.bool(False), #Recommended only for CaloJets, if True then define caloJetMCSrc and ignore jetMCSrc
     # eta and pt ranges
     ptRanges = cms.vdouble(50.0, 80.0, 120.0),
     etaRanges = cms.vdouble(0.0, 1.4, 2.4),
@@ -40,63 +42,63 @@ bTagCommonBlock = cms.PSet(
     tagConfig = cms.VPSet(
         cms.PSet(
             bTagTrackIPAnalysisBlock,
-            type = cms.string('TrackIP'),
-            label = cms.InputTag("impactParameterTagInfos"),
+            type = cms.string('CandIP'),
+            label = cms.InputTag("pfImpactParameterTagInfos"),
             folder = cms.string("IPTag")
         ),
         cms.PSet(
             bTagCombinedSVAnalysisBlock,
-            ipTagInfos = cms.InputTag("impactParameterTagInfos"),
+            ipTagInfos = cms.InputTag("pfImpactParameterTagInfos"),
             type = cms.string('GenericMVA'),
-            svTagInfos = cms.InputTag("secondaryVertexTagInfos"),
-            label = cms.InputTag("combinedSecondaryVertexComputer"),
+            svTagInfos = cms.InputTag("pfSecondaryVertexTagInfos"),
+            label = cms.InputTag("candidateCombinedSecondaryVertexComputer"),
             folder = cms.string("CSVTag")
 
         ),
         cms.PSet(
             bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("trackCountingHighEffBJetTags"),
+            label = cms.InputTag("pfTrackCountingHighEffBJetTags"),
             folder = cms.string("TCHE")
         ),
         cms.PSet(
             bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("trackCountingHighPurBJetTags"),
+            label = cms.InputTag("pfTrackCountingHighPurBJetTags"),
             folder = cms.string("TCHP")
         ),
         cms.PSet(
             bTagProbabilityAnalysisBlock,
-            label = cms.InputTag("jetProbabilityBJetTags"),
+            label = cms.InputTag("pfJetProbabilityBJetTags"),
             folder = cms.string("JP")
         ),
         cms.PSet(
             bTagBProbabilityAnalysisBlock,
-            label = cms.InputTag("jetBProbabilityBJetTags"),
+            label = cms.InputTag("pfJetBProbabilityBJetTags"),
             folder = cms.string("JBP")
         ),
         cms.PSet(
             bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+            label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
             folder = cms.string("SSVHE")
         ),
         cms.PSet(
             bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("simpleSecondaryVertexHighPurBJetTags"),
+            label = cms.InputTag("pfSimpleSecondaryVertexHighPurBJetTags"),
             folder = cms.string("SSVHP")
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
             label = cms.InputTag("combinedSecondaryVertexBJetTags"),
+            folder = cms.string("CSV_tkOnly")
+        ),
+        cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
             folder = cms.string("CSV")
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
             folder = cms.string("CSVv2")
-        ),
-        cms.PSet(
-            bTagGenericAnalysisBlock,
-            label = cms.InputTag("ghostTrackBJetTags"),
-            folder = cms.string("GhTrk")
         ),
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,

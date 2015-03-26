@@ -1,11 +1,17 @@
 #ifndef SiPixelEDAClient_H
 #define SiPixelEDAClient_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+//Stuff for cabling map to allow end run computations
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
@@ -15,38 +21,25 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class SiPixelWebInterface;
-class SiPixelTrackerMapCreator;
 class SiPixelInformationExtractor;
 class SiPixelDataQuality;
 class SiPixelActionExecutor;
  
-class SiPixelEDAClient: public edm::EDAnalyzer{
+class SiPixelEDAClient: public DQMEDHarvester{
 
 public:
 
   SiPixelEDAClient(const edm::ParameterSet& ps);
   virtual ~SiPixelEDAClient();
-  
-  //void defaultWebPage(xgi::Input *in, 
-  //xgi::Output *out); 
-  //void publish(xdata::InfoSpace *){};
 
 protected:
 
-  void beginJob();
   void beginRun(edm::Run const& run, 
                 edm::EventSetup const& eSetup);
-  void analyze(edm::Event const& e, 
-               edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                            edm::EventSetup const& context) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                          edm::EventSetup const& c);
-  void endRun(edm::Run const& run, 
-              edm::EventSetup const& eSetup);
-  void endJob();
+  void dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const& lumiSeg, 
+                          edm::EventSetup const& c) override;
+  void dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter) override;
 
 private:
 
@@ -57,14 +50,10 @@ private:
   int nErrorsBarrel_lastLS_;
   int nErrorsEndcap_lastLS_;
   
-  
-  DQMStore* bei_;  
-
   SiPixelWebInterface* sipixelWebInterface_;
   SiPixelInformationExtractor* sipixelInformationExtractor_;
   SiPixelDataQuality* sipixelDataQuality_;
   SiPixelActionExecutor* sipixelActionExecutor_;
-  SiPixelTrackerMapCreator* trackerMapCreator_;
 
   int tkMapFrequency_;
   int summaryFrequency_;
@@ -79,15 +68,15 @@ private:
   bool offlineXMLfile_;
   int nFEDs_;
   bool Tier0Flag_;
-  bool firstRun;
+  bool firstLumi;
   bool doHitEfficiency_;
   bool isUpgrade_;
   std::string inputSource_;
   
   std::ostringstream html_out_;
   
-  //define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
+  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
 };
 
 

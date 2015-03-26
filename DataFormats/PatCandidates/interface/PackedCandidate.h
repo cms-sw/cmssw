@@ -3,7 +3,6 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -29,29 +28,21 @@ namespace pat {
 
     /// default constructor  
   PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { }
+    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { }
   explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
 
   explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
 
   explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
  
  
     
     
     /// destructor
     virtual ~PackedCandidate();
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
@@ -105,12 +96,14 @@ namespace pat {
     virtual double p() const { if (!unpacked_) unpack(); return p4c_.P(); }
     /// energy                                                                            
     virtual double energy() const { if (!unpacked_) unpack(); return p4c_.E(); }
-    /// transverse energy                                                                 
-    virtual double et() const { if (!unpacked_) unpack(); return p4_.Et(); }
+   /// transverse energy 
+    double et() const { return (pt()<=0) ? 0 : p4c_.Et(); }  
+    /// transverse energy squared (use this for cuts)!
+    double et2() const { return (pt()<=0) ? 0 : p4c_.Et2(); }   
     /// mass                                                                              
-    virtual float mass() const { if (!unpacked_) unpack(); return p4_.M(); }
+    virtual double mass() const { if (!unpacked_) unpack(); return p4_.M(); }
     /// mass squared                                                                      
-    virtual float massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
+    virtual double massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
 
     /// transverse mass                                                                   
     virtual double mt() const { if (!unpacked_) unpack(); return p4_.Mt(); }
@@ -123,9 +116,9 @@ namespace pat {
     /// z coordinate of momentum vector                                                   
     virtual double pz() const { if (!unpacked_) unpack(); return p4c_.Pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
+    virtual double pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
     /// momentum azimuthal angle                                                          
-    virtual float phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    virtual double phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
     /// momentum azimuthal angle from the track (normally identical to phi())
     virtual float phiAtVtx() const { 
         maybeUnpackBoth(); 
@@ -137,7 +130,7 @@ namespace pat {
     /// momentum polar angle                                                              
     virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
+    virtual double eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
     /// rapidity                                                                          
     virtual double rapidity() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
     /// rapidity                                                                          
@@ -205,9 +198,21 @@ namespace pat {
     /// set vertex                                                                        
     virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); vertex_ = vertex; packVtx(); }
 
+    ///This refers to the association to PV=ipv. >=PVLoose corresponds to JME definition, >=PVTight to isolation definition
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
-    const PVAssoc fromPV() const { return PVAssoc((qualityFlags_ & fromPVMask)>>fromPVShift); }
-    void setFromPV( PVAssoc fromPV )   {  qualityFlags_ = (qualityFlags_ & ~fromPVMask) | ((fromPV << fromPVShift) & fromPVMask);  }
+    const PVAssoc fromPV(size_t ipv=0) const { 
+        if(pvAssociationQuality()==UsedInFitTight and pvRef_.key()==ipv) return PVUsedInFit;
+        if(pvRef_.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
+        if(pvAssociationQuality() == CompatibilityBTag and std::abs(dzAssociatedPV()) >  std::abs(dz(ipv))) return PVTight; // it is not closest, but at least prevents the B assignment stealing
+        if(pvAssociationQuality() < UsedInFitLoose or pvRef_->ndof() < 4.0 ) return PVLoose;
+        return NoPV;
+    }
+
+    /// The following contains information about how the association to the PV, given in vertexRef, is obtained.
+    ///
+    enum PVAssociationQuality { NotReconstructedPrimary=0,OtherDeltaZ=1,CompatibilityBTag=4,CompatibilityDz=5,UsedInFitLoose=6,UsedInFitTight=7};
+    const PVAssociationQuality pvAssociationQuality() const { return PVAssociationQuality((qualityFlags_ & assignmentQualityMask)>>assignmentQualityShift); }
+    void setAssociationQuality( PVAssociationQuality q )   {  qualityFlags_ = (qualityFlags_ & ~assignmentQualityMask) | ((q << assignmentQualityShift) & assignmentQualityMask);  }
 
     /// set reference to the primary vertex                                                                        
     void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
@@ -215,8 +220,10 @@ namespace pat {
 
     /// dxy with respect to the PV ref
     virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
+    /// dz with respect to the PV[ipv]
+    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_+pvRef_->position().z()-(*pvRef_.product())[ipv].position().z(); }
     /// dz with respect to the PV ref
-    virtual float dz()  const { maybeUnpackBoth(); return dz_; }
+    virtual float dzAssociatedPV()  const { maybeUnpackBoth(); return dz_; }
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const ;
     /// dz  with respect to another point
@@ -327,52 +334,6 @@ namespace pat {
     /// cast master clone reference to a concrete type
     template<typename Ref>
       Ref masterRef() const { return masterClone().template castTo<Ref>(); }
-    /// get a component
-
-    /* template<typename T> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>(); */
-    /*   else return reco::get<T>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>(); */
-    /*   else return reco::get<T, Tag>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>( i ); */
-    /*   else return reco::get<T>( * this, i ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i ); */
-    /*   else return reco::get<T, Tag>( * this, i ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T>(); */
-    /*   else return reco::numberOf<T>( * this ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T, typename Tag> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>(); */
-    /*   else return reco::numberOf<T, Tag>( * this ); */
-    /* } */
-
-    /* template<typename S> */
-    /*   struct daughter_iterator   { */
-    /*     typedef boost::filter_iterator<S, const_iterator> type; */
-    /*   }; */
-
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type beginFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, begin(), end()); */
-    /* } */
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type endFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, end(), end()); */
-    /* } */
-
 
     virtual bool isElectron() const { return false; }
     virtual bool isMuon() const { return false; }
@@ -384,6 +345,10 @@ namespace pat {
     virtual bool isConvertedPhoton() const { return false; }
     virtual bool isJet() const { return false; }
 
+    // puppiweight
+    void setPuppiWeight(float p);
+    float puppiWeight() const;
+    
   protected:
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
     uint16_t packedDxy_, packedDz_, packedDPhi_;
@@ -398,6 +363,7 @@ namespace pat {
     void packBoth() { pack(false); packVtx(false); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
     void unpackTrk() const ;
 
+    int8_t packedPuppiweight_;
     /// the four vector                                                 
     mutable PolarLorentzVector p4_;
     mutable LorentzVector p4c_;
@@ -433,16 +399,11 @@ namespace pat {
     friend class ShallowClonePtrCandidate;
 
     enum qualityFlagsShiftsAndMasks {
-        fromPVMask = 0x3, fromPVShift = 0,
-        trackHighPurityMask  = 0x4, trackHighPurityShift=2,
-        lostInnerHitsMask = 0x18, lostInnerHitsShift=3,
-        muonFlagsMask = 0x0300, muonFlagsShift=8
+        assignmentQualityMask = 0x7, assignmentQualityShift = 0,
+        trackHighPurityMask  = 0x8, trackHighPurityShift=3,
+        lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
+        muonFlagsMask = 0x0600, muonFlagsShift=9
     };
-  private:
-    // const iterator implementation
-    typedef reco::candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef reco::candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

@@ -52,67 +52,55 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet &parameters) {
   trkSigNoCut = NULL;
   trkBkgNoCut = NULL;
 
-  //   JPsiGlbYdLumi = NULL;
-  //   JPsiStaYdLumi = NULL;
-  //   JPsiTrkYdLumi = NULL;
+  metname = "oniaAnalyzer";
 }
 
 BPhysicsOniaDQM::~BPhysicsOniaDQM() {}
 
-void BPhysicsOniaDQM::beginJob() {
-  // the services
-  theDbe = Service<DQMStore>().operator->();
+void BPhysicsOniaDQM::bookHistograms(DQMStore::IBooker &iBooker,
+                                     edm::Run const &,
+                                     edm::EventSetup const &) {
+  iBooker.setCurrentFolder("Physics/BPhysics");  // Use folder with name of PAG
 
-  metname = "oniaAnalyzer";
-  LogTrace(metname) << "[BPhysicsOniaDQM] Parameters initialization";
+  global_background = iBooker.book1D(
+      "global_background", "Same-sign global-global dimuon mass", 750, 0, 15);
+  diMuonMass_global =
+      iBooker.book1D("diMuonMass_global",
+                     "Opposite-sign global-global dimuon mass", 750, 0, 15);
+  tracker_background = iBooker.book1D(
+      "tracker_background",
+      "Same-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
+  diMuonMass_tracker = iBooker.book1D(
+      "diMuonMass_tracker",
+      "Opposite-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
+  standalone_background =
+      iBooker.book1D("standalone_background",
+                     "Same-sign standalone-standalone dimuon mass", 500, 0, 15);
+  diMuonMass_standalone = iBooker.book1D(
+      "diMuonMass_standalone",
+      "Opposite-sign standalone-standalone dimuon mass", 500, 0, 15);
 
-  if (theDbe != NULL) {
-    theDbe->setCurrentFolder(
-        "Physics/BPhysics");  // Use folder with name of PAG
-    global_background = theDbe->book1D(
-        "global_background", "Same-sign global-global dimuon mass", 750, 0, 15);
-    diMuonMass_global =
-        theDbe->book1D("diMuonMass_global",
-                       "Opposite-sign global-global dimuon mass", 750, 0, 15);
-    tracker_background = theDbe->book1D(
-        "tracker_background",
-        "Same-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
-    diMuonMass_tracker = theDbe->book1D(
-        "diMuonMass_tracker",
-        "Opposite-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
-    standalone_background = theDbe->book1D(
-        "standalone_background", "Same-sign standalone-standalone dimuon mass",
-        500, 0, 15);
-    diMuonMass_standalone = theDbe->book1D(
-        "diMuonMass_standalone",
-        "Opposite-sign standalone-standalone dimuon mass", 500, 0, 15);
-
-    glbSigCut = theDbe->book1D("glbSigCut", "Opposite-sign glb-glb dimuon mass",
-                               650, 0, 130);
-    glbSigNoCut = theDbe->book1D("glbSigNoCut",
-                                 "Opposite-sign glb-glb dimuon mass (no cut)",
-                                 650, 0, 130);
-    glbBkgNoCut = theDbe->book1D(
-        "glbBkgNoCut", "Same-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
-    staSigCut = theDbe->book1D("staSigCut", "Opposite-sign sta-sta dimuon mass",
-                               430, 0, 129);
-    staSigNoCut = theDbe->book1D("staSigNoCut",
-                                 "Opposite-sign sta-sta dimuon mass (no cut)",
-                                 430, 0, 129);
-    staBkgNoCut = theDbe->book1D(
-        "staBkgNoCut", "Same-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
-    trkSigCut = theDbe->book1D("trkSigCut", "Opposite-sign trk-trk dimuon mass",
-                               650, 0, 130);
-    trkSigNoCut = theDbe->book1D("trkSigNoCut",
-                                 "Opposite-sign trk-trk dimuon mass (no cut)",
-                                 650, 0, 130);
-    trkBkgNoCut = theDbe->book1D(
-        "trkBkgNoCutt", "Same-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
-  }
+  glbSigCut = iBooker.book1D("glbSigCut", "Opposite-sign glb-glb dimuon mass",
+                             650, 0, 130);
+  glbSigNoCut = iBooker.book1D(
+      "glbSigNoCut", "Opposite-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
+  glbBkgNoCut = iBooker.book1D(
+      "glbBkgNoCut", "Same-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
+  staSigCut = iBooker.book1D("staSigCut", "Opposite-sign sta-sta dimuon mass",
+                             430, 0, 129);
+  staSigNoCut = iBooker.book1D(
+      "staSigNoCut", "Opposite-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
+  staBkgNoCut = iBooker.book1D(
+      "staBkgNoCut", "Same-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
+  trkSigCut = iBooker.book1D("trkSigCut", "Opposite-sign trk-trk dimuon mass",
+                             650, 0, 130);
+  trkSigNoCut = iBooker.book1D(
+      "trkSigNoCut", "Opposite-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
+  trkBkgNoCut = iBooker.book1D(
+      "trkBkgNoCutt", "Same-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
 }
 
 void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
-
   LogTrace(metname) << "[BPhysicsOniaDQM] Analysis of event # ";
 
   // Take the STA muon container
@@ -133,13 +121,11 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   if (muons.isValid()) {
     for (MuonCollection::const_iterator recoMu1 = muons->begin();
          recoMu1 != muons->end(); ++recoMu1) {
-
       // only loop over the remaining muons if recoMu1 is one of the following
       if (recoMu1->isGlobalMuon() || recoMu1->isTrackerMuon() ||
           recoMu1->isStandAloneMuon()) {
         for (MuonCollection::const_iterator recoMu2 = recoMu1 + 1;
              recoMu2 != muons->end(); ++recoMu2) {
-
           // fill the relevant histograms if recoMu2 satisfies one of the
           // following
           if (recoMu1->isGlobalMuon() && recoMu2->isGlobalMuon()) {
@@ -157,7 +143,6 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
                 glbSigNoCut->Fill(massJPsi);
                 if (selGlobalMuon(*recoMu1) && selGlobalMuon(*recoMu2)) {
                   if (glbSigCut != NULL) glbSigCut->Fill(massJPsi);
-                  if (massJPsi >= 3.0 && massJPsi <= 3.2) jpsiGlbSigPerLS++;
                 }
               }
             } else {
@@ -188,11 +173,6 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
               if (staSigNoCut != NULL) {
                 staSigNoCut->Fill(massJPsi);
-                /*if (selStandaloneMuon(*recoMu1) &&
-                selStandaloneMuon(*recoMu2)) {
-                  if (staSigCut!=NULL) staSigCut->Fill(massJPsi);
-                  if (massJPsi >= 3.0 && massJPsi <= 3.2) jpsiStaSigPerLS++;
-                }*/
               }
             } else {
               if (standalone_background != NULL) {
@@ -222,7 +202,6 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
                 trkSigNoCut->Fill(massJPsi);
                 if (selTrackerMuon(*recoMu1) && selTrackerMuon(*recoMu2)) {
                   if (trkSigCut != NULL) trkSigCut->Fill(massJPsi);
-                  if (massJPsi >= 3.0 && massJPsi <= 3.2) jpsiTrkSigPerLS++;
                 }
               }
             } else {
@@ -235,97 +214,10 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
               }
             }
           }
-
         }  // end of 2nd MuonCollection
       }    // end of GLB,STA,TRK muon check
     }      // end of 1st MuonCollection
   }        // Is this MuonCollection vaild?
-}
-
-void BPhysicsOniaDQM::endJob(void) {
-  LogTrace(metname) << "[BPhysicsOniaDQM] EndJob";
-}
-
-void BPhysicsOniaDQM::beginLuminosityBlock(
-    const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup) {
-  LogTrace(metname) << "[BPhysicsOniaDQM] Start of a LuminosityBlock";
-
-  jpsiGlbSigPerLS = 0;
-  jpsiStaSigPerLS = 0;
-  jpsiTrkSigPerLS = 0;
-}
-
-void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
-                                         const edm::EventSetup &iSetup) {
-  LogTrace(metname) << "[BPhysicsOniaDQM] Start of a LuminosityBlock";
-
-  edm::Handle<LumiSummary> lumiSummary;
-  lumiBlock.getByToken(lumiSummaryToken_, lumiSummary);
-
-  int LBlockNum = lumiBlock.id().luminosityBlock();
-
-  jpsiGlbSig.insert(pair<int, int>(LBlockNum, jpsiGlbSigPerLS));
-  jpsiStaSig.insert(pair<int, int>(LBlockNum, jpsiStaSigPerLS));
-  jpsiTrkSig.insert(pair<int, int>(LBlockNum, jpsiTrkSigPerLS));
-  //  cout << "lumi: " << LBlockNum << "\t" << jpsiGlbSig[LBlockNum] << "\t" <<
-  // jpsiStaSig[LBlockNum] << "\t" << jpsiTrkSig[LBlockNum] << endl;
-
-  if (jpsiGlbSig.size() % 5 != 0) return;
-
-  theDbe->setCurrentFolder("Physics/BPhysics");
-  //   if(JPsiGlbYdLumi!=NULL) {
-  //     theDbe->removeElement("JPsiGlbYdLumi");   // Remove histograms from
-  // previous run
-  //     theDbe->removeElement("JPsiStaYdLumi");
-  //     theDbe->removeElement("JPsiTrkYdLumi");
-  //   }
-
-  //   int xmin = (*jpsiGlbSig.begin()).first;
-  //   int xmax = (*jpsiGlbSig.rbegin()).first;
-  //   int nx   = (xmax - xmin + 1)/5 + 1; // Merge 5 lumisections into 1 bin
-  // //  cout << "x-axis " << xmin << " " << xmax << endl;
-
-  //   JPsiGlbYdLumi = theDbe->book1D("JPsiGlbYdLumi", "JPsi yield from
-  // global-global dimuon", nx, xmin, xmax);
-  //   JPsiStaYdLumi = theDbe->book1D("JPsiStaYdLumi", "JPsi yield from
-  // standalone-standalone dimuon", nx, xmin, xmax);
-  //   JPsiTrkYdLumi = theDbe->book1D("JPsiTrkYdLumi", "JPsi yield from
-  // tracker-tracker dimuon", nx, xmin, xmax);
-
-  //   map<int,int>::iterator glb;
-  //   map<int,int>::iterator sta;
-  //   map<int,int>::iterator trk;
-  //   for (glb = jpsiGlbSig.begin(); glb != jpsiGlbSig.end(); ++glb)
-  //   {
-  //     int bin = ((*glb).first - xmin + 1)/5 + 1;  //X-axis bin #
-  //     sta = jpsiStaSig.find((*glb).first);
-  //     trk = jpsiTrkSig.find((*glb).first);
-  //     JPsiGlbYdLumi->setBinContent(bin,JPsiGlbYdLumi->getBinContent(bin)+(*glb).second);
-  //     JPsiStaYdLumi->setBinContent(bin,JPsiStaYdLumi->getBinContent(bin)+(*sta).second);
-  //     JPsiTrkYdLumi->setBinContent(bin,JPsiTrkYdLumi->getBinContent(bin)+(*trk).second);
-  // //    cout << "glb: " << bin << "\t" << (*glb).first << "\t" <<
-  // (*glb).second << endl;
-  // //    cout << "sta: " << bin << "\t" << (*sta).first << "\t" <<
-  // (*sta).second << endl;
-  // //    cout << "trk: " << bin << "\t" << (*trk).first << "\t" <<
-  // (*trk).second << endl;
-  //   }
-}
-
-void BPhysicsOniaDQM::beginRun(const edm::Run &iRun,
-                               const edm::EventSetup &iSetup) {
-  LogTrace(metname) << "[BPhysicsOniaDQM] Start of a Run";
-}
-
-void BPhysicsOniaDQM::endRun(const edm::Run &iRun,
-                             const edm::EventSetup &iSetup) {
-  LogTrace(metname) << "[BPhysicsOniaDQM] End of a Run";
-
-  if (!jpsiGlbSig.empty()) {
-    jpsiGlbSig.clear();
-    jpsiStaSig.clear();
-    jpsiTrkSig.clear();
-  }
 }
 
 float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,

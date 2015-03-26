@@ -142,7 +142,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
       if (dQ < theQCut){
 	atLeastOne=true;
 	outputCollection.insert(tCH[Ti],
-				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,TPi),-dQ));//association map with quality, is order greater-first
+				std::make_pair(tPCH[TPi],-dQ));//association map with quality, is order greater-first
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"track number: "<<Ti
 						     <<" associated with dQ: "<<dQ
 						     <<" to TrackingParticle number: " <<TPi;}
@@ -152,7 +152,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
     }//loop over tracking particles
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
       outputCollection.insert(tCH[minPair.first],
-			      std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,minPair.second),-dQmin));}
+			      std::make_pair(tPCH[minPair.second],-dQmin));}
   }//loop over tracks
   outputCollection.post_insert();
   return outputCollection;
@@ -196,7 +196,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(const edm::Ref
       double dQ= quality(trackReferenceState, simReferenceState);
       if (dQ < theQCut){
 	atLeastOne=true;
-	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,TPi),
+	outputCollection.insert(tPCH[TPi],
 				std::make_pair(tCH[Ti],-dQ));//association map with quality, is order greater-first
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"TrackingParticle number: "<<TPi
 						     <<" associated with dQ: "<<dQ
@@ -206,7 +206,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(const edm::Ref
 	minPair = std::make_pair(TPi,Ti);}
     }//loop over tracks
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
-      outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,minPair.first),
+      outputCollection.insert(tPCH[minPair.first],
 			      std::make_pair(tCH[minPair.second],-dQmin));}
   }//loop over tracking particles
   

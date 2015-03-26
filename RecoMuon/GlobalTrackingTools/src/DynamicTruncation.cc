@@ -25,6 +25,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 #define MAX_THR 1e7
 
@@ -385,7 +387,7 @@ void DynamicTruncation::preliminaryFit(map<int, vector<DetId> > compatibleIds, m
       prelFitState = updatorHandle->update(tsosCSClayer, *theMuonRecHitBuilder->build(&bestCSCSeg));
     }
   }
-  prelFitMeas.pop_back();
+  if (!prelFitMeas.empty()) prelFitMeas.pop_back();
   for (ConstRecHitContainer::const_iterator imrh = prelFitMeas.end(); imrh != prelFitMeas.begin(); imrh-- ) {
     DetId id = (*imrh)->geographicalId(); 
     TrajectoryStateOnSurface tmp = propagatorPF->propagate(prelFitState, theG->idToDet(id)->surface());

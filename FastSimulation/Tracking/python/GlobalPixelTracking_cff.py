@@ -6,20 +6,12 @@ from FastSimulation.Tracking.GlobalPixelSeedProducerForElectrons_cff import *
 
 # TrackCandidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
-
-globalPixelTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-globalPixelTrackCandidates.SeedProducer = cms.InputTag("globalPixelSeeds","GlobalPixel")
-
-globalPixelTrackCandidatesForElectrons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-globalPixelTrackCandidatesForElectrons.SeedProducer = cms.InputTag("globalPixelSeedsForElectrons","GlobalPixel")
-globalPixelTrackCandidatesForElectrons.TrackProducers = ['globalPixelWithMaterialTracks']
-
-globalPixelTrackCandidatesForPhotons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-globalPixelTrackCandidatesForPhotons.SeedProducer = cms.InputTag("globalPixelSeedsForPhotons","GlobalPixel")
-globalPixelTrackCandidatesForPhotons.TrackProducers = ['globalPixelWithMaterialTracks']
-
 # reco::Tracks (possibly with invalid hits)
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+
+###################
+globalPixelTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+globalPixelTrackCandidates.SeedProducer = cms.InputTag("globalPixelSeeds","GlobalPixel")
 
 globalPixelWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalPixelWithMaterialTracks.src = 'globalPixelTrackCandidates'
@@ -28,12 +20,30 @@ globalPixelWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalPixelWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracks.TrajectoryInEvent = cms.bool(True)
 
+# simtrack id producer
+globalPixelStepIds = cms.EDProducer("SimTrackIdProducer",
+                                     trackCollection = cms.InputTag("globalPixelWithMaterialTracks"),
+                                   )
+
+###################
+
+
+globalPixelTrackCandidatesForElectrons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+globalPixelTrackCandidatesForElectrons.SeedProducer = cms.InputTag("globalPixelSeedsForElectrons","GlobalPixel")
+#globalPixelTrackCandidatesForElectrons.TrackProducers = cms.vstring(['globalPixelWithMaterialTracks'])
+    
 globalPixelWithMaterialTracksForElectrons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalPixelWithMaterialTracksForElectrons.src = 'globalPixelTrackCandidatesForElectrons'
 globalPixelWithMaterialTracksForElectrons.TTRHBuilder = 'WithoutRefit'
 globalPixelWithMaterialTracksForElectrons.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalPixelWithMaterialTracksForElectrons.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracksForElectrons.TrajectoryInEvent = cms.bool(True)
+
+####################
+
+globalPixelTrackCandidatesForPhotons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+globalPixelTrackCandidatesForPhotons.SeedProducer = cms.InputTag("globalPixelSeedsForPhotons","GlobalPixel")
+#globalPixelTrackCandidatesForPhotons.TrackProducers = cms.vstring(['globalPixelWithMaterialTracks'])
 
 globalPixelWithMaterialTracksForPhotons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalPixelWithMaterialTracksForPhotons.src = 'globalPixelTrackCandidatesForPhotons'
@@ -42,10 +52,13 @@ globalPixelWithMaterialTracksForPhotons.Fitter = 'KFFittingSmootherWithOutlierRe
 globalPixelWithMaterialTracksForPhotons.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracksForPhotons.TrajectoryInEvent = cms.bool(True)
 
+####################
+
 # The sequences
 globalPixelTracking = cms.Sequence(globalPixelSeeds*
                                    globalPixelTrackCandidates*
                                    globalPixelWithMaterialTracks*
+                                   globalPixelStepIds*
                                    globalPixelSeedsForPhotons*
                                    globalPixelTrackCandidatesForPhotons*
                                    globalPixelWithMaterialTracksForPhotons*

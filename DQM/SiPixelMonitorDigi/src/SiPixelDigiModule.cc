@@ -19,6 +19,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 //
 // Constructors
@@ -49,19 +50,18 @@ SiPixelDigiModule::~SiPixelDigiModule() {}
 //
 // Book histograms
 //
-void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type, bool twoD, bool hiRes, bool reducedSet, bool additInfo, bool isUpgrade) {
+void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type, bool twoD, bool hiRes, bool reducedSet, bool additInfo, bool isUpgrade) {
 
   //isUpgrade = iConfig.getUntrackedParameter<bool>("isUpgrade");
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
     
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
-    if (!isUpgrade) {
-    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
-    } else if (isUpgrade) {
-      isHalfModule = PixelBarrelNameUpgrade(DetId(id_)).isHalfModule(); 
-    }
+    isHalfModule = PixelBarrelName(DetId(id_),pTT,isUpgrade).isHalfModule();
   }
 
   std::string hid;
@@ -118,8 +118,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
   
   if(type==1 && barrel){
     uint32_t DBladder;
-    if (!isUpgrade) { DBladder = PixelBarrelName(DetId(id_)).ladderName();}
-    else { DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName();}
+    DBladder = PixelBarrelName(DetId(id_),pTT,isUpgrade).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -150,8 +149,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
   }
   if(type==2 && barrel){
     uint32_t DBlayer;
-    if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
-    else { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
+    DBlayer = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     if(!additInfo){
@@ -200,8 +198,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
   }
   if(type==3 && barrel){
     uint32_t DBmodule;
-    if (!isUpgrade) { DBmodule = PixelBarrelName(DetId(id_)).moduleName(); }
-    else { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
+    DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of digis
@@ -241,8 +238,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
   }
   if(type==4 && endcap){
     uint32_t blade;
-    if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
-    else { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
+    blade= PixelEndcapName(DetId(id_),pTT,isUpgrade).bladeName();
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -255,8 +251,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
   }
   if(type==5 && endcap){
     uint32_t disk;
-    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
-    else { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+    disk = PixelEndcapName(DetId(id_),pTT,isUpgrade).diskName();
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -284,13 +279,8 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
   if(type==6 && endcap){
     uint32_t panel;
     uint32_t module;
-    if (!isUpgrade) {
-      panel= PixelEndcapName(DetId(id_)).pannelName();
-      module= PixelEndcapName(DetId(id_)).plaquetteName();
-    } else {
-      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
-      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
-    }
+    panel= PixelEndcapName(DetId(id_),pTT,isUpgrade).pannelName();
+    module= PixelEndcapName(DetId(id_),pTT,isUpgrade).plaquetteName();
     
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
@@ -324,22 +314,23 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
 //
 // Fill histograms
 //
-int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, 
-			    MonitorElement* combBarrel, MonitorElement* chanBarrel, MonitorElement* chanBarrelL1, MonitorElement* chanBarrelL2, MonitorElement* chanBarrelL3, MonitorElement* chanBarrelL4, MonitorElement* combEndcap,
+int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm::EventSetup& iSetup,
+             MonitorElement* combBarrel, MonitorElement* chanBarrel, std::vector<MonitorElement*>& chanBarrelL, MonitorElement* combEndcap,
 			    bool modon, bool ladon, bool layon, bool phion, 
 			    bool bladeon, bool diskon, bool ringon, 
 			    bool twoD, bool reducedSet, bool twoDimModOn, bool twoDimOnlyLayDisk,
 			    int &nDigisA, int &nDigisB, bool isUpgrade) {
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   uint32_t DBladder = 0;
-  if(barrel && !isUpgrade){
-    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
-    DBladder = PixelBarrelName(DetId(id_)).ladderName();
-  } else if (barrel && isUpgrade) {
-    isHalfModule = PixelBarrelNameUpgrade(DetId(id_)).isHalfModule(); 
-    DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName();
+  if(barrel){
+    isHalfModule = PixelBarrelName(DetId(id_),pTT,isUpgrade).isHalfModule();
+    DBladder = PixelBarrelName(DetId(id_),pTT,isUpgrade).ladderName();
   }
 
   edm::DetSetVector<PixelDigi>::const_iterator isearch = input.find(id_); // search  digis of detid
@@ -363,9 +354,9 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
       int DBmodule =0;
       
       if (!isUpgrade) {
-      PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_)).shell();
-        DBlayer  = PixelBarrelName(DetId(id_)).layerName();
-        DBmodule = PixelBarrelName(DetId(id_)).moduleName();
+      PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_),pTT,isUpgrade).shell();
+        DBlayer  = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
+        DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
       if(barrel){
         if(isHalfModule){
           if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO){
@@ -395,9 +386,8 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
         }
       }
       } else if (isUpgrade) {
-        //PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(id_)).shell();
-        DBlayer  = PixelBarrelNameUpgrade(DetId(id_)).layerName();
-        DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName();
+        DBlayer  = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
+        DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
 	if(barrel){
 	  if(row<80){
 	    numberOfDigis[0]++; nDigisA++;
@@ -492,13 +482,8 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
 	  //ROC monitoring
 	  int DBpanel;
 	  int DBblade;
-	  if (!isUpgrade) {
-	    DBpanel= PixelEndcapName(DetId(id_)).pannelName();
-	    DBblade= PixelEndcapName(DetId(id_)).bladeName();
-	  } else {
-	    DBpanel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
-	    DBblade= PixelEndcapNameUpgrade(DetId(id_)).bladeName();
-	  }
+     DBpanel= PixelEndcapName(DetId(id_),pTT,isUpgrade).pannelName();
+     DBblade= PixelEndcapName(DetId(id_),pTT,isUpgrade).bladeName();
 	  float offx = 0.;
 	  //This crazy offset takes into account the roc and module fpix configuration
 	  for (int i = DBpanel; i < DBmodule; ++i) {offx = offx + float(5+DBpanel-i);}
@@ -529,10 +514,12 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
     if(barrel){ 
       if(combBarrel) combBarrel->Fill((float)numberOfDigisMod);
       if(chanBarrel){ if(numberOfDigis[0]>0) chanBarrel->Fill((float)numberOfDigis[0]); if(numberOfDigis[1]>0) chanBarrel->Fill((float)numberOfDigis[1]); }
-      if(chanBarrelL1){ if(numberOfDigis[2]>0) chanBarrelL1->Fill((float)numberOfDigis[2]); }
-      if(chanBarrelL2){ if(numberOfDigis[3]>0) chanBarrelL2->Fill((float)numberOfDigis[3]); }
-      if(chanBarrelL3){ if(numberOfDigis[4]>0) chanBarrelL3->Fill((float)numberOfDigis[4]); }
-      if(chanBarrelL4){ if(numberOfDigis[5]>0) chanBarrelL4->Fill((float)numberOfDigis[5]); }
+      int j = 2;
+      for (std::vector<MonitorElement*>::iterator i = chanBarrelL.begin(); i != chanBarrelL.end(); i++)
+      {
+         if(numberOfDigis[j]>0) (*i)->Fill((float)numberOfDigis[j]);
+         j++;
+      }
     }else if(endcap){
       if(combEndcap) combEndcap->Fill((float)numberOfDigisMod);
     }

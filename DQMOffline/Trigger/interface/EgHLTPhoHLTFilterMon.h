@@ -21,6 +21,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTMonElemContainer.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemManager.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemWithCut.h"
+#include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTParticlePair.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffPho.h"
@@ -33,8 +34,8 @@ namespace trigger{
 }
 
 namespace egHLT {
-  class BinData;
-  class CutMasks;
+  struct BinData;
+  struct CutMasks;
 
   class PhoHLTFilterMon {
     
@@ -72,7 +73,7 @@ namespace egHLT {
     PhoHLTFilterMon(const PhoHLTFilterMon&){}
     PhoHLTFilterMon& operator=(const PhoHLTFilterMon&){return *this;}
   public:
-    PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
+    PhoHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
     ~PhoHLTFilterMon();
     
     

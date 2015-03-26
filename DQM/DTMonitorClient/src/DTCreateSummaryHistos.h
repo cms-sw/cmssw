@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -22,6 +25,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <memory>
 #include <iostream>
@@ -33,7 +37,8 @@
 
 class DTGeometry;
 
-class DTCreateSummaryHistos: public edm::EDAnalyzer{
+//-class DTCreateSummaryHistos: public edm::EDAnalyzer{
+class DTCreateSummaryHistos: public DQMEDHarvester{
 
 public:
 
@@ -44,19 +49,11 @@ public:
   virtual ~DTCreateSummaryHistos();
 
 protected:
-
-  /// BeginJob
-  void beginJob();
-
+                                                                                                       
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+   void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
-
+   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
  private:
 

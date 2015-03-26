@@ -21,13 +21,10 @@ genParticlesForJets = cms.EDProducer("InputGenJetsParticleSelector",
     tausAsJets = cms.bool(False)
 )
 
-genJetParticles = cms.Sequence(genParticlesForJets)
-
-hiGenParticlesForJets = genParticlesForJets.clone()
-hiGenParticlesForJets.src = cms.InputTag("hiGenParticles")
-
 genParticlesForJetsNoNu = genParticlesForJets.clone()
 genParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
 
 genParticlesForJetsNoMuNoNu = genParticlesForJets.clone()
 genParticlesForJetsNoMuNoNu.ignoreParticleIDs += cms.vuint32( 12,13,14,16)
+
+genJetParticles = cms.Sequence(genParticlesForJets+genParticlesForJetsNoNu)

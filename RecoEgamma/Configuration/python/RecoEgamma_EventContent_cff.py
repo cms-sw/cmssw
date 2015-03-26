@@ -13,7 +13,7 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_eidLoose_*_*',
         'keep *_eidTight_*_*',
         'keep *_egmGedGsfElectronPF*Isolation_*_*',
-        'keep *_egmGsfElectronIDs_*_*',
+        'keep *_egmGsfElectronIDs_*_*', 
         'keep *_conversions_*_*',
         'keep *_mustacheConversions_*_*',
         'drop *_conversions_uncleanedConversions_*',
@@ -104,7 +104,7 @@ RecoEgammaAOD = cms.PSet(
         'keep floatedmValueMap_eidLoose_*_*',
         'keep floatedmValueMap_eidTight_*_*',
         'keep *_egmGedGsfElectronPFIsolation_*_*',
-        'keep *_egmGsfElectronIDs_*_*',
+#        'keep *_egmGsfElectronIDs_*_*', #these are in the miniAOD
         'keep recoPhotonCores_gedPhotonCore_*_*',
         'keep recoPhotons_gedPhotons_*_*',
         'keep *_particleBasedIsolation_*_*',

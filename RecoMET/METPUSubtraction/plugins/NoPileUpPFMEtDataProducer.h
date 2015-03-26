@@ -19,8 +19,10 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
 
 #include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
+#include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -30,8 +32,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/METReco/interface/MVAMEtData.h"       
-#include "DataFormats/METReco/interface/MVAMEtDataFwd.h"    
+#include "DataFormats/METReco/interface/PUSubMETData.h"       
+#include "DataFormats/METReco/interface/PUSubMETDataFwd.h"    
 #include "DataFormats/METReco/interface/SigInputObj.h"    //PH: preserve 5_3_x dependence
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"

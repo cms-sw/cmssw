@@ -78,8 +78,8 @@ class VertexAnalyzer( Analyzer ):
             'double' 
             )        
 
-    def beginLoop(self):
-        super(VertexAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(VertexAnalyzer,self).beginLoop(setup)
         self.averages.add('vertexWeight', Average('vertexWeight') )
         self.counters.addCounter('GoodVertex')
         self.count = self.counters.counter('GoodVertex')
@@ -125,7 +125,8 @@ class VertexAnalyzer( Analyzer ):
 
         if self.doHists:
             self.pileup.hist.Fill( len(event.goodVertices) )
-            self.pileup.mindist.Fill( self.mindist(event.goodVertices) )
+#A.R. mindist is one of the slowest functions, default commented
+#           self.pileup.mindist.Fill( self.mindist(event.goodVertices) )
 
         self.count.inc('Events With Good Vertex')
         return True
@@ -151,8 +152,8 @@ class VertexAnalyzer( Analyzer ):
                 mindist = dist
         return mindist
                                                                  
-    def write(self):
-        super(VertexAnalyzer, self).write()
+    def write(self, setup):
+        super(VertexAnalyzer, self).write(setup)
         if self.doHists:
             self.pileup.write()
 

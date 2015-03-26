@@ -53,33 +53,73 @@ GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 
 
 AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
-  
+ 
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
-  /*  FIMXE : new MUON APE CODE GOES HERE 
-    LocalError lape = det()->localAlignmentError();
-    if (lape.valid()) {
+  AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
 
-    // Just for speed up the code, the "else" branch can handle also the case of dim = 1.
-    if(err.num_row() == 1) err[0][0] += lape.xx();
-    else{
-      AlgebraicSymMatrix lapeMatrix(5,0);
-      lapeMatrix[3][3] = lape.xx();
-      lapeMatrix[3][4] = lape.xy();
-      lapeMatrix[4][4] = lape.yy();
-      
-      AlgebraicSymMatrix lapeMatrixProj = lapeMatrix.similarity(projectionMatrix());
-      
-      if(err.num_row() != lapeMatrixProj.num_row())
-	throw cms::Exception("MuonTransientTrackingRecHit::parametersError") 
-	  <<"Discrepancy between alignment error matrix and error matrix: APE " 
-	  << lapeMatrixProj.num_row()
-	  << ", error matrix " << err.num_row() 
-	  << std::endl;
-      
-      err += lapeMatrixProj;
+  const AlignmentPositionError* APE = det()->alignmentPositionError();
+  if (APE != NULL) {
+    AlgebraicVector positions(2,0);
+    AlgebraicVector directions(2,0);
+
+    if(err.num_row() == 1) {
+     positions[0] = 0.;
+     positions[1] = 0.;
+     directions[0] = 0.;
+     directions[1] = 0.;
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),positions,directions);
+     err[0][0] += lape.cxx();
+    } else if (err.num_row() == 2) {
+     positions[0] = localPosition().x();
+     positions[1] = 0.;
+     directions[0] = 0.;
+     directions[1] = 0.;
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),positions,directions);
+
+     AlgebraicSymMatrix lapeMatrix(2,0);
+     lapeMatrix[1][1] = lape.cxx();
+     lapeMatrix[0][0] = lape.cphixphix();
+     lapeMatrix[0][1] = lape.cphixx();
+
+     if(err.num_row() != lapeMatrix.num_row())
+       throw cms::Exception("MuonTransientTrackingRecHit::parametersError")
+        <<"Discrepancy between alignment error matrix and error matrix: APE "
+        << lapeMatrix.num_row()
+        << ", error matrix " << err.num_row()
+        << std::endl;
+
+     err += lapeMatrix;
+    } else if (err.num_row() == 4) { 
+     positions[0] = par[2];
+     positions[1] = par[3];
+     directions[0] = par[0];
+     directions[1] = par[1];
+
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),positions,directions);
+
+     AlgebraicSymMatrix lapeMatrix(4,0);
+     lapeMatrix[2][2] = lape.cxx();
+     lapeMatrix[2][3] = lape.cyx();
+     lapeMatrix[3][3] = lape.cyy();
+     lapeMatrix[0][0] = lape.cphixphix();
+     lapeMatrix[0][1] = lape.cphiyphix();
+     lapeMatrix[1][1] = lape.cphiyphiy();
+
+     lapeMatrix[0][2] = lape.cphixx();
+     lapeMatrix[0][3] = lape.cphixy();
+     lapeMatrix[1][3] = lape.cphiyy();
+     lapeMatrix[1][2] = lape.cphiyx();
+
+     if(err.num_row() != lapeMatrix.num_row())
+       throw cms::Exception("MuonTransientTrackingRecHit::parametersError")
+        <<"Discrepancy between alignment error matrix and error matrix: APE "
+        << lapeMatrix.num_row()
+        << ", error matrix " << err.num_row()
+        << std::endl;
+
+     err += lapeMatrix;
     }
   }
-  */
   return err;
 }
 

@@ -1429,7 +1429,7 @@ int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
     nL211, nL212, nL213, nL214, nL215, nL216, nL217, nL218, nL219 ,nL220,
     nL221, nL222, nL223, nL224, nL225, nL226, nL227, nL228, nL229 ,nL230,
     nL231, nL232, nL233};
-  static const int* nLT[nLay]={
+  static const int * const nLT[nLay]={
     tL001, tL002, tL003, tL004, tL005, tL006, tL007, tL008, tL009 ,tL010,
     tL011, tL012, tL013, tL014, tL015, tL016, tL017, tL018, tL019 ,tL020,
     tL021, tL022, tL023, tL024, tL025, tL026, tL027, tL028, tL029 ,tL030,
@@ -1454,7 +1454,7 @@ int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
     tL211, tL212, tL213, tL214, tL215, tL216, tL217, tL218, tL219 ,tL220,
     tL221, tL222, tL223, tL224, tL225, tL226, tL227, tL228, tL229 ,tL230,
     tL231, tL232, tL233};
-  static const int* nRT[nLay]={
+  static const int * const nRT[nLay]={
     tR001, tR002, tR003, tR004, tR005, tR006, tR007, tR008, tR009 ,tR010,
     tR011, tR012, tR013, tR014, tR015, tR016, tR017, tR018, tR019 ,tR020,
     tR021, tR022, tR023, tR024, tR025, tR026, tR027, tR028, tR029 ,tR030,

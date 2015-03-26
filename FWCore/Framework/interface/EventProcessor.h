@@ -15,6 +15,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -264,6 +265,7 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
+    PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<SubProcess>                     subProcess_;
     std::unique_ptr<HistoryAppender>            historyAppender_;

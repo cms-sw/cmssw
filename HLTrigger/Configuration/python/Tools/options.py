@@ -1,9 +1,9 @@
 # available "type"s and relative global tags
 globalTag = {
-  '2014': 'auto:run1_mc_2014',
   'Fake': 'auto:run1_mc_Fake',
   'FULL': 'auto:run2_mc_FULL',
-  'GRun': 'auto:run2_mc_GRun',       # use as default
+  'GRun': 'auto:run2_mc_GRun',       # used as default
+  '50nsGRun': 'auto:run2_mc_50nsGRun',
   'HIon': 'auto:run2_mc_HIon',
   'PIon': 'auto:run2_mc_PIon',
   'data': 'auto:run1_hlt',
@@ -55,6 +55,7 @@ class ConnectionHLTMenu(object):
       if ':' in self.value:
         (db, name) = self.value.split(':')
         if db == 'run':
+          self.db   = 'orcoff'
           self.run  = name
         elif db in ('hltdev', 'orcoff'):
           self.db   = db
@@ -85,11 +86,13 @@ class HLTProcessOptions(object):
     self.profiling  = False       #     if set, instrument the menu for profiling measurements
     self.timing     = False       #     if set, instrument the menu for timing measurements (implies profiling)
     self.paths      = None        #     if set, include in the dump only the given paths (wildcards are supported)
-    self.input      = None        # (*) if set, run on a specific input file
+    self.input      = None        # (*) if set, specify the input file(s) or dataset
+    self.parent     = None        # (*) if set, specify the parent input file(s) or dataset
     self.events     = 100         # (*) run on these many events
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
     self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim
+    self.hilton     = False       #     prepare a configuration for running with hilton-like modules
 
 
   # convert HLT and L1 menus to a dedicated object representation on the fly

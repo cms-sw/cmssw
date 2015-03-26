@@ -28,7 +28,7 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd,  const boo
   unsigned short int pattern = ((theadd >> 8) & 0xf);
   unsigned short int strip   = (theadd & 0xff);
   
-  if(strip < 2*CSCConstants::MAX_NUM_STRIPS && pattern < CSCConstants::NUM_CLCT_PATTERNS) {
+  if(strip < 2*(CSCConstants::MAX_NUM_STRIPS * 7/5) && pattern < CSCConstants::NUM_CLCT_PATTERNS) { // MDG, DA and RW, for ME1 we have 7CFEBs and not just 5, so the num_strips can go up to 16 * 7 but only for ME1 
     data.phi_local = gangedME1a ? static_cast<unsigned>((lcl_phi_param0[pattern] + strip)*lcl_phi_param1) : static_cast<unsigned>((lcl_phi_param0[pattern] + strip)*0.625* lcl_phi_param1);
   //DA and MDG, rescale range of local phi so ME1/1b fits in 0-511
   } else

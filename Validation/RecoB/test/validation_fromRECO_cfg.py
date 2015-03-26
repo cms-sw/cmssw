@@ -8,6 +8,9 @@ start customization
 
 #Enter here the Global tags
 tag =  'POSTLS172_V3::All'
+#Do you want to apply JEC? For data, no need to add 'Residual', the code is checking if events are Data or MC and add 'Residual' for Data.
+applyJEC = True
+corrLabel = 'ak4PFCHSL1FastL2L3'
 #Data or MC?
 runOnMC    = True
 #Flavour plots for MC: "all" = plots for all jets ; "dusg" = plots for d, u, s, dus, g independently ; not mandatory and any combinations are possible 
@@ -20,7 +23,7 @@ from DQMOffline.RecoB.bTagCommon_cff import *
 tagConfig = cms.VPSet(
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
             folder = cms.string("CSVv2")
         ),
 )
@@ -36,27 +39,30 @@ print "Global Tag : ", tag
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
-
+process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 if runOnMC:
     #for MC jet flavour
-    process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
-    process.AK4byRef.jets = cms.InputTag("ak4PFJetsCHS")
+    process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
+    process.load("PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi")
+    process.ak4JetFlavourInfos.jets = cms.InputTag("ak4PFJetsCHS")
     process.flavourSeq = cms.Sequence(
-        process.myPartons *
-        process.AK4Flavour
+        process.selectedHadronsAndPartons *
+        process.ak4JetFlavourInfos
     )
     #Validation sequence
     process.load("Validation.RecoB.bTagAnalysis_cfi")
-    process.bTagValidation.jetMCSrc = 'AK4byValAlgo'
+    process.bTagValidation.jetMCSrc = 'ak4JetFlavourInfos'
     process.bTagValidation.tagConfig = tagConfig
     process.bTagHarvestMC.tagConfig = tagConfig
     process.bTagValidation.flavPlots = flavPlots
     process.bTagHarvestMC.flavPlots = flavPlots
     process.bTagValidation.doPUid = cms.bool(PUid)
+    process.bTagValidation.doJEC = applyJEC
+    process.bTagValidation.JECsource = cms.string(corrLabel)
     process.ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
                                              src = cms.InputTag("ak4GenJets"),
                                              cut = cms.string('pt > 8.'),
@@ -70,12 +76,14 @@ else :
     process.load("DQMOffline.RecoB.bTagAnalysisData_cfi")
     process.bTagAnalysis.tagConfig = tagConfig
     process.bTagHarvest.tagConfig = tagConfig
+    process.bTagAnalysis.doJEC = applyJEC
+    process.bTagAnalysis.JECsource = cms.string(corrLabel)
 
 # load the full reconstraction configuration, to make sure we're getting all needed dependencies
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.GlobalTag.globaltag = tag
 

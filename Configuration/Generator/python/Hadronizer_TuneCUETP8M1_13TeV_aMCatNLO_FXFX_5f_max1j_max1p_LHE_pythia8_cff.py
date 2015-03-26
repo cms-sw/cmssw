@@ -22,11 +22,10 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
             'JetMatching:etaJetMax = 999.',
             'JetMatching:coneRadius = 1.',
             'JetMatching:slowJetPower = 1',
-            'JetMatching:qCut = 30.', #this is the actual merging scale
+            'JetMatching:qCut = 20.', #this is the actual merging scale
             'JetMatching:doFxFx = on',
             'JetMatching:qCutME = 10.',#this must match the ptj cut in the lhe generation step
             'JetMatching:nQmatch = 5', #4 corresponds to 4-flavour scheme (no matching of b-quarks), 5 for 5-flavour scheme
-            'TimeShower:nPartonsInBorn = 1', #number of coloured particles (before resonance decays) in highest multiplicity born matrix element
             'JetMatching:nJetMax = 1', #number of partons in born matrix element for highest multiplicity
         ),
         parameterSets = cms.vstring('pythia8CommonSettings',

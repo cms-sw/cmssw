@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(1),

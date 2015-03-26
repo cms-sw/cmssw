@@ -13,7 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
@@ -24,19 +24,17 @@ namespace edm {
 // class declaration
 //
 
-class HLTBool : public edm::EDFilter {
+class HLTBool : public edm::global::EDFilter<> {
+public:
+  explicit HLTBool(const edm::ParameterSet&);
+  ~HLTBool();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  virtual bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
 
-  public:
+private:
 
-    explicit HLTBool(const edm::ParameterSet&);
-    ~HLTBool();
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
-
-  private:
-
-    /// Boolean result
-    bool result_;
+  /// boolean result
+  bool result_;
 
 };
 

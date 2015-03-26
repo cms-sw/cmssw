@@ -5,10 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # run only if there are high pT jets
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 initialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
-from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
-from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
-caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
-ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('firstStepPrimaryVertices'), src= cms.InputTag('caloTowerForTrk'))
+from RecoJets.JetProducers.caloJetsForTrk_cff import *
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 # care only at tracks from main PV
@@ -31,7 +28,7 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'BPix3+TIB1','BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-2069)
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
@@ -149,7 +146,7 @@ jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
     ) #end of clone
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloTowerForTrk*ak4CaloJetsForTrk*jetsForCoreTracking*
+JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*jetsForCoreTracking*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*

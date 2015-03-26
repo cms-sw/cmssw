@@ -48,8 +48,8 @@ trackListMerger = cms.EDProducer("TrackListMerger",
     allowFirstHitShare = cms.bool(True),
     newQuality = cms.string('confirmed'),
     copyExtras = cms.untracked.bool(False),
-    writeOnlyTrkQuals = cms.bool(False)
-
+    writeOnlyTrkQuals = cms.bool(False),
+    copyMVA           = cms.bool(True)
 )
 
 

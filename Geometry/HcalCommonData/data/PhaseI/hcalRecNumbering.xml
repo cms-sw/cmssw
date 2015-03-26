@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection  label="hcalRecNumbering.xml" eval="true">
+  <Vector name="etagroup" type="numeric" nEntries="29">
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+  </Vector>
+  <Vector name="phigroup" type="numeric" nEntries="29">
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+  </Vector>
+  <Vector name="layergroupEta1" type="numeric" nEntries="19">
+    1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4
+  </Vector>
+  <Vector name="layergroupEta16" type="numeric" nEntries="19">
+    1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+  </Vector>
+  <Vector name="layergroupEta17" type="numeric" nEntries="19">
+    1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5
+  </Vector>
+</ConstantsSection>
+
+<SpecParSection label="hcalRecNumbering.xml" eval="true">
+  <SpecPar name="hcal">
+    <PartSelector path="//HCal"/>
+    <Parameter name="OnlyForHcalRecNumbering" value="HCAL" eval="false"/>
+    <Parameter name="TopologyMode" value="HcalTopologyMode::SLHC" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

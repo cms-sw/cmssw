@@ -9,19 +9,20 @@ from RecoParticleFlow.PFProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
-from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
-from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
-from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
-from RecoParticleFlow.PFProducer.pfLinker_cff import *
-# the following is replaced by the mva-based 
+#from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
+from RecoParticleFlow.PFClusterProducer.towerMakerPF_cfi import *
+# The following is replaced by the MVA-based 
 #from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
+from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cff import *
+from RecoParticleFlow.PFProducer.pfLinker_cff import *
 from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
-
+#particleFlow.PFCandidate = [cms.InputTag("FSparticleFlow")]
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
 #Deactivate the recovery of dead towers since dead towers are not simulated
+
 #Similarly, deactivate HF cleaning for spikes
 particleFlowClusterHF.recHitCleaners = cms.VPSet()
 particleFlowRecHitHF.producers[0].qualityTests =cms.VPSet(
@@ -39,7 +40,6 @@ particleFlowRecHitHF.producers[0].qualityTests =cms.VPSet(
 
 )
 
-
 #particleFlowBlock.useNuclear = cms.bool(True)
 #particleFlowBlock.useConversions = cms.bool(True)
 #particleFlowBlock.useV0 = cms.bool(True)
@@ -52,10 +52,6 @@ particleFlowRecHitHF.producers[0].qualityTests =cms.VPSet(
 #particleFlow.usePFDecays = cms.bool(True)
 
 ### With the new mixing scheme, the label of the Trajectory collection for the primary event is different:
-from FastSimulation.Configuration.CommonInputs_cff import *
-if(CaloMode==3 and MixingMode=='DigiRecoMixing'):
-    trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
-
 
 famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
@@ -67,26 +63,25 @@ famosParticleFlowSequence = cms.Sequence(
     particleFlowEGammaFull+
     particleFlowTmp+
     particleFlowTmpPtrs+
-    particleFlowEGammaFinal+
-    FSparticleFlow
+    particleFlowEGammaFinal
+    #FSparticleFlow
 )
 
-particleFlowLinks = cms.Sequence(particleFlow*particleFlowPtrs+particleBasedIsolationSequence)
+particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs + particleBasedIsolationSequence)
 
 # PF Reco Jets and MET
+
+from RecoJets.JetProducers.PFJetParameters_cfi import PFJetParameters
+#PFJetParameters.src = cms.InputTag("FSparticleFlow") #AG
 from RecoJets.Configuration.RecoPFJets_cff import *
+from RecoMET.METProducers.PFMET_cfi import *
+#pfMet.src = cms.InputTag("FSparticleFlow") #AG
 from RecoMET.Configuration.RecoPFMET_cff import *
 
 PFJetMet = cms.Sequence(
     recoPFJets+
     recoPFMET
 )
-
-
-# Tau tagging
-
-from FastSimulation.ParticleFlow.TauTaggingFastSim_cff import *
-    
 
 
 

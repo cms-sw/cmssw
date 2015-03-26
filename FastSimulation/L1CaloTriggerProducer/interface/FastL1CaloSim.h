@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@
 //
 // class decleration
 //
-class FastL1CaloSim : public edm::EDProducer {
+class FastL1CaloSim : public edm::stream::EDProducer <> {
    public:
       explicit FastL1CaloSim(const edm::ParameterSet&);
       ~FastL1CaloSim();

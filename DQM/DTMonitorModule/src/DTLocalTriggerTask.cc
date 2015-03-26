@@ -48,6 +48,11 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   doDCCTheta       = ps.getUntrackedParameter<bool>("enableDCCTheta", false);
   dcc_Token_       = consumes<L1MuDTChambPhContainer>(
       edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
+// NEW (M.C Fouz July14) Needed, since at least version 710 
+  dccTh_Token_       = consumes<L1MuDTChambThContainer>(
+      edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
+// end NEW
+
   ros_Token_       = consumes<DTLocalTriggerCollection>(
       edm::InputTag(ps.getUntrackedParameter<string>("ros_label", "dtunpacker")));
   seg_Token_       = consumes<DTRecSegment4DCollection>(
@@ -64,8 +69,6 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
 
   parameters = ps;
 
-  dbe = edm::Service<DQMStore>().operator->();
-
 }
 
 
@@ -76,21 +79,17 @@ DTLocalTriggerTask::~DTLocalTriggerTask() {
 
 }
 
-
-void DTLocalTriggerTask::beginJob(){
-
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: BeginJob" << endl;
+void DTLocalTriggerTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   nevents = 0;
+  context.get<MuonGeometryRecord>().get(muonGeom);
+  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 
 }
 
-void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: BeginRun" << endl;
-
-  context.get<MuonGeometryRecord>().get(muonGeom);
-  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: bookHistograms" << endl;
 
   if(parameters.getUntrackedParameter<bool>("staticBooking", true)) {  // Static histo booking
 
@@ -107,7 +106,7 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
     vector<string>::const_iterator trigSrcEnd = trigSources.end();
 
     if(parameters.getUntrackedParameter<bool>("process_dcc", true)) {
-      bookBarrelHistos("DCC_ErrorsChamberID");
+      bookBarrelHistos(ibooker, "DCC_ErrorsChamberID");
     }
 
     if (tpMode) {
@@ -117,12 +116,12 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
 	    DTChamberId dtChId(wh,stat,sect);
 
 	    if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // DCC data
-	      bookHistos(dtChId,"LocalTriggerPhi","DCC_BXvsQual"+(*trigSrcIt));
-	      bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_BXvsQual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+(*trigSrcIt));
 	    }
 
 	    if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
-	      bookHistos(dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
 	    }
 
 	  }
@@ -134,41 +133,38 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
 	for (int wh=-2;wh<3;++wh){
 	  if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
 	      parameters.getUntrackedParameter<bool>("process_ros", true)){ // DCC+DDU data
-	    bookWheelHistos(wh,"COM_BXDiff"+(*trigSrcIt));
+	    bookWheelHistos(ibooker, wh,"COM_BXDiff"+(*trigSrcIt));
 	  }
 	  for (int sect=1;sect<13;++sect){
 	    for (int stat=1;stat<5;++stat){
 	      DTChamberId dtChId(wh,stat,sect);
 	      if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // DCC data
 
-		bookHistos(dtChId,"LocalTriggerPhi","DCC_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_BXvsQual"+(*trigSrcIt));
 		if (detailedAnalysis) {
-		  bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+(*trigSrcIt));
-		  bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+(*trigSrcIt));
 		}
-		bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(dtChId,"LocalTriggerPhi","DCC_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DCC_BestQual"+(*trigSrcIt));
 		if (stat!=4 && doDCCTheta){
-		  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+(*trigSrcIt));
-//		  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+(*trigSrcIt));  // DCC theta quality not available!
-// 		  bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+(*trigSrcIt));
-// 		  bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBestQual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+(*trigSrcIt));
 		}
 
 		if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // DCC + Segemnt
-		  bookHistos(dtChId,"Segment","DCC_PhitkvsPhitrig"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_PhibtkvsPhibtrig"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_PhiResidual"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_PhiResidualvsLUTPhi"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_PhibResidual"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_HitstkvsQualtrig"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_TrackPosvsAngle"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_TrackPosvsAngleandTrig"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DCC_TrackPosvsAngleandTrigHHHL"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_PhitkvsPhitrig"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_PhibtkvsPhibtrig"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_PhiResidual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_PhiResidualvsLUTPhi"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_PhibResidual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_HitstkvsQualtrig"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_TrackPosvsAngle"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_TrackPosvsAngleandTrig"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DCC_TrackPosvsAngleandTrigHHHL"+(*trigSrcIt));
 		  if(stat!=4){
-		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngle"+(*trigSrcIt)); // theta view
-		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrig"+(*trigSrcIt));
-// 		    bookHistos(dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));     // DCC theta quality not available!
+		    bookHistos(ibooker, dtChId,"Segment","DCC_TrackThetaPosvsAngle"+(*trigSrcIt)); // theta view
+		    bookHistos(ibooker, dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrig"+(*trigSrcIt));
+// 		    bookHistos(ibooker, dtChId,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));     // DCC theta quality not available!
 		  }
 		}
 
@@ -176,23 +172,23 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
 
 	      if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
 
-		bookHistos(dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
-		bookHistos(dtChId,"LocalTriggerPhi","DDU_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(dtChId,"LocalTriggerPhi","DDU_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_Flag1stvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BestQual"+(*trigSrcIt));
 		if(stat!=4){                                                    // theta view
-		  bookHistos(dtChId,"LocalTriggerTheta","DDU_ThetaBXvsQual"+(*trigSrcIt));
-		  bookHistos(dtChId,"LocalTriggerTheta","DDU_ThetaBestQual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DDU_ThetaBXvsQual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DDU_ThetaBestQual"+(*trigSrcIt));
 		}
 
 		if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // DDU + Segment
-		  bookHistos(dtChId,"Segment","DDU_HitstkvsQualtrig"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DDU_TrackPosvsAngle"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DDU_TrackPosvsAngleandTrig"+(*trigSrcIt));
-		  bookHistos(dtChId,"Segment","DDU_TrackPosvsAngleandTrigHHHL"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DDU_HitstkvsQualtrig"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DDU_TrackPosvsAngle"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DDU_TrackPosvsAngleandTrig"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"Segment","DDU_TrackPosvsAngleandTrigHHHL"+(*trigSrcIt));
 		  if(stat!=4){
-		    bookHistos(dtChId,"Segment","DDU_TrackThetaPosvsAngle"+(*trigSrcIt)); // theta view
-		    bookHistos(dtChId,"Segment","DDU_TrackThetaPosvsAngleandTrig"+(*trigSrcIt));
-		    bookHistos(dtChId,"Segment","DDU_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));
+		    bookHistos(ibooker, dtChId,"Segment","DDU_TrackThetaPosvsAngle"+(*trigSrcIt)); // theta view
+		    bookHistos(ibooker, dtChId,"Segment","DDU_TrackThetaPosvsAngleandTrig"+(*trigSrcIt));
+		    bookHistos(ibooker, dtChId,"Segment","DDU_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));
 		  }
 		}
 
@@ -200,7 +196,7 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
 
 	      if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
 		  parameters.getUntrackedParameter<bool>("process_ros", true)){ // DCC+DDU data
-		bookHistos(dtChId,"LocalTriggerPhi","COM_QualDDUvsQualDCC"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhi","COM_QualDDUvsQualDCC"+(*trigSrcIt));
 	      }
 
 	    }
@@ -209,11 +205,11 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
 	    DTChamberId dtChId(wh,4,sect);
 	    if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
 		parameters.getUntrackedParameter<bool>("process_seg", true)){ // DCC+SEG LUTs data
-	      bookHistos(dtChId,"Segment","DCC_PhitkvsPhitrig"+(*trigSrcIt));
-	      bookHistos(dtChId,"Segment","DCC_PhibtkvsPhibtrig"+(*trigSrcIt));
-	      bookHistos(dtChId,"Segment","DCC_PhiResidual"+(*trigSrcIt));
-	      bookHistos(dtChId,"Segment","DCC_PhiResidualvsLUTPhi"+(*trigSrcIt));
-	      bookHistos(dtChId,"Segment","DCC_PhibResidual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"Segment","DCC_PhitkvsPhitrig"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"Segment","DCC_PhibtkvsPhibtrig"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"Segment","DCC_PhiResidual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"Segment","DCC_PhiResidualvsLUTPhi"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"Segment","DCC_PhibResidual"+(*trigSrcIt));
 	    }
 	  }
 	}
@@ -221,6 +217,7 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
     }
 
   }
+
 
 }
 
@@ -243,23 +240,15 @@ void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 
 }
 
-
-void DTLocalTriggerTask::endJob(){
-
-  LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: analyzed " << nevents << " events" << endl;
-  if (parameters.getUntrackedParameter<bool>("process_dcc", true)) dbe->rmdir(topFolder(0)); //DDU folder
-  if (parameters.getUntrackedParameter<bool>("process_ros", true)) dbe->rmdir(topFolder(1)); //DCC folder
-
-}
-
-
 void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if (!nevents){
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
     e.getByToken(dcc_Token_, l1DTTPGPh);
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    e.getByToken(dcc_Token_, l1DTTPGTh);
+    // e.getByToken(dcc_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
+    e.getByToken(dccTh_Token_, l1DTTPGTh); // CHANGED (F.R.Cavallo Nov14)
+
     useDCC = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_dcc", true) ;
 
     Handle<DTLocalTriggerCollection> l1DDUTrigs;
@@ -282,7 +271,9 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     vector<L1MuDTChambPhDigi> const*  l1PhTrig = l1DTTPGPh->getContainer();
 
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    e.getByToken(dcc_Token_, l1DTTPGTh);
+    //e.getByToken(dcc_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
+    e.getByToken(dccTh_Token_, l1DTTPGTh);// CHANGED (F.R. Cavallo Nov14)
+
     vector<L1MuDTChambThDigi> const*  l1ThTrig = l1DTTPGTh->getContainer();
 
     runDCCAnalysis(l1PhTrig, l1ThTrig);
@@ -306,12 +297,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 }
 
 
-void DTLocalTriggerTask::bookBarrelHistos(string histoTag) {
+void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, string histoTag) {
 
   bool isDCC = histoTag.substr(0,3) == "DCC";
-  dbe->setCurrentFolder(topFolder(isDCC));
+  ibooker.setCurrentFolder(topFolder(isDCC));
   if (histoTag == "DCC_ErrorsChamberID") {
-    dcc_IDDataErrorPlot = dbe->book1D(histoTag.c_str(),"DCC Data ID Error",5,-2,3);
+    dcc_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(),"DCC Data ID Error",5,-2,3);
     dcc_IDDataErrorPlot->setAxisTitle("wheel",1);
   }
 
@@ -319,7 +310,7 @@ void DTLocalTriggerTask::bookBarrelHistos(string histoTag) {
 
 }
 
-void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, string histoTag) {
+void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, string folder, string histoTag) {
 
   int wh=dtCh.wheel();
   int sc=dtCh.sector();
@@ -334,7 +325,7 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
   string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
   bool isDCC = histoTag.substr(0,3) == "DCC";
 
-  dbe->setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() +
+  ibooker.setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
 			"/Station" + station.str() + "/" + folder);
 
@@ -360,37 +351,37 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 
     if( histoType == "BXvsQual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"BX vs trigger quality",7,-0.5,6.5,rangeBX,minBX,maxBX);
+	ibooker.book2D(histoName,"BX vs trigger quality",7,-0.5,6.5,rangeBX,minBX,maxBX);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
     if( histoType == "BestQual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book1D(histoName,"Trigger quality of best primitives",7,-0.5,6.5);
+	ibooker.book1D(histoName,"Trigger quality of best primitives",7,-0.5,6.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
     if( histoType == "QualvsPhirad" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Trigger quality vs local position",100,-500.,500.,7,-0.5,6.5);
+	ibooker.book2D(histoName,"Trigger quality vs local position",100,-500.,500.,7,-0.5,6.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],2);
       return ;
     }
     if( histoType == "QualvsPhibend" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Trigger quality vs local direction",200,-40.,40.,7,-0.5,6.5);
+	ibooker.book2D(histoName,"Trigger quality vs local direction",200,-40.,40.,7,-0.5,6.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],2);
       return ;
     }
     if( histoType == "Flag1stvsQual" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"1st/2nd trig flag vs quality",7,-0.5,6.5,2,-0.5,1.5);
+	ibooker.book2D(histoName,"1st/2nd trig flag vs quality",7,-0.5,6.5,2,-0.5,1.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
     if( histoType == "QualDDUvsQualDCC" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"DDU quality vs DCC quality",8,-1.5,6.5,8,-1.5,6.5);
+	ibooker.book2D(histoName,"DDU quality vs DCC quality",8,-1.5,6.5,8,-1.5,6.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],2);
       return ;
@@ -401,23 +392,23 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 
     if( histoType == "PositionvsBX" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Theta trigger position vs BX",rangeBX,minBX,maxBX,7,-0.5,6.5);
+	ibooker.book2D(histoName,"Theta trigger position vs BX",rangeBX,minBX,maxBX,7,-0.5,6.5);
       return ;
     }
     if( histoType == "PositionvsQual" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Theta trigger position vs quality",7,-0.5,6.5,7,-0.5,6.5);
+	ibooker.book2D(histoName,"Theta trigger position vs quality",7,-0.5,6.5,7,-0.5,6.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
     if( histoType == "ThetaBXvsQual" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"BX vs trigger quality",7,-0.5,6.5,rangeBX,minBX,maxBX);
+	ibooker.book2D(histoName,"BX vs trigger quality",7,-0.5,6.5,rangeBX,minBX,maxBX);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
     }
     if( histoType == "ThetaBestQual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book1D(histoName,"Trigger quality of best primitives (theta)",7,-0.5,6.5);
+	ibooker.book1D(histoName,"Trigger quality of best primitives (theta)",7,-0.5,6.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
@@ -435,7 +426,7 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
       int nbins;
       trigGeomUtils->thetaRange(dtCh,min,max,nbins);
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,histoLabel,16,-40.,40.,nbins,min,max);
+	ibooker.book2D(histoName,histoLabel,16,-40.,40.,nbins,min,max);
       return ;
     }
     if( histoType.find("TrackPosvsAngle") == 0 ){
@@ -449,32 +440,32 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
       else if (histoType.find("andTrig") != string::npos) histoLabel += " for triggers";
 
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,histoLabel,16,-40.,40.,nbins,min,max);
+	ibooker.book2D(histoName,histoLabel,16,-40.,40.,nbins,min,max);
       return ;
     }
     if( histoType == "PhitkvsPhitrig" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Local position: segment vs trigger",100,-500.,500.,100,-500.,500.);
+	ibooker.book2D(histoName,"Local position: segment vs trigger",100,-500.,500.,100,-500.,500.);
       return ;
     }
     if( histoType == "PhibtkvsPhibtrig" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Local direction : segment vs trigger",200,-40.,40.,200,-40.,40.);
+	ibooker.book2D(histoName,"Local direction : segment vs trigger",200,-40.,40.,200,-40.,40.);
       return ;
     }
     if( histoType == "PhiResidual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book1D(histoName,"Trigger local position - Segment local position (correlated triggers)",400,-10.,10.);
+	ibooker.book1D(histoName,"Trigger local position - Segment local position (correlated triggers)",400,-10.,10.);
       return ;
     }
     if( histoType == "PhibResidual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book1D(histoName,"Trigger local direction - Segment local direction (correlated triggers)",500,-10.,10.);
+	ibooker.book1D(histoName,"Trigger local direction - Segment local direction (correlated triggers)",500,-10.,10.);
       return ;
     }
     if( histoType == "HitstkvsQualtrig" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
-	dbe->book2D(histoName,"Segment hits (phi) vs trigger quality",7,-0.5,6.5,10,0.5,10.5);
+	ibooker.book2D(histoName,"Segment hits (phi) vs trigger quality",7,-0.5,6.5,10,0.5,10.5);
       setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
@@ -483,14 +474,14 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 
 }
 
-void DTLocalTriggerTask::bookWheelHistos(int wh, string histoTag) {
+void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, string histoTag) {
 
   stringstream wheel; wheel << wh;
 
   string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
   bool isDCC = histoTag.substr(0,3) == "DCC";
 
-  dbe->setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() + "/");
+  ibooker.setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() + "/");
 
   string histoName = histoTag + "_W" + wheel.str();
 
@@ -498,7 +489,7 @@ void DTLocalTriggerTask::bookWheelHistos(int wh, string histoTag) {
 						       << "Wheel" << wheel.str() << "/" << histoName << endl;
 
   if( histoType.find("BXDiff") != string::npos ){
-    MonitorElement *me = dbe->bookProfile2D(histoName,"DDU-DCC BX Difference",12,1,13,4,1,5,0.,20.);
+    MonitorElement *me = ibooker.bookProfile2D(histoName,"DDU-DCC BX Difference",12,1,13,4,1,5,0.,20.);
     me->setAxisTitle("Sector",1);
     me->setAxisTitle("station",2);
     (wheelHistos[wh])[histoTag] = me;
@@ -507,7 +498,7 @@ void DTLocalTriggerTask::bookWheelHistos(int wh, string histoTag) {
 
 }
 
-void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* phTrigs,
+void DTLocalTriggerTask::runDCCAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs,
 					 std::vector<L1MuDTChambThDigi> const* thTrigs ) {
 
   string histoType ;
@@ -553,20 +544,6 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* p
     uint32_t indexCh = dtChId.rawId();
 
     map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-    if (innerME.find("DCC_BXvsQual"+trigsrc) == innerME.end()){
-      if (tpMode) {
-	bookHistos(dtChId,"LocalTriggerPhi","DCC_BXvsQual"+trigsrc);
-	bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+trigsrc);
-      }
-      else {
-	bookHistos(dtChId,"LocalTriggerPhi","DCC_BXvsQual"+trigsrc);
-	bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+trigsrc);
-	if (detailedAnalysis) {
-	  bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+trigsrc);
-	  bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+trigsrc);
-	}
-      }
-    }
 
     if (tpMode) {
       innerME.find("DCC_BXvsQual"+trigsrc)->second->Fill(phcode,phbx-phi1st);    // SM BX vs Qual Phi view (1st tracks)
@@ -606,22 +583,10 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* p
       uint32_t indexCh = dtChId.rawId();
 
       map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-      if (innerME.find("DCC_PositionvsBX"+trigsrc) == innerME.end()){
-	bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+trigsrc);
-// 	if (detailedAnalysis) {
-// 	  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+trigsrc);
-// 	  bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+trigsrc);
-// 	}
-      }
 
       for (int pos=0; pos<7; pos++) { //SM fill position for non zero position bit in theta view
 	if(thcode[pos]>0){
 	  innerME.find("DCC_PositionvsBX"+trigsrc)->second->Fill(thbx,pos);          // SM BX vs Position Theta view
-// 	  if (detailedAnalysis) {
-// 	    int thqual = (thcode[pos]/2)*2+1;
-// 	    innerME.find("DCC_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,thbx);      // SM BX vs Code Theta view
-// 	    innerME.find("DCC_PositionvsQual"+trigsrc)->second->Fill(thqual,pos);      // SM Code vs Position Theta view
-// 	  }
 	}
       }
     }
@@ -637,18 +602,9 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* p
 	    DTChamberId id(wh,st,sc);
 	    uint32_t indexCh = id.rawId();
 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-	    if (innerME.find("DCC_BestQual"+trigsrc) == innerME.end())
-	      bookHistos(id,"LocalTriggerPhi","DCC_BestQual"+trigsrc);
+
 	    innerME.find("DCC_BestQual"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // Best Qual Trigger Phi view
 	  }
-// 	  if (thcode_best[wh+3][st][sc]>0){
-// 	    DTChamberId id(wh,st,sc);
-// 	    uint32_t indexCh = id.rawId();
-// 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-// 	    if (innerME.find("DCC_ThetaBestQual"+trigsrc) == innerME.end())
-// 	      bookHistos(id,"LocalTriggerTheta","DCC_ThetaBestQual"+trigsrc);
-// 	    innerME.find("DCC_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]); // Best Qual Trigger Theta view
-// 	  }
 	}
       }
     }
@@ -699,11 +655,6 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
 	  iphbestddu[wh+3][st][sec] = &(*trigIt);
 	}
 
-	if (innerME.find("DDU_BXvsQual"+trigsrc) == innerME.end()){
-	  bookHistos(id,"LocalTriggerPhi","DDU_BXvsQual"+trigsrc);
-	  bookHistos(id,"LocalTriggerPhi","DDU_Flag1stvsQual"+trigsrc);
-	}
-
 	if(tpMode) {
 	  innerME.find("DDU_BXvsQual"+trigsrc)->second->Fill(quality,bx-flag1st);     // SM BX vs Qual Phi view
 	}
@@ -717,10 +668,8 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
 	if(thqual>dduthcode_best[wh+3][st][sec] ) {
 	  dduthcode_best[wh+3][st][sec]=thqual;
 	}
-	if (innerME.find("DDU_ThetaBXvsQual"+trigsrc) == innerME.end())
-	  bookHistos(id,"LocalTriggerTheta","DDU_ThetaBXvsQual"+trigsrc);
-	innerME.find("DDU_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,bx);     // SM BX vs Qual Theta view
 
+	innerME.find("DDU_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,bx);     // SM BX vs Qual Theta view
       }
     }
 
@@ -728,18 +677,14 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
     if (!tpMode) {
       if (dduphcode_best[wh+3][st][sec]>-1 &&
 	  dduphcode_best[wh+3][st][sec]<7){
-	if (innerME.find("DDU_BestQual"+trigsrc) == innerME.end())
-	  bookHistos(id,"LocalTriggerPhi","DDU_BestQual"+trigsrc);
+
 	innerME.find("DDU_BestQual"+trigsrc)->second->Fill(dduphcode_best[wh+3][st][sec]);  // Best Qual Trigger Phi view
       }
       if (dduthcode_best[wh+3][st][sec]>0){
-	if (innerME.find("DDU_ThetaBestQual"+trigsrc) == innerME.end())
-	  bookHistos(id,"LocalTriggerTheta","DDU_ThetaBestQual"+trigsrc);
 	innerME.find("DDU_ThetaBestQual"+trigsrc)->second->Fill(dduthcode_best[wh+3][st][sec]); // Best Qual Trigger Theta view
       }
     }
   }
-
 }
 
 
@@ -814,8 +759,6 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	  dduphcode_best[wheel+3][station][scsector] < 7 ) {
 
 	// SM hits of the track vs quality of the trigger
-	if (innerME.find("DDU_HitstkvsQualtrig"+trigsrc) == innerME.end())
-	  bookHistos(dtChIdSC,"Segment","DDU_HitstkvsQualtrig"+trigsrc);
 	innerME.find("DDU_HitstkvsQualtrig"+trigsrc)->second->Fill(dduphcode_best[wheel+3][station][scsector],nHitsPhi);
 
       }
@@ -824,9 +767,6 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	  phcode_best[wheel+3][station][scsector] > -1 &&
 	  phcode_best[wheel+3][station][scsector] < 7 ) {
 
-	if (innerME.find("DCC_HitstkvsQualtrig"+trigsrc) == innerME.end()){
-	  bookHistos(dtChIdSC,"Segment","DCC_HitstkvsQualtrig"+trigsrc);
-	}
 	innerME.find("DCC_HitstkvsQualtrig"+trigsrc)->second->Fill(phcode_best[wheel+3][station][scsector],nHitsPhi);
 
 	if (phcode_best[wheel+3][station][scsector]>3 && nHitsPhi>=7){
@@ -835,22 +775,11 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	  float angle_trigger = trigGeomUtils->trigDir(iphbest[wheel+3][station][scsector]);
 	  trigGeomUtils->trigToSeg(station,x_trigger,x_angle);
 
-	  if (innerMECh.find("DCC_PhibResidual"+trigsrc) == innerMECh.end()){
-	    bookHistos(dtChId,"Segment","DCC_PhiResidual"+trigsrc);
-	    bookHistos(dtChId,"Segment","DCC_PhibResidual"+trigsrc);
-	    bookHistos(dtChId,"Segment","DCC_PhitkvsPhitrig"+trigsrc);
-	    bookHistos(dtChId,"Segment","DCC_PhibtkvsPhibtrig"+trigsrc);
-	    bookHistos(dtChId,"Segment","DCC_HitstkvsQualtrig"+trigsrc);
-	  }
-
 	  innerMECh.find("DCC_PhitkvsPhitrig"+trigsrc)->second->Fill(x_trigger,x_track);
 	  innerMECh.find("DCC_PhibtkvsPhibtrig"+trigsrc)->second->Fill(angle_trigger,x_angle);
 	  innerMECh.find("DCC_PhiResidual"+trigsrc)->second->Fill(x_trigger-x_track);
 	  innerMECh.find("DCC_PhibResidual"+trigsrc)->second->Fill(angle_trigger-x_angle);
 	}
-
-
-
       }
 
 
@@ -870,12 +799,6 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 
 	if (trigFlagDCC && fabs(x_angle)<40. && nHitsPhi>=7){
 
-	  if (innerME.find("DCC_TrackPosvsAngle"+trigsrc) == innerME.end()){
-	    bookHistos(dtChIdSC,"Segment","DCC_TrackPosvsAngle"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DCC_TrackPosvsAngleandTrig"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DCC_TrackPosvsAngleandTrigHHHL"+trigsrc);
-	  }
-
 	  // position vs angle of track for reconstruced tracks (denom. for trigger efficiency)
 	  innerME.find("DCC_TrackPosvsAngle"+trigsrc)->second->Fill(x_angle,x_track);
 	  if (phcode_best[wheel+3][station][scsector] >= 2 && phcode_best[wheel+3][station][scsector] < 7) {
@@ -889,19 +812,10 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 
 	if ((*btrack)->hasZed() && trigFlagDCC && fabs(y_angle)<40. && (*btrack)->zSegment()->degreesOfFreedom()>=1){
 
-	  if (innerME.find("DCC_TrackThetaPosvsAngle"+trigsrc) == innerME.end()){
-	    bookHistos(dtChIdSC,"Segment","DCC_TrackThetaPosvsAngle"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DCC_TrackThetaPosvsAngleandTrig"+trigsrc);
-//	    bookHistos(dtChIdSC,"Segment","DCC_TrackThetaPosvsAngleandTrigH"+trigsrc);          no DCC theta qual info
-	  }
-
 	  // position va angle of track for reconstruced tracks (denom. for trigger efficiency) along theta direction
 	  innerME.find("DCC_TrackThetaPosvsAngle"+trigsrc)->second->Fill(y_angle,y_track);
 	  if (thcode_best[wheel+3][station][scsector] > 0) {
 	    innerME.find("DCC_TrackThetaPosvsAngleandTrig"+trigsrc)->second->Fill(y_angle,y_track);
-//          if (thcode_best[wheel+3][station][scsector] == 3) {
-// 	      innerME.find("DCC_TrackThetaPosvsAngleH"+trigsrc)->second->Fill(y_angle,y_track);
-// 	    }
 	  }
 
 	}
@@ -923,12 +837,6 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 
 	if (trigFlagDDU && fabs(x_angle)<40. && nHitsPhi>=7){
 
-	  if (innerME.find("DDU_TrackPosvsAngle"+trigsrc) == innerME.end()){
-	    bookHistos(dtChIdSC,"Segment","DDU_TrackPosvsAngle"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DDU_TrackPosvsAngleandTrig"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DDU_TrackPosvsAngleandTrigHHHL"+trigsrc);
-	  }
-
 	  // position vs angle of track for reconstruced tracks (denom. for trigger efficiency)
 	  innerME.find("DDU_TrackPosvsAngle"+trigsrc)->second->Fill(x_angle,x_track);
 	  if (dduphcode_best[wheel+3][station][scsector] >= 2 && dduphcode_best[wheel+3][station][scsector] < 7) {
@@ -941,12 +849,6 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	}
 
 	if ((*btrack)->hasZed() && trigFlagDDU && fabs(y_angle)<40. && (*btrack)->zSegment()->degreesOfFreedom()>=1){
-
-	  if (innerME.find("DDU_TrackThetaPosvsAngle"+trigsrc) == innerME.end()){
-	    bookHistos(dtChIdSC,"Segment","DDU_TrackThetaPosvsAngle"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DDU_TrackThetaPosvsAngleandTrig"+trigsrc);
-	    bookHistos(dtChIdSC,"Segment","DDU_TrackThetaPosvsAngleandTrigH"+trigsrc);
-	  }
 
 	  // position va angle of track for reconstruced tracks (denom. for trigger efficiency) along theta direction
 	  innerME.find("DDU_TrackThetaPosvsAngle"+trigsrc)->second->Fill(y_angle,y_track);
@@ -978,8 +880,7 @@ void DTLocalTriggerTask::runDDUvsDCCAnalysis(string& trigsrc){
 	  DTChamberId id(wh,st,sc);
 	  uint32_t indexCh = id.rawId();
 	  map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-	  if (innerME.find("COM_QualDDUvsQualDCC"+trigsrc) == innerME.end())
-	    bookHistos(id,"LocalTriggerPhi","COM_QualDDUvsQualDCC"+trigsrc);
+
 	  innerME.find("COM_QualDDUvsQualDCC"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc],dduphcode_best[wh+3][st][sc]);
 	  if ( (phcode_best[wh+3][st][sc]>-1 && phcode_best[wh+3][st][sc]<7) &&
 	       (dduphcode_best[wh+3][st][sc]>-1 && dduphcode_best[wh+3][st][sc]<7) ){

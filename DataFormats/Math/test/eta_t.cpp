@@ -1,7 +1,7 @@
 #pragma GCC diagnostic ignored "-Wformat"
 #include <iostream>
 #include <cmath>
-#include<cstdlib>
+#include <cstdlib>
 #include <cstdio>
 
 namespace almostEqualDetail {
@@ -28,7 +28,7 @@ inline int intDiff(float a, float b)
   // Make bInt lexicographically ordered as a twos-complement int
   fasi fb; fb.f = b;
   if (fb.i < 0) fb.i = 0x80000000 - fb.i;
-  return abs(fa.i - fb.i);
+  return std::abs(fa.i - fb.i);
 }
 
 
@@ -41,7 +41,7 @@ inline long long intDiff(double a, double b)
   // Make bInt lexicographically ordered as a twos-complement int
   dasi fb; fb.f = b;
   if (fb.i < 0) fb.i = 0x8000000000000000LL - fb.i;
-  return abs(fa.i - fb.i);
+  return std::abs(fa.i - fb.i);
 }
 
 template<typename T>
@@ -61,7 +61,6 @@ namespace {
 
   inline float eta3(float x, float y, float z) { float t(z/std::sqrt(x*x+y*y)); return ::asinhf(t);} 
   inline double eta3(double x, double y, double z) { double t(z/std::sqrt(x*x+y*y)); return ::asinh(t);} 
-  inline long double eta3(long double x, long double y, long double z) { long double t(z/std::sqrt(x*x+y*y)); return ::asinhl(t);} 
 
   
   void look(float x) {

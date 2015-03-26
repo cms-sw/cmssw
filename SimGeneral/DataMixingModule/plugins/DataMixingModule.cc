@@ -6,7 +6,9 @@
 
 #include <map>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <memory>
+#include <functional>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -21,6 +23,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 //
 //
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "DataMixingModule.h"
 
 
@@ -67,8 +70,6 @@ namespace edm
     addMCDigiNoise_ = false;
 
     addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise");  // for Sim on Sim mixing
-
-    
 
     // Put Fast Sim Sequences here for Simplification: Fewer options!
 
@@ -241,7 +242,6 @@ namespace edm
     } else {
 
       produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
-      SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 
       if( addMCDigiNoise_ ) {
 	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
@@ -257,9 +257,14 @@ namespace edm
 
     produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
 
-    SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
-
+    if( addMCDigiNoise_ ) {
+      SiPixelMCDigiWorker_ = new DataMixingSiPixelMCDigiWorker(ps, consumesCollector());
     }
+    else {
+      SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
+    }
+
+    } // end of Fast/Full switch
 
     // Pileup Information: if doing pre-mixing, we have to save the pileup information from the Secondary stream
 
@@ -267,7 +272,8 @@ namespace edm
 
     if(MergePileup_) {
       produces< std::vector<PileupSummaryInfo> >();
-      produces<CrossingFramePlaybackInfoExtended>();
+      produces< int >("bunchSpacing");
+      produces<CrossingFramePlaybackInfoNew>();
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
@@ -315,6 +321,7 @@ namespace edm
 
     if( addMCDigiNoise_ ) {
       SiStripMCDigiWorker_->initializeEvent( e, ES );
+      SiPixelMCDigiWorker_->initializeEvent( e, ES );
       EcalDigiWorkerProd_->initializeEvent( e, ES );
     }
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
@@ -328,6 +335,14 @@ namespace edm
       EcalDigiWorkerProd_->beginRun( ES );
       HcalDigiWorkerProd_->beginRun( run, ES );
     }
+  }
+
+  void DataMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    //if( addMCDigiNoise_ ) {
+      // HcalDigiWorkerProd_->endRun( run, ES ); // FIXME not implemented
+      // EcalDigiWorkerProd_->endRun( ES );      // FIXME not implemented
+    //}
+    BMixingModule::endRun( run, ES);
   }
 
   // Virtual destructor needed.
@@ -349,8 +364,8 @@ namespace edm
 	delete SiStripRawWorker_;
       else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
       else delete SiStripWorker_;
-
-      delete SiPixelWorker_;
+      if(addMCDigiNoise_ ) delete SiPixelMCDigiWorker_;
+      else delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
   }
@@ -390,7 +405,8 @@ namespace edm
     else SiStripWorker_->addSiStripSignals(e);
 
     // SiPixels
-    SiPixelWorker_->addSiPixelSignals(e);
+    if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelSignals(e);
+    else SiPixelWorker_->addSiPixelSignals(e);
     }    
     AddedPileup_ = false;
 
@@ -408,8 +424,21 @@ namespace edm
 
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
+
     // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
     setupPileUpEvent(ES);
+
+    // check and see if we need to copy the pileup information from 
+    // secondary stream to the output stream  
+    // We only have the pileup event here, so pick the first time and store the info
+
+
+    if(MergePileup_ && !AddedPileup_){
+      
+      PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
+
+      AddedPileup_ = true;
+    }
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
@@ -443,19 +472,11 @@ namespace edm
       else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       
       // SiPixels
-      SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      //whoops this should be for the MC worker ????? SiPixelWorker_->setPileupInfo(ps,bunchSpacing);
+      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      else SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }
 
-    // check and see if we need to copy the pileup information from 
-    // secondary stream to the output stream  
-    // We only have the pileup event here, so pick the first time and store the info
-
-    if(MergePileup_ && !AddedPileup_){
-      
-      PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
-
-      AddedPileup_ = true;
-    }
 
   }
 
@@ -463,7 +484,9 @@ namespace edm
   
   void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
   {
-    std::vector<edm::EventID> recordEventID;
+    using namespace std::placeholders;
+
+    std::vector<edm::SecondaryEventIDAndFileInfo> recordEventID;
     std::vector<int> PileupList;
     PileupList.clear();
     TrueNumInteractions_.clear();
@@ -472,7 +495,7 @@ namespace edm
 
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-        boost::shared_ptr<PileUp> source = inputSources_[isource];
+        std::shared_ptr<PileUp> source = inputSources_[isource];
         if (!source || !(source->doPileUp(bunchCrossing))) 
           continue;
 
@@ -490,8 +513,8 @@ namespace edm
         source->readPileUp(
                 e.id(),
                 recordEventID,
-                boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
-                            _1, bunchCrossing, _2, boost::cref(ES), mcc),
+                std::bind(&DataMixingModule::pileWorker, std::ref(*this),
+                            _1, bunchCrossing, _2, std::cref(ES), mcc),
 		NumPU_Events,
                 e.streamID()
                 );
@@ -504,6 +527,16 @@ namespace edm
   void DataMixingModule::put(edm::Event &e,const edm::EventSetup& ES) {
 
     // individual workers...
+
+    // move pileup first so we have access to the information for the put step
+
+    std::vector<PileupSummaryInfo> ps;
+    int bunchSpacing=10000;
+
+    if(MergePileup_) { 
+      PUWorker_->getPileupInfo(ps,bunchSpacing);      
+      PUWorker_->putPileupInfo(e);
+    }
 
     // Ecal
     if(MergeEMDigis_) {
@@ -535,12 +568,21 @@ namespace edm
       else SiStripWorker_->putSiStrip(e);
        
        // SiPixels
-       SiPixelWorker_->putSiPixel(e);
+      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->putSiPixel(e, ES, ps, bunchSpacing); 
+      else SiPixelWorker_->putSiPixel(e);
     }
 
-    if(MergePileup_) { PUWorker_->putPileupInfo(e);}
 
+  }
 
+  void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    BMixingModule::beginLuminosityBlock(l1, c);
+    EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
+  }
+
+  void DataMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    // EcalDigiWorkerProd_->endLuminosityBlock(l1,c);  // FIXME Not implemented.
+    BMixingModule::endLuminosityBlock(l1, c);
   }
 
 

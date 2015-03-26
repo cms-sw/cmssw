@@ -14,9 +14,9 @@
 //
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 //
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -150,7 +150,9 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
       edm::InputTag("famosSimHits"));
   hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   genjets_Token_ = consumes<reco::GenJetCollection>(
-      edm::InputTag("iterativeCone5GenJets"));
+      edm::InputTag("ak4GenJets"));
+
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHitsForPhotonValidation"));
 
 
   nEvt_=0;
@@ -1576,7 +1578,7 @@ void PhotonValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run cons
   h_trkProv_[0] = iBooker.book1D("allTrkProv"," Track pair provenance ",4, 0., 4.);
   h_trkProv_[1] = iBooker.book1D("assTrkProv"," Track pair provenance ",4, 0., 4.);
   //
-  h_trkAlgo_ = iBooker.book1D("allTrackAlgo"," Track Algo ",30, -0.5, 29.5);
+  h_trkAlgo_ = iBooker.book1D("allTrackAlgo"," Track Algo ", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize-0.5);
   h_convAlgo_ = iBooker.book1D("allConvAlgo"," Conv Algo ",5, -0.5, 4.5);
   h_convQuality_ = iBooker.book1D("allConvQuality","Conv quality ",11,-0.5,11.);
   
@@ -1616,10 +1618,6 @@ void  PhotonValidator::dqmBeginRun (edm::Run const & r, edm::EventSetup const & 
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
 
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("trackAssociatorByHitsForPhotonValidation",theHitsAssociator);
-  theTrackAssociator_ = theHitsAssociator.product();
-
   thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder() );
 
 }
@@ -1643,6 +1641,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   const float END_HI = 2.5;
   // Electron mass
   //const Float_t mElec= 0.000511;
+
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
+  e.getByLabel("trackAssociatorByHitsForPhotonValidation",theHitsAssociator);
+  reco::TrackToTrackingParticleAssociator const* trackAssociator = theHitsAssociator.product();
+
 
 
   nEvt_++;
@@ -1789,11 +1792,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   if ( useTP) {
     if ( ! fastSim_) {
       // Sim to Reco
-      OISimToReco = theTrackAssociator_->associateSimToReco(outInTrkHandle, ElectronTPHandle, &e, &esup);
-      IOSimToReco = theTrackAssociator_->associateSimToReco(inOutTrkHandle, ElectronTPHandle, &e, &esup);
+      OISimToReco = trackAssociator->associateSimToReco(outInTrkHandle, ElectronTPHandle);
+      IOSimToReco = trackAssociator->associateSimToReco(inOutTrkHandle, ElectronTPHandle);
       // Reco to Sim
-      OIRecoToSim = theTrackAssociator_->associateRecoToSim(outInTrkHandle, ElectronTPHandle, &e, &esup);
-      IORecoToSim = theTrackAssociator_->associateRecoToSim(inOutTrkHandle, ElectronTPHandle, &e, &esup);
+      OIRecoToSim = trackAssociator->associateRecoToSim(outInTrkHandle, ElectronTPHandle);
+      IORecoToSim = trackAssociator->associateRecoToSim(inOutTrkHandle, ElectronTPHandle);
     }
   }
   //
@@ -2812,8 +2815,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    RefToBase<reco::Track> tfrb = tracks[i];
 	    RefToBaseVector<reco::Track> tc;
             tc.push_back(tfrb);
-	    // reco::RecoToSimCollection q = theTrackAssociator_->associateRecoToSim(tc,theConvTP_,&e,&esup);
-	    reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e,&esup);
+	    // reco::RecoToSimCollection q = trackAssociator->associateRecoToSim(tc,theConvTP_);
+	    reco::SimToRecoCollection q = trackAssociator->associateSimToReco(tc,theConvTP_);
 	    std::vector<std::pair<RefToBase<reco::Track>, double> >  trackV;
 	    int tpI = 0;
 
@@ -3240,7 +3243,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      RefToBase<reco::Track> tfrb = tracks[i];
 	      RefToBaseVector<reco::Track> tc;
 	      tc.push_back(tfrb);
-	      reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e,&esup);
+	      reco::SimToRecoCollection q = trackAssociator->associateSimToReco(tc,theConvTP_);
 	      std::vector<std::pair<RefToBase<reco::Track>, double> >  trackV;
 	      int tpI = 0;
 	      
@@ -3363,8 +3366,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	  if ( theConvTP_.size() < 2 )   continue;
 
-	  reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e,&esup);
-	  reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e,&esup);
+	  reco::RecoToSimCollection p1 =  trackAssociator->associateRecoToSim(tc1,theConvTP_);
+	  reco::RecoToSimCollection p2 =  trackAssociator->associateRecoToSim(tc2,theConvTP_);
 	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
           try {
             std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
@@ -3752,23 +3755,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   h_nPho_->Fill(float(nPho));
 
-}
-
-
-
-
-
-
-void PhotonValidator::endJob() {
-
-
-  std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
-  if ( ! isRunCentrally_ ) {
-    edm::Service<DQMStore>()->save(outputFileName);
-  }
-
-  edm::LogInfo("PhotonValidator") << "Analyzed " << nEvt_  << "\n";
-  return ;
 }
 
 float PhotonValidator::phiNormalization(float & phi)

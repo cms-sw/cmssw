@@ -6,15 +6,16 @@ import FWCore.ParameterSet.Config as cms
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
 
-detachedQuadStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("lowPtTripletStepClusters"),
-    trajectories = cms.InputTag("lowPtTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+detachedQuadStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("lowPtTripletStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("lowPtTripletStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -37,7 +38,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
 detachedQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
@@ -48,7 +49,7 @@ detachedQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
             )
     ),
     SeedMergerPSet = cms.PSet(
-        layerList = PixelSeedMergerQuadruplets,
+        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
 	addRemainingTriplets = cms.bool(False),
 	mergeTriplets = cms.bool(True),
 	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
@@ -67,6 +68,7 @@ detachedQuadStepSeeds.SeedComparitorPSet = cms.PSet(
     )
 detachedQuadStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 detachedQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+detachedQuadStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -96,7 +98,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('detachedQuadStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
     maxCand = 2,
     alwaysUseInvalidHits = False,
     estimator = cms.string('detachedQuadStepChi2Est'),
@@ -108,6 +109,7 @@ detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('detachedQuadStepSeeds'),
+    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -133,7 +135,7 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     AlgorithmName = cms.string('mixedTripletStep'),
     src = 'detachedQuadStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
+    TTRHBuilder=cms.string('WithTrackAngle')
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.

@@ -216,10 +216,10 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  isTrackerDriven = false;
 	}
 	else {
-	  ElectronSeedRef SeedRef= trackRef->extra()->seedRef().castTo<ElectronSeedRef>();
-	  if(SeedRef->caloCluster().isNull())
+	  auto const& SeedFromRef= dynamic_cast<ElectronSeed const&>(*(trackRef->extra()->seedRef()) );
+	  if(SeedFromRef.caloCluster().isNull())
 	    isEcalDriven = false;
-	  if(SeedRef->ctfTrack().isNull())
+	  if(SeedFromRef.ctfTrack().isNull())
 	    isTrackerDriven = false;
 	}
 	//note: the same track could be both ecalDriven and trackerDriven
@@ -411,9 +411,9 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 
 
   if (&(*gsftk.seedRef())==0) return -1;
-  ElectronSeedRef ElSeedRef=gsftk.extra()->seedRef().castTo<ElectronSeedRef>();
+  auto const &  ElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
-  if (ElSeedRef->ctfTrack().isNull()){
+  if (ElSeedFromRef.ctfTrack().isNull()){
     reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
     reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
     unsigned int i_pf=0;
@@ -479,7 +479,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     
     for(;pft!=pftend;++pft){
       //REF COMPARISON
-      if (pft->trackRef()==ElSeedRef->ctfTrack()){
+      if (pft->trackRef()==ElSeedFromRef.ctfTrack()){
 	return i_pf;
       }
       i_pf++;
@@ -531,14 +531,14 @@ bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
 bool 
 PFElecTkProducer::applySelection(const reco::GsfTrack& gsftk) {
   if (&(*gsftk.seedRef())==0) return false;
-  ElectronSeedRef ElSeedRef=gsftk.extra()->seedRef().castTo<ElectronSeedRef>();
+  auto const& ElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
 
   bool passCut = false;
-  if (ElSeedRef->ctfTrack().isNull()){
-    if(ElSeedRef->caloCluster().isNull()) return passCut;
-    SuperClusterRef scRef = ElSeedRef->caloCluster().castTo<SuperClusterRef>();
+  if (ElSeedFromRef.ctfTrack().isNull()){
+    if(ElSeedFromRef.caloCluster().isNull()) return passCut;
+    auto const* scRef = dynamic_cast<SuperCluster const*>(ElSeedFromRef.caloCluster().get());
     //do this just to know if exist a SC? 
-    if(scRef.isNonnull()) {
+    if(scRef) {
       float caloEne = scRef->energy();
       float feta = fabs(scRef->eta()-gsftk.etaMode());
       float fphi = fabs(scRef->phi()-gsftk.phiMode());
@@ -564,7 +564,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   reco::GsfTrackRef nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
   
   if (&(*nGsfTrack->seedRef())==0) return false;    
-  ElectronSeedRef nElSeedRef=nGsfTrack->extra()->seedRef().castTo<ElectronSeedRef>();
+  auto const& nElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
 
 
   TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface((*nGsfTrack));
@@ -615,12 +615,12 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	}
 
 	if (&(*iGsfTrack->seedRef())==0) continue;   
-	ElectronSeedRef iElSeedRef=iGsfTrack->extra()->seedRef().castTo<ElectronSeedRef>();
+	auto const& iElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
 
 	float SCEnergy = -1.;
 	// Check if two tracks match the same SC     
 	bool areBothGsfEcalDriven = false;;
-	bool isSameSC = isSameEgSC(nElSeedRef,iElSeedRef,areBothGsfEcalDriven,SCEnergy);
+	bool isSameSC = isSameEgSC(nElSeedFromRef,iElSeedFromRef,areBothGsfEcalDriven,SCEnergy);
 	
 	// CASE1 both GsfTracks ecalDriven and match the same SC
 	if(areBothGsfEcalDriven ) {
@@ -676,8 +676,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	  bool iEcalDriven = false;
 	  bool isSameScEgPf = isSharingEcalEnergyWithEgSC(GsfPFVec[ngsf],
 							  GsfPFVec[igsf],
-							  nElSeedRef,
-							  iElSeedRef,
+							  nElSeedFromRef,
+							  iElSeedFromRef,
 							  theEClus,
 							  isBothGsfTrackerDriven,
 							  nEcalDriven,
@@ -868,18 +868,18 @@ PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf,
   return minDphi;
 }
 bool 
-PFElecTkProducer::isSameEgSC(const reco::ElectronSeedRef& nSeedRef,
-			     const reco::ElectronSeedRef& iSeedRef,
+PFElecTkProducer::isSameEgSC(const reco::ElectronSeed& nSeed,
+			     const reco::ElectronSeed& iSeed,
 			     bool& bothGsfEcalDriven,
 			     float& SCEnergy) {
   
   bool isSameSC = false;
 
-  if(nSeedRef->caloCluster().isNonnull() && iSeedRef->caloCluster().isNonnull()) {
-    SuperClusterRef nscRef = nSeedRef->caloCluster().castTo<SuperClusterRef>();
-    SuperClusterRef iscRef = iSeedRef->caloCluster().castTo<SuperClusterRef>();
+  if(nSeed.caloCluster().isNonnull() && iSeed.caloCluster().isNonnull()) {
+    auto const* nscRef = dynamic_cast<SuperCluster const*>(nSeed.caloCluster().get());
+    auto const* iscRef = dynamic_cast<SuperCluster const*>(iSeed.caloCluster().get());
 
-    if(nscRef.isNonnull() && iscRef.isNonnull()) {
+    if(nscRef && iscRef) {
       bothGsfEcalDriven = true;
       if(nscRef == iscRef) {
 	isSameSC = true;
@@ -893,8 +893,8 @@ PFElecTkProducer::isSameEgSC(const reco::ElectronSeedRef& nSeedRef,
 bool 
 PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFRecTrack,
 					      const reco::GsfPFRecTrack& iGsfPFRecTrack,
-					      const reco::ElectronSeedRef& nSeedRef,
-					      const reco::ElectronSeedRef& iSeedRef,
+					      const reco::ElectronSeed& nSeed,
+					      const reco::ElectronSeed& iSeed,
 					      const reco::PFClusterCollection& theEClus,
 					      bool& bothGsfTrackerDriven,
 					      bool& nEcalDriven,
@@ -906,17 +906,19 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 
   //which is EcalDriven?
   bool oneEcalDriven = true;
-  SuperClusterRef scRef;
+  SuperCluster const* scRef = nullptr;
   GsfPFRecTrack gsfPfTrack;
 
-  if(nSeedRef->caloCluster().isNonnull()) {
-    scRef = nSeedRef->caloCluster().castTo<SuperClusterRef>();
+  if(nSeed.caloCluster().isNonnull()) {
+    scRef = dynamic_cast<SuperCluster const*>(nSeed.caloCluster().get());
+    assert(scRef);
     nEnergy = scRef->energy();
     nEcalDriven = true;
     gsfPfTrack = iGsfPFRecTrack;
   }
-  else if(iSeedRef->caloCluster().isNonnull()){
-    scRef = iSeedRef->caloCluster().castTo<SuperClusterRef>();
+  else if(iSeed.caloCluster().isNonnull()){
+    scRef = dynamic_cast<SuperCluster const*>(iSeed.caloCluster().get());
+    assert(scRef);
     iEnergy = scRef->energy();
     iEcalDriven = true;
     gsfPfTrack = nGsfPFRecTrack;

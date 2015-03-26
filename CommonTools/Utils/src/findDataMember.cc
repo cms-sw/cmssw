@@ -2,7 +2,7 @@
 //
 // Package:     Utilities
 // Class  :     findDataMember
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -26,35 +26,43 @@
 //
 
 namespace reco {
-   edm::MemberWithDict findDataMember(const edm::TypeWithDict& iType, const std::string& iName, int& oError) {
-      edm::MemberWithDict returnValue;
-      oError = parser::kNameDoesNotExist;
-      edm::TypeWithDict type = iType;
-      if(type) {
-         if(type.isPointer()) {
-            type = type.toType(); // for Pointers, I get the real type this way
-         }
-         returnValue = type.dataMemberByName(iName);
-         if(!returnValue) {
-            //check inheriting classes
-            R__LOCKGUARD(gCINTMutex);
-            edm::TypeBases bases(type);
-            for(auto const& base : bases) {
-               returnValue = findDataMember(edm::BaseWithDict(base).typeOf(), iName, oError);
-               //only stop if we found it or some other error happened
-               if(returnValue || parser::kNameDoesNotExist != oError) {
-                  break;
-               }
-            }
-         }
-         if(returnValue && !returnValue.isPublic()) {
-            returnValue = edm::MemberWithDict();
-            oError = parser::kIsNotPublic;
-         }
+
+edm::
+MemberWithDict
+findDataMember(const edm::TypeWithDict& iType,
+               const std::string& iName,
+               int& oError)
+{
+  edm::MemberWithDict ret;
+  oError = parser::kNameDoesNotExist;
+  edm::TypeWithDict type = iType;
+  if (!bool(type)) {
+    return ret;
+  }
+  if (type.isPointer()) {
+    type = type.toType();
+  }
+  ret = type.dataMemberByName(iName);
+  if (!bool(ret)) {
+    // check base classes
+    edm::TypeBases bases(type);
+    for (auto const& B : bases) {
+      ret = findDataMember(edm::BaseWithDict(B).typeOf(), iName, oError);
+      //only stop if we found it or some other error happened
+      if (bool(ret) || (oError != parser::kNameDoesNotExist)) {
+        break;
       }
-      if(returnValue) {
-         oError = parser::kNoError;
-      }
-      return returnValue;
-   }
+    }
+  }
+  if (bool(ret) && !ret.isPublic()) {
+    ret = edm::MemberWithDict();
+    oError = parser::kIsNotPublic;
+  }
+  else if (bool(ret)) {
+    oError = parser::kNoError;
+  }
+  return ret;
 }
+
+} // namespace reco
+

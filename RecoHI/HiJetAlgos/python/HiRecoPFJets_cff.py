@@ -13,11 +13,14 @@ PFTowers = cms.EDProducer("ParticleTowerProducer",
 ## background for HF/Voronoi-style subtraction
 voronoiBackgroundPF = cms.EDProducer('VoronoiBackgroundProducer',
                                      src = cms.InputTag('particleFlowTmp'),
+                                     tableLabel = cms.string("UETable_PF"),
                                      doEqualize = cms.bool(True),
                                      equalizeThreshold0 = cms.double(5.0),
                                      equalizeThreshold1 = cms.double(35.0),
                                      equalizeR = cms.double(0.3),
                                      # its different than calojets (R=0.4)!
+				     useTextTable = cms.bool(False),
+				     jetCorrectorFormat = cms.bool(True),
                                      isCalo = cms.bool(False),
                                      etaBins = cms.int32(15),
                                      fourierOrder = cms.int32(5)                                     

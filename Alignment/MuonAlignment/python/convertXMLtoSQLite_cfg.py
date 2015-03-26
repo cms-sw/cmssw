@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("CONVERT")
 process.source = cms.Source("EmptySource")
@@ -9,7 +10,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
     input = cms.string("xml"),
-    fileName = cms.string("REPLACEME.xml"),
+    fileName = cms.string(str(sys.argv[2])),
     shiftErr = cms.double(1000.),
     angleErr = cms.double(6.28),
     output = cms.string("db"))
@@ -17,12 +18,12 @@ process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBSetup,
-    connect = cms.string("sqlite_file:REPLACEME.db"),
+    connect = cms.string("sqlite_file:"+str(sys.argv[2])[:-3]+"db"),
     toPut = cms.VPSet(
         cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
-        cms.PSet(record = cms.string("DTAlignmentErrorRcd"), tag = cms.string("DTAlignmentErrorRcd")),
+        cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),
         cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")),
-        cms.PSet(record = cms.string("CSCAlignmentErrorRcd"), tag = cms.string("CSCAlignmentErrorRcd"))))
+        cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
 
 process.inertGlobalPositionRcd = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,

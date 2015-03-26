@@ -73,6 +73,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
+
 #include <vector>
 
 EcalDBCopy::EcalDBCopy(const edm::ParameterSet& iConfig) :
@@ -183,6 +186,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalSampleMaskRcd>().cacheIdentifier();
   } else if (container == "EcalTimeBiasCorrections") {
     cacheID = evtSetup.get<EcalTimeBiasCorrectionsRcd>().cacheIdentifier();
+  } else if (container == "EcalSamplesCorrelation") {
+    cacheID = evtSetup.get<EcalSamplesCorrelationRcd>().cacheIdentifier();
   }
 
   else {
@@ -442,6 +447,28 @@ else if (container == "EcalIntercalibConstantsMC") {
    vect = obj->EETimeCorrShiftBins;
    copy(vect.begin(), vect.end(), back_inserter(bias_->EETimeCorrShiftBins));
    dbOutput->writeOne(bias_, dbOutput->beginOfTime(), "EcalTimeBiasCorrectionsRcd");
+
+ } else if (container == "EcalSamplesCorrelation") {
+   edm::ESHandle<EcalSamplesCorrelation> handle;
+   evtSetup.get<EcalSamplesCorrelationRcd>().get(handle);
+   const EcalSamplesCorrelation* obj = handle.product();
+   std::cout << "SamplesCorrelation pointer is: "<< obj<< std::endl;
+   EcalSamplesCorrelation *correl_;
+   correl_ = new EcalSamplesCorrelation();
+   std::vector<double> vect = obj->EBG12SamplesCorrelation;
+   copy(vect.begin(), vect.end(), back_inserter(correl_->EBG12SamplesCorrelation));
+   vect = obj->EBG6SamplesCorrelation;
+   copy(vect.begin(), vect.end(), back_inserter(correl_->EBG6SamplesCorrelation));
+   vect = obj->EBG1SamplesCorrelation;
+   copy(vect.begin(), vect.end(), back_inserter(correl_->EBG1SamplesCorrelation));
+   vect = obj->EEG12SamplesCorrelation;
+   copy(vect.begin(), vect.end(), back_inserter(correl_->EEG12SamplesCorrelation));
+   vect = obj->EEG6SamplesCorrelation;
+   copy(vect.begin(), vect.end(), back_inserter(correl_->EEG6SamplesCorrelation));
+   vect = obj->EEG1SamplesCorrelation;
+   copy(vect.begin(), vect.end(), back_inserter(correl_->EEG1SamplesCorrelation));
+   dbOutput->writeOne(correl_, dbOutput->beginOfTime(), "EcalSamplesCorrelationRcd");
+
 } else {
     throw cms::Exception("Unknown container");
   }

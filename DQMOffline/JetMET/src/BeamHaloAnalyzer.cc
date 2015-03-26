@@ -610,7 +610,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       //Access selected SuperClusters
       for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
 	{
-	  edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
+	  edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n] );
 	  float angle = vm_Angle[cluster];
 	  float roundness = vm_Roundness[cluster];
 	  hEcalHaloData_SuperClusterShowerShapes->Fill(angle, roundness);

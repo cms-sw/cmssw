@@ -44,7 +44,7 @@ class KFUpdator;
 class MeasurementEstimator;
 class HResolution1DRecHit;
 
-class MuonTrackResidualAnalyzer: public thread_unsafe::DQMEDAnalyzer {
+class MuonTrackResidualAnalyzer: public DQMEDAnalyzer {
   
  public:
   enum EtaRange{all,barrel,endcap};

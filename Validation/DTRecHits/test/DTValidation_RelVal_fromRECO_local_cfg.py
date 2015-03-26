@@ -44,7 +44,7 @@ if uncertDB != "" :
 
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # DQM services
 process.load("DQMServices.Core.DQMStore_cfg")

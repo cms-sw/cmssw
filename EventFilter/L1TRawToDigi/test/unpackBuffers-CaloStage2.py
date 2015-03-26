@@ -161,7 +161,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # buffer dump to RAW
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
-
 # skip events
 dmOffset = options.dmOffset + (options.skipEvents * options.dmFramesPerEvent)
 
@@ -175,7 +174,6 @@ for i in range (0,options.nMP):
 boardOffset = options.skipEvents % options.nMP
 
 gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
-
 
 # print some debug info
 print "Job config :"

@@ -3,7 +3,6 @@
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="CommonTools/TriggerUtils"/>
-<use   name="DataFormats/SiStripDetId"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CalibFormats/SiStripObjects"/>

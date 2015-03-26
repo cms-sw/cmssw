@@ -26,6 +26,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "trackAlgoPriorityOrder.h"
+
 class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
   {
   public:
@@ -90,11 +92,13 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
     std::vector< std::vector< int> > listsToMerge_;
     std::vector<bool> promoteQuality_;
     std::vector<int> hasSelector_;
+    bool copyMVA_;
 
     bool allowFirstHitShare_;
     reco::TrackBase::TrackQuality qualityToSet_;
     bool use_sharesInput_;
     bool trkQualMod_;
+
 
   };
 
@@ -195,99 +199,101 @@ namespace {
 }
 
 
-  TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
-    copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
+TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
+  copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
+  
+  std::vector<edm::InputTag> trackProducerTags(conf.getParameter<std::vector<edm::InputTag> >("TrackProducers"));
+  //which of these do I need to turn into vectors?
+  maxNormalizedChisq_ =  conf.getParameter<double>("MaxNormalizedChisq");
+  minPT_ =  conf.getParameter<double>("MinPT");
+  minFound_ = (unsigned int)conf.getParameter<int>("MinFound");
+  epsilon_ =  conf.getParameter<double>("Epsilon");
+  shareFrac_ =  conf.getParameter<double>("ShareFrac");
+  allowFirstHitShare_ = conf.getParameter<bool>("allowFirstHitShare");
+  foundHitBonus_ = conf.getParameter<double>("FoundHitBonus");
+  lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
+  indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
+  std::string qualityStr = conf.getParameter<std::string>("newQuality");
+  
+  if (qualityStr != "") {
+    qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
+  }
+  else
+    qualityToSet_ = reco::TrackBase::undefQuality;
+  
+  use_sharesInput_ = true;
+  if ( epsilon_ > 0.0 )use_sharesInput_ = false;
+  
+  edm::VParameterSet setsToMerge=conf.getParameter<edm::VParameterSet>("setsToMerge");
+  
+  for ( unsigned int i=0; i<setsToMerge.size(); i++) {
+    listsToMerge_.push_back(setsToMerge[i].getParameter<std::vector< int> >("tLists"));
+    promoteQuality_.push_back(setsToMerge[i].getParameter<bool>("pQual"));
+  }
+  hasSelector_ = conf.getParameter<std::vector<int> > ("hasSelector");
+  copyMVA_     = conf.getParameter<bool>("copyMVA"); 
 
-    std::vector<edm::InputTag> trackProducerTags(conf.getParameter<std::vector<edm::InputTag> >("TrackProducers"));
-    //which of these do I need to turn into vectors?
-    maxNormalizedChisq_ =  conf.getParameter<double>("MaxNormalizedChisq");
-    minPT_ =  conf.getParameter<double>("MinPT");
-    minFound_ = (unsigned int)conf.getParameter<int>("MinFound");
-    epsilon_ =  conf.getParameter<double>("Epsilon");
-    shareFrac_ =  conf.getParameter<double>("ShareFrac");
-    allowFirstHitShare_ = conf.getParameter<bool>("allowFirstHitShare");
-    foundHitBonus_ = conf.getParameter<double>("FoundHitBonus");
-    lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
-    indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
-    std::string qualityStr = conf.getParameter<std::string>("newQuality");
-
-    if (qualityStr != "") {
-      qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
-    }
-    else
-      qualityToSet_ = reco::TrackBase::undefQuality;
-
-    use_sharesInput_ = true;
-    if ( epsilon_ > 0.0 )use_sharesInput_ = false;
-
-    edm::VParameterSet setsToMerge=conf.getParameter<edm::VParameterSet>("setsToMerge");
-
-    for ( unsigned int i=0; i<setsToMerge.size(); i++) {
-      listsToMerge_.push_back(setsToMerge[i].getParameter<std::vector< int> >("tLists"));
-      promoteQuality_.push_back(setsToMerge[i].getParameter<bool>("pQual"));
-    }
-    hasSelector_= conf.getParameter<std::vector<int> >("hasSelector");
-    std::vector<edm::InputTag> selectors(conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals"));
-    std::vector<edm::InputTag> mvaStores;
-    if(conf.exists("mvaValueTags")){
-      mvaStores = conf.getParameter<std::vector<edm::InputTag> >("mvaValueTags");
-    }else{
-      for (int i = 0; i < (int)selectors.size(); i++){
-	edm::InputTag ntag(selectors[i].label(),"MVAVals");
-	mvaStores.push_back(ntag);
-      }
-    }
-    unsigned int numTrkColl = trackProducerTags.size();
-    if (numTrkColl != hasSelector_.size() || numTrkColl != selectors.size()) {
-	throw cms::Exception("Inconsistent size") << "need same number of track collections and selectors";
-    }
-    if (numTrkColl != hasSelector_.size() || numTrkColl != mvaStores.size()) {
-	throw cms::Exception("Inconsistent size") << "need same number of track collections and MVA stores";
-    }
-    for (unsigned int i = indivShareFrac_.size(); i < numTrkColl; i++) {
-      //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducersTags <<". Using default value of 1";
-      indivShareFrac_.push_back(1.0);
-    }
-
-    trkQualMod_=conf.getParameter<bool>("writeOnlyTrkQuals");
-    if ( trkQualMod_) {
-      bool ok=true;
-      for ( unsigned int i=1; i<numTrkColl; i++) {
-	if (!(trackProducerTags[i]==trackProducerTags[0])) ok=false;
-      }
-      if ( !ok) {
-	throw cms::Exception("Bad input") << "to use writeOnlyTrkQuals=True all input InputTags must be the same";
-      }
-      produces<edm::ValueMap<int> >();
-    }
-    else{
-      produces<reco::TrackCollection>();
-
-      makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
-      if (makeReKeyedSeeds_){
-	copyExtras_=true;
-	produces<TrajectorySeedCollection>();
-      }
-
-      if (copyExtras_) {
-        produces<reco::TrackExtraCollection>();
-        produces<TrackingRecHitCollection>();
-      }
-      produces< std::vector<Trajectory> >();
-      produces< TrajTrackAssociationCollection >();
-    }
-    produces<edm::ValueMap<float> >("MVAVals");
-
-    // Do all the consumes
-    trackProducers_.resize(numTrkColl);
-    for (unsigned int i = 0; i < numTrkColl; ++i) {
-        trackProducers_[i] = hasSelector_[i]>0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i]) : edTokens(trackProducerTags[i], mvaStores[i]);
+  std::vector<edm::InputTag> selectors(conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals"));
+  std::vector<edm::InputTag> mvaStores;
+  if(conf.exists("mvaValueTags")){
+    mvaStores = conf.getParameter<std::vector<edm::InputTag> >("mvaValueTags");
+  }else{
+    for (int i = 0; i < (int)selectors.size(); i++){
+      edm::InputTag ntag(selectors[i].label(),"MVAVals");
+      mvaStores.push_back(ntag);
     }
   }
+  unsigned int numTrkColl = trackProducerTags.size();
+  if (numTrkColl != hasSelector_.size() || numTrkColl != selectors.size()) {
+    throw cms::Exception("Inconsistent size") << "need same number of track collections and selectors";
+  }
+  if (numTrkColl != hasSelector_.size() || numTrkColl != mvaStores.size()) {
+    throw cms::Exception("Inconsistent size") << "need same number of track collections and MVA stores";
+  }
+  for (unsigned int i = indivShareFrac_.size(); i < numTrkColl; i++) {
+    //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducersTags <<". Using default value of 1";
+    indivShareFrac_.push_back(1.0);
+  }
+  
+  trkQualMod_=conf.getParameter<bool>("writeOnlyTrkQuals");
+  if ( trkQualMod_) {
+    bool ok=true;
+    for ( unsigned int i=1; i<numTrkColl; i++) {
+      if (!(trackProducerTags[i]==trackProducerTags[0])) ok=false;
+    }
+    if ( !ok) {
+      throw cms::Exception("Bad input") << "to use writeOnlyTrkQuals=True all input InputTags must be the same";
+    }
+    produces<edm::ValueMap<int> >();
+  }
+  else{
+    produces<reco::TrackCollection>();
+    
+    makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
+    if (makeReKeyedSeeds_){
+      copyExtras_=true;
+      produces<TrajectorySeedCollection>();
+    }
+    
+    if (copyExtras_) {
+      produces<reco::TrackExtraCollection>();
+      produces<TrackingRecHitCollection>();
+    }
+    produces< std::vector<Trajectory> >();
+    produces< TrajTrackAssociationCollection >();
+  }
+  produces<edm::ValueMap<float> >("MVAVals");
+  
+  // Do all the consumes
+  trackProducers_.resize(numTrkColl);
+  for (unsigned int i = 0; i < numTrkColl; ++i) {
+    trackProducers_[i] = hasSelector_[i]>0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i]) : edTokens(trackProducerTags[i], mvaStores[i]);
+  }
+}
 
 
-  // Virtual destructor needed.
-  TrackListMerger::~TrackListMerger() { }
+// Virtual destructor needed.
+TrackListMerger::~TrackListMerger() { }
 
   // Functions that gets called by framework every event
   void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es)
@@ -353,7 +359,8 @@ namespace {
 
       edm::Handle<edm::ValueMap<int> > trackSelColl;
       edm::Handle<edm::ValueMap<float> > trackMVAStore;
-      e.getByToken(trackProducers_[j].tmva, trackMVAStore);
+      if ( copyMVA_ )
+	e.getByToken(trackProducers_[j].tmva, trackMVAStore);
       if ( hasSelector_[j]>0 ){
 	e.getByToken(trackProducers_[j].tsel, trackSelColl);
       }
@@ -366,7 +373,8 @@ namespace {
 	  trackQuals[i]=track->qualityMask();
 
 	  reco::TrackRef trkRef=reco::TrackRef(trackHandles[j],iC);
-	  if((*trackMVAStore).contains(trkRef.id()))trackMVAs[i] = (*trackMVAStore)[trkRef];
+	  if ( copyMVA_ )
+	    if( (*trackMVAStore).contains(trkRef.id()) ) trackMVAs[i] = (*trackMVAStore)[trkRef];
 	  if ( hasSelector_[j]>0 ) {
 	    int qual=(*trackSelColl)[trkRef];
 	    if ( qual < 0 ) {
@@ -553,7 +561,7 @@ namespace {
 	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) ==
 		  (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
 		//same quality, pick earlier algo
-		if (algo[k1] <= algo[k2]) {
+		if (trackAlgoPriorityOrder[algo[k1]] <= trackAlgoPriorityOrder[algo[k2]]) {
 		  selected[j]=0;
 		  selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 		  trkUpdated[i]=true;
@@ -630,7 +638,8 @@ namespace {
 
       fillerMVA.insert(trackHandles[0],mvaVec.begin(),mvaVec.end());
       fillerMVA.fill();
-      e.put(vmMVA,"MVAVals");
+      if ( copyMVA_) 
+	e.put(vmMVA,"MVAVals");
       return;
     }
 
@@ -809,7 +818,8 @@ namespace {
     fillerMVA.fill();
 
     e.put(outputTrks);
-    e.put(vmMVA,"MVAVals");
+    if ( copyMVA_ )
+      e.put(vmMVA,"MVAVals");
     if (copyExtras_) {
       e.put(outputTrkExtras);
       e.put(outputTrkHits);

@@ -40,94 +40,88 @@ QcdHighPtDQM::QcdHighPtDQM(const ParameterSet &iConfig)
           iConfig.getUntrackedParameter<edm::InputTag>("metTag3"))),
       metToken4_(consumes<CaloMETCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("metTag4"))) {
-
-  theDbe = Service<DQMStore>().operator->();
 }
 
 QcdHighPtDQM::~QcdHighPtDQM() {}
 
-void QcdHighPtDQM::beginJob() {
+void QcdHighPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
+                                     edm::Run const &,
+                                     edm::EventSetup const &) {
+  iBooker.setCurrentFolder("Physics/QcdHighPt");
 
-  // Book MEs
-
-  theDbe->setCurrentFolder("Physics/QcdHighPt");
-
-  MEcontainer_["dijet_mass"] = theDbe->book1D(
+  MEcontainer_["dijet_mass"] = iBooker.book1D(
       "dijet_mass", "dijet resonance invariant mass, barrel region", 100, 0,
       1000);
   MEcontainer_["njets"] =
-      theDbe->book1D("njets", "jet multiplicity", 10, 0, 10);
-  MEcontainer_["etaphi"] = theDbe->book2D("etaphi", "eta/phi distribution", 83,
+      iBooker.book1D("njets", "jet multiplicity", 10, 0, 10);
+  MEcontainer_["etaphi"] = iBooker.book2D("etaphi", "eta/phi distribution", 83,
                                           -42, 42, 72, -M_PI, M_PI);
   MEcontainer_["njets30"] =
-      theDbe->book1D("njets30", "jet multiplicity, pt > 30 GeV", 10, 0, 10);
+      iBooker.book1D("njets30", "jet multiplicity, pt > 30 GeV", 10, 0, 10);
 
   // book histograms for inclusive jet quantities
-  MEcontainer_["inclusive_jet_pt"] = theDbe->book1D(
+  MEcontainer_["inclusive_jet_pt"] = iBooker.book1D(
       "inclusive_jet_pt", "inclusive jet Pt spectrum", 100, 0, 1000);
-  MEcontainer_["inclusive_jet_pt_barrel"] = theDbe->book1D(
+  MEcontainer_["inclusive_jet_pt_barrel"] = iBooker.book1D(
       "inclusive_jet_pt_barrel", "inclusive jet Pt, eta < 1.3", 100, 0, 1000);
   MEcontainer_["inclusive_jet_pt_forward"] =
-      theDbe->book1D("inclusive_jet_pt_forward",
+      iBooker.book1D("inclusive_jet_pt_forward",
                      "inclusive jet Pt, 3.0 < eta < 5.0", 100, 0, 1000);
   MEcontainer_["inclusive_jet_pt_endcap"] =
-      theDbe->book1D("inclusive_jet_pt_endcap",
+      iBooker.book1D("inclusive_jet_pt_endcap",
                      "inclusive jet Pt, 1.3 < eta < 3.0", 100, 0, 1000);
 
   // book histograms for leading jet quantities
   MEcontainer_["leading_jet_pt"] =
-      theDbe->book1D("leading_jet_pt", "leading jet Pt", 100, 0, 1000);
-  MEcontainer_["leading_jet_pt_barrel"] = theDbe->book1D(
+      iBooker.book1D("leading_jet_pt", "leading jet Pt", 100, 0, 1000);
+  MEcontainer_["leading_jet_pt_barrel"] = iBooker.book1D(
       "leading_jet_pt_barrel", "leading jet Pt, eta < 1.3", 100, 0, 1000);
   MEcontainer_["leading_jet_pt_forward"] =
-      theDbe->book1D("leading_jet_pt_forward",
+      iBooker.book1D("leading_jet_pt_forward",
                      "leading jet Pt, 3.0 < eta < 5.0", 100, 0, 1000);
-  MEcontainer_["leading_jet_pt_endcap"] = theDbe->book1D(
+  MEcontainer_["leading_jet_pt_endcap"] = iBooker.book1D(
       "leading_jet_pt_endcap", "leading jet Pt, 1.3 < eta < 3.0", 100, 0, 1000);
 
   // book histograms for met over sum et and met over leading jet pt for various
   // flavors of MET
-  MEcontainer_["movers_met"] = theDbe->book1D(
+  MEcontainer_["movers_met"] = iBooker.book1D(
       "movers_met", "MET over Sum ET for basic MET collection", 50, 0, 1);
-  MEcontainer_["moverl_met"] = theDbe->book1D(
+  MEcontainer_["moverl_met"] = iBooker.book1D(
       "moverl_met", "MET over leading jet Pt for basic MET collection", 50, 0,
       2);
 
-  MEcontainer_["movers_metho"] = theDbe->book1D(
+  MEcontainer_["movers_metho"] = iBooker.book1D(
       "movers_metho", "MET over Sum ET for MET HO collection", 50, 0, 1);
   MEcontainer_["moverl_metho"] =
-      theDbe->book1D("moverl_metho",
+      iBooker.book1D("moverl_metho",
                      "MET over leading jet Pt for MET HO collection", 50, 0, 2);
 
-  MEcontainer_["movers_metnohf"] = theDbe->book1D(
+  MEcontainer_["movers_metnohf"] = iBooker.book1D(
       "movers_metnohf", "MET over Sum ET for MET no HF collection", 50, 0, 1);
-  MEcontainer_["moverl_metnohf"] = theDbe->book1D(
+  MEcontainer_["moverl_metnohf"] = iBooker.book1D(
       "moverl_metnohf", "MET over leading jet Pt for MET no HF collection", 50,
       0, 2);
 
   MEcontainer_["movers_metnohfho"] =
-      theDbe->book1D("movers_metnohfho",
+      iBooker.book1D("movers_metnohfho",
                      "MET over Sum ET for MET no HF HO collection", 50, 0, 1);
-  MEcontainer_["moverl_metnohfho"] = theDbe->book1D(
+  MEcontainer_["moverl_metnohfho"] = iBooker.book1D(
       "moverl_metnohfho", "MET over leading jet Pt for MET no HF HO collection",
       50, 0, 2);
 
   // book histograms for EMF fraction for all jets and first 3 jets
   MEcontainer_["inclusive_jet_EMF"] =
-      theDbe->book1D("inclusive_jet_EMF", "inclusive jet EMF", 50, -1, 1);
+      iBooker.book1D("inclusive_jet_EMF", "inclusive jet EMF", 50, -1, 1);
   MEcontainer_["leading_jet_EMF"] =
-      theDbe->book1D("leading_jet_EMF", "leading jet EMF", 50, -1, 1);
+      iBooker.book1D("leading_jet_EMF", "leading jet EMF", 50, -1, 1);
   MEcontainer_["second_jet_EMF"] =
-      theDbe->book1D("second_jet_EMF", "second jet EMF", 50, -1, 1);
+      iBooker.book1D("second_jet_EMF", "second jet EMF", 50, -1, 1);
   MEcontainer_["third_jet_EMF"] =
-      theDbe->book1D("third_jet_EMF", "third jet EMF", 50, -1, 1);
+      iBooker.book1D("third_jet_EMF", "third jet EMF", 50, -1, 1);
 }
-
-void QcdHighPtDQM::endJob(void) {}
 
 // method to calculate MET over Sum ET from a particular MET collection
 float QcdHighPtDQM::movers(const CaloMETCollection &metcollection) {
-
   float metovers = 0;
   CaloMETCollection::const_iterator met_iter;
   for (met_iter = metcollection.begin(); met_iter != metcollection.end();
@@ -157,7 +151,6 @@ float QcdHighPtDQM::moverl(const CaloMETCollection &metcollection,
 }
 
 void QcdHighPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
-
   // Get Jets
   edm::Handle<CaloJetCollection> jetHandle;
   iEvent.getByToken(jetToken_, jetHandle);

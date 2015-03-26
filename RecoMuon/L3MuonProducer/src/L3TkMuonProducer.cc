@@ -7,7 +7,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -106,7 +105,7 @@ string printseed(const L3TkMuonProducer::SeedRef & s){
 }
 
 /// reconstruct muons
-void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
+void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   const string metname = "Muon|RecoMuon|L3TkMuonProducer";
   
   // Take the L3 container
@@ -226,8 +225,8 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
     unsigned int iRH=0;
     for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit,++iRH ) {
       outRecHits->push_back((*hit)->clone());
-      (*outTrackExtras)[i].add( TrackingRecHitRef( rHits, iRH));
     }
+    (*outTrackExtras)[i].setHits( rHits, 0, iRH);
   }
   
   LogDebug(metname)<<"made: "<<outTracks->size()<<" tracks, "<<outTrackExtras->size()<<" extras and "<<outRecHits->size()<<" rechits.";

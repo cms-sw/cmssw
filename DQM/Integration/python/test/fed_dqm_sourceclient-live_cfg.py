@@ -35,3 +35,8 @@ process.pDQM = cms.Path(process.l1tsClient+
 			process.dqmFEDIntegrityClient+
 			process.dqmEnv+
 			process.dqmSaver)
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

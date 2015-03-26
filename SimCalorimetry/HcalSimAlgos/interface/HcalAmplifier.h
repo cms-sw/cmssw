@@ -23,6 +23,7 @@ namespace CLHEP {
 class HcalAmplifier {
 public:
   HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2);
+
   virtual ~HcalAmplifier() {}
 
   /// the Producer will probably update this every event

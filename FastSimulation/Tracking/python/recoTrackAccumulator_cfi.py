@@ -1,9 +1,13 @@
+#######################
+# pset that configures the track accumulator, used in the MixingModules to mix reconstructed tracks
+# author: Lukas Vanelderen
+# date:   Jan 21 2015
+#######################
+
 import FWCore.ParameterSet.Config as cms
 
-trackAccumulator = cms.PSet(
-
-    InputSignal = cms.InputTag("generalTracksBeforeMixing"),
-    InputPileup = cms.InputTag("generalTracks"),
+recoTrackAccumulator = cms.PSet(
+    Input = cms.InputTag("generalTracksBeforeMixing"),
 
     GeneralTrackOutput = cms.string("generalTracks"),
     GeneralTrackExtraOutput = cms.string("generalTracks"),

@@ -7,6 +7,7 @@ from SimGeneral.MixingModule.stripDigitizer_cfi import *
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimGeneral.MixingModule.hcalDigitizer_cfi import *
 from SimGeneral.MixingModule.castorDigitizer_cfi import *
+from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
 
 theDigitizersNoNoise = cms.PSet(
@@ -24,6 +25,9 @@ theDigitizersNoNoise = cms.PSet(
   ),
   castor  = cms.PSet(
     castorDigitizer
+  ),
+  puVtx = cms.PSet(
+    pileupVtxDigitizer
   )
 )
 
@@ -37,7 +41,9 @@ theDigitizersNoNoise.hcal.doTimeSlew = cms.bool(False)
 theDigitizersNoNoise.ecal.doENoise = cms.bool(False)
 theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
 theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
+theDigitizersNoNoise.pixel.AddPixelInefficiencyFromPython = cms.bool(False) #done in second step
 theDigitizersNoNoise.strip.Noise = cms.bool(False)
+theDigitizersNoNoise.strip.PreMixingMode = cms.bool(True)
+theDigitizersNoNoise.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
 theDigitizersNoNoise.ecal.EcalPreMixStage1 = cms.bool(True)
 theDigitizersNoNoise.hcal.HcalPreMixStage1 = cms.bool(True)
-#Need Hcal statement - change variable

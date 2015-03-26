@@ -22,7 +22,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoExtended.h"
 
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
@@ -35,6 +34,7 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripMCDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelMCDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingGeneralTrackWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingPileupCopy.h"
 
@@ -64,15 +64,14 @@ namespace edm {
       virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
       virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
 
-      void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
       void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup);
-
       void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
       //virtual void beginJob();
       //virtual void endJob();
-      //virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
-      //virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
-      //virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
+      virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
 
 
 
@@ -176,6 +175,7 @@ namespace edm {
 
       // Pixels
 
+      DataMixingSiPixelMCDigiWorker *SiPixelMCDigiWorker_ ;
       DataMixingSiPixelWorker *SiPixelWorker_ ;
 
       // Tracks

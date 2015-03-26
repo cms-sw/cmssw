@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from GeneratorInterface.ExhumeInterface.ExhumeParameters_cfi import ExhumeParameters as ExhumeParametersRef
 
-source = cms.Source("EmptySource")
+
 
 generator = cms.EDFilter("ExhumeGeneratorFilter",
     PythiaParameters = cms.PSet(

@@ -129,7 +129,9 @@ muonValidationFastSim_seq = cms.Sequence(trkProbeTrackVMuonAssocFS+trkMuonTrackV
                                          +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
                                          +staRefitMuonTrackVMuonAssocFS+staRefitUpdMuonTrackVMuonAssocFS
                                          +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS+tevMuonDytTrackVMuonAssocFS
+                                         +muonAssociatorByHitsNoSimHitsHelperTrk+muonAssociatorByHitsNoSimHitsHelperStandalone+muonAssociatorByHitsNoSimHitsHelperGlobal+muonAssociatorByHitsNoSimHitsHelperTight
                                          +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
+                                 +muonAssociatorByHitsNoSimHitsHelperTrkPF+muonAssociatorByHitsNoSimHitsHelperStandalonePF+muonAssociatorByHitsNoSimHitsHelperGlobalPF
                                          +recoMuonVMuAssoc_trkPF+recoMuonVMuAssoc_staPF+recoMuonVMuAssoc_glbPF)
 
 # The muon association and validation sequence

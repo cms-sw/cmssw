@@ -7,8 +7,8 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -123,10 +123,10 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	if (m_fromDBGeom){
 		//build the tracker
 		edm::ESHandle<Alignments> alignments;
-		edm::ESHandle<AlignmentErrors> alignmentErrors;
+		edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 		
 		setup.get<TrackerAlignmentRcd>().get(alignments);
-		setup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
+		setup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
 		
 		//apply the latest alignments
 		GeometryAligner aligner;
@@ -140,19 +140,19 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	
 	// -------------- writing out to alignment record --------------
 	Alignments* myAlignments = theAlignableTracker->alignments() ;
-	AlignmentErrors* myAlignmentErrors = theAlignableTracker->alignmentErrors() ;
+	AlignmentErrorsExtended* myAlignmentErrorsExtended = theAlignableTracker->alignmentErrors() ;
 	
 	// Store alignment[Error]s to DB
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	std::string theAlignRecordName = "TrackerAlignmentRcd";
-	std::string theErrorRecordName = "TrackerAlignmentErrorRcd";
+	std::string theErrorRecordName = "TrackerAlignmentErrorExtendedRcd";
 	
 	// Call service
 	if( !poolDbService.isAvailable() ) // Die if not available
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	
 	poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), theAlignRecordName);
-	poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), theErrorRecordName);
+	poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), theErrorRecordName);
 }
 
 void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)

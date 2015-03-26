@@ -68,6 +68,7 @@ namespace
 {
 void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 {
+#if defined(R__LINUX)
    std::cerr << "Program received signal ID = " <<  sid << std::endl;
    std::cerr << "Printing stack trace ... " << std::endl;
 
@@ -75,16 +76,12 @@ void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
    fireworks::setPath(gdbCommand); 
    gdbCommand += " ";
 
-#if defined(R__MACOSX)
-   gdbCommand += TString::Format("%s/cmsShow.exe %d", gSystem->Getenv("SHELLDIR"), gSystem->GetPid());
-
-#elif defined(R__LINUX)
    gdbCommand += gSystem->GetPid();
 
-#endif
    gSystem->Exec(gdbCommand.Data());
    gSystem->Exit(sid);   
    Getlinem(kCleanUp, 0);
+#endif
 }
 }
 

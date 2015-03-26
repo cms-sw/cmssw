@@ -1,5 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
+
+# This function makes all the changes to cscTriggerPrimitiveDigis required
+# for it to work in Run 2. It is declared here to be obvious when this file
+# is opened, but not applied until after cscTriggerPrimitiveDigis is
+# declared (and then only if the "run2" era is active).
+def _modifyCscTriggerPrimitiveDigisForRun2( object ) :
+    """
+    Modifies cscTriggerPrimitiveDigis for Run 2
+    """
+    object.debugParameters = True
+    object.checkBadChambers_ = False
+    object.commonParam.isSLHC = True
+    object.commonParam.smartME1aME1b = True
+    object.commonParam.gangedME1a = False
+    object.alctParam07.alctNarrowMaskForR1 = True
+    object.alctParam07.alctGhostCancellationBxDepth = cms.untracked.int32(1)
+    object.alctParam07.alctGhostCancellationSideQuality = cms.untracked.bool(True)
+    object.alctParam07.alctPretrigDeadtime = cms.untracked.uint32(4)
+    object.clctParam07.clctPidThreshPretrig = 4
+    object.clctParam07.clctMinSeparation = 5
+    object.tmbParam.matchTrigWindowSize = 3
+
+
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
@@ -310,3 +333,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         mpcMaxStubs = cms.untracked.uint32(3)
     )
 )
+
+#
+# If the run2 era is active, make the required changes
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2 )

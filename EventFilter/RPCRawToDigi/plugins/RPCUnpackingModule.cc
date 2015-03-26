@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -53,6 +55,14 @@ RPCUnpackingModule::~RPCUnpackingModule()
 { 
   delete theCabling;
 }
+
+void RPCUnpackingModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("doSynchro",true);
+  descriptions.add("rpcUnpackingModule",desc);
+}
+
 
 void RPCUnpackingModule::beginRun(const edm::Run &run, const edm::EventSetup& es)
 {

@@ -1,6 +1,5 @@
 #ifndef TrackDeDxHits_H
 #define TrackDeDxHits_H
-#include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
 namespace reco
@@ -14,7 +13,12 @@ class DeDxHit
 public:
     DeDxHit() {}
 
-    DeDxHit(float ch, float mom, float len, DetId detId);
+    DeDxHit(float ch, float mom, float len, uint32_t rawDetId):
+      m_charge(ch),
+      m_momentum(mom),
+      m_pathLength(len),
+      m_rawDetId(rawDetId){
+    }
 
     /// Return the angle and thick normalized, calibrated energy release
     float charge() const {
@@ -31,24 +35,9 @@ public:
         return m_pathLength;
     }
 
-    /// Return the subdet
-    int subDet() const {
-        return (m_subDetId >> 5) & 0x7;
-    }
-
-    /// Return the plus/minus side for TEC/TID
-    int subDetSide() const {
-        return ((m_subDetId >> 4) & 0x1) + 1;
-    }
-
-    /// Return the layer/disk
-    int layer() const {
-        return m_subDetId & 0xF;
-    }
-
-    /// Return the encoded layer + sub det id
-    char subDetId() const {
-        return m_subDetId;
+    /// Return the rawDetId
+    uint32_t rawDetId() const {
+        return m_rawDetId;
     }
 
     bool operator< (const DeDxHit &other) const {
@@ -61,7 +50,7 @@ private:
     float m_charge;
     float m_momentum;
     float m_pathLength;
-    char m_subDetId;
+    uint32_t m_rawDetId;
 };
 
 typedef std::vector<DeDxHit> DeDxHitCollection;

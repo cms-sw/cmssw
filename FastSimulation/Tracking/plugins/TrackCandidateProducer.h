@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Tracking_TrackCandidateProducer_h
 #define FastSimulation_Tracking_TrackCandidateProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -11,6 +11,8 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
@@ -26,12 +28,12 @@ namespace reco {
   class Track;
 }
 
-class TrackerRecHit;
+
 class TrackingRecHit;
 
 #include <vector>
 
-class TrackCandidateProducer : public edm::EDProducer
+class TrackCandidateProducer : public edm::stream::EDProducer <>
 {
  public:
   
@@ -45,14 +47,7 @@ class TrackCandidateProducer : public edm::EDProducer
   
  private:
 
-  int findId(const reco::Track& aTrack) const;
-
-  void addSplitHits(const TrackerRecHit&, std::vector<TrackerRecHit>&); 
-  bool isDuplicateCandidate(const TrackCandidateCollection& candidates, const TrackCandidate& newCand) const;
-  bool sameLocalParameters(const TrackingRecHit* aH, const TrackingRecHit* bH) const;
-
- private:
-
+  void addSplitHits(const TrajectorySeedHitCandidate&, std::vector<TrajectorySeedHitCandidate>&); 
   const TrackerGeometry*  theGeometry;
   const MagneticField*  theMagField;
   PropagatorWithMaterial* thePropagator;
@@ -60,7 +55,6 @@ class TrackCandidateProducer : public edm::EDProducer
 
   edm::InputTag seedProducer;
   edm::InputTag hitProducer;
-  // edm::InputTag trackProducer;
   std::vector<edm::InputTag> trackProducers;
   
   unsigned int minNumberOfCrossedLayers;
@@ -69,8 +63,7 @@ class TrackCandidateProducer : public edm::EDProducer
   bool rejectOverlaps;
   bool splitHits;
   bool seedCleaning;
-  bool keepFittedTracks;
-
+ 
   edm::InputTag simTracks_;
   double estimatorCut_;
 
@@ -79,9 +72,6 @@ class TrackCandidateProducer : public edm::EDProducer
   edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
-  std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens;
-  std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryTokens;
-  std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> >  assoMapTokens;
 };
 
 #endif

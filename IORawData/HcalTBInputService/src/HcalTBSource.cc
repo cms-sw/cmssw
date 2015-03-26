@@ -106,7 +106,7 @@ void HcalTBSource::openFile(const std::string& filename) {
   m_i=0;
 }
 
-bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time) {
+bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
   bool is_new=false;
 
   while (m_tree==0 || m_i==m_tree->GetEntries()) {

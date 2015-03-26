@@ -15,21 +15,16 @@ using namespace edm;
 
 
 BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
+  : changeFrame_ ( iconf.getParameter<bool>  ("changeToCMSCoordinates") )
+  , theMaxZ      ( iconf.getParameter<double>("maxZ")                   )
+  , theSetSigmaZ ( iconf.getParameter<double>("setSigmaZ")              )
+  , scalerToken_               ( consumes<BeamSpotOnlineCollection>       ( iconf.getParameter<InputTag>("src")       ) )
+  , l1GtEvmReadoutRecordToken_ ( consumes<L1GlobalTriggerEvmReadoutRecord>( iconf.getParameter<InputTag>("gtEvmLabel")) )
+  , theBeamShoutMode ( iconf.getUntrackedParameter<unsigned int> ("beamMode",11) )
 {
-
-  scalerToken_ = consumes<BeamSpotOnlineCollection>(
-      iconf.getParameter<InputTag>("src"));
-
-  changeFrame_ = iconf.getParameter<bool>("changeToCMSCoordinates");
 
   theMaxR2 = iconf.getParameter<double>("maxRadius");
   theMaxR2*=theMaxR2;
-  theMaxZ = iconf.getParameter<double>("maxZ");
-
-  theSetSigmaZ = iconf.getParameter<double>("setSigmaZ");
-
-  l1GtEvmReadoutRecordToken_ = consumes<L1GlobalTriggerEvmReadoutRecord>(
-      iconf.getParameter<InputTag>("gtEvmLabel"));
 
   produces<reco::BeamSpot>();
 
@@ -44,8 +39,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   bool shoutMODE=false;
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
   if (iEvent.getByToken(l1GtEvmReadoutRecordToken_, gtEvmReadoutRecord)){
-    const boost::uint16_t beamModeValue = (gtEvmReadoutRecord->gtfeWord()).beamMode();
-    if (beamModeValue == 11) shoutMODE=true;
+    if (gtEvmReadoutRecord->gtfeWord().beamMode() == theBeamShoutMode) shoutMODE=true;
   }
   else{
     shoutMODE=true;
@@ -87,7 +81,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
     aSpot = reco::BeamSpot( apoint,
 			    sigmaZ,
-			  spotOnline.dxdz(),
+			    spotOnline.dxdz(),
 			    f* spotOnline.dydz(),
 			    spotOnline.width_x(),
 			    matrix);

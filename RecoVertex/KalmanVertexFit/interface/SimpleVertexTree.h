@@ -6,7 +6,7 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/VertexFitterResult.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TString.h"
 
@@ -47,7 +47,7 @@ public:
    */
 
   SimpleVertexTree(const char * fitterName = "VertexFitter",
-  		   TrackAssociatorByChi2 * associator = 0);
+  		   const MagneticField * magField = 0);
   virtual ~SimpleVertexTree();
 
   /**
@@ -105,7 +105,6 @@ private:
   bool trackTest;
   int maxTrack;
   TString* parameterNames[5];
-  TrackAssociatorByChi2 * associatorForParamAtPca;
 };
 #endif
 

@@ -26,7 +26,6 @@ process.initialAlignmentTrackSelector.applyMultiplicityFilter = True
 process.initialAlignmentTrackSelector.maxMultiplicity = 1000
 process.initialAlignmentTrackSelector.applyNHighestPt = False
 
-
 # parameters for alignmentHitFilter
 process.TrackerTrackHitFilter.src = 'TrackRefitter1'
 process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
@@ -49,7 +48,7 @@ process.ctfProducerCustomised.src = 'TrackerTrackHitFilter'
 ##process.ctfProducerCustomised.beamspot='offlineBeamSpot'
 process.ctfProducerCustomised.TTRHBuilder = 'WithAngleAndTemplate'
 process.ctfProducerCustomised.TrajectoryInEvent = True
-
+process.ctfProducerCustomised.NavigationSchool = ''
 
 # parameters for TrackSelector
 ###process.AlignmentTrackSelector.src = '<SKIM>'

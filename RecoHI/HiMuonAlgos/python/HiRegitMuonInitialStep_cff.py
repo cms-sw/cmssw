@@ -13,85 +13,77 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed    
 
 
 ###################################  
-hiRegitMuFirstStepFilter = cms.EDProducer("QualityFilter",
-                                 TrackQuality = cms.string('highPurity'),
-                                 recTracks = cms.InputTag("hiSelectedTracks")
-                                 )
+from RecoTracker.IterativeTracking.InitialStep_cff import *
 
-# NEW CLUSTERS (remove previously used clusters)
-hiRegitMuInitialStepClusters = cms.EDProducer("TrackClusterRemover",
-                                clusterLessSolution= cms.bool(True),
-                                trajectories = cms.InputTag("hiRegitMuFirstStepFilter"),
-                                TrackQuality = cms.string('highPurity'),
-                                pixelClusters = cms.InputTag("siPixelClusters"),
-                                stripClusters = cms.InputTag("siStripClusters"),
-                                Common = cms.PSet(
-    maxChi2 = cms.double(9.0)
-    ),
-                                Strip = cms.PSet(
-    #Yen-Jie's mod to preserve merged clusters
-    maxSize = cms.uint32(2),
-    maxChi2 = cms.double(9.0)
-    )
-                                )
-
-#-------------------------
-from RecoHI.HiTracking.hiRegitInitialStep_cff import *
+# SEEDING LAYERS
+hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.clone()
 
 # seeding
-hiRegitMuInitialStepSeeds     =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepSeeds.clone()
+hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone()
 hiRegitMuInitialStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
+hiRegitMuInitialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = cms.InputTag("hiRegitMuInitialStepSeedLayers")
 hiRegitMuInitialStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 3.0
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 1 # default = 0.2
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 1 # this give you the length 
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuInitialStepSeeds.skipClusters = cms.InputTag('hiRegitMuInitialStepClusters')
-
 
 
 # building: feed the new-named seeds
-hiRegitMuInitialStepTrajectoryFilter = RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryFilter.clone()
-hiRegitMuInitialStepTrajectoryFilter.minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuInitialStepTrajectoryFilterBase = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilterBase.clone()
+hiRegitMuInitialStepTrajectoryFilterBase.minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
-hiRegitMuInitialStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilter')),
-    clustersToSkip       = cms.InputTag('hiRegitMuInitialStepClusters')
+hiRegitMuInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone()
+hiRegitMuInitialStepTrajectoryFilter.filters = cms.VPSet(
+      cms.PSet( refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilterBase')),
+      cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterShape')))
+
+
+hiRegitMuInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
+    trajectoryFilter = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilter')
+       ),
 )
 
 # track candidates
-hiRegitMuInitialStepTrackCandidates        =   RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrackCandidates.clone(
+hiRegitMuInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuInitialStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryBuilder')
+       ),
     maxNSeeds         = cms.uint32(1000000)
     )
 
 # fitting: feed new-names
-hiRegitMuInitialStepTracks                 =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTracks.clone(
+hiRegitMuInitialStepTracks                 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
+    AlgorithmName = cms.string('iter3'),
     src                 = 'hiRegitMuInitialStepTrackCandidates'
 )
 
 
-hiRegitMuInitialStepSelector               =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepSelector.clone( 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+hiRegitMuInitialStepSelector               = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone( 
     src                 ='hiRegitMuInitialStepTracks',
+    vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors= cms.VPSet(
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-            name = 'hiRegitMuInitialStepLoose',
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuInitialStepLoose',
+           qualityBit = cms.string('loose'),
             ), #end of pset
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
+            qualityBit = cms.string('loose'),
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
-#            minNumberLayers = 10
+            qualityBit = cms.string('tight'),
             ),
         ) #end of vpset
     )
 
-hiRegitMuonInitialStep = cms.Sequence(hiRegitMuFirstStepFilter*
-                                      hiRegitMuInitialStepClusters*
+hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeedLayers*
                                       hiRegitMuInitialStepSeeds*
                                       hiRegitMuInitialStepTrackCandidates*
                                       hiRegitMuInitialStepTracks*

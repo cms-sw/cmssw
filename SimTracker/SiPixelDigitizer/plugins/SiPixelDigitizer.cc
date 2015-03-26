@@ -50,7 +50,6 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -96,8 +95,8 @@ namespace cms
     first(true),
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
-    trackerContainers(iConfig.getParameter<std::vector<std::string> >("ROUList")),
-    geometryType(iConfig.getParameter<std::string>("GeometryType")),
+    trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
+    geometryType(iConfig.getParameter<std::string>("PixGeometryType")),
     pilotBlades(iConfig.exists("enablePilotBlades")?iConfig.getParameter<bool>("enablePilotBlades"):false),
     NumberOfEndcapDisks(iConfig.exists("NumPixelEndcap")?iConfig.getParameter<int>("NumPixelEndcap"):2)
   {
@@ -147,11 +146,12 @@ namespace cms
          unsigned int detId = (*it).detUnitId();
          if(detIds.insert(detId).second) {
            // The insert succeeded, so this detector element has not yet been processed.
-           unsigned int isub = DetId(detId).subdetId();
-           if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+	   assert(detectorUnits[detId]);
+	   if(detectorUnits[detId] && detectorUnits[detId]->type().isTrackerPixel()) { // this test could be avoided and changed into a check of pixdet!=0
 	     std::map<unsigned int, PixelGeomDetUnit const *>::iterator itDet = detectorUnits.find(detId);	     
 	     if (itDet == detectorUnits.end()) continue;
              auto pixdet = itDet->second;
+	     assert(pixdet !=0);
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
@@ -187,13 +187,11 @@ namespace cms
       detectorUnits.clear();
       for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
         unsigned int detId = (*iu)->geographicalId().rawId();
-        DetId idet=DetId(detId);
-        unsigned int isub=idet.subdetId();
-        if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
+	if((*iu)->type().isTrackerPixel()) {
           auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
           assert(pixdet != 0);
-	  if (isub==PixelSubdetector::PixelEndcap) {
-	    unsigned int disk = tTopo->pxfDisk(detId);
+	  if ((*iu)->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
+	    unsigned int disk = tTopo->layer(detId); // using the generic layer method
 	    //if using pilot blades, then allowing it for current detector only
 	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
 	  }
@@ -261,10 +259,8 @@ namespace cms
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-      DetId idet=DetId((*iu)->geographicalId().rawId());
-      unsigned int isub=idet.subdetId();
       
-      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+      if((*iu)->type().isTrackerPixel()) {
 
 	//
 

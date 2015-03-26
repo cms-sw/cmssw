@@ -19,6 +19,9 @@
 //
 
 // system include files
+#include <map>
+#include <string>
+#include <vector>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -32,6 +35,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 
 // forward declarations
 
@@ -81,6 +85,12 @@ namespace edm {
       void modulesDependentUpon(const std::string& iProcessName,
                                 std::vector<const char*>& oModuleLabels) const;
 
+      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                           ProductRegistry const& preg,
+                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                           std::string const& processName) const;
+
+      std::vector<ConsumesInfo> consumesInfo() const;
 
     protected:
       template<typename F> void createStreamModules(F iFunc) {

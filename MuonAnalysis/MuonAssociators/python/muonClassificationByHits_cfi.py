@@ -21,7 +21,7 @@ trackingParticlesNoSimHits = mix.clone(
         mixTracks   = mix.mixObjects.mixTracks.clone(),
     ),
 )
-from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi import * 
+from SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi import * 
 
 classByHitsTM = cms.EDProducer("MuonMCClassifier",
     muons = cms.InputTag("muons"),
@@ -29,7 +29,7 @@ classByHitsTM = cms.EDProducer("MuonMCClassifier",
     #muonPreselection = cms.string("muonID('TrackerMuonArbitrated')"), # You might want this
     trackType = cms.string("segments"),  # or 'inner','outer','global'
     trackingParticles = cms.InputTag("trackingParticlesNoSimHits","MergedTrackTruth"),         
-    associatorLabel   = cms.string("muonAssociatorByHits_NoSimHits"),
+    associatorLabel   = cms.string("muonAssociatorByHitsNoSimHitsHelper"),
     decayRho  = cms.double(200), # to classifiy differently decay muons included in ppMuX
     decayAbsZ = cms.double(400), # and decay muons that could not be in ppMuX
     linkToGenParticles = cms.bool(True),          # produce also a collection of GenParticles for secondary muons
@@ -51,6 +51,7 @@ classByHitsSta = classByHitsTM.clone(
 muonClassificationByHits = cms.Sequence(
     #mix +
     trackingParticlesNoSimHits +
+    muonAssociatorByHitsNoSimHitsHelper +
     ( classByHitsTM      +
       classByHitsTMLSAT  +
       classByHitsGlb     +  

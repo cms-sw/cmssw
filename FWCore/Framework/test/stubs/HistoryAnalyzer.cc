@@ -83,7 +83,8 @@ namespace edmtest {
     }
 
     if (eventCount_ == 0) {
-      edm::ParameterSet const& proc_pset = edm::getProcessParameterSet();
+      edm::ParameterSet proc_pset;
+      event.getProcessParameterSet(event.processHistory().rbegin()->processName(),proc_pset);
 
       edm::pset::Registry* reg = edm::pset::Registry::instance();
 

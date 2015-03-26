@@ -13,9 +13,7 @@ pfRecoTauDiscriminationAgainstElectronMVA5 = cms.EDProducer("PFRecoTauDiscrimina
     Prediscriminants = requireLeadTrack,
 
     method = cms.string("BDTG"),
-    loadMVAfromDB = cms.bool(False),
-    inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA5.root'),
-    
+    loadMVAfromDB = cms.bool(True),
     returnMVA = cms.bool(True),
 
     mvaName_NoEleMatch_woGwoGSF_BL = cms.string("gbr_NoEleMatch_woGwoGSF_BL"),

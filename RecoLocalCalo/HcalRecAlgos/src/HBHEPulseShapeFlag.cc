@@ -8,7 +8,7 @@
 
 //---------------------------------------------------------------------------
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -130,7 +130,7 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
    CaloSamples Tool;
    coder.adc2fC(digi, Tool);
 
-   mCharge.clear();  // mCharge is a vector of (pedestal-subtracted) Charge values vs. time slice
+   //   mCharge.clear();  // mCharge is a vector of (pedestal-subtracted) Charge values vs. time slice
    mCharge.resize(digi.size());
 
    double TotalCharge = 0;
@@ -447,6 +447,8 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double>
    int AvailableDistance[] = {-100, -75, -50, 50, 75, 100};
 
    // loop over possible pulse distances between two components
+   bool isFirst=true;
+
    for(int k = 0; k < 6; k++)
    {
       double SingleMinimumChi2 = 1000000;
@@ -455,8 +457,8 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double>
       // scan coarsely through different offsets and find the minimum
       for(int i = 0; i + 250 < (int)CumulativeIdealPulse.size(); i += 10)
       {
-         double Chi2 = DualNominalFitSingleTry(Charge, i, AvailableDistance[k]);
-
+	double Chi2 = DualNominalFitSingleTry(Charge, i, AvailableDistance[k],isFirst);
+	isFirst=false;
          if(Chi2 < SingleMinimumChi2)
          {
             SingleMinimumChi2 = Chi2;
@@ -467,7 +469,7 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double>
       // around the minimum, scan finer for better a better minimum
       for(int i = MinOffset - 15; i + 250 < (int)CumulativeIdealPulse.size() && i < MinOffset + 15; i++)
       {
-         double Chi2 = DualNominalFitSingleTry(Charge, i, AvailableDistance[k]);
+	double Chi2 = DualNominalFitSingleTry(Charge, i, AvailableDistance[k],false);
          if(Chi2 < SingleMinimumChi2)
             SingleMinimumChi2 = Chi2;
       }
@@ -480,7 +482,7 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double>
    return OverallMinimumChi2;
 }
 //---------------------------------------------------------------------------
-double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<double> &Charge, int Offset, int Distance)
+double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<double> &Charge, int Offset, int Distance, bool newCharges)
 {
    //
    // Does a fit to dual signal pulse hypothesis given offset and distance of the two target pulses
@@ -499,8 +501,18 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
    if(CumulativeIdealPulse[Offset+250] - CumulativeIdealPulse[Offset] < 1e-5)
       return 1000000;
 
-   std::vector<double> F1(DigiSize);
-   std::vector<double> F2(DigiSize);
+   if ( newCharges) {
+     f1_.resize(DigiSize);
+     f2_.resize(DigiSize);
+     errors_.resize(DigiSize);
+     for(int j = 0; j < DigiSize; j++)
+       {
+	 errors_[j] = Charge[j];
+	 if(errors_[j] < 1)
+	   errors_[j] = 1;
+	 errors_[j]=1.0/errors_[j];
+       }
+   }
 
    double SumF1F1 = 0;
    double SumF1F2 = 0;
@@ -508,12 +520,11 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
    double SumTF1 = 0;
    double SumTF2 = 0;
 
-   double Error = 0;
-
+   unsigned int cipSize=CumulativeIdealPulse.size();
    for(int j = 0; j < DigiSize; j++)
    {
       // this is the TS value for in-time component - no problem we can do a subtraction directly
-      F1[j] = CumulativeIdealPulse[Offset+j*25+25] - CumulativeIdealPulse[Offset+j*25];
+      f1_[j] = CumulativeIdealPulse[Offset+j*25+25] - CumulativeIdealPulse[Offset+j*25];
 
       // However for the out-of-time component the index might go out-of-bound.
       // Let's protect against this.
@@ -522,26 +533,25 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
       
       double C1 = 0;   // lower-indexed value in the cumulative pulse shape
       double C2 = 0;   // higher-indexed value in the cumulative pulse shape
+
       
-      if(OffsetTemp + 25 < (int)CumulativeIdealPulse.size() && OffsetTemp + 25 >= 0)
-         C1 = CumulativeIdealPulse[OffsetTemp+25];
-      if(OffsetTemp + 25 >= (int)CumulativeIdealPulse.size())
-         C1 = CumulativeIdealPulse[CumulativeIdealPulse.size()-1];
-      if(OffsetTemp < (int)CumulativeIdealPulse.size() && OffsetTemp >= 0)
-         C2 = CumulativeIdealPulse[OffsetTemp];
-      if(OffsetTemp >= (int)CumulativeIdealPulse.size())
-         C2 = CumulativeIdealPulse[CumulativeIdealPulse.size()-1];
-      F2[j] = C1 - C2;
+      if(OffsetTemp + 25 >= (int)cipSize)
+	C1 = CumulativeIdealPulse[cipSize-1];
+      else
+	if( OffsetTemp  >= -25)
+	  C1 = CumulativeIdealPulse[OffsetTemp+25];
+      if(OffsetTemp >= (int)cipSize)
+	C2 = CumulativeIdealPulse[cipSize-1];
+      else
+	if( OffsetTemp >= 0)
+	  C2 = CumulativeIdealPulse[OffsetTemp];
+      f2_[j] = C1 - C2;
 
-      Error = Charge[j];
-      if(Error < 1)
-         Error = 1;
-
-      SumF1F1 += F1[j] * F1[j] / Error;
-      SumF1F2 += F1[j] * F2[j] / Error; 
-      SumF2F2 += F2[j] * F2[j] / Error;
-      SumTF1  += F1[j] * Charge[j] / Error; 
-      SumTF2  += F2[j] * Charge[j] / Error; 
+      SumF1F1 += f1_[j] * f1_[j] * errors_[j];
+      SumF1F2 += f1_[j] * f2_[j] * errors_[j]; 
+      SumF2F2 += f2_[j] * f2_[j] * errors_[j];
+      SumTF1  += f1_[j] * Charge[j] * errors_[j]; 
+      SumTF2  += f2_[j] * Charge[j] * errors_[j]; 
    }
 
    double Height  = 0;
@@ -555,12 +565,8 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
    double Chi2 = 0;
    for(int j = 0; j < DigiSize; j++)
    {
-      double Error = Charge[j];
-      if(Error < 1)
-         Error = 1;
-
-      double Residual = Height * F1[j] + Height2 * F2[j] - Charge[j];  
-      Chi2 += Residual * Residual / Error;                             
+      double Residual = Height * f1_[j] + Height2 * f2_[j] - Charge[j];  
+      Chi2 += Residual * Residual *errors_[j];                             
    } 
 
    // Safety protection in case of zero

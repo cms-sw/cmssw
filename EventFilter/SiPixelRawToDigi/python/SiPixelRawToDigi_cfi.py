@@ -1,20 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+import EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi
 
-siPixelDigis = cms.EDProducer("SiPixelRawToDigi",
-    Timing = cms.untracked.bool(False),
-    IncludeErrors = cms.bool(True),
-    InputLabel = cms.InputTag("siPixelRawData"),
-    CheckPixelOrder = cms.bool(False),
-    UseQualityInfo = cms.bool(False),
+siPixelDigis = EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi.siPixelRawToDigi.clone()
+siPixelDigis.Timing = cms.untracked.bool(False)
+siPixelDigis.IncludeErrors = cms.bool(True)
+siPixelDigis.InputLabel = cms.InputTag("siPixelRawData")
+siPixelDigis.UseQualityInfo = cms.bool(False)
 ## ErrorList: list of error codes used by tracking to invalidate modules
-    ErrorList = cms.vint32(29),
+siPixelDigis.ErrorList = cms.vint32(29)
 ## UserErrorList: list of error codes used by Pixel experts for investigation
-    UserErrorList = cms.vint32(40),
+siPixelDigis.UserErrorList = cms.vint32(40)
 ##  Use pilot blades
-    UsePilotBlade = cms.bool(False),
+siPixelDigis.UsePilotBlade = cms.bool(False)
 ##  Use phase1
-    UsePhase1 = cms.bool(False),
+siPixelDigis.UsePhase1 = cms.bool(False)
 ## Empty Regions PSet means complete unpacking
-    Regions = cms.PSet( ) 
-)
-
+siPixelDigis.Regions = cms.PSet( ) 

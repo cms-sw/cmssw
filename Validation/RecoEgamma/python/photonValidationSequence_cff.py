@@ -54,6 +54,6 @@ oldpfPhotonValidation.eoverpMax = 5.
 
 # selectors go in separate "pre-" sequence
 photonPrevalidationSequence = cms.Sequence(tpSelection*tpSelecForFakeRate*tpSelecForEfficiency)
-photonValidationSequence = cms.Sequence(photonValidation*pfPhotonValidation*tkConversionValidation)
+photonValidationSequence = cms.Sequence(trackAssociatorByHitsForPhotonValidation*photonValidation*pfPhotonValidation*trackAssociatorByHitsForConversionValidation*tkConversionValidation)
 
 

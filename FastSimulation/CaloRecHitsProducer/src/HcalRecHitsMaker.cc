@@ -404,7 +404,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& to
     {
       hbheDigis.reserve(firedCells_.size());
     }
-  static HcalQIESample zeroSample(0,0,0,0);
+  static const HcalQIESample zeroSample(0,0,0,0);
   unsigned nhits=firedCells_.size();
   // HB and HE
 

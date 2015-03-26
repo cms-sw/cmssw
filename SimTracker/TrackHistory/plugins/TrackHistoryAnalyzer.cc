@@ -71,9 +71,10 @@ private:
 };
 
 
-TrackHistoryAnalyzer::TrackHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+TrackHistoryAnalyzer::TrackHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+    consumes<edm::View<reco::Track>>(trackProducer_);
 }
 
 

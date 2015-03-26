@@ -13,6 +13,8 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <DataFormats/Common/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -20,15 +22,20 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <string>
 #include <map>
 #include <vector>
 
 class DQMStore;
 class MonitorElement;
+class DTGeometry;
 
-
-class DTEfficiencyTask: public edm::EDAnalyzer{
+class DTEfficiencyTask: public DQMEDAnalyzer{
 public:
   /// Constructor
   DTEfficiencyTask(const edm::ParameterSet& pset);
@@ -36,23 +43,23 @@ public:
   /// Destructor
   virtual ~DTEfficiencyTask();
 
-  /// BeginJob
-  void beginJob();
-
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
 protected:
 
+  /// BeginRun
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+
+// Book the histograms
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-  DQMStore* theDbe;
+
+  edm::ESHandle<DTGeometry> muonGeom;
 
   // Switch for verbosity
   bool debug;
@@ -64,9 +71,6 @@ private:
   edm::EDGetTokenT<DTRecHitCollection> recHitToken_;
 
   edm::ParameterSet parameters;
-
-  // Book a set of histograms for a give chamber
-  void bookHistos(DTLayerId lId, int fisrtWire, int lastWire);
 
   // Fill a set of histograms for a given L
   void fillHistos(DTLayerId lId, int firstWire, int lastWire, int numWire);

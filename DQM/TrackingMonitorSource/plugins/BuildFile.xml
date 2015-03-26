@@ -1,0 +1,20 @@
+<use   name="TrackingTools/Records"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DQMServices/Core"/>
+<use   name="CommonTools/TriggerUtils"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/Luminosity"/>
+<use   name="DataFormats/VertexReco"/> 
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="RecoMuon/GlobalTrackingTools"/>
+<use   name="RecoLocalTracker/SiStripClusterizer" />
+<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="DQMTrackingMonitorSourcePlugins">
+</library>

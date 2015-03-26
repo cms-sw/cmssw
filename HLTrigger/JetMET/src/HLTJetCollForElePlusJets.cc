@@ -9,8 +9,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "TVector3.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <typename T>
 HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& iConfig):
@@ -51,7 +50,7 @@ void HLTJetCollForElePlusJets<T>::fillDescriptions(edm::ConfigurationDescription
     //Only for VBF
     desc.add<double> ("MinSoftJetPt", 25.);
     desc.add<double> ("MinDeltaEta", -1.);    
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollForElePlusJets<T>).name()), desc);
+    descriptions.add(defaultModuleLabel<HLTJetCollForElePlusJets<T>>(), desc);
 }
 
 //

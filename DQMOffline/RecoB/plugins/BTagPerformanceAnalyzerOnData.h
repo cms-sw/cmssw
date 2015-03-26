@@ -16,7 +16,7 @@
  *
  */
 
-class BTagPerformanceAnalyzerOnData : public thread_unsafe::DQMEDAnalyzer {
+class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
    public:
       explicit BTagPerformanceAnalyzerOnData(const edm::ParameterSet& pSet);
 

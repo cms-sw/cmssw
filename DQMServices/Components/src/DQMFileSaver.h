@@ -16,6 +16,14 @@ class DQMFileSaver : public edm::global::EDAnalyzer<edm::RunCache<saverDetails::
 {
 public:
   DQMFileSaver(const edm::ParameterSet &ps);
+
+
+  // used by the JsonWritingTimedPoolOutputModule,
+  // fms will be nullptr in such case
+  static boost::property_tree::ptree fillJson(
+      int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
+      evf::FastMonitoringService *fms);
+
   
 protected:
   virtual void beginJob(void);
@@ -50,7 +58,6 @@ private:
 
   void saveForFilterUnit(const std::string& rewrite, int run, int lumi, const FileFormat fileFormat) const;
   void saveJobReport(const std::string &filename) const;
-  void fillJson(int run, int lumi, const std::string& dataFilePathName, boost::property_tree::ptree& pt) const;
 
   Convention	convention_;
   FileFormat    fileFormat_;
@@ -87,6 +94,7 @@ private:
 
   static const std::string streamPrefix_;
   static const std::string streamSuffix_;
+  std::string transferDestination_;
 };
 
 #endif // DQMSERVICES_COMPONEntS_DQMFILESAVER_H

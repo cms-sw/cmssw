@@ -6,12 +6,12 @@
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 namespace configurableAnalysis{
-  char Jet[]="pat::Jet";
-  char Muon[]="pat::Muon";
-  char MET[]="pat::MET";
-  char Electron[]="pat::Electron";
-  char Tau[]="pat::Tau";
-  char Photon[]="pat::Photon";
+  constexpr char Jet[]="pat::Jet";
+  constexpr char Muon[]="pat::Muon";
+  constexpr char MET[]="pat::MET";
+  constexpr char Electron[]="pat::Electron";
+  constexpr char Tau[]="pat::Tau";
+  constexpr char Photon[]="pat::Photon";
 }
 
 #include "DataFormats/PatCandidates/interface/Jet.h"

@@ -54,17 +54,9 @@ ctfL1SeededLargeWindowTracks.TTRHBuilder = 'WithoutRefit'
 ctfL1SeededLargeWindowTracks.Fitter = 'KFFittingSmootherForElectrons'
 ctfL1SeededLargeWindowTracks.Propagator = 'PropagatorWithMaterial'
 
-# Track merger
-hltCtfL1SeededLargeWindowWithMaterialTracks = cms.EDProducer("FastTrackMerger",
-    SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("ctfL1SeededLargeWindowTracks"),
-                                   cms.InputTag("hltCtfL1SeededWithMaterialTracks"))
-)
-
 # Sequence
 HLTPixelMatchLargeWindowElectronL1SeededTrackingSequence = cms.Sequence(hltCkfL1SeededLargeWindowTrackCandidates+
                                                                         ctfL1SeededLargeWindowTracks+
-                                                                        hltCtfL1SeededLargeWindowWithMaterialTracks+
                                                                         cms.SequencePlaceholder("hltPixelMatchLargeWindowElectronsL1Seeded"))
 
 hltL1SeededLargeWindowElectronPixelSeedsSequence = cms.Sequence(globalPixelTracking+

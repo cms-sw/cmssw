@@ -9,7 +9,7 @@
 //     the discriminator computer calibration object. POOL doesn't support
 //     polymorph pointers, so this is implemented using multiple containers
 //     for each possible sub-class and an index array from which the
-//     array of pointers can be reconstructed. 
+//     array of pointers can be reconstructed.
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
@@ -21,9 +21,7 @@
 #include <cstring>
 #include <cstddef>
 
-#include <boost/thread.hpp>
-
-#include <Reflex/Reflex.h>
+#include <atomic>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -129,10 +127,8 @@ std::string ProcExternal::getInstanceName() const
 
 static MVAComputer::CacheId getNextMVAComputerCacheId()
 {
-	static boost::mutex mutex;
-	static MVAComputer::CacheId nextCacheId = 0;
+	static std::atomic<MVAComputer::CacheId> nextCacheId{0};
 
-	boost::mutex::scoped_lock scoped_lock(mutex);
 	return ++nextCacheId;
 }
 
@@ -184,10 +180,10 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 	return processors;
 }
 
-void MVAComputer::addProcessor(const VarProcessor *proc)
+void MVAComputer::addProcessor(const VarProcessor* proc)
 {
-	cacheId = getNextMVAComputerCacheId();
-        processors.push_back(proc->clone().release());
+  cacheId = getNextMVAComputerCacheId();
+  processors.push_back(proc->clone().release());
 }
 
 static MVAComputerContainer::CacheId getNextMVAComputerContainerCacheId()

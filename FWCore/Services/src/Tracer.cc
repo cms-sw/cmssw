@@ -14,7 +14,12 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -28,10 +33,12 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
 #include <iostream>
+#include <vector>
 
 using namespace edm::service;
 
@@ -60,6 +67,7 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   indention_(iPS.getUntrackedParameter<std::string>("indention")),
   dumpContextForLabels_(),
   dumpNonModuleContext_(iPS.getUntrackedParameter<bool>("dumpNonModuleContext")),
+  dumpPathsAndConsumes_(iPS.getUntrackedParameter<bool>("dumpPathsAndConsumes")),
   printTimestamps_(iPS.getUntrackedParameter<bool>("printTimestamps"))
 {
   for (std::string & label: iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
@@ -67,6 +75,7 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 
   iRegistry.watchPreallocate(this, &Tracer::preallocate);
 
+  iRegistry.watchPreBeginJob(this, &Tracer::preBeginJob);
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
 
@@ -205,6 +214,7 @@ Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   desc.addUntracked<std::string>("indention", "++")->setComment("Prefix characters for output. The characters are repeated to form the indentation.");
   desc.addUntracked<std::vector<std::string>>("dumpContextForLabels", std::vector<std::string>{})->setComment("Prints context information to cout for the module transitions associated with these modules' labels");
   desc.addUntracked<bool>("dumpNonModuleContext", false)->setComment("Prints context information to cout for the transitions not associated with any module label");
+  desc.addUntracked<bool>("dumpPathsAndConsumes", false)->setComment("Prints information to cout about paths, endpaths, products consumed by modules and the dependencies between modules created by the products they consume");
   desc.addUntracked<bool>("printTimestamps", false)->setComment("Prints a time stamp for every transition");
   descriptions.add("Tracer", desc);
   descriptions.setComment("This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");
@@ -218,6 +228,93 @@ Tracer::preallocate(service::SystemBounds const& bounds) {
 }
 
 void 
+Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, ProcessContext const& pc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_) << indention_ << " starting: begin job";
+  if(dumpPathsAndConsumes_) {
+    out << "\n" << "Process name = " << pc.processName() << "\n";
+    out << "paths:\n";
+    std::vector<std::string> const& paths = pathsAndConsumes.paths();
+    for(auto const& path : paths) {
+      out << "  " << path << "\n";
+    }
+    out << "end paths:\n";
+    std::vector<std::string> const& endpaths = pathsAndConsumes.endPaths();
+    for(auto const& endpath : endpaths) {
+      out << "  " << endpath << "\n";
+    }
+    for(unsigned int j = 0; j < paths.size(); ++j) {
+      std::vector<ModuleDescription const*> const& modulesOnPath = pathsAndConsumes.modulesOnPath(j);
+      out << "modules on path " << paths.at(j) << ":\n";
+      for(auto const& desc : modulesOnPath) {
+        out << "  " << desc->moduleLabel() << "\n";
+      }
+    }
+    for(unsigned int j = 0; j < endpaths.size(); ++j) {
+      std::vector<ModuleDescription const*> const& modulesOnEndPath = pathsAndConsumes.modulesOnEndPath(j);
+      out << "modules on end path " << endpaths.at(j) << ":\n";
+      for(auto const& desc : modulesOnEndPath) {
+        out << "  " << desc->moduleLabel() << "\n";
+      }
+    }
+    std::vector<ModuleDescription const*> const& allModules =  pathsAndConsumes.allModules();
+    out << "All modules and modules in the current process whose products they consume:\n";
+    out << "(This does not include modules from previous processes or the source)\n";
+    for(auto const& module : allModules) {
+      out << "  " << module->moduleName() << "/\'" << module->moduleLabel() << "\'";
+      unsigned int moduleID = module->id();
+      if(pathsAndConsumes.moduleDescription(moduleID) != module) {
+        throw cms::Exception("TestFailure") << "Tracer::preBeginJob, moduleDescription returns incorrect value";
+      }
+      std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedBy =
+        pathsAndConsumes.modulesWhoseProductsAreConsumedBy(moduleID);
+      if(!modulesWhoseProductsAreConsumedBy.empty()) {
+        out << " consumes products from these modules:\n";
+        for(auto const& producingModule : modulesWhoseProductsAreConsumedBy) {
+          out << "    " << producingModule->moduleName() << "/\'" << producingModule->moduleLabel() << "\'\n";
+        }
+      } else {
+        out << "\n";
+      }
+    }
+    out << "All modules (listed by class and label) and all their consumed products.\n";
+    out << "Consumed products are listed by type, label, instance, process.\n";
+    out << "For products not in the event, \'run\' or \'lumi\' is added to indicate the TTree they are from.\n";
+    out << "For products that are declared with mayConsume, \'may consume\' is added.\n";
+    out << "For products consumed for Views, \'element type\' is added\n";
+    out << "For products only read from previous processes, \'skip current process\' is added\n";
+    for(auto const* module : allModules) {
+      out << "  " << module->moduleName() << "/\'" << module->moduleLabel() << "\'";
+      std::vector<ConsumesInfo> consumesInfo = pathsAndConsumes.consumesInfo(module->id());
+      if(!consumesInfo.empty()) {
+        out << " consumes:\n";
+        for(auto const& info : consumesInfo) {
+          out << "    " << info.type() << " \'" << info.label() << "\' \'" << info.instance();
+          out << "\' \'" << info.process() << "\'";
+          if(info.branchType() == InLumi) {
+            out << ", lumi";
+          } else if(info.branchType() == InRun) {
+            out << ", run";
+          }
+          if(!info.alwaysGets()) {
+            out << ", may consume";
+          }
+          if(info.kindOfType() == ELEMENT_TYPE) {
+            out << ", element type";
+          }
+          if(info.skipCurrentProcess()) {
+            out << ", skip current process";
+          }
+          out << "\n";
+        }
+      } else {
+        out << "\n";
+      }
+    }
+  }
+}
+
+void
 Tracer::postBeginJob() {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " finished: begin job";
 }

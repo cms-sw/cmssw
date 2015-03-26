@@ -46,3 +46,6 @@ process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester*process.dqmEn
 ##process.hlxdqmsource.outputDir = process.dqmSaver.dirName
 
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

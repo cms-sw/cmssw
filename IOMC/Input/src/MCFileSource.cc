@@ -41,7 +41,7 @@ MCFileSource::~MCFileSource(){
 }
 
 //-------------------------------------------------------------------------
-bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&, EventAuxiliary::ExperimentType&) {
   // Read one HepMC event
   LogInfo("MCFileSource") << "Start Reading";
   evt_ = reader_->fillCurrentEventData(); 

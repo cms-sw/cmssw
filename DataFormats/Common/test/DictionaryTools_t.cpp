@@ -10,8 +10,6 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "Cintex/Cintex.h"
-
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -27,7 +25,7 @@ class TestDictionaries: public CppUnit::TestFixture {
  public:
   TestDictionaries() {}
   ~TestDictionaries() {}
-  void setUp() {ROOT::Cintex::Cintex::Enable();}
+  void setUp() {}
   void tearDown() {}
 
   void default_is_invalid();
@@ -67,12 +65,15 @@ namespace {
       std::string demangledName(edm::typeDemangle(typeid(T).name()));
       CPPUNIT_ASSERT(type.name() == demangledName);
 
-      edm::TypeID tid(type.typeInfo());
+      edm::TypeID tid(typeid(T));
       CPPUNIT_ASSERT(tid.className() == demangledName);
 
       edm::TypeWithDict typeFromName = edm::TypeWithDict::byName(demangledName);
-      edm::TypeID tidFromName(typeFromName.typeInfo());
-      CPPUNIT_ASSERT(tidFromName.className() == demangledName);
+      CPPUNIT_ASSERT(typeFromName.name() == demangledName);
+      if (type.isClass()) {
+        edm::TypeID tidFromName(typeFromName.typeInfo());
+        CPPUNIT_ASSERT(tidFromName.className() == demangledName);
+      }
     }
   }
 
@@ -82,6 +83,7 @@ namespace {
     checkIt<edm::Wrapper<T> >();
     checkIt<edm::Wrapper<std::vector<T> > >();
     checkIt<T>();
+    checkIt<T[1]>();
   }
 }
 

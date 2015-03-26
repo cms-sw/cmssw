@@ -8,10 +8,6 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronDetaDphiProducer.h"
 
-//#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
@@ -32,15 +28,13 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet& config) {
-
-  electronProducer_          = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"));
-  bsProducer_                = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BSProducer"));
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer")); 
-
-  useSCRefs_                 = config.getParameter<bool>("useSCRefs");
-  useTrackProjectionToEcal_  = config.getParameter<bool>("useTrackProjectionToEcal");
-  variablesAtVtx_            = config.getParameter<bool>("variablesAtVtx");
+EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet& config):
+  electronProducer_          (consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"))),
+  bsProducer_                (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BSProducer"))),
+  recoEcalCandidateProducer_ (consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  useSCRefs_                 (config.getParameter<bool>("useSCRefs")),
+  useTrackProjectionToEcal_  (config.getParameter<bool>("useTrackProjectionToEcal")),
+  variablesAtVtx_            (config.getParameter<bool>("variablesAtVtx")) {
 
   //register your products
   if(!useSCRefs_){

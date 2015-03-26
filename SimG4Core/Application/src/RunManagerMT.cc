@@ -22,6 +22,8 @@
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Application/interface/G4RegionReporter.h"
+#include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -56,8 +58,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "SimG4Core/Application/interface/ExceptionHandler.h"
-
 RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_managerInitialized(false), 
       m_runTerminated(false),
@@ -71,6 +71,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_fieldBuilder(nullptr)
 {    
+  m_currentRun = 0;
   G4RunManagerKernel *kernel = G4MTRunManagerKernel::GetRunManagerKernel();
   if(!kernel) m_kernel = new G4MTRunManagerKernel();
   else {
@@ -81,7 +82,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
-  if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
+  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions","");
 }
 
 RunManagerMT::~RunManagerMT() 
@@ -91,7 +92,8 @@ RunManagerMT::~RunManagerMT()
   G4GeometryManager::GetInstance()->OpenGeometry();
 }
 
-void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable)
+void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
+			  const HepPDT::ParticleDataTable *fPDGTable)
 {
   if (m_managerInitialized) return;
   
@@ -99,11 +101,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   G4LogicalVolumeToDDLogicalPartMap map_;
   m_world.reset(new DDDWorld(pDD, map_, m_catalog, m_check));
   m_registry.dddWorldSignal_(m_world.get());
-
-  if("" != m_WriteFile) {
-    G4GDMLParser gdml;
-    gdml.Write(m_WriteFile, m_world->GetWorldVolume());
-  }
 
   // setup the magnetic field
   if (m_pUseMagneticField)
@@ -180,17 +177,30 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
     G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
   }
 
+  if("" != m_WriteFile) {
+    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
+    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), false);
+  }
+
+  if("" != m_RegionFile) {
+    G4RegionReporter rrep;
+    rrep.ReportRegions(m_RegionFile);
+  }
+
   // If the Geant4 particle table is needed, decomment the lines below
   //
   //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
   //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
+  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  m_currentRun = new G4Run(); 
+  m_userRunAction->BeginOfRunAction(m_currentRun); 
 }
 
 void RunManagerMT::initializeUserActions() {
   m_runInterface.reset(new SimRunInterface(this, true));
 
-  m_userRunAction.reset(new RunAction(m_pRunAction, m_runInterface.get()));
-  Connect(m_userRunAction.get());
+  m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get());
+  Connect(m_userRunAction);
 }
 
 void  RunManagerMT::Connect(RunAction* runAction)
@@ -206,7 +216,11 @@ void RunManagerMT::stopG4()
 }
 
 void RunManagerMT::terminateRun() {
-  m_userRunAction.reset();
+  m_userRunAction->EndOfRunAction(m_currentRun);
+  delete m_userRunAction;
+  m_userRunAction = 0;
+  // delete m_currentRun;
+  //m_currentRun = 0;
   if(m_kernel && !m_runTerminated) {
     m_kernel->RunTermination();
     m_runTerminated = true;

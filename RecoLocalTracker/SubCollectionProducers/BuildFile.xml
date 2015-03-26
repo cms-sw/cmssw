@@ -6,6 +6,7 @@
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/Candidate"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CommonTools/Utils"/>

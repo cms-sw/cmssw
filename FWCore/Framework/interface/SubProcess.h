@@ -3,6 +3,7 @@
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/Schedule.h"
@@ -23,6 +24,7 @@
 #include <set>
 
 namespace edm {
+  class ActivityRegistry;
   class BranchDescription;
   class BranchIDListHelper;
   class HistoryAppender;
@@ -229,6 +231,7 @@ namespace edm {
     }
 
     
+    std::shared_ptr<ActivityRegistry>             actReg_;
     ServiceToken                                  serviceToken_;
     std::shared_ptr<ProductRegistry const>        parentPreg_;
     std::shared_ptr<ProductRegistry const>        preg_;
@@ -237,6 +240,7 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const>   processConfiguration_;
     ProcessContext                                processContext_;
+    PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     //We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run
     unsigned int                                  historyLumiOffset_;

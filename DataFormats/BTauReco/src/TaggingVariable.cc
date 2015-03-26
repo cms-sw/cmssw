@@ -8,7 +8,7 @@ using namespace std;
 
 namespace reco {
 
-const char* TaggingVariableDescription[] = {
+const char* const TaggingVariableDescription[] = {
   /* [jetEnergy]                                = */ "jet energy",
   /* [jetPt]                                    = */ "jet transverse momentum",
   /* [trackJetPt]                               = */ "track-based jet transverse momentum",
@@ -100,13 +100,15 @@ const char* TaggingVariableDescription[] = {
   /* [leptonDeltaR]                             = */ "pseudo)angular distance of the soft lepton to jet axis",
   /* [leptonRatio],                             = */ "momentum of the soft lepton over jet energy",
   /* [leptonRatioRel]                           = */ "momentum of the soft lepton parallel to jet axis over jet energy",
+  /* [electronMVA]                              = */ "mva output of the electron ID",
+
 
   /* [algoDiscriminator]                        = */ "discriminator output of an algorithm",
 
   /* [lastTaggingVariable]                      = */ ""
 };
 
-const char* TaggingVariableTokens[] = {
+const char* const TaggingVariableTokens[] = {
   /* [jetEnergy]                                = */ "jetEnergy",
   /* [jetPt]                                    = */ "jetPt",
   /* [trackJetPt]                               = */ "trackJetPt",
@@ -199,6 +201,7 @@ const char* TaggingVariableTokens[] = {
   /* [leptonDeltaR]                             = */ "leptonDeltaR",
   /* [leptonRatio]                              = */ "leptonRatio",
   /* [leptonRatioRel],                          = */ "leptonRatioRel",
+  /* [electronMVA]                              = */ "electronMVA",
 
   /* [algoDiscriminator]                        = */ "algoDiscriminator",
 

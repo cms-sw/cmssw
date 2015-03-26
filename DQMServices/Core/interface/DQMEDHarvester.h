@@ -17,6 +17,9 @@ class DQMEDHarvester
 {
 public:
   DQMEDHarvester(void);
+#ifdef __INTEL_COMPILER
+  virtual ~DQMEDHarvester() = default;
+#endif
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor

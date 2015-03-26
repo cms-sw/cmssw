@@ -27,7 +27,6 @@
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
@@ -82,6 +81,8 @@ class MultiChainEvent: public EventBase
                                                  char const*,
                                                  char const*) const;
 
+      using fwlite::EventBase::getByLabel;
+
       /** This function should only be called by fwlite::Handle<>*/
       virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
@@ -133,7 +134,7 @@ class MultiChainEvent: public EventBase
 
       // ---------- member functions ---------------------------
 
-      edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
+      virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
       edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
 

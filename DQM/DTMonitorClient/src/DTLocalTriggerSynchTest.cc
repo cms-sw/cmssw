@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author C. Battilana - CIEMAT
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -45,6 +48,8 @@ DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) {
   baseFolderDCC = "DT/90-LocalTriggerSynch/";
   baseFolderDDU = "DT/90-LocalTriggerSynch/";
 
+  bookingdone = 0;
+
 }
 
 
@@ -53,8 +58,8 @@ DTLocalTriggerSynchTest::~DTLocalTriggerSynchTest(){
 }
 
 
-void DTLocalTriggerSynchTest::beginJob(){
-  
+void DTLocalTriggerSynchTest::beginRun(edm::Run const & run, edm::EventSetup const & c) {  
+
   numHistoTag   = parameters.getParameter<string>("numHistoTag");
   denHistoTag   = parameters.getParameter<string>("denHistoTag");
   ratioHistoTag = parameters.getParameter<string>("ratioHistoTag");
@@ -64,11 +69,14 @@ void DTLocalTriggerSynchTest::beginJob(){
   nBXHigh       = parameters.getParameter<int>("nBXHigh");
   minEntries    = parameters.getParameter<int>("minEntries");
 
+  DTLocalTriggerBaseTest::beginRun(run,c);
 }
 
-void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
 
-  DTLocalTriggerBaseTest::beginRun(run,c);
+void DTLocalTriggerSynchTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & c) {
+
+  if (bookingdone) return;
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -85,13 +93,13 @@ void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
 	std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 	for (; chambIt!=chambEnd; ++chambIt) { 
 	  DTChamberId chId = ((*chambIt)->id());
-	  bookChambHistos(chId,ratioHistoTag);
+	  bookChambHistos(ibooker,chId,ratioHistoTag);
 	}
       }
     }
   }
 
-  LogVerbatim(category()) << "[" << testName << "Test]: beginRun" << endl;
+  LogVerbatim(category()) << "[" << testName << "Test]: book Histograms" << endl;
 
   if (parameters.getParameter<bool>("fineParamDiff")) {
     ESHandle<DTTPGParameters> wPhaseHandle;
@@ -99,11 +107,12 @@ void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
     wPhaseMap = (*wPhaseHandle);
   }
 
+  bookingdone = 1; 
+
 }
   
 
-
-void DTLocalTriggerSynchTest::runClientDiagnostic() {
+void DTLocalTriggerSynchTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -117,8 +126,9 @@ void DTLocalTriggerSynchTest::runClientDiagnostic() {
 	uint32_t indexCh = chId.rawId();
 
 	// Perform peak finding
-	TH1F *numH     = getHisto<TH1F>(dbe->get(getMEName(numHistoTag,"", chId)));
-	TH1F *denH     = getHisto<TH1F>(dbe->get(getMEName(denHistoTag,"", chId)));
+
+	TH1F *numH     = getHisto<TH1F>(igetter.get(getMEName(numHistoTag,"", chId)));
+	TH1F *denH     = getHisto<TH1F>(igetter.get(getMEName(denHistoTag,"", chId)));
 	    
 	if (numH && denH && numH->GetEntries()>minEntries && denH->GetEntries()>minEntries) {	      
 	  std::map<std::string,MonitorElement*> innerME = chambME[indexCh];
@@ -152,9 +162,9 @@ void DTLocalTriggerSynchTest::runClientDiagnostic() {
 
 }
 
-void DTLocalTriggerSynchTest::endJob(){
+void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
-  DTLocalTriggerBaseTest::endJob();
+  DTLocalTriggerBaseTest::dqmEndJob(ibooker,igetter);
 
   if ( parameters.getParameter<bool>("writeDB")) {
     LogVerbatim(category()) << "[" << testName 
@@ -168,13 +178,13 @@ void DTLocalTriggerSynchTest::endJob(){
 
 	DTChamberId chId = (*chambIt)->id();
 	float fineDelay = 0;
-	int coarseDelay = static_cast<int>((getFloatFromME(chId,"tTrig_SL1") + getFloatFromME(chId,"tTrig_SL3"))*0.5/bxTime);
+	int coarseDelay = static_cast<int>((getFloatFromME(igetter,chId,"tTrig_SL1") + 
+                                                                        getFloatFromME(igetter,chId,"tTrig_SL3"))*0.5/bxTime);
 
 	bool fineDiff   = parameters.getParameter<bool>("fineParamDiff");
 	bool coarseDiff = parameters.getParameter<bool>("coarseParamDiff");
 
-
-	TH1F *ratioH     = getHisto<TH1F>(dbe->get(getMEName(ratioHistoTag,"", chId)));    
+	TH1F *ratioH     = getHisto<TH1F>(igetter.get(getMEName(ratioHistoTag,"", chId)));    
 	if (ratioH->GetEntries()>minEntries) {	      
 	  TF1 *fitF=ratioH->GetFunction("mypol8");
 	  if (fitF) { fineDelay=fitF->GetMaximumX(0,bxTime); }
@@ -220,7 +230,8 @@ void DTLocalTriggerSynchTest::makeRatioME(TH1F* numerator, TH1F* denominator, Mo
   
 }
 
-float DTLocalTriggerSynchTest::getFloatFromME(DTChamberId chId, std::string meType) {
+float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
+                                                 DTChamberId chId, std::string meType) {
    
    stringstream wheel; wheel << chId.wheel();
    stringstream station; station << chId.station();
@@ -235,7 +246,7 @@ float DTLocalTriggerSynchTest::getFloatFromME(DTChamberId chId, std::string meTy
      + "_Sec" + sector.str()
      + "_St" + station.str();
 
-   MonitorElement* me = dbe->get(histoname);
+   MonitorElement* me = igetter.get(histoname);
    if (me) { 
      return me->getFloatValue(); 
    }
@@ -247,7 +258,8 @@ float DTLocalTriggerSynchTest::getFloatFromME(DTChamberId chId, std::string meTy
 
  }
 
-void DTLocalTriggerSynchTest::bookChambHistos(DTChamberId chambId, string htype, string subfolder) {
+void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker, 
+                                                 DTChamberId chambId, string htype, string subfolder) {
   
   stringstream wheel; wheel << chambId.wheel();
   stringstream station; station << chambId.station();	
@@ -260,7 +272,7 @@ void DTLocalTriggerSynchTest::bookChambHistos(DTChamberId chambId, string htype,
   string folder = topFolder(isDCC) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   if ( subfolder!="") { folder += "7" + subfolder; }
 
-  dbe->setCurrentFolder(folder);
+  ibooker.setCurrentFolder(folder);
 
   LogPrint(category()) << "[" << testName << "Test]: booking " << folder << "/" <<HistoName;
 
@@ -270,6 +282,6 @@ void DTLocalTriggerSynchTest::bookChambHistos(DTChamberId chambId, string htype,
   float max = rangeInBX ? bxTime : nBXHigh*bxTime;
   int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
-  chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"All/HH ratio vs Muon Arrival Time",nbins,min,max);
+  chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"All/HH ratio vs Muon Arrival Time",nbins,min,max);
 
 }

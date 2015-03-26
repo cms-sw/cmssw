@@ -31,6 +31,7 @@ TrackAssociatorByChi2ESProducer::TrackAssociatorByChi2ESProducer(const edm::Para
    // data is being produced
    std::string myName=iConfig.getParameter<std::string>("ComponentName");
    setWhatProduced(this,myName);
+   setWhatProduced(this,&TrackAssociatorByChi2ESProducer::produceTrackGen,edm::es::Label(myName));
 
    //now do what ever other initialization is needed
    conf_=iConfig;
@@ -59,6 +60,16 @@ TrackAssociatorByChi2ESProducer::produce(const TrackAssociatorRecord& iRecord)
    iRecord.getRecord<IdealMagneticFieldRecord>().get(theMF);
    std::auto_ptr<TrackAssociatorBase> pTrackAssociatorBase (new TrackAssociatorByChi2(theMF,conf_));
    return pTrackAssociatorBase ;
+}
+
+TrackAssociatorByChi2ESProducer::TrackGenReturnType
+TrackAssociatorByChi2ESProducer::produceTrackGen(const TrackAssociatorRecord& iRecord)
+{
+   using namespace edm::es;
+   edm::ESHandle<MagneticField> theMF;
+   iRecord.getRecord<IdealMagneticFieldRecord>().get(theMF);
+   TrackGenReturnType pTrackGenAssociator (new TrackGenAssociatorByChi2(theMF,conf_));
+   return pTrackGenAssociator ;
 }
 
 //define this as a plug-in

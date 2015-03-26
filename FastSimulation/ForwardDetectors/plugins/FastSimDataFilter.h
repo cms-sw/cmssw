@@ -2,7 +2,7 @@
 #define FastSimDataFilter_h
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include <vector>
@@ -22,7 +22,7 @@ namespace edm {
 namespace cms
 {
 
-class  FastSimDataFilter : public edm::EDFilter
+  class  FastSimDataFilter : public edm::stream::EDFilter <>
 {
 public:  
 

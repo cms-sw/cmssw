@@ -19,19 +19,29 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet& ps) {
   NEvents_ = 0;
   for(int i=0; i!=40; i++) FEDs_[i] = 0;
 
+  firstLumi = true;
+
   //set Token(-s)
   daqSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("daqSource", "source"));
 }
 
 SiPixelDaqInfo::~SiPixelDaqInfo(){}
 
-void SiPixelDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  EventSetup& iSetup){}
+void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
 
+  //Book somethings first time around
+  if (firstLumi){
+    iBooker.setCurrentFolder("Pixel/EventInfo");
+    Fraction_= iBooker.bookFloat("DAQSummary");  
+    iBooker.setCurrentFolder("Pixel/EventInfo/DAQContents");
+    FractionBarrel_= iBooker.bookFloat("PixelBarrelFraction");  
+    FractionEndcap_= iBooker.bookFloat("PixelEndcapFraction");  
+    
+    firstLumi = false;
+  }
 
-void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   if(0 != iSetup.find( recordKey ) ) {
-    // cout<<"record key found"<<endl;
     //get fed summary information
     ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -45,21 +55,22 @@ void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, 
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
       int fedID=FedsInIds[fedItr];
       //make sure fed id is in allowed range  
-      //cout<<fedID<<endl;   
       if(fedID>=FEDRange_.first && fedID<=FEDRange_.second){
         ++FedCount;
 	if(fedID>=0 && fedID<=31) ++FedCountBarrel;
 	else if(fedID>=32 && fedID<=39) ++FedCountEndcap;
       }
     }   
-    
     //Fill active fed fraction ME
     if(FedCountBarrel<=32){
+      MonitorElement * mefed = iGetter.get("Pixel/EventInfo/DAQContents/fedcounter");
       FedCountBarrel = 0; FedCountEndcap = 0; FedCount = 0; NumberOfFeds_ = 40;
-      for(int i=0; i!=40; i++){
-        if(i<=31 && FEDs_[i]>0) FedCountBarrel++;
-	if(i>=32 && FEDs_[i]>0) FedCountEndcap++;
-	if(FEDs_[i]>0) FedCount++;
+      if(mefed){
+        for(int i=0; i!=40; i++){
+          if(i<=31 && mefed->getBinContent(i+1)>0) FedCountBarrel++;
+          if(i>=32 && mefed->getBinContent(i+1)>0) FedCountEndcap++;
+          if(mefed->getBinContent(i+1)>0) FedCount++;
+        }
       }
     }
     if(NumberOfFeds_>0){
@@ -74,7 +85,6 @@ void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, 
       FractionBarrel_->Fill(-1);
       FractionEndcap_->Fill(-1);
     } 
-    
   }else{      
     Fraction_->Fill(-1);	       
     FractionBarrel_->Fill(-1);
@@ -83,104 +93,4 @@ void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, 
   }
 }
 
-void SiPixelDaqInfo::endRun(const edm::Run&  r, const  edm::EventSetup& iSetup){
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if(0 != iSetup.find( recordKey ) ) {
-    // cout<<"record key found"<<endl;
-    //get fed summary information
-    ESHandle<RunInfo> sumFED;
-    iSetup.get<RunInfoRcd>().get(sumFED);    
-    vector<int> FedsInIds= sumFED->m_fed_in;   
-
-    int FedCount=0;
-    int FedCountBarrel=0;
-    int FedCountEndcap=0;
-
-    //loop on all active feds
-    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
-      int fedID=FedsInIds[fedItr];
-      //make sure fed id is in allowed range  
-      //cout<<fedID<<endl;   
-      if(fedID>=FEDRange_.first && fedID<=FEDRange_.second){
-        ++FedCount;
-	if(fedID>=0 && fedID<=31) ++FedCountBarrel;
-	else if(fedID>=32 && fedID<=39) ++FedCountEndcap;
-      }
-    }   
-
-    if(FedCountBarrel>32){
-      FedCountBarrel = nFEDsBarrel_;
-      FedCountEndcap = nFEDsEndcap_;
-      FedCount = FedCountBarrel + FedCountEndcap;
-      NumberOfFeds_ = 40;
-    }
-
-    //Fill active fed fraction ME
-    if(FedCountBarrel<=32){
-      FedCountBarrel = 0; FedCountEndcap = 0; FedCount = 0; NumberOfFeds_ = 40;
-      for(int i=0; i!=40; i++){
-        if(i<=31 && FEDs_[i]>0) FedCountBarrel++;
-	if(i>=32 && FEDs_[i]>0) FedCountEndcap++;
-	if(FEDs_[i]>0) FedCount++;
-      }
-    }
-    if(NumberOfFeds_>0){
-      //all Pixel:
-      Fraction_->Fill( FedCount/NumberOfFeds_);
-      //Barrel:
-      FractionBarrel_->Fill( FedCountBarrel/32.);
-      //Endcap:
-      FractionEndcap_->Fill( FedCountEndcap/8.);
-    }else{
-      Fraction_->Fill(-1);
-      FractionBarrel_->Fill(-1);
-      FractionEndcap_->Fill(-1);
-    } 
-    
-  }else{      
-    Fraction_->Fill(-1);	       
-    FractionBarrel_->Fill(-1);
-    FractionEndcap_->Fill(-1);
-    return; 
-  }
-}
-
-
-void SiPixelDaqInfo::beginJob(){
-
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
-  
- 
-  dbe_->setCurrentFolder("Pixel/EventInfo");
-  Fraction_= dbe_->bookFloat("DAQSummary");  
-  dbe_->setCurrentFolder("Pixel/EventInfo/DAQContents");
-  FractionBarrel_= dbe_->bookFloat("PixelBarrelFraction");  
-  FractionEndcap_= dbe_->bookFloat("PixelEndcapFraction");  
-}
-
-
-void SiPixelDaqInfo::endJob() {}
-
-
-
-void SiPixelDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  NEvents_++;  
-  //cout<<"in SiPixelDaqInfo::analyze now!"<<endl;
-  if(NEvents_>=1 && NEvents_<=100){
-    // check if any Pixel FED is in readout:
-    edm::Handle<FEDRawDataCollection> rawDataHandle;
-    iEvent.getByToken(daqSourceToken_, rawDataHandle);
-    if(!rawDataHandle.isValid()){
-      edm::LogInfo("SiPixelDaqInfo") << daqSource_ << " is empty!";
-      return;
-    }
-    const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-    nFEDsBarrel_ = 0; nFEDsEndcap_ = 0;
-    for(int i = 0; i != 40; i++){
-      if(rawDataCollection.FEDData(i).size() > 208 ) FEDs_[i]++;
-    }
-  }
-
-}
-
+void SiPixelDaqInfo::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){}

@@ -314,7 +314,7 @@ void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian
 void
 AnalyticalCurvilinearJacobian::computeStraightLineJacobian
 (const GlobalTrajectoryParameters& globalParameters,
- const GlobalPoint& x, const GlobalVector& p, const double& s)
+ const GlobalPoint&, const GlobalVector&, const double& s)
 {
   //
   // matrix: elements =1 on diagonal and =0 are already set

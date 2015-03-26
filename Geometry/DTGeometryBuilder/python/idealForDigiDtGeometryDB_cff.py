@@ -21,7 +21,7 @@ idealForDigiDTGeometry.alignmentsLabel = 'fakeForIdeal'
 #    bool iovIsRunNotTime = true
 #}
 #es_source fakeDTAlignmentErrorSource = EmptyESSource {
-#    string recordName = "DTAlignmentErrorRcd"
+#    string recordName = "DTAlignmentErrorExtendedRcd"
 #    vuint32 firstValid = {1}
 #    bool iovIsRunNotTime = true
 #}

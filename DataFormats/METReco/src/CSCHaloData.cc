@@ -54,7 +54,7 @@ int CSCHaloData::NumberOfHaloTracks(HaloData::Endcap z) const
   int n = 0 ;
   for(unsigned int i = 0 ; i < TheTrackRefs.size() ; i++ )
     {
-      edm::Ref<reco::TrackCollection> iTrack( TheTrackRefs, i ) ;
+      edm::Ref<reco::TrackCollection> iTrack( TheTrackRefs[i] ) ;
       // Does the track go through both endcaps ? 
       bool Traversing =  (iTrack->outerPosition().z() > 0 &&  iTrack->innerPosition().z() < 0) ||  (iTrack->outerPosition().z() < 0 &&  iTrack->innerPosition().z() > 0);
       // Does the track go through only +Z endcap ?

@@ -52,7 +52,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------------------
 # GLOBALTAG
@@ -109,9 +109,11 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataCollector")
 process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataCollector")
+process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataCollector")
 if (process.runType.getRunType() == process.runType.hi_run):
         process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataRepacker")
         process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataRepacker")
+        process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataRepacker")
 #--------------------------
 # Service
 #--------------------------
@@ -137,8 +139,13 @@ process.SiPixelDigiSource.diskOn = True
 
 process.p = cms.Path(process.Reco*process.DQMmodules*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification)
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
 print "Running with run type = ", process.runType.getRunType()
+

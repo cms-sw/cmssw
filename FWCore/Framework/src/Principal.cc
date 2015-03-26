@@ -20,6 +20,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TClass.h"
 
 #include <algorithm>
 #include <cstring>
@@ -35,10 +36,19 @@ namespace edm {
 
   static
   void
-  maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<std::string> const& missingDictionaries) {
-    if(binary_search_all(missingDictionaries, productType.className())) {
-      checkDictionaries(isElement ? productType.className() : wrappedClassName(productType.className()), false);
-      throwMissingDictionariesException();
+  maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<TypeID> const& missingDictionaries) {
+    if(isElement) {
+      if(binary_search_all(missingDictionaries, productType)) {
+        checkTypeDictionary(productType);
+        throwMissingDictionariesException();
+      }
+    } else {
+      TClass* cl = TClass::GetClass(wrappedClassName(productType.className()).c_str());
+      TypeID wrappedProductType = TypeID(cl->GetTypeInfo());
+      if(binary_search_all(missingDictionaries, wrappedProductType)) {
+        checkClassDictionary(wrappedProductType);
+        throwMissingDictionariesException();
+      }
     }
   }
 
@@ -476,8 +486,8 @@ namespace edm {
   }
 
   BasicHandle
-  Principal::getByToken(KindOfType kindOfType,
-                        TypeID const& typeID,
+  Principal::getByToken(KindOfType,
+                        TypeID const&,
                         ProductHolderIndex index,
                         bool skipCurrentProcess,
                         bool& ambiguous,
@@ -580,7 +590,7 @@ namespace edm {
 
   void
   Principal::findProducts(std::vector<ProductHolderBase const*> const& holders,
-                          TypeID const& typeID,
+                          TypeID const&,
                           BasicHandleVec& results,
                           ModuleCallingContext const* mcc) const {
 

@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -14,6 +17,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 
 #include <iostream>
@@ -29,7 +34,7 @@ class DTSuperLayerId;
 class DQMStore;
 class MonitorElement;
 
-class DTNoiseAnalysisTest: public edm::EDAnalyzer{
+class DTNoiseAnalysisTest: public DQMEDHarvester{
 
 public:
 
@@ -41,23 +46,17 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
   /// book the summary histograms
-  void bookHistos();
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void bookHistos(DQMStore::IBooker &);
 
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
 private:
 
@@ -69,7 +68,7 @@ private:
   int nevents;
   int nMinEvts;
   
-  DQMStore* dbe;
+  bool bookingdone;
   
   // the dt geometry
   edm::ESHandle<DTGeometry> muonGeom;

@@ -35,6 +35,7 @@ class HcalDcsRcd;
 class HcalDcsMapRcd;
 class HcalRecoParamsRcd;
 class HcalLongRecoParamsRcd;
+class HcalZDCLowGainFractionsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
@@ -78,6 +79,8 @@ protected:
   std::auto_ptr<HcalRecoParams> produceRecoParams (const HcalRecoParamsRcd& rcd);
   std::auto_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
   std::auto_ptr<HcalLongRecoParams> produceLongRecoParams (const HcalLongRecoParamsRcd& rcd);
+  std::auto_ptr<HcalZDCLowGainFractions> produceZDCLowGainFractions (const HcalZDCLowGainFractionsRcd& rcd);
+
   std::auto_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
 

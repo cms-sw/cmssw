@@ -5,18 +5,18 @@
 
 #include <iostream>
 
-ReferenceCountingPointer<TangentPlane> Cone::tangentPlane (const GlobalPoint&) const {
+ConstReferenceCountingPointer<TangentPlane> Cone::tangentPlane (const GlobalPoint&) const {
   // FIXME: to be implemented...
   std::cout << "*** WARNING: Cone::tangentPlane not implemented." <<std::endl;
   abort();
-  return ReferenceCountingPointer<TangentPlane>();
+  return ConstReferenceCountingPointer<TangentPlane>();
 }
 
-ReferenceCountingPointer<TangentPlane> Cone::tangentPlane (const LocalPoint&) const {
+ConstReferenceCountingPointer<TangentPlane> Cone::tangentPlane (const LocalPoint&) const {
   // FIXME: to be implemented...
   std::cout << "*** WARNING: Cone::tangentPlane not implemented." <<std::endl;
   abort();
-  return ReferenceCountingPointer<TangentPlane>();
+  return ConstReferenceCountingPointer<TangentPlane>();
 }
 
 Surface::Side Cone::side( const GlobalPoint& p, Scalar tolerance) const {

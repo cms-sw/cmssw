@@ -53,7 +53,7 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # DB condition for offline test
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -118,7 +118,6 @@ if playbackHCAL==True:
 process.hcalBeamMonitor.hotrate=0.40
 
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
-process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
 #process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
 
 #-----------------------------
@@ -269,7 +268,7 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.p = cms.Path(process.hcalDigis
                      *process.valHcalTriggerPrimitiveDigis
-                     *process.gtEvmDigis#to unpack l1gtEvm
+                     #*process.gtEvmDigis#to unpack l1gtEvm
                      *process.l1GtUnpack
                      *process.horeco
                      *process.hfreco
@@ -342,3 +341,8 @@ if (HEAVYION):
     process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
     process.hcalDigiMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
     process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

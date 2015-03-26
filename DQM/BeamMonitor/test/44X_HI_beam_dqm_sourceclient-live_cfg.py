@@ -58,7 +58,7 @@ process.dqmBeamMonitorBx.resetEveryNLumi = 50
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-----------------------------
 # Magnetic Field

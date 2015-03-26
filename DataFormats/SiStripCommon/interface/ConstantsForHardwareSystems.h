@@ -107,6 +107,7 @@ namespace sistrip {
   static const char fedProcRaw_[]       = "FedProcessedRaw";
   static const char fedZeroSuppr_[]     = "FedZeroSuppressed";
   static const char fedZeroSupprLite_[] = "FedZeroSupprressedLite";
+  static const char fedPreMixRaw_[]     = "FedPreMixRaw";
   
   // -------------------- Enumerators --------------------
   
@@ -123,7 +124,8 @@ namespace sistrip {
 			FED_VIRGIN_RAW = 2, 
 			FED_PROC_RAW = 6, 
 			FED_ZERO_SUPPR = 10,
-			FED_ZERO_SUPPR_LITE = 12
+			FED_ZERO_SUPPR_LITE = 12,
+			FED_PREMIX_RAW = 15
   };
 
   enum FedReadoutPath { UNKNOWN_FED_READOUT_PATH = sistrip::unknown_,

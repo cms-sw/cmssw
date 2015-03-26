@@ -16,24 +16,21 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet& config) {
-
-  electronProducer_          = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"));
-  trackProducer_             = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trackProducer"));
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer")); 
-  beamSpotProducer_          = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
-
-  useGsfTrack_ = config.getParameter<bool>("useGsfTrack");
-  useSCRefs_ = config.getParameter<bool>("useSCRefs");
-  
-  egTrkIsoPtMin_                = config.getParameter<double>("egTrkIsoPtMin");
-  egTrkIsoConeSize_             = config.getParameter<double>("egTrkIsoConeSize");
-  egTrkIsoZSpan_                = config.getParameter<double>("egTrkIsoZSpan");
-  egTrkIsoRSpan_                = config.getParameter<double>("egTrkIsoRSpan");
-  egTrkIsoVetoConeSizeBarrel_   = config.getParameter<double>("egTrkIsoVetoConeSizeBarrel");
-  egTrkIsoVetoConeSizeEndcap_   = config.getParameter<double>("egTrkIsoVetoConeSizeEndcap");
-  egTrkIsoStripBarrel_          = config.getParameter<double>("egTrkIsoStripBarrel");
-  egTrkIsoStripEndcap_          = config.getParameter<double>("egTrkIsoStripEndcap");
+EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet& config):
+  electronProducer_           (consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"))),
+  trackProducer_              (consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trackProducer"))),
+  recoEcalCandidateProducer_  (consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  beamSpotProducer_           (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"))),
+  useGsfTrack_                (config.getParameter<bool>("useGsfTrack")),
+  useSCRefs_                  (config.getParameter<bool>("useSCRefs")),
+  egTrkIsoPtMin_              (config.getParameter<double>("egTrkIsoPtMin")),
+  egTrkIsoConeSize_           (config.getParameter<double>("egTrkIsoConeSize")),
+  egTrkIsoZSpan_              (config.getParameter<double>("egTrkIsoZSpan")),
+  egTrkIsoRSpan_              (config.getParameter<double>("egTrkIsoRSpan")),
+  egTrkIsoVetoConeSizeBarrel_ (config.getParameter<double>("egTrkIsoVetoConeSizeBarrel")),
+  egTrkIsoVetoConeSizeEndcap_ (config.getParameter<double>("egTrkIsoVetoConeSizeEndcap")),
+  egTrkIsoStripBarrel_        (config.getParameter<double>("egTrkIsoStripBarrel")),
+  egTrkIsoStripEndcap_        (config.getParameter<double>("egTrkIsoStripEndcap")) {
 
   //register your products
   if(useSCRefs_) 
@@ -64,7 +61,7 @@ void EgammaHLTElectronTrackIsolationProducers::fillDescriptions(edm::Configurati
 
   descriptions.add("hltEgammaHLTElectronTrackIsolationProducers", desc);  
 }
-void EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   edm::Handle<reco::ElectronCollection> electronHandle;
   iEvent.getByToken(electronProducer_,electronHandle);

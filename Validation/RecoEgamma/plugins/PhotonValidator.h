@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -17,6 +16,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -57,7 +57,7 @@ class SimTrack;
 
 
 
-class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
+class PhotonValidator : public DQMEDAnalyzer
 {
 
  public:
@@ -71,7 +71,6 @@ class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
   //  virtual void beginJob();
   virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
   virtual void endRun (edm::Run const& r, edm::EventSetup const & es) override;
-  virtual void endJob() override;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
 
  private:
@@ -132,7 +131,6 @@ class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
 
   std::unique_ptr<PhotonMCTruthFinder>  thePhotonMCTruthFinder_;
-  const TrackAssociatorBase * theTrackAssociator_;
 
   bool fastSim_;
   bool isRunCentrally_;

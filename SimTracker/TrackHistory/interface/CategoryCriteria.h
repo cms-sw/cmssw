@@ -28,7 +28,7 @@ public:
 
     // Constructor from parameter set configurability
     CategoryCriteria(const edm::ParameterSet & config, edm::ConsumesCollector && iC) :
-            classifier_(config),
+            classifier_(config,std::move(iC)),
             evaluate_( config.getParameter<std::string>("cut") ) {}
 
     // Select object from a collection and possibly event content

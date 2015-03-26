@@ -18,7 +18,7 @@ def _build_query(menu):
     return '--%s --configName %s' % (menu.db, menu.name)
 
 def getPathList(menu, selection):
-  cmdline = 'edmConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(menu)
+  cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(menu)
   data = pipe.pipe(cmdline)
   if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
     raise ImportError('%s is not a valid HLT menu' % menu.value)

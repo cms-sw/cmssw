@@ -9,6 +9,11 @@
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/METReco"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/IPTools"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="fastjet"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -8,22 +8,6 @@
 //____________________________________________________________________________||
 #include "RecoMET/METProducers/interface/PFMETProducer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
-
-#include "RecoMET/METAlgorithms/interface/METAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
-
-#include <string.h>
-
 //____________________________________________________________________________||
 namespace cms
 {
@@ -32,13 +16,18 @@ namespace cms
   PFMETProducer::PFMETProducer(const edm::ParameterSet& iConfig)
     : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
     , calculateSignificance_(iConfig.getParameter<bool>("calculateSignificance"))
-    , resolutions_(0)
     , globalThreshold_(iConfig.getParameter<double>("globalThreshold"))
   {
     if(calculateSignificance_)
       {
-	jetToken_ = consumes<edm::View<reco::PFJet> >(iConfig.getParameter<edm::InputTag>("jets"));
-	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
+	metSigAlgo_ = new metsig::METSignificance(iConfig);
+	
+	jetToken_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
+	std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
+	for(std::vector<edm::InputTag>::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+	  lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
+	}
+  
       }
 
     std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
@@ -65,13 +54,8 @@ namespace cms
 
     if(calculateSignificance_)
       {
-	metsig::SignPFSpecificAlgo pfsignalgo;
-	pfsignalgo.setResolutions(resolutions_);
-
-	edm::Handle<edm::View<reco::PFJet> > jets;
-	event.getByToken(jetToken_, jets);
-	pfsignalgo.addPFJets(jets.product());
-	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
+	reco::METCovMatrix sigcov = getMETCovMatrix(event, *input);
+	pfmet.setSignificanceMatrix(sigcov);
       }
 
     std::auto_ptr<reco::PFMETCollection> pfmetcoll;
@@ -80,6 +64,39 @@ namespace cms
     pfmetcoll->push_back(pfmet);
     event.put(pfmetcoll);
   }
+
+
+
+  reco::METCovMatrix PFMETProducer::getMETCovMatrix(const edm::Event& event, const edm::View<reco::Candidate>& candInput) const {
+
+	// leptons
+	std::vector< edm::Handle<reco::CandidateView> > leptons;
+	for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
+	      srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
+	  edm::Handle<reco::CandidateView> leptons_i;
+	  event.getByToken(*srcLeptons_i, leptons_i);
+     leptons.push_back( leptons_i );
+     /*
+	  for ( reco::CandidateView::const_iterator lepton = leptons_i->begin();
+		lepton != leptons_i->end(); ++lepton ) {
+	    leptons.push_back(*lepton);
+	  }
+     */
+	}
+
+	// jets
+	edm::Handle<edm::View<reco::Jet> > inputJets;
+	event.getByToken( jetToken_, inputJets );
+
+	//Compute the covariance matrix and fill it
+	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput);
+
+	return cov;
+  }
+
+
+
+
 
 //____________________________________________________________________________||
   DEFINE_FWK_MODULE(PFMETProducer);

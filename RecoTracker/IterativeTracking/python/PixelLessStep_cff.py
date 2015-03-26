@@ -4,18 +4,20 @@ import FWCore.ParameterSet.Config as cms
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
 
-pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("mixedTripletStepClusters"),
-    trajectories = cms.InputTag("mixedTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('mixedTripletStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+pixelLessStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("mixedTripletStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("mixedTripletStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('mixedTripletStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TIB
@@ -44,12 +46,12 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     'TEC4_pos+TEC5_pos+TEC6_pos', 'TEC4_neg+TEC5_neg+TEC6_neg'    
     ),
     TIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+         TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('pixelLessStepClusters')
     ),
     MTIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+         TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          skipClusters   = cms.InputTag('pixelLessStepClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
@@ -57,7 +59,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -65,7 +67,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         minRing = cms.int32(3),
         maxRing = cms.int32(3)
     ),
@@ -73,7 +75,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -81,7 +83,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         minRing = cms.int32(3),
         maxRing = cms.int32(3)
     )
@@ -107,7 +109,7 @@ pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.Clu
 	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
         PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
         doStripShapeCut = cms.bool(False),
-	minGoodStripCharge = cms.double(2069)
+	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 	)
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
@@ -139,7 +141,7 @@ pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
-    minGoodStripCharge = cms.double(2069)
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 
 # TRACK BUILDING

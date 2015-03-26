@@ -10,10 +10,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/QuickTrackAssociatorByHits.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
@@ -101,6 +99,10 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   if (!UseAssociators) {
     associators.clear();
     associators.push_back(assMapInput.label());
+  } else {   
+    for (auto const& associatorName : associators) {
+      consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(associatorName));
+    }
   }
 
 }
@@ -150,13 +152,6 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       histoProducerAlgo_->bookRecoHistos(ibook);
       if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
 
-      if (UseAssociators) {
-    edm::ESHandle<TrackAssociatorBase> theAssociator;
-    for (unsigned int w=0;w<associators.size();w++) {
-      setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-      associator.push_back( theAssociator.product() );
-    }//end loop w
-      }
     }//end loop www
   }// end loop ww
 }
@@ -168,6 +163,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
+
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
+  if (UseAssociators) {
+    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+    for (auto const& associatorName : associators) {
+      event.getByLabel(associatorName,theAssociator);
+      associator.push_back( theAssociator.product() );
+    }
+  }
+
+
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTPHandle);
   //Since we modify the object, we must clone it
@@ -274,13 +280,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
 	recSimCollL = std::move(associator[ww]->associateRecoToSim(trackCollection,
-						      TPCollectionHfake,
-						      &event,&setup));
+                                                                   TPCollectionHfake));
          recSimCollP = &recSimCollL;
 	LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
 	simRecCollL = std::move(associator[ww]->associateSimToReco(trackCollection,
-						      TPCollectionHeff,
-						      &event,&setup));
+                                                                   TPCollectionHeff));
         simRecCollP = &simRecCollL;
       }
       else{
@@ -519,7 +523,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	TrackingParticleRef tpr = tp.begin()->first;
 
 	/* TO BE FIXED LATER
-	if (associators[ww]=="TrackAssociatorByChi2"){
+	if (associators[ww]=="trackAssociatorByChi2"){
 	  //association chi2
 	  double assocChi2 = -tp.begin()->second;//in association map is stored -chi2
 	  h_assochi2[www]->Fill(assocChi2);

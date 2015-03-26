@@ -42,7 +42,7 @@ class MagneticField
 
   /// True if the point is within the region where the concrete field
   // engine is defined.
-  virtual bool isDefined(const GlobalPoint& gp) const {
+  virtual bool isDefined(const GlobalPoint& /*gp*/) const {
     return true;
   }
   

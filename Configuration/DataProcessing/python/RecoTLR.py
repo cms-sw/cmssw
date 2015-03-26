@@ -110,7 +110,10 @@ def customisePromptHI(process):
 
     import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
     process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
+
+     #add the lumi producer in the prompt reco only configuration
+    process.reconstruction_step+=process.lumiProducer
+
     return process
 
 ##############################################################################

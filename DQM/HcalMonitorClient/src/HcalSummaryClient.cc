@@ -32,6 +32,27 @@ HcalSummaryClient::HcalSummaryClient(std::string myname)
   certificationMap_=0;
   reportMap_=0;
   reportMapShift_=0;
+
+  // set total number of cells in each subdetector
+  subdetCells_.insert(std::make_pair("HB",2592));
+  subdetCells_.insert(std::make_pair("HE",2592));
+  subdetCells_.insert(std::make_pair("HO",2160));
+  subdetCells_.insert(std::make_pair("HF",1728));
+  subdetCells_.insert(std::make_pair("HO0",576));
+  subdetCells_.insert(std::make_pair("HO12",1584));
+  subdetCells_.insert(std::make_pair("HFlumi",288));  // 8 rings, 36 cells/ring
+  // Assume subdetectors are 'unknown'
+  HBpresent_=-1;
+  HEpresent_=-1;
+  HOpresent_=-1;
+  HFpresent_=-1;
+  
+  EnoughEvents_=0;
+  MinEvents_=0;
+  MinErrorRate_=0;
+
+  doSetup_ = true;
+
 }
 
 HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet& ps)
@@ -60,6 +81,11 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
 						ps.getUntrackedParameter<int>("minevents",0));
   Online_                = ps.getUntrackedParameter<bool>("online",false);
 
+  // Specify the directories where the tasks to be check reside
+  TaskList_              = ps.getUntrackedParameter<std::vector<std::string> >("TaskDirectories");
+  // Minimum number of events per lumi section that must be present for checks to be made.  *ALL* tasks must contain at least this many events
+  minEvents_             = ps.getUntrackedParameter<int>("minEvents",500);
+
   SummaryMapByDepth=0;
   ProblemCells=0;
   ProblemCellsByDepth=0;
@@ -67,11 +93,34 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   certificationMap_=0;
   reportMap_=0;
   reportMapShift_=0;
+
+  // set total number of cells in each subdetector
+  subdetCells_.insert(std::make_pair("HB",2592));
+  subdetCells_.insert(std::make_pair("HE",2592));
+  subdetCells_.insert(std::make_pair("HO",2160));
+  subdetCells_.insert(std::make_pair("HF",1728));
+  subdetCells_.insert(std::make_pair("HO0",576));
+  subdetCells_.insert(std::make_pair("HO12",1584));
+  subdetCells_.insert(std::make_pair("HFlumi",288));  // 8 rings, 36 cells/ring
+  // Assume subdetectors are 'unknown'
+  HBpresent_=-1;
+  HEpresent_=-1;
+  HOpresent_=-1;
+  HFpresent_=-1;
+  
+  EnoughEvents_=0;
+  MinEvents_=0;
+  MinErrorRate_=0;
+
+  doSetup_ = true;
+
 }
 
-void HcalSummaryClient::analyze(int LS)
+void HcalSummaryClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, int LS)
 { 
   if (debug_>2) std::cout <<"\tHcalSummaryClient::analyze()"<<std::endl;
+
+  if ( doSetup_ ) setup(ib,ig);
 
   // 
 
@@ -104,25 +153,25 @@ void HcalSummaryClient::analyze(int LS)
   MonitorElement* temp_present;
   if (HBpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HBpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HBpresent");
       if (temp_present!=0)
 	HBpresent_=temp_present->getIntValue();
     }
   if (HEpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HEpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HEpresent");
       if (temp_present!=0)
 	HEpresent_=temp_present->getIntValue();
     }
   if (HOpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HOpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HOpresent");
       if (temp_present!=0)
 	HOpresent_=temp_present->getIntValue();
     }
   if (HFpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HFpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HFpresent");
       if (temp_present!=0)
 	HFpresent_=temp_present->getIntValue();
     }
@@ -172,7 +221,7 @@ void HcalSummaryClient::analyze(int LS)
 	  std::cout<<"\tHFlumi: "<<status_HFlumi_<<std::endl;
 	}
 
-      fillReportSummary(LS);
+      fillReportSummary(ib,ig,LS);
       return;
     }
   if (EnoughEvents_!=0) EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
@@ -213,10 +262,10 @@ void HcalSummaryClient::analyze(int LS)
   
       // Get Channel Status histograms here
       std::vector<MonitorElement*> chStat;
-      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HB HE HF Depth 1 ChannelStatus"));
-      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HB HE HF Depth 2 ChannelStatus"));
-      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HE Depth 3 ChannelStatus"));
-      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HO Depth 4 ChannelStatus"));
+      chStat.push_back(ig.get(prefixME_+"HcalInfo/ChannelStatus/HB HE HF Depth 1 ChannelStatus"));
+      chStat.push_back(ig.get(prefixME_+"HcalInfo/ChannelStatus/HB HE HF Depth 2 ChannelStatus"));
+      chStat.push_back(ig.get(prefixME_+"HcalInfo/ChannelStatus/HE Depth 3 ChannelStatus"));
+      chStat.push_back(ig.get(prefixME_+"HcalInfo/ChannelStatus/HO Depth 4 ChannelStatus"));
 
 
       for (int d=0;d<4;++d)
@@ -456,10 +505,10 @@ void HcalSummaryClient::analyze(int LS)
 
   // Fill certification map here
 
-  dqmStore_->setCurrentFolder(prefixME_+"HcalInfo");
-  certificationMap_=dqmStore_->get(prefixME_+"HcalInfo/CertificationMap");
-  if (certificationMap_) dqmStore_->removeElement(certificationMap_->getName());
-  certificationMap_=dqmStore_->book2D("CertificationMap","Certification Map",7,0,7,
+  ig.setCurrentFolder(prefixME_+"HcalInfo");
+  certificationMap_=ig.get(prefixME_+"HcalInfo/CertificationMap");
+  if (certificationMap_) ig.removeElement(certificationMap_->getName());
+  certificationMap_=ib.book2D("CertificationMap","Certification Map",7,0,7,
 				      clients_.size()+1,0,clients_.size()+1);
 
   certificationMap_->getTH2F()->GetYaxis()->SetBinLabel(1,"Summary");
@@ -497,10 +546,10 @@ void HcalSummaryClient::analyze(int LS)
   certificationMap_->setBinContent(5,1,status_HO0_);
   certificationMap_->setBinContent(6,1,status_HO12_);
   certificationMap_->setBinContent(7,1,status_HF_);
-  fillReportSummary(LS);
+  fillReportSummary(ib,ig,LS);
 } // analyze
 
-void HcalSummaryClient::fillReportSummary(int LS)
+void HcalSummaryClient::fillReportSummary(DQMStore::IBooker &ib, DQMStore::IGetter &ig, int LS)
 {
 
   // We've now checked all tasks; now let's calculate summary values
@@ -536,7 +585,7 @@ void HcalSummaryClient::fillReportSummary(int LS)
     }
 
   MonitorElement* me;
-  dqmStore_->setCurrentFolder(subdir_);
+  ig.setCurrentFolder(subdir_);
  
   //me=dqmStore_->get(subdir_+"reportSummaryMap");
   if (reportMap_)
@@ -572,7 +621,7 @@ void HcalSummaryClient::fillReportSummary(int LS)
     }
   else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummary> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
 
-  me=dqmStore_->get(subdir_+"reportSummary");
+  me=ig.get(subdir_+"reportSummary");
   // Clear away old versions
   if (me) me->Fill(status_global_);
 
@@ -581,8 +630,8 @@ void HcalSummaryClient::fillReportSummary(int LS)
   for (unsigned int i=0;i<7;++i)
     {
       // Create floats showing subtasks status
-      dqmStore_->setCurrentFolder( subdir_+ "reportSummaryContents" );  
-      me=dqmStore_->get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
+      ig.setCurrentFolder( subdir_+ "reportSummaryContents" );  
+      me=ig.get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
       if (me==0)
 	{
 	  if (debug_>0) std::cout <<"<HcalSummaryClient::analyze()>  Could not get Monitor Element named 'Hcal_"<<subdets[i]<<"'"<<std::endl;
@@ -600,80 +649,106 @@ void HcalSummaryClient::fillReportSummary(int LS)
 } // fillReportSummary()
 
 
-void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
+void HcalSummaryClient::fillReportSummaryLSbyLS(DQMStore::IBooker &ib, DQMStore::IGetter &ig, int LS)
 {
 
   MonitorElement* me;
-  dqmStore_->setCurrentFolder(prefixME_+"LSbyLS_Hcal/LSvalues");
+  ig.setCurrentFolder(prefixME_+"LSbyLS_Hcal/LSvalues");
+
+  bool enoughEvents=true;
+  int Nevents=0;
+  int TotalEvents=0;
   
-  float status_HB=-1;
-  float status_HE=-1;
-  float status_HO=-1;
-  float status_HF=-1;
-  float status_HO0=-1;
-  float status_HO12=-1;
-  float status_HFlumi=-1;
+  float status_HB=0;
+  float status_HE=0;
+  float status_HO=0;
+  float status_HF=0;
+  float status_HO0=0;
+  float status_HO12=0;
+  float status_HFlumi=0;
   float status_global=-1;
 
-  me=dqmStore_->get(prefixME_+"LSbyLS_Hcal/LSvalues/ProblemsThisLS");
-  if (me!=0)
+  for (unsigned int i=0;i<TaskList_.size();++i)
     {
-      //check to see if enough events were processed to make tests
-      int events=(int)me->getBinContent(-1);
-      if (events>0)
+      std::string name=prefixME_+TaskList_[i]+"LSvalues/";
+      ig.setCurrentFolder(name.c_str());
+      // Do we need the 'name' prefix here?
+      me=ig.get(name+"ProblemsThisLS");
+      if (me==0)
+	{
+	  if (debug_>0) std::cout <<"<HcalLSbyLSMonitor>  Error!  Could not get histogram "<<name.c_str()<<std::endl;
+	  enoughEvents=false;
+	  break;
+	}
+
+      Nevents=(int)me->getBinContent(-1);
+      if (Nevents<minEvents_)
+	{
+	  if (debug_>0) 
+	    std::cout <<"<HcalLSbyLSMonitor>  Error!  Number of events "<<Nevents<<" for histogram "<<name.c_str()<<" is less than the required minimum of "<<minEvents_<<std::endl;
+	  enoughEvents=false;
+	  break;
+	}
+      // Total events is the number of events processed in this LS
+      TotalEvents=std::max(TotalEvents,Nevents);
+      // errors are sum over all tests.  This WILL lead to double counting in some subdetectors!
+      if ( enoughEvents==true ) {
+        status_HB+=(int)me->getBinContent(1,1);
+        status_HE+=(int)me->getBinContent(2,1);
+        status_HO+=(int)me->getBinContent(3,1);
+        status_HF+=(int)me->getBinContent(4,1);
+        status_HO0+=(int)me->getBinContent(5,1);
+        status_HO12+=(int)me->getBinContent(6,1);
+        status_HFlumi+=(int)me->getBinContent(7,1);
+      }
+    }
+
+      if (TotalEvents>0)
 	{
 	  std::map<std::string, int>::const_iterator it;
 	  int totalcells=0;
 
-	  status_HB=me->getBinContent(1,1);
-	  status_HE=me->getBinContent(2,1);
-	  status_HO=me->getBinContent(3,1);
-	  status_HF=me->getBinContent(4,1);
-	  status_HO0=me->getBinContent(5,1);
-	  status_HO12=me->getBinContent(6,1);
-	  status_HFlumi=me->getBinContent(7,1);
-
 	  status_global=status_HB+status_HE+status_HO+status_HF;
-	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   BAD CHANNELS*EVENTS = HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  TOTAL BAD CHANNELS*EVENTS = "<<status_global<<"  TOTAL EVENTS = "<<events<<std::endl;
+	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   BAD CHANNELS*EVENTS = HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  TOTAL BAD CHANNELS*EVENTS = "<<status_global<<"  TOTAL EVENTS = "<<TotalEvents<<std::endl;
 
 	  it=subdetCells_.find("HB");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HB=1-(status_HB)/events/it->second;
+	    status_HB=1-(status_HB)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HE");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HE=1-(status_HE)/events/it->second;
+	    status_HE=1-(status_HE)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HO");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HO=1-(status_HO)/events/it->second;
+	    status_HO=1-(status_HO)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HF");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HF=1-(status_HF)/events/it->second;
+	    status_HF=1-(status_HF)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HO0");
 	  if (it->second>0)
-	    status_HO0=1-(status_HO0)/events/it->second;
+	    status_HO0=1-(status_HO0)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HO12");
 	  if (it->second>0)
-	    status_HO12=1-(status_HO12)/events/it->second;
+	    status_HO12=1-(status_HO12)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HFlumi");
 	  if (it->second>0)
-	    status_HFlumi=1-(status_HFlumi)/events/it->second;
+	    status_HFlumi=1-(status_HFlumi)/TotalEvents/it->second;
 	  if (totalcells>0)
-	    status_global=1-status_global/events/totalcells;
-	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   STATUS= HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  GLOBAL STATUS = "<<status_global<<"  TOTAL EVENTS = "<<events<<std::endl;
-	} // if (events(>0)
-    } // if (me!=0)
+	    status_global=1-status_global/TotalEvents/totalcells;
+	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   STATUS= HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  GLOBAL STATUS = "<<status_global<<"  TOTAL EVENTS = "<<TotalEvents<<std::endl;
+	} // if (TotalEvents(>0)
 
-  dqmStore_->setCurrentFolder(subdir_);
+
+  ig.setCurrentFolder(subdir_);
   if (reportMap_)
     {
       reportMap_->setBinContent(1,1,status_HB);
@@ -709,7 +784,7 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
     }
   else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummaryLSbyLS> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
 
-  me=dqmStore_->get(subdir_+"reportSummary");
+  me=ig.get(subdir_+"reportSummary");
   // Clear away old versions
   if (me) me->Fill(status_global);
 
@@ -718,8 +793,8 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
   for (unsigned int i=0;i<7;++i)
     {
       // Create floats showing subtasks status
-      dqmStore_->setCurrentFolder( subdir_+ "reportSummaryContents" );  
-      me=dqmStore_->get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
+      ig.setCurrentFolder( subdir_+ "reportSummaryContents" );  
+      me=ig.get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
       if (me==0)
 	{
 	  if (debug_>0) std::cout <<"<HcalSummaryClient::LSbyLS>  Could not get Monitor Element named 'Hcal_"<<subdets[i]<<"'"<<std::endl;
@@ -753,47 +828,26 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
 
 
 
-void HcalSummaryClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  // set total number of cells in each subdetector
-  subdetCells_.insert(std::make_pair("HB",2592));
-  subdetCells_.insert(std::make_pair("HE",2592));
-  subdetCells_.insert(std::make_pair("HO",2160));
-  subdetCells_.insert(std::make_pair("HF",1728));
-  subdetCells_.insert(std::make_pair("HO0",576));
-  subdetCells_.insert(std::make_pair("HO12",1584));
-  subdetCells_.insert(std::make_pair("HFlumi",288));  // 8 rings, 36 cells/ring
-  // Assume subdetectors are 'unknown'
-  HBpresent_=-1;
-  HEpresent_=-1;
-  HOpresent_=-1;
-  HFpresent_=-1;
-  
-  EnoughEvents_=0;
-  MinEvents_=0;
-  MinErrorRate_=0;
-}
-
 void HcalSummaryClient::endJob(){}
 
 void HcalSummaryClient::beginRun(void)
 {
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalSummaryClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
+} // void HcalSummaryClient::beginRun(void)
+
+
+//void HcalSummaryClient::endRun(void){}
+
+void HcalSummaryClient::setup(DQMStore::IBooker &ib, DQMStore::IGetter &ig){
   nevts_=0;
 
-  dqmStore_->setCurrentFolder(subdir_);
+  ib.setCurrentFolder(subdir_);
 
   MonitorElement* me;
   // reportSummary holds overall detector status
-  me=dqmStore_->get(subdir_+"reportSummary");
+  me=ig.get(subdir_+"reportSummary");
   // Clear away old versions
-  if (me) dqmStore_->removeElement(me->getName());
-  me = dqmStore_->bookFloat("reportSummary");
+  if (me) ig.removeElement(me->getName());
+  me = ib.bookFloat("reportSummary");
   me->Fill(-1); // set status to unknown at startup
 
   // Create floats for each subdetector status
@@ -801,31 +855,31 @@ void HcalSummaryClient::beginRun(void)
   for (unsigned int i=0;i<7;++i)
     {
       // Create floats showing subtasks status
-      dqmStore_->setCurrentFolder( subdir_+ "reportSummaryContents" );  
-      me=dqmStore_->get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
-      if (me) dqmStore_->removeElement(me->getName());
-      me = dqmStore_->bookFloat("Hcal_"+subdets[i]);
+      ig.setCurrentFolder( subdir_+ "reportSummaryContents" );  
+      me=ig.get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
+      if (me) ig.removeElement(me->getName());
+      me = ib.bookFloat("Hcal_"+subdets[i]);
       me->Fill(-1);
     } // for (unsigned int i=0;...)
 
-  dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/SummaryClientPlots");
-  me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HB HE HF Depth 1 Problem Summary Map");
-  if (me) dqmStore_->removeElement(me->getName());
-  me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HB HE HF Depth 2 Problem Summary Map");
-  if (me) dqmStore_->removeElement(me->getName());
-  me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HE Depth 3 Problem Summary Map");
-  if (me) dqmStore_->removeElement(me->getName());
-  me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HO Depth 4 Problem Summary Map");
-  if (me) dqmStore_->removeElement(me->getName());
+  ib.setCurrentFolder(prefixME_+"HcalInfo/SummaryClientPlots");
+  me=ig.get(prefixME_+"HcalInfo/SummaryClientPlots/HB HE HF Depth 1 Problem Summary Map");
+  if (me) ig.removeElement(me->getName());
+  me=ig.get(prefixME_+"HcalInfo/SummaryClientPlots/HB HE HF Depth 2 Problem Summary Map");
+  if (me) ig.removeElement(me->getName());
+  me=ig.get(prefixME_+"HcalInfo/SummaryClientPlots/HE Depth 3 Problem Summary Map");
+  if (me) ig.removeElement(me->getName());
+  me=ig.get(prefixME_+"HcalInfo/SummaryClientPlots/HO Depth 4 Problem Summary Map");
+  if (me) ig.removeElement(me->getName());
 
   if (EnoughEvents_==0)
-    EnoughEvents_=dqmStore_->book1D("EnoughEvents","Enough Events Passed From Each Task To Form Summary",1+(int)clients_.size(),0,1+(int)clients_.size());
+    EnoughEvents_=ib.book1D("EnoughEvents","Enough Events Passed From Each Task To Form Summary",1+(int)clients_.size(),0,1+(int)clients_.size());
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
     EnoughEvents_->setBinLabel(i+1,clients_[i]->name());
   EnoughEvents_->setBinLabel(1+(int)clients_.size(),"Summary");
 
   if (MinEvents_==0)
-    MinEvents_=dqmStore_->book1D("MinEvents","Minimum Events Required From Each Task To Form Summary",
+    MinEvents_=ib.book1D("MinEvents","Minimum Events Required From Each Task To Form Summary",
 				 1+(int)clients_.size(),0,1+(int)clients_.size());
   int summin=0;
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
@@ -835,7 +889,7 @@ void HcalSummaryClient::beginRun(void)
       summin=std::max(summin,clients_[i]->minevents_);
     }
   if (MinErrorRate_==0)
-    MinErrorRate_=dqmStore_->book1D("MinErrorRate",
+    MinErrorRate_=ib.book1D("MinErrorRate",
 				    "Minimum Error Rate Required For Channel To Be Counted As Problem",
 				    (int)clients_.size(),0,(int)clients_.size());
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
@@ -855,7 +909,7 @@ void HcalSummaryClient::beginRun(void)
   if (SummaryMapByDepth==0) 
     {
       SummaryMapByDepth=new EtaPhiHists();
-      SummaryMapByDepth->setup(dqmStore_,"Problem Summary Map");
+      SummaryMapByDepth->setup(ib,"Problem Summary Map");
     }
   // Set histogram values to -1
   // Set all bins to "unknown" to start
@@ -873,9 +927,9 @@ void HcalSummaryClient::beginRun(void)
     }
 
   // Make histogram of status vs LS
-  StatusVsLS_ = dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/StatusVsLS");
-  if (StatusVsLS_) dqmStore_->removeElement(StatusVsLS_->getName());
-  StatusVsLS_ = dqmStore_->book2D("StatusVsLS","Status vs. Luminosity Section",
+  StatusVsLS_ = ig.get(prefixME_+"HcalInfo/SummaryClientPlots/StatusVsLS");
+  if (StatusVsLS_) ig.removeElement(StatusVsLS_->getName());
+  StatusVsLS_ = ib.book2D("StatusVsLS","Status vs. Luminosity Section",
 				  NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				  7,0,7);
   // Set all status values to -1 to begin
@@ -894,12 +948,12 @@ void HcalSummaryClient::beginRun(void)
   (StatusVsLS_->getTH2F())->SetMaximum(1);
 
   // Finally, form report Summary Map
-  dqmStore_->setCurrentFolder(subdir_);
+  ig.setCurrentFolder(subdir_);
 
-  reportMap_=dqmStore_->get(subdir_+"reportSummaryMap");
+  reportMap_=ig.get(subdir_+"reportSummaryMap");
   if (reportMap_)
-    dqmStore_->removeElement(reportMap_->getName());
-  reportMap_ = dqmStore_->book2D("reportSummaryMap","reportSummaryMap",
+    ig.removeElement(reportMap_->getName());
+  reportMap_ = ib.book2D("reportSummaryMap","reportSummaryMap",
 				 7,0,7,1,0,1);
   (reportMap_->getTH2F())->GetXaxis()->SetBinLabel(1,"HB");
   (reportMap_->getTH2F())->GetXaxis()->SetBinLabel(2,"HE");
@@ -916,8 +970,8 @@ void HcalSummaryClient::beginRun(void)
   (reportMap_->getTH2F())->SetMaximum(1);
 
   if (reportMapShift_)
-    dqmStore_->removeElement(reportMapShift_->getName());
-  reportMapShift_ = dqmStore_->book2D("reportSummaryMapShift","reportSummaryMapShift",
+    ig.removeElement(reportMapShift_->getName());
+  reportMapShift_ = ib.book2D("reportSummaryMapShift","reportSummaryMapShift",
 				 6,0,6,1,0,1);
   (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(1,"HB");
   (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(2,"HE");
@@ -946,12 +1000,10 @@ void HcalSummaryClient::beginRun(void)
     reportMap_->setBinContent(i,1,-1);
   for (int i=1;i<=(reportMapShift_->getTH2F())->GetNbinsX();++i)
     reportMapShift_->setBinContent(i,1,-1);
-} // void HcalSummaryClient::beginRun(void)
 
+  doSetup_ = false;
 
-void HcalSummaryClient::endRun(void){}
-
-void HcalSummaryClient::setup(void){}
+}
 void HcalSummaryClient::cleanup(void){}
 
 bool HcalSummaryClient::hasErrors_Temp(void){  return false;}
@@ -964,4 +1016,6 @@ void HcalSummaryClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 
 
 HcalSummaryClient::~HcalSummaryClient()
-{}
+{
+  if ( SummaryMapByDepth ) delete SummaryMapByDepth;
+}

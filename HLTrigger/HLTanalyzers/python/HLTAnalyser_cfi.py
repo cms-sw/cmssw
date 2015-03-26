@@ -29,7 +29,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HLTProcessName                  = cms.string("HLT"),
 
     ### reconstructed objects
-    genjets                         = cms.InputTag("iterativeCone5GenJets"),
+    genjets                         = cms.InputTag("ak4GenJets"),
     genmet                          = cms.InputTag("genMet"),
     hltjets                         = cms.InputTag("hltAntiKT5CaloJets"),
     hltcorjets                      = cms.InputTag("hltCaloJetCorrected"),

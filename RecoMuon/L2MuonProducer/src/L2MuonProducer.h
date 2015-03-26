@@ -17,7 +17,7 @@
 //
 //--------------------------------------------------
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -26,7 +26,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class L2MuonProducer : public edm::EDProducer {
+class L2MuonProducer : public edm::stream::EDProducer<> {
 
   public:
 
@@ -37,7 +37,7 @@ class L2MuonProducer : public edm::EDProducer {
   virtual ~L2MuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
  private:
 

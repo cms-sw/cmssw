@@ -74,7 +74,9 @@ void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& ou
 
 PulseChiSqSNNLS::PulseChiSqSNNLS() :
   _chisq(0.),
-  _computeErrors(true)
+  _computeErrors(true),
+  _maxiters(50),
+  _maxiterwarnings(true)
 {
   
   Eigen::initParallel();
@@ -100,6 +102,10 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
   _errvec = PulseVector::Zero(_npulsetot);  
   _nP = 0;
   _chisq = 0.;
+  
+  if (_bxs.rows()==1) {
+    _ampvec.coeffRef(0) = _sampvec.coeff(_bxs.coeff(0) + 5);
+  }
   
   aTamat.resize(_npulsetot,_npulsetot);
   wvec.resize(_npulsetot);
@@ -197,20 +203,28 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
 
 bool PulseChiSqSNNLS::Minimize(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov) {
 
+  const unsigned int npulse = _bxs.rows();
   
-  const int maxiter = 50;
   int iter = 0;
   bool status = false;
   while (true) {    
     
-    if (iter>=maxiter) {
-      edm::LogWarning("PulseChiSqSNNLS::Minimize") << "Max Iterations reached at iter " << iter <<  std::endl;
+    if (iter>=_maxiters) {
+      if (_maxiterwarnings) {
+        edm::LogWarning("PulseChiSqSNNLS::Minimize") << "Max Iterations reached at iter " << iter <<  std::endl;
+      }
       break;
     }    
     
     status = updateCov(samplecor,pederr,fullpulsecov);    
-    if (!status) break;    
-    status = NNLS();
+    if (!status) break; 
+    if (npulse>1) {
+      status = NNLS();
+    }
+    else {
+      //special case for one pulse fit (performance optimized)
+      status = OnePulseMinimize();
+    }
     if (!status) break;
         
     double chisqnow = ComputeChiSq();
@@ -372,5 +386,23 @@ bool PulseChiSqSNNLS::NNLS() {
   
   return true;
   
+  
+}
+
+bool PulseChiSqSNNLS::OnePulseMinimize() {
+  
+  //Fast NNLS (fnnls) algorithm as per http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.157.9203&rep=rep1&type=pdf
+  
+//   const unsigned int npulse = 1;
+
+  invcovp = _covdecomp.matrixL().solve(_pulsemat);
+//   aTamat = invcovp.transpose()*invcovp;
+//   aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);
+
+  SingleMatrix aTamatval = invcovp.transpose()*invcovp;
+  SingleVector aTbvecval = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);
+  _ampvec.coeffRef(0) = std::max(0.,aTbvecval.coeff(0)/aTamatval.coeff(0));
+  
+  return true;
   
 }

@@ -5,7 +5,7 @@ matchGenHFHadron = cms.EDProducer("GenHFHadronMatcher",
     jetFlavourInfos = cms.InputTag("genJetFlavourInfos"),
     flavour = cms.int32(5),
     onlyJetClusteredHadrons = cms.bool(True),
-    noBBbarResonances = cms.bool(True),
+    noBBbarResonances = cms.bool(False),
 )
 
 

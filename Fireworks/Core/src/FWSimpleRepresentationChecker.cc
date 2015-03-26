@@ -72,7 +72,7 @@ FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker()
 //
 // const member functions
 //
-static bool inheritsFrom(const edm::TypeWithDict& iChild,
+bool FWSimpleRepresentationChecker::inheritsFrom(const edm::TypeWithDict& iChild,
                          const std::string& iParentTypeName,
                          unsigned int& distance) {
    if(iChild.typeInfo().name() == iParentTypeName) {

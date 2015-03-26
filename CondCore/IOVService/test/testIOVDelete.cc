@@ -6,7 +6,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "testPayloadObj.h"
+#include "CondCore/IOVService/test/testPayloadObj.h"
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
@@ -16,7 +16,7 @@ int main(){
     connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db"); 
+    pooldb.open("sqlite_file:testIOVDelete.db"); 
     cond::IOVEditor editor( pooldb );
     pooldb.transaction().start(false);
     editor.createIOVContainerIfNecessary();

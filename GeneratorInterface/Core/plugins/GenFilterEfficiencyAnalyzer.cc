@@ -2,7 +2,7 @@
 #include <iostream>
 
 GenFilterEfficiencyAnalyzer::GenFilterEfficiencyAnalyzer(const edm::ParameterSet& pset):
-  genFilterInfoTag_(pset.getParameter<edm::InputTag>("genFilterInfoTag")),
+  genFilterInfoToken_(consumes<GenFilterInfo,edm::InLumi>(pset.getParameter<edm::InputTag>("genFilterInfoTag"))),
   totalGenFilterInfo_(0,0,0,0,0.,0.,0.,0.)
 {
 }
@@ -22,7 +22,7 @@ void
 GenFilterEfficiencyAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
 
   edm::Handle<GenFilterInfo> genFilter;
-  iLumi.getByLabel(genFilterInfoTag_, genFilter);
+  iLumi.getByToken(genFilterInfoToken_, genFilter);
 
   std::cout << "Lumi section " << iLumi.id() << std::endl;
 

@@ -12,6 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -340,6 +341,12 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
        }
      }             
    }
+
+   for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
+     if((*p)->end_vertex() && (*p)->status() == 1)(*p)->set_status(2);
+     if((*p)->end_vertex() && (*p)->end_vertex()->particles_out_size()==0) edm::LogWarning("TauolappInterface::decay error: empty end vertex!");
+   }
+
    return evt;
 }
 

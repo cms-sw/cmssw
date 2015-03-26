@@ -52,6 +52,7 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
     data =  samples;  
 
     // smearing
+    double eps = 1.e-6;
     double scale_factor = 0.6;  
     double scale = data[4] / scale_factor;      
     double smearns = 0.;
@@ -60,26 +61,30 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
       static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
     if (params.doTimeSmear()) {
       double rms = params.timeSmearRMS(scale);
-      double smearns = CLHEP::RandGaussQ::shoot(engine)*rms;
-      LogDebug("HcalTimeSlewSim") << "TimeSmear charge " << scale << " rms " << rms 
+      smearns = CLHEP::RandGaussQ::shoot(engine)*rms;
+      LogDebug("HcalTimeSlewSim") << "TimeSmear charge " 
+				  << scale << " rms " << rms 
 				  << " smearns " << smearns;
     }
     
-
     for(int i = 0; i < samples.size()-1; ++i) {
       double totalCharge = data[i]/scale_factor;   
-             // until we get more precise/reliable QIE8 simulation...  
+      // until we get more precise/reliable QIE8 simulation...  
 
-      if(totalCharge <= 0.) totalCharge = 1.e-6; // protecion against negaive v.
-      double delay = HcalTimeSlew::delay(totalCharge, biasSetting) + smearns;
+      double delay = smearns;
+      if(totalCharge <= 0.) totalCharge = eps; // protecion against negaive v.
+      delay += HcalTimeSlew::delay(totalCharge, biasSetting);      
+      if(delay <= 0.) delay = eps;
+
       double t = i*25. - delay;
       int firstbin = floor(t/25.);
       double f = t/25. - firstbin;
       int nextbin = firstbin + 1;
       double v2 = (nextbin < 0  || nextbin  >= maxbin) ? 0. : data[nextbin];
       data[i] = v2*f;
-      data[i+1] = data[i+1] + (v2 - data[i]); 
+      data[i+1] = data[i+1] + (v2 - data[i]);
     }
+
     samples = data;
   }
 }

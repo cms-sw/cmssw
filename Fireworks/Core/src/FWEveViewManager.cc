@@ -12,14 +12,27 @@
 
 // system include files
 
+#include <boost/bind.hpp>
+
+
 // user include files
+
+// For optimized redraw of Eve views
+#define protected public
+#define private   public
 #include "TEveManager.h"
+#undef private
+#undef protected
+
 #include "TEveSelection.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TEveCalo.h"
+#include "TEveGedEditor.h"
+#include "TGListTree.h"
 #include "TGeoManager.h"
-#include "TGLViewer.h"
+#include "TExMap.h"
+#include "TEnv.h"
 
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -28,6 +41,7 @@
 #include "Fireworks/Core/interface/FWInteractionList.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 
 // PB
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
@@ -46,7 +60,8 @@
 #include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/FWRPZView.h"
 
-#include <boost/bind.hpp>
+#include "Fireworks/Core/interface/FWTGLViewer.h"
+
 
 class FWViewContext;
 
@@ -108,9 +123,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
       m_typeToBuilder[purpose].push_back(BuilderInfo(*it, viewTypes));
    }
    
-   
    m_views.resize(FWViewType::kTypeSize); 
-   
    
    // view construction called via GUI mng
    FWGUIManager::ViewBuildFunctor f =  boost::bind(&FWEveViewManager::buildView, this, _1, _2);
@@ -180,6 +193,7 @@ addElements(const FWEventItem *item, FWEveView *view,
        making  sure  that  we  handle  the  case  in  which  those  elements  are  not
        unique  among  all  the  views.
   */
+
 void
 FWEveViewManager::newItem(const FWEventItem* iItem)
 {
@@ -190,10 +204,30 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 
    std::vector<BuilderInfo>& blist = itFind->second;
 
+   std::string bType; bool bIsSimple;
    for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii)
    {
       // 1.
       BuilderInfo &info = blist[bii];
+      info.classType(bType, bIsSimple);
+      if (bIsSimple) 
+      {
+         unsigned int distance=1;
+         edm::TypeWithDict modelType( *(iItem->modelType()->GetTypeInfo()));
+         if (!FWSimpleRepresentationChecker::inheritsFrom(modelType, bType,distance))
+         {
+            // printf("PB does not matche itemType (%s) !!! EDproduct %s %s\n", info.m_name.c_str(), iItem->modelType()->GetTypeInfo()->name(), bType.c_str() );
+            continue;
+         }
+      }
+      else {
+         std::string itype = iItem->type()->GetTypeInfo()->name();
+         if (itype != bType) {
+            // printf("PB does not match modeType (%s)!!! EDproduct %s %s\n", info.m_name.c_str(), itype.c_str(), bType.c_str() );
+            continue;
+         }
+      }
+
       std::string builderName = info.m_name;
       int builderViewBit =  info.m_viewBit;
       
@@ -606,6 +640,9 @@ FWEveViewManager::colorsChanged()
 void
 FWEveViewManager::eventBegin()
 {
+   // Prevent registration of redraw timer, full redraw is done in
+   // FWEveViewManager::eventEnd().
+   gEve->fTimerActive = kTRUE;
    gEve->DisableRedraw();
 
    context().resetMaxEtAndEnergy();
@@ -625,7 +662,77 @@ FWEveViewManager::eventEnd()
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
          (*i)->eventEnd();
    }
+
+   // What follows is a copy of TEveManager::DoRedraw3D() with the difference that
+   // we have full control over execution of GL view rendering. In particular:
+   // - optionally delay buffer swapping so they can all be swapped together;
+   // - we could render into FBO once and then use this to be put on screen
+   //   and saved into an image file.
+
+   {
+      TEveElement::List_t scenes;
+      Long64_t   key, value;
+      TExMapIter stamped_elements(gEve->fStampedElements);
+      while (stamped_elements.Next(key, value))
+      {
+         TEveElement *el = reinterpret_cast<TEveElement*>(key);
+         if (el->GetChangeBits() & TEveElement::kCBVisibility)
+         {
+            el->CollectSceneParents(scenes);
+         }
+      }
+      gEve->ScenesChanged(scenes);
+   }
+
+   // Process changes in scenes.
+   gEve->fScenes->ProcessSceneChanges(gEve->fDropLogicals, gEve->fStampedElements);
+
+   // To synchronize buffer swapping set swap_on_render to false.
+   // Note that this costs 25-40% extra time with 4 views, depending on V-sync settings.
+   // Tested with NVIDIA 343.22.
+   const bool swap_on_render = gEnv->GetValue("CmsShow.GlSwapOnRender", 0);
+
+   // Loop over viewers, swap buffers if swap_on_render is true.
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
+         (*i)->fwViewerGL()->DrawHiLod(swap_on_render);
+   }
+
+   // Swap buffers if they were not swapped before.
+   if ( ! swap_on_render)
+   {
+      for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+      {
+         for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
+            (*i)->fwViewerGL()->JustSwap();
+      }
+   }
+
+   gEve->fViewers->RepaintChangedViewers(gEve->fResetCameras, gEve->fDropLogicals);
+
+   {
+      Long64_t   key, value;
+      TExMapIter stamped_elements(gEve->fStampedElements);
+      while (stamped_elements.Next(key, value))
+      {
+         TEveElement *el = reinterpret_cast<TEveElement*>(key);
+         if (gEve->GetEditor()->GetModel() == el->GetEditorObject("FWEveViewManager::eventEnd"))
+            gEve->EditElement(el);
+         TEveGedEditor::ElementChanged(el);
+
+         el->ClearStamps();
+      }
+   }
+   gEve->fStampedElements->Delete();
+
+   gEve->GetListTree()->ClearViewPort(); // Fix this when several list-trees can be added.
+
+   gEve->fResetCameras = kFALSE;
+   gEve->fDropLogicals = kFALSE;
+
    gEve->EnableRedraw();
+   gEve->fTimerActive = kFALSE;
 }
 
 //______________________________________________________________________________
@@ -681,7 +788,6 @@ FWEveViewManager::supportedTypesAndRepresentations() const
 {
    // needed for add collection GUI
    FWTypeToRepresentations returnValue;
-   const std::string kSimple("simple#");
    const static std::string kFullFrameWorkPBExtension = "FullFramework";
    for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
        it != itEnd;
@@ -691,20 +797,21 @@ FWEveViewManager::supportedTypesAndRepresentations() const
       for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii)
       {
          BuilderInfo &info = blist[bii];
-         std::string name = info.m_name;
 
          unsigned int bitPackedViews = info.m_viewBit;
-         bool representsSubPart = (name.substr(name.find_first_of('@')-1, 1)=="!");
-         size_t extp = name.rfind(kFullFrameWorkPBExtension);
+         bool representsSubPart = (info.m_name.substr(info.m_name.find_first_of('@')-1, 1)=="!");
+         size_t extp = info.m_name.rfind(kFullFrameWorkPBExtension);
          bool FFOnly = (extp != std::string::npos);
-         if(name.substr(0,kSimple.size()) == kSimple)
+
+         std::string name;
+         bool isSimple;
+         info.classType(name, isSimple);
+         if(isSimple)
          {
-            name = name.substr(kSimple.size(), name.find_first_of('@')-kSimple.size()-1);
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
          }
          else
          {
-            name = name.substr(0, name.find_first_of('@')-1);
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWEDProductRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
          }
       }
@@ -726,6 +833,21 @@ FWEveViewManager::haveViewForBit(int bit) const
    return false;
 }
 
+
+void
+FWEveViewManager::BuilderInfo::classType(std::string& typeName, bool& simple) const
+{
+   const std::string kSimple("simple#");
+   simple = (m_name.substr(0,kSimple.size()) == kSimple);
+   if (simple)
+   {
+      typeName = m_name.substr(kSimple.size(), m_name.find_first_of('@')-kSimple.size()-1);
+   }
+   else
+   {
+      typeName = m_name.substr(0, m_name.find_first_of('@')-1);
+   }
+}
 
 /*
 AMT: temporary workaround for using TEveCaloDataHist instead of

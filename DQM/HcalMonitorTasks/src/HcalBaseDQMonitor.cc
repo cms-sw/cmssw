@@ -3,6 +3,12 @@
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 
 #include <iostream>
 #include <vector>
@@ -36,6 +42,10 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS",false);
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
+
+
+  FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
+  tok_braw_ = consumes<FEDRawDataCollection>(FEDRawDataCollection_);
   
   setupDone_ = false;
   logicalMap_= 0;
@@ -50,21 +60,8 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   ProblemsVsLB_HBHEHF=0;
   ProblemsVsLB_HO=0;
   ProblemsCurrentLB=0;
-} //HcalBaseDQMonitor::HcalBaseDQMonitor(const ParameterSet& ps)
 
-
-// destructor
-
-HcalBaseDQMonitor::~HcalBaseDQMonitor()
-{
-  if (logicalMap_) delete logicalMap_;
-}
-
-void HcalBaseDQMonitor::beginJob(void)
-{
-
-  if (debug_>0) std::cout <<"HcalBaseDQMonitor::beginJob():  task =  '"<<subdir_<<"'"<<std::endl;
-  dbe_ = edm::Service<DQMStore>().operator->();
+  eMap_ = 0;
 
   ievt_=0;
   levt_=0;
@@ -76,25 +73,48 @@ void HcalBaseDQMonitor::beginJob(void)
   HFpresent_=false;
 
 
-} // beginJob()
+} //HcalBaseDQMonitor::HcalBaseDQMonitor(const ParameterSet& ps)
 
-void HcalBaseDQMonitor::endJob(void)
-{
-  if (enableCleanup_)
-    cleanup();
-} // endJob()
 
-void HcalBaseDQMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+
+
+// destructor
+
+HcalBaseDQMonitor::~HcalBaseDQMonitor()
 {
-  if (debug_>0) std::cout <<"HcalBaseDQMonitor::beginRun():  task =  '"<<subdir_<<"'"<<std::endl;
+  if (logicalMap_) delete logicalMap_;
+}
+
+
+//dqmBeginRun
+void HcalBaseDQMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &es)
+{
+
+  if (eMap_==0) //eMap_ not created yet
+    {
+      if (debug_>1) std::cout <<"\t<HcalBaseDQMonitor::dqmBeginRun> Getting Emap!"<<std::endl;
+      edm::ESHandle<HcalDbService> pSetup;
+      es.get<HcalDbRecord>().get( pSetup );
+      eMap_=pSetup->getHcalMapping(); 
+    }
+  if (mergeRuns_) return;
+  if( setupDone_ ) this->reset();
+
+}
+
+
+
+void HcalBaseDQMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
+{
+  if (debug_>0) std::cout <<"HcalBaseDQMonitor::bookHistograms():  task =  '"<<subdir_<<"'"<<std::endl;
   if (! mergeRuns_)
     {
-      this->setup();
+      this->setup(ib);
       this->reset();
     }
   else if (tevt_ == 0)
     {
-      this->setup();
+      this->setup(ib);
       this->reset();
     }
 } // beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -128,23 +148,23 @@ void HcalBaseDQMonitor::cleanup(void)
 
 } //cleanup()
 
-void HcalBaseDQMonitor::setup(void)
+void HcalBaseDQMonitor::setup(DQMStore::IBooker &ib)
 {
   if (setupDone_)
     return;
   setupDone_ = true;
   if (debug_>3) std::cout <<"<HcalBaseDQMonitor> setup in progress"<<std::endl;
-  dbe_->setCurrentFolder(subdir_);
-  meIevt_ = dbe_->bookInt("EventsProcessed");
+  ib.setCurrentFolder(subdir_);
+  meIevt_ = ib.bookInt("EventsProcessed");
   if (meIevt_) meIevt_->Fill(-1);
-  meLevt_ = dbe_->bookInt("EventsProcessed_currentLS");
+  meLevt_ = ib.bookInt("EventsProcessed_currentLS");
   if (meLevt_) meLevt_->Fill(-1);
-  meTevt_ = dbe_->bookInt("EventsProcessed_Total");
+  meTevt_ = ib.bookInt("EventsProcessed_Total");
   if (meTevt_) meTevt_->Fill(-1);
-  meTevtHist_=dbe_->book1D("Events_Processed_Task_Histogram","Counter of Events Processed By This Task",1,0.5,1.5);
+  meTevtHist_=ib.book1D("Events_Processed_Task_Histogram","Counter of Events Processed By This Task",1,0.5,1.5);
   if (meTevtHist_) meTevtHist_->Reset();
-  dbe_->setCurrentFolder(subdir_+"LSvalues");
-  ProblemsCurrentLB=dbe_->book2D("ProblemsThisLS","Problem Channels in current Lumi Section",
+  ib.setCurrentFolder(subdir_+"LSvalues");
+  ProblemsCurrentLB=ib.book2D("ProblemsThisLS","Problem Channels in current Lumi Section",
 				 7,0,7,1,0,1);
   if (ProblemsCurrentLB)
     {
@@ -197,13 +217,7 @@ bool HcalBaseDQMonitor::IsAllowedCalibType()
       if (debug_>9) std::cout <<"\tNo calib types specified by user; All events allowed"<<std::endl;
       return true;
     }
-  MonitorElement* me = dbe_->get((prefixME_+"HcalInfo/CURRENT_EVENT_TYPE").c_str());
-  if (me) currenttype_=me->getIntValue();
-  else 
-    {
-      if (debug_>9) std::cout <<"\tCalib Type cannot be determined from HcalMonitorModule"<<std::endl;
-      return true; // is current type can't be determined, assume event is allowed
-    }
+
   if (debug_>9) std::cout <<"\tHcalBaseDQMonitor::IsAllowedCalibType  checking if calibration type = "<<currenttype_<<" is allowed...";
   for (std::vector<int>::size_type i=0;i<AllowedCalibTypes_.size();++i)
     {
@@ -215,6 +229,7 @@ bool HcalBaseDQMonitor::IsAllowedCalibType()
     }
   if (debug_>9) std::cout <<"\t Type not allowed!"<<std::endl;
   return false;
+
 } // bool HcalBaseDQMonitor::IsAllowedCalibType()
 
 void HcalBaseDQMonitor::getLogicalMap(const edm::EventSetup& c) {
@@ -233,6 +248,15 @@ void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
   if (debug_>5) std::cout <<"\t<HcalBaseDQMonitor::analyze>  event = "<<ievt_<<std::endl;
   eventAllowed_=true; // assume event is allowed
 
+
+  // Try to get raw data
+  edm::Handle<FEDRawDataCollection> rawraw;  
+  if (!(e.getByToken(tok_braw_,rawraw)))
+    {
+      edm::LogWarning("HcalMonitorModule")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
+      return;
+    }
+
   // fill with total events seen (this differs from ievent, which is total # of good events)
   ++tevt_;
   if (meTevt_) meTevt_->Fill(tevt_);
@@ -243,6 +267,8 @@ void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
       eventAllowed_=false;
       return;
     }
+
+  this->CheckCalibType(rawraw);
   // skip events of wrong calibration type
   eventAllowed_&=(this->IsAllowedCalibType());
   if (!eventAllowed_) return;
@@ -254,29 +280,158 @@ void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
   if (meLevt_) meLevt_->Fill(levt_);
 
 
-  MonitorElement* me;
   if (HBpresent_==false)
     {
-      me = dbe_->get((prefixME_+"HcalInfo/HBpresent"));
-      if (me==0 || me->getIntValue()>0) HBpresent_=true;
+      CheckSubdetectorStatus(rawraw,HcalBarrel,*eMap_);
     }
   if (HEpresent_==false)
     {
-      me = dbe_->get((prefixME_+"HcalInfo/HEpresent"));
-      if (me==0 || me->getIntValue()>0) HEpresent_=true;
+      CheckSubdetectorStatus(rawraw,HcalEndcap,*eMap_);
     }
   if (HOpresent_==false)
     {
-      me = dbe_->get((prefixME_+"HcalInfo/HOpresent"));
-      if (me==0 || me->getIntValue()>0) HOpresent_=true;
+      CheckSubdetectorStatus(rawraw,HcalOuter,*eMap_);
     }
   if (HFpresent_==false)
     {
-      me = dbe_->get((prefixME_+"HcalInfo/HOpresent"));
-      if (me ==0 || me->getIntValue()>0) HFpresent_=true;
+      CheckSubdetectorStatus(rawraw,HcalForward,*eMap_);
     }
 
 
 } // void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
+
+//
+//  CheckSubdetectorStatus
+void HcalBaseDQMonitor::CheckSubdetectorStatus(const edm::Handle<FEDRawDataCollection>& rawraw, HcalSubdetector subdet, const HcalElectronicsMap &emap)
+{
+
+  std::vector<int> fedUnpackList;
+  for (int i=FEDNumbering::MINHCALFEDID; 
+       i<=FEDNumbering::MAXHCALFEDID; 
+       i++) 
+    fedUnpackList.push_back(i);
+
+  if (debug_>1) std::cout <<"<HcalMonitorModule::CheckSubdetectorStatus>  Checking subdetector "<<subdet<<std::endl;
+  for (std::vector<int>::const_iterator i=fedUnpackList.begin();
+       i!=fedUnpackList.end(); 
+       ++i) 
+    {
+      if (debug_>2) std::cout <<"\t<HcalMonitorModule::CheckSubdetectorStatus>  FED = "<<*i<<std::endl;
+      const FEDRawData& fed =(*rawraw).FEDData(*i);
+      if (fed.size()<12) continue; // Was 16. How do such tiny events even get here?
+      
+      // get the DCC header
+      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+      if (!dccHeader) return;
+      int dccid=dccHeader->getSourceId();
+      // check for HF
+      if (subdet == HcalForward && dccid>717 && dccid<724)
+	{
+	  HFpresent_=true;
+	  return;
+	}
+      else if (subdet==HcalOuter && dccid>723)
+	{
+	  HOpresent_=true;
+	  return;
+	}
+      else if (dccid<718 && (subdet==HcalBarrel || subdet==HcalEndcap))
+	{
+	  HcalHTRData htr;  
+	  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) 
+	    {    
+	      if (!dccHeader->getSpigotPresent(spigot)) continue;
+	      
+	      // Load the given decoder with the pointer and length from this spigot.
+	      dccHeader->getSpigotData(spigot,htr, fed.size()); 
+	      
+	      // check min length, correct wordcount, empty event, or total length if histo event.
+	      if (!htr.check()) continue;
+	      if (htr.isHistogramEvent()) continue;
+	      
+	      int firstFED =  FEDNumbering::MINHCALFEDID;
+	      
+	      // Tease out HB and HE, which share HTRs in HBHE
+	      for(int fchan=0; fchan<3; ++fchan) //0,1,2 are valid
+		{
+		  for(int fib=1; fib<9; ++fib) //1...8 are valid
+		    {
+		      HcalElectronicsId eid(fchan,fib,spigot,dccid-firstFED);
+		      eid.setHTR(htr.readoutVMECrateId(),
+				 htr.htrSlot(),htr.htrTopBottom());
+		      
+		      DetId did=emap.lookup(eid);
+		      if (!did.null()) 
+			{
+			  
+			  if ((HcalSubdetector)did.subdetId()==subdet)
+			    {
+			      if (subdet==HcalBarrel)
+				{
+				  HBpresent_=true;
+				  return;
+				}
+			      else if (subdet==HcalEndcap)
+			      {
+				HEpresent_=true;
+				return;
+			      }
+			    } // if ((HcalSubdetector)did.subdetId()==subdet)
+			} // if (!did.null())
+		    } // for (int fib=1;fib<9;...)
+		} // for (int fchan=0; fchan<3;...)
+	    } // for (int spigot=0;spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) 
+	} //else if (dcc<718 && (subdet...))
+  } // loop over fedUnpackList
+  
+
+} // void CheckSubdetectorStatus
+
+
+// Check Calib type
+void HcalBaseDQMonitor::CheckCalibType(const edm::Handle<FEDRawDataCollection> &rawraw)
+{
+  // Get Event Calibration Type -- copy of Bryan Dahmes' filter
+  int calibType=-1;
+  int numEmptyFEDs = 0 ;
+  std::vector<int> calibTypeCounter(8,0) ;
+  for( int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) 
+    {
+      const FEDRawData& fedData = rawraw->FEDData(i) ;
+      
+      if ( fedData.size() < 24 ) numEmptyFEDs++ ;
+      if ( fedData.size() < 24 ) continue;
+
+      int value = (int)((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
+      if(value>7) 
+	{
+	  edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Unexpected Calibration type: "<< value << " in FED: "<<i<<" (should be 0-7). I am bailing out...";
+	  return;
+	}
+
+      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
+    } // for (int i = FEDNumbering::MINHCALFEDID; ...)
+
+  int maxCount = 0;
+  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID  - FEDNumbering::MINHCALFEDID + 1 ;
+  for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
+    if ( calibTypeCounter.at(i) > maxCount )
+      { calibType = i ; maxCount = calibTypeCounter.at(i) ; }
+    if ( maxCount == numberOfFEDIds ) break ;
+  }
+  
+  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
+    edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Conflicting calibration types found.  Assigning type "
+					   << calibType ;
+  LogDebug("HcalMonitorModule::CalibTypeFilter") << "Calibration type is: " << calibType ;
+  // Fill histogram of calibration types, as well as integer to keep track of current value
+  currenttype_ = calibType;
+  //if (meCalibType_) meCalibType_->Fill(calibType);
+  //if (meCurrentCalibType_) meCurrentCalibType_->Fill(calibType);
+  ////if (meCurrentCalibType_) meCurrentCalibType_->Fill(ievt_); // use for debugging check ONLY!
+
+  if (debug_>2) std::cout <<"\t<HcalMonitorModule>  ievt = "<<ievt_<<"  calibration type = "<<calibType<<std::endl;
+
+} // check calib type
 
 DEFINE_FWK_MODULE(HcalBaseDQMonitor);

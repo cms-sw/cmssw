@@ -5,7 +5,6 @@
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
-#include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.hh"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
@@ -355,7 +354,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   if (!TargetSurvives) targetHasChanged = true; //Ditto here
   G4bool quasiElastic = false;
   if (rp.size()==2) quasiElastic = true; //Oh well...
-  G4FastVector<G4ReactionProduct,GHADLISTSIZE> vec;  // vec will contain the secondary particles
+  G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> vec;  // vec will contain the secondary particles
   G4int vecLen = 0;
   vec.Initialize( 0 );
 
@@ -697,7 +696,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
 
 void FullModelHadronicProcess::CalculateMomenta(
-					       G4FastVector<G4ReactionProduct,GHADLISTSIZE> &vec,
+					       G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec,
 					       G4int &vecLen,
 					       const G4HadProjectile *originalIncident,   // the original incident particle
 					       const G4DynamicParticle *originalTarget,
@@ -879,7 +878,7 @@ G4bool FullModelHadronicProcess::MarkLeadingStrangeParticle(
   return lead;
 }
 
-void FullModelHadronicProcess::Rotate(G4FastVector<G4ReactionProduct,GHADLISTSIZE> &vec, G4int &vecLen)
+void FullModelHadronicProcess::Rotate(G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec, G4int &vecLen)
 {
   G4double rotation = 2.*pi*G4UniformRand();
   cache = rotation;

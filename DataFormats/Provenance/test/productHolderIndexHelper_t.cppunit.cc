@@ -8,7 +8,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
@@ -16,8 +15,6 @@
 
 #include <iostream>
 #include <iomanip>
-
-static bool alreadyCalledLoader_productHolderIndexHelper_t = false;
 
 using namespace edm;
 
@@ -46,12 +43,6 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(TestProductHolderIndexHelper);
 
 void TestProductHolderIndexHelper::setUp() {
-
-  if (!alreadyCalledLoader_productHolderIndexHelper_t) {
-    edm::RootAutoLibraryLoader::enable();
-    alreadyCalledLoader_productHolderIndexHelper_t = true;
-  }
-
   typeID_ProductID = TypeID(typeid(ProductID));
   typeID_EventID = TypeID(typeid(EventID));
 }
@@ -213,6 +204,10 @@ void TestProductHolderIndexHelper::testManyEntries() {
   CPPUNIT_ASSERT(indexB1 == 16);
   CPPUNIT_ASSERT(indexB2 == 18);
   CPPUNIT_ASSERT(indexB3 == 17);
+
+  CPPUNIT_ASSERT(std::string(matches.moduleLabel(4)) == "labelB");
+  CPPUNIT_ASSERT(std::string(matches.processName(4)) == "processB3");
+  CPPUNIT_ASSERT(std::string(matches.processName(0)) == "");
 
   matches = helper.relatedIndexes(ELEMENT_TYPE, typeID_Simple);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 2);

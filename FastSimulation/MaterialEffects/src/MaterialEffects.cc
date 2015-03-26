@@ -16,6 +16,7 @@
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/NuclearInteractionFTFSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
 
 #include <list>
@@ -37,6 +38,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
   bool doEnergyLoss         = matEff.getParameter<bool>("EnergyLoss");
   bool doMultipleScattering = matEff.getParameter<bool>("MultipleScattering");
   bool doNuclearInteraction = matEff.getParameter<bool>("NuclearInteraction");
+  bool doG4NuclInteraction  = matEff.getParameter<bool>("G4NuclearInteraction");
   bool doMuonBremsstrahlung = matEff.getParameter<bool>("MuonBremsstrahlung");
 
   double A = matEff.getParameter<double>("A");
@@ -59,8 +61,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
     Bremsstrahlung = new BremsstrahlungSimulator(bremEnergy,
 						 bremEnergyFraction);
   }
-//muon Brem+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- if ( doMuonBremsstrahlung ) {
+  //muon Brem+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  if ( doMuonBremsstrahlung ) {
 
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
@@ -69,8 +71,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
 
   }
 
-
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   if ( doEnergyLoss ) { 
 
@@ -85,34 +86,35 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
 
   }
 
+
   if ( doNuclearInteraction ) { 
 
     // The energies simulated
-    std::vector<double> pionEnergies 
-      = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
+    std::vector<double> hadronEnergies 
+      = matEff.getUntrackedParameter<std::vector<double> >("hadronEnergies");
 
     // The particle types simulated
-    std::vector<int> pionTypes 
-      = matEff.getUntrackedParameter<std::vector<int> >("pionTypes");
+    std::vector<int> hadronTypes 
+      = matEff.getUntrackedParameter<std::vector<int> >("hadronTypes");
 
     // The corresponding particle names
-    std::vector<std::string> pionNames 
-      = matEff.getUntrackedParameter<std::vector<std::string> >("pionNames");
+    std::vector<std::string> hadronNames 
+      = matEff.getUntrackedParameter<std::vector<std::string> >("hadronNames");
 
     // The corresponding particle masses
-    std::vector<double> pionMasses 
-      = matEff.getUntrackedParameter<std::vector<double> >("pionMasses");
+    std::vector<double> hadronMasses 
+      = matEff.getUntrackedParameter<std::vector<double> >("hadronMasses");
 
     // The smallest momentum for inelastic interactions
-    std::vector<double> pionPMin 
-      = matEff.getUntrackedParameter<std::vector<double> >("pionMinP");
+    std::vector<double> hadronPMin 
+      = matEff.getUntrackedParameter<std::vector<double> >("hadronMinP");
 
     // The interaction length / radiation length ratio for each particle type
     std::vector<double> lengthRatio 
       = matEff.getParameter<std::vector<double> >("lengthRatio");
     //    std::map<int,double> lengthRatio;
     //    for ( unsigned i=0; i<theLengthRatio.size(); ++i )
-    //      lengthRatio[ pionTypes[i] ] = theLengthRatio[i];
+    //      lengthRatio[ hadronTypes[i] ] = theLengthRatio[i];
 
     // A global fudge factor for TEC layers (which apparently do not react to 
     // hadrons the same way as all other layers...
@@ -122,16 +124,16 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
     std::vector<double> theRatios  
       = matEff.getUntrackedParameter<std::vector<double> >("ratios");
     //std::map<int,std::vector<double> > ratios;
-    //for ( unsigned i=0; i<pionTypes.size(); ++i ) { 
-    //  for ( unsigned j=0; j<pionEnergies.size(); ++j ) { 
-    //	ratios[ pionTypes[i] ].push_back(theRatios[ i*pionEnergies.size() + j ]);
+    //for ( unsigned i=0; i<hadronTypes.size(); ++i ) { 
+    //  for ( unsigned j=0; j<hadronEnergies.size(); ++j ) { 
+    //	ratios[ hadronTypes[i] ].push_back(theRatios[ i*hadronEnergies.size() + j ]);
     //  }
     //}
     std::vector< std::vector<double> > ratios;
-    ratios.resize(pionTypes.size());
-    for ( unsigned i=0; i<pionTypes.size(); ++i ) { 
-      for ( unsigned j=0; j<pionEnergies.size(); ++j ) { 
-	ratios[i].push_back(theRatios[ i*pionEnergies.size() + j ]);
+    ratios.resize(hadronTypes.size());
+    for ( unsigned i=0; i<hadronTypes.size(); ++i ) { 
+      for ( unsigned j=0; j<hadronEnergies.size(); ++j ) { 
+	ratios[i].push_back(theRatios[ i*hadronEnergies.size() + j ]);
       }
     }
 
@@ -200,11 +202,15 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
       idMap[idPiminusses[i]] = -211;
 
     // Construction
-    NuclearInteraction = 
-      new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
-				      pionMasses, pionPMin, pionEnergy, 
-				      lengthRatio, ratios, idMap, 
-				      inputFile, distAlgo, distCut);
+    if ( doG4NuclInteraction ) { 
+      NuclearInteraction = new NuclearInteractionFTFSimulator(distAlgo, distCut); 
+    } else {
+      NuclearInteraction = 
+	new NuclearInteractionSimulator(hadronEnergies, hadronTypes, hadronNames, 
+					hadronMasses, hadronPMin, pionEnergy, 
+					lengthRatio, ratios, idMap, 
+					inputFile, distAlgo, distCut);
+    }
   }
 }
 
@@ -215,7 +221,7 @@ MaterialEffects::~MaterialEffects() {
   if ( EnergyLoss ) delete EnergyLoss;
   if ( MultipleScattering ) delete MultipleScattering;
   if ( NuclearInteraction ) delete NuclearInteraction;
-//Muon Brem
+  //Muon Brem
   if ( MuonBremsstrahlung ) delete MuonBremsstrahlung;
 }
 
@@ -230,6 +236,10 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   theEnergyLoss = 0;
   theNormalVector = normalVector(layer,myTrack);
   radlen = radLengths(layer,myTrack);
+
+  //std::cout << "### MaterialEffects: for Track= " <<  itrack << " in layer #"
+  //	    << layer.layerNumber() <<  std::endl;
+  //std::cout << myTrack << std::endl;
 
 //-------------------
 //  Photon Conversion
@@ -283,12 +293,15 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     }
     NuclearInteraction->updateState(myTrack, radlen*factor, random);
 
+    //std::cout << "MaterialEffects: nDaughters= " 
+    //	      << NuclearInteraction->nDaughters() << std::endl;
     if ( NuclearInteraction->nDaughters() ) { 
 
       //add a end vertex to the mother particle
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
 					    FSimVertexType::NUCL_VERTEX);
-      
+      //std::cout << "ivertex= " << ivertex << " nDaughters= " 
+      //	<< NuclearInteraction->nDaughters() << std::endl;
       // Check if it is a valid vertex first:
       if (ivertex>=0) {
 	// This was a hadron that interacted inelastically
@@ -301,11 +314,11 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 	  int daughId = mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
 	  
 	  // Store the closest daughter in the mother info (for later tracking purposes)
-	  if ( NuclearInteraction->closestDaughterId() == idaugh++ ) {
+	  if ( NuclearInteraction->closestDaughterId() == idaugh ) {
 	    if ( mySimEvent.track(itrack).vertex().position().Pt() < 4.0 ) 
 	      mySimEvent.track(itrack).setClosestDaughterId(daughId);
 	  }
-	  
+	  ++idaugh;
 	}
 	// The hadron is destroyed. Return.
 	return;

@@ -1,9 +1,10 @@
-
-
 /*
  *  See header file for a description of this class.
  *
  *  \author G. Cerminara - University and INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -32,7 +33,6 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: Constructor";
 
   // Get the DQM service
-  dbe = Service<DQMStore>().operator->();
 
   lsCounter = 0;
 
@@ -50,62 +50,16 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   runOnInTimeOccupancies = ps.getUntrackedParameter<bool>("runOnInTimeOccupancies", false);
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
-}
-
-
-
-
-DTOccupancyTest::~DTOccupancyTest(){
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << " destructor called" << endl;
-
-
-}
-
-
-
-
-void DTOccupancyTest::beginJob(){
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: BeginJob";
+  bookingdone = 0;
 
   // Event counter
   nevents = 0;
 
-  // Book the summary histos
-  //   - one summary per wheel
-  for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
-    bookHistos(wh, string("Occupancies"), "OccupancySummary");
-  }
-
-  dbe->setCurrentFolder(topFolder());
-  string title = "Occupancy Summary";
-  if(tpMode) {
-    title = "Test Pulse Occupancy Summary";
-  }
-  //   - global summary with alarms
-  summaryHisto = dbe->book2D("OccupancySummary",title.c_str(),12,1,13,5,-2,3);
-  summaryHisto->setAxisTitle("sector",1);
-  summaryHisto->setAxisTitle("wheel",2);
-  
-  //   - global summary with percentages
-  glbSummaryHisto = dbe->book2D("OccupancyGlbSummary",title.c_str(),12,1,13,5,-2,3);
-  glbSummaryHisto->setAxisTitle("sector",1);
-  glbSummaryHisto->setAxisTitle("wheel",2);
-
-
-  // assign the name of the input histogram
-  if(runOnAllHitsOccupancies) {
-    nameMonitoredHisto = "OccupancyAllHits_perCh";
-  } else if(runOnNoiseOccupancies) {
-    nameMonitoredHisto = "OccupancyNoise_perCh";
-  } else if(runOnInTimeOccupancies) {
-    nameMonitoredHisto = "OccupancyInTimeHits_perCh";
-  } else { // default is AllHits histo
-    nameMonitoredHisto = "OccupancyAllHits_perCh";
-  }
-
 }
 
-
+DTOccupancyTest::~DTOccupancyTest(){
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << " destructor called" << endl;
+}
 
 
 void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
@@ -117,26 +71,47 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
 
 }
 
+  void DTOccupancyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
+  if (!bookingdone) {
+
+  // Book the summary histos
+  //   - one summary per wheel
+  for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
+    bookHistos(ibooker,wh, string("Occupancies"), "OccupancySummary");
+    }
+
+  ibooker.setCurrentFolder(topFolder());
+  string title = "Occupancy Summary";
+  if(tpMode) {
+    title = "Test Pulse Occupancy Summary";
+    }
+  //   - global summary with alarms
+  summaryHisto = ibooker.book2D("OccupancySummary",title.c_str(),12,1,13,5,-2,3);
+  summaryHisto->setAxisTitle("sector",1);
+  summaryHisto->setAxisTitle("wheel",2);
+  
+  //   - global summary with percentages
+  glbSummaryHisto = ibooker.book2D("OccupancyGlbSummary",title.c_str(),12,1,13,5,-2,3);
+  glbSummaryHisto->setAxisTitle("sector",1);
+  glbSummaryHisto->setAxisTitle("wheel",2);
 
 
+  // assign the name of the input histogram
+  if(runOnAllHitsOccupancies) {
+    nameMonitoredHisto = "OccupancyAllHits_perCh";
+    } else if(runOnNoiseOccupancies) {
+    nameMonitoredHisto = "OccupancyNoise_perCh";
+    } else if(runOnInTimeOccupancies) {
+    nameMonitoredHisto = "OccupancyInTimeHits_perCh";
+    } else { // default is AllHits histo
+    nameMonitoredHisto = "OccupancyAllHits_perCh";
+    }
 
-void DTOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") <<"[DTOccupancyTest]: Begin of LS transition";
-}
-
-
-
-
-void DTOccupancyTest::analyze(const Event& e, const EventSetup& context) {
-  nevents++;
-//   if(nevents%1000)
-//     LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: "<<nevents<<" events";
-}
-
-
+  }
+  bookingdone = 1; 
 
 
-void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest")
     <<"[DTOccupancyTest]: End of LS transition, performing the DQM client operation";
   lsCounter++;
@@ -154,7 +129,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId chId = (*chamber)->id();
 
-    MonitorElement * chamberOccupancyHisto = dbe->get(getMEName(nameMonitoredHisto, chId));	
+    MonitorElement * chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));	
 
     // Run the tests on the plot for the various granularities
     if(chamberOccupancyHisto != 0) {
@@ -195,7 +170,8 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   }
 
   string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsDigi";
-  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  MonitorElement * meProcEvts = igetter.get(nEvtsName);
 
   if (meProcEvts) {
     int nProcEvts = meProcEvts->getFloatValue();
@@ -216,8 +192,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 
 }
 
-
-void DTOccupancyTest::endJob(){
+void DTOccupancyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] endjob called!";
   if(writeRootFile) {
@@ -230,10 +205,13 @@ void DTOccupancyTest::endJob(){
 
   
 // --------------------------------------------------
-void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoTag) {
+
+void DTOccupancyTest::bookHistos(DQMStore::IBooker & ibooker, const int wheelId, 
+                                                      string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder(topFolder());
+
+  ibooker.setCurrentFolder(topFolder());
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
@@ -250,7 +228,8 @@ void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoT
   if(tpMode) {
     histoTitle = "TP Occupancy summary WHEEL: "+wheel.str();
   }
-  wheelHistos[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
+
+  wheelHistos[wheelId] = ibooker.book2D(histoName,histoTitle,12,1,13,4,1,5);
   wheelHistos[wheelId]->setBinLabel(1,"MB1",2);
   wheelHistos[wheelId]->setBinLabel(2,"MB2",2);
   wheelHistos[wheelId]->setBinLabel(3,"MB3",2);
@@ -403,10 +382,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 
   if(writeRootFile) ntuple->Fill(values);
 
-//   double averageLayerOcc = totalChamberOccupp/(nSL*4);
-//   double averageSquaredLayeroccup = squaredLayerOccupSum/(nSL*4);
-//   double layerOccupRMS = sqrt(averageSquaredLayeroccup - averageLayerOcc*averageLayerOcc);
-
   double minCellRMS = 99999999;
   double referenceCellOccup = -1;
 
@@ -436,21 +411,11 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
   referenceCellOccup = builder.getBestCluster().averageMean();
   minCellRMS = builder.getBestCluster().averageRMS();
 
-//   set<DTLayerId> bestLayers getLayerIDs()
-
   double safeFactor = 3.;
-//   if(minCellRMS > referenceCellOccup) safeFactor = 5;
 
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " Reference cell occup.: " << referenceCellOccup
 						    << " RMS: " << minCellRMS << endl;
   
-  // Set a warning for particularly high RMS: noise can "mask" dead channels
-//   bool rmsWarning = false;
-//   if(layerOccupRMS > averageLayerOcc) {
-//     cout << " Warning RMS is too big: monitoring all layers" << endl;
-//     rmsWarning = true;
-//   }  
-
   int nFailingSLs = 0;
 
   // Check the layer occupancy
@@ -459,9 +424,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
     if(chId.station() == 4 && slay == 2) continue;
 
     int binYlow = ((slay-1)*4)+1;
-//     int binYhigh = binYlow+3;
-
-
     int nFailingLayers = 0;
 
     for(int lay = 1; lay <= 4; ++lay) { // loop over layers
@@ -491,22 +453,11 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 	continue;
       }
 
-
-      
-//       double avCellOccInLayer = averageCellOccupAndRMS[layID].first;
-//       double cellOccupRMS =  averageCellOccupAndRMS[layID].second;
-//       if(monitoredLayers.find(layID) != monitoredLayers.end() ||
-// 	 layerInteg == 0 ||
-// 	 layerInteg < (averageLayerOcc - 3*layerOccupRMS) ||
-// 	 cellOccupRMS > avCellOccInLayer ||
-// 	 avCellOccInLayer < referenceCellOccup/3.) { // check the layer
-
 	if(alreadyMonitored || builder.isProblematic(layID)) { // check the layer
 
 	  // Add it to the list of of monitored layers
 	  if(monitoredLayers.find(layID) == monitoredLayers.end()) monitoredLayers.insert(layID);
 
-// 	if(layerInteg != 0) { // check # of dead cells
 	  int totalDeadCells = 0;
 	  int nDeadCellsInARow = 1;
 	  int nDeadCellsInARowMax = 0;
@@ -541,16 +492,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 							    << " # dead cells in a row: " << nDeadCellsInARowMax
 							    << " total # of dead cells: " << totalDeadCells;
 	  
-
-	  // Count dead cells
-// 	  if(TMath::Erf(referenceCellOccup/sqrt(referenceCellOccup)) > 2./3. &&
-// 	     nDeadCellsInARowMax >  nWires/3.
-// 	     && nDeadCellsInARowMax <  2*nWires/3.) {
-// 	    cout << " -> fail cells!" << endl;
-
-// 	    failCells = true;
-// 	    histo->SetBinContent(nBinsX+1,binY,-1.);
-// 	  } else
 	  if((TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 10./(double)nWires &&
 	      nDeadCellsInARowMax>= 10.) ||
 	     (TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 0.5 &&
@@ -569,16 +510,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 							      << "  erfc: "
 							      <<   TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))
 							      << endl;
-// 	      failCells = true;
-// 	      histo->SetBinContent(nBinsX+1,binY,-1.);
 	  }
-
-// 	} else { // all layer is dead
-// 	  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     fail layer: no entries" << endl;
-// 	  nFailingLayers++;
-// 	  failLayer = true;
-// 	  histo->SetBinContent(nBinsX+1,binY,-1.);
-// 	}
       }
     }
     // Check if the whole layer is off

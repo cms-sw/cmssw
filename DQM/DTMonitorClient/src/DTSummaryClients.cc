@@ -1,9 +1,10 @@
-
-
 /*
  *  See header file for a description of this class.
  *
  *  \author G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -27,9 +28,8 @@ using namespace std;
 DTSummaryClients::DTSummaryClients(const ParameterSet& ps) : nevents(0) {
 
   LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients]: Constructor";
-  
-  
-  dbe = Service<DQMStore>().operator->();
+
+  bookingdone = 0;
 
 }
 
@@ -38,65 +38,45 @@ DTSummaryClients::~DTSummaryClients(){
   
 }
 
-void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: BeginRun"; 
-
-  // book the summary histos
-  dbe->setCurrentFolder("DT/EventInfo"); 
-  summaryReport = dbe->bookFloat("reportSummary");
-  // Initialize to 1 so that no alarms are thrown at the beginning of the run
-  summaryReport->Fill(1.);
-
-  summaryReportMap = dbe->book2D("reportSummaryMap","DT Report Summary Map",12,1,13,5,-2,3);
-  summaryReportMap->setAxisTitle("sector",1);
-  summaryReportMap->setAxisTitle("wheel",2);
-
-  dbe->setCurrentFolder("DT/EventInfo/reportSummaryContents");
-
-  for(int wheel = -2; wheel != 3; ++wheel) {
-    stringstream streams;
-    streams << "DT_Wheel" << wheel;
-    string meName = streams.str();    
-    theSummaryContents.push_back(dbe->bookFloat(meName));
-    // Initialize to 1 so that no alarms are thrown at the beginning of the run
-    theSummaryContents[wheel+2]->Fill(1.);
-  }
-
-
-
-
-}
-
-
-void DTSummaryClients::endJob(void){
+void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   
   LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: endJob"; 
 
 }
 
-
-void DTSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
+  void DTSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
   
-  LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: endRun"; 
+  if (!bookingdone) {
+
+  // book the summary histos
+
+  ibooker.setCurrentFolder("DT/EventInfo"); 
+
+  summaryReport = ibooker.bookFloat("reportSummary");
+  // Initialize to 1 so that no alarms are thrown at the beginning of the run
+  summaryReport->Fill(1.);
+
+  summaryReportMap = ibooker.book2D("reportSummaryMap","DT Report Summary Map",12,1,13,5,-2,3);
+  summaryReportMap->setAxisTitle("sector",1);
+  summaryReportMap->setAxisTitle("wheel",2);
+
+  ibooker.setCurrentFolder("DT/EventInfo/reportSummaryContents");
+
+  for(int wheel = -2; wheel != 3; ++wheel) {
+    stringstream streams;
+    streams << "DT_Wheel" << wheel;
+    string meName = streams.str();    
+
+    theSummaryContents.push_back(ibooker.bookFloat(meName));
+    // Initialize to 1 so that no alarms are thrown at the beginning of the run
+    theSummaryContents[wheel+2]->Fill(1.);
+  }
 
 }
+  bookingdone = 1; 
 
 
-void DTSummaryClients::analyze(const Event& event, const EventSetup& context){
-
-   nevents++;
-   if(nevents%1000 == 0) {
-     LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients] Analyze #Run: " << event.id().run()
-					 << " #Event: " << event.id().event()
-					 << " LS: " << event.luminosityBlock()	
-					 << endl;
-   }
-}
-
-
-void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  
   LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients")
     << "[DTSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
 
@@ -111,7 +91,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
   // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
   // accordignly
-  MonitorElement * dataIntegritySummary = dbe->get("DT/00-DataIntegrity/DataIntegritySummary");
+  MonitorElement * dataIntegritySummary = igetter.get("DT/00-DataIntegrity/DataIntegritySummary");
   if(dataIntegritySummary != 0) {
   int nDisabledFED = 0;
   for(int wheel = 1; wheel != 6; ++wheel) { // loop over the wheels
@@ -147,7 +127,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
     // retrieve the occupancy summary
     stringstream str;
     str << "DT/01-Digi/OccupancySummary_W" << wheel;
-    MonitorElement * wheelOccupancySummary =  dbe->get(str.str());
+    MonitorElement * wheelOccupancySummary =  igetter.get(str.str());
     if(wheelOccupancySummary != 0) {
       int nFailingChambers = 0;
       for(int sector=1; sector<=12; sector++){ // loop over sectors
@@ -176,17 +156,6 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
   if(occupancyFound && !noDTData)
     summaryReport->Fill(totalStatus/5.);
-
-//   cout << "-----------------------------------------------------------------------------" << endl;
-//   cout << " In the endLuminosityBlock: " << endl;
-//   for(int wheel = -2; wheel != 3; ++wheel) {
-//     for(int sector = 1; sector != 13; sector++) {
-//       cout << " wheel: " << wheel << " sector: " << sector << " status on the map is: "
-// 	   << summaryReportMap->getBinContent(sector, wheel+3) << endl;
-//     }
-//   }
-//   cout << "-----------------------------------------------------------------------------" << endl;
-
 
 }
 

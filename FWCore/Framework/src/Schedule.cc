@@ -484,6 +484,9 @@ namespace edm {
       
       areg->watchPrePathEvent(timeKeeperPtr, &SystemTimeKeeper::startPath);
       areg->watchPostPathEvent(timeKeeperPtr, &SystemTimeKeeper::stopPath);
+      
+      areg->watchPostBeginJob(timeKeeperPtr, &SystemTimeKeeper::startProcessingLoop);
+      areg->watchPreEndJob(timeKeeperPtr, &SystemTimeKeeper::stopProcessingLoop);
       //areg->preModuleEventSignal_.connect([timeKeeperPtr](StreamContext const& iContext, ModuleCallingContext const& iMod) {
       //timeKeeperPtr->startModuleEvent(iContext,iMod);
       //});
@@ -580,7 +583,7 @@ namespace edm {
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Path   Summary ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
       << std::right << std::setw(10) << "Trig Bit#" << " "
-      << std::right << std::setw(10) << "Run" << " "
+      << std::right << std::setw(10) << "Executed" << " "
       << std::right << std::setw(10) << "Passed" << " "
       << std::right << std::setw(10) << "Failed" << " "
       << std::right << std::setw(10) << "Error" << " "
@@ -617,7 +620,7 @@ namespace edm {
       LogVerbatim("FwkSummary") << "TrigReport " << "-------End-Path   Summary ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
       << std::right << std::setw(10) << "Trig Bit#" << " "
-      << std::right << std::setw(10) << "Run" << " "
+      << std::right << std::setw(10) << "Executed" << " "
       << std::right << std::setw(10) << "Passed" << " "
       << std::right << std::setw(10) << "Failed" << " "
       << std::right << std::setw(10) << "Error" << " "
@@ -687,7 +690,7 @@ namespace edm {
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Module Summary ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
       << std::right << std::setw(10) << "Visited" << " "
-      << std::right << std::setw(10) << "Run" << " "
+      << std::right << std::setw(10) << "Executed" << " "
       << std::right << std::setw(10) << "Passed" << " "
       << std::right << std::setw(10) << "Failed" << " "
       << std::right << std::setw(10) << "Error" << " "
@@ -712,184 +715,121 @@ namespace edm {
     LogVerbatim("FwkSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
     LogVerbatim("FwkSummary") << "TimeReport"
                               << std::setprecision(6) << std::fixed
-                              << " CPU/event = " << tr.eventSummary.cpuTime/totalEvents
-                              << " Real/event = " << tr.eventSummary.realTime/totalEvents
-                              << "";
-
+                              << "       event loop CPU/event = " << tr.eventSummary.cpuTime/totalEvents;
+    LogVerbatim("FwkSummary") << "TimeReport"
+                              << std::setprecision(6) << std::fixed
+                              << "      event loop Real/event = " << tr.eventSummary.realTime/totalEvents;
+    LogVerbatim("FwkSummary") << "TimeReport"
+                              << std::setprecision(6) << std::fixed
+                              << "     sum Streams Real/event = " << tr.eventSummary.sumStreamRealTime/totalEvents;
+    LogVerbatim("FwkSummary") << "TimeReport"
+                              << std::setprecision(6) << std::fixed
+                              << " efficiency CPU/Real/thread = " << tr.eventSummary.cpuTime/tr.eventSummary.realTime/preallocConfig_.numberOfThreads();
+    
+    constexpr int kColumn1Size = 10;
+    constexpr int kColumn2Size = 12;
+    constexpr int kColumn3Size = 12;
     LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Path   Summary ---[Real sec]----";
     LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per path-run "
-                              << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
+                              << std::right << std::setw(kColumn1Size) << "per event"<<" "
+                              << std::right << std::setw(kColumn2Size) << "per exec"
+                              << "  Name";
     for (auto const& p: tr.trigPathSummaries) {
       const int timesRun = std::max(1, p.timesRun);
       LogVerbatim("FwkSummary") << "TimeReport "
                                 << std::setprecision(6) << std::fixed
-                                << std::right << std::setw(10) << p.cpuTime/totalEvents << " "
-                                << std::right << std::setw(10) << p.realTime/totalEvents << " "
-                                << std::right << std::setw(10) << p.cpuTime/timesRun << " "
-                                << std::right << std::setw(10) << p.realTime/timesRun << " "
+                                << std::right << std::setw(kColumn1Size) << p.realTime/totalEvents << " "
+                                << std::right << std::setw(kColumn2Size) << p.realTime/timesRun << "  "
                                 << p.name << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per path-run "
-                              << "";
+                              << std::right << std::setw(kColumn1Size) << "per event"<<" "
+                              << std::right << std::setw(kColumn2Size) << "per exec"
+                              << "  Name" << "";
 
     LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport " << "-------End-Path   Summary ---[Real sec]----";
     LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per endpath-run "
-                              << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
+                              << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                              << std::right << std::setw(kColumn2Size) << "per exec"
+                              << "  Name" << "";
     for (auto const& p: tr.endPathSummaries) {
       const int timesRun = std::max(1, p.timesRun);
 
       LogVerbatim("FwkSummary") << "TimeReport "
                                 << std::setprecision(6) << std::fixed
-                                << std::right << std::setw(10) << p.cpuTime/totalEvents << " "
-                                << std::right << std::setw(10) << p.realTime/totalEvents << " "
-                                << std::right << std::setw(10) << p.cpuTime/timesRun << " "
-                                << std::right << std::setw(10) << p.realTime/timesRun << " "
+                                << std::right << std::setw(kColumn1Size) << p.realTime/totalEvents << " "
+                                << std::right << std::setw(kColumn2Size) << p.realTime/timesRun << "  "
                                 << p.name << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per endpath-run "
-                              << "";
+                              << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                              << std::right << std::setw(kColumn2Size) << "per exec"
+                              << "  Name" << "";
 
     for (auto const& p: tr.trigPathSummaries) {
       LogVerbatim("FwkSummary") << "";
-      LogVerbatim("FwkSummary") << "TimeReport " << "---------- Modules in Path: " << p.name << " ---[sec]----";
+      LogVerbatim("FwkSummary") << "TimeReport " << "---------- Modules in Path: " << p.name << " ---[Real sec]----";
       LogVerbatim("FwkSummary") << "TimeReport "
-                                << std::right << std::setw(22) << "per event "
-                                << std::right << std::setw(22) << "per module-visit "
-                                << "";
-      LogVerbatim("FwkSummary") << "TimeReport "
-                                << std::right << std::setw(10) << "CPU" << " "
-                                << std::right << std::setw(10) << "Real" << " "
-                                << std::right << std::setw(10) << "CPU" << " "
-                                << std::right << std::setw(10) << "Real" << " "
-                                << "Name" << "";
+                                << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                                << std::right << std::setw(kColumn2Size) << "per visit"
+                                << "  Name" << "";
       for (auto const& mod: p.moduleInPathSummaries) {
         LogVerbatim("FwkSummary") << "TimeReport "
                                   << std::setprecision(6) << std::fixed
-                                  << std::right << std::setw(10) << mod.cpuTime/totalEvents << " "
-                                  << std::right << std::setw(10) << mod.realTime/totalEvents << " "
-                                  << std::right << std::setw(10) << mod.cpuTime/std::max(1, mod.timesVisited) << " "
-                                  << std::right << std::setw(10) << mod.realTime/std::max(1, mod.timesVisited) << " "
+                                  << std::right << std::setw(kColumn1Size) << mod.realTime/totalEvents << " "
+                                  << std::right << std::setw(kColumn2Size) << mod.realTime/std::max(1, mod.timesVisited) << "  "
                                   << mod.moduleLabel << "";
       }
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per module-visit "
-                              << "";
-
+    if(not tr.trigPathSummaries.empty()) {
+      LogVerbatim("FwkSummary") << "TimeReport "
+                                << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                                << std::right << std::setw(kColumn2Size) << "per visit"
+                                << "  Name" << "";
+    }
     for (auto const& p: tr.endPathSummaries) {
       LogVerbatim("FwkSummary") << "";
-      LogVerbatim("FwkSummary") << "TimeReport " << "------ Modules in End-Path: " << p.name << " ---[sec]----";
+      LogVerbatim("FwkSummary") << "TimeReport " << "------ Modules in End-Path: " << p.name << " ---[Real sec]----";
       LogVerbatim("FwkSummary") << "TimeReport "
-                                << std::right << std::setw(22) << "per event "
-                                << std::right << std::setw(22) << "per module-visit "
-                                << "";
-      LogVerbatim("FwkSummary") << "TimeReport "
-                                << std::right << std::setw(10) << "CPU" << " "
-                                << std::right << std::setw(10) << "Real" << " "
-                                << std::right << std::setw(10) << "CPU" << " "
-                                << std::right << std::setw(10) << "Real" << " "
-                                << "Name" << "";
+                                << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                                << std::right << std::setw(kColumn2Size) << "per visit"
+                                << "  Name" << "";
       for (auto const& mod: p.moduleInPathSummaries) {
         LogVerbatim("FwkSummary") << "TimeReport "
                                   << std::setprecision(6) << std::fixed
-                                  << std::right << std::setw(10) << mod.cpuTime/totalEvents << " "
-                                  << std::right << std::setw(10) << mod.realTime/totalEvents << " "
-                                  << std::right << std::setw(10) << mod.cpuTime/std::max(1, mod.timesVisited) << " "
-                                  << std::right << std::setw(10) << mod.realTime/std::max(1, mod.timesVisited) << " "
+                                  << std::right << std::setw(kColumn1Size) << mod.realTime/totalEvents << " "
+                                  << std::right << std::setw(kColumn2Size) << mod.realTime/std::max(1, mod.timesVisited) << "  "
                                   << mod.moduleLabel << "";
       }
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per module-visit "
-                              << "";
-
+    if(not tr.endPathSummaries.empty()) {
+      LogVerbatim("FwkSummary") << "TimeReport "
+                                << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                                << std::right << std::setw(kColumn2Size) << "per visit"
+                                << "  Name" << "";
+    }
     LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Module Summary ---[Real sec]----";
     LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per module-run "
-                              << std::right << std::setw(22) << "per module-visit "
-                              << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
+                              << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                              << std::right << std::setw(kColumn2Size) << "per exec" <<" "
+                              << std::right << std::setw(kColumn3Size) << "per visit"
+                              << "  Name" << "";
     for (auto const& worker : tr.workerSummaries) {
       LogVerbatim("FwkSummary") << "TimeReport "
                                 << std::setprecision(6) << std::fixed
-                                << std::right << std::setw(10) << worker.cpuTime/totalEvents << " "
-                                << std::right << std::setw(10) << worker.realTime/totalEvents << " "
-                                << std::right << std::setw(10) << worker.cpuTime/std::max(1, worker.timesRun) << " "
-                                << std::right << std::setw(10) << worker.realTime/std::max(1, worker.timesRun) << " "
-                                << std::right << std::setw(10) << worker.cpuTime/std::max(1, worker.timesVisited) << " "
-                                << std::right << std::setw(10) << worker.realTime/std::max(1, worker.timesVisited) << " "
+                                << std::right << std::setw(kColumn1Size) << worker.realTime/totalEvents << " "
+                                << std::right << std::setw(kColumn2Size) << worker.realTime/std::max(1, worker.timesRun) << " "
+                                << std::right << std::setw(kColumn3Size) << worker.realTime/std::max(1, worker.timesVisited) << "  "
                                 << worker.moduleLabel << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << std::right << std::setw(10) << "CPU" << " "
-                              << std::right << std::setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
-                              << std::right << std::setw(22) << "per event "
-                              << std::right << std::setw(22) << "per module-run "
-                              << std::right << std::setw(22) << "per module-visit "
-                              << "";
+                              << std::right << std::setw(kColumn1Size) << "per event" <<" "
+                              << std::right << std::setw(kColumn2Size) << "per exec" <<" "
+                              << std::right << std::setw(kColumn3Size) << "per visit"
+                              << "  Name" << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "T---Report end!" << "";
@@ -1022,9 +962,65 @@ namespace edm {
   }
 
   void
+  Schedule::triggerPaths(std::vector<std::string>& oLabelsToFill) const {
+    streamSchedules_[0]->triggerPaths(oLabelsToFill);
+  }
+
+  void
+  Schedule::endPaths(std::vector<std::string>& oLabelsToFill) const {
+    streamSchedules_[0]->endPaths(oLabelsToFill);
+  }
+
+  void
   Schedule::modulesInPath(std::string const& iPathLabel,
                           std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->modulesInPath(iPathLabel,oLabelsToFill);
+  }
+
+  void
+  Schedule::moduleDescriptionsInPath(std::string const& iPathLabel,
+                                     std::vector<ModuleDescription const*>& descriptions,
+                                     unsigned int hint) const {
+    streamSchedules_[0]->moduleDescriptionsInPath(iPathLabel, descriptions, hint);
+  }
+
+  void
+  Schedule::moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                        std::vector<ModuleDescription const*>& descriptions,
+                                        unsigned int hint) const {
+    streamSchedules_[0]->moduleDescriptionsInEndPath(iEndPathLabel, descriptions, hint);
+  }
+
+  void
+  Schedule::fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
+                                      std::vector<std::pair<unsigned int, unsigned int> >& moduleIDToIndex,
+                                      std::vector<std::vector<ModuleDescription const*> >& modulesWhoseProductsAreConsumedBy,
+                                      ProductRegistry const& preg) const {
+    allModuleDescriptions.clear();
+    moduleIDToIndex.clear();
+    modulesWhoseProductsAreConsumedBy.clear();
+
+    allModuleDescriptions.reserve(allWorkers().size());
+    moduleIDToIndex.reserve(allWorkers().size());
+    modulesWhoseProductsAreConsumedBy.resize(allWorkers().size());
+
+    std::map<std::string, ModuleDescription const*> labelToDesc;
+    unsigned int i = 0;
+    for (auto const& worker : allWorkers()) {
+      ModuleDescription const* p = worker->descPtr();
+      allModuleDescriptions.push_back(p);
+      moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
+      labelToDesc[p->moduleLabel()] = p;
+      ++i;
+    }
+    sort_all(moduleIDToIndex);
+
+    i = 0;
+    for (auto const& worker : allWorkers()) {
+      std::vector<ModuleDescription const*>& modules = modulesWhoseProductsAreConsumedBy.at(i);
+      worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
+      ++i;
+    }
   }
 
   void

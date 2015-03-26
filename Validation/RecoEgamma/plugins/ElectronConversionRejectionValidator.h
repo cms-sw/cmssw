@@ -1,6 +1,5 @@
 #ifndef ElectronConversionRejectionValidator_H
 #define ElectronConversionRejectionValidator_H
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -13,6 +12,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 //
 //DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -40,30 +40,21 @@ class SimTrack;
  ***/
 
 
-class ElectronConversionRejectionValidator : public edm::EDAnalyzer
+class ElectronConversionRejectionValidator : public DQMEDAnalyzer
 {
 
  public:
 
-  //
   explicit ElectronConversionRejectionValidator( const edm::ParameterSet& ) ;
   virtual ~ElectronConversionRejectionValidator();
 
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob();
-  virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
-  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
-  virtual void endJob() ;
-  void bookHistograms(void);
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
+      edm::EventSetup const&) override;
 
  private:
-  //
-
-
-
   std::string fName_;
-  DQMStore *dbe_;
 
   int verbosity_;
   int nEvt_;

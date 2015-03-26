@@ -87,7 +87,6 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
             m_l1GtPfTechCacheID(0ULL), m_l1GtTmAlgoCacheID(0ULL),
             m_l1GtTmTechCacheID(0ULL),
             //
-            m_dbe(0),
             m_agree(true),
             m_dataOnly(false),
             m_emulOnly(false),
@@ -145,20 +144,6 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
 
     // FIXME print in debug mode ExcludeCondCategTypeObject, ExcludeAlgoTrigByName, etc
 
-    m_dbe = edm::Service<DQMStore>().operator->();
-    if (m_dbe == 0) {
-        edm::LogInfo("L1GtHwValidation")
-                << "\n Unable to get DQMStore service.";
-    } else {
-
-        if (paramSet.getUntrackedParameter<bool>("DQMStore", false)) {
-            m_dbe->setVerbose(0);
-        }
-
-        m_dbe->setCurrentFolder(m_dirName);
-
-    }
-
     //set Token(-s)
     m_l1GtDataDaqInputToken_ = consumes<L1GlobalTriggerReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtDataDaqInputTag"));
     m_l1GtEmulDaqInputToken_ = consumes<L1GlobalTriggerReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtEmulDaqInputTag"));
@@ -173,25 +158,470 @@ L1GtHwValidation::~L1GtHwValidation() {
 
 // member functions
 
-// method called once each job just before starting event loop
-void L1GtHwValidation::beginJob() {}
+void L1GtHwValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& evSetup){
+}
 
+void L1GtHwValidation::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& evSetup){
+  //lumisecId_->Fill(l.id().luminosityBlock());
+}
 
-void L1GtHwValidation::beginRun(const edm::Run& iRun,
-				const edm::EventSetup& evSetup) {
-   
-    // clean up directory
-    if (m_dbe) {
-        m_dbe->setCurrentFolder(m_dirName);
-        if (m_dbe->dirExists(m_dirName)) {
-            m_dbe->rmdir(m_dirName);
+void L1GtHwValidation::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& evSetup) {
+  
+    ibooker.setCurrentFolder(m_dirName);
+
+    // histograms
+
+    const unsigned int numberTechTriggers = L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers;
+
+    const unsigned int numberAlgoTriggers = L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
+
+    for (int iRec = 0; iRec < NumberOfGtRecords; ++iRec) {
+
+        std::string recString;
+        if (iRec == 0) {
+            recString = "Daq_";
+            ibooker.setCurrentFolder(m_dirName + "/DAQ/");
+
+        } else {
+            recString = "Evm_";
+            ibooker.setCurrentFolder(m_dirName + "/EVM/");
         }
-        m_dbe->setCurrentFolder(m_dirName);
+
+        std::string hName;
+        const char* histName;
+
+        hName = recString + "gtfeDataEmul";
+        histName = hName.c_str();
+
+        // GTFE histograms
+        m_gtfeDataEmul[iRec] = ibooker.book1D(histName, "GTFE data vs emul mismatch", 8, 0., 7.);
+        m_gtfeDataEmul[iRec]->setBinLabel(1, "BoardId", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(2, "RecordLength1", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(3, "RecordLength0", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(4, "BxNr", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(5, "SetupVersion", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(6, "DaqActiveBoards", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(7, "AltNrBxBoard", 1);
+        m_gtfeDataEmul[iRec]->setBinLabel(8, "TotalTriggerNr", 1);
+
+        // FDL histograms
+
+        for (int iHist = 0; iHist < TotalBxInEvent; ++iHist) {
+
+            // convert [0, TotalBxInEvent] to [-X, +X] and add to histogram name 
+            int iIndex = iHist - ((TotalBxInEvent + 1) / 2 - 1);
+            int hIndex = (iIndex + 16) % 16;
+
+            std::stringstream ss;
+            std::string str;
+            ss << std::uppercase << std::hex << hIndex;
+            ss >> str;
+
+            if (iRec == 0) {
+              ibooker.setCurrentFolder(m_dirName + "/DAQ/BxInEvent_" + str);
+
+            } else {
+              ibooker.setCurrentFolder(m_dirName + "/EVM/BxInEvent_" + str);
+            }
+
+            hName = recString + "FdlDataEmul_" + str;
+            histName = hName.c_str();
+
+            std::string hTitle = "FDL data vs emul mismatch for BxInEvent = " + str;
+            const char* histTitle = hTitle.c_str();
+
+            //
+
+            m_fdlDataEmul[iHist][iRec] = ibooker.book1D(histName, histTitle, 13, 0., 13.);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(1, "BoardId", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(2, "BxInEvent", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(3, "BxNr", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(4, "EventNr", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(5, "TechTrigger", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(6, "TechTriggerMask", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(7, "AlgoTrigger", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(8, "AlgoTriggerMask", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(9, "AlgoExtend", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(10, "NoAlgo", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(11, "FinalORAllParts", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(12, "FinalORPhysPart", 1);
+            m_fdlDataEmul[iHist][iRec]->setBinLabel(13, "LocalBxNr", 1);
+
+            // algorithm decision
+            //   data
+            hName = recString + "Data_AlgoDecision_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: algorithm decision word for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecision[iHist][iRec] = ibooker.book1D(histName,histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //   emul
+            hName = recString + "Emul_AlgoDecision_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: algorithm decision word for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecision[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            // algorithm decision for prescaled algorithms
+            //   data
+            hName = recString + "Data_AlgoDecision_Prescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: prescaled algorithms: algorithm decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionPrescaled[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //   emul
+            hName = recString + "Emul_AlgoDecision_Prescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: prescaled algorithms: algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionPrescaled[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0.,numberAlgoTriggers);
+
+            // algorithm decision for unprescaled algorithms
+            //   data
+            hName = recString + "Data_AlgoDecision_Unprescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data: unprescaled algorithms: algorithm decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionUnprescaled[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //   emul
+            hName = recString + "Emul_AlgoDecision_Unprescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: unprescaled algorithms: algorithm decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionUnprescaled[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            // algorithm decision after masking (partition physics)
+            //   data
+            hName = recString + "Data_AlgoDecisionAfterMask_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data, physics partition: algorithm decision word after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionMask[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //   emul
+            hName = recString + "Emul_AlgoDecisionAfterMask_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul, physics partition: algorithm decision word after mask for BxInEvent =  " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionMask[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul: non-matching algorithm decision word for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecision[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_Prescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul: prescaled algorithms with non-matching decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionPrescaled[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_Unprescaled_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul: unprescaled algorithms with non-matching decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionUnprescaled[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_Unprescaled_Allowed_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul: unprescaled algorithms not excluded with non-matching decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionUnprescaledAllowed[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Data_AlgoDecision_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: algorithm decision for non-matching cases for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecision_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: algorithm decision for non-matching cases for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecision_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            // prescaled algorithms
+            hName = recString + "Data_AlgoDecision_Prescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: prescaled algorithms: non-matching algorithm decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionPrescaled_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_Prescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: prescaled algorithms: non-matching algorithm decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionPrescaled_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+
+            // unprescaled algorithms - non-matching
+            hName = recString + "Data_AlgoDecision_Unprescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: unprescaled algorithms: non-matching algorithm decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionUnprescaled_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_Unprescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: unprescaled algorithms: non-matching algorithm decision for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionUnprescaled_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+
+
+            //
+            hName = recString + "Data_AlgoDecisionMask_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: algorithm decision for non-matching cases after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionMask_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecisionMask_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: algorithm decision for non-matching cases after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionMask_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            // prescaled algorithms
+            hName = recString + "Data_AlgoDecisionMask_Prescaled_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: prescaled algorithms: non-matching algorithm decision after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionPrescaledMask_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_PrescaledMask_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: prescaled algorithms: non-matching algorithm decision after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionPrescaledMask_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+
+            // unprescaled algorithms - non-matching
+            hName = recString + "Data_AlgoDecision_UnprescaledMask_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data: unprescaled algorithms: non-matching algorithm decision after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataAlgoDecisionUnprescaledMask_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            //
+            hName = recString + "Emul_AlgoDecision_UnprescaledMask_NoMatch_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: unprescaled algorithms: non-matching algorithm decision after mask for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulAlgoDecisionUnprescaledMask_NoMatch[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+
+
+            // 
+            hName = recString + "DataEmul_AlgoDecisionAfterMask_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul, physics partition: non-matching algorithm decision word after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionMask[iHist][iRec] = ibooker.book1D(histName, histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
+
+            // technical trigger decision 
+            //   data
+            hName = recString + "Data_TechDecision_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data technical trigger decision word for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataTechDecision[iHist][iRec] = ibooker.book1D(histName, histTitle, numberTechTriggers, 0., numberTechTriggers);
+
+            //   emul
+            hName = recString + "Emul_TechDecision_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Emul: technical trigger decision word for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulTechDecision[iHist][iRec] = ibooker.book1D(histName,histTitle, numberTechTriggers, 0., numberTechTriggers);
+
+            // technical trigger decision after masking (partition physics)
+            hName = recString + "Data_TechDecisionAfterMask_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data technical trigger decision word after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataTechDecisionMask[iHist][iRec] = ibooker.book1D(histName, histTitle, numberTechTriggers, 0., numberTechTriggers);
+
+            //
+            hName = recString + "Emul_TechDecisionAfterMask_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Emul: technical trigger decision word after mask for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlEmulTechDecisionMask[iHist][iRec] = ibooker.book1D(histName, histTitle, numberTechTriggers, 0., numberTechTriggers);
+
+            //
+            hName = recString + "DataEmul_TechDecision_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul: non-matching technical trigger decision word for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulTechDecision[iHist][iRec] = ibooker.book1D(histName, histTitle, numberTechTriggers, 0., numberTechTriggers);
+
+            hName = recString + "DataEmul_TechDecisionAfterMask_" + str;
+            histName = hName.c_str();
+
+            hTitle = "Data vs emul: non-matching technical trigger decision word after mask for BxInEvent = " + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulTechDecisionMask[iHist][iRec] = ibooker.book1D(histName, histTitle, numberTechTriggers, 0., numberTechTriggers);
+
+        }
+
+        if (iRec == 0) {
+            ibooker.setCurrentFolder(m_dirName + "/DAQ/");
+
+        } else {
+            ibooker.setCurrentFolder(m_dirName + "/EVM/");
+        }
+
+        hName = recString + "FdlDataEmul_Err";
+        histName = hName.c_str();
+
+        m_fdlDataEmul_Err[iRec] = ibooker.book1D(histName, "FDL data vs emul mismatch for non-matching BxInEvent in FDL payload", 13, 0., 13.);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(1, "BoardId", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(2, "BxInEvent", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(3, "BxNr", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(4, "EventNr", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(5, "TechTrigger", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(6, "TechTriggerMask", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(7, "AlgoTrigger", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(8, "AlgoTriggerMask", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(9, "AlgoExtend", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(10, "NoAlgo", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(11, "FinalORAllParts", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(12, "FinalORPhysPart", 1);
+        m_fdlDataEmul_Err[iRec]->setBinLabel(13, "LocalBxNr", 1);
+
+        hName = recString + "FdlDataAlgoDecision_Err";
+        histName = hName.c_str();
+
+        m_fdlDataAlgoDecision_Err[iRec] = ibooker.book1D(histName, "Data: algorithm trigger decision word, non-matching BxInEvent", numberAlgoTriggers, 0., numberAlgoTriggers);
+
+        //
+        hName = recString + "Emul_AlgoDecision_Err";
+        histName = hName.c_str();
+
+        m_fdlEmulAlgoDecision_Err[iRec] = ibooker.book1D(histName, "Emul: algorithm trigger decision word, non-matching BxInEvent", numberAlgoTriggers, 0., numberAlgoTriggers);
+
+        hName = recString + "DataEmul_AlgoDecision_Err";
+        histName = hName.c_str();
+
+        m_fdlDataEmulAlgoDecision_Err[iRec] = ibooker.book1D(histName, "Data vs emul: algorithm trigger decision word, non-matching BxInEvent", numberAlgoTriggers, 0., numberAlgoTriggers);
+
+        //
+        hName = recString + "Data_TechDecision_Err";
+        histName = hName.c_str();
+
+        m_fdlDataTechDecision_Err[iRec] = ibooker.book1D(histName, "Data: technical trigger decision word, non-matching BxInEvent", numberTechTriggers, 0., numberTechTriggers);
+
+        hName = recString + "Emul_TechDecision_Err";
+        histName = hName.c_str();
+
+        m_fdlEmulTechDecision_Err[iRec] = ibooker.book1D(histName, "Emul: technical trigger decision word, non-matching BxInEvent", numberTechTriggers, 0., numberTechTriggers);
+
+        hName = recString + "DataEmul_TechDecision_Err";
+        histName = hName.c_str();
+
+        m_fdlDataEmulTechDecision_Err[iRec] = ibooker.book1D(histName, "Data vs emul: technical trigger decision word, non-matching BxInEvent", numberTechTriggers, 0., numberTechTriggers);
+
     }
 
-    // book histograms
-    bookHistograms();
+    ibooker.setCurrentFolder(m_dirName);
 
+    //
+    m_excludedAlgorithmsAgreement = ibooker.book1D("ExcludedAlgorithmsFromAgreement", "Algorithms excluded from data versus emulator agreement flag", numberAlgoTriggers, 0., numberAlgoTriggers);
+
+    //
+
+    m_gtErrorFlag = ibooker.book1D("GTErrorFlag", "L1 GT error flag for data versus emulator comparison", 5, 0., 5);
+
+    m_gtErrorFlag->setBinLabel(1, "Agree", 1);
+    m_gtErrorFlag->setBinLabel(2, "", 1);
+    m_gtErrorFlag->setBinLabel(3, "", 1);
+    m_gtErrorFlag->setBinLabel(4, "Data only", 1);
+    m_gtErrorFlag->setBinLabel(5, "Emul only", 1);    
+    
 
     m_nrEvRun = 0;
 
@@ -252,14 +682,14 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
                 ss >> str;
 
                 if (iRec == 0) {
-                    if (m_dbe) {
-                        m_dbe->setCurrentFolder(m_dirName + "/DAQ/BxInEvent_" + str);
-                    }
+		  //if (m_dbe) {
+                    ibooker.setCurrentFolder(m_dirName + "/DAQ/BxInEvent_" + str);
+                    //}
 
                 } else {
-                    if (m_dbe) {
-                        m_dbe->setCurrentFolder(m_dirName + "/EVM/BxInEvent_" + str);
-                    }
+		  //if (m_dbe) {
+                    ibooker.setCurrentFolder(m_dirName + "/EVM/BxInEvent_" + str);
+                    //}
                 }
 
 
@@ -299,34 +729,25 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
 
 
             if (iRec == 0) {
-                if (m_dbe) {
-                    m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
-                }
+                ibooker.setCurrentFolder(m_dirName + "/DAQ/");
 
             } else {
-                if (m_dbe) {
-                    m_dbe->setCurrentFolder(m_dirName + "/EVM/");
-                }
+                ibooker.setCurrentFolder(m_dirName + "/EVM/");
             }
 
 
-            m_fdlDataAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1,
-                    algName, 1);
+            m_fdlDataAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1, algName, 1);
 
-            m_fdlEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1,
-                    algName, 1);
+            m_fdlEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1, algName, 1);
 
-            m_fdlDataEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber
-                    + 1, algName, 1);
+            m_fdlDataEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1, algName, 1);
         }
 
         //
-        for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo
-                != m_excludedAlgoList.end(); ++itAlgo) {
+        for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo!= m_excludedAlgoList.end(); ++itAlgo) {
 
 	     if (algBitNumber == *itAlgo) {
-                m_excludedAlgorithmsAgreement->setBinLabel(algBitNumber
-                        + 1, algName, 1);
+                m_excludedAlgorithmsAgreement->setBinLabel(algBitNumber + 1, algName, 1);
             }
         }
 
@@ -407,18 +828,6 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
         const L1GtfeWord& gtfeBlockEmul, const int iRec) {
 
     std::string recString;
-    if (iRec == 0) {
-        recString = "DAQ";
-        if (m_dbe) {
-            m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
-        }
-    } else {
-        recString = "EVM";
-        if (m_dbe) {
-            m_dbe->setCurrentFolder(m_dirName + "/EVM/");
-        }
-    }
-
     if (gtfeBlockData == gtfeBlockEmul) {
         m_myCoutStream << "\n" << recString
                 << " Data and emulated GTFE blocks: identical.\n";
@@ -630,17 +1039,6 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
     // 
     std::string recString;
-    if (iRec == 0) {
-        recString = "DAQ";
-        if (m_dbe) {
-            m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
-        }
-    } else {
-        recString = "EVM";
-        if (m_dbe) {
-            m_dbe->setCurrentFolder(m_dirName + "/EVM/");
-        }
-    }
 
     if (fdlBlockData == fdlBlockEmul) {
         m_myCoutStream << "\n" << recString
@@ -1581,8 +1979,7 @@ void L1GtHwValidation::compareTCS(const edm::Event& iEvent,
 }
 
 //L1 GT DAQ record comparison
-void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
+void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     // formal index for DAQ record 
     int iRec = 0;
@@ -1735,12 +2132,6 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     // fill the m_gtErrorFlag histogram (only for L1 GT DAQ record)
 
-
-    if (m_dbe) {
-        m_dbe->setCurrentFolder(m_dirName);
-    }
-
-
     if (m_agree) {
         m_gtErrorFlag->Fill(0.0001);
     }
@@ -1857,627 +2248,20 @@ void L1GtHwValidation::compareGt_Gct(const edm::Event& iEvent,
 void L1GtHwValidation::analyze(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
-    ++m_nrEvJob;
-    ++m_nrEvRun;
+      ++m_nrEvJob;
+      ++m_nrEvRun;
 
     // L1 GT DAQ record comparison
-    compareDaqRecord(iEvent, evSetup);
+      compareDaqRecord(iEvent, evSetup);
 
     // L1 GT EVM record comparison
-    compareEvmRecord(iEvent, evSetup);
+      compareEvmRecord(iEvent, evSetup);
 
     // GCT collections from L1 GT PSB versus unpacked GCT 
-    compareGt_Gct(iEvent, evSetup);
+      compareGt_Gct(iEvent, evSetup);
 
 }
 
-// book all histograms for the module
-void L1GtHwValidation::bookHistograms() {
-
-    // histograms
-
-    const unsigned int numberTechTriggers =
-            L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers;
-
-    const unsigned int numberAlgoTriggers =
-            L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
-
-    for (int iRec = 0; iRec < NumberOfGtRecords; ++iRec) {
-
-        std::string recString;
-        if (iRec == 0) {
-            recString = "Daq_";
-            if (m_dbe) {
-                m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
-            }
-
-        } else {
-            recString = "Evm_";
-            if (m_dbe) {
-                m_dbe->setCurrentFolder(m_dirName + "/EVM/");
-            }
-        }
-
-        std::string hName;
-        const char* histName;
-
-        hName = recString + "gtfeDataEmul";
-        histName = hName.c_str();
-
-        // GTFE histograms
-        m_gtfeDataEmul[iRec] = m_dbe->book1D(histName,
-                "GTFE data vs emul mismatch", 8, 0., 7.);
-        m_gtfeDataEmul[iRec]->setBinLabel(1, "BoardId", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(2, "RecordLength1", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(3, "RecordLength0", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(4, "BxNr", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(5, "SetupVersion", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(6, "DaqActiveBoards", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(7, "AltNrBxBoard", 1);
-        m_gtfeDataEmul[iRec]->setBinLabel(8, "TotalTriggerNr", 1);
-
-        // FDL histograms
-
-        for (int iHist = 0; iHist < TotalBxInEvent; ++iHist) {
-
-            // convert [0, TotalBxInEvent] to [-X, +X] and add to histogram name 
-            int iIndex = iHist - ((TotalBxInEvent + 1) / 2 - 1);
-            int hIndex = (iIndex + 16) % 16;
-
-            std::stringstream ss;
-            std::string str;
-            ss << std::uppercase << std::hex << hIndex;
-            ss >> str;
-
-            if (iRec == 0) {
-                if (m_dbe) {
-                    m_dbe->setCurrentFolder(m_dirName + "/DAQ/BxInEvent_" + str);
-                }
-
-            } else {
-                if (m_dbe) {
-                    m_dbe->setCurrentFolder(m_dirName + "/EVM/BxInEvent_" + str);
-                }
-            }
-
-            hName = recString + "FdlDataEmul_" + str;
-            histName = hName.c_str();
-
-            std::string hTitle = "FDL data vs emul mismatch for BxInEvent = "
-                    + str;
-            const char* histTitle = hTitle.c_str();
-
-            //
-
-            m_fdlDataEmul[iHist][iRec] = m_dbe->book1D(histName, histTitle, 13,
-                    0., 13.);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(1, "BoardId", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(2, "BxInEvent", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(3, "BxNr", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(4, "EventNr", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(5, "TechTrigger", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(6, "TechTriggerMask", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(7, "AlgoTrigger", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(8, "AlgoTriggerMask", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(9, "AlgoExtend", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(10, "NoAlgo", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(11, "FinalORAllParts", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(12, "FinalORPhysPart", 1);
-            m_fdlDataEmul[iHist][iRec]->setBinLabel(13, "LocalBxNr", 1);
-
-            // algorithm decision
-            //   data
-            hName = recString + "Data_AlgoDecision_" + str;
-            histName = hName.c_str();
-
-            hTitle = "Data: algorithm decision word for BxInEvent = " + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecision[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
-
-            //   emul
-            hName = recString + "Emul_AlgoDecision_" + str;
-            histName = hName.c_str();
-
-            hTitle = "Emul: algorithm decision word for BxInEvent = " + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecision[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
-
-            // algorithm decision for prescaled algorithms
-            //   data
-            hName = recString + "Data_AlgoDecision_Prescaled_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: prescaled algorithms: algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionPrescaled[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //   emul
-            hName = recString + "Emul_AlgoDecision_Prescaled_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: prescaled algorithms: algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionPrescaled[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            // algorithm decision for unprescaled algorithms
-            //   data
-            hName = recString + "Data_AlgoDecision_Unprescaled_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: unprescaled algorithms: algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //   emul
-            hName = recString + "Emul_AlgoDecision_Unprescaled_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: unprescaled algorithms: algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            // algorithm decision after masking (partition physics)
-            //   data
-            hName = recString + "Data_AlgoDecisionAfterMask_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data, physics partition: algorithm decision word after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionMask[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
-
-            //   emul
-            hName = recString + "Emul_AlgoDecisionAfterMask_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul, physics partition: algorithm decision word after mask for BxInEvent =  "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionMask[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
-
-            //
-            hName = recString + "DataEmul_AlgoDecision_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul: non-matching algorithm decision word for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulAlgoDecision[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberAlgoTriggers, 0., numberAlgoTriggers);
-
-            //
-            hName = recString + "DataEmul_AlgoDecision_Prescaled_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul: prescaled algorithms with non-matching decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulAlgoDecisionPrescaled[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //
-            hName = recString + "DataEmul_AlgoDecision_Unprescaled_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul: unprescaled algorithms with non-matching decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //
-            hName = recString + "DataEmul_AlgoDecision_Unprescaled_Allowed_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul: unprescaled algorithms not excluded with non-matching decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulAlgoDecisionUnprescaledAllowed[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //
-            hName = recString + "Data_AlgoDecision_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: algorithm decision for non-matching cases for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecision_NoMatch[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //
-            hName = recString + "Emul_AlgoDecision_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: algorithm decision for non-matching cases for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecision_NoMatch[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            // prescaled algorithms
-            hName = recString + "Data_AlgoDecision_Prescaled_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: prescaled algorithms: non-matching algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionPrescaled_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-            //
-            hName = recString + "Emul_AlgoDecision_Prescaled_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: prescaled algorithms: non-matching algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionPrescaled_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-
-            // unprescaled algorithms - non-matching
-            hName = recString + "Data_AlgoDecision_Unprescaled_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: unprescaled algorithms: non-matching algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionUnprescaled_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-            //
-            hName = recString + "Emul_AlgoDecision_Unprescaled_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: unprescaled algorithms: non-matching algorithm decision for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionUnprescaled_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-
-
-            //
-            hName = recString + "Data_AlgoDecisionMask_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: algorithm decision for non-matching cases after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionMask_NoMatch[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            //
-            hName = recString + "Emul_AlgoDecisionMask_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: algorithm decision for non-matching cases after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionMask_NoMatch[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            // prescaled algorithms
-            hName = recString + "Data_AlgoDecisionMask_Prescaled_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: prescaled algorithms: non-matching algorithm decision after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionPrescaledMask_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-            //
-            hName = recString + "Emul_AlgoDecision_PrescaledMask_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: prescaled algorithms: non-matching algorithm decision after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionPrescaledMask_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-
-            // unprescaled algorithms - non-matching
-            hName = recString + "Data_AlgoDecision_UnprescaledMask_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data: unprescaled algorithms: non-matching algorithm decision after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataAlgoDecisionUnprescaledMask_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-            //
-            hName = recString + "Emul_AlgoDecision_UnprescaledMask_NoMatch_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: unprescaled algorithms: non-matching algorithm decision after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulAlgoDecisionUnprescaledMask_NoMatch[iHist][iRec]
-                    = m_dbe->book1D(histName, histTitle, numberAlgoTriggers,
-                            0., numberAlgoTriggers);
-
-
-
-            // 
-            hName = recString + "DataEmul_AlgoDecisionAfterMask_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul, physics partition: non-matching algorithm decision word after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulAlgoDecisionMask[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberAlgoTriggers, 0.,
-                    numberAlgoTriggers);
-
-            // technical trigger decision 
-            //   data
-            hName = recString + "Data_TechDecision_" + str;
-            histName = hName.c_str();
-
-            hTitle = "Data technical trigger decision word for BxInEvent = "
-                    + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataTechDecision[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberTechTriggers, 0., numberTechTriggers);
-
-            //   emul
-            hName = recString + "Emul_TechDecision_" + str;
-            histName = hName.c_str();
-
-            hTitle = "Emul: technical trigger decision word for BxInEvent = "
-                    + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulTechDecision[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberTechTriggers, 0., numberTechTriggers);
-
-            // technical trigger decision after masking (partition physics)
-            hName = recString + "Data_TechDecisionAfterMask_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data technical trigger decision word after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataTechDecisionMask[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberTechTriggers, 0., numberTechTriggers);
-
-            //
-            hName = recString + "Emul_TechDecisionAfterMask_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Emul: technical trigger decision word after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlEmulTechDecisionMask[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberTechTriggers, 0., numberTechTriggers);
-
-            //
-            hName = recString + "DataEmul_TechDecision_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul: non-matching technical trigger decision word for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulTechDecision[iHist][iRec] = m_dbe->book1D(histName,
-                    histTitle, numberTechTriggers, 0., numberTechTriggers);
-
-            hName = recString + "DataEmul_TechDecisionAfterMask_" + str;
-            histName = hName.c_str();
-
-            hTitle
-                    = "Data vs emul: non-matching technical trigger decision word after mask for BxInEvent = "
-                            + str;
-            histTitle = hTitle.c_str();
-
-            m_fdlDataEmulTechDecisionMask[iHist][iRec] = m_dbe->book1D(
-                    histName, histTitle, numberTechTriggers, 0.,
-                    numberTechTriggers);
-
-        }
-
-        if (iRec == 0) {
-            if (m_dbe) {
-                m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
-            }
-
-        } else {
-            if (m_dbe) {
-                m_dbe->setCurrentFolder(m_dirName + "/EVM/");
-            }
-        }
-
-        hName = recString + "FdlDataEmul_Err";
-        histName = hName.c_str();
-
-        m_fdlDataEmul_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "FDL data vs emul mismatch for non-matching BxInEvent in FDL payload",
-                        13, 0., 13.);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(1, "BoardId", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(2, "BxInEvent", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(3, "BxNr", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(4, "EventNr", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(5, "TechTrigger", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(6, "TechTriggerMask", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(7, "AlgoTrigger", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(8, "AlgoTriggerMask", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(9, "AlgoExtend", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(10, "NoAlgo", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(11, "FinalORAllParts", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(12, "FinalORPhysPart", 1);
-        m_fdlDataEmul_Err[iRec]->setBinLabel(13, "LocalBxNr", 1);
-
-        hName = recString + "FdlDataAlgoDecision_Err";
-        histName = hName.c_str();
-
-        m_fdlDataAlgoDecision_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "Data: algorithm trigger decision word, non-matching BxInEvent",
-                        numberAlgoTriggers, 0., numberAlgoTriggers);
-
-        //
-        hName = recString + "Emul_AlgoDecision_Err";
-        histName = hName.c_str();
-
-        m_fdlEmulAlgoDecision_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "Emul: algorithm trigger decision word, non-matching BxInEvent",
-                        numberAlgoTriggers, 0., numberAlgoTriggers);
-
-        hName = recString + "DataEmul_AlgoDecision_Err";
-        histName = hName.c_str();
-
-        m_fdlDataEmulAlgoDecision_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "Data vs emul: algorithm trigger decision word, non-matching BxInEvent",
-                        numberAlgoTriggers, 0., numberAlgoTriggers);
-
-        //
-        hName = recString + "Data_TechDecision_Err";
-        histName = hName.c_str();
-
-        m_fdlDataTechDecision_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "Data: technical trigger decision word, non-matching BxInEvent",
-                        numberTechTriggers, 0., numberTechTriggers);
-
-        hName = recString + "Emul_TechDecision_Err";
-        histName = hName.c_str();
-
-        m_fdlEmulTechDecision_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "Emul: technical trigger decision word, non-matching BxInEvent",
-                        numberTechTriggers, 0., numberTechTriggers);
-
-        hName = recString + "DataEmul_TechDecision_Err";
-        histName = hName.c_str();
-
-        m_fdlDataEmulTechDecision_Err[iRec]
-                = m_dbe->book1D(
-                        histName,
-                        "Data vs emul: technical trigger decision word, non-matching BxInEvent",
-                        numberTechTriggers, 0., numberTechTriggers);
-
-    }
-
-    if (m_dbe) {
-        m_dbe->setCurrentFolder(m_dirName);
-    }
-
-    //
-    m_excludedAlgorithmsAgreement = m_dbe->book1D(
-            "ExcludedAlgorithmsFromAgreement",
-            "Algorithms excluded from data versus emulator agreement flag",
-            numberAlgoTriggers, 0., numberAlgoTriggers);
-
-    //
-
-    m_gtErrorFlag = m_dbe->book1D("GTErrorFlag",
-            "L1 GT error flag for data versus emulator comparison", 5, 0., 5);
-
-    m_gtErrorFlag->setBinLabel(1, "Agree", 1);
-    m_gtErrorFlag->setBinLabel(2, "", 1);
-    m_gtErrorFlag->setBinLabel(3, "", 1);
-    m_gtErrorFlag->setBinLabel(4, "Data only", 1);
-    m_gtErrorFlag->setBinLabel(5, "Emul only", 1);
-
-
-}
 
 bool L1GtHwValidation::matchCondCategory(
         const L1GtConditionCategory& conditionCategory,
@@ -2709,28 +2493,6 @@ bool L1GtHwValidation::excludedAlgo(const int& iBit) const {
     }
 
     return false;
-
-}
-
-
-void L1GtHwValidation::endRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-
-    LogDebug("L1GtHwValidation") << "\n\n endRun: " << run.id()
-            << "\n  Number of events analyzed in this run:       " << m_nrEvRun
-            << "\n  Total number of events analyzed in this job: " << m_nrEvJob
-            << "\n" << std::endl;
-
-}
-
-// method called once each job just after ending the event loop
-void L1GtHwValidation::endJob() {
-
-    edm::LogInfo("L1GtHwValidation")
-            << "\n\nTotal number of events analyzed in this job: " << m_nrEvJob
-            << "\n" << std::endl;
-
-    return;
 
 }
 

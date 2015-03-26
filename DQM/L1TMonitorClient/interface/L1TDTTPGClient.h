@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -18,7 +19,7 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-class L1TDTTPGClient: public edm::EDAnalyzer {
+class L1TDTTPGClient: public DQMEDHarvester {
 
 public:
 
@@ -30,41 +31,20 @@ public:
  
 protected:
 
-  /// BeginJob
-  void beginJob(void);
-
-  /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
-
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
+  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
 private:
 
   void initialize();
-  void makeRatioHisto(MonitorElement *ratioME, std::string &nName, std::string &dName); 
+  void makeRatioHisto(DQMStore::IGetter &igetter,MonitorElement *ratioME, std::string &nName, std::string &dName); 
   void setMapPhLabel(MonitorElement *me);
   void setMapThLabel(MonitorElement *me);
-  TH1F * get1DHisto(std::string meName, DQMStore * dbi);
-  TH2F * get2DHisto(std::string meName, DQMStore * dbi);
-  TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);
-  TProfile * get1DProfile(std::string meName, DQMStore * dbi);
+  TH1F * get1DHisto(std::string meName, DQMStore::IGetter &igetter);
+  TH2F * get2DHisto(std::string meName, DQMStore::IGetter &igetter);
+  TProfile2D * get2DProfile(std::string meName, DQMStore::IGetter &igetter);
+  TProfile * get1DProfile(std::string meName, DQMStore::IGetter &igetter);
   
   edm::ParameterSet parameters_;
-  DQMStore* dbe_;  
   std::string monitorName_;
   std::string input_dir_;
   std::string output_dir_;

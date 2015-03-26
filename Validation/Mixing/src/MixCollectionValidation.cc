@@ -19,52 +19,40 @@
 
 using namespace edm;
 
-MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfig): outputFile_(iConfig.getParameter<std::string>("outputFile")),
-                                                                                    minbunch_(iConfig.getParameter<int>("minBunch")),
-                                                                                    maxbunch_(iConfig.getParameter<int>("maxBunch")),
-                                                                                    verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
-                                                                                    dbe_(0),nbin_(maxbunch_-minbunch_+1)
+MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfig):
+  minbunch_(iConfig.getParameter<int>("minBunch")),
+  maxbunch_(iConfig.getParameter<int>("maxBunch")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
+  nbin_(maxbunch_-minbunch_+1)
 {
+  // Histograms will be defined according to the configuration
+  ParameterSet mixObjextsSet_ = iConfig.getParameter<ParameterSet>("mixObjects");
+}
 
-  if ( outputFile_.size() != 0 ) {
-    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will be saved to " << outputFile_.c_str();
-  } else {
-    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will NOT be saved";
-  }
+MixCollectionValidation::~MixCollectionValidation()
+{
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+}
 
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if ( verbose_ ) { dbe_->setVerbose(1); }
-    else            { dbe_->setVerbose(0); }
-  }
+void MixCollectionValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
+{
+  iBooker.setCurrentFolder("MixingV/Mixing");
 
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
+  std::vector<std::string> names = mixObjextsSet_.getParameterNames();
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
-  //  dbe_->showDirStructure();
-  dbe_->setCurrentFolder("MixingV/Mixing");
-
-  // define the histograms according to the configuration
-
-  ParameterSet ps=iConfig.getParameter<ParameterSet>("mixObjects");
-  names_ = ps.getParameterNames();
-
-  for (std::vector<std::string>::iterator it=names_.begin();it!= names_.end();++it)
+  for (std::vector<std::string>::iterator it = names.begin();it!= names.end();++it)
   {
-    ParameterSet pset=ps.getParameter<ParameterSet>((*it));
+    ParameterSet pset = mixObjextsSet_.getParameter<ParameterSet>((*it));
     if (!pset.exists("type"))  continue; //to allow replacement by empty pset
     std::string object = pset.getParameter<std::string>("type");
-    std::vector<InputTag>  tags=pset.getParameter<std::vector<InputTag> >("input");
+    std::vector<InputTag> tags = pset.getParameter<std::vector<InputTag> >("input");
 
     if ( object == "HepMCProduct" ) {
 
       std::string title = "Log10 Number of GenParticle in " + object;
       std::string name = "NumberOf" + object;
-      nrHepMCProductH_ = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+      nrHepMCProductH_ = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
       HepMCProductTags_ = tags;
       if (HepMCProductTags_.size()) {
@@ -76,7 +64,7 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
 
       std::string title = "Log10 Number of " + object;
       std::string name = "NumberOf" + object;
-      nrSimTrackH_ = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+      nrSimTrackH_ = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
       SimTrackTags_ = tags;
       if (SimTrackTags_.size()) {
@@ -88,7 +76,7 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
 
       std::string title = "Log10 Number of " + object;
       std::string name = "NumberOf" + object;
-      nrSimVertexH_ = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+      nrSimVertexH_ = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
       SimVertexTags_ = tags;
       if (SimVertexTags_.size()) {
@@ -102,11 +90,11 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
 
         std::string title = "Log10 Number of " + subdets[ii];
         std::string name = "NumberOf" + subdets[ii];
-        SimHitNrmap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+        SimHitNrmap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
         title = "Time of " + subdets[ii];
         name = "TimeOf" + subdets[ii];
-        SimHitTimemap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+        SimHitTimemap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
 
       }
 
@@ -121,11 +109,11 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
 
         std::string title = "Log10 Number of " + subdets[ii];
         std::string name = "NumberOf" + subdets[ii];
-        CaloHitNrmap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+        CaloHitNrmap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
         title = "Time of " + subdets[ii];
         name = "TimeOf" + subdets[ii];
-        CaloHitTimemap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+        CaloHitTimemap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
 
       }
 
@@ -135,33 +123,10 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
             edm::InputTag("mix", it.label() + it.instance())));
     }
   }
-
 }
 
-MixCollectionValidation::~MixCollectionValidation()
+void MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iConfig)
 {
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-void MixCollectionValidation::beginJob() {
-}
-
-
-void MixCollectionValidation::endJob() {
-  if (outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
-
-//
-// member functions
-//
-
-// ------------ method called to analyze the data  ------------
-void
-MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iConfig)
-{
-
   using namespace edm;
 
   if ( HepMCProductTags_.size() > 0 ) {

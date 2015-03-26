@@ -130,7 +130,6 @@ muonsWitht0Correction.inputCollectionTypes = ['inner tracks', 'links', 'outer tr
 muonsWitht0Correction.fillIsolation = True
 muonsWitht0Correction.fillGlobalTrackQuality = False
 muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.UseSegmentT0 = True
-muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.DTsegments = 'dt4DSegmentsT0Seg'
 muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg'
 muonsWitht0Correction.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
 muonsWitht0Correction.CaloExtractorPSet.CenterConeOnCalIntersection = True

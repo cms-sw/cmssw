@@ -32,17 +32,22 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 //L1 trigger includes
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //
 // class declaration
 //
 
-class L1TGT: public edm::EDAnalyzer {
+class L1TGT: public DQMEDAnalyzer {
 
 public:
 
@@ -52,26 +57,21 @@ public:
     // destructor
     virtual ~L1TGT();
 
-private:
+protected:
 
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-
+    //virtual void beginJob();
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     /// end section
-    virtual void endLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-    virtual void endRun(const edm::Run&, const edm::EventSetup&);
+    virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
-    virtual void endJob();
 
 private:
 
     /// book all histograms for the module
-    void bookHistograms();
 
     bool isActive(int word, int bit);
     // Active boards DAQ record bit number:
@@ -113,9 +113,6 @@ private:
     /// switches to choose the running of various methods
     bool m_runInEventLoop;
     bool m_runInEndLumi;
-    bool m_runInEndRun;
-    bool m_runInEndJob;
-
 
     /// verbosity switch
     bool verbose_;
@@ -158,6 +155,9 @@ private:
 
     MonitorElement* m_monOrbitNrDiffTcsFdlEvm;
     MonitorElement* m_monLsNrDiffTcsFdlEvm;
+    MonitorElement* runId_;
+    MonitorElement* lumisecId_;
+    MonitorElement* runStartTimeStamp_;
     // maximum difference in orbit number, luminosity number
     // histogram range: -(MaxOrbitNrDiffTcsFdlEvm+1), (MaxOrbitNrDiffTcsFdlEvm+1)
     //   if value is greater than the maximum difference, fill an entry in the last but one bin
@@ -171,13 +171,15 @@ private:
     MonitorElement* m_monOrbitNrDiffTcsFdlEvmLs;
     MonitorElement* m_monLsNrDiffTcsFdlEvmLs;
 
+    MonitorElement* h_L1AlgoBX1;
+    MonitorElement* h_L1AlgoBX2;
+    MonitorElement* h_L1AlgoBX3;
+    MonitorElement* h_L1AlgoBX4;
+    MonitorElement* h_L1TechBX;
+
     //MonitorElement* m_monDiffEvmDaqFdl;
 
 private:
-
-    /// internal members
-
-    DQMStore* m_dbe;
 
     /// number of events processed
     int m_nrEvJob;
@@ -189,6 +191,10 @@ private:
     boost::uint64_t preGps_;
     boost::uint64_t preOrb_;
 
+    std::string algoBitToName[128];
+    std::string techBitToName[64];
+    std::map <std::string,bool> l1TriggerDecision,l1TechTriggerDecision;
+    std::map<std::string,bool>::iterator trig_iter;
 
     std::vector<std::pair<int,int> > m_pairLsNumberPfIndex;
     typedef std::vector<std::pair<int, int> >::const_iterator CItVecPair;

@@ -44,6 +44,8 @@
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
  
 #include <iostream>
 #include <fstream>
@@ -53,7 +55,7 @@
 // class decleration
 //
 
-class L1TCSCTF : public edm::EDAnalyzer {
+class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
 
  public:
 
@@ -66,16 +68,12 @@ class L1TCSCTF : public edm::EDAnalyzer {
  protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  // BeginJob
-  void beginJob(void);
-
-  // EndJob
-  void endJob(void);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
  private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   MonitorElement* csctfntrack;
   MonitorElement* csctfbx;
@@ -84,6 +82,10 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* csctferrors;
   MonitorElement* csctfoccupancies;
   MonitorElement* csctfoccupancies_H;
+
+  //MonitorElement* runId_;
+  //MonitorElement* lumisecId_;
+ 
   
   //MonitorElement* haloDelEta112;
   //MonitorElement* haloDelEta12;
@@ -102,23 +104,6 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* trackModeVsQ;
   MonitorElement* csctfAFerror;
 
-  // NEW: CSC EVENT LCT PLOTS, Renjie Wang
-  MonitorElement* csctflcts;
-  
-  // PLOTS SPECIFICALLY FOR ME1/1
-  MonitorElement* me11_lctStrip;
-  MonitorElement* me11_lctWire;
-  MonitorElement* me11_lctLocalPhi;
-  MonitorElement* me11_lctPackedPhi;
-  MonitorElement* me11_lctGblPhi;
-  MonitorElement* me11_lctGblEta;
- 
-  // PLOTS SPECIFICALLY FOR ME4/2
-  MonitorElement* me42_lctGblPhi;
-  MonitorElement* me42_lctGblEta;  
-
-
-
   // 1-> 6 plus endcap
   // 7->12 minus endcap
   MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
@@ -133,7 +118,6 @@ class L1TCSCTF : public edm::EDAnalyzer {
   bool monitorDaemon_;
   std::ofstream logFile_;
   edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
-  bool gangedME11a_;
 
   CSCSectorReceiverLUT *srLUTs_[5];
 

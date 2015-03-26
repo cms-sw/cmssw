@@ -17,7 +17,7 @@ TimingFillerBlock = cms.PSet(
     # On/off switches for combined time measurement
     UseDT  = cms.bool(True),
     UseCSC = cms.bool(True),
-    UseECAL= cms.bool(True)
+    UseECAL= cms.bool(False)
   )
 )
 

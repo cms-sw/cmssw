@@ -14,13 +14,12 @@ class HcalDeadCellClient : public HcalBaseDQClient {
   HcalDeadCellClient(std::string myname);//{ name_=myname;};
   HcalDeadCellClient(std::string myname, const edm::ParameterSet& ps);
 
-  void analyze(void);
-  void calculateProblems(void); // calculates problem histogram contents
+  void analyze(DQMStore::IBooker &, DQMStore::IGetter &);
+  void calculateProblems(DQMStore::IBooker &, DQMStore::IGetter &); // calculates problem histogram contents
   void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
-  void beginJob(void);
   void endJob(void);
   void beginRun(void);
-  void endRun(void); 
+  //void endRun(void); 
   void setup(void);  
   void cleanup(void);
 
@@ -37,6 +36,13 @@ class HcalDeadCellClient : public HcalBaseDQClient {
 
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
   bool excludeHOring2_backup_; // this value is used for excludeHOring2 if it can't be read directly from the DQM file
+
+  // -- setup the problem cells monitors
+  bool doProblemCellSetup_; // defaults to true in the constructor
+
+  // setup the problem cell monitors
+  // Sets the doProblemCellSetup_ to false
+  void setupProblemCells(DQMStore::IBooker &, DQMStore::IGetter &);
 
 };
 

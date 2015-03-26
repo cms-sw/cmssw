@@ -1,33 +1,53 @@
+
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
-#include "XrdClient/XrdClientAdmin.hh"
-#include "XrdClient/XrdClientUrlSet.hh"
-#include "XrdClient/XrdClientEnv.hh"
+
+#include "XrdCl/XrdClDefaultEnv.hh"
+#include "XrdNet/XrdNetUtils.hh"
+
+class MakerResponseHandler : public XrdCl::ResponseHandler
+{
+public:
+    virtual void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response )
+    {
+        if (response) delete response;
+    }
+
+};
 
 class XrdStorageMaker : public StorageMaker
 {
-private:
-  unsigned int timeout_ = 0;
-
 public:
+  static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
+
+  XrdStorageMaker()
+  {
+    // When CMSSW loads, both XrdCl and XrdClient end up being loaded
+    // (ROOT loads XrdClient).  XrdClient forces IPv4-only.  Accordingly,
+    // we must explicitly set the default network stack in XrdCl to
+    // whatever is available on the node (IPv4 or IPv6).
+    XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+    if (env)
+    {
+      env->PutString("NetworkStack", "IPAuto");
+    }
+    XrdNetUtils::SetAuto(XrdNetUtils::prefAuto);
+    setTimeout(XRD_DEFAULT_TIMEOUT);
+  }
+
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
 			 const std::string &path,
 			 int mode) override
   {
-    // The important part here is not the cache size (which will get
-    // auto-adjusted), but the fact the cache is set to something non-zero.
-    // If we don't do this before creating the XrdFile object, caching will be
-    // completely disabled, resulting in poor performance.
-    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
-
-    // XrdClient has various timeouts which vary from 3 minutes to 8 hours.
-    // This enforces an even default (10 minutes) more appropriate for the
-    // cmsRun case.
-    if (timeout_ <= 0) {setTimeout(600);}
 
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -47,13 +67,10 @@ public:
   virtual void stagein (const std::string &proto, const std::string &path) override
   {
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (admin.Connect())
-    {
-      XrdOucString str(fullpath.c_str());
-      XrdClientUrlSet url(str);
-      admin.Prepare(url.GetFile().c_str(), kXR_stage | kXR_noerrs, 0);
-    }
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
+    std::vector<std::string> fileList; fileList.push_back(url.GetPath());
+    fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
   }
 
   virtual bool check (const std::string &proto,
@@ -61,46 +78,70 @@ public:
 		      IOOffset *size = 0) override
   {
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (! admin.Connect())
-      return false; // FIXME: Throw?
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
 
-    long      id;
-    long      flags;
-    long      modtime;
-    long long xrdsize;
+    XrdCl::StatInfo *stat;
+    if (!(fs.Stat(fullpath, stat)).IsOK() || (stat == nullptr))
+    {
+        return false;
+    }
 
-    XrdOucString str(fullpath.c_str());
-    XrdClientUrlSet url(str);
-
-    if (! admin.Stat(url.GetFile().c_str(), id, xrdsize, flags, modtime))
-      return false; // FIXME: Throw?
-
-    *size = xrdsize;
+    if (size) *size = stat->GetSize();
     return true;
   }
 
   virtual void setDebugLevel (unsigned int level) override
   {
-    EnvPutInt("DebugLevel", level);
+    // 'Error' is way too low of debug level - we have interest
+    // in warning in the default
+    switch (level)
+    {
+      case 0:
+        XrdCl::DefaultEnv::SetLogLevel("Warning");
+        break;
+      case 1:
+        XrdCl::DefaultEnv::SetLogLevel("Info");
+        break;
+      case 2:
+        XrdCl::DefaultEnv::SetLogLevel("Debug");
+        break;
+      case 3:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
+        break;
+      case 4:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
+        break;
+      default:
+        edm::Exception ex(edm::errors::Configuration);
+        ex << "Invalid log level specified " << level;
+        ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
+        throw ex;
+    }
   }
 
   virtual void setTimeout(unsigned int timeout) override
   {
-    timeout_ = timeout;
-    if (timeout == 0) {return;}
-    EnvPutInt("ConnectTimeout", timeout/3+1); // Default 120.  This should allow multiple connections to timeout before the open fails.
-    EnvPutInt("RequestTimeout", timeout/3+1); // Default 300.  This should allow almost three requests to be performed before the transaction times out.
-    EnvPutInt("TransactionTimeout", timeout); // Default 28800
-
-    // Safety mechanism - if client is redirected more than 255 times in 600
-    // seconds, then we abort the interaction.
-    EnvPutInt("RedirCntTimeout", 600); // Default 36000
-
-    // Enforce some CMS defaults.
-    EnvPutInt("MaxRedirectcount", 32); // Default 16
-    EnvPutInt("ReconnectWait", 5); // Default 5
+    timeout = timeout ? timeout : XRD_DEFAULT_TIMEOUT;
+    XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+    if (env)
+    {
+      env->PutInt("StreamTimeout", timeout);
+      env->PutInt("RequestTimeout", timeout);
+      env->PutInt("ConnectionWindow", timeout);
+      env->PutInt("StreamErrorWindow", timeout);
+      // Crank down some of the connection defaults.  We have more
+      // aggressive error recovery than the default client so we
+      // can error out sooner.
+      env->PutInt("ConnectionWindow", timeout/6+1);
+      env->PutInt("ConnectionRetry", 2);
+    }
   }
+
+private:
+  MakerResponseHandler m_null_handler;
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, XrdStorageMaker, "root");
+DEFINE_FWK_SERVICE (XrdAdaptor::XrdStatisticsService);
+

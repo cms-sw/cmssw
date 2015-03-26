@@ -60,6 +60,7 @@ CmsShowMainBase::CmsShowMainBase()
      m_navigatorPtr(0),
      m_metadataManagerPtr(0),
      m_contextPtr(0),
+     m_autoSaveAllViewsHeight(-1),
      m_autoLoadTimerRunning(kFALSE),
      m_forward(true),
      m_isPlaying(false),
@@ -213,9 +214,8 @@ CmsShowMainBase::draw()
    if (!m_autoSaveAllViewsFormat.empty())
    {
       m_guiManager->updateStatus("auto saving images ...");
-      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat);
+      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat, m_autoSaveAllViewsHeight);
    }
-
    m_guiManager->clearStatus();
 }
 
@@ -352,8 +352,8 @@ void
 CmsShowMainBase::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
-   if(m_configFileName.empty() ) {
-      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
+   if(m_configurationManager->getIgnore()) {
+      fwLog(fwlog::kInfo) << "No configuration is loaded." << std::endl;
       m_guiManager->getMainFrame()->MapSubwindows();
       m_guiManager->getMainFrame()->Layout();
       m_guiManager->getMainFrame()->MapRaised();
@@ -362,21 +362,22 @@ CmsShowMainBase::setupConfiguration()
       m_guiManager->createView("Rho Z"); 
    }
    else {
-      char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
-      if(0==whereConfig) {
-         fwLog(fwlog::kInfo) <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
-         whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
-         assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
-      }
-      m_configFileName = whereConfig;
-
-      delete [] whereConfig;
-      try
-      {
-         gEve->DisableRedraw();
-         m_configurationManager->readFromFile(m_configFileName);
-         gEve->EnableRedraw();
-      }
+       try
+       { 
+           gEve->DisableRedraw();
+           if (m_configFileName.empty())
+           {
+               m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
+           }
+           else
+           {
+               char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
+               m_configFileName = whereConfig;
+               delete [] whereConfig;
+               m_configurationManager->readFromFile(m_configFileName);
+           }
+           gEve->EnableRedraw();
+       }
       catch (SimpleSAXParser::ParserError &e)
       {
          fwLog(fwlog::kError) <<"Unable to load configuration file '" 

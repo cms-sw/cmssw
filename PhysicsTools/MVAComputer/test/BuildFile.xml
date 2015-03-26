@@ -17,3 +17,6 @@
    <use name="CondCore/PluginSystem"/>
    <flags EDM_PLUGIN="1"/>
 </library>
+<bin   name="testPhysicsToolsMVAComputer" file="testMVAComputer.cppunit.cc">
+  <use   name="cppunit"/>
+</bin>

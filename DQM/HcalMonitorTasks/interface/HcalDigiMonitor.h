@@ -70,9 +70,8 @@ public:
   HcalDigiMonitor(const edm::ParameterSet& ps); 
   ~HcalDigiMonitor(); 
 
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void cleanup();
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
 
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -104,7 +103,7 @@ private:  ///Methods, variables accessible only within class code
  
   void fill_Nevents();
   void zeroCounters();
-  void setupSubdetHists(DigiHists& hist,  std::string subdet); // enable this feature at some point
+  void setupSubdetHists(DQMStore::IBooker &ib, DigiHists& hist,  std::string subdet); // enable this feature at some point
 
   template<class T> int process_Digi(T& digi, DigiHists& hist, int& firstcap);
   void UpdateHists(DigiHists& h);
@@ -243,7 +242,7 @@ private:  ///Methods, variables accessible only within class code
   edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollectionToken_;
 };
 
-float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,
+const float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,
 			5.5, 6.5, 7.5, 8.5, 9.5, 10.5,
 			11.5, 12.5, 13.5, 14.5, 15.5, 
 			16.5, 17.5, 18.5, 19.5, 20.5,
@@ -279,7 +278,7 @@ float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,
 			8800.5, 8900.5, 9000.5, 9100.5};
 
 // binning is 1 part per 10k -- so one channel takes ~ 1 bin at low values
-float bins_fraccount_new[]={-0.00005,  0.00005, 0.0001,  0.0002,  
+const float bins_fraccount_new[]={-0.00005,  0.00005, 0.0001,  0.0002,  
 			0.0003,  
 			0.0004,  0.0005,  0.0006,  0.0007,  0.0008, 
 			0.0009, 

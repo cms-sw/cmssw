@@ -24,50 +24,34 @@ namespace egHLT {
     static const int maxNrBits_=128;
     typedef std::bitset<maxNrBits_> TrigBitSet;
     
-    class TrigBitSetMap {
-      
-    private:
-      //sorted vector
-      std::vector<std::pair<std::string,TrigBitSet> > codeDefs_;
-      
-    public:
-      TrigBitSetMap(){}
-      ~TrigBitSetMap(){}
-      
-    public:
-      TrigBitSet getCode(const char *descript)const;
-      void getCodeName(TrigBitSet code,std::string& id)const;
-      
-      //modifiers
-      void setCode(const char *descript,TrigBitSet code);
-      void setCode(const char *descript,int bitNr);
-      
-      //key comp
-      static bool keyComp(const std::pair<std::string,TrigBitSet>& lhs,const std::pair<std::string,TrigBitSet>& rhs);
-      void sort(){std::sort(codeDefs_.begin(),codeDefs_.end(),keyComp);}
-      size_t size()const{return codeDefs_.size();}
-      void printCodes();
-    };
-    
-    
   private:
-    static TrigBitSetMap trigBitSetMap_;
-    
-  private:
-    TrigCodes(){}//not allowed to instanstiate
-    ~TrigCodes(){}
+    //sorted vector
+    std::vector<std::pair<std::string,TrigBitSet> > codeDefs_;
     
   public:
-    // static void setCode(const char *descript,TrigBitSet code){trigBitSetMap_.setCode(descript,code);}
-  //static void setCode(const char *descript,int bitNr){trigBitSetMap_.setCode(descript,bitNr);}
-    static void setCodes(std::vector<std::string>& filterNames);
+    static TrigCodes *makeCodes(std::vector<std::string>& filterNames);
+    ~TrigCodes(){}
+
+    TrigCodes & operator=(const TrigCodes&) = delete;
+    TrigCodes(const TrigCodes&) = delete;
+
+    TrigBitSet getCode(const char *descript) const;
+    TrigBitSet getCode(const std::string& descript) const { return getCode(descript.c_str()); }
+
+  private:
+    TrigCodes(){}
+ 
+    void getCodeName(TrigBitSet code,std::string& id)const;
     
+    //modifiers
+    void setCode(const char *descript,TrigBitSet code);
+    void setCode(const char *descript,int bitNr);
     
-    static TrigBitSet getCode(const std::string& descript){return trigBitSetMap_.getCode(descript.c_str());}
-    static void getCodeName(TrigBitSet code,std::string& id){return trigBitSetMap_.getCodeName(code,id);}
-    static int maxNrBits(){return maxNrBits_;}
-    static void printCodes(){return trigBitSetMap_.printCodes();}
-    
+    //key comp
+    static bool keyComp(const std::pair<std::string,TrigBitSet>& lhs,const std::pair<std::string,TrigBitSet>& rhs);
+    void sort(){std::sort(codeDefs_.begin(),codeDefs_.end(),keyComp);}
+    size_t size()const{return codeDefs_.size();}
+    void printCodes();
   };
 }
 

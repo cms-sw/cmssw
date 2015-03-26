@@ -689,6 +689,11 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
     svCurrent.isValid_ = false;
     return;
   }
+  if (pmag2 < 1e-18f ) {
+    LogTrace(metname)<<"Initial momentum is too low";
+    svCurrent.isValid_ = false;
+    return;
+  }
   if (! (gpmag == gpmag) ) {
     LogTrace(metname)<<"Initial point is a nan";
     edm::LogWarning("SteppingHelixPropagatorNAN")<<"Initial point is a nan";

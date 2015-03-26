@@ -24,23 +24,24 @@ namespace edm {
         public:
             explicit SiteLocalConfigService(ParameterSet const& pset);
 
-            std::string const dataCatalog(void) const;
-            std::string const fallbackDataCatalog(void) const;
-            std::string const lookupCalibConnect(std::string const& input) const;
-            std::string const rfioType(void) const;
+            std::string const dataCatalog(void) const override;
+            std::string const fallbackDataCatalog(void) const override;
+            std::string const lookupCalibConnect(std::string const& input) const override;
+            std::string const rfioType(void) const override;
 
-            std::string const* sourceCacheTempDir() const;
-            double const* sourceCacheMinFree() const;
-            std::string const* sourceCacheHint() const;
+            std::string const* sourceCacheTempDir() const override;
+            double const* sourceCacheMinFree() const override;
+            std::string const* sourceCacheHint() const override;
             std::string const* sourceCloneCacheHint() const override;
-            std::string const* sourceReadHint() const;
-            unsigned int const* sourceTTreeCacheSize() const;
-            unsigned int const* sourceTimeout() const;
-            bool                enablePrefetching() const;
-            unsigned int        debugLevel() const;
-            std::vector<std::string> const* sourceNativeProtocols() const;
-            struct addrinfo const* statisticsDestination() const;
-            std::string const&  siteName() const;
+            std::string const* sourceReadHint() const override;
+            unsigned int const* sourceTTreeCacheSize() const override;
+            unsigned int const* sourceTimeout() const override;
+            bool                enablePrefetching() const override;
+            unsigned int        debugLevel() const override;
+            std::vector<std::string> const* sourceNativeProtocols() const override;
+            struct addrinfo const* statisticsDestination() const override;
+            std::set<std::string> const* statisticsInfo() const override;
+            std::string const&  siteName() const override;
 
             // implicit copy constructor
             // implicit assignment operator
@@ -80,6 +81,8 @@ namespace edm {
             std::string         m_statisticsDestination;
             struct addrinfo   * m_statisticsAddrInfo;
             static const std::string m_statisticsDefaultPort;
+            std::set<std::string> m_statisticsInfo;
+            bool m_statisticsInfoAvail;
             std::string         m_siteName;
          };
 

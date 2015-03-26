@@ -2,12 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # SiStripMonitorCluster
 SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
-    # by default do not write out any file with histograms
-    # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
     ClusterProducerStrip = cms.InputTag('siStripClusters'),
     ClusterProducerPix = cms.InputTag('siPixelClusters'),
-    OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('SiStripMonitorCluster.root'),
                                      
     ResetMEsEachRun = cms.bool(False),
 
@@ -27,13 +23,22 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     StripDCSfilter = cms.PSet(),
                                      
     CreateTrendMEs = cms.bool(False),
+    TrendVsLS = cms.bool(False),                                       
+
     Trending = cms.PSet(
-        Nbins = cms.int32(360),
+        Nbins = cms.int32(600),
         xmin = cms.double(0.0),
-        xmax = cms.double(1.0*60*60),
-        ymin = cms.double(0.0),
-        ymax = cms.double(100000.0)
+        xmax = cms.double(3600.),
+        xaxis = cms.string('Event Time in Seconds')
     ),
+
+    TrendingLS = cms.PSet(             
+        Nbins = cms.int32(2400),
+        xmin = cms.double(0.0),
+        xmax = cms.double(150),
+        xaxis = cms.string('Lumisection')
+        ),
+
     TH1ClusterNoise = cms.PSet(
         Nbinx          = cms.int32(20),
         xmin           = cms.double(-0.5),
@@ -134,12 +139,8 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         minStoN    = cms.double(0.0),
         maxWidth   = cms.double(10000.0)
     ),
+
     TProfTotalNumberOfClusters = cms.PSet(
-        Nbins = cms.int32(600),
-        xmin = cms.double(0.0),
-        xmax = cms.double(1.0*60*60),
-        ymin = cms.double(0.0),
-        ymax = cms.double(0.0),
         subdetswitchon = cms.bool(False)
     ),
 
@@ -260,6 +261,16 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         globalswitchon = cms.bool(False)
         ),
                                        
+    NclusVsCycleTimeProf2D = cms.PSet(
+        Nbins = cms.int32(70),
+        xmin = cms.double(-0.5),
+        xmax = cms.double(69.5),
+        Nbinsy = cms.int32(90),
+        ymin = cms.double(0.),
+        ymax = cms.double(90*262144),
+        globalswitchon = cms.bool(True)
+        ),
+
     Mod_On = cms.bool(True),
     ClusterHisto = cms.bool(False),
 

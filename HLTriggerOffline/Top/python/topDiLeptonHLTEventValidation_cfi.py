@@ -23,7 +23,7 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         minJets      = cms.untracked.uint32(2),
         # Trigger
         iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
-        vsPaths      = cms.untracked.vstring(['HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v','HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v','HLT_Mu17_TkMu8_v']),
+        vsPaths      = cms.untracked.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
 )
 
 # ttbar dielec
@@ -49,7 +49,7 @@ DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         minJets      = cms.untracked.uint32(2),
         # Trigger
         iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele23_Ele12_CaloId_TrackId_iso_v']),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v', 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v']),
 )
 
 # ttbar elec-muon
@@ -75,5 +75,5 @@ ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         minJets      = cms.untracked.uint32(2),
         # Trigger
         iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
-        vsPaths      = cms.untracked.vstring(['HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v','HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v']),
+        vsPaths      = cms.untracked.vstring(['HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v']),
 )

@@ -216,6 +216,8 @@ namespace edm {
 
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
+    void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const { provRecorder_.labelsForToken(iToken, oLabels); }
+
     typedef std::vector<std::pair<std::unique_ptr<WrapperBase>, BranchDescription const*> > ProductPtrVec;
 
   private:
@@ -230,6 +232,9 @@ namespace edm {
 
     //override used by EventBase class
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+
+    //override used by EventBase class
+    virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const;
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any

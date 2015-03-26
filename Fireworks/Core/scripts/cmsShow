@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 #set -x
 
+
 checkOS()
 {
    # Only 64-bit arch supported, and OSX version 10.6 or more.
 
    osname=`uname -s`
    if [ f$osname = f"Darwin" ]; then
+
+       gdbCmd="lldb --"
        arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
        if [ $arch -eq 0 ]; then
            echo "###################################"
@@ -95,7 +98,7 @@ setupEnv()
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
      export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
-     export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
+     export DYLD_FALLBACK_LIBRARY_PATH=/opt/X11/lib:${LD_LIBRARY_PATH}
 
      if [ -n "$DYLD_LIBRARY_PATH" ]; then
         echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
@@ -179,8 +182,9 @@ fi
 
 # Developers cases -- run from gdb or valgrind.
 if [ "X$debuginteractiveflag" = Xon ] ; then
-  gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
-  exit;
+  gdbCmd="gdb --args " "$SHELLDIR/cmsShow.exe" $originalOptions
+  if-shell 'test "$(uname)" = "Darwin"' gdbCmd="lldb -- "
+  exec $gdbCmd 
 elif [ "X$valgrindflag" = Xon ] ; then
   # MT: This should supposedly get rid of ROOT dicitonary reports etc. but it
   # didn't seem to work very well when I tried it (so I disabled error limit).

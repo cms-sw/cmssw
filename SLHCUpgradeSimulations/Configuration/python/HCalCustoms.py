@@ -211,7 +211,7 @@ def customise_Reco(process):
     # not sure why these are missing - but need to investigate later
     process.reconstruction_step.remove(process.castorreco)
     process.reconstruction_step.remove(process.CastorTowerReco)
-    process.reconstruction_step.remove(process.ak7BasicJets)
+    process.reconstruction_step.remove(process.ak7CastorJets)
     process.reconstruction_step.remove(process.ak7CastorJetID)
     return process
 

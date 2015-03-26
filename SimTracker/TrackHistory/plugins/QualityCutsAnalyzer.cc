@@ -219,11 +219,14 @@ private:
 //
 // constructors and destructor
 //
-QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     trackProducer_         = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+    consumes<edm::View<reco::Track>>(trackProducer_);
     primaryVertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "primaryVertexProducer" );
+    consumes<reco::VertexCollection>(primaryVertexProducer_);
     jetTracksAssociation_  = config.getUntrackedParameter<edm::InputTag> ( "jetTracksAssociation" );
+    consumes<reco::JetTracksAssociationCollection>(jetTracksAssociation_);
 
     rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
 

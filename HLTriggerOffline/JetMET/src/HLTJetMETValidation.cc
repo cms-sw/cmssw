@@ -348,9 +348,9 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       calMet = i->pt();
       for (size_t it=0;it<hltTrgMet.size();it++) {
 	_meHLTMET[it] -> Fill(calMet);
-	if (myTrigM[it]) _meHLTMETTrgMC[it] -> Fill(calMet);
-	if (myTrigM[it] && myTrigMLow[it]) _meHLTMETTrg[it] -> Fill(calMet);
-	if (myTrigMLow[it]) _meHLTMETTrgLow[it] -> Fill(calMet);
+	if (myTrigM.size() > it && myTrigM[it]) _meHLTMETTrgMC[it] -> Fill(calMet);
+	if (myTrigM.size() > it && myTrigMLow.size() > it && myTrigM[it] && myTrigMLow[it]) _meHLTMETTrg[it] -> Fill(calMet);
+	if (myTrigMLow.size() > it && myTrigMLow[it]) _meHLTMETTrgLow[it] -> Fill(calMet);
       }
     }
   }
@@ -369,9 +369,9 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       genMet = i->pt();
       for (size_t it=0;it<hltTrgMet.size();it++) {
 	_meGenMET[it] -> Fill(genMet);
-	if (myTrigM[it]) _meGenMETTrgMC[it] -> Fill(genMet);
-	if (myTrigM[it] && myTrigMLow[it]) _meGenMETTrg[it] -> Fill(genMet);
-	if (myTrigMLow[it]) _meGenMETTrgLow[it] -> Fill(genMet);
+	if (myTrigM.size() > it && myTrigM[it]) _meGenMETTrgMC[it] -> Fill(genMet);
+	if (myTrigM.size() > it && myTrigMLow.size() > it && myTrigM[it] && myTrigMLow[it]) _meGenMETTrg[it] -> Fill(genMet);
+	if (myTrigMLow.size() > it && myTrigMLow[it]) _meGenMETTrgLow[it] -> Fill(genMet);
       }
     }
   }

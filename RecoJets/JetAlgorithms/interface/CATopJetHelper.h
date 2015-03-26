@@ -12,7 +12,7 @@
 // \version first version on 1-May-2011
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 
 class CATopJetHelper : public std::unary_function<reco::Jet, reco::CATopJetProperties> {
  public:

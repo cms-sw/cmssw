@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-scrapingFilter = cms.EDFilter(
-  "FilterOutScraping"
-, applyfilter = cms.untracked.bool( True )
-, debugOn     = cms.untracked.bool( False )
-, numtrack    = cms.untracked.uint32( 10 )
-, thresh      = cms.untracked.double( 0.25 )
+metFiltersMiniAOD =cms.EDFilter(
+  "HLTHighLevel"
+, TriggerResultsTag  = cms.InputTag( 'TriggerResults::PAT' )
+, andOr              = cms.bool( False )
+, throw              = cms.bool( False )
+, eventSetupPathsKey = cms.string( '' )
+, HLTPaths           = cms.vstring( 'Flag_METFilters' )
 )

@@ -9,13 +9,13 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <string>
 #include <cmath>
@@ -24,7 +24,7 @@
 class DQMStore;
 class MonitorElement;
 
-class BPhysicsOniaDQM : public edm::EDAnalyzer {
+class BPhysicsOniaDQM : public DQMEDAnalyzer {
  public:
   /// Constructor
   BPhysicsOniaDQM(const edm::ParameterSet&);
@@ -32,18 +32,10 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   /// Destructor
   virtual ~BPhysicsOniaDQM();
 
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
-                            const edm::EventSetup& iSetup);
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
-                          const edm::EventSetup& iSetup);
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  void endJob(void);
 
  private:
   float computeMass(const math::XYZVector& vec1, const math::XYZVector& vec2);
@@ -52,9 +44,6 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   bool selTrackerMuon(const reco::Muon& recoMu);
 
   // ----------member data ---------------------------
-
-  DQMStore* theDbe;
-
   edm::EDGetTokenT<reco::VertexCollection> vertex_;
   // Muon Label
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
@@ -81,23 +70,6 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   MonitorElement* trkSigNoCut;
   MonitorElement* trkBkgNoCut;
 
-  //   MonitorElement* JPsiGlbYdLumi;
-  //   MonitorElement* JPsiStaYdLumi;
-  //   MonitorElement* JPsiTrkYdLumi;
-
-  // Yield of dimuon objects
-  int jpsiGlbSigPerLS;
-  int jpsiStaSigPerLS;
-  int jpsiTrkSigPerLS;
-  std::map<int, int> jpsiGlbSig;
-  std::map<int, int> jpsiStaSig;
-  std::map<int, int> jpsiTrkSig;
-
   math::XYZPoint RefVtx;
 };
 #endif
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

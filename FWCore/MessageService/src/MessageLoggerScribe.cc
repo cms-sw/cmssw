@@ -309,7 +309,7 @@ void
 	ConfigurationHandshake * h_p = 
 		static_cast<ConfigurationHandshake *>(operand);
 	job_pset_p.reset(static_cast<ParameterSet *>(h_p->p));
-	boost::mutex::scoped_lock sl(h_p->m);   // get lock
+  std::lock_guard<std::mutex> sl(h_p->m);   // get lock
 	try {
 	  configure_errorlog();
 	}
@@ -398,7 +398,7 @@ void
       ConfigurationHandshake * h_p = 
 	      static_cast<ConfigurationHandshake *>(operand);
       job_pset_p.reset(static_cast<ParameterSet *>(h_p->p));
-      boost::mutex::scoped_lock sl(h_p->m);   // get lock
+      std::lock_guard<std::mutex> sl(h_p->m);   // get lock
       h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
       // finally, release the scoped lock by letting it go out of scope 
       break;
@@ -419,7 +419,7 @@ void
       } else {
 	ConfigurationHandshake * h_p = 
 		static_cast<ConfigurationHandshake *>(operand);
-	boost::mutex::scoped_lock sl(h_p->m);   // get lock
+    std::lock_guard<std::mutex> sl(h_p->m);   // get lock
 	std::map<std::string, double> * smp = 
 		static_cast<std::map<std::string, double> *>(h_p->p);
 	triggerFJRmessageSummary(*smp);

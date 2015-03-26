@@ -92,7 +92,7 @@ private:
 };
 
 
-recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
   //Initialize counters
     n_event = 0;

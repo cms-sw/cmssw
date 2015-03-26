@@ -5,3 +5,5 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "CondFormats/EgammaObjects/interface/GBRTree2D.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest2D.h"
+#include "CondFormats/EgammaObjects/interface/GBRTreeD.h"
+#include "CondFormats/EgammaObjects/interface/GBRForestD.h"

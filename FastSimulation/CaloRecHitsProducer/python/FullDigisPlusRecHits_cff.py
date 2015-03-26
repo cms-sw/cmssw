@@ -83,6 +83,8 @@ DigiSequence = cms.Sequence((simHcalTriggerPrimitiveDigis * simHcalDigis*simHcal
 # Reconstruction
 ecalRecHitSequence = cms.Sequence(ecalMultiFitUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalPreshowerRecHit)	   	
 hcalRecHitSequence = cms.Sequence((hbheprereco+hfreco+horeco)*hbhereco)
+hcalRecHitSequencePreTrk = cms.Sequence((hbheprereco+hfreco+horeco))
 
 TotalDigisPlusRecHitsSequence = cms.Sequence(DigiSequence*ecalRecHitSequence*hcalRecHitSequence)
+TotalDigisPlusRecHitsSequencePreTrk = cms.Sequence(DigiSequence*ecalRecHitSequence*hcalRecHitSequencePreTrk)
 

@@ -225,6 +225,7 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     sampleMaskEE = cms.untracked.uint32(1023),
 
   producedEcalTimeBiasCorrections = cms.untracked.bool(True),
+
 # trivial
 #  EBtimeCorrAmplitudeBins = cms.untracked.vdouble(0),
 #  EBtimeCorrShiftBins = cms.untracked.vdouble(0),
@@ -252,5 +253,19 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     -0.896, -0.896, -0.896, -0.896, -0.563, -0.392, -0.287, -0.203, -0.135, -0.100, -0.068, -0.050, -0.060, -0.052, -0.055,
     -0.050, -0.052, -0.056, -0.055, -0.056, -0.048, -0.037, -0.038, -0.037, -0.025, -0.026, -0.024, -0.013, -0.003, 0.005,
     0.020,  0.026,  0.008,  0.007,  -0.006, 0.024,  0.045,  0.062,  0.085,  0.088 , 0.111 , 0.139,  0.156,  0.176,  0.210,
-    0.242,  0.267,  0.301,  0.318,  0.278,  0.287,  0.218,  0.305,  0.245,  0.184,  -0.159, -0.095, 0.037)
+    0.242,  0.267,  0.301,  0.318,  0.278,  0.287,  0.218,  0.305,  0.245,  0.184,  -0.159, -0.095, 0.037),
+
+  producedEcalSamplesCorrelation = cms.untracked.bool(True),
+  EBG12samplesCorrelation = cms.untracked.vdouble(
+     1.00000, 0.71073, 0.55721, 0.46089, 0.40449, 0.35931, 0.33924, 0.32439, 0.31581, 0.30481),
+  EBG6samplesCorrelation = cms.untracked.vdouble(
+     1.00000, 0.70946, 0.58021, 0.49846, 0.45006, 0.41366, 0.39699, 0.38478, 0.37847, 0.37055),
+  EBG1samplesCorrelation = cms.untracked.vdouble(
+     1.00000, 0.73354, 0.64442, 0.58851, 0.55425, 0.53082, 0.51916, 0.51097, 0.50732, 0.50409),
+  EEG12samplesCorrelation = cms.untracked.vdouble(
+     1.00000, 0.71373, 0.44825, 0.30152, 0.21609, 0.14786, 0.11772, 0.10165, 0.09465, 0.08098),
+  EEG6samplesCorrelation = cms.untracked.vdouble(
+     1.00000, 0.71217, 0.47464, 0.34056, 0.26282, 0.20287, 0.17734, 0.16256, 0.15618, 0.14443),
+  EEG1samplesCorrelation = cms.untracked.vdouble(
+     1.00000, 0.72698, 0.62048, 0.55691, 0.51848, 0.49147, 0.47813, 0.47007, 0.46621, 0.46265)
 )

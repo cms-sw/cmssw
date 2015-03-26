@@ -28,7 +28,7 @@ int main (int argc, char** argv)
     //*************
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true );
+    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
     session.transaction().start( false );
     MyTestData d0( 20000 );
     MyTestData d1( 30000 );

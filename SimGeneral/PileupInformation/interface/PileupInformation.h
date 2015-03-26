@@ -21,6 +21,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
@@ -53,10 +54,15 @@ private:
     double                   volumeZ_;
     double                   pTcut_1_;
     double                   pTcut_2_;
+    bool isPreMixed_;
+
 
     edm::EDGetTokenT<TrackingParticleCollection>     trackingTruthT_;
     edm::EDGetTokenT<TrackingVertexCollection>     trackingTruthV_;
     edm::EDGetTokenT<PileupMixingContent>            PileupInfoLabel_;
+    edm::EDGetTokenT<int> bunchSpacingToken_;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryToken_;
+    edm::EDGetTokenT<PileupVertexContent>            PileupVtxLabel_;
 
     bool LookAtTrackingTruth_ ;
 

@@ -122,6 +122,7 @@ namespace reco {
       leptonDeltaR,                             // pseudo)angular distance of the soft lepton to jet axis
       leptonRatio,                              // momentum of the soft lepton over jet energy
       leptonRatioRel,                           // momentum of the soft lepton parallel to jet axis over jet energy
+      electronMVA,                              // mva output from electron ID
 
       algoDiscriminator,                        // discriminator output of an algorithm
 
@@ -132,8 +133,8 @@ namespace reco {
   // import only TaggingVariableName type into reco namespace
   using btau::TaggingVariableName;
 
-  extern const char* TaggingVariableDescription[];
-  extern const char* TaggingVariableTokens[];
+  extern const char* const TaggingVariableDescription[];
+  extern const char* const TaggingVariableTokens[];
 
   TaggingVariableName getTaggingVariableName ( const std::string & name );
 

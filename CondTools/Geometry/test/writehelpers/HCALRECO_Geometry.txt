@@ -1,5 +1,5 @@
 {
-    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_GEOMETRY_000", 
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_GEOMETRY_000", 
     "destinationTags": {
         "HCALRECO_Geometry_TagXX": {
             "dependencies": {}, 

@@ -522,8 +522,8 @@ GlobalMuonTrackMatcher::samePlane(const TrajectoryStateOnSurface& tsos1,
   const float maxtilt = 0.999;
   const float maxdist = 0.01; // in cm
 
-  ReferenceCountingPointer<TangentPlane> p1(tsos1.surface().tangentPlane(tsos1.localPosition()));
-  ReferenceCountingPointer<TangentPlane> p2(tsos2.surface().tangentPlane(tsos2.localPosition()));
+  auto p1(tsos1.surface().tangentPlane(tsos1.localPosition()));
+  auto p2(tsos2.surface().tangentPlane(tsos2.localPosition()));
 
   bool returnValue = ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt) || (fabs((p1->toLocal(p2->position())).z()) < maxdist) ) ? true : false;
 

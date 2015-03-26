@@ -126,14 +126,21 @@ private:
 
   CaloSamples samplesInPE(const DIGI & digi)
   {
+
+    // For PreMixing, (Note that modifications will need to be made for DataMixing) the 
+    // energy for each channel is kept as fC*10, but stored as an integer in ADC.  If this
+    // results in an overflow, the "standard" ADC conversion is used and that channel is marked
+    // with an error that allows the "standard" decoding to convert ADC back to fC.  So, most
+    // channels get to fC by just dividing ADC/10; some require special treatment.
+
     // calibration, for future reference:  (same block for all Hcal types)
     HcalDetId cell = digi.id();
     //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
-    const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
-    const HcalQIEShape* channelShape = theConditions->getHcalShape (cell);
-    HcalCoderDb coder (*channelCoder, *channelShape);
-    CaloSamples result;
-    coder.adc2fC(digi, result);
+    //const HcalQIECoder* channelCoder = theConditions->getHcalCoder (cell);
+    //const HcalQIEShape* channelShape = theConditions->getHcalShape (cell);
+    //HcalCoderDb coder (*channelCoder, *channelShape);
+    CaloSamples result = CaloSamples(cell,digi.size());;
+    //coder.adc2fC(digi, result);
 
     // first, check if there was an overflow in this fake digi:
     bool overflow = false;

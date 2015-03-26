@@ -174,7 +174,7 @@ namespace pos{
 
     virtual void writeASCII(std::string dir="") const;
     void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key,
+    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,

@@ -28,7 +28,6 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 # Generate di-electrons with pT=35 GeV
 # process.load("FastSimulation/Configuration/DiElectrons_cfi")
 
-
 # Famos sequences (MC conditions, not Fake anymore!)
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
@@ -38,6 +37,9 @@ process.GlobalTag.globaltag = autoCond['mc']
 # Allow reading of the tracker geometry from the DB
 #process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 
+# vertex smearing
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
+
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
@@ -46,9 +48,10 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # If you want to turn on/off pile-up
-process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff')
-#process.load('FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff')
-#process.famosPileUp.PileUpSimulator.averageNumber = 5.0
+process.load('SimGeneral.MixingModule.mix_2012_Startup_50ns_PoissonOOTPU_cfi')
+from FastSimulation.Configuration.MixingModule_Full2Fast import prepareGenMixing
+process = prepareGenMixing(process)
+
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
@@ -58,16 +61,16 @@ process.famosSimHits.SimulateTracking = True
 # Famos with everything !
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 process.source = cms.Source("EmptySource")
-process.simulation = cms.Path(process.generator*process.famosWithEverything)
+process.simulation = cms.Path(process.generator*process.VtxSmeared*process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 #process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *', 
-                                           'drop *_mix_*_*'),
-#                              process.AODSIMEventContent,
+                              outputCommands = cms.untracked.vstring('keep *', 
+                                                                     'drop *_mix_*_*'),
+                              #                              process.AODSIMEventContent,
                               fileName = cms.untracked.string('MyFirstFamosFile_2.root')
-)
+                              )
 process.outpath = cms.EndPath(process.o1)
 
 # Keep output to a nice level

@@ -23,14 +23,14 @@ namespace edm {
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-class FastElectronSeedProducer : public edm::EDProducer
+class FastElectronSeedProducer : public edm::stream::EDProducer<>
 {
 
  public:

@@ -9,7 +9,8 @@
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
-
+#include "SimG4Core/Application/interface/G4RegionReporter.h"
+#include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
@@ -33,11 +34,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
@@ -69,8 +69,6 @@
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 static
 void createWatchers(const edm::ParameterSet& iP,
@@ -107,7 +105,6 @@ void createWatchers(const edm::ParameterSet& iP,
   }
 }
 
-//RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC) 
 RunManager::RunManager(edm::ParameterSet const & p) 
   :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(0), 
@@ -132,17 +129,13 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_p(p), m_fieldBuilder(0), m_chordFinderSetter(nullptr),
       m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
-  //m_HepMC = iC.consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
-
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel==0) m_kernel = new G4RunManagerKernel();
 
-  //m_CustomExceptionHandler = new ExceptionHandler(this) ;
-    
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
-  if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
+  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions","");
 
   m_userRunAction = 0;
   m_runInterface = 0;
@@ -199,11 +192,6 @@ void RunManager::initG4(const edm::EventSetup & es)
   SensitiveDetectorCatalog catalog_;
   const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, m_check);
   m_registry.dddWorldSignal_(world);
-
-  if("" != m_WriteFile) {
-    G4GDMLParser gdml;
-    gdml.Write(m_WriteFile, world->GetWorldVolume());
-  }
 
   if (m_pUseMagneticField)
     {
@@ -305,6 +293,16 @@ void RunManager::initG4(const edm::EventSetup & es)
     G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
   }
 
+  if("" != m_WriteFile) {
+    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
+    gdml.Write(m_WriteFile, world->GetWorldVolume(), false);
+  }
+
+  if("" != m_RegionFile) {
+    G4RegionReporter rrep;
+    rrep.ReportRegions(m_RegionFile);
+  }
+
   // If the Geant4 particle table is needed, decomment the lines below
   //
   //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
@@ -357,7 +355,10 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
   m_currentEvent = 0;
   if (m_simEvent!=0) { delete m_simEvent; }
   m_simEvent = 0;
-  G4Event * evt = new G4Event(inpevt.id().event());
+
+  // 64 bits event ID in CMSSW converted into Geant4 event ID
+  G4int evtid = (G4int)inpevt.id().event();
+  G4Event * evt = new G4Event(evtid);
   
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   

@@ -44,7 +44,7 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
     // m_data->invalidateCache();
   }
   virtual void invalidateTransientCache() {
-    m_data->invalidateCache();
+    m_data->invalidateTransientCache();
   }
   private:
   //DataProxy(); // stop default

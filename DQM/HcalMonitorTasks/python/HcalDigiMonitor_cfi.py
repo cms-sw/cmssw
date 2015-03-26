@@ -57,5 +57,5 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                
                                # block orbit test
                                shutOffOrbitTest       = cms.untracked.bool(False),
-                               ExpectedOrbitMessageTime = cms.untracked.int32(3559)
+                               ExpectedOrbitMessageTime = cms.untracked.int32(3559),
                                )

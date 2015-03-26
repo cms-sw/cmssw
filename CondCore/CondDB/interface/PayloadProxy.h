@@ -97,6 +97,11 @@ namespace cond {
 	  m_session.transaction().commit();
 	}
       }
+
+      virtual void invalidateTransientCache() {
+	m_data.reset();
+        m_currentPayloadId.clear();
+      }
       
       virtual void invalidateCache() {
 	m_data.reset();

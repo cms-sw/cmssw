@@ -10,7 +10,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@
 
 
 template<class T>
-class FakeTrackProducer : public edm::EDProducer {
+class FakeTrackProducer : public edm::stream::EDProducer<> {
     public:
       explicit FakeTrackProducer(const edm::ParameterSet & iConfig);
       virtual ~FakeTrackProducer() { }
@@ -44,7 +44,7 @@ class FakeTrackProducer : public edm::EDProducer {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     private:
       /// Labels for input collections
-      edm::InputTag src_;
+      edm::EDGetTokenT<std::vector<T>> src_;
 
       /// Muon selection
       //StringCutObjectSelector<T> selector_;
@@ -62,7 +62,7 @@ class FakeTrackProducer : public edm::EDProducer {
 
 template<typename T>
 FakeTrackProducer<T>::FakeTrackProducer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src"))
+    src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src")))
     //,selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true)
 {
     produces<std::vector<reco::Track> >(); 
@@ -81,7 +81,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
     Handle<vector<T> > src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     auto_ptr<vector<reco::Track> > out(new vector<reco::Track>());
     out->reserve(src->size());
@@ -123,10 +123,11 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
                                 alongMomentum) );
         out->back().setExtra( reco::TrackExtraRef( rTrackExtras, outEx->size()-1 ) );
         reco::TrackExtra &ex = outEx->back();    
+        auto const firstHitIndex = outHits->size();
         for (OwnVector<TrackingRecHit>::const_iterator it2 = hits.first; it2 != hits.second; ++it2) {
             outHits->push_back(*it2);
-            ex.add( TrackingRecHitRef( rHits, outHits->size()-1 ) );
         } 
+        ex.setHits( rHits, firstHitIndex, outHits->size()-firstHitIndex);
     }
 
     iEvent.put(out);

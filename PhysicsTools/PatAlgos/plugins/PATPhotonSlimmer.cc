@@ -3,7 +3,6 @@
   \brief    slimmer of PAT Taus 
 */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -88,6 +87,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     auto_ptr<vector<pat::Photon> >  out(new vector<pat::Photon>());
     out->reserve(src->size());
 
+    std::vector<unsigned int> keys;
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Photon & photon = out->back();
@@ -99,19 +99,19 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         if (dropRecHits_(photon)) { photon.recHits_ = EcalRecHitCollection(); photon.embeddedRecHits_ = false; }
 
         if (linkToPackedPF_) {
-            photon.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  photon in  " << src.id() << " comes from " << photon.refToOrig_.id() << ", " << photon.refToOrig_.key() << std::endl;
-            edm::RefVector<pat::PackedCandidateCollection> origs;
-            for (const reco::PFCandidateRef & pf : (*reco2pf)[photon.refToOrig_]) {
-                if (pf2pc->contains(pf.id())) {
-                    origs.push_back((*pf2pc)[pf]);
-                } //else std::cerr << " Photon linked to a PFCand in " << pf.id() << " while we expect them in " << pf2pc->ids().front().first << "\n";
+            keys.clear();
+            for(auto const& pf: (*reco2pf)[photon.refToOrig_]) {
+              if( pf2pc->contains(pf.id()) ) {
+                keys.push_back( (*pf2pc)[pf].key());
+              }
             }
-            //std::cout << "Photon with pt " << photon.pt() << " associated to " << origs.size() << " PF Candidates\n";
-            photon.setAssociatedPackedPFCandidates(origs);
+            photon.setAssociatedPackedPFCandidates(edm::RefProd<pat::PackedCandidateCollection>(pc),
+                                                   keys.begin(), keys.end());
+            //std::cout << "Photon with pt " << photon.pt() << " associated to " << photon.associatedPackedFCandidateIndices_.size() << " PF Candidates\n";
             //if there's just one PF Cand then it's me, otherwise I have no univoque parent so my ref will be null 
-            if (origs.size() == 1) {
-                photon.refToOrig_ = refToPtr(origs[0]);
+            if (keys.size() == 1) {
+                photon.refToOrig_ = photon.sourceCandidatePtr(0);
             } else {
                 photon.refToOrig_ = reco::CandidatePtr(pc.id());
             }

@@ -165,7 +165,9 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       TTree* psumap_;
       TTree* readoutmap_;
       bool onTrack_;
-      uint32_t vertexid_, eventid_, runid_;
+      uint32_t vertexid_;
+      edm::EventNumber_t eventid_;
+      uint32_t runid_;
       uint32_t globalvertexid_;
       uint32_t *globaltrackid_, *trackid_;
       float globalX_, globalY_, globalZ_;

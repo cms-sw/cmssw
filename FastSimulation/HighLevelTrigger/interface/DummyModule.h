@@ -4,21 +4,19 @@
 //  The CaloRecHits copy for HLT
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 class ParameterSet;
 class Event;
 class EventSetup;
 
-class DummyModule : public edm::EDProducer
+class DummyModule : public edm::stream::EDProducer <>
 {
 
  public:
 
   explicit DummyModule(edm::ParameterSet const & p);
   virtual ~DummyModule();
-  virtual void beginJob() {;}
-  virtual void endJob() {;}
   virtual void produce(edm::Event & e, const edm::EventSetup & c);
 
 };

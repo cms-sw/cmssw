@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,31 +36,32 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTPhotonTrackIsolationProducersRegional : public edm::EDProducer {
+class EgammaHLTPhotonTrackIsolationProducersRegional : public edm::global::EDProducer<> {
    public:
       explicit EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet&);
       ~EgammaHLTPhotonTrackIsolationProducersRegional();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   
 private:
       // ----------member data ---------------------------
 
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
 
-  edm::ParameterSet conf_;
+  //edm::ParameterSet conf_;
 
-  bool countTracks_;
+  const bool countTracks_;
 
-  double egTrkIsoPtMin_; 
-  double egTrkIsoConeSize_;
-  double egTrkIsoZSpan_;   
-  double egTrkIsoRSpan_;  
-  double egTrkIsoVetoConeSize_;
+  const double egTrkIsoPtMin_; 
+  const double egTrkIsoConeSize_;
+  const double egTrkIsoZSpan_;   
+  const double egTrkIsoRSpan_;  
+  const double egTrkIsoVetoConeSize_;
+  const double egTrkIsoStripBarrel_;
+  const double egTrkIsoStripEndcap_;
 
   EgammaHLTTrackIsolation* test_;
-
 };
 

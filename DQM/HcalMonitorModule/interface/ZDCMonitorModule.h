@@ -34,7 +34,7 @@ class  HcalZDCMonitor;
 #include <iostream>
 #include <fstream>
 
-class ZDCMonitorModule : public thread_unsafe::DQMEDAnalyzer {
+class ZDCMonitorModule : public DQMEDAnalyzer {
 
 public:
   

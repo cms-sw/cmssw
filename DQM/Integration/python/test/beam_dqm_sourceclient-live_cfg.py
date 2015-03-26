@@ -42,7 +42,7 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
 
 ####  SETUP TRACKING RECONSTRUCTION ####
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
@@ -112,6 +112,10 @@ if ( process.runType.getRunType() == process.runType.cosmic_run):
     process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 5       #Should be < AlalrmONThreshold 
 #-----------------------------------------------------------
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 
 #--------------------------
 # Proton-Proton Stuff
@@ -175,6 +179,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                process.offlineBeamSpot*
                                                process.siPixelClusters*
                                                process.siPixelRecHits*
+                                               process.siPixelClusterShapeCache*
+                                               process.PixelLayerTriplets*
 #                                               process.pixelTracks*
 #                                               process.pixelVertices
                                                process.recopixelvertexing

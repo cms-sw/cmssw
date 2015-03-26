@@ -40,7 +40,9 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   runFrontEndFormatError_(ps.getParameter<bool>("FrontEndFormatError"))
 {
   // register for data access
-  tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
+  if (runFrontEndFormatError_) {
+    tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
+  }
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_[0]);
   tok_hf_ = consumes<HFDigiCollection>(inputLabel_[1]);
 

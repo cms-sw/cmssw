@@ -20,7 +20,7 @@ submitJobs.sh with the submission sequence and dependencies.
 DIRNAME        directories will be named DIRNAME01, DIRNAME02...
 ITERATIONS     number of iterations
 INITIALGEOM    SQLite file containing muon geometry with tag names
-               DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd
+               DTAlignmentRcd, DTAlignmentErrorExtendedRcd, CSCAlignmentRcd, CSCAlignmentErrorExtendedRcd
 INPUTFILES     Python file defining 'fileNames', a list of input files as
                strings (create with findQualityFiles.py)""" % vars()
 
@@ -65,9 +65,9 @@ parser.add_option("--trackerAPEconnect",
                   default="",
                   dest="trackerAPEconnect")
 parser.add_option("--trackerAPE",
-                  help="name of TrackerAlignmentErrorRcd tag (tracker APEs)",
+                  help="name of TrackerAlignmentErrorExtendedRcd tag (tracker APEs)",
                   type="string",
-                  default="AlignmentErrors",
+                  default="AlignmentErrorsExtended",
                   dest="trackerAPE")
 parser.add_option("--gprcdconnect",
                   help="connect string for GlobalPositionRcd (frontier://... or sqlite_file:...)",

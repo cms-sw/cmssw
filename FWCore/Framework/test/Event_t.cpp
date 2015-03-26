@@ -28,7 +28,6 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -43,7 +42,7 @@ Test program for edm::Event.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "Cintex/Cintex.h"
+#include "boost/shared_ptr.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -244,8 +243,6 @@ testEvent::testEvent() :
   processHistoryRegistry_(),
   processConfigurations_() {
 
-  ROOT::Cintex::Cintex::Enable();
-
   typedef edmtest::IntProduct prod_t;
   typedef std::vector<edmtest::Thing> vec_t;
 
@@ -305,7 +302,6 @@ testEvent::~testEvent() {
 
 void testEvent::setUp() {
 
-  edm::RootAutoLibraryLoader::enable();
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than
@@ -481,6 +477,20 @@ void testEvent::getByProductID() {
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+
+  edm::EventBase* baseEvent = currentEvent_.get();
+  handle_t h1;
+  baseEvent->get(wanted, h1);
+  CPPUNIT_ASSERT(h1.isValid());
+  CPPUNIT_ASSERT(h1.id() == wanted);
+  CPPUNIT_ASSERT(h1->value == 1);
+
+  CPPUNIT_ASSERT_THROW(baseEvent->get(invalid, h1), cms::Exception);
+  CPPUNIT_ASSERT(!h1.isValid());
+  CPPUNIT_ASSERT(!baseEvent->get(notpresent, h1));
+  CPPUNIT_ASSERT(!h1.isValid());
+  CPPUNIT_ASSERT(h1.failedToGet());
+  CPPUNIT_ASSERT_THROW(*h1, cms::Exception);
 }
 
 void testEvent::transaction() {
@@ -507,7 +517,6 @@ void testEvent::getByLabel() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
 
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -593,7 +602,6 @@ void testEvent::getByToken() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
   
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -719,7 +727,6 @@ void testEvent::deleteProduct() {
   
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
   
   ap_t one(new product_t(1));
   addProduct(std::move(one),   "int1_tag", "int1");

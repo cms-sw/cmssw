@@ -34,12 +34,12 @@ cmsRun geometrywriter.py
 # files
 #
 # Input cff                    Output file
-# GeometryIdeal_cff            giSingleBigFile.xml
+# GeometryIdeal2015_cff        giSingleBigFile.xml
 #
 sed -i '{s/Extended2015/Extended2015ZeroMaterial/g}' geometryxmlwriter.py
 sed -i '{s/\/ge/\/gzm/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
-sed -i '{s/Extended2015ZeroMaterial/Ideal/g}' geometryxmlwriter.py
+sed -i '{s/Extended2015ZeroMaterial/Ideal2015/g}' geometryxmlwriter.py
 sed -i '{s/\/gzm/\/gi/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
@@ -51,12 +51,12 @@ cmsRun geometryxmlwriter.py
 #
 # Input file                Output tag
 # gegSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2015GFlash_mc
-# giSingleBigFile.xml       XMLFILE_Geometry_${mytag}_Ideal_mc
+# giSingleBigFile.xml       XMLFILE_Geometry_${mytag}_Ideal2015_mc
 #
 sed -i '{s/Extended2015/Extended2015ZeroMaterial/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gzm/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
-sed -i '{s/Extended2015ZeroMaterial/Ideal/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2015ZeroMaterial/Ideal2015/g}' xmlgeometrywriter.py
 sed -i '{s/\/gzm/\/gi/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 

@@ -49,24 +49,27 @@ HcalDigiClient::HcalDigiClient(std::string myname, const edm::ParameterSet& ps)
   ProblemCells=0;
 
   HFTiming_averageTime=0;
+
+  doProblemCellSetup_ = true;
 }
 
-void HcalDigiClient::analyze()
+void HcalDigiClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalDigiClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 
   // Get Pawel's timing plots to form averages
   TH2F* TimingStudyTime=0;
   TH2F* TimingStudyOcc=0;
   std::string s=subdir_+"HFTimingStudy/sumplots/HFTiming_Total_Time";
   
-  MonitorElement* me=dqmStore_->get(s.c_str());
+  MonitorElement* me=ig.get(s.c_str());
   if (me!=0)
     TimingStudyTime=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_,TimingStudyTime, debug_);
 
   s=subdir_+"HFTimingStudy/sumplots/HFTiming_Occupancy";
-  me=dqmStore_->get(s.c_str());
+  me=ig.get(s.c_str());
   if (me!=0)
     TimingStudyOcc=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_,TimingStudyOcc, debug_);
 
@@ -86,10 +89,9 @@ void HcalDigiClient::analyze()
     }
 }
 
-void HcalDigiClient::calculateProblems()
+void HcalDigiClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalDigiClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   int totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -123,7 +125,7 @@ void HcalDigiClient::calculateProblems()
   for (int i=0;i<4;++i)
     {
       std::string s=subdir_+"bad_digis/bad_digi_occupancy/"+name[i]+"Bad Digi Map";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) 
 	{
 	  gothistos=false;
@@ -132,7 +134,7 @@ void HcalDigiClient::calculateProblems()
       BadDigisByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadDigisByDepth[i], debug_);
 
       s=subdir_+"good_digis/digi_occupancy/"+name[i]+" Digi Eta-Phi Occupancy Map";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) 
 	{
 	  gothistos=false;
@@ -213,48 +215,40 @@ void HcalDigiClient::calculateProblems()
 }
 
 
-void HcalDigiClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalDigiClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 
 void HcalDigiClient::endJob(){}
 
-void HcalDigiClient::beginRun(void)
+void HcalDigiClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig )
 {
-  enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalDigiClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
-  ProblemCells=dqmStore_->book2D(" ProblemDigis",
+  ProblemCells=ib.book2D(" ProblemDigis",
 				 " Problem Digi Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_digis");
+  ib.setCurrentFolder(subdir_+"problem_digis");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem Digi Rate");
+  ProblemCellsByDepth->setup(ib," Problem Digi Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
 
-  nevts_=0;
+  ib.setCurrentFolder(subdir_+"HFTimingStudy");
+  HFTiming_averageTime=ib.book2D("HFTimingStudy_Average_Time","HFTimingStudy Average Time (time sample)",83,-41.5,41.5,72,0.5,72.5);
 
-  dqmStore_->setCurrentFolder(subdir_+"HFTimingStudy");
-  HFTiming_averageTime=dqmStore_->book2D("HFTimingStudy_Average_Time","HFTimingStudy Average Time (time sample)",83,-41.5,41.5,72,0.5,72.5);
+  doProblemCellSetup_ = false;
+
 }
 
-void HcalDigiClient::endRun(void){analyze();}
+void HcalDigiClient::beginRun(void)
+{
+  enoughevents_=false;
+  nevts_=0;
+}
+
+//void HcalDigiClient::endRun(void){analyze();}
 
 void HcalDigiClient::setup(void){}
 void HcalDigiClient::cleanup(void){}
@@ -303,4 +297,6 @@ void HcalDigiClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqu
 } //void HcalDigiClient::updateChannelStatus
 
 HcalDigiClient::~HcalDigiClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

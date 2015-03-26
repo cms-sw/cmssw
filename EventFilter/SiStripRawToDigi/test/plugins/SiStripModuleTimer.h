@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/HLTEvF/interface/PathTimerService.h"
+//#include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "TFile.h"
 #include "TTree.h"
 

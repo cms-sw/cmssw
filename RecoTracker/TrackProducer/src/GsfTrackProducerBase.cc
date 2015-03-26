@@ -128,12 +128,14 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     assert(ih==hidx);
     t2t(*theTraj,*selHits,useSplitting);
     auto ie = selHits->size();
+    unsigned int nHitsAdded = 0;
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit);
-      tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+      ++nHitsAdded;
     }
-
+    tx.setHits(rHits, hidx, nHitsAdded);
+    hidx += nHitsAdded;
 
     /*
     TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits,useSplitting);

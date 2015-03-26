@@ -13,22 +13,23 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed    
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.2
 
 ###################################
-from RecoHI.HiTracking.hiRegitLowPtTripletStep_cff import *
+from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
 
 # remove previously used clusters
-hiRegitMuLowPtTripletStepClusters = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepClusters.clone(
-    oldClusterRemovalInfo = cms.InputTag("hiRegitMuInitialStepClusters"),
-    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+hiRegitMuLowPtTripletStepClusters = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.clone(
+    trajectories          = cms.InputTag("hiRegitMuDetachedTripletStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuDetachedTripletStepSelector','hiRegitMuDetachedTripletStep'),
+    oldClusterRemovalInfo = cms.InputTag("hiRegitMuDetachedTripletStepClusters"),
+    TrackQuality          = cms.string('tight')
 )
 
 # SEEDING LAYERS
-hiRegitMuLowPtTripletStepSeedLayers = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepSeedLayers.clone()
+hiRegitMuLowPtTripletStepSeedLayers =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeedLayers.clone()
 hiRegitMuLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuLowPtTripletStepClusters')
 hiRegitMuLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuLowPtTripletStepClusters')
 
 # seeds
-hiRegitMuLowPtTripletStepSeeds     = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepSeeds.clone()
+hiRegitMuLowPtTripletStepSeeds     = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.clone()
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuLowPtTripletStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 0.9
@@ -36,47 +37,66 @@ hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Delta
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 1. # this give you the length 
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                                  = 'hiRegitMuLowPtTripletStepSeedLayers'
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+
+
 
 # building: feed the new-named seeds
-hiRegitMuLowPtTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryFilter.clone()
-hiRegitMuLowPtTripletStepTrajectoryFilter.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuLowPtTripletStepStandardTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+      minPt = 0.8
+      )
+
+hiRegitMuLowPtTripletStepTrajectoryFilter = cms.PSet(
+      ComponentType = cms.string('CompositeTrajectoryFilter'),
+      filters = cms.VPSet(cms.PSet(
+         refToPSet_ = cms.string('hiRegitMuLowPtTripletStepStandardTrajectoryFilter')
+         ), 
+         cms.PSet(
+            refToPSet_ = cms.string('ClusterShapeTrajectoryFilter')
+            ))
+         )
 
 
-hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuLowPtTripletStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('hiRegitMuLowPtTripletStepClusters'),
+hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTrajectoryBuilder.clone(
+    trajectoryFilter = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuLowPtTripletStepTrajectoryFilter',)
+       ),
 )
 
 # track candidates
-hiRegitMuLowPtTripletStepTrackCandidates        =  RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrackCandidates.clone(
+hiRegitMuLowPtTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuLowPtTripletStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitLowPtTripletStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuLowPtTripletStepTrajectoryBuilder')
+       ),
+    clustersToSkip = cms.InputTag('hiRegitMuLowPtTripletStepClusters'),
     maxNSeeds         = cms.uint32(1000000)
     )
 
 # fitting: feed new-names
-hiRegitMuLowPtTripletStepTracks                 = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTracks.clone(
+hiRegitMuLowPtTripletStepTracks                 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(
+    AlgorithmName = cms.string('iter4'),
     src                 = 'hiRegitMuLowPtTripletStepTrackCandidates'
 )
 
 
-hiRegitMuLowPtTripletStepSelector               = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepSelector.clone( 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+hiRegitMuLowPtTripletStepSelector               = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSelector.clone( 
     src                 ='hiRegitMuLowPtTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors= cms.VPSet(
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-            name = 'hiRegitMuLowPtTripletStepLoose',
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuLowPtTripletStepLoose',
+           qualityBit = cms.string('loose'),
             ), #end of pset
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuLowPtTripletStepTight',
             preFilterName = 'hiRegitMuLowPtTripletStepLoose',
+            qualityBit = cms.string('loose'),
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuLowPtTripletStep',
             preFilterName = 'hiRegitMuLowPtTripletStepTight',
+            qualityBit = cms.string('tight'),
             ),
         ) #end of vpset
 )

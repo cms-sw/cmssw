@@ -23,7 +23,7 @@ class RunAlcaHarvesting:
         self.globalTag = None
         self.inputLFN = None
         self.workflows = None
-
+        self.alcapromptdataset = None
 
     def __call__(self):
         if self.scenario == None:
@@ -64,6 +64,8 @@ class RunAlcaHarvesting:
             kwds = {}
             if not self.workflows is None:
                 kwds['skims'] = self.workflows
+            if not self.alcapromptdataset is None:
+                kwds['alcapromptdataset'] = self.alcapromptdataset
             process = scenario.alcaHarvesting(self.globalTag, self.dataset, **kwds)
             
         except Exception, ex:
@@ -84,7 +86,7 @@ class RunAlcaHarvesting:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "global-tag=", "lfn=", "dataset=","workflows="]
+    valid = ["scenario=", "global-tag=", "lfn=", "dataset=","workflows=","alcapromptdataset="]
     usage = """RunAlcaHarvesting.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -107,5 +109,8 @@ if __name__ == '__main__':
             harvester.dataset = arg
         if opt == "--workflows":
             harvester.workflows = [ x for x in arg.split(',') if len(x) > 0 ]
+        if opt == "--alcapromptdataset":
+            harvester.alcapromptdataset = arg
+
 
     harvester()

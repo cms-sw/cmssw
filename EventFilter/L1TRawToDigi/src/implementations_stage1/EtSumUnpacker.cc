@@ -44,24 +44,22 @@ namespace l1t {
 
         // Loop over multiple BX and then number of jets filling jet collection
         for (int bx=firstBX; bx<lastBX; bx++){
+
+          res_->resize(bx,4);
+
           uint32_t raw_data0 = block.payload()[i++];
           uint32_t raw_data1 = block.payload()[i++];        
 
           /* if (raw_data0 == 0 || raw_data1==0) continue; */
 
-          uint16_t candbit[4];
+          uint16_t candbit[2];
           candbit[0] = raw_data0 & 0xFFFF;
-          candbit[1] = (raw_data0 >> 16) & 0xFFFF;
-          candbit[2] = raw_data1 & 0xFFFF;
-          candbit[3] = (raw_data1 >> 16) & 0xFFFF;
+          candbit[1] = raw_data1 & 0xFFFF;
 
           int totet=candbit[0] & 0xFFF;
           int overflowtotet=(candbit[0]>>12) & 0x1;
-          int etmiss=candbit[1] & 0xFFF;
-          int overflowetmiss=(candbit[1]>>12) & 0x1;
-          int totht=candbit[2] & 0xFFF;
-          int overflowtotht=(candbit[2]>>12) & 0x1;
-          int etmissphi=candbit[3] & 0x7F;
+          int totht=candbit[1] & 0xFFF;
+          int overflowtotht=(candbit[1]>>12) & 0x1;
 
           l1t::EtSum et = l1t::EtSum();
           et.setHwPt(totet);
@@ -70,7 +68,7 @@ namespace l1t {
           flagtotet|= overflowtotet;
           et.setHwQual(flagtotet);       
           LogDebug("L1T") << "ET: pT " << et.hwPt()<<"is overflow "<<overflowtotet<<std::endl;
-          res_->push_back(bx,et);
+          res_->set(bx, 2,et);
 
           l1t::EtSum ht = l1t::EtSum();
           ht.setHwPt(totht);
@@ -79,17 +77,7 @@ namespace l1t {
           flagtotht|= overflowtotht;
           ht.setHwQual(flagtotht);       
           LogDebug("L1T") << "HT: pT " << ht.hwPt()<<"is overflow "<<overflowtotht<<std::endl;
-          res_->push_back(bx,ht);
-
-          l1t::EtSum met = l1t::EtSum();
-          met.setHwPt(etmiss);
-          met.setHwPhi(etmissphi);
-          met.setType(l1t::EtSum::kMissingEt);   
-          int flagetmiss=met.hwQual();
-          flagetmiss|= overflowetmiss;
-          met.setHwQual(flagetmiss);       
-          LogDebug("L1T") << "MET: pT " << met.hwPt()<<"is overflow "<<overflowetmiss<<std::endl;
-          res_->push_back(bx,met);
+          res_->set(bx, 3,ht);
 
         }
 

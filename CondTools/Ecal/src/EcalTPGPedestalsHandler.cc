@@ -296,6 +296,7 @@ void  popcon::EcalTPGPedestalsHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGPedestalsHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

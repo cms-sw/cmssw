@@ -34,8 +34,11 @@ namespace edm {
     virtual void rewind_() override;
     virtual ItemType getNextItemType() override;
     virtual void preForkReleaseResources() override;
+    virtual void closeFile_() override final;
+    virtual void genuineCloseFile() { }
 
     bool inputFileTransitionsEachEvent_;
+    bool fakeInputFileTransition_;
   };
 }
 #endif

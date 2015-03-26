@@ -120,7 +120,14 @@ namespace edm {
     // Fill in the product ID's in the product holders.
     for(auto const& prod : *this) {
       if (prod->singleProduct()) {
-        prod->setProvenance(productProvenanceRetrieverPtr(), processHistory(), branchIDToProductID(prod->branchDescription().branchID()));
+        // If an alias is in the same process as the original then isAlias will be true.
+        //  Under that condition, we want the ProductID to be the same as the original.
+        //  If not, then we've internally changed the original BranchID to the alias BranchID
+        //  in the ProductID lookup so we need the alias BranchID.
+        auto const & bd =prod->branchDescription();
+        prod->setProvenance(productProvenanceRetrieverPtr(),
+                            processHistory(),
+                            branchIDToProductID(bd.isAlias()?bd.originalBranchID(): bd.branchID()));
       }
     }
   }

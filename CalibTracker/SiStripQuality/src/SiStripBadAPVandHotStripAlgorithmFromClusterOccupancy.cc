@@ -703,13 +703,12 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setBasicTreeParamete
   detrawid = detid;
   subdetid = DetectorID.subdetId();
 
-  if (SiStripDetId(detid).stereo() !=0 ) isstereo = 1; // It's a stereo module
-  else                                   isstereo = 0; // It's an rphi module
   switch (DetectorID.subdetId())
     {
     case StripSubdetector::TIB :
       layer_ring = tTopo->tibLayer(detid);
       disc       = -1;
+      isstereo   = tTopo->tibIsStereo(detid);
       isback     = -1;
       if (tTopo->tibIsExternalString(detid)) isexternalstring = 1;
       else                                    isexternalstring = 0;
@@ -723,6 +722,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setBasicTreeParamete
     case StripSubdetector::TID :
       layer_ring = tTopo->tidRing(detid);
       disc       = tTopo->tidWheel(detid);
+      isstereo   = tTopo->tidIsStereo(detid);
       if (tTopo->tidIsBackRing(detid)) isback = 1;
       else                              isback = 0;
       if (tTopo->tidIsZMinusSide(detid)) iszminusside = 1;
@@ -736,6 +736,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setBasicTreeParamete
     case StripSubdetector::TOB :
       layer_ring = tTopo->tobLayer(detid);
       disc       = -1;
+      isstereo   = tTopo->tobIsStereo(detid);
       isback     = -1;
       if (tTopo->tobIsZMinusSide(detid)) iszminusside = 1;
       else                                iszminusside = 0;
@@ -748,6 +749,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setBasicTreeParamete
     case StripSubdetector::TEC :
       layer_ring = tTopo->tecRing(detid);
       disc       = tTopo->tecWheel(detid);
+      isstereo   = tTopo->tecIsStereo(detid);
       if (tTopo->tecIsBackPetal(detid)) isback = 1;
       else                               isback = 0;
       if (tTopo->tecIsZMinusSide(detid)) iszminusside = 1;

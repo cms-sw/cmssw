@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 QJetsAdder = cms.EDProducer("QjetsAdder",
-                            src=cms.InputTag("ca8PFJetsCHS"),
+                            src=cms.InputTag("ak8PFJetsCHS"),
                             zcut=cms.double(0.1),
                             dcutfctr=cms.double(0.5),
                             expmin=cms.double(0.0),

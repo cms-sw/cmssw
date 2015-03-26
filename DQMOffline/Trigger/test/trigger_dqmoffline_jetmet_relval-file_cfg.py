@@ -13,7 +13,7 @@ process.load("DQMServices.Core.DQM_cfg")
 #
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 

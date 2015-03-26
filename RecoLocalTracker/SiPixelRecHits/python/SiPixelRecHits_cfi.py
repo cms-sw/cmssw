@@ -7,4 +7,6 @@ siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
 
 )
 
-
+siPixelRecHitsPreSplitting = siPixelRecHits.clone(
+    src = 'siPixelClustersPreSplitting'
+)

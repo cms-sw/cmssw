@@ -27,7 +27,8 @@ for testing purposes only.
 namespace edmtest {
 namespace stream {
 
-namespace {
+// anonymous namespace here causes build warnings
+namespace cache {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -35,10 +36,9 @@ struct Cache {
    mutable std::atomic<unsigned int> run;
    mutable std::atomic<unsigned int> lumi;
 };
-} //end anonymous namespace
+} //end cache namespace
 
-
-
+  using Cache = cache::Cache;
 
   class GlobalIntAnalyzer : public edm::stream::EDAnalyzer<edm::GlobalCache<Cache>> {
   public:
@@ -96,7 +96,7 @@ struct Cache {
       m_count = 0;
     }
     
-    void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
       ++m_count;
       ++(runCache()->value);
        

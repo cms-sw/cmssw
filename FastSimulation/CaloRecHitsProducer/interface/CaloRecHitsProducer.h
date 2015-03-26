@@ -6,7 +6,7 @@
 //  The CaloRecHits producer.
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
@@ -19,7 +19,7 @@ class ParameterSet;
 class Event;
 class EventSetup;
 
-class CaloRecHitsProducer : public edm::EDProducer
+class CaloRecHitsProducer : public edm::stream::EDProducer <>
 {
 
  public:
@@ -27,7 +27,6 @@ class CaloRecHitsProducer : public edm::EDProducer
   explicit CaloRecHitsProducer(edm::ParameterSet const & p);
   virtual ~CaloRecHitsProducer();
   virtual void beginRun(const edm::Run & run, const edm::EventSetup & es) override;
-  virtual void endJob() override;
   virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
 
  private:

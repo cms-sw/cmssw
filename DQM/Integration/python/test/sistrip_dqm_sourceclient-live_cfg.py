@@ -81,7 +81,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #--------------------------
 # Calibration
@@ -597,3 +597,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                          process.TrackingClients
                          )
     
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

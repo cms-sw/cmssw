@@ -48,7 +48,8 @@ public:
   explicit GctRawToDigi(const edm::ParameterSet&);
   ~GctRawToDigi();
 
-  
+   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+ 
 private: // methods
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;

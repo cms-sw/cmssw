@@ -22,7 +22,7 @@ Implementation:
 // include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -31,17 +31,18 @@ Implementation:
 // class declaration
 //
 
-class HLTTriggerTypeFilter : public edm::EDFilter {
+class HLTTriggerTypeFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTTriggerTypeFilter(const edm::ParameterSet&);
   ~HLTTriggerTypeFilter();
+
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
   
   // ----------member data ---------------------------  
-  unsigned short  SelectedTriggerType_;
+  unsigned short  selectedTriggerType_;
   
 };
 

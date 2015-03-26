@@ -7,7 +7,7 @@
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/stream/EDProducer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
@@ -15,7 +15,7 @@
 
 class DTUnpacker;
 
-class DTUnpackingModule: public edm::EDProducer {
+class DTUnpackingModule: public edm::stream::EDProducer<> {
  public:
   /// Constructor
   DTUnpackingModule(const edm::ParameterSet& pset);
@@ -24,8 +24,9 @@ class DTUnpackingModule: public edm::EDProducer {
   virtual ~DTUnpackingModule();
     
   /// Call the Unpackers and create the digis 
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 

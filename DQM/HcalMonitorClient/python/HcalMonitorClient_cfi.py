@@ -69,4 +69,12 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                                                                     "Summary"
                                                                     ]
                                                                    ),
+                                 # List directories of all tasks that contribute to this test
+                                 # Make sure that all listed tasks are filling their ProblemCurrentLB histogram,
+                                 # or they will cause this test to automatically fail!
+                                 TaskDirectories        = cms.untracked.vstring("DeadCellMonitor_Hcal/",
+                                                                                "DigiMonitor_Hcal/",
+                                                                                "HotCellMonitor_Hcal/",
+                                                                                "BeamMonitor_Hcal/"),
+                                 minEvents              = cms.untracked.int32(500),
                             )

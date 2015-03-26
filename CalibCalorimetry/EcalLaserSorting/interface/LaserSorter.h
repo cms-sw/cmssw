@@ -45,8 +45,8 @@ class LaserSorter : public edm::EDAnalyzer {
   //inner classes
 private:
   struct IndexRecord{
-    int orbit;
-    std::streampos filePos;
+    uint32_t orbit;
+    uint32_t filePos;
     bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   
@@ -61,8 +61,8 @@ private:
       fedId_(fedId__),
       startingLumiBlock_(startingLumiBlock__),
       out_(out__),
-      tmpFileName_(tmpFileName__), finalFileName_(finalFileName__)
-      {
+      tmpFileName_(tmpFileName__), finalFileName_(finalFileName__),
+      indexError_(false){
       indices_.reserve(indexReserve_);
     }
     
@@ -88,7 +88,7 @@ private:
     std::auto_ptr<std::ofstream> out_;
     std::string tmpFileName_;
     std::string finalFileName_;
-    static std::string emptyString_;
+    const static std::string emptyString_;
 
     /** Index table. This map is used to index the events in the file
      * according to their orbit id. An index table is stored at the end
@@ -100,10 +100,15 @@ private:
      * of events already present in the file are excluded. 
      */
     std::set<uint32_t> excludedOrbit_; 
+    
+    /** Used to invalidate index table in case a problem preventing
+     * indexing is encountered: in principle non unicity of the orbit id.
+     */
+    bool indexError_;
 
     /** Initial memory allocation for index table (see vector::reserve()).
      */
-    static size_t indexReserve_;
+    static const size_t indexReserve_;
 
   };
 
@@ -122,9 +127,16 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   virtual void beginJob();
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
 private:
   int dcc2Lme(int dccNum, int dccSide);
+
+  /** Retrieves the orbit ID from DCC headers. The first header found is used.
+   * @rawdata the raw data where to read the orbit id.
+   * @return the event orbit ID or -1 if it was not found
+   */
+  int getOrbitFromDcc(const edm::Handle<FEDRawDataCollection>& rawdata) const;
 
   /** Retrieve detailed trigger type (trigger type, DCC, side) from raw event
    * @param rawdata FED data collection
@@ -315,6 +327,10 @@ private:
    */
   edm::LuminosityBlockNumber_t lumiBlock_;
 
+  /** Luminosity block of previous processed event
+   */
+  edm::LuminosityBlockNumber_t lumiBlockPrev_;
+
   /** List of output stream to write sorted
    * data
    */
@@ -423,6 +439,7 @@ private:
   int lumiBlockSpan_;
 
   edm::InputTag fedRawDataCollectionTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
 
   /** FED ID associated to Matacq data
    */
@@ -453,7 +470,30 @@ private:
     ///number of events whose DCC ID was restored based on FED block sizes
     double nRestoredDcc;
   } stats_;
-  static stats_t stats_init;
+  static const stats_t stats_init;
+
+  /** Switch to recompute and overwrite the lumi block ID
+   */
+  bool overWriteLumiBlockId_; 
+
+
+  /** Length of a lumi block in number of orbits used when
+   * overWriteLumiBlockId is set to true;
+   * LB = orbit_id / orbitCountInALumiBlock_
+   */
+  int orbitCountInALumiBlock_;
+
+  int orbit_;
+
+  /** Time stamp offset to use to calculate
+   * calibration time from the orbit id. It is obtained
+   * from the matacq block (time originates from the PC hosting the laser supervisor).
+   * and used in case the event is missing timestamp, in principle for data
+   * acquired with the minidaq
+   * Calibration event time = orbitZeroTime_ + orbit_ * (89.1 microsec).
+   */
+  struct timeval orbitZeroTime_;
+
 };
   
 #endif //EVENT_SELECT_H not defined

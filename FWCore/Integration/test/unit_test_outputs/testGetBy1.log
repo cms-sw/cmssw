@@ -23,6 +23,7 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ starting: constructing module with label 'intVectorProducer' id = 9
 ++++ finished: constructing module with label 'intVectorProducer' id = 9
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
+++ starting: begin job
 ++++ starting: begin job for module with label 'intProducerA' id = 7
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
 ++++ finished: begin job for module with label 'intProducerA' id = 7
@@ -43,6 +44,7 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ finished: begin job for module with label 'out' id = 6
 ++++ starting: begin job for module with label 'TriggerResults' id = 1
 ++++ finished: begin job for module with label 'TriggerResults' id = 1
+++ starting: begin job
 ++ finished: begin job
 ++++ starting: begin stream for module: stream = 0 label = 'intProducer' id = 2
 ++++ finished: begin stream for module: stream = 0 label = 'intProducer' id = 2

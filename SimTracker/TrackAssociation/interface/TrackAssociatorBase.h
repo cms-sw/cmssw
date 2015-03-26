@@ -43,9 +43,9 @@ class TrackAssociatorBase {
 						       edm::Handle<TrackingParticleCollection>& tPCH, 
 						       const edm::Event * event ,
                                                        const edm::EventSetup * setup ) const {
-    edm::RefToBaseVector<reco::Track> tc(tCH);
+    edm::RefToBaseVector<reco::Track> tc;
     for (unsigned int j=0; j<tCH->size();j++)
-      tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
+      tc.push_back(tCH->refAt(j));
 
     edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
     for (unsigned int j=0; j<tPCH->size();j++)
@@ -59,9 +59,9 @@ class TrackAssociatorBase {
 						       edm::Handle<TrackingParticleCollection>& tPCH,
 						       const edm::Event * event ,
                                                        const edm::EventSetup * setup ) const {
-    edm::RefToBaseVector<reco::Track> tc(tCH);
+    edm::RefToBaseVector<reco::Track> tc;
     for (unsigned int j=0; j<tCH->size();j++)
-      tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
+      tc.push_back(tCH->refAt(j));
 
     edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
     for (unsigned int j=0; j<tPCH->size();j++)

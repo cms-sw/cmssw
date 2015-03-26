@@ -9,12 +9,13 @@ from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
 
 class MatrixRunner(object):
 
-    def __init__(self, wfIn=None, nThrMax=4):
+    def __init__(self, wfIn=None, nThrMax=4, nThreads=1):
 
         self.workFlows = wfIn
 
         self.threadList = []
         self.maxThreads = nThrMax
+        self.nThreads = nThreads
 
         #the directories in which it happened
         self.runDirs={}
@@ -60,7 +61,7 @@ class MatrixRunner(object):
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
           
-            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports)
+            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads)
     	    self.threadList.append(current)
     	    current.start()
             if not dryRun:

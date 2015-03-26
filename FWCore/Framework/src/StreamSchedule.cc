@@ -551,6 +551,16 @@ namespace edm {
   }
 
   void
+  StreamSchedule::triggerPaths(std::vector<std::string>& oLabelsToFill) const {
+    oLabelsToFill = trig_name_list_;
+  }
+
+  void
+  StreamSchedule::endPaths(std::vector<std::string>& oLabelsToFill) const {
+    oLabelsToFill = end_path_name_list_;
+  }
+
+  void
   StreamSchedule::modulesInPath(std::string const& iPathLabel,
                           std::vector<std::string>& oLabelsToFill) const {
     TrigPaths::const_iterator itFound =
@@ -563,6 +573,64 @@ namespace edm {
       oLabelsToFill.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
         oLabelsToFill.push_back(itFound->getWorker(i)->description().moduleLabel());
+      }
+    }
+  }
+
+  void
+  StreamSchedule::moduleDescriptionsInPath(std::string const& iPathLabel,
+                                           std::vector<ModuleDescription const*>& descriptions,
+                                           unsigned int hint) const {
+    descriptions.clear();
+    bool found = false;
+    TrigPaths::const_iterator itFound;
+
+    if(hint < trig_paths_.size()) {
+      itFound = trig_paths_.begin() + hint;
+      if(itFound->name() == iPathLabel) found = true;
+    }
+    if(!found) {
+      // if the hint did not work, do it the slow way
+      itFound = std::find_if (trig_paths_.begin(),
+                              trig_paths_.end(),
+                              std::bind(std::equal_to<std::string>(),
+                                        iPathLabel,
+                                        std::bind(&Path::name, std::placeholders::_1)));
+      if (itFound != trig_paths_.end()) found = true;
+    }
+    if (found) {
+      descriptions.reserve(itFound->size());
+      for (size_t i = 0; i < itFound->size(); ++i) {
+        descriptions.push_back(itFound->getWorker(i)->descPtr());
+      }
+    }
+  }
+
+  void
+  StreamSchedule::moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                              std::vector<ModuleDescription const*>& descriptions,
+                                              unsigned int hint) const {
+    descriptions.clear();
+    bool found = false;
+    TrigPaths::const_iterator itFound;
+
+    if(hint < end_paths_.size()) {
+      itFound = end_paths_.begin() + hint;
+      if(itFound->name() == iEndPathLabel) found = true;
+    }
+    if(!found) {
+      // if the hint did not work, do it the slow way
+      itFound = std::find_if (end_paths_.begin(),
+                              end_paths_.end(),
+                              std::bind(std::equal_to<std::string>(),
+                                        iEndPathLabel,
+                                        std::bind(&Path::name, std::placeholders::_1)));
+      if (itFound != end_paths_.end()) found = true;
+    }
+    if (found) {
+      descriptions.reserve(itFound->size());
+      for (size_t i = 0; i < itFound->size(); ++i) {
+        descriptions.push_back(itFound->getWorker(i)->descPtr());
       }
     }
   }

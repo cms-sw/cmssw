@@ -88,6 +88,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <utility>
 
 namespace edm {
 
@@ -100,6 +101,7 @@ namespace edm {
   class ExceptionCollector;
   class OutputModuleCommunicator;
   class ProcessContext;
+  class ProductRegistry;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
@@ -190,9 +192,34 @@ namespace edm {
     ///adds to oLabelsToFill the labels for all paths in the process
     void availablePaths(std::vector<std::string>& oLabelsToFill) const;
 
+    ///Adds to oLabelsToFill the labels for all trigger paths in the process.
+    ///This is different from availablePaths because it includes the
+    ///empty paths to match the entries in TriggerResults exactly.
+    void triggerPaths(std::vector<std::string>& oLabelsToFill) const;
+
+    ///adds to oLabelsToFill the labels for all end paths in the process
+    void endPaths(std::vector<std::string>& oLabelsToFill) const;
+
     ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
     void modulesInPath(std::string const& iPathLabel,
                        std::vector<std::string>& oLabelsToFill) const;
+
+    ///adds the ModuleDescriptions into the vector for the modules scheduled in path iPathLabel
+    ///hint is a performance optimization if you might know the position of the module in the path
+    void moduleDescriptionsInPath(std::string const& iPathLabel,
+                                  std::vector<ModuleDescription const*>& descriptions,
+                                  unsigned int hint) const;
+
+    ///adds the ModuleDescriptions into the vector for the modules scheduled in path iEndPathLabel
+    ///hint is a performance optimization if you might know the position of the module in the path
+    void moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                     std::vector<ModuleDescription const*>& descriptions,
+                                     unsigned int hint) const;
+
+    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
+                                   std::vector<std::pair<unsigned int, unsigned int> >& moduleIDToIndex,
+                                   std::vector<std::vector<ModuleDescription const*> >& modulesWhoseProductsAreConsumedBy,
+                                   ProductRegistry const& preg) const;
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due

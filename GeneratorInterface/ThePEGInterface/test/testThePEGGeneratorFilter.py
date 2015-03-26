@@ -2,39 +2,32 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-#process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
-        engineName = cms.untracked.string('HepJamesRandom')
     )
 )
 
-# The following three lines reduce the clutter of repeated printouts
-# of the same exception message.
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(2)
+        )
+    ),
+    destinations = cms.untracked.vstring('cout')
+)
+
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 
 process.source = cms.Source("EmptySource")
 
-
-from GeneratorInterface.ThePEGInterface.herwigDefaults_cff import *
 from GeneratorInterface.ThePEGInterface.herwigValidation_cff import *
-
-process.configurationMetadata = cms.untracked.PSet(
-	version = cms.untracked.string('$Revision: 1.4 $'),
-	name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGGeneratorFilter.py,v $'),
-	annotation = cms.untracked.string('Herwig++ example - QCD validation')
-)
+process.load('Configuration.Generator.HerwigppDefaults_cfi')
 
 process.generator = cms.EDFilter("ThePEGGeneratorFilter",
-	herwigDefaultsBlock,
+	process.herwigDefaultsBlock,
 	herwigValidationBlock,
 
 	configFiles = cms.vstring(
@@ -49,7 +42,7 @@ process.generator = cms.EDFilter("ThePEGGeneratorFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('ThePEG.root')
+    fileName = cms.untracked.string('ThePEGGenerator.root')
 )
 
 process.p = cms.Path(process.generator)

@@ -76,7 +76,7 @@ namespace edm {
   }
 
   void
-  StreamerFileReader::closeFile_() {
+  StreamerFileReader::genuineCloseFile() {
     if(streamReader_.get() != nullptr) streamReader_->closeStreamerFile();
   }
 

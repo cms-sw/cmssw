@@ -1,32 +1,48 @@
 #
 # This file contains the Top PAG reference selection work-flow for mu + jets analysis.
 # as defined in
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopLeptonPlusJetsRefSel_mu#Selection_Version_SelV4_valid_fr
+# https://twiki.cern.ch/twiki/bin/view/CMS/TWikiTopRefEventSel#mu_jets_Channel
 #
+# Command line arguments:
+# - standard command line arguments as defined in FWCore.ParameterSet.VarParsing.VarParsing( 'standard' )
+#   + 'maxEvent' (int , default: -1)
+# - 'runOnMC'          (bool, default: True ): decide if run on MC or real data
+# - 'runOnMiniAOD'     (bool, default: True ): decide if run on miniAOD or AOD input
+# - 'useElecEAIsoCorr' (bool, default: True ): decide, if EA (rho) or Delta beta corrections are used for electron isolation
+# - 'useCalibElec'     (bool, default: False): decide, if electron re-calibration using regression energies is used
+# - 'addTriggerMatch'  (bool, default: True ): decide, if trigger objects are matched to signal muons
+#
+
 
 import sys
 
 import FWCore.ParameterSet.Config as cms
 
-# setup 'standard' options
+
+# Command line parsing
+
 import FWCore.ParameterSet.VarParsing as VarParsing
-options = VarParsing.VarParsing ('standard')
-options.register('runOnMC', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "decide if run on MC or data")
+options = VarParsing.VarParsing ( 'standard' )
+options.register( 'runOnMC'         , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on MC or real data' )
+options.register( 'runOnMiniAOD'    , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on miniAOD or AOD input' )
+options.register( 'useElecEAIsoCorr', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if EA (rho) or Delta beta corrections are used for electron isolation is used' )
+options.register( 'useCalibElec'    , False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if electron re-calibration using regression energies is used' )
+options.register( 'addTriggerMatch' , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if trigger objects are matched to signal muons' )
 # parsing command line arguments
-if( hasattr(sys, "argv") ):
-  #options.parseArguments()
-  if(len(sys.argv) > 1):
-    print "Parsing command line arguments:"
+if( hasattr( sys, 'argv' ) ):
+  if( len( sys.argv ) > 2 ):
+    print 'Parsing command line arguments:'
   for args in sys.argv :
     arg = args.split(',')
     for val in arg:
-      val = val.split('=')
-      if(len(val)==2):
-        print "Setting *", val[0], "* to:", val[1]
-        setattr(options,val[0], val[1])
+      val = val.split( '=' )
+      if( len( val ) == 2 ):
+        print 'Setting "', val[0], '" to:', val[1]
+        setattr( options, val[0], val[1] )
 
 
-process = cms.Process( 'PAT' )
+process = cms.Process( 'USER' )
+#process.Tracer = cms.Service( "Tracer" )
 
 
 ### ======================================================================== ###
@@ -37,119 +53,88 @@ process = cms.Process( 'PAT' )
 ### ======================================================================== ###
 
 
-### Data or MC?
-runOnMC = options.runOnMC
-print runOnMC
-
-### Switch on/off selection steps
-
-# Step 0a
-useTrigger      = True
-# Step 0b
-useGoodVertex   = True
-# Step 1
-useGoodMuon     = True
-# Step 2
-useMuonVeto     = True
-# Step 3
-useElectronVeto = True
-# Step 4a
-use1Jet         = True
-# Step 4b
-use2Jets        = True
-# Step 4c (choice depends on trigger)
-use3JetsLoose   = True
-use3JetsTight   = True
-# Step 5
-use4Jets        = True
-
-### Trigger matching?
-addTriggerMatching = True
-
-### Reference selection
-
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
-# Muons general
-#muonsUsePV     = False
-#muonEmbedTrack = True
-# Muons
+
+inputFiles = []
+
+
+### Selection steps
+# If a step is switched off here, its results will still be available in the coreespondinng TriggerResults of this process.
+
+# Event filter
+# This parameter defines the level, at which events will be filtered for output.
+# The available levels (paths) are (ordered!):
+# 0a. pTrigger
+# 0b. pEventCleaning
+# 0c. pGoodVertex
+# 1.  pSignalMuon
+# 2.  pLooseMuonVeto
+# 3.  pElectronVeto
+# 4a. p1Jet
+# 4b. p2Jets
+# 4c. p3Jets
+# 5.  p4Jets
+# 6.  pBTags
+# Each level includes the former ones, but also the corresponding stand-alone selection steps are available, adding a
+# 'StandAlone' after the prefix 'p' (e.g. 'pLooseMuonVeto' --> 'pStandAloneLooseMuonVeto').
+# All corresponding flags are available in the TriggerResults collection produced by this process later.
+selectEvents = 'pGoodVertex'
+
+# Step 0
+#triggerSelectionData = ''
+#triggerSelectionMC   = ''
+
+# Step 1
 #muonCut       = ''
 #signalMuonCut = ''
 #muonVertexMaxDZ = 0.5
-# Electrons
-#electronCut = ''
-# Jets
-#jetCut          = ''
-#veryLooseJetCut = 'pt > 20.' # transverse momentum (all jets)
-#looseJetCut     = 'pt > 35.' # transverse momentum (3rd jet, optional for 'use3JetsLoose = True')
-#tightJetCut     = 'pt > 45.' # transverse momentum (leading jets)
 
-# Trigger and trigger object
-#triggerSelectionData       = ''
-#triggerObjectSelectionData = ''
-#triggerSelectionMC       = ''
-#triggerObjectSelectionMC = ''
+# Step 2
 
-### Particle flow
+# Step 3
+useElecEAIsoCorr = options.useElecEAIsoCorr
+useCalibElec     = options.useCalibElec
+#electronGsfCut   = ''
+#electronCalibCut = ''
+electronCut = electronGsfCut
 
-postfix = 'PF'
+# Step 4
 
-# subtract charged hadronic pile-up particles (from wrong PVs)
-# effects also JECs
-usePFnoPU       = True # before any top projection
-usePfIsoLessCHS = True # switch to new PF isolation with L1Fastjet CHS
+#jetCut = ''
+# Step4a
+#veryTightJetCut = ''
+# Step4b
+#tightJetCut     = ''
+# Step4c
+#looseJetCut     = ''
 
-# other switches for PF top projections (default: all 'True')
-useNoMuon     = True # before electron top projection
-useNoElectron = True # before jet top projection
-useNoJet      = True # before tau top projection
-useNoTau      = True # before MET top projection
+# Step 5
+#veryLooseJetCut = ''
 
-# cuts used in top projections
-# vertices
-#pfVertices  = 'goodOfflinePrimaryVertices'
-#pfD0Cut     = 0.2
-#pfDzCut     = 0.5
-# muons
-#pfMuonSelectionCut = 'pt > 5.'
-useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMuonSelectionCut'
-#pfMuonIsoConeR03 = False
-#pfMuonCombIsoCut = 0.2
-# electrons
-#pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') < 2'
-useElectronCutBasePF  = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
-#pfElectronIsoConeR03 = True
-#pfElectronCombIsoCut  = 0.2
+# Step 6
+bTagSrc = 'selectedJets'
+#bTagCut = ''
+minBTags = 2
 
-### JEC levels
+# TriggerMatching
+addTriggerMatch = options.addTriggerMatch
+#triggerObjectSelectionData = 'type("TriggerMuon") && ( path("%s") )'%( triggerSelectionData )
+#triggerObjectSelectionMC   = 'type("TriggerMuon") && ( path("%s") )'%( triggerSelectionMC )
 
-# levels to be accessible from the jets
-# jets are corrected to L3Absolute (MC), L2L3Residual (data) automatically, if enabled here
-# and remain uncorrected, if none of these levels is enabled here
-useL1FastJet    = True  # needs useL1Offset being off, error otherwise
-useL1Offset     = False # needs useL1FastJet being off, error otherwise
-useL2Relative   = True
-useL3Absolute   = True
-useL2L3Residual = True  # takes effect only on data
-useL5Flavor     = False
-useL7Parton     = False
-
-typeIMetCorrections = True
 
 ### Input
 
-# list of input files
-useRelVals = True # if 'False', "inputFiles" is used
-inputFiles = [] # overwritten, if "useRelVals" is 'True'
+runOnMC      = options.runOnMC
+runOnMiniAOD = options.runOnMiniAOD
 
 # maximum number of events
-maxEvents = -1 # reduce for testing
+maxEvents = options.maxEvents
 
 ### Conditions
 
 # GlobalTags
-globalTagData = 'GR_R_53_V13::All'
-globalTagMC   = 'START53_V11::All'
+globalTagMC   = 'DEFAULT'
+globalTagData = 'DEFAULT'
 
 ### Output
 
@@ -157,15 +142,25 @@ globalTagMC   = 'START53_V11::All'
 outputFile = 'patRefSel_muJets.root'
 
 # event frequency of Fwk report
-fwkReportEvery = 1000
+fwkReportEvery = max( 1, int( maxEvents / 100 ) )
 
 # switch for 'TrigReport'/'TimeReport' at job end
 wantSummary = True
 
 
+### ======================================================================== ###
+###                                                                          ###
 ###                              End of constants                            ###
+###                            (user job steering)                           ###
 ###                                                                          ###
 ### ======================================================================== ###
+
+
+triggerSelection       = triggerSelectionData
+triggerObjectSelection = triggerObjectSelectionData
+if runOnMC:
+  triggerSelection       = triggerSelectionMC
+  triggerObjectSelection = triggerObjectSelectionMC
 
 
 ###
@@ -175,35 +170,50 @@ wantSummary = True
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_basics_cff" )
 process.MessageLogger.cerr.FwkReport.reportEvery = fwkReportEvery
 process.options.wantSummary = wantSummary
+from Configuration.AlCa.GlobalTag import GlobalTag
 if runOnMC:
-  process.GlobalTag.globaltag = globalTagMC
+  if globalTagMC == 'DEFAULT':
+    process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:run2_mc' )
+  else:
+    process.GlobalTag.globaltag = globalTagMC
 else:
-  process.GlobalTag.globaltag = globalTagData
+  if globalTagData == 'DEFAULT':
+    process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:run2_data' )
+  else:
+    process.GlobalTag.globaltag = globalTagData
 
 
 ###
 ### Input configuration
 ###
 
-if useRelVals:
-  from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
-  if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion = 'CMSSW_5_3_4_cand1'
-                                     , dataTier     = 'AODSIM'
-                                     , relVal       = 'RelValProdTTbar'
-                                     , globalTag    = 'START53_V10'
-                                     , maxVersions  = 1
-                                     )
+if len( inputFiles ) == 0:
+  if runOnMiniAOD:
+    if runOnMC:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
+      inputFiles = filesRelValTTbarPileUpMINIAODSIM
+    else:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValSingleMuMINIAOD
+      inputFiles = filesRelValSingleMuMINIAOD
   else:
-    inputFiles = pickRelValInputFiles( cmsswVersion = 'CMSSW_5_3_4_cand1'
-                                     , dataTier     = 'RECO'
-                                     , relVal       = 'SingleMu'
-                                     , globalTag    = 'GR_R_53_V12_RelVal_mu2012A'
-                                     , maxVersions  = 1
-                                     )
+    if runOnMC:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+      inputFiles = filesRelValProdTTbarAODSIM
+    else:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO # not available at CERN
+      inputFiles = filesSingleMuRECO
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxEvents
+
+
+###
+### PAT configuration
+###
+
+if not runOnMiniAOD:
+  process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
+
 
 
 ###
@@ -213,347 +223,253 @@ process.maxEvents.input  = maxEvents
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" )
 # output file name
 process.out.fileName = outputFile
-# event content
-from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-process.out.outputCommands += patEventContent
+from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import refMuJets_eventContent
+process.out.outputCommands += refMuJets_eventContent
+if runOnMiniAOD:
+  from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import miniAod_eventContent
+  process.out.outputCommands += miniAod_eventContent
+else:
+  from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import aod_eventContent
+  process.out.outputCommands += aod_eventContent
 # clear event selection
-process.out.SelectEvents.SelectEvents = []
-
-
-###
-### Cleaning and trigger selection configuration
-###
-
-### Trigger selection
-if runOnMC:
-  triggerSelection = triggerSelectionMC
-else:
-  if useRelVals:
-    triggerSelection = triggerSelectionDataRelVals
-  else:
-    triggerSelection = triggerSelectionData
-from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
-process.step0a = triggerResults.clone(
-  triggerConditions = [ triggerSelection ]
-)
-
-### Good vertex selection
-process.load( "TopQuarkAnalysis.Configuration.patRefSel_goodVertex_cfi" )
-process.step0b = process.goodOfflinePrimaryVertices.clone( filter = True )
-
-### Event cleaning
-process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
-process.trackingFailureFilter.VertexSource = cms.InputTag( pfVertices )
-process.step0c = process.eventCleaning
-if runOnMC:
-  process.step0c += process.eventCleaningMC
-else:
-  process.step0c += process.eventCleaningData
-
-
-###
-### PAT/PF2PAT configuration
-###
-
-process.load( "PhysicsTools.PatAlgos.patSequences_cff" )
-
-### Check JECs
-
-# JEC set
-jecSet = 'AK5PF'
-if usePFnoPU:
-  jecSet += 'chs'
-
-# JEC levels
-if useL1FastJet and useL1Offset:
-  sys.exit( 'ERROR: switch off either "L1FastJet" or "L1Offset"' )
-jecLevels = []
-if useL1FastJet:
-  jecLevels.append( 'L1FastJet' )
-if useL1Offset:
-  jecLevels.append( 'L1Offset' )
-if useL2Relative:
-  jecLevels.append( 'L2Relative' )
-if useL3Absolute:
-  jecLevels.append( 'L3Absolute' )
-if useL2L3Residual and not runOnMC:
-  jecLevels.append( 'L2L3Residual' )
-if useL5Flavor:
-  jecLevels.append( 'L5Flavor' )
-if useL7Parton:
-  jecLevels.append( 'L7Parton' )
-
-### Switch configuration
-
-from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
-usePF2PAT( process
-         , runPF2PAT           = True
-         , runOnMC             = runOnMC
-         , jetAlgo             = jetAlgo
-         , postfix             = postfix
-         , jetCorrections      = ( jecSet
-                                 , jecLevels
-                                 )
-         , typeIMetCorrections = typeIMetCorrections
-         , pvCollection        = cms.InputTag( pfVertices )
-         )
-
-if useMuonCutBasePF:
-  pfMuonSelectionCut += ' && %s'%( muonCut )
-if useElectronCutBasePF:
-  pfElectronSelectionCut += ' && %s'%( electronCut )
-
-getattr( process, 'pfNoPileUp'   + postfix ).enable = usePFnoPU
-getattr( process, 'pfNoMuon'     + postfix ).enable = useNoMuon
-getattr( process, 'pfNoElectron' + postfix ).enable = useNoElectron
-getattr( process, 'pfNoJet'      + postfix ).enable = useNoJet
-getattr( process, 'pfNoTau'      + postfix ).enable = useNoTau
-
-if useL1FastJet:
-  getattr( process, 'pfPileUpIso' + postfix ).checkClosestZVertex = usePfIsoLessCHS
-
-getattr( process, 'pfMuonsFromVertex' + postfix ).d0Cut = pfD0Cut
-getattr( process, 'pfMuonsFromVertex' + postfix ).dzCut = pfDzCut
-getattr( process, 'pfSelectedMuons'   + postfix ).cut = pfMuonSelectionCut
-getattr( process, 'pfIsolatedMuons'   + postfix ).isolationCut = pfMuonCombIsoCut
-
-if pfMuonIsoConeR03:
-  getattr( process, 'pfIsolatedMuons' + postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'muPFIsoValueCharged03' + postfix )
-                                                                                            )
-  getattr( process, 'pfIsolatedMuons' + postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValuePU03' + postfix )
-  getattr( process, 'pfIsolatedMuons' + postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
-                                                                                            , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
-                                                                                            )
-  getattr( process, 'pfMuons' + postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'muPFIsoValueCharged03' + postfix )
-                                                                                    )
-  getattr( process, 'pfMuons' + postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValuePU03' + postfix )
-  getattr( process, 'pfMuons' + postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
-                                                                                    , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
-                                                                                    )
-  getattr( process, 'patMuons' + postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
-  getattr( process, 'patMuons' + postfix ).isolationValues.pfChargedAll       = cms.InputTag( 'muPFIsoValueChargedAll03' + postfix )
-  getattr( process, 'patMuons' + postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'muPFIsoValuePU03' + postfix )
-  getattr( process, 'patMuons' + postfix ).isolationValues.pfPhotons          = cms.InputTag( 'muPFIsoValueGamma03' + postfix )
-  getattr( process, 'patMuons' + postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValueCharged03' + postfix )
-
-getattr( process, 'pfElectronsFromVertex' + postfix ).d0Cut = pfD0Cut
-getattr( process, 'pfElectronsFromVertex' + postfix ).dzCut = pfDzCut
-getattr( process, 'pfSelectedElectrons'   + postfix ).cut = pfElectronSelectionCut
-getattr( process, 'pfIsolatedElectrons'   + postfix ).isolationCut = pfElectronCombIsoCut
-
-if pfElectronIsoConeR03:
-  getattr( process, 'pfIsolatedElectrons' + postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
-                                                                                                )
-  getattr( process, 'pfIsolatedElectrons' + postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
-  getattr( process, 'pfIsolatedElectrons' + postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
-                                                                                                , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
-                                                                                                )
-  getattr( process, 'pfElectrons' + postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
-                                                                                        )
-  getattr( process, 'pfElectrons' + postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
-  getattr( process, 'pfElectrons' + postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
-                                                                                        , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
-                                                                                        )
-  getattr( process, 'patElectrons' + postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
-  getattr( process, 'patElectrons' + postfix ).isolationValues.pfChargedAll       = cms.InputTag( 'elPFIsoValueChargedAll03PFId' + postfix )
-  getattr( process, 'patElectrons' + postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
-  getattr( process, 'patElectrons' + postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03PFId' + postfix )
-  getattr( process, 'patElectrons' + postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
-
-
-from PhysicsTools.PatAlgos.tools.coreTools import *
-
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
-
-# remove MC matching, object cleaning, objects etc.
-if not runOnMC:
-  runOnData( process
-           , names = [ 'PFAll' ]
-           , postfix = postfix
-           )
-removeSpecificPATObjects( process
-                        , names = [ 'Photons', 'Taus' ]
-                        , postfix = postfix
-                        ) # includes 'removeCleaning'
-
-# additional event content has to be (re-)added _after_ the call to 'removeCleaning()':
-process.out.outputCommands += [ 'keep edmTriggerResults_*_*_*'
-                              , 'keep *_hltTriggerSummaryAOD_*_*'
-                              # vertices and beam spot
-                              , 'keep *_offlineBeamSpot_*_*'
-                              , 'keep *_offlinePrimaryVertices*_*_*'
-                              , 'keep *_goodOfflinePrimaryVertices*_*_*'
-                              ]
-if runOnMC:
-  process.out.outputCommands += [ 'keep GenEventInfoProduct_*_*_*'
-                                , 'keep recoGenParticles_*_*_*'
-                                , 'keep *_addPileupInfo_*_*'
-                                ]
-
-
-###
-### Additional configuration
-###
-
-### Muons
-
-intermediatePatMuons.src = cms.InputTag( 'selectedPatMuons' + postfix )
-setattr( process, 'intermediatePatMuons' + postfix, intermediatePatMuons )
-
-goodPatMuons.muonSource   = cms.InputTag( 'intermediatePatMuons' + postfix )
-goodPatMuons.vertexSource = cms.InputTag( pfVertices )
-setattr( process, 'goodPatMuons' + postfix, goodPatMuons )
-
-step1.src = cms.InputTag( 'goodPatMuons' + postfix )
-setattr( process, 'step1' + postfix, step1 )
-step2.src = cms.InputTag( 'selectedPatMuons' + postfix )
-setattr( process, 'step2' + postfix, step2 )
-
-### Jets
-
-veryLoosePatJets.src = cms.InputTag( 'selectedPatJets' + postfix )
-veryLoosePatJets.cut = veryLooseJetCut
-setattr( process, 'veryLoosePatJets' + postfix, veryLoosePatJets )
-loosePatJets.src = cms.InputTag( 'veryLoosePatJets' + postfix )
-loosePatJets.cut = looseJetCut
-setattr( process, 'loosePatJets' + postfix, loosePatJets )
-tightPatJets.src = cms.InputTag( 'loosePatJets' + postfix )
-tightPatJets.cut = tightJetCut
-setattr( process, 'tightPatJets' + postfix, tightPatJets )
-
-step4a.src = cms.InputTag( 'tightPatJets' + postfix )
-setattr( process, 'step4a' + postfix, step4a )
-step4b.src = cms.InputTag( 'tightPatJets' + postfix )
-setattr( process, 'step4b' + postfix, step4b )
-step4cTight.src = cms.InputTag( 'tightPatJets' + postfix )
-setattr( process, 'step4cTight' + postfix, step4cTight )
-step4cLoose.src = cms.InputTag( 'loosePatJets' + postfix )
-setattr( process, 'step4cLoose' + postfix, step4cLoose )
-step5.src = cms.InputTag( 'veryLoosePatJets' + postfix )
-setattr( process, 'step5' + postfix, step5  )
-
-### Electrons
-
-step3.src = cms.InputTag( 'selectedPatElectrons' + postfix )
-setattr( process, 'step3' + postfix, step3 )
-
-process.out.outputCommands.append( 'keep *_goodPatMuons*_*_*' )
-process.out.outputCommands.append( 'keep *_veryLoosePatJets*_*_*' )
-process.out.outputCommands.append( 'keep *_loosePatJets*_*_*' )
-process.out.outputCommands.append( 'keep *_tightPatJets*_*_*' )
+process.out.SelectEvents.SelectEvents = cms.vstring( selectEvents )
 
 
 ###
 ### Selection configuration
 ###
 
-### Muons
+# Individual steps
 
-getattr( process, 'patMuons' + postfix ).usePV      = muonsUsePV
-getattr( process, 'patMuons' + postfix ).embedTrack = muonEmbedTrack
+# Step 0
 
-getattr( process, 'selectedPatMuons' + postfix ).cut = muonCut
+from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
+process.triggerSelection = triggerResults.clone( triggerConditions = [ triggerSelection ] )
+process.sStandAloneTrigger = cms.Sequence( process.triggerSelection
+                                         )
+process.pStandAloneTrigger = cms.Path( process.sStandAloneTrigger )
 
-getattr( process, 'intermediatePatMuons' + postfix ).cut = signalMuonCut
-
-getattr( process, 'goodPatMuons' + postfix ).maxDZ = muonVertexMaxDZ
-
-### Jets
-
-getattr( process, 'selectedPatJets'  + postfix ).cut = jetCut
-getattr( process, 'veryLoosePatJets' + postfix ).cut = veryLooseJetCut
-getattr( process, 'loosePatJets'     + postfix ).cut = looseJetCut
-getattr( process, 'tightPatJets'     + postfix ).cut = tightJetCut
-
-### Electrons
-
-getattr( process, 'patElectrons' + postfix ).electronIDSources = electronIDSources
-
-getattr( process, 'selectedPatElectrons' + postfix ).cut = electronCut
-
-
-###
-### Trigger matching
-###
-
-if addTriggerMatching:
-
+process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
+process.sStandAloneEventCleaning = cms.Sequence()
+if runOnMiniAOD:
+  process.sStandAloneEventCleaning += process.eventCleaningMiniAOD
   if runOnMC:
-    triggerObjectSelection = triggerObjectSelectionMC
+    process.sStandAloneEventCleaning += process.eventCleaningMiniAODMC
   else:
-    if useRelVals:
-      triggerObjectSelection = triggerObjectSelectionDataRelVals
+    process.sStandAloneEventCleaning += process.eventCleaningMiniAODData
+else:
+  process.sStandAloneEventCleaning += process.eventCleaning
+  if runOnMC:
+    process.sStandAloneEventCleaning += process.eventCleaningMC
+  else:
+    process.sStandAloneEventCleaning += process.eventCleaningData
+process.pStandAloneEventCleaning = cms.Path( process.sStandAloneEventCleaning )
+
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
+process.goodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone( filter = True )
+if runOnMiniAOD:
+  process.goodOfflinePrimaryVertices.src = 'offlineSlimmedPrimaryVertices'
+process.sStandAloneGoodVertex = cms.Sequence( process.goodOfflinePrimaryVertices
+                                            )
+process.pStandAloneGoodVertex = cms.Path( process.sStandAloneGoodVertex )
+
+# Step 1
+
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedMuons, preSignalMuons, signalMuons, standAloneSignalMuonFilter
+process.selectedMuons = selectedMuons.clone( cut = muonCut )
+if runOnMiniAOD:
+  process.selectedMuons.src = 'slimmedMuons'
+process.preSignalMuons = preSignalMuons.clone( cut = signalMuonCut )
+process.signalMuons = signalMuons.clone( maxDZ = muonVertexMaxDZ )
+if runOnMiniAOD:
+  process.signalMuons.vertexSource = 'offlineSlimmedPrimaryVertices'
+process.standAloneSignalMuonFilter = standAloneSignalMuonFilter.clone()
+process.sStandAloneSignalMuon = cms.Sequence( process.standAloneSignalMuonFilter )
+process.pStandAloneSignalMuon = cms.Path( process.sStandAloneSignalMuon )
+
+# Step 2
+
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import standAloneLooseMuonVetoFilter
+process.standAloneLooseMuonVetoFilter = standAloneLooseMuonVetoFilter.clone()
+process.sStandAloneLooseMuonVeto = cms.Sequence( process.standAloneLooseMuonVetoFilter )
+process.pStandAloneLooseMuonVeto = cms.Path( process.sStandAloneLooseMuonVeto )
+
+# Step 3
+
+if not runOnMiniAOD:
+  from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, setupVIDElectronSelection
+  electron_ids = [ 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff'
+                 , 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff'
+                  ]
+  switchOnVIDElectronIdProducer( process )
+  process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEB' )
+  process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEE' )
+  process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsES' )
+  for idmod in electron_ids:
+    setupAllVIDIdsInModule( process, idmod, setupVIDElectronSelection )
+
+if useElecEAIsoCorr:
+  from EgammaAnalysis.ElectronTools.electronIsolatorFromEffectiveArea_cfi import elPFIsoValueEA03
+  if runOnMiniAOD:
+    process.patElPFIsoValueEA03 = elPFIsoValueEA03.clone( gsfElectrons = ''
+                                                        , pfElectrons  = ''
+                                                        , patElectrons = cms.InputTag( 'slimmedElectrons' )
+                                                        , rhoIso       = cms.InputTag( 'fixedGridRhoFastjetAll' )
+                                                        )
+    from EgammaAnalysis.ElectronTools.patElectronEAIsoCorrectionProducer_cfi import patElectronEAIso03CorrectionProducer
+    process.electronsWithEA03Iso = patElectronEAIso03CorrectionProducer.clone( patElectrons  = 'slimmedElectrons'
+                                                                             , eaIsolator    = 'patElPFIsoValueEA03'
+                                                                             )
+  else:
+    process.elPFIsoValueEA03 = elPFIsoValueEA03.clone( gsfElectrons = 'gedGsfElectrons'
+                                                     , pfElectrons  = ''
+                                                     , rhoIso       = cms.InputTag( 'fixedGridRhoFastjetAll' )
+                                                     )
+    process.patElectrons.isolationValues.user = cms.VInputTag( cms.InputTag( 'elPFIsoValueEA03' ) )
+else:
+  electronGsfCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronCalibCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+
+if useCalibElec:
+  from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import electronsWithRegression, calibratedElectrons
+  process.electronsWithRegression = electronsWithRegression.clone()
+  if runOnMiniAOD:
+    if useElecEAIsoCorr:
+      process.electronsWithRegression.inputElectronsTag = 'electronsWithEA03Iso'
     else:
-      triggerObjectSelection = triggerObjectSelectionData
-  ### Trigger matching configuration
-  from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
-  from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patMuonTriggerMatch
-  from PhysicsTools.PatAlgos.tools.trigTools import *
-  triggerProducerPF = patTrigger.clone()
-  setattr( process, 'patTrigger' + postfix, triggerProducerPF )
-  triggerMatchPF = patMuonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
-  setattr( process, 'triggerMatch' + postfix, triggerMatchPF )
-  switchOnTriggerMatchEmbedding( process
-                               , triggerProducer = 'patTrigger' + postfix
-                               , triggerMatchers = [ 'triggerMatch' + postfix ]
-                               , sequence        = 'patPF2PATSequence' + postfix
-                               , postfix         = postfix
-                               )
-  removeCleaningFromTriggerMatching( process
-                                   , sequence = 'patPF2PATSequence' + postfix
-                                   )
-  getattr( process, 'intermediatePatMuons' + postfix ).src = cms.InputTag( 'selectedPatMuons' + postfix + 'TriggerMatch' )
+      process.electronsWithRegression.inputElectronsTag = 'slimmedElectrons'
+    process.electronsWithRegression.vertexCollection  = 'offlineSlimmedPrimaryVertices'
+  process.calibratedElectrons = calibratedElectrons.clone( isMC = runOnMC )
+  if runOnMC:
+    process.calibratedElectrons.inputDataset = 'Summer12_LegacyPaper' # FIXME: Update as soon as available
+  else:
+    process.calibratedElectrons.inputDataset = '22Jan2013ReReco' # FIXME: Update as soon as available
+  process.RandomNumberGeneratorService = cms.Service( "RandomNumberGeneratorService"
+                                                    , calibratedElectrons = cms.PSet( initialSeed = cms.untracked.uint32( 1 )
+                                                                                    , engineName  = cms.untracked.string('TRandom3')
+                                                                                    )
+                                                    )
+  electronCut = electronCalibCut
 
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedElectrons, standAloneElectronVetoFilter
+process.selectedElectrons = selectedElectrons.clone( cut = electronCut )
+if useCalibElec:
+  process.selectedElectrons.src = 'calibratedElectrons'
+elif useElecEAIsoCorr and runOnMiniAOD:
+  process.selectedElectrons.src = 'electronsWithEA03Iso'
+elif runOnMiniAOD:
+  process.selectedElectrons.src = 'slimmedElectrons'
 
-###
-### Scheduling
-###
+process.standAloneElectronVetoFilter = standAloneElectronVetoFilter.clone()
+process.sStandAloneElectronVeto = cms.Sequence( process.standAloneElectronVetoFilter )
+process.pStandAloneElectronVeto = cms.Path( process.sStandAloneElectronVeto )
 
-# MVA electron ID
+# Step 4
 
-process.load( "EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi" )
-process.eidMVASequence = cms.Sequence(
-  process.mvaTrigV0
-+ process.mvaNonTrigV0
-)
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedJets
+process.selectedJets = selectedJets.clone( cut = jetCut )
+if runOnMiniAOD:
+  process.selectedJets.src = 'slimmedJets'
 
-# The additional sequence
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalVeryTightJets, standAloneSignalVeryTightJetsFilter
+process.signalVeryTightJets = signalVeryTightJets.clone( cut = veryTightJetCut )
+process.standAloneSignalVeryTightJetsFilter = standAloneSignalVeryTightJetsFilter.clone()
+process.sStandAlone1Jet = cms.Sequence( process.standAloneSignalVeryTightJetsFilter )
+process.pStandAlone1Jet = cms.Path( process.sStandAlone1Jet )
 
-patAddOnSequence = cms.Sequence(
-  getattr( process, 'intermediatePatMuons' + postfix )
-* getattr( process, 'goodPatMuons'         + postfix )
-* getattr( process, 'veryLoosePatJets'     + postfix )
-* getattr( process, 'loosePatJets'         + postfix )
-* getattr( process, 'tightPatJets'         + postfix )
-)
-setattr( process, 'patAddOnSequence' + postfix, patAddOnSequence )
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalTightJets, standAloneSignalTightJetsFilter
+process.signalTightJets = signalTightJets.clone( cut = tightJetCut )
+process.standAloneSignalTightJetsFilter = standAloneSignalTightJetsFilter.clone()
+process.sStandAlone2Jets = cms.Sequence( process.standAloneSignalTightJetsFilter )
+process.pStandAlone2Jets = cms.Path( process.sStandAlone2Jets )
 
-# The paths
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalLooseJets, standAloneSignalLooseJetsFilter
+process.signalLooseJets = signalLooseJets.clone( cut = looseJetCut )
+process.standAloneSignalLooseJetsFilter = standAloneSignalLooseJetsFilter.clone()
+process.sStandAlone3Jets = cms.Sequence( process.standAloneSignalLooseJetsFilter )
+process.pStandAlone3Jets = cms.Path( process.sStandAlone3Jets )
 
-process.p = cms.Path()
-if useTrigger:
-  process.p += process.step0a
-process.p += process.goodOfflinePrimaryVertices
-if useGoodVertex:
-  process.p += process.step0b
-process.p += process.step0c
-process.p += process.eidMVASequence
-process.p += getattr( process, 'patPF2PATSequence' + postfix )
-process.p += getattr( process, 'patAddOnSequence' + postfix )
-if useGoodMuon:
-  process.p += getattr( process, 'step1' + postfix )
-if useMuonVeto:
-  process.p += getattr( process, 'step2' + postfix )
-if useElectronVeto:
-  process.p += getattr( process, 'step3' + postfix )
-if use1Jet:
-  process.p += getattr( process, 'step4a' + postfix )
-if use2Jets:
-  process.p += getattr( process, 'step4b' + postfix )
-if use3JetsTight:
-  process.p += getattr( process, 'step4cTight' + postfix )
-elif use3JetsLoose:
-  process.p += getattr( process, 'step4cLoose' + postfix )
-if use4Jets:
-  process.p += getattr( process, 'step5' + postfix )
-process.out.SelectEvents.SelectEvents.append( 'p' )
+# Step 5
+
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalVeryLooseJets, standAloneSignalVeryLooseJetsFilter
+process.signalVeryLooseJets = signalVeryLooseJets.clone( cut = veryLooseJetCut )
+process.standAloneSignalVeryLooseJetsFilter = standAloneSignalVeryLooseJetsFilter.clone()
+process.sStandAlone4Jets = cms.Sequence( process.standAloneSignalVeryLooseJetsFilter )
+process.pStandAlone4Jets = cms.Path( process.sStandAlone4Jets )
+
+# Step 6
+
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedBTagJets, standAloneSignalBTagsFilter
+process.selectedBTagJets = selectedBTagJets.clone( src = bTagSrc
+                                                 , cut = bTagCut
+                                                 )
+process.standAloneSignalBTagsFilter = standAloneSignalBTagsFilter.clone( minNumber = minBTags )
+process.sStandAloneBTags = cms.Sequence( process.standAloneSignalBTagsFilter )
+process.pStandAloneBTags = cms.Path( process.sStandAloneBTags )
+
+# Consecutive steps
+
+process.sTrigger       = cms.Sequence( process.sStandAloneTrigger
+                                     )
+process.sEventCleaning = cms.Sequence( process.sTrigger
+                                     + process.sStandAloneEventCleaning
+                                     )
+process.sGoodVertex    = cms.Sequence( process.sEventCleaning
+                                     + process.sStandAloneGoodVertex
+                                     )
+process.sSignalMuon    = cms.Sequence( process.sGoodVertex
+                                     + process.sStandAloneSignalMuon
+                                     )
+process.sLooseMuonVeto = cms.Sequence( process.sSignalMuon
+                                     + process.sStandAloneLooseMuonVeto
+                                     )
+process.sElectronVeto  = cms.Sequence( process.sLooseMuonVeto
+                                     + process.sStandAloneElectronVeto
+                                     )
+process.s1Jet          = cms.Sequence( process.sElectronVeto
+                                     + process.sStandAlone1Jet
+                                     )
+process.s2Jets         = cms.Sequence( process.s1Jet
+                                     + process.sStandAlone2Jets
+                                     )
+process.s3Jets         = cms.Sequence( process.s2Jets
+                                     + process.sStandAlone2Jets
+                                     )
+process.s4Jets         = cms.Sequence( process.s3Jets
+                                     + process.sStandAlone4Jets
+                                     )
+process.sBTags         = cms.Sequence( process.s4Jets
+                                     + process.sStandAloneBTags
+                                     )
+
+process.pTrigger       = cms.Path( process.sTrigger )
+process.pEventCleaning = cms.Path( process.sEventCleaning )
+process.pGoodVertex    = cms.Path( process.sGoodVertex )
+process.pSignalMuon    = cms.Path( process.sSignalMuon )
+process.pLooseMuonVeto = cms.Path( process.sLooseMuonVeto )
+process.pElectronVeto  = cms.Path( process.sElectronVeto )
+process.p1Jet          = cms.Path( process.s1Jet )
+process.p2Jets         = cms.Path( process.s2Jets )
+process.p3Jets         = cms.Path( process.s2Jets )
+process.p4Jets         = cms.Path( process.s4Jets )
+process.pBTags         = cms.Path( process.sBTags )
+
+# Trigger matching
+
+if addTriggerMatch:
+  from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import muonTriggerMatch
+  process.muonTriggerMatch = muonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+  if not runOnMiniAOD:
+    from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerMatchEmbedding
+    switchOnTriggerMatchEmbedding( process, triggerMatchers = [ 'muonTriggerMatch' ] )
+  else:
+    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import unpackedPatTrigger
+    process.selectedTriggerUnpacked = unpackedPatTrigger.clone()
+    process.muonTriggerMatch.matched = 'selectedTriggerUnpacked'
+    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import signalMuonsTriggerMatch
+    process.signalMuonsTriggerMatch = signalMuonsTriggerMatch.clone()
+    process.out.outputCommands += [ 'drop *_signalMuons_*_*'
+                                  , 'keep *_signalMuonsTriggerMatch_*_*'
+                                  ]
+

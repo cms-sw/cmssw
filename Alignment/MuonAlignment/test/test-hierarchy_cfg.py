@@ -27,13 +27,13 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 #    toGet = cms.VPSet(cms.PSet(record = cms.string('DTAlignmentRcd'),
 #                               tag = cms.string('DT100InversepbScenario')
 #                               ), 
-#                      cms.PSet(record = cms.string('DTAlignmentErrorRcd'),
+#                      cms.PSet(record = cms.string('DTAlignmentErrorExtendedRcd'),
 #                               tag = cms.string('DT100InversepbScenarioErrors')
 #                               ), 
 #                      cms.PSet(record = cms.string('CSCAlignmentRcd'),
 #                               tag = cms.string('CSC100InversepbScenario')
 #                               ), 
-#                      cms.PSet(record = cms.string('CSCAlignmentErrorRcd'),
+#                      cms.PSet(record = cms.string('CSCAlignmentErrorExtendedRcd'),
 #                               tag = cms.string('CSC100InversepbScenarioErrors')
 #                               )
 #                      )

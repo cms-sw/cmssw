@@ -3,27 +3,23 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 namespace edm {class EventTime;}
 
-class PerformanceAnalyzer : public edm::EDAnalyzer
+class PerformanceAnalyzer : public DQMEDAnalyzer
 {
 
 public:
   explicit PerformanceAnalyzer(const edm::ParameterSet&);
   ~PerformanceAnalyzer();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(){}
-  virtual void endJob() ;
-
 
 private:
   edm::EDGetTokenT<edm::EventTime> eventTime_Token_;
-  DQMStore*   fDBE ;
   std::string              fOutputFile ;
   MonitorElement*          fVtxSmeared ;
   MonitorElement*          fg4SimHits ;

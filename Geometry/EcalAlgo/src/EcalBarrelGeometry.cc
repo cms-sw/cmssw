@@ -24,7 +24,7 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
    m_borderMgr    ( nullptr ),
    m_borderPtrVec ( nullptr ) ,
    m_radius       ( -1. ),
-   m_check        ( nullptr ),
+   m_check        ( false ),
    m_cellVec      ( k_NumberOfCellsForCorners )
 {
    const int neba[] = {25,45,65,85} ;

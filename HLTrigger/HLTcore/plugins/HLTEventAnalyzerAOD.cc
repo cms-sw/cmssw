@@ -11,6 +11,7 @@
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
 //
@@ -27,7 +28,7 @@ HLTEventAnalyzerAOD::HLTEventAnalyzerAOD(const edm::ParameterSet& ps) :
   using namespace std;
   using namespace edm;
 
-  cout << "HLTEventAnalyzerAOD configuration: " << endl
+  LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD configuration: " << endl
        << "   ProcessName = " << processName_ << endl
        << "   TriggerName = " << triggerName_ << endl
        << "   TriggerResultsTag = " << triggerResultsTag_.encode() << endl
@@ -53,6 +54,9 @@ HLTEventAnalyzerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 void
+HLTEventAnalyzerAOD::endRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {}
+
+void
 HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   using namespace std;
@@ -66,10 +70,10 @@ HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSet
 	const unsigned int n(hltConfig_.size());
 	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
 	if (triggerIndex>=n) {
-	  cout << "HLTEventAnalyzerAOD::analyze:"
+	  LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze:"
 	       << " TriggerName " << triggerName_ 
 	       << " not available in (new) config!" << endl;
-	  cout << "Available TriggerNames are: " << endl;
+	  LogVerbatim("HLTEventAnalyzerAOD") << "Available TriggerNames are: " << endl;
 	  hltConfig_.dump("Triggers");
 	}
       }
@@ -82,7 +86,7 @@ HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSet
       hltConfig_.dump("ProcessPSet");
     }
   } else {
-    cout << "HLTEventAnalyzerAOD::analyze:"
+    LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze:"
 	 << " config extraction failure with process name "
 	 << processName_ << endl;
   }
@@ -95,17 +99,17 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
   using namespace edm;
   
-  cout << endl;
+  LogVerbatim("HLTEventAnalyzerAOD") << endl;
 
   // get event products
   iEvent.getByToken(triggerResultsToken_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
-    cout << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerResults product from Event!" << endl;
+    LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerResults product from Event!" << endl;
     return;
   }
   iEvent.getByToken(triggerEventToken_,triggerEventHandle_);
   if (!triggerEventHandle_.isValid()) {
-    cout << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerEvent product from Event!" << endl;
+    LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerEvent product from Event!" << endl;
     return;
   }
   // sanity check
@@ -132,7 +136,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   using namespace reco;
   using namespace trigger;
 
-  cout << endl;
+  LogVerbatim("HLTEventAnalyzerAOD") << endl;
 
   const unsigned int n(hltConfig_.size());
   const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName));
@@ -140,13 +144,13 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
 
   // abort on invalid trigger name
   if (triggerIndex>=n) {
-    cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "
+    LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyzeTrigger: path "
 	 << triggerName << " - not found!" << endl;
     return;
   }
   
   const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerName));
-  cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "
+  LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyzeTrigger: path "
        << triggerName << " [" << triggerIndex << "] "
        << "prescales L1T,HLT: " << prescales.first << "," << prescales.second
        << endl;
@@ -155,7 +159,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   for (unsigned int i=0; i<prescalesInDetail.first.size(); ++i) {
     message << " " << i << ":" << prescalesInDetail.first[i].first << "/" << prescalesInDetail.first[i].second;
   }
-  cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "
+  LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyzeTrigger: path "
        << triggerName << " [" << triggerIndex << "] "
        << endl
        << "prescales L1T: " << prescalesInDetail.first.size() <<  message.str()
@@ -168,13 +172,13 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   const vector<string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
 
   // Results from TriggerResults product
-  cout << " Trigger path status:"
+  LogVerbatim("HLTEventAnalyzerAOD") << " Trigger path status:"
        << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
        << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
        << " Error =" << triggerResultsHandle_->error(triggerIndex)
        << endl;
   const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
-  cout << " Last active module - label/type: "
+  LogVerbatim("HLTEventAnalyzerAOD") << " Last active module - label/type: "
        << moduleLabels[moduleIndex] << "/" << hltConfig_.moduleType(moduleLabels[moduleIndex])
        << " [" << moduleIndex << " out of 0-" << (m-1) << " on this path]"
        << endl;
@@ -188,18 +192,18 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
     // check whether the module is packed up in TriggerEvent product
     const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(moduleLabel,"",processName_)));
     if (filterIndex<triggerEventHandle_->sizeFilters()) {
-      cout << " 'L3' filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
+      LogVerbatim("HLTEventAnalyzerAOD") << " 'L3' filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
       const Vids& VIDS (triggerEventHandle_->filterIds(filterIndex));
       const Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
       const size_type nI(VIDS.size());
       const size_type nK(KEYS.size());
       assert(nI==nK);
       const size_type n(max(nI,nK));
-      cout << "   " << n  << " accepted 'L3' objects found: " << endl;
+      LogVerbatim("HLTEventAnalyzerAOD") << "   " << n  << " accepted 'L3' objects found: " << endl;
       const TriggerObjectCollection& TOC(triggerEventHandle_->getObjects());
       for (size_type i=0; i!=n; ++i) {
 	const TriggerObject& TO(TOC[KEYS[i]]);
-	cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
+	LogVerbatim("HLTEventAnalyzerAOD") << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
 	     << TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
 	     << endl;
       }

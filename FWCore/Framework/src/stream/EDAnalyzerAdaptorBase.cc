@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
@@ -119,6 +120,21 @@ EDAnalyzerAdaptorBase::modulesDependentUpon(const std::string& iProcessName,
   return m_streamModules[0]->modulesDependentUpon(iProcessName, oModuleLabels);
 }
 
+void
+EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                                       ProductRegistry const& preg,
+                                                       std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                                       std::string const& processName) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
+}
+
+std::vector<edm::ConsumesInfo>
+EDAnalyzerAdaptorBase::consumesInfo() const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->consumesInfo();
+}
+
 bool
 EDAnalyzerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
                                ActivityRegistry* act,
@@ -200,9 +216,9 @@ EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
 }
 
 void
-EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const& fb){}
+EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&){}
 void
-EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const& fb){}
+EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&){}
 void
 EDAnalyzerAdaptorBase::doPreForkReleaseResources()
 {

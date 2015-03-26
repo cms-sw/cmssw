@@ -18,6 +18,8 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -51,6 +53,8 @@
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "FWCore/Common/interface/EventBase.h"
 
 namespace fireworks {
 
@@ -393,7 +397,9 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
             const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>( **it );
             if( hit.cluster().isNonnull() && hit.cluster().isAvailable())
 	    {
-               allClusters = hit.cluster().product();
+               edm::Handle<edmNew::DetSetVector<SiStripCluster> > allClustersHandle;
+               iItem->getEvent()->get(hit.cluster().id(), allClustersHandle);
+               allClusters = allClustersHandle.product();
                break;
             }
          }
@@ -402,7 +408,9 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
             const SiStripRecHit1D &hit = static_cast<const SiStripRecHit1D &>( **it );
             if( hit.cluster().isNonnull() && hit.cluster().isAvailable())
 	    {
-               allClusters = hit.cluster().product();
+               edm::Handle<edmNew::DetSetVector<SiStripCluster> > allClustersHandle;
+               iItem->getEvent()->get(hit.cluster().id(), allClustersHandle);
+               allClusters = allClustersHandle.product();
                break;
             }
          }
@@ -550,8 +558,10 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
          const SiPixelRecHit &hit = static_cast<const SiPixelRecHit &>(**it);
          if( hit.cluster().isNonnull() && hit.cluster().isAvailable())
 	 {
-	    allClusters = hit.cluster().product();
-	    break;
+            edm::Handle<edmNew::DetSetVector<SiPixelCluster> > allClustersHandle;
+            iItem.getEvent()->get(hit.cluster().id(), allClustersHandle);
+            allClusters = allClustersHandle.product();
+            break;
 	 }
       }
    }

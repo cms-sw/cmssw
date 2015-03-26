@@ -2,6 +2,7 @@
 #ifndef TrackClassifier_h
 #define TrackClassifier_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -34,7 +35,8 @@ public:
     typedef TrackCategories Categories;
 
     //! Constructor by ParameterSet
-    TrackClassifier(edm::ParameterSet const &);
+    TrackClassifier(edm::ParameterSet const &,
+                    edm::ConsumesCollector&& );
 
     //! Pre-process event information (for accessing reconstraction information)
     void newEvent(edm::Event const &, edm::EventSetup const &);

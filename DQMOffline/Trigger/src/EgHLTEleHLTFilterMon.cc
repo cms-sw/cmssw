@@ -1,7 +1,6 @@
 #include "DQMOffline/Trigger/interface/EgHLTEleHLTFilterMon.h"
 #include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
-#include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTBinData.h"
 #include "DQMOffline/Trigger/interface/EgHLTCutMasks.h"
 
@@ -11,7 +10,7 @@
 
 using namespace egHLT;
 
-EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks):
+EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks):
   filterName_(filterName),
   filterBit_(filterBit)
 {
@@ -30,7 +29,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_negCharge"," q=-1 ",new ChargeCut<OffEle>(-1)));
   }
   for(size_t i=0;i<eleMonElems_.size();i++){
-    MonElemFuncs::initStdEleHists(eleMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElems_[i]->name(),bins);
+    monElemFuncs.initStdEleHists(eleMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElems_[i]->name(),bins);
   }
   
   if(monHLTFailedEle){
@@ -41,7 +40,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
     }
   }
   for(size_t i=0;i<eleFailMonElems_.size();i++){
-    MonElemFuncs::initStdEleHists(eleFailMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_failFilter"+eleMonElems_[i]->name(),bins);
+    monElemFuncs.initStdEleHists(eleFailMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_failFilter"+eleMonElems_[i]->name(),bins);
   }
 
  
@@ -53,28 +52,28 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   if(doFakeRate) eleEffHists_.push_back(new MonElemContainer<OffEle>("_fakeRate"," Fake Rate ",new EgJetTagProbeCut<OffEle>(fakeRateProbeCut,&OffEle::looseCutCode)));
   if(doN1andSingleEffs){
     for(size_t i=0;i<eleEffHists_.size();i++){ 
-      MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+      monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
 				    filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
-      MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+      monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
 				    filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
-      /*  MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+      /*  monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
 	  filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
-      // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+      // monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
       //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
     }
   }
   typedef MonElemManager<ParticlePair<OffEle>,float >  DiEleMon;
-  diEleMassBothME_ = new DiEleMon(filterName_+"_diEle_bothPassFilter_mass",
+  diEleMassBothME_ = new DiEleMon(monElemFuncs.getIB(), filterName_+"_diEle_bothPassFilter_mass",
 				  filterName_+"_diEle_bothPassFilter Mass;M_{ee} (GeV/c^{2})",
 				  bins.mass.nr,bins.mass.min,bins.mass.max,&ParticlePair<OffEle>::mass);
-  diEleMassOnlyOneME_ = new DiEleMon(filterName_+"_diEle_onlyOnePass Filter_mass",
+  diEleMassOnlyOneME_ = new DiEleMon(monElemFuncs.getIB(), filterName_+"_diEle_onlyOnePass Filter_mass",
 				     filterName_+"_diEle_onlyOnePassFilter Mass;M_{ee} (GeV/c^{2})",
 				     bins.mass.nr,bins.mass.min,bins.mass.max,&ParticlePair<OffEle>::mass);
   
-  diEleMassBothHighME_ = new DiEleMon(filterName_+"_diEle_bothPassFilter_massHigh",
+  diEleMassBothHighME_ = new DiEleMon(monElemFuncs.getIB(), filterName_+"_diEle_bothPassFilter_massHigh",
 				      filterName_+"_diEle_bothPassFilter Mass;M_{ee} (GeV/c^{2})",
 				      bins.massHigh.nr,bins.massHigh.min,bins.massHigh.max,&ParticlePair<OffEle>::mass);
-  diEleMassOnlyOneHighME_ = new DiEleMon(filterName_+"_diEle_onlyOnePassFilter_massHigh",
+  diEleMassOnlyOneHighME_ = new DiEleMon(monElemFuncs.getIB(), filterName_+"_diEle_onlyOnePassFilter_massHigh",
 					 filterName_+"_diEle_onlyOnePassFilter Mass;M_{ee} (GeV/c^{2})",
 					 bins.massHigh.nr,bins.massHigh.min,bins.massHigh.max,&ParticlePair<OffEle>::mass);
   

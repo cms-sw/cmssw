@@ -6,8 +6,7 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="boost_serialization"/>
 <use   name="roothistmatrix"/>
-<use   name="rootrflx"/>
-<use   name="root"/>
+
 <export>
   <lib   name="1"/>
 </export>

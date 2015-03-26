@@ -20,8 +20,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -389,7 +387,6 @@ h->setBinContent(j+1, 0);
   bool useLogPt;
 
   edm::ESHandle<MagneticField> theMF;
-  std::vector<const TrackAssociatorBase*> associator;
 
   //sim
   std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;

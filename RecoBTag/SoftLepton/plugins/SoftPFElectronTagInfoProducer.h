@@ -22,6 +22,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 // SoftPFElectronTagInfoProducer:  the SoftPFElectronTagInfoProducer takes
 // a PFCandidateCollection as input and produces a RefVector
 // to the likely soft electrons in this collection.
@@ -33,20 +34,20 @@ class SoftPFElectronTagInfoProducer : public edm::stream::EDProducer<>
 
     SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf);
     ~SoftPFElectronTagInfoProducer();
-    reco::SoftLeptonTagInfo tagElec (const edm::RefToBase<reco::Jet> &, reco::PFCandidateCollection &) ;
   private:
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
-    reco::SoftLeptonProperties fillElecProperties(const reco::PFCandidate&, const reco::Jet&);
-    bool isElecClean(edm::Event&,const reco::PFCandidate*);
-    
+    bool isElecClean(edm::Event&,const reco::GsfElectron*);
+    float boostedPPar(const math::XYZVector&, const math::XYZVector&);   
+ 
     // service used to make transient tracks from tracks
     const TransientTrackBuilder* transientTrackBuilder;
     edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
     edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron> > token_elec;
     edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
     edm::EDGetTokenT<reco::ConversionCollection> token_allConversions;
-
+    float DeltaRElectronJet,MaxSip3D;
     bool goodvertex;
 
     const reco::Vertex* vertex;

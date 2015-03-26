@@ -13,6 +13,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 
 #include <vector>
 #include <string>
@@ -97,13 +98,8 @@ GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
     produces<vector<int> >().setBranchAlias( alias + "BarCodes" );
   }
 
-  if(doSubEvent_){
-     vectorSrcTokens_ = vector_transform(cfg.getParameter<std::vector<std::string> >( "srcVector" ), [this](std::string const & label){return mayConsume<HepMCProduct>(InputTag(label));});
-     //     produces<SubEventMap>();
-  }else if(useCF_) {
-    mixToken_ = mayConsume<CrossingFrame<HepMCProduct> >(InputTag(cfg.getParameter<std::string>( "mix" ),"generator"));
-    srcToken_ = mayConsume<HepMCProduct>(cfg.getUntrackedParameter<InputTag>( "src" , InputTag(cfg.getParameter<std::string>( "mix" ),"generator")));
-  } else srcToken_ = mayConsume<HepMCProduct>(cfg.getParameter<InputTag>( "src" ));
+  if(useCF_) mixToken_ = mayConsume<CrossingFrame<HepMCProduct> >(InputTag(cfg.getParameter<std::string>( "mix" ),"generator"));
+  else srcToken_ = mayConsume<HepMCProduct>(cfg.getParameter<InputTag>( "src" ));
 }
 
 GenParticleProducer::~GenParticleProducer() {
@@ -150,25 +146,20 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 
    size_t totalSize = 0;
    const GenEvent * mc = 0;
-   std::vector<Handle<HepMCProduct> > heps;
    MixCollection<HepMCProduct>* cfhepmcprod = 0;
-   size_t npiles = vectorSrcTokens_.size();
+   size_t npiles = 1;
 
    if(useCF_){
       Handle<CrossingFrame<HepMCProduct> > cf;
       evt.getByToken(mixToken_,cf);
       cfhepmcprod = new MixCollection<HepMCProduct>(cf.product());
       npiles = cfhepmcprod->size();
+      LogDebug("GenParticleProducer")<<"npiles : "<<npiles<<endl;
       for(unsigned int icf = 0; icf < npiles; ++icf){
+	 LogDebug("GenParticleProducer")<<"subSize : "<<cfhepmcprod->getObject(icf).GetEvent()->particles_size()<<endl;
 	 totalSize += cfhepmcprod->getObject(icf).GetEvent()->particles_size();
       }
-   }else if (doSubEvent_){
-      for(size_t i = 0; i < npiles; ++i){
-	 Handle<HepMCProduct> handle;
-	 heps.push_back(handle);
-	 evt.getByToken( vectorSrcTokens_[i], heps[i] );
-	 totalSize += heps[i]->GetEvent()->particles_size();
-      }
+      LogDebug("GenParticleProducer")<<"totalSize : "<<totalSize<<endl;
    }else{
       Handle<HepMCProduct> mcp;
       evt.getByToken( srcToken_, mcp );
@@ -183,32 +174,30 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
    const size_t size = totalSize;
   vector<const HepMC::GenParticle *> particles( size );
   auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
-  //  auto_ptr<SubEventMap> subsPtr( new SubEventMap() );
   auto_ptr<vector<int> > barCodeVector( new vector<int>( size ) );
   ref_ = evt.getRefBeforePut<GenParticleCollection>();
   GenParticleCollection & cands = * candsPtr;
-  //  SubEventMap & subs = *subsPtr;
   size_t offset = 0;
   size_t suboffset = 0;
 
   /// fill indices
   if(doSubEvent_ || useCF_){
-     for(size_t i = 0; i < npiles; ++i){
+     for(size_t ipile = 0; ipile < npiles; ++ipile){
+	LogDebug("GenParticleProducer")<<"mixed object ipile : "<<ipile<<endl;
 	barcodes_.clear();
-	if(useCF_) mc = cfhepmcprod->getObject(i).GetEvent();
-	else mc = heps[i]->GetEvent();
+	if(useCF_) mc = cfhepmcprod->getObject(ipile).GetEvent();
 
 	//Look whether heavy ion/signal event
 	bool isHI = false;
 	const HepMC::HeavyIon * hi = mc->heavy_ion();
 	if(hi && hi->Ncoll_hard() > 1) isHI = true;
 	size_t num_particles = mc->particles_size();
+	LogDebug("GenParticleProducer")<<"num_particles : "<<num_particles<<endl;
 	fillIndices(mc, particles, *barCodeVector, offset);
 	// fill output collection and save association
-	for( size_t i = offset; i < offset + num_particles; ++ i ) {
-
-	   const HepMC::GenParticle * part = particles[ i ];
-	   reco::GenParticle & cand = cands[ i ];
+	for( size_t ipar = offset; ipar < offset + num_particles; ++ ipar ) {
+	   const HepMC::GenParticle * part = particles[ ipar ];
+	   reco::GenParticle & cand = cands[ ipar ];
 	   // convert HepMC::GenParticle to new reco::GenParticle
 	   convertParticle(cand, part);
 	   cand.resetDaughters( ref_.id() );
@@ -231,7 +220,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	   if(sub_id < 0) sub_id = 0;
 	   int new_id = sub_id + suboffset;
 	   GenParticleRef dref( ref_, d );
-	   //	   subs.insert(dref,new_id);   // For SubEventMap
 	   cands[d].setCollisionId(new_id); // For new GenParticle
 	   LogDebug("VertexId")<<"SubEvent offset 3 : "<<suboffset;
 	}
@@ -265,10 +253,9 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	cands[d].setCollisionId(0);
      }
   }
-
+  
   evt.put( candsPtr );
   if(saveBarCodes_) evt.put( barCodeVector );
-  //  if(doSubEvent_) evt.put(subsPtr); // For SubEventMap
   if(cfhepmcprod) delete cfhepmcprod;
 
 }
@@ -289,6 +276,7 @@ bool GenParticleProducer::convertParticle(reco::GenParticle& cand, const HepMC::
    } else {
       cand.setVertex( Candidate::Point( 0, 0, 0 ) );
    }
+   MCTruthHelper::fillGenStatusFlags(*part, cand.statusFlags());
    return true;
 }
 

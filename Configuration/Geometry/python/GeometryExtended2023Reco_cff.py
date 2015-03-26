@@ -6,22 +6,22 @@ from Configuration.Geometry.GeometryExtended2023_cff import *
 # Reconstruction geometry services
 #  Tracking Geometry
 #bah - well, this is not a cfi!
-from Geometry.CommonDetUnit.globalTrackingSLHCGeometry_cfi import *
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerTopology2023Constants_cfi import *
 
 #Muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-from Geometry.GEMGeometry.gemGeometry_cfi import *
+from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
-trackerSLHCGeometry.applyAlignment = cms.bool(False)
+trackerGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *

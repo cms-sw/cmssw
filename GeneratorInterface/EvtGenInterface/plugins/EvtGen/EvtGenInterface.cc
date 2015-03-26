@@ -6,8 +6,10 @@
 // The modifications for EvtGen 1.3.0 are implemented by Ian M. Nugent
 // I would like to thank the EvtGen developers, in particular John Black, and Mikhail Kirsanov for their assistance.
 //
+// January 2015: Setting of coherent or incoherent B mixing included by Eduard Burelo 
+// January 2015: Adding new feature to allow users to provide new evtgen models
 
-
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtModelUserReg.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
 
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
@@ -23,6 +25,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -313,14 +316,35 @@ void EvtGenInterface::init(){
     if(name.Contains("PYTHIA") && usePythia) myExtraModels.push_back(*it);
     if(name.Contains("TAUOLA") && useTauola) myExtraModels.push_back(*it);
   }
+
+  //Set up user evtgen models
   
+  EvtModelUserReg userList; 
+  std::list<EvtDecayBase*> userModels = userList.getUserModels(); // get interface to user models
+  for(unsigned int i=0; i<userModels.size();i++){
+    std::list<EvtDecayBase*>::iterator it = userModels.begin();
+    std::advance(it,i);
+    TString name=(*it)->getName();
+    std::cout<<" Adding user model: "<<name<<std::endl;
+    myExtraModels.push_back(*it);
+  }
+  
+
+  
+  // Set up the incoherent (1) or coherent (0) B mixing option
+  BmixingOption = fPSet->getUntrackedParameter<int>("B_Mixing",1);
+  if(BmixingOption!=0 && BmixingOption!=1){
+   throw cms::Exception("Configuration") << "EvtGenProducer requires B_Mixing to be 0 (coherent) or 1 (incoherent) \n"
+     "Please fix this in your configuration.";
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Create the EvtGen generator object, passing the external generators
-  m_EvtGen = new EvtGen(decay_table.fullPath().c_str(),pdt.fullPath().c_str(),the_engine,radCorrEngine,&myExtraModels);
+  m_EvtGen = new EvtGen(decay_table.fullPath().c_str(),pdt.fullPath().c_str(),the_engine,radCorrEngine,&myExtraModels,BmixingOption);
   
   // Add additional user information
   if (fPSet->exists("user_decay_file")){
-    std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_files");
+    std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_file");
     for(unsigned int i=0;i<user_decays.size();i++){
       edm::FileInPath user_decay(user_decays.at(i)); 
       m_EvtGen->readUDecay(user_decay.fullPath().c_str());
@@ -405,6 +429,12 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
       addToHepMC(*p,idEvt,evt);                     // generate decay
     }
   }
+
+  // add code to ensure all particles have an end vertex and if they are undecayed with no end vertes set to status 1
+  for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
+    if((*p)->end_vertex() && (*p)->status() == 1)(*p)->set_status(2);
+    if((*p)->end_vertex() && (*p)->end_vertex()->particles_out_size()==0) edm::LogWarning("EvtGenInterface::decay error: empty end vertex!");
+  } 
   return evt;
 }
 

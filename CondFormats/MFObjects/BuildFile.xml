@@ -4,7 +4,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CondCore/DBCommon"/>
 <use   name="boost_serialization"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

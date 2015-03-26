@@ -29,3 +29,28 @@ particleFlowRecHitHO = cms.EDProducer("PFRecHitProducer",
 
 )
 
+#
+# Need to change the quality tests for Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+
+def _modifyParticleFlowRecHitHOForRun2( object ) :
+    """
+    Customises PFRecHitProducer for Run 2 by lowering the
+    HO threshold for SiPM
+    """
+    for prod in object.producers:
+        prod.qualityTests = cms.VPSet(
+            cms.PSet(
+                name = cms.string("PFRecHitQTestThreshold"),
+                threshold = cms.double(0.05) # new threshold for SiPM HO
+            ),
+            cms.PSet(
+                name = cms.string("PFRecHitQTestHCALChannel"),
+                maxSeverities      = cms.vint32(11),
+                cleaningThresholds = cms.vdouble(0.0),
+                flags              = cms.vstring('Standard')
+            )
+        )
+
+eras.run2_common.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForRun2 )

@@ -4,7 +4,7 @@ process = cms.Process("PROD2")
 
 #process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 process.load("Configuration.StandardSequences.Sim_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

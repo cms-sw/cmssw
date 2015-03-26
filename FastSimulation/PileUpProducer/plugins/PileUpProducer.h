@@ -1,8 +1,9 @@
 #ifndef FastSimulation_PileUpProducer_PileUpProducer_H
 #define FastSimulation_PileUpProducer_PileUpProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
 
 #include <vector>
 #include <string>
@@ -24,7 +25,7 @@ class PUEvent;
 
 class PrimaryVertexGenerator;
 
-class PileUpProducer : public edm::EDProducer
+class PileUpProducer : public edm::stream::EDProducer <>
 {
 
  public:

@@ -32,12 +32,6 @@ class Level1TriggerRates
 {
  public:
 
-  enum
-  {
-    N_BX = 3654,
-    N_BX_ACTIVE = 2808
-  };
-
 #define BX_SPACING (double)25E-9
 
   Level1TriggerRates();

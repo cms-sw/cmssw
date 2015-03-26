@@ -644,6 +644,7 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
 #                            , 'PATGenericParticleProducer'     : ''
 #                            , 'PATPFParticleProducer'     : ''
 #                            , 'PATCompositeCandidateProducer'     : ''
+                           , 'MuonSelectorVertex': 'PATTriggerMatchMuonEmbedder'
                            }
 
         # Switch on PAT trigger matching if needed

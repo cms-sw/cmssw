@@ -30,17 +30,6 @@ public:
         m_firstHit =firstH;  m_nHits=nH;
     }
 
-    /// add a reference to a RecHit
-    void add(const TrackingRecHitRef &ref) {
-      m_hitCollection.pushBackItem(ref.refCore(), true);
-      if (m_nHits==0) {
-        m_firstHit = ref.key();
-      }
-      assert(m_nHits== ref.key()-m_firstHit);
-      ++m_nHits;   
-    }
-
-
     unsigned int firstRecHit() const {
       return m_firstHit;
     }

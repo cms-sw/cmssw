@@ -1,26 +1,27 @@
 #include <utility>
 #include <vector>
 
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/PxPyPzE4D.h" 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/CylindricalEta3D.h"
+#include "Math/Polar3D.h"
+#include "Math/PxPyPzE4D.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/FwdRef.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"  
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -32,6 +33,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
@@ -40,6 +42,7 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -103,9 +106,9 @@ namespace DataFormats_BTauReco {
 
 
     reco::SoftLeptonProperties                                          slp;
+
     std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>  slp_p;
     reco::SoftLeptonTagInfo::LeptonMap                                  slp_m;
-
     reco::SoftLeptonTagInfo                                             sl;
     reco::SoftLeptonTagInfoCollection                                   sl_c;
     reco::SoftLeptonTagInfoRef                                          sl_r;
@@ -113,6 +116,16 @@ namespace DataFormats_BTauReco {
     reco::SoftLeptonTagInfoRefProd                                      sl_rp;
     reco::SoftLeptonTagInfoRefVector                                    sl_rv;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection>                     sl_wc;
+
+    std::pair<edm::Ptr<reco::Candidate>, reco::SoftLeptonProperties>    cslp_p;
+    reco::CandSoftLeptonTagInfo::LeptonMap                                  cslp_m;
+    reco::CandSoftLeptonTagInfo                                             csl;
+    reco::CandSoftLeptonTagInfoCollection                                   csl_c;
+    reco::CandSoftLeptonTagInfoRef                                          csl_r;
+    reco::CandSoftLeptonTagInfoFwdRef                                       csl_fr;
+    reco::CandSoftLeptonTagInfoRefProd                                      csl_rp;
+    reco::CandSoftLeptonTagInfoRefVector                                    csl_rv;
+    edm::Wrapper<reco::CandSoftLeptonTagInfoCollection>                     csl_wc;
 
     std::pair< reco::btau::TaggingVariableName, float >                 ptt1;
     std::vector<std::pair<reco::btau::TaggingVariableName,float> >      vptt1;
@@ -211,7 +224,7 @@ namespace DataFormats_BTauReco {
     reco::BaseTagInfoRefProd                                            bti_rp;
     reco::BaseTagInfoRefVector                                          bti_rv;
     edm::Wrapper<reco::BaseTagInfoCollection>                           bti_wc;
-    
+
     reco::JetTagInfo                                                    jti;
     reco::JetTagInfoCollection                                          jti_c;
     reco::JetTagInfoRef                                                 jti_r;
@@ -228,8 +241,17 @@ namespace DataFormats_BTauReco {
     reco::JTATagInfoRefVector                                           jtati_rv;
     edm::Wrapper<reco::JTATagInfoCollection>                            jtati_wc;
 
+    reco::CATopJetProperties                                            catopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;
+    reco::CATopJetTagInfo                                               catopjet;
+    reco::CATopJetTagInfoCollection                                     catopjet_c;
+    reco::CATopJetTagInfoRef                                            catopjet_r;
+    reco::CATopJetTagInfoRefProd                                        catopjet_rp;
+    reco::CATopJetTagInfoRefVector                                      catopjet_rv;
+    edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
+
     std::vector<Measurement1D>                                          vm1d;
-	    
+
     // RefToBase Holders for TagInfos
     edm::RefToBase<reco::BaseTagInfo>                                           rb;
     edm::reftobase::IndirectHolder<reco::BaseTagInfo>                           rbh;
@@ -257,6 +279,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::IsolatedTauTagInfoRef>                      rbh_it;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>       rb_sl;
     edm::reftobase::RefHolder<reco::SoftLeptonTagInfoRef>                       rbh_sl;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoRef>   rb_csl;
+    edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoRef>                   rbh_csl;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>          rb_tmt;
     edm::reftobase::RefHolder<reco::TauMassTagInfoRef>                          rbh_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
@@ -284,10 +308,14 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::IsolatedTauTagInfoFwdRef>                      rbh_itf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoFwdRef>       rb_slf;
     edm::reftobase::RefHolder<reco::SoftLeptonTagInfoFwdRef>                       rbh_slf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoFwdRef>   rb_cslf;
+    edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoFwdRef>                   rbh_cslf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoFwdRef>          rb_tmtf;
     edm::reftobase::RefHolder<reco::TauMassTagInfoFwdRef>                          rbh_tmtf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef> rb_tpf;
     edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoFwdRef>                 rbh_tpf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>            rb_catopjet;
+    edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                            rbh_catopjet;
 
     edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > vm_ptr_bti;
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > w_vm_ptr_bti;
@@ -322,4 +350,3 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > > > dummy10;
   };
 }
-

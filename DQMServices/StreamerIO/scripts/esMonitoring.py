@@ -55,6 +55,15 @@ class ElasticReport(object):
                 self.doc["run"] = run
 
         self.make_id()
+        self.find_stdout()
+
+    def find_stdout(self):
+        try:
+            self.doc["stdout_fn"] = os.readlink("/proc/self/fd/1")
+            self.doc["stderr_fn"] = os.readlink("/proc/self/fd/2")
+        except:
+            pass
+        
 
     def make_id(self):
         id = self.id_format % self.doc
@@ -100,7 +109,21 @@ class ElasticReport(object):
         except:
             pass
 
-    def update_stderr(self):
+    def update_mem_status(self):
+        try:
+            key = str(time.time())
+
+            pid = int(self.doc["pid"])
+            fn = "/proc/%d/statm" % pid
+            f = open(fn, "r")
+            dct = { key: f.read().strip() }
+            f.close()
+
+            self.update_doc({ 'extra': { 'mem_info': dct } })
+        except:
+            pass
+
+    def update_stdlog(self):
         if self.s_history:
             txt = self.s_history.read()
             self.update_doc({ 'extra': { 'stdlog': txt } })
@@ -116,7 +139,8 @@ class ElasticReport(object):
             return
 
         self.update_ps_status()
-        self.update_stderr()
+        self.update_mem_status()
+        self.update_stdlog()
 
         fn_id = self.doc["_id"] + ".jsn"
 
@@ -137,9 +161,10 @@ class ElasticReport(object):
         if self.last_make_report is None:
             return self.make_report()
 
-        # is json stream has updates
+        # if json stream has updates
         if self.s_json and self.s_json.have_docs():
-            return self.make_report()
+            # just apply them, it still goes through timer
+            self.update_from_json()
 
         now = time.time()
         delta = now - self.last_make_report
@@ -153,7 +178,7 @@ class ElasticReport(object):
         self.try_update()
 
 class History(object):
-    def __init__(self, history_size=64*1024):
+    def __init__(self, history_size=8*1024):
         self.max_size = history_size
         self.buf = collections.deque()
         self.size = 0

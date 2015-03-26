@@ -61,6 +61,10 @@ process.dqmEnv.subSystemFolder = 'HcalTiming'
 
 process.p = cms.Path(process.hcalDigis*process.l1GtUnpack*process.hcalTimingMonitor*process.dqmEnv*process.dqmSaver)
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
@@ -68,3 +72,4 @@ if (HEAVYION):
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.l1GtUnpack.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     
+

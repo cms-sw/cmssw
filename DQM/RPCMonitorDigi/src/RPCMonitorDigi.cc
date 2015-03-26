@@ -410,8 +410,8 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	os.str("");
 	os<<"1DOccupancy_Ring_"<<ring;
 	if ((meWheelDisk[os.str()])){
-	  if (wheelOrDiskNumber > 0 ) meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +3, clusterSize);
-	  else meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + 4, clusterSize);
+	  if (wheelOrDiskNumber > 0 ) {meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + numberOfDisks_, clusterSize);}
+	    else {meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + numberOfDisks_+1, clusterSize);}
 	}
 
 	os.str("");

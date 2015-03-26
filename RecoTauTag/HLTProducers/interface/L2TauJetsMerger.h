@@ -4,8 +4,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -16,20 +17,20 @@
 #include <map>
 #include <vector>
 
-class L2TauJetsMerger: public edm::EDProducer {
+class L2TauJetsMerger: public edm::global::EDProducer<> {
  public:
   explicit L2TauJetsMerger(const edm::ParameterSet&);
   ~L2TauJetsMerger();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
     
   typedef std::vector<edm::InputTag> vtag;
   typedef std::vector<edm::EDGetTokenT<reco::CaloJetCollection> > vtoken_cjets;
-  vtag jetSrc;
+  const vtag jetSrc;
   vtoken_cjets jetSrc_token;
-  double mEt_Min;
-  std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
+  const double mEt_Min;
 
 
       class SorterByPt {

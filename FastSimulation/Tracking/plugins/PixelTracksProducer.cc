@@ -152,7 +152,8 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   
   edm::OrphanHandle <TrackingRecHitCollection> ohRH = e.put( recHits );
-  
+  edm::RefProd<TrackingRecHitCollection> ohRHProd(ohRH);
+
   for (int k = 0; k < nTracks; ++k) {
 
     // reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
@@ -160,12 +161,9 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     //fill the TrackExtra with TrackingRecHitRef
     // unsigned int nHits = tracks->at(k).numberOfValidHits();
-    unsigned nHits = 3; // We are dealing with triplets!
-    for(unsigned int i = 0; i < nHits; ++i) {
-      theTrackExtra.add(TrackingRecHitRef(ohRH,cc++));
-      //theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-      //cc++;
-    }
+    const unsigned nHits = 3; // We are dealing with triplets!
+    theTrackExtra.setHits( ohRHProd, cc, nHits);
+    cc += nHits;
     
     trackExtras->push_back(theTrackExtra);
     //trackExtras->push_back(*theTrackExtra);

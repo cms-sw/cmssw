@@ -45,7 +45,7 @@ class CFG(object):
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )
-
+    
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
     def __init__(self, class_object, instance_label='1', 
@@ -86,6 +86,24 @@ class Analyzer( CFG ):
         name = '_'.join([class_name, self.instance_label])
         return name 
 
+    
+class Service( CFG ):
+    
+    def __init__(self, class_object, instance_label='1', 
+                 verbose=False, **kwargs):
+        self.class_object = class_object
+        self.instance_label = instance_label
+        self.name = self.build_name()
+        self.verbose = verbose
+        super(Service, self).__init__(**kwargs)
+
+    def build_name(self):
+        class_name = '.'.join([self.class_object.__module__, 
+                               self.class_object.__name__])
+        name = '_'.join([class_name, self.instance_label])
+        return name 
+   
+
 class Sequence( list ):
     '''A list with print functionalities.
 
@@ -117,10 +135,11 @@ class Component( CFG ):
         self.dataset_entries = 0
         self.isData = False
         self.isMC = False
+        self.isEmbed = False
 
 class DataComponent( Component ):
 
-    def __init__(self, name, files, intLumi, triggers, json=None):
+    def __init__(self, name, files, intLumi=None, triggers=[], json=None):
         super(DataComponent, self).__init__(name, files, triggers)
         self.isData = True
         self.intLumi = intLumi
@@ -136,10 +155,9 @@ class DataComponent( Component ):
 
 
 class MCComponent( Component ):
-    def __init__(self, name, files, triggers, xSection,
-                 nGenEvents,
-                 # vertexWeight,tauEffWeight, muEffWeight,
-                 effCorrFactor, **kwargs ):
+    def __init__(self, name, files, triggers=[], xSection=1,
+                 nGenEvents=None,
+                 effCorrFactor=None, **kwargs ):
         super( MCComponent, self).__init__( name = name,
                                             files = files,
                                             triggers = triggers, **kwargs )
@@ -164,46 +182,16 @@ class MCComponent( Component ):
 class Config( object ):
     '''Main configuration object, holds a sequence of analyzers, and
     a list of components.'''
-    def __init__(self, components, sequence, events_class):
+    def __init__(self, components, sequence, services, events_class):
         self.components = components
         self.sequence = sequence
+        self.services = services
         self.events_class = events_class
 
     def __str__(self):
-        comp = '\n'.join( map(str, self.components))
-        sequence = str( self.sequence)
-        return '\n'.join([comp, sequence])
+        comp = '\n'.join(map(str, self.components))
+        sequence = str(self.sequence)
+        services = '\n'.join( map(str, self.services))
+        return '\n'.join([comp, sequence, services])
 
 
-if __name__ == '__main__':
-
-    from PhysicsTools.HeppyCore.framework.chain import Chain as Events
-    from PhysicsTools.HeppyCore.analyzers.Printer import Printer
-
-    class Ana1(object):
-        pass
-    ana1 = Analyzer(
-        Ana1,
-        toto = '1',
-        tata = 'a'
-        )
-    ana2 = Analyzer(
-        Printer,
-        'instance1'
-        )
-    sequence = Sequence( [ana1, ana2] )
-
-    DYJets = MCComponent(
-        name = 'DYJets',
-        files ='blah_mc.root',
-        xSection = 3048.,
-        nGenEvents = 34915945,
-        triggers = ['HLT_MC'],
-        vertexWeight = 1.,
-        effCorrFactor = 1 )
-    selectedComponents = [DYJets]
-    sequence = [ana1, ana2]
-    config = Config( components = selectedComponents,
-                     sequence = sequence, 
-                     events_class = Events )
-    print config

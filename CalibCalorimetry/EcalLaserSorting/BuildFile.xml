@@ -3,4 +3,5 @@
 <use   name="FWCore/Utilities"/>
 <use   name="IOPool/Streamer"/>
 <use   name="DataFormats/FEDRawData"/>
+<use   name="EventFilter/EcalRawToDigi"/>
 <flags   EDM_PLUGIN="1"/>

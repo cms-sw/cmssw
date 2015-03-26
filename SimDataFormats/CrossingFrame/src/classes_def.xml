@@ -1,8 +1,8 @@
 <lcgdict>
   <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
   <class name="CrossingFrame<PSimHit>" persistent="false"/>
-  <class name="CrossingFramePlaybackInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="3999342403"/>
+  <class name="CrossingFramePlaybackInfoNew" ClassVersion="10">
+   <version ClassVersion="10" checksum="1434967133"/>
   </class>
   <class name="CrossingFramePlaybackInfoExtended" ClassVersion="10">
    <version ClassVersion="10" checksum="3172490198"/>
@@ -21,7 +21,7 @@
   <class name="edm::Wrapper<PCrossingFrame<PCaloHit> >"/>
   <class name="edm::Wrapper<PCrossingFrame<PSimHit> >"/>
   <class name="edm::Wrapper<PCrossingFrame<edm::HepMCProduct> >"/>
-  <class name="edm::Wrapper<CrossingFramePlaybackInfo> "/>
+  <class name="edm::Wrapper<CrossingFramePlaybackInfoNew>"/>
   <class name="edm::Wrapper<CrossingFramePlaybackInfoExtended>"/>
   <class name="edm::Wrapper<CrossingFrame<SimTrack> >" persistent="false"/>
   <class name="edm::Wrapper<CrossingFrame<SimVertex> >" persistent="false"/>

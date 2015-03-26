@@ -7,12 +7,12 @@
 
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
@@ -49,7 +49,6 @@ void
 TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription descTrackerGeometryConstants;
-  descTrackerGeometryConstants.add<bool>( "upgradeGeometry", false );
   descTrackerGeometryConstants.add<int>( "ROWS_PER_ROC", 80 );
   descTrackerGeometryConstants.add<int>( "COLS_PER_ROC", 52 );
   descTrackerGeometryConstants.add<int>( "BIG_PIX_PER_ROC_X", 1 );
@@ -58,7 +57,6 @@ TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & d
   descTrackerGeometryConstants.add<int>( "ROCS_Y", 0 );
 
   edm::ParameterSetDescription descTrackerSLHCGeometryConstants;
-  descTrackerSLHCGeometryConstants.add<bool>( "upgradeGeometry", true );
   descTrackerSLHCGeometryConstants.add<int>( "ROWS_PER_ROC", 80 );
   descTrackerSLHCGeometryConstants.add<int>( "COLS_PER_ROC", 52 );
   descTrackerSLHCGeometryConstants.add<int>( "BIG_PIX_PER_ROC_X", 0 );
@@ -118,8 +116,8 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
     iRecord.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
     iRecord.getRecord<TrackerAlignmentRcd>().get(alignmentsLabel_, alignments);
-    edm::ESHandle<AlignmentErrors> alignmentErrors;
-    iRecord.getRecord<TrackerAlignmentErrorRcd>().get(alignmentsLabel_, alignmentErrors);
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+    iRecord.getRecord<TrackerAlignmentErrorExtendedRcd>().get(alignmentsLabel_, alignmentErrors);
     // apply if not empty:
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"

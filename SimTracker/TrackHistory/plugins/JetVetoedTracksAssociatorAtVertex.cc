@@ -13,7 +13,7 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -21,24 +21,24 @@
 
 #include "SimTracker/TrackHistory/interface/JetVetoedTracksAssociatorDRVertex.h"
 
-class JetVetoedTracksAssociatorAtVertex : public edm::EDProducer
+class JetVetoedTracksAssociatorAtVertex : public edm::stream::EDProducer<>
 {
 public:
     JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet&);
     virtual ~JetVetoedTracksAssociatorAtVertex();
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 private:
-    edm::InputTag mJets;
-    edm::InputTag mTracks;
+    edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
+    edm::EDGetTokenT<reco::TrackCollection> mTracks;
     JetVetoedTracksAssociationDRVertex mAssociator;
     TrackClassifier classifier;
 };
 
 JetVetoedTracksAssociatorAtVertex::JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet& fConfig)
-        : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
-        mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
+        : mJets (consumes<edm::View<reco::Jet>>(fConfig.getParameter<edm::InputTag> ("jets"))),
+        mTracks (consumes<reco::TrackCollection>(fConfig.getParameter<edm::InputTag> ("tracks"))),
         mAssociator (fConfig.getParameter<double> ("coneSize")),
-        classifier(fConfig)
+        classifier(fConfig,consumesCollector())
 {
     produces<reco::JetTracksAssociation::Container> ();
 }
@@ -51,9 +51,9 @@ void JetVetoedTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::E
     classifier.newEvent(fEvent, fSetup);
 
     edm::Handle <edm::View <reco::Jet> > jets_h;
-    fEvent.getByLabel (mJets, jets_h);
+    fEvent.getByToken (mJets, jets_h);
     edm::Handle <reco::TrackCollection> tracks_h;
-    fEvent.getByLabel (mTracks, tracks_h);
+    fEvent.getByToken (mTracks, tracks_h);
 
     std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
 

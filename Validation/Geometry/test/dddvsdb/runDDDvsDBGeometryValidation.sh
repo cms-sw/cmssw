@@ -4,7 +4,7 @@ cmsenv
 echo " START Geometry Validation"
 set loctag = ''
 if ($#argv == 0) then
-    set gtag="POSTLS172_V6::All"
+    set gtag="MCRUN2_74_V1::All"
     set geometry="GeometryExtended2015"
 else if($#argv == 1) then
     set gtag=`echo ${1}`
@@ -413,14 +413,14 @@ echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
 echo "Here I am " > readXML.expected
 echo "Top Most LogicalPart =cms:OCMS " >> readXML.expected
 echo " mat=materials:Air" >> readXML.expected
-echo " solid=cms:OCMS   Polycone_rrz: 0 6.28319 -450000 0 1000 -27000 0 1000 -27000 0 13000 27000 0 13000 27000 0 1000 450000 0 1000 " >> readXML.expected
+echo " solid=cms:OCMS   Polycone_rrz: 0 6.28319 -450000 0 1000 -27000 0 1000 -27000 0 17500 27000 0 17500 27000 0 1000 450000 0 1000 " >> readXML.expected
 echo "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" >> readXML.expected
 echo "finished" >> readXML.expected
 
 
-cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readIdealAndDump.py .
-sed -i "{s/GeometryExtended/${geometry}/}" readIdealAndDump.py >>  GeometryValidation.log
-cmsRun readIdealAndDump.py > readXMLAndDump.log
+cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readExtendedAndDump.py .
+sed -i "{s/GeometryExtended/${geometry}/}" readExtendedAndDump.py >>  GeometryValidation.log
+cmsRun readExtendedAndDump.py > readXMLAndDump.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testReadXMLFromGTDB.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testReadXMLFromGTDB.py >> GeometryValidation.log
@@ -437,8 +437,8 @@ sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms
 cmsRun testReadXMLFromDB.py > readXMLfromLocDB.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readBigXMLAndDump.py .
-sed -i "{/,geomXMLFiles = cms.vstring('GeometryReaders\/XMLIdealGeometryESSource\/test\/fred.xml')/d}" readBigXMLAndDump.py >> GeometryValidation.log
-sed -i "/XMLIdealGeometryESSource/ a\\t\t,geomXMLFiles=cms.vstring('workArea\/fred.xml')" readBigXMLAndDump.py >>  GeometryValidation.log
+sed -i "{/geomXMLFiles = cms.vstring('GeometryReaders\/XMLIdealGeometryESSource\/test\/fred.xml'),/d}" readBigXMLAndDump.py >> GeometryValidation.log
+sed -i "/XMLIdealGeometryESSource/ a\\t\tgeomXMLFiles=cms.vstring('workArea\/fred.xml')," readBigXMLAndDump.py >>  GeometryValidation.log
 cmsRun readBigXMLAndDump.py > readBigXMLAndDump.log
 
 diff readXMLAndDump.log readXML.expected > diffreadXMLSTD.log

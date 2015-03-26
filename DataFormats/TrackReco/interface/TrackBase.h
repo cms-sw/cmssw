@@ -114,7 +114,17 @@ public:
         bTagGhostTracks = 27,
         beamhalo = 28,
         gsf = 29,
-        algoSize = 30
+	// HLT algo name
+	hltPixel = 30,
+	// steps used by PF
+	hltIter0 = 31,
+	hltIter1 = 32,
+	hltIter2 = 33,
+	hltIter3 = 34,
+	hltIter4 = 35,
+	// steps used by all other objects @HLT
+	hltIterX = 36,
+        algoSize = 37
     };
 
     static const std::string algoNames[];
@@ -420,70 +430,122 @@ inline std::string TrackBase::algoName() const
     // I'd like to do:
     // return TrackBase::algoName(algorithm_);
     // but I cannot define a const static function. Why???
-
     switch (algorithm_) {
     case undefAlgorithm:
-        return "undefAlgorithm";
+      return "undefAlgorithm";
+      break;
     case ctf:
-        return "ctf";
+      return "ctf";
+      break;
     case rs:
-        return "rs";
+      return "rs";
+      break;
     case cosmics:
-        return "cosmics";
+      return "cosmics";
+      break;
     case beamhalo:
-        return "beamhalo";
+      return "beamhalo";
+      break;
     case initialStep:
-        return "initialStep";
+      return "initialStep";
+      break;
     case lowPtTripletStep:
-        return "lowPtTripletStep";
+      return "lowPtTripletStep";
+      break;
     case pixelPairStep:
-        return "pixelPairStep";
+      return "pixelPairStep";
+      break;
     case detachedTripletStep:
-        return "detachedTripletStep";
+      return "detachedTripletStep";
+      break;
     case mixedTripletStep:
-        return "mixedTripletStep";
+      return "mixedTripletStep";
+      break;
     case pixelLessStep:
-        return "pixelLessStep";
+      return "pixelLessStep";
+      break;
     case tobTecStep:
-        return "tobTecStep";
+      return "tobTecStep";
+      break;
     case jetCoreRegionalStep:
-        return "jetCoreRegionalStep";
+      return "jetCoreRegionalStep";
+      break;
     case conversionStep:
-        return "conversionStep";
+      return "conversionStep";
+      break;
     case muonSeededStepInOut:
-        return "muonSeededStepInOut";
+      return "muonSeededStepInOut";
+      break;
     case muonSeededStepOutIn:
-        return "muonSeededStepOutIn";
+      return "muonSeededStepOutIn";
+      break;
     case outInEcalSeededConv:
-        return "outInEcalSeededConv";
+      return "outInEcalSeededConv";
+      break;
     case inOutEcalSeededConv:
-        return "inOutEcalSeededConv";
+      return "inOutEcalSeededConv";
+      break;
     case nuclInter:
-        return "nuclInter";
+      return "nuclInter";
+      break;
     case standAloneMuon:
-        return "standAloneMuon";
+      return "standAloneMuon";
+      break;
     case globalMuon:
-        return "globalMuon";
+      return "globalMuon";
+      break;
     case cosmicStandAloneMuon:
-        return "cosmicStandAloneMuon";
+      return "cosmicStandAloneMuon";
+      break;
     case cosmicGlobalMuon:
-        return "cosmicGlobalMuon";
+      return "cosmicGlobalMuon";
+      break;
     case iter1LargeD0:
-        return "iter1LargeD0";
+      return "iter1LargeD0";
+      break;
     case iter2LargeD0:
-        return "iter2LargeD0";
+      return "iter2LargeD0";
+      break;
     case iter3LargeD0:
-        return "iter3LargeD0";
+      return "iter3LargeD0";
+      break;
     case iter4LargeD0:
-        return "iter4LargeD0";
+      return "iter4LargeD0";
+      break;
     case iter5LargeD0:
-        return "iter5LargeD0";
+      return "iter5LargeD0";
+      break;
     case bTagGhostTracks:
-        return "bTagGhostTracks";
+      return "bTagGhostTracks";
+      break;
     case gsf:
-        return "gsf";
+      return "gsf";
+      break;
+    case hltPixel :
+      return "hltPixel";
+      break;
+    case hltIter0 :
+      return "hltIter0";
+      break;
+    case hltIter1 :
+      return "hltIter1";
+      break;
+    case hltIter2 :
+      return "hltIter2";
+      break;
+    case hltIter3 :
+      return "hltIter3";
+      break;
+    case hltIter4 :
+      return "hltIter4";
+      break;
+    case hltIterX :
+      return "hltIterX";
+      break;
+    default:
+      return "undefAlgorithm";
+      break;
     }
-    return "undefAlgorithm";
 }
 
 inline bool TrackBase::quality(const TrackBase::TrackQuality q) const

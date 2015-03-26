@@ -56,7 +56,7 @@ class TProfile;
 //--------------------------------------
 //class MuIsoValidation : public edm::EDAnalyzer {
 
-class MuIsoValidation : public thread_unsafe::DQMEDAnalyzer {
+class MuIsoValidation : public DQMEDAnalyzer {
   //---------namespace and typedefs--------------
   typedef edm::View<reco::Muon>::const_iterator MuonIterator;
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;

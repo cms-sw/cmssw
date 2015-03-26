@@ -57,6 +57,12 @@ namespace reco {
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type
     virtual TrackType bestTrackType() const;
+    /// uncertainty on dz 
+    virtual float dzError() const; 
+    /// uncertainty on dxy
+    virtual float dxyError() const; 
+
+
   protected:
     /// check if two components overlap
     template<typename R>

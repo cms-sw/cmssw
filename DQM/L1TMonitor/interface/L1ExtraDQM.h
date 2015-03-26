@@ -65,12 +65,13 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "boost/lexical_cast.hpp"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // forward declarations
 
 
 // class declaration
-class L1ExtraDQM: public edm::EDAnalyzer {
+class L1ExtraDQM : public DQMEDAnalyzer {
 
 public:
 
@@ -95,7 +96,7 @@ public:
     public:
         typedef typename CollectionType::const_iterator CIterColl;
 
-        void bookHistograms(const edm::EventSetup& evSetup, DQMStore* dbe,
+        void bookhistograms(const edm::EventSetup& evSetup, DQMStore::IBooker &ibooker,
                 const std::string& l1ExtraObject,
                 const std::vector<L1GtObject>& l1GtObj, const bool bookPhi =
                         true, const bool bookEta = true);
@@ -146,10 +147,9 @@ public:
         int m_indexCharge;
         int m_indexHfBitCounts;
         int m_indexHfRingEtSums;
-
     };
 
-private:
+protected:
 
     void analyzeL1ExtraMuon(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraIsoEG(const edm::Event&, const edm::EventSetup&);
@@ -164,13 +164,11 @@ private:
     void analyzeL1ExtraHfBitCounts(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraHfRingEtSums(const edm::Event&, const edm::EventSetup&);
 
-    virtual void beginJob();
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-    void endRun(const edm::Run&, const edm::EventSetup&);
-    virtual void endJob();
+    virtual void endRun(const edm::Run& run, const edm::EventSetup& evSetup);
 
 private:
 
@@ -186,8 +184,6 @@ private:
     int m_nrBxInEventGct;
 
     /// internal members
-
-    DQMStore* m_dbe;
 
     bool m_resetModule;
     int m_currentRun;
@@ -238,8 +234,7 @@ private:
 
 // constructor L1ExtraMonElement
 template<class CollectionType>
-L1ExtraDQM::L1ExtraMonElement<CollectionType>::L1ExtraMonElement(
-        const edm::EventSetup& evSetup, const int nrElements) :
+L1ExtraDQM::L1ExtraMonElement<CollectionType>::L1ExtraMonElement(const edm::EventSetup& evSetup, const int nrElements) :
     m_indexNrObjects(-1),
     m_indexPt(-1),
     m_indexEt(-1),
@@ -264,8 +259,8 @@ L1ExtraDQM::L1ExtraMonElement<CollectionType>::~L1ExtraMonElement() {
 
 
 template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
-        const edm::EventSetup& evSetup, DQMStore* dbe,
+void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(
+        const edm::EventSetup& evSetup, DQMStore::IBooker &ibooker,
         const std::string& l1ExtraObject,
         const std::vector<L1GtObject>& l1GtObj, const bool bookPhi,
         const bool bookEta) {
@@ -286,8 +281,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
     if (gtObj == HfBitCounts) {
 
         L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits =
-                l1GetHistLimits.l1HistLimits(gtObj, quantity);
+        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
         const int histNrBins = histLimits.nrBins;
         const double histMinValue = histLimits.lowerBinValue;
@@ -298,19 +292,14 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
 
         for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
 
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<
-                    std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<
-                    std::string>(iCount);
+            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
+            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<std::string>(iCount);
             xAxisTitle = l1ExtraObject;
             yAxisTitle = "Entries";
 
-            m_monElement.push_back(dbe->book1D(histName, histTitle, histNrBins,
-                    histMinValue, histMaxValue));
-            m_monElement[m_indexHfBitCounts + iCount]->setAxisTitle(xAxisTitle,
-                    1);
-            m_monElement[m_indexHfBitCounts + iCount]->setAxisTitle(yAxisTitle,
-                    2);
+            m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBins, histMinValue, histMaxValue));
+            m_monElement[m_indexHfBitCounts + iCount]->setAxisTitle(xAxisTitle, 1);
+            m_monElement[m_indexHfBitCounts + iCount]->setAxisTitle(yAxisTitle, 2);
 
         }
 
@@ -319,14 +308,12 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
     }
 
     // number of objects per event
-    if ((gtObj == Mu) || (gtObj == IsoEG) || (gtObj == NoIsoEG) || (gtObj
-            == CenJet) || (gtObj == ForJet) || (gtObj == TauJet)) {
+    if ((gtObj == Mu) || (gtObj == IsoEG) || (gtObj == NoIsoEG) || (gtObj == CenJet) || (gtObj == ForJet) || (gtObj == TauJet)) {
 
         quantity = "NrObjects";
 
         L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits =
-                l1GetHistLimits.l1HistLimits(gtObj, quantity);
+        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
         const int histNrBins = histLimits.nrBins;
         const double histMinValue = histLimits.lowerBinValue;
@@ -337,8 +324,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
         xAxisTitle = "Nr_" + l1ExtraObject;
         yAxisTitle = "Entries";
 
-        m_monElement.push_back(dbe->book1D(histName, histTitle, histNrBins,
-                histMinValue, histMaxValue));
+        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBins, histMinValue, histMaxValue));
         indexHistogram++;
 
         m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
@@ -359,8 +345,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
     }
 
     L1GetHistLimits l1GetHistLimits(evSetup);
-    const L1GetHistLimits::L1HistLimits& histLimits =
-            l1GetHistLimits.l1HistLimits(gtObj, quantity);
+    const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
     const int histNrBinsET = histLimits.nrBins;
     const double histMinValueET = histLimits.lowerBinValue;
@@ -395,14 +380,13 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
 
         for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
 
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<
-                    std::string>(iCount);
+            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
             histTitle = l1ExtraObject + ": count " + boost::lexical_cast<
                     std::string>(iCount);
             xAxisTitle = l1ExtraObject;
             yAxisTitle = "Entries";
 
-            m_monElement.push_back(dbe->book1D(histName, histTitle,
+            m_monElement.push_back(ibooker.book1D(histName, histTitle,
                     histNrBinsET, binThresholdsETf));
 
             m_monElement[m_indexHfRingEtSums + iCount]->setAxisTitle(xAxisTitle,
@@ -414,8 +398,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
 
     } else {
 
-        m_monElement.push_back(dbe->book1D(histName, histTitle, histNrBinsET,
-                binThresholdsETf));
+        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBinsET, binThresholdsETf));
         indexHistogram++;
 
         m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
@@ -436,8 +419,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
 
         // get limits and binning from L1Extra
         L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits =
-                l1GetHistLimits.l1HistLimits(gtObj, quantity);
+        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
         const int histNrBinsPhi = histLimits.nrBins;
         const double histMinValuePhi = histLimits.lowerBinValue;
@@ -447,8 +429,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
         float* binThresholdsPhif;
         size_t sizeBinThresholdsPhi = binThresholdsPhi.size();
         binThresholdsPhif = new float[sizeBinThresholdsPhi];
-        copy(binThresholdsPhi.begin(), binThresholdsPhi.end(),
-                binThresholdsPhif);
+        copy(binThresholdsPhi.begin(), binThresholdsPhi.end(), binThresholdsPhif);
 
         LogDebug("L1ExtraDQM") << "\n phi histogram for " << l1ExtraObject
                 << "\n histNrBinsPhi = " << histNrBinsPhi
@@ -457,8 +438,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
                 << "\n Last bin value represents the upper limit of the histogram"
                 << std::endl;
         for (size_t iBin = 0; iBin < sizeBinThresholdsPhi; ++iBin) {
-            LogTrace("L1ExtraDQM") << "Bin " << iBin << ": phi = "
-                    << binThresholdsPhif[iBin] << " deg" << std::endl;
+            LogTrace("L1ExtraDQM") << "Bin " << iBin << ": phi = " << binThresholdsPhif[iBin] << " deg" << std::endl;
 
         }
 
@@ -467,8 +447,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
         xAxisTitle = l1ExtraObject + "_phi [deg]";
         yAxisTitle = "Entries";
 
-        m_monElement.push_back(dbe->book1D(histName, histTitle, histNrBinsPhi,
-                histMinValuePhi, histMaxValuePhi));
+        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBinsPhi, histMinValuePhi, histMaxValuePhi));
         indexHistogram++;
 
         m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
@@ -487,8 +466,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
 
         // get limits and binning from L1Extra
         L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits =
-                l1GetHistLimits.l1HistLimits(gtObj, quantity);
+        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
         const int histNrBinsEta = histLimits.nrBins;
         const double histMinValueEta = histLimits.lowerBinValue;
@@ -499,8 +477,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
         float* binThresholdsEtaf;
         size_t sizeBinThresholdsEta = binThresholdsEta.size();
         binThresholdsEtaf = new float[sizeBinThresholdsEta];
-        copy(binThresholdsEta.begin(), binThresholdsEta.end(),
-                binThresholdsEtaf);
+        copy(binThresholdsEta.begin(), binThresholdsEta.end(), binThresholdsEtaf);
 
         LogDebug("L1ExtraDQM") << "\n eta histogram for " << l1ExtraObject
                 << "\n histNrBinsEta = " << histNrBinsEta
@@ -509,8 +486,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
                 << "\n Last bin value represents the upper limit of the histogram"
                 << std::endl;
         for (size_t iBin = 0; iBin < sizeBinThresholdsEta; ++iBin) {
-            LogTrace("L1ExtraDQM") << "Bin " << iBin << ": eta = "
-                    << binThresholdsEtaf[iBin] << std::endl;
+            LogTrace("L1ExtraDQM") << "Bin " << iBin << ": eta = " << binThresholdsEtaf[iBin] << std::endl;
 
         }
 
@@ -519,8 +495,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookHistograms(
         xAxisTitle = l1ExtraObject + "_eta";
         yAxisTitle = "Entries";
 
-        m_monElement.push_back(dbe->book1D(histName, histTitle, histNrBinsEta,
-                binThresholdsEtaf));
+        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBinsEta, binThresholdsEtaf));
         indexHistogram++;
 
         m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);

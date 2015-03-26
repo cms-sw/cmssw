@@ -10,7 +10,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("DQMOffline.Trigger.EgHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.EgHLTOfflineSummaryClient_cfi")
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")

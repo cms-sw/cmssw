@@ -1,4 +1,4 @@
-
+ 
 import sys
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
@@ -49,7 +49,8 @@ class MatrixReader(object):
                              'relval_upgrade':'upg-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
-                             'relval_unsch': 'unsch-'
+                             'relval_unsch': 'unsch-',
+                             'relval_premix': 'premix-'
                              }
 
         self.files = ['relval_standard' ,
@@ -62,8 +63,22 @@ class MatrixReader(object):
                       'relval_upgrade',
                       'relval_identity',
                       'relval_machine',
-                      'relval_unsch'
+                      'relval_unsch',
+                      'relval_premix'
                       ]
+        self.filesDefault = {'relval_standard':True ,
+                             'relval_highstats':True ,
+                             'relval_pileup':True,
+                             'relval_generator':True,
+                             'relval_extendedgen':True,
+                             'relval_production':True,
+                             'relval_ged':True,
+                             'relval_upgrade':False,
+                             'relval_identity':False,
+                             'relval_machine':True,
+                             'relval_unsch':True,
+                             'relval_premix':True
+                             }
 
         self.relvalModule = None
         
@@ -89,11 +104,19 @@ class MatrixReader(object):
             cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
+    def makeStep(self,step,overrides):
+        from Configuration.PyReleaseValidation.relval_steps import merge
+        if len(overrides.keys()) > 0:
+            copyStep=merge([overrides]+[step])
+            return copyStep
+        else:    
+            return step
+
     def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
         
         prefix = self.filesPrefMap[fileNameIn]
         
-        print "processing ", fileNameIn
+        print "processing", fileNameIn
         
         try:
             _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
@@ -102,7 +125,8 @@ class MatrixReader(object):
             print "ERROR importing file ", fileNameIn, str(e)
             return
 
-        print "request for INPUT for ", useInput
+        if useInput is not None:
+            print "request for INPUT for ", useInput
 
         
         fromInput={}
@@ -154,6 +178,7 @@ class MatrixReader(object):
             commands=[]
             wfName = wfInfo[0]
             stepList = wfInfo[1]
+            stepOverrides=wfInfo.overrides
             # if no explicit name given for the workflow, use the name of step1
             if wfName.strip() == '': wfName = stepList[0]
             # option to specialize the wf as the third item in the WF list
@@ -223,13 +248,12 @@ class MatrixReader(object):
                         stepList.insert(stepIndex,stepName)
                 """    
                 name += stepName
-
                 if addCom and (not addTo or addTo[stepIndex]==1):
                     from Configuration.PyReleaseValidation.relval_steps import merge
-                    copyStep=merge(addCom+[self.relvalModule.steps[stepName]])
+                    copyStep=merge(addCom+[self.makeStep(self.relvalModule.steps[stepName],stepOverrides)])
                     cfg, input, opts = self.makeCmd(copyStep)
                 else:
-                    cfg, input, opts = self.makeCmd(self.relvalModule.steps[stepName])
+                    cfg, input, opts = self.makeCmd(self.makeStep(self.relvalModule.steps[stepName],stepOverrides))
 
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
@@ -274,6 +298,10 @@ class MatrixReader(object):
 
             if self.what != 'all' and self.what not in matrixFile:
                 print "ignoring non-requested file",matrixFile
+                continue
+
+            if self.what == 'all' and not self.filesDefault[matrixFile]:
+                print "ignoring file not used by default (enable with -w)",matrixFile
                 continue
 
             try:
@@ -434,7 +462,7 @@ class MatrixReader(object):
             if self.what != 'all' and self.what not in matrixFile:
                 print "ignoring non-requested file",matrixFile
                 continue
-            if self.what == 'all' and ('upgrade' in matrixFile):
+            if self.what == 'all' and not self.filesDefault[matrixFile]:
                 print "ignoring",matrixFile,"from default matrix"
                 continue
             

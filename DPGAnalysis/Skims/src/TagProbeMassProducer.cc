@@ -87,8 +87,14 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Loop over Tag and associate with Probes
    if( tags.isValid() && probes.isValid() )
    {
-      const edm::RefToBaseVector<reco::Candidate>& vtags = tags->refVector();
-      const edm::RefToBaseVector<reco::Candidate>& vprobes = probes->refVector();
+      edm::RefToBaseVector<reco::Candidate> vtags;
+      for (size_t i = 0; i < tags->size(); ++i) {
+         vtags.push_back(tags->refAt(i));
+      }
+      edm::RefToBaseVector<reco::Candidate> vprobes;
+      for (size_t i = 0; i < probes->size(); ++i) {
+         vprobes.push_back(probes->refAt(i));
+      }
 
       int itag = 0;
       edm::RefToBaseVector<reco::Candidate>::const_iterator tag = vtags.begin();

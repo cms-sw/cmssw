@@ -461,10 +461,8 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
     }
      
   double sumPtR03 = muonRef->isolationR03().sumPt;
-  double emEtR03 = muonRef->isolationR03().emEt;
-  double hadEtR03 = muonRef->isolationR03().hadEt;
   
-  double relIso = (sumPtR03 + emEtR03 + hadEtR03)/smallestMuPt;
+  double relIso = sumPtR03/smallestMuPt;
 
   if(relIso<0.1) return true;
   else return false;

@@ -5,25 +5,21 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeLowPtTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeLowPtTripletSeeds.firstHitSubDetectorNumber = [1]
-iterativeLowPtTripletSeeds.firstHitSubDetectors = [1]
-iterativeLowPtTripletSeeds.secondHitSubDetectorNumber = [2]
-iterativeLowPtTripletSeeds.secondHitSubDetectors = [1, 2]
-iterativeLowPtTripletSeeds.thirdHitSubDetectorNumber = [2]
-iterativeLowPtTripletSeeds.thirdHitSubDetectors = [1, 2]
-iterativeLowPtTripletSeeds.seedingAlgo = ['LowPtPixelTriplets']
-iterativeLowPtTripletSeeds.minRecHits = [3]
-iterativeLowPtTripletSeeds.pTMin = [0.25] 
-iterativeLowPtTripletSeeds.maxD0 = [5.]
-iterativeLowPtTripletSeeds.maxZ0 = [50.]
-iterativeLowPtTripletSeeds.numberOfHits = [3]
-iterativeLowPtTripletSeeds.originRadius = [0.03]
-iterativeLowPtTripletSeeds.originHalfLength = [17.5] # ?
-iterativeLowPtTripletSeeds.originpTMin = [0.35]
-iterativeLowPtTripletSeeds.zVertexConstraint = [-1.0]
-iterativeLowPtTripletSeeds.primaryVertices = ['none']
+iterativeLowPtTripletSeeds.skipSimTrackIdTags = [
+    cms.InputTag("initialStepSimTrackIds"),
+    cms.InputTag("detachedTripletStepSimTrackIds")]
+iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
+iterativeLowPtTripletSeeds.minRecHits = 3
+iterativeLowPtTripletSeeds.pTMin = 0.25
+iterativeLowPtTripletSeeds.maxD0 = 5.
+iterativeLowPtTripletSeeds.maxZ0 = 50.
+iterativeLowPtTripletSeeds.numberOfHits = 3
+iterativeLowPtTripletSeeds.originRadius = 0.03
+iterativeLowPtTripletSeeds.originHalfLength = 17.5
+iterativeLowPtTripletSeeds.originpTMin = 0.35
+iterativeLowPtTripletSeeds.zVertexConstraint = -1.0
+iterativeLowPtTripletSeeds.primaryVertex = 'none'
 
-iterativeLowPtTripletSeeds.newSyntax = True
 #iterativeLowPtTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
 #                                   'BPix1+BPix2+FPix1_neg',
@@ -33,56 +29,33 @@ from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplet
 iterativeLowPtTripletSeeds.layerList = PixelLayerTriplets.layerList
 
 # candidate producer
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativeLowPtTripletTrackCandidatesWithTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeLowPtTripletTrackCandidates = cms.Sequence(iterativeLowPtTripletTrackCandidatesWithTriplets)
-iterativeLowPtTripletTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds","LowPtPixelTriplets")
-iterativeLowPtTripletTrackCandidatesWithTriplets.TrackProducers = ['initialStep']
-iterativeLowPtTripletTrackCandidatesWithTriplets.KeepFittedTracks = False
-iterativeLowPtTripletTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 3
+
+from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
+lowPtTripletStepTrackCandidates = trackCandidateProducer.clone(
+    SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds","LowPtPixelTriplets"),
+    MinNumberOfCrossedLayers = 3)
 
 # track producer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-iterativeLowPtTripletTracksWithTriplets = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-iterativeLowPtTripletTracks = cms.Sequence(iterativeLowPtTripletTracksWithTriplets)
-iterativeLowPtTripletTracksWithTriplets.src = 'iterativeLowPtTripletTrackCandidatesWithTriplets'
-iterativeLowPtTripletTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
-iterativeLowPtTripletTracksWithTriplets.Fitter = 'KFFittingSmootherSecond'
-iterativeLowPtTripletTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
 
-# track merger
-lowPtTripletStepTracks = cms.EDProducer("FastTrackMerger",
-                                        TrackProducers = cms.VInputTag(cms.InputTag("iterativeLowPtTripletTrackCandidatesWithTriplets"),
-                                                                       cms.InputTag("iterativeLowPtTripletTracksWithTriplets")),
-                                        RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStep")),
-                                        trackAlgo = cms.untracked.uint32(5), # lowPtTripletStep
-                                        MinNumberOfTrajHits = cms.untracked.uint32(3),
-                                        MaxLostTrajHits = cms.untracked.uint32(1)
-                                        )
+from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStepTracks
+lowPtTripletStepTracks = lowPtTripletStepTracks.clone(
+    Fitter = 'KFFittingSmootherSecond',
+    Propagator = 'PropagatorWithMaterial',
+    TTRHBuilder = 'WithoutRefit'
+)
 
-# Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='lowPtTripletStepTracks',
-            trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'lowPtTripletStepLoose',
-                            ), #end of pset
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'lowPtTripletStepTight',
-                            preFilterName = 'lowPtTripletStepLoose',
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'lowPtTripletStep',
-                            preFilterName = 'lowPtTripletStepTight',
-                            ),
-                    ) #end of vpset
-            ) #end of clone
+# simtrack id producer
+lowPtTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
+                                     trackCollection = cms.InputTag("lowPtTripletStepTracks"),
+                                     HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                     )
 
+# TRACK SELECTION AND QUALITY FLAG SETTING.
+from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStepSelector
 
-iterativeLowPtTripletStep = cms.Sequence(iterativeLowPtTripletSeeds+
-                                         iterativeLowPtTripletTrackCandidatesWithTriplets+
-                                         iterativeLowPtTripletTracks+
-                                         lowPtTripletStepTracks+
-                                         lowPtTripletStepSelector)
+LowPtTripletStep = cms.Sequence(iterativeLowPtTripletSeeds+
+                                lowPtTripletStepTrackCandidates+
+                                lowPtTripletStepTracks+  
+                                lowPtTripletStepSimTrackIds+
+                                lowPtTripletStepSelector)
 
