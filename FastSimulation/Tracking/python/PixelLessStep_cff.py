@@ -9,6 +9,7 @@ pixelLessStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrack
     trajectories = cms.InputTag("mixedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.maxChi2,
+    overrideTrkQuals = cms.InputTag('mixedTripletStep')
 )
 
 # trajectory seeds 

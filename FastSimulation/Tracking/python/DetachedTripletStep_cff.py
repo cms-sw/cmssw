@@ -8,7 +8,8 @@ detachedTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.
     #tracjectories = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.trajectories.value(),
     trajectories = cms.InputTag("initialStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
-    maxChi2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.maxChi2
+    maxChi2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.maxChi2,
+    overrideTrkQuals =  cms.InputTag('initialStep')
     )
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi

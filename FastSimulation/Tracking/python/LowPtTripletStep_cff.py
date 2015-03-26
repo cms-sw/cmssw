@@ -8,7 +8,8 @@ import FastSimulation.Tracking.SimTrackIdProducer_cfi
 lowPtTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
     trajectories = cms.InputTag("detachedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
-    maxChi2 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.maxChi2
+    maxChi2 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.maxChi2,
+    overrideTrkQuals = cms.InputTag('detachedTripletStep')
 )
 
 # trajectory seeds

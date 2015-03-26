@@ -9,6 +9,7 @@ tobTecStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackI
     trajectories = cms.InputTag("pixelLessStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.maxChi2,
+    overrideTrkQuals = cms.InputTag('pixelLessStep'),
 )
 
 # trajectory seeds 
