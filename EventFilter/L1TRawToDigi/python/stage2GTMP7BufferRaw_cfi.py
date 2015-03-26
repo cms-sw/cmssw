@@ -1,10 +1,9 @@
-
 import FWCore.ParameterSet.Config as cms
 
-stage2DemuxRaw = cms.EDProducer(
+stage2GTRaw = cms.EDProducer(
     "MP7BufferDumpToRaw",
-    rxFile           = cms.untracked.string("demux_rx_summary.txt"),
-    txFile           = cms.untracked.string("demux_tx_summary.txt"),
+    rxFile           = cms.untracked.string("gt_rx_summary.txt"),
+    txFile           = cms.untracked.string("gt_tx_summary.txt"),
 
     # input file type
     packetisedData   = cms.untracked.bool(False),
@@ -15,7 +14,7 @@ stage2DemuxRaw = cms.EDProducer(
     nFramesLatency   = cms.untracked.vuint32(0),
 
     # DAQ parameters
-    fedId            = cms.untracked.int32(1366),
+    fedId            = cms.untracked.int32(1404),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(8),  # length in 8 bit words !
@@ -51,9 +50,9 @@ stage2DemuxRaw = cms.EDProducer(
                                                     0,0,0,0, # q16 64-67
                                                     0,0,0,0), # q17 68-71
             
-            txBlockLength    = cms.untracked.vint32(0,0,0,0, # q0 0-3
-                                                    0,0,6,6, # q1 4-7
-                                                    0,0,6,0, # q2 8-11
+            txBlockLength    = cms.untracked.vint32(6,6,6,0, # q0 0-3
+                                                    0,0,0,0, # q1 4-7
+                                                    0,0,0,0, # q2 8-11
                                                     0,0,0,0, # q3 12-15
                                                     0,0,0,0, # q4 16-19
                                                     0,0,0,0, # q5 20-23
