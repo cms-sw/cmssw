@@ -20,7 +20,7 @@ namespace {
 }
 
 SiStripLorentzAngleGenerator::SiStripLorentzAngleGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
-  SiStripCondObjBuilderBase<SiStripLorentzAngle>::SiStripCondObjBuilderBase(iConfig)
+    SiStripDepCondObjBuilderBase<SiStripLorentzAngle,TrackerTopology>::SiStripDepCondObjBuilderBase(iConfig)
 {
   edm::LogInfo("SiStripLorentzAngleGenerator") <<  "[SiStripLorentzAngleGenerator::SiStripLorentzAngleGenerator]";
 }
@@ -47,7 +47,7 @@ void SiStripLorentzAngleGenerator::setUniform(const std::vector<double> & estima
   }
 }
 
-SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject()
+SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject(const TrackerTopology* tTopo)
 {
   SiStripLorentzAngle* obj = new SiStripLorentzAngle();
 
