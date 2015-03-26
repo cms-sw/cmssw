@@ -43,7 +43,7 @@ namespace stage2 {
      int unsigned i = 0;
 
      // Loop over multiple BX and then number of Tau cands filling collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
 
        for (unsigned nTau=0; nTau < 8 && nTau < block.header().getSize(); nTau++){
 
