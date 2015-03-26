@@ -12,7 +12,7 @@ def customise_digitization(process):
   process = customize_digi_addGEM_muon_only(process)
   process.simMuonGEMDigis.mixLabel = cms.string("mix")
   #process.simMuonME0Digis.mixLabel = cms.string("mix")
-  process.digitisation_step.remove(process.simMuonRPCDigis)
+  #process.digitisation_step.remove(process.simMuonRPCDigis)
   return process
 
 def customise_Validation(process):
