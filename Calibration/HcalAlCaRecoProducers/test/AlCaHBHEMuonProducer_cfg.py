@@ -6,9 +6,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.GlobalTag.globaltag=autoCond['startup']
+process.GlobalTag.globaltag=autoCond['run2_mc']
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
