@@ -75,29 +75,28 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.getByToken(overrideTrkQuals_[0],quals[0]);
   }
 
-  reco::TrackCollection::const_iterator aTrack = trackCollection->begin();
-  reco::TrackCollection::const_iterator lastTrack = trackCollection->end();
-  
-  for ( ; aTrack!=lastTrack; ++aTrack)
+  for (size_t i = 0 ; i!=trackCollection->size();++i)
   {
-    reco::TrackRef trackRef(trackCollection,aTrack->index());
+    const reco::Track & track = trackCollection->at(i);
+    reco::TrackRef trackRef(trackCollection,i);
     if (filterTracks_) {
       bool goodTk = true;
       
       if ( quals.size()!=0) {
         int qual=(*(quals[0]))[trackRef];
+	std::cout << qual << std::endl;
         if ( qual < 0 ) {goodTk=false;}
         //note that this does not work for some trackquals (goodIterative or undefQuality)                 
         else
           goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
 	  }
       else
-        goodTk=(aTrack->quality(trackQuality_));
+        goodTk=(track.quality(trackQuality_));
       if ( !goodTk) continue;    
     }
-    if(aTrack->chi2()>max_Chi2) continue ; 
+    if(track.chi2()>max_Chi2) continue ; 
     
-      const TrackingRecHit* hit = *aTrack->recHitsBegin();
+    const TrackingRecHit * hit = *(track.recHitsBegin());
       if (hit)
       {
           const SiTrackerGSMatchedRecHit2D* fsimhit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(hit);
