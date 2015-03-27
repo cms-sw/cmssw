@@ -1,6 +1,6 @@
 <use name="boost"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/GEMRecHits"/>
+<use name="DataFormats/GEMRecHit"/>
 <use name="DataFormats/CLHEP"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
@@ -22,6 +22,7 @@
 <use name="Utilities/General"/>
 <use name="DQMServices/Core"/>
 <use name="rootcore"/>
+<use name="Validation/MuonGEMHits"/>
 <export>
 <lib name="1"/>
 </export>

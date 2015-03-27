@@ -1,5 +1,8 @@
 #include "Validation/MuonGEMRecHits/interface/GEMRecHitsValidation.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
+
 GEMRecHitsValidation::GEMRecHitsValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
   InputTagToken_   = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
@@ -83,63 +86,90 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     edm::LogError("GEMRecHitsValidation") << "Cannot get strips by Token RecHits Token.\n";
     return ;
   }
-  for (edm::PSimHitContainer::const_iterator itHit = gemSimHits->begin(); itHit!=gemSimHits->end(); ++itHit) {
-	for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
-		std::cout<<"Loooooooooping ------->>  "<<std::endl;
-	}
-  }
- /* for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
-    GEMDetId id = (*cItr).first;
-
-    const GeomDet* gdet = GEMGeometry_->idToDet(id);
-    if ( gdet == nullptr) { 
-      std::cout<<"Getting DetId failed. Discard this gem strip hit.Maybe it comes from unmatched geometry."<<std::endl;
-      continue; 
-    }
-    const BoundPlane & surface = gdet->surface();
-    const GEMEtaPartition * roll = GEMGeometry_->etaPartition(id);
-
-    Short_t region = (Short_t) id.region();
-    Short_t layer = (Short_t) id.layer();
-    Short_t station = (Short_t) id.station();
-    //Short_t chamber = (Short_t) id.chamber();
-    //Short_t nroll = (Short_t) id.roll();
-
-    GEMDigiCollection::const_iterator digiItr;
-    for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
-    {
-      Short_t strip = (Short_t) digiItr->strip();
-      Short_t bx = (Short_t) digiItr->bx();
-
-      LocalPoint lp = roll->centreOfStrip(digiItr->strip());
-
-      GlobalPoint gp = surface.toGlobal(lp);
-      Float_t g_r = (Float_t) gp.perp();
-      //Float_t g_eta = (Float_t) gp.eta();
-      Float_t g_phi = (Float_t) gp.phi();
-      Float_t g_x = (Float_t) gp.x();
-      Float_t g_y = (Float_t) gp.y();
-      Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("GEMStripDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;  
-      edm::LogInfo("GEMStripDIGIValidation")<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;  
-      edm::LogInfo("GEMStripDIGIValidation")<<"Global bx "<<bx<<std::endl;  
-      // fill hist
-      int region_num=0 ;
-      if ( region ==-1 ) region_num = 0 ;
-      else if ( region==1) region_num = 1;  
-      int station_num = station-1;
-      int layer_num = layer-1;
+  
+  std::cout<<"Loooooooooping ------->>  "<<std::endl;
+  for (edm::PSimHitContainer::const_iterator hits = gemSimHits->begin(); hits!=gemSimHits->end(); ++hits) {
     
-      if ( theStrip_xy[region_num][station_num][layer_num] != nullptr) {
-        theStrip_xy[region_num][station_num][layer_num]->Fill(g_x,g_y);     
-        theStrip_phistrip[region_num][station_num][layer_num]->Fill(g_phi,strip);
-        theStrip[region_num][station_num][layer_num]->Fill(strip);
-        theStrip_bx[region_num][station_num][layer_num]->Fill(bx);
-        theStrip_zr[region_num][station_num][layer_num]->Fill(g_z,g_r);
-      }
-      else {
-        std::cout<<"Error is occued when histograms is called."<<std::endl;
-      }
-    }    
-  }*/
+    const GEMDetId id(hits->detUnitId());
+    
+    Int_t sh_region = id.region();
+    //Int_t sh_ring = id.ring();
+    Int_t sh_roll = id.roll();
+    Int_t sh_station = id.station();
+    Int_t sh_layer = id.layer();
+    Int_t sh_chamber = id.chamber();
+
+    if ( GEMGeometry_->idToDet(hits->detUnitId()) == nullptr) {
+      std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
+      continue;
+    }
+   
+    if (!(abs(hits-> particleType())) == 13) continue;
+    
+    //const LocalPoint p0(0., 0., 0.);
+    //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
+    const LocalPoint hitLP(hits->localPosition());
+
+    const LocalPoint hitEP(hits->entryPoint());
+    Int_t sh_strip = GEMGeometry_->etaPartition(hits->detUnitId())->strip(hitEP);
+    
+    //const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
+    //Float_t sh_l_r = hitLP.perp();
+    //Float_t sh_l_x = hitLP.x();
+    //Float_t sh_l_y = hitLP.y();
+    //Float_t sh_l_z = hitLP.z();
+
+	
+	for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
+		//Float_t  rh_l_x = recHit->localPosition().x();
+	 	//Float_t  rh_l_xErr = recHit->localPositionError().xx();
+	  	//Float_t  rh_l_y = recHit->localPosition().y();
+	  	//Int_t  detId = (Short_t) (*recHit).gemId();
+	  	//Int_t  bx = recHit->BunchX();
+		Int_t  clusterSize = recHit->clusterSize();
+   		Int_t  firstClusterStrip = recHit->firstClusterStrip();
+
+  		GEMDetId id((*recHit).gemId());
+	      
+  		Short_t rh_region = (Short_t) id.region();
+  		//Int_t rh_ring = (Short_t) id.ring();
+  		Short_t rh_station = (Short_t) id.station();
+  		Short_t rh_layer = (Short_t) id.layer();
+  		Short_t rh_chamber = (Short_t) id.chamber();
+  		Short_t rh_roll = (Short_t) id.roll();
+
+  		LocalPoint recHitLP = recHit->localPosition();
+	    	if ( GEMGeometry_->idToDet((*recHit).gemId()) == nullptr) {
+		      	std::cout<<"This gem recHit did not matched with GEMGeometry."<<std::endl;
+		       	continue;
+	  	}
+	       	GlobalPoint recHitGP = GEMGeometry_->idToDet((*recHit).gemId())->surface().toGlobal(recHitLP);
+
+	  	Float_t   rh_g_R = recHitGP.perp();
+	      	//Float_t rh_g_Eta = recHitGP.eta();
+	  	//Float_t rh_g_Phi = recHitGP.phi();
+	  	Float_t   rh_g_X = recHitGP.x();
+	  	Float_t   rh_g_Y = recHitGP.y();
+	  	Float_t   rh_g_Z = recHitGP.z();
+      
+		std::vector<int> stripsFired;
+  		for(int i = firstClusterStrip; i < (firstClusterStrip + clusterSize); i++){
+  		  stripsFired.push_back(i);
+ 		}
+    
+ 		const bool cond1( sh_region == rh_region and sh_layer == rh_layer and sh_station == rh_station);
+  		const bool cond2(sh_chamber == rh_chamber and sh_roll == rh_roll);
+  		const bool cond3(std::find(stripsFired.begin(), stripsFired.end(), (sh_strip + 1)) != stripsFired.end());
+
+  		if(cond1 and cond2 and cond3){
+		//	Float_t x_pull = (sh_l_x - rh_l_x) / rh_l_xErr;
+		 	std::cout << " Region " << rh_region << "Station" << rh_station 
+<< "Layer: "<< rh_layer << std::endl;	
+			gem_rh_xy[rh_region][rh_station][rh_layer]->Fill(rh_g_X,rh_g_Y);
+			gem_rh_zr[rh_region][rh_station][rh_layer]->Fill(rh_g_Z,rh_g_R);
+		}	
+
+	} //End loop on RecHits
+  } //End loop on SimHits
+ 
 }
