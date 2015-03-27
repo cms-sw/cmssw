@@ -45,8 +45,6 @@ foreach gtag ( $1 )
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
     if ($table == Fake) then
       set basegt = auto:run1_${infix}_${table}
-    else if ($table == 50ns_5e33_v1) then
-      set basegt = auto:run2_${infix}_50nsGRun
     else 
       set basegt = auto:run2_${infix}_${table}
     endif
