@@ -33,7 +33,7 @@ class RunExpressProcessing:
             msg = "No --scenario specified"
             raise RuntimeError, msg
         if self.globalTag == None:
-            msg = "No --globaltag specified"
+            msg = "No --global-tag specified"
             raise RuntimeError, msg
         if self.inputLFN == None:
             msg = "No --lfn specified"
@@ -114,7 +114,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "dqm", "dqmio", "no-output",
-             "globaltag=", "lfn=", 'alcarecos=']
+             "global-tag=", "lfn=", 'alcarecos=']
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -126,15 +126,15 @@ Where options are:
  --fevt (to enable FEVT output)
  --dqm (to enable DQM output)
  --no-output (create config with no output, overrides other settings)
- --globaltag=GlobalTag
+ --global-tag=GlobalTag
  --lfn=/store/input/lfn
  --alcarecos=plus_seprated_list
 
 Examples:
 
-python RunExpressProcessing.py --scenario cosmics --globaltag GLOBALTAG::ALL --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
+python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
 
-python RunExpressProcessing.py --scenario pp --globaltag GLOBALTAG::ALL --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
+python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
 
 """
     try:
@@ -162,7 +162,7 @@ python RunExpressProcessing.py --scenario pp --globaltag GLOBALTAG::ALL --lfn /s
             expressinator.writeDQMIO = True
         if opt == "--no-output":
             expressinator.noOutput = True
-        if opt == "--globaltag":
+        if opt == "--global-tag":
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
