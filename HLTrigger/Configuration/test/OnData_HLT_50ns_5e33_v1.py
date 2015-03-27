@@ -2,7 +2,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "HLT50ns_5e33_v1" )
+process = cms.Process( "HLT50ns5e33v1" )
 
 process.HLTConfigVersion = cms.PSet(
   tableName = cms.string('/frozen/2015/50ns_5e33/v1.0/HLT/V1')
@@ -47491,35 +47491,35 @@ process = loadL1Menu(process)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreExpressCosmicsOutputSmart' in process.__dict__:
-    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreExpressOutputSmart' in process.__dict__:
-    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreDQMForHIOutputSmart' in process.__dict__:
-    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreDQMForPPOutputSmart' in process.__dict__:
-    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreHLTDQMResultsOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreHLTDQMOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltPreHLTMONOutputSmart' in process.__dict__:
-    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
+    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
 
 if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLT50ns_5e33_v1' )
-    process.hltDQMHLTScalers.processname                      = 'HLT50ns_5e33_v1'
+    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLT50ns5e33v1' )
+    process.hltDQMHLTScalers.processname                      = 'HLT50ns5e33v1'
 
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname              = 'HLT50ns_5e33_v1'
+    process.hltDQML1SeedLogicScalers.processname              = 'HLT50ns5e33v1'
 
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(

@@ -699,6 +699,8 @@ for module in process.__dict__.itervalues():
     if self.config.name is None:
       return
 
+    # sanitise process name
+    self.config.name = self.config.name.replace("_","")
     # override the process name
     quote = '[\'\"]'
     self.data = re.compile(r'^(process\s*=\s*cms\.Process\(\s*' + quote + r')\w+(' + quote + r'\s*\).*)$', re.MULTILINE).sub(r'\1%s\2' % self.config.name, self.data, 1)
