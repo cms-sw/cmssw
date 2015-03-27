@@ -35,7 +35,7 @@ SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
   // Input Tag
   edm::InputTag trackCollectionTag = conf.getParameter<edm::InputTag>("trajectories"); 
  
-  max_Chi2 = conf.getParameter<double>("maxChi2");
+  maxChi2_ = conf.getParameter<double>("maxChi2");
 
 
   if (conf.exists("overrideTrkQuals")) {
@@ -50,8 +50,6 @@ SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
     std::string trackQuality = conf.getParameter<std::string>("TrackQuality");
     if ( !trackQuality.empty() ) {
       trackQuality_=reco::TrackBase::qualityByName(trackQuality);
-      //   minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering") ?                                                    
-      //iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 0;                                                                                            
     }
   }
     
@@ -84,7 +82,7 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
       
       if ( quals.size()!=0) {
         int qual=(*(quals[0]))[trackRef];
-	std::cout << qual << std::endl;
+	//std::cout << qual << std::endl;
         if ( qual < 0 ) {goodTk=false;}
         //note that this does not work for some trackquals (goodIterative or undefQuality)                 
         else
@@ -94,7 +92,7 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
         goodTk=(track.quality(trackQuality_));
       if ( !goodTk) continue;    
     }
-    if(track.chi2()>max_Chi2) continue ; 
+    if(track.chi2()>maxChi2_) continue ; 
     
     const TrackingRecHit * hit = *(track.recHitsBegin());
       if (hit)
