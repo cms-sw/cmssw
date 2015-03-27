@@ -17,6 +17,9 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
   printProvenanceInfo(false), count(0)
 {
+  consumesMany<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit> > >();
+  consumesMany<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit> > >();
+  consumesMany<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit> > >();
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_GlobalRecHitsAnalyzer";
 
   // get information from parameter set
