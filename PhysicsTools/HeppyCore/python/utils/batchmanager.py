@@ -32,7 +32,7 @@ class BatchManager:
                           help="Name of the local output directory for your jobs. This directory will be created automatically.",
                           default=None)
         self.parser_.add_option("-r", "--remote-copy", dest="remoteCopy",
-                          help="remote output directory for your jobs. Example: /store/cmst3/user/cbern/CMG/HT/Run2011A-PromptReco-v1/AOD/PAT_CMG/RA2. This directory *must* be provided as a logical file name (LFN). When this option is used, all root files produced by a job are copied to the remote directory, and the job index is appended to the root file name. The Logger directory is tarred and compressed into Logger.tgz, and sent to the remote output directory as well. Afterwards, use logger.py to access the information contained in Logger.tgz. For remote copy to PSI specify path like: '/pnfs/psi.ch/...'. Logs will be sent back to the submision directory.",
+                          help="remote output directory for your jobs. Example: /store/cmst3/user/cbern/CMG/HT/Run2011A-PromptReco-v1/AOD/PAT_CMG/RA2. This directory *must* be provided as a logical file name (LFN). When this option is used, all root files produced by a job are copied to the remote directory, and the job index is appended to the root file name. The Logger directory is tarred and compressed into Logger.tgz, and sent to the remote output directory as well. Afterwards, use logger.py to access the information contained in Logger.tgz. For remote copy to PSI specify path like: '/pnfs/psi.ch/...'. Logs will be sent back to the submision directory. NOTE: so far this option has been implemented and validated to work only for a remote copy to PSI",
                           default=None)
         self.parser_.add_option("-f", "--force", action="store_true",
                                 dest="force", default=False,
@@ -62,7 +62,7 @@ class BatchManager:
                     if ld_lib_path != "None":
                         os.environ['LD_LIBRARY_PATH'] = "/usr/lib64/:"+ld_lib_path  # to solve gfal conflict with CMSSW
                     os.system("gfal-mkdir srm://t3se01.psi.ch/"+self.remoteOutputDir_)
-                    outputDir = self.options_.outputDir.rstrip("/").split("/")[-1]
+                    outputDir = self.options_.outputDir.rstrip("/").split("/")[-1] # to for instance direct output to /afs/cern.ch/work/u/user/outputDir
                     if outputDir==None:
                         today = datetime.today()
                         outputDir = 'OutCmsBatch_%s' % today.strftime("%d%h%y_%H%M")
