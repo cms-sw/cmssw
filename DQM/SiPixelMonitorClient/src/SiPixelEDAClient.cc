@@ -88,14 +88,14 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) {
   }
 
   firstLumi = true;
-  
-   //instantiate the three work horses of the client:
+ 
+  //instantiate the three work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
   sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_, Tier0Flag_);
   sipixelDataQuality_ = new SiPixelDataQuality(offlineXMLfile_);
 
    inputSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("inputSource", "source")); 
-// cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
+   // cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 
 //
@@ -127,6 +127,8 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begining of Run";
 //  cout<<"Entering SiPixelEDAClient::beginRun: "<<endl;
+
+  ///cout << "-----------NEW RUN---------------" << endl;
 
   if(firstLumi){
     
@@ -167,12 +169,15 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
     me->Reset();
   }
 
+  ///std::cout << "CREATING SUMMARY" << std::endl;
+  sipixelActionExecutor_->createSummary(iBooker,iGetter, isUpgrade_);
 
   if (firstLumi){
     iBooker.setCurrentFolder("Pixel/");
     iGetter.setCurrentFolder("Pixel/");
     // Creating Summary Histos:
-    sipixelActionExecutor_->createSummary(iBooker,iGetter, isUpgrade_);
+    //std::cout << "CREATING SUMMARY" << std::endl;
+    //sipixelActionExecutor_->createSummary(iBooker,iGetter, isUpgrade_);
     // Booking Deviation Histos:
     if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(iBooker, isUpgrade_);
     // Booking Efficiency Histos:
@@ -196,6 +201,9 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
   //
   nLumiSecs_ = lumiSeg.id().luminosityBlock() ;
+
+  ///std::cout << "NEW LUMISECTION n " << nLumiSecs_ << std::endl;
+  //nLumiSecs_++;
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
@@ -215,15 +223,7 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
   }   
 
-  if (actionOnRunEnd_){
-    
-  }
-
-  init = true;
   
-
-  init =true;
-
          
   //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
@@ -233,10 +233,12 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
 void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
 //  cout<<"In SiPixelEDAClient::endJob "<<endl;
   edm::LogInfo("SiPixelEDAClient") <<"[SiPixelEDAClient]: endjob called!";
+  ///cout << "[SiPixelEDAClient]: endjob called!" << endl;
+ sipixelActionExecutor_->createSummary(iBooker, iGetter, isUpgrade_);
 
   if(actionOnRunEnd_){
 
-    sipixelActionExecutor_->createSummary(iBooker, iGetter, isUpgrade_);
+    //sipixelActionExecutor_->createSummary(iBooker, iGetter, isUpgrade_);
 
     if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(iBooker,iGetter, isUpgrade_);
 
