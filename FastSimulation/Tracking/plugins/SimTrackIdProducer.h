@@ -31,12 +31,11 @@ private:
 
       // consumes 
       edm::EDGetTokenT<reco::TrackCollection>  trackToken;
-      //std::string trackQuality;
-      double max_Chi2;
+      double maxChi2_;
       std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
       bool filterTracks_ = false;
       reco::TrackBase::TrackQuality trackQuality_;
-      //std::vector<reco::TrackRef> trackRef;
+     
 };
 
 #endif
