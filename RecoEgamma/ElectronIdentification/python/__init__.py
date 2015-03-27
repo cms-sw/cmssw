@@ -3,6 +3,11 @@ import os
 __path__.append(os.path.dirname(os.path.abspath(__file__).rsplit('/RecoEgamma/ElectronIdentification/',1)[0])+'/cfipython/slc6_amd64_gcc491/RecoEgamma/ElectronIdentification')
 
 import ROOT
+import string
+import random
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
 
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
@@ -26,7 +31,7 @@ ebCutOff = 1.479
 %s
 """
 
-def noodle( pythonpset ):    
+def noodle( pythonpset, suffix ):    
     escaped_pset = config_template%(pythonpset)
     escaped_pset = escaped_pset.replace('"',"'")
     escaped_pset = escaped_pset.replace('\n','\\n')    
@@ -36,16 +41,17 @@ def noodle( pythonpset ):
     idname = idname.replace("')","")
     
     ROOT.gROOT.ProcessLine('#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"')
-    ROOT.gROOT.ProcessLine('const edm::ParameterSet& %s = edm::readPSetsFrom("%s")->getParameter<edm::ParameterSet>("%s");'%(idname,escaped_pset,idname))
+    ROOT.gROOT.ProcessLine('const edm::ParameterSet& %s_%s = edm::readPSetsFrom("%s")->getParameter<edm::ParameterSet>("%s");'%(idname,suffix,escaped_pset,idname))
     
-    return getattr(ROOT,idname)
+    return getattr(ROOT,'_'.join([idname,suffix]))
 
 class VIDElectronSelector:
     def __init__(self,pythonpset = None):        
         self.initialized_ = False
+        self.suffix_ = id_generator(7)
         self.instance_ = None
         if pythonpset is not None:
-            config = noodle(pythonpset)
+            config = noodle(pythonpset, self.suffix_)
             self.instance_ = VersionedGsfElectronSelector(config)
             self.initialized_ = True
         else:
@@ -56,7 +62,7 @@ class VIDElectronSelector:
         
     def initialize(self,pythonpset):
         if( self.initialized_ ): return
-        config = noodle(pythonpset)         
+        config = noodle(pythonpset, self.suffix_)         
         self.instance_.initialize(config)
         self.initialized_ = True
 
