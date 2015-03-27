@@ -184,7 +184,8 @@
   </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="17">
+  <class name="pat::Photon"  ClassVersion="18">
+   <version ClassVersion="18" checksum="1413598928"/>
    <version ClassVersion="17" checksum="2394457997"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="16" checksum="344001813"/>

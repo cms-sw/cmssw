@@ -383,6 +383,9 @@ namespace pat {
       float iEta_;
       float iPhi_;
 
+      float ecalPFClusIso_;
+      float hcalPFClusIso_;
+
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
       std::vector<uint16_t> associatedPackedFCandidateIndices_;

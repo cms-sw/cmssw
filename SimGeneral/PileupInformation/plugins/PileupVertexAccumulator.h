@@ -20,6 +20,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ConsumesCollector;
@@ -53,6 +54,8 @@ namespace cms {
   private:
     std::vector<float> pT_Hats_;
     std::vector<float> z_posns_;
+    edm::InputTag Mtag_;
+
   };
 }
 

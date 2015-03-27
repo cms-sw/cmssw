@@ -359,7 +359,21 @@ SiStripGainFromCalibTree::algoEndJob() {
    algoComputeMPVandGain();
    
    //FIXME: for the moment the tree is disabled in PCL, among other reasons the fact that the TFileSevice is not available @ Tier0
-   if(AlgoMode != "PCL") storeOnTree();
+   if(AlgoMode != "PCL"){
+      storeOnTree();
+      //also save the 2D monitor elements to this file as TH2D tfs
+      tfs = edm::Service<TFileService>().operator->();
+      tfs->make<TH2F> (*Charge_Vs_Index->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_Index_Absolute->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTIB->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTOB->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTIDP->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTIDM->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTECP1->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTECP2->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTECM1->getTH2F());
+      tfs->make<TH2F> (*Charge_Vs_PathlengthTECM2->getTH2F());
+   }
 }
 
 
@@ -400,7 +414,7 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
    for(unsigned int i=0;i<VInputFiles.size();i++){
       printf("Openning file %3i/%3i --> %s\n",i+1, (int)VInputFiles.size(), (char*)(VInputFiles[i].c_str())); fflush(stdout);
-      TChain* tree = new TChain("commonCalibrationTree/tree");
+      TChain* tree = new TChain("gainCalibrationTree/tree");
       tree->Add(VInputFiles[i].c_str());
 
       TString EventPrefix("");
