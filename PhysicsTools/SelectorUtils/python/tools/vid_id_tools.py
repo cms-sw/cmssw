@@ -78,3 +78,24 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'muoMuonIDs',idName)
         
+####
+# Photons
+####
+
+#turns on the VID photon ID producer, possibly with extra options
+# for PAT and/or MINIAOD
+def switchOnVIDPhotonIdProducer(process):
+    process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
+    print 'Added \'egmPhotonIDs\' to process definition!'
+
+def setupVIDPhotonSelection(process,cutflow,patProducer=None):
+    if not hasattr(process,'egmPhotonIDs'):
+        raise Exception('VIDProducerNotAvailable','egmPhotonIDs producer not available in process!')
+    setupVIDSelection(process.egmPhotonIDs,cutflow)
+    #add to PAT photon producer if available or specified
+    if hasattr(process,'patPhotons') or patProducer is not None:
+        if patProducer is None:
+            patProducer = process.patPhotons
+        idName = cutflow.idName.value()
+        addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName)
+        

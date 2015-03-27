@@ -77,6 +77,17 @@ class VersionedSelector : public Selector<T> {
     this->setIgnored(ret);
     return (bool)ret;
   }
+
+  virtual bool operator()(const T& ref) 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    override final 
+#endif
+  {
+    this->retInternal_.set(false);
+    this->operator()(ref, this->retInternal_);
+    this->setIgnored(this->retInternal_);
+    return (bool)this->retInternal_;
+  }
   
   virtual bool operator()(const T& ref) override final {
     this->retInternal_.set(false);
@@ -96,7 +107,7 @@ class VersionedSelector : public Selector<T> {
     }
     return this->operator()(ref, ret);
   }
-
+  
   using Selector<T>::operator();
 
   const unsigned char* md55Raw() const { return id_md5_; } 
