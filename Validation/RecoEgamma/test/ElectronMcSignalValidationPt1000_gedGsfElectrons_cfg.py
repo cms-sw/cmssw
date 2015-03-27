@@ -34,7 +34,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
-process.load("Validation.RecoEgamma.ElectronMcSignalPt1000Validator_gedGsfElectrons_cfi")
+process.load("Validation.RecoEgamma.ElectronMcSignalValidatorPt1000_gedGsfElectrons_cfi")
 
 # load DQM
 process.load("DQMServices.Core.DQM_cfg")
