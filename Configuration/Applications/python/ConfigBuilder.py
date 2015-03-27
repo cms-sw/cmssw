@@ -411,7 +411,14 @@ class ConfigBuilder(object):
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDASQuery(self._options.dasquery,self.process.source)
 
-	if self._options.inputCommands:
+	##drop LHEXMLStringProduct on input to save memory if appropriate
+	if 'GEN' in self.stepMap.keys():
+        	if self._options.inputCommands:
+        		self._options.inputCommands+=',drop LHEXMLStringProduct_*_*_*,'
+		else:
+			self._options.inputCommands='keep *, drop LHEXMLStringProduct_*_*_*,'    
+
+	if self.process.source and self._options.inputCommands:
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
 			# remove whitespace around the keep/drop statements
