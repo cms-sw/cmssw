@@ -10,15 +10,15 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( $2 == ALL ) then
-  set tables = ( Fake GRun HIon PIon 50nsGRun )
+  set tables = ( GRun 50nsGRun HIon PIon 50ns_5e33_v1 Fake )
 else if ( $2 == DEV ) then
-  set tables = ( GRun HIon PIon 50nsGRun )
+  set tables = ( GRun 50nsGRun HIon PIon )
 else if ( $2 == FULL ) then
   set tables = ( FULL )
 else if ( $2 == FAKE ) then
   set tables = ( Fake )
 else if ( $2 == FROZEN ) then
-  set tables = ( Fake )
+  set tables = ( 50ns_5e33_v1 Fake )
 else
   set tables = ( $2 )
 endif
@@ -45,7 +45,9 @@ foreach gtag ( $1 )
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
     if ($table == Fake) then
       set basegt = auto:run1_${infix}_${table}
-    else
+    else if ($table == 50ns_5e33_v1) then
+      set basegt = auto:run2_${infix}_50nsGRun
+    else 
       set basegt = auto:run2_${infix}_${table}
     endif
     set autogt = "--globaltag=${basegt}"

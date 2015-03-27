@@ -1,4 +1,4 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V63 (CMSSW_7_4_0_pre9)
+# /dev/CMSSW_7_4_0/50nsGRun/V64 (CMSSW_7_4_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,7 +7,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load( "FastSimulation.HighLevelTrigger.HLTSetup_cff" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V63')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V64')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
