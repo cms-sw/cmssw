@@ -32,7 +32,7 @@ class RunPromptReco:
             msg = "No --scenario specified"
             raise RuntimeError, msg
         if self.globalTag == None:
-            msg = "No --globaltag specified"
+            msg = "No --global-tag specified"
             raise RuntimeError, msg
         if self.inputLFN == None:
             msg = "No --lfn specified"
@@ -108,7 +108,7 @@ class RunPromptReco:
 
 if __name__ == '__main__':
     valid = ["scenario=", "reco", "aod", "dqm", "dqmio", "no-output",
-             "globaltag=", "lfn=", "alcarecos=" ]
+             "global-tag=", "lfn=", "alcarecos=" ]
     usage = \
 """
 RunPromptReco.py <options>
@@ -120,15 +120,15 @@ Where options are:
  --dqm (to enable DQM output)
  --dqmio (to enable DQMIO output)
  --no-output (create config with no output, overrides other settings)
- --globaltag=GlobalTag
+ --global-tag=GlobalTag
  --lfn=/store/input/lfn
  --alcarecos=plus_seprated_list
 
 Example:
 
-python RunPromptReco.py --scenario=cosmics --reco --aod --dqmio --globaltag GLOBALTAG::ALL --lfn=/store/whatever --alcarecos=TkAlCosmics0T+MuAlGlobalCosmics
+python RunPromptReco.py --scenario=cosmics --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlCosmics0T+MuAlGlobalCosmics
 
-python RunPromptReco.py --scenario=pp --reco --aod --dqmio --globaltag GLOBALTAG::ALL --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias
+python RunPromptReco.py --scenario=pp --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias
 
 """
     try:
@@ -154,7 +154,7 @@ python RunPromptReco.py --scenario=pp --reco --aod --dqmio --globaltag GLOBALTAG
             recoinator.writeDqmio = True
         if opt == "--no-output":
             recoinator.noOutput = True
-        if opt == "--globaltag":
+        if opt == "--global-tag":
             recoinator.globalTag = arg
         if opt == "--lfn" :
             recoinator.inputLFN = arg
