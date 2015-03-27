@@ -124,9 +124,7 @@ void  RPCDqmClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & i
 
   float   rpcevents = minimumEvents_;
   if(RPCEvents_) {
-    std::cout<<"Found Event histogram "<<std::endl;
-    rpcevents = RPCEvents_ ->getBinContent(1);}
-  std::cout<<"Events are: "<<rpcevents<<std::endl;
+      rpcevents = RPCEvents_ ->getBinContent(1);}
   if(rpcevents < minimumEvents_) {return;}
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: Client operations";
