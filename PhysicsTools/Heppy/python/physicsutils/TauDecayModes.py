@@ -41,8 +41,15 @@ class TauDecayModes( object ):
     def __str__(self):
         return str( self.decayModes )
 
-    def genDecayModeInt(self, c):
-        dm = self.genDecayMode(c)
+    def genDecayModeInt(self, daughters):
+        dm = self.genDecayMode(daughters)
+        return self.translateGenModeToInt(dm)
+
+    def genDecayModeFromJetInt(self, c):
+        dm = self.genDecayModeFromGenJet(c)
+        return self.translateGenModeToInt(dm)
+
+    def translateGenModeToInt(self, dm):
         if dm in self.decayModeNames:
             return self.nameToInt(dm)
         elif dm == 'electron':
@@ -56,12 +63,22 @@ class TauDecayModes( object ):
         return -99
 
     @staticmethod
-    def genDecayMode(c):
+    def genDecayModeFromGenJet(c):
         ''' Returns generated tau decay mode. Needs to be called on genJet
         as stored in pat::Tau, if available.
 
         Translated from PhysicsTools/JetMCUtils/interface/JetMCTag.h,
         which is not available in FWlite.
+        '''
+
+        daughters = c.daughterPtrVector()
+
+        return TauDecayModes.genDecayMode(daughters)
+
+    @staticmethod
+    def genDecayMode(daughters):
+        ''' Returns the generated tau decay mode based on a passed list of all
+        final daughters before further decay (as contained in miniAOD).
         '''
         numElectrons = 0
         numMuons = 0
@@ -69,8 +86,6 @@ class TauDecayModes( object ):
         numNeutralHadrons = 0
         numPhotons = 0
   
-        daughters = c.daughterPtrVector()
-
         for daughter in daughters:
             pdg_id = abs(daughter.pdgId())
             if pdg_id == 22:
@@ -82,9 +97,9 @@ class TauDecayModes( object ):
             else:
                 if daughter.charge() != 0:
                     numChargedHadrons += 1
-                else:
+                elif pdg_id not in [12, 14, 16]:
                     numNeutralHadrons += 1
-  
+
         if numElectrons == 1:
             return "electron"
         if numMuons == 1:
