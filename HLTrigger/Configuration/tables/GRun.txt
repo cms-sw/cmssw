@@ -456,8 +456,8 @@ HLT_HcalUTCA_v*							# JIRA: CMSHLT-306
 HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
 
 AlCa_RPCMuonNoTriggers_v*					# JIRA: CMSHLT-231
-AlCa_RPCMuonNoHits_v*						# JIRA: CMSHLT-23
-AlCa_RPCMuonNormalisation_v*					# JIRA: CMSHLT-23
+AlCa_RPCMuonNoHits_v*						# JIRA: CMSHLT-231
+AlCa_RPCMuonNormalisation_v*					# JIRA: CMSHLT-231
 
 AlCa_LumiPixels_Random_v*					# JIRA: CMSHLT-239
 AlCa_LumiPixels_ZeroBias_v*					# JIRA: CMSHLT-239
