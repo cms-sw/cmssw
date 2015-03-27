@@ -114,7 +114,7 @@ end
 
 # running each HLT trigger path individually one by one
 
-if ( ($2 != all) && ($2 != dev) && ($2 != frozen) && ($2 != full) ) then
+if ( ($2 != all) && ($2 != dev) && ($2 != full) && ($2 != fake) && ($2 != frozen) ) then
   ./runIntegration.csh $1 $2
 endif
 
