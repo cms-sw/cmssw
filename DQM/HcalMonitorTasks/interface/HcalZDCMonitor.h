@@ -5,6 +5,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 #include <cmath>
@@ -21,7 +26,8 @@ public:
 	~HcalZDCMonitor();
 	void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
 	void processEvent(const ZDCDigiCollection& digi,
-			const ZDCRecHitCollection& rechit);
+			const ZDCRecHitCollection& rechit,
+			const HcalUnpackerReport& report);
 	void reset();
 	void endLuminosityBlock(void);
 private:
@@ -34,6 +40,16 @@ private:
 	MonitorElement* ProblemsVsLB_ZDC;
 
 	int NLumiBlocks_;
+	int EventCounter;//events in lumi
+
+	int TotalChannelErrors[18];//total events with an error per channel in a LS
+	int DeadChannelCounter[18];
+	int ColdChannelCounter[18];
+	bool DeadChannelError[18];
+	bool HotChannelError[18];
+	bool DigiErrorCAPID[18];
+	bool DigiErrorDVER[18];
+	bool ChannelHasDigiError[18];
 
 	std::vector<double> ChannelWeighting_; //Quality index(QI) see description below
 

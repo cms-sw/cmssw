@@ -367,7 +367,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	return;
 }
 
-void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHitCollection& rechit) {
+void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHitCollection& rechit, const HcalUnpackerReport& report) {
 	if (fVerbosity > 0)
 		std::cout << "<HcalZDCMonitor::processEvent> Processing Event..." << std::endl;
 	if (showTiming) 
@@ -388,6 +388,51 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	int digiSaturation = 127;
 	//double ZDCQIEConst = 2.6; 
 
+	if (digi.size()>0) {
+		ZDC_Digi_Errors->Fill(-1,-1,1);
+		ZDC_Hot_Channel_Errors->Fill(-1,-1,1);
+		ZDC_TotalChannelErrors->Fill(-1,-1,1);
+		ZDC_Cold_Channel_Errors->Fill(-1,-1,1);
+		ZDC_Dead_Channel_Errors->Fill(-1,-1,1);
+		EventCounter+=1;
+	}
+
+	for (int i=0;i<18;++i) {
+		ChannelHasDigiError[i]=false;
+		DigiErrorDVER[i]=false;
+		DigiErrorCAPID[i]=false;
+		HotChannelError[i]=false;
+		DeadChannelError[i]=true;
+	}
+
+	typedef std::vector<DetId> DetIdVector;
+
+	for (DetIdVector::const_iterator baddigi_iter=report.bad_quality_begin();
+			baddigi_iter != report.bad_quality_end();
+			++baddigi_iter)
+	{
+		DetId id(baddigi_iter->rawId());
+		if (id.det()==DetId::Calo && id.subdetId()==HcalZDCDetId::SubdetectorId)
+		{
+			HcalZDCDetId id(baddigi_iter->rawId());
+			int iSide = id.zside();
+			int iSection = id.section();
+			int iChannel = id.channel();
+			if(iSection==1 || iSection==2){
+				ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+				DeadChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false;
+				//do stuff
+			}//end of if i(Section==1 || iSection==2) 
+		}
+		else continue;
+
+	}//end unpacker section
+
+
+	// ChannelHasError[18]:  [0-8] are iSide=1, [9-17] are iSide=2                                                                                      
+	//  First 5 bins ([0-4],[9-13]) are EM bins                                                                                                         
+	//  Last 4 bins are HAD bins   
+
 	for (ZDCDigiCollection::const_iterator digi_iter = digi.begin(); 
 			digi_iter != digi.end(); ++digi_iter) 
 	{
@@ -403,70 +448,184 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 		while (fData.size()>fTS)
 			fData.pop_back(); // delete last elements 
 
-		fSum = 0.;
-		bool saturated = false;
-		for (unsigned int i = 0; i < fTS; ++i) 
+		if (iSection==1 || iSection==2)
 		{
-			//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
-			fData[i]=digi[i].nominal_fC();
-			if (digi[i].adc()==digiSaturation){
-				saturated=true;
+
+			////////////////////////////////////////NEW Fall 2012 Stuff/////////////////////////////////////////////
+
+			///////////////////////DEAD CELL ERROR///////////////////////////
+			///Right now we are simply checking that the digi exists
+			DeadChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false;
+			////END DEAD CELL CHECK
+
+			int iCapID=27;
+			int iCapIDPrevious=27;
+			int HotCounter=0;
+			int ColdCounter=0;
+
+			for (int iTS=0; iTS<digi.size(); ++iTS) //looping over all ten timeslices
+			{
+				////////////////HOT CELL////////////////////////////////
+				if (digi[iTS].adc()==127) HotCounter+=1;
+				else HotCounter=0;//require 3 consecutive saturated Time Slices in a single channel in a single event
+				if (HotCounter >= 3) HotChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true; 
+				/////////////END HOT CELL////////////////////////
+
+
+				////////////////////////Cold Channel Error Counter//////////
+				if (digi[iTS].adc()<=10) ColdCounter+=1;
+				if (ColdCounter==10) 
+				{
+					ColdChannelCounter[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]+=1;
+				}
+				///////////////////////END Cold Channel Error//////////////////
+
+
+				////////////CHECK DIGI HEALTH///////////////
+				////The first if statement makes sure this digi was not in the unpacker report
+				if ((ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false))
+				{
+					iCapID=digi.sample(iTS).capid();
+					if (iTS>0) iCapIDPrevious=digi.sample(iTS-1).capid();
+
+					if (digi.sample(iTS).dv()==0 || digi.sample(iTS).er()==1)
+					{
+						ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+						DigiErrorDVER[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+						break;
+					}
+					else
+					{
+						if (iTS==0) continue;
+						else
+						{
+							if ((iCapID-iCapIDPrevious+4)%4!=1)
+							{
+								ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+								DigiErrorCAPID[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+								break;
+							}//end of capid rotation check
+						}//checking if TS!=0
+					} // end of the check for dv/er
+				}//END of unpacker double check
+			} // end of TS loop
+
+			////////////END OF Fall 2012 Additions///////////////////////////
+
+
+			fSum = 0.;
+			bool saturated = false;
+			for (unsigned int i = 0; i < fTS; ++i) 
+			{
+				//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
+				fData[i]=digi[i].nominal_fC();
+				if (digi[i].adc()==digiSaturation){
+					saturated=true;
+				}
 			}
-		}
 
-		double fTSMean = 0;
-		if (fData.size()>6)
-			fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
-		//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl; 
-		if (saturated==true){
-			h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);
-		}
+			double fTSMean = 0;
+			if (fData.size()>6)
+				fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
+			//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl; 
+			if (saturated==true){
+				h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);
+			}
 
-		if (iSection == 1) 
-		{    // EM
-			if (iSide == 1) {   // Plus
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCP_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				}
-				if (fSum > digiThresh) {
-					h_ZDCP_EM_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCP_EM_TSMean[iChannel - 1]->Fill(fTSMean);
-					//std::cout<< "fSum " << fSum << " fTSMean " << fTSMean <<std::endl;
-				}
-			} // Plus
-			if (iSide == -1) {  // Minus
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCM_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				}
-				if (fSum > digiThresh) {
-					h_ZDCM_EM_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCM_EM_TSMean[iChannel - 1]->Fill(fTSMean);
-				}
-			} // Minus
-		}// EM
+			if (iSection == 1) 
+			{    // EM
+				if (iSide == 1) {   // Plus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCP_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCP_EM_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCP_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+						//std::cout<< "fSum " << fSum << " fTSMean " << fTSMean <<std::endl;
+					}
+				} // Plus
+				if (iSide == -1) {  // Minus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCM_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCM_EM_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCM_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+					}
+				} // Minus
+			}// EM
 
-		else if (iSection == 2) 
-		{    // HAD
-			if (iSide == 1) {   // Plus 
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCP_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				}
-				if (fSum > digiThresh) {
-					h_ZDCP_HAD_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCP_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
-				}
-			} // Plus
-			if (iSide == -1) {  // Minus
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				} 
-				if (fSum > digiThresh) {
-					h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
-				}
-			}// Minus
-		} // HAD 
+			else if (iSection == 2) 
+			{    // HAD
+				if (iSide == 1) {   // Plus 
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCP_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCP_HAD_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCP_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
+					}
+				} // Plus
+				if (iSide == -1) {  // Minus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					} 
+					if (fSum > digiThresh) {
+						h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
+					}
+				}// Minus
+			} // HAD 
+		}//end of if (iSection==1 || iSection==2)
 	} // loop on zdc digi collection
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+	// Fill Fall 2012 histograms
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	int numdigierrors=0;
+	int numhoterrors=0;
+
+	for (int i = 0; i<18; i++){
+		if (ChannelHasDigiError[i]==true)
+		{
+			++numdigierrors;
+			ZDC_Digi_Errors->Fill(i/9,i%9,1);
+		}
+		if (DigiErrorDVER[i]==true)
+		{
+			ZDC_DigiErrors_DVER->Fill(i/9,i%9,1);
+		}
+		if (DigiErrorCAPID[i]==true)
+		{
+			ZDC_DigiErrors_CAPID->Fill(i/9,i%9,1);
+		}
+		if(HotChannelError[i]==true)
+		{
+			++numhoterrors;
+			ZDC_Hot_Channel_Errors->Fill(i/9,(i%9),1);
+		}
+		if(DeadChannelError[i]==true)
+		{
+			DeadChannelCounter[i]+=1;
+		}
+		// If any of the above is true, fill the total channel errors
+		if (ChannelHasDigiError[i] || HotChannelError[i])
+		{
+			ZDC_TotalChannelErrors->Fill(i/9,i%9,1);
+			TotalChannelErrors[i]+=1;
+		}
+	}//end the for i<18 loop
+
+
+	if (numdigierrors>0)
+		ZDC_DigiErrorsVsLS->Fill(lumiblock,numdigierrors); //could make this ->Fill(currentLS,1) if I want to count each event as only having one error even if multiple channels are in error
+	if (numhoterrors>0)
+		ZDC_HotChannelErrorsVsLS->Fill(lumiblock,numhoterrors);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+	//End of  filling Fall 2012  histograms
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	//--------------------------------------
