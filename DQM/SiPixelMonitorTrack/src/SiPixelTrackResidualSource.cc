@@ -1169,7 +1169,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      z = clustgp.z();
          for (int i = 0; i < noOfLayers; i++)
          {
-           if (DBlayer == i - 1) {
+           if (DBlayer == i + 1) {
               meClPosLayersNotOnTrack.at(i)->Fill(z,phi);
               meClSizeNotOnTrack_layers.at(i)->Fill((*di).size());
               meClSizeXNotOnTrack_layers.at(i)->Fill((*di).sizeX());
