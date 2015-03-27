@@ -42,126 +42,6 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	NZDC_QualityIndexVsLB_ = ib.book1D("NZDC_QualityIndexVSLB","Quality Index for the ZDC- vs  LS; LS; Quality Index", NLumiBlocks_,0,NLumiBlocks_);
 	EventsVsLS             = ib.book1D("EventsVsLS", "Total Number of Events per LS; LS; # of Events", NLumiBlocks_,0,NLumiBlocks_);
 
-	// digi errors
-	ib.setCurrentFolder(baseFolder_ + "Errors/Digis");
-        ZDC_Digi_Errors = ib.book2D("ZDC_Digi_Errors", "Raw Number of Digi Errors Per ZDC Channel", 2, 0, 2, 9, 0, 9);
-        ZDC_Digi_Errors->setBinLabel(1,"ZDC+",1);
-        ZDC_Digi_Errors->setBinLabel(2,"ZDC-",1);
-	ZDC_Digi_Errors->setBinLabel(1,"EM1",2);
-        ZDC_Digi_Errors->setBinLabel(2,"EM2",2);
-        ZDC_Digi_Errors->setBinLabel(3,"EM3",2);
-        ZDC_Digi_Errors->setBinLabel(4,"EM4",2);
-        ZDC_Digi_Errors->setBinLabel(5,"EM5",2);
-        ZDC_Digi_Errors->setBinLabel(6,"HAD1",2);
-        ZDC_Digi_Errors->setBinLabel(7,"HAD2",2);
-        ZDC_Digi_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Digi_Errors->setBinLabel(9,"HAD4",2);
-        ZDC_Digi_Errors->getTH2F()->SetOption("coltext");
-
-
-	ZDC_DigiErrorsVsLS = ib.book1D("ZDC_DigiErrorsVsLS","Total Number of (Digi) Errors found in the ZDCs vs. Lumi Section;LS;# errors",NLumiBlocks_,0,NLumiBlocks_);
-
-	ib.setCurrentFolder(baseFolder_ + "Errors/Digis/DigiErrorCauses");
-	ZDC_DigiErrors_DVER = ib.book2D("ZDC_DigiErrors_DVER","Raw Number of Digi Errors Caused by Finding .dv()=0 or .er()=1",2,0,2,9,0,9);
-	ZDC_DigiErrors_DVER->setBinLabel(1,"ZDC+",1);
-        ZDC_DigiErrors_DVER->setBinLabel(2,"ZDC-",1);
-	ZDC_DigiErrors_DVER->setBinLabel(1,"EM1",2);
-        ZDC_DigiErrors_DVER->setBinLabel(2,"EM2",2);
-        ZDC_DigiErrors_DVER->setBinLabel(3,"EM3",2);
-        ZDC_DigiErrors_DVER->setBinLabel(4,"EM4",2);
-        ZDC_DigiErrors_DVER->setBinLabel(5,"EM5",2);
-        ZDC_DigiErrors_DVER->setBinLabel(6,"HAD1",2);
-        ZDC_DigiErrors_DVER->setBinLabel(7,"HAD2",2);
-        ZDC_DigiErrors_DVER->setBinLabel(8,"HAD3",2);
-        ZDC_DigiErrors_DVER->setBinLabel(9,"HAD4",2);
-        ZDC_DigiErrors_DVER->getTH2F()->SetOption("coltext");
-
-	ZDC_DigiErrors_CAPID = ib.book2D("ZDC_DigiErrors_CAPID","Raw Number of Digi Errors Caused by the Caps not Alternating",2,0,2,9,0,9);
-        ZDC_DigiErrors_CAPID->setBinLabel(1,"ZDC+",1);
-        ZDC_DigiErrors_CAPID->setBinLabel(2,"ZDC-",1);
-	ZDC_DigiErrors_CAPID->setBinLabel(1,"EM1",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(2,"EM2",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(3,"EM3",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(4,"EM4",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(5,"EM5",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(6,"HAD1",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(7,"HAD2",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(8,"HAD3",2);
-        ZDC_DigiErrors_CAPID->setBinLabel(9,"HAD4",2);
-        ZDC_DigiErrors_CAPID->getTH2F()->SetOption("coltext");
-
-
-	// hot channels
-	ib.setCurrentFolder(baseFolder_ + "Errors/HotChannel");
-        ZDC_Hot_Channel_Errors = ib.book2D("ZDC_Hot_Channel_Errors", "Raw Number of Times Each Channel Appeared Hot", 2, 0, 2, 9, 0, 9);
-        ZDC_Hot_Channel_Errors->setBinLabel(1,"ZDC+",1);
-        ZDC_Hot_Channel_Errors->setBinLabel(2,"ZDC-",1);
-        ZDC_Hot_Channel_Errors->setBinLabel(1,"EM1",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(2,"EM2",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(3,"EM3",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(4,"EM4",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(5,"EM5",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(6,"HAD1",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(7,"HAD2",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);    
-        ZDC_Hot_Channel_Errors->getTH2F()->SetOption("coltext");
-
-
-	ZDC_HotChannelErrorsVsLS = ib.book1D("ZDC_HotChannelErrorsVsLS","Total Number of Hot Channel Errors in the ZDCs vs. Lumi Section; LS; # Hot channels", NLumiBlocks_,0,NLumiBlocks_);
-
-	// dead channels
-	ib.setCurrentFolder(baseFolder_ + "Errors/DeadChannel");
-        ZDC_Dead_Channel_Errors = ib.book2D("ZDC_Dead_Channel_Errors", "Raw Number of Times Each Channel Appeared Dead", 2, 0, 2, 9, 0, 9);
-        ZDC_Dead_Channel_Errors->setBinLabel(1,"ZDC+",1);
-        ZDC_Dead_Channel_Errors->setBinLabel(2,"ZDC-",1);
-        ZDC_Dead_Channel_Errors->setBinLabel(1,"EM1",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(2,"EM2",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(3,"EM3",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(4,"EM4",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(5,"EM5",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(6,"HAD1",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(7,"HAD2",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);    
-        ZDC_Dead_Channel_Errors->getTH2F()->SetOption("coltext");
-        
-	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
-
-	// cold channels
-	ib.setCurrentFolder(baseFolder_ + "Errors/ColdChannel");
-        ZDC_Cold_Channel_Errors = ib.book2D("ZDC_Cold_Channel_Errors", "Raw Number of Times Each Channel Appeared Cold", 2, 0, 2, 9, 0, 9);
-        ZDC_Cold_Channel_Errors->setBinLabel(1,"ZDC+",1);
-        ZDC_Cold_Channel_Errors->setBinLabel(2,"ZDC-",1);
-        ZDC_Cold_Channel_Errors->setBinLabel(1,"EM1",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(2,"EM2",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(3,"EM3",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(4,"EM4",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(5,"EM5",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(6,"HAD1",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(7,"HAD2",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);    
-        ZDC_Cold_Channel_Errors->getTH2F()->SetOption("coltext");
-        
-	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
-
-	// total errors
-	ib.setCurrentFolder(baseFolder_ + "Errors");
-        ZDC_TotalChannelErrors = ib.book2D("ZDC_TotalChannelErrors","Total Number of Errors(Digi Error, Hot Cell or Dead Cell) Per Channel in the ZDC" ,2,0,2,9,0,9);
-        ZDC_TotalChannelErrors->setBinLabel(1,"ZDC+",1);
-        ZDC_TotalChannelErrors->setBinLabel(2,"ZDC-",1);
-        ZDC_TotalChannelErrors->setBinLabel(1,"EM1",2);
-        ZDC_TotalChannelErrors->setBinLabel(2,"EM2",2);
-        ZDC_TotalChannelErrors->setBinLabel(3,"EM3",2);
-        ZDC_TotalChannelErrors->setBinLabel(4,"EM4",2);
-        ZDC_TotalChannelErrors->setBinLabel(5,"EM5",2);
-        ZDC_TotalChannelErrors->setBinLabel(6,"HAD1",2);
-        ZDC_TotalChannelErrors->setBinLabel(7,"HAD2",2);
-        ZDC_TotalChannelErrors->setBinLabel(8,"HAD3",2);
-        ZDC_TotalChannelErrors->setBinLabel(9,"HAD4",2);
-        ZDC_TotalChannelErrors->getTH2F()->SetOption("coltext");
-        
 	//
 	h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
 	h_2D_charge->setBinLabel(1,"ZDC+",1);
@@ -228,10 +108,131 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	h_2D_saturation->setBinLabel(8,"HAD3",2);
 	h_2D_saturation->setBinLabel(9,"HAD4",2);
 
+
+	// digi errors
+	ib.setCurrentFolder(baseFolder_ + "/Errors/Digis");
+        ZDC_Digi_Errors = ib.book2D("ZDC_Digi_Errors", "Raw Number of Digi Errors Per ZDC Channel", 2, 0, 2, 9, 0, 9);
+        ZDC_Digi_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Digi_Errors->setBinLabel(2,"ZDC-",1);
+	ZDC_Digi_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Digi_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Digi_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Digi_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Digi_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Digi_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Digi_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Digi_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Digi_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Digi_Errors->getTH2F()->SetOption("coltext");
+
+
+	ZDC_DigiErrorsVsLS = ib.book1D("ZDC_DigiErrorsVsLS","Total Number of (Digi) Errors found in the ZDCs vs. Lumi Section;LS;# errors",NLumiBlocks_,0,NLumiBlocks_);
+
+	ib.setCurrentFolder(baseFolder_ + "/Errors/Digis/DigiErrorCauses");
+	ZDC_DigiErrors_DVER = ib.book2D("ZDC_DigiErrors_DVER","Raw Number of Digi Errors Caused by Finding .dv()=0 or .er()=1",2,0,2,9,0,9);
+	ZDC_DigiErrors_DVER->setBinLabel(1,"ZDC+",1);
+        ZDC_DigiErrors_DVER->setBinLabel(2,"ZDC-",1);
+	ZDC_DigiErrors_DVER->setBinLabel(1,"EM1",2);
+        ZDC_DigiErrors_DVER->setBinLabel(2,"EM2",2);
+        ZDC_DigiErrors_DVER->setBinLabel(3,"EM3",2);
+        ZDC_DigiErrors_DVER->setBinLabel(4,"EM4",2);
+        ZDC_DigiErrors_DVER->setBinLabel(5,"EM5",2);
+        ZDC_DigiErrors_DVER->setBinLabel(6,"HAD1",2);
+        ZDC_DigiErrors_DVER->setBinLabel(7,"HAD2",2);
+        ZDC_DigiErrors_DVER->setBinLabel(8,"HAD3",2);
+        ZDC_DigiErrors_DVER->setBinLabel(9,"HAD4",2);
+        ZDC_DigiErrors_DVER->getTH2F()->SetOption("coltext");
+
+	ZDC_DigiErrors_CAPID = ib.book2D("ZDC_DigiErrors_CAPID","Raw Number of Digi Errors Caused by the Caps not Alternating",2,0,2,9,0,9);
+        ZDC_DigiErrors_CAPID->setBinLabel(1,"ZDC+",1);
+        ZDC_DigiErrors_CAPID->setBinLabel(2,"ZDC-",1);
+	ZDC_DigiErrors_CAPID->setBinLabel(1,"EM1",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(2,"EM2",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(3,"EM3",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(4,"EM4",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(5,"EM5",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(6,"HAD1",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(7,"HAD2",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(8,"HAD3",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(9,"HAD4",2);
+        ZDC_DigiErrors_CAPID->getTH2F()->SetOption("coltext");
+
+
+	// hot channels
+	ib.setCurrentFolder(baseFolder_ + "/Errors/HotChannel");
+        ZDC_Hot_Channel_Errors = ib.book2D("ZDC_Hot_Channel_Errors", "Raw Number of Times Each Channel Appeared Hot", 2, 0, 2, 9, 0, 9);
+        ZDC_Hot_Channel_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Hot_Channel_Errors->setBinLabel(2,"ZDC-",1);
+        ZDC_Hot_Channel_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Hot_Channel_Errors->getTH2F()->SetOption("coltext");
+
+
+	ZDC_HotChannelErrorsVsLS = ib.book1D("ZDC_HotChannelErrorsVsLS","Total Number of Hot Channel Errors in the ZDCs vs. Lumi Section; LS; # Hot channels", NLumiBlocks_,0,NLumiBlocks_);
+
+	// dead channels
+	ib.setCurrentFolder(baseFolder_ + "/Errors/DeadChannel");
+        ZDC_Dead_Channel_Errors = ib.book2D("ZDC_Dead_Channel_Errors", "Raw Number of Times Each Channel Appeared Dead", 2, 0, 2, 9, 0, 9);
+        ZDC_Dead_Channel_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Dead_Channel_Errors->setBinLabel(2,"ZDC-",1);
+        ZDC_Dead_Channel_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Dead_Channel_Errors->getTH2F()->SetOption("coltext");
+
+	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);
+
+	// cold channels
+	ib.setCurrentFolder(baseFolder_ + "/Errors/ColdChannel");
+        ZDC_Cold_Channel_Errors = ib.book2D("ZDC_Cold_Channel_Errors", "Raw Number of Times Each Channel Appeared Cold", 2, 0, 2, 9, 0, 9);
+        ZDC_Cold_Channel_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Cold_Channel_Errors->setBinLabel(2,"ZDC-",1);
+        ZDC_Cold_Channel_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Cold_Channel_Errors->getTH2F()->SetOption("coltext");
+
+	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);
+
+	// total errors
+	ib.setCurrentFolder(baseFolder_ + "/Errors");
+        ZDC_TotalChannelErrors = ib.book2D("ZDC_TotalChannelErrors","Total Number of Errors(Digi Error, Hot Cell or Dead Cell) Per Channel in the ZDC" ,2,0,2,9,0,9);
+        ZDC_TotalChannelErrors->setBinLabel(1,"ZDC+",1);
+        ZDC_TotalChannelErrors->setBinLabel(2,"ZDC-",1);
+        ZDC_TotalChannelErrors->setBinLabel(1,"EM1",2);
+        ZDC_TotalChannelErrors->setBinLabel(2,"EM2",2);
+        ZDC_TotalChannelErrors->setBinLabel(3,"EM3",2);
+        ZDC_TotalChannelErrors->setBinLabel(4,"EM4",2);
+        ZDC_TotalChannelErrors->setBinLabel(5,"EM5",2);
+        ZDC_TotalChannelErrors->setBinLabel(6,"HAD1",2);
+        ZDC_TotalChannelErrors->setBinLabel(7,"HAD2",2);
+        ZDC_TotalChannelErrors->setBinLabel(8,"HAD3",2);
+        ZDC_TotalChannelErrors->setBinLabel(9,"HAD4",2);
+        ZDC_TotalChannelErrors->getTH2F()->SetOption("coltext");
+
 	ib.setCurrentFolder(baseFolder_ + "/Digis");
 
 	for (int i = 0; i < 5; ++i) {
-		// pulse Plus Side 
+		// pulse Plus Side
 		sprintf(title, "h_ZDCP_EMChan_%i_Pulse", i + 1);
 		sprintf(name, "ZDC Plus EM Section Pulse for channel %i", i + 1);
 		h_ZDCP_EM_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
@@ -270,37 +271,37 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	}
 
 	for (int i = 0; i < 4; ++i) {
-		// pulse Plus Side 
+		// pulse Plus Side
 		sprintf(title, "h_ZDCP_HADChan_%i_Pulse", i + 1);
 		sprintf(name, "ZDC Plus HAD Section Pulse for channel %i", i + 1);
 		h_ZDCP_HAD_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 		h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
 		h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
-		// pulse Minus Side 
+		// pulse Minus Side
 		sprintf(title, "h_ZDCM_HADChan_%i_Pulse", i + 1);
 		sprintf(name, "ZDC Minus HAD Section Pulse for channel %i", i + 1);
 		h_ZDCM_HAD_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 		h_ZDCM_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
 		h_ZDCM_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
-		// integrated charge over 10 time samples 
+		// integrated charge over 10 time samples
 		sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
 		sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
 		h_ZDCP_HAD_Charge[i] = ib.book1D(title, name, 1000, 0., 30000.);
 		h_ZDCP_HAD_Charge[i]->setAxisTitle("Charge (fC)",1);
 		h_ZDCP_HAD_Charge[i]->setAxisTitle("Events",2);
-		// integrated charge over 10 time samples 
+		// integrated charge over 10 time samples
 		sprintf(title, "h_ZDCM_HADChan_%i_Charge", i + 1);
 		sprintf(name, "ZDC Minus HAD Section Charge for channel %i", i + 1);
 		h_ZDCM_HAD_Charge[i] = ib.book1D(title, name, 1000, 0., 30000.);
 		h_ZDCM_HAD_Charge[i]->setAxisTitle("Charge (fC)",1);
 		h_ZDCM_HAD_Charge[i]->setAxisTitle("Events",2);
-		// charge weighted time slice 
+		// charge weighted time slice
 		sprintf(title, "h_ZDCP_HADChan_%i_TSMean", i + 1);
 		sprintf(name, "ZDC Plus HAD Section TSMean for channel %i", i + 1);
 		h_ZDCP_HAD_TSMean[i] = ib.book1D(title, name, 100, -0.5, 9.5);
 		h_ZDCP_HAD_TSMean[i]->setAxisTitle("Timing",1);
 		h_ZDCP_HAD_TSMean[i]->setAxisTitle("Events",2);
-		// charge weighted time slice 
+		// charge weighted time slice
 		sprintf(title, "h_ZDCM_HADChan_%i_TSMean", i + 1);
 		sprintf(name, "ZDC Minus HAD Section TSMean for channel %i", i + 1);
 		h_ZDCM_HAD_TSMean[i] = ib.book1D(title, name, 100, -0.5, 9.5);
@@ -323,16 +324,16 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 		h_ZDCM_EM_RecHitEnergy[i] = ib.book1D(title, name, 1010, -100., 10000.);
 		h_ZDCM_EM_RecHitEnergy[i]->setAxisTitle("Energy (GeV)",1);
 		h_ZDCM_EM_RecHitEnergy[i]->setAxisTitle("Events",2);
-		//RecHit Timing Plus Side 
+		//RecHit Timing Plus Side
 		sprintf(title,"h_ZDCP_EMChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC EM Section Rechit Timing for channel %i",i+1);
 		h_ZDCP_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCP_EM_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCP_EM_RecHitTiming[i]->setAxisTitle("Events",2);
-		//RecHit Timing Minus Side 
+		//RecHit Timing Minus Side
 		sprintf(title,"h_ZDCM_EMChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC EM Section Rechit Timing for channel %i",i+1);
-		h_ZDCM_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
+		h_ZDCM_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCM_EM_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCM_EM_RecHitTiming[i]->setAxisTitle("Events",2);
 	}
@@ -350,16 +351,16 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 		h_ZDCM_HAD_RecHitEnergy[i] = ib.book1D(title, name, 1010, -100., 10000.);
 		h_ZDCM_HAD_RecHitEnergy[i]->setAxisTitle("Energy (GeV)",1);
 		h_ZDCM_HAD_RecHitEnergy[i]->setAxisTitle("Events",2);
-		//RecHit Timing Plus Side 
+		//RecHit Timing Plus Side
 		sprintf(title,"h_ZDCP_HADChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC HAD Section Rechit Timing for channel %i",i+1);
-		h_ZDCP_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
+		h_ZDCP_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCP_HAD_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCP_HAD_RecHitTiming[i]->setAxisTitle("Events",2);
-		//RecHit Timing Minus Side 
+		//RecHit Timing Minus Side
 		sprintf(title,"h_ZDCM_HADChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC HAD Section Rechit Timing for channel %i",i+1);
-		h_ZDCM_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
+		h_ZDCM_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCM_HAD_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCM_HAD_RecHitTiming[i]->setAxisTitle("Events",2);
 	}
@@ -367,10 +368,10 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	return;
 }
 
-void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHitCollection& rechit) {
+void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHitCollection& rechit, const HcalUnpackerReport& report) {
 	if (fVerbosity > 0)
 		std::cout << "<HcalZDCMonitor::processEvent> Processing Event..." << std::endl;
-	if (showTiming) 
+	if (showTiming)
 	{
 		cpu_timer.reset();
 		cpu_timer.start();
@@ -379,17 +380,62 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	meEVT_->Fill(ievt_);
 
 	//--------------------------------------
-	// ZDC Digi part 
+	// ZDC Digi part
 	//--------------------------------------
 	double fSum = 0.;
 	std::vector<double> fData;
 	double digiThresh = 99.5; //corresponds to 40 ADC counts
 	//int digiThreshADC = 40;
 	int digiSaturation = 127;
-	//double ZDCQIEConst = 2.6; 
+	//double ZDCQIEConst = 2.6;
 
-	for (ZDCDigiCollection::const_iterator digi_iter = digi.begin(); 
-			digi_iter != digi.end(); ++digi_iter) 
+	if (digi.size()>0) {
+		ZDC_Digi_Errors->Fill(-1,-1,1);
+		ZDC_Hot_Channel_Errors->Fill(-1,-1,1);
+		ZDC_TotalChannelErrors->Fill(-1,-1,1);
+		ZDC_Cold_Channel_Errors->Fill(-1,-1,1);
+		ZDC_Dead_Channel_Errors->Fill(-1,-1,1);
+		EventCounter+=1;
+	}
+
+	for (int i=0;i<18;++i) {
+		ChannelHasDigiError[i]=false;
+		DigiErrorDVER[i]=false;
+		DigiErrorCAPID[i]=false;
+		HotChannelError[i]=false;
+		DeadChannelError[i]=true;
+	}
+
+	typedef std::vector<DetId> DetIdVector;
+
+	for (DetIdVector::const_iterator baddigi_iter=report.bad_quality_begin();
+			baddigi_iter != report.bad_quality_end();
+			++baddigi_iter)
+	{
+		DetId id(baddigi_iter->rawId());
+		if (id.det()==DetId::Calo && id.subdetId()==HcalZDCDetId::SubdetectorId)
+		{
+			HcalZDCDetId id(baddigi_iter->rawId());
+			int iSide = id.zside();
+			int iSection = id.section();
+			int iChannel = id.channel();
+			if(iSection==1 || iSection==2){
+				ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+				DeadChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false;
+				//do stuff
+			}//end of if i(Section==1 || iSection==2)
+		}
+		else continue;
+
+	}//end unpacker section
+
+
+	// ChannelHasError[18]:  [0-8] are iSide=1, [9-17] are iSide=2
+	//  First 5 bins ([0-4],[9-13]) are EM bins
+	//  Last 4 bins are HAD bins
+
+	for (ZDCDigiCollection::const_iterator digi_iter = digi.begin();
+			digi_iter != digi.end(); ++digi_iter)
 	{
 		const ZDCDataFrame digi = (const ZDCDataFrame) (*digi_iter);
 		//HcalZDCDetId id(digi_iter->id());
@@ -401,80 +447,194 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 		while (fData.size()<fTS)
 			fData.push_back(-999);
 		while (fData.size()>fTS)
-			fData.pop_back(); // delete last elements 
+			fData.pop_back(); // delete last elements
 
-		fSum = 0.;
-		bool saturated = false;
-		for (unsigned int i = 0; i < fTS; ++i) 
+		if (iSection==1 || iSection==2)
 		{
-			//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
-			fData[i]=digi[i].nominal_fC();
-			if (digi[i].adc()==digiSaturation){
-				saturated=true;
+
+			////////////////////////////////////////NEW Fall 2012 Stuff/////////////////////////////////////////////
+
+			///////////////////////DEAD CELL ERROR///////////////////////////
+			///Right now we are simply checking that the digi exists
+			DeadChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false;
+			////END DEAD CELL CHECK
+
+			int iCapID=27;
+			int iCapIDPrevious=27;
+			int HotCounter=0;
+			int ColdCounter=0;
+
+			for (int iTS=0; iTS<digi.size(); ++iTS) //looping over all ten timeslices
+			{
+				////////////////HOT CELL////////////////////////////////
+				if (digi[iTS].adc()==127) HotCounter+=1;
+				else HotCounter=0;//require 3 consecutive saturated Time Slices in a single channel in a single event
+				if (HotCounter >= 3) HotChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+				/////////////END HOT CELL////////////////////////
+
+
+				////////////////////////Cold Channel Error Counter//////////
+				if (digi[iTS].adc()<=10) ColdCounter+=1;
+				if (ColdCounter==10)
+				{
+					ColdChannelCounter[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]+=1;
+				}
+				///////////////////////END Cold Channel Error//////////////////
+
+
+				////////////CHECK DIGI HEALTH///////////////
+				////The first if statement makes sure this digi was not in the unpacker report
+				if ((ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false))
+				{
+					iCapID=digi.sample(iTS).capid();
+					if (iTS>0) iCapIDPrevious=digi.sample(iTS-1).capid();
+
+					if (digi.sample(iTS).dv()==0 || digi.sample(iTS).er()==1)
+					{
+						ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+						DigiErrorDVER[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+						break;
+					}
+					else
+					{
+						if (iTS==0) continue;
+						else
+						{
+							if ((iCapID-iCapIDPrevious+4)%4!=1)
+							{
+								ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+								DigiErrorCAPID[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
+								break;
+							}//end of capid rotation check
+						}//checking if TS!=0
+					} // end of the check for dv/er
+				}//END of unpacker double check
+			} // end of TS loop
+
+			////////////END OF Fall 2012 Additions///////////////////////////
+
+
+			fSum = 0.;
+			bool saturated = false;
+			for (unsigned int i = 0; i < fTS; ++i)
+			{
+				//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
+				fData[i]=digi[i].nominal_fC();
+				if (digi[i].adc()==digiSaturation){
+					saturated=true;
+				}
 			}
-		}
 
-		double fTSMean = 0;
-		if (fData.size()>6)
-			fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
-		//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl; 
-		if (saturated==true){
-			h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);
-		}
+			double fTSMean = 0;
+			if (fData.size()>6)
+				fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
+			//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl;
+			if (saturated==true){
+				h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);
+			}
 
-		if (iSection == 1) 
-		{    // EM
-			if (iSide == 1) {   // Plus
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCP_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				}
-				if (fSum > digiThresh) {
-					h_ZDCP_EM_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCP_EM_TSMean[iChannel - 1]->Fill(fTSMean);
-					//std::cout<< "fSum " << fSum << " fTSMean " << fTSMean <<std::endl;
-				}
-			} // Plus
-			if (iSide == -1) {  // Minus
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCM_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				}
-				if (fSum > digiThresh) {
-					h_ZDCM_EM_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCM_EM_TSMean[iChannel - 1]->Fill(fTSMean);
-				}
-			} // Minus
-		}// EM
+			if (iSection == 1)
+			{    // EM
+				if (iSide == 1) {   // Plus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCP_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCP_EM_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCP_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+						//std::cout<< "fSum " << fSum << " fTSMean " << fTSMean <<std::endl;
+					}
+				} // Plus
+				if (iSide == -1) {  // Minus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCM_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCM_EM_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCM_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+					}
+				} // Minus
+			}// EM
 
-		else if (iSection == 2) 
-		{    // HAD
-			if (iSide == 1) {   // Plus 
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCP_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				}
-				if (fSum > digiThresh) {
-					h_ZDCP_HAD_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCP_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
-				}
-			} // Plus
-			if (iSide == -1) {  // Minus
-				for (unsigned int i = 0; i < fTS; ++i) {
-					if (fData[i] > digiThresh) h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				} 
-				if (fSum > digiThresh) {
-					h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
-					h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
-				}
-			}// Minus
-		} // HAD 
+			else if (iSection == 2)
+			{    // HAD
+				if (iSide == 1) {   // Plus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCP_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCP_HAD_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCP_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
+					}
+				} // Plus
+				if (iSide == -1) {  // Minus
+					for (unsigned int i = 0; i < fTS; ++i) {
+						if (fData[i] > digiThresh) h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
+					}
+					if (fSum > digiThresh) {
+						h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
+						h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
+					}
+				}// Minus
+			} // HAD
+		}//end of if (iSection==1 || iSection==2)
 	} // loop on zdc digi collection
 
 
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Fill Fall 2012 histograms
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	int numdigierrors=0;
+	int numhoterrors=0;
+
+	for (int i = 0; i<18; i++){
+		if (ChannelHasDigiError[i]==true)
+		{
+			++numdigierrors;
+			ZDC_Digi_Errors->Fill(i/9,i%9,1);
+		}
+		if (DigiErrorDVER[i]==true)
+		{
+			ZDC_DigiErrors_DVER->Fill(i/9,i%9,1);
+		}
+		if (DigiErrorCAPID[i]==true)
+		{
+			ZDC_DigiErrors_CAPID->Fill(i/9,i%9,1);
+		}
+		if(HotChannelError[i]==true)
+		{
+			++numhoterrors;
+			ZDC_Hot_Channel_Errors->Fill(i/9,(i%9),1);
+		}
+		if(DeadChannelError[i]==true)
+		{
+			DeadChannelCounter[i]+=1;
+		}
+		// If any of the above is true, fill the total channel errors
+		if (ChannelHasDigiError[i] || HotChannelError[i])
+		{
+			ZDC_TotalChannelErrors->Fill(i/9,i%9,1);
+			TotalChannelErrors[i]+=1;
+		}
+	}//end the for i<18 loop
+
+
+	if (numdigierrors>0)
+		ZDC_DigiErrorsVsLS->Fill(lumiblock,numdigierrors); //could make this ->Fill(currentLS,1) if I want to count each event as only having one error even if multiple channels are in error
+	if (numhoterrors>0)
+		ZDC_HotChannelErrorsVsLS->Fill(lumiblock,numhoterrors);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//End of  filling Fall 2012  histograms
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 	//--------------------------------------
-	// ZDC RecHit part 
+	// ZDC RecHit part
 	//--------------------------------------
-	for (ZDCRecHitCollection::const_iterator rechit_iter = rechit.begin(); 
+	for (ZDCRecHitCollection::const_iterator rechit_iter = rechit.begin();
 			rechit_iter != rechit.end(); ++rechit_iter)
-	{		
+	{
 		int Side      = (rechit_iter->id()).zside();
 		int Section   = (rechit_iter->id()).section();
 		int Channel   = (rechit_iter->id()).channel();
@@ -504,7 +664,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 		} // HAD
 	} // loop on rechits
 
-} // end of event processing 
+} // end of event processing
 /*
    ------------------------------------------------------------------------------------
 // This is what we did to find the good signal. After we've started to use only time slice 4,5,6.
@@ -523,7 +683,7 @@ dec = true;
 return dec;
 } // bool HcalZDCMonitor::isGood
 
-int HcalZDCMonitor::getTSMax(std::vector<double>fData) 
+int HcalZDCMonitor::getTSMax(std::vector<double>fData)
 {
 int ts_max = -100;
 double max = -999.;
@@ -540,12 +700,12 @@ return ts_max;
 */
 double HcalZDCMonitor::getTime(const std::vector<double>& fData, unsigned int ts_min, unsigned int ts_max, double &fSum) {
 	double weightedTime = 0.;
-	double SumT = 0.; 
+	double SumT = 0.;
 	double Time = -999.;
 	double digiThreshf = 99.5;
 
 	for (unsigned int ts=ts_min; ts<=ts_max; ++ts) {
-		if (fData[ts] > digiThreshf){ 
+		if (fData[ts] > digiThreshf){
 			weightedTime += ts * fData[ts];
 			SumT += fData[ts];
 		}
@@ -562,11 +722,11 @@ double HcalZDCMonitor::getTime(const std::vector<double>& fData, unsigned int ts
 } //double HcalZDCMonitor::getTime()
 
 
-void HcalZDCMonitor::endLuminosityBlock() 
+void HcalZDCMonitor::endLuminosityBlock()
 {
 
-	for (int i = 0; i < 5; ++i) {   // EM Channels 
-		// ZDC Plus 
+	for (int i = 0; i < 5; ++i) {   // EM Channels
+		// ZDC Plus
 		h_2D_charge->setBinContent(1, i + 1, h_ZDCP_EM_Charge[i]->getMean());
 		h_2D_TSMean->setBinContent(1, i + 1, h_ZDCP_EM_TSMean[i]->getMean());
 		h_2D_RecHitEnergy->setBinContent(1, i + 1, h_ZDCP_EM_RecHitEnergy[i]->getMean());
@@ -578,8 +738,8 @@ void HcalZDCMonitor::endLuminosityBlock()
 		h_2D_RecHitTime->setBinContent(2, i + 1, h_ZDCM_EM_RecHitTiming[i]->getMean());
 	}
 
-	for (int i = 0; i < 4; ++i) {   // HAD channels 
-		// ZDC Plus 
+	for (int i = 0; i < 4; ++i) {   // HAD channels
+		// ZDC Plus
 		h_2D_charge->setBinContent(1, i + 6, h_ZDCP_HAD_Charge[i]->getMean());
 		h_2D_TSMean->setBinContent(1, i + 6, h_ZDCP_HAD_TSMean[i]->getMean());
 		h_2D_RecHitEnergy->setBinContent(1, i + 6, h_ZDCP_HAD_RecHitEnergy[i]->getMean());
