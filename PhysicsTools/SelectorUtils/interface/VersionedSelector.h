@@ -19,14 +19,14 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+//#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#endif
+//#endif
 
 // because we need to be able to validate the ID
 #include <openssl/md5.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace candf = candidate_functions;
 
@@ -60,9 +60,9 @@ class VersionedSelector : public Selector<T> {
   }
   
   bool operator()( const T& ref, pat::strbitset& ret ) 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    //#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     override final
-#endif
+    //#endif
   {
     howfar_ = 0;
     bool failed = false;
@@ -85,9 +85,9 @@ class VersionedSelector : public Selector<T> {
   }
   
   bool operator()(const T& ref, edm::EventBase const& e, pat::strbitset& ret) 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    //#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     override final
-#endif
+    //#endif
   {
     // setup isolation needs
     for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
@@ -99,11 +99,9 @@ class VersionedSelector : public Selector<T> {
     }
     return this->operator()(ref, ret);
   }
-  
-#ifndef __ROOTCLING__
+    
   using Selector<T>::operator();
-#endif
-  
+    
   const unsigned char* md55Raw() const { return id_md5_; } 
   bool operator==(const VersionedSelector& other) const {
     constexpr unsigned length = MD5_DIGEST_LENGTH;
@@ -119,13 +117,13 @@ class VersionedSelector : public Selector<T> {
 
   void initialize(const edm::ParameterSet&);
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  //#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   void setConsumes(edm::ConsumesCollector);
-#endif
+  //#endif
 
  protected:
   bool initialized_;
-  std::vector<boost::shared_ptr<candf::CandidateCut> > cuts_;
+  std::vector<std::shared_ptr<candf::CandidateCut> > cuts_;
   std::vector<bool> needs_event_content_;
   std::vector<typename Selector<T>::index_type> cut_indices_;
   unsigned howfar_;
@@ -150,6 +148,7 @@ initialize( const edm::ParameterSet& conf ) {
       << "You have supplied a null/empty cutflow to VersionedIDSelector,"
       << " please add content to the cuflow and try again.";
   }
+  
   // this lets us keep track of cuts without knowing what they are :D
   std::vector<edm::ParameterSet>::const_iterator cbegin(cutflow.begin()),
     cend(cutflow.end());
@@ -160,13 +159,9 @@ initialize( const edm::ParameterSet& conf ) {
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
     candf::CandidateCut* plugin = 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
       CutApplicatorFactory::get()->create(name,*icut);
-#else
-      nullptr;
-#endif
     if( plugin != nullptr ) {
-      cuts_.push_back(boost::shared_ptr<candf::CandidateCut>(plugin));
+      cuts_.push_back(std::shared_ptr<candf::CandidateCut>(plugin));
     } else {
       throw cms::Exception("BadPluginName")
 	<< "The requested cut: " << name << " is not available!";
@@ -175,17 +170,19 @@ initialize( const edm::ParameterSet& conf ) {
     this->push_back(name);
     this->set(name);
     if(ignored) this->ignoreCut(name);
-  }    
+  }  
+   /*
   //have to loop again to set cut indices after all are filled
   icut = cbegin;
   for( ; icut != cend; ++icut ) {
     const std::string& name = icut->getParameter<std::string>("cutName");
     cut_indices_.push_back(typename Selector<T>::index_type(&(this->bits_),name));
   }
+*/
   initialized_ = true;
 }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+//#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 template<class T>
 void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
@@ -197,6 +194,6 @@ void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
     }
   }
 }
-#endif
+//#endif
 
 #endif
