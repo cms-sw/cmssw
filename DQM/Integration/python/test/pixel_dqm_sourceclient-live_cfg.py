@@ -42,6 +42,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
+    process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*')
 
 #-----------------------------
 # Magnetic Field
