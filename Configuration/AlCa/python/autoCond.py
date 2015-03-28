@@ -38,51 +38,9 @@ aliases = {
     'BASEGT' : 'BASE1_V1::All|BASE2_V1::All'
 }
 
-# dedicated GlobalTags for MC production with the fixed HLT menus
-autoCond['run1_mc_Fake']     = ( autoCond['run1_mc'] )
-
-autoCond['run1_mc_FULL']     = ( autoCond['run1_mc'] )
-autoCond['run1_mc_GRun']     = ( autoCond['run1_mc'] )
-autoCond['run1_mc_HIon']     = ( autoCond['run1_mc_hi'] )
-autoCond['run1_mc_PIon']     = ( autoCond['run1_mc_pa'] )
-
-autoCond['run2_mc_FULL']     = ( autoCond['run2_mc'] )
-autoCond['run2_mc_GRun']     = ( autoCond['run2_mc'] )
-autoCond['run2_mc_50nsGRun'] = ( autoCond['run2_mc_50ns'] )
-autoCond['run2_mc_50ns_5e33_v1'] = ( autoCond['run2_mc_50ns'] )
-autoCond['run2_mc_HIon']     = ( autoCond['run2_mc_hi'] )
-autoCond['run2_mc_PIon']     = ( autoCond['run2_mc'] )
-
-# dedicated GlobalTags for running the fixed HLT menus on data
-autoCond['run1_hlt_Fake']    = ( autoCond['run1_hlt'] )
-
-autoCond['run1_hlt_FULL']    = ( autoCond['run1_hlt'] )
-autoCond['run1_hlt_GRun']    = ( autoCond['run1_hlt'] )
-autoCond['run1_hlt_HIon']    = ( autoCond['run1_hlt'] )
-autoCond['run1_hlt_PIon']    = ( autoCond['run1_hlt'] )
-
-autoCond['run2_hlt_FULL']    = ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_GRun']    = ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_50nsGRun']= ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_50ns_5e33_v1']= ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_HIon']    = ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_PIon']    = ( autoCond['run2_hlt'] )
-
-# dedicated GlobalTags for running RECO and the fixed HLT menus on data
-autoCond['run1_data_Fake']    = ( autoCond['run1_data'] )
-
-autoCond['run1_data_FULL']    = ( autoCond['run1_data'] )
-autoCond['run1_data_GRun']    = ( autoCond['run1_data'] )
-autoCond['run1_data_HIon']    = ( autoCond['run1_data'] )
-autoCond['run1_data_PIon']    = ( autoCond['run1_data'] )
-
-autoCond['run2_data_FULL']    = ( autoCond['run2_data'] )
-autoCond['run2_data_GRun']    = ( autoCond['run2_data'] )
-autoCond['run2_data_50nsGRun']= ( autoCond['run2_data'] )
-autoCond['run2_data_50ns_5e33_v1']= ( autoCond['run2_data'] )
-autoCond['run2_data_HIon']    = ( autoCond['run2_data'] )
-autoCond['run2_data_PIon']    = ( autoCond['run2_data'] )
-
+# dedicated GlobalTags for HLT
+from Configuration.HLT.autoCondHLT import autoCondHLT
+autoCond = autoCondHLT(autoCond)
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector
@@ -104,17 +62,3 @@ autoCond['upgradePLS150ns']  = ( autoCond['run2_mc_50ns'] )
 autoCond['upgrade2017']      = ( autoCond['phase1_2017_design'] )
 autoCond['upgrade2019']      = ( autoCond['phase1_2019_design'] )
 autoCond['upgradePLS3']      = ( autoCond['phase2_design'] )
-
-### OLD KEYS ### for HLT
-
-autoCond['startup_GRun']     = ( autoCond['run1_mc_GRun'] )
-autoCond['starthi_HIon']     = ( autoCond['run1_mc_HIon'] )
-autoCond['startup_PIon']     = ( autoCond['run1_mc_PIon'] )
-
-autoCond['hltonline_GRun']   = ( autoCond['run1_hlt_GRun'] )
-autoCond['hltonline_HIon']   = ( autoCond['run1_hlt_HIon'] )
-autoCond['hltonline_PIon']   = ( autoCond['run1_hlt_PIon'] )
-
-autoCond['com10_GRun']       = ( autoCond['run1_data_GRun'] )
-autoCond['com10_HIon']       = ( autoCond['run1_data_HIon'] )
-autoCond['com10_PIon']       = ( autoCond['run1_data_PIon'] )
