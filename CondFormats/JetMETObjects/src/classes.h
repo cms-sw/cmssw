@@ -19,3 +19,4 @@ std::vector< QGLikelihoodObject::Entry > qgentryv;
 QGLikelihoodSystematicsObject qgsystobj;
 QGLikelihoodSystematicsObject::Entry qgsystentry;
 std::vector< QGLikelihoodSystematicsObject::Entry > qgsystentryv;
+METCorrectorParameters METcorr;
