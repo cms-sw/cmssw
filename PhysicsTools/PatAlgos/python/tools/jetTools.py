@@ -398,8 +398,8 @@ class AddJetCollection(ConfigToolBase):
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
-            ## Remove IVF modules that were already run by the standard reconstruction to prevent them from re-running in the unscheduled mode
-            if not runIVF and hasattr( process, 'bVertexFilter' ): # 'if' condition preventing jets from removing IVF modules from other jets that want to run them
+            ## Unload IVF modules already run in the standard reconstruction (to prevent them from re-running in the unscheduled mode)
+            if not runIVF and process._Process__name!='RECO' and hasattr( process, 'bVertexFilter' ): # condition preventing removal of IVF modules in the standard reconstruction or if required by other jet collections
                 if hasattr( process, 'inclusiveCandidateVertexing' ):
                     for m in getattr( process, 'inclusiveCandidateVertexing' ).moduleNames():
                         if hasattr( process, m ):
