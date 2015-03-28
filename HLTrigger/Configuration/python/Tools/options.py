@@ -5,6 +5,7 @@ globalTag = {
   'GRun': 'auto:run2_mc_GRun',       # used as default
   '50ns_5e33_v1': 'auto:run2_mc_50nsGRun',
   '50nsGRun': 'auto:run2_mc_50nsGRun',
+  '50ns': 'auto:run2_mc_50nsGRun',
   'HIon': 'auto:run2_mc_HIon',
   'PIon': 'auto:run2_mc_PIon',
   'data': 'auto:run1_hlt',
