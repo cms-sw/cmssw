@@ -73,7 +73,7 @@ namespace pat {
       case 11:  return (-1)*(pdgId_>0)+(pdgId_<0); //e
       case 13:  return (-1)*(pdgId_>0)+(pdgId_<0); //mu
       case 15:  return (-1)*(pdgId_>0)+(pdgId_<0); //tau
-      case 24:  return (-1)*(pdgId_>0)+(pdgId_<0); //W
+      case 24:  return (pdgId_>0)-(pdgId_<0); //W
       default:  return 0;  //FIXME: charge is not defined
       }
     }
