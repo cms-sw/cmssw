@@ -181,6 +181,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 			}
 		}
 	}
+	returnValue.post_insert();
 	return returnValue;
 }
 
@@ -238,6 +239,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 			}
 		}
 	}
+	returnValue.post_insert();
 	return returnValue;
 
 }
@@ -627,7 +629,6 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 			}
 		}
 	}
-	return returnValue;
 
 	LogTrace("TrackAssociator") << "% of Assoc TPs=" << ((double)returnValue.size())/((double)trackingParticleCollectionHandle->size());
 	returnValue.post_insert();
