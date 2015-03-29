@@ -97,6 +97,8 @@ class METCorrectorParameters
     //std::vector<METCorrectorParameters::Record> mRecords;
     bool                                        valid_; /// is this a valid set?
     std::vector<double> mRecord;
+
+  COND_SERIALIZABLE;
 };
 
 

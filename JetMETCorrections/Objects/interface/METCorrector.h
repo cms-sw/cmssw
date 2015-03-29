@@ -6,6 +6,7 @@
 
 #include <string>
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/METReco/interface/MET.h"
 
 /// classes declaration
