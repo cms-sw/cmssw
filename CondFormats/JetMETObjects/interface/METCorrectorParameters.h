@@ -2,11 +2,14 @@
 #ifndef METCorrectorParameters_h
 #define METCorrectorParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <iostream>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class METCorrectorParameters 
 {
@@ -227,6 +230,8 @@ class METCorrectorParametersCollection {
 
   static const char *                    l7PartonArray_[N_L7_SPECIES];
   static std::vector<std::string>        l7Partons_;
+
+ COND_SERIALIZABLE;
 };
 */
 
