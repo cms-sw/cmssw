@@ -14,9 +14,9 @@ collisionParameters2760GeV = cms.PSet(
 	fR 	= cms.double(13.45), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
 )
 
-collisionParameters5100GeV = cms.PSet(
+collisionParameters5020GeV = cms.PSet(
 	fAw = cms.double(208.0), ## beam/target atomic number
-	fSqrtS = cms.double(5100.0),
+	fSqrtS = cms.double(5020.0),
 	fUmax 	= cms.double(1.35), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
 	fPtmin 	= cms.double(10.), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
 	fT0 = cms.double(1.1), 		# Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
