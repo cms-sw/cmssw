@@ -250,20 +250,26 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimRecoLocalCaloFEVT.outputCo
 FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimRecoTrackerFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimParticleFlowFEVT.outputCommands) 
 
+##################
+# get rid of some edaliases in the output
+##################
+for _entry in [FEVTDEBUGEventContent,FEVTSIMEventContent,GENRAWEventContent,FEVTDEBUGHLTEventContent,HLTDEBUGEventContent,HLTDebugFEVT,HLTDebugRAW,RAWDEBUGHLTEventContent,RAWRECODEBUGHLTEventContent,RAWRECOSIMHLTEventContent,RAWSIMHLTEventContent,]:
+    _entry.outputCommands.append('drop *_ecalPreshowerDigis_*_*')
+    _entry.outputCommands.append('drop *_ecalDigis_*_*')
+    _entry.outputCommands.append('drop *_hcalDigis_*_*')
+    _entry.outputCommands.append('drop *_muonDTDigis_*_*')
+    _entry.outputCommands.append('drop *_muonCSCDigis_*_*')
+    _entry.outputCommands.append('drop *_muonRPCDigis_*_*')
+    _entry.outputCommands.append('drop *_gtDigis_*_*')
+    _entry.outputCommands.append('drop *_hltIter*_*_*')
+    _entry.outputCommands.append('drop *_hlt*Digis_*_*')
+
+
 #####################################################################
 #
 # To be used only to create the MinBias sample for "new mixing" (--eventcontent=FASTPU)
 #
 #####################################################################
-
-
-##################
-# get rid of some edaliases in the output
-##################
-for _entry in [FEVTDEBUGEventContent,FEVTSIMEventContent,GENRAWEventContent,FEVTDEBUGHLTEventContent,HLTDEBUGEventContent,HLTDebugFEVT,HLTDebugRAW,RAWDEBUGHLTEventContent,RAWRECODEBUGHLTEventContent,RAWRECOSIMHLTEventContent,RAWSIMHLTEventContent,]:
-    _entry.outputCommands.append('drop *_hltIter*_*_*')
-    _entry.outputCommands.append('drop *_sim*Digis_*_*')
-    _entry.outputCommands.append('drop *_hlt*Digis_*_*')
 
 FASTPUEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
