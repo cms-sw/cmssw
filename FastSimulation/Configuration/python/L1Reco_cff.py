@@ -22,4 +22,7 @@ l1extraParticles.etMissSource  = cms.InputTag("simGctDigis")
 l1extraParticles.hfRingEtSumsSource    = cms.InputTag("simGctDigis")
 l1extraParticles.hfRingBitCountsSource = cms.InputTag("simGctDigis")
 
+# must be set to true when used in HLT, as is the case for FastSim
+l1extraParticles.centralBxOnly = True
+
 L1Reco = cms.Sequence(l1extraParticles)
