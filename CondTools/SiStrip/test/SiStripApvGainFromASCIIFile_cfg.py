@@ -19,7 +19,7 @@ process.MessageLogger.destinations = cms.untracked.vstring('cout')
 process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
 
 #process.load('Configuration.Geometry.GeometryDB_cff')
-process.load('Configuration.Geometry.GeometryRecoDB_cff')
+process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 #Setup the SiSTripFedCabling and the SiStripDetCabling
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -36,10 +36,6 @@ process.poolDBESSource = cms.ESSource( 'PoolDBESSource',
                                      )
                                                                     
 process.load("CalibTracker.SiStripESProducers.SiStripConnectivity_cfi")
-#process.siStripQualityESProducer.listOfrecordToMerge = cms.VPSet(
-#    cms.PSet( record=cms.string('SiStripDetCablingRcd'), tag=cms.string('') )
-#)
-#process.siStripQualityESProducer.ReduceGranularity = cms.bool( False )
 
 
 process.maxEvents = cms.untracked.PSet(
