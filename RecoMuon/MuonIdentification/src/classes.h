@@ -1,11 +1,13 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#include "RecoMuon/MuonIdentification/interface/VersionedMuonSelectors.h"
+//Add includes for your classes here
+#include "RecoMuon/MuonIdentification/interface/VersionedMuonSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/MakePyVIDClassBuilder.h"
 
 namespace RecoMuon_MuonIdentification {
-  struct dictionary {
+  struct dictionary {    
     //for using the selectors in python
-    VersionedRecoMuonSelector vRecoMuonSelector;
-    VersionedPatMuonSelector  vPatMuonSelector ;
+    VersionedMuonSelector vMuonSelector; 
+    MakeVersionedSelector<reco::Muon> vMakeMuonVersionedSelector;
   };
 }

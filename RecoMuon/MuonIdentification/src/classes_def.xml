@@ -1,5 +1,4 @@
-<lcgdict>
-  <class name="VersionedRecoMuonSelector"/>
-  <class name="VersionedPatMuonSelector"/>
+<lcgdict>  
+  <class name="VersionedMuonSelector"/>
+  <class pattern="MakeVersionedSelector<*>"/>
 </lcgdict>
-
