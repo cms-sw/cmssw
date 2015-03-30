@@ -20,6 +20,7 @@ import FWCore.ParameterSet.Config as cms
 from DataFormats.FWLite import Handle, Events
 from RecoEgamma.ElectronIdentification import VIDElectronSelector
 
+
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V0_cff import cutBasedElectronID_CSA14_50ns_V0_standalone_tight
 
 #foo = VIDElectronSelector()
@@ -29,22 +30,33 @@ cutBasedElectronID_CSA14_50ns_V0_standalone_tight.cutFlow[6].vertexSrc = cms.Inp
 cutBasedElectronID_CSA14_50ns_V0_standalone_tight.cutFlow[7].vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices')
 cutBasedElectronID_CSA14_50ns_V0_standalone_tight.cutFlow[10].conversionSrc = cms.InputTag('reducedEgamma:reducedConversions')
 
-print 'trying to build VID selector'
 selectElectron = VIDElectronSelector(cutBasedElectronID_CSA14_50ns_V0_standalone_tight)
-print 'built VID selector'
+print 'Initialized VID Selector for Electrons'
+print selectElectron
+
+# try muons!
+from RecoMuon.MuonIdentification import VIDMuonSelector
+from RecoMuon.MuonIdentification.Identification.globalMuonPromptTight_V0_cff import globalMuonPromptTight_V0
+
+selectMuon = VIDMuonSelector(globalMuonPromptTight_V0)
+print 'Initialized VID Selector for Muons'
+print selectMuon
 
 # open file (you can use 'edmFileUtil -d /store/whatever.root' to get the physical file name)
-events = Events("root://eoscms//eos/cms/store/cmst3/user/gpetrucc/miniAOD/74X/miniAOD-new_ZTT.root")
+#events = Events("root://eoscms//eos/cms/store/cmst3/user/gpetrucc/miniAOD/74X/miniAOD-new_ZTT.root")
+events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
 
+
+muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
 electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
+
+
 test = ROOT.edm.Handle(ROOT.pat.Electron)()
-
-
 
 for iev,event in enumerate(events):
     
     if iev > 10: break
-
+    event.getByLabel(muonLabel, muons)
     event.getByLabel(electronLabel, electrons)
     
     
@@ -52,6 +64,14 @@ for iev,event in enumerate(events):
                                                          event.eventAuxiliary().luminosityBlock(),
                                                          event.eventAuxiliary().event())
     
+    # Muons
+    for i,mu in enumerate(muons.product()): 
+        if mu.pt() < 5 or not mu.isLooseMuon(): continue
+        print "muon %2d: pt %4.1f, POG loose id %d." % (
+            i, mu.pt(), mu.isLooseMuon())
+        selectMuon(muons.product(),i,event)
+        print selectMuon
+
     # Electrons
     for i,el in enumerate(electrons.product()):
         if el.pt() < 5: continue
@@ -59,6 +79,8 @@ for iev,event in enumerate(events):
                     i, el.pt(), el.superCluster().eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto())
         selectElectron(electrons.product(),i,event)
         print selectElectron
+
+
 
 
 
