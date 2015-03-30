@@ -86,10 +86,6 @@ def customisePostLS1_HI(process):
 def digiEventContent(process):
     #extend the event content
 
-    # skip this for fastsim (output module complaints about edaliases)
-    #if hasattr(process,"FastSimCoreFEVT"):
-    #    return process
-
     alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
     for a in alist:
         b = a + 'output'
