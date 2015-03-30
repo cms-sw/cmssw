@@ -50,7 +50,7 @@ FWTEveViewer::FWTEveViewer(const char* n, const char* t) :
 
 FWTEveViewer::~FWTEveViewer()
 {
-   m_thr->detach();
+    if (m_thr) m_thr->detach();
 
    {
       std::unique_lock<std::mutex> lk(m_moo);
