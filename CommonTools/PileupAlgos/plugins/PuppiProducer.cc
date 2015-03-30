@@ -156,9 +156,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(i0->pdgId());
-    reco::PFCandidate pCand( i0->charge(),
-			     i0->p4(),
-			     id );
+    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*i0));
+    reco::PFCandidate pCand( pPF ? *pPF : reco::PFCandidate(i0->charge(), i0->p4(), id) );
     LorentzVector pVec = i0->p4();
     int val = i0 - i0begin;
 
