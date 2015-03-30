@@ -43,7 +43,7 @@ mixCaloHits = cms.PSet(
 
 # fastsim mixes reconstructed tracks
 mixReconstructedTracks = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("generalTracks")),
+    input = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing")),
     type = cms.string('RecoTrack')
     )
 
