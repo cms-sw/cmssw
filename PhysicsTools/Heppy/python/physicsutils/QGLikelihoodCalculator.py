@@ -1,4 +1,5 @@
 import ROOT
+import math
 
 
 
@@ -19,8 +20,7 @@ class QGLikelihoodCalculator:
   def __init__(self, filename) :
     self.pdfs = {}
     self.etaBins = []
-    self.ptBinsC = []
-    self.ptBinsF = []
+    self.ptBins  = []
     self.rhoBins = []
     self.varNames = { 0:'mult', 1:'ptD', 2:'axis2' }
     self.qgNames = { 0:'quark', 1:'gluon' }
@@ -34,8 +34,7 @@ class QGLikelihoodCalculator:
     if f.IsZombie() : return False
     try :
       self.etaBins = f.Get("etaBins")
-      self.ptBinsC = f.Get("ptBinsC")
-      self.ptBinsF = f.Get("ptBinsF")
+      self.ptBins  = f.Get("ptBins")
       self.rhoBins = f.Get("rhoBins")
     except :
       return False
@@ -60,8 +59,8 @@ class QGLikelihoodCalculator:
 
   def isValidRange( self, pt, rho, eta ) :
 
-    if pt < self.ptBinsC[0]: return False
-    if pt > self.ptBinsC[len(self.ptBinsC)-1]: return False
+    if pt < self.ptBins[0]: return False
+    if pt > self.ptBins[len(self.ptBins)-1]: return False
     if rho < self.rhoBins[0]: return False
     if rho > self.rhoBins[len(self.rhoBins)-1]: return False
     if math.fabs(eta) < self.etaBins[0]: return False
@@ -75,16 +74,13 @@ class QGLikelihoodCalculator:
 
     etaBin = getBinNumber( self.etaBins, math.fabs(eta))
     if etaBin==-1: return None
-    elif etaBin==0 :
-      ptBin = getBinNumber( self.ptBinsC, pt )
-    else :
-      ptBin = getBinNumber( self.ptBinsF, pt )
+    ptBin = getBinNumber( self.ptBins, pt )
     if ptBin==-1 : return None
 
     rhoBin = getBinNumber( self.rhoBins, rho )
     if rhoBin==-1 : return None
 
-    histName = self.varNames[varIndex] + "_" + self.qgNames[qgIndex] + "_eta-" + str(etaBin) + "_pt-" + str(ptBin) + "_rho-" + str(rhoBin)
+    histName = self.varNames[varIndex] + "_" + self.qgNames[qgIndex] + "_eta" + str(etaBin) + "_pt" + str(ptBin) + "_rho" + str(rhoBin)
 
     return self.pdfs[histName]
 
