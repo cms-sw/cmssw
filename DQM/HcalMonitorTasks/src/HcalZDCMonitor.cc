@@ -104,7 +104,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_Hot_Channel_Errors->setBinLabel(6,"HAD1",2);
         ZDC_Hot_Channel_Errors->setBinLabel(7,"HAD2",2);
         ZDC_Hot_Channel_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);    
+        ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);
         ZDC_Hot_Channel_Errors->getTH2F()->SetOption("coltext");
 
 
@@ -123,9 +123,9 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_Dead_Channel_Errors->setBinLabel(6,"HAD1",2);
         ZDC_Dead_Channel_Errors->setBinLabel(7,"HAD2",2);
         ZDC_Dead_Channel_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);    
+        ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);
         ZDC_Dead_Channel_Errors->getTH2F()->SetOption("coltext");
-        
+
 	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
 
 	// cold channels
@@ -141,9 +141,9 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_Cold_Channel_Errors->setBinLabel(6,"HAD1",2);
         ZDC_Cold_Channel_Errors->setBinLabel(7,"HAD2",2);
         ZDC_Cold_Channel_Errors->setBinLabel(8,"HAD3",2);
-        ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);    
+        ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);
         ZDC_Cold_Channel_Errors->getTH2F()->SetOption("coltext");
-        
+
 	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
 
 	// total errors
@@ -161,8 +161,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_TotalChannelErrors->setBinLabel(8,"HAD3",2);
         ZDC_TotalChannelErrors->setBinLabel(9,"HAD4",2);
         ZDC_TotalChannelErrors->getTH2F()->SetOption("coltext");
-        
-	//
+
 	h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
 	h_2D_charge->setBinLabel(1,"ZDC+",1);
 	h_2D_charge->setBinLabel(2,"ZDC-",1);
@@ -282,6 +281,8 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 		h_ZDCM_HAD_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
 		h_ZDCM_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
 		h_ZDCM_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
+		h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
+		h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
 		// integrated charge over 10 time samples 
 		sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
 		sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
@@ -353,13 +354,13 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 		//RecHit Timing Plus Side 
 		sprintf(title,"h_ZDCP_HADChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC HAD Section Rechit Timing for channel %i",i+1);
-		h_ZDCP_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
+		h_ZDCP_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCP_HAD_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCP_HAD_RecHitTiming[i]->setAxisTitle("Events",2);
 		//RecHit Timing Minus Side 
 		sprintf(title,"h_ZDCM_HADChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC HAD Section Rechit Timing for channel %i",i+1);
-		h_ZDCM_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
+		h_ZDCM_HAD_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCM_HAD_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCM_HAD_RecHitTiming[i]->setAxisTitle("Events",2);
 	}
@@ -370,7 +371,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHitCollection& rechit) {
 	if (fVerbosity > 0)
 		std::cout << "<HcalZDCMonitor::processEvent> Processing Event..." << std::endl;
-	if (showTiming) 
+	if (showTiming)
 	{
 		cpu_timer.reset();
 		cpu_timer.start();
@@ -388,8 +389,8 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	int digiSaturation = 127;
 	//double ZDCQIEConst = 2.6; 
 
-	for (ZDCDigiCollection::const_iterator digi_iter = digi.begin(); 
-			digi_iter != digi.end(); ++digi_iter) 
+	for (ZDCDigiCollection::const_iterator digi_iter = digi.begin();
+			digi_iter != digi.end(); ++digi_iter)
 	{
 		const ZDCDataFrame digi = (const ZDCDataFrame) (*digi_iter);
 		//HcalZDCDetId id(digi_iter->id());
@@ -405,7 +406,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 
 		fSum = 0.;
 		bool saturated = false;
-		for (unsigned int i = 0; i < fTS; ++i) 
+		for (unsigned int i = 0; i < fTS; ++i)
 		{
 			//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
 			fData[i]=digi[i].nominal_fC();
@@ -422,7 +423,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 			h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);
 		}
 
-		if (iSection == 1) 
+		if (iSection == 1)
 		{    // EM
 			if (iSide == 1) {   // Plus
 				for (unsigned int i = 0; i < fTS; ++i) {
@@ -459,7 +460,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 			if (iSide == -1) {  // Minus
 				for (unsigned int i = 0; i < fTS; ++i) {
 					if (fData[i] > digiThresh) h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
-				} 
+				}
 				if (fSum > digiThresh) {
 					h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
 					h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
@@ -472,9 +473,9 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	//--------------------------------------
 	// ZDC RecHit part 
 	//--------------------------------------
-	for (ZDCRecHitCollection::const_iterator rechit_iter = rechit.begin(); 
+	for (ZDCRecHitCollection::const_iterator rechit_iter = rechit.begin();
 			rechit_iter != rechit.end(); ++rechit_iter)
-	{		
+	{
 		int Side      = (rechit_iter->id()).zside();
 		int Section   = (rechit_iter->id()).section();
 		int Channel   = (rechit_iter->id()).channel();
@@ -540,12 +541,12 @@ return ts_max;
 */
 double HcalZDCMonitor::getTime(const std::vector<double>& fData, unsigned int ts_min, unsigned int ts_max, double &fSum) {
 	double weightedTime = 0.;
-	double SumT = 0.; 
+	double SumT = 0.;
 	double Time = -999.;
 	double digiThreshf = 99.5;
 
 	for (unsigned int ts=ts_min; ts<=ts_max; ++ts) {
-		if (fData[ts] > digiThreshf){ 
+		if (fData[ts] > digiThreshf){
 			weightedTime += ts * fData[ts];
 			SumT += fData[ts];
 		}
@@ -562,7 +563,7 @@ double HcalZDCMonitor::getTime(const std::vector<double>& fData, unsigned int ts
 } //double HcalZDCMonitor::getTime()
 
 
-void HcalZDCMonitor::endLuminosityBlock() 
+void HcalZDCMonitor::endLuminosityBlock()
 {
 
 	for (int i = 0; i < 5; ++i) {   // EM Channels 
