@@ -2,15 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
     
-    TopFolderName = cms.string('Phase2OuterTrackerV'),
+    TopFolderName  = cms.string('Phase2OuterTrackerV'),
     TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
     TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),
+    HQDelim        = cms.int32(4),
+    verbosePlots   = cms.untracked.bool(False),
     
     
 # Number of Stubs in Track
     TH1TTTrack_NStubs = cms.PSet(
-        Nbinsx = cms.int32(16),
-        xmax = cms.double(15.5),
+        Nbinsx = cms.int32(11),
+        xmax = cms.double(10.5),
         xmin = cms.double(-0.5)
         ),
 
@@ -44,7 +46,7 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 #Track Vertex Position in z
     TH1TTTrack_VtxZ0 = cms.PSet(
-        Nbinsx = cms.int32(150),
+        Nbinsx = cms.int32(100),
         xmax = cms.double(25),                      
         xmin = cms.double(-25)
         ),
@@ -65,8 +67,8 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Chi2 vs NStubs
     TH2TTTrack_Chi2 = cms.PSet(
-        Nbinsx = cms.int32(20),
-        xmax = cms.double(19.5),
+        Nbinsx = cms.int32(11),
+        xmax = cms.double(10.5),
         xmin = cms.double(-0.5),
         Nbinsy = cms.int32(100),
         ymax = cms.double(50),
@@ -75,8 +77,8 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Chi2/ndf vs NStubs
     TH2TTTrack_Chi2Red = cms.PSet(
-        Nbinsx = cms.int32(20),
-        xmax = cms.double(19.5),
+        Nbinsx = cms.int32(11),
+        xmax = cms.double(10.5),
         xmin = cms.double(-0.5),
         Nbinsy = cms.int32(100),
         ymax = cms.double(10),
@@ -165,10 +167,10 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Vtx vs TPart Vtx
     TH2TTTrack_Sim_Vtx = cms.PSet(
-        Nbinsx = cms.int32(150),
+        Nbinsx = cms.int32(100),
         xmax = cms.double(25),
         xmin = cms.double(-25),
-        Nbinsy = cms.int32(150),
+        Nbinsy = cms.int32(100),
         ymax = cms.double(25),
         ymin = cms.double(-25)
         ),
