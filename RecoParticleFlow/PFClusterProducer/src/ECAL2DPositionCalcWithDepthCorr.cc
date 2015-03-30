@@ -114,6 +114,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     throw cms::Exception("InvalidLayer")
       << "ECAL Position Calc only accepts ECAL_BARREL or ECAL_ENDCAP";
   }
+
   const CaloCellGeometry* center_cell = 
     ecal_geom->getGeometry(refmax->detId());
   const double ctreta = center_cell->getPosition().eta();
@@ -141,13 +142,35 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
     const GlobalPoint pos =
       static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
-    
+
     x += weight*pos.x() ;
     y += weight*pos.y() ;
     z += weight*pos.z() ;
-    
+
     position_norm += weight ;
   }
+  
+  // FALL BACK to LINEAR WEIGHTS
+  if (position_norm == 0.) {
+    for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
+      double weight = 0.0;
+      const reco::PFRecHitRef& refhit = rhf.recHitRef();
+      const double rh_energy = ((float)refhit->energy()) * ((float)rhf.fraction());
+      if( rh_energy > 0.0 ) 
+	weight = rh_energy/cluster.energy();
+
+      const CaloCellGeometry* cell = ecal_geom->getGeometry(refhit->detId());
+      const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
+      const GlobalPoint pos = static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
+      
+      x += weight*pos.x() ;
+      y += weight*pos.y() ;
+      z += weight*pos.z() ;
+
+      position_norm += weight ;
+    }
+  }
+
   if( position_norm < _minAllowedNorm ) {
     edm::LogError("WeirdClusterNormalization") 
       << "PFCluster too far from seeding cell: set position to (0,0,0).";
@@ -157,6 +180,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     x *= norm_inverse;
     y *= norm_inverse;
     z *= norm_inverse;
+
     cluster.setPosition(math::XYZPoint(x,y,z));
     cluster.calculatePositionREP();
   }
