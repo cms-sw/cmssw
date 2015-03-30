@@ -91,7 +91,7 @@ class VersionedSelector : public Selector<T> {
       if( needs_event_content_[i] ) {
 	CutApplicatorWithEventContentBase* needsEvent = 
 	  static_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
-	needsEvent->getEventContent(e);      
+	needsEvent->getEventContent(e); 
       }
     }
     return this->operator()(ref, ret);
@@ -166,14 +166,14 @@ initialize( const edm::ParameterSet& conf ) {
     this->set(name);
     if(ignored) this->ignoreCut(name);
   }  
-   /*
+   
   //have to loop again to set cut indices after all are filled
   icut = cbegin;
   for( ; icut != cend; ++icut ) {
     const std::string& name = icut->getParameter<std::string>("cutName");
     cut_indices_.push_back(typename Selector<T>::index_type(&(this->bits_),name));
   }
-*/
+  
   initialized_ = true;
 }
 
