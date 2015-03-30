@@ -1,3 +1,6 @@
+#ifndef __PhysicsTools_SelectorUtils_MakePyVIDClassBuilder_h__
+#define __PhysicsTools_SelectorUtils_MakePyVIDClassBuilder_h__
+
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
@@ -14,3 +17,5 @@ struct MakeVersionedSelector {
   }
   
 };
+
+#endif
