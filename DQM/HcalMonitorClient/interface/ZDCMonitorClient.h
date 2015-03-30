@@ -18,125 +18,125 @@ class DQMStore;
 //class TFile;
 
 class ZDCMonitorClient : public HcalBaseDQClient {
-  
+
 public:
-  
-  /// Constructors
-  //ZDCMonitorClient();
-  ZDCMonitorClient(std::string myname, const edm::ParameterSet& ps);
-  
-  /// Destructor
-  virtual ~ZDCMonitorClient();
 
-  /// Analyze
-  void analyze(void);
-  /* void analyze(int LS=-1); */
-//  void analyze(const edm::Event& evt, const edm::EventSetup& es);
-  
-  /// BeginJob
-//  void beginJob();
+	/// Constructors
+	//ZDCMonitorClient();
+	ZDCMonitorClient(std::string myname, const edm::ParameterSet& ps);
 
-  /// EndJob
-  void endJob(void);
+	/// Destructor
+	virtual ~ZDCMonitorClient();
 
-  /// BeginRun
-  void beginRun();
-//  void beginRun(const edm::Run& r, const edm::EventSetup & c);
+	/// Analyze
+	void analyze(void);
+	/* void analyze(int LS=-1); */
+	//  void analyze(const edm::Event& evt, const edm::EventSetup& es);
 
-  /// EndRun
-//  void endRun();
-//  void endRun(const edm::Run & r, const edm::EventSetup & c);
+	/// BeginJob
+	//  void beginJob();
 
-  /// BeginLumiBlock
-//  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+	/// EndJob
+	void endJob(void);
 
-  /// EndLumiBlock
-//  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
-  
-  /// Reset
-  void reset(void);
-  
-  /// Setup
-  void setup(void);
-  
-  /// Cleanup
-  void cleanup(void);
-  
-  /// SoftReset
-  void softReset(bool flag);
- 
-  // Write channelStatus info
-  void writeChannelStatus();
-  
-  // Write html output
-  void writeHtml();
+	/// BeginRun
+	void beginRun() override;
+	//  void beginRun(const edm::Run& r, const edm::EventSetup & c);
 
- private:
+	/// EndRun
+	//  void endRun();
+	//  void endRun(const edm::Run & r, const edm::EventSetup & c);
 
-  int ievt_; // all events
-  int jevt_; // events in current run
-  int run_;
-  int evt_;
-  bool begin_run_;
-  bool end_run_;
+	/// BeginLumiBlock
+	//  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
-  /////New Variables as of Fall 2012
-  int LumiCounter;
-  int PZDC_GoodLumiCounter;
-  int NZDC_GoodLumiCounter;
-  double PZDC_LumiRatio;
-  double NZDC_LumiRatio;
-  //////end new variables of Fall 2012////
+	/// EndLumiBlock
+	//  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
-  // parameter set inputs
+	/// Reset
+	void reset(void);
 
-  std::vector<double> ZDCGoodLumi_;
+	/// Setup
+	void setup(void);
 
-  int debug_;
-  std::string inputFile_;
-  bool mergeRuns_;
-  bool cloneME_;
-  int prescaleFactor_;
-  std::string prefixME_;
-  bool enableCleanup_;
-  std::vector<std::string > enabledClients_;
+	/// Cleanup
+	void cleanup(void);
 
-  int updateTime_; // update time for updating histograms 
-  std::string baseHtmlDir_;
-  int htmlUpdateTime_; //update time for updating histograms
-  std::string databasedir_;
-  int databaseUpdateTime_; //update time for dumping db info (offset by 10 minutes, so that always dump after 10 minutes)
-  int databaseFirstUpdate_; // first update time (in minutes)
-  int htmlFirstUpdate_; // first update for html
-  
-  int htmlcounter_;
+	/// SoftReset
+	void softReset(bool flag);
 
-  bool saveByLumiSection_;  //produces separate LS certification values when enabled
- bool Online_;  // fix to April 2011 problem where online DQM client crashes in endJob.  Is endRun perhaps not called?
- std::string subdir_;
+	// Write channelStatus info
+	void writeChannelStatus();
 
-  // time parameters
-  time_t current_time_;
-  time_t last_time_update_;
-  time_t last_time_html_;
-  time_t last_time_db_;
+	// Write html output
+	void writeHtml();
 
-  std::vector<HcalBaseDQClient*> clients_;  
+private:
 
-  DQMStore* dqmStore_;
-  HcalChannelQuality* chanquality_;
+	int ievt_; // all events
+	int jevt_; // events in current run
+	int run_;
+	int evt_;
+	bool begin_run_;
+	bool end_run_;
 
-  HcalSummaryClient* summaryClient_;
+	/////New Variables as of Fall 2012
+	int LumiCounter;
+	int PZDC_GoodLumiCounter;
+	int NZDC_GoodLumiCounter;
+	double PZDC_LumiRatio;
+	double NZDC_LumiRatio;
+	//////end new variables of Fall 2012////
 
-  ///////////////////New plots as of Fall 2012/////////////
-  MonitorElement* ZDCChannelSummary_;
-  MonitorElement* ZDCHotChannelFraction_;
-  MonitorElement* ZDCColdChannelFraction_;
-  MonitorElement* ZDCDeadChannelFraction_;
-  MonitorElement* ZDCDigiErrorFraction_;
-  MonitorElement* ZDCReportSummary_;
+	// parameter set inputs
 
-  /////////////new plots as of Fall 2012//////////////////
+	std::vector<double> ZDCGoodLumi_;
+
+	int debug_;
+	std::string inputFile_;
+	bool mergeRuns_;
+	bool cloneME_;
+	int prescaleFactor_;
+	std::string prefixME_;
+	bool enableCleanup_;
+	std::vector<std::string > enabledClients_;
+
+	int updateTime_; // update time for updating histograms 
+	std::string baseHtmlDir_;
+	int htmlUpdateTime_; //update time for updating histograms
+	std::string databasedir_;
+	int databaseUpdateTime_; //update time for dumping db info (offset by 10 minutes, so that always dump after 10 minutes)
+	int databaseFirstUpdate_; // first update time (in minutes)
+	int htmlFirstUpdate_; // first update for html
+
+	int htmlcounter_;
+
+	bool saveByLumiSection_;  //produces separate LS certification values when enabled
+	bool Online_;  // fix to April 2011 problem where online DQM client crashes in endJob.  Is endRun perhaps not called?
+	std::string subdir_;
+
+	// time parameters
+	time_t current_time_;
+	time_t last_time_update_;
+	time_t last_time_html_;
+	time_t last_time_db_;
+
+	std::vector<HcalBaseDQClient*> clients_;  
+
+	DQMStore* dqmStore_;
+	HcalChannelQuality* chanquality_;
+
+	HcalSummaryClient* summaryClient_;
+
+	///////////////////New plots as of Fall 2012/////////////
+	MonitorElement* ZDCChannelSummary_;
+	MonitorElement* ZDCHotChannelFraction_;
+	MonitorElement* ZDCColdChannelFraction_;
+	MonitorElement* ZDCDeadChannelFraction_;
+	MonitorElement* ZDCDigiErrorFraction_;
+	MonitorElement* ZDCReportSummary_;
+
+	/////////////new plots as of Fall 2012//////////////////
 };
 
 #endif
