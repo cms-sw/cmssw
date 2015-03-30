@@ -18,6 +18,8 @@ MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(&aMET);
     if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    const pat::MET * pm = dynamic_cast<const pat::MET *>(&aMET);
+    if (pm != 0) this->operator=(*pm);
 }
 
 
@@ -27,6 +29,8 @@ MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETR
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
     if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
+    if (pm != 0) this->operator=(*pm);
 }
 
 /// constructor from ref to reco::MET
@@ -35,6 +39,8 @@ MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
     if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
+    if (pm != 0) this->operator=(*pm);
 }
 
 /// copy constructor
