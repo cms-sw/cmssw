@@ -13,11 +13,9 @@ import FWCore.ParameterSet.Config as cms
 # V.M. Ghete 2011-05-25 revised version of L1 Trigger DQM
 #                       
 
-
 #
 # DQM modules
 #
-
 
 # Bx Timing DQM module
 from DQM.L1TMonitor.BxTiming_cfi import *
@@ -33,6 +31,7 @@ from DQM.L1TMonitor.L1TRCT_cfi import *
 
 # GCT DQM module 
 from DQM.L1TMonitor.L1TGCT_cfi import *
+from DQM.L1TMonitor.L1TStage1Layer2_cfi import *
 
 # DTTPG DQM module 
 # not run in L1T - do we need it? FIXME
@@ -78,6 +77,17 @@ from DQM.TrigXMonitor.L1Scalers_cfi import *
 l1s.l1GtData = cms.InputTag("gtDigis")
 l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM") 
 
+############################################################
+# Stage1 unpacker
+from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
+#caloStage1Digis.FedId = cms.int32(809)
+
+# transfer stage1 format digis to legacy format digis
+
+from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
+
+#################################################################
+
 
 #
 # define sequences 
@@ -91,6 +101,11 @@ l1tRctSeq = cms.Sequence(
 l1tGctSeq = cms.Sequence(
                     l1tGct
                     )
+
+l1tStage1Layer2Seq = cms.Sequence(
+                    l1tStage1Layer2
+                    )
+    
 # for L1ExtraDQM, one must run GGT and GMT/GT unpacker and L1Extra producer 
 # with special configurations
 
@@ -100,6 +115,13 @@ l1ExtraDqmSeq = cms.Sequence(
                         dqmL1ExtraParticles * 
                         l1ExtraDQM
                         )
+
+l1ExtraStage1DqmSeq = cms.Sequence(
+    dqmGtDigis *
+    dqmL1ExtraParticlesStage1 *
+    l1ExtraDQMStage1
+    )
+
 
 # L1T monitor sequence 
 #     modules are independent, so the order is irrelevant 
@@ -116,6 +138,22 @@ l1tMonitorOnline = cms.Sequence(
                           l1tRate +
                           l1tRctSeq +
                           l1tGctSeq
+                          )
+
+l1tMonitorStage1Online = cms.Sequence(
+                          bxTiming +
+                          l1tDttf +
+                          l1tCsctf + 
+                          l1tRpctf +
+                          l1tGmt +
+                          l1tGt +
+                          caloStage1Digis *
+                          caloStage1LegacyFormatDigis*
+                          l1ExtraStage1DqmSeq +
+                          #l1tBPTX +
+                          #l1tRate +
+                          l1tStage1Layer2Seq +
+                          l1tRctSeq 
                           )
 
 
