@@ -3,10 +3,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 
+using namespace std;
+
 GEMRecHitsValidation::GEMRecHitsValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
   InputTagToken_   = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
   InputTagToken_RH = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel"));
+}
+
+MonitorElement* GEMRecHitsValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {                                                                             
+
+  string hist_name  = name+string("_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+
+  string hist_label = label+string(" : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num];  
+
+  return ibooker.book1D( hist_name, hist_label,11,-0.5,10.5 ); 
 }
 
 void GEMRecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -42,17 +53,19 @@ void GEMRecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
   */
   LogDebug("GEMRecHitsValidation")<<"Successfully binning set.\n";
 
+  gem_cls_tot = ibooker.book1D("gem_cls_tot","ClusterSize Distribution",11,-0.5,10.5);
   for( int region_num = 0 ; region_num <nregions ; region_num++ ) {
     for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
       for( int station_num = 0 ; station_num < nstations ; station_num++) {
   //      if ( station_num == 0 ) nstrips = nstripsGE11;
   //      else nstrips = nstripsGE21;
-        std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
-        std::string label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num] +" layer "+layerLabel[layer_num];
+  //      std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
+  //      std::string label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num] +" layer "+layerLabel[layer_num];
        /* theStrip_phistrip[region_num][station_num][layer_num] = ibooker.book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
         theStrip[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
         theStrip_bx[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5); */
-        gem_rh_zr[region_num][station_num][layer_num] = BookHistZR(ibooker,"rh","RecHits",region_num,station_num,layer_num);
+        gem_cls[region_num][station_num][layer_num] = BookHist1D(ibooker,"cls","ClusterSize Distribution",region_num,station_num,layer_num);
+ 	gem_rh_zr[region_num][station_num][layer_num] = BookHistZR(ibooker,"rh","RecHits",region_num,station_num,layer_num);
         gem_rh_xy[region_num][station_num][layer_num] = BookHistXY(ibooker,"rh","RecHits",region_num,station_num,layer_num);
       }
     }
@@ -163,11 +176,13 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
 
   		if(cond1 and cond2 and cond3){
 		//	Float_t x_pull = (sh_l_x - rh_l_x) / rh_l_xErr;
-		 	std::cout << " Region " << rh_region << "Station" << rh_station 
-<< "Layer: "<< rh_layer << std::endl;	
-			gem_rh_xy[rh_region][rh_station][rh_layer]->Fill(rh_g_X,rh_g_Y);
-			gem_rh_zr[rh_region][rh_station][rh_layer]->Fill(rh_g_Z,rh_g_R);
-		}	
+		 	 LogDebug("GEMRecHitsValidation")<< " Region : " << rh_region << "\t Station : " << rh_station 
+<< "\t Layer : "<< rh_layer << "\n Radius: " << rh_g_R << "\t X : " << rh_g_X << "\t Y : "<< rh_g_Y << "\t Z : " << rh_g_Z << std::endl;	
+			gem_cls_tot->Fill(clusterSize);
+			gem_cls[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(clusterSize);
+			gem_rh_zr[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_R ,rh_g_Z);
+			gem_rh_xy[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_X ,rh_g_Y);
+		}
 
 	} //End loop on RecHits
   } //End loop on SimHits
