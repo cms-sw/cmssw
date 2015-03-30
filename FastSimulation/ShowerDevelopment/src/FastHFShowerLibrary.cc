@@ -18,6 +18,13 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
+// Geant4 headers
+#include "G4ParticleDefinition.hh"
+#include "G4DynamicParticle.hh"
+#include "G4DecayPhysics.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleTypes.hh"
+
 // STL headers 
 #include <vector>
 #include <iostream>
@@ -49,26 +56,13 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   numberingFromDDD = new HcalNumberingFromDDD(name, *cpv);  
   numberingScheme  = new HcalNumberingScheme();
 
-  initRun();  
-}
+// Geant4 particles
+  G4DecayPhysics decays;
+  decays.ConstructParticle();  
+  G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+  partTable->SetReadiness();
 
-void FastHFShowerLibrary::initRun() {
-
-  geantinoPDG = 0; gammaPDG = 22;
-  emPDG   = 11; epPDG    = -11; nuePDG   = 12; anuePDG   = -12;
-  numuPDG = 14; anumuPDG = -14; nutauPDG = 16; anutauPDG = -16;
-  pi0PDG = 111; etaPDG   = 221;
-
-#ifdef DebugLog
-  edm::LogInfo("FastCalorimetry") << "HFShowerLibrary: Particle codes for e- = " 
-			   << emPDG << ", e+ = " << epPDG << ", gamma = " 
-			   << gammaPDG << ", pi0 = " << pi0PDG << ", eta = " 
-			   << etaPDG << ", geantino = " << geantinoPDG 
-			   << "\n        nu_e = " << nuePDG << ", nu_mu = " 
-			   << numuPDG << ", nu_tau = " << nutauPDG 
-			   << ", anti_nu_e = " << anuePDG << ", anti_nu_mu = " 
-			   << anumuPDG << ", anti_nu_tau = " << anutauPDG;
-#endif
+  if (hfshower) hfshower->initRun(partTable); // init particle code
 }
 
 void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
@@ -97,16 +91,17 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   bool ok;
   double weight = 1.0;                     // rad. damage 
   int parCode   = myTrack.type();
+  double tSlice = 0.1*vertex.mag()/29.98;
 
   std::vector<HFShowerLibrary::Hit> hits =
-              getHits(vertex, direction, parCode, eGen, ok, weight, false);
+              hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,false,tSlice);
 
   for (unsigned int i=0; i<hits.size(); ++i) {
     G4ThreeVector pos = hits[i].position;
     int depth         = hits[i].depth;
     double time       = hits[i].time;
-
-    if (isItinFidVolume (pos)) {     
+    if (!applyFidCut || (HFFibreFiducial::PMTNumber(pos)>0) ) {     
+//    if (!applyFidCut || (applyFidCut && HFFibreFiducial::PMTNumber(pos)>0)) {     
       int det = 5;
       int lay = 1;
       uint32_t id = 0;
@@ -125,39 +120,3 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   } // end loop over hits
 
 }
-
-bool FastHFShowerLibrary::isItinFidVolume (G4ThreeVector& hitPoint) {
-  bool flag = true;
-  if (applyFidCut) {
-    int npmt = HFFibreFiducial::PMTNumber(hitPoint);
-#ifdef DebugLog
-    edm::LogInfo("FastCalorimetry") << "HFShowerLibrary::isItinFidVolume:#PMT= " 
-                                    << npmt << " for hit point " << hitPoint;
-#endif
-    if (npmt <= 0) flag = false;
-  }
-#ifdef DebugLog
-    edm::LogInfo("FastCalorimetry") << "HFShowerLibrary::isItinFidVolume: point " 
-                                    << hitPoint << " return flag " << flag;
-#endif
-  return flag;
-}
-
-std::vector<HFShowerLibrary::Hit> FastHFShowerLibrary::getHits(G4ThreeVector & hitPoint,
-                                  G4ThreeVector & momDir, int parCode, double pin, 
-                                  bool & ok, double weight, bool onlyLong) {
-
-  std::vector<HFShowerLibrary::Hit> hit;
-  ok = false;
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
-    return hit;
-
-  ok = true;
-
-  double tSlice = 0.1*hitPoint.mag()/29.98;
-  hfshower->fillHits(hitPoint,momDir,hit,parCode,pin,ok,weight,onlyLong,tSlice);
-  return hit;
-}
-

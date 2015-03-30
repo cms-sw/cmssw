@@ -226,26 +226,24 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
                            << "," << cos(momDir.theta());
 #endif
 
+  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
+  double pin    = preStepPoint->GetTotalEnergy();
+
+  return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
+}
+
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
+                               G4ThreeVector & momDir,
+                               int parCode, double pin, bool & ok,
+                               double weight, double tSlice,bool onlyLong) {
+
   std::vector<HFShowerLibrary::Hit> hit;
   ok = false;
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
       parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
     return hit;
   ok = true;
-
-  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
-  double pin    = preStepPoint->GetTotalEnergy();
-
-  fillHits(hitPoint,momDir,hit,parCode,pin,ok,weight,tSlice,onlyLong);
-  return hit;
-}
-
-void HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
-                               G4ThreeVector & momDir,
-                               std::vector<HFShowerLibrary::Hit> & hit,
-                               int parCode, double pin, bool & ok,
-                               double weight, double tSlice,bool onlyLong) {
 
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
@@ -259,7 +257,7 @@ void HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
-  if (parCode == 11 || parCode == -11 || parCode == 22 ) {
+  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
@@ -394,6 +392,7 @@ void HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
+ return hit;
 
 }
 

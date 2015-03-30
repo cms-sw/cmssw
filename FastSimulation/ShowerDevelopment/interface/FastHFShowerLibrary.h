@@ -46,17 +46,10 @@ public:
 
 public:
 
-  void                initRun();
   void       const    initHFShowerLibrary(const edm::EventSetup& );
   void                recoHFShowerLibrary(const FSimTrack &myTrack);
 
-  std::vector<HFShowerLibrary::Hit> getHits(G4ThreeVector & p, G4ThreeVector & v,
-                                            int parCode, double parEnergy, bool &ok, 
-                                            double weight, bool onlyLong=false);
-
   const std::map<CaloHitID,float>& getHitsMap() { return hitMap; };
-
-  bool                isItinFidVolume (G4ThreeVector&);
 
 private:
 
@@ -66,9 +59,6 @@ private:
   std::map<CaloHitID,float> hitMap;
 
   bool applyFidCut;
-  int  emPDG, epPDG, gammaPDG;
-  int  pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int  anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   HFShowerLibrary* hfshower;
   edm::ParameterSet const fast;

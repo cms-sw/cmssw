@@ -46,10 +46,8 @@ public:
   void                initRun(G4ParticleTable * theParticleTable);
   std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
-
-  void                fillHits(G4ThreeVector & p, G4ThreeVector & v,
-                               std::vector<HFShowerLibrary::Hit> & hit,
-                               int parCode, double parEnergy, bool & ok, 
+  std::vector<Hit>    fillHits(G4ThreeVector & p, G4ThreeVector & v,
+                               int parCode, double parEnergy, bool & ok,
                                double weight, double time, bool onlyLong=false);
 protected:
 
