@@ -354,7 +354,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
     }
 
   if (zdcMon_!=NULL && zdchitOK_ && digiOK_) 
-    zdcMon_->processEvent(*zdc_digi,*zdc_hits);
+    zdcMon_->processEvent(*zdc_digi,*zdc_hits, *report);
  
   if (showTiming_)
     {
