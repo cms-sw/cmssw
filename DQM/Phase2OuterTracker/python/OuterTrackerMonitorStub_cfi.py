@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerMonitorStub = cms.EDAnalyzer('OuterTrackerMonitorStub',
     
     TopFolderName = cms.string('Phase2OuterTracker'),
+    TTStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+
 
 # TTStub barrel y vs x 
 # TTStub forward/backward endcap y vs x

@@ -54,7 +54,8 @@ OuterTrackerStub::OuterTrackerStub(const edm::ParameterSet& iConfig)
 
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  
+  tagTTStubs_ = conf_.getParameter< edm::InputTag >("TTStubs");
+  tagTTStubMCTruth_ = conf_.getParameter< edm::InputTag >("TTStubMCTruth");
 }
 
 
@@ -90,11 +91,11 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
   
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted",        PixelDigiTTStubHandle );
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > PixelDigiTTStubHandle;
+  iEvent.getByLabel( tagTTStubs_, PixelDigiTTStubHandle );
   /// Track Trigger MC Truth
-  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",        MCTruthTTStubHandle );
+  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > > MCTruthTTStubHandle;
+  iEvent.getByLabel( tagTTStubMCTruth_, MCTruthTTStubHandle );
   
   /// Loop over the input Stubs
   typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;

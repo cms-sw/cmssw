@@ -3,7 +3,10 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerStub = cms.EDAnalyzer('OuterTrackerStub',
     
     TopFolderName = cms.string('Phase2OuterTrackerV'),
-    
+    TTStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),    
+
+
 # Stub Stacks
     TH1TTStub_Stack = cms.PSet(
         Nbinsx = cms.int32(6),

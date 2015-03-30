@@ -40,6 +40,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 
@@ -61,6 +62,12 @@ OuterTrackerMCTruth::OuterTrackerMCTruth(const edm::ParameterSet& iConfig)
 
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  tagTTClusters_ = conf_.getParameter< edm::InputTag >("TTClusters");
+  tagTTClusterMCTruth_ = conf_.getParameter< edm::InputTag >("TTClusterMCTruth");
+  tagTTStubs_ = conf_.getParameter< edm::InputTag >("TTStubs");
+  tagTTStubMCTruth_ = conf_.getParameter< edm::InputTag >("TTStubMCTruth");
+  tagTTTracks_ = conf_.getParameter< edm::InputTag >("TTTracks");
+  tagTTTrackMCTruth_ = conf_.getParameter< edm::InputTag >("TTTrackMCTruth");
 }
 
 
@@ -101,19 +108,26 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const MagneticField* theMagneticField = magneticFieldHandle.product();
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   
+  
   /// TrackingParticles
   edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
   iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
+  
   /// Track Trigger
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterHandle );
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted",        PixelDigiTTStubHandle );
+  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > >            PixelDigiTTTrackHandle;
+  iEvent.getByLabel( tagTTClusters_, PixelDigiTTClusterHandle );
+  iEvent.getByLabel( tagTTStubs_, PixelDigiTTStubHandle );
+  iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
+  
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
-  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
   edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",        MCTruthTTStubHandle );
+  edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > >   MCTruthTTTrackHandle;
+  iEvent.getByLabel( tagTTClusterMCTruth_, MCTruthTTClusterHandle );
+  iEvent.getByLabel( tagTTStubMCTruth_, MCTruthTTStubHandle );
+  iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
   
   
   /// Go on only if there are TrackingParticles
