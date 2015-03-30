@@ -105,6 +105,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_Hot_Channel_Errors->setBinLabel(7,"HAD2",2);
         ZDC_Hot_Channel_Errors->setBinLabel(8,"HAD3",2);
         ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);
         ZDC_Hot_Channel_Errors->getTH2F()->SetOption("coltext");
 
 
@@ -126,7 +127,10 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);
         ZDC_Dead_Channel_Errors->getTH2F()->SetOption("coltext");
 
-	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
+        ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Dead_Channel_Errors->getTH2F()->SetOption("coltext");
+
+	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);
 
 	// cold channels
 	ib.setCurrentFolder(baseFolder_ + "Errors/ColdChannel");
@@ -144,7 +148,10 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);
         ZDC_Cold_Channel_Errors->getTH2F()->SetOption("coltext");
 
-	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
+        ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Cold_Channel_Errors->getTH2F()->SetOption("coltext");
+
+	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);
 
 	// total errors
 	ib.setCurrentFolder(baseFolder_ + "Errors");
@@ -162,6 +169,8 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_TotalChannelErrors->setBinLabel(9,"HAD4",2);
         ZDC_TotalChannelErrors->getTH2F()->SetOption("coltext");
 
+
+	//
 	h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
 	h_2D_charge->setBinLabel(1,"ZDC+",1);
 	h_2D_charge->setBinLabel(2,"ZDC-",1);
@@ -333,7 +342,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 		//RecHit Timing Minus Side 
 		sprintf(title,"h_ZDCM_EMChan_%i_RecHit_Timing",i+1);
 		sprintf(name,"ZDC EM Section Rechit Timing for channel %i",i+1);
-		h_ZDCM_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);	
+		h_ZDCM_EM_RecHitTiming[i] = ib.book1D(title, name, 100, -100., 100.);
 		h_ZDCM_EM_RecHitTiming[i]->setAxisTitle("RecHit Time",1);
 		h_ZDCM_EM_RecHitTiming[i]->setAxisTitle("Events",2);
 	}
