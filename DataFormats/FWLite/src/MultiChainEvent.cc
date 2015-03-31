@@ -367,9 +367,6 @@ edm::WrapperBase const* MultiChainEvent::getByProductID(edm::ProductID const&iID
   if (edp == nullptr) {
     (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
     edp = event2_->getByProductID(iID);
-    if (edp == nullptr) {
-      throw cms::Exception("ProductNotFound") << "Cannot find product " << iID;
-    }
   }
   return edp;
 }
