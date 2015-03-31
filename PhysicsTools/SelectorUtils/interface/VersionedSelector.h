@@ -166,7 +166,6 @@ initialize( const edm::ParameterSet& conf ) {
 	<< "The requested cut: " << name << " is not available!";
     }
     needs_event_content_.push_back(needsContent);
-
     const std::string therealname = realname.str();
     this->push_back(therealname);
     this->set(therealname);
