@@ -4,7 +4,9 @@ containing the APV gain scan at tickmarks and creates the corresponding payload
 in the offline Database. For each APV the tickmark file is expected to have one
 line with the following data:
 
-| offline detector id | online APV id | value of the gain scan    
+---------------------------------------------------------------
+| offline detector id | online APV id | value of the gain scan|    
+---------------------------------------------------------------
 
 An example of tickmark file can be found in the data directory of this packages.
 The payload for the offline database requires to convert the online APV ids into
@@ -28,7 +30,7 @@ APV ids. The detector modules can have 3 APV pairs or 2 APV pair and the logic o
 the conversion is different according to the module type. The conversion logic is
 listed in the table below
 
-|  6 APV per module  |
+Modules with 6 APVs:
 ----------------------------------
 | online APV id | offline APV id |    
 ----------------------------------
@@ -38,3 +40,13 @@ listed in the table below
 | 3 | 3 |
 | 4 | 4 |
 | 5 | 5 |
+
+Modules with 4 APVs:
+----------------------------------
+| online APV id | offline APV id |
+----------------------------------
+| 0 | 0 |
+| 1 | 1 |
+| 4 | 2 |
+| 5 | 3 |
+
