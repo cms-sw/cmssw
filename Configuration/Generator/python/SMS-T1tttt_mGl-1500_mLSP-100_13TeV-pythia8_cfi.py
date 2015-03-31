@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
+from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
 SLHA_TABLE = """
 Block MODSEL  # Model selection
@@ -255,6 +256,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(0), 
     PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
+        pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
             'SUSY:all = off',
             'SUSY:gg2gluinogluino = on',
@@ -262,6 +264,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         ),
         parameterSets = cms.vstring(
             'pythia8CommonSettings',
+            'pythia8CUEP8M1Settings',
             'processParameters'
         )
     )
