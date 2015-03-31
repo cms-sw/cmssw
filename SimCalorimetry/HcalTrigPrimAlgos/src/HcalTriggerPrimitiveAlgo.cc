@@ -179,7 +179,6 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
 
 void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result) {
    int shrink = weights_.size() - 1;
-   std::vector<bool> finegrain(numberOfSamples_,false);
    std::vector<bool>& msb = fgMap_[samples.id()];
    IntegerCaloSamples sum(samples.id(), samples.size());
 
@@ -196,18 +195,28 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
       else sum[ibin] = algosumvalue;              //assign value to sum[]
    }
 
-   IntegerCaloSamples output(samples.id(), numberOfSamples_);
-   output.setPresamples(numberOfPresamples_);
-
    // Align digis and TP
-   int shift = samples.presamples() - numberOfPresamples_;
-   if (peakfind_) {
-      assert (shift >= (peakfind_ ? shrink : 0));
-      assert(shift + numberOfSamples_ + shrink <= samples.size() - (peak_finder_algorithm_ - 1));
+   int dgPresamples=samples.presamples(); 
+   int tpPresamples=numberOfPresamples_;
+   int shift = dgPresamples - tpPresamples;
+   int dgSamples=samples.size();
+   int tpSamples=numberOfSamples_;
+   if(peakfind_){
+       if((shift<shrink) || (shift + tpSamples + shrink > dgSamples - (peak_finder_algorithm_ - 1) )   ){
+	    edm::LogInfo("HcalTriggerPrimitiveAlgo::analyze") << 
+		"TP presample or size from the configuration file is out of the accessible range. Using digi values from data instead...";
+	    shift=shrink;
+	    tpPresamples=dgPresamples-shrink;
+	    tpSamples=dgSamples-(peak_finder_algorithm_-1)-shrink-shift;
+       }
    }
 
+   std::vector<bool> finegrain(tpSamples,false);
 
-   for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+   IntegerCaloSamples output(samples.id(), tpSamples);
+   output.setPresamples(tpPresamples);
+
+   for (int ibin = 0; ibin < tpSamples; ++ibin) {
       // ibin - index for output TP
       // idx - index for samples + shift
       int idx = ibin + shift;
@@ -243,19 +252,29 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
          if (samples[idx] >= 0x3FF)
             output[ibin] = 0x3FF;
       }
-      outcoder_->compress(output, finegrain, result);
    }
+   outcoder_->compress(output, finegrain, result);
 }
 
 
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb) {
-   std::vector<bool> finegrain(numberOfSamples_, false);
    HcalTrigTowerDetId detId(samples.id());
 
    // Align digis and TP
-   int shift = samples.presamples() - numberOfPresamples_;
-   assert(shift >=  0);
-   assert((shift + numberOfSamples_) <=  samples.size());
+   int dgPresamples=samples.presamples(); 
+   int tpPresamples=numberOfPresamples_;
+   int shift = dgPresamples - tpPresamples;
+   int dgSamples=samples.size();
+   int tpSamples=numberOfSamples_;
+   if(shift<0 || shift+tpSamples>dgSamples){
+	edm::LogInfo("HcalTriggerPrimitiveAlgo::analyzeHF") << 
+	    "TP presample or size from the configuration file is out of the accessible range. Using digi values from data instead...";
+	tpPresamples=dgPresamples;
+	shift=0;
+	tpSamples=dgSamples;
+   }
+
+   std::vector<bool> finegrain(tpSamples, false);
 
    TowerMapFGSum::const_iterator tower2fg = theTowerMapFGSum.find(detId);
    assert(tower2fg != theTowerMapFGSum.end());
@@ -265,20 +284,21 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
    // Note: 1 samples.id() = 6 x (L+S) without noZS
    for (SumFGContainer::const_iterator sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
       const std::vector<bool>& veto = HF_Veto[sumFGItr->id().rawId()];
-      for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+      for (int ibin = 0; ibin < tpSamples; ++ibin) {
          int idx = ibin + shift;
          // if not vetod, add L+S to total sum and calculate FG
-         if (!(veto[idx] && (*sumFGItr)[idx] > PMT_NoiseThreshold_)) {
+	 bool vetoed = idx<int(veto.size()) && veto[idx];
+         if (!(vetoed && (*sumFGItr)[idx] > PMT_NoiseThreshold_)) {
             samples[idx] += (*sumFGItr)[idx];
             finegrain[ibin] = (finegrain[ibin] || (*sumFGItr)[idx] >= FG_threshold_);
          }
       }
    }
 
-   IntegerCaloSamples output(samples.id(), numberOfSamples_);
-   output.setPresamples(numberOfPresamples_);
+   IntegerCaloSamples output(samples.id(), tpSamples);
+   output.setPresamples(tpPresamples);
 
-   for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+   for (int ibin = 0; ibin < tpSamples; ++ibin) {
       int idx = ibin + shift;
       output[ibin] = samples[idx] / (rctlsb == 0.25 ? 4 : 8);
       if (output[ibin] > 0x3FF) output[ibin] = 0x3FF;
