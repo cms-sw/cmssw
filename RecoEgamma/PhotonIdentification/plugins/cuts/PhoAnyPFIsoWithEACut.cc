@@ -11,7 +11,7 @@ public:
   void getEventContent(const edm::EventBase&) override final;
 
   CandidateType candidateType() const override final { 
-    return ELECTRON; 
+    return PHOTON; 
   }
 
 private:
