@@ -24,11 +24,3 @@ void pat::UserData::checkDictionaries(const std::type_info &type) {
             << "   you need to specify them in classes_def.xml.\n";
     } // check for dictionary
 }
-
-std::string pat::UserData::demangleName(const char* iMangledName) {
-   int status = 0;
-   char * demangled = abi::__cxa_demangle(iMangledName,  0, 0, &status);
-   const std::string name(status == 0 ? demangled : "[UNKNOWN]");
-   if((status ==0) and (nullptr != demangled)) { free(demangled);}
-   return name;
-}
