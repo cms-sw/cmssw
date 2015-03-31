@@ -31,7 +31,9 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig) :
   // initialize configurables
   jetsToken_ = consumes<edm::View<Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
-  jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return mayConsume<edm::ValueMap<JetCorrFactors> >(tag);});
+  if ( addJetCorrFactors_ ) {
+    jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<JetCorrFactors> >(tag);});
+  }
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
