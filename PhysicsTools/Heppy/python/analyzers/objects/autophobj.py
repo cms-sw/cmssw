@@ -28,6 +28,12 @@ fourVectorType = NTupleObjectType("fourVector", variables = [
 particleType = NTupleObjectType("particle", baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("pdgId",   lambda x : x.pdgId(), int),
 ])
+    
+weightsInfoType = NTupleObjectType("WeightsInfo", variables = [
+    NTupleVariable("id",   lambda x : x.id, int),
+    NTupleVariable("wgt",   lambda x : x.wgt),
+])
+        
 
 ##------------------------------------------  
 ## LEPTON
@@ -59,7 +65,6 @@ leptonType = NTupleObjectType("lepton", baseObjectTypes = [ particleType ], vari
     NTupleVariable("mcMatchId",  lambda x : x.mcMatchId, int, mcOnly=True, help="Match to source from hard scatter (pdgId of heaviest particle in chain, 25 for H, 6 for t, 23/24 for W/Z), zero if non-prompt or fake"),
     NTupleVariable("mcMatchAny", lambda x : x.mcMatchAny, int, mcOnly=True, help="Match to any final state leptons: 0 if unmatched, 1 if light flavour (including prompt), 4 if charm, 5 if bottom"),
     NTupleVariable("mcMatchTau", lambda x : x.mcMatchTau, int, mcOnly=True, help="True if the leptons comes from a tau"),
-    NTupleVariable("mcPt",   lambda x : x.mcLep.pt() if getattr(x,"mcLep",None) else 0., mcOnly=True, help="p_{T} of associated gen lepton"),
 ])
 
 ### EXTENDED VERSION WITH INDIVIUAL DISCRIMINATING VARIABLES
@@ -149,7 +154,6 @@ photonType = NTupleObjectType("gamma", baseObjectTypes = [ particleType ], varia
     NTupleVariable("neuHadIso",  lambda x : x.recoNeutralHadronIso(), float, help="neutralHadronIsolation for photons"),
     NTupleVariable("phIso",  lambda x : x.recoPhotonIso(), float, help="gammaIsolation for photons"),
     NTupleVariable("mcMatchId",  lambda x : x.mcMatchId, int, mcOnly=True, help="Match to source from hard scatter (pdgId of heaviest particle in chain, 25 for H, 6 for t, 23/24 for W/Z), zero if non-prompt or fake"),
-    NTupleVariable("mcPt",   lambda x : x.mcGamma.pt() if getattr(x,"mcGamma",None) else 0., mcOnly=True, help="p_{T} of associated gen photon"),
 ])
 
 ##------------------------------------------  
