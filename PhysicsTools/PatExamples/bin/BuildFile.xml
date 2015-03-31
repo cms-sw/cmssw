@@ -1,6 +1,4 @@
 <use   name="root"/>
-<use   name="boost"/>
-
 <use   name="FWCore/FWLite"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/PythonParameterSet"/>
