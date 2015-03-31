@@ -13,6 +13,22 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	baseFolder_ = rootFolder_ + "ZDCMonitor_Hcal";
 
 	NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
+	ChannelWeighting_      = ps.getUntrackedParameter<std::vector<double>> ("ZDC_ChannelWeighting");
+	MaxErrorRates_         = ps.getUntrackedParameter<std::vector<double>> ("ZDC_AcceptableChannelErrorRates");
+	OfflineColdThreshold_  = ps.getUntrackedParameter<int>("ZDC_OfflineColdThreshold");
+	OfflineDeadThreshold_  = ps.getUntrackedParameter<int>("ZDC_OfflineDeadThreshold");
+	OnlineDeadThreshold_   = ps.getUntrackedParameter<int>("ZDC_OnlineDeadThreshold");
+	OnlineColdThreshold_   = ps.getUntrackedParameter<int>("ZDC_OnlineColdThreshold");
+
+	for (int i=0;i<18;++i)
+	{
+		ColdChannelCounter[i]=0;
+		DeadChannelCounter[i]=0;
+	}
+
+	EventCounter=0;
+
+
 
 	if (showTiming) {
 		cpu_timer.reset();
@@ -724,6 +740,130 @@ double HcalZDCMonitor::getTime(const std::vector<double>& fData, unsigned int ts
 
 void HcalZDCMonitor::endLuminosityBlock()
 {
+	bool HadLumiError[18]={false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+
+	EventsVsLS->Fill(lumiblock, EventCounter);
+
+	if(Online_ == false)
+	{//checks if DQM is in OFFLINE MODE
+		for (int i=0;i<18;++i) {
+			ChannelRatio[i]=(TotalChannelErrors[i])*1./EventCounter;
+			if (ChannelRatio[i] <= MaxErrorRates_[i]) {
+				if (i<9) {
+					PZDC_QualityIndexVsLB_->Fill(lumiblock,ChannelWeighting_[i]);
+				} else {
+					NZDC_QualityIndexVsLB_->Fill(lumiblock,ChannelWeighting_[i]);
+				}
+				if (ColdChannelCounter[i] >= OfflineColdThreshold_)//Begin Cold Error Plots
+				{
+					ZDC_Cold_Channel_Errors->Fill(i/9,i%9,ColdChannelCounter[i]);
+					ZDC_ColdChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);//Can change this between 1, or the amount of errors (Currently the latter)
+					ColdChannelCounter[i]=0;
+					HadLumiError[i]=true;
+				}//END OF Cold Error Plot
+				if (DeadChannelCounter[i] >= OfflineDeadThreshold_)
+				{//Begin Dead Error Plots
+					ZDC_Dead_Channel_Errors->Fill(i/9,i%9,DeadChannelCounter[i]);
+					ZDC_DeadChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,DeadChannelCounter[i]); //Could fill this with 1 or total dead errors (which is currently done)
+					DeadChannelCounter[i]=0;
+					HadLumiError[i]=true;
+				}//END OF Dead Channel Plots
+				if (HadLumiError[i]==true)
+				{//Removing the QI for Dead of Cold Channels
+					if (i<9) {
+						PZDC_QualityIndexVsLB_->Fill(lumiblock,(-1*ChannelWeighting_[i]));
+					} else {
+						NZDC_QualityIndexVsLB_->Fill(lumiblock,(-1*ChannelWeighting_[i]));
+					}
+				}//END OF QI Removal
+			}//END OF ChannelRatio[i]<=MaxErrorRates_[i]
+			else {
+				//This part only happens if ChannelRatio[i] > MaxErrorRates_[i]...
+				//Above you notice the QI plots become 'un-filled'. 
+				//If the plot was never filled to begin with, 
+				//then we do not want to remove from the plot  causing there to be a negative QI
+				if (ColdChannelCounter[i] >= OfflineColdThreshold_)
+				{//Begin Cold Error Plots
+					ZDC_Cold_Channel_Errors->Fill(i/9,i%9,ColdChannelCounter[i]);
+					ZDC_ColdChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);
+					ColdChannelCounter[i]=0;
+				}//END OF Cold Error Plot
+				if (DeadChannelCounter[i] >= OfflineDeadThreshold_)
+				{//Begin Dead Error plots
+					ZDC_Dead_Channel_Errors->Fill(i/9,i%9,DeadChannelCounter[i]);
+					ZDC_DeadChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,DeadChannelCounter[i]);
+					DeadChannelCounter[i]=0;
+				}//END OF Dead Error Plots
+			}
+		}//END OF FOR LOOP
+	}//END OF DQM OFFLINE PART
+
+	if(Online_ == true)
+	{//checks if DQM is in ONLINE MODE
+		for (int i=0;i<18;++i) {
+			ChannelRatio[i]=(TotalChannelErrors[i])*1./EventCounter;
+			if (ChannelRatio[i] <= MaxErrorRates_[i]) {
+				if (i<9) {
+					PZDC_QualityIndexVsLB_->Fill(lumiblock,ChannelWeighting_[i]);
+				} else {
+					NZDC_QualityIndexVsLB_->Fill(lumiblock,ChannelWeighting_[i]);
+				}
+				if (ColdChannelCounter[i] >= OnlineColdThreshold_)//Begin Cold Error Plots
+				{
+					ZDC_Cold_Channel_Errors->Fill(i/9,i%9,ColdChannelCounter[i]);
+					ZDC_ColdChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);//Can change this between 1, or the amount of errors (Currently the latter)
+					ColdChannelCounter[i]=0;
+					HadLumiError[i]=true;
+				}//END OF Cold Error Plot
+				if (DeadChannelCounter[i] >= OnlineDeadThreshold_)
+				{//Begin Dead Error Plots
+					ZDC_Dead_Channel_Errors->Fill(i/9,i%9,DeadChannelCounter[i]);
+					ZDC_DeadChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,DeadChannelCounter[i]); //Could fill this with 1 or total dead errors (which is currently done)
+					DeadChannelCounter[i]=0;
+					HadLumiError[i]=true;
+				}//END OF Dead Channel Plots
+				if (HadLumiError[i]==true)
+				{//Removing the QI for Dead of Cold Channels
+					if (i<9) {
+						PZDC_QualityIndexVsLB_->Fill(lumiblock,(-1*ChannelWeighting_[i]));
+					} else {
+						NZDC_QualityIndexVsLB_->Fill(lumiblock,(-1*ChannelWeighting_[i]));
+					}
+				}//END OF QI Removal
+			}//END OF ChannelRatio[i]<=MaxErrorRates_[i]
+			else {
+				//This part only happens if ChannelRatio[i] > MaxErrorRates_[i]...
+				//Above you notice the QI plots become 'un-filled'. 
+				//If the plot was never filled to begin with, 
+				//then we do not want to remove from the plot  causing there to be a negative QI
+				if (ColdChannelCounter[i] >= OnlineColdThreshold_)
+				{//Begin Cold Error Plots
+					ZDC_Cold_Channel_Errors->Fill(i/9,i%9,ColdChannelCounter[i]);
+					ZDC_ColdChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);
+					ColdChannelCounter[i]=0;
+				}//END OF Cold Error Plot
+				if (DeadChannelCounter[i] >= OnlineDeadThreshold_)
+				{//Begin Dead Error plots
+					ZDC_Dead_Channel_Errors->Fill(i/9,i%9,DeadChannelCounter[i]);
+					ZDC_DeadChannelErrorsVsLS->Fill(lumiblock,1);
+					ZDC_TotalChannelErrors->Fill(i/9,i%9,DeadChannelCounter[i]);
+					DeadChannelCounter[i]=0;
+				}//END OF Dead Error Plots
+			}//end of ChannelRatio[i] > MaxErrorRates_[i] part
+		}//END OF FOR LOOP
+	}//END OF DQM ONLINE PART
+
+
+
+
+	HcalBaseMonitor::endLuminosityBlock();
 
 	for (int i = 0; i < 5; ++i) {   // EM Channels
 		// ZDC Plus
