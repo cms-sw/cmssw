@@ -40,7 +40,12 @@ private:
 	MonitorElement* ProblemsVsLB_ZDC;
 
 	int NLumiBlocks_;
+	float ChannelRatio[18];//errorevents/total events in 1 LS
 	int EventCounter;//events in lumi
+
+	int OfflineDeadThreshold_;
+	int OnlineDeadThreshold_;
+	int OnlineColdThreshold_;
 
 	int TotalChannelErrors[18];//total events with an error per channel in a LS
 	int DeadChannelCounter[18];
@@ -52,10 +57,12 @@ private:
 	bool ChannelHasDigiError[18];
 
 	std::vector<double> ChannelWeighting_; //Quality index(QI) see description below
+	std::vector<double> MaxErrorRates_; //the fractional error rate before a channel is called bad for a LS
+	int OfflineColdThreshold_;
 
-	const HcalQIEShape* shape_;
-	const HcalQIECoder* channelCoder_;
-	HcalCalibrations calibs_;
+//	const HcalQIEShape* shape_;
+//	const HcalQIECoder* channelCoder_;
+//	HcalCalibrations calibs_;
 	int ievt_;
 	//int zdc_checkNevents_;
 	MonitorElement* meEVT_;
