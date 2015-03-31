@@ -19,5 +19,5 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<TrackParamConstraint> > >"/>
   -->
 
-  <class pattern="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<TrackParamConstraint> > >"  persistent="false" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<TrackParamConstraint> > >"  persistent="false" />
 </lcgdict>

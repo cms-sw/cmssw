@@ -13,6 +13,7 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "boost/array.hpp"
 #include <memory>
@@ -22,7 +23,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class ProductHolderIndexHelper;
@@ -111,11 +111,11 @@ namespace edm {
     bool productProduced(BranchType branchType) const {return transient_.productProduced_[branchType];}
     bool anyProductProduced() const {return transient_.anyProductProduced_;}
 
-    std::vector<std::string> const& missingDictionaries() const {
+    std::vector<TypeID> const& missingDictionaries() const {
       return transient_.missingDictionaries_;
     }
 
-    std::vector<std::string>& missingDictionariesForUpdate() {
+    std::vector<TypeID>& missingDictionariesForUpdate() {
       return transient_.missingDictionaries_;
     }
 
@@ -148,7 +148,7 @@ namespace edm {
 
       std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
 
-      std::vector<std::string> missingDictionaries_;
+      std::vector<TypeID> missingDictionaries_;
 
       std::vector<std::pair<std::string, std::string> > aliasToOriginal_;
     };

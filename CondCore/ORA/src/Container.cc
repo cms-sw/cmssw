@@ -39,7 +39,7 @@ ora::Object ora::ContainerIterator::getItem(){
 }
 
 boost::shared_ptr<void> ora::ContainerIterator::getItemAsType( const std::type_info& asTypeInfo ){
-  Reflex::Type castType = ClassUtils::lookupDictionary( asTypeInfo );
+  edm::TypeWithDict castType = ClassUtils::lookupDictionary( asTypeInfo );
   void* ptr = m_buffer->getItemAsType( castType );
   return boost::shared_ptr<void>( ptr, RflxDeleter( m_buffer->type() ) );
 }
@@ -77,8 +77,8 @@ const std::string& ora::Container::className(){
 }
 
 std::string ora::Container::realClassName(){
-  Reflex::Type type = ClassUtils::lookupDictionary( className() );
-  std::string ret = ClassUtils::demangledName( type.TypeInfo() ); 
+  edm::TypeWithDict type = ClassUtils::lookupDictionary( className() );
+  std::string ret = ClassUtils::demangledName( type.typeInfo() );
   ret.erase( std::remove( ret.begin(), ret.end(), ' ' ), ret.end() ); 
   return ret;
 }
@@ -97,7 +97,7 @@ ora::ContainerIterator ora::Container::iterator(){
 }
 
 void ora::Container::extendSchema( const std::type_info& typeInfo ){
-  Reflex::Type type = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict type = ClassUtils::lookupDictionary( typeInfo );
   m_dbContainer->extendSchema( type );
 }
 
@@ -112,7 +112,7 @@ ora::Object ora::Container::fetchItem(int itemId){
 
 boost::shared_ptr<void> ora::Container::fetchItemAsType(int itemId,
                                                         const std::type_info& asTypeInfo){
-  Reflex::Type asType = ClassUtils::lookupDictionary( asTypeInfo );
+  edm::TypeWithDict asType = ClassUtils::lookupDictionary( asTypeInfo );
   void* ptr = m_dbContainer->fetchItemAsType(itemId, asType );
   if(!ptr) return boost::shared_ptr<void>();
   return boost::shared_ptr<void>( ptr, RflxDeleter( m_dbContainer->type() ) );
@@ -127,7 +127,7 @@ bool ora::Container::isLocked(){
 }
 
 int ora::Container::insertItem( const Object& data ){
-  const Reflex::Type& objType = data.type();
+  const edm::TypeWithDict& objType = data.type();
   if(!objType){
     throwException("Object class has not been found in the dictionary.",
                    "Container::insertItem");
@@ -137,13 +137,13 @@ int ora::Container::insertItem( const Object& data ){
 
 int ora::Container::insertItem( const void* data,
                                          const std::type_info& typeInfo ){
-  Reflex::Type type = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict type = ClassUtils::lookupDictionary( typeInfo );
   return m_dbContainer->insertItem( data, type );
 }
 
 void ora::Container::updateItem( int itemId,
                                  const Object& data ){
-  const Reflex::Type& objType = data.type();
+  const edm::TypeWithDict& objType = data.type();
   if(!objType){
     throwException("Object class has not been found in the dictionary.",
                    "Container::updateItem");
@@ -154,7 +154,7 @@ void ora::Container::updateItem( int itemId,
 void ora::Container::updateItem( int itemId,
                                  const void* data,
                                  const std::type_info& typeInfo ){
-  Reflex::Type type = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict type = ClassUtils::lookupDictionary( typeInfo );
   m_dbContainer->updateItem( itemId, data, type );
 }
 

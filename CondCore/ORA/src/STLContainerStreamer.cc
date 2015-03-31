@@ -14,9 +14,9 @@
 // externals
 #include "CoralBase/Attribute.h"
 #include "RelationalAccess/IBulkOperation.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
-ora::STLContainerWriter::STLContainerWriter( const Reflex::Type& objectType,
+ora::STLContainerWriter::STLContainerWriter( const edm::TypeWithDict& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -40,22 +40,22 @@ bool ora::STLContainerWriter::build( DataElement& offset,
                                      RelationalBuffer& operationBuffer ){
   if( !m_objectType ){
     throwException( "Missing dictionary information for the type of the container \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    m_objectType.cppName() + "\"",
                     "STLContainerWriter::build" );
   }
   m_localElement.clear();
   m_recordId.clear();
   // allocate for the index...
   m_recordId.push_back(0);
-    
+
   RelationalStreamerFactory streamerFactory( m_schema );
-  
+
   // first open the insert on the extra table...
   m_insertOperation = &operationBuffer.newMultiRecordInsert( m_mappingElement.tableName() );
   const std::vector<std::string>& columns = m_mappingElement.columnNames();
   if( !columns.size() ){
     throwException( "Id columns not found in the mapping.",
-                    "STLContainerWriter::build");    
+                    "STLContainerWriter::build");
   }
   for( size_t i=0; i<columns.size(); i++ ){
     m_insertOperation->addId( columns[ i ] );
@@ -64,18 +64,18 @@ bool ora::STLContainerWriter::build( DataElement& offset,
   m_offset = &offset;
 
   m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( m_objectType ) );
-  
-  Reflex::Type valueType;
+
+  edm::TypeWithDict valueType;
   if ( m_associative ){
-    
-    Reflex::Type keyType = ClassUtils::containerKeyType(m_objectType);
-    Reflex::Type keyResolvedType = ClassUtils::resolvedType(keyType);
+
+    edm::TypeWithDict keyType = ClassUtils::containerKeyType(m_objectType);
+    edm::TypeWithDict keyResolvedType = ClassUtils::resolvedType(keyType);
     if ( ! keyType || !keyResolvedType ) {
       throwException( "Missing dictionary information for the key type of the container \"" +
-                      m_objectType.Name(Reflex::SCOPED) + "\"",
+                      m_objectType.cppName() + "\"",
                       "STLContainerWriter::build" );
     }
-    std::string keyName = keyType.Name();
+    std::string keyName("key_type");
     // Retrieve the relevant mapping element
     MappingElement::iterator iMe = m_mappingElement.find( keyName );
     if ( iMe == m_mappingElement.end() ) {
@@ -90,20 +90,25 @@ bool ora::STLContainerWriter::build( DataElement& offset,
     valueType = ClassUtils::containerValueType(m_objectType);
   }
 
-  Reflex::Type valueResolvedType = ClassUtils::resolvedType(valueType);
+  edm::TypeWithDict valueResolvedType = ClassUtils::resolvedType(valueType);
   // Check the component type
   if ( ! valueType || !valueResolvedType ) {
     throwException( "Missing dictionary information for the content type of the container \"" +
-                    m_objectType.Name(Reflex::SCOPED) + "\"",
+                    m_objectType.cppName() + "\"",
                     "STLContainerWriter::build" );
   }
-  
-  std::string valueName = valueType.Name();
+
+  std::string valueName(m_associative ? "mapped_type" : "value_type");
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
-    throwException( "Item for \"" + valueName + "\" not found in the mapping element",
-                    "STLContainerWriter::build" );
+    // Try again with the name of a possible typedef
+    std::string valueName2 = valueType.unscopedName();
+    iMe = m_mappingElement.find( valueName2 );
+    if ( iMe == m_mappingElement.end() ) {
+      throwException( "Item for \"" + valueName + "\" not found in the mapping element",
+                      "STLContainerWriter::build" );
+    }
   }
 
   m_dataWriter.reset( streamerFactory.newWriter( valueResolvedType, iMe->second ) );
@@ -119,7 +124,7 @@ void ora::STLContainerWriter::setRecordId( const std::vector<int>& identity ){
   }
   m_recordId.push_back( 0 );
 }
-      
+
 void ora::STLContainerWriter::write( int oid,
                                      const void* inputData ){
 
@@ -134,32 +139,32 @@ void ora::STLContainerWriter::write( int oid,
                     "STLContainerWriter::write");
   }
 
-  const Reflex::Type& iteratorReturnType = m_arrayHandler->iteratorReturnType();
+  const edm::TypeWithDict& iteratorReturnType = m_arrayHandler->iteratorReturnType();
   // Retrieve the container type
-  Reflex::Type keyType;
-  if ( m_associative ) keyType = m_objectType.TemplateArgumentAt(0);
-  Reflex::Member firstMember;
-  Reflex::Member secondMember;
+  edm::TypeWithDict keyType;
+  if ( m_associative ) keyType = m_objectType.templateArgumentAt(0);
+  edm::MemberWithDict firstMember;
+  edm::MemberWithDict secondMember;
   if( keyType ){
-    firstMember = iteratorReturnType.MemberByName( "first" );
+    firstMember = iteratorReturnType.dataMemberByName( "first" );
     if ( ! firstMember ) {
       throwException( "Could not find the data member \"first\" for the class \"" +
-                      iteratorReturnType.Name(Reflex::SCOPED) + "\"",
+                      iteratorReturnType.cppName() + "\"",
                       "STLContainerWriter::write" );
     }
-    secondMember = iteratorReturnType.MemberByName( "second" );
+    secondMember = iteratorReturnType.dataMemberByName( "second" );
     if ( ! secondMember ) {
       throwException( "Could not retrieve the data member \"second\" for the class \"" +
-                      iteratorReturnType.Name(Reflex::SCOPED) + "\"",
+                      iteratorReturnType.cppName() + "\"",
                       "STLContainerWriter::write" );
     }
   }
-  
+
   void* data = m_offset->address( inputData );
-  
+
   // Use the iterator to loop over the elements of the container.
   size_t containerSize = m_arrayHandler->size( data  );
-  
+
   if ( containerSize == 0 ) return;
 
   size_t startElementIndex = m_arrayHandler->startElementIndex( data );
@@ -181,17 +186,17 @@ void ora::STLContainerWriter::write( int oid,
     void* componentData = objectReference;
 
     if ( keyType ) { // treat the key object first
-      void* keyData = static_cast< char* >( objectReference ) + firstMember.Offset();
+      void* keyData = static_cast< char* >( objectReference ) + firstMember.offset();
       m_keyWriter->setRecordId( m_recordId );
       m_keyWriter->write( oid, keyData );
 
-      componentData = static_cast< char* >( objectReference ) + secondMember.Offset();
+      componentData = static_cast< char* >( objectReference ) + secondMember.offset();
     }
     m_dataWriter->setRecordId( m_recordId );
 
     m_dataWriter->write( oid, componentData );
     bulkInsert.processNextIteration();
-   
+
     // Increment the iterator
     iteratorHandler->increment();
   }
@@ -201,7 +206,7 @@ void ora::STLContainerWriter::write( int oid,
 
 }
 
-ora::STLContainerUpdater::STLContainerUpdater(const Reflex::Type& objectType,
+ora::STLContainerUpdater::STLContainerUpdater(const edm::TypeWithDict& objectType,
                                               MappingElement& mapping,
                                               ContainerSchema& contSchema ):
   m_deleter( mapping ),
@@ -229,7 +234,7 @@ void ora::STLContainerUpdater::update( int oid,
   m_writer.write( oid, data );
 }
 
-ora::STLContainerReader::STLContainerReader(const Reflex::Type& objectType,
+ora::STLContainerReader::STLContainerReader(const edm::TypeWithDict& objectType,
                                             MappingElement& mapping,
                                             ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -255,7 +260,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
   m_recordId.push_back(0);
 
   RelationalStreamerFactory streamerFactory( m_schema );
-  
+
   // first open the insert on the extra table...
   m_query.reset( new MultiRecordSelectOperation( m_mappingElement.tableName(), m_schema.storageSchema() ));
 
@@ -265,24 +270,24 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
     m_query->addId( recIdCols[ i ] );
     m_query->addOrderId( recIdCols[ i ] );
   }
-  
+
   m_offset = &offset;
 
   m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( m_objectType ) );
 
-  Reflex::Type valueType;
+  edm::TypeWithDict valueType;
   if ( m_associative ){
 
-    Reflex::Type keyType = ClassUtils::containerKeyType( m_objectType );
-    Reflex::Type keyResolvedType = ClassUtils::resolvedType(keyType);
+    edm::TypeWithDict keyType = ClassUtils::containerKeyType( m_objectType );
+    edm::TypeWithDict keyResolvedType = ClassUtils::resolvedType(keyType);
 
     if ( ! keyType ||!keyResolvedType ) {
       throwException( "Missing dictionary information for the key type of the container \"" +
-                      m_objectType.Name(Reflex::SCOPED) + "\"",
+                      m_objectType.cppName() + "\"",
                       "STLContainerReader::build" );
     }
 
-    std::string keyName = keyType.Name();
+    std::string keyName("key_type");
     // Retrieve the relevant mapping element
     MappingElement::iterator iMe = m_mappingElement.find( keyName );
     if ( iMe == m_mappingElement.end() ) {
@@ -292,26 +297,31 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
 
     m_keyReader.reset( streamerFactory.newReader( keyResolvedType, iMe->second ) );
     m_keyReader->build( m_localElement, *m_query );
-    
+
     valueType = ClassUtils::containerDataType(m_objectType);
   } else {
     valueType = ClassUtils::containerValueType(m_objectType);
   }
 
-  Reflex::Type valueResolvedType = ClassUtils::resolvedType(valueType);
+  edm::TypeWithDict valueResolvedType = ClassUtils::resolvedType(valueType);
   // Check the component type
   if ( ! valueType ||!valueResolvedType ) {
     throwException( "Missing dictionary information for the content type of the container \"" +
-                    m_objectType.Name(Reflex::SCOPED) + "\"",
+                    m_objectType.cppName() + "\"",
                     "STLContainerReader::build" );
   }
-  
-  std::string valueName = valueType.Name();
+
+  std::string valueName(m_associative ? "mapped_type" : "value_type");
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
-    throwException( "Item for \"" + valueName + "\" not found in the mapping element",
-                    "STLContainerReader::build" );
+    // Try again with the name of a possible typedef
+    std::string valueName2 = valueType.unscopedName();
+    iMe = m_mappingElement.find( valueName2 );
+    if ( iMe == m_mappingElement.end() ) {
+      throwException( "Item for \"" + valueName + "\" not found in the mapping element",
+                      "STLContainerReader::build" );
+    }
   }
 
   m_dataReader.reset( streamerFactory.newReader( valueResolvedType, iMe->second ) );
@@ -349,56 +359,56 @@ void ora::STLContainerReader::read( void* destinationData ) {
 
   void* address = m_offset->address( destinationData );
 
-  const Reflex::Type& iteratorReturnType = m_arrayHandler->iteratorReturnType();
+  const edm::TypeWithDict& iteratorReturnType = m_arrayHandler->iteratorReturnType();
   U_Primitives primitiveStub;
-  
-  Reflex::Type keyType;
-  Reflex::Member firstMember;
-  Reflex::Member secondMember;
+
+  edm::TypeWithDict keyType;
+  edm::MemberWithDict firstMember;
+  edm::MemberWithDict secondMember;
   if ( m_associative ) {
-    keyType = m_objectType.TemplateArgumentAt(0);
-    firstMember = iteratorReturnType.MemberByName( "first" );
+    keyType = m_objectType.templateArgumentAt(0);
+    firstMember = iteratorReturnType.dataMemberByName( "first" );
     if ( ! firstMember ) {
       throwException("Could not retrieve the data member \"first\" of the class \"" +
-                     iteratorReturnType.Name(Reflex::SCOPED) + "\"",
+                     iteratorReturnType.cppName() + "\"",
                      "STLContainerReader::read" );
     }
-    secondMember = iteratorReturnType.MemberByName( "second" );
+    secondMember = iteratorReturnType.dataMemberByName( "second" );
     if ( ! secondMember ) {
       throwException( "Could not retrieve the data member \"second\" of the class \"" +
-                      iteratorReturnType.Name(Reflex::SCOPED) + "\"",
+                      iteratorReturnType.cppName() + "\"",
                       "STLContainerReader::read" );
     }
   }
-  
-  bool isElementFundamental = iteratorReturnType.IsFundamental();
-  
+
+  bool isElementFundamental = iteratorReturnType.isFundamental();
+
   m_arrayHandler->clear( address );
 
   size_t cursorSize = m_query->selectionSize(m_recordId, m_recordId.size()-1);
   unsigned int i=0;
+  // Create a new element for the array
+  void* objectData = 0;
+  if(isElementFundamental){
+    objectData = &primitiveStub;
+  } else {
+    objectData = iteratorReturnType.construct().address();
+  }
+
   while ( i< cursorSize ){
 
     m_recordId[m_recordId.size()-1] = (int)i;
     m_query->selectRow( m_recordId );
 
-    // Create a new element for the array
-    void* objectData = 0;
-    if(isElementFundamental){
-      objectData = &primitiveStub;
-    } else {
-      objectData = iteratorReturnType.Construct().Address();
-    }
-
     void* componentData = objectData;
     void* keyData = 0;
 
     if ( keyType ) { // treat the key object first
-      keyData = static_cast< char* >( objectData ) + firstMember.Offset();
+      keyData = static_cast< char* >( objectData ) + firstMember.offset();
       m_keyReader->setRecordId( m_recordId );
       m_keyReader->read( keyData );
-      
-      componentData = static_cast< char* >( objectData ) + secondMember.Offset();
+
+      componentData = static_cast< char* >( objectData ) + secondMember.offset();
     }
     m_dataReader->setRecordId( m_recordId );
     m_dataReader->read( componentData );
@@ -406,15 +416,15 @@ void ora::STLContainerReader::read( void* destinationData ) {
     size_t prevSize = m_arrayHandler->size( address );
     m_arrayHandler->appendNewElement( address, objectData );
     bool inserted = m_arrayHandler->size( address )>prevSize;
-    if ( ! ( iteratorReturnType.IsFundamental() ) ) {
-      iteratorReturnType.Destruct( objectData );
-    }
     if ( !inserted ) {
       throwException( "Could not insert a new element in the array type \"" +
-                      m_objectType.Name(Reflex::SCOPED) + "\"",
+                      m_objectType.cppName() + "\"",
                       "STLContainerReader::read" );
     }
     ++i;
+  }
+  if ( ! ( iteratorReturnType.isFundamental() ) ) {
+    iteratorReturnType.destruct( objectData );
   }
 
   m_arrayHandler->finalize( address );
@@ -427,7 +437,7 @@ void ora::STLContainerReader::clear(){
   if(m_dataReader.get()) m_dataReader->clear();
 }
 
-ora::STLContainerStreamer::STLContainerStreamer( const Reflex::Type& objectType,
+ora::STLContainerStreamer::STLContainerStreamer( const edm::TypeWithDict& objectType,
                                                  MappingElement& mapping,
                                                  ContainerSchema& contSchema ):
   m_objectType( objectType ),

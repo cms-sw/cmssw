@@ -176,8 +176,6 @@ The interface is too complex for general use.
 #include <set>
 #include <vector>
 
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
-
 namespace edm {
 
   class ProcessHistoryRegistry;

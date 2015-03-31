@@ -2,7 +2,6 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "TBufferFile.h"
 #include "TClass.h"
-#include "Cintex/Cintex.h"
 #include <iostream>
 
 class testParticle : public CppUnit::TestFixture {
@@ -16,11 +15,6 @@ class testParticle : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 public:
   void setUp() {
- static bool cintexInitialized = false;
-    if (!cintexInitialized) {
-      cintexInitialized = true;
-      ROOT::Cintex::Cintex::Enable();
-   } 
   }
   void tearDown() {}
   void checkXYZ();

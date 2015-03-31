@@ -5,19 +5,19 @@
 #include <utility>
 #include <string>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
-namespace Reflex {
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
 
   namespace RelationalMapping {
-    size_t sizeInColumns(const Reflex::Type& topLevelClassType );
-    std::pair<bool,size_t> sizeInColumnsForCArray( const Reflex::Type& arrayType );
-    void _sizeInColumns(const Reflex::Type& typ, size_t& sz, bool& hasDependencies );
-    void _sizeInColumnsForCArray(const Reflex::Type& typ, size_t& sz, bool& hasDependencies );
+    size_t sizeInColumns(const edm::TypeWithDict& topLevelClassType );
+    std::pair<bool,size_t> sizeInColumnsForCArray( const edm::TypeWithDict& arrayType );
+    void _sizeInColumns(const edm::TypeWithDict& typ, size_t& sz, bool& hasDependencies );
+    void _sizeInColumnsForCArray(const edm::TypeWithDict& typ, size_t& sz, bool& hasDependencies );
   }
 
   class MappingElement;
@@ -38,7 +38,7 @@ namespace ora {
     virtual ~RelationalMappingFactory();
 
     public:
-    IRelationalMapping* newProcessor( const Reflex::Type& attributeType, bool blobStreaming=false );
+    IRelationalMapping* newProcessor( const edm::TypeWithDict& attributeType, bool blobStreaming=false );
 
     private:
     TableRegister& m_tableRegister;    
@@ -46,124 +46,124 @@ namespace ora {
 
   class PrimitiveMapping : public IRelationalMapping {
     public:
-    PrimitiveMapping( const Reflex::Type& attributeType, TableRegister& tableRegister  );
+    PrimitiveMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister  );
     ~PrimitiveMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
   
   class BlobMapping : public IRelationalMapping {
     public:
-    BlobMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    BlobMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~BlobMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
   
   class OraReferenceMapping : public IRelationalMapping {
     public:
-    OraReferenceMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    OraReferenceMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~OraReferenceMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
 
   class UniqueReferenceMapping : public IRelationalMapping {
     public:
-    UniqueReferenceMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    UniqueReferenceMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~UniqueReferenceMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
 
   class OraPtrMapping : public IRelationalMapping {
     public:
-    OraPtrMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    OraPtrMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~OraPtrMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
 
   class NamedRefMapping: public IRelationalMapping {
     public:
-    NamedRefMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    NamedRefMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
     ~NamedRefMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
 
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
   };
 
   class ArrayMapping : public IRelationalMapping {
     public:
-    ArrayMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    ArrayMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~ArrayMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
   
   class CArrayMapping : public IRelationalMapping {
     public:
-    CArrayMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    CArrayMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~CArrayMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };
   
   class ObjectMapping : public IRelationalMapping {
     public:
-    ObjectMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    ObjectMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister );
 
     ~ObjectMapping();
 
     void process( MappingElement& parentElement, const std::string& attributeName,
                   const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
     private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     TableRegister& m_tableRegister;
     
   };

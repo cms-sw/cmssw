@@ -6,10 +6,8 @@
 <bin   file="EntryDescription_t.cpp">
 </bin>
 <bin   name="testProductHolderIndexHelper" file="testRunner.cpp productHolderIndexHelper_t.cppunit.cc">
-  <use name="FWCore/RootAutoLibraryLoader"/>
   <use name="DataFormats/TestObjects"/>
 </bin>
 <bin   name="productHolderIndexHelperTest" file="productHolderIndexHelperTest.cc">
-  <use name="FWCore/RootAutoLibraryLoader"/>
   <flags NO_TESTRUN="1"/>
 </bin>

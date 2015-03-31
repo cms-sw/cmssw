@@ -5,8 +5,6 @@
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "TInterpreter.h"
-#include "TVirtualMutex.h"
 
 #include <cassert>
 
@@ -157,18 +155,44 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
     throw parser::Exception(iIterator) << "No dictionary for class \"" <<
           type.name() << "\".";
   }
-  while(type.isPointer() || type.isTypedef()) {
+  while (type.isPointer() || type.isReference()) {
     type = type.toType();
   }
-  type = edm::TypeWithDict(type, 0L); // strip const, volatile, c++ ref, ..
-
+  while (type.isTypedef()) {
+    edm::TypeWithDict theType = type.finalType();
+    if(theType == type) {
+      break;
+    }
+    type = theType;
+  }
+  // strip const, volatile, c++ ref, ..
+  type = type.stripConstRef();
+  // Create our return value.
   std::pair<edm::FunctionWithDict, bool> mem;
   //FIXME: We must initialize mem.first!
   mem.second = false;
   // suitable members and number of integer->real casts required to get them
   std::vector<std::pair<int, edm::FunctionWithDict> > oks;
-
-    // first look in base scope
+  std::string theArgs;
+  for(auto const& item : args) {
+    if(!theArgs.empty()) {
+      theArgs += ',';
+    }
+    theArgs += edm::TypeID(item.type()).className();
+  }
+  edm::FunctionWithDict f = type.functionMemberByName(name, theArgs, true);
+  if(bool(f)) {
+    int casts = checkMethod(f, type, args, fixuppedArgs);
+    if (casts > -1) {
+      oks.push_back(std::make_pair(casts, f));
+    } else {
+      oError = -1 * casts;
+      //is this a show stopper error?
+      if (fatalErrorCondition(oError)) {
+        return mem;
+      }
+    }
+  } else {
     edm::TypeFunctionMembers functions(type);
     for (auto const& F : functions) {
       edm::FunctionWithDict f(F);
@@ -186,6 +210,7 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
         }
       }
     }
+  }
   //std::cout << "At base scope (type " << (type.name()) << ") found " <<
   //  oks.size() << " methods." << std::endl;
   // found at least one method
@@ -213,7 +238,6 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
   // allowed
   int baseError = parser::kNameDoesNotExist;
   if (!bool(mem.first)) {
-    R__LOCKGUARD(gCINTMutex);
     edm::TypeBases bases(type);
     for (auto const& B : bases) {
       mem = findMethod(edm::BaseWithDict(B).typeOf(), name, args,

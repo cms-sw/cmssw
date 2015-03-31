@@ -2,14 +2,14 @@
 #define INCLUDE_ORA_CLASSUTILS_H
 
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
   class RflxDeleter{
 
     public:
-    RflxDeleter( const Reflex::Type& type );
+    RflxDeleter( const edm::TypeWithDict& type );
 
     RflxDeleter( const RflxDeleter& rhs );
 
@@ -18,7 +18,7 @@ namespace ora {
     void operator()( void* ptr );
     
   private:
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
     
   };
     
@@ -26,64 +26,68 @@ namespace ora {
 
     void loadDictionary(  const std::string& className );
 
-    void* upCast( const Reflex::Type& type, void* ptr, const Reflex::Type& asType );
+    void* upCast( const edm::TypeWithDict& type, void* ptr, const edm::TypeWithDict& asType );
 
-    bool isType( const Reflex::Type& type, const Reflex::Type& baseType );
+    bool isType( const edm::TypeWithDict& type, const edm::TypeWithDict& baseType );
 
-    bool checkMappedType( const Reflex::Type& type, const std::string& mappedTypeName );
+    bool checkMappedType( const edm::TypeWithDict& type, const std::string& mappedTypeName );
 
-    bool findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func );
+    bool findBaseType( edm::TypeWithDict& type, edm::TypeWithDict& baseType, size_t& func );
 
     std::string demangledName( const std::type_info& typeInfo );
 
-    Reflex::Type lookupDictionary( const std::type_info& typeInfo, bool throwFlag = true );
+    edm::TypeWithDict lookupDictionary( const std::type_info& typeInfo, bool throwFlag = true );
 
-    Reflex::Type lookupDictionary( const std::string& className, bool throwFlag = true );
+    edm::TypeWithDict lookupDictionary( const std::string& className, bool throwFlag = true );
 
-    void* constructObject( const Reflex::Type& typ );
+    void* constructObject( const edm::TypeWithDict& typ );
 
-    bool isTypeString(const Reflex::Type& typ);
+    bool isTypeString(const edm::TypeWithDict& typ);
     
-    bool isTypePrimitive(const Reflex::Type& typ);
+    bool isTypePrimitive(const edm::TypeWithDict& typ);
     
-    bool isTypeContainer(const Reflex::Type& typ);
+    bool isTypeContainer(const edm::TypeWithDict& typ);
 
-    bool isTypeKeyedContainer(const Reflex::Type& typ);
+    bool isTypeKeyedContainer(const edm::TypeWithDict& typ);
 
-    bool isTypeNonKeyedContainer(const Reflex::Type& typ);
+    bool isTypeNonKeyedContainer(const edm::TypeWithDict& typ);
 
-    bool isTypeAssociativeContainer(const Reflex::Type& typ);
+    bool isTypeAssociativeContainer(const edm::TypeWithDict& typ);
 
-    bool isTypeNonAssociativeContainer(const Reflex::Type& typ);
+    bool isTypeNonAssociativeContainer(const edm::TypeWithDict& typ);
 
-    Reflex::Type containerValueType(const Reflex::Type& typ);
+    edm::TypeWithDict containerValueType(const edm::TypeWithDict& typ);
     
-    Reflex::Type containerKeyType(const Reflex::Type& typ);
+    edm::TypeWithDict containerKeyType(const edm::TypeWithDict& typ);
     
-    Reflex::Type containerDataType(const Reflex::Type& typ);
+    edm::TypeWithDict containerDataType(const edm::TypeWithDict& typ);
     
-    Reflex::Type containerSubType(const Reflex::Type& typ, const std::string& subTypeName);
+    edm::TypeWithDict containerSubType(const edm::TypeWithDict& typ, const std::string& subTypeName);
     
-    Reflex::Type resolvedType(const Reflex::Type& typ);
+    edm::TypeWithDict resolvedType(const edm::TypeWithDict& typ);
 
-    bool isTypeOraReference( const Reflex::Type& typ);
+    bool isTypeOraReference( const edm::TypeWithDict& typ);
 
-    bool isTypeNamedReference( const Reflex::Type& typ);
+    bool isTypeNamedReference( const edm::TypeWithDict& typ);
 
-    bool isTypeOraPointer( const Reflex::Type& typ);
+    bool isTypeOraPointer( const edm::TypeWithDict& typ);
     
-    bool isTypeUniqueReference( const Reflex::Type& typ);
+    bool isTypeUniqueReference( const edm::TypeWithDict& typ);
     
-    bool isTypePVector( const Reflex::Type& typ);
+    bool isTypePVector( const edm::TypeWithDict& typ);
 
-    bool isTypeQueryableVector( const Reflex::Type& typ);
+    bool isTypeQueryableVector( const edm::TypeWithDict& typ);
 
-    bool isTypeOraVector( const Reflex::Type& typ);
+    bool isTypeOraVector( const edm::TypeWithDict& typ);
 
     bool isTypeNameOraVector( const std::string& typeName );
 
-    bool isTypeObject( const Reflex::Type& typ);
+    bool isTypeObject( const edm::TypeWithDict& typ);
 
+    size_t arrayLength( const edm::TypeWithDict& typ );
+
+    std::string getClassProperty( const std::string& propertyName, const edm::TypeWithDict& type );
+    std::string getDataMemberProperty( const std::string& propertyName, const edm::MemberWithDict& dataMember );
 
   }
 

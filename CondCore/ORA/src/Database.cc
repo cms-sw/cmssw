@@ -34,11 +34,11 @@ namespace ora {
       std::auto_ptr<Transaction> m_transaction;      
   };
   
-  std::string nameFromClass( const Reflex::Type& contType ){
-    return contType.Name( Reflex::SCOPED );
+  std::string nameFromClass( const edm::TypeWithDict& contType ){
+    return contType.cppName();
   }
   
-  Container getContainerFromSession( const std::string& name, const Reflex::Type& contType, DatabaseSession& session ){
+  Container getContainerFromSession( const std::string& name, const edm::TypeWithDict& contType, DatabaseSession& session ){
     Handle<DatabaseContainer> contHandle = session.containerHandle( name );
     if( !contHandle ){
       if( session.configuration().properties().getFlag( Configuration::automaticDatabaseCreation()) ||
@@ -55,7 +55,7 @@ namespace ora {
 }
 
 std::string ora::Database::nameForContainer( const std::type_info& typeInfo ){
-  Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict contType = ClassUtils::lookupDictionary( typeInfo );
   return nameFromClass( contType );
 }
 
@@ -209,14 +209,14 @@ ora::Container ora::Database::createContainer( const std::string& name,
     throwException("Container with name \""+name+"\" already exists in the database.",
                    "Database::createContainer");
   }
-  Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict contType = ClassUtils::lookupDictionary( typeInfo );
   Handle<DatabaseContainer> cont = m_impl->m_session->createContainer( name, contType );
   return Container( cont );
 }
 
 ora::Container ora::Database::createContainer( const std::type_info& typeInfo ){
   open( true );
-  Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict contType = ClassUtils::lookupDictionary( typeInfo );
   std::string name = nameFromClass( contType );
   if( m_impl->m_session->containerHandle( name ) ){
     throwException("Container with name \""+name+"\" already exists in the database.",
@@ -229,7 +229,7 @@ ora::Container ora::Database::createContainer( const std::type_info& typeInfo ){
 ora::Container ora::Database::createContainer( const std::string& className,
                                                std::string name ){
   open( true );
-  Reflex::Type contType =  ClassUtils::lookupDictionary( className );
+  edm::TypeWithDict contType =  ClassUtils::lookupDictionary( className );
   if( name.empty() ) name = nameForContainer( className );
   if( m_impl->m_session->containerHandle( name ) ){
     throwException("Container with name \""+name+"\" already exists in the database.",
@@ -242,13 +242,13 @@ ora::Container ora::Database::createContainer( const std::string& className,
 ora::Container ora::Database::getContainer( const std::string& containerName,
                                             const std::type_info&  typeInfo){
   open( true );
-  Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict objType = ClassUtils::lookupDictionary( typeInfo );
   return getContainerFromSession( containerName, objType, *m_impl->m_session );
 }
 
 ora::Container ora::Database::getContainer( const std::type_info& typeInfo ){
   open( true );
-  Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict objType = ClassUtils::lookupDictionary( typeInfo );
   std::string contName = nameFromClass( objType );
   return getContainerFromSession( contName, objType, *m_impl->m_session);
 }
@@ -351,7 +351,7 @@ bool ora::Database::getItemId( const std::string& name, ora::OId& destination ){
 
 boost::shared_ptr<void> ora::Database::getTypedObjectByName( const std::string& name, const std::type_info& typeInfo ){
   open();
-  Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict objType = ClassUtils::lookupDictionary( typeInfo );
   return m_impl->m_session->fetchTypedObjectByName( name, objType );
 }
 

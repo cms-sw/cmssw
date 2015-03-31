@@ -49,19 +49,19 @@
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
 
-  <class name="reco::LeafRefCandidateT" ClassVersion="11">
+  <class name="reco::LeafRefCandidateT" ClassVersion="13">
     <version ClassVersion="13" checksum="2417932556"/>
     <version ClassVersion="11" checksum="2417932556"/>
     <version ClassVersion="10" checksum="2404784677"/>
    </class>
 
-  <class name="reco::VertexCompositePtrCandidate" ClassVersion="12">
+  <class name="reco::VertexCompositePtrCandidate" ClassVersion="13">
    <version ClassVersion="13" checksum="3584734005"/>
    <version ClassVersion="12" checksum="3253990857"/>
    <version ClassVersion="11" checksum="2070976353"/>
    <version ClassVersion="10" checksum="955269040"/>
   </class>
-  <class name="reco::VertexCompositeCandidate" ClassVersion="12">
+  <class name="reco::VertexCompositeCandidate" ClassVersion="13">
    <version ClassVersion="13" checksum="1561694123"/>
    <version ClassVersion="12" checksum="1204062111"/>
    <version ClassVersion="11" checksum="2801258535"/>
@@ -101,7 +101,7 @@
    <version ClassVersion="11" checksum="2805432001"/>
    <version ClassVersion="10" checksum="547616838"/>
   </class>
-  <class name="reco::candidate::const_iterator"  ClassVersion="11">
+  <class name="reco::candidate::const_iterator"  ClassVersion="12">
    <version ClassVersion="12" checksum="870110996"/>
    <version ClassVersion="11" checksum="1840645481"/>
    <version ClassVersion="10" checksum="473157534"/>

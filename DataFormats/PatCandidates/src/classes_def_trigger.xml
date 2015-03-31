@@ -72,7 +72,7 @@
   <class name="std::vector&lt;pat::L1Seed&gt;" />
   <class name="std::vector&lt;pat::L1Seed&gt;::const_iterator" />
 
-  <class name="pat::TriggerCondition"  ClassVersion="10">
+  <class name="pat::TriggerCondition"  ClassVersion="11">
    <version ClassVersion="11" checksum="296420442"/>
    <version ClassVersion="10" checksum="4134787846"/>
   </class>

@@ -25,7 +25,6 @@
 
 // user include files
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace fwlite {

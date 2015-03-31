@@ -12,14 +12,12 @@ Test of the EventProcessor class.
 #include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
 // to be called also by the other cppunit...
 void doInit() {
    static bool firstTime=true;
    if(firstTime) {
       //std::cout << "common init" << std::endl;
-      edm::RootAutoLibraryLoader::enable();
       if(not edmplugin::PluginManager::isAvailable()) {
         edmplugin::PluginManager::configure(edmplugin::standard::config());
      }

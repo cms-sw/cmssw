@@ -224,9 +224,6 @@ namespace DataFormats_Math {
     ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
     ROOT::Math::MatRepStd<double, 2 , 3> smdcw1;
 
-    //Used by MET Significance matrix
-    ROOT::Math::SMatrix<double,2> smat;
-
     //Used by TauReco
     std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
     std::vector<std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> > vcalotti_ppf;

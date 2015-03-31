@@ -16,7 +16,8 @@
 #include "CondCore/Utilities/interface/CondDBTools.h"
 #include <iostream>
 
-#include "Cintex/Cintex.h"
+// for the xml dump
+#include "TFile.h"
 #include <sstream>
 
 namespace cond {
@@ -35,10 +36,7 @@ cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_migrate"){
   addConnectOption("destConnect","d","destionation connection string(required)");
   addAuthenticationOptions();
   addOption<std::string>("tag","t","migrate only the tag (optional)");
-  addOption<bool>("replace","r","replace the tag already migrated (optional)");
-  addOption<bool>("fast","f","fast run without validation (optional)");
-  addOption<std::string>("log","l","log connection string (required");
-  ROOT::Cintex::Cintex::Enable();
+  addOption<std::string>("newTag","n","name for the destination tag (optional)");
 }
 
 cond::MigrateUtilities::~MigrateUtilities(){

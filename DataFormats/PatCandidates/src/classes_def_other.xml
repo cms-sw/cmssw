@@ -48,7 +48,7 @@
   <class name="edm::ValueMap<pat::LookupTableRecord>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
-  <class name="pat::CandKinResolution"  ClassVersion="12">
+  <class name="pat::CandKinResolution"  ClassVersion="13">
    <version ClassVersion="13" checksum="1576481716"/>
    <field name="covmatrix_" transient="true"/>
    <field name="hasMatrix_" transient="true"/>

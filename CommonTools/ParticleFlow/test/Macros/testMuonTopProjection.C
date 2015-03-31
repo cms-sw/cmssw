@@ -2,8 +2,6 @@
 
   gSystem->Load("libFWCoreFWLite.so");
   AutoLibraryLoader::enable();
-  gSystem->Load("libCintex.so");
-  ROOT::Cintex::Cintex::Enable();
 
   TFile fDisabled("tpDisabled.root");
   TTree *tDisabled = (TTree*) fDisabled.Get("Events");

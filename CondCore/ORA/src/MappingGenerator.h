@@ -8,8 +8,8 @@
 #include <map>
 #include <set>
 
-namespace Reflex{
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace coral {
@@ -29,15 +29,15 @@ namespace ora {
     /// Destructor
     ~MappingGenerator();
 
-    void createNewMapping( const std::string& containerName, const Reflex::Type& classDictionary, MappingTree& destination );
+    void createNewMapping( const std::string& containerName, const edm::TypeWithDict& classDictionary, MappingTree& destination );
 
-    void createNewMapping( const std::string& containerName, const Reflex::Type& classDictionary,
+    void createNewMapping( const std::string& containerName, const edm::TypeWithDict& classDictionary,
                            const MappingTree& baseMapping, MappingTree& destination );
 
-    void createNewDependentMapping( const Reflex::Type& dependentClassDictionary, const MappingTree& parentClassMapping,
+    void createNewDependentMapping( const edm::TypeWithDict& dependentClassDictionary, const MappingTree& parentClassMapping,
                                     MappingTree& destination );
 
-    void createNewDependentMapping( const Reflex::Type& dependentClassDictionary, const MappingTree& parentClassMapping,
+    void createNewDependentMapping( const edm::TypeWithDict& dependentClassDictionary, const MappingTree& parentClassMapping,
                                     const MappingTree& dependentClassBaseMapping, MappingTree& destination );
 
     private:

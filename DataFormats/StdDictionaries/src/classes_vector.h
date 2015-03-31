@@ -44,7 +44,6 @@ namespace DataFormats_StdDictionaries {
   std::vector<std::pair<unsigned int,unsigned int> > dummyvpuu;
   std::vector<std::pair<unsigned long long,std::basic_string<char> > > v_ull_s;
   std::vector<std::string> dummy5;
-  std::vector<std::string>::iterator itstring;
   std::vector<std::vector<double> > v_v_d;
   std::vector<std::vector<float> > v_v_f;
   std::vector<std::vector<int> > v_v_i;

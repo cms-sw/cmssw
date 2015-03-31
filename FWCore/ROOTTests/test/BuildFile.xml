@@ -1,0 +1,16 @@
+<bin file="tprofile_threaded_t.cc" name="root_threaded_tprofile_test">
+  <use   name="roothistmatrix"/>
+</bin>
+<bin file="read_threaded_t.cc" name="root_threaded_read_test">
+  <use name="roothistmatrix"/>
+  <use name="FWCore/FWLite"/>
+</bin>
+<bin file="tclass_methods_threaded_t.cc" name="root_threaded_tclass_methods_test">
+  <use name="rootcore"/>
+</bin>
+<bin file="tformula_threaded_t.cc" name="root_threaded_tformula_test">
+  <use name="roothistmatrix"/>
+</bin>
+<bin file="write_threaded_t.cc" name="root_threaded_write_test">
+  <use name="roothistmatrix"/>
+</bin>

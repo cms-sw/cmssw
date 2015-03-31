@@ -8,7 +8,7 @@
 #include "CoralBase/Attribute.h"
 
 
-ora::PrimitiveStreamerBase::PrimitiveStreamerBase( const Reflex::Type& objectType,
+ora::PrimitiveStreamerBase::PrimitiveStreamerBase( const edm::TypeWithDict& objectType,
                                                    MappingElement& mapping ):
   m_objectType( objectType ),
   m_mapping(mapping),
@@ -27,8 +27,7 @@ bool ora::PrimitiveStreamerBase::buildDataElement(DataElement& dataElement,
                     "PrimitiveStreamerBase::buildDataElement");
   }
 
-  const std::type_info* attrType = &m_objectType.TypeInfo();
-  if(m_objectType.IsEnum()) attrType = &typeid(int);
+  const std::type_info* attrType = m_objectType.isEnum() ? &typeid(int) : &m_objectType.typeInfo();
   if(ClassUtils::isTypeString( m_objectType )) attrType = &typeid(std::string);
   std::string columnName = m_mapping.columnNames()[0];
   m_columnIndex = relationalData.addData( columnName, *attrType );
@@ -64,7 +63,7 @@ void ora::PrimitiveStreamerBase::bindDataForRead( void* data ){
 }
 
 
-ora::PrimitiveWriter::PrimitiveWriter( const Reflex::Type& objectType,
+ora::PrimitiveWriter::PrimitiveWriter( const edm::TypeWithDict& objectType,
                                        MappingElement& mapping ):
   PrimitiveStreamerBase( objectType, mapping ){
 }
@@ -85,7 +84,7 @@ void ora::PrimitiveWriter::write( int, const void* data ){
   bindDataForUpdate( data );  
 }
 
-ora::PrimitiveUpdater::PrimitiveUpdater( const Reflex::Type& objectType,
+ora::PrimitiveUpdater::PrimitiveUpdater( const edm::TypeWithDict& objectType,
                                          MappingElement& mapping ):
   PrimitiveStreamerBase( objectType, mapping ){
 }
@@ -107,7 +106,7 @@ void ora::PrimitiveUpdater::update( int,
   bindDataForUpdate( data );  
 }
 
-ora::PrimitiveReader::PrimitiveReader( const Reflex::Type& objectType,
+ora::PrimitiveReader::PrimitiveReader( const edm::TypeWithDict& objectType,
                                        MappingElement& mapping ):
   PrimitiveStreamerBase( objectType, mapping ){
 }
@@ -134,7 +133,7 @@ void ora::PrimitiveReader::clear(){
 }
 
 
-ora::PrimitiveStreamer::PrimitiveStreamer( const Reflex::Type& objectType,
+ora::PrimitiveStreamer::PrimitiveStreamer( const edm::TypeWithDict& objectType,
                                            MappingElement& mapping ):
   m_objectType( objectType ),
   m_mapping( mapping ){

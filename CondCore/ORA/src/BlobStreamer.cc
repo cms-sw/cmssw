@@ -13,7 +13,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/Blob.h"
 
-ora::BlobWriterBase::BlobWriterBase( const Reflex::Type& objectType,
+ora::BlobWriterBase::BlobWriterBase( const edm::TypeWithDict& objectType,
                                      MappingElement& mapping,
                                      ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -64,7 +64,7 @@ void ora::BlobWriterBase::bindData( const void* data ){
   relDataElement.bind<coral::Blob>( *blobData );
 }
 
-ora::BlobWriter::BlobWriter( const Reflex::Type& objectType,
+ora::BlobWriter::BlobWriter( const edm::TypeWithDict& objectType,
                              MappingElement& mapping,
                              ContainerSchema& contSchema ):
   BlobWriterBase( objectType, mapping, contSchema ){
@@ -87,7 +87,7 @@ void ora::BlobWriter::write( int,
   bindData( data );  
 }
 
-ora::BlobUpdater::BlobUpdater( const Reflex::Type& objectType,
+ora::BlobUpdater::BlobUpdater( const edm::TypeWithDict& objectType,
                                MappingElement& mapping,
                                ContainerSchema& contSchema ):
   BlobWriterBase( objectType, mapping, contSchema ){
@@ -111,7 +111,7 @@ void ora::BlobUpdater::update( int,
 }
 
 
-ora::BlobReader::BlobReader( const Reflex::Type& objectType,
+ora::BlobReader::BlobReader( const edm::TypeWithDict& objectType,
                              MappingElement& mapping,
                              ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -165,7 +165,7 @@ void ora::BlobReader::read( void* data ){
 void ora::BlobReader::clear(){
 }
 
-ora::BlobStreamer::BlobStreamer( const Reflex::Type& objectType,
+ora::BlobStreamer::BlobStreamer( const edm::TypeWithDict& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):
   m_objectType( objectType ),

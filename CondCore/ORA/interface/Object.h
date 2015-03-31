@@ -1,11 +1,12 @@
 #ifndef INCLUDE_ORA_OBJECT_H
 #define INCLUDE_ORA_OBJECT_H
 
+#include <string>
 //
 #include <typeinfo>
 #include <boost/shared_ptr.hpp>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
   
@@ -15,7 +16,7 @@ namespace ora {
     template <typename T>
     explicit Object( const T& obj );
     Object( const void* ptr, const std::type_info& typeInfo );
-    Object( const void* ptr, const Reflex::Type& type );
+    Object( const void* ptr, const edm::TypeWithDict& type );
     Object( const void* ptr, const std::string& typeName );
     Object( const Object& rhs);
     virtual ~Object();
@@ -23,7 +24,7 @@ namespace ora {
     bool operator==( const Object& rhs) const;
     bool operator!=( const Object& rhs) const;
     void* address() const;
-    const Reflex::Type& type() const;
+    const edm::TypeWithDict& type() const;
     std::string typeName() const;
     void* cast( const std::type_info& asType ) const;
     template <typename T> T* cast() const;
@@ -31,7 +32,7 @@ namespace ora {
     void destruct();
     private:
     void* m_ptr;
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
   };
 
   template<> 

@@ -13,7 +13,6 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 //I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #define private public

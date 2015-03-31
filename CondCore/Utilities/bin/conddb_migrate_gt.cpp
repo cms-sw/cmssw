@@ -27,11 +27,8 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
-#include <boost/regex.hpp>
-
 // for the xml dump
 #include "TFile.h"
-#include "Cintex/Cintex.h"
 #include <sstream>
 #include <vector>
 #include <tuple>

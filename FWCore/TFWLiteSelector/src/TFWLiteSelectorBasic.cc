@@ -51,7 +51,11 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "Reflex/Type.h"
+
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace edm {
   namespace root {
@@ -95,23 +99,23 @@ namespace edm {
       }
       //find the class type
       std::string const fullName = wrappedClassName(bDesc.className());
-      Reflex::Type classType = Reflex::Type::ByName(fullName);
-      if(classType == Reflex::Type()) {
+      TypeWithDict classType = TypeWithDict::byName(fullName);
+      if(!bool(classType)) {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
       }
 
       //create an instance of it
-      Reflex::Object wrapperObj = classType.Construct();
-      if(nullptr == wrapperObj.Address()) {
+      ObjectWithDict wrapperObj = classType.construct();
+      if(nullptr == wrapperObj.address()) {
         throw cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
       }
-      void* address = wrapperObj.Address();
+      void* address = wrapperObj.address();
       branch->SetAddress(&address);
-      Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperBase"));
+      ObjectWithDict edProdObj = wrapperObj.castObject(TypeWithDict::byName("edm::WrapperBase"));
 
-      WrapperBase* prod = reinterpret_cast<WrapperBase*>(edProdObj.Address()); 	 
+      WrapperBase* prod = reinterpret_cast<WrapperBase*>(edProdObj.address()); 	 
 	  	 
       if(nullptr == prod) { 	 
         throw cms::Exception("FailedConversion") 	 

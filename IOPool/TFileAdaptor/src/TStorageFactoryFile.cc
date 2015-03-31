@@ -5,6 +5,7 @@
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "ReadRepacker.h"
 #include "TFileCacheRead.h"
 #include "TSystem.h"
@@ -84,6 +85,7 @@ static StorageAccount::Counter *s_statsWrite = 0;
 static StorageAccount::Counter *s_statsCWrite = 0;
 static StorageAccount::Counter *s_statsXWrite = 0;
 
+
 static inline StorageAccount::Counter &
 storageCounter(StorageAccount::Counter *&c, const char *label)
 {
@@ -111,7 +113,11 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
     storage_(0)
 {
-  Initialize(path, option);
+  try {
+    Initialize(path, option);
+  } catch (...) {
+    edm::threadLocalException::setException(std::current_exception()); // capture
+  }
 }
 
 TStorageFactoryFile::TStorageFactoryFile(const char *path,
@@ -121,7 +127,11 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
     storage_(0)
 {
-  Initialize(path, option);
+  try {
+    Initialize(path, option);
+  } catch (...) {
+    edm::threadLocalException::setException(std::current_exception()); // capture
+  }
 }
 
 void
@@ -376,7 +386,7 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
 
   Int_t remaining = nbuf; // Number of read requests left to process.
   Int_t pack_count; // Number of read requests processed by this iteration.
-    
+
   IOSize remaining_buffer_size=0;
   // Calculate the remaining buffer size for the ROOT-owned buffer by adding
   // the size of the various requests.
@@ -411,7 +421,7 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
 
     current_pos += pack_count;
     current_len += pack_count;
-    remaining   -= pack_count; 
+    remaining   -= pack_count;
 
   }
   assert(remaining_buffer_size == 0);

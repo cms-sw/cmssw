@@ -7,7 +7,7 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 
 namespace ora {
@@ -21,7 +21,7 @@ namespace ora {
 
     public:
 
-      OraPtrWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      OraPtrWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~OraPtrWriter();
       
@@ -34,7 +34,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       ContainerSchema& m_schema;
       DataElement m_localElement;
@@ -46,7 +46,7 @@ namespace ora {
 
     public:
 
-      OraPtrUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      OraPtrUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~OraPtrUpdater();
       
@@ -60,7 +60,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       ContainerSchema& m_schema;
       DataElement m_localElement;
@@ -72,7 +72,7 @@ namespace ora {
 
       public:
 
-      OraPtrReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      OraPtrReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~OraPtrReader();
       
@@ -89,7 +89,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       DataElement* m_dataElement;
       std::auto_ptr<OraPtrReadBuffer> m_readBuffer;
       std::vector<boost::shared_ptr<IPtrLoader> > m_loaders;
@@ -99,7 +99,7 @@ namespace ora {
   class OraPtrStreamer : public IRelationalStreamer 
   {
     public:
-    OraPtrStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    OraPtrStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~OraPtrStreamer();
 
@@ -110,7 +110,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

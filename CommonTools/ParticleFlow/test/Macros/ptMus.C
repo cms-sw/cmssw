@@ -3,8 +3,6 @@
 
   gSystem->Load("libFWCoreFWLite.so");
   AutoLibraryLoader::enable();
-  gSystem->Load("libCintex.so");
-  ROOT::Cintex::Cintex::Enable();
   TFile f("patTuple_PF2PAT.root");
   
   Events.Draw("patMuons_selectedPatMuons__PAT.obj.pt()>>h1");

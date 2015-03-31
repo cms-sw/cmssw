@@ -31,7 +31,7 @@
    <version ClassVersion="10" checksum="1441861764"/>
   </class>
 
-  <class name="reco::FitQuality"  ClassVersion="10">
+  <class name="reco::FitQuality"  ClassVersion="11">
    <version ClassVersion="11" checksum="2062631270"/>
    <version ClassVersion="10" checksum="1584619238"/>
   </class>

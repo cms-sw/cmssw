@@ -1,0 +1,7 @@
+<lcgdict>
+ <class name="TStorageFactoryFile" ClassVersion="0"/>
+ <class name="TStorageFactorySystem" ClassVersion="0"/>
+ <class name="TFileAdaptorUI" ClassVersion="3">
+   <version ClassVersion="3" checksum="818216219"/>
+ </class>
+</lcgdict>

@@ -21,7 +21,6 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -49,7 +48,6 @@ CPPUNIT_TEST(getRefTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){
-    edm::RootAutoLibraryLoader::enable();
   }
   void tearDown(){}
   void failGetProductNotRegisteredTest();

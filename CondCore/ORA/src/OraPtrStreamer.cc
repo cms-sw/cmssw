@@ -8,13 +8,14 @@
 #include "RelationalStreamerFactory.h"
 // externals
 #include "CoralBase/Attribute.h"
-#include "Reflex/Object.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
 namespace ora {
   class OraPtrReadBuffer {
     public:
-      OraPtrReadBuffer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema ):
+      OraPtrReadBuffer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema ):
         m_objectType( objectType ),
         m_mapping( mapping ),
         m_schema( contSchema ),
@@ -38,16 +39,16 @@ namespace ora {
         }
         
         // Check the  type
-        Reflex::Type ptrType = m_objectType.TemplateArgumentAt(0);
-        Reflex::Type ptrResolvedType = ClassUtils::resolvedType(ptrType);
+        edm::TypeWithDict ptrType = m_objectType.templateArgumentAt(0);
+        edm::TypeWithDict ptrResolvedType = ClassUtils::resolvedType(ptrType);
         // Check the component type
         if ( ! ptrType || !ptrResolvedType ) {
           throwException( "Missing dictionary information for the type of the pointer \"" +
-                          m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                          m_objectType.cppName() + "\"",
                           "OraPtrReadBuffer::build" );
         }
 
-        std::string ptrTypeName = ptrType.Name();
+        std::string ptrTypeName = ptrType.name();
         // Retrieve the relevant mapping element
         MappingElement::iterator iMe = m_mapping.find( ptrTypeName );
         if ( iMe == m_mapping.end() ) {
@@ -84,7 +85,7 @@ namespace ora {
         m_reader->select( fullId[0] );
         void* destination = 0;
         if( m_query.nextCursorRow() ){
-          destination = ClassUtils::constructObject( m_objectType.TemplateArgumentAt(0) );
+          destination = ClassUtils::constructObject( m_objectType.templateArgumentAt(0) );
           m_reader->setRecordId( recordId );
           m_reader->read( destination );
         }
@@ -94,7 +95,7 @@ namespace ora {
       }
       
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mapping;
       ContainerSchema& m_schema;
       DataElement m_localElement;
@@ -138,7 +139,7 @@ namespace ora {
   };    
 }
 
-ora::OraPtrWriter::OraPtrWriter( const Reflex::Type& objectType,
+ora::OraPtrWriter::OraPtrWriter( const edm::TypeWithDict& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -159,16 +160,16 @@ bool ora::OraPtrWriter::build(DataElement& dataElement,
   m_localElement.clear();
   
   // Check the  type
-  Reflex::Type ptrType = m_objectType.TemplateArgumentAt(0);
-  Reflex::Type ptrResolvedType = ClassUtils::resolvedType(ptrType);
+  edm::TypeWithDict ptrType = m_objectType.templateArgumentAt(0);
+  edm::TypeWithDict ptrResolvedType = ClassUtils::resolvedType(ptrType);
   // Check the component type
   if ( ! ptrType || !ptrResolvedType ) {
     throwException( "Missing dictionary information for the type of the pointer \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    m_objectType.cppName() + "\"",
                     "OraPtrWriter::build" );
   }
 
-  std::string ptrTypeName = ptrType.Name();
+  std::string ptrTypeName = ptrType.name();
 // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( ptrTypeName );
   if ( iMe == m_mappingElement.end() ) {
@@ -193,16 +194,17 @@ void ora::OraPtrWriter::write( int oid,
                    "OraPtrWriter::write");    
   }
   
-  Reflex::Object ptrObject( m_objectType, m_dataElement->address( data ) );
+  edm::ObjectWithDict ptrObject( m_objectType, m_dataElement->address( data ) );
   // first load if required
-  ptrObject.Invoke("load",0);
+  m_objectType.functionMemberByName("load").invoke(ptrObject,nullptr);
   // then get the data...
-  void* ptrAddress = 0;
-  ptrObject.Invoke("address",ptrAddress);
+  void* ptrAddress = nullptr;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), &ptrAddress );
+  m_objectType.functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_writer->write( oid, ptrAddress );
 }
 
-ora::OraPtrUpdater::OraPtrUpdater( const Reflex::Type& objectType,
+ora::OraPtrUpdater::OraPtrUpdater( const edm::TypeWithDict& objectType,
                                    MappingElement& mapping,
                                    ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -223,16 +225,16 @@ bool ora::OraPtrUpdater::build(DataElement& dataElement,
   m_localElement.clear();
   
   // Check the  type
-  Reflex::Type ptrType = m_objectType.TemplateArgumentAt(0);
-  Reflex::Type ptrResolvedType = ClassUtils::resolvedType(ptrType);
+  edm::TypeWithDict ptrType = m_objectType.templateArgumentAt(0);
+  edm::TypeWithDict ptrResolvedType = ClassUtils::resolvedType(ptrType);
   // Check the component type
   if ( ! ptrType || !ptrResolvedType ) {
     throwException( "Missing dictionary information for the type of the pointer \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    m_objectType.cppName() + "\"",
                     "OraPtrUpdater::build" );
   }
 
-  std::string ptrTypeName = ptrType.Name();
+  std::string ptrTypeName = ptrType.name();
 // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( ptrTypeName );
   if ( iMe == m_mappingElement.end() ) {
@@ -255,15 +257,16 @@ void ora::OraPtrUpdater::update( int oid,
     throwException("The streamer has not been built.",
                    "OraPtrUpdater::update");    
   }
-  Reflex::Object ptrObject( m_objectType, m_dataElement->address( data ) );
+  edm::ObjectWithDict ptrObject( m_objectType, m_dataElement->address( data ) );
   // first load if required
-  ptrObject.Invoke("load",0);
-  void* ptrAddress = 0;
-  ptrObject.Invoke("address",ptrAddress);
+  m_objectType.functionMemberByName("load").invoke(ptrObject, nullptr);
+  void *ptrAddress = nullptr;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), &ptrAddress );
+  m_objectType.functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_updater->update( oid, ptrAddress );
 }
 
-ora::OraPtrReader::OraPtrReader( const Reflex::Type& objectType,
+ora::OraPtrReader::OraPtrReader( const edm::TypeWithDict& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -308,8 +311,8 @@ void ora::OraPtrReader::read( void* data ){
                    "OraPtrReader::read");    
   }
   // resolving loader address
-  Reflex::Member loaderMember = m_objectType.MemberByName("m_loader");
-  DataElement& loaderElement = m_dataElement->addChild( loaderMember.Offset(), 0 );
+  edm::MemberWithDict loaderMember = m_objectType.dataMemberByName("m_loader");
+  DataElement& loaderElement = m_dataElement->addChild( loaderMember.offset(), 0 );
   void* loaderAddress = loaderElement.address( data );
   boost::shared_ptr<IPtrLoader>* loaderPtr = static_cast<boost::shared_ptr<IPtrLoader>*>( loaderAddress );
   // creating new loader
@@ -323,7 +326,7 @@ void ora::OraPtrReader::clear(){
 }
 
 
-ora::OraPtrStreamer::OraPtrStreamer( const Reflex::Type& objectType,
+ora::OraPtrStreamer::OraPtrStreamer( const edm::TypeWithDict& objectType,
                                      MappingElement& mapping,
                                      ContainerSchema& contSchema ):
   m_objectType( objectType ),

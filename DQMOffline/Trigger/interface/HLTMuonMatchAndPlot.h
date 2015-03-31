@@ -92,10 +92,12 @@ class HLTMuonMatchAndPlot
     bool,    
     const StringCutObjectSelector<reco::Muon> &,
     double, double);
+
   trigger::TriggerObjectCollection selectedTriggerObjects(
     const trigger::TriggerObjectCollection &,
     const trigger::TriggerEvent &,
-    const edm::ParameterSet &);
+    bool hasTriggerCuts,
+    const StringCutObjectSelector<trigger::TriggerObject> triggerSelector);
  
   // Input from Configuration File
   std::string hltProcessName_;
@@ -123,6 +125,9 @@ class HLTMuonMatchAndPlot
   StringCutObjectSelector<reco::Muon> probeMuonSelector_;
   double probeZ0Cut_; 
   double probeD0Cut_;
+
+  StringCutObjectSelector<trigger::TriggerObject> triggerSelector_;
+  bool hasTriggerCuts_;
 
 };
 

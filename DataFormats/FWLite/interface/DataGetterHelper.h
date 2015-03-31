@@ -35,8 +35,6 @@
 #include <typeinfo>
 #include <vector>
 
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
-
 // forward declarations
 class TTreeCache;
 class TTree;

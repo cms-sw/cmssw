@@ -8,7 +8,7 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 
 namespace ora {
@@ -24,7 +24,7 @@ namespace ora {
 
     public:
 
-      UniqueRefWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      UniqueRefWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~UniqueRefWriter();
       
@@ -37,7 +37,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       int m_columnIndexes[2];
       ContainerSchema& m_schema;
@@ -50,7 +50,7 @@ namespace ora {
 
     public:
 
-      UniqueRefUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      UniqueRefUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~UniqueRefUpdater();
       
@@ -72,7 +72,7 @@ namespace ora {
 
       public:
 
-      UniqueRefReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      UniqueRefReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~UniqueRefReader();
       
@@ -89,7 +89,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       int m_columnIndexes[2];
       ContainerSchema& m_schema;
@@ -101,7 +101,7 @@ namespace ora {
   class UniqueRefStreamer : public IRelationalStreamer 
   {
     public:
-    UniqueRefStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    UniqueRefStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~UniqueRefStreamer();
 
@@ -112,7 +112,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

@@ -28,7 +28,6 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -43,7 +42,7 @@ Test program for edm::Event.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "Cintex/Cintex.h"
+#include "boost/shared_ptr.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -244,8 +243,6 @@ testEvent::testEvent() :
   processHistoryRegistry_(),
   processConfigurations_() {
 
-  ROOT::Cintex::Cintex::Enable();
-
   typedef edmtest::IntProduct prod_t;
   typedef std::vector<edmtest::Thing> vec_t;
 
@@ -305,7 +302,6 @@ testEvent::~testEvent() {
 
 void testEvent::setUp() {
 
-  edm::RootAutoLibraryLoader::enable();
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than

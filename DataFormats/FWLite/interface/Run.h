@@ -36,7 +36,6 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {

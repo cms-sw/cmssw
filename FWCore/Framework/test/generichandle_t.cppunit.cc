@@ -22,7 +22,6 @@ Test of GenericHandle class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
@@ -50,7 +49,6 @@ CPPUNIT_TEST(failWrongType);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){
-    edm::RootAutoLibraryLoader::enable();
   }
   void tearDown(){}
   void failgetbyLabelTest();

@@ -5,7 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
@@ -16,11 +15,10 @@
 #include <sstream>
 #include <string.h>
 
-#include "Cintex/Cintex.h"
-#include "G__ci.h"
 #include "TROOT.h"
 #include "TError.h"
 #include "TFile.h"
+#include "TInterpreter.h"
 #include "TH1.h"
 #include "TSystem.h"
 #include "TUnixSystem.h"
@@ -29,8 +27,6 @@
 
 #include "TThread.h"
 #include "TClassTable.h"
-#include "Reflex/Type.h"
-
 
 namespace {
   enum class SeverityLevel {
@@ -123,9 +119,7 @@ namespace {
           (el_message.find("already in TClassTable") != std::string::npos) ||
           (el_message.find("matrix not positive definite") != std::string::npos) ||
           (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
-	  //This deals with a missing dictionary problem
-	  ( (el_message.find("Collection proxy for") !=std::string::npos && 
-	     el_message.find("was not properly initialized!") != std::string::npos)) ||
+          (el_message.find("Problems declaring payload") != std::string::npos) ||
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
@@ -264,25 +258,19 @@ namespace edm {
 
       // Enable automatic Root library loading.
       if(autoLibraryLoader_) {
-        RootAutoLibraryLoader::enable();
-        if(loadAllDictionaries_) {
-          RootAutoLibraryLoader::loadAll();
-        }
+        gInterpreter->SetClassAutoloading(1);
       }
-
-      // Enable Cintex.
-      ROOT::Cintex::Cintex::Enable();
 
       // Set ROOT parameters.
       TTree::SetMaxTreeSize(kMaxLong64);
       TH1::AddDirectory(kFALSE);
-      G__SetCatchException(0);
+      //G__SetCatchException(0);
 
       // Set custom streamers
       setRefCoreStreamer();
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
-      if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
+      if (!hasDictionary(typeid(std::vector<std::vector<unsigned int> >))) {
          edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + "std::vector<std::vector<unsigned int> >");
       }
 

@@ -3,7 +3,7 @@
 
 #include "IRelationalStreamer.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -14,7 +14,7 @@ namespace ora {
 
     public:
 
-    explicit OraReferenceStreamerBase( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& schema );
+    explicit OraReferenceStreamerBase( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& schema );
 
     virtual ~OraReferenceStreamerBase();
 
@@ -26,7 +26,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mapping;
       int m_columnIndexes[2];
       ContainerSchema& m_schema;
@@ -38,7 +38,7 @@ namespace ora {
 
   class OraReferenceWriter : public OraReferenceStreamerBase, public IRelationalWriter {
     public:
-    explicit OraReferenceWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& schema );
+    explicit OraReferenceWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& schema );
 
     virtual ~OraReferenceWriter();
 
@@ -53,7 +53,7 @@ namespace ora {
 
   class OraReferenceUpdater : public OraReferenceStreamerBase, public IRelationalUpdater {
     public:
-    explicit OraReferenceUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& schema );
+    explicit OraReferenceUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& schema );
 
     virtual ~OraReferenceUpdater();
 
@@ -67,7 +67,7 @@ namespace ora {
 
   class OraReferenceReader : public OraReferenceStreamerBase, public IRelationalReader {
     public:
-    explicit OraReferenceReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& schema );
+    explicit OraReferenceReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& schema );
 
     virtual ~OraReferenceReader();
 
@@ -86,7 +86,7 @@ namespace ora {
   class OraReferenceStreamer : public IRelationalStreamer 
   {
     public:
-    explicit OraReferenceStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& schema );
+    explicit OraReferenceStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& schema );
 
     ~OraReferenceStreamer();
 
@@ -97,7 +97,7 @@ namespace ora {
     IRelationalReader* newReader();
 
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

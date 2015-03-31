@@ -21,6 +21,9 @@
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 namespace DataFormats_TestObjects {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
@@ -82,5 +85,7 @@ struct dictionary {
   edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing> > > vectorHolderThing;
 
   edm::Wrapper<edmtest::DeleteEarly> wrapperDeleteEarly;
+  edm::Wrapper<edm::EventID> wrapperEventID;
+  edm::Wrapper<edm::ProductID> wrapperProductID;
 };
 }

@@ -73,6 +73,23 @@
    <class name="std::map<CSCDetId,std::vector<CSCALCTStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCLCTPreTrigger> >"/>
 
+   <class name="std::pair<CSCDetId,std::vector<CSCWireDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCRPCDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCStripDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCComparatorDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCCLCTDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCALCTDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCCFEBStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCTMBStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCDCCFormatStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCDMBStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCDDUStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCDCCStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCALCTStatusDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCCLCTPreTrigger> >"/>
+
+
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCStripDigi>"/>

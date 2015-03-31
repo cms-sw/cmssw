@@ -17,7 +17,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
-  <class name="reco::SuperCluster" ClassVersion="14">
+  <class name="reco::SuperCluster" ClassVersion="15">
    <version ClassVersion="15" checksum="705520405"/>
    <version ClassVersion="14" checksum="3716250139"/>
    <version ClassVersion="13" checksum="1878352437"/>
@@ -35,7 +35,7 @@
   <class name="edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
 
-  <class name="reco::ClusterShape" ClassVersion="10">
+  <class name="reco::ClusterShape" ClassVersion="11">
    <version ClassVersion="11" checksum="3739311734"/>
    <version ClassVersion="10" checksum="2977556974"/>
     <field name="covEtaEta_" iotype="Double32_t"/>
@@ -86,7 +86,7 @@
   <class name="edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> > >" splitLevel="0"/>
 
-  <class name="reco::ElectronSeed" ClassVersion="11">
+  <class name="reco::ElectronSeed" ClassVersion="12">
    <version ClassVersion="12" checksum="536071409"/>
    <version ClassVersion="11" checksum="3831394066"/>
    <version ClassVersion="10" checksum="534580602"/>
@@ -104,7 +104,7 @@
   <class name="edm::reftobase::Holder<reco::ElectronSeed,edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
 
 
-  <class name="reco::PreshowerCluster" ClassVersion="13">
+  <class name="reco::PreshowerCluster" ClassVersion="14">
    <version ClassVersion="14" checksum="3782728123"/>
    <version ClassVersion="13" checksum="2894694325"/>
    <version ClassVersion="12" checksum="1992137647"/>

@@ -3,14 +3,14 @@
 
 #include "IArrayHandler.h"
 // externals
-#include "Reflex/Reflex.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
   class CArrayIteratorHandler : virtual public IArrayIteratorHandler {
     public:
     /// Constructor
-    CArrayIteratorHandler( const void* startAddress, const Reflex::Type& iteratorReturnType );
+    CArrayIteratorHandler( const void* startAddress, const edm::TypeWithDict& iteratorReturnType );
 
     /// Destructor
     ~CArrayIteratorHandler();
@@ -22,12 +22,12 @@ namespace ora {
     void* object();
 
     /// Returns the return type of the iterator dereference method
-    Reflex::Type& returnType();
+    edm::TypeWithDict& returnType();
 
     private:
 
     /// The return type of the iterator dereference method
-    Reflex::Type m_returnType;
+    edm::TypeWithDict m_returnType;
       
     /// Current element object pointer
     const void* m_currentElement;
@@ -38,7 +38,7 @@ namespace ora {
 
     public:
       /// Constructor
-    explicit CArrayHandler( const Reflex::Type& dictionary );
+    explicit CArrayHandler( const edm::TypeWithDict& dictionary );
 
     /// Destructor
     ~CArrayHandler();
@@ -56,17 +56,17 @@ namespace ora {
     void clear( const void* address );
       
     /// Returns the iterator return type
-    Reflex::Type& iteratorReturnType();
+    edm::TypeWithDict& iteratorReturnType();
 
     /// Returns the associativeness of the container
     bool isAssociative() const { return false; }
       
     private:
     /// The dictionary information
-    Reflex::Type m_type;
+    edm::TypeWithDict m_type;
 
     /// The iterator return type
-    Reflex::Type m_elementType;
+    edm::TypeWithDict m_elementType;
 
   };
 

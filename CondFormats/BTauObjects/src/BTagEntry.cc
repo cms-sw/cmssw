@@ -124,7 +124,7 @@ BTagEntry::BTagEntry(const TF1* func, BTagEntry::Parameters p):
 // e.g. "x<0 ? 1 : x<1 ? 2 : x<2 ? 3 : 4"
 std::string th1ToFormulaLin(const TH1* hist) {
   int nbins = hist->GetNbinsX();
-  TAxis * axis = hist->GetXaxis();
+  TAxis const* axis = hist->GetXaxis();
   std::stringstream buff;
   buff << "x<" << axis->GetBinLowEdge(1) << " ? 0. : ";  // default value
   for (int i=1; i<nbins+1; ++i) {
@@ -187,7 +187,7 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   params(p)
 {
   int nbins = hist->GetNbinsX();
-  TAxis * axis = hist->GetXaxis();
+  TAxis const* axis = hist->GetXaxis();
 
   // overwrite bounds with histo values
   if (params.operatingPoint == BTagEntry::OP_RESHAPING) {

@@ -12,9 +12,9 @@
 // externals
 #include "CoralBase/Attribute.h"
 #include "RelationalAccess/IBulkOperation.h"
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
-ora::CArrayWriter::CArrayWriter( const Reflex::Type& objectType,
+ora::CArrayWriter::CArrayWriter( const edm::TypeWithDict& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -41,12 +41,12 @@ bool ora::CArrayWriter::build( DataElement& offset,
   m_recordId.push_back(0);
 
   // Check the array type
-  Reflex::Type arrayType = m_objectType.ToType();
-  Reflex::Type arrayResolvedType = ClassUtils::resolvedType(arrayType);
+  edm::TypeWithDict arrayType = m_objectType.toType();
+  edm::TypeWithDict arrayResolvedType = ClassUtils::resolvedType(arrayType);
   // Check the component type
   if ( ! arrayType || !arrayResolvedType ) {
     throwException( "Missing dictionary information for the element type of the array \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    m_objectType.cppName() + "\"",
                     "CArrayWriter::build" );
   }
   
@@ -67,7 +67,7 @@ bool ora::CArrayWriter::build( DataElement& offset,
 
   m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( m_objectType ) );
   
-  std::string arrayTypeName = arrayType.Name();
+  std::string arrayTypeName = arrayType.name();
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( arrayTypeName );
   if ( iMe == m_mappingElement.end() ) {
@@ -138,7 +138,7 @@ void ora::CArrayWriter::write( int oid,
   
 }
 
-ora::CArrayUpdater::CArrayUpdater(const Reflex::Type& objectType,
+ora::CArrayUpdater::CArrayUpdater(const edm::TypeWithDict& objectType,
                                   MappingElement& mapping,
                                   ContainerSchema& contSchema ):
   m_deleter( mapping ),
@@ -166,7 +166,7 @@ void ora::CArrayUpdater::update( int oid,
   m_writer.write( oid, data );
 }
 
-ora::CArrayReader::CArrayReader(const Reflex::Type& objectType,
+ora::CArrayReader::CArrayReader(const edm::TypeWithDict& objectType,
                                 MappingElement& mapping,
                                 ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -193,12 +193,12 @@ bool ora::CArrayReader::build( DataElement& offset,
   m_recordId.push_back(0);
 
   // Check the array type
-  Reflex::Type arrayType = m_objectType.ToType();
-  Reflex::Type arrayResolvedType = ClassUtils::resolvedType(arrayType);
+  edm::TypeWithDict arrayType = m_objectType.toType();
+  edm::TypeWithDict arrayResolvedType = ClassUtils::resolvedType(arrayType);
   // Check the component type
   if ( ! arrayType || !arrayResolvedType ) {
     throwException( "Missing dictionary information for the element type of the array \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    m_objectType.cppName() + "\"",
                     "CArrayReader::build" );
   }
 
@@ -217,7 +217,7 @@ bool ora::CArrayReader::build( DataElement& offset,
 
   m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( m_objectType ) );
 
-  std::string arrayTypeName = arrayType.Name();
+  std::string arrayTypeName = arrayType.name();
 
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( arrayTypeName );
@@ -258,13 +258,13 @@ void ora::CArrayReader::read( void* destinationData ) {
   }
   void* address = m_offset->address( destinationData );
 
-  Reflex::Type iteratorDereferenceReturnType = m_arrayHandler->iteratorReturnType();
+  edm::TypeWithDict iteratorDereferenceReturnType = m_arrayHandler->iteratorReturnType();
   
-  bool isElementFundamental = iteratorDereferenceReturnType.IsFundamental();
+  bool isElementFundamental = iteratorDereferenceReturnType.isFundamental();
 
   std::string positionColumn = m_mappingElement.posColumn();
 
-  size_t arraySize = m_objectType.ArrayLength();
+  size_t arraySize = ClassUtils::arrayLength( m_objectType );
   
   m_arrayHandler->clear( address );
 
@@ -288,11 +288,11 @@ void ora::CArrayReader::read( void* destinationData ) {
     }
     
     // the memory has been allocated already!
-    objectData = static_cast<char*>(address)+arrayIndex*iteratorDereferenceReturnType.SizeOf();
+    objectData = static_cast<char*>(address)+arrayIndex*iteratorDereferenceReturnType.size();
 
     if(!isElementFundamental){
       // in this case the initialization is required: use default constructor...
-      iteratorDereferenceReturnType.Construct(Reflex::Type(0,0),std::vector< void* >(),objectData);
+      iteratorDereferenceReturnType.construct();// edm::TypeWithDict(0,0),std::vector< void* >(),objectData);
     }
 
     m_dataReader->setRecordId( m_recordId );
@@ -309,7 +309,7 @@ void ora::CArrayReader::clear(){
   if(m_dataReader.get()) m_dataReader->clear();
 }
 
-ora::CArrayStreamer::CArrayStreamer( const Reflex::Type& objectType,
+ora::CArrayStreamer::CArrayStreamer( const edm::TypeWithDict& objectType,
                                    MappingElement& mapping,
                                    ContainerSchema& contSchema ):
   m_objectType( objectType ),

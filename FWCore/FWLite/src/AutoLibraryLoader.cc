@@ -18,7 +18,6 @@
 
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/FWLite/src/BareRootProductGetter.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -54,8 +53,7 @@ AutoLibraryLoader::enable()
 
    edmplugin::PluginManager::configure(edmplugin::standard::config());
    static BareRootProductGetter s_getter;
-   edm::RootAutoLibraryLoader::enable();
-   //this function must be called after enabling the autoloader
+   //this function must be called
    // so that the TClass we need will be available
    fwlite::setRefStreamer(&s_getter);
    
@@ -107,6 +105,5 @@ AutoLibraryLoader::loadAll()
 {
   // std::cout <<"LoadAllDictionaries"<<std::endl;
   enable();
-  edm::RootAutoLibraryLoader::loadAll();
 }
 

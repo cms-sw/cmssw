@@ -3,13 +3,12 @@
       <version ClassVersion="12" checksum="3922863495"/>
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
-
-  <class name="reco::TrackBase" ClassVersion="13">
+  <class name="reco::TrackResiduals" ClassVersion="10">
+   <version ClassVersion="10" checksum="2022291691"/>
+  </class>
+  <class name="reco::TrackBase" ClassVersion="14">
    <version ClassVersion="14" checksum="3929365050"/>
    <version ClassVersion="13" checksum="1244921154"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
-    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
-   
    <version ClassVersion="12" checksum="2704717983"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -24,16 +23,7 @@
       targetClass="reco::HitPattern"
       target="hitPattern"
       version="[-11]"
-      include="utility;
-        DataFormats/SiPixelDetId/interface/PXBDetId.h;
-        DataFormats/SiPixelDetId/interface/PXFDetId.h;
-        DataFormats/SiStripDetId/interface/TIBDetId.h;
-        DataFormats/SiStripDetId/interface/TIDDetId.h;
-        DataFormats/SiStripDetId/interface/TOBDetId.h;
-        DataFormats/SiStripDetId/interface/TECDetId.h;
-        DataFormats/MuonDetId/interface/DTLayerId.h;
-        DataFormats/MuonDetId/interface/CSCDetId.h;
-        DataFormats/MuonDetId/interface/RPCDetId.h"
+      include="utility,DataFormats/SiPixelDetId/interface/PXBDetId.h,DataFormats/SiPixelDetId/interface/PXFDetId.h,DataFormats/SiStripDetId/interface/TIBDetId.h,DataFormats/SiStripDetId/interface/TIDDetId.h,DataFormats/SiStripDetId/interface/TOBDetId.h,DataFormats/SiStripDetId/interface/TECDetId.h,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h"
       >
       <![CDATA[
             using namespace reco;
@@ -345,7 +335,7 @@
   </ioread>
 
 
-  <class name="reco::TrackExtra" ClassVersion="12">
+  <class name="reco::TrackExtra" ClassVersion="13">
    <version ClassVersion="13" checksum="2526033150"/>
    <version ClassVersion="12" checksum="106004853"/>
    <version ClassVersion="11" checksum="2586227274"/>
@@ -361,7 +351,7 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="13">
+  <class name="reco::Track" ClassVersion="14">
    <version ClassVersion="14" checksum="4228121071"/>
    <version ClassVersion="13" checksum="36410295"/>
    <version ClassVersion="12" checksum="1190637787"/>
@@ -489,7 +479,7 @@
    <class name="reco::DeDxHitInfo::DeDxHitInfoContainerCollection"/>
 
 
-   <class name="reco::DeDxHitInfo" ClassVersion="2">
+   <class name="reco::DeDxHitInfo" ClassVersion="3">
     <version ClassVersion="3" checksum="2577777556"/>
     <version ClassVersion="2" checksum="3000986250"/>
    </class>

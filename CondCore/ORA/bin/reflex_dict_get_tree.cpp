@@ -2,19 +2,22 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 //
-#include "Reflex/Type.h"
-#include "Reflex/Base.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+
 //
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include <string>
 
+#ifdef AP_NOT_FOR_RIGHT_NOW
+
 static std::string const prefix("LCGReflex/");
 
-Reflex::Type resolvedType(const Reflex::Type& typ){
-  Reflex::Type resolvedType = typ;
+edm::TypeWithDict resolvedType(const edm::TypeWithDict& typ){
+  edm::TypeWithDict resolvedType = typ;
   while(resolvedType.IsTypedef()){
     resolvedType = resolvedType.ToType();
   }
@@ -43,17 +46,17 @@ bool isSTLContainer( const std::string& contName ){
   return false;
 }
 
-bool isBasic( const Reflex::Type& typ ){
+bool isBasic( const edm::TypeWithDict& typ ){
   return ( typ.IsFundamental() || 
 	   typ.IsEnum() || 
 	   typ.Name(Reflex::SCOPED|Reflex::FINAL) == "std::string" ||
 	   typ.Name(Reflex::SCOPED|Reflex::FINAL) == "std::basic_string<char>" );
 }
 
-void processType( const Reflex::Type& t, 
+void processType( const edm::TypeWithDict& t, 
 		  std::map<std::string,std::pair<std::set<std::string>,std::set<std::string> > >& outList, 
 		  std::set<std::string>& doneList ){
-  Reflex::Type objType = t;
+  edm::TypeWithDict objType = t;
   std::string className = objType.Name( Reflex::SCOPED|Reflex::FINAL );
   auto iD = doneList.find( className );
   if( iD != doneList.end() ) return;
@@ -63,9 +66,9 @@ void processType( const Reflex::Type& t,
   std::set<std::string> bases;
   std::set<std::string> members;
 
-  while( objType.IsArray() ) objType = objType.ToType();
+  while( objType.isArray() ) objType = objType.ToType();
   if( isBasic( objType ) ) return;
-  Reflex::TypeTemplate templ = objType.TemplateFamily();
+  edm::TypeWithDictTemplate templ = objType.TemplateFamily();
   if ( templ ) {
     className = templ.Name(Reflex::SCOPED|Reflex::FINAL);
     if( isSTLContainer( className ) ) return;
@@ -73,13 +76,13 @@ void processType( const Reflex::Type& t,
 
   for ( size_t i=0;i<objType.BaseSize();i++){
     Reflex::Base base = objType.BaseAt(i);
-    Reflex::Type baseType = resolvedType( base.ToType() );
+    edm::TypeWithDict baseType = resolvedType( base.ToType() );
     if( !baseType ) std::cout <<"Type for base "<<base.Name()<<" of class "<<className<<" is unkown and will be skipped."<<std::endl;
     //if( !baseType ) throw std::runtime_error("Type for one base is unknown");
     if( baseType ) processType( baseType, outList, doneList );
 
     std::string baseName = baseType.Name( Reflex::SCOPED|Reflex::FINAL);
-    Reflex::TypeTemplate baseTempl = baseType.TemplateFamily();
+    edm::TypeWithDictTemplate baseTempl = baseType.TemplateFamily();
     if ( baseTempl ) {
       baseName = baseTempl.Name(Reflex::SCOPED|Reflex::FINAL);
     }
@@ -88,7 +91,7 @@ void processType( const Reflex::Type& t,
   for ( size_t i=0;i< objType.DataMemberSize();i++){
     Reflex::Member dataMember = objType.DataMemberAt(i);
     if ( dataMember.IsTransient() || dataMember.IsStatic() ) continue;
-    Reflex::Type dataMemberType = resolvedType( dataMember.TypeOf() );
+    edm::TypeWithDict dataMemberType = resolvedType( dataMember.TypeOf() );
     if( !dataMemberType ) std::cout <<"Type for data member "+dataMember.Name()+" of class "<<className<<" is unknown and will be skipped"<<std::endl;
     //if( !dataMemberType ) throw std::runtime_error("Type for data member "+dataMember.Name()+" is unknown");
     if( dataMemberType ) processType( dataMemberType, outList, doneList );
@@ -119,7 +122,7 @@ int main ( int argc, char *argv[] )
 	if(line.empty()) continue;
 	std::cout <<"Processing class "<<line << std::endl;
 	edmplugin::PluginCapabilities::get()->load(prefix + line);
-	Reflex::Type t = Reflex::Type::ByName( line );
+	edm::TypeWithDict t = edm::TypeWithDict::ByName( line );
 	if( ! t ) throw std::runtime_error("Class "+line+" is not known by the dictionary");
 	processType( t, outList, doneList );
       }
@@ -166,3 +169,11 @@ int main ( int argc, char *argv[] )
     }
   }
 }
+#else // AP_NOT_FOR_RIGHT_NOW
+
+int main()
+{
+  return 0;
+}
+
+#endif // defined AP_NOT_FOR_RIGHT_NOW
