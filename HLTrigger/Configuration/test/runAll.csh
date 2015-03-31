@@ -14,7 +14,7 @@ echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
 
 foreach gtag ( Data Mc )
   set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
-  foreach table ( FULL Fake GRun HIon PIon 50nsGRun )
+  foreach table ( FULL GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 Fake )
     set oldfile = On${gtag}_HLT_${table}.py
     set newfile = OnLine_HLT_${table}_${GTAG}.py
     rm -f $newfile
@@ -22,9 +22,9 @@ foreach gtag ( Data Mc )
     cat >> $newfile <<EOF
 #
 if not ('HLTAnalyzerEndpath' in process.__dict__) :
-    from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtTrigReport,hltTrigReport
-    process.hltL1GtTrigReport = hltL1GtTrigReport
-    process.hltTrigReport = hltTrigReport
+    from HLTrigger.Configuration.HLT_FULL_cff import fragment as _fragment
+    process.hltL1GtTrigReport = _fragment.hltL1GtTrigReport
+    process.hltTrigReport = _fragment.hltTrigReport
     process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
     process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport + process.hltTrigReport)
 #
