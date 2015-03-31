@@ -131,7 +131,8 @@ process.load("RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff")
 process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
      src = 'cosmicTrackSplitter',
      TrajectoryInEvent = True,
-     TTRHBuilder = "WithTrackAngle"
+     TTRHBuilder = "WithTrackAngle",
+     NavigationSchool = ""
 )
 # second refit
 process.TrackRefitter2 = process.TrackRefitter1.clone(
