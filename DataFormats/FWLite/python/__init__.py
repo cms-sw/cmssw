@@ -60,6 +60,7 @@ class Handle:
         if kwargs.get ('noDelete'):
             print "Not deleting wrapper"
             del kwargs['noDelete']
+        else:
             self._nodel = True
         self._type = typeString 
         self._resetWrapper()
@@ -102,7 +103,7 @@ class Handle:
         # So, we've created it and grabbed the type info.  Since we
         # don't want a memory leak, we destroy it.
         if not self._nodel :
-            self._wrapper.IsA().Destructor( self._wrapper )
+            ROOT.TClass.GetClass("edm::Wrapper<"+self._type+">").Destructor( self._wrapper )
 
     def _typeInfoGetter (self):
         """(Internal) Return the type info"""

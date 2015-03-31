@@ -29,7 +29,7 @@
    <version ClassVersion="10" checksum="1002280074"/>
   </class>
   <class name="edm::Wrapper<reco::PdfInfo>" />
-  <class name="reco::FlavorHistory"  ClassVersion="11">
+  <class name="reco::FlavorHistory"  ClassVersion="12">
    <version ClassVersion="12" checksum="699034420"/>
    <version ClassVersion="11" checksum="425358630"/>
    <version ClassVersion="10" checksum="425358630"/>
@@ -38,7 +38,7 @@
   <class name="edm::Wrapper<std::vector<reco::FlavorHistory> >" />
   <class name="edm::ValueMap<reco::FlavorHistory >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::FlavorHistory > >" />
-  <class name="reco::FlavorHistoryEvent"  ClassVersion="10">
+  <class name="reco::FlavorHistoryEvent"  ClassVersion="11">
    <version ClassVersion="11" checksum="1284576356"/>
    <version ClassVersion="10" checksum="3632760022"/>
   </class>

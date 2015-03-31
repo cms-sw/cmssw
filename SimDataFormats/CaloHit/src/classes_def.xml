@@ -10,10 +10,20 @@
   </class>
   <class name="std::vector<HFShowerPhoton>"/>
   <class name="edm::Wrapper<std::vector<HFShowerPhoton> >"/>
+  <class name="CastorShowerEvent" ClassVersion="2">
+   <version ClassVersion="2" checksum="802334252"/>
+  </class>
+  <class name="CastorShowerLibraryInfo" ClassVersion="1">
+   <version ClassVersion="1" checksum="3924826676"/>
+  </class>
+  <class name="SLBin" ClassVersion="1">
+   <version ClassVersion="1" checksum="1661681871"/>
+  </class>
   <class name="HFShowerLibraryEventInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1929526838"/>
   </class>
   <class name="std::vector<HFShowerLibraryEventInfo>"/>
   <class name="edm::Wrapper<HFShowerLibraryEventInfo>" />
   <class name="edm::Wrapper<std::vector<HFShowerLibraryEventInfo> >"/>
+  <typedef name="CastorShowerEvent::Point" />
 </lcgdict>

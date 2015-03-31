@@ -14,7 +14,6 @@
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
@@ -99,7 +98,6 @@ testProductRegistry::testProductRegistry() :
 
 
 void testProductRegistry::setUp() {
-  edm::RootAutoLibraryLoader::enable();
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
   auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
