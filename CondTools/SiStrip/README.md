@@ -28,10 +28,10 @@ gain scan for the APVs to be given in input to a the tracker map.
 A special attention must be reserved to the online to offline conversion of the 
 APV ids. The detector modules can have 3 APV pairs or 2 APV pair and the logic of
 the conversion is different according to the module type. The conversion logic is
-listed in the table below
+listed in the table below:
 
-Modules with 6 APVs:
-----------------------------------
+###Modules with 6 APVs
+
 | online APV id | offline APV id |    
 ----------------------------------
 | 0 | 0 |
@@ -41,8 +41,8 @@ Modules with 6 APVs:
 | 4 | 4 |
 | 5 | 5 |
 
-Modules with 4 APVs:
-----------------------------------
+###Modules with 4 APVs
+
 | online APV id | offline APV id |
 ----------------------------------
 | 0 | 0 |
