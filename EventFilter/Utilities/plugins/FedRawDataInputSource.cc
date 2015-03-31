@@ -58,6 +58,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)*1048576),
   eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
+  maxOpenFiles_(pset.getUntrackedParameter<unsigned int> ("maxOpenFiles",2)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
@@ -102,6 +103,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 
   numConcurrentReads_=numBuffers_-1;
   singleBufferMode_ = !(numBuffers_>1);
+  readingFilesCount_=0;
 
   if (!crc32c_hw_test())
     edm::LogError("FedRawDataInputSource::FedRawDataInputSource") << "Intel crc32c checksum computation unavailable";
@@ -371,6 +373,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
   //file is empty
   if (!currentFile_->fileSize_) {
+    readingFilesCount_--;
     //try to open new lumi
     assert(currentFile_->nChunks_==0);
     if (getLSFromFilename_)
@@ -388,6 +391,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
   //file is finished
   if (currentFile_->bufferPosition_==currentFile_->fileSize_) {
+    readingFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_!=currentFile_->nProcessed_)
@@ -877,7 +881,7 @@ void FedRawDataInputSource::readSupervisor()
 
     //wait for at least one free thread and chunk
     int counter=0;
-    while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty())
+    while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty() || readingFilesCount_>=maxOpenFiles_)
     {
       std::unique_lock<std::mutex> lkw(mWakeup_);
       //sleep until woken up by condition or a timeout
@@ -983,6 +987,7 @@ void FedRawDataInputSource::readSupervisor()
 	if (fileSize%eventChunkSize_) neededChunks++;
 
         InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,rawFile,fileSize,neededChunks,eventsInNewFile,this);
+        readingFilesCount_++;
         fileQueue_.push(newInputFile);
 
 	for (unsigned int i=0;i<neededChunks;i++) {
@@ -1024,6 +1029,7 @@ void FedRawDataInputSource::readSupervisor()
 	  //still queue file for lumi update
 	  std::unique_lock<std::mutex> lkw(mWakeup_);
 	  InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,rawFile,0,0,0,this);
+          readingFilesCount_++;
 	  fileQueue_.push(newInputFile);
 	  cvWakeup_.notify_one();
 	  return;
@@ -1043,6 +1049,7 @@ void FedRawDataInputSource::readSupervisor()
         //push file and wakeup main thread
         InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,rawFile,fileSize,1,eventsInNewFile,this);
         newInputFile->chunks_[0]=newChunk;
+        readingFilesCount_++;
         fileQueue_.push(newInputFile);
         cvWakeup_.notify_one();
       }
