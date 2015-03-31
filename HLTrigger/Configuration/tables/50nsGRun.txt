@@ -466,6 +466,20 @@ HLT_Random_v*							# JIRA: CMSHLT-244
 
 HLT_Physics_v*							# skim
 
+HLT_PFMETForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_AK4PFJetsForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_PFHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_PFMHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_CaloMETForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_CaloMETCleanedForMC_v*					# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_AK4CaloJetsForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_CaloHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_CaloMHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+HLT_AK8PFJetsForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
+HLT_AK8TrimPFJetsForMC_v*					# JIRA: CMSHLT-315 (template paths only for MC)
+HLT_AK8PFHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
+HLT_AK8CaloHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
+
 #DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
