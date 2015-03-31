@@ -148,8 +148,12 @@ initialize( const edm::ParameterSet& conf ) {
   std::vector<edm::ParameterSet>::const_iterator cbegin(cutflow.begin()),
     cend(cutflow.end());
   std::vector<edm::ParameterSet>::const_iterator icut = cbegin;
-  for( ; icut != cend; ++icut ) {   
+  std::map<std::string,unsigned> cut_counter;
+  for( ; icut != cend; ++icut ) {  
+    std::stringstream realname;
     const std::string& name = icut->getParameter<std::string>("cutName");
+    if( !cut_counter.count(name) ) cut_counter[name] = 0;      
+    realname << name << "_" << cut_counter[name];
     const bool needsContent = 
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
@@ -162,16 +166,24 @@ initialize( const edm::ParameterSet& conf ) {
 	<< "The requested cut: " << name << " is not available!";
     }
     needs_event_content_.push_back(needsContent);
-    this->push_back(name);
-    this->set(name);
-    if(ignored) this->ignoreCut(name);
-  }  
-   
+
+    const std::string therealname = realname.str();
+    this->push_back(therealname);
+    this->set(therealname);
+    if(ignored) this->ignoreCut(therealname);
+    cut_counter[name]++;
+  }    
+
   //have to loop again to set cut indices after all are filled
   icut = cbegin;
+  cut_counter.clear();
   for( ; icut != cend; ++icut ) {
-    const std::string& name = icut->getParameter<std::string>("cutName");
-    cut_indices_.push_back(typename Selector<T>::index_type(&(this->bits_),name));
+    std::stringstream realname;
+    const std::string& name = icut->getParameter<std::string>("cutName");    
+    if( !cut_counter.count(name) ) cut_counter[name] = 0;      
+    realname << name << "_" << cut_counter[name];
+    cut_indices_.push_back(typename Selector<T>::index_type(&(this->bits_),realname.str()));    
+    cut_counter[name]++;
   }
   
   initialized_ = true;
