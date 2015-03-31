@@ -43,7 +43,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	EventsVsLS             = ib.book1D("EventsVsLS", "Total Number of Events per LS; LS; # of Events", NLumiBlocks_,0,NLumiBlocks_);
 
 	// digi errors
-	ib.setCurrentFolder(baseFolder_ + "Errors/Digis");
+	ib.setCurrentFolder(baseFolder_ + "/Errors/Digis");
         ZDC_Digi_Errors = ib.book2D("ZDC_Digi_Errors", "Raw Number of Digi Errors Per ZDC Channel", 2, 0, 2, 9, 0, 9);
         ZDC_Digi_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Digi_Errors->setBinLabel(2,"ZDC-",1);
@@ -61,7 +61,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 
 	ZDC_DigiErrorsVsLS = ib.book1D("ZDC_DigiErrorsVsLS","Total Number of (Digi) Errors found in the ZDCs vs. Lumi Section;LS;# errors",NLumiBlocks_,0,NLumiBlocks_);
 
-	ib.setCurrentFolder(baseFolder_ + "Errors/Digis/DigiErrorCauses");
+	ib.setCurrentFolder(baseFolder_ + "/Errors/Digis/DigiErrorCauses");
 	ZDC_DigiErrors_DVER = ib.book2D("ZDC_DigiErrors_DVER","Raw Number of Digi Errors Caused by Finding .dv()=0 or .er()=1",2,0,2,9,0,9);
 	ZDC_DigiErrors_DVER->setBinLabel(1,"ZDC+",1);
         ZDC_DigiErrors_DVER->setBinLabel(2,"ZDC-",1);
@@ -92,7 +92,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 
 
 	// hot channels
-	ib.setCurrentFolder(baseFolder_ + "Errors/HotChannel");
+	ib.setCurrentFolder(baseFolder_ + "/Errors/HotChannel");
         ZDC_Hot_Channel_Errors = ib.book2D("ZDC_Hot_Channel_Errors", "Raw Number of Times Each Channel Appeared Hot", 2, 0, 2, 9, 0, 9);
         ZDC_Hot_Channel_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Hot_Channel_Errors->setBinLabel(2,"ZDC-",1);
@@ -111,7 +111,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	ZDC_HotChannelErrorsVsLS = ib.book1D("ZDC_HotChannelErrorsVsLS","Total Number of Hot Channel Errors in the ZDCs vs. Lumi Section; LS; # Hot channels", NLumiBlocks_,0,NLumiBlocks_);
 
 	// dead channels
-	ib.setCurrentFolder(baseFolder_ + "Errors/DeadChannel");
+	ib.setCurrentFolder(baseFolder_ + "/Errors/DeadChannel");
         ZDC_Dead_Channel_Errors = ib.book2D("ZDC_Dead_Channel_Errors", "Raw Number of Times Each Channel Appeared Dead", 2, 0, 2, 9, 0, 9);
         ZDC_Dead_Channel_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Dead_Channel_Errors->setBinLabel(2,"ZDC-",1);
@@ -129,7 +129,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);
 
 	// cold channels
-	ib.setCurrentFolder(baseFolder_ + "Errors/ColdChannel");
+	ib.setCurrentFolder(baseFolder_ + "/Errors/ColdChannel");
         ZDC_Cold_Channel_Errors = ib.book2D("ZDC_Cold_Channel_Errors", "Raw Number of Times Each Channel Appeared Cold", 2, 0, 2, 9, 0, 9);
         ZDC_Cold_Channel_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Cold_Channel_Errors->setBinLabel(2,"ZDC-",1);
@@ -147,7 +147,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);
 
 	// total errors
-	ib.setCurrentFolder(baseFolder_ + "Errors");
+	ib.setCurrentFolder(baseFolder_ + "/Errors");
         ZDC_TotalChannelErrors = ib.book2D("ZDC_TotalChannelErrors","Total Number of Errors(Digi Error, Hot Cell or Dead Cell) Per Channel in the ZDC" ,2,0,2,9,0,9);
         ZDC_TotalChannelErrors->setBinLabel(1,"ZDC+",1);
         ZDC_TotalChannelErrors->setBinLabel(2,"ZDC-",1);
