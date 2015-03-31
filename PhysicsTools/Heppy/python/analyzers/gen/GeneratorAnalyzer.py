@@ -54,10 +54,13 @@ class GeneratorAnalyzer( Analyzer ):
         self.makeAllGenParticles   = cfg_ana.makeAllGenParticles
         self.makeSplittedGenLists  = cfg_ana.makeSplittedGenLists
         self.allGenTaus            = cfg_ana.allGenTaus if self.makeSplittedGenLists else False
+	self.makeLHEweights  = cfg_ana.makeLHEweights
+        	
  
     def declareHandles(self):
         super(GeneratorAnalyzer, self).declareHandles()
         self.mchandles['genParticles'] = AutoHandle( 'prunedGenParticles', 'std::vector<reco::GenParticle>' )
+	self.mchandles['LHEweights'] = AutoHandle( 'source', 'LHEEventProduct')
 
     def beginLoop(self,setup):
         super(GeneratorAnalyzer,self).beginLoop(setup)
@@ -239,6 +242,15 @@ class GeneratorAnalyzer( Analyzer ):
                 if id <= 5 and any([abs(m.pdgId()) in {23,24} for m in realGenMothers(p)]):
                     event.genwzquarks.append(p)
 
+        #Add LHE weight info
+	event.LHEweights = self.mchandles['LHEweights'].product()
+	if self.makeLHEweights:
+	    event.LHE_weights = []
+	    
+	    for w in event.LHEweights.weights():
+	        event.LHE_weights.append(w)
+	      
+
     def process(self, event):
         self.readCollections( event.input )
 
@@ -263,6 +275,8 @@ setattr(GeneratorAnalyzer,"defaultConfig",
         # Make also the splitted lists
         makeSplittedGenLists = True,
         allGenTaus = False, 
+        # Save LHE weights in LHEEventProduct
+        makeLHEweights = True,
         # Print out debug information
         verbose = False,
     )
