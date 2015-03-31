@@ -101,7 +101,7 @@ class MatrixInjector(object):
             "dashboardActivity" : "relval",
             "Memory" : 2400,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 1
+            "TimePerEvent" : 0.1
             }
 
         self.defaultHarvest={
@@ -192,7 +192,7 @@ class MatrixInjector(object):
                     splitForThisWf=None
                     thisLabel=self.speciallabel
                     if len( [step for step in s[3] if "HARVESTGEN" in step] )>0:
-                        chainDict['TimePerEvent']=0.1
+                        chainDict['TimePerEvent']=0.01
                         thisLabel=thisLabel+"_gen"
                     processStrPrefix=''
                     setPrimaryDs=None
