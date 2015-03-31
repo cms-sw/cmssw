@@ -505,7 +505,9 @@ def cust_2023SHCalTime(process):
     process=cust_ecalTime(process)    
     if hasattr(process,'RECOSIMEventContent'):
         process.RECOSIMEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
-    if hasattr(process,'FEVTDEBUTeventContent'):
+    if hasattr(process,'FEVTDEBUGeventContent'):
+     	process.FEVTDEBUGoutput.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+    if hasattr(process,'FEVTDEBUGHLTeventContent'):
      	process.FEVTDEBUGoutput.outputCommands.append('keep *_cfWriter_g4SimHits_*')
     if hasattr(process,'digitisation_step'):
     	process.mix.mixObjects.mixVertices.makeCrossingFrame=cms.untracked.bool(True)

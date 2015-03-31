@@ -1098,7 +1098,7 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 # for each geometry define the GT and processing string here
 defaultDataSets={}
 defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
-defaultDataSets['Extended2023HGCalMuonPandora']=defaultDataSets['Extended2023HGCalMuon'] # Geometry is the same, only reco is different
+defaultDataSets['Extended2023HGCalMuonPandora']='CMSSW_6_2_0_SLHC24-PH2_1K_FB_V6_HGCalPandPU140-v' 
 defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
 defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
 keys=defaultDataSets.keys()
@@ -1299,7 +1299,7 @@ for step in upgradeSteps:
                 #so please be careful   
                 s=frag[:-4]+'_'+key
                 if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter:
-                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+frag[:-4]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in upgradeKeys:
             k=step+'_'+key
