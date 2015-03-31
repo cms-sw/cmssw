@@ -85,7 +85,9 @@ private:
   unsigned int eventChunkBlock_; // how much read(2) asks at the time
   unsigned int readBlocks_;
   unsigned int numBuffers_;
+  unsigned int maxOpenFiles_;
   unsigned int numConcurrentReads_;
+  std::atomic<unsigned int> readingFilesCount_;
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
