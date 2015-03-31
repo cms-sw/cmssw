@@ -69,4 +69,4 @@ with the following options:
 | putDummyIntoOffChannels | Switch to put dummy gain for OFF channels | False |
 | putDummyIntoBadChannels | Switch to put dummy gain for BAD channels | False |
 | outputMaps | Switch to output the ASCII text for the tracker map | False |
-| outputSummary| Switch to output the Summary text file | False |
+| outputSummary| Switch to output the summary text file | False |
