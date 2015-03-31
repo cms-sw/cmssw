@@ -42,6 +42,73 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	NZDC_QualityIndexVsLB_ = ib.book1D("NZDC_QualityIndexVSLB","Quality Index for the ZDC- vs  LS; LS; Quality Index", NLumiBlocks_,0,NLumiBlocks_);
 	EventsVsLS             = ib.book1D("EventsVsLS", "Total Number of Events per LS; LS; # of Events", NLumiBlocks_,0,NLumiBlocks_);
 
+	//
+	h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
+	h_2D_charge->setBinLabel(1,"ZDC+",1);
+	h_2D_charge->setBinLabel(2,"ZDC-",1);
+	h_2D_charge->setBinLabel(1,"EM1",2);
+	h_2D_charge->setBinLabel(2,"EM2",2);
+	h_2D_charge->setBinLabel(3,"EM3",2);
+	h_2D_charge->setBinLabel(4,"EM4",2);
+	h_2D_charge->setBinLabel(5,"EM5",2);
+	h_2D_charge->setBinLabel(6,"HAD1",2);
+	h_2D_charge->setBinLabel(7,"HAD2",2);
+	h_2D_charge->setBinLabel(8,"HAD3",2);
+	h_2D_charge->setBinLabel(9,"HAD4",2);
+
+	h_2D_TSMean = ib.book2D("2D_DigiTiming", "Digi Timing", 2, 0, 2, 9, 0, 9);
+	h_2D_TSMean->setBinLabel(1,"ZDC+",1);
+	h_2D_TSMean->setBinLabel(2,"ZDC-",1);
+	h_2D_TSMean->setBinLabel(1,"EM1",2);
+	h_2D_TSMean->setBinLabel(2,"EM2",2);
+	h_2D_TSMean->setBinLabel(3,"EM3",2);
+	h_2D_TSMean->setBinLabel(4,"EM4",2);
+	h_2D_TSMean->setBinLabel(5,"EM5",2);
+	h_2D_TSMean->setBinLabel(6,"HAD1",2);
+	h_2D_TSMean->setBinLabel(7,"HAD2",2);
+	h_2D_TSMean->setBinLabel(8,"HAD3",2);
+	h_2D_TSMean->setBinLabel(9,"HAD4",2);
+
+	h_2D_RecHitEnergy = ib.book2D("2D_RecHitEnergy", "Rechit Energy", 2, 0, 2, 9, 0, 9);
+	h_2D_RecHitEnergy->setBinLabel(1,"ZDC+",1);
+	h_2D_RecHitEnergy->setBinLabel(2,"ZDC-",1);
+	h_2D_RecHitEnergy->setBinLabel(1,"EM1",2);
+	h_2D_RecHitEnergy->setBinLabel(2,"EM2",2);
+	h_2D_RecHitEnergy->setBinLabel(3,"EM3",2);
+	h_2D_RecHitEnergy->setBinLabel(4,"EM4",2);
+	h_2D_RecHitEnergy->setBinLabel(5,"EM5",2);
+	h_2D_RecHitEnergy->setBinLabel(6,"HAD1",2);
+	h_2D_RecHitEnergy->setBinLabel(7,"HAD2",2);
+	h_2D_RecHitEnergy->setBinLabel(8,"HAD3",2);
+	h_2D_RecHitEnergy->setBinLabel(9,"HAD4",2);
+
+	h_2D_RecHitTime = ib.book2D("2D_RecHitTime", "Rechit Timing", 2, 0, 2, 9, 0, 9);
+	h_2D_RecHitTime->setBinLabel(1,"ZDC+",1);
+	h_2D_RecHitTime->setBinLabel(2,"ZDC-",1);
+	h_2D_RecHitTime->setBinLabel(1,"EM1",2);
+	h_2D_RecHitTime->setBinLabel(2,"EM2",2);
+	h_2D_RecHitTime->setBinLabel(3,"EM3",2);
+	h_2D_RecHitTime->setBinLabel(4,"EM4",2);
+	h_2D_RecHitTime->setBinLabel(5,"EM5",2);
+	h_2D_RecHitTime->setBinLabel(6,"HAD1",2);
+	h_2D_RecHitTime->setBinLabel(7,"HAD2",2);
+	h_2D_RecHitTime->setBinLabel(8,"HAD3",2);
+	h_2D_RecHitTime->setBinLabel(9,"HAD4",2);
+
+	h_2D_saturation = ib.book2D("h_2D_QIE", "Saturation Check", 2, 0, 2, 9, 0, 9);
+	h_2D_saturation->setBinLabel(1,"ZDC+",1);
+	h_2D_saturation->setBinLabel(2,"ZDC-",1);
+	h_2D_saturation->setBinLabel(1,"EM1",2);
+	h_2D_saturation->setBinLabel(2,"EM2",2);
+	h_2D_saturation->setBinLabel(3,"EM3",2);
+	h_2D_saturation->setBinLabel(4,"EM4",2);
+	h_2D_saturation->setBinLabel(5,"EM5",2);
+	h_2D_saturation->setBinLabel(6,"HAD1",2);
+	h_2D_saturation->setBinLabel(7,"HAD2",2);
+	h_2D_saturation->setBinLabel(8,"HAD3",2);
+	h_2D_saturation->setBinLabel(9,"HAD4",2);
+
+
 	// digi errors
 	ib.setCurrentFolder(baseFolder_ + "/Errors/Digis");
         ZDC_Digi_Errors = ib.book2D("ZDC_Digi_Errors", "Raw Number of Digi Errors Per ZDC Channel", 2, 0, 2, 9, 0, 9);
@@ -161,72 +228,6 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
         ZDC_TotalChannelErrors->setBinLabel(8,"HAD3",2);
         ZDC_TotalChannelErrors->setBinLabel(9,"HAD4",2);
         ZDC_TotalChannelErrors->getTH2F()->SetOption("coltext");
-
-	//
-	h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
-	h_2D_charge->setBinLabel(1,"ZDC+",1);
-	h_2D_charge->setBinLabel(2,"ZDC-",1);
-	h_2D_charge->setBinLabel(1,"EM1",2);
-	h_2D_charge->setBinLabel(2,"EM2",2);
-	h_2D_charge->setBinLabel(3,"EM3",2);
-	h_2D_charge->setBinLabel(4,"EM4",2);
-	h_2D_charge->setBinLabel(5,"EM5",2);
-	h_2D_charge->setBinLabel(6,"HAD1",2);
-	h_2D_charge->setBinLabel(7,"HAD2",2);
-	h_2D_charge->setBinLabel(8,"HAD3",2);
-	h_2D_charge->setBinLabel(9,"HAD4",2);
-
-	h_2D_TSMean = ib.book2D("2D_DigiTiming", "Digi Timing", 2, 0, 2, 9, 0, 9);
-	h_2D_TSMean->setBinLabel(1,"ZDC+",1);
-	h_2D_TSMean->setBinLabel(2,"ZDC-",1);
-	h_2D_TSMean->setBinLabel(1,"EM1",2);
-	h_2D_TSMean->setBinLabel(2,"EM2",2);
-	h_2D_TSMean->setBinLabel(3,"EM3",2);
-	h_2D_TSMean->setBinLabel(4,"EM4",2);
-	h_2D_TSMean->setBinLabel(5,"EM5",2);
-	h_2D_TSMean->setBinLabel(6,"HAD1",2);
-	h_2D_TSMean->setBinLabel(7,"HAD2",2);
-	h_2D_TSMean->setBinLabel(8,"HAD3",2);
-	h_2D_TSMean->setBinLabel(9,"HAD4",2);
-
-	h_2D_RecHitEnergy = ib.book2D("2D_RecHitEnergy", "Rechit Energy", 2, 0, 2, 9, 0, 9);
-	h_2D_RecHitEnergy->setBinLabel(1,"ZDC+",1);
-	h_2D_RecHitEnergy->setBinLabel(2,"ZDC-",1);
-	h_2D_RecHitEnergy->setBinLabel(1,"EM1",2);
-	h_2D_RecHitEnergy->setBinLabel(2,"EM2",2);
-	h_2D_RecHitEnergy->setBinLabel(3,"EM3",2);
-	h_2D_RecHitEnergy->setBinLabel(4,"EM4",2);
-	h_2D_RecHitEnergy->setBinLabel(5,"EM5",2);
-	h_2D_RecHitEnergy->setBinLabel(6,"HAD1",2);
-	h_2D_RecHitEnergy->setBinLabel(7,"HAD2",2);
-	h_2D_RecHitEnergy->setBinLabel(8,"HAD3",2);
-	h_2D_RecHitEnergy->setBinLabel(9,"HAD4",2);
-
-	h_2D_RecHitTime = ib.book2D("2D_RecHitTime", "Rechit Timing", 2, 0, 2, 9, 0, 9);
-	h_2D_RecHitTime->setBinLabel(1,"ZDC+",1);
-	h_2D_RecHitTime->setBinLabel(2,"ZDC-",1);
-	h_2D_RecHitTime->setBinLabel(1,"EM1",2);
-	h_2D_RecHitTime->setBinLabel(2,"EM2",2);
-	h_2D_RecHitTime->setBinLabel(3,"EM3",2);
-	h_2D_RecHitTime->setBinLabel(4,"EM4",2);
-	h_2D_RecHitTime->setBinLabel(5,"EM5",2);
-	h_2D_RecHitTime->setBinLabel(6,"HAD1",2);
-	h_2D_RecHitTime->setBinLabel(7,"HAD2",2);
-	h_2D_RecHitTime->setBinLabel(8,"HAD3",2);
-	h_2D_RecHitTime->setBinLabel(9,"HAD4",2);
-
-	h_2D_saturation = ib.book2D("h_2D_QIE", "Saturation Check", 2, 0, 2, 9, 0, 9);
-	h_2D_saturation->setBinLabel(1,"ZDC+",1);
-	h_2D_saturation->setBinLabel(2,"ZDC-",1);
-	h_2D_saturation->setBinLabel(1,"EM1",2);
-	h_2D_saturation->setBinLabel(2,"EM2",2);
-	h_2D_saturation->setBinLabel(3,"EM3",2);
-	h_2D_saturation->setBinLabel(4,"EM4",2);
-	h_2D_saturation->setBinLabel(5,"EM5",2);
-	h_2D_saturation->setBinLabel(6,"HAD1",2);
-	h_2D_saturation->setBinLabel(7,"HAD2",2);
-	h_2D_saturation->setBinLabel(8,"HAD3",2);
-	h_2D_saturation->setBinLabel(9,"HAD4",2);
 
 	ib.setCurrentFolder(baseFolder_ + "/Digis");
 
