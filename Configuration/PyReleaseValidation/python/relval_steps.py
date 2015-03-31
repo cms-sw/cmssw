@@ -554,7 +554,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 
 
 ## pPb tests
-step1PPbDefaults={'--beamspot':'Realistic8TeVCollision'}
+step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
 steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',Kby(9,100))])
 # GF to be uncommented when GEN-SIM becomes available
 # steps['AMPT_PPb_5020GeV_MinimumBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValAMPT_PPb_5020GeV_MinimumBias/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
@@ -705,6 +705,8 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
 
 
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+steps['TTbar012Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+
 # all 6 workflows with root step 'DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV' will recycle the same dataset, from wf [512] of generator set
 # steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeVINPUT']={'INPUT':InputInfo(dataSet='/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_py8/CMSSW_7_4_0_pre0-MCRUN2_73_V5-v1/GEN',location='STD')}
 
@@ -754,12 +756,7 @@ steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_
 # Heavy Ion
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
-# B-physics
-steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
-steps['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
-steps['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
-steps['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
-steps['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
+
 
 
 #PU for FullSim
@@ -1405,11 +1402,11 @@ for k in upgradeKeys:
                                              }
     if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
 
-    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
+    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                                       '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO',
+                                      '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--eventcontent':'FEVTDEBUGHLT,DQM',
                                       '--magField' : '38T_PostLS1',
                                       '--geometry' : geom
                                       }
