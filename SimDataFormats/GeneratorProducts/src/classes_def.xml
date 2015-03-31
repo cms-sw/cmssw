@@ -1,7 +1,8 @@
 <lcgdict>
 	<!-- HepMC externals -->
 
-	<class name="HepMC::GenEvent" ClassVersion="10">
+	<class name="HepMC::GenEvent" ClassVersion="11">
+  <version ClassVersion="11" checksum="2967452289"/>
   <version ClassVersion="10" checksum="2993730389"/>
  </class>
 	<class name="HepMC::GenVertex" ClassVersion="10">
@@ -15,11 +16,12 @@
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>
-	<class name="HepMC::WeightContainer" ClassVersion="13">
+	<class name="HepMC::WeightContainer" ClassVersion="14">
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
   <version ClassVersion="13" checksum="1293886956"/>
+  <version ClassVersion="14" checksum="481001444"/>
  </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
@@ -176,8 +178,9 @@
 	<class name="LHERunInfoProduct::Header" ClassVersion="10">
   <version ClassVersion="10" checksum="1310911082"/>
  </class>
- <class name="LHEXMLStringProduct" ClassVersion="10">
+ <class name="LHEXMLStringProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="4158740350"/>
+  <version ClassVersion="11" checksum="3778311764"/>
  </class> 
  <class name="edm::Wrapper&lt;LHEXMLStringProduct&gt;"/>
 	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>

@@ -1,7 +1,7 @@
 {
 if( TClass::GetClass("edmtest::Thing") ) {
    cout <<"class already exists!"<<endl;
-   exit(1);
+   exit(0);
 }
 cout <<"class not present yet"<<endl;
 

@@ -11,7 +11,9 @@ using namespace std;
 
 
 MCZll::MCZll(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))), nEvents_(0), nAccepted_(0)
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+  nEvents_(0),
+  nAccepted_(0)
 {
   leptonFlavour_ = iConfig.getUntrackedParameter<int>("leptonFlavour",11);
   leptonPtMin_ = iConfig.getUntrackedParameter<double>("leptonPtMin",5.);
@@ -62,7 +64,7 @@ bool MCZll::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   bool accepted = false;
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
   HepMC::GenEvent * zEvent = new HepMC::GenEvent();
 

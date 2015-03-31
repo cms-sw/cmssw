@@ -267,7 +267,7 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("endcapSuperClusters",edm::InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"));
   {
-    edm::ParameterSetDescription psd0, psd1, psd2;
+    edm::ParameterSetDescription psd0, psd1, psd2, psd3;
     psd1.add<unsigned int>("maxElement", 0);
     psd1.add<std::string>("ComponentName", std::string("StandardHitPairGenerator"));
     psd1.addUntracked<int>("useOnDemandTracker", 0);
@@ -328,6 +328,17 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<double>("hOverEHFMinE",0.8);
     psd0.add<double>("DeltaPhi2B",0.008);
     psd0.add<double>("PhiMin2B",-0.002);
+
+    psd3.add<std::string>("ComponentName",std::string("SeedFromConsecutiveHitsCreator"));
+    psd3.add<std::string>("propagator",std::string("PropagatorWithMaterial"));
+    psd3.add<double>("SeedMomentumForBOFF",5.0);
+    psd3.add<double>("OriginTransverseErrorMultiplier",1.0);
+    psd3.add<double>("MinOneOverPtError",1.0);
+    psd3.add<std::string>("magneticField",std::string(""));
+    psd3.add<std::string>("TTRHBuilder",std::string("WithTrackAngle"));
+    psd3.add<bool>("forceKinematicWithRegionDirection",false);
+    psd0.add<edm::ParameterSetDescription>("SeedCreatorPSet",psd3);
+
     desc.add<edm::ParameterSetDescription>("SeedConfiguration",psd0);
   }
   desc.add<edm::InputTag>("barrelSuperClusters",edm::InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"));

@@ -37,7 +37,8 @@ public:
   
  private:
 
-  std::vector<reco::GenParticle*> getGenStableDecayProducts(const reco::GenParticle * particle);
+  void getGenDecayProducts(const reco::GenParticleRef&, reco::GenParticleRefVector&,
+			   int status=1, int pdgId=0);
 
   enum tauDecayModes {kElectron, kMuon, 
 		      kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,

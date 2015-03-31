@@ -58,7 +58,7 @@ private:
     int idxHisto;
     int minRechitChamber;
     int maxRechitChamber;
-    double maxPhi, maxTheta;
+    //    double maxPhi, maxTheta;
     int ievt;
 };
 

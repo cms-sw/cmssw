@@ -32,7 +32,7 @@ namespace pat {
     private:
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
       edm::EDGetTokenT<edm::View<pat::Jet> >  jets_;
-      StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
+      StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,rekeyDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
   };
 
 } // namespace
@@ -43,6 +43,7 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
     jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("src"))),
     dropJetVars_(iConfig.getParameter<std::string>("dropJetVars")),
     dropDaughters_(iConfig.getParameter<std::string>("dropDaughters")),
+    rekeyDaughters_(iConfig.getParameter<std::string>("rekeyDaughters")),
     dropTrackRefs_(iConfig.getParameter<std::string>("dropTrackRefs")),
     dropSpecific_(iConfig.getParameter<std::string>("dropSpecific")),
     dropTagInfos_(iConfig.getParameter<std::string>("dropTagInfos"))
@@ -83,7 +84,7 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		    jet.clearDaughters();
 		    jet.pfCandidatesFwdPtr_.clear();
 		    jet.caloTowersFwdPtr_.clear();
-	    } else {  //rekey
+	    } else if (rekeyDaughters_(*it)) {  //rekey
 		    //copy old 
 		    reco::CompositePtrCandidate::daughters old = jet.daughterPtrVector();
 		    jet.clearDaughters();

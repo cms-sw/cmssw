@@ -1,6 +1,6 @@
 <bin   file="xmlTools.cc" name="xmlToolsRun">
   <use   name="DataFormats/Common"/>
-  <use   name="rootrflx"/>
+
   <use   name="DataFormats/HcalDetId"/>
   <use   name="CondTools/Hcal"/>
   <use   name="CalibCalorimetry/HcalTPGAlgos"/>
@@ -10,7 +10,7 @@
 </bin>
 <bin   file="channelQualityTools.cc" name="channelQualityRun">
   <use   name="DataFormats/Common"/>
-  <use   name="rootrflx"/>
+
   <use   name="DataFormats/HcalDetId"/>
   <use   name="CondTools/Hcal"/>
   <use   name="CalibCalorimetry/HcalTPGAlgos"/>

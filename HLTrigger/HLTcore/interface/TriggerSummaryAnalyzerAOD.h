@@ -13,7 +13,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 namespace edm {
   class ConfigurationDescriptions;
@@ -22,7 +22,7 @@ namespace edm {
 //
 // class declaration
 //
-class TriggerSummaryAnalyzerAOD : public edm::one::EDAnalyzer<> {
+class TriggerSummaryAnalyzerAOD : public edm::stream::EDAnalyzer<> {
   
  public:
   explicit TriggerSummaryAnalyzerAOD(const edm::ParameterSet&);

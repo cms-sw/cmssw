@@ -6,7 +6,7 @@
  *  \author Alexander Mott (Caltech), Leonard Apanasevich (UIC), John Paul Chou (Brown)
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"   
@@ -20,7 +20,7 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class HLTHcalTowerNoiseCleaner : public edm::EDProducer {
+class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
   
  public:
   explicit HLTHcalTowerNoiseCleaner(const edm::ParameterSet&);

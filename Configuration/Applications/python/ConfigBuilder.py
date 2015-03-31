@@ -687,23 +687,6 @@ class ConfigBuilder(object):
 			if len(mixingDict)!=0:
 				raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
 
-			# Some config components need to know what the bunch spacing is to be
-			# able to configure themselves properly. To do this enable an era (aka
-			# cms.Modifier) for the particular bunch spacing.
-			if hasattr(self.process,"mix") and hasattr(self.process.mix,"bunchspace") :
-				# Extend the comma seperated list, but take care not to add erroneous commas
-				if self.process.mix.bunchspace == 25 :
-					if self._options.era : self._options.era+=",bunchspacing25ns"
-					#else : self._options.era="bunchspacing25ns" # see note below about why this is commented out
-				elif self.process.mix.bunchspace == 50 :
-					if self._options.era : self._options.era+=",bunchspacing50ns"
-					#else : self._options.era="bunchspacing50ns" # see note below about why this is commented out
-				# The two "else" statements above are commented out so that nothing is added to the eras
-				# unless another era has already been specified. Once eras are fully adopted it is expected
-				# that a bunchspacing era should always be added, and the "else"s can be uncommented. During
-				# the early stages of the adoption process however it is required that if an "--era" option
-				# is *not* specified then everything proceeds *exactly* as before. 
-
 
         # load the geometry file
         try:

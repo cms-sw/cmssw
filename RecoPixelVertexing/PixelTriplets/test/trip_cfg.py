@@ -5,10 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TKSEEDING")
 
-# message logger
-#process.MessageLogger = cms.Service("MessageLogger",
-#     default = cms.untracked.PSet( limit = cms.untracked.int32(10) )
-#)
 
 #Adding SimpleMemoryCheck service:
 process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
@@ -27,27 +23,26 @@ secFiles.extend( ['file:step2.root'] )
 process.source = source
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-### conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'STARTUP3X_V14::All'
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
-
-### standard includes
-process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
-process.load("Configuration.StandardSequences.RawToDigi_cff")
-process.load("Configuration.EventContent.EventContent_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
-)
+
+#process.MessageLogger = cms.Service("MessageLogger",
+#    debugModules = cms.untracked.vstring('*'),
+#    destinations = cms.untracked.vstring('cout'),
+#    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+#)
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
@@ -74,3 +69,14 @@ process.triplets = cms.EDAnalyzer("HitTripletProducer",
 #process.triplets.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(0.0001)
 
 process.p = cms.Path(process.siPixelRecHits+process.PixelLayerTriplets+process.triplets)
+#process.p = cms.Path(process.PixelLayerTriplets+process.triplets)
+
+
+# customisation of the process.
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1 
+
+#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
+process = customisePostLS1(process)
+

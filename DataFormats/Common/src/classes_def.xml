@@ -4,7 +4,8 @@
   <version ClassVersion="2" checksum="2150796830"/>
   <version ClassVersion="3" checksum="1936948526"/>
  </class>
- <class name="edm::EDProductGetter" ClassVersion="10">
+ <class name="edm::EDProductGetter" ClassVersion="11">
+  <version ClassVersion="11" checksum="2247759761"/>
   <version ClassVersion="10" checksum="2702412727"/>
  </class>
  <class name="edm::RefCore" ClassVersion="11">
@@ -87,7 +88,8 @@
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
 
-<class name="edm::DataFrame" ClassVersion="10">
+<class name="edm::DataFrame" ClassVersion="11">
+ <version ClassVersion="11" checksum="3066866109"/>
  <version ClassVersion="10" checksum="1632285442"/>
 </class>
 <class name="edm::DataFrameContainer" ClassVersion="10">
@@ -157,4 +159,8 @@
   <version ClassVersion="11" checksum="2661728085"/>
   <version ClassVersion="10" checksum="3452516682"/>
  </class>
+ <class name="edm::SecondaryEventIDAndFileInfo" ClassVersion="2">
+  <version ClassVersion="2" checksum="3900813088"/>
+ </class>
+ <class name="std::vector<edm::SecondaryEventIDAndFileInfo>"/>
 </lcgdict>

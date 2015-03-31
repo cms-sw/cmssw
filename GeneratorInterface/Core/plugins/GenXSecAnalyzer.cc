@@ -1,6 +1,5 @@
 #include "GeneratorInterface/Core/interface/GenXSecAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "TMath.h"
 #include <iostream>
 #include <iomanip>
@@ -29,6 +28,7 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   genFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer",""));
   hepMCFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("generator",""));
   genLumiInfoToken_ = consumes<GenLumiInfoProduct,edm::InLumi>(edm::InputTag("generator",""));
+  lheRunInfoToken_ = consumes<LHERunInfoProduct,edm::InRun>(edm::InputTag("externalLHEProducer",""));
 }
 
 GenXSecAnalyzer::~GenXSecAnalyzer()
@@ -212,7 +212,7 @@ GenXSecAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&)
   //xsection before matching
   edm::Handle<LHERunInfoProduct> run;
 
-  if(iRun.getByLabel("externalLHEProducer", run ))
+  if(iRun.getByToken(lheRunInfoToken_, run ))
     {
       const lhef::HEPRUP thisHeprup_ = run->heprup();
 
@@ -290,7 +290,7 @@ void
 GenXSecAnalyzer::combine(double& finalValue, double& finalError, double& finalWeight, const double& currentValue, const double& currentError, const double & currentWeight)
 {
 
-  if(finalValue<1e-10)
+  if(finalValue<=0)
     {
       finalValue = currentValue;
       finalError = currentError;
@@ -298,14 +298,14 @@ GenXSecAnalyzer::combine(double& finalValue, double& finalError, double& finalWe
     }
   else
     {
-      double wgt1 = (finalError < 1e-10 || currentError<1e-10)?
+      double wgt1 = (finalError <=0 || currentError <=0)?
   	finalWeight :
   	1/(finalError*finalError);
-      double wgt2 = (finalError < 1e-10 || currentError<1e-10)?
+      double wgt2 = (finalError <=0 || currentError <=0)?
 	currentWeight:
   	1/(currentError*currentError);
       double xsec = (wgt1 * finalValue + wgt2 * currentValue) /(wgt1 + wgt2);
-      double err  = (finalError < 1e-10 || currentError<1e-10)? 0 : 
+      double err  = (finalError <=0 || currentError <=0)? 0 : 
   	1.0 / std::sqrt(wgt1 + wgt2);
       finalValue = xsec;
       finalError = err;
@@ -345,7 +345,7 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
   for(unsigned int ip=0; ip < vectorSize; ip++){
     GenLumiInfoProduct::ProcessInfo proc = iLumiInfo.getProcessInfos()[ip];	  
     double hepxsec_value = proc.lheXSec().value();
-    double hepxsec_error = proc.lheXSec().error() < 1e-10? 0:proc.lheXSec().error();
+    double hepxsec_error = proc.lheXSec().error() <= 0? 0:proc.lheXSec().error();
     tempVector_before.push_back(GenLumiInfoProduct::XSec(hepxsec_value,hepxsec_error));
 
     sigSelSum += hepxsec_value;
@@ -364,14 +364,14 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
     double npass  = proc.nPassPos() -proc.nPassNeg();
     switch(hepidwtup_){
     case 3: case -3:
-      fracAcc = ntotal > 1e-6? npass/ntotal: -1;
+      fracAcc = ntotal > 0? npass/ntotal: -1;
 	break;
     default:
-      fracAcc = proc.selected().sum() > 1e-6? proc.killed().sum() / proc.selected().sum():-1;
+      fracAcc = proc.selected().sum() > 0? proc.killed().sum() / proc.selected().sum():-1;
       break;
     }
     
-    if(fracAcc<1e-6)
+    if(fracAcc<=0)
       {
 	tempVector_after.push_back(GenLumiInfoProduct::XSec(0.0,0.0));
 	continue;
@@ -387,15 +387,15 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
     case 3: case -3:
       {
 	double ntotal_pos = proc.nTotalPos();
-	double effp  = ntotal_pos > 1e-6?
+	double effp  = ntotal_pos > 0?
 	  (double)proc.nPassPos()/ntotal_pos:0;
-	double effp_err2 = ntotal_pos > 1e-6?
+	double effp_err2 = ntotal_pos > 0?
 	  (1-effp)*effp/ntotal_pos: 0;
 	
 	double ntotal_neg = proc.nTotalNeg();
-	double effn  = ntotal_neg > 1e-6?
+	double effn  = ntotal_neg > 0?
 	  (double)proc.nPassNeg()/ntotal_neg:0;
-	double effn_err2 = ntotal_neg > 1e-6?
+	double effn_err2 = ntotal_neg > 0?
 	  (1-effn)*effn/ntotal_neg: 0;
 
 	efferr2 = ntotal > 0 ? 
@@ -442,7 +442,15 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
 
   } // end of loop over different processes
   tempVector_before.push_back(GenLumiInfoProduct::XSec(sigSelSum, sqrt(err2SelSum)));
-  GenLumiInfoProduct::XSec result(sigSum,std::sqrt(err2Sum));
+
+  double total_matcheff = jetMatchEffStat_[10000].filterEfficiency(hepidwtup_);
+  double total_matcherr = jetMatchEffStat_[10000].filterEfficiencyError(hepidwtup_);
+
+  double xsec_after     = sigSelSum*total_matcheff;
+  double xsecerr_after  = (total_matcheff > 0 && sigSelSum > 0)? xsec_after*sqrt(err2SelSum/sigSelSum/sigSelSum + 
+										 total_matcherr*total_matcherr/total_matcheff/total_matcheff):0;
+
+  GenLumiInfoProduct::XSec result(xsec_after,xsecerr_after);
   tempVector_after.push_back(result);
 
   xsecBeforeMatching_ =tempVector_before;
@@ -502,28 +510,19 @@ GenXSecAnalyzer::endJob() {
 						     );
 
 
+      jetmatch_eff = thisJetMatchStat.filterEfficiency(hepidwtup_);
+      jetmatch_err = thisJetMatchStat.filterEfficiencyError(hepidwtup_);
+
       if(i==last)
   	{
   	  title[i] = "Total";
 
   	  edm::LogPrint("GenXSecAnalyzer") 
-  	    << "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ";
- 	
-  	  double n1 = xsecBeforeMatching_[i].value();
-  	  double e1 = xsecBeforeMatching_[i].error();
-  	  double n2 = xsecAfterMatching_[i].value();
-  	  double e2 = xsecAfterMatching_[i].error();
-
-  	  jetmatch_eff = n1>0? n2/n1 : 0;
-  	  jetmatch_err = (n1>0 && n2>0 && pow(e2/n2,2)>pow(e1/n1,2))?
-  	    jetmatch_eff*sqrt( pow(e2/n2,2) - pow(e1/n1,2)):-1;
- 	  
+  	    << "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- "; 	 	  
   	}
       else
   	{
   	  title[i] = Form("%d",i);      
-  	  jetmatch_eff = thisJetMatchStat.filterEfficiency(hepidwtup_);
-  	  jetmatch_err = thisJetMatchStat.filterEfficiencyError(hepidwtup_);
 
   	}
 

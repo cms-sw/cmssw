@@ -538,6 +538,8 @@ class Process(object):
                 self.add_(item)
             elif isinstance(item,ProcessModifier):
                 item.apply(self)
+            elif isinstance(item,ProcessFragment):
+                self.extend(item)
 
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
@@ -969,6 +971,34 @@ class Process(object):
                   found = True
                   self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
             return found
+
+
+class ProcessFragment(object):
+    def __init__(self, process):
+        if isinstance(process, Process):
+            self.__process = process
+        elif isinstance(process, str):
+            self.__process = Process(process)
+        else:
+            raise TypeError('a ProcessFragment can only be constructed from an existig Process or from process name')
+    def __dir__(self):
+        return [ x for x in dir(self.__process) if isinstance(getattr(self.__process, x), _ConfigureComponent) ]
+    def __getattribute__(self, name):
+        if name == '_ProcessFragment__process':
+            return object.__getattribute__(self, '_ProcessFragment__process')
+        else:
+            return getattr(self.__process, name)
+    def __setattr__(self, name, value):
+        if name == '_ProcessFragment__process':
+            object.__setattr__(self, name, value)
+        else:
+            setattr(self.__process, name, value)
+    def __delattr__(self, name):
+        if name == '_ProcessFragment__process':
+            pass
+        else:
+            return delattr(self.__process, name)
+
 
 class FilteredStream(dict):
     """a dictionary with fixed keys"""

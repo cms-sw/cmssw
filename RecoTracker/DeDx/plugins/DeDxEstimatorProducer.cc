@@ -132,6 +132,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
         const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
         const vector<TrajectoryMeasurement> & measurements = traj->measurements();
+        dedxHits.reserve(measurements.size()/2);
         for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
            TrajectoryStateOnSurface trajState=it->updatedState();
            if( !trajState.isValid()) continue;
@@ -143,8 +144,8 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
            processHit(recHit, trajState.localMomentum().mag(), cosine, dedxHits, NClusterSaturating);
         }
-
      }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
+        dedxHits.reserve(track->recHitsSize()/2);
         for(unsigned int h=0;h<track->recHitsSize();h++){
            const TrackingRecHit* recHit = &(*(track->recHit(h)));
            if(!recHit || !recHit->isValid())continue;

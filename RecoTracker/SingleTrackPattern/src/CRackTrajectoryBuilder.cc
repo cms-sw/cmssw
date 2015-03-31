@@ -29,20 +29,21 @@
 using namespace std;
 
 
-CRackTrajectoryBuilder::CRackTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
+CRackTrajectoryBuilder::CRackTrajectoryBuilder(const edm::ParameterSet& conf) {
   //minimum number of hits per tracks
 
-  theMinHits=conf_.getParameter<int>("MinHits");
+  theMinHits=conf.getParameter<int>("MinHits");
   //cut on chi2
-  chi2cut=conf_.getParameter<double>("Chi2Cut");
+  chi2cut=conf.getParameter<double>("Chi2Cut");
   edm::LogInfo("CosmicTrackFinder")<<"Minimum number of hits "<<theMinHits<<" Cut on Chi2= "<<chi2cut;
 
-  debug_info=conf_.getUntrackedParameter<bool>("debug", false);
-  fastPropagation=conf_.getUntrackedParameter<bool>("fastPropagation", false);
-  useMatchedHits=conf_.getUntrackedParameter<bool>("useMatchedHits", true);
+  debug_info=conf.getUntrackedParameter<bool>("debug", false);
+  fastPropagation=conf.getUntrackedParameter<bool>("fastPropagation", false);
+  useMatchedHits=conf.getUntrackedParameter<bool>("useMatchedHits", true);
 
 
-  geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  geometry=conf.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  theBuilderName = conf.getParameter<std::string>("TTRHBuilder");
 
   
 
@@ -55,7 +56,6 @@ CRackTrajectoryBuilder::~CRackTrajectoryBuilder() {
 
 
 void CRackTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
-
 
 //  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
 // theInitialState          = new TransientInitialStateEstimator( es,tise_params);
@@ -82,8 +82,7 @@ void CRackTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
 
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
+  es.get<TransientRecHitRecord>().get(theBuilderName,theBuilder);
   
 
   RHBuilder=   theBuilder.product();

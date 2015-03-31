@@ -15,10 +15,15 @@
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 
 SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet & cfg) 
-  : _simHitSrc(cfg.getParameter<std::vector<edm::InputTag> >("simHitSrc")),
-    _trackingParticleSrc(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))
+  : _simHitSrc(),
+    _trackingParticleSrc(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc")))
 {
   produces<SimHitTPAssociationList>();
+  std::vector<edm::InputTag> tags = cfg.getParameter<std::vector<edm::InputTag> >("simHitSrc");
+  _simHitSrc.reserve(tags.size());
+  for(auto const& tag  : tags) {
+    _simHitSrc.emplace_back(consumes<edm::PSimHitContainer>(tag));
+  }
 }
 
 SimHitTPAssociationProducer::~SimHitTPAssociationProducer() {
@@ -29,7 +34,7 @@ void SimHitTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSe
  
   // TrackingParticle
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
-  iEvent.getByLabel(_trackingParticleSrc,  TPCollectionH);
+  iEvent.getByToken(_trackingParticleSrc,  TPCollectionH);
 
   // prepare temporary map between SimTrackId and TrackingParticle index
   std::map<std::pair<size_t, EncodedEventId>, TrackingParticleRef> mapping;
@@ -44,9 +49,9 @@ void SimHitTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSe
   }
 
   // PSimHits
-  for (auto psit=_simHitSrc.begin();psit<_simHitSrc.end();++psit) {
+  for (auto const& psit : _simHitSrc ) {
     edm::Handle<edm::PSimHitContainer>  PSimHitCollectionH;
-    iEvent.getByLabel(*psit,  PSimHitCollectionH);
+    iEvent.getByToken(psit,  PSimHitCollectionH);
     for (unsigned int psimHit = 0;psimHit != PSimHitCollectionH->size();++psimHit) {
       TrackPSimHitRef pSimHitRef(PSimHitCollectionH,psimHit);
       std::pair<uint32_t, EncodedEventId> simTkIds(pSimHitRef->trackId(),pSimHitRef->eventId()); 

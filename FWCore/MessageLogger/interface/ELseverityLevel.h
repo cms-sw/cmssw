@@ -53,6 +53,7 @@ namespace edm {
 class ELseverityLevel;
 
 
+#ifndef __ROOTCLING__
 // ----------------------------------------------------------------------
 // Synonym for type of ELseverityLevel-generating function:
 // ----------------------------------------------------------------------
@@ -90,6 +91,7 @@ struct ELslProxy  {
   const ELstring  getVarName()  const;
 
 };  // ELslProxy<ELslGen>
+#endif
 
 // ----------------------------------------------------------------------
 
@@ -155,6 +157,7 @@ private:
 };  // ELseverityLevel
 
 
+#ifndef __ROOTCLING__
 // ----------------------------------------------------------------------
 // Declare the globally available severity objects,
 // one generator function and one proxy per non-default ELsev_:
@@ -183,6 +186,16 @@ extern ELslProxy< ELsevereGen          > const  ELsevere;
 
 extern ELslGen  ELhighestSeverityGen;
 extern ELslProxy< ELhighestSeverityGen > const  ELhighestSeverity;
+#else
+ELseverityLevel const  ELzeroSeverity;
+ELseverityLevel const  ELdebug;
+ELseverityLevel const  ELinfo;
+ELseverityLevel const  ELwarning;
+ELseverityLevel const  ELerror;
+ELseverityLevel const  ELunspecified;
+ELseverityLevel const  ELsevere;
+ELseverityLevel const  ELhighestSeverity;
+#endif
 
 
 // ----------------------------------------------------------------------
@@ -210,9 +223,11 @@ extern bool  operator>= ( ELseverityLevel const & e1
 
 // ----------------------------------------------------------------------
 
+#ifndef __ROOTCLING__
 #define ELSEVERITYLEVEL_ICC
   #include "FWCore/MessageLogger/interface/ELseverityLevel.icc"
 #undef  ELSEVERITYLEVEL_ICC
+#endif
 
 
 // ----------------------------------------------------------------------

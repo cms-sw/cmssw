@@ -95,7 +95,7 @@ class CorrectedMETProducerT : public edm::EDProducer
 	  rawMEt != rawMEtCollection->end(); ++rawMEt ) {
       CorrMETData correction = algorithm_->compMETCorrection(evt, es);
       
-      static CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory;
+      static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory {};
       T correctedMEt = correctedMET_factory(*rawMEt, correction);
 
       correctedMEtCollection->push_back(correctedMEt);

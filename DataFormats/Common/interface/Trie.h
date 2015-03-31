@@ -282,7 +282,6 @@ namespace edm{
   /// visit each node of the trie
   template<typename V, typename T>
   void walkTrie(V & v,  TrieNode<T> const  & n, std::string const & label="") {
-    typedef TrieNode<T> const node_base;
     typedef TrieNodeIter<T> node_iterator;
     node_iterator e;
     for (node_iterator p(&n); p!=e; ++p) {
@@ -296,7 +295,6 @@ namespace edm{
   /// visits only leaf nodes 
   template<typename V, typename T>
   bool iterateTrieLeaves(V & v,  TrieNode<T> const  & n, std::string const & label="") {
-    typedef TrieNode<T> const node_base;
     typedef TrieNodeIter<T> node_iterator;
     node_iterator e;
     node_iterator p(&n);

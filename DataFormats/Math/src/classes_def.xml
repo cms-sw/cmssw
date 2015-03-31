@@ -1,6 +1,7 @@
 <lcgdict>
 <selection>
   <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
+  <class pattern="ROOT::Math::PtEtaPhiM4D<*>" />
   <class pattern="ROOT::Math::PxPyPzE4D<*>" />
   <class pattern="ROOT::Math::Cartesian3D<*>" />
   <class pattern="ROOT::Math::CylindricalEta3D<*>" />
@@ -10,7 +11,10 @@
   <class pattern="ROOT::Math::PositionVector3D<*>" />
   <class pattern="ROOT::Math::SMatrix<*>" />
   <class pattern="ROOT::Math::MatRepStd<*>" />
-  <class pattern="ROOT::Math::MatRepSym<*>" />
+  <class pattern="ROOT::Math::MatRepSym<*>" >
+    <field name="fOff" transient="true"/>
+  </class>
+  <class pattern="ROOT::Math::RowOffsets<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="std::vector<ROOT::Math::*>" />
   <class pattern="edm::Wrapper<*>" />
@@ -19,4 +23,60 @@
   <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
   <class pattern="std::vector<std::pair<ROOT::Math::PositionVector3D<*>,float> >"/>
 </selection>
+<exclusion>
+  <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->
+  <class name= "ROOT::Math::PtEtaPhiE4D<double>"/>
+  <class name= "ROOT::Math::PtEtaPhiM4D<double>"/>
+  <class name= "ROOT::Math::PxPyPzE4D<double>"/>
+  <class name= "ROOT::Math::Cartesian3D<double>"/>
+  <class name= "ROOT::Math::CylindricalEta3D<double>"/>
+  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >"/>
+  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >"/>
+  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >"/>
+  <class name= "ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
+  <class name= "ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
+  <class name= "ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
+  <class name= "ROOT::Math::MatRepSym<double,2>"/>
+  <class name= "ROOT::Math::MatRepSym<double,3>"/>
+  <class name= "ROOT::Math::MatRepSym<double,4>"/>
+  <class name= "ROOT::Math::MatRepSym<double,5>"/>
+  <class name= "ROOT::Math::MatRepSym<double,6>"/>
+  <class name= "ROOT::Math::MatRepSym<double,7>"/>
+  <class name= "ROOT::Math::MatRepSym<float,2>"/>
+  <class name= "ROOT::Math::MatRepSym<float,3>"/>
+  <class name= "ROOT::Math::MatRepSym<float,4>"/>
+  <class name= "ROOT::Math::MatRepSym<float,5>"/>
+  <class name= "ROOT::Math::MatRepSym<float,6>"/>
+  <class name= "ROOT::Math::MatRepSym<float,7>"/>
+  <class name= "ROOT::Math::RowOffsets<2>"/>
+  <class name= "ROOT::Math::RowOffsets<3>"/>
+  <class name= "ROOT::Math::RowOffsets<4>"/>
+  <class name= "ROOT::Math::RowOffsets<5>"/>
+  <class name= "ROOT::Math::RowOffsets<6>"/>
+  <class name= "ROOT::Math::RowOffsets<7>"/>
+  <class name= "ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> >"/>
+  <class name= "ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> >"/>
+  <class name= "ROOT::Math::SMatrix<double,4,4,ROOT::Math::MatRepSym<double,4> >"/>
+  <class name= "ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> >"/>
+  <class name= "ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> >"/>
+  <class name= "ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> >"/>
+  <class name= "ROOT::Math::SMatrix<float,2,2,ROOT::Math::MatRepSym<float,2> >"/>
+  <class name= "ROOT::Math::SMatrix<float,3,3,ROOT::Math::MatRepSym<float,3> >"/>
+  <class name= "ROOT::Math::SMatrix<float,4,4,ROOT::Math::MatRepSym<float,4> >"/>
+  <class name= "ROOT::Math::SMatrix<float,5,5,ROOT::Math::MatRepSym<float,5> >"/>
+  <class name= "ROOT::Math::SMatrix<float,6,6,ROOT::Math::MatRepSym<float,6> >"/>
+  <class name= "ROOT::Math::SMatrix<float,7,7,ROOT::Math::MatRepSym<float,7> >"/>
+  <class name= "ROOT::Math::SVector<double,2>"/>
+  <class name= "ROOT::Math::SVector<double,3>"/>
+  <class name= "ROOT::Math::SVector<double,4>"/>
+  <class name= "ROOT::Math::SVector<double,5>"/>
+  <class name= "ROOT::Math::SVector<double,6>"/>
+  <class name= "ROOT::Math::SVector<float,2>"/>
+  <class name= "ROOT::Math::SVector<float,3>"/>
+  <class name= "ROOT::Math::SVector<float,4>"/>
+  <class name= "ROOT::Math::SVector<float,5>"/>
+  <class name= "ROOT::Math::SVector<float,6>"/>
+  <class name= "ROOT::Math::SVector<float,7>"/>
+
+</exclusion>
 </lcgdict>

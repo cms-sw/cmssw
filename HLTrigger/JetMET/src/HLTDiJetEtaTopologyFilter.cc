@@ -107,7 +107,7 @@ HLTDiJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetu
 
             // for easier trigger efficiency evaluation save all probe/tag 
             // objects passing the minPT/eta criteria (outer loop)
-            float eta = std::abs(iProbe->eta());
+            float eta = iProbe->eta();
             float etaForProbeTest = eta;
             float etaForTagTest = eta;
             //applyAbsToTag_ (iConfig.template getParameter<bool> ("applyAbsToTag")),

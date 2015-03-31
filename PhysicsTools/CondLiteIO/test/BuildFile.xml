@@ -9,7 +9,6 @@
    
    <bin name="testPhysicsToolsCondLiteIO"
       file="recordwriter.cppunit.cpp">
-      <use name="rootcintex"/>
       <use name="rootcore"/>
       <use name="DataFormats/StdDictionaries"/>
       <use name="DataFormats/TestObjects"/>

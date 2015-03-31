@@ -5,7 +5,7 @@
 <use   name="boost_serialization"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
-<use   name="rootrflx"/>
+
 <use   name="CondCore/ORA"/>
 <export>
   <lib   name="1"/>

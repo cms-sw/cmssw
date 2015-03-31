@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 softPFMuonsTagInfos = cms.EDProducer("SoftPFMuonTagInfoProducer",
   jets              = cms.InputTag("ak4PFJetsCHS"),
   muons             = cms.InputTag("muons"),
-  vertex            = cms.InputTag("offlinePrimaryVertices"),
+  primaryVertex     = cms.InputTag("offlinePrimaryVertices"),
   muonPt            = cms.double(2.),
   muonSIP           = cms.double(200.),
   filterIp          = cms.double(4.),

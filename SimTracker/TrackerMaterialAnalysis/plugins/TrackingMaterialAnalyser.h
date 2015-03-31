@@ -38,7 +38,7 @@ private:
   void saveXml(const char* name);
   void saveLayerPlots();
   
-  edm::InputTag                             m_material;
+  edm::EDGetTokenT<std::vector<MaterialAccountingTrack> > m_materialToken;
   SplitMode                                 m_splitMode;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;

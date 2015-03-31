@@ -33,10 +33,13 @@ namespace edm {
     ~PileUp();
 
     template<typename T>
-      void readPileUp(edm::EventID const & signal, std::vector<edm::EventID> &ids, T eventOperator, const int NumPU, StreamID const&);
+      void readPileUp(edm::EventID const& signal, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator, int const NumPU, StreamID const&);
 
     template<typename T>
-      void playPileUp(const std::vector<edm::EventID> &ids, T eventOperator);
+      void playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin, std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator);
+
+    template<typename T>
+      void playOldFormatPileUp(std::vector<edm::EventID>::const_iterator begin, std::vector<edm::EventID>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator);
 
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
@@ -68,7 +71,7 @@ namespace edm {
 
     //template<typename T>
     // void recordEventForPlayback(EventPrincipal const& eventPrincipal,
-	//			  std::vector<edm::EventID> &ids, T& eventOperator);
+	//			  std::vector<edm::SecondaryEventIDAndFileInfo> &ids, T& eventOperator);
 
     const unsigned int & input()const{return inputType_;}
     void input(unsigned int s){inputType_=s;}
@@ -104,6 +107,7 @@ namespace edm {
     int minBunch_cosmics_;
     int maxBunch_cosmics_;
 
+    size_t fileNameHash_;
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;
     std::shared_ptr<ProcessConfiguration> processConfiguration_;
@@ -138,33 +142,18 @@ namespace edm {
   class RecordEventID
   {
   private:
-    std::vector<edm::EventID>& ids_;
+    std::vector<edm::SecondaryEventIDAndFileInfo>& ids_;
     T& eventOperator_;
     int eventCount ;
   public:
-    RecordEventID(std::vector<edm::EventID>& ids, T& eventOperator)
-      : ids_(ids), eventOperator_(eventOperator), eventCount( 0 ) {}
-    void operator()(EventPrincipal const& eventPrincipal) {
-      ids_.push_back(eventPrincipal.id());
+    RecordEventID(std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T& eventOperator)
+      : ids_(ids), eventOperator_(eventOperator), eventCount(0) {
+    }
+    void operator()(EventPrincipal const& eventPrincipal, unsigned int fileNameHash) {
+      ids_.emplace_back(eventPrincipal.id(), fileNameHash);
       eventOperator_(eventPrincipal, ++eventCount);
     }
   };
-
-
-  template<typename T>
-  class PassEventID
-  {
-  private:
-    T& eventOperator_;
-    int eventCount ;
-  public:
-    PassEventID(T& eventOperator)
-      : eventOperator_(eventOperator), eventCount( 0 ) {}
-    void operator()(EventPrincipal const& eventPrincipal) {
-      eventOperator_(eventPrincipal, ++eventCount);
-    }
-  };
-
 
   /*! Generates events from a VectorInputSource.
    *  This function decides which method of VectorInputSource 
@@ -178,8 +167,8 @@ namespace edm {
    */
   template<typename T>
   void
-    PileUp::readPileUp(edm::EventID const & signal, std::vector<edm::EventID> &ids, T eventOperator,
-                       const int pileEventCnt, StreamID const& streamID) {
+  PileUp::readPileUp(edm::EventID const& signal, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator,
+                       int const pileEventCnt, StreamID const& streamID) {
 
     // One reason PileUp is responsible for recording event IDs is
     // that it is the one that knows how many events will be read.
@@ -189,42 +178,36 @@ namespace edm {
     if (samelumi_) {
       const edm::LuminosityBlockID lumi(signal.run(), signal.luminosityBlock());
       if (sequential_)
-        read = input_->loopSequentialWithID(*eventPrincipal_, lumi, pileEventCnt, recorder);
+        read = input_->loopSequentialWithID(*eventPrincipal_, fileNameHash_, lumi, pileEventCnt, recorder);
       else
-        read = input_->loopRandomWithID(*eventPrincipal_, lumi, pileEventCnt, recorder, randomEngine(streamID));
+        read = input_->loopRandomWithID(*eventPrincipal_, fileNameHash_, lumi, pileEventCnt, recorder, randomEngine(streamID));
     } else {
       if (sequential_) {
-        read = input_->loopSequential(*eventPrincipal_, pileEventCnt, recorder);
+        read = input_->loopSequential(*eventPrincipal_, fileNameHash_, pileEventCnt, recorder);
       } else  {
-        read = input_->loopRandom(*eventPrincipal_, pileEventCnt, recorder, randomEngine(streamID));
+        read = input_->loopRandom(*eventPrincipal_, fileNameHash_, pileEventCnt, recorder, randomEngine(streamID));
       }
     }
     if (read != pileEventCnt)
       edm::LogWarning("PileUp") << "Could not read enough pileup events: only " << read << " out of " << pileEventCnt << " requested.";
   }
 
-
+  template<typename T>
+  void
+  PileUp::playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin, std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator) {
+    //TrueNumInteractions.push_back( end - begin ) ;
+    RecordEventID<T> recorder(ids, eventOperator);
+    input_->loopSpecified(*eventPrincipal_, fileNameHash_, begin, end, recorder);
+  }
 
   template<typename T>
   void
-    PileUp::playPileUp(const std::vector<edm::EventID> &ids, T eventOperator) {
-    //TrueNumInteractions.push_back( ids.size() ) ;
-    PassEventID<T> recorder(eventOperator);
-    input_->loopSpecified(*eventPrincipal_,ids,recorder);
+  PileUp::playOldFormatPileUp(std::vector<edm::EventID>::const_iterator begin, std::vector<edm::EventID>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator) {
+    //TrueNumInteractions.push_back( end - begin ) ;
+    RecordEventID<T> recorder(ids, eventOperator);
+    input_->loopSpecified(*eventPrincipal_, fileNameHash_, begin, end, recorder);
   }
 
-
-
-  /*! Record the event ID and pass the call on to the eventOperator.
-   */
-  /*  template<typename T>
-    void recordEventForPlayback(EventPrincipal const& eventPrincipal,
-                             std::vector<edm::EventID> &ids, T& eventOperator)
-    {
-      ids.push_back(eventPrincipal.id());
-      eventOperator(eventPrincipal);
-    }
-  */
 }
 
 

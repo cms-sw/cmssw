@@ -184,8 +184,10 @@ private:
     edm::LogError("L1T") << "Wrong number of block specs " << vpset.size();
   }
 
-  for (unsigned i=0; i<nBoard_; ++i) {
+  rxBlockLength_.resize(nBoard_);
+  txBlockLength_.resize(nBoard_);
 
+  for (unsigned i=0; i<nBoard_; ++i) {
 
     std::vector<int> rx = vpset.at(i).getUntrackedParameter< std::vector<int> >("rxBlockLength");
 
@@ -280,13 +282,13 @@ std::vector<Block>
 MP7BufferDumpToRaw::getBlocks(int iBoard)
 {
 
-  LogDebug("L1T") << "Getting blocks from board " << iBoard; 
+  LogDebug("L1T") << "Getting blocks from board " << iBoard << ", " << rxBlockLength_.at(iBoard).size() << " Rx links, " << txBlockLength_.at(iBoard).size() << " Tx links"; 
 
   std::vector<Block> blocks;
 
   // Rx blocks first
   for (unsigned link=0; link<rxBlockLength_.at(iBoard).size(); ++link) {
-    
+
     unsigned id   = link*2;
     unsigned size = rxBlockLength_.at(iBoard).at(link);
 
@@ -311,13 +313,13 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
       for (unsigned iFrame=rxIndex_.at(iBoard); iFrame<rxIndex_.at(iBoard)+size; ++iFrame) {
 	uint64_t d = rxFileReader_.get(iBoard).link(link).at(iFrame);
-	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
+	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
 
     }
     
-    LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
+    LogDebug("L1T") << "Board " << iBoard << " block " << id << ", size " << data.size();
 
     Block block(id, data);
     blocks.push_back(block);
@@ -331,6 +333,8 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
     unsigned size = txBlockLength_.at(iBoard).at(link);
 
     if (size==0) continue;
+
+    LogDebug("L1T") << "Block " << id << " expecting size " << size;
 
     std::vector<uint32_t> data;
     if (packetisedData_) {
@@ -352,29 +356,30 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
       for (unsigned iFrame=txIndex_.at(iBoard); iFrame<txIndex_.at(iBoard)+size; ++iFrame) {
 	uint64_t d = txFileReader_.get(iBoard).link(link).at(iFrame);
-	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
+	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
 
     }
     
-    LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
+    LogDebug("L1T") << "Board " << iBoard << " block " << id << ", size " << data.size();
 
     Block block(id, data);
 
     blocks.push_back(block);
 
-
-
-
   }
 
-  if (!packetisedData_) {
-     rxIndex_.at(iBoard) += nFramesPerEvent_;
-     txIndex_.at(iBoard) += nFramesPerEvent_;
+  if (packetisedData_) {
+    rxIndex_.at(iBoard)++;
+    txIndex_.at(iBoard)++;    
+  }
+  else {
+    rxIndex_.at(iBoard) += nFramesPerEvent_;
+    txIndex_.at(iBoard) += nFramesPerEvent_;
   }
 
-  LogDebug("L1T") << "AMC " << iBoard << ", read " << blocks.size() << " blocks";
+  LogDebug("L1T") << "Board " << iBoard << ", read " << blocks.size() << " blocks";
 
   return blocks;
   

@@ -109,7 +109,7 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
               pout=(*vit)->particles_out_const_begin();
             pout!=(*vit)->particles_out_const_end(); pout++ )
       {
-          if ( (*pout)->pdg_id() == 25 && (*pout)->status() == 2 ) 
+          if ( (*pout)->pdg_id() == 25 ) 
           {	    
               if ( (*pout)->end_vertex() != 0 )
               {

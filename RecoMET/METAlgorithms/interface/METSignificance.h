@@ -36,15 +36,13 @@ namespace metsig {
          ~METSignificance();
 
          reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
-					  const std::vector<reco::Candidate::LorentzVector>& leptons,
+					  const std::vector< edm::Handle<reco::CandidateView> >& leptons,
 					  const edm::View<reco::Candidate>& pfCandidates);
      double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
 
       private:
-         std::vector<reco::Jet> cleanJets(const edm::View<reco::Jet>& jets, 
-					  const std::vector<reco::Candidate::LorentzVector>& leptons);
          bool cleanJet(const reco::Jet& jet, 
-		   const std::vector<reco::Candidate::LorentzVector>& leptons);
+         const std::vector< edm::Handle<reco::CandidateView> >& leptons );
 
          double jetThreshold_;
          double dR2match_;

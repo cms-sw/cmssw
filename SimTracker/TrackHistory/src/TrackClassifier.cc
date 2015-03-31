@@ -474,7 +474,7 @@ void TrackClassifier::vertexInformation()
     GeneratedPrimaryVertex const & genpv = genpvs_.back();
 
     // Get the generated history of the tracks
-    TrackHistory::GenParticleTrail & genParticleTrail = const_cast<TrackHistory::GenParticleTrail &> (tracer_.genParticleTrail());
+    const TrackHistory::GenParticleTrail & genParticleTrail = tracer_.genParticleTrail();
 
     // Vertex counter
     int counter = 0;
@@ -488,7 +488,7 @@ void TrackClassifier::vertexInformation()
 
     // Loop over the generated particles
     for (
-        TrackHistory::GenParticleTrail::reverse_iterator iparticle = genParticleTrail.rbegin();
+        TrackHistory::GenParticleTrail::const_reverse_iterator iparticle = genParticleTrail.rbegin();
         iparticle != genParticleTrail.rend();
         ++iparticle
     )
@@ -515,11 +515,11 @@ void TrackClassifier::vertexInformation()
         }
     }
 
-    TrackHistory::SimParticleTrail & simParticleTrail = const_cast<TrackHistory::SimParticleTrail &> (tracer_.simParticleTrail());
+    const TrackHistory::SimParticleTrail & simParticleTrail = tracer_.simParticleTrail();
 
     // Loop over the generated particles
     for (
-        TrackHistory::SimParticleTrail::reverse_iterator iparticle = simParticleTrail.rbegin();
+        TrackHistory::SimParticleTrail::const_reverse_iterator iparticle = simParticleTrail.rbegin();
         iparticle != simParticleTrail.rend();
         ++iparticle
     )

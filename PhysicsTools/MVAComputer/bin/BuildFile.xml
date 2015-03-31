@@ -1,13 +1,11 @@
 <bin   name="mvaConvertTMVAWeights" file="mvaConvertTMVAWeights.cpp">
   <use   name="FWCore/Utilities"/>
   <use   name="PhysicsTools/MVAComputer"/>
-  <use   name="rootcintex"/>
   <use   name="rootcore"/>
 </bin>
 <bin   name="mvaExtractPDFs" file="mvaExtractPDFs.cpp">
   <use   name="FWCore/Utilities"/>
   <use   name="PhysicsTools/MVAComputer"/>
-  <use   name="rootcintex"/>
   <use   name="rootcore"/>
   <use   name="roothistmatrix"/>
 </bin>

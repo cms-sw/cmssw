@@ -12,7 +12,7 @@ public:
   MyTestData():
     a( 0 ),
     b( 0. ),
-    s(""){
+    s(" "){
     for( size_t i=0;i<2;i++)
       for( size_t j=0;j<2;j++){
 	d[i][j]=0;
@@ -50,14 +50,24 @@ public:
   }
 
   bool operator==( const MyTestData& rhs ) const {
-    if( a != rhs.a ) return false;
-    if( b != rhs.b ) return false;
+    if( a != rhs.a ) {
+      return false;
+    }
+    if( b != rhs.b ) {
+      return false;
+    }
     for( size_t i=0;i<2;i++)
       for( size_t j=0;j<2;j++){
-	if(d[i][j]!=rhs.d[i][j]) return false;
-	if(f[i][j]!=rhs.f[i][j]) return false;
+	if(d[i][j]!=rhs.d[i][j]) {
+	  return false;
+	}
+	if(f[i][j]!=rhs.f[i][j]) {
+	  return false;
+	}
       }
-    if( s != rhs.s ) return false;
+    if( s != rhs.s ) {
+      return false;
+    }
     return true;
   }
   bool operator!=( const MyTestData& rhs ) const {
@@ -84,6 +94,8 @@ void MyTestData::serialize(Archive & ar, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(a);
     ar & BOOST_SERIALIZATION_NVP(b);
     ar & BOOST_SERIALIZATION_NVP(s);
+    ar & BOOST_SERIALIZATION_NVP(d);
+    ar & BOOST_SERIALIZATION_NVP(f);
 }
 
 #endif /* !defined(__GCCXML__) */

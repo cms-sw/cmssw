@@ -22,6 +22,9 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "SimTracker/TrackAssociatorESProducer/src/TrackAssociatorByPositionESProducer.hh"
+
 #include <DataFormats/GeometrySurface/interface/Surface.h>
 #include <DataFormats/GeometrySurface/interface/GloballyPositioned.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
@@ -91,6 +94,8 @@ public:
 
       edm::ESHandle<TrackerGeometry> tracker;
       iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+      edm::ESHandle<GlobalTrackingGeometry> theGeometry;
+      iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);
 
       edm::ESHandle<MagneticField> theMF;
       iSetup.get<IdealMagneticFieldRecord>().get(theMF);
@@ -102,9 +107,15 @@ public:
       double radius(9999);
       bool found(0);
 
+      int ii=0;
+      DetId::Detector det;
+      int subdet;
+
+      edm::LogVerbatim("CosmicTrackingParticleSelector")
+	<<"TOT Number of PSimHits = "<< tpr->numberOfHits() << ", Number of Tracker PSimHits = "<< tpr->numberOfTrackerHits() <<"\n";
 
       if (simHitsTPAssoc.isValid()==0) {
-	edm::LogError("TrackAssociation") << "Invalid handle!";
+	edm::LogError("CosmicTrackingParticleSelector") << "Invalid handle!";
 	return false;
       }
       std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater
@@ -113,11 +124,31 @@ public:
 				    clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
       for(auto ip = range.first; ip != range.second; ++ip) {
 	TrackPSimHitRef it = ip->second;
-	const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
+	++ii;
+	const GeomDet* tmpDet  = theGeometry->idToDet( DetId(it->detUnitId()) ) ;
+	if (!tmpDet) {
+	  edm::LogVerbatim("CosmicTrackingParticleSelector")
+	    <<"***WARNING:  PSimHit "<<ii <<", no GeomDet for: "<<it->detUnitId()<<". Skipping it.";
+	  continue;
+	} else {
+	  det = DetId(it->detUnitId()).det();
+	  subdet = DetId(it->detUnitId()).subdetId();
+	}
+
 	LocalVector  lv = it->momentumAtEntry();
 	Local3DPoint lp = it->localPosition ();
 	GlobalVector gv = tmpDet->surface().toGlobal( lv );
 	GlobalPoint  gp = tmpDet->surface().toGlobal( lp );
+	edm::LogVerbatim("CosmicTrackingParticleSelector")
+	  <<"PSimHit "<<ii<<", Detector = "<<det<<", subdet = "<<subdet
+	  <<"\t Radius = "<< gp.perp() << ", z = "<< gp.z() 
+	  <<"\t     pt = "<< gv.perp() << ", pz = "<< gv.z();
+	edm::LogVerbatim("CosmicTrackingParticleSelector")
+	  <<"\t trackId = "<<it->trackId()<<", particleType = "<<it->particleType()<<", processType = "<<it->processType();
+
+	// discard hits related to low energy debris from the primary particle
+	if (it->processType()!=0) continue;
+
 	if(gp.perp()<radius){
 	  found=true;
 	  radius = gp.perp();
@@ -125,6 +156,10 @@ public:
 	  finalGP = gp;
 	}
       }
+      edm::LogVerbatim("CosmicTrackingParticleSelector")
+	<<"\n"<<"FINAL State at InnerMost Hit:        Radius = "<< finalGP.perp() << ", z = "<< finalGP.z() 
+	<<", pt = "<< finalGV.perp() << ", pz = "<< finalGV.z();
+
       if(!found) return 0;
       else
 	{
@@ -132,13 +167,19 @@ public:
 	  TSCBLBuilderNoMaterial tscblBuilder;
 	  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
 	  if(!tsAtClosestApproach.isValid()){
-	    std::cout << "WARNING: tsAtClosestApproach is not valid" << std::endl;
+	    edm::LogVerbatim("CosmicTrackingParticleSelector")
+	      <<"*** WARNING in CosmicTrackingParticleSelector: tsAtClosestApproach is not valid." <<"\n";
 	    return 0;
 	  }
 	  else
 	    {
 	      momentum = tsAtClosestApproach.trackStateAtPCA().momentum();
 	      vertex = tsAtClosestApproach.trackStateAtPCA().position();
+
+	      edm::LogVerbatim("CosmicTrackingParticleSelector")
+		<<"FINAL State extrapolated at PCA: Radius = "<< vertex.perp() << ", z = "<< vertex.z() 
+		<<", pt = "<< momentum.perp() << ", pz = "<< momentum.z() <<"\n";
+
 	      return (
 		      tpr->numberOfTrackerLayers() >= minHit_ &&
 		      sqrt(momentum.perp2()) >= ptMin_ &&

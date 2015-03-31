@@ -40,8 +40,8 @@
 #include "SimGeneral/GFlash/interface/GflashHit.h"
 #include "SimGeneral/GFlash/interface/Gflash3Vector.h"
 
-//fastHFShowerLibrary
-#include "FastSimulation/ShowerDevelopment/interface/fastHFShowerLibrary.h"
+//FastHFShowerLibrary
+#include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 
 // STL headers 
 #include <vector>
@@ -92,8 +92,8 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
   theProtonProfile = new GflashProtonShowerProfile(parGflash);
   theAntiProtonProfile = new GflashAntiProtonShowerProfile(parGflash);
 
-  // fastHFShowerLibrary
-  theHFShowerLibrary = new fastHFShowerLibrary(fastCalo);
+  // FastHFShowerLibrary
+  theHFShowerLibrary = new FastHFShowerLibrary(fastCalo);
 
   readParameters(fastCalo);
 
@@ -214,6 +214,7 @@ void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 	else if ( myTrack.onVFcal() ) {
           if(useShowerLibrary) {
             theHFShowerLibrary->recoHFShowerLibrary(myTrack);  
+            myHDResponse_->correctHF(myTrack.hcalEntrance().e(),abs(myTrack.type()));
             updateHCAL(theHFShowerLibrary->getHitsMap(),myTrack.id());
           } 
           else reconstructHCAL(myTrack, random);
@@ -807,6 +808,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
       // Save HCAL hits
       if(myTrack.onVFcal() && useShowerLibrary) {
+        myHDResponse_->correctHF(eGen,abs(myTrack.type()));
         updateHCAL(theHFShowerLibrary->getHitsMap(),myTrack.id());
       } 
       else 
@@ -1189,9 +1191,10 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   timeShiftHF_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHF");
   timeShiftHO_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHO");
 
-  // fastHFShowerLibrary
+  // FastHFShowerLibrary
   edm::ParameterSet m_HS = fastCalo.getParameter<edm::ParameterSet>("HFShowerLibrary");
   useShowerLibrary       = m_HS.getUntrackedParameter<bool>("useShowerLibrary",false);
+  useCorrectionSL        = m_HS.getUntrackedParameter<bool>("useCorrectionSL",false);
 }
 
 void CalorimetryManager::respCorr(double p) {
@@ -1279,6 +1282,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID,float>& hitMap, int
 
 void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int trackID, float corr)
 {
+  std::vector<double> hfcorr = myHDResponse_->getCorrHF();
   std::map<CaloHitID,float>::const_iterator mapitr;
   std::map<CaloHitID,float>::const_iterator endmapitr=hitMap.end();
   HMapping_.reserve(HMapping_.size()+hitMap.size());
@@ -1300,7 +1304,9 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
 		time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
 	  }
 	  else if (hdetid.subdetId()== HcalForward){
-            if(!useShowerLibrary) {
+            if(useShowerLibrary) {
+              if(useCorrectionSL) energy *= hfcorr[hdetid.ietaAbs()-29];
+            } else {
  	      if(hdetid.depth()== 1) energy *= samplingHF_[0];
 	      if(hdetid.depth()== 2) energy *= samplingHF_[1];
             } 

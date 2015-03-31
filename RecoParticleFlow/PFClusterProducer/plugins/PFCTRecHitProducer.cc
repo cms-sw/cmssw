@@ -33,7 +33,7 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloTowerNavigator.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 

@@ -15,9 +15,9 @@ def _modifyCscTriggerPrimitiveDigisForRun2( object ) :
     object.commonParam.smartME1aME1b = True
     object.commonParam.gangedME1a = False
     object.alctParam07.alctNarrowMaskForR1 = True
-    object.alctGhostCancellationBxDepth = cms.untracked.int32(1)
-    object.alctGhostCancellationSideQuality = cms.untracked.bool(True)
-    object.alctPretrigDeadtime = cms.untracked.uint32(4)
+    object.alctParam07.alctGhostCancellationBxDepth = cms.untracked.int32(1)
+    object.alctParam07.alctGhostCancellationSideQuality = cms.untracked.bool(True)
+    object.alctParam07.alctPretrigDeadtime = cms.untracked.uint32(4)
     object.clctParam07.clctPidThreshPretrig = 4
     object.clctParam07.clctMinSeparation = 5
     object.tmbParam.matchTrigWindowSize = 3

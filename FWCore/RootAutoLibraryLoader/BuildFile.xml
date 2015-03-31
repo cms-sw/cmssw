@@ -1,8 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="FWCore/PluginManager"/>
-<use   name="rootcintex"/>
-<use   name="rootcore"/>
-<use   name="boost_regex"/>
-<use   name="boost"/>

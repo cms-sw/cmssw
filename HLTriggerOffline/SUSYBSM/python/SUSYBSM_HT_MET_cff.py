@@ -7,7 +7,7 @@ SUSY_HLT_HT_MET = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
-  TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
+  TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
   TriggerFilter = cms.InputTag('hltPFHT350', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
@@ -20,7 +20,7 @@ SUSY_HLT_HT_MET_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
-  TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
+  TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
   TriggerFilter = cms.InputTag('hltPFHT350', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
@@ -45,6 +45,3 @@ SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     ),
   resolution = cms.vstring("")
 )
-
-
-

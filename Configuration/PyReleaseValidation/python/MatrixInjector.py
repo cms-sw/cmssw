@@ -107,7 +107,7 @@ class MatrixInjector(object):
             "Multicore" : opt.nThreads,
             "Memory" : 2400,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 20
+            "TimePerEvent" : 10
             }
 
         self.defaultHarvest={

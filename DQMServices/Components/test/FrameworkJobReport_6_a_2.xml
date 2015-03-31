@@ -50,7 +50,7 @@
   <Branch>CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_HLT.</Branch>
   <Branch>CSCDetIdintMuonDigiCollection_simCscTriggerPrimitiveDigis__HLT.</Branch>
   <Branch>CaloTowersSorted_hltTowerMakerForAll__HLT.</Branch>
-  <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
+  <Branch>CrossingFramePlaybackInfoNew_mix__HLT.</Branch>
   <Branch>DTChamberIdDTLocalTriggerMuonDigiCollection_hltMuonDTDigis__HLT.</Branch>
   <Branch>DTChamberIdDTRecSegment4DsOwnedRangeMap_hltDt4DSegments__HLT.</Branch>
   <Branch>DTLayerIdDTDigiMuonDigiCollection_hltMuonDTDigis__HLT.</Branch>

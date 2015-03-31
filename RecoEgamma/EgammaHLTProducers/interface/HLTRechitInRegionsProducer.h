@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 // Reco candidates
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -49,11 +50,11 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
   void getEtaPhiRegions(std::vector<EcalEtaPhiRegion> *, T1Collection, const L1CaloGeometry&, bool);
     
   const bool useUncalib_;
-  const edm::InputTag l1TagIsolated_;
-  const edm::InputTag l1TagNonIsolated_;
 
   const bool doIsolated_;
 
+  const edm::EDGetTokenT<T1Collection> l1TokenIsolated_;
+  const edm::EDGetTokenT<T1Collection> l1TokenNonIsolated_;
   const double l1LowerThr_;
   const double l1UpperThr_;
   const double l1LowerThrIgnoreIsolation_;

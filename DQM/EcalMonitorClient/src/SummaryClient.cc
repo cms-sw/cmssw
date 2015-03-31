@@ -33,20 +33,38 @@ namespace ecaldqm
   }
 
   void
-  SummaryClient::producePlots(ProcessType _pType)
+  SummaryClient::resetMEs()
   {
+    DQWorkerClient::resetMEs();
+
     MESet& meReportSummaryContents(MEs_.at("ReportSummaryContents"));
     MESet& meReportSummary(MEs_.at("ReportSummary"));
-
-    // TODO GIVE IMPLEMENTATIONT TO PER-LUMI REPORT
+    MESet& meReportSummaryMap(MEs_.at("ReportSummaryMap"));
 
     for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
       int dccid(iDCC + 1);
-      meReportSummaryContents.fill(dccid, 1.);
+      meReportSummaryContents.fill(dccid, -1.);
     }
-    meReportSummary.fill(1.);
 
-    if(_pType == kLumi) return;
+    meReportSummary.fill(-1.);
+
+    meReportSummaryMap.reset(-1.);
+  }
+
+  void
+  SummaryClient::producePlots(ProcessType _pType)
+  {
+    if(_pType == kLumi && !onlineMode_) return;
+    // TODO: Implement offline per-lumi summary
+
+    MESet& meReportSummaryContents(MEs_.at("ReportSummaryContents"));
+    MESet& meReportSummary(MEs_.at("ReportSummary"));
+
+    for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+      int dccid(iDCC + 1);
+      meReportSummaryContents.fill(dccid, -1.);
+    }
+    meReportSummary.fill(-1.);
 
     MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
     MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
@@ -90,7 +108,7 @@ namespace ecaldqm
 
       int integrity(iItr->getBinContent());
 
-      if(integrity == kUnknown){
+      if(integrity == kUnknown || integrity == kMUnknown){
         qItr->setBinContent(integrity);
         continue;
       }

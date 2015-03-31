@@ -26,7 +26,7 @@ void BTagCalibration::addEntry(const BTagEntry &entry)
 const std::vector<BTagEntry>& BTagCalibration::getEntries(
   const BTagEntry::Parameters &par) const
 {
-  auto tok = token(par);
+  std::string tok = token(par);
   if (!data_.count(tok)) {
     throw cms::Exception("BTagCalibration")
           << "(OperatingPoint, measurementType, sysType) not available: "
@@ -61,11 +61,13 @@ void BTagCalibration::readCSV(std::istream &s)
 }
 
 void BTagCalibration::makeCSV(std::ostream &s) const
-{
-  s << BTagEntry::makeCSVHeader();
-  for (auto i = data_.cbegin(); i != data_.cend(); ++i) {
-    auto vec = i->second;
-    for (auto j = vec.cbegin(); j != vec.cend(); ++j) {
+{ 
+  s << tagger_ << ";" << BTagEntry::makeCSVHeader();
+  for (std::map<std::string, std::vector<BTagEntry> >::const_iterator i 
+           = data_.cbegin(); i != data_.cend(); ++i) {
+    const std::vector<BTagEntry> &vec = i->second;
+    for (std::vector<BTagEntry>::const_iterator j 
+             = vec.cbegin(); j != vec.cend(); ++j) {
       s << j->makeCSVLine();
     }
   }

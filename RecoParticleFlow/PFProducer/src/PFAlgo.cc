@@ -798,7 +798,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	PFBlockElement::Type type = elements[iEle].type();
 	if(type==PFBlockElement::TRACK)
 	  {
-	    if(elements[iEle].trackRef()->algo() == 12) // should not be reco::TrackBase::conversionStep ?
+	    if(elements[iEle].trackRef()->algo() == reco::TrackBase::conversionStep)
 	      active[iEle]=false;	
 	    if(elements[iEle].trackRef()->quality(reco::TrackBase::highPurity))continue;
 	    const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[iEle]));
@@ -2194,7 +2194,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     //double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());
     //Caloresolution *= totalChargedMomentum;
     // that of the charged particles linked to the cluster!
-    double TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
 
     /* */
     ////////////////////// TRACKER MUCH LARGER THAN CALO /////////////////////////
@@ -2478,7 +2477,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
     // The total uncertainty of the difference Calo-Track
-    TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
+    double TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
 
     if ( debug_ ) {
       cout<<"\tCompare Calo Energy to total charged momentum "<<endl;

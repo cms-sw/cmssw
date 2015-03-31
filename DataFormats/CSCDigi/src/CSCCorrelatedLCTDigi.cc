@@ -7,6 +7,7 @@
  */
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 /// Constructors
@@ -65,7 +66,8 @@ bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const {
 /// Debug
 void CSCCorrelatedLCTDigi::print() const {
   if (isValid()) {
-    std::cout << "CSC LCT #"        << getTrknmb() 
+    edm::LogVerbatim("CSCDigi")
+              << "CSC LCT #"        << getTrknmb() 
 	      << ": Valid = "       << isValid()
 	      << " Quality = "      << getQuality()
 	      << " Key Wire = "     << getKeyWG()
@@ -73,10 +75,10 @@ void CSCCorrelatedLCTDigi::print() const {
               << " Pattern = "      << getPattern()
 	      << " Bend = "         << ( (getBend() == 0) ? 'L' : 'R' )
 	      << " BX = "           << getBX() 
-	      << " MPC Link = "     << getMPCLink() << std::endl;
+	      << " MPC Link = "     << getMPCLink();
   }
   else {
-    std::cout << "Not a valid correlated LCT." << std::endl;
+    edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
 }
 

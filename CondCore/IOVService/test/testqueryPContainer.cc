@@ -5,14 +5,14 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "testPayloadObj.h"
+#include "CondCore/IOVService/test/testPayloadObj.h"
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
   try{
     edmplugin::PluginManager::configure(edmplugin::standard::config());
     cond::DbConnection connection;
-    connection.configuration().setMessageLevel( coral::Debug );
+    //connection.configuration().setMessageLevel( coral::Debug );
     std::cout<<"#0 "<<std::endl;
     connection.configure();
     cond::DbSession pooldb = connection.createSession();

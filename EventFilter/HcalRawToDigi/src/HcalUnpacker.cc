@@ -590,7 +590,33 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	++i;
 	continue;
       }
-      if (i.flavor()==0x5) { // Old-style digis
+      if (i.flavor() == 2) {
+	int ifiber=((i.channelid()>>2)&0x1F);
+	int ichan=(i.channelid()&0x3);
+	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
+	DetId did=emap.lookup(eid);
+
+	// Count from current position to next header, or equal to end
+	const uint16_t* head_pos = i.raw();
+	int ns = 0;
+	for (++i; i != iend && !i.isHeader(); ++i) {
+	  ns++; 
+	}
+
+	// Check QEI10 container exists
+	if (colls.qie10 == 0) {
+	  colls.qie10 = new QIE10DigiCollection(ns);
+	}
+	else if (colls.qie10->samples() != ns) {
+	  // This is horrible
+	  edm::LogError("Invalid Data") << "Collection has " << colls.qie10->samples() << " samples per digi, raw data has " << ns << "!";
+	  return;
+	}
+
+	// Insert data
+	colls.qie10->addDataFrame(did, head_pos);
+      }
+      else if (i.flavor()==0x5) { // Old-style digis
 	int ifiber=((i.channelid()>>2)&0x1F);
 	int ichan=(i.channelid()&0x3);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
@@ -642,7 +668,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	       ++i);
 	}
       } else if (i.flavor()==0x4) { // TP digis
-	int ilink=((i.channelid()>>4)&0x7);
+	int ilink=((i.channelid()>>4)&0xF);
 	int itower=(i.channelid()&0xF);
 	HcalElectronicsId eid(crate,slot,ilink,itower,true);
 	DetId did=emap.lookupTrigger(eid);
@@ -688,6 +714,7 @@ HcalUnpacker::Collections::Collections() {
   zdcCont=0;
   calibCont=0;
   ttp=0;
+  qie10=0;
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {

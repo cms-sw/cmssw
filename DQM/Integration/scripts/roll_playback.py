@@ -12,10 +12,9 @@ import re
 import shutil
 import json
 
-
-dat_source   = '/fff/ramdisk/playback_files/run228928'
-pb_source    = '/fff/ramdisk/playback_files/run228928'
-calib_source = '/fff/ramdisk/playback_files/run228928'
+dat_source   = '/fff/ramdisk/playback_files/run233238/'
+pb_source    = '/fff/ramdisk/playback_files/run233238/'
+calib_source = '/fff/ramdisk/playback_files/run233238/'
 
 destination = '/fff/ramdisk'
 lumi_len = 23 # in seconds
@@ -124,8 +123,14 @@ if __name__ == '__main__':
         files_copied = []
 
         while True:
+            global_runfile = destination + '/' + '.run{0}.global'.format(str(run_number).zfill(run_padding))
+            gf = open(global_runfile, 'w')
+            gf.write('run_type = cosmic_run')
+            gf.close()
+
             output_dir = destination + '/' + 'run' + str(run_number).zfill(run_padding)
             os.mkdir(output_dir)
+
             time.sleep(1) # a hack in order python inotify to work correctly
 
             current_lumi = 1
@@ -152,6 +157,8 @@ if __name__ == '__main__':
 
                 print('')
 
+            EoRfile = output_dir + '/' + 'run' + str(run_number).zfill(run_padding) + '_ls0000_EoR.jsn' # create the EoR file
+            open(EoRfile, 'w').close()
             run_number += 1
             print('\n\n')
             time.sleep(run_switch_interval)

@@ -6,8 +6,10 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -18,7 +20,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(200) 
+    input = cms.untracked.int32(-1) 
 )
 
 #process.Timing = cms.Service("Timing")
@@ -27,14 +29,15 @@ process.options = cms.untracked.PSet(
 )
 
 # customization of the process.pdigi sequence to add the GEM digitizer 
-from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
+from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_gem_only
+#from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
 #process = customize_digi_addGEM(process)  # run all detectors digi
-process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
-#process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+#process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
+process = customize_digi_addGEM_gem_only(process)  # only GEM digi
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:out_sim.root'
+    'file:/afs/cern.ch/work/a/archie/public/SingleMuPt100_GEN-SIM__CMSSW_75X.root'
     )
 )
 
