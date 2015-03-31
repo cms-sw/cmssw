@@ -353,5 +353,18 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
 streamA_datasetTemplates_selector.throw      = cms.bool(False)
-streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_ReducedIterativeTracking_v1')
+streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_AK4CaloJetsForMC_v1', 
+    'HLT_AK4PFJetsForMC_v1', 
+    'HLT_AK8CaloHTForMC_v1', 
+    'HLT_AK8PFHTForMC_v1', 
+    'HLT_AK8PFJetsForMC_v1', 
+    'HLT_AK8TrimPFJetsForMC_v1', 
+    'HLT_CaloHTForMC_v1', 
+    'HLT_CaloMETCleanedForMC_v1', 
+    'HLT_CaloMETForMC_v1', 
+    'HLT_CaloMHTForMC_v1', 
+    'HLT_PFHTForMC_v1', 
+    'HLT_PFMETForMC_v1', 
+    'HLT_PFMHTForMC_v1', 
+    'HLT_ReducedIterativeTracking_v1')
 
