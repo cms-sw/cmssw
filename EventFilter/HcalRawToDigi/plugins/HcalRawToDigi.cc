@@ -24,6 +24,13 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpackerMode_(conf.getUntrackedParameter<int>("UnpackerMode",0)),
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 {
+  if(conf.exists("ElectronicsMap")) {
+    electronicsMapLabel_ = conf.getParameter<std::string>("ElectronicsMap");
+  }
+  else {
+    electronicsMapLabel_ = "";  
+  }
+  
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
 
   if (fedUnpackList_.empty()) {
@@ -73,7 +80,9 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   // get the mapping
   edm::ESHandle<HcalDbService> pSetup;
   es.get<HcalDbRecord>().get( pSetup );
-  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
+  edm::ESHandle<HcalElectronicsMap> item;
+  es.get<HcalElectronicsMapRcd>().get(electronicsMapLabel_, item);
+  const HcalElectronicsMap* readoutMap = item.product();
   
   // Step B: Create empty output  : three vectors for three classes...
   std::vector<HBHEDataFrame> hbhe;
