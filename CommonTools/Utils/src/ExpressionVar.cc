@@ -150,7 +150,7 @@ double ExpressionVar::value(const edm::ObjectWithDict& obj) const
   }
   double ret = objToDouble(val, retType_);
   std::vector<bool>::const_reverse_iterator RIB = needsDestructor_.rbegin();
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RI; ++RIB, ++RI) {
+  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RIB, ++RI) {
     if (*RIB) {
       RI->destruct(false);
     }
