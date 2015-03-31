@@ -1,11 +1,11 @@
-# /frozen/2015/50ns_5e33/v1.0/HLT/V2 (CMSSW_7_4_0_pre9)
+# /frozen/2015/50ns_5e33/v1.0/HLT/V3 (CMSSW_7_4_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2015/50ns_5e33/v1.0/HLT/V2')
+  tableName = cms.string('/frozen/2015/50ns_5e33/v1.0/HLT/V3')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -41136,7 +41136,7 @@ fragment.hltPreEle27eta2p1WP85GsfHT200 = cms.EDFilter( "HLTPrescaler",
 )
 fragment.hltEGL1EG25erHTT125Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
     doIsolated = cms.bool( False ),
-    endcap_end = cms.double( 2.65 ),
+    endcap_end = cms.double( 2.17 ),
     saveTags = cms.bool( False ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
@@ -45759,7 +45759,7 @@ fragment.hltPrePFMHTForMC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-fragment.HLTPFMHTOpenFilter = cms.EDFilter( "HLTMhtFilter",
+fragment.hltPFMHTOpenFilter = cms.EDFilter( "HLTMhtFilter",
     saveTags = cms.bool( True ),
     mhtLabels = cms.VInputTag( 'hltPFHTForMC' ),
     minMht = cms.vdouble( -1.0 )
@@ -45796,7 +45796,7 @@ fragment.hltAK4CaloJetsForMC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-fragment.CaloJetCollection20Filter = cms.EDFilter( "HLT1CaloJet",
+fragment.hltCaloJetCollection20Filter = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
@@ -45835,7 +45835,7 @@ fragment.hltPreCaloMHTForMC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-fragment.HLTMhtFilter = cms.EDFilter( "HLTMhtFilter",
+fragment.hltMhtFilter = cms.EDFilter( "HLTMhtFilter",
     saveTags = cms.bool( True ),
     mhtLabels = cms.VInputTag( 'hltHtMhtForMC' ),
     minMht = cms.vdouble( -1.0 )
@@ -46625,12 +46625,12 @@ fragment.AlCa_LumiPixels_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fra
 fragment.HLT_PFMETForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPrePFMETForMC + fragment.HLTAK4PFJetsSequence + fragment.hltPFMETProducer + fragment.hltPFMETOpenFilter + fragment.HLTEndSequence )
 fragment.HLT_AK4PFJetsForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreAK4PFJetsForMC + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetCollection20Filter + fragment.HLTEndSequence )
 fragment.HLT_PFHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPrePFHTForMC + fragment.HLTAK4PFJetsSequence + fragment.hltPFHTForMC + fragment.hltPFHTOpenFilter + fragment.HLTEndSequence )
-fragment.HLT_PFMHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPrePFMHTForMC + fragment.HLTAK4PFJetsSequence + fragment.hltPFHTForMC + fragment.HLTPFMHTOpenFilter + fragment.HLTEndSequence )
+fragment.HLT_PFMHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPrePFMHTForMC + fragment.HLTAK4PFJetsSequence + fragment.hltPFHTForMC + fragment.hltPFMHTOpenFilter + fragment.HLTEndSequence )
 fragment.HLT_CaloMETForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreCaloMETForMC + fragment.HLTDoCaloSequence + fragment.hltMet + fragment.hltCaloMETOpenFilter + fragment.HLTEndSequence )
 fragment.HLT_CaloMETCleanedForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreCaloMETCleanedForMC + fragment.HLTDoCaloSequence + fragment.hltMet + fragment.HLTAK4CaloJetsSequence + fragment.hltMetCleanUsingJetID + fragment.hltMETCleanUsingJetIDOpenFilter + fragment.HLTEndSequence )
-fragment.HLT_AK4CaloJetsForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltAK4CaloJetsForMC + fragment.HLTAK4CaloJetsSequence + fragment.CaloJetCollection20Filter + fragment.HLTEndSequence )
+fragment.HLT_AK4CaloJetsForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltAK4CaloJetsForMC + fragment.HLTAK4CaloJetsSequence + fragment.hltCaloJetCollection20Filter + fragment.HLTEndSequence )
 fragment.HLT_CaloHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreCaloHTForMC + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.hltCaloHTOpenFilter + fragment.HLTEndSequence )
-fragment.HLT_CaloMHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreCaloMHTForMC + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.HLTMhtFilter + fragment.HLTEndSequence )
+fragment.HLT_CaloMHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreCaloMHTForMC + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.hltMhtFilter + fragment.HLTEndSequence )
 fragment.HLT_AK8PFJetsForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreAK8PFJetsForMC + fragment.HLTAK8PFJetsSequence + fragment.hltAK8PFJetCollection20Filter + fragment.HLTEndSequence )
 fragment.HLT_AK8TrimPFJetsForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreAK8TrimPFJetsForMC + fragment.HLTAK8PFJetsSequence + fragment.hltAK8TrimModJets + fragment.hltAK8TrimPFJetCollection20Filter + fragment.HLTEndSequence )
 fragment.HLT_AK8PFHTForMC_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreAK8PFHTForMC + fragment.HLTAK8PFJetsSequence + fragment.hltAK8PFHTForMC + fragment.hltAK8PFHTOpenFilter + fragment.HLTEndSequence )
