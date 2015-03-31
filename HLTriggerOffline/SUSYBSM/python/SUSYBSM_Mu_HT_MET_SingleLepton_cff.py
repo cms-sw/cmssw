@@ -12,7 +12,7 @@ SUSY_HLT_Mu_HT_MET_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  conversionCollection = cms.InputTag(''),
                                                  beamSpot = cms.InputTag(''),
 
-                                                 leptonFilter = cms.InputTag('hltL3fL1sMu5L1f0L2f3QL3Filtered15QL3trkIsoFiltered0p09','','HLT'),
+                                                 leptonFilter = cms.InputTag('hltL3MuVVVLIsoFIlter','','HLT'),
                                                  hltHt = cms.InputTag('hltPFHT','','HLT'),
                                                  hltMet = cms.InputTag('hltPFMETProducer','','HLT'),
                                                  hltJets = cms.InputTag(''),
