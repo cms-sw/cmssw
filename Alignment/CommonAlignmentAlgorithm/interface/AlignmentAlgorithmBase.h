@@ -27,8 +27,9 @@ class Trajectory;
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
+#include "FWCore/Framework/interface/Event.h"
 
-namespace edm { class EventID; class RunID; class EventSetup; class ParameterSet; }
+namespace edm { class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
 
 class AlignmentAlgorithmBase
@@ -42,25 +43,41 @@ public:
   typedef std::pair<RunNumber,RunNumber> RunRange;
 
   /// define event information passed to algorithms
-  struct EventInfo {
-    EventInfo(const edm::EventID &eventId, 
-	      const ConstTrajTrackPairCollection &trajTrackPairs,
-	      const reco::BeamSpot &beamSpot,
-	      const AliClusterValueMap *clusterValueMap) 
-      : eventId_(eventId), trajTrackPairs_(trajTrackPairs), beamSpot_(beamSpot), clusterValueMap_(clusterValueMap) {}
+  class EventInfo {
+  public:
+    EventInfo(const edm::EventID &theEventId, 
+	      const ConstTrajTrackPairCollection &theTrajTrackPairs,
+	      const reco::BeamSpot &theBeamSpot,
+	      const AliClusterValueMap *theClusterValueMap) 
+      : eventId_(theEventId), trajTrackPairs_(theTrajTrackPairs), beamSpot_(theBeamSpot), clusterValueMap_(theClusterValueMap) {}
 
-    const edm::EventID                 &eventId_;
+    const edm::EventID eventId() const { return eventId_; }
+    const ConstTrajTrackPairCollection& trajTrackPairs() const { return trajTrackPairs_; }
+    const reco::BeamSpot& beamSpot() const { return beamSpot_; }
+    const AliClusterValueMap* clusterValueMap() const { return clusterValueMap_; }///might be null!
+    
+
+  private:
+    const edm::EventID                 eventId_;
     const ConstTrajTrackPairCollection &trajTrackPairs_;
     const reco::BeamSpot               &beamSpot_;
     const AliClusterValueMap           *clusterValueMap_;///might be null!
   };
   
   /// define run information passed to algorithms (in endRun)
-  struct EndRunInfo {
-    EndRunInfo(const edm::RunID &runId, const TkFittedLasBeamCollection *tkLasBeams,
-	       const TsosVectorCollection *tkLasBeamTsoses)
-      : runId_(runId), tkLasBeams_(tkLasBeams), tkLasBeamTsoses_(tkLasBeamTsoses) {}
-    const edm::RunID &runId_;
+  class EndRunInfo {
+  public:
+    EndRunInfo(const edm::RunID &theRunId, const TkFittedLasBeamCollection *theTkLasBeams,
+	       const TsosVectorCollection *theTkLasBeamTsoses)
+      : runId_(theRunId), tkLasBeams_(theTkLasBeams), tkLasBeamTsoses_(theTkLasBeamTsoses) {}
+
+    const edm::RunID runId() const { return runId_; }
+    const TkFittedLasBeamCollection* tkLasBeams() const { return tkLasBeams_; } /// might be null!
+    const TsosVectorCollection* tkLasBeamTsoses() const { return tkLasBeamTsoses_; } /// might be null!
+
+
+  private:
+    const edm::RunID runId_;
     const TkFittedLasBeamCollection *tkLasBeams_; /// might be null!
     const TsosVectorCollection *tkLasBeamTsoses_; /// might be null!
   };
