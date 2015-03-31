@@ -60,6 +60,8 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
     recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
 
+    _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
+
     MABH = false;
     if (!UseAssociators) {
       // flag MuonAssociatorByHits
@@ -155,6 +157,8 @@ private:
   edm::InputTag associatormap;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
+  edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+
   bool UseAssociators;
   double minPhi, maxPhi;
   int nintPhi;

@@ -11,15 +11,15 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
   parset_(parset)
 {
   
-  LogTrace("MuonAssociatorEDProducer") << "constructing  MuonAssociatorEDProducer" << parset_.dump();
+  edm::LogVerbatim("MuonAssociatorEDProducer") << "constructing  MuonAssociatorEDProducer";
   produces<reco::RecoToSimCollection>();
   produces<reco::SimToRecoCollection>();
   tpToken_=consumes<TrackingParticleCollection>(tpTag);
   tracksToken_=consumes<edm::View<reco::Track> >(tracksTag);
 
   /// Perform some sanity checks of the configuration
-  edm::LogVerbatim("MuonAssociatorByHits") << "constructing  MuonAssociatorByHits" << parset_.dump();
-  edm::LogVerbatim("MuonAssociatorByHits") << "\n MuonAssociatorByHits will associate reco::Tracks with "<<tracksTag
+  LogTrace("MuonAssociatorEDProducer") << "constructing  MuonAssociatorByHits" << parset_.dump();
+  edm::LogVerbatim("MuonAssociatorEDProducer") << "\n MuonAssociatorByHits will associate reco::Tracks with "<<tracksTag
 					   << "\n\t\t and TrackingParticles with "<<tpTag;
   const std::string recoTracksLabel = tracksTag.label();
   const std::string recoTracksInstance = tracksTag.instance();
@@ -29,13 +29,13 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
   if (recoTracksLabel == "standAloneMuons" || recoTracksLabel == "standAloneSETMuons" ||
       recoTracksLabel == "cosmicMuons" || recoTracksLabel == "hltL2Muons") {
     if (parset_.getParameter<bool>("UseTracker")) {
-      edm::LogWarning("MuonAssociatorByHits") 
+      edm::LogWarning("MuonAssociatorEDProducer") 
 	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
 	<<"\n with UseTracker = true"<<"\n ---> setting UseTracker = false ";
       parset_.addParameter<bool>("UseTracker",false);
     }
     if (!parset_.getParameter<bool>("UseMuon")) {
-      edm::LogWarning("MuonAssociatorByHits") 
+      edm::LogWarning("MuonAssociatorEDProducer") 
 	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
 	<<"\n with UseMuon = false"<<"\n ---> setting UseMuon = true ";
       parset_.addParameter<bool>("UseMuon",true);
@@ -46,13 +46,13 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
       recoTracksLabel == "hltL3TkTracksFromL2" || 
       (recoTracksLabel == "hltL3Muons" && recoTracksInstance == "L2Seeded")) {
     if (parset_.getParameter<bool>("UseMuon")) {
-      edm::LogWarning("MuonAssociatorByHits") 
+      edm::LogWarning("MuonAssociatorEDProducer") 
 	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
 	<<"\n with UseMuon = true"<<"\n ---> setting UseMuon = false ";
       parset_.addParameter<bool>("UseMuon",false);
     }
     if (!parset_.getParameter<bool>("UseTracker")) {
-      edm::LogWarning("MuonAssociatorByHits") 
+      edm::LogWarning("MuonAssociatorEDProducer") 
 	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
 	<<"\n with UseTracker = false"<<"\n ---> setting UseTracker = true ";
       parset_.addParameter<bool>("UseTracker",true);
