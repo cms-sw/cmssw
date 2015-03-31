@@ -11,7 +11,7 @@ public:
   void getEventContent(const edm::EventBase&) override final;
 
   CandidateType candidateType() const override final { 
-    return ELECTRON; 
+    return PHOTON; 
   }
 
 private:
@@ -35,7 +35,6 @@ PhoFull5x5SigmaIEtaIEtaCut::PhoFull5x5SigmaIEtaIEtaCut(const edm::ParameterSet& 
   _full5x5SigmaIEtaIEtaCutValueEE(c.getParameter<double>("full5x5SigmaIEtaIEtaCutValueEE")),
   _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
 
-  printf("DEBUG: sigmaIetaIeta cut is constructed\n");
   edm::InputTag maptag = c.getParameter<edm::InputTag>("full5x5SigmaIEtaIEtaMap");
   contentTags_.emplace(full5x5SigmaIEtaIEta_,maptag);
 }
@@ -61,10 +60,12 @@ operator()(const reco::PhotonPtr& cand) const{
   
   // Retrieve the variable value for this particle
   const float full5x5SigmaIEtaIEta = (*_full5x5SigmaIEtaIEtaMap)[cand];
-  printf("DEBUG: see=%f  eta=%f   cut=%f   result= %d\n", 
-	 full5x5SigmaIEtaIEta, cand->superCluster()->position().eta(),
-	 full5x5SigmaIEtaIEtaCutValue, 
-	 (int)(full5x5SigmaIEtaIEta < full5x5SigmaIEtaIEtaCutValue)); fflush(stdout);
+
+  printf("DEBUG: Sieie: pt= %f  eta= %f   see= %f   cut= %f   pass= %d\n",
+	 cand->pt(),
+	 cand->superCluster()->position().eta(),
+	 full5x5SigmaIEtaIEta, full5x5SigmaIEtaIEtaCutValue,
+	 (int)(full5x5SigmaIEtaIEta < full5x5SigmaIEtaIEtaCutValue));
   
   // Apply the cut and return the result
   return full5x5SigmaIEtaIEta < full5x5SigmaIEtaIEtaCutValue;

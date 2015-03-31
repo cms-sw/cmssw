@@ -8,7 +8,6 @@ public:
     _hadronicOverEMCutValueEB(c.getParameter<double>("hadronicOverEMCutValueEB")),
     _hadronicOverEMCutValueEE(c.getParameter<double>("hadronicOverEMCutValueEE")),
     _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
-    printf("DEBUG: H/E cut is constructed\n");
   }
   
   result_type operator()(const reco::PhotonPtr&) const override final;
@@ -31,8 +30,6 @@ operator()(const reco::PhotonPtr& cand) const {
   const float hadronicOverEMCutValue = 
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _hadronicOverEMCutValueEB : _hadronicOverEMCutValueEE );
-
-  printf("DEBUG: execute H/E cut\n");
 
   return cand->hadronicOverEm() < hadronicOverEMCutValue;
 }
