@@ -398,7 +398,9 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             if( isMethod1Set ) LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 1" << std::endl;
             else edm::LogWarning("HcalPUcorrMethod") <<"puCorrMethod_ set to be 1 but method 1 is NOT activated (method 0 used instead)!\n"
                                                      <<"Please check GlobalTag usage or method 1 seperately disabled by dataOOTCorrectionName & mcOOTCorrectionName?" << std::endl;
-         }else LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 0" << std::endl;
+         }else if (puCorrMethod_ == 3) {
+           LogTrace("HcalPUcorrMethod") << "Using Hcal Deterministic Fit Method!" << std::endl;
+         } else LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 0" << std::endl;
       }
    }
 
