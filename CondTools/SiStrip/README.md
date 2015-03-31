@@ -52,6 +52,21 @@ listed in the table below:
 This logic has been implemented inside the SiStripApvGainFromFileBuilder class,
 it cannot be deducted from the SiStrip cabling description code.
 
-##Job Configuration
+###Job Configuration
 The job to read the ASCII tickmark file and deploy the payload into the offline
-database is configured with the SiStripApvGainFromFile
+database is configured with the SiStripApvGainFromASCIIFile_cfg.py fragment put
+in the test directory. The SiStripGainApvFromFileBuilder analyzer is configured
+with the following options:
+
+| Options | Function | Default |
+| ------- | -------- | ------- |
+| geoFile | Path to the ideal geometry | CalibTracker/SiStripCommon/data/SiStripDetInfo.dat |
+| tickFile | Path to the tickmark scan | CondTools/SiStrip/data/tickheight.txt |
+| gainThreshold | Lower limit for good scan value | 0. |
+| dummyAPVGain | Dummy value for the APV gain | 690./640. |
+| putDummyIntoUncabled | Switch to put dummy gain for uncabled channels | False |
+| putDummyIntoUnscanned | Switch to put dummy gain for unscanned channels | False |
+| putDummyIntoOffChannels | Switch to put dummy gain for OFF channels | False |
+| putDummyIntoBadChannels | Switch to put dummy gain for BAD channels | False |
+| outputMaps | Switch to output the ASCII text for the tracker map | False |
+| outputSummary| Switch to output the Summary text file | False |
