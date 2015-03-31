@@ -54,6 +54,7 @@ namespace edmtest
 
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo);
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
+    template<class S> void writeToFile(S* myS, const edm::Event& e, std::string name);
 
   private:
     std::string front;
@@ -64,18 +65,13 @@ namespace edmtest
   template<class S, class SRcd>
   void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo)
   {
-    int myrun = e.id().run();
     edm::ESHandle<S> p;
     context.get<SRcd>().get(p);
     S* myobject = new S(*p.product());
     if( topo ) myobject->setTopo(topo);
     
-    std::ostringstream file;
-    file << front << name.c_str() << "_Run" << myrun << ".txt";
-    std::ofstream outStream(file.str().c_str() );
-    std::cout << "HcalDumpConditions: ---- Dumping " << name.c_str() << " ----" << std::endl;
-    HcalDbASCIIIO::dumpObject (outStream, (*myobject) );
-
+    writeToFile(myobject, e, name);
+    
     if ( context.get<SRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
       std::cout << "error: invalid IOV sync value !" << std::endl;
 
@@ -85,22 +81,25 @@ namespace edmtest
   template<class S, class SRcd>
   void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name)
   {
-    int myrun = e.id().run();
     edm::ESHandle<S> p;
     context.get<SRcd>().get(p);
     S* myobject = new S(*p.product());
-    
-    std::ostringstream file;
-    file << front << name.c_str() << "_Run" << myrun << ".txt";
-    std::ofstream outStream(file.str().c_str() );
-    std::cout << "HcalDumpConditions: ---- Dumping " << name.c_str() << " ----" << std::endl;
-    HcalDbASCIIIO::dumpObject (outStream, (*myobject) );
 
+    writeToFile(myobject, e, name);
+    
     if ( context.get<SRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
       std::cout << "error: invalid IOV sync value !" << std::endl;
 
   }
 
+  template<class S> void HcalDumpConditions::writeToFile(S* myS, const edm::Event& e, std::string name){
+    int myrun = e.id().run();
+    std::ostringstream file;
+    file << front << name.c_str() << "_Run" << myrun << ".txt";
+    std::ofstream outStream(file.str().c_str() );
+    std::cout << "HcalDumpConditions: ---- Dumping " << name.c_str() << " ----" << std::endl;
+    HcalDbASCIIIO::dumpObject (outStream, (*myS) );
+  }
 
   void
    HcalDumpConditions::analyze(const edm::Event& e, const edm::EventSetup& context)
