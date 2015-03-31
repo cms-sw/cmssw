@@ -159,7 +159,7 @@ invoke(const edm::ObjectWithDict& o, edm::ObjectWithDict& retstore) const
       // strip cv & ref flags
       // FIXME: This is only true if the propery passed to the constructor
       //       overrides the const and reference flags.
-      retType = edm::TypeWithDict(retType, 0L);
+      retType = retType.stripConstRef();
     }
     ret = edm::ObjectWithDict(retType, *static_cast<void**>(addr));
     //std::cout << "Now type is " << retType.qualifiedName() << std::endl;

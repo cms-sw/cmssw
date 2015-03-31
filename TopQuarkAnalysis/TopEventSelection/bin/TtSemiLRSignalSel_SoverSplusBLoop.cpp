@@ -2,7 +2,6 @@
 #include <cassert>
 #include <TROOT.h>
 #include <TSystem.h>
-#include <Cintex/Cintex.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TBranch.h>

@@ -86,7 +86,7 @@ namespace fwlite {
             edm::WrapperBase const* pProd_; // WrapperBase of the wrapped object
 
             ~Data() {
-               obj_.typeOf().destruct(obj_.address(), true);
+               obj_.destruct(true);
             }
       };
 

@@ -8,8 +8,10 @@ Holder for an input TFile.
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
+#include <exception>
 #include <iomanip>
 
 namespace edm {
@@ -18,6 +20,11 @@ namespace edm {
 
     logFileAction(msg, fileName);
     file_.reset(TFile::Open(fileName));
+    std::exception_ptr e = edm::threadLocalException::getException();
+    if(e != std::exception_ptr()) {
+      edm::threadLocalException::setException(std::exception_ptr());
+      std::rethrow_exception(e);
+    }
     if(!file_) {
       return;
     }
@@ -74,7 +81,7 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportSvc->reportSkippedFile(fileName, logicalFileName);
   }
- 
+
   void
   InputFile::reportFallbackAttempt(std::string const& pfn, std::string const& logicalFileName, std::string const& errorMessage) {
     Service<JobReport> reportSvc;
