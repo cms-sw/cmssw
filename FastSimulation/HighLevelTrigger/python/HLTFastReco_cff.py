@@ -89,11 +89,11 @@ l1extraParticles.hfRingEtSumsSource    = cms.InputTag("simGctDigis")
 l1extraParticles.hfRingBitCountsSource = cms.InputTag("simGctDigis")
 
 # a digi collection not created during packing / unpacking, but required by HLT
-process.gtDigis = cms.EDAlias(
+gtDigis = cms.EDAlias(
     simGtDigis = cms.VPSet(cms.PSet(
-        type = cms.string('L1GlobalTriggerReadoutRecord')
-    ))
-)
+            type = cms.string('L1GlobalTriggerReadoutRecord')
+            ))
+    )
 
 # L1 report
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
