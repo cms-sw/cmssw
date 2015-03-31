@@ -1,5 +1,4 @@
 
-<use   name="DataFormats/Math"/>
 <use   name="boost_header"/>
 <use   name="rootcore"/>
 <export>

@@ -11,8 +11,10 @@
 #include <stdexcept>
 #include <cstring>
 // externals
-#include "Reflex/Member.h"
-#include "Reflex/Object.h"
+
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "CoralBase/Blob.h"
 
 using namespace testORA;
@@ -25,9 +27,9 @@ class PrimitiveContainerStreamingService : public ora::IBlobStreamingService {
     
     virtual ~PrimitiveContainerStreamingService();
 
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary, bool );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const edm::TypeWithDict& classDictionary, bool );
 
-    void read( const coral::Blob& blobData, void* addressOfContainer, const Reflex::Type& classDictionary );
+    void read( const coral::Blob& blobData, void* addressOfContainer, const edm::TypeWithDict& classDictionary );
 };
 
 PrimitiveContainerStreamingService::PrimitiveContainerStreamingService(){
@@ -37,73 +39,75 @@ PrimitiveContainerStreamingService::~PrimitiveContainerStreamingService(){
 }
 
 boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const void* addressOfInputData,
-                                                                          const Reflex::Type& type,
+                                                                          const edm::TypeWithDict& type,
                                                                           bool ){
   // The actual object
-  Reflex::Object theContainer( type, const_cast<void*>( addressOfInputData ) );
+  edm::ObjectWithDict theContainer( type, const_cast<void*>( addressOfInputData ) );
 
   // Retrieve the size of the container
-  Reflex::Member sizeMethod = type.MemberByName( "size" );
+  edm::FunctionWithDict sizeMethod = type.functionMemberByName( "size" );
   if ( ! sizeMethod )
     throw std::runtime_error( "No size method is defined for the container" );
   size_t containerSize = 0;
-  sizeMethod.Invoke(theContainer, containerSize);
+  edm::ObjectWithDict sizeObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(size_t)), &containerSize );
+  sizeMethod.invoke(theContainer, &sizeObj);
   
   // Retrieve the element size
-  Reflex::Member beginMethod = type.MemberByName( "begin" );
+  edm::FunctionWithDict beginMethod = type.functionMemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  Reflex::Type iteratorType = beginMethod.TypeOf().ReturnType();
-  Reflex::Member dereferenceMethod = iteratorType.MemberByName( "operator*" );
+  edm::TypeWithDict iteratorType = beginMethod.finalReturnType();
+  edm::FunctionWithDict dereferenceMethod = iteratorType.functionMemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
-  size_t elementSize = dereferenceMethod.TypeOf().ReturnType().SizeOf();
+  size_t elementSize = dereferenceMethod.finalReturnType().size();
 
   boost::shared_ptr<coral::Blob> blob( new coral::Blob( containerSize * elementSize ) );
   // allocate the blob
   void* startingAddress = blob->startingAddress();
 
   // Create an iterator
-  Reflex::Type retType2 =  beginMethod.TypeOf().ReturnType();
-  char* retbuf2 = ::new char[retType2.SizeOf()];
-  Reflex::Object iteratorObject(retType2, retbuf2);
-  beginMethod.Invoke( Reflex::Object( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
+  edm::TypeWithDict retType2 =  beginMethod.finalReturnType();
+  char* retbuf2 = ::new char[retType2.size()];
+  edm::ObjectWithDict iteratorObject(retType2, retbuf2);
+  beginMethod.invoke( edm::ObjectWithDict( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
 
   // Loop over the elements of the container
-  Reflex::Member incrementMethod = iteratorObject.TypeOf().MemberByName( "operator++" );
+  edm::FunctionWithDict incrementMethod = iteratorObject.typeOf().functionMemberByName( "operator++" );
   if ( ! incrementMethod )
     throw std::runtime_error( "Could not retrieve the increment method of the container's iterator" );
 
   for ( size_t i = 0; i < containerSize; ++i ) {
 
     void* elementAddress = 0;
-    dereferenceMethod.Invoke( iteratorObject, elementAddress);
+    edm::ObjectWithDict elemAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), &elementAddress );
+    dereferenceMethod.invoke( iteratorObject, &elemAddrObj);
     ::memcpy( startingAddress, elementAddress, elementSize );
     char* cstartingAddress = static_cast<char*>( startingAddress );
     cstartingAddress += elementSize;
     startingAddress = cstartingAddress;
 
-    incrementMethod.Invoke( iteratorObject, 0);
+    incrementMethod.invoke( iteratorObject, 0);
   }
 
-  // Destroy the iterator
-  iteratorObject.Destruct();
+  // Destroy - and deallocate - the iterator
+  iteratorObject.destruct(true);
   return blob;  
 }
 
 void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
                                                void* addressOfContainer,
-                                               const Reflex::Type& type ){
+                                               const edm::TypeWithDict& type ){
   // Retrieve the element size
-  Reflex::Member beginMethod = type.MemberByName( "begin" );
+  edm::FunctionWithDict beginMethod = type.functionMemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  Reflex::Type iteratorType = beginMethod.TypeOf().ReturnType();
-  Reflex::Member dereferenceMethod = iteratorType.MemberByName( "operator*" );
+  edm::TypeWithDict iteratorType = beginMethod.finalReturnType();
+  edm::FunctionWithDict dereferenceMethod = iteratorType.functionMemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
 
-  size_t elementSize = dereferenceMethod.TypeOf().ReturnType().SizeOf();
+  size_t elementSize = dereferenceMethod.finalReturnType().size();
 
   if( ! elementSize ) return;
 
@@ -111,29 +115,22 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
   size_t contrainerSize = blobData.size() / elementSize;
 
   // Retrieve the end method
-  Reflex::Member endMethod = type.MemberByName( "end" );
+  edm::FunctionWithDict endMethod = type.functionMemberByName( "end" );
   if ( ! endMethod )
    throw std::runtime_error( "Could not retrieve the end method of the container" );
 
   // Retrieve the insert method
-  Reflex::Member insertMethod;
-  for( unsigned int i = 0; i < type.FunctionMemberSize();i++){
-    Reflex::Member im = type.FunctionMemberAt(i);
-    if( im.Name() != std::string( "insert" ) ) continue;
-    if( im.TypeOf().FunctionParameterSize() != 2) continue;
-    insertMethod = im;
-    break;
-  }
+  edm::FunctionWithDict insertMethod = type.functionMemberByName("insert");
 
   // Retrieve the clear method
-  Reflex::Member clearMethod = type.MemberByName( "clear" );
+  edm::FunctionWithDict clearMethod = type.functionMemberByName( "clear" );
   if ( ! clearMethod )
    throw std::runtime_error( "Could not retrieve the clear method of the container" );
 
   // Clear the container
-  Reflex::Object containerObject( type, addressOfContainer );
+  edm::ObjectWithDict containerObject( type, addressOfContainer );
 
-  clearMethod.Invoke( containerObject ,0 );
+  clearMethod.invoke( containerObject ,0 );
 
   // Fill-in the elements
   const void* startingAddress = blobData.startingAddress();
@@ -141,19 +138,19 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
     std::vector< void* > args( 2 );
 
     // call container.end()
-    Reflex::Type retType =  endMethod.TypeOf().ReturnType();
-    char* retbuf = ::new char[retType.SizeOf()];
-    Reflex::Object ret(retType, retbuf);
-    endMethod.Invoke(containerObject, &ret);
-    args[0] = ret.Address();
+    edm::TypeWithDict retType =  endMethod.finalReturnType();
+    char* retbuf = ::new char[retType.size()];
+    edm::ObjectWithDict ret(retType, retbuf);
+    endMethod.invoke(containerObject, &ret);
+    args[0] = ret.address();
     //    delete [] retbuf;
     
     // call container.insert( container.end(), data )
     args[1] = const_cast<void*>( startingAddress );
-    insertMethod.Invoke( containerObject, 0, args );
+    insertMethod.invoke( containerObject, 0, args );
 
     // this is required! (as it was in Reflect). 
-    iteratorType.Destruct( args[0] );
+    iteratorType.destruct( args[0] );
     
     const char* cstartingAddress = static_cast<const char*>( startingAddress );
     cstartingAddress += elementSize;

@@ -32,7 +32,6 @@
   <class name="testORA::SiStripNoises">
      <field name="v_noises" mapping="blob"/>
   </class>
-  <class name="ora::Reference"/>
   <class name="testORA::RefBase">
   </class>
   <class name="testORA::Ref<testORA::SimpleClass>"/>
@@ -55,11 +54,10 @@
   <class name="ora::UniqueRef<testORA::IBase>"/>
   <class name="testORA::SG"/>
   <class name="testORA::D2"/>
-  <class pattern="std::vector<*>::iterator" rootmap="false"/> 
+  <class name="std::vector<short>::iterator"/>
   <class name="std::vector<ora::OId>"/>
   <class name="ora::PVector<ora::OId>"/>
   <class name="testORA::IOV"/>
   <class name="testORA::SH"/>
-  <class name="ora::NamedReference"/>
   <class name="ora::NamedRef<testORA::SimpleClass>"/>
 </lcgdict>

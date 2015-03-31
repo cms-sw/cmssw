@@ -131,7 +131,7 @@ throw std::exception();
 // e.g. "x<0 ? 1 : x<1 ? 2 : x<2 ? 3 : 4"
 std::string th1ToFormulaLin(const TH1* hist) {
   int nbins = hist->GetNbinsX();
-  TAxis * axis = hist->GetXaxis();
+  TAxis const* axis = hist->GetXaxis();
   std::stringstream buff;
   buff << "x<" << axis->GetBinLowEdge(1) << " ? 0. : ";  // default value
   for (int i=1; i<nbins+1; ++i) {
@@ -194,7 +194,7 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   params(p)
 {
   int nbins = hist->GetNbinsX();
-  TAxis * axis = hist->GetXaxis();
+  TAxis const* axis = hist->GetXaxis();
 
   // overwrite bounds with histo values
   if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
@@ -328,7 +328,7 @@ void BTagCalibration::readCSV(std::istream &s)
   }
 }
 
-void BTagCalibration::makeCSV(ostream &s) const
+void BTagCalibration::makeCSV(std::ostream &s) const
 { 
   s << tagger_ << ";" << BTagEntry::makeCSVHeader();
   for (std::map<std::string, std::vector<BTagEntry> >::const_iterator i 

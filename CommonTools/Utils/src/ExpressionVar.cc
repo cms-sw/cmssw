@@ -152,7 +152,7 @@ double ExpressionVar::value(const edm::ObjectWithDict& obj) const
   std::vector<bool>::const_reverse_iterator RIB = needsDestructor_.rbegin();
   for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RIB, ++RI) {
     if (*RIB) {
-      RI->typeOf().destruct(RI->address(), false);
+      RI->destruct(false);
     }
   }
   return ret;
@@ -231,7 +231,7 @@ ExpressionLazyVar::value(const edm::ObjectWithDict& o) const
   double ret = I->invokeLast(val, objects_);
   for (std::vector<edm::ObjectWithDict>::reverse_iterator RI =
       objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RI) {
-    RI->typeOf().destruct(RI->address(), false);
+    RI->destruct(false);
   }
   objects_.clear();
   return ret;

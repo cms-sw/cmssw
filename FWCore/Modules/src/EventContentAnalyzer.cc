@@ -228,7 +228,7 @@ namespace edm {
                       << iEx.what() << ")>\n";
              }
              if(!isRef) {
-                atReturnType.destruct(contained.address(), true);
+                contained.destruct(true);
              }
           }
           return true;

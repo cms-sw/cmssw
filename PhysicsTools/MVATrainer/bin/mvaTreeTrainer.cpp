@@ -10,8 +10,6 @@
 #include <TList.h>
 #include <TKey.h>
 
-#include <Cintex/Cintex.h>
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -159,8 +157,6 @@ int main(int argc, char **argv)
 		             "(<tree name>@)<file name>" << std::endl;
 		return 1;
 	}
-
-	ROOT::Cintex::Cintex::Enable();
 
 	srandom(1);
 
