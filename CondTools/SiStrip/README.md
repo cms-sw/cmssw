@@ -30,10 +30,10 @@ APV ids. The detector modules can have 3 APV pairs or 2 APV pair and the logic o
 the conversion is different according to the module type. The conversion logic is
 listed in the table below:
 
-###Modules with 6 APVs
+#####Modules with 6 APVs
 
-| online APV id | offline APV id |    
-----------------------------------
+| online APV id  | offline APV id |    
+| -------------- | -------------- |
 | 0 | 0 |
 | 1 | 1 |
 | 2 | 2 |
@@ -41,10 +41,10 @@ listed in the table below:
 | 4 | 4 |
 | 5 | 5 |
 
-###Modules with 4 APVs
+#####Modules with 4 APVs
 
 | online APV id | offline APV id |
-----------------------------------
+| ------------- | -------------- |
 | 0 | 0 |
 | 1 | 1 |
 | 4 | 2 |
