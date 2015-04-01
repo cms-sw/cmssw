@@ -159,13 +159,23 @@ def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker")
 	for s in aProcess.paths_().keys():
 		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
 
+def anyOf(listOfKeys,dict,opt=None):
+	for k in listOfKeys:
+		if k in dict:
+			toReturn=dict[k]
+			dict.pop(k)
+			return toReturn
+	if opt!=None:
+		return opt
+	else:
+		raise Exception("any of "+','.join(listOfKeys)+" are mandatory entries of --output options")
 
 class ConfigBuilder(object):
     """The main building routines """
 
     def __init__(self, options, process = None, with_output = False, with_input = False ):
         """options taken from old cmsDriver and optparse """
-
+	    
         options.outfile_name = options.dirout+options.fileout
 
         self._options = options
@@ -175,8 +185,18 @@ class ConfigBuilder(object):
         #if not self._options.conditions:
         #        raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
-	if hasattr(self._options,"datatier") and self._options.datatier and 'DQMIO' in self._options.datatier and 'ENDJOB' in self._options.step:
-		self._options.step=self._options.step.replace(',ENDJOB','')
+	# check that MEtoEDMConverter (running in ENDJOB) and DQMIO don't run in the same job
+	if 'ENDJOB' in self._options.step:
+		if  (hasattr(self._options,"outputDefinition") and \
+		    self._options.outputDefinition != '' and \
+		    any(anyOf(['t','tier','dataTier'],outdic) == 'DQMIO' for outdic in eval(self._options.outputDefinition))) or \
+		    (hasattr(self._options,"datatier") and \
+		    self._options.datatier and \
+		    'DQMIO' in self._options.datatier):
+			print "removing ENDJOB from steps since not compatible with DQMIO dataTier" 
+			self._options.step=self._options.step.replace(',ENDJOB','')
+
+
 		
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -465,18 +485,7 @@ class ConfigBuilder(object):
 	if self._options.outputDefinition:
 		if self._options.datatier:
 			print "--datatier & --eventcontent options ignored"
-			
-		def anyOf(listOfKeys,dict,opt=None):
-			for k in listOfKeys:
-				if k in dict:
-					toReturn=dict[k]
-					dict.pop(k)
-					return toReturn
-			if opt!=None:
-				return opt
-			else:
-				raise Exception("any of "+','.join(listOfKeys)+" are mandatory entries of --output options")
-				
+							
 		#new output convention with a list of dict
 		outList = eval(self._options.outputDefinition)
 		for (id,outDefDict) in enumerate(outList):

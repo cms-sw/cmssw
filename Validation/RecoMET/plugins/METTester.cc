@@ -91,6 +91,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mChargedHadEtFraction=0;
   mMuonEtFraction=0; 
   mInvisibleEtFraction=0;
+  
+  //MET variables
+  
   //PFMET variables
   mMETDifference_GenMETTrue_MET0to20=0;
   mMETDifference_GenMETTrue_MET20to40=0;
@@ -101,7 +104,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mMETDifference_GenMETTrue_MET150to200=0;
   mMETDifference_GenMETTrue_MET200to300=0;
   mMETDifference_GenMETTrue_MET300to400=0;
-  mMETDifference_GenMETTrue_MET400to500=0; 
+  mMETDifference_GenMETTrue_MET400to500=0;
+  mMETDifference_GenMETTrue_METResolution=0;
+  
  
 } 
 void METTester::bookHistograms(DQMStore::IBooker & ibooker,
@@ -136,6 +141,10 @@ void METTester::bookHistograms(DQMStore::IBooker & ibooker,
       mMETDifference_GenMETTrue_MET200to300 = ibooker.book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500,-500,500); 
       mMETDifference_GenMETTrue_MET300to400 = ibooker.book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500,-500,500); 
       mMETDifference_GenMETTrue_MET400to500 = ibooker.book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500,-500,500); 
+      //this will be filled at the end of the job using info from above hists
+      int nBins = 10;
+      float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
+      mMETDifference_GenMETTrue_METResolution     = ibooker.book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins); 
     }
     if ( isCaloMET) { 
       mCaloMaxEtInEmTowers             = ibooker.book1D("CaloMaxEtInEmTowers","CaloMaxEtInEmTowers",300,0,1500);   //5GeV
@@ -372,8 +381,37 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       mPFHFEMEtFraction->Fill(patmet->Type7EtFraction());//HFEMEt  
     }
   }  
+  //This is so dirty I could cry. It should be called only ONCE in endJob. But the MonitorElements don't exist then any more.
+  FillMETRes();
 }
 
-
+//void METTester::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void METTester::FillMETRes()
+{
+  if(!isGenMET){
+    mMETDifference_GenMETTrue_METResolution->setBinContent(1, mMETDifference_GenMETTrue_MET0to20->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(2, mMETDifference_GenMETTrue_MET20to40->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(3, mMETDifference_GenMETTrue_MET40to60->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(4, mMETDifference_GenMETTrue_MET60to80->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(5, mMETDifference_GenMETTrue_MET80to100->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(6, mMETDifference_GenMETTrue_MET100to150->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(7, mMETDifference_GenMETTrue_MET150to200->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(8, mMETDifference_GenMETTrue_MET200to300->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(9, mMETDifference_GenMETTrue_MET300to400->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(10, mMETDifference_GenMETTrue_MET400to500->getMean());
+    
+    //the error computation should be done in a postProcessor in the harvesting step otherwise the histograms will be just summed
+    mMETDifference_GenMETTrue_METResolution->setBinError(1, mMETDifference_GenMETTrue_MET0to20->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(2, mMETDifference_GenMETTrue_MET20to40->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(3, mMETDifference_GenMETTrue_MET40to60->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(4, mMETDifference_GenMETTrue_MET60to80->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(5, mMETDifference_GenMETTrue_MET80to100->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(6, mMETDifference_GenMETTrue_MET100to150->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(7, mMETDifference_GenMETTrue_MET150to200->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(8, mMETDifference_GenMETTrue_MET200to300->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(9, mMETDifference_GenMETTrue_MET300to400->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(10, mMETDifference_GenMETTrue_MET400to500->getRMS());
+  }
+}
 
 
