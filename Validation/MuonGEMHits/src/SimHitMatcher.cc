@@ -22,12 +22,16 @@ bool is_gem(unsigned int detid)
 }
 
 
-SimHitMatcher::SimHitMatcher(const SimTrack& track, const edm::Event& e,  const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC  ):track_(track),iC_(iC),gem_geo_(geom)
+SimHitMatcher::SimHitMatcher(const SimTrack& track, const edm::Event& e,  const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::EDGetToken& simhitToken, edm::EDGetToken& simtrackToken, edm::EDGetToken& simvertexToken ):track_(track),gem_geo_(geom)
 {
   simMuOnlyGEM_ = cfg.getUntrackedParameter<bool>("simMuOnlyGEM", true);
   discardEleHitsGEM_ = cfg.getUntrackedParameter<bool>("discardEleHitsGEM", true);
-  simInputLabel_ = cfg.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
+  simInputLabel_ = cfg.getUntrackedParameter<std::string>("simInputLabel");
   verbose_ = false;
+  
+  e.getByToken(simtrackToken, sim_tracks);
+  e.getByToken(simvertexToken, sim_vertices);
+  e.getByToken(simhitToken, gem_hits);
   init(e);
 }
 
@@ -38,20 +42,6 @@ SimHitMatcher::~SimHitMatcher() {}
 void SimHitMatcher::init(const edm::Event& e)
 {
 
-  edm::Handle<edm::PSimHitContainer> gem_hits;
-  edm::Handle<edm::SimTrackContainer> sim_tracks;
-  edm::Handle<edm::SimVertexContainer> sim_vertices;
-  
-  edm::EDGetToken simhitToken = iC_.consumes<edm::PSimHitContainer>(edm::InputTag(simInputLabel_,"MuonGEMHits"));
-  edm::EDGetToken simtrackToken = iC_.consumes<edm::SimTrackContainer>(edm::InputTag(simInputLabel_));
-  edm::EDGetToken simvertexToken = iC_.consumes<edm::SimVertexContainer>(edm::InputTag(simInputLabel_));
-
-
-  e.getByToken(simtrackToken, sim_tracks);
-  e.getByToken(simvertexToken, sim_vertices);
-  e.getByToken(simhitToken, gem_hits);
-
-  if ( !sim_tracks.isValid() || !sim_vertices.isValid() || !gem_hits.isValid()) return;
 
   // fill trkId2Index associoation:
   int no = 0;

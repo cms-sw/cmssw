@@ -9,6 +9,6 @@ from Validation.MuonGEMDigis.MuonGEMDigis_cfi import *
 #from Validation.MuonME0Digis.MuonME0Digis_cfi import *
 #from Validation.MuonME0RecHits.MuonME0RecHits_cfi import *
 
-gemSimValid = cms.Sequence(gemHitsValidation*gemDigiValidation)
+gemSimValid = cms.Sequence(gemSimValidation*gemDigiValidation)
 #gemSimValid = cms.Sequence(gemHitsValidation*gemDigiValidation*gemRecHitsValidation)
 #me0SimValid = cms.Sequence(me0HitsValidation*me0DigiValidation*me0RecHitsValidation)

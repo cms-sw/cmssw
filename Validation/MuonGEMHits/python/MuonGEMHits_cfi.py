@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-gemHitsValidation = cms.EDAnalyzer('GEMHitsValidation',
+gemSimHitValidation = cms.EDAnalyzer('GEMHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
     # st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin
@@ -13,11 +13,14 @@ gemHitsValidation = cms.EDAnalyzer('GEMHitsValidation',
 
 gemSimTrackValidation = cms.EDAnalyzer('GEMSimTrackMatch',
     verboseSimHit = cms.untracked.int32(1),
-    simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
-    simMuOnlyGEM = cms.bool(True),
-    discardEleHitsGEM = cms.bool(True),
+    simInputLabel = cms.untracked.string('g4SimHits'),
+    simMuOnlyGEM = cms.untracked.bool(True),
+    discardEleHitsGEM = cms.untracked.bool(True),
     simTrackCollection = cms.InputTag('g4SimHits'),
     simVertexCollection = cms.InputTag('g4SimHits'),
+    gemMinPt = cms.untracked.double(5.0),
+    gemMinEta = cms.untracked.double(1.55),
+    gemMaxEta = cms.untracked.double(2.45),
 )
 
-gemSimValid = cms.Sequence( gemHitsValidation+gemSimTrackValidation)
+gemSimValidation = cms.Sequence( gemSimHitValidation+gemSimTrackValidation)

@@ -47,7 +47,7 @@
 using namespace std;
 MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& ps)
 {
-	dbe_path_ = std::string("MuonGEMHitsV/GEMHitsTask/");
+  dbe_path_ = std::string("MuonGEMHitsV/GEMHitsTask/");
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
@@ -55,57 +55,87 @@ MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& ps)
 MuonGEMHitsHarvestor::~MuonGEMHitsHarvestor()
 {
 }
+TProfile* MuonGEMHitsHarvestor::ComputeEff(TH1F* num, TH1F* denum )
+{
+  if ( num==nullptr || denum==nullptr) { std::cout<<"num or denum are missing"<<std::endl; } 
+  std::string name = "eff_"+std::string(num->GetName());
+  std::string title = "Eff. "+std::string(num->GetTitle());
+  TProfile * efficHist = new TProfile(name.c_str(), title.c_str(),num->GetXaxis()->GetNbins(), num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax());
+  if ( num->GetNbinsX() != denum->GetNbinsX()) { std::cout<<"Wrong Xbin. Please, check histogram's name"<<std::endl; return nullptr;  }
+  for (int i=1; i <= num->GetNbinsX(); i++) {
+    const double nNum = num->GetBinContent(i);
+    const double nDenum = denum->GetBinContent(i);
+    if ( nDenum == 0 || nNum > nDenum ) continue;
+    if ( nNum == 0 ) continue;
+    const double effVal = nNum/nDenum;
+    const double errLo = TEfficiency::ClopperPearson((int)nDenum,(int)nNum,0.683,false);
+    const double errUp = TEfficiency::ClopperPearson((int)nDenum,(int)nNum,0.683,true);
+    const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
+    efficHist->SetBinContent(i, effVal);
+    efficHist->SetBinEntries(i, 1);
+    efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
+  }
+  return efficHist;
+}
+void MuonGEMHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string label_suffix, TH1F* track_hist, TH1F* sh_hist )
+{
+  TString dbe_label = TString(dbe_path_)+label_suffix;
+  //std::cout<<dbe_label<<"   "<<track_hist->GetName()<<std::endl;
+  if( ig.get(dbe_label.Data()) != nullptr && track_hist !=nullptr ) {
+    TH1F* hist = (TH1F*)ig.get( dbe_label.Data() )->getTH1F()->Clone();
+    TProfile* profile = ComputeEff( hist, track_hist);
+    TString x_axis_title = TString(hist->GetXaxis()->GetTitle());
+    TString title = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;%s;Eff.",label_suffix.c_str(),x_axis_title.Data());
+    profile->SetTitle( title.Data());
+    ibooker.bookProfile( profile->GetName(),profile);
+    if ( sh_hist!=nullptr) {
+      TProfile* profile_sh = ComputeEff( hist, sh_hist );
+      profile_sh->SetName( (profile->GetName()+std::string("_sh")).c_str());
+      TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;%s;Eff.",label_suffix.c_str(),x_axis_title.Data() );
+      profile_sh->SetTitle( title2.Data() );
+      ibooker.bookProfile( profile_sh->GetName(),profile_sh);
+    }
+  }
+  return;
+}
 
 void 
 MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
 {
   ig.setCurrentFolder(dbe_path_.c_str());
-  /*
-	string l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-	string s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-	//string c_suffix[2] = {"_even","_odd"};
+  string l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
+  string s_suffix[3] = {"_st1","_st2_short","_st2_long"};
+  string c_suffix[3] = {"_even","_odd","_all"};
   TH1F* track_eta[3];
-  TH1F* track_phi[3];
-	//TH1F* sh_eta[4][3];
-	//TH1F* sh_phi[4][3];
-	//TH1F* gem_lx[3][2];
-	//TH1F* gem_ly[3][2];
+  TH1F* track_phi[3][3];
 
-	for ( int i = 0 ; i< 3 ; i++) {
-		track_eta[i]=nullptr;
-		track_phi[i]=nullptr;
-		for ( int j= 0 ; j<4 ; j++) {
-			//sh_eta[j][i]=nullptr;
-			//sh_phi[j][i]=nullptr;
-		}
-		for ( int j=0; j<2; j++) {
-		  //gem_lx[i][j]=nullptr;
-		  //gem_ly[i][j]=nullptr;
-		}
-	}
+  for ( int i = 0 ; i< 3 ; i++) {
+    track_eta[i]=nullptr;
+    for( int j=0 ; j<3 ; j++) {
+      track_phi[i][j]=nullptr;
+    }
+  }
 
-	for(int i=0 ; i<3 ; i++) {
-		string suffix = s_suffix[i];
-		string track_eta_name = dbe_path_+"track_eta"+suffix;
-		if ( dbe_->get(track_eta_name.c_str()) != nullptr) track_eta[i] = (TH1F*)dbe_->get(track_eta_name.c_str())->getTH1F()->Clone();
-		string track_phi_name = dbe_path_+"track_phi"+suffix;
-		if ( dbe_->get(track_phi_name.c_str()) != nullptr) track_phi[i] = (TH1F*)dbe_->get(track_phi_name.c_str())->getTH1F()->Clone();
-		for( int j=0 ; j<4; j++) {
-			suffix = l_suffix[j]+s_suffix[i];
-			ProcessBooking( "sh_eta"+suffix,track_eta[i]);
-			ProcessBooking( "sh_phi"+suffix,track_phi[i]);
-  	}
-		///
-		for( int j=0 ; j<2 ; j++) {
-			suffix = s_suffix[i]+c_suffix[j]; 
-			string gem_lx_title = dir+"gem_lx"+suffix;
-		  if ( dbe_->get(gem_lx_title.c_str())!=nullptr ) gem_lx[i][j] = (TH1F*)dbe_->get(gem_lx_title.c_str())->getTH1F()->Clone();
-			
-		} 
-		////
-	}
-		*/
-  //if ( outputFile_.size() != 0 && ig!=nullptr ) ig.save(outputFile_);
+  for(int i=0 ; i<3 ; i++) {
+    string suffix = s_suffix[i];
+    string track_eta_name = dbe_path_+"track_eta"+suffix;
+    if ( ig.get(track_eta_name.c_str()) != nullptr) track_eta[i] = (TH1F*)ig.get(track_eta_name.c_str())->getTH1F()->Clone();
+    for(int j=0 ; j<4 ; j++) {
+      suffix = s_suffix[i]+l_suffix[j];
+      ProcessBooking( ibooker, ig, "sh_eta"+suffix,track_eta[i]);
+    }
+  }
+  for(int i=0 ; i<3; i++) {
+    for( int j=0 ; j<3 ; j++) {
+      string suffix = s_suffix[i]+c_suffix[j];
+      string track_phi_name = dbe_path_+"track_phi"+suffix;
+      if ( ig.get(track_phi_name.c_str()) != nullptr) track_phi[i][j] = (TH1F*)ig.get(track_phi_name.c_str())->getTH1F()->Clone();
+      for ( int k=0; k<4 ; k++) {
+        suffix = s_suffix[i]+l_suffix[k]+c_suffix[j];
+        ProcessBooking( ibooker, ig, "sh_phi"+suffix,track_phi[i][j]);
+      }
+    }
+  }
 }
 
 

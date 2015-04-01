@@ -33,7 +33,7 @@ class SimHitMatcher
 {
 public:
   
-  SimHitMatcher(const SimTrack& track, const edm::Event& , const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
+  SimHitMatcher(const SimTrack& track, const edm::Event& , const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::EDGetToken& simhitToken, edm::EDGetToken& simtrackToken, edm::EDGetToken& simvertexToken);
   
   ~SimHitMatcher();
 
@@ -85,7 +85,6 @@ private:
 
   void init(const edm::Event& );
   const SimTrack& track_;
-  edm::ConsumesCollector& iC_; 
   std::vector<unsigned int> getIdsOfSimTrackShower(unsigned  trk_id,
       const edm::SimTrackContainer& simTracks, const edm::SimVertexContainer& simVertices);
 
@@ -95,6 +94,11 @@ private:
   bool discardEleHitsGEM_;
   bool verbose_;
   std::string simInputLabel_;
+
+  edm::Handle<edm::PSimHitContainer> gem_hits;
+  edm::Handle<edm::SimTrackContainer> sim_tracks;
+  edm::Handle<edm::SimVertexContainer> sim_vertices;
+
 
   const GEMGeometry& gem_geo_;
   std::map<unsigned int, unsigned int> trkid_to_index_;

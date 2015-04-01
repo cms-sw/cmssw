@@ -60,8 +60,8 @@ public:
 
 
  protected:
-
   edm::ParameterSet cfg_;
+  edm::EDGetToken simHitsToken_;
   edm::EDGetToken simTracksToken_;
   edm::EDGetToken simVerticesToken_;
 
@@ -70,8 +70,6 @@ public:
 
   std::vector< double > etaRangeForPhi;
 
-  edm::Handle<edm::SimTrackContainer> sim_tracks;
-  edm::Handle<edm::SimVertexContainer> sim_vertices;
   
   float minPt_;
   float minEta_;
@@ -79,8 +77,8 @@ public:
   float radiusCenter_, chamberHeight_;
 	int useRoll_;
 	unsigned int nstation;
-private:
   const GEMGeometry* gem_geom_;
+
 };
 
 #endif

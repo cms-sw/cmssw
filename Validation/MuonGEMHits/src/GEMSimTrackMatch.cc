@@ -12,21 +12,29 @@ GEMSimTrackMatch::GEMSimTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatch(
   //minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
   //minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
   //maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
+  std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel");
+
+  simHitsToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(simInputLabel_,"MuonGEMHits"));
+  simTracksToken_ = consumes< edm::SimTrackContainer >(ps.getParameter<edm::InputTag>("simTrackCollection"));
+  simVerticesToken_ = consumes< edm::SimVertexContainer >(ps.getParameter<edm::InputTag>("simVertexCollection"));
+
   cfg_ = ps;
 }
 
 void GEMSimTrackMatch::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & run, edm::EventSetup const & iSetup) 
 {
+  // Mandantory
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
+  setGeometry(geom);
 
   const float PI=TMath::Pi(); 
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
   const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
   const char* c_suffix[3] = {"_even","_odd","_all"};
 
-  nstation = geom.regions()[0]->stations().size(); 
+  nstation = geom.regions()[0]->stations().size();  
   for( unsigned int j=0 ; j<nstation ; j++) {
       string track_eta_name  = string("track_eta")+s_suffix[j];
       string track_eta_title = string("track_eta")+";SimTrack |#eta|;# of tracks";
@@ -40,14 +48,14 @@ void GEMSimTrackMatch::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       }
 
       for( unsigned int i=0 ; i< 4; i++) {
-         string suffix = string(l_suffix[i])+string(s_suffix[j]);
+         string suffix = string(s_suffix[j])+l_suffix[i];
 
          string sh_eta_name = string("sh_eta")+suffix;
          string sh_eta_title = sh_eta_name+"; tracks |#eta|; # of tracks";
          sh_eta[i][j] = ibooker.book1D( sh_eta_name.c_str(), sh_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
          for ( unsigned int k = 0 ; k<3 ; k++) {
-          suffix = string(l_suffix[i])+string(s_suffix[j])+ string(c_suffix[k]);
+          suffix = string(s_suffix[j])+ string(l_suffix[i])+string(c_suffix[k]);
           string sh_phi_name = string("sh_phi")+suffix;
           string sh_phi_title = sh_phi_name+"; tracks #phi; # of tracks";
           sh_phi[i][j][k] = ibooker.book1D( (sh_phi_name).c_str(), sh_phi_title.c_str(), 200,-PI,PI) ;
@@ -71,11 +79,14 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const GEMGeometry& geom = *hGeom;
 
   MySimTrack track_;
+  edm::Handle<edm::PSimHitContainer> simhits;
+  edm::Handle<edm::SimTrackContainer> sim_tracks;
+  edm::Handle<edm::SimVertexContainer> sim_vertices;
 
+  iEvent.getByToken(simHitsToken_, simhits);
   iEvent.getByToken(simTracksToken_, sim_tracks);
   iEvent.getByToken(simVerticesToken_, sim_vertices);
-  
-  if ( !sim_tracks.isValid() || !sim_vertices.isValid()) return;
+  if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
@@ -87,7 +98,6 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (!isSimTrackGood(t)) 
     { continue; } 
     
-
     track_.pt = t.momentum().pt();
     track_.phi = t.momentum().phi();
     track_.eta = t.momentum().eta();
@@ -100,8 +110,7 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // match hits to this SimTrack
-    //SimTrackMatchManager match = SimTrackM(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup, theGEMGeometry);
-    const SimHitMatcher& match_sh = SimHitMatcher( t, iEvent, geom, cfg_, consumesCollector() );
+    const SimHitMatcher match_sh = SimHitMatcher( t, iEvent, geom, cfg_, simHitsToken_, simTracksToken_, simVerticesToken_ );
 
     // check for hit chambers
     const auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
