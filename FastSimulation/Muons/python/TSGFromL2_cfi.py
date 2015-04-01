@@ -191,8 +191,8 @@ def makeIOHitSet():
         PtCut = cms.double(1.0),
         # The Tracks from which seeds are looked for
         SeedCollectionLabels = cms.VInputTag(
-        cms.InputTag("pixelTripletSeeds","PixelTriplet"),
-        cms.InputTag("globalPixelSeeds","GlobalPixel")),
+        cms.InputTag("pixelTripletSeeds"),
+        cms.InputTag("globalPixelSeeds")),
         SimTrackCollectionLabel = cms.InputTag("famosSimHits"),
         #Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
         )
@@ -229,7 +229,7 @@ def l3seeds(tsg = "old"):
                             # Keep tracks with pT > 1 GeV 
                             PtCut = cms.double(1.0),
                             # The Tracks from which seeds are looked for
-                            SeedCollectionLabels = cms.VInputTag(cms.InputTag("pixelTripletSeeds","PixelTriplet"), cms.InputTag("globalPixelSeeds","GlobalPixel"))
+                            SeedCollectionLabels = cms.VInputTag(cms.InputTag("pixelTripletSeeds"), cms.InputTag("globalPixelSeeds"))
                             )
     elif( tsg == "OIState" ):
         return cms.EDProducer(
