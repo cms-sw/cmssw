@@ -9,7 +9,7 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         pTMin = 0.4,
         maxD0 = 1.0,
-        maxZ0 = 999,
+        maxZ0 = -1,
         ),
     minLayersCrossed = 3,
     nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
