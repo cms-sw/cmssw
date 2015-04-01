@@ -23,8 +23,8 @@ namespace l1t {
   public:
     Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParams* params);
     virtual ~Stage2Layer2JetSumAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<l1t::Jet> & jets,
-			      std::vector<l1t::EtSum> & clusters);
+    virtual void processEvent(const std::vector<l1t::Jet> & alljets,
+			      std::vector<l1t::EtSum> & htsums);
   private:
     CaloParams* params_;
     int32_t etSumEtThresholdHwEt_;

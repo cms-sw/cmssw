@@ -24,12 +24,10 @@ namespace l1t {
     Stage2Layer2JetAlgorithmFirmwareImp1(CaloParams* params);
     virtual ~Stage2Layer2JetAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloTower> & towers,
-			      std::vector<Jet> & jets);
+			      std::vector<Jet> & jets, std::vector<Jet> & alljets);
 
     void create(const std::vector<CaloTower> & towers,
-		std::vector<Jet> & jets, std::string PUSubMethod);
-    
-    void sort(std::vector<Jet> & jets);
+	                      std::vector<Jet> & jets, std::vector<Jet> & alljets, std::string PUSubMethod);
 
     void calibrate(std::vector<Jet> & jets, int calibThreshold);
 

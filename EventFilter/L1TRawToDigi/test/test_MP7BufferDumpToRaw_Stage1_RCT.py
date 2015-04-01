@@ -76,16 +76,16 @@ process.TFileService.fileName = cms.string('l1t.root')
 # raw data from MP card
 process.load('EventFilter.L1TRawToDigi.stage1MP7BufferRaw_cfi')
 process.stage1Raw.fedId = cms.untracked.int32(1300)
-process.stage1Raw.amcId = cms.untracked.int32(0x100D)
-process.stage1Raw.nFramesOffset    = cms.untracked.int32(0)
-process.stage1Raw.nFramesLatency   = cms.untracked.int32(90)
+process.stage1Raw.boardId = cms.untracked.vint32(0x100D)
+process.stage1Raw.nFramesOffset    = cms.untracked.vuint32(0)
+process.stage1Raw.nFramesLatency   = cms.untracked.vuint32(90)
 process.stage1Raw.rxFile = cms.untracked.string("stage1_rx_summary.txt")
 process.stage1Raw.txFile = cms.untracked.string("stage1_tx_summary.txt")
 
 process.stage1RawDelayed = process.stage1Raw.clone()
-process.stage1RawDelayed.amcId = cms.untracked.int32(0x100E)
+process.stage1RawDelayed.boardId = cms.untracked.vint32(0x100E)
 process.stage1RawDelayed.fedId = cms.untracked.int32(1301)
-process.stage1RawDelayed.nFramesOffset = cms.untracked.int32(0)
+process.stage1RawDelayed.nFramesOffset = cms.untracked.vuint32(0)
 
 process.load("EventFilter.RawDataCollector.rawDataCollector_cfi")
 process.rawDataCollector.RawCollectionList = cms.VInputTag(
