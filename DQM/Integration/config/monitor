@@ -1,9 +1,0 @@
-#!/bin/sh
-
-LOGFILE=/dqmdata/status/top/$(hostname | tr '[:upper:]' '[:lower:]')/$(date +%Y%m/%Y%m%d%H%M).txt
-mkdir -p $(dirname $LOGFILE)
-ROWS=1000 COLUMNS=1000 top -b -n 2 -d 15 | perl -n -e '
-  s/[ \t]+$//;
-  /PID/ && ! $print && do { $seenpid=1 };
-  /^$/ && $seenpid && ! $print && do { $print = 1; next };
-  $print && print' > $LOGFILE
