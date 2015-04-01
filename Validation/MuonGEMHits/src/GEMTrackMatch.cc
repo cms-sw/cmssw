@@ -7,9 +7,9 @@
 
 GEMTrackMatch::GEMTrackMatch(const edm::ParameterSet& ps)
 {
-  //etaRangeForPhi = ps.getUntrackedParameter< std::vector<double> >("EtaRangeForPhi");
-  simTracksToken_ = consumes< edm::SimTrackContainer >(ps.getParameter<edm::InputTag>("simTrackCollection"));
-  simVerticesToken_ = consumes< edm::SimVertexContainer >(ps.getParameter<edm::InputTag>("simVertexCollection"));
+  minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
+  minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
+  maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
 }
 
 
@@ -19,7 +19,7 @@ GEMTrackMatch::~GEMTrackMatch() {
 void GEMTrackMatch::FillWithTrigger( MonitorElement* hist[3],Float_t eta)
 {
   for( unsigned int i=0 ; i<nstation ; i++) {
-  hist[i]->Fill(eta);
+    hist[i]->Fill(eta);
   }
   return;
 }
