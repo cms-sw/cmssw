@@ -153,6 +153,8 @@ public:
   MonitorElement* mMETDifference_GenMETTrue_MET200to300;
   MonitorElement* mMETDifference_GenMETTrue_MET300to400;
   MonitorElement* mMETDifference_GenMETTrue_MET400to500;
+  MonitorElement* mMETDifference_GenMETTrue_METResolution;
+
   
 
   bool isCaloMET;
