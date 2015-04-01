@@ -15,6 +15,11 @@ struct MakeVersionedSelector {
       edm::readPSetsFrom(pset)->getParameter<edm::ParameterSet>(which_config);
     return VersionedSelector<edm::Ptr<PhysObj> >(temp);
   }
+
+  VersionedSelector<edm::Ptr<PhysObj> > 
+  operator()() {
+    return VersionedSelector<edm::Ptr<PhysObj> >();
+  }
   
 };
 
