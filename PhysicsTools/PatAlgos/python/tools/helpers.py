@@ -11,7 +11,7 @@ def addESProducers(process,config):
 	module = __import__(config)
 	for name in dir(sys.modules[config]):
 		item = getattr(sys.modules[config],name)
-		if isinstance(item,_Labelable) and not isinstance(item,_ModuleSequenceType) and not name.startswith('_') and not (name == "source" or name == "looper" or name == "subProcess") and not type(item) is cms.PSet:
+		if isinstance(item,cms._Labelable) and not isinstance(item,cms._ModuleSequenceType) and not name.startswith('_') and not (name == "source" or name == "looper" or name == "subProcess") and not type(item) is cms.PSet:
 			if 'ESProducer' in item.type_():
 				setattr(process,name,item)
 

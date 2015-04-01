@@ -119,7 +119,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         } 
      }
 
-     indices.push_back(j);
+     indices.push_back(resultdedxHitColl->size());
      resultdedxHitColl->push_back(hitDeDxInfo);
   }
   ///////////////////////////////////////
