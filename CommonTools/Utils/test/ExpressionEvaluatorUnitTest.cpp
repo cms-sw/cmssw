@@ -71,7 +71,7 @@ int main() {
 
   // stress test
   std::atomic<int> j(0);
-#pragma omp parallel 
+#pragma omp parallel num_threads(8)
   {
     reco::genericExpression<bool, int, int> const * acut = nullptr;
     for (int i=0; i<200; ++i) {
