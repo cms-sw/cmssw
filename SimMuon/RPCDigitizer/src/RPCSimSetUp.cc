@@ -173,27 +173,74 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 // New version that can deal with rolls with an arbitrary number of strips, no hardcoded value 96 here
 void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<RPCClusterSize::ClusterSizeItem>& vClusterSize){
 
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp(vector<NoiseItem>, vector<ClusterSizeItem>)"<<std::endl;
+
   uint32_t detId, current_detId, this_detId;
   RPCDetId rpcId, current_rpcId, this_rpcId;
   const RPCRoll * current_roll,* this_roll;
   unsigned int current_nStrips;
+
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: ClusterSizeItem :: begin"<<std::endl;
   // ### ClusterSizeItem #######################################################                        
   std::vector<RPCClusterSize::ClusterSizeItem>::const_iterator itCls;
   int clsCounter(1);
   std::vector<double> clsVect;
+  // ### loop for New Format (120 entries)
   for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
+    // LogDebug ("rpssimsetup")<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
     clsVect.push_back(((double)(itCls->clusterSize)));
+    // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+    // LogDebug ("rpssimsetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
+    // LogDebug ("rpssimsetup")<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
+    // LogDebug ("rpssimsetup")<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
+    // LogDebug ("rpssimsetup")<<std::endl;
+
+    // New Format :: loop until 120
+    if((!(clsCounter%120)) && (clsCounter!=0)){
+      detId=itCls->dpid;
+      _mapDetClsMap[detId]=clsVect;
+      clsVect.clear();
+      // LogDebug ("rpssimsetup")<<" --> New Method ";
+      // LogDebug ("rpssimsetup")<<" --> saved in map "<<std::endl;
+      // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+      // LogDebug ("rpssimsetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
+      clsCounter=0;
+    }
+    /*else{
+      LogDebug ("rpssimsetup")<<" --> not saved in map "<<std::endl;
+    }*/
+    ++clsCounter;
+  }
+  // ### loop for Old Format (100 entries)
+  for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
+    // LogDebug ("rpssimsetup")<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
+    clsVect.push_back(((double)(itCls->clusterSize)));
+    // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+    // LogDebug ("rpssimsetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
+    // LogDebug ("rpssimsetup")<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
+    // LogDebug ("rpssimsetup")<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
+    // LogDebug ("rpssimsetup")<<std::endl;
+
+    // Old Format :: same until 100
     if((!(clsCounter%100)) && (clsCounter!=0)){
       detId=itCls->dpid;
       _mapDetClsMapLegacy[detId]=clsVect;
       clsVect.clear();
+      // LogDebug ("rpssimsetup")<<" --> Old Method ";
+      // LogDebug ("rpssimsetup")<<" --> saved in map "<<std::endl;
+      // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+      // LogDebug ("rpssimsetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
       clsCounter=0;
     }
+    /*else{
+      LogDebug ("rpssimsetup")<<" --> not saved in map "<<std::endl;
+      } */
     ++clsCounter;
   }
   // ###########################################################################
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: ClusterSizeItem :: end"<<std::endl;
 
-
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: begin"<<std::endl;
   // ### NoiseItem #############################################################
   unsigned int count_strips = 1;
   unsigned int count_all    = 1;
@@ -221,6 +268,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       LogDebug ("rpssimsetup") <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" which is not in current Geometry --> Skip "<<std::endl;
       continue;
     }
+
+    // LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 1"<<std::endl;
     // Case 1 :: FIRST ENTRY
     // ---------------------
     if(this_detId == current_detId && count_strips == 1) {
@@ -239,6 +288,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       ++count_all;
     }
 
+    // LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 2"<<std::endl;
     // Case 2 :: 2ND ENTRY --> LAST-1 ENTRY
     // ------------------------------------
     if(this_detId == current_detId && count_strips > 1 && count_strips < current_nStrips) {
@@ -250,6 +300,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       ++count_strips;
       ++count_all;
     }
+
+    // LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 3"<<std::endl;
     // Case 3 :: LAST ENTRY
     // --------------------
     if(this_detId == current_detId && count_strips == current_nStrips) {
@@ -295,6 +347,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     }
   }
   // ###########################################################################
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: end"<<std::endl;
 }
 
 
@@ -305,6 +358,7 @@ const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id)
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - no noise information for DetId\t"<<id<< std::endl;
   }
+  LogDebug ("rpssimsetup")<< "All OK coming from RPCSimSetUp - noise information for DetId\t"<<id<< std::endl;
   return iter->second;
 }
 
@@ -315,11 +369,19 @@ const std::vector<float>& RPCSimSetUp::getEff(uint32_t id)
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - no efficiency information for DetId\t"<<id<< std::endl;
   }
+  /*
+  if((iter->second).size() != 96){
+    throw cms::Exception("DataCorrupt") 
+      << "Exception comming from RPCSimSetUp - efficiency information in a wrong format for DetId\t"<<id<< std::endl;
+  }
+  */
   RPCDetId rpcId = RPCDetId(id);
   const RPCRoll* roll = dynamic_cast<const RPCRoll* >(theGeometry->roll(rpcId));
   unsigned int numbStrips = roll->nstrips();
 
   if((iter->second).size() < numbStrips){
+    // LogDebug ("rpssimsetup")<< "Exception comming from RPCSimSetUp - efficiency information in a wrong format for DetId\t"<<id<<" aka "<<RPCDetId(id)<<std::endl;
+    // LogDebug ("rpssimsetup")<<" number of strips in Conditions\t"<<(iter->second).size()<<" number of strips in Geometry\t"<<numbStrips<<std::endl;
     throw cms::Exception("DataCorrupt")
       << "Exception comming from RPCSimSetUp - efficiency information in a wrong format for DetId\t"<<id<< std::endl;
   }
@@ -351,6 +413,9 @@ const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
 //const std::map<int, std::vector<double> >& RPCSimSetUp::getClsMap(uint32_t id)
 const std::vector<double>& RPCSimSetUp::getCls(uint32_t id) //legacy member function
 {
+
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::getCls"<<std::endl;
+
   map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
   if(iter == _mapDetClsMapLegacy.end()){
     throw cms::Exception("DataCorrupt") 
@@ -360,12 +425,15 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id) //legacy member func
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - _mapDetClsMapLegacy - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
   }
+  LogDebug ("rpssimsetup")<< "All OK coming from RPCSimSetUp - _mapDetClsMapLegacy - cluster size information for DetId\t"<<id<< std::endl;
   return iter->second;
 }
 
 const std::vector<double> & RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id, uint32_t slice){
 
- map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::getAsymmetricClsDistribution"<<std::endl;
+
+  map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
   if(iter == _mapDetClsMap.end()){
     throw cms::Exception("DataCorrupt")
       << "Exception comming from RPCSimSetUp - _mapDetClsMap - no cluster size information for DetId\t"<<id<< std::endl;
@@ -374,15 +442,15 @@ const std::vector<double> & RPCSimSetUp::getAsymmetricClsDistribution(uint32_t i
     throw cms::Exception("DataCorrupt")
       << "Exception comming from RPCSimSetUp - _mapDetClsMap - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
   }
-//  return iter->second;
+  //  return iter->second;
 
-std::vector<double> dataForAsymmCls = iter->second;
-   if(slice>4){ 
-     throw cms::Exception("DataCorrupt") 
-       << "Exception comming from RPCSimSetUp - slice variable not in the range"<< std::endl;
-   }     
+  std::vector<double> dataForAsymmCls = iter->second;
+  if(slice>4){ 
+    throw cms::Exception("DataCorrupt") 
+      << "Exception comming from RPCSimSetUp - slice variable not in the range"<< std::endl;
+  }     
 
-   _DetClsAsymmetric.clear();
+  _DetClsAsymmetric.clear();
    
 
   vector<double> clsFewStripsDistribution;
@@ -428,6 +496,8 @@ double control1=0;
 }
 
 const std::vector<double> & RPCSimSetUp::getAsymmetryForCls(uint32_t id, uint32_t slice, uint32_t cls){
+
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::getAsymmetryForCls"<<std::endl;
 
  map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
   if(iter == _mapDetClsMap.end()){
@@ -480,6 +550,8 @@ vector<double> clsDetAsymmetryForCls;
     value = sliceVsFewStripsDistribution[slice][(cls-1)*4+i];
     clsDetAsymmetryForCls.push_back(value);
     sum +=value; 
+    //     LogDebug ("rpssimsetup")<<"value\t"<<value<<std::endl;
+    //    LogDebug ("rpssimsetup")<<"sum\t"<<sum<<std::endl;
   }
   
   float accum=0;
