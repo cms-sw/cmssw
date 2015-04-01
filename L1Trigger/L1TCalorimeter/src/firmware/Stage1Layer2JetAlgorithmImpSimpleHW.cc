@@ -35,13 +35,14 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   std::vector<l1t::Jet> *calibratedRankedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
-  //simpleHWSubtraction(regions, subRegions);
+  double towerLsb = params_->towerLsbSum();
+  int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
 
   std::string regionPUSType = "PUM0"; //params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
-  slidingWindowJetFinder(0, subRegions, preGtEtaJets);
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, preGtEtaJets);
 
   calibrateAndRankJets(params_, preGtEtaJets, calibratedRankedJets);
 
@@ -51,7 +52,8 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   JetToGtEtaScales(params_, preGtEtaJets, debugJets);
   //JetToGtPtScales(params_, preGtJets, jets);
 
-  const bool verbose = true;
+  const bool verbose = false;
+  const bool hex = false;
   if(verbose)
   {
     int cJets = 0;
@@ -62,8 +64,14 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
 	itJet != jets->end(); ++itJet){
       if((itJet->hwQual() & 2) == 2) continue;
       cJets++;
-      unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-      cout << bitset<15>(packed).to_string() << endl;
+      if(!hex)
+      {
+	unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+	cout << bitset<15>(packed).to_string() << endl;
+      } else {
+	uint32_t output = itJet->hwPt() + (itJet->hwEta() << 6) + (itJet->hwPhi() << 10);
+	std::cout << std::hex << std::setw(4) << std::setfill('0') << output << std::endl;
+      }
       if(cJets == 4) break;
     }
 
@@ -73,8 +81,15 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
 	itJet != jets->end(); ++itJet){
       if((itJet->hwQual() & 2) != 2) continue;
       fJets++;
-      unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-      cout << bitset<15>(packed).to_string() << endl;
+      if(!hex)
+      {
+	unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+	cout << bitset<15>(packed).to_string() << endl;
+      } else {
+	uint32_t output = itJet->hwPt() + (itJet->hwEta() << 6) + (itJet->hwPhi() << 10);
+	std::cout << std::hex << std::setw(4) << std::setfill('0') << output << std::endl;
+      }
+
       if(fJets == 4) break;
     }
   }
