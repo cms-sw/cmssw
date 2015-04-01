@@ -21,7 +21,7 @@ def customiseFor7794(process):
 
 
 # CMSSW version specific customizations
-def customise(process):
+def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 

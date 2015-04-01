@@ -1,4 +1,4 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V66 (CMSSW_7_4_0_pre9)
+# /frozen/2015/50ns_5e33/v1.0/HLT/V3 (CMSSW_7_4_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,7 +7,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load( "FastSimulation.HighLevelTrigger.HLTSetup_cff" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V66')
+  tableName = cms.string('/frozen/2015/50ns_5e33/v1.0/HLT/V3')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -33992,7 +33992,7 @@ fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT
 
 # add release-specific customizations
 from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-fragment = customiseHLTforCMSSW(fragment,menuType="50nsGRun",fastSim=True)
+fragment = customiseHLTforCMSSW(fragment,menuType="50ns_5e33_v1",fastSim=True)
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :
