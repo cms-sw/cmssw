@@ -131,7 +131,7 @@ static void testEvent(fwlite::Event& events) {
 
 void testRefInROOT::testOneGoodFile()
 {
-  TFile file((tmpdir + "goodDataFormatsFWLite.root").c_str());
+   TFile file((tmpdir + "goodDataFormatsFWLite.root").c_str());
    fwlite::Event events(&file);
    
    testEvent(events);
@@ -151,7 +151,7 @@ void testRefInROOT::testAllLabels()
 
 void testRefInROOT::testEventBase()
 {
-  TFile file((tmpdir + "goodDataFormatsFWLite.root").c_str());
+   TFile file((tmpdir + "goodDataFormatsFWLite.root").c_str());
    fwlite::Event events(&file);
    edm::InputTag tagFull("OtherThing","testUserTag","TEST");
    edm::InputTag tag("OtherThing","testUserTag");
@@ -270,7 +270,7 @@ void testRefInROOT::failOneBadFile()
 
 void testRefInROOT::testMissingRef()
 {
-  TFile file((tmpdir + "other_onlyDataFormatsFWLite.root").c_str());
+   TFile file((tmpdir + "other_onlyDataFormatsFWLite.root").c_str());
    fwlite::Event events(&file);
    
    for(events.toBegin(); not events.atEnd(); ++events) {
@@ -288,7 +288,7 @@ void testRefInROOT::testMissingRef()
 
 void testRefInROOT::testMissingData()
 {
-  TFile file((tmpdir + "goodDataFormatsFWLite.root").c_str());
+   TFile file((tmpdir + "goodDataFormatsFWLite.root").c_str());
    fwlite::Event events(&file);
    
    for(events.toBegin(); not events.atEnd(); ++events) {
