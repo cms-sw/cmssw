@@ -178,8 +178,6 @@ def miniAOD_customizeCommon(process):
     
     process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
-    process.patJetsPuppi.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfosPuppi"))
-    process.patJetsPuppi.addTagInfos = cms.bool(True)
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
 
