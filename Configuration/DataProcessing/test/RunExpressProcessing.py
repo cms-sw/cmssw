@@ -18,11 +18,11 @@ class RunExpressProcessing:
 
     def __init__(self):
         self.scenario = None
-        self.writeRaw = False
-        self.writeReco = False
-        self.writeFevt = False
-        self.writeAlca = False
-        self.writeDqm = False
+        self.writeRAW = False
+        self.writeRECO = False
+        self.writeFEVT = False
+        self.writeDQM = False
+        self.writeDQMIO = False
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
@@ -51,39 +51,41 @@ class RunExpressProcessing:
         print "Using Global Tag: %s" % self.globalTag
 
         dataTiers = []
-        if self.writeRaw:
+        if self.writeRAW:
             dataTiers.append("RAW")
-            print "Configuring to Write out Raw..."
-        if self.writeReco:
+            print "Configuring to Write out RAW"
+        if self.writeRECO:
             dataTiers.append("RECO")
-            print "Configuring to Write out Reco..."
-        if self.writeFevt:
+            print "Configuring to Write out RECO"
+        if self.writeFEVT:
             dataTiers.append("FEVT")
-            print "Configuring to Write out Fevt..."
-        if self.writeAlca:
-            dataTiers.append("ALCARECO")
-            print "Configuring to Write out Alca..."
-        if self.writeDqm:
+            print "Configuring to Write out FEVT"
+        if self.writeDQM:
             dataTiers.append("DQM")
-            print "Configuring to Write out Dqm..."
+            print "Configuring to Write out DQM"
+        if self.writeDQMIO:
+            dataTiers.append("DQMIO")
+            print "Configuring to Write out DQMIO"
+        if self.alcaRecos:
+            dataTiers.append("ALCARECO")
+            print "Configuring to Write out ALCARECO"
+
 
         try:
             kwds = {}
 
             if self.noOutput:
-                # get config without any output
-                kwds['writeTiers'] = []
+                kwds['outputs'] = []
+            else:
+                outputs = []
+                for dataTier in dataTiers:
+                    outputs.append({ 'dataTier' : dataTier,
+                                     'eventContent' : dataTier,
+                                     'moduleLabel' : "write_%s" % dataTier })
+                kwds['outputs'] = outputs
 
-            elif len(dataTiers) > 0:
-                # get config with specified output
-                kwds['writeTiers'] = dataTiers
-
-            # if none of the above use default output data tiers
-
-
-            if not self.alcaRecos is None:
-                # if skims specified from command line than overwrite the defaults
-                kwds['skims'] = self.alcaRecos
+                if self.alcaRecos:
+                    kwds['skims'] = self.alcaRecos
 
 
             process = scenario.expressProcessing(self.globalTag, **kwds)
@@ -111,8 +113,8 @@ class RunExpressProcessing:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "raw", "reco", "fevt", "alca", "dqm", "no-output",
-             "global-tag=", "lfn=", 'alcaRecos=']
+    valid = ["scenario=", "raw", "reco", "fevt", "dqm", "dqmio", "no-output",
+             "global-tag=", "lfn=", 'alcarecos=']
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -122,15 +124,17 @@ Where options are:
  --raw (to enable RAW output)
  --reco (to enable RECO output)
  --fevt (to enable FEVT output)
- --alca (to enable ALCARECO output)
  --dqm (to enable DQM output)
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
- --alcaRecos=commasepratedlist
+ --alcarecos=plus_seprated_list
 
-Example:
-python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm
+Examples:
+
+python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
+
+python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
 
 """
     try:
@@ -147,22 +151,22 @@ python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --
         if opt == "--scenario":
             expressinator.scenario = arg
         if opt == "--raw":
-            expressinator.writeRaw = True
+            expressinator.writeRAW = True
         if opt == "--reco":
-            expressinator.writeReco = True
+            expressinator.writeRECO = True
         if opt == "--fevt":
-            expressinator.writeFevt = True
-        if opt == "--alca":
-            expressinator.writeAlca = True
+            expressinator.writeFEVT = True
         if opt == "--dqm":
-            expressinator.writeDqm = True
+            expressinator.writeDQM = True
+        if opt == "--dqmio":
+            expressinator.writeDQMIO = True
         if opt == "--no-output":
             expressinator.noOutput = True
         if opt == "--global-tag":
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
-        if opt == "--alcaRecos":
+        if opt == "--alcarecos":
             expressinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
 
     expressinator()
