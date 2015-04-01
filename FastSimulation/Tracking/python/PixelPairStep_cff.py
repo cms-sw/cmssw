@@ -5,7 +5,7 @@ import RecoTracker.IterativeTracking.PixelPairStep_cff
 import FastSimulation.Tracking.SimTrackIdProducer_cfi
 pixelPairStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
 #    tracjectories = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.trajectories,
-    trajectories = cms.InputTag("lowPtTripletStepTracks"),
+    trackCollection = cms.InputTag("lowPtTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.maxChi2,
     overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')

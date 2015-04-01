@@ -7,7 +7,7 @@ import RecoTracker.IterativeTracking.TobTecStep_cff
 import FastSimulation.Tracking.SimTrackIdProducer_cfi
 tobTecStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
 #    trajectories = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.trajectories,
-    trajectories = cms.InputTag("pixelLessStepTracks"),
+    trackCollection = cms.InputTag("pixelLessStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.maxChi2,
     overrideTrkQuals = cms.InputTag('pixelLessStep'),
@@ -26,8 +26,8 @@ tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
             cms.InputTag("pixelLessStepSimTrackIds"),
             cms.InputTag("tobTecStepSimTrackIds")],
         pTMin = 0.3,
-        maxD0 = 99.0,
-        maxZ0 = 99
+        maxD0 = -1,
+        maxZ0 = -1
     ),
     minLayersCrossed = 4,
     ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin,

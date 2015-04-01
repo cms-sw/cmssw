@@ -33,7 +33,7 @@ SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
   produces<std::vector<unsigned int> >();
 
   // Input Tag
-  edm::InputTag trackCollectionTag = conf.getParameter<edm::InputTag>("trajectories"); 
+  edm::InputTag trackCollectionTag = conf.getParameter<edm::InputTag>("trackCollection"); 
  
   maxChi2_ = conf.getParameter<double>("maxChi2");
 
