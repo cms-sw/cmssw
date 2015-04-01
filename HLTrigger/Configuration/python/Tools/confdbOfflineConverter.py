@@ -78,7 +78,9 @@ class OfflineConverter:
             sys.stderr.write("workDir = %s\n" % self.workDir)
 # Use non-blocking random # source /dev/urandom (instead of /dev/random), see:
 # http://blockdump.blogspot.fr/2012/07/connection-problems-inbound-connection.html
-        self.javaCmd = ( 'java', '-cp', ':'.join(self.workDir + '/' + jar for jar in self.jars),'-Djava.security.egd=file:///dev/urandom', 'confdb.converter.BrowserConverter' )
+# Also deal with timezone region not found
+# http://stackoverflow.com/questions/9156379/ora-01882-timezone-region-not-found
+        self.javaCmd = ( 'java', '-cp', ':'.join(self.workDir + '/' + jar for jar in self.jars),'-Djava.security.egd=file:///dev/urandom','-Doracle.jdbc.timezoneAsRegion=false','confdb.converter.BrowserConverter' )
 
 
     def query(self, *args):
