@@ -74,7 +74,7 @@ int main() {
 #pragma omp parallel 
   {
     reco::genericExpression<bool, int, int> const * acut = nullptr;
-    for (int i=0; i<1000; ++i) {
+    for (int i=0; i<200; ++i) {
       acut = reco_expressionEvaluator("CommonTools/Utils",SINGLE_ARG(reco::genericExpression<bool, int, int>),cut);
       (*acut)(2,7);
       std::cerr << j++ <<',';
