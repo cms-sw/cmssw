@@ -60,9 +60,9 @@ private:
 	std::vector<double> MaxErrorRates_; //the fractional error rate before a channel is called bad for a LS
 	int OfflineColdThreshold_;
 
-	const HcalQIEShape* shape_;
-	const HcalQIECoder* channelCoder_;
-	HcalCalibrations calibs_;
+//	const HcalQIEShape* shape_;
+//	const HcalQIECoder* channelCoder_;
+//	HcalCalibrations calibs_;
 	int ievt_;
 	//int zdc_checkNevents_;
 	MonitorElement* meEVT_;

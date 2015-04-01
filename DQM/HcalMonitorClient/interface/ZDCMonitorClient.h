@@ -121,7 +121,7 @@ private:
 	time_t last_time_html_;
 	time_t last_time_db_;
 
-	std::vector<HcalBaseDQClient*> clients_;  
+	std::vector<HcalBaseDQClient*> clients_;
 
 	DQMStore* dqmStore_;
 	HcalChannelQuality* chanquality_;

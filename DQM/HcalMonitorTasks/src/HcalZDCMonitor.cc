@@ -12,13 +12,14 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 
 	baseFolder_ = rootFolder_ + "ZDCMonitor_Hcal";
 
-	NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
-	ChannelWeighting_      = ps.getUntrackedParameter<std::vector<double>> ("ZDC_ChannelWeighting");
-	MaxErrorRates_         = ps.getUntrackedParameter<std::vector<double>> ("ZDC_AcceptableChannelErrorRates");
-	OfflineColdThreshold_  = ps.getUntrackedParameter<int>("ZDC_OfflineColdThreshold");
-	OfflineDeadThreshold_  = ps.getUntrackedParameter<int>("ZDC_OfflineDeadThreshold");
-	OnlineDeadThreshold_   = ps.getUntrackedParameter<int>("ZDC_OnlineDeadThreshold");
-	OnlineColdThreshold_   = ps.getUntrackedParameter<int>("ZDC_OnlineColdThreshold");
+	const edm::ParameterSet psZDC(ps.getParameter<edm::ParameterSet>("zdcMonitorTask"));
+	NLumiBlocks_           = psZDC.getUntrackedParameter<int>("NLumiBlocks",4000);
+	ChannelWeighting_      = psZDC.getUntrackedParameter<std::vector<double>> ("ZDC_ChannelWeighting");
+	MaxErrorRates_         = psZDC.getUntrackedParameter<std::vector<double>> ("ZDC_AcceptableChannelErrorRates");
+	OfflineColdThreshold_  = psZDC.getUntrackedParameter<int>("ZDC_OfflineColdThreshold");
+	OfflineDeadThreshold_  = psZDC.getUntrackedParameter<int>("ZDC_OfflineDeadThreshold");
+	OnlineDeadThreshold_   = psZDC.getUntrackedParameter<int>("ZDC_OnlineDeadThreshold");
+	OnlineColdThreshold_   = psZDC.getUntrackedParameter<int>("ZDC_OnlineColdThreshold");
 
 	for (int i=0;i<18;++i)
 	{
@@ -27,8 +28,6 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	}
 
 	EventCounter=0;
-
-
 
 	if (showTiming) {
 		cpu_timer.reset();
