@@ -54,6 +54,7 @@ function loadConfiguration() {
 function runCreateConfig() {
   loadConfiguration "$1"
   java \
+    -Djava.security.egd=file:///dev/urandom \
     -Xmx1024m \
     -classpath "$CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" \
     confdb.db.ConfDBCreateConfig \
