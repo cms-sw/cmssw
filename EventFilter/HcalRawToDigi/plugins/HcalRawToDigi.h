@@ -41,6 +41,7 @@ private:
   bool unpackCalib_, unpackZDC_, unpackTTP_;
   bool silent_,complainEmptyData_;
   int unpackerMode_,expectedOrbitMessageTime_;
+  std::string electronicsMapLabel_;
 
   struct Statistics {
     int max_hbhe, ave_hbhe;
