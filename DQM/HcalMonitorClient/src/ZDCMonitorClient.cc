@@ -252,8 +252,8 @@ void ZDCMonitorClient::endJob(void) {
 //--------------------------------------------------------
 //void ZDCMonitorClient::endRun(void){analyze();}
 
-void ZDCMonitorClient::setup(void){}
-void ZDCMonitorClient::cleanup(void){}
+//void ZDCMonitorClient::setup(void){}
+//void ZDCMonitorClient::cleanup(void){}
 
 void ZDCMonitorClient::analyze()
 {

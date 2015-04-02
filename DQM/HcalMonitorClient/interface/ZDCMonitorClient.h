@@ -29,9 +29,7 @@ public:
 	virtual ~ZDCMonitorClient();
 
 	/// Analyze
-	void analyze(void);
-	/* void analyze(int LS=-1); */
-	//  void analyze(const edm::Event& evt, const edm::EventSetup& es);
+	virtual void analyze(DQMStore::IBooker &, DQMStore::IGetter &) override; // fill new histograms
 
 	/// BeginJob
 	// void beginJob();
@@ -57,10 +55,10 @@ public:
 	void reset(void);
 
 	/// Setup
-	void setup(void) override;
+	// void setup(void) override;
 
 	/// Cleanup
-	void cleanup(void) override;
+	// void cleanup(void) override;
 
 	/// SoftReset
 	void softReset(bool flag);
@@ -118,7 +116,7 @@ private:
 
 //	std::vector<HcalBaseDQClient*> clients_;
 
-	DQMStore* dqmStore_;
+//	DQMStore* dqmStore_;
 //	HcalChannelQuality* chanquality_;
 
 //	HcalSummaryClient* summaryClient_;
