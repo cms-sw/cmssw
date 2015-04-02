@@ -60,12 +60,6 @@ operator()(const reco::PhotonPtr& cand) const{
   
   // Retrieve the variable value for this particle
   const float full5x5SigmaIEtaIEta = (*_full5x5SigmaIEtaIEtaMap)[cand];
-
-  printf("DEBUG: Sieie: pt= %f  eta= %f   see= %f   cut= %f   pass= %d\n",
-	 cand->pt(),
-	 cand->superCluster()->position().eta(),
-	 full5x5SigmaIEtaIEta, full5x5SigmaIEtaIEtaCutValue,
-	 (int)(full5x5SigmaIEtaIEta < full5x5SigmaIEtaIEtaCutValue));
   
   // Apply the cut and return the result
   return full5x5SigmaIEtaIEta < full5x5SigmaIEtaIEtaCutValue;
