@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include <memory>
 #include <string>
 
 class DQMStore;
@@ -22,6 +23,7 @@ class MonitorElement;
 class PSimHit;
 class PixelGeomDetUnit;
 class SiPixelRecHit;
+class TrackerHitAssociator;
 class TrackerTopology;
 
 class SiPixelRecHitsValid : public DQMEDAnalyzer {
@@ -113,7 +115,7 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	MonitorElement* recHitYPullDisk1Plaquettes[7];
 	MonitorElement* recHitYPullDisk2Plaquettes[7];
 
-        edm::ParameterSet conf_;
+        std::unique_ptr<TrackerHitAssociator> trackerHitAssociator_;
         edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
 };
 

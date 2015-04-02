@@ -43,6 +43,7 @@ class TFile;
 SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet& ps) : 
   dbe_(edm::Service<DQMStore>().operator->()),	
   conf_(ps),
+  trackerHitAssociator_(ps, consumesCollector()),
   m_cacheID_(0)
   // trajectoryInput_( ps.getParameter<edm::InputTag>("trajectoryInput") )
 {
@@ -466,7 +467,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
   DetId detid;
   uint32_t myid;
 
-  TrackerHitAssociator associate(e, conf_);
+  TrackerHitAssociator& associate = trackerHitAssociator_;
+  associate.processEvent(e);
   PSimHit closest;
 
   //Retrieve tracker topology from geometry
