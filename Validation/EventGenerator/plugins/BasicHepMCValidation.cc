@@ -98,14 +98,14 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
 	uMomentum = dqm.book1dHisto("uMomentum", "Log10(p) u", 60, -2, 4);
 	dMomentum = dqm.book1dHisto("dMomentum", "Log10(p) d", 60, -2, 4);
 	sMomentum = dqm.book1dHisto("sMomentum", "Log10(p) s", 60, -2, 4);
-    cMomentum = dqm.book1dHisto("cMomentum", "Log10(p) c", 60, -2, 4);
+	cMomentum = dqm.book1dHisto("cMomentum", "Log10(p) c", 60, -2, 4);
 	bMomentum = dqm.book1dHisto("bMomentum", "Log10(p) b", 60, -2, 4);
 	tMomentum = dqm.book1dHisto("tMomentum", "Log10(p) t", 60, -2, 4);
 	//
 	ubarMomentum = dqm.book1dHisto("ubarMomentum", "Log10(p) ubar", 60, -2, 4);
 	dbarMomentum = dqm.book1dHisto("dbarMomentum", "Log10(p) dbar", 60, -2, 4);
 	sbarMomentum = dqm.book1dHisto("sbarMomentum", "Log10(p) sbar", 60, -2, 4);
-    cbarMomentum = dqm.book1dHisto("cbarMomentum", "Log10(p) cbar", 60, -2, 4);
+	cbarMomentum = dqm.book1dHisto("cbarMomentum", "Log10(p) cbar", 60, -2, 4);
 	bbarMomentum = dqm.book1dHisto("bbarMomentum", "Log10(p) bbar", 60, -2, 4);
 	tbarMomentum = dqm.book1dHisto("tbarMomentum", "Log10(p) tbar", 60, -2, 4);
 	//
@@ -323,226 +323,226 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       if (abs(Id) < 6 || abs(Id) == 22){
         ++partonNum; partonpT->Fill(Log_p,weight);
       }
-
+      
       ///counting multiplicities and filling momentum distributions
       switch(abs(Id)){
-
+	
       case 1 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++dNum; dMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++dbarNum; dbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 2 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++uNum; uMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++ubarNum; ubarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 3 :  {
-		if(Id > 0) {
+	if(Id > 0) {
           ++sNum; sMomentum->Fill(Log_p,weight);}
-		else{
-          ++sbarNum; sbarMomentum->Fill(Log_p,weight);}
+	else{
+	  ++sbarNum; sbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 4 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++cNum; cMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++cbarNum; cbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 5 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++bNum; bMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++bbarNum; bbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 6 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++tNum; tMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++tbarNum; tbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 11 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++eminusNum; eminusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++eplusNum; eplusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 12 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++nueNum; nueMomentum->Fill(Log_p, weight);}
-		else{
+	else{
           ++nuebarNum; nuebarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 13 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++muminusNum; muminusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++muplusNum; muplusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 14 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++numuNum; numuMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++numubarNum; numubarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 15 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++tauminusNum; tauminusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++tauplusNum; tauplusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 16 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++nutauNum; nutauMomentum->Fill(Log_p,weight);}
-		else{
-          ++nutaubarNum; nutaubarMomentum->Fill(Log_p,weight);}
+	else{
+	  ++nutaubarNum; nutaubarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
-		//
+	break;
+	//
+	//
       case 21 : {
-		++gluNum; gluMomentum->Fill(Log_p,weight); 
+	++gluNum; gluMomentum->Fill(Log_p,weight); 
       }
-		break;
-		//
+	break;
+	//
       case 22 : {
-		++gammaNum; gammaMomentum->Fill(Log_p,weight);
+	++gammaNum; gammaMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
+	break;
+	//
       case 23 : {
-		++ZNum; ZMomentum->Fill(Log_p,weight);
+	++ZNum; ZMomentum->Fill(Log_p,weight);
       }
-		break;
+	break;
       case 24 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++WplusNum; WplusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++WminusNum; WminusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
-		//
+	break;
+	//
+	//
       case 211 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++piplusNum; piplusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++piminusNum; piminusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 111 : {
-		++pizeroNum; pizeroMomentum->Fill(Log_p,weight);
+	++pizeroNum; pizeroMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
+	break;
+	//
       case 321 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++KplusNum; KplusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++KminusNum; KminusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 130 : {
         ++KlzeroNum; KlzeroMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
+	break;
+	//
       case 310 : {
-		++KszeroNum; KszeroMomentum->Fill(Log_p,weight);
+	++KszeroNum; KszeroMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
-		//
+	break;
+	//
+	//
       case 2212 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++pNum; pMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++pbarNum; pbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 2112 : {
-		if(Id > 0) {
-          ++nNum; nMomentum->Fill(Log_p,weight);}
-		else{
-          ++nbarNum; nbarMomentum->Fill(Log_p,weight);}
+	if(Id > 0) {
+	  ++nNum; nMomentum->Fill(Log_p,weight);}
+	else{
+	  ++nbarNum; nbarMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
-		//
+	break;
+	//
+	//
       case 3122 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++l0Num; l0Momentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++l0barNum; l0barMomentum->Fill(Log_p,weight);}
       }
         break;
         //
         //
       case 411 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++DplusNum; DplusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++DminusNum; DminusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 421 : {
-		++DzeroNum; DzeroMomentum->Fill(Log_p,weight);
+	++DzeroNum; DzeroMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
+	break;
+	//
       case 521 : {
-		if(Id > 0) {
+	if(Id > 0) {
           ++BplusNum; BplusMomentum->Fill(Log_p,weight);}
-		else{
+	else{
           ++BminusNum; BminusMomentum->Fill(Log_p,weight);}
       }
-		break;
-		//
+	break;
+	//
       case 511 : {
         ++BzeroNum; BzeroMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
+	break;
+	//
       case 531 : {
-		++BszeroNum; BszeroMomentum->Fill(Log_p,weight);
+	++BszeroNum; BszeroMomentum->Fill(Log_p,weight);
       }
-		break;
-		//
+	break;
+	//
       default : {
-		++otherPtclNum; otherPtclMomentum->Fill(Log_p,weight);
+	++otherPtclNum; otherPtclMomentum->Fill(Log_p,weight);
       }
       }//switch
       //	if( 0 < Id && 100 > Id) ++part_counter[Id];
     }//event particles
-
+  
 
   // set a default sqrt(s) and then check in the event
   double ecms = 7000.;
