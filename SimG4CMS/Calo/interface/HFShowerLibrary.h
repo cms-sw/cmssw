@@ -46,7 +46,9 @@ public:
   void                initRun(G4ParticleTable * theParticleTable);
   std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
-
+  std::vector<Hit>    fillHits(G4ThreeVector & p, G4ThreeVector & v,
+                               int parCode, double parEnergy, bool & ok,
+                               double weight, double time, bool onlyLong=false);
 protected:
 
   bool                rInside(double r);
