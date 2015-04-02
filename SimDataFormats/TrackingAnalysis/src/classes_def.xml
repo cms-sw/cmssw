@@ -6,6 +6,8 @@
   <class name="std::vector<TrackingVertex>::iterator" />
   <class name="std::vector<TrackingVertex>::const_iterator" />
   <class name="edm::Wrapper<std::vector<TrackingVertex> >" />
+  <class name="TrackingVertexRef" />
+  <class name="TrackingVertexRefVector" />
   <class pattern="edm::Ref<std::vector<TrackingVertex>,*>" />
   <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
@@ -19,6 +21,8 @@
   <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />
   <class pattern="edm::RefVector<std::vector<TrackingParticle>,*>" />
   <class name="edm::RefProd<std::vector<TrackingParticle> >" />
+  <class name="TrackingParticleRef" />
+  <class name="TrackingParticleRefVector" />
 
   <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
   <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />

@@ -1,8 +1,8 @@
 #ifndef INCLUDE_ORA_RELATIONALSTREAMERFACTORY_H
 #define INCLUDE_ORA_RELATIONALSTREAMERFACTORY_H
 
-namespace Reflex {
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -22,15 +22,15 @@ namespace ora {
 
     ~RelationalStreamerFactory();
 
-    IRelationalWriter* newWriter(const Reflex::Type& dataType,MappingElement& dataMapping );
+    IRelationalWriter* newWriter(const edm::TypeWithDict& dataType,MappingElement& dataMapping );
 
-    IRelationalUpdater* newUpdater(const Reflex::Type& dataType,MappingElement& dataMapping );
+    IRelationalUpdater* newUpdater(const edm::TypeWithDict& dataType,MappingElement& dataMapping );
 
-    IRelationalReader* newReader(const Reflex::Type& dataType,MappingElement& dataMapping );
+    IRelationalReader* newReader(const edm::TypeWithDict& dataType,MappingElement& dataMapping );
 
     private:
 
-    IRelationalStreamer* newStreamer( const Reflex::Type& dataType,MappingElement& dataMapping );
+    IRelationalStreamer* newStreamer( const edm::TypeWithDict& dataType,MappingElement& dataMapping );
 
     private:
     ContainerSchema& m_containerSchema;

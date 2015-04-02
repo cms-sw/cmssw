@@ -92,34 +92,33 @@ namespace {
   InputDumper::dump(const TrackHitsCollection& tC, const TrackingParticleCollection& tPC) const {
     using namespace std;
     // reco::Track collection
-    edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")<<"\n"<<"reco::Track collection --- size = "<<tC.size();
- 
+    edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"reco::Track collection --- size = "<<tC.size();
  
     // TrackingParticle collection
-    edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")<<"\n"<<"TrackingParticle collection --- size = "<<tPC.size();
+    edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"TrackingParticle collection --- size = "<<tPC.size();
     int j = 0;
     for(TrackingParticleCollection::const_iterator ITER=tPC.begin(); ITER!=tPC.end(); ITER++, j++) {
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
         <<"TrackingParticle "<<j<<", q = "<<ITER->charge()<<", p = "<<ITER->p()
         <<", pT = "<<ITER->pt()<<", eta = "<<ITER->eta()<<", phi = "<<ITER->phi();
        
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
         <<"\t pdg code = "<<ITER->pdgId()<<", made of "<<ITER->numberOfHits()<<" PSimHit"
         <<" (in "<<ITER->numberOfTrackerLayers()<<" layers)"
         <<" from "<<ITER->g4Tracks().size()<<" SimTrack:";
       for (TrackingParticle::g4t_iterator g4T=ITER->g4Track_begin(); g4T!=ITER->g4Track_end(); g4T++) {
-        edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+        edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"\t\t Id:"<<g4T->trackId()<<"/Evt:("<<g4T->eventId().event()<<","<<g4T->eventId().bunchCrossing()<<")";
       }    
     }
  
     if (crossingframe) {
       std:: unique_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(simtracksXF_.product()) );
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")<<"\n"<<"CrossingFrame<SimTrack> collection with InputTag = "<<simtracksXFTag
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"CrossingFrame<SimTrack> collection with InputTag = "<<simtracksXFTag
                                               <<" has size = "<<SimTk->size();
       int k = 0;
       for (MixCollection<SimTrack>::MixItr ITER=SimTk->begin(); ITER!=SimTk->end(); ITER++, k++) {
-        edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+        edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimTrack "<<k
           <<" - Id:"<<ITER->trackId()<<"/Evt:("<<ITER->eventId().event()<<","<<ITER->eventId().bunchCrossing()<<")"
           <<" pdgId = "<<ITER->type()<<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
@@ -128,22 +127,22 @@ namespace {
       }
 
       std::unique_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(simvertsXF_.product()) );
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag
                                               <<" has size = "<<SimVtx->size();
       int kv = 0;
       for (MixCollection<SimVertex>::MixItr VITER=SimVtx->begin(); VITER!=SimVtx->end(); VITER++, kv++){
-        edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+        edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimVertex "<<kv
           << " : "<< *VITER <<endl;
       }
     }
     else {
       const edm::SimTrackContainer simTC = *(simtracks_.product());
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")<<"\n"<<"SimTrack collection with InputTag = "<<simtracksTag
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"SimTrack collection with InputTag = "<<simtracksTag
                                               <<" has size = "<<simTC.size()<<endl;
       int k = 0;
       for(edm::SimTrackContainer::const_iterator ITER=simTC.begin(); ITER!=simTC.end(); ITER++, k++){
-        edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+        edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimTrack "<<k
           <<" - Id:"<<ITER->trackId()<<"/Evt:("<<ITER->eventId().event()<<","<<ITER->eventId().bunchCrossing()<<")"
           <<" pdgId = "<<ITER->type()<<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
@@ -151,11 +150,11 @@ namespace {
           <<"\n * "<<*ITER <<endl;
       }
       const edm::SimVertexContainer simVC = *(simverts_.product());
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")<<"\n"<<"SimVertex collection with InputTag = "<<"g4SimHits"
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"SimVertex collection with InputTag = "<<"g4SimHits"
                                               <<" has size = "<<simVC.size()<<endl;
       int kv = 0;
       for (edm::SimVertexContainer::const_iterator VITER=simVC.begin(); VITER!=simVC.end(); VITER++, kv++){
-        edm::LogVerbatim("MuonToTrackingParticleAssociatorByHits")
+        edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimVertex "<<kv
           << " : "<< *VITER <<endl;
       }

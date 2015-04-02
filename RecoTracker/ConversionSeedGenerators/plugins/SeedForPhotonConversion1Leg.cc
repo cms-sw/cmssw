@@ -137,6 +137,8 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
     const FreeTrajectoryState & fts,
     const edm::EventSetup& es) const
 {
+  // FIXME all this stuff shoould go in an initialized...
+
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -146,24 +148,16 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
   const Propagator*  propagator = &(*propagatorHandle);
   
-   // get cloner (FIXME: add to config)
-  try { 
-    auto TTRHBuilder = "WithTrackAngle";
-    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-    cloner = (*builder).cloner();
-  } catch(...) {
-    auto TTRHBuilder = "hltESPTTRHBWithTrackAngle";
-    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-    cloner = (*builder).cloner();
-  }
+  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+  auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+  cloner = (*builder).cloner();
 
   // get updator
   KFUpdator  updator;
   
+
+
   // Now update initial state track using information from seed hits.
   
   TrajectoryStateOnSurface updatedState;

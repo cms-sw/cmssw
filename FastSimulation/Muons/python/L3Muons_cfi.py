@@ -23,7 +23,7 @@ def l3muons(old):
                                MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx")
                                )
     else:
-        import HLTrigger.Configuration.HLT_FULL_cff as trueHLT
+        from HLTrigger.Configuration.HLT_FULL_cff import fragment as trueHLT
         return trueHLT.hltL3Muons
 
 

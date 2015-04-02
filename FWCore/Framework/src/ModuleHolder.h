@@ -78,7 +78,7 @@ namespace edm {
       }
       
       std::unique_ptr<OutputModuleCommunicator>
-      createOutputModuleCommunicator() {
+      createOutputModuleCommunicator() override {
         return std::move(OutputModuleCommunicatorT<T>::createIfNeeded(m_mod.get()));
       }
     private:

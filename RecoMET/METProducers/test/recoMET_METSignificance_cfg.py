@@ -16,7 +16,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
        ### MINIAODSIM
-       '/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/MINIAODSIM/PU25ns_PRE_LS172_V15-v1/00000//A652D13A-335F-E411-90BA-02163E008D01.root'
+        '/store/relval/CMSSW_7_3_0/RelValZMM_13/MINIAODSIM/MCRUN2_73_V7-v1/00000/127CA68E-8981-E411-A524-002590593872.root',
+        '/store/relval/CMSSW_7_3_0/RelValZMM_13/MINIAODSIM/MCRUN2_73_V7-v1/00000/56FE228D-8981-E411-9AD8-0025905A6126.root'
        )
     )
 
@@ -34,7 +35,7 @@ process.out = cms.OutputModule(
 ##____________________________________________________________________________||
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.MessageLogger.cerr.FwkReport.reportEvery = 50
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 ##____________________________________________________________________________||
 process.p = cms.Path(

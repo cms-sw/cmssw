@@ -17,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -126,7 +125,6 @@ int main(int argc, char* argv[]) {
         std::cout << "exception caught in EdmFileUtil while configuring the PluginManager\n" << e.what();
         return 1;
       }
-      edm::RootAutoLibraryLoader::enable();
     }
 
     edm::InputFileCatalog catalog(in, catalogIn, true);

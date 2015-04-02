@@ -12,7 +12,7 @@ public:
   MyTestData():
     a( 0 ),
     b( 0. ),
-    s(""){
+    s(" "){
     for( size_t i=0;i<2;i++)
       for( size_t j=0;j<2;j++){
 	d[i][j]=0;

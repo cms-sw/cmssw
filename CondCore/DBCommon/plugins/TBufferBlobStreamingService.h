@@ -6,13 +6,15 @@
 #include <cstddef>
 //
 #include "CoralBase/Blob.h"
-#include "Reflex/Type.h"
+
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+
 #include "TClass.h"
 
 namespace cond {
   class TBufferBlobTypeInfo {
   public:
-    TBufferBlobTypeInfo( const Reflex::Type& type );
+    TBufferBlobTypeInfo( const edm::TypeWithDict& type );
 
     /// length of the plain C array (zero otherwise)
     std::size_t m_arraySize;
@@ -30,9 +32,9 @@ namespace cond {
     
     virtual ~TBufferBlobStreamingService();
 
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary, bool useCompression=false );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  edm::TypeWithDict const & classDictionary, bool useCompression=false );
 
-    void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary );
+    void read( const coral::Blob& blobData, void* addressOfContainer,  edm::TypeWithDict const & classDictionary );
 
   };
   

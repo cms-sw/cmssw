@@ -1,4 +1,7 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/SelectedElectronFEDListProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 /// Producer constructor
 template< typename TEle, typename TCand>
@@ -565,6 +568,35 @@ void SelectedElectronFEDListProducer<TEle,TCand>::pixelFedDump( std::vector<Pixe
   
  return ;
 }
+
+template< typename TEle, typename TCand>
+void SelectedElectronFEDListProducer<TEle,TCand>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<vector<edm::InputTag>>("electronTags",{edm::InputTag("hltEgammaGsfElectrons")});
+  desc.add<vector<edm::InputTag>>("recoEcalCandidateTags",{edm::InputTag("hltL1EG25Ele27WP85GsfTrackIsoFilter")});
+  desc.add<edm::FileInPath>("ESLookupTable",edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
+  desc.add<edm::InputTag>("HBHERecHitTag",edm::InputTag("hltHbhereco"));
+  desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag>("rawDataTag",edm::InputTag("rawDataCollector"));
+  desc.add<vector<int>>("addThisSelectedFEDs",{812,813});
+  desc.add<vector<int>>("isGsfElectronCollection",{true});
+  desc.add<std::string>("outputLabelModule","StreamElectronRawFed");    
+  desc.add<bool>("dumpSelectedSiPixelFed",true);
+  desc.add<bool>("dumpSelectedSiStripFed",true);
+  desc.add<bool>("dumpSelectedEcalFed",true);
+  desc.add<bool>("dumpSelectedHCALFed",true);
+  desc.add<double>("dPhiPixelRegion",0.3);
+  desc.add<double>("dEtaPixelRegion",0.3);
+  desc.add<double>("dRStripRegion",0.3);
+  desc.add<double>("dRHcalRegion",0.3);
+  desc.add<double>("maxZPixelRegion",24);
+  desc.add<bool>("dumpAllTrackerFed",false);
+  desc.add<bool>("dumpAllEcalFed",false);
+  desc.add<bool>("dumpAllHcalFed",false);
+
+  descriptions.add(defaultModuleLabel<SelectedElectronFEDListProducer<TEle,TCand>>(),desc);
+}
+
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

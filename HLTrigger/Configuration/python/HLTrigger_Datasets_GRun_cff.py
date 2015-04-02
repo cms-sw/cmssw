@@ -5,19 +5,37 @@ import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table as Stream A Datasets
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHCalNZS_selector
+streamA_datasetHCalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHCalNZS_selector.l1tResults = cms.InputTag('')
+streamA_datasetHCalNZS_selector.throw      = cms.bool(False)
+streamA_datasetHCalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v1', 
+    'HLT_HcalPhiSym_v1', 
+    'HLT_HcalUTCA_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
+streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
+streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_GlobalRunHPDNoise_v1', 
+    'HLT_L1Tech_HBHEHO_totalOR_v1', 
+    'HLT_L1Tech_HCAL_HF_single_channel_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetInitialPD_selector
 streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetInitialPD_selector.l1tResults = cms.InputTag('')
 streamA_datasetInitialPD_selector.throw      = cms.bool(False)
-streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p3_v1', 
+streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p41_v1', 
     'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1', 
-    'HLT_AK8PFJet360TrimMod_Mass30_v1', 
+    'HLT_AK8PFJet360_TrimMass30_v1', 
+    'HLT_Activity_Ecal_SC7_v1', 
     'HLT_BTagMu_DiJet110_Mu5_v1', 
     'HLT_BTagMu_DiJet20_Mu5_v1', 
     'HLT_BTagMu_DiJet40_Mu5_v1', 
     'HLT_BTagMu_DiJet70_Mu5_v1', 
     'HLT_BTagMu_Jet300_Mu5_v1', 
     'HLT_CaloJet500_NoJetID_v1', 
+    'HLT_CaloMET200_NoiseCleaned_v1', 
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v1', 
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v1', 
     'HLT_DiCentralPFJet70_PFMET120_NoiseCleaned_v1', 
@@ -44,12 +62,12 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Dimuon6_Jpsi_NoVertexing_v1', 
     'HLT_Dimuon8_PsiPrime_Barrel_v1', 
     'HLT_Dimuon8_Upsilon_Barrel_v1', 
-    'HLT_Diphoton28_14_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P5_R9Id50b80e_Mass50_Eta_1p5_v1', 
+    'HLT_Diphoton28_14_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Mass50_Eta_1p5_v1', 
     'HLT_Diphoton30_18_R9Id85_AND_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_DoublePV_v1', 
     'HLT_Diphoton30_18_R9Id85_AND_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_PV_v1', 
     'HLT_Diphoton30_18_R9Id85_AND_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Solid_Mass30_v1', 
-    'HLT_Diphoton34_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P1_R9Id50b80e_Mass95_v1', 
-    'HLT_Diphoton36_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P5_R9Id50b80e_Mass70_v1', 
+    'HLT_Diphoton30_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Mass95_v1', 
+    'HLT_Diphoton30_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_PixelSeed_Mass70_v1', 
     'HLT_Diphoton44_28_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P1_R9Id50b80e_v1', 
     'HLT_DoubleEle24_22_eta2p1_WP75_Gsf_v1', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v1', 
@@ -90,9 +108,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v1', 
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v1', 
-    'HLT_Ele23_WP75_Gsf_v1', 
     'HLT_Ele25WP60_SC4_Mass55_v1', 
-    'HLT_Ele25_eta2p1_WP85_Gsf_PFMET80_boostedW_v1', 
     'HLT_Ele27_WP85_Gsf_v1', 
     'HLT_Ele27_eta2p1_WP75_Gsf_CentralPFJet30_BTagCSV07_v1', 
     'HLT_Ele27_eta2p1_WP75_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1', 
@@ -108,8 +124,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Ele32_eta2p1_WP75_Gsf_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele32_eta2p1_WP75_Gsf_v1', 
     'HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v1', 
-    'HLT_Ele35_eta2p1_WP85_Gsf_v1', 
-    'HLT_Ele40_eta2p1_WP85_Gsf_v1', 
     'HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v1', 
     'HLT_HT200_v1', 
     'HLT_HT250_v1', 
@@ -148,6 +162,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_JetE30_NoBPTX_v1', 
     'HLT_JetE50_NoBPTX3BX_NoHalo_v1', 
     'HLT_JetE70_NoBPTX3BX_NoHalo_v1', 
+    'HLT_L1SingleEG5_OR_EG10_OR_EG20_v1', 
     'HLT_L1SingleMuOpen_DT_v1', 
     'HLT_L1SingleMuOpen_v1', 
     'HLT_L1Tech_DT_GlobalOR_v1', 
@@ -164,9 +179,8 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_v1', 
     'HLT_MET75_IsoTrk50_v1', 
     'HLT_MET90_IsoTrk50_v1', 
-    'HLT_MonoCentralPFJet140_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned_v1', 
-    'HLT_MonoCentralPFJet140_PFMETNoMu140_PFMHTNoMu140_NoiseCleaned_v1', 
-    'HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned_v1', 
+    'HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v1', 
+    'HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v1', 
     'HLT_Mu10_CentralPFJet30_BTagCSV0p5PF_v1', 
     'HLT_Mu12_Photon25_CaloIdL_L1ISO_v1', 
     'HLT_Mu12_Photon25_CaloIdL_L1OR_v1', 
@@ -257,6 +271,8 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_PFMET120_PFMHT120_IDLoose_v1', 
     'HLT_PFMET170_NoiseCleaned_v1', 
     'HLT_PFMET90_PFMHT90_IDLoose_v1', 
+    'HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v1', 
+    'HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v1', 
     'HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_v1', 
     'HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_v1', 
     'HLT_Photon120_R9Id90_HE10_IsoM_v1', 
@@ -312,6 +328,8 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_TkMu24_eta2p1_v1', 
     'HLT_TkMu27_v1', 
     'HLT_TripleMu_12_10_5_v1', 
+    'HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v1', 
+    'HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v1', 
     'HLT_VBF_DisplacedJet40_DisplacedTrack_v1', 
     'HLT_VBF_DisplacedJet40_Hadronic_v1', 
     'HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v1', 

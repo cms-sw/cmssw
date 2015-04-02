@@ -79,6 +79,7 @@ namespace edm
     // gen::ExternalDecayDriver* decayer_;
     Decayer* decayer_;
     HepMCFilterDriver *filter_;
+    InputTag runInfoProductTag_;
     EDGetTokenT<LHERunInfoProduct> runInfoProductToken_;
     EDGetTokenT<LHEEventProduct> eventProductToken_;
     unsigned int counterRunInfoProducts_;
@@ -95,6 +96,7 @@ namespace edm
     hadronizer_(ps),
     decayer_(0),
     filter_(0),
+    runInfoProductTag_(),
     runInfoProductToken_(),
     eventProductToken_(),
     counterRunInfoProducts_(0),
@@ -106,6 +108,7 @@ namespace edm
           iBD.branchType() == InRun) {
         ++(this->counterRunInfoProducts_);
         this->eventProductToken_ = consumes<LHEEventProduct>(InputTag((iBD.moduleLabel()=="externalLHEProducer") ? "externalLHEProducer" : "source"));
+        this->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
         this->runInfoProductToken_ = consumes<LHERunInfoProduct,InRun>(InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
       }
     });
@@ -294,7 +297,10 @@ namespace edm
         << "No LHERunInfoProduct present";
 
     edm::Handle<LHERunInfoProduct> lheRunInfoProduct;
-    run.getByToken(runInfoProductToken_, lheRunInfoProduct);
+    run.getByLabel(runInfoProductTag_, lheRunInfoProduct);
+    //TODO: fix so that this actually works with getByToken commented below...
+    //run.getByToken(runInfoProductToken_, lheRunInfoProduct);
+    
     hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*lheRunInfoProduct) );
     lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
     lheRunInfo->initLumi();

@@ -1,5 +1,5 @@
-OperatingPoint, measurementType, sysType, jetFlavor, etaMin, etaMax, ptMin, ptMax, discrMin, discrMax, formula
-0, comb, central, 0, 0, 1, 20, 100, 0, 1, "2*x"
+testTagger;OperatingPoint, measurementType, sysType, jetFlavor, etaMin, etaMax, ptMin, ptMax, discrMin, discrMax, formula
+0, comb, Central, 0, 0, 1, 20, 100, 0, 1, "2*x"
 0, comb, central, 0, 0, 1, 100, 1000, 0, 1, 2*x
 0, comb, central, 0, 1, 2.4, 20, 100, 0, 1, "-2*x"
 0, comb, central, 0, 1, 2.4, 100, 1000, 0, 1, "-2*x"

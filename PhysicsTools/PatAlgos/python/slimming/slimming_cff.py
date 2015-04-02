@@ -24,9 +24,17 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedMuons*_*_*',
         'keep *_slimmedTaus*_*_*',
-        'keep *_slimmedJets*_*_*',
+        'keep *_slimmedJets_*_*',
+        'keep *_slimmedJetsAK8_*_*',
+        'keep *_slimmedJetsPuppi_*_*',
         'keep *_slimmedMETs*_*_*',
         'keep *_slimmedSecondaryVertices*_*_*',
+        'keep *_cmsTopTaggerMap_*_*',
+        #'keep *_slimmedJetsAK8PFCHSSoftDropSubjets_*_*',
+        #'keep *_slimmedJetsCMSTopTagCHSSubjets_*_*',
+        'keep *_slimmedJetsAK8PFCHSSoftDropPacked_SubJets_*',
+        'keep *_slimmedJetsCMSTopTagCHSPacked_SubJets_*',
+        #'keep *_packedPatJetsAK8_*_*',
         ## add extra METs
 
         'keep recoPhotonCores_reducedEgamma_*_*',
@@ -53,7 +61,7 @@ MicroEventContent = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_PAT', # for MET filters
-	'keep patPackedCandidates_lostTracks_*_*',
+        'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
         'keep *_caTopTagInfosPAT_*_*'
     )
@@ -62,7 +70,7 @@ MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
 MicroEventContentMC.outputCommands += [
-        'keep *_slimmedGenJets_*_*',
+        'keep *_slimmedGenJets*_*_*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',

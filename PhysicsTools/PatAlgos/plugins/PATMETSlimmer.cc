@@ -46,41 +46,50 @@ pat::PATMETSlimmer::PATMETSlimmer(const edm::ParameterSet & iConfig) :
     maybeReadShifts( iConfig, "rawUncertainties", pat::MET::Raw );
     maybeReadShifts( iConfig, "type1Uncertainties", pat::MET::Type1 );
     maybeReadShifts( iConfig, "type1p2Uncertainties", pat::MET::Type1p2 );
+    maybeReadShifts( iConfig, "caloMET", pat::MET::Calo );
     produces<std::vector<pat::MET> >();
 }
 
 void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METUncertaintyLevel level) {
     if (basePSet.existsAs<edm::ParameterSet>(name)) {
         throw cms::Exception("Unsupported", "Reading PSets not supported, for now just use input tag");
-    } else if (basePSet.existsAs<edm::InputTag>(name)) {
+    } else if (basePSet.existsAs<edm::InputTag>(name) ) {
         const edm::InputTag & baseTag = basePSet.getParameter<edm::InputTag>(name);
-        shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::JetEnUp,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::JetResUp,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::MuonEnUp,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::ElectronEnUp,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::TauEnUp,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnUp,   level, baseTag, consumesCollector()));
-        shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnDown, level, baseTag, consumesCollector()));
+        const std::string &encoded = baseTag.encode();
+	if( encoded.find("%s") != std::string::npos ) {
+	  shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::JetEnUp,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::JetResUp,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::MuonEnUp,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnUp,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::TauEnUp,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnUp,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnDown, level, baseTag, consumesCollector()));
+	}
+	else {
+	  shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
+	}
     }
+    
 }
 
 pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METUncertaintyLevel level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc) :
     shift(shift_), level(level_)
 {
     std::string baseTagStr = baseTag.encode();
+    bool isSmeared=baseTagStr.find("Smeared")!=(size_t)-1; //temporary 74X fix for handling the JER uncertainties
     char buff[1024];
     switch (shift) {
-        case pat::MET::NoShift  : snprintf(buff, 1023, baseTagStr.c_str(), "OriginalReserved");   break;
+        case pat::MET::NoShift  : snprintf(buff, 1023, baseTagStr.c_str(), "");   break;
         case pat::MET::JetEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetEnUp");   break;
         case pat::MET::JetEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetEnDown"); break;
-        case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetResUp");   break;
-        case pat::MET::JetResDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetResDown"); break;
+        case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), isSmeared?"JetResUp":"");   break;
+        case pat::MET::JetResDown: snprintf(buff, 1023, baseTagStr.c_str(), isSmeared?"JetResDown":""); break;
         case pat::MET::MuonEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnUp");   break;
         case pat::MET::MuonEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnDown"); break;
         case pat::MET::ElectronEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "ElectronEnUp");   break;

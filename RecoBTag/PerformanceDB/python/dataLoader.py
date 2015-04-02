@@ -1,7 +1,16 @@
 import itertools
 import ROOT
-ROOT.gSystem.Load('libCondFormatsBTagObjects')
+try:
+    ROOT.BTagEntry
+except AttributeError:
+    ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cc+')
 
+try:
+    ROOT.BTagEntry
+except AttributeError:
+    print 'ROOT.BTagEntry is needed! Please copy ' \
+          'BTagCalibrationStandalone.[h|cc] to the working directory. Exit.'
+    exit(-1)
 
 separate_by_op   = False
 separate_by_flav = False
@@ -34,20 +43,34 @@ class DataLoader(object):
         if not ens:
             return
 
-        self.ETA_MIN = -2.4
-        self.ETA_MAX = 2.4
-        self.PT_MIN = min(e.params.ptMin for e in ens)
-        self.PT_MAX = max(e.params.ptMax for e in ens)
-        self.DISCR_MIN = min(e.params.discrMin for e in ens)
-        self.DISCR_MAX = max(e.params.discrMax for e in ens)
-
-        # sets of fixed data
+        # fixed data
         self.ops = set(e.params.operatingPoint for e in ens)
         self.flavs = set(e.params.jetFlavor for e in ens)
         self.syss = set(e.params.sysType for e in ens)
         self.etas = set((e.params.etaMin, e.params.etaMax) for e in ens)
         self.pts = set((e.params.ptMin, e.params.ptMax) for e in ens)
-        self.discrs = set((e.params.discrMin, e.params.discrMax) for e in ens)
+        self.discrs = set((e.params.discrMin, e.params.discrMax)
+                          for e in ens
+                          if e.params.operatingPoint == 3)
+
+        self.ETA_MIN = -2.4
+        self.ETA_MAX = 2.4
+        self.PT_MIN = min(e.params.ptMin for e in ens)
+        self.PT_MAX = max(e.params.ptMax for e in ens)
+        if any(e.params.operatingPoint == 3 for e in ens):
+            self.DISCR_MIN = min(
+                e.params.discrMin
+                for e in ens
+                if e.params.operatingPoint == 3
+            )
+            self.DISCR_MAX = max(
+                e.params.discrMax
+                for e in ens
+                if e.params.operatingPoint == 3
+            )
+        else:
+            self.DISCR_MIN = 0.
+            self.DISCR_MAX = 1.
 
         # test points for variable data (using bound +- epsilon)
         eps = 1e-4

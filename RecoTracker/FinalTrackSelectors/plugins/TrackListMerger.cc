@@ -26,6 +26,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "trackAlgoPriorityOrder.h"
+
 class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
   {
   public:
@@ -559,7 +561,7 @@ TrackListMerger::~TrackListMerger() { }
 	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) ==
 		  (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
 		//same quality, pick earlier algo
-		if (algo[k1] <= algo[k2]) {
+		if (trackAlgoPriorityOrder[algo[k1]] <= trackAlgoPriorityOrder[algo[k2]]) {
 		  selected[j]=0;
 		  selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 		  trkUpdated[i]=true;

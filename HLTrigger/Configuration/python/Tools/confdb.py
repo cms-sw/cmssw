@@ -46,7 +46,6 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
 
     # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-
     "HLT_DoubleMu33NoFiltersNoVtx_v*",
     "HLT_DoubleMu38NoFiltersNoVtx_v*",
     "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
@@ -64,8 +63,9 @@ class HLTProcess(object):
     "HLT_HT550_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
     "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*"
-
+    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
+    "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
+    "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
   )
 
   def __init__(self, configuration):
@@ -87,8 +87,8 @@ class HLTProcess(object):
 
     self.labels = {}
     if self.config.fragment:
-      self.labels['process'] = ''
-      self.labels['dict']    = 'locals()'
+      self.labels['process'] = 'fragment.'
+      self.labels['dict']    = 'fragment.__dict__'
     else:
       self.labels['process'] = 'process.'
       self.labels['dict']    = 'process.__dict__'
@@ -116,8 +116,6 @@ class HLTProcess(object):
     else:
       args = ['--configName', self.config.menu.name ]
     args.append('--noedsources')
-    if self.config.fragment:
-      args.append('--cff')
     for key, vals in self.options.iteritems():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
@@ -201,28 +199,20 @@ class HLTProcess(object):
 
   # dump the final configuration
   def dump(self):
-    return self.data % self.labels
+    self.data = self.data % self.labels
+    if self.config.fragment:
+      self.data = re.sub( r'\bprocess\b', 'fragment', self.data )
+      self.data = re.sub( r'\bProcess\b', 'ProcessFragment', self.data )
+    return self.data
 
 
   # add release-specific customizations
   def releaseSpecificCustomize(self):
-    # version specific customizations
+    # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customize()
     self.data += """
-
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
-
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopology' in %(dict)s:
-        %(process)strackerTopology = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in %(dict)s:
-        del %(process)sTrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+# add release-specific customizations
+from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+process = customise(process)
 """
 
   # customize the configuration according to the options
@@ -278,7 +268,6 @@ if cmsswVersion >= "CMSSW_7_5":
     self.releaseSpecificCustomize()
 
     if self.config.fragment:
-
       self.data += """
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
@@ -297,10 +286,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
         if self.config.type in ('50nsGRun',) :
           self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
-# move to the 50ns v0 L1 menu once the 50ns HLT has been updated accordingly
-# from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v0 as loadL1Menu
-# until then use the 25ns L1 menu
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
 process = loadL1Menu(process)
 """
         elif self.config.type in ('HIon',) :
@@ -414,14 +400,14 @@ process = customizeHLTforMC(process)
 
   def fixForFastSim(self):
     if self.config.fastsim:
-      # adapt the hle configuration (fragment) to run under fastsim
-      self.data = re.sub( r'import FWCore.ParameterSet.Config as cms', r'\g<0>\nfrom FastSimulation.HighLevelTrigger.HLTSetup_cff import *', self.data)
+      # adapt the the configuration fragment to run under fastsim
+      self.data = re.compile( r'process = cms\.Process.*$', re.MULTILINE ).sub( r'\g<0>\n\nprocess.load( "FastSimulation.HighLevelTrigger.HLTSetup_cff" )', self.data)
 
       # remove the definition of streams and datasets
-      self.data = re.compile( r'^streams.*\n(.*\n)*?^\)\s*\n',  re.MULTILINE ).sub( '', self.data )
-      self.data = re.compile( r'^datasets.*\n(.*\n)*?^\)\s*\n', re.MULTILINE ).sub( '', self.data )
+      self.data = re.compile( r'^process\.streams.*\n(.*\n)*?^\)\s*\n',  re.MULTILINE ).sub( '', self.data )
+      self.data = re.compile( r'^process\.datasets.*\n(.*\n)*?^\)\s*\n', re.MULTILINE ).sub( '', self.data )
 
-      # fix the definition of module
+      # fix the definition of some modules
       # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
       self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
@@ -442,11 +428,11 @@ process = customizeHLTforMC(process)
       self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters', replace = 'MeasurementTrackerEvent')
 
       # fix the definition of sequences and paths
-      self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
-      self.data = re.sub( r'hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
-      self.data = re.sub( r'hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
-      self.data = re.sub( r'HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
-      self.data = re.sub( r'hltGtDigis',      r'HLTBeginSequence',                              self.data )
+      self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
+      self.data = re.sub( r'process.hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
+      self.data = re.sub( r'process.hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
+      self.data = re.sub( r'process.HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
+      self.data = re.sub( r'hltGtDigis',              r'HLTBeginSequence',                              self.data )
 
 
   def fixPrescales(self):
