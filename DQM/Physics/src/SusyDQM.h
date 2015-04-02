@@ -49,6 +49,12 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
+//GEN includes
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+
 //PAT includes
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -81,16 +87,17 @@ class SusyDQM : public DQMEDAnalyzer {
 
     private:
         void bookHistograms(DQMStore::IBooker& booker, edm::Run const&, edm::EventSetup const&) override;
-        virtual bool goodSusyElectron(const Ele*);
-        virtual bool goodSusyMuon(const Mu*);
-        virtual bool goodSusyPhoton(const edm::Event& evt, const Pho*);
-        virtual bool goodSusyJet(const Jet*);
+        virtual bool goodElectron(const Ele*);
+        virtual bool goodMuon(const Mu*);
+        virtual bool goodPhoton(const edm::Event& evt, const Pho*);
+        virtual bool goodJet(const Jet*);
 
         std::vector<math::XYZTLorentzVector> createHemispheresRazor(std::vector<math::XYZTLorentzVector> jets);
         double calcDeltaHT(std::vector<math::XYZTLorentzVector> jets);
         double calcMR(TLorentzVector ja, TLorentzVector jb);
         double calcRsq(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<std::vector<Met> > inputMet);
         double calcMT2(float testMass, bool massive, vector<TLorentzVector> jets, TLorentzVector MET, int hemi_seed, int hemi_association);
+        const reco::GenParticle* findFirstMotherWithDifferentID(const reco::GenParticle*);
 
         //Objects from config
         edm::EDGetTokenT<std::vector<Mu> > muons_;
@@ -103,6 +110,9 @@ class SusyDQM : public DQMEDAnalyzer {
         edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
         edm::EDGetTokenT<double> fixedGridRhoFastjetAll_;
         edm::EDGetTokenT<reco::JetTagCollection> jetTagCollection_;
+        edm::EDGetTokenT<edm::View<reco::GenParticle> > genParticles_;
+        edm::EDGetTokenT<reco::GenJetCollection> genJets_;
+        edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetFlavorMatch_;
 
         edm::Handle<std::vector<Mu> > muons;
         edm::Handle<std::vector<Ele> > electrons;
@@ -114,6 +124,9 @@ class SusyDQM : public DQMEDAnalyzer {
         edm::Handle<reco::BeamSpot> beamSpot;
         edm::Handle<double> fixedGridRhoFastjetAll;
         edm::Handle<reco::JetTagCollection> jetTagCollection;
+        edm::Handle<edm::View<reco::GenParticle> > genParticles;
+        edm::Handle<reco::GenJetCollection> genJets;
+        edm::Handle<reco::JetFlavourMatchingCollection> jetFlavorMatch;
 
         //Lorentz vectors for selected physics objects
         vector<const Mu*> goodMuons;
@@ -166,10 +179,12 @@ class SusyDQM : public DQMEDAnalyzer {
         double phoNeuHadIsoSlopeEndcap;
         double phoPhotIsoCutEndcap;
         double phoPhotIsoSlopeEndcap;
+
+        bool useGen;
         
         //DQM Histograms
 
-        //Leptonica -- histograms EXCLUSIVE in lepton number
+        //Leptonic -- histograms EXCLUSIVE in lepton number
         MonitorElement* leadingElePt_HT250; 
         MonitorElement* leadingEleEta_HT250; 
         MonitorElement* leadingElePhi_HT250; 
@@ -180,6 +195,11 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* HT_singleLepton60; 
         MonitorElement* missingEt_singleLepton60; 
         MonitorElement* nJets_singleLepton60; 
+
+        MonitorElement* muonEfficiencyVsPt_denominator;
+        MonitorElement* muonEfficiencyVsPt_numerator;
+        MonitorElement* electronEfficiencyVsPt_denominator;
+        MonitorElement* electronEfficiencyVsPt_numerator;
 
         MonitorElement* osDiMuonMass; 
         MonitorElement* osDiElectronMass; 
@@ -230,6 +250,8 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* fractionOfGoodJetsVsPhi_numerator;
         MonitorElement* fractionOfGoodJetsVsEta_denominator;
         MonitorElement* fractionOfGoodJetsVsPhi_denominator;
+        MonitorElement* csvV2MediumEfficiencyVsPt_numerator;
+        MonitorElement* csvV2MediumEfficiencyVsPt_denominator;
 };
 
 //constructor
@@ -256,6 +278,9 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
     fixedGridRhoFastjetAll_ = consumes<double>(
             pset.getParameter<edm::InputTag>("fixedGridRhoFastjetAll"));
     jetTagCollection_ = consumes<reco::JetTagCollection>(pset.getParameter<edm::InputTag>("jetTagCollection"));
+    genParticles_ = consumes<edm::View<reco::GenParticle> >(pset.getParameter<edm::InputTag>("genParticles"));
+    genJets_ = consumes<reco::GenJetCollection>(pset.getParameter<edm::InputTag>("genJets"));
+    jetFlavorMatch_ = consumes<reco::JetFlavourMatchingCollection>(pset.getParameter<edm::InputTag>("jetFlavourAssociation"));
 
     jetPtCut = pset.getParameter<double>("jetPtCut");
     jetEtaCut = pset.getParameter<double>("jetEtaCut");
@@ -302,6 +327,7 @@ SusyDQM<Mu, Ele, Pho, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
     phoPhotIsoCutEndcap = pset.getParameter<double>("phoPhotIsoCutEndcap");
     phoPhotIsoSlopeEndcap = pset.getParameter<double>("phoPhotIsoSlopeEndcap");
 
+    useGen = pset.getParameter<bool>("useGen");
 }
 
 //destructor
@@ -327,6 +353,11 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     HT_singleLepton60 = booker.book1D("HT_singleLepton60", "HT, single lepton with p_{T} > 60 (GeV); HT (GeV)", 50, 0., 4000);
     missingEt_singleLepton60 = booker.book1D("missingEt_singleLepton60", "MET, single lepton with p_{T} > 60 (GeV); MET (GeV)", 50, 0., 2000);
     nJets_singleLepton60 = booker.book1D("nJets_singleLepton60", "n_{jets} p_{T} > 40 GeV , single lepton with p_{T} > 60; n_{jets}", 20, 0, 20);
+
+    muonEfficiencyVsPt_numerator = booker.book1D("muonEfficiencyVsPt_numerator", "Loose muon ID efficiency vs p_{T};gen muon p_{T}", 20, 10, 1000); 
+    muonEfficiencyVsPt_denominator = booker.book1D("muonEfficiencyVsPt_denominator", "Loose muon ID efficiency vs p_{T}; gen muon p_{T}", 20, 10, 1000); 
+    electronEfficiencyVsPt_numerator = booker.book1D("electronEfficiencyVsPt_numerator", "Loose electron ID efficiency vs p_{T}; gen electron p_{T}", 20, 10, 1000); 
+    electronEfficiencyVsPt_denominator = booker.book1D("electronEfficiencyVsPt_denominator", "Loose electron ID efficiency vs p_{T}; gen electron p_{T}", 20, 10, 1000); 
 
     booker.setCurrentFolder("Physics/Susy/DiLepton");
     osDiMuonMass = booker.book1D("osDiMuonMass", "OS di-muon mass (GeV); mass (GeV)", 50, 0., 500);
@@ -383,13 +414,15 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     fractionOfGoodJetsVsEta_denominator = booker.book1D("fractionOfGoodJetsVsEta_denominator", "Fraction of jets passing loose ID; #eta", 20, -3.0, 3.0);
     fractionOfGoodJetsVsPhi_numerator = booker.book1D("fractionOfGoodJetsVsPhi_numerator", "Fraction of jets passing loose ID; #phi", 20, -3.0, 3.0);
     fractionOfGoodJetsVsPhi_denominator = booker.book1D("fractionOfGoodJetsVsPhi_denominator", "Fraction of jets passing loose ID; #phi", 20, -3.0, 3.0);
+    csvV2MediumEfficiencyVsPt_numerator = booker.book1D("csvV2MediumEfficiencyVsPt_numerator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 2000);
+    csvV2MediumEfficiencyVsPt_denominator = booker.book1D("csvV2MediumEfficiencyVsPt_denominator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 2000);
 
     booker.cd();
 }
 
 //muon ID: loose PF ID + loose isolation requirement
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
-bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyMuon(const Mu* mu) {
+bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodMuon(const Mu* mu) {
     //baseline kinematic cuts
     if(!muon::isLooseMuon(*mu)) return false;
     if(mu->pt() < muPtCut) return false;
@@ -405,7 +438,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyMuon(const Mu* mu) {
 
 //electron ID: loose cut-based ID
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
-bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyElectron(const Ele* ele) {
+bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
     //baseline cuts
     if(ele->pt() < elePtCut) return false;
     if(fabs(ele->superCluster()->eta()) > eleEtaCut) return false;
@@ -480,7 +513,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyElectron(const Ele* ele) {
 //loose cut-based photon ID
 //NOTE: the isolation values are not quite correct due to an issue with footprint removal!  The ID will not work quite as advertised, but it is a reasonable temporary solution.
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
-bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyPhoton(const edm::Event& evt, const Pho* pho) {
+bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodPhoton(const edm::Event& evt, const Pho* pho) {
 
     //baseline kinematic cuts
     if(pho->pt() < phoPtCut) return false;
@@ -561,7 +594,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyPhoton(const edm::Event& evt, cons
 //No PU ID is currently applied
 //TODO: add jet energy corrections
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
-bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodSusyJet(const Jet* jet) {
+bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodJet(const Jet* jet) {
     if(jet->pt() < jetPtCut) return false;
     if(fabs(jet->eta()) > jetEtaCut) return false;
     //apply loose jet quality cuts
@@ -639,6 +672,21 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::setupEvent(const edm::Event& evt){
         edm::LogError("SusyDQM") << "Error: jetTagCollection not found!\n";
         return false;
     }
+    //gen particles
+    if(useGen){
+        if(!(evt.getByToken(genParticles_, genParticles))){
+            edm::LogError("SusyDQM") << "Error: genParticles not found!\n";
+            return false;
+        }
+        if(!(evt.getByToken(genJets_, genJets))){
+            edm::LogError("SusyDQM") << "Error: genJets not found!\n";
+            return false;
+        }
+        if(!(evt.getByToken(jetFlavorMatch_, jetFlavorMatch))){
+            edm::LogError("SusyDQM") << "Error: jetFlavorMatch not found!\n";
+            return false;
+        }
+    }
 
     goodMuons = vector<const Mu*>();
     goodElectrons = vector<const Ele*>();
@@ -653,26 +701,53 @@ template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
 void SusyDQM<Mu, Ele, Pho, Jet, Met>::selectObjects(const edm::Event& evt) {
     //select good muons
     for(typename std::vector<Mu>::const_iterator mu = muons->begin(); mu != muons->end(); mu++){
-        if(goodSusyMuon(&(*mu))){
+        if(goodMuon(&(*mu))){
             goodMuons.push_back(&(*mu));
         }
     }
     //select good electrons
     for(typename std::vector<Ele>::const_iterator ele = electrons->begin(); ele != electrons->end(); ele++){
-        if(goodSusyElectron(&(*ele))){
+        if(goodElectron(&(*ele))){
             goodElectrons.push_back(&(*ele));
         }
     }
     //select good photons
     for(typename std::vector<Pho>::const_iterator pho = photons->begin(); pho != photons->end(); pho++){
-        if(goodSusyPhoton(evt, &(*pho))){
+        if(goodPhoton(evt, &(*pho))){
             goodPhotons.push_back(&(*pho));
         }
     }
     //select good jets
     for(typename std::vector<Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++){
-        if(goodSusyJet(&(*jet))){
+        if(useGen){
+        //get flavor of jet 
+            int jetPartonFlavor = -1;
+            for(auto &jetMatch : (*jetFlavorMatch)){
+                float deltaRJetMatchJet = reco::deltaR(jetMatch.first->eta(), jetMatch.first->phi(), jet->eta(), jet->phi());
+                if(deltaRJetMatchJet < 0.1){
+                    const reco::JetFlavour aFlav = jetMatch.second;
+                    jetPartonFlavor = aFlav.getFlavour();
+                    break;
+                }
+            }
+            if (abs(jetPartonFlavor) == 5){ //b-jet 
+                csvV2MediumEfficiencyVsPt_denominator->Fill(jet->pt());
+            }
+        }
+        if(goodJet(&(*jet))){
             goodJets.push_back(&(*jet));
+            if(useGen){ //check if the jet is b-tagged
+                for(const auto jettag: *jetTagCollection){
+                    const float CSV = jettag.second;
+                    if(jettag.first->pt() > jetPtCut && CSV > jetCSVV2Cut){
+                        //match in deltaR
+                        float deltaRJetBJet = reco::deltaR(jettag.first->eta(), jettag.first->phi(), jet->eta(), jet->phi());
+                        if(deltaRJetBJet < 0.1){ //jet is b-tagged
+                            csvV2MediumEfficiencyVsPt_numerator->Fill(jet->pt());
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -680,6 +755,62 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::selectObjects(const edm::Event& evt) {
 //fill lepton histograms -- exclusive in lepton number
 template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
 void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillLeptonic(const edm::Event& evt) {
+
+    //Check which GEN muons and electrons were identified
+    if(useGen){
+        for(uint g = 0; g < genParticles->size(); g++){
+            const reco::GenParticle gen = genParticles->at(g);
+            if(fabs(gen.pdgId()) == 11 && gen.status() == 1){ //electron
+                //find the particle's mother -- require it to be an electroweak boson
+                const reco::GenParticle *firstMotherWithDifferentID = findFirstMotherWithDifferentID(&gen);
+                if (firstMotherWithDifferentID) {
+                    int motherId = firstMotherWithDifferentID->pdgId();
+                    if(fabs(motherId) != 23 && fabs(motherId) != 24){ //mother is not an EW boson
+                        continue;
+                    }
+                }
+                else{
+                    continue;
+                }
+
+                electronEfficiencyVsPt_denominator->Fill(gen.pt());
+                //search for this electron in the collection of selected electrons
+                float minDeltaR = -1.0;
+                for(uint i = 0; i < goodElectrons.size(); i++){
+                    float thisDeltaR =  reco::deltaR(gen.eta(), gen.phi(), goodElectrons[i]->eta(), goodElectrons[i]->phi());
+                    if(minDeltaR < 0 || thisDeltaR < minDeltaR) minDeltaR = thisDeltaR;
+                }
+                if(minDeltaR > 0 && minDeltaR < 0.1){ //electron was found
+                    electronEfficiencyVsPt_numerator->Fill(gen.pt());
+                }
+            }
+            else if(fabs(gen.pdgId()) == 13 && gen.status() == 1){ //muon
+                //find the particle's mother -- require it to be an electroweak boson
+                const reco::GenParticle *firstMotherWithDifferentID = findFirstMotherWithDifferentID(&gen);
+                if (firstMotherWithDifferentID) {
+                    int motherId = firstMotherWithDifferentID->pdgId();
+                    if(fabs(motherId) != 23 && fabs(motherId) != 24){ //mother is not an EW boson
+                        continue;
+                    }
+                }
+                else{
+                    continue;
+                }
+
+                muonEfficiencyVsPt_denominator->Fill(gen.pt());
+                //search for this muon in the collection of selected muons
+                float minDeltaR = -1.0;
+                for(uint i = 0; i < goodMuons.size(); i++){
+                    float thisDeltaR = reco::deltaR(gen.eta(), gen.phi(), goodMuons[i]->eta(), goodMuons[i]->phi());
+                    if(minDeltaR < 0 || thisDeltaR < minDeltaR) minDeltaR = thisDeltaR;
+                }
+                if(minDeltaR > 0 && minDeltaR < 0.1){ //muon was found
+                    muonEfficiencyVsPt_numerator->Fill(gen.pt());
+                }
+            }
+        }
+    }
+
     //compute HT and MET
     double HT = 0;
     for(uint j = 0; j < goodJets.size(); j++){
@@ -773,6 +904,7 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillLeptonic(const edm::Event& evt) {
         HT_threeOrMoreLeptons->Fill(HT);
         missingEt_threeOrMoreLeptons->Fill(MET);
     }
+
 }
 
 //fill photon histograms (inclusive in number of photons)
@@ -1109,6 +1241,20 @@ double SusyDQM<Mu, Ele, Pho, Jet, Met>::calcMT2(float testMass, bool massive, ve
     Float_t MT2=mt2->get_mt2();
     delete mt2;
     return MT2;
+}
+
+template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
+const reco::GenParticle* SusyDQM<Mu, Ele, Pho, Jet, Met>::findFirstMotherWithDifferentID(const reco::GenParticle *particle){
+    // Is this the first parent with a different ID? If yes, return, otherwise
+    // go deeper into recursion
+    if (particle->numberOfMothers() > 0 && particle->pdgId() != 0) {
+        if (particle->pdgId() == particle->mother(0)->pdgId()) {
+            return findFirstMotherWithDifferentID((reco::GenParticle*)particle->mother(0));
+        } else {
+            return (reco::GenParticle*)particle->mother(0);
+        }
+    }
+    return 0;
 }
 
 #endif

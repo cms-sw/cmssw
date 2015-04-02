@@ -17,7 +17,8 @@ process.load("DQM.Physics.susyDQM_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('root://eoscms//eos/cms//store/relval/CMSSW_7_4_0_pre2/RelValLM1_sfts_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/B07FFC5F-EA84-E411-92A3-02163E010509.root'
+        fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_74_V7-v1/00000/3C474394-DBD3-E411-92EC-0025905A6056.root'
+        #fileNames = cms.untracked.vstring('root://eoscms//eos/cms//store/relval/CMSSW_7_4_0_pre2/RelValLM1_sfts_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/B07FFC5F-EA84-E411-92A3-02163E010509.root'
     )
 )
 
@@ -39,6 +40,6 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('susy_dqm.root'),
 )
 
-process.run_module = cms.Path(process.susyDQM*process.MEtoEDMConverter*process.dqmSaver)
+process.run_module = cms.Path(process.MEtoEDMConverter*process.dqmSaver)
 process.outpath = cms.EndPath(process.out)
-process.schedule = cms.Schedule(process.run_module, process.outpath)
+process.schedule = cms.Schedule(process.susyAnalyzer, process.run_module, process.outpath)

@@ -51,6 +51,9 @@ process.susyDQMPostProcessor = cms.EDAnalyzer("DQMGenericClient",
         efficiency = cms.vstring(
         "fractionOfGoodJetsVsEta 'Fraction of jets passing loose quality cuts; #eta; #epsilon' fractionOfGoodJetsVsEta_numerator fractionOfGoodJetsVsEta_denominator",
         "fractionOfGoodJetsVsPhi 'Fraction of jets passing loose quality cuts; #phi; #epsilon' fractionOfGoodJetsVsPhi_numerator fractionOfGoodJetsVsPhi_denominator",
+        "electronEfficiencyVsPt 'Loose electron ID efficiency vs p_{T}; gen electron p_{T}; #epsilon' electronEfficiencyVsPt_numerator electronEfficiencyVsPt_denominator",
+        "muonEfficiencyVsPt 'Loose muon ID efficiency vs p_{T}; gen muon p_{T}; #epsilon' muonEfficiencyVsPt_numerator muonEfficiencyVsPt_denominator",
+        "csvV2MediumEfficiencyVsPt 'CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}' csvV2MediumEfficiencyVsPt_numerator csvV2MediumEfficiencyVsPt_denominator",
         ),
 )
 
