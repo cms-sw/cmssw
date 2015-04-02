@@ -297,13 +297,15 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
 
       bool me11a = cscDetId.station() == 1 && cscDetId.ring() == 4;
       //CLCTs are packed by chamber not by A/B parts in ME11
+      //me11a appears only in simulation with SLHC algorithm settings
+      //without the shift, it's impossible to distinguish A and B parts
       if (me11a){
 	std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
-	for (auto iC : shiftedDigis) {
-	  if (iC.getCFEB() >= 0 && iC.getCFEB() < 3){//sanity check, mostly
-	    iC = CSCCLCTDigi(iC.isValid(), iC.getQuality(), iC.getPattern(), iC.getStripType(),
-			     iC.getBend(), iC.getStrip(), iC.getCFEB()+4, iC.getBX(), 
-			     iC.getTrknmb(), iC.getFullBX());
+	for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
+	  if (iC->getCFEB() >= 0 && iC->getCFEB() < 3){//sanity check, mostly
+	    (*iC) = CSCCLCTDigi(iC->isValid(), iC->getQuality(), iC->getPattern(), iC->getStripType(),
+			     iC->getBend(), iC->getStrip(), iC->getCFEB()+4, iC->getBX(), 
+			     iC->getTrknmb(), iC->getFullBX());
 	  }
 	}
 	cscData.add(shiftedDigis);
@@ -320,7 +322,24 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      cscData.add(std::vector<CSCCorrelatedLCTDigi>((*j).second.first, (*j).second.second));
+      bool me11a = cscDetId.station() == 1 && cscDetId.ring() == 4;
+      //LCTs are packed by chamber not by A/B parts in ME11
+      //me11a appears only in simulation with SLHC algorithm settings
+      //without the shift, it's impossible to distinguish A and B parts
+      if (me11a){
+	std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
+        for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
+          if (iC->getStrip() >= 0 && iC->getStrip() < 96){//sanity check, mostly
+            (*iC) = CSCCorrelatedLCTDigi(iC->getTrknmb(), iC->isValid(), iC->getQuality(), 
+					 iC->getKeyWG(), iC->getStrip() + 128, iC->getPattern(),
+					 iC->getBend(), iC->getBX(), iC->getMPCLink(), 
+					 iC->getBX0(), iC->getSyncErr(), iC->getCSCID());
+          }
+        }
+        cscData.add(shiftedDigis);
+      } else {
+	cscData.add(std::vector<CSCCorrelatedLCTDigi>((*j).second.first, (*j).second.second));
+      }
     }
 
 }
