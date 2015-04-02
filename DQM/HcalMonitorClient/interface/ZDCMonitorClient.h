@@ -34,7 +34,7 @@ public:
 	//  void analyze(const edm::Event& evt, const edm::EventSetup& es);
 
 	/// BeginJob
-	//  void beginJob();
+	// void beginJob();
 
 	/// EndJob
 	void endJob(void);
@@ -92,41 +92,36 @@ private:
 
 	std::vector<double> ZDCGoodLumi_;
 
-	int debug_;
-	std::string inputFile_;
-	bool mergeRuns_;
-	bool cloneME_;
-	int prescaleFactor_;
-	std::string prefixME_;
-	bool enableCleanup_;
-	std::vector<std::string > enabledClients_;
+//	std::string inputFile_;
+//	bool mergeRuns_;
+//	int prescaleFactor_;
+//	std::vector<std::string > enabledClients_;
 
-	int updateTime_; // update time for updating histograms 
-	std::string baseHtmlDir_;
-	int htmlUpdateTime_; //update time for updating histograms
-	std::string databasedir_;
-	int databaseUpdateTime_; //update time for dumping db info (offset by 10 minutes, so that always dump after 10 minutes)
-	int databaseFirstUpdate_; // first update time (in minutes)
-	int htmlFirstUpdate_; // first update for html
+//	int updateTime_; // update time for updating histograms 
+//	std::string baseHtmlDir_;
+//	int htmlUpdateTime_; //update time for updating histograms
+//	std::string databasedir_;
+//	int databaseUpdateTime_; //update time for dumping db info (offset by 10 minutes, so that always dump after 10 minutes)
+//	int databaseFirstUpdate_; // first update time (in minutes)
+//	int htmlFirstUpdate_; // first update for html
 
 	int htmlcounter_;
 
-	bool saveByLumiSection_;  //produces separate LS certification values when enabled
-	bool Online_;  // fix to April 2011 problem where online DQM client crashes in endJob.  Is endRun perhaps not called?
-	std::string subdir_;
+//	bool saveByLumiSection_;  //produces separate LS certification values when enabled
+//	std::string subdir_;
 
 	// time parameters
-	time_t current_time_;
-	time_t last_time_update_;
-	time_t last_time_html_;
-	time_t last_time_db_;
+//	time_t current_time_;
+//	time_t last_time_update_;
+//	time_t last_time_html_;
+//	time_t last_time_db_;
 
-	std::vector<HcalBaseDQClient*> clients_;
+//	std::vector<HcalBaseDQClient*> clients_;
 
 	DQMStore* dqmStore_;
-	HcalChannelQuality* chanquality_;
+//	HcalChannelQuality* chanquality_;
 
-	HcalSummaryClient* summaryClient_;
+//	HcalSummaryClient* summaryClient_;
 
 	///////////////////New plots as of Fall 2012/////////////
 	MonitorElement* ZDCChannelSummary_;
