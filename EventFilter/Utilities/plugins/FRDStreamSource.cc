@@ -12,12 +12,14 @@
 #include "EventFilter/FEDInterface/interface/FED1024.h"
 
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
+#include "EventFilter/Utilities/interface/crc32c.h"
 
 
 FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset,
                                           edm::InputSourceDescription const& desc)
   : ProducerSourceFromFiles(pset,desc,true),
     verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
+    verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
     useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false))
 {
   itFileName_=fileNames().begin();
@@ -39,10 +41,10 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
   }
 
-  const uint32_t headerSize[4]={0,2*sizeof(uint32),(4+1024)*sizeof(uint32_t),7*sizeof(uint32_t)};//FRD header size per version
+  const uint32_t headerSize[6]={0,2*sizeof(uint32),(4+1024)*sizeof(uint32_t),7*sizeof(uint32_t),8*sizeof(uint32_t),8*sizeof(uint32_t)};//FRD header size per version
   if ( detectedFRDversion_==0) {
     fin_.read((char*)&detectedFRDversion_,sizeof(uint32_t));
-    assert(detectedFRDversion_>0 && detectedFRDversion_<=3);
+    assert(detectedFRDversion_>0 && detectedFRDversion_<=5);
     if ( buffer_.size() < headerSize[detectedFRDversion_] )
       buffer_.resize(headerSize[detectedFRDversion_]);
     *((uint32_t*)(&buffer_[0]))=detectedFRDversion_;
@@ -73,7 +75,17 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     frdEventMsg.reset(new FRDEventMsgView(&buffer_[0]));
   }
 
-  if ( verifyAdler32_ && frdEventMsg->version() >= 3 )
+  if ( verifyChecksum_ && frdEventMsg->version() >= 5 )
+  {
+    uint32_t crc=0;
+    crc = crc32c(crc,(const unsigned char*)frdEventMsg->payload(),frdEventMsg->eventSize());
+    if ( crc != frdEventMsg->crc32c() ) {
+      throw cms::Exception("FRDStreamSource::getNextEvent") <<
+        "Found a wrong crc32c checksum: expected 0x" << std::hex << frdEventMsg->crc32c() <<
+        " but calculated 0x" << crc;
+    }
+  }
+  else if ( verifyAdler32_ && frdEventMsg->version() >= 3 )
   {
     uint32_t adler = adler32(0L,Z_NULL,0);
     adler = adler32(adler,(Bytef*)frdEventMsg->payload(),frdEventMsg->eventSize());

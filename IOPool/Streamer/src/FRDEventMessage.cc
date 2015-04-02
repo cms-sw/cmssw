@@ -24,7 +24,8 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
     event_(0),
     eventSize_(0),
     paddingSize_(0),
-    adler32_(0)
+    adler32_(0),
+    crc32c_(0)
 {
   uint32* bufPtr = static_cast<uint32*>(buf);
   version_ = *bufPtr;
@@ -84,8 +85,11 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
       size_ += sizeof(uint32) + paddingSize_;
       ++bufPtr;
 
-      // adler32
-      adler32_ = *bufPtr;
+      // event checksum (adler32 or CRC-32C)
+      if (version_ >= 5)
+        crc32c_ = *bufPtr;
+      else 
+        adler32_ = *bufPtr;
       size_ += sizeof(uint32);
       ++bufPtr;
   }
