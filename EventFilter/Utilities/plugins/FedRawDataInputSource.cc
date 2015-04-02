@@ -42,7 +42,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-
+#include "EventFilter/Utilities/interface/crc32c.h"
 
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
@@ -60,6 +60,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
+  verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
@@ -101,6 +102,9 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 
   numConcurrentReads_=numBuffers_-1;
   singleBufferMode_ = !(numBuffers_>1);
+
+  if (!crc32c_hw_test())
+    edm::LogError("FedRawDataInputSource::FedRawDataInputSource") << "Intel crc32c checksum computation unavailable";
 
   //het handles to DaqDirector and FastMonitoringService because it isn't acessible in readSupervisor thread
 
@@ -309,7 +313,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::nextEvent()
 
 inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 {
-  const size_t headerSize[4] = {0,2*sizeof(uint32),(4 + 1024) * sizeof(uint32),7*sizeof(uint32)}; //size per version of FRDEventHeader
+  const size_t headerSize[6] = {0,2*sizeof(uint32),(4 + 1024) * sizeof(uint32),7*sizeof(uint32),8*sizeof(uint32),8*sizeof(uint32)}; //size per version of FRDEventHeader
 
   if (setExceptionState_) threadError();
   if (!currentFile_)
@@ -438,7 +442,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
       if (detectedFRDversion_==0) {
         detectedFRDversion_=*((uint32*)dataPosition);
-        assert(detectedFRDversion_>=1 && detectedFRDversion_<=3);
+        if (detectedFRDversion_>5) 
+          throw cms::Exception("FedRawDataInputSource::getNextEvent")
+              << "Unknown FRD version -: " << detectedFRDversion_;
+        assert(detectedFRDversion_>=1);
       }
 
       //recalculate chunk position
@@ -534,7 +541,17 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     }
   }//end multibuffer mode
 
-  if ( verifyAdler32_ && event_->version() >= 3 )
+  if (verifyChecksum_ && event_->version() >= 5)
+  {
+    uint32_t crc=0;
+    crc = crc32c(crc,(const unsigned char*)event_->payload(),event_->eventSize());
+    if ( crc != event_->crc32c() ) {
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
+        "Found a wrong crc32c checksum: expected 0x" << std::hex << event_->crc32c() <<
+        " but calculated 0x" << crc;
+    }
+  }
+  else if ( verifyAdler32_ && event_->version() >= 3)
   {
     uint32_t adler = adler32(0L,Z_NULL,0);
     adler = adler32(adler,(Bytef*)event_->payload(),event_->eventSize());
@@ -545,6 +562,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
         " but calculated 0x" << adler;
     }
   }
+
+
   currentFile_->nProcessed_++;
 
   return evf::EvFDaqDirector::sameFile;
@@ -1085,7 +1104,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     close(fileDescriptor);
 
     if (detectedFRDversion_==0 && chunk->offset_==0) detectedFRDversion_=*((uint32*)chunk->buf_);
-    assert(detectedFRDversion_<=3);
+    assert(detectedFRDversion_<=5);
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)
     file->chunks_[chunk->fileIndex_]=chunk;//put the completed chunk in the file chunk vector at predetermined index
 
