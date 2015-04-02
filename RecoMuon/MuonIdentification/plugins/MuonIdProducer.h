@@ -114,6 +114,10 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    double phiOfMuonIneteractionRegion( const reco::Muon& muon ) const;
 
    bool checkLinks(const reco::MuonTrackLinks*) const ;
+   inline bool approxEqual(const double a, const double b, const double tol=1E-3) const
+   {
+     return std::abs(a-b) < tol;
+   }
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;

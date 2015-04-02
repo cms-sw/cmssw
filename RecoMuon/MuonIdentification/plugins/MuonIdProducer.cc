@@ -110,7 +110,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    }
 
    inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
-   auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
+   const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
    if (inputCollectionLabels_.size() != inputCollectionTypes.size())
      throw cms::Exception("ConfigurationError") << "Number of input collection labels is different from number of types. " <<
      "For each collection label there should be exactly one collection type specified.";
@@ -464,7 +464,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // muons first - no cleaning, take as is.
    if ( muonCollectionHandle_.isValid() ) {
-     for ( auto muon : *muonCollectionHandle_ ) {
+     for ( const auto muon : *muonCollectionHandle_ ) {
        outputMuons->push_back(muon);
      }
    }
@@ -545,7 +545,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if ( track.extra().isAvailable() &&
             TrackDetectorAssociator::crossedIP( track ) ) splitTrack = true;
        const auto& directions = splitTrack ? directions1 : directions2;
-       for ( auto direction : directions ) {
+       for ( const auto direction : directions ) {
          // make muon
          reco::Muon trackerMuon( makeMuon(iEvent, iSetup, trackRef, reco::Muon::InnerTrack) );
          fillMuonId(iEvent, iSetup, trackerMuon, direction);
@@ -922,7 +922,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
          rpcHitMatch.mask = 0;
          rpcHitMatch.bx = rpcRecHit.BunchX();
 
-         const double absDx = fabs(rpcRecHit.localPosition().x()-chamber.tState.localPosition().x());
+         const double absDx = std::abs(rpcRecHit.localPosition().x()-chamber.tState.localPosition().x());
          if( absDx <= 20 or absDx/sqrt(localError.xx()) <= 4 ) matchedChamber.rpcMatches.push_back(rpcHitMatch);
        }
 
@@ -985,14 +985,14 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
                  for ( auto& segment2 : chamber2.segmentMatches )
                  {
                    if(segment2.isMask()) continue; // has already been arbitrated
-                   if(fabs(segment2.x       - segment1.x      ) < 1E-3 &&
-                      fabs(segment2.y       - segment1.y      ) < 1E-3 &&
-                      fabs(segment2.dXdZ    - segment1.dXdZ   ) < 1E-3 &&
-                      fabs(segment2.dYdZ    - segment1.dYdZ   ) < 1E-3 &&
-                      fabs(segment2.xErr    - segment1.xErr   ) < 1E-3 &&
-                      fabs(segment2.yErr    - segment1.yErr   ) < 1E-3 &&
-                      fabs(segment2.dXdZErr - segment1.dXdZErr) < 1E-3 &&
-                      fabs(segment2.dYdZErr - segment1.dYdZErr) < 1E-3)
+                   if(approxEqual(segment2.x      , segment1.x      ) &&
+                      approxEqual(segment2.y      , segment1.y      ) &&
+                      approxEqual(segment2.dXdZ   , segment1.dXdZ   ) &&
+                      approxEqual(segment2.dYdZ   , segment1.dYdZ   ) &&
+                      approxEqual(segment2.xErr   , segment1.xErr   ) &&
+                      approxEqual(segment2.yErr   , segment1.yErr   ) &&
+                      approxEqual(segment2.dXdZErr, segment1.dXdZErr) &&
+                      approxEqual(segment2.dYdZErr, segment1.dYdZErr))
                    {
                      arbitrationPairs.push_back(std::make_pair(&chamber2, &segment2));
                    }
@@ -1165,13 +1165,9 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
 
 reco::Muon MuonIdProducer::makeMuon( const reco::Track& track )
 {
-   //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV
-   double energy = sqrt(track.p() * track.p() + 0.011163691);
-   math::XYZTLorentzVector p4(track.px(),
-			      track.py(),
-			      track.pz(),
-			      energy);
-   return reco::Muon( track.charge(), p4, track.vertex() );
+  const double energy = hypot(track.p(), 0.105658369);
+  const math::XYZTLorentzVector p4(track.px(), track.py(), track.pz(), energy);
+  return reco::Muon( track.charge(), p4, track.vertex() );
 }
 
 double MuonIdProducer::sectorPhi( const DetId& id )
@@ -1222,15 +1218,15 @@ void MuonIdProducer::fillTrackerKink( reco::Muon& aMuon ) {
     // get quality from muon if already there, otherwise make empty one
     reco::MuonQuality quality = (aMuon.isQualityValid() ? aMuon.combinedQuality() : reco::MuonQuality());
     // fill it
-    bool filled = trackerKinkFinder_->fillTrkKink(quality, *aMuon.innerTrack());
+    const bool filled = trackerKinkFinder_->fillTrkKink(quality, *aMuon.innerTrack());
     // if quality was there, or if we filled it, commit to the muon
     if (filled || aMuon.isQualityValid()) aMuon.setCombinedQuality(quality);
 }
 
 bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
-  bool trackBAD = links->trackerTrack().isNull();
-  bool staBAD = links->standAloneTrack().isNull();
-  bool glbBAD = links->globalTrack().isNull();
+  const bool trackBAD = links->trackerTrack().isNull();
+  const bool staBAD = links->standAloneTrack().isNull();
+  const bool glbBAD = links->globalTrack().isNull();
   if (trackBAD || staBAD || glbBAD )
     {
       edm::LogWarning("muonIDbadLinks") << "Global muon links to constituent tracks are invalid: trkBad "
