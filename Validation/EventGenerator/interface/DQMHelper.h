@@ -17,6 +17,9 @@ class DQMHelper{
  public: 
   DQMHelper(DQMStore::IBooker *i);
   virtual ~DQMHelper();
+
+  MonitorElement* book1dHisto(TString name,TString title,int n,double xmin,double xmax,TString xaxis, TString yaxis);
+  MonitorElement* book2dHisto(TString name,TString title,int nx,double xmin,double xmax,int ny,double ymin,double ymax,TString xaxis, TString yaxis);
   
   MonitorElement* book1dHisto(const std::string &name,const std::string &title,int n,double xmin,double xmax);
   MonitorElement* book2dHisto(const std::string &name,const std::string &title,int nx,double xmin,double xmax,int ny,double ymin,double ymax);
