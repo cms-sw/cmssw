@@ -189,7 +189,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
     // LogDebug ("rpssimsetup")<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
     clsVect.push_back(((double)(itCls->clusterSize)));
-    // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+    // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetCls[detId,clsVect] :: detId = "<<detId;
     // LogDebug ("rpssimsetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
     // LogDebug ("rpssimsetup")<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
     // LogDebug ("rpssimsetup")<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
@@ -202,7 +202,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       clsVect.clear();
       // LogDebug ("rpssimsetup")<<" --> New Method ";
       // LogDebug ("rpssimsetup")<<" --> saved in map "<<std::endl;
-      // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+      // LogDebug ("rpssimsetup")<<"Filling cls in _mapDetClsMap[detId,clsVect] :: detId = "<<detId;
       // LogDebug ("rpssimsetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
       clsCounter=0;
     }
@@ -246,13 +246,32 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   unsigned int count_all    = 1;
   std::vector<float> vveff, vvnoise;
   // vveff.clear();
-  // vvnoise.clear();
+  // vvnoise.clear(); 
 
-  // DetId to start with
-  current_detId   = vnoise.begin()->dpid;
-  current_rpcId   = RPCDetId(current_detId);
-  current_roll    = dynamic_cast<const RPCRoll* >(theGeometry->roll(current_rpcId));
-  current_nStrips = current_roll->nstrips();
+  // DetId to start with needs to be a DetId inside the Geometry used
+  // Therefore loop on the NoiseItems and search for the first valid roll in the Geometry
+  // Assign this as the DetId to start with (so called current_roll) and quit the loop
+  bool quitLoop = false;
+  current_detId = 0; current_nStrips = 0; // current_rpcId = 0; current_roll = 0;
+  for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end() && !quitLoop; ++it) {
+    // roll associated to the conditions of this strip (iterator)
+    current_detId = it->dpid;
+    current_rpcId = RPCDetId(current_detId);
+    // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
+    const RPCRoll* roll = dynamic_cast<const RPCRoll* >(theGeometry->roll(current_rpcId));
+    if(roll==0) {
+      LogDebug ("rpssimsetup") <<"Searching for first valid detid :: current_detId = "<<current_detId;
+      LogDebug ("rpssimsetup") <<" aka "<<current_rpcId<<" is not in current Geometry --> Skip "<<std::endl;
+      continue;
+    }
+    else {
+      LogDebug ("rpssimsetup") <<"Searching for first valid detid :: current_detId = "<<current_detId;
+      LogDebug ("rpssimsetup") <<" aka "<<current_rpcId<<" is the first (valid) roll in the current Geometry --> Accept, Assign & Quit Loop"<<std::endl;
+      current_roll    = dynamic_cast<const RPCRoll* >(theGeometry->roll(current_rpcId));
+      current_nStrips = current_roll->nstrips();
+      quitLoop = true;
+    }
+  }
 
   LogDebug ("rpssimsetup") <<"Start Position ::            current_detId = "<<current_detId<<" aka "<<current_rpcId;
   LogDebug ("rpssimsetup") <<" is a valid roll with pointer "<<current_roll<<" and has "<<current_roll->nstrips()<<" strips"<<std::endl;
@@ -269,7 +288,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       continue;
     }
 
-    // LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 1"<<std::endl;
+    LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 1"<<std::endl;
     // Case 1 :: FIRST ENTRY
     // ---------------------
     if(this_detId == current_detId && count_strips == 1) {
@@ -288,7 +307,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       ++count_all;
     }
 
-    // LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 2"<<std::endl;
+    LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 2"<<std::endl;
     // Case 2 :: 2ND ENTRY --> LAST-1 ENTRY
     // ------------------------------------
     if(this_detId == current_detId && count_strips > 1 && count_strips < current_nStrips) {
@@ -301,7 +320,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       ++count_all;
     }
 
-    // LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 3"<<std::endl;
+    LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 3"<<std::endl;
     // Case 3 :: LAST ENTRY
     // --------------------
     if(this_detId == current_detId && count_strips == current_nStrips) {
@@ -340,6 +359,10 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
           current_nStrips = dynamic_cast<const RPCRoll* >(theGeometry->roll(current_rpcId))->nstrips();
           LogDebug ("rpssimsetup") <<" with "<<current_nStrips<<" strips"<<std::endl;
           --it; // subtract one, because at the end of the loop the iterator will be increased with one
+	  // in fact the treatment for roll N stops when we find the first occurence of roll N+1
+	  // however we want to start the treatment for roll N+1 with the first occurence of roll N+1
+	  // so the first entry of each new roll N+1 is manipulated twice in the loop (once as a stop, once as a start)
+	  // therefore we have to manipulate the iterator here, subtracting one, to treat again this entry
         }
       }
       // reset count_strips
@@ -348,6 +371,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   }
   // ###########################################################################
   LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: end"<<std::endl;
+
+  LogDebug ("rpssimsetup")<<"RPCSimSetUp::setRPCSetUp :: end"<<std::endl;
 }
 
 
