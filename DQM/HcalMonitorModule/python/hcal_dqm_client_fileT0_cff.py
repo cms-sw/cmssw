@@ -14,6 +14,7 @@ hcalClient.enabledClients    = ["DeadCellMonitor",
                                 "RecHitMonitor",
                                 "DigiMonitor",
                                 "RawDataMonitor",
+                                "ZDCMonitor",
                                 #"TrigPrimMonitor", # can't enable trig prim monitor, because no trig sim available offline!
                                 "NZSMonitor",
                                 #"BeamMonitor",  # don't use BeamMonitor, because I don't trust HF lumi error thresholds to remain valid in higher-luminosity runs
