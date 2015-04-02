@@ -97,7 +97,7 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
 
   // Add all relevant clients
   clients_.clear();
-  clients_.reserve(14); // any reason to reserve ahead of time?
+  clients_.reserve(15); // any reason to reserve ahead of time?
   summaryClient_=0;
 
   clients_.push_back(new HcalBaseDQClient((std::string)"HcalMonitorModule",ps));
