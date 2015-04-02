@@ -295,7 +295,21 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      cscData.add(std::vector<CSCCLCTDigi>((*j).second.first, (*j).second.second));
+      bool me11a = cscDetId.station() == 1 && cscDetId.ring() == 4;
+      //CLCTs are packed by chamber not by A/B parts in ME11
+      if (me11a){
+	std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
+	for (auto iC : shiftedDigis) {
+	  if (iC.getCFEB() >= 0 && iC.getCFEB() < 3){//sanity check, mostly
+	    iC = CSCCLCTDigi(iC.isValid(), iC.getQuality(), iC.getPattern(), iC.getStripType(),
+			     iC.getBend(), iC.getStrip(), iC.getCFEB()+4, iC.getBX(), 
+			     iC.getTrknmb(), iC.getFullBX());
+	  }
+	}
+	cscData.add(shiftedDigis);
+      } else {
+	cscData.add(std::vector<CSCCLCTDigi>((*j).second.first, (*j).second.second));
+      }
     }
 }
 
