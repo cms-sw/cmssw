@@ -37,7 +37,7 @@ public:
 	// void beginJob();
 
 	/// EndJob
-	void endJob(void);
+	void endJob(void) override;
 
 	/// BeginRun
 	void beginRun() override;
@@ -57,10 +57,10 @@ public:
 	void reset(void);
 
 	/// Setup
-	void setup(void);
+	void setup(void) override;
 
 	/// Cleanup
-	void cleanup(void);
+	void cleanup(void) override;
 
 	/// SoftReset
 	void softReset(bool flag);
