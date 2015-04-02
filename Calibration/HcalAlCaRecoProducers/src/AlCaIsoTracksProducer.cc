@@ -122,8 +122,9 @@ private:
 
 
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
-  nRun(0), nAll(0), nGood(0) {
+  nRun(0), nAll(0), nGood(0), ptL1(0), etaL1(0), phiL1(0) {
   //Get the run parameters
+  const double isolationRadius(28.9);
   trigNames                           = iConfig.getParameter<std::vector<std::string> >("Triggers");
   theTrackQuality                     = iConfig.getParameter<std::string>("TrackQuality");
   processName                         = iConfig.getParameter<std::string>("ProcessName");
@@ -141,7 +142,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   selectionParameters.maxInMiss       = iConfig.getParameter<int>("MaxInMiss");
   selectionParameters.maxOutMiss      = iConfig.getParameter<int>("MaxOutMiss");
   a_coneR                             = iConfig.getParameter<double>("ConeRadius");
-  a_charIsoR                          = a_coneR + 28.9;
+  a_charIsoR                          = a_coneR + isolationRadius;
   a_mipR                              = iConfig.getParameter<double>("ConeRadiusMIP");
   pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
   eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
@@ -201,7 +202,6 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   produces<EcalRecHitCollection>(labelEB_.encode());
   produces<EcalRecHitCollection>(labelEE_.encode());
   produces<HBHERecHitCollection>(labelHBHE_.encode());
-
 }
 
 
