@@ -218,7 +218,6 @@ void MBUEandQCDValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
     _sumEt4 = dqm.book1dHisto("sumET4", "Sum of stable particles Et (1.5<eta<2.0)", 150, 0, 200.);
     _sumEt5 = dqm.book1dHisto("sumET5", "Sum of stable particles Et (2.0<eta<5.0)", 150, 0, 200.);
     
-
   return;
 }
 
@@ -635,24 +634,24 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 	
       }
 
-      if(jm25njets>3) {
-        _JM25njets ->Fill(jm25njets,weight);
-        _JM25ht    ->Fill(jm25HT,weight);
-        _JM25pt1   ->Fill(jm25pt1,weight);
-        _JM25pt2   ->Fill(jm25pt2,weight);
-        _JM25pt3   ->Fill(jm25pt3,weight);
-        _JM25pt4   ->Fill(jm25pt4,weight);
-      }
-      if(jm80njets>3) {
-        _JM80njets ->Fill(jm80njets,weight);
-        _JM80ht    ->Fill(jm80HT,weight);
-        _JM80pt1   ->Fill(jm80pt1,weight);
-        _JM80pt2   ->Fill(jm80pt2,weight);
-        _JM80pt3   ->Fill(jm80pt3,weight);
-        _JM80pt4   ->Fill(jm80pt4,weight);
-      }
     }
-    
+    if(jm25njets>3) {
+      _JM25njets ->Fill(jm25njets,weight);
+      _JM25ht    ->Fill(jm25HT,weight);
+      _JM25pt1   ->Fill(jm25pt1,weight);
+      _JM25pt2   ->Fill(jm25pt2,weight);
+      _JM25pt3   ->Fill(jm25pt3,weight);
+      _JM25pt4   ->Fill(jm25pt4,weight);
+    }
+    if(jm80njets>3) {
+      _JM80njets ->Fill(jm80njets,weight);
+      _JM80ht    ->Fill(jm80HT,weight);
+      _JM80pt1   ->Fill(jm80pt1,weight);
+      _JM80pt2   ->Fill(jm80pt2,weight);
+      _JM80pt3   ->Fill(jm80pt3,weight);
+      _JM80pt4   ->Fill(jm80pt4,weight);
+    }
+      
     // select a di-jet event JME-10-001 variant
     double sumJetEt = 0; double sumPartPt = 0.; double sumChPartPt = 0.;
     double jpx = 0; double jpy = 0;
