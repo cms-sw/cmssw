@@ -36,7 +36,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 // Constructors
 //
@@ -68,7 +67,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::Eve
   
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology *pTT = tTopoHandle.product();
+  pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -504,21 +503,14 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
 
       if(barrel){
-   for (std::vector<MonitorElement*>::iterator i = layers.begin(); i != layers.end(); i++)
-   {
-     (*i)->Fill(clustgp.z(),clustgp.phi());
-   }
+        uint32_t DBlayer = PixelBarrelName(DetId(id_), pTT, isUpgrade).layerName();
+        if (!(DBlayer > layers.size()) && (layers[DBlayer-1])) layers[DBlayer-1]->Fill(clustgp.z(),clustgp.phi());
       }else if(endcap){
+   uint32_t DBdisk = PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
 	if(clustgp.z()>0){
-     for (std::vector<MonitorElement*>::iterator i = diskspz.begin(); i != diskspz.end(); i++)
-     {
-       (*i)->Fill(clustgp.x(),clustgp.y());
-     }
+     if (!(DBdisk > diskspz.size()) && (diskspz[DBdisk-1])) diskspz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
 	}else{
-     for (std::vector<MonitorElement*>::iterator i = disksmz.begin(); i != disksmz.end(); i++)
-     {
-       (*i)->Fill(clustgp.x(),clustgp.y());
-     }
+     if (!(DBdisk > disksmz.size()) && (disksmz[DBdisk-1])) disksmz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
 	} 
       }
       if(!reducedSet)
