@@ -140,7 +140,7 @@ private:
   edm::EDGetTokenT<LumiDetails>            tok_lumi;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
- 
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
   edm::EDGetTokenT<reco::TrackCollection>  tok_genTrack_;
   edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
   edm::EDGetTokenT<reco::BeamSpot>         tok_bs_;

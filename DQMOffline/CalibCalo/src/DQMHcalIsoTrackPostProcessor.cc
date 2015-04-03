@@ -15,6 +15,7 @@
 #include<fstream>
 #include <math.h>
 
+//#define DebugLog
 
 class DQMHcalIsoTrackPostProcessor : public DQMEDHarvester {
 
@@ -68,11 +69,20 @@ void DQMHcalIsoTrackPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMSto
     }
   }
 
+  std::string hname;
   for (int i=0; i<4; ++i) {
     sprintf (name, "/heta%s", types[i].c_str()); 
-    hSumEta[i]->getTH1F()->Add(igetter.get(ibooker.pwd() + std::string(name))->getTH1F(),1);
+    hname = ibooker.pwd() + std::string(name);
+#ifdef DebugLog
+    std::cout << "PostProcesor " << hname << " " << igetter.get(hname) << std::endl;
+#endif
+    hSumEta[i]->getTH1F()->Add(igetter.get(hname)->getTH1F(),1);
     sprintf (name, "/hphi%s", types[i].c_str()); 
-    hSumPhi[i]->getTH1F()->Add(igetter.get(ibooker.pwd() + std::string(name))->getTH1F(),1);
+    hname = ibooker.pwd() + std::string(name);
+#ifdef DebugLog
+    std::cout << "PostProcesor " << hname << " " << igetter.get(hname) << std::endl;
+#endif
+    hSumPhi[i]->getTH1F()->Add(igetter.get(hname)->getTH1F(),1);
   }
 
   for (int i=0; i<3; ++i) {
