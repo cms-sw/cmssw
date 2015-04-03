@@ -804,7 +804,8 @@ void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc,
   for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
        digiIt != rcompd.second; ++digiIt) {
     unsigned int origStrip = digiIt->getStrip();
-    if (me1a && origStrip <= 16 && !disableME1a && !smartME1aME1b) {
+    unsigned int maxStripsME1a = gangedME1a ? 16 : 48;
+    if (me1a && origStrip <= maxStripsME1a && !disableME1a && !smartME1aME1b) {
       // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
       // been done already.
       CSCComparatorDigi digi_corr(origStrip+64,
