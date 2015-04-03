@@ -89,6 +89,7 @@ private:
 	// parameter set inputs
 
 	std::vector<double> ZDCGoodLumi_;
+	std::string ZDCsubdir_;
 
 //	std::string inputFile_;
 //	bool mergeRuns_;

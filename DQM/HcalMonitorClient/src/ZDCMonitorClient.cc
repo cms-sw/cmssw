@@ -154,7 +154,7 @@ void ZDCMonitorClient::analyze(DQMStore::IBooker & ib, DQMStore::IGetter & ig)
 
 
 
-	ZDCReportSummary_= dqmStore_->book2D("ZDC_ReportSummary","Fraction of Good Lumis for either ZDC",2,0,2,1,0,1);
+	ZDCReportSummary_= ib.book2D("ZDC_ReportSummary","Fraction of Good Lumis for either ZDC",2,0,2,1,0,1);
 	ZDCReportSummary_->Reset();
 	for (int i=0;i<3;++i)
 	{
