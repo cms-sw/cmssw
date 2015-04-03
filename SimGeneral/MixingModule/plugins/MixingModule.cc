@@ -309,7 +309,6 @@ namespace edm {
                                     const edm::EventSetup& setup,
                                     StreamID const& streamID) {
 
-    std::cout << "pile all workers, bc:" << bunchCrossing << " eId:" <<  eventId << std::endl;
 
     InternalContext internalContext(eventPrincipal.id(), mcc);
     ParentContext parentContext(&internalContext);
