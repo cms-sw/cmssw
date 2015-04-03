@@ -24,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoVertex.VertexValidation_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
@@ -42,7 +42,7 @@ ValidationSequence="SEQUENCE"
 if ValidationSequence == "only_validation":
     process.postProcessorV0.outputFileName = 'val.SAMPLE.root'
 
-process.only_validation = cms.Sequence(process.trackingParticleRecoTrackAsssociation*process.v0Validator*process.postProcessorV0)
+process.only_validation = cms.Sequence(process.quickTrackAssociatorByHits*process.trackingParticleRecoTrackAsssociation*process.v0Validator*process.postProcessorV0)
 
 
 # Need to put in a PoolOutputModule at some point, for which I need to figure out

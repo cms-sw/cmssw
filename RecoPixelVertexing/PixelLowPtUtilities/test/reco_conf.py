@@ -12,7 +12,7 @@ process.load("Configuration.StandardSequences.Simulation_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 
