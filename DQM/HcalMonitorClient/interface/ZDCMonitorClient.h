@@ -89,6 +89,7 @@ private:
 	// parameter set inputs
 
 	std::vector<double> ZDCGoodLumi_;
+	std::string ZDCsubdir_;
 
 //	std::string inputFile_;
 //	bool mergeRuns_;
@@ -103,7 +104,7 @@ private:
 //	int databaseFirstUpdate_; // first update time (in minutes)
 //	int htmlFirstUpdate_; // first update for html
 
-	int htmlcounter_;
+//	int htmlcounter_;
 
 //	bool saveByLumiSection_;  //produces separate LS certification values when enabled
 //	std::string subdir_;

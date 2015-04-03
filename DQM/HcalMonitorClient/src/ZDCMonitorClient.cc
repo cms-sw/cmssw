@@ -47,7 +47,8 @@
 //--------------------------------------------------------
 ZDCMonitorClient::ZDCMonitorClient(std::string myname, const edm::ParameterSet& ps):
 	HcalBaseDQClient(myname, ps),
-	ZDCGoodLumi_(ps.getUntrackedParameter<std::vector<double> > ("ZDC_QIValueForGoodLS"))
+	ZDCGoodLumi_(ps.getUntrackedParameter<std::vector<double> > ("ZDC_QIValueForGoodLS")),
+	ZDCsubdir_(ps.getUntrackedParameter<std::string>("ZDCsubdir", "ZDCMonitor/ZDCMonitor_Hcal/"))
 //	inputFile_(ps.getUntrackedParameter<std::string>("inputFile","")),
 //	mergeRuns_(ps.getUntrackedParameter<bool>("mergeRuns", false)),
 //	prescaleFactor_(ps.getUntrackedParameter<int>("prescaleFactor", -1)),
@@ -60,14 +61,10 @@ ZDCMonitorClient::ZDCMonitorClient(std::string myname, const edm::ParameterSet& 
 //	htmlFirstUpdate_(ps.getUntrackedParameter<int>("htmlFirstUpdate",20)),
 //	saveByLumiSection_(ps.getUntrackedParameter<bool>("saveByLumiSection",false))
 {
-	if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
-		prefixME_.append("/");
 
-	if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
-		subdir_.append("/");
-	subdir_=prefixME_+subdir_;
-
-
+	if (ZDCsubdir_.size()>0 && ZDCsubdir_.substr(ZDCsubdir_.size()-1,ZDCsubdir_.size())!="/")
+		ZDCsubdir_.append("/");
+	subdir_=prefixME_+ZDCsubdir_;
 }
 
 
@@ -97,21 +94,45 @@ void ZDCMonitorClient::beginRun(void) {
 
 	evt_=0;
 	jevt_=0;
-	htmlcounter_=0;
+//	htmlcounter_=0;
 	/*  if (!dqmStore_)
 	    {
 	    if (debug_>0) std::cout <<"<ZDCMonitorClient::beginRun> dqmStore does not exist!"<<std::endl;
 	    return;
 	    }*/
 	//subdir_="Hcal/";
-	dqmStore_->setCurrentFolder(subdir_); // what is Hcal/ZDCMonitor/EventInfoDUMMY folder
+//	dqmStore_->setCurrentFolder(subdir_); // what is Hcal/ZDCMonitor/EventInfoDUMMY folder
 
 	// Add new histograms; remove those created in previous runs
 	// prefixMe = Hcal/
 
-	ZDCChannelSummary_=dqmStore_->get(subdir_ + "ZDC_Channel_Summary");
-	if (ZDCChannelSummary_) dqmStore_->removeElement(ZDCChannelSummary_->getName());
-	ZDCChannelSummary_= dqmStore_->book2D("ZDC_Channel_Summary", "Fraction of Events where ZDC Channels had no Errors" , 2, 0, 2, 9, 0, 9); //This is the histo which will show the health of each ZDC Channel
+}
+
+
+//--------------------------------------------------------
+void ZDCMonitorClient::endJob(void) {
+
+	if( debug_>0 )
+		std::cout << "ZDCMonitorClient: endJob, ievt = " << ievt_ << std::endl;
+
+	return;
+}
+
+//--------------------------------------------------------
+//void ZDCMonitorClient::endRun(void){analyze();}
+
+//void ZDCMonitorClient::setup(void){}
+//void ZDCMonitorClient::cleanup(void){}
+
+void ZDCMonitorClient::analyze(DQMStore::IBooker & ib, DQMStore::IGetter & ig)
+{
+	if (debug_>0)
+		std::cout <<"<ZDCMonitorClient> Entered ZDCMonitorClient::analyze()"<<std::endl;
+	if(debug_>1) std::cout<<"\nZDC Monitor Client heartbeat...."<<std::endl;
+
+	ib.setCurrentFolder(subdir_);
+	ZDCChannelSummary_= ib.book2D("ZDC_Channel_Summary", "Fraction of Events where ZDC Channels had no Errors" , 2, 0, 2, 9, 0, 9); //This is the histo which will show the health of each ZDC Channel
+	ZDCChannelSummary_->Reset();
 	for (int i=0;i<18;++i)
 	{
 		ZDCChannelSummary_->setBinContent(i/9,i%9,-1);
@@ -133,9 +154,8 @@ void ZDCMonitorClient::beginRun(void) {
 
 
 
-	ZDCReportSummary_ = dqmStore_->get(subdir_ + "ZDC_ReportSummary");
-	if (ZDCReportSummary_) dqmStore_->removeElement(ZDCReportSummary_->getName());
-	ZDCReportSummary_= dqmStore_->book2D("ZDC_ReportSummary","Fraction of Good Lumis for either ZDC",2,0,2,1,0,1);
+	ZDCReportSummary_= ib.book2D("ZDC_ReportSummary","Fraction of Good Lumis for either ZDC",2,0,2,1,0,1);
+	ZDCReportSummary_->Reset();
 	for (int i=0;i<3;++i)
 	{
 		ZDCReportSummary_->setBinContent(i,1,-1);
@@ -146,10 +166,9 @@ void ZDCMonitorClient::beginRun(void) {
 	(ZDCReportSummary_->getTH2F())->SetMinimum(-1);
 	(ZDCReportSummary_->getTH2F())->SetMaximum(1);
 
-	ZDCHotChannelFraction_ = dqmStore_->get(subdir_+"Errors/HotChannel/ZDC_Hot_Channel_Fraction");
-	if (ZDCHotChannelFraction_) dqmStore_->removeElement(ZDCHotChannelFraction_->getName());
-	dqmStore_->setCurrentFolder(subdir_ + "Errors/HotChannel");
-	ZDCHotChannelFraction_ = dqmStore_->book2D("ZDC_Hot_Channel_Fraction", "Hot Channel Rates in the ZDC Channels", 2, 0, 2, 9, 0, 9); //Hot channel checker for ZDC
+	ib.setCurrentFolder(subdir_+"Errors/HotChannel/");
+	ZDCHotChannelFraction_ = ib.book2D("ZDC_Hot_Channel_Fraction", "Hot Channel Rates in the ZDC Channels", 2, 0, 2, 9, 0, 9); //Hot channel checker for ZDC
+	ZDCHotChannelFraction_->Reset();
 	for (int i=0;i<18;++i)
 	{
 		ZDCHotChannelFraction_->setBinContent(i/9,i%9,-1);
@@ -169,10 +188,9 @@ void ZDCMonitorClient::beginRun(void) {
 	(ZDCHotChannelFraction_->getTH2F())->SetMinimum(-1);
 	(ZDCHotChannelFraction_->getTH2F())->SetMaximum(1);
 
-	ZDCColdChannelFraction_ = dqmStore_->get(subdir_ + "Errors/ColdChannel/ZDC_Cold_Channel_Fraction");
-	if (ZDCColdChannelFraction_) dqmStore_->removeElement(ZDCColdChannelFraction_->getName());
-	dqmStore_->setCurrentFolder(subdir_ + "Errors/ColdChannel");
-	ZDCColdChannelFraction_=dqmStore_->book2D("ZDC_Cold_Channel_Fraction", "Cold Channel Rates in the ZDC Channels", 2, 0, 2,9, 0, 9); //Cold channel checker for ZDC
+	ib.setCurrentFolder(subdir_ + "Errors/ColdChannel");
+	ZDCColdChannelFraction_=ib.book2D("ZDC_Cold_Channel_Fraction", "Cold Channel Rates in the ZDC Channels", 2, 0, 2,9, 0, 9); //Cold channel checker for ZDC
+	ZDCColdChannelFraction_->Reset();
 	for (int i=0;i<18;++i)
 	{
 		ZDCColdChannelFraction_->setBinContent(i/9,i%9,-1);
@@ -193,10 +211,9 @@ void ZDCMonitorClient::beginRun(void) {
 	(ZDCColdChannelFraction_->getTH2F())->SetMaximum(1);
 
 
-	ZDCDeadChannelFraction_ = dqmStore_->get(subdir_ + "Errors/DeadChannel/ZDC_Dead_Channel_Fraction");
-	if ( ZDCDeadChannelFraction_) dqmStore_->removeElement(ZDCDeadChannelFraction_->getName());
-	dqmStore_->setCurrentFolder(subdir_+ "Errors/DeadChannel");
-	ZDCDeadChannelFraction_=dqmStore_->book2D("ZDC_Dead_Channel_Fraction","Dead Channel Rates in the ZDC Channels",2,0,2,9,0,9);
+	ib.setCurrentFolder(subdir_+ "Errors/DeadChannel");
+	ZDCDeadChannelFraction_=ib.book2D("ZDC_Dead_Channel_Fraction","Dead Channel Rates in the ZDC Channels",2,0,2,9,0,9);
+	ZDCDeadChannelFraction_->Reset();
 	for (int i=0;i<18;++i)
 	{
 		ZDCDeadChannelFraction_->setBinContent(i/9,i%9,-1);
@@ -216,10 +233,9 @@ void ZDCMonitorClient::beginRun(void) {
 	(ZDCDeadChannelFraction_->getTH2F())->SetMinimum(-1);
 	(ZDCDeadChannelFraction_->getTH2F())->SetMaximum(1);
 
-	ZDCDigiErrorFraction_ = dqmStore_->get(subdir_ + "Errors/Digis/ZDC_Digi_Error_Fraction");
-	if (ZDCDigiErrorFraction_) dqmStore_->removeElement(ZDCDigiErrorFraction_->getName());
-	dqmStore_->setCurrentFolder(subdir_ + "Errors/Digis");
-	ZDCDigiErrorFraction_=dqmStore_->book2D("ZDC_Digi_Error_Fraction", "Digi Error Rates in the ZDC Channels", 2, 0, 2,9, 0, 9); //Hot channel checker for ZDC
+	ib.setCurrentFolder(subdir_ + "Errors/Digis");
+	ZDCDigiErrorFraction_=ib.book2D("ZDC_Digi_Error_Fraction", "Digi Error Rates in the ZDC Channels", 2, 0, 2,9, 0, 9); //Hot channel checker for ZDC
+	ZDCDigiErrorFraction_->Reset();
 	for (int i=0;i<18;++i)
 	{
 		ZDCDigiErrorFraction_->setBinContent(i/9,i%9,-1);
@@ -237,32 +253,10 @@ void ZDCMonitorClient::beginRun(void) {
 	(ZDCDigiErrorFraction_->getTH2F())->SetOption("textcolz");
 	(ZDCDigiErrorFraction_->getTH2F())->SetMinimum(-1);
 	(ZDCDigiErrorFraction_->getTH2F())->SetMaximum(1);
-}
 
+	float ChannelRatio[18]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-//--------------------------------------------------------
-void ZDCMonitorClient::endJob(void) {
-
-	if( debug_>0 )
-		std::cout << "ZDCMonitorClient: endJob, ievt = " << ievt_ << std::endl;
-
-	return;
-}
-
-//--------------------------------------------------------
-//void ZDCMonitorClient::endRun(void){analyze();}
-
-//void ZDCMonitorClient::setup(void){}
-//void ZDCMonitorClient::cleanup(void){}
-
-void ZDCMonitorClient::analyze()
-{
-	if (debug_>0)
-		std::cout <<"<ZDCMonitorClient> Entered ZDCMonitorClient::analyze()"<<std::endl;
-	if(debug_>1) std::cout<<"\nZDC Monitor Client heartbeat...."<<std::endl;
-
-	float ChannelRatio[18]={0};
-	//dqmStore_->runQTests();
+	// booking
 
 	// Make a rate plot, by first getting plots from tasks
 	MonitorElement* me;
@@ -272,8 +266,7 @@ void ZDCMonitorClient::analyze()
 	///////////////////////////////////  1)   DIGI ERROR RATE PLOT     /////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	s=subdir_+"Errors/Digis/ZDC_Digi_Errors";  // prefixME_ = "Hcal/"
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"Errors/Digis/ZDC_Digi_Errors");
 
 	TH2F* ZdcDigiErrors=0;
 	if (me!=0)
@@ -297,8 +290,7 @@ void ZDCMonitorClient::analyze()
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Now get Hot Channel plot, used normalized values (num hot/event) in ZDCHotChannelFraction_
-	s=subdir_+"Errors/HotChannel/ZDC_Hot_Channel_Errors";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"Errors/HotChannel/ZDC_Hot_Channel_Errors");
 	TH2F* ZdcHotChannel=0;
 	if (me!=0)
 	{
@@ -321,8 +313,7 @@ void ZDCMonitorClient::analyze()
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//Now get Cold Channel plot, used normalized values (num Cold/event) in ZDCColdChannelFraction_
-	s=subdir_+"Errors/ColdChannel/ZDC_Cold_Channel_Errors";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"Errors/ColdChannel/ZDC_Cold_Channel_Errors");
 	TH2F* ZdcColdChannel=0;
 	if (me!=0)
 	{
@@ -345,8 +336,7 @@ void ZDCMonitorClient::analyze()
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//Now get Cold Channel plot, used normalized values (num Cold/event) in ZDCHotChannelFraction_
-	s=subdir_+"Errors/DeadChannel/ZDC_Dead_Channel_Errors";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"Errors/DeadChannel/ZDC_Dead_Channel_Errors");
 	TH2F* ZdcDeadChannel=0;
 	if (me!=0)
 	{
@@ -365,9 +355,6 @@ void ZDCMonitorClient::analyze()
 	}
 
 
-
-
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////// 5)  CHANNEL SUMMARY PLOT     /////////////////////////////////////////
 	//     This simply takes the total errors that each channel got (Cold,hot, digi error) sums them up from the
@@ -377,8 +364,7 @@ void ZDCMonitorClient::analyze()
 
 
 	///now we will make the channel summary map
-	s=subdir_+"Errors/ZDC_TotalChannelErrors";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"Errors/ZDC_TotalChannelErrors");
 	TH2F* ZdcTotalErrors=0;
 	if (me!=0)
 	{
@@ -406,18 +392,15 @@ void ZDCMonitorClient::analyze()
 	PZDC_LumiRatio=0.;
 	NZDC_GoodLumiCounter=0;
 	NZDC_LumiRatio=0.;
-	s=subdir_+"EventsVsLS";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"EventsVsLS");
 	TH1F* EventsvsLs=0;
 	if (me!=0)
 		EventsvsLs=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
-	s=subdir_+"PZDC_QualityIndexVSLB";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"PZDC_QualityIndexVSLB");
 	TH1F* Pzdc_QI=0;
 	if (me!=0)
 		Pzdc_QI=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
-	s=subdir_+"NZDC_QualityIndexVSLB";
-	me=dqmStore_->get(s.c_str());
+	me=ig.get(subdir_+"NZDC_QualityIndexVSLB");
 	TH1F* Nzdc_QI=0;
 	if (me!=0)
 		Nzdc_QI=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);

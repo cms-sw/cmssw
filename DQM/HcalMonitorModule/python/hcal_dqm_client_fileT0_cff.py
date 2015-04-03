@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import *
-from DQM.HcalMonitorClient.ZDCMonitorClient_cfi  import *
 hcalOfflineDQMClient = cms.Sequence(hcalClient
                                     # + zdcClient  # re-enable once zdc has been tested offline
                                     )
@@ -21,5 +20,7 @@ hcalClient.enabledClients    = ["DeadCellMonitor",
                                 "DetDiagNoiseMonitor",
                                 "Summary"
                                 ]
+#The ZDC+/- must have at least this high a quality index (QI) to be called good for that Lumi Section (LS)
+hcalClient.ZDC_QIValueForGoodLS = ZDC_QIValueForGoodLS = cms.untracked.vdouble(0.8, 0.8)
 # Enable save-by-lumi-section reportSummaries in offline only for now
 hcalClient.saveByLumiSection=True
