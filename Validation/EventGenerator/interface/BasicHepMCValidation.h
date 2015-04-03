@@ -23,12 +23,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
+#include "TVector3.h"
 
 class BasicHepMCValidation : public DQMEDAnalyzer{
     public:
@@ -49,95 +51,104 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
     
     class ParticleMonitor{
     public:
-    ParticleMonitor(TString _name,int pdgid_):name(_name),pdgid(pdgid_),count(0){};
+    ParticleMonitor(TString _name,int pdgid_, DQMStore::IBooker &i,bool nlog_=false):name(_name),pdgid(pdgid_),count(0),nlog(nlog_){
+	DQMHelper dqm(&i);
+	// Number of analyzed events
+	if(!nlog){
+	numberPerEvent= dqm.book1dHisto(name+"Number", "Number of  "+name+"'s per event", 
+					20, 0, 20,"No. of "+name,"Number of Events");
+	}
+	else{
+	  numberPerEvent= dqm.book1dHisto(name+"Number", "Number of  "+name+"'s per event",
+					  20, 0, 20,"log_{10}(No. of "+name+")","Number of Events");
+	}
+	p_init  = dqm.book1dHisto(name+"Momentum", "log_{10}(P) of the "+name+"s", 
+				  60, -2, 4,"log_{10}(P) (log_{10}(GeV))","Number of "+name );
+	
+	eta_init  = dqm.book1dHisto(name+"Eta", "#eta of the "+name+"s", 
+				   100, -5., 5.,"#eta","Number of "+name);
+
+	lifetime_init  = dqm.book1dHisto(name+"LifeTime", "#phi of the "+name+"s", 
+					 100, -15, -5,"Log_{10}(life-time^{final}) (log_{10}(s))","Number of "+name);
+	
+	p_final = dqm.book1dHisto(name+"MomentumFinal", "log_{10}(P^{final}) of "+name+"s at end of decay chain", 
+				  60, -2, 4,"log_{10}(P^{final}) (log_{10}(GeV))","Number of "+name);
+	
+	lifetime_final=dqm.book1dHisto(name+"LifeTimeFinal", "Log_{10}(life-time^{final}) of "+name+"s at end of decay chain",
+					100,-15,-5,"Log_{10}(life-time^{final}) (log_{10}(s))","Number of "+name);
+      }
+
       ~ParticleMonitor(){};
       
-      void Configure(DQMStore::IBooker &i){
-	TString pname=p.getParameter<std::string>("pname");
-	double mass_min=p.getParameter<double>("massmin");
-	double mass_max=p.getParameter<double>("massmax");
-	DQMHelper dqm(&i); i.setCurrentFolder("Generator/BPhysics");
-	// Number of analyzed events
-	pt   = dqm.book1dHisto(name+"PT", "P_{t} of the "+pname+"s", 100, 0., 100,"P_{t} (GeV)","Number of Events");
-	eta  = dqm.book1dHisto(name+"ETA", "#eta of the "+pname+"s", 100, -5., 5.,"#eta","Number of Events");
-	phi  = dqm.book1dHisto(name+"PHI", "#phi of the "+pname+"s", 100, 0, 2*TMath::Pi(),"#phi","Number of Events");
-	mass = dqm.book1dHisto(name+"MASS", "Mass of the "+pname+"s", 100, mass_min, mass_max,"Mass (GeV)","Number of Events");
-      }
-      
-      void Fill(const reco::GenParticle* p, double weight){
-	if(abs(p->pdgId())==abs(pdgid)){
+      bool Fill(const HepMC::GenParticle* p, double weight){
+	if(abs(p->pdg_id())==abs(pdgid)){
 	  if(isFirst(p)){
-	    pt_init->Fill(p->pt(),weight);
-	    eta_init->Fill(p->eta(),weight);
-	    lifetime->Fill(lt,weight);
-	    pf=GetFinal(p);
-	    pt_final->Fill(pf->pt(),weight);
+	    p_init->Fill(log10(p->momentum().rho()),weight);
+	    eta_init->Fill(log10(p->momentum().eta()),weight);
+	    // compute lifetime...
+	    TVector3 PV(p->production_vertex()->point3d().x(),p->production_vertex()->point3d().y(),p->production_vertex()->point3d().z()); 
+	    TVector3 SV(p->end_vertex()->point3d().x(),p->end_vertex()->point3d().y(),p->end_vertex()->point3d().z()); 
+	    TVector3 DL=SV-PV; 
+	    double c(2.99792458E8),Ltau(DL.Mag()/100)/*cm->m*/,beta(p->momentum().rho()/p->momentum().m()); 
+	    
+	    lifetime_init->Fill(Ltau/(c*beta),weight);
+	    const HepMC::GenParticle* pf=GetFinal(p); // inlcude mixing
+	    p_final->Fill(log10(pf->momentum().rho()),weight);
+	    TVector3 SVf(pf->end_vertex()->point3d().x(),pf->end_vertex()->point3d().y(),pf->end_vertex()->point3d().z());
+	    DL=SVf-PV;
+	    Ltau=DL.Mag()/100;
+	    lifetime_final->Fill(Ltau/(c*beta),weight);
 	    count++;
 	  }
+	  return true;
 	}
+	return false;
       }
       
       void FillCount(double weight){
 	numberPerEvent->Fill(count,weight);
 	count=0;
       }
-	  
+      
       int PDGID(){return pdgid;}
       
     private:
-      bool isFirst(const reco::GenParticle* p){
-	
+      bool isFirst(const HepMC::GenParticle* p){
+	if(p->production_vertex()){
+	  for(HepMC::GenVertex::particles_in_const_iterator m=p->end_vertex()->particles_in_const_begin(); m!=p->end_vertex()->particles_out_const_end();m++){
+	    if(abs((*m)->pdg_id())==abs(p->pdg_id())) return false;
+	  }
+	}
+	return true;
       }
       
-      reco::GenParticle* GetFinal(const reco::GenParticle* p){
-	
-      }
+      const HepMC::GenParticle* GetFinal(const HepMC::GenParticle* p){ // includes mixing
+	if(p->end_vertex()){ 
+	  if(p->end_vertex()->particles_out_size()!=0){ 
+	    for(HepMC::GenVertex::particles_out_const_iterator d=p->end_vertex()->particles_out_const_begin(); d!=p->end_vertex()->particles_out_const_end();d++){ 
+	      if(abs((*d)->pdg_id())==abs(p->pdg_id())){ 
+		return GetFinal(*d); 
+	      } 
+	    } 
+	  } 
+	} 
+	return p; 
+      } 
       
       TString name;
       int pdgid;
       unsigned int count;
-      MonitorElement *pt_init, *pt_final, *eta_init, *lifetime, *numberPerEvent;
+      bool nlog;
+      MonitorElement *p_init, *p_final, *eta_init, *lifetime_init, *lifetime_final, *numberPerEvent;
     };
     
-	
+    
     MonitorElement* nEvt;
-    std::vector<ParticleMonitor> particle;
-    
-    
-    ///multiplicity ME's
-    MonitorElement *uNumber, *dNumber, *sNumber, *cNumber, *bNumber, *tNumber;
-    MonitorElement *ubarNumber, *dbarNumber, *sbarNumber, *cbarNumber, *bbarNumber, *tbarNumber;
-    //
-    MonitorElement *eminusNumber, *nueNumber, *muminusNumber, *numuNumber, *tauminusNumber, *nutauNumber;
-    MonitorElement *eplusNumber, *nuebarNumber, *muplusNumber, *numubarNumber, *tauplusNumber, *nutaubarNumber;
-    //
-    MonitorElement *gluNumber, *WplusNumber,*WminusNumber, *ZNumber, *gammaNumber;
-    //
-    MonitorElement *piplusNumber, *piminusNumber, *pizeroNumber, *KplusNumber, *KminusNumber, *KlzeroNumber, *KszeroNumber;
-    MonitorElement *pNumber, *pbarNumber, *nNumber, *nbarNumber, *l0Number, *l0barNumber;
-    //
-    MonitorElement *DplusNumber, *DminusNumber, *DzeroNumber, *BplusNumber, *BminusNumber, *BzeroNumber, *BszeroNumber;
-    //
-    MonitorElement *otherPtclNumber;
-    
-    ///Momentum ME's
-    MonitorElement *uMomentum, *dMomentum, *sMomentum, *cMomentum, *bMomentum, *tMomentum;
-    MonitorElement *ubarMomentum, *dbarMomentum, *sbarMomentum, *cbarMomentum, *bbarMomentum, *tbarMomentum;
-    //
-    MonitorElement *eminusMomentum, *nueMomentum, *muminusMomentum, *numuMomentum, *tauminusMomentum, *nutauMomentum;
-    MonitorElement *eplusMomentum, *nuebarMomentum, *muplusMomentum, *numubarMomentum, *tauplusMomentum, *nutaubarMomentum;
-    //
-    MonitorElement *gluMomentum, *WplusMomentum,*WminusMomentum, *ZMomentum, *gammaMomentum;
-	//
-    MonitorElement *piplusMomentum, *piminusMomentum, *pizeroMomentum, *KplusMomentum, *KminusMomentum, *KlzeroMomentum,  *KszeroMomentum;
-    //
-    MonitorElement *pMomentum, *pbarMomentum, *nMomentum, *nbarMomentum, *l0Momentum, *l0barMomentum;
-    //
-    MonitorElement *DplusMomentum, *DminusMomentum, *DzeroMomentum,  *BplusMomentum, *BminusMomentum, *BzeroMomentum, *BszeroMomentum;
-    //
-    MonitorElement *otherPtclMomentum;
+    std::vector<ParticleMonitor> particles;
     
     ///other ME's
+    MonitorElement *otherPtclNumber;
+    MonitorElement *otherPtclMomentum;
     MonitorElement *genPtclNumber; 
     MonitorElement *genVrtxNumber;
     MonitorElement *unknownPDTNumber;
