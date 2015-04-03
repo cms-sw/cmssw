@@ -299,7 +299,7 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
       //CLCTs are packed by chamber not by A/B parts in ME11
       //me11a appears only in simulation with SLHC algorithm settings
       //without the shift, it's impossible to distinguish A and B parts
-      if (me11a){
+      if (me11a && formatVersion_ == 2013){
 	std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
 	for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
 	  if (iC->getCFEB() >= 0 && iC->getCFEB() < 3){//sanity check, mostly
@@ -326,7 +326,7 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
       //LCTs are packed by chamber not by A/B parts in ME11
       //me11a appears only in simulation with SLHC algorithm settings
       //without the shift, it's impossible to distinguish A and B parts
-      if (me11a){
+      if (me11a && formatVersion_ == 2013){
 	std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
         for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
           if (iC->getStrip() >= 0 && iC->getStrip() < 96){//sanity check, mostly
