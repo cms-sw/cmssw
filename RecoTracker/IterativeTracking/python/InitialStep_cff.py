@@ -105,18 +105,21 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTriple
 initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='initialStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
     trackSelectors= cms.VPSet(
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
         name = 'initialStepLoose',
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+        mvaType = cms.string('Detached'),
         ), #end of pset
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
         name = 'initialStepTight',
         preFilterName = 'initialStepLoose',
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
         ),
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
         name = 'initialStepV1',
         preFilterName = 'initialStepTight',
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
         ),
     detachedTripletStepSelector.trackSelectors[4].clone(
         name = 'initialStepV2',
