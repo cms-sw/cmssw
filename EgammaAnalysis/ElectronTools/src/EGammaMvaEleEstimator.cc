@@ -20,6 +20,8 @@ using namespace std;
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include <cstdio>
+#include <zlib.h>
 using namespace reco;
 #endif
 
@@ -38,6 +40,7 @@ fNMVABins(0)
 EGammaMvaEleEstimator::~EGammaMvaEleEstimator()
 {
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
+    if (fTMVAMethod[i]) delete fTMVAMethod[i];
     if (fTMVAReader[i]) delete fTMVAReader[i];
   }
 }
@@ -64,8 +67,10 @@ void EGammaMvaEleEstimator::initialize( std::string methodName,
   //clean up first
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
     if (fTMVAReader[i]) delete fTMVAReader[i];
+    if (fTMVAMethod[i]) delete fTMVAMethod[i];
   }
   fTMVAReader.clear();
+  fTMVAMethod.clear();
 
   //initialize
   fisInitialized = kTRUE;
@@ -367,9 +372,30 @@ void EGammaMvaEleEstimator::initialize( std::string methodName,
 
     }
 
-
-
-    tmpTMVAReader->BookMVA(fMethodname , weightsfiles[i]);
+#ifndef STANDALONE
+    if ((fMethodname == "BDT") && (weightsfiles[i].rfind(".xml.gz") == weightsfiles[i].length()-strlen(".xml.gz"))) {
+        gzFile file = gzopen(weightsfiles[i].c_str(), "rb");
+        if (file == nullptr) { std::cout  << "Error opening gzip file associated to " << weightsfiles[i] << std::endl; throw cms::Exception("Configuration","Error reading zipped XML file"); }
+        std::vector<char> data; 
+        data.reserve(1024*1024*10);
+        unsigned int bufflen = 32*1024;
+        char *buff = reinterpret_cast<char *>(malloc(bufflen));
+        if (buff == nullptr) { std::cout  << "Error creating buffer for " << weightsfiles[i] << std::endl;  gzclose(file); throw cms::Exception("Configuration","Error reading zipped XML file"); }
+        int read;
+        while ((read = gzread(file, buff, bufflen)) != 0) {
+            if (read == -1) { std::cout  << "Error reading gzip file associated to " << weightsfiles[i] << ": " << gzerror(file,&read) << std::endl; gzclose(file); free(buff); throw cms::Exception("Configuration","Error reading zipped XML file"); }
+            data.insert(data.end(), buff, buff+read);
+        }
+        if (gzclose(file) != Z_OK) { std::cout  << "Error closing gzip file associated to " << weightsfiles[i] << std::endl; }
+        free(buff);
+        data.push_back('\0'); // IMPORTANT
+        fTMVAMethod.push_back(dynamic_cast<TMVA::MethodBase*>(tmpTMVAReader->BookMVA(TMVA::Types::kBDT, &data[0])));
+    } else {
+        fTMVAMethod.push_back(dynamic_cast<TMVA::MethodBase*>(tmpTMVAReader->BookMVA(fMethodname , weightsfiles[i])));
+    }
+#else
+        fTMVAMethod.push_back(dynamic_cast<TMVA::MethodBase*>(tmpTMVAReader->BookMVA(fMethodname , weightsfiles[i])));
+#endif
     std::cout << "MVABin " << i << " : MethodName = " << fMethodname 
               << " , type == " << type << " , "
               << "Load weights file : " << weightsfiles[i] 
@@ -497,9 +523,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   bindVariables();
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
   if(printDebug) {
@@ -599,9 +626,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   bindVariables();
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
   if(printDebug) {
@@ -702,9 +730,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   bindVariables();
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
 
@@ -832,9 +861,10 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(Double_t fbrem,
 
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
   if(printDebug) {
@@ -931,7 +961,8 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(Double_t Pt,
   fMVAVar_NeutralHadronIso_DR0p4To0p5 = TMath::Max(TMath::Min((NeutralHadronIso_DR0p4To0p5 - Rho*ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleNeutralHadronIsoDR0p4To0p5, Eta, EATarget))/Pt, 2.5), 0.0);
 
   // evaluate
-  Double_t mva = fTMVAReader[GetMVABin(Eta,Pt)]->EvaluateMVA(fMethodname);
+  int bin = GetMVABin(Eta,Pt);
+  Double_t mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
 
   if(printDebug) {
     cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
@@ -1058,9 +1089,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   bindVariables();
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
 
@@ -1167,9 +1199,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   bindVariables();
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
 
@@ -1211,6 +1244,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
                                          const reco::Vertex& vertex,
                                          double rho,
+                                         bool useFull5x5,
                                          bool printDebug) {
 
   if (!fisInitialized) {
@@ -1236,17 +1270,17 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   fMVAVar_detacalo        =  ele.deltaEtaSeedClusterTrackAtCalo();
 
   // Pure ECAL -> shower shapes
-  fMVAVar_see             =  ele.sigmaIetaIeta();    //EleSigmaIEtaIEta
-
-  fMVAVar_spp             =  ele.sigmaIphiIphi();
+  fMVAVar_see             =  useFull5x5 ? ele.full5x5_sigmaIetaIeta() : ele.sigmaIetaIeta();    //EleSigmaIEtaIEta
+  fMVAVar_spp             =  useFull5x5 ? ele.full5x5_sigmaIphiIphi() : ele.sigmaIphiIphi();    //EleSigmaIEtaIEta
 
   fMVAVar_etawidth        =  ele.superCluster()->etaWidth();
   fMVAVar_phiwidth        =  ele.superCluster()->phiWidth();
-  fMVAVar_OneMinusE1x5E5x5       =  (ele.e5x5()) !=0. ? 1.-(ele.e1x5()/ele.e5x5()) : -1. ;
-  fMVAVar_R9              =  ele.r9();
+  fMVAVar_OneMinusE1x5E5x5  = useFull5x5 ? ( (ele.full5x5_e5x5()) !=0. ? 1.-(ele.full5x5_e1x5()/ele.full5x5_e5x5()) : -1. ) 
+                                         : ( (ele.e5x5()        ) !=0. ? 1.-(ele.e1x5()        /ele.e5x5()        ) : -1. ) ;
+  fMVAVar_R9                =  useFull5x5 ? ele.full5x5_r9() : ele.r9();
 
   // Energy matching
-  fMVAVar_HoE             =  ele.hadronicOverEm();
+  fMVAVar_HoE             =  ele.hadronicOverEm(); // this is identical for both
   fMVAVar_EoP             =  ele.eSuperClusterOverP();
 
   // unify this in the future?
@@ -1276,7 +1310,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
     if (ele.gsfTrack().isNonnull()) {
       const double gsfsign   = ( (-ele.gsfTrack()->dxy(vertex.position()))   >=0 ) ? 1. : -1.;
 
-      std::cout << "Warning : if usePV = false when pat-electrons were produced, dB() was calculated with respect to beamspot while original mva uses primary vertex" << std::endl;
+      //std::cout << "Warning : if usePV = false when pat-electrons were produced, dB() was calculated with respect to beamspot while original mva uses primary vertex" << std::endl;
       double ip3d = gsfsign*ele.dB();
       double ip3derr = ele.edB();
       fMVAVar_ip3d = ip3d;
@@ -1292,9 +1326,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   bindVariables();
   Double_t mva = -9999;
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
   if(printDebug) {
@@ -1396,9 +1431,10 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   bindVariables();
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
 
@@ -1607,9 +1643,10 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
    
 //   mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
 
@@ -1843,9 +1880,10 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
   // evaluate
   Double_t mva = -9999;  
   if (fUseBinnedVersion) {
-    mva = fTMVAReader[GetMVABin(fMVAVar_eta,fMVAVar_pt)]->EvaluateMVA(fMethodname);
+    int bin = GetMVABin(fMVAVar_eta,fMVAVar_pt);
+    mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
   } else {
-    mva = fTMVAReader[0]->EvaluateMVA(fMethodname);
+    mva = fTMVAReader[0]->EvaluateMVA(fTMVAMethod[0]);
   }
 
 
