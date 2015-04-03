@@ -216,11 +216,11 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
 process.load("Validation.RecoTrack.cutsTPFake_cfi")
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.trackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
 ## Mark's alternate faster associator
-#process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
+#process.load('SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi')
 #process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 process.load('Configuration.StandardSequences.Validation_cff')
@@ -247,6 +247,7 @@ process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksZeroHp"),
                                            cms.InputTag("cutsRecoTracksFirstHp")
                                            )
+process.trackValidator.associators = ['trackAssociatorByHits']
 #process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
 process.trackValidator.UseAssociators = True
 ## options to match with 363 histos for comparison
@@ -281,6 +282,7 @@ process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksHpwbtagc*
                                  process.cutsRecoTracksZeroHp*
                                  process.cutsRecoTracksFirstHp*
+                                 process.trackAssociatorByHits*
                                  process.trackValidator)
 
 ########################################

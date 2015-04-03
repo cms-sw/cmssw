@@ -86,7 +86,7 @@ process.offlinePrimaryVerticesDA.TkClusParameters=cms.PSet(
 
 
 # the analyzer 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatiorProducer.trackAssociatorByHits_cfi")
 process.load("Validation.RecoVertex.VertexValidation_cff")
 
 

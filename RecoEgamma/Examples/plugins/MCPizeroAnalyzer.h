@@ -2,7 +2,6 @@
 #define MCPizeroAnalyzer_H
 #include "RecoEgamma/EgammaMCTools/interface/PizeroMCTruthFinder.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
