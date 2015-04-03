@@ -278,7 +278,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 	
   for (unsigned int i=0; i<qualityToSet_.size(); i++) {  
     std::vector<float> mvaVals_(srcTracks.size(),-99.f);
-    processMVA(evt,es,vertexBeamSpot,points[0], i, mvaVals_);
+    processMVA(evt,es,vertexBeamSpot,points[0], i, mvaVals_, i == 0 ? true : false);
     std::vector<int> selTracks(trkSize,0);
     auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
@@ -530,7 +530,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   }
 }
 
-void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, Point point, int selIndex, std::vector<float> & mvaVals_) const
+void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, Point point, int selIndex, std::vector<float> & mvaVals_, bool writeIt) const
 {
 
   using namespace std; 
@@ -553,7 +553,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
 
 
-  if(!useAnyMVA_ && selIndex == 0){
+  if(!useAnyMVA_ && writeIt){
     // mvaVals_ already initalized...
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
@@ -561,7 +561,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     return;
   }
 
-  if(!useMVA_[selIndex])return;
+  if(!useMVA_[selIndex] && !writeIt)return;
 
 
   size_t current = 0;
@@ -648,7 +648,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     }
   }
 
-  if(selIndex == 0){
+  if(writeIt){
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
     evt.put(mvaValValueMap,"MVAVals");

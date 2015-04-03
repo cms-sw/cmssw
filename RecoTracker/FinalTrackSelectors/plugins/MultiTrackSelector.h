@@ -72,7 +72,7 @@
 				  std::vector<float> &vterr,
 				  std::vector<float> &vzerr) const;
 
-	    void processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, Point point, int selIndex, std::vector<float> & mvaVals_) const;
+	    void processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, Point point, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
