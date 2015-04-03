@@ -82,7 +82,7 @@ bool accept(const CSCDetId & cscId, const LCTCollection & lcts,
 // need to specialize for pretriggers, since they don't have a getBX()
 template<>
 bool accept(const CSCDetId & cscId, const CSCCLCTPreTriggerCollection & lcts,
-            int bxMin, int bxMax, bool me1abCheck = false)
+            int bxMin, int bxMax, bool me1abCheck)
 {
   if (bxMin == -999) return true;
   int nominalBX = 6;
