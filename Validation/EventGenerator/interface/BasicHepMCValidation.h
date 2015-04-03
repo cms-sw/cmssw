@@ -106,7 +106,8 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
       }
       
       void FillCount(double weight){
-	numberPerEvent->Fill(count,weight);
+	if(nlog) numberPerEvent->Fill(log10(count),weight);
+	else numberPerEvent->Fill(count,weight);
 	count=0;
       }
       

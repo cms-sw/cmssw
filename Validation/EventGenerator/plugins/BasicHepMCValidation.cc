@@ -69,19 +69,19 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   particles.push_back(ParticleMonitor("gluon",21,i)); 
   
   //mesons
-  particles.push_back(ParticleMonitor("piplus",211,i));   //log
-  particles.push_back(ParticleMonitor("piminus",-211,i)); //log
-  particles.push_back(ParticleMonitor("pizero",111,i));   //log
+  particles.push_back(ParticleMonitor("piplus",211,i,true));   //log
+  particles.push_back(ParticleMonitor("piminus",-211,i,true)); //log
+  particles.push_back(ParticleMonitor("pizero",111,i,true));   //log
   particles.push_back(ParticleMonitor("Kplus",321,i));
   particles.push_back(ParticleMonitor("Kminus",-321,i));
   particles.push_back(ParticleMonitor("Klzero",130,i));
   particles.push_back(ParticleMonitor("Kszero",310,i));
   
   //baryons
-  particles.push_back(ParticleMonitor("p",2212,i));     //log
-  particles.push_back(ParticleMonitor("pbar",-2212,i)); //log
-  particles.push_back(ParticleMonitor("n",2112,i));     //log
-  particles.push_back(ParticleMonitor("nbar",-2112,i)); //log
+  particles.push_back(ParticleMonitor("p",2212,i,true));     //log
+  particles.push_back(ParticleMonitor("pbar",-2212,i,true)); //log
+  particles.push_back(ParticleMonitor("n",2112,i,true));     //log
+  particles.push_back(ParticleMonitor("nbar",-2112,i,true)); //log
   particles.push_back(ParticleMonitor("l0",3122,i));
   particles.push_back(ParticleMonitor("l0bar",-3122,i));
   
