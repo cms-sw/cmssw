@@ -40,7 +40,7 @@ CSCDetId chamberID(const CSCDetId & cscDetId)
 
 template<typename LCTCollection>
 bool accept(const CSCDetId & cscId, const LCTCollection & lcts,
-            int bxMin, int bxMax)
+            int bxMin, int bxMax, bool me1abCheck = false)
 {
   if (bxMin == -999) return true;
   int nominalBX = 6;
@@ -57,13 +57,32 @@ bool accept(const CSCDetId & cscId, const LCTCollection & lcts,
           break;
         }
     }
+
+  bool me1 = cscId.station() == 1 && cscId.ring() == 1;
+  //this is another "creative" recovery of smart ME1A-ME1B TMB logic cases: 
+  //wire selective readout requires at least one (A)LCT in the full chamber
+  if (me1 && result == false && me1abCheck){
+    CSCDetId me1aId = CSCDetId(chamberId.endcap(), chamberId.station(), 4, chamberId.chamber(), 0);
+    lctRange = lcts.get(me1aId);
+    for (typename LCTCollection::const_iterator lctItr = lctRange.first;
+	 lctItr != lctRange.second; ++lctItr)
+      {
+	int bx = lctItr->getBX() - nominalBX;
+	if (bx >= bxMin && bx <= bxMax)
+	  {
+	    result = true;
+	    break;
+	  }
+      }
+  }
+
   return result;
 }
 
 // need to specialize for pretriggers, since they don't have a getBX()
 template<>
 bool accept(const CSCDetId & cscId, const CSCCLCTPreTriggerCollection & lcts,
-            int bxMin, int bxMax)
+            int bxMin, int bxMax, bool me1abCheck = false)
 {
   if (bxMin == -999) return true;
   int nominalBX = 6;
@@ -80,6 +99,21 @@ bool accept(const CSCDetId & cscId, const CSCCLCTPreTriggerCollection & lcts,
           break;
         }
     }
+  bool me1a = cscId.station() == 1 && cscId.ring() == 4;
+  if (me1a && result == false && me1abCheck) {
+    //check pretriggers in me1a as well; relevant for TMB emulator writing to separate detIds
+    lctRange = lcts.get(cscId);
+    for (CSCCLCTPreTriggerCollection::const_iterator lctItr = lctRange.first;
+	 lctItr != lctRange.second; ++lctItr)
+      {
+	int bx = *lctItr - nominalBX;
+	if (bx >= bxMin && bx <= bxMax)
+	  {
+	    result = true;
+	    break;
+	  }
+      }    
+  }
   return result;
 }
 
@@ -146,9 +180,10 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
       CSCDetId cscDetId=(*j).first;
       // only digitize if there are pre-triggers
       
+      bool me1abCheck = formatVersion_ == 2013;
       /* !!! Testing. Uncomment for production */
      if (!usePreTriggers_ || packEverything_ ||
-	(usePreTriggers_ && cscd2r::accept(cscDetId, preTriggers, preTriggerWindowMin_, preTriggerWindowMax_)) )
+	(usePreTriggers_ && cscd2r::accept(cscDetId, preTriggers, preTriggerWindowMin_, preTriggerWindowMax_, me1abCheck)) )
         {
           bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
           bool zplus = (cscDetId.endcap() == 1);
@@ -209,7 +244,8 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
   for (CSCWireDigiCollection::DigiRangeIterator j=wireDigis.begin(); j!=wireDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
-      if (packEverything_ || cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_))
+      bool me1abCheck = formatVersion_ == 2013;
+      if (packEverything_ || cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, me1abCheck))
         {
           CSCEventData & cscData = findEventData(cscDetId);
           std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
@@ -231,7 +267,8 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
-      if (packEverything_ || cscd2r::accept(cscDetId, clctDigis, clctWindowMin_, clctWindowMax_))
+      bool me1abCheck = formatVersion_ == 2013;
+      if (packEverything_ || cscd2r::accept(cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, me1abCheck))
         {
           bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
 	  
