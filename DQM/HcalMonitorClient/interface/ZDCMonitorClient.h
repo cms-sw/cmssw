@@ -103,7 +103,7 @@ private:
 //	int databaseFirstUpdate_; // first update time (in minutes)
 //	int htmlFirstUpdate_; // first update for html
 
-	int htmlcounter_;
+//	int htmlcounter_;
 
 //	bool saveByLumiSection_;  //produces separate LS certification values when enabled
 //	std::string subdir_;
