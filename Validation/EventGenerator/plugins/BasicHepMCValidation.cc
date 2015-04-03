@@ -145,7 +145,6 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   DeltaPx = dqm.book1dHisto("DeltaPx1","deviation from nominal Px", 200,-1., 1.,"#DetlaP_{x} (GeV)","Number of Events");
   DeltaPy = dqm.book1dHisto("DeltaPy1","deviation from nominal Py", 200,-1., 1.,"#DetlaP_{y} (GeV)","Number of Events");
   DeltaPz = dqm.book1dHisto("DeltaPz1","deviation from nominal Pz", 200,-1., 1.,"#DetlaP_{z} (GeV)","Number of Events");
-  
   return;
 }
 
@@ -180,7 +179,6 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
     bjorken = ((pdf->x1())/((pdf->x1())+(pdf->x2())));
   }
   Bjorken_x->Fill(bjorken,weight);
-
   //Looping through the VERTICES in the event
   HepMC::GenEvent::vertex_const_iterator vrtxBegin = myGenEvent->vertices_begin();
   HepMC::GenEvent::vertex_const_iterator vrtxEnd = myGenEvent->vertices_end();
@@ -210,7 +208,6 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       nvtx++;
     }//vertices
 
-    
   ///Looping through the PARTICLES in the event
   HepMC::GenEvent::particle_const_iterator ptclBegin = myGenEvent->particles_begin();
   HepMC::GenEvent::particle_const_iterator ptclEnd = myGenEvent->particles_end();
@@ -267,9 +264,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       bool indentified=false;
       for(unsigned int i=0;i<particles.size();i++){if(particles.at(i).Fill(ptcl,weight)){indentified=true; break;}}
       if(!indentified){	++otherPtclNum; otherPtclMomentum->Fill(Log_p,weight);}
-     
     }//event particles
-  
 
   // set a default sqrt(s) and then check in the event
   double ecms = 13000.;

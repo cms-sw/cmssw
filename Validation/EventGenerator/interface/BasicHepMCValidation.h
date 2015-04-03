@@ -85,19 +85,24 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
 	  if(isFirst(p)){
 	    p_init->Fill(log10(p->momentum().rho()),weight);
 	    eta_init->Fill(log10(p->momentum().eta()),weight);
+            const HepMC::GenParticle* pf=GetFinal(p); // inlcude mixing
+            p_final->Fill(log10(pf->momentum().rho()),weight);
 	    // compute lifetime...
-	    TVector3 PV(p->production_vertex()->point3d().x(),p->production_vertex()->point3d().y(),p->production_vertex()->point3d().z()); 
-	    TVector3 SV(p->end_vertex()->point3d().x(),p->end_vertex()->point3d().y(),p->end_vertex()->point3d().z()); 
-	    TVector3 DL=SV-PV; 
-	    double c(2.99792458E8),Ltau(DL.Mag()/100)/*cm->m*/,beta(p->momentum().rho()/p->momentum().m()); 
-	    
-	    lifetime_init->Fill(Ltau/(c*beta),weight);
-	    const HepMC::GenParticle* pf=GetFinal(p); // inlcude mixing
-	    p_final->Fill(log10(pf->momentum().rho()),weight);
-	    TVector3 SVf(pf->end_vertex()->point3d().x(),pf->end_vertex()->point3d().y(),pf->end_vertex()->point3d().z());
-	    DL=SVf-PV;
-	    Ltau=DL.Mag()/100;
-	    lifetime_final->Fill(Ltau/(c*beta),weight);
+	    if(p->production_vertex() && p->end_vertex()){
+	      TVector3 PV(p->production_vertex()->point3d().x(),p->production_vertex()->point3d().y(),p->production_vertex()->point3d().z()); 
+	      TVector3 SV(p->end_vertex()->point3d().x(),p->end_vertex()->point3d().y(),p->end_vertex()->point3d().z()); 
+	      TVector3 DL=SV-PV; 
+	      double c(2.99792458E8),Ltau(DL.Mag()/100)/*cm->m*/,beta(p->momentum().rho()/p->momentum().m()); 
+	      double lt=Ltau/(c*beta);
+	      if(lt>1E-16)lifetime_init->Fill(log10(lt),weight);
+	      if(pf->end_vertex()){
+		TVector3 SVf(pf->end_vertex()->point3d().x(),pf->end_vertex()->point3d().y(),pf->end_vertex()->point3d().z());
+		DL=SVf-PV;
+		Ltau=DL.Mag()/100;
+		lt=Ltau/(c*beta);
+		if(lt>1E-16)lifetime_final->Fill(log10(lt),weight);
+	      }
+	    }
 	    count++;
 	  }
 	  return true;
@@ -116,7 +121,7 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
     private:
       bool isFirst(const HepMC::GenParticle* p){
 	if(p->production_vertex()){
-	  for(HepMC::GenVertex::particles_in_const_iterator m=p->end_vertex()->particles_in_const_begin(); m!=p->end_vertex()->particles_out_const_end();m++){
+	  for(HepMC::GenVertex::particles_in_const_iterator m=p->production_vertex()->particles_in_const_begin(); m!=p->production_vertex()->particles_in_const_end();m++){
 	    if(abs((*m)->pdg_id())==abs(p->pdg_id())) return false;
 	  }
 	}
