@@ -155,7 +155,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
 
     void setPtr(std::type_info const& toType,
                 unsigned long index,
@@ -408,10 +408,11 @@ namespace edm {
     data_.swap(other.data_);
   }
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
   void OwnVector<T, P>::fillView(ProductID const& id,
                                  std::vector<void const*>& pointers,
-                                 helper_vector& helpers) const {
+                                 FillViewHelperVector& helpers) const {
     typedef Ref<OwnVector>      ref_type ;
     typedef reftobase::RefHolder<ref_type> holder_type;
 
@@ -429,11 +430,11 @@ namespace edm {
       }
       else {
         pointers.push_back(*i);
-        holder_type h(ref_type(id, *i, key,this));
-        helpers.push_back(&h);
+        helpers.emplace_back(id,key);
       }
     }
   }
+#endif
 
   template<typename T, typename P>
   inline void swap(OwnVector<T, P>& a, OwnVector<T, P>& b) noexcept {
@@ -450,7 +451,7 @@ namespace edm {
   fillView(OwnVector<T,P> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

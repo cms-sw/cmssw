@@ -67,12 +67,11 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
   iEvent.getByToken(pfCandidateProducer_, pfHandle);
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
-  reco::ElectronIsolationMap eleMap;
-  reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
-   
   if(useSCRefs_) {
 
     iEvent.getByToken(recoEcalCandidateProducer_, recoEcalCandHandle);
+    reco::RecoEcalCandidateIsolationMap recoEcalCandMap(recoEcalCandHandle);
+
     iEvent.getByToken(beamSpotProducer_, recoBeamSpotHandle);
     const reco::BeamSpot::Point& beamSpotPosition = recoBeamSpotHandle->position(); 
 
@@ -117,10 +116,13 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
       
       recoEcalCandMap.insert(candRef, sum);
     }
+    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
+    iEvent.put(mapForEvent);
 
   } else {
 
     iEvent.getByToken(electronProducer_,electronHandle);
+    reco::ElectronIsolationMap eleMap(electronHandle);   
 
     float dRveto = -1;
 
@@ -159,13 +161,6 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
 
       eleMap.insert(eleRef, sum);
     }   
-
-  }
-
-  if(useSCRefs_){
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
-    iEvent.put(mapForEvent);
-  }else{
     std::auto_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
     iEvent.put(mapForEvent);
   }

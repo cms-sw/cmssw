@@ -223,7 +223,7 @@ void CosmicTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     evt.getByToken(srcTraj_, hTraj);
     selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
     rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
-    selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+    selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection(&evt.productGetter()));
     for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
       Ref< vector<Trajectory> > trajRef(hTraj, i);
       TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);

@@ -101,7 +101,7 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
   iEvent.getByToken(pfClusterProducer_, clusterHandle);
 
   EcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
-  T1IsolationMap recoCandMap;
+  T1IsolationMap recoCandMap(recoCandHandle);
     
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);

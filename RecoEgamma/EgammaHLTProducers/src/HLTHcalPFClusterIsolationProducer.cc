@@ -114,7 +114,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid, edm::Even
     clusterHandles.push_back(clusterHfhadHandle);
   }
 
-  T1IsolationMap recoCandMap;
+  T1IsolationMap recoCandMap(recoCandHandle);
   HcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_, useEt_);
   
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {

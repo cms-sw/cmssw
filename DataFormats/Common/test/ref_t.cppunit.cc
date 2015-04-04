@@ -74,12 +74,41 @@ void testRef::constructTest() {
    CPPUNIT_ASSERT(dummyRef.id() == pid);
    CPPUNIT_ASSERT(dummyRefProd.id() == pid);
    CPPUNIT_ASSERT(dummyRef.key() == key);
-   CPPUNIT_ASSERT(dummyRef.product() == &dummyCollection);
    CPPUNIT_ASSERT(&(*dummyRef) == &dummyCollection[key]);
    CPPUNIT_ASSERT((dummyRef.operator->()) == &dummyCollection[key]);
    CPPUNIT_ASSERT(dummyRef->address() == dummyCollection[key].address());
    CPPUNIT_ASSERT(&(*dummyRefProd) == &dummyCollection);
    CPPUNIT_ASSERT((dummyRefProd.operator->()) == &dummyCollection);
+
+   Ref<DummyCollection> testRef1(pid, &dummyCollection[key], key, nullptr);
+   CPPUNIT_ASSERT(testRef1.get() == &dummyCollection[key] &&
+                  testRef1.key() == key &&
+                  testRef1.isTransient() == false &&
+                  testRef1.id() == pid);
+
+   Ref<DummyCollection> testRef2(pid, &dummyCollection[key], key);
+   CPPUNIT_ASSERT(testRef2.get() == &dummyCollection[key] &&
+                  testRef2.key() == key &&
+                  testRef2.isTransient() == false &&
+                  testRef2.id() == pid);
+
+   Ref<DummyCollection> testRef3(pid, &dummyCollection[key], key, false);
+   CPPUNIT_ASSERT(testRef3.get() == &dummyCollection[key] &&
+                  testRef3.key() == key &&
+                  testRef3.isTransient() == false &&
+                  testRef3.id() == pid);
+
+   Ref<DummyCollection> testRef4(pid, &dummyCollection[key], key, true);
+   CPPUNIT_ASSERT(testRef4.get() == &dummyCollection[key] &&
+                  testRef4.key() == key &&
+                  testRef4.isTransient() == true &&
+                  testRef4.id() == pid);
+
+   Ref<DummyCollection> testRef5(&dummyCollection, key);
+   CPPUNIT_ASSERT(testRef5.get() == &dummyCollection[key] &&
+                  testRef5.key() == key &&
+                  testRef5.isTransient() == true &&
+                  testRef5.id() == edm::ProductID());
 }
 
 void testRef::comparisonTest() {
@@ -200,23 +229,20 @@ void testRef::getTest() {
 
    OrphanHandle<IntCollection> handle(wptr, pid);
 
-   Ref<IntCollection> ref0(handle, 0);
-   ref0.refCore().setProductGetter(&tester);
-   //only have to set ProductGetter since they share the same ptr
-   //ref0.refCore().setProductPtr(0); 
+   Ref<IntCollection> ref0(pid, 0, &tester);
    CPPUNIT_ASSERT(!ref0.hasProductCache());
 
-   Ref<IntCollection> ref1(handle, 1);
-   ref1.refCore().setProductGetter(&tester);
-   //ref1.refCore().setProductPtr(0);
-
-   Ref<IntCollection> ref2(pid, 1, &tester);
+   Ref<IntCollection> ref1(pid, 1, &tester);
 
    CPPUNIT_ASSERT(0 == ref0->value_);
    CPPUNIT_ASSERT(ref0.hasProductCache());
    CPPUNIT_ASSERT(1 == ref1->value_);
-   CPPUNIT_ASSERT(1 == ref2->value_);
    CPPUNIT_ASSERT(1 == (*ref1).value_);
+
+   Ref<IntCollection> ref0FromHandle(handle, 0);
+   CPPUNIT_ASSERT(0 == ref0FromHandle->value_);
+   Ref<IntCollection> ref1FromHandle(handle, 1);
+   CPPUNIT_ASSERT(1 == ref1FromHandle->value_);
 
    RefProd<IntCollection> refProd0(handle);
    refProd0.refCore().setProductGetter(&tester);
@@ -230,8 +256,6 @@ void testRef::getTest() {
 
    //std::cerr << ">>> RefToBaseProd from RefProd" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd0(refProd0);
-   //std::cerr << ">>> RefToBaseProd from Ref" << std::endl;
-   RefToBaseProd<IntValue> refToBaseProd1(ref0);
    //std::cerr << ">>> RefToBaseProd from Handle" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd2(handle);
    //std::cerr << ">>> checking View from RefToBaseProd" << std::endl;
@@ -245,13 +269,4 @@ void testRef::getTest() {
    //std::cerr << ">>> checking View element #1" << std::endl;
    CPPUNIT_ASSERT(vw[1].value_ == ref1->value_);
    //std::cerr << ">>> RefToBaseProd from View" << std::endl;
-   RefToBaseProd<IntValue> refToBaseProd3(vw);
-   //std::cerr << ">>> checking ref. not empty" << std::endl;
-   CPPUNIT_ASSERT(! refToBaseProd3->empty());
-   //std::cerr << ">>> checking ref. size" << std::endl;
-   CPPUNIT_ASSERT(refToBaseProd3->size() == 2);
-   //std::cerr << ">>> checking ref. element #0" << std::endl;
-   CPPUNIT_ASSERT((*refToBaseProd3)[0].value_ == ref0->value_);
-   //std::cerr << ">>> checking ref. element #1" << std::endl;
-   CPPUNIT_ASSERT((*refToBaseProd3)[1].value_ == ref1->value_);
 }

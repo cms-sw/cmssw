@@ -173,7 +173,15 @@ namespace edmtest {
         if (viewSize1 != size1) {
           throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch to RefProd size" << std::endl;
         }
+        edm::Ref<ThingCollection> refFromCast = otherThing.refToBase.castTo<edm::Ref<ThingCollection> >();
+        edm::Ptr<Thing> ptrFromCast = otherThing.refToBase.castTo<edm::Ptr<Thing> >();
         Thing const& tcBase = *otherThing.refToBase;
+        if(tcBase.a != refFromCast->a) {
+          throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " Ref from RefToBase::castTo has incorrect value " << '\n';
+        }
+        if(tcBase.a != ptrFromCast->a) {
+          throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " Ptr from RefToBase::castTo has incorrect value " << '\n';
+        }
         int const& xBase = otherThing.refToBase->a;
         if (tcBase.a == i && xBase == i) {
           edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " RefToBase dereferenced successfully.\n";

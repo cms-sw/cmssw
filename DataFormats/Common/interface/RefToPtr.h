@@ -22,7 +22,7 @@ namespace edm {
       return Ptr<T>();
     }
     if (ref.isTransient()) {
-      return Ptr<T>(ref.product(), ref.key());
+      return Ptr<T>(ref.get(), ref.key());
     } else if (not ref.hasProductCache()) {
       return Ptr<T>(ref.id(), ref.key(), ref.productGetter());
     }

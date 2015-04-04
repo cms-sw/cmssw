@@ -33,6 +33,7 @@ void TestRefVector::testIteration()
   
   product_t  product;
   product.push_back(1.0);
+  product.push_back(100.0);
   product.push_back(0.5);
   product.push_back(2.0);
 
@@ -40,13 +41,13 @@ void TestRefVector::testIteration()
   CPPUNIT_ASSERT(refvec.size() == 0);
   CPPUNIT_ASSERT(refvec.empty());
 
-  ref_t    ref0(edm::ProductID(1, 1), &product[0], 0, &product);
+  ref_t    ref0(edm::ProductID(1, 1), &product[0], 0);
   refvec.push_back(ref0);
 
-  ref_t    ref1(edm::ProductID(1, 1), &product[1], 1, &product);
+  ref_t    ref1(edm::ProductID(1, 1), &product[2], 2);
   refvec.push_back(ref1);
 
-  ref_t    ref2(edm::ProductID(1, 1), &product[2], 2, &product);
+  ref_t    ref2(edm::ProductID(1, 1), &product[3], 3);
   refvec.push_back(ref2);
 
   auto iter = refvec.begin();
@@ -54,10 +55,10 @@ void TestRefVector::testIteration()
   CPPUNIT_ASSERT(iter->id() == edm::ProductID(1,1) && iter->key() == 0 && *(iter->get()) == 1.0);
   ++iter;
 
-  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1,1) && iter->key() == 1 && *(iter->get()) == 0.5);
+  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1,1) && iter->key() == 2 && *(iter->get()) == 0.5);
   ++iter;
 
-  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1,1) && iter->key() == 2 && *(iter->get()) == 2.0);
+  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1,1) && iter->key() == 3 && *(iter->get()) == 2.0);
   ++iter;
 
   CPPUNIT_ASSERT(iter == refvec.end());
