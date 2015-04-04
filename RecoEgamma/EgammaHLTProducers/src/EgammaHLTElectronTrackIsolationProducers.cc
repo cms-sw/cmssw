@@ -71,8 +71,7 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::E
   iEvent.getByToken(trackProducer_, trackHandle);
   const reco::TrackCollection* trackCollection = trackHandle.product();
 
-  reco::ElectronIsolationMap eleMap;
-  reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
+  reco::ElectronIsolationMap eleMap(electronHandle);
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(beamSpotProducer_,recoBeamSpotHandle);
@@ -82,8 +81,11 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::E
   ElectronTkIsolation isoAlgo(egTrkIsoConeSize_,egTrkIsoVetoConeSizeBarrel_,egTrkIsoVetoConeSizeEndcap_,egTrkIsoStripBarrel_,egTrkIsoStripEndcap_,egTrkIsoPtMin_,egTrkIsoZSpan_,egTrkIsoRSpan_,trackCollection,beamSpotPosition);
   
   if(useSCRefs_){
+
     edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
     iEvent.getByToken(recoEcalCandidateProducer_,recoEcalCandHandle);
+    reco::RecoEcalCandidateIsolationMap recoEcalCandMap(recoEcalCandHandle);
+
     for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
       
       reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
@@ -102,6 +104,10 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::E
       }
       recoEcalCandMap.insert(recoEcalCandRef,isol);
     }//end reco ecal candidate ref
+
+    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
+    iEvent.put(mapForEvent);
+
   }else{ //we are going to loop over electron instead
     for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
       reco::ElectronRef eleRef(reco::ElectronRef(electronHandle,iElectron - electronHandle->begin()));
@@ -109,12 +115,7 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::E
       float isol = isoAlgo.getIso(eleTrk).second;
       eleMap.insert(eleRef, isol);
     }
-  }
 
-  if(useSCRefs_){
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
-    iEvent.put(mapForEvent);
-  }else{
     std::auto_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
     iEvent.put(mapForEvent);
   }

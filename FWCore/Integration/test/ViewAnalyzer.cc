@@ -6,9 +6,14 @@
 #include <typeinfo>
 #include <utility>
 #include <vector>
+#include <string>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
@@ -16,13 +21,45 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Integration/test/ViewAnalyzer.h"
 
 using namespace edm;
 using namespace std::rel_ops;
 
 namespace edmtest 
 {
+  class ViewAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
+    virtual void analyze(edm::StreamID,
+                         edm::Event const& e,
+                         edm::EventSetup const& /* unused */ ) const override;
+
+    template <typename P, typename V>
+    void testProduct(edm::Event const& e,
+                     std::string const& moduleLabel) const;
+
+    void testDSVProduct(edm::Event const& e,
+                        std::string const& moduleLabel) const;
+
+    void testAVProduct(edm::Event const& e,
+                       std::string const& moduleLabel) const;
+
+    void testProductWithBaseClass(edm::Event const& e,
+                                  std::string const& moduleLabel) const;
+
+    void testRefVector(edm::Event const& e,
+                       std::string const& moduleLabel) const;
+
+    void testRefToBaseVector(edm::Event const& e,
+                             std::string const& moduleLabel) const;
+
+    void testPtrVector(edm::Event const& e,
+                       std::string const& moduleLabel) const;
+
+    void testStdVectorPtr(edm::Event const& e,
+                          std::string const& moduleLabel) const;
+  };
+
 
   ViewAnalyzer::ViewAnalyzer(ParameterSet const&) {
     consumes<edm::View<int>>(edm::InputTag{"intvec","","TEST"});
@@ -55,10 +92,11 @@ namespace edmtest
 
     consumes<PtrVector<int>>(edm::InputTag{"intvecptrvec"});
     consumes<edm::View<int>>(edm::InputTag{"intvecptrvec"});
-    mayConsume<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
-  }
+    
+    consumes<std::vector<edm::Ptr<int>>>(edm::InputTag{"intvecstdvecptr"});
+    consumes<edm::View<int>>(edm::InputTag{"intvecstdvecptr"});
 
-  ViewAnalyzer::~ViewAnalyzer() {
+    mayConsume<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
   }
 
   template <typename P, typename V = typename P::value_type>
@@ -73,8 +111,9 @@ namespace edmtest
   };
 
   void 
-  ViewAnalyzer::analyze(Event const& e, 
-			EventSetup const& /* unused */) {
+  ViewAnalyzer::analyze(StreamID,
+                        Event const& e,
+                        EventSetup const& /* unused */) const {
     assert(e.size() > 0);
 
     tester<std::vector<int> >::call(this, e, "intvec");
@@ -82,19 +121,17 @@ namespace edmtest
     tester<std::deque<int> >::call(this, e, "intdeque");
     tester<std::set<int> >::call(this, e, "intset");
 
-
     tester<SCSimpleProduct>::call(this, e, "simple");
     tester<OVSimpleProduct>::call(this, e, "ovsimple");
-
-    // This is commented out because it causes a missing dictionary failure
     tester<AVSimpleProduct>::call(this, e, "avsimple");
 
-
     testDSVProduct(e, "dsvsimple");
+    testAVProduct(e, "avsimple");
     testProductWithBaseClass(e, "ovsimple");
     testRefVector(e, "intvecrefvec");
     testRefToBaseVector(e, "intvecreftbvec");
     testPtrVector(e, "intvecptrvec");
+    testStdVectorPtr(e,"intvecstdvecptr");
     
     //See if InputTag works
     {
@@ -118,7 +155,7 @@ namespace edmtest
     typedef P                               sequence_t;
     typedef V                               value_t;
     typedef View<value_t>                   view_t;
-    
+
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
     assert(hproduct.isValid());
@@ -141,6 +178,14 @@ namespace edmtest
 	value_t const& product_item = *i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
+
+        edm::Ref<sequence_t> ref3(hproduct, slot);
+        assert(*ref3 == product_item);
+
+        edm::RefProd<sequence_t> refProd4(hproduct);
+        edm::Ref<sequence_t> ref4(refProd4, slot);
+        assert(*ref4 == product_item);
+
 	++i_product; ++i_view; ++slot;
     }
 
@@ -187,6 +232,44 @@ namespace edmtest
     }
   }
 
+  void
+  ViewAnalyzer::testAVProduct(Event const& e,
+                              std::string const& moduleLabel) const {
+    typedef edmtest::AVSimpleProduct sequence_t;
+    typedef sequence_t::value_type    value_t;
+    typedef View<value_t>             view_t;
+
+    Handle<sequence_t> hprod;
+    e.getByLabel(moduleLabel, hprod);
+    assert(hprod.isValid());
+
+    Handle<view_t> hview;
+    e.getByLabel(moduleLabel, hview);
+    assert(hview.isValid());
+
+    assert(hprod.id() == hview.id());
+    assert(*hprod.provenance() == *hview.provenance());
+
+    assert(hprod->size() == hview->size());
+
+    sequence_t::const_iterator i_prod = hprod->begin();
+    sequence_t::const_iterator e_prod = hprod->end();
+    view_t::const_iterator     i_view = hview->begin();
+    view_t::const_iterator     e_view = hview->end();
+
+    while (i_prod != e_prod && i_view != e_view) {
+	value_t const& prod = *i_prod;
+	value_t const& view = *i_view;
+        assert(prod == view);
+        assert((*hprod)[prod.first] == prod.second);
+        edm::Ptr<sequence_t::key_type> ptr(prod.first.id(), prod.first.key(), &e.productGetter());
+        assert((*hprod)[ptr] == prod.second);
+        edm::RefToBase<sequence_t::key_type> refToBase(prod.first);
+        assert((*hprod)[refToBase] == prod.second);
+	++i_prod; ++i_view;
+    }
+  }
+
   // The point of this one is to test that a one can get
   // a View of "Simple" objects even when the sequence
   // has elements of a different type. The different type
@@ -211,6 +294,8 @@ namespace edmtest
     
     assert(hprod->size() == hview->size());
 
+    unsigned slot = 0;
+
     sequence_t::const_iterator i_prod = hprod->begin();
     sequence_t::const_iterator e_prod = hprod->end();
     view_t::const_iterator     i_view = hview->begin();
@@ -221,7 +306,21 @@ namespace edmtest
 	Simple const& view = *i_view;
         assert(prod == view);
 
+        // Tack on a test of RefToBase::castTo here
+
+        edm::RefToBaseProd<Simple> refToBaseProd(hview);
+        edm::RefToBase<Simple> refToBase(refToBaseProd, slot);
+
+        edm::Ptr<SimpleDerived> ptr = refToBase.castTo<edm::Ptr<SimpleDerived> >();
+        SimpleDerived const& valueFromPtr = *ptr;
+        assert(valueFromPtr == view);
+
+        edm::Ref<edm::OwnVector<SimpleDerived>  > ref = refToBase.castTo<edm::Ref<edm::OwnVector<SimpleDerived> > >();
+        SimpleDerived const& valueFromRef = *ref;
+        assert(valueFromRef == view);
+
 	++i_prod; ++i_view;
+        ++slot;
     }
   }
 
@@ -254,6 +353,22 @@ namespace edmtest
 	value_t const& product_item = **i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
+
+         // Tack on a test of RefToBase::castTo here
+        edm::RefToBaseProd<int> refToBaseProd(hview);
+        edm::RefToBase<int> refToBase(refToBaseProd, slot);
+
+        edm::Ptr<int> ref = refToBase.castTo<edm::Ptr<int> >();
+        int item_other = *ref;
+        assert(item_other == product_item);
+
+        edm::Ref<std::vector<int> > ref2 = refToBase.castTo<edm::Ref<std::vector<int> > >();
+        int item_other2 = *ref2;
+        assert(item_other2 == product_item);
+
+        edm::Ref<sequence_t> ref3(hproduct, slot);
+        assert(*ref3 == product_item);
+
 	++i_product; ++i_view; ++slot;
     }
   }
@@ -332,6 +447,46 @@ namespace edmtest
 	++i_product; ++i_view; ++slot;
     }
   }
+
+  void
+  ViewAnalyzer::testStdVectorPtr(Event const& e,
+                                 std::string const& moduleLabel) const {
+    typedef std::vector<edm::Ptr<int>>            sequence_t;
+    typedef int                       value_t;
+    typedef View<value_t>             view_t;
+
+    Handle<sequence_t> hproduct;
+    e.getByLabel(moduleLabel, hproduct);
+    assert(hproduct.isValid());
+
+    Handle<view_t> hview;
+
+    InputTag tag(moduleLabel);
+    e.getByLabel(tag, hview);
+    assert(hview.isValid());
+
+    assert(hproduct.id() == hview.id());
+    assert(*hproduct.provenance() == *hview.provenance());
+
+    assert(hproduct->size() == hview->size());
+
+    sequence_t::const_iterator i_product = hproduct->begin();
+    sequence_t::const_iterator e_product = hproduct->end();
+    view_t::const_iterator     i_view = hview->begin();
+    view_t::const_iterator     e_view = hview->end();
+    unsigned int slot = 0;
+    while (i_product != e_product && i_view != e_view) {
+      value_t const& product_item = **i_product;
+      value_t const& view_item = *i_view;
+      assert(product_item == view_item);
+
+      edm::Ref<sequence_t> ref3(hproduct, slot);
+      assert(**ref3 == product_item);
+
+      ++i_product; ++i_view; ++slot;
+    }
+  }
+
 }
 
 using edmtest::ViewAnalyzer;

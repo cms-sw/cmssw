@@ -47,8 +47,8 @@ void EgammaHLTR9IDProducer::produce(edm::StreamID sid, edm::Event& iEvent, const
 
   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
   noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
-  reco::RecoEcalCandidateIsolationMap r9Map;
-  reco::RecoEcalCandidateIsolationMap r95x5Map; 
+  reco::RecoEcalCandidateIsolationMap r9Map(recoecalcandHandle);
+  reco::RecoEcalCandidateIsolationMap r95x5Map(recoecalcandHandle); 
   for(unsigned  int iRecoEcalCand=0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
     
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);//-recoecalcandHandle->begin());

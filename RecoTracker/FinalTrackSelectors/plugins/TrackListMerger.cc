@@ -683,9 +683,6 @@ TrackListMerger::~TrackListMerger() { }
 
     outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
     outputTrajs->reserve(rSize);
-    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
-
-
 
     for ( unsigned int i=0; i<rSize; i++) {
       if (selected[i]==0) {
@@ -783,6 +780,8 @@ TrackListMerger::~TrackListMerger() { }
 
     //Fill the trajectories, etc. for 1st collection
     refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
+
+    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection(refTrajs, refTrks));
 
     for (unsigned int ti=0; ti<trackColls.size(); ti++) {
       edm::Handle< std::vector<Trajectory> >  hTraj1;

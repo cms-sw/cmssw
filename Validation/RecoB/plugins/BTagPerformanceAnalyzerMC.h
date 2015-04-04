@@ -50,7 +50,8 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
   typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
   
-  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef,
+  bool getJetWithFlavour(const edm::Event& iEvent,
+                         edm::RefToBase<reco::Jet> caloRef,
                          const FlavourMap& _flavours, JetWithFlavour &jetWithFlavour,
 			 const edm::EventSetup & es, 
 			 edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched);

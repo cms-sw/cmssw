@@ -22,10 +22,12 @@
   <class name="edm::Wrapper< edm::ValueMap<reco::CastorJetID> >" />
 
   <class name="edm::Ptr<reco::Jet>" />
+  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::Jet> >" />
   <class name="edm::PtrVector<reco::Jet>" />
 
   <class name="edm::Ptr<reco::CaloJet>" />
   <class name="edm::PtrVector<reco::CaloJet>" />
+  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::CaloJet> >" />
 
   <class name="edm::Ptr<reco::PFJet>" />
   <class name="edm::PtrVector<reco::PFJet>" />
