@@ -44,13 +44,13 @@
 //this is a re-write of HLTRechitInRegionsProducer to be able to handle arbitary L1 collections as inputs
 //in the process, some of the cruft was cleaned up but it mantains almost all the old behaviour
 //think the only difference now is that it wont throw if its not ECALBarrel, ECALEndcap or ECAL PS rec-hit type
-class L1RegionGetterBase {
+class L1RegionDataBase {
 public:
-  virtual ~L1RegionGetterBase(){}
+  virtual ~L1RegionDataBase(){}
   virtual void getEtaPhiRegions(const edm::Event&,std::vector<EcalEtaPhiRegion>&,const L1CaloGeometry&)const=0;
 };  
 
-template<typename T1> class L1RegionGetter : public L1RegionGetterBase {
+template<typename T1> class L1RegionData : public L1RegionDataBase {
 private:
   double minEt_;
   double maxEt_;
@@ -58,7 +58,7 @@ private:
   double regionPhiMargin_;
   edm::EDGetTokenT<T1> token_;
 public:
-  L1RegionGetter(const edm::ParameterSet& para,edm::ConsumesCollector & consumesColl):
+  L1RegionData(const edm::ParameterSet& para,edm::ConsumesCollector & consumesColl):
     minEt_(para.getParameter<double>("minEt")),
     maxEt_(para.getParameter<double>("maxEt")),
     regionEtaMargin_(para.getParameter<double>("regionEtaMargin")),
@@ -84,9 +84,9 @@ class HLTRecHitInAllL1RegionsProducer : public edm::stream::EDProducer<> {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  L1RegionGetterBase* createL1RegionData(const std::string&,const edm::ParameterSet&,edm::ConsumesCollector &&); //calling function owns this
+  L1RegionDataBase* createL1RegionData(const std::string&,const edm::ParameterSet&,edm::ConsumesCollector &&); //calling function owns this
   
-  std::vector<std::unique_ptr<L1RegionGetterBase>> l1RegionData_;
+  std::vector<std::unique_ptr<L1RegionDataBase>> l1RegionData_;
  
   std::vector<edm::InputTag> recHitLabels_;
   std::vector<std::string> productLabels_;
@@ -108,9 +108,9 @@ HLTRecHitInAllL1RegionsProducer<RecHitType>::HLTRecHitInAllL1RegionsProducer(con
   recHitLabels_ =para.getParameter<std::vector<edm::InputTag>>("recHitLabels");
   productLabels_=para.getParameter<std::vector<std::string>>("productLabels");
 
-  for (unsigned int colNr=0; colNr<recHitLabels_.size(); colNr++) { 
-    recHitTokens_.push_back(consumes<RecHitCollectionType>(recHitLabels_[colNr]));
-    produces<RecHitCollectionType> (productLabels_[colNr]);
+  for (unsigned int collNr=0; collNr<recHitLabels_.size(); collNr++) { 
+    recHitTokens_.push_back(consumes<RecHitCollectionType>(recHitLabels_[collNr]));
+    produces<RecHitCollectionType> (productLabels_[collNr]);
   }
 }
 template<typename RecHitType> 
@@ -170,16 +170,16 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
   
   std::vector<EcalEtaPhiRegion> regions;
   std::for_each(l1RegionData_.begin(),l1RegionData_.end(),
-		[&event,&regions,l1CaloGeom](const std::unique_ptr<L1RegionGetterBase>& input)
+		[&event,&regions,l1CaloGeom](const std::unique_ptr<L1RegionDataBase>& input)
 		{input->getEtaPhiRegions(event,regions,*l1CaloGeom);}
 		);
     
-  for(size_t recHitColNr=0;recHitColNr<recHitTokens_.size();recHitColNr++){
+  for(size_t recHitCollNr=0;recHitCollNr<recHitTokens_.size();recHitCollNr++){
     edm::Handle<RecHitCollectionType> recHits;
-    event.getByToken(recHitTokens_[recHitColNr],recHits);
+    event.getByToken(recHitTokens_[recHitCollNr],recHits);
     
     if (!(recHits.isValid())) {
-      edm::LogError("ProductNotFound")<< "could not get a handle on the "<<typeid(RecHitCollectionType).name() <<" named "<< recHitLabels_[recHitColNr].encode() << std::endl;
+      edm::LogError("ProductNotFound")<< "could not get a handle on the "<<typeid(RecHitCollectionType).name() <<" named "<< recHitLabels_[recHitCollNr].encode() << std::endl;
       continue;
     }
 
@@ -201,8 +201,8 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
 	}
       }//end check of empty regions
     }//end check of empty rec-hits
-    std::cout <<"putting fileter coll in "<<filteredRecHits->size()<<std::endl;
-    event.put(filteredRecHits,productLabels_[recHitColNr]);
+    //   std::cout <<"putting fileter coll in "<<filteredRecHits->size()<<std::endl;
+    event.put(filteredRecHits,productLabels_[recHitCollNr]);
   }//end loop over all rec hit collections
 
 }
@@ -212,14 +212,14 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
 
 
 template<typename RecHitType> 
-L1RegionGetterBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionData(const std::string& type,const edm::ParameterSet& para,edm::ConsumesCollector && consumesCol)
+L1RegionDataBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionData(const std::string& type,const edm::ParameterSet& para,edm::ConsumesCollector && consumesColl)
 {
   if(type=="L1EmParticle"){
-    return new L1RegionGetter<l1extra::L1EmParticleCollection>(para,consumesCol);
+    return new L1RegionData<l1extra::L1EmParticleCollection>(para,consumesColl);
   }else if(type=="L1JetParticle"){
-    return new L1RegionGetter<l1extra::L1JetParticleCollection>(para,consumesCol);
+    return new L1RegionData<l1extra::L1JetParticleCollection>(para,consumesColl);
   }else if(type=="L1MuonParticle"){
-    return new L1RegionGetter<l1extra::L1MuonParticleCollection>(para,consumesCol);
+    return new L1RegionData<l1extra::L1MuonParticleCollection>(para,consumesColl);
   }else{
     //this is a major issue and could lead to rather subtle efficiency losses, so if its incorrectly configured, we're aborting the job!
     throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, this means the rec-hit you think you are keeping may not be and you should fix this error as it can lead to hard to find efficiency loses"<<std::endl;
@@ -229,10 +229,10 @@ L1RegionGetterBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionD
 
 
 
-template<typename L1ColType>
-void L1RegionGetter<L1ColType>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry&)const
+template<typename L1CollType>
+void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry&)const
 {
-  edm::Handle<L1ColType> l1Cands;
+  edm::Handle<L1CollType> l1Cands;
   event.getByToken(token_,l1Cands);
   
   for(const auto& l1Cand : *l1Cands){
@@ -249,7 +249,7 @@ void L1RegionGetter<L1ColType>::getEtaPhiRegions(const edm::Event& event,std::ve
 }
 
 template<>
-void L1RegionGetter<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
+void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
 {
   edm::Handle<l1extra::L1JetParticleCollection> l1Cands;
   event.getByToken(token_,l1Cands);
@@ -279,7 +279,7 @@ void L1RegionGetter<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const ed
 }
 
 template<>
-void L1RegionGetter<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
+void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
 {
   edm::Handle<l1extra::L1EmParticleCollection> l1Cands;
   event.getByToken(token_,l1Cands);
