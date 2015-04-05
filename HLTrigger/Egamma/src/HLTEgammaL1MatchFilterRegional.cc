@@ -40,8 +40,7 @@ HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::Parame
    L1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("L1SeedFilterTag"); 
    l1CenJetsTag_ = iConfig.getParameter< edm::InputTag > ("l1CenJetsTag");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-   doIsolated_   = iConfig.getParameter<bool>("doIsolated");
-   doJets_ = iConfig.getParameter<bool>("doJets");
+   doIsolated_   = iConfig.getParameter<bool>("doIsolated");   
    region_eta_size_      = iConfig.getParameter<double> ("region_eta_size");
    region_eta_size_ecap_ = iConfig.getParameter<double> ("region_eta_size_ecap");
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
@@ -67,7 +66,6 @@ HLTEgammaL1MatchFilterRegional::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("l1CenJetsTag",edm::InputTag("l1extraParticles","Central"));
   desc.add<int>("ncandcut",1);
   desc.add<bool>("doIsolated",true);
-  desc.add<bool>("doJets",false);
   desc.add<double>("region_eta_size",0.522);
   desc.add<double>("region_eta_size_ecap",1.0);
   desc.add<double>("region_phi_size",1.044);
@@ -91,9 +89,7 @@ HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSe
     filterproduct.addCollectionTag(l1IsolatedTag_);
     if (not doIsolated_)
       filterproduct.addCollectionTag(l1NonIsolatedTag_);
-    if (doJets_){
-      filterproduct.addCollectionTag(l1CenJetsTag_);
-    }
+    filterproduct.addCollectionTag(l1CenJetsTag_);
   }
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
@@ -140,10 +136,8 @@ HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSe
 	matchedSCNonIso =  matchedToL1Cand(l1EGNonIso,recoecalcand->eta(),recoecalcand->phi());
       }
 
-      bool matchedSCJet=false;
-      if(doJets_){
-	matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
-      }
+      bool matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
+      //  if(matchedSCJet) std::cout <<"matched jet "<<this->moduleDescription().moduleLabel()<<std::endl;
 
       if(matchedSCIso || matchedSCNonIso || matchedSCJet) {
 	n++;
@@ -169,10 +163,8 @@ HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSe
       if(fabs(recoecalcand->eta()) < endcap_end_){
 	bool matchedSCNonIso =  matchedToL1Cand(l1EGNonIso,recoecalcand->eta(),recoecalcand->phi());
 	
-	bool matchedSCJet=false;
-	if(doJets_){
-	  matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
-	}
+	bool matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
+	
 
 	if(matchedSCNonIso || matchedSCJet) {
 	  n++;
