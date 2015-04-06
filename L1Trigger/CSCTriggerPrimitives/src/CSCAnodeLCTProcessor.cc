@@ -263,8 +263,12 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   // whether to calculate bx as corrected_bx instead of pretrigger one
   use_corrected_bx = false;
   if (isSLHC && isME11) {
-    use_corrected_bx = conf.getUntrackedParameter<bool>("alctUseCorrectedBx", false);
+    use_corrected_bx = conf.getParameter<bool>("alctUseCorrectedBx");
   }
+
+  // run the ALCT processor for the Phase-II ME2/1 integrated local trigger
+  runME21ILT_ = conf.existsAs<bool>("runME21ILT")?
+    conf.getParameter<bool>("runME21ILT"):false;
 
   //if (theStation==1 && theRing==2) infoV = 3;
 
@@ -967,8 +971,12 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
       else {
         // Quality definition changed on 22 June 2007: it no longer depends
         // on pattern_thresh.
-        if (temp_quality > 3) temp_quality -= 3;
-        else                  temp_quality  = 0; // quality code 0 is valid!
+        int Q;
+        // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+        if (temp_quality == 3 and runME21ILT_) Q = 4;
+        else if (temp_quality > 3) Q = temp_quality - 3;
+        else                  Q = 0; // quality code 0 is valid!
+        temp_quality = Q;
       }
 
       if (i_pattern == 0) {
@@ -1115,6 +1123,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
       int qual_this = quality[key_wire][i_pattern];
       if (qual_this > 0) {
 
+	if (runME21ILT_) qual_this = (qual_this & 0x03); 
         // Previous wire.
         int dt = -1;
         int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
@@ -1123,6 +1132,9 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
             dt = first_bx_corrected[key_wire] - first_bx_corrected[key_wire-1];
           else
             dt = first_bx[key_wire] - first_bx[key_wire-1];
+          // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+          if (runME21ILT_) qual_prev = (qual_prev & 0x03); 
+
           // Cancel this wire
           //   1) If the candidate at the previous wire is at the same bx
           //      clock and has better quality (or equal? quality - this has
@@ -1162,6 +1174,9 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
             dt = first_bx_corrected[key_wire] - first_bx_corrected[key_wire+1];
           else
             dt = first_bx[key_wire] - first_bx[key_wire+1];
+          // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+          if (runME21ILT_)
+            qual_next = (qual_next & 0x03);
           // Same cancellation logic as for the previous wire.
           if (dt == 0) {
             if (qual_next >= qual_this) ghost_cleared[key_wire][i_pattern] = 1;
