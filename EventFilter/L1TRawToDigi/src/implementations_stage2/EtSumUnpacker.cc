@@ -30,9 +30,9 @@ namespace stage2 {
      int firstBX = -(ceil((double)nBX/2.)-1);
      int lastBX;
      if (nBX % 2 == 0) {
-       lastBX = ceil((double)nBX/2.)+1;
-     } else {
        lastBX = ceil((double)nBX/2.);
+     } else {
+       lastBX = ceil((double)nBX/2.)-1;
      }
 
      auto res_ = static_cast<CaloCollections*>(coll)->getEtSums();
