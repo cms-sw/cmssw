@@ -1,5 +1,0 @@
-<use   name="FWCore/Utilities"/>
-<use   name="root"/>
-<export>
-  <lib   name="1"/>
-</export>
