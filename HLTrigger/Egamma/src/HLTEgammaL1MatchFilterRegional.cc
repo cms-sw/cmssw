@@ -63,7 +63,7 @@ HLTEgammaL1MatchFilterRegional::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("candNonIsolatedTag",edm::InputTag("hltRecoNonIsolatedEcalCandidate"));
   desc.add<edm::InputTag>("l1NonIsolatedTag",edm::InputTag("l1extraParticles","NonIsolated"));
   desc.add<edm::InputTag>("L1SeedFilterTag",edm::InputTag("theL1SeedFilter"));
-  desc.add<edm::InputTag>("l1CenJetsTag",edm::InputTag("l1extraParticles","Central"));
+  desc.add<edm::InputTag>("l1CenJetsTag",edm::InputTag("hltL1extraParticles","Central"));
   desc.add<int>("ncandcut",1);
   desc.add<bool>("doIsolated",true);
   desc.add<double>("region_eta_size",0.522);
