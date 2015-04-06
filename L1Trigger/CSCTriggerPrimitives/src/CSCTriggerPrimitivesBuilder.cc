@@ -23,6 +23,7 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 
 //------------------
 // Static variables
@@ -164,11 +165,14 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters*
 void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					const CSCWireDigiCollection* wiredc,
 					const CSCComparatorDigiCollection* compdc,
+					const GEMPadDigiCollection* gemPads,
 					CSCALCTDigiCollection& oc_alct,
 					CSCCLCTDigiCollection& oc_clct,
                                         CSCCLCTPreTriggerCollection & oc_pretrig,
 					CSCCorrelatedLCTDigiCollection& oc_lct,
-					CSCCorrelatedLCTDigiCollection& oc_sorted_lct)
+					CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+					GEMCoPadDigiCollection& oc_gemcopad,
+					GEMCSCLCTDigiCollection& oc_gemcsclct)
 {
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
