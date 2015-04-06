@@ -6,7 +6,6 @@
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="PhysicsTools/SelectorUtils"/>
-<use   name="EgammaAnalysis/PhotonTools"/>
 <library   name="RecoEgammaPhotonIdentificationPlugins" file="*.cc">
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>

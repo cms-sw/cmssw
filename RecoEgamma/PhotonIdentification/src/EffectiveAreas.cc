@@ -1,4 +1,4 @@
-#include "EgammaAnalysis/PhotonTools/interface/EffectiveAreas.h"
+#include "RecoEgamma/PhotonIdentification/interface/EffectiveAreas.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <math.h>
@@ -52,7 +52,7 @@ EffectiveAreas::~EffectiveAreas(){
 }
 
 // Return effective area for given eta
-const float EffectiveAreas::getEffectiveArea(float eta){
+const float EffectiveAreas::getEffectiveArea(float eta) const{
 
   float effArea = 0;
   uint nEtaBins = absEtaMin_.size();
