@@ -29,9 +29,9 @@ namespace stage2 {
      int firstBX = -(ceil((double)nBX/2.)-1);
      int lastBX;
      if (nBX % 2 == 0) {
-       lastBX = ceil((double)nBX/2.)+1;
-     } else {
        lastBX = ceil((double)nBX/2.);
+     } else {
+       lastBX = ceil((double)nBX/2.)-1;
      }
 
      auto res_ = static_cast<CaloCollections*>(coll)->getTaus();
@@ -43,7 +43,7 @@ namespace stage2 {
      int unsigned i = 0;
 
      // Loop over multiple BX and then number of Tau cands filling collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
 
        for (unsigned nTau=0; nTau < 8 && nTau < block.header().getSize(); nTau++){
 

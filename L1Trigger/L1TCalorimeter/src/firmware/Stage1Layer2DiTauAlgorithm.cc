@@ -43,16 +43,43 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
     if (isoTaus->size()>3) quadIsoPtMax= (*isoTaus).at(3).hwPt();
   }
 
-  // encode the highest pt Iso and DiIso in the HF ET rings
-  double etIso     = params_->jetScale().et( isoPtMax );  // convert from hwPt to Physical pT
-  double etDiIso   = params_->jetScale().et( diIsoPtMax );
-  double etTriIso  = params_->jetScale().et( triIsoPtMax );
-  double etQuadIso = params_->jetScale().et( quadIsoPtMax );
-  int rankIso     = params_->HfRingScale().rank( etIso );  //convert to HfRingScale Rank
-  int rankDiIso   = params_->HfRingScale().rank( etDiIso );
-  int rankTriIso  = params_->HfRingScale().rank( etTriIso );
-  int rankQuadIso = params_->HfRingScale().rank( etQuadIso );
+  int rankIso     = 0;
+  int rankDiIso   = 0;
+  int rankTriIso  = 0;
+  int rankQuadIso = 0;
 
+  bool useLut=true;
+  // encode the highest pt Iso and DiIso in the HF ET rings
+  if (useLut){
+    unsigned int MAX_LUT_ADDRESS = params_->tauEtToHFRingEtLUT()->maxSize()-1;
+    unsigned int lutAddress = isoPtMax;
+    if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+    rankIso=params_->tauEtToHFRingEtLUT()->data(lutAddress);
+
+    lutAddress = diIsoPtMax;
+    if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+    rankDiIso=params_->tauEtToHFRingEtLUT()->data(lutAddress);
+
+    lutAddress = triIsoPtMax;
+    if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+    rankTriIso=params_->tauEtToHFRingEtLUT()->data(lutAddress);
+
+    lutAddress = quadIsoPtMax;
+    if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+    rankQuadIso=params_->tauEtToHFRingEtLUT()->data(lutAddress);
+
+  }else{
+    double etIso     = params_->jetScale().et( isoPtMax );  // convert from hwPt to Physical pT
+    double etDiIso   = params_->jetScale().et( diIsoPtMax );
+    double etTriIso  = params_->jetScale().et( triIsoPtMax );
+    double etQuadIso = params_->jetScale().et( quadIsoPtMax );
+    rankIso     = params_->HfRingScale().rank( etIso );  //convert to HfRingScale Rank
+    rankDiIso   = params_->HfRingScale().rank( etDiIso );
+    rankTriIso  = params_->HfRingScale().rank( etTriIso );
+    rankQuadIso = params_->HfRingScale().rank( etQuadIso );
+  }
+
+  // std::cout << "Max Iso Tau pT: " << isoPtMax << "\t" << etIso << "\t" << rankIso << std::endl;
 
   L1GctHFRingEtSums s;
   s.setEtSum(0, rankIso);
@@ -63,4 +90,12 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   spares->setHwPt(raw);
 
   delete isoTaus;
+
+
+  const bool verbose = false;
+  if(verbose)
+  {
+    std::cout << "HF Ring Sums (Isolated Taus)" << std::endl;
+    std::cout << bitset<12>(spares->hwPt()).to_string() << std::endl;
+  }
 }
