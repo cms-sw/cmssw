@@ -50,12 +50,12 @@ options.register('gtFramesPerEvent',
                  VarParsing.VarParsing.varType.int,
                  "GT frames per event")
 options.register('gtLatency',
-                 0,
+                 47,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "GT latency (frames)")
 options.register('gtOffset',
-                 0,
+                 15,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "GT offset (frames)")
@@ -213,7 +213,7 @@ process.stage2DemuxRaw.txFile = cms.untracked.string("good/demux/tx_summary.txt"
 if (options.doGT):
     print "GT config :"
     print "gtOffset      = ", gtOffset
-    print "gtOffset      = ", options.gtLatency
+    print "gtLatency     = ", options.gtLatency
 
 process.stage2GTRaw.nFramesPerEvent    = cms.untracked.int32(options.gtFramesPerEvent)
 process.stage2GTRaw.nFramesOffset    = cms.untracked.vuint32(gtOffset)
