@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCTriggerPrimitivesBuilder_h
-#define CSCTriggerPrimitives_CSCTriggerPrimitivesBuilder_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesBuilder_h
+#define L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesBuilder_h
 
 /** \class CSCTriggerPrimitivesBuilder
  *
@@ -14,21 +14,23 @@
  *
  */
 
-#include <CondFormats/CSCObjects/interface/CSCBadChambers.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
+#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/GEMCSCLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CSCDBL1TPParameters;
 class CSCMotherboard;
 class CSCMuonPortCard;
+class CSCGeometry;
+class GEMGeometry;
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -44,6 +46,10 @@ class CSCTriggerPrimitivesBuilder
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+
+  /// set CSC and GEM geometries for the matching needs
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+  void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
@@ -87,11 +93,20 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch for disabling ME42 */
   bool disableME42;
 
+  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  bool runME11ILT_;
+
+  /** SLHC: special switch for the upgrade ME2/1 TMB */
+  bool runME21ILT_;
+
   int m_minBX, m_maxBX; // min and max BX to sort.
 
   /** Pointers to TMB processors for all possible chambers. */
   CSCMotherboard*
     tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
+
+  const CSCGeometry* csc_g;
+  const GEMGeometry* gem_g;
 
   /** Pointer to MPC processor. */
   CSCMuonPortCard* m_muonportcard;

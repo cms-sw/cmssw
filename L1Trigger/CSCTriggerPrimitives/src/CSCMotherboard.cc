@@ -52,6 +52,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
+
+  theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static bool config_dumped = false;
@@ -90,12 +93,31 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 
   // Motherboard parameters:
   edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
+  const edm::ParameterSet me11tmbGemParams(conf.existsAs<edm::ParameterSet>("me11tmbSLHCGEM")?
+                                           conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
+  const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
+                                           conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
+  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
+                                             conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
 
-  if (isSLHC && theStation == 1 &&
-      CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
-    tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
+  const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);  
+  const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);  
+
+  // run upgrade TMBs for all MEX/1 stations
+  if (isSLHC and theRing == 1){    
+    if (theStation == 1) {
+      tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
+      if (runME11ILT) {
+        tmbParams = me11tmbGemParams;
+      }
+    }
+    else if (theStation == 2 and runME21ILT) {
+      tmbParams = me21tmbGemParams;
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
+    }
   }
 
   mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
@@ -106,6 +128,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
     tmbParams.getParameter<unsigned int>("matchTrigWindowSize");
   tmb_l1a_window_size = // Common to CLCT and TMB
     tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
+
+  lct_central_bx = 6;
 
   // configuration handle for number of early time bins
   early_tbins = tmbParams.getUntrackedParameter<int>("tmbEarlyTbins",4);
@@ -809,4 +833,18 @@ void CSCMotherboard::dumpConfigParams() const {
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
   //std::cerr << strm.str()<<std::endl;
+}
+
+
+// compare LCTs by quality
+bool CSCMotherboard::sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getQuality() > lct2.getQuality();
+}
+
+// compare LCTs by GEM bending angle
+bool CSCMotherboard::sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  //  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
+  return true;
 }
