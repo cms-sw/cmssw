@@ -29,6 +29,10 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
+#include "DataFormats/CSCDigi/interface/GEMCSCLCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
+
 // Configuration via EventSetup
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
@@ -42,12 +46,14 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
+  gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
+  gem_pad_token_ = consumes<GEMPadDigiCollection>(gemPadDigiProducer_);
 
   // register what this produces
   produces<CSCALCTDigiCollection>();
@@ -55,9 +61,12 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
+  produces<GEMCoPadDigiCollection>();
+  produces<GEMCSCLCTDigiCollection>();
   usesResource("CSCTriggerGeometry");
   consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   consumes<CSCWireDigiCollection>(wireDigiProducer_);
+  consumes<GEMPadDigiCollection>(gemPadDigiProducer_);
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
@@ -109,13 +118,18 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.getByToken(comp_token_, compDigis);
   ev.getByToken(wire_token_, wireDigis);
 
-  // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
+  edm::Handle<GEMPadDigiCollection>       gemPadDigis; 
+  ev.getByToken(gem_pad_token_, gemPadDigis);
+
+ // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
   std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::auto_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<GEMCSCLCTDigiCollection> oc_gemcsclct(new GEMCSCLCTDigiCollection);
+  std::auto_ptr<GEMCoPadDigiCollection> oc_copad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
@@ -147,4 +161,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.put(oc_pretrig);
   ev.put(oc_lct);
   ev.put(oc_sorted_lct,"MPCSORTED");
+  ev.put(oc_gemcsclct);
+  ev.put(oc_copad);
 }

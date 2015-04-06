@@ -1,5 +1,6 @@
 <use   name="CondFormats/CSCObjects"/>
 <use   name="DataFormats/CSCDigi"/>
+<use   name="DataFormats/GEMDigi"/>
 <use   name="DataFormats/L1CSCTrackFinder"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/MessageLogger"/>
