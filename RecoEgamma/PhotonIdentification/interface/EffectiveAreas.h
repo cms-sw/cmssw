@@ -13,7 +13,7 @@ public:
   ~EffectiveAreas();
 
   // Accessors
-  const float getEffectiveArea(float eta);
+  const float getEffectiveArea(float eta) const;
 
   // Utility functions
   void printEffectiveAreas();
