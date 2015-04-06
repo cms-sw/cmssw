@@ -5,6 +5,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="MagneticField/Engine"/>
 
