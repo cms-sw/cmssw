@@ -43,12 +43,12 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   // if false, parameters will be read in from DB using EventSetup mechanism
   // else will use all parameters from the config file
-  debugParameters_ = conf.getUntrackedParameter<bool>("debugParameters",false);
+  debugParameters_ = conf.getParameter<bool>("debugParameters");
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
   gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
-  checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
+  checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
 

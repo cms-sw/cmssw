@@ -71,7 +71,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   isTMB07 = commonParams.getParameter<bool>("isTMB07");
 
   // is it (non-upgrade algorithm) run along with upgrade one?
-  isSLHC = commonParams.getUntrackedParameter<bool>("isSLHC");
+  isSLHC = commonParams.getParameter<bool>("isSLHC");
 
   // Choose the appropriate set of configuration parameters depending on
   // isTMB07 and isMTCC flags.
@@ -132,15 +132,15 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   lct_central_bx = 6;
 
   // configuration handle for number of early time bins
-  early_tbins = tmbParams.getUntrackedParameter<int>("tmbEarlyTbins",4);
+  early_tbins = tmbParams.getParameter<int>("tmbEarlyTbins");
 
   // whether to not reuse ALCTs that were used by previous matching CLCTs
-  drop_used_alcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedAlcts",true);
+  drop_used_alcts = tmbParams.getParameter<bool>("tmbDropUsedAlcts");
 
   // whether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = tmbParams.getUntrackedParameter<bool>("tmbReadoutEarliest2",false);
+  readout_earliest_2 = tmbParams.getParameter<bool>("tmbReadoutEarliest2");
 
-  infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
+  infoV = tmbParams.getParameter<int>("verbosity");
 
   alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams);
   clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);

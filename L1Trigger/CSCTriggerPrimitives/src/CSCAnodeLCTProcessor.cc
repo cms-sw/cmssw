@@ -206,10 +206,10 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   accel_mode       = conf.getParameter<unsigned int>("alctAccelMode");
   l1a_window_width = conf.getParameter<unsigned int>("alctL1aWindowWidth");
 
-  hit_persist  = conf.getUntrackedParameter<unsigned int>("alctHitPersist", 6);
+  hit_persist  = conf.getParameter<unsigned int>("alctHitPersist");
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
+  infoV        = conf.getParameter<int>("verbosity");
 
   // Other parameters.
   // Use open pattern instead of more restrictive (slim) ones.
@@ -218,27 +218,27 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   isTMB07      = comm.getParameter<bool>("isTMB07");
 
   // Flag for SLHC studies
-  isSLHC       = comm.getUntrackedParameter<bool>("isSLHC", false);
+  isSLHC       = comm.getParameter<bool>("isSLHC");
 
   // special configuration parameters for ME11 treatment
-  disableME1a = comm.getUntrackedParameter<bool>("disableME1a", false);
+  disableME1a = comm.getParameter<bool>("disableME1a");
 
   // separate handle for early time bins
-  early_tbins = conf.getUntrackedParameter<int>("alctEarlyTbins",-1);
+  early_tbins = conf.getParameter<int>("alctEarlyTbins");
   int fpga_latency = 6;
   if (early_tbins<0) early_tbins  = fifo_pretrig - fpga_latency;
 
   // delta BX time depth for ghostCancellationLogic
-  ghost_cancellation_bx_depth = conf.getUntrackedParameter<int>("alctGhostCancellationBxDepth", 4);
+  ghost_cancellation_bx_depth = conf.getParameter<int>("alctGhostCancellationBxDepth");
 
   // whether to consider ALCT candidates' qualities while doing ghostCancellationLogic on +-1 wire groups
-  ghost_cancellation_side_quality = conf.getUntrackedParameter<bool>("alctGhostCancellationSideQuality", false);
+  ghost_cancellation_side_quality = conf.getParameter<bool>("alctGhostCancellationSideQuality");
 
   // deadtime clocks after pretrigger (extra in addition to drift_delay)
-  pretrig_extra_deadtime = conf.getUntrackedParameter<unsigned int>("alctPretrigDeadtime", 4);
+  pretrig_extra_deadtime = conf.getParameter<unsigned int>("alctPretrigDeadtime");
 
   // whether to use narrow pattern mask for the rings close to the beam
-  narrow_mask_r1 = conf.getUntrackedParameter<bool>("alctNarrowMaskForR1", false);
+  narrow_mask_r1 = conf.getParameter<bool>("alctNarrowMaskForR1");
 
   // Check and print configuration parameters.
   checkConfigParameters();
