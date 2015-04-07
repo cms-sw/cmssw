@@ -21,7 +21,7 @@ trackListMerger = cms.EDProducer("TrackListMerger",
     ShareFrac = cms.double(0.19),
     # best track chosen by chi2 modified by parameters below:
     FoundHitBonus = cms.double(5.0),
-    LostHitPenalty = cms.double(20.0),
+    LostHitPenalty = cms.double(5.0),
     # minimum pT in GeV/c
     MinPT = cms.double(0.05),
     # minimum difference in rechit position in cm

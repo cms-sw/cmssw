@@ -114,6 +114,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   min_eta_.reserve(trkSelectors.size());
   max_eta_.reserve(trkSelectors.size());
   useMVA_.reserve(trkSelectors.size());
+  useMVAonly_.reserve(trkSelectors.size());
   //mvaReaders_.reserve(trkSelectors.size());
   min_MVA_.reserve(trkSelectors.size());
   mvaType_.reserve(trkSelectors.size());
@@ -212,12 +213,16 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 	min_MVA_.push_back(minVal);
 	mvaType_.push_back(trkSelectors[i].exists("mvaType") ? trkSelectors[i].getParameter<std::string>("mvaType") : "Detached");
 	forestLabel_.push_back(trkSelectors[i].exists("GBRForestLabel") ? trkSelectors[i].getParameter<std::string>("GBRForestLabel") : "MVASelectorIter0");
+        useMVAonly_.push_back(trkSelectors[i].exists("useMVAonly") ? trkSelectors[i].getParameter<bool>("useMVAonly") : false);
       }else{
 	min_MVA_.push_back(-9999.0);
+        useMVAonly_.push_back(false);
 	mvaType_.push_back("Detached");
 	forestLabel_.push_back("MVASelectorIter0");
       }
     }else{
+      useMVA_.push_back(false);
+      useMVAonly_.push_back(false);
       min_MVA_.push_back(-9999.0);
       mvaType_.push_back("Detached");
       forestLabel_.push_back("MVASelectorIter0");
@@ -376,6 +381,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   //Adding the MVA selection before any other cut//
   ////////////////////////////////////////////////
   if(useAnyMVA_ && useMVA_[tsNum]){
+    if (useMVAonly_[tsNum]) return mvaVal > min_MVA_[tsNum];
     if(mvaVal < min_MVA_[tsNum])return false;
   }
   /////////////////////////////////
