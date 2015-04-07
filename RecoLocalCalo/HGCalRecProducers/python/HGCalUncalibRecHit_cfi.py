@@ -33,12 +33,13 @@ HGCalUncalibRecHit = cms.EDProducer(
         adcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.adcSaturation_fC,
         #tdc information
         tdcNbits = hgchefrontDigitizer.digiCfg.feCfg.tdcNbits,
-        tdcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC
+        tdcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        toaLSB_ns = hgchefrontDigitizer.digiCfg.feCfg.toaLSB_ns
         ),
 
     HGCHEBConfig = cms.PSet(
         isSiFE = cms.bool(False),
-        lsbInMIP = hgchebackDigitizer.digiCfg.lsbInMIP
+        lsbInMIP = hgchebackDigitizer.digiCfg.feCfg.lsbInMIP
         ),
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
