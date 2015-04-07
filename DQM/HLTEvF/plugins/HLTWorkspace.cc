@@ -112,7 +112,7 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
-  debugPrint = true;
+  debugPrint = false;
 
   topDirectoryName = TString("HLT/Workspaces");
   mainShifterFolder = TString(topDirectoryName+"/MainShifter");
@@ -240,8 +240,10 @@ void HLTWorkspace::bookPlots()
   //link all paths and filters needed
   quickCollectionPaths.push_back("HLT_Photon30_R9Id90_HE10_IsoM");
   lookupFilter["HLT_Photon30_R9Id90_HE10_IsoM"] = "hltEG30R9Id90HE10IsoMTrackIsoFilter";
+
   quickCollectionPaths.push_back("HLT_IsoMu27");
   lookupFilter["HLT_IsoMu27"] = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09";
+
   quickCollectionPaths.push_back("HLT_Ele27_eta2p1_WP75_Gsf");
   lookupFilter["HLT_Ele27_eta2p1_WP75_Gsf"] = "hltEle27WP75GsfTrackIsoFilter";
 
