@@ -110,8 +110,9 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                                                               #1156 pixels => saturation ~600MIP
                                                                               nTotalPE  = cms.double(11560),
                                                                               xTalk     = cms.double(0.25),
-                                                                              sdPixels  = cms.double(3.0) )
-                                                   )
+                                                                              sdPixels  = cms.double(3.0) ),
+                                                   feCfg   = cms.PSet( fwVersion         = cms.uint32(0) )
+                                                   )                              
                                )
 
 
