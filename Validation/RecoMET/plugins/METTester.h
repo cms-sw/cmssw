@@ -57,7 +57,6 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void FillMETRes();
 
 
  private:
@@ -153,8 +152,9 @@ public:
   MonitorElement* mMETDifference_GenMETTrue_MET200to300;
   MonitorElement* mMETDifference_GenMETTrue_MET300to400;
   MonitorElement* mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement* mMETDifference_GenMETTrue_METResolution;
-
+  MonitorElement* mMETDifference_GenMETTrue_MET500;
+  //moved into postprocessor
+  //MonitorElement* mMETDifference_GenMETTrue_METResolution;
   
 
   bool isCaloMET;
