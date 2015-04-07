@@ -82,8 +82,8 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   particles.push_back(ParticleMonitor("pbar",-2212,i,true)); //log
   particles.push_back(ParticleMonitor("n",2112,i,true));     //log
   particles.push_back(ParticleMonitor("nbar",-2112,i,true)); //log
-  particles.push_back(ParticleMonitor("l0",3122,i));
-  particles.push_back(ParticleMonitor("l0bar",-3122,i));
+  particles.push_back(ParticleMonitor("lambda0",3122,i));
+  particles.push_back(ParticleMonitor("lambda0bar",-3122,i));
   
   //D mesons
   particles.push_back(ParticleMonitor("Dplus",411,i));
@@ -140,11 +140,11 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   status1ShortLived->setBinLabel(10,"W-/W+");
   status1ShortLived->setBinLabel(11,"PDG = 7,8,17,25-99");
 
-  log10DeltaEcms =dqm.book1dHisto("DeltaEcms1log10","log_{10} of deviation from nominal Ecms", 200,-1., 1.,"log_{10}(#DetlaE) (log_{10}(GeV))","Number of Events");  
-  DeltaEcms = dqm.book1dHisto("DeltaEcms1","deviation from nominal Ecms", 200,-1., 1.,"#DetlaE (GeV)","Number of Events");
-  DeltaPx = dqm.book1dHisto("DeltaPx1","deviation from nominal Px", 200,-1., 1.,"#DetlaP_{x} (GeV)","Number of Events");
-  DeltaPy = dqm.book1dHisto("DeltaPy1","deviation from nominal Py", 200,-1., 1.,"#DetlaP_{y} (GeV)","Number of Events");
-  DeltaPz = dqm.book1dHisto("DeltaPz1","deviation from nominal Pz", 200,-1., 1.,"#DetlaP_{z} (GeV)","Number of Events");
+  log10DeltaEcms =dqm.book1dHisto("DeltaEcms1log10","log_{10} of deviation from nominal Ecms", 200,-1., 5.,"log_{10}(#DeltaE) (log_{10}(GeV))","Number of Events");  
+  DeltaEcms = dqm.book1dHisto("DeltaEcms1","deviation from nominal Ecms", 200,-1., 1.,"#DeltaE (GeV)","Number of Events");
+  DeltaPx = dqm.book1dHisto("DeltaPx1","deviation from nominal Px", 200,-1., 1.,"#DeltaP_{x} (GeV)","Number of Events");
+  DeltaPy = dqm.book1dHisto("DeltaPy1","deviation from nominal Py", 200,-1., 1.,"#DeltaP_{y} (GeV)","Number of Events");
+  DeltaPz = dqm.book1dHisto("DeltaPz1","deviation from nominal Pz", 200,-1., 1.,"#DeltaP_{z} (GeV)","Number of Events");
   return;
 }
 

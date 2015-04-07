@@ -81,10 +81,10 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
       ~ParticleMonitor(){};
       
       bool Fill(const HepMC::GenParticle* p, double weight){
-	if(abs(p->pdg_id())==abs(pdgid)){
+	if(p->pdg_id()==pdgid){
 	  if(isFirst(p)){
 	    p_init->Fill(log10(p->momentum().rho()),weight);
-	    eta_init->Fill(log10(p->momentum().eta()),weight);
+	    eta_init->Fill(p->momentum().eta(),weight);
             const HepMC::GenParticle* pf=GetFinal(p); // inlcude mixing
             p_final->Fill(log10(pf->momentum().rho()),weight);
 	    // compute lifetime...
