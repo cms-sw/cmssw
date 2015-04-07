@@ -117,7 +117,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       totFlags[it]=true;
 
       ////to enable debug uncomment me
-      ////debug=true;
+      debug=true;
       if(debug) std::cout << "Charge=" << charge << " with <toa>=" << toa << " ns, triggers ToT @ " << it << std::endl;
 
       //compute total charge to be integrated and integration time 

@@ -41,6 +41,12 @@ void configureIt(const edm::ParameterSet& conf,
     maker.set_TDCLSBInfC(-1.);
   } 
     
+  if( conf.exists(toaLSB_ns) ) {
+    maker.set_toaLSBToNS(conf.getParameter<double>(toaLSB_ns));
+  } else {
+    maker.set_toaLSBToNS(-1.);
+  }
+
   if( conf.exists(mipInfC) ) {
     maker.set_fCToMIP(conf.getParameter<double>(mipInfC));
   } else {
