@@ -78,7 +78,7 @@ namespace stage2 {
        // Put the object back into place (Must be better way)
        res_->set(bx,0,alg);
 
-       alg.print(std::cout);
+       //alg.print(std::cout);
 
      }
 

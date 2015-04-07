@@ -62,7 +62,7 @@ namespace stage2 {
        // Put the object back into place (Must be better way???)
        res_->set(bx,0,ext);
 
-       ext.print(std::cout);     
+       //ext.print(std::cout);     
 
      }
 
