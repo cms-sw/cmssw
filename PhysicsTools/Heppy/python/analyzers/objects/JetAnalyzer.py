@@ -56,9 +56,9 @@ class JetAnalyzer( Analyzer ):
         self.doJEC = self.recalibrateJets or (self.shiftJEC != 0)
         if self.doJEC:
           if self.cfg_comp.isMC:
-            self.jetReCalibrator = JetReCalibrator(mcGT,"AK4PFchs", False,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationCollection, False,cfg_ana.jecPath)
           else:
-            self.jetReCalibrator = JetReCalibrator(dataGT,"AK4PFchs", True,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationCollection, True,cfg_ana.jecPath)
         self.doPuId = getattr(self.cfg_ana, 'doPuId', True)
         self.jetLepDR = getattr(self.cfg_ana, 'jetLepDR', 0.4)
         self.jetLepArbitration = getattr(self.cfg_ana, 'jetLepArbitration', lambda jet,lepton: lepton) 
@@ -400,6 +400,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     doPuId = False, # Not commissioned in 7.0.X
     doQG = False, 
     recalibrateJets = False,
+    recalibrationCollection = "AK4PFchs",
     shiftJEC = 0, # set to +1 or -1 to get +/-1 sigma shifts
     smearJets = True,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts    
