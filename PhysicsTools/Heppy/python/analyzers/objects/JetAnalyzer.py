@@ -72,9 +72,9 @@ class JetAnalyzer( Analyzer ):
     def declareHandles(self):
         super(JetAnalyzer, self).declareHandles()
         self.handles['jets']   = AutoHandle( self.cfg_ana.jetCol, 'std::vector<pat::Jet>' )
-        self.handles['genJet'] = AutoHandle( 'slimmedGenJets', 'vector<reco::GenJet>' )
+        self.handles['genJet'] = AutoHandle( self.cfg_ana.genJetCol, 'vector<reco::GenJet>' )
         self.shiftJER = self.cfg_ana.shiftJER if hasattr(self.cfg_ana, 'shiftJER') else 0
-        self.handles['rho'] = AutoHandle( ('fixedGridRhoFastjetAll','',''), 'double' )
+        self.handles['rho'] = AutoHandle( self.cfg_ana.rho, 'double' )
     
     def beginLoop(self, setup):
         super(JetAnalyzer,self).beginLoop(setup)
@@ -85,13 +85,17 @@ class JetAnalyzer( Analyzer ):
         self.rho = rho
 
         ## Read jets, if necessary recalibrate and shift MET
-        allJets = map(Jet, self.handles['jets'].product()) 
+#        allJets = map(Jet, self.handles['jets'].product()) 
+        import ROOT
+        allJets = map(lambda j:Jet(ROOT.pat.Jet(j)), self.handles['jets'].product()) #Giovannis suggestion 
 
         self.deltaMetFromJEC = [0.,0.]
+#        print "before. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
         if self.doJEC:
-            #print "\nCalibrating jets %s for lumi %d, event %d" % (self.cfg_ana.jetCol, event.lumi, event.eventId)
+#            print "\nCalibrating jets %s for lumi %d, event %d" % (self.cfg_ana.jetCol, event.lumi, event.eventId)
             self.jetReCalibrator.correctAll(allJets, rho, delta=self.shiftJEC, metShift=self.deltaMetFromJEC)
         self.allJetsUsedForMET = allJets
+#        print "after. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
 
         if self.cfg_comp.isMC:
             self.genJets = [ x for x in self.handles['genJet'].product() ]
@@ -101,7 +105,6 @@ class JetAnalyzer( Analyzer ):
         
 	##Sort Jets by pT 
         allJets.sort(key = lambda j : j.pt(), reverse = True)
-        
 	## Apply jet selection
         self.jets = []
         self.jetsFailId = []
@@ -136,7 +139,7 @@ class JetAnalyzer( Analyzer ):
         self.cleanJets    = [j for j in self.cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.cleanJetsFwd = [j for j in self.cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         self.discardedJets = [j for j in self.jets if j not in self.cleanJetsAll]
-        if hasattr(event, 'selectedLeptons') and self.cfg_ana.collectionPostFix=="":
+        if hasattr(event, 'selectedLeptons') and self.cfg_ana.cleanSelectedLeptons:
             event.discardedLeptons = [ l for l in leptons if l not in cleanLeptons ]
             event.selectedLeptons  = [ l for l in event.selectedLeptons if l not in event.discardedLeptons ]
 
@@ -198,7 +201,7 @@ class JetAnalyzer( Analyzer ):
             #    else:                   event.nGenJets25Fwd += 1
                     
             self.jetFlavour(event)
-        
+
         setattr(event,"rho"                    +self.cfg_ana.collectionPostFix, self.rho                    ) 
         setattr(event,"deltaMetFromJEC"        +self.cfg_ana.collectionPostFix, self.deltaMetFromJEC        ) 
         setattr(event,"deltaMetFromJetSmearing"+self.cfg_ana.collectionPostFix, self.deltaMetFromJetSmearing) 
@@ -383,11 +386,14 @@ class JetAnalyzer( Analyzer ):
 setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = JetAnalyzer,
     jetCol = 'slimmedJets',
+    genJetCol = 'slimmedGenJets',
+    rho = ('fixedGridRhoFastjetAll','',''),
     jetPt = 25.,
     jetEta = 4.7,
     jetEtaCentral = 2.4,
     jetLepDR = 0.4,
     jetLepArbitration = (lambda jet,lepton : lepton), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
+    cleanSelectedLeptons = True, #Whether to clean 'selectedLeptons' after disambiguation. Treat with care (= 'False') if running Jetanalyzer more than once
     minLepPt = 10,
     lepSelCut = lambda lep : True,
     relaxJetId = False,  
