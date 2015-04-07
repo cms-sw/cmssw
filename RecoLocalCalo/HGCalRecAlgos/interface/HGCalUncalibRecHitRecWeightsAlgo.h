@@ -49,6 +49,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
           if( sample.threshold() ) {
             energy += double(sample.data()) * tdcLSBInfC_ * fCToMIP_;
             jitter_ = double(sample.toa()) * toaLSBToNS_;
+            std::cout << "set the jitter to: " << jitter_ << std::endl;
           } else {
             energy += double(sample.data()) * adcLSBInfC_ * fCToMIP_;
           }
