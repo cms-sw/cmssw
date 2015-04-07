@@ -47,7 +47,7 @@ void DrellYanValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, 
     Zpt = dqm.book1dHisto("Zpt","Z pt",100,0,200,"P_{t}^{Z} (GeV)","Number of Events");
     ZptLog = dqm.book1dHisto("ZptLog","log(Z pt)",100,0.,5.,"log_{10}(P_{t}^{Z}) (log_{10}(GeV))","Number of Events");
     Zrap = dqm.book1dHisto("Zrap", "Z y", 100, -5, 5,"Y_{Z}","Number of Events");
-    Zdaughters = dqm.book1dHisto("Zdaughters", "Z daughters", 60, -30, 30,"Z daughters","Number of Events");
+    Zdaughters = dqm.book1dHisto("Zdaughters", "Z daughters", 60, -30, 30,"Z daughters (PDG ID)","Number of Events");
 
     dilep_mass = dqm.book1dHisto("dilep_mass","inv. Mass dilepton", 70 ,0,140,"M_{ll} (GeV)","Number of Events");
     dilep_massPeak = dqm.book1dHisto("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100,"M_{ll} (GeV)","Number of Events");

@@ -42,7 +42,7 @@ void WValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::Ev
     Wpt = dqm.book1dHisto("Wpt","W pt",100,0,200,"P_{T}^{W} (GeV)","Number of Events");
     WptLog = dqm.book1dHisto("WptLog","log(W pt)",100,0.,5.,"Log_{10}(P_{T}^{W}) (GeV)","Number of Events");
     Wrap = dqm.book1dHisto("Wrap", "W y", 100, -5, 5,"Y^{W}","Number of Events");
-    Wdaughters = dqm.book1dHisto("Wdaughters", "W daughters", 60, -30, 30,"W daughters","Number of Events");
+    Wdaughters = dqm.book1dHisto("Wdaughters", "W daughters", 60, -30, 30,"W daughters (PDG ID)","Number of Events");
 
     lepmet_mT = dqm.book1dHisto("lepmet_mT","lepton-met transverse mass", 70 ,0,140,"M_{T}^{Lepton_{T}+E_{T}^{Miss}} (GeV)","Number of Events");
     lepmet_mTPeak = dqm.book1dHisto("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100,"M_{T}^{Lepton_{T}+E_{T}^{Miss}} (GeV)","Number of Events");
