@@ -2,7 +2,6 @@
 #define Geometry_TrackerGeometryBuilder_TrackerGeometry_H
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
@@ -98,8 +97,6 @@ private:
 
   GeomDetEnumerators::SubDetector theSubDetTypeMap[6];
   unsigned int theNumberOfLayers[6];
-
-  static const  GeomDetEnumerators::SubDetector geometricDetToGeomDet(GeometricDet::GDEnumType gdenum);
 
 };
 
