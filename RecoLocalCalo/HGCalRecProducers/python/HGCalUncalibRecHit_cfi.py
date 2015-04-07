@@ -21,7 +21,8 @@ HGCalUncalibRecHit = cms.EDProducer(
         adcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC,
         #tdc information
         tdcNbits = hgceeDigitizer.digiCfg.feCfg.tdcNbits,
-        tdcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
+        tdcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        toaLSB_ns = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns
         ),
     
     HGCHEFConfig = cms.PSet(
