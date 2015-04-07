@@ -29,6 +29,8 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
   virtual void set_fCToMIP(const double fc2mip) { fCToMIP_ = fc2mip; }
   virtual void set_ADCToMIP(const double adc2mip) { adcToMIP_ = adc2mip; }
   
+  virtual void set_toaLSBToNS(const double lsb2ns) { toaLSBToNS_ = lsb2ns; }
+
   /// Compute parameters
   virtual HGCUncalibratedRecHit makeRecHit( const C& dataFrame ) {
     
@@ -44,8 +46,12 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
         // mode == true means we are running in ADC + TDC mode
         if( sample.mode() ) {
           // threshold == true is TDC, == false is ADC
-          if( sample.threshold() ) energy += double(sample.data()) * tdcLSBInfC_ * fCToMIP_;
-          else                     energy += double(sample.data()) * adcLSBInfC_ * fCToMIP_;
+          if( sample.threshold() ) {
+            energy += double(sample.data()) * tdcLSBInfC_ * fCToMIP_;
+            jitter_ = double(sample.toa()) * toaLSBToNS_;
+          } else {
+            energy += double(sample.data()) * adcLSBInfC_ * fCToMIP_;
+          }
         } else { // false means we are ADC only mode
           energy += double(sample.data()) * adcLSBInfC_ * fCToMIP_;
         }              
@@ -62,6 +68,6 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
 
  private:
    bool   isSiFESim_;
-   double adcLSBInfC_, tdcLSBInfC_, fCToMIP_, adcToMIP_;
+   double adcLSBInfC_, tdcLSBInfC_, fCToMIP_, adcToMIP_, toaLSBToNS_;
 };
 #endif

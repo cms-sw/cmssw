@@ -16,6 +16,7 @@ void configureIt(const edm::ParameterSet& conf,
   constexpr char tdcNbits[]         = "tdcNbits";
   constexpr char tdcSaturation_fC[] = "tdcSaturation_fC";
   constexpr char lsbInMIP[]         = "lsbInMIP";
+  constexpr char toaLSB_ns[]        = "toaLSB_ns";
   
   if( conf.exists(isSiFE) ) {
     maker.set_isSiFESim(conf.getParameter<bool>(isSiFE));
