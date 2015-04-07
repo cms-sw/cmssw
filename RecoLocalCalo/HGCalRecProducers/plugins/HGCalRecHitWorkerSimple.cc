@@ -13,19 +13,16 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   constexpr float keV2GeV = 1e-6;
   // HGCee constants 
   HGCEEmipInKeV_ =  ps.getParameter<double>("HGCEEmipInKeV");
-  HGCEElsbInMIP_ =  ps.getParameter<double>("HGCEElsbInMIP");
   HGCEEmip2noise_ = ps.getParameter<double>("HGCEEmip2noise");
-  hgceeADCtoGeV_ = HGCEEmipInKeV_ * HGCEElsbInMIP_*keV2GeV; 
+  hgceeADCtoGeV_ = HGCEEmipInKeV_ * keV2GeV; 
   // HGChef constants
   HGCHEFmipInKeV_ =  ps.getParameter<double>("HGCHEFmipInKeV");
-  HGCHEFlsbInMIP_ =  ps.getParameter<double>("HGCHEFlsbInMIP");
   HGCHEFmip2noise_ = ps.getParameter<double>("HGCHEFmip2noise");
-  hgchefADCtoGeV_ = HGCHEFmipInKeV_ * HGCHEFlsbInMIP_*keV2GeV;
+  hgchefADCtoGeV_ = HGCHEFmipInKeV_ * keV2GeV;
   // HGCheb constants
   HGCHEBmipInKeV_ =  ps.getParameter<double>("HGCHEBmipInKeV");
-  HGCHEBlsbInMIP_ =  ps.getParameter<double>("HGCHEBlsbInMIP");
   HGCHEBmip2noise_ = ps.getParameter<double>("HGCHEBmip2noise");
-  hgchebADCtoGeV_ = HGCHEBmipInKeV_ * HGCHEBlsbInMIP_*keV2GeV;
+  hgchebADCtoGeV_ = HGCHEBmipInKeV_ * keV2GeV;
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
