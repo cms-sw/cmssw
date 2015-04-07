@@ -56,9 +56,9 @@ class JetAnalyzer( Analyzer ):
         self.doJEC = self.recalibrateJets or (self.shiftJEC != 0)
         if self.doJEC:
           if self.cfg_comp.isMC:
-            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationCollection, False,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationType, False,cfg_ana.jecPath)
           else:
-            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationCollection, True,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationType, True,cfg_ana.jecPath)
         self.doPuId = getattr(self.cfg_ana, 'doPuId', True)
         self.jetLepDR = getattr(self.cfg_ana, 'jetLepDR', 0.4)
         self.jetLepArbitration = getattr(self.cfg_ana, 'jetLepArbitration', lambda jet,lepton: lepton) 
@@ -85,9 +85,9 @@ class JetAnalyzer( Analyzer ):
         self.rho = rho
 
         ## Read jets, if necessary recalibrate and shift MET
-#        allJets = map(Jet, self.handles['jets'].product()) 
+#        allJets = map(Jet, self.handles['jets'].product()) #members of allJets are not protected from other JetAnalyzer instances
         import ROOT
-        allJets = map(lambda j:Jet(ROOT.pat.Jet(j)), self.handles['jets'].product()) #Giovannis suggestion 
+        allJets = map(lambda j:Jet(ROOT.pat.Jet(j)), self.handles['jets'].product()) #copy-by-value is safe if JetAnalyzer is ran more than once 
 
         self.deltaMetFromJEC = [0.,0.]
 #        print "before. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
@@ -400,7 +400,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     doPuId = False, # Not commissioned in 7.0.X
     doQG = False, 
     recalibrateJets = False,
-    recalibrationCollection = "AK4PFchs",
+    recalibrationType = "AK4PFchs",
     shiftJEC = 0, # set to +1 or -1 to get +/-1 sigma shifts
     smearJets = True,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts    
