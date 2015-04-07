@@ -44,30 +44,20 @@
 
 using namespace std;
 
-
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig,edm::ConsumesCollector& iC) :theTkLayerMeasurements(), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig),
-  beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
-{
-  theCategory = "FastSimulation|Muons||FastTSGFromPropagation";
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC) : FastTSGFromPropagation(iConfig, nullptr, iC) {
 }
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service,edm::ConsumesCollector& iC) : theTkLayerMeasurements(), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig),
-  beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
-{
-  theCategory = "FastSimulation|Muons|FastTSGFromPropagation";
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig, const MuonServiceProxy* service, edm::ConsumesCollector& iC) : 
+  theCategory("FastSimulation|Muons|FastTSGFromPropagation"),
+  theTkLayerMeasurements(), theTracker(), theNavigation(), theService(service), theUpdator(), theEstimator(), theSigmaZ(0.0), theConfig (iConfig),
+  theSimTrackCollectionToken_(iC.consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("SimTrackCollectionLabel"))),
+  theHitProducer(iC.consumes<SiTrackerGSMatchedRecHit2DCollection>(theConfig.getParameter<edm::InputTag>("HitProducer"))),
+  beamSpot_(iC.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+  theMeasurementTrackerEventToken_(iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))) {
 }
 
-FastTSGFromPropagation::~FastTSGFromPropagation()
-{
-
+FastTSGFromPropagation::~FastTSGFromPropagation() {
   LogTrace(theCategory) << " FastTSGFromPropagation dtor called ";
-  if ( theNavigation ) delete theNavigation;
-  if ( theUpdator ) delete theUpdator;
-  if ( theEstimator ) delete theEstimator;
-  if ( theErrorMatrixAdjuster ) delete theErrorMatrixAdjuster;
-
 }
 
 void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, 
@@ -309,7 +299,7 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
     theResetMethod = "discrete"; 
   }
 
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
+  theEstimator.reset( new Chi2MeasurementEstimator(theMaxChi2));
 
   theCacheId_MT = 0;
 
@@ -325,24 +315,21 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
 
-  theSimTrackCollectionLabel = theConfig.getParameter<edm::InputTag>("SimTrackCollectionLabel");
-  theHitProducer = theConfig.getParameter<edm::InputTag>("HitProducer");
-
-  theUpdator = new KFUpdator();
+  theUpdator.reset(new KFUpdator());
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);
+    theErrorMatrixAdjuster.reset(new MuonErrorMatrix(errorMatrixPset));
   } else {
     theAdjustAtIp =false;
-    theErrorMatrixAdjuster=0;
+    theErrorMatrixAdjuster.reset();
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker); 
-  theNavigation = new DirectTrackerNavigation(theTracker);
+  theNavigation.reset(new DirectTrackerNavigation(theTracker));
 
   edm::ESHandle<TrackerGeometry>        geometry;
   theService->eventSetup().get<TrackerDigiGeometryRecord>().get(geometry);
@@ -354,11 +341,11 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
 void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
-  iEvent.getByLabel(beamSpot_, theBeamSpot);
+  iEvent.getByToken(beamSpot_, theBeamSpot);
   
   // retrieve the MC truth (SimTracks)
-  iEvent.getByLabel(theSimTrackCollectionLabel, theSimTracks);
-  iEvent.getByLabel(theHitProducer, theGSRecHits);
+  iEvent.getByToken(theSimTrackCollectionToken_, theSimTracks);
+  iEvent.getByToken(theHitProducer, theGSRecHits);
 
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
@@ -370,7 +357,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if ( theUpdateStateFlag ) {
-     iEvent.getByLabel(theMeasurementTrackerEventTag, theMeasTrackerEvent);
+     iEvent.getByToken(theMeasurementTrackerEventToken_, theMeasTrackerEvent);
      theTkLayerMeasurements = LayerMeasurements(*theMeasTracker,*theMeasTrackerEvent);
   }
 
@@ -386,8 +373,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if ( trackerGeomChanged && (&*theTracker) ) {
-    if ( theNavigation ) delete theNavigation;
-    theNavigation = new DirectTrackerNavigation(theTracker);
+    theNavigation.reset(new DirectTrackerNavigation(theTracker));
   }
 }
 
