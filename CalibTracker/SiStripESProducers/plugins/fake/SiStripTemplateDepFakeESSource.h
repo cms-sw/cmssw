@@ -50,7 +50,7 @@ template< typename TObject , typename TRecord, typename TService, typename DepTR
 std::auto_ptr<TObject> SiStripTemplateDepFakeESSource<TObject,TRecord,TService,DepTRecord,DepTObj>::produce(const TRecord& iRecord)
 {
   edm::ESHandle<DepTObj> depObjHandle;
-  iRecord.getRecord<DepTRecord>().get(depObjHandle);
+  iRecord.template getRecord<DepTRecord>().get(depObjHandle);
   const DepTObj* const depObject = depObjHandle.product();
 
   edm::Service<TService> condObjBuilder;
