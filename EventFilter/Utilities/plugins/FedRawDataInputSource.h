@@ -48,6 +48,7 @@ friend class InputChunk;
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
   virtual ~FedRawDataInputSource();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   virtual bool checkNextEvent() override;

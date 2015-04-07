@@ -5,6 +5,8 @@
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
@@ -40,15 +42,9 @@ namespace evf {
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 				 edm::ActivityRegistry& reg) :
-    base_dir_(
-	      pset.getUntrackedParameter<std::string> ("baseDir", "/data")
-	      ),
-    bu_base_dir_(
-		 pset.getUntrackedParameter<std::string> ("buBaseDir", "/data")
-		 ),
-    directorBu_(
-		pset.getUntrackedParameter<bool> ("directorIsBu", false)
-		),
+    base_dir_(pset.getUntrackedParameter<std::string> ("baseDir", ".")),
+    bu_base_dir_(pset.getUntrackedParameter<std::string> ("buBaseDir", ".")),
+    directorBu_(pset.getUntrackedParameter<bool> ("directorIsBu", false)),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
@@ -253,6 +249,22 @@ namespace evf {
       close(fulocal_rwlock_fd2_);
     }
 
+  }
+
+  void EvFDaqDirector::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+  {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Service used for file locking arbitration and for propagating information between other EvF components");
+    desc.addUntracked<std::string> ("baseDir", ".")->setComment("Local base directory for run output");
+    desc.addUntracked<std::string> ("buBaseDir", ".")->setComment("BU base ramdisk directory ");
+    desc.addUntracked<unsigned int> ("runNumber",0)->setComment("Run Number in ramdisk to open");
+    desc.addUntracked<bool>("outputAdler32Recheck",false)->setComment("Check Adler32 of per-process output files while micro-merging");
+    desc.addUntracked<bool>("requireTransfersPSet",false)->setComment("Require complete transferSystem PSet in the process configuration");
+    desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
+    desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
+    desc.addUntracked<bool>("emptyLumisectionMode",false)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
+    desc.setAllowAnything();
+    descriptions.add("EvFDaqDirector", desc);
   }
 
   void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {

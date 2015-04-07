@@ -232,7 +232,7 @@ namespace evf {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleBase::fillDescription(desc);
     Consumer::fillDescription(desc);
-    descriptions.add("streamerOutput", desc);
+    descriptions.add("EvFOutputModule", desc);
   }
 
   template<typename Consumer>
