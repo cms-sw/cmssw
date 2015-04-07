@@ -137,6 +137,7 @@
 
 	    //setup mva selector
 	    std::vector<bool> useMVA_;
+            std::vector<bool> useMVAonly_;
 
 	    std::vector<double> min_MVA_;
 
