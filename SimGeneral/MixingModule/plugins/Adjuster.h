@@ -37,7 +37,7 @@ namespace edm {
 
     virtual bool checkSignal(edm::Event const& event) {
       bool got = false;
-      edm::Handle<std::vector<T> > result_t;
+      edm::Handle<T> result_t;
       got = event.getByLabel(tag_, result_t);
       return got;
     }
