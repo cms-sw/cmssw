@@ -112,6 +112,7 @@ class HGCDigitizerBase {
     
     D dataFrame( rawDataFrame.id() );
     dataFrame.resize(5);
+    bool putInEvent(false);
     for(int it=0;it<5; it++) 
       {
 	HGCSample singleSample;
@@ -120,8 +121,9 @@ class HGCDigitizerBase {
 			 rawDataFrame[itIdx-2+it].toa(),
 			 rawDataFrame[itIdx-2+it].data());
 	dataFrame.setSample(it, singleSample);
+	if(it==2) { putInEvent=rawDataFrame[itIdx-2+it].threshold(); }
       }
-    coll->push_back(dataFrame);
+    if(putInEvent) coll->push_back(dataFrame);
   }
 
   /**

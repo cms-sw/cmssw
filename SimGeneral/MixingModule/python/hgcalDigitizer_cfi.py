@@ -37,7 +37,7 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                                    toaLSB_ns         = cms.double(0.005),
                                                                    # TDC charge drain parameterisation (from J. Kaplon)
                                                                    tdcChargeDrainParameterisation = cms.vdouble(-919.13, 365.36, -14.10, 0.2,
-                                                                                                                 -21.85, 49.39,  22.21,  0.8
+                                                                                                                 -21.85, 49.39,  22.21,  0.8,
                                                                                                                  -0.28,   27.14,  43.95,
                                                                                                                  3.89048)
                                                                    )
@@ -78,10 +78,10 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                                         # LSB for time of arrival estimate from TDC in ns
                                                                         toaLSB_ns         = cms.double(0.005),
                                                                         # TDC charge drain parameterisation (from J. Kaplon)
-                                                                        tdcChargeDrainParameterisation = cms.vdouble(200.0,
-                                                                                                                     139.979, 0.779, 0.000,
-                                                                                                                     32.624,  0.894, 32.215,
-                                                                                                                     8.53)
+                                                                        tdcChargeDrainParameterisation = cms.vdouble(-919.13, 365.36, -14.10, 0.2,
+                                                                                                                      -21.85, 49.39,  22.21,  0.8,
+                                                                                                                      -0.28,   27.14,  43.95,
+                                                                                                                      3.89048)
                                                                         )
                                                     )
                                 )
