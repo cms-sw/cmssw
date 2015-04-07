@@ -42,4 +42,29 @@
  <class name="PTrackerParameters::Item"/>
  <class name="std::vector<PTrackerParameters::Item>"/>
 
+ <class name="PHcalParameters" class_version="0"> 
+   <field name="phioff" mapping="blob"/>
+   <field name="etaTable" mapping="blob"/>
+   <field name="rTable" mapping="blob"/>
+   <field name="phibin" mapping="blob"/>
+   <field name="phitable" mapping="blob"/>
+   <field name="etaRange" mapping="blob"/>
+   <field name="gparHF" mapping="blob"/>
+   <field name="noff" mapping="blob"/>
+   <field name="Layer0Wt" mapping="blob"/>
+   <field name="HBGains" mapping="blob"/>
+   <field name="HEGains" mapping="blob"/>
+   <field name="HFGains" mapping="blob"/>
+   <field name="etaMin" mapping="blob"/>
+   <field name="etaMax" mapping="blob"/>
+   <field name="HBShift" mapping="blob"/>
+   <field name="HEShift" mapping="blob"/>
+   <field name="HFShift" mapping="blob"/>
+   <field name="etagroup" mapping="blob"/>
+   <field name="phigroup" mapping="blob"/>
+   <field name="layerGroupEta" mapping="blob"/>
+ </class>
+ <class name="PHcalParameters::LayerItem"/>
+ <class name="std::vector<PHcalParameters::LayerItem>"/>
+ 
 </lcgdict> 
