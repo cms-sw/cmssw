@@ -232,7 +232,7 @@ void HGCalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 	{
 	  for (int sample = 0 ; sample < myDigi->size () ; ++sample)
 	    {
-	      double analogSample=HGCSample((*myDigi)[sample]).adc() ;
+	      double analogSample=HGCSample((*myDigi)[sample]).data() ;
 	      if ( eMax < analogSample )
 		{
 		  eMax = analogSample;

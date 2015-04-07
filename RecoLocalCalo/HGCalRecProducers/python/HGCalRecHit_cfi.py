@@ -13,15 +13,15 @@ HGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
                              # digi constants
                              
                              HGCEEmipInKeV = hgceeDigitizer.digiCfg.mipInKeV,
-                             HGCEElsbInMIP = hgceeDigitizer.digiCfg.feCfg.lsbInMIP,
+                             #HGCEElsbInMIP = hgceeDigitizer.digiCfg.feCfg.lsbInMIP,
                              HGCEEmip2noise = hgceeDigitizer.digiCfg.mip2noise,
 
                              HGCHEFmipInKeV = hgchefrontDigitizer.digiCfg.mipInKeV,
-                             HGCHEFlsbInMIP = hgchefrontDigitizer.digiCfg.feCfg.lsbInMIP,
+                             #HGCHEFlsbInMIP = hgchefrontDigitizer.digiCfg.feCfg.lsbInMIP,
                              HGCHEFmip2noise = hgchefrontDigitizer.digiCfg.mip2noise,
 
                              HGCHEBmipInKeV = hgchebackDigitizer.digiCfg.mipInKeV,
-                             HGCHEBlsbInMIP = hgchebackDigitizer.digiCfg.feCfg.lsbInMIP,
+                             #HGCHEBlsbInMIP = hgchebackDigitizer.digiCfg.feCfg.lsbInMIP,
                              HGCHEBmip2noise = hgchebackDigitizer.digiCfg.mip2noise,
                              
                              # algo
