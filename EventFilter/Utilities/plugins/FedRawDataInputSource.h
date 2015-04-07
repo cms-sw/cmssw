@@ -85,7 +85,7 @@ private:
   unsigned int eventChunkBlock_; // how much read(2) asks at the time
   unsigned int readBlocks_;
   unsigned int numBuffers_;
-  unsigned int maxOpenFiles_;
+  unsigned int maxBufferedFiles_;
   unsigned int numConcurrentReads_;
   std::atomic<unsigned int> readingFilesCount_;
 
