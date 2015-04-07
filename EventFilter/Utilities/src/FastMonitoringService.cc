@@ -19,6 +19,9 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 using namespace jsoncollector;
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
 namespace evf{
@@ -36,7 +39,7 @@ namespace evf{
     ,encModule_(33)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
-    ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 1))
+    ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 2))
     ,microstateDefPath_(iPS.getUntrackedParameter<std::string> ("microstateDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/microstatedef.jsd"))
     ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", microstateDefPath_))
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "fastmoni"))
@@ -78,6 +81,16 @@ namespace evf{
 
   FastMonitoringService::~FastMonitoringService()
   {
+  }
+
+  void FastMonitoringService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+  {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Service for File-based DAQ monitoring and event accounting");
+    desc.addUntracked<int> ("sleepTime",1)->setComment("Sleep time of the monitoring thread");
+    desc.addUntracked<unsigned int> ("fastMonIntervals",2)->setComment("Modulo of sleepTime intervals on which fastmon file is written out");
+    desc.setAllowAnything();
+    descriptions.add("FastMonitoringService", desc);
   }
 
 
