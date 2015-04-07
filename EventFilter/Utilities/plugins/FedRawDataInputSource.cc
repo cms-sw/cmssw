@@ -58,7 +58,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)*1048576),
   eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
-  maxOpenFiles_(pset.getUntrackedParameter<unsigned int> ("maxOpenFiles",2)),
+  maxBufferedFiles_(pset.getUntrackedParameter<unsigned int> ("maxBufferedFiles",2)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
@@ -881,7 +881,7 @@ void FedRawDataInputSource::readSupervisor()
 
     //wait for at least one free thread and chunk
     int counter=0;
-    while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty() || readingFilesCount_>=maxOpenFiles_)
+    while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty() || readingFilesCount_>=maxBufferedFiles_)
     {
       std::unique_lock<std::mutex> lkw(mWakeup_);
       //sleep until woken up by condition or a timeout
