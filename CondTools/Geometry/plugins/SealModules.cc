@@ -24,3 +24,6 @@ DEFINE_FWK_MODULE(RPCRecoIdealDBLoader);
 
 #include "CondTools/Geometry/plugins/PTrackerParametersDBBuilder.h"
 DEFINE_FWK_MODULE(PTrackerParametersDBBuilder);
+
+#include "CondTools/Geometry/plugins/PHcalParametersDBBuilder.h"
+DEFINE_FWK_MODULE(PHcalParametersDBBuilder);
