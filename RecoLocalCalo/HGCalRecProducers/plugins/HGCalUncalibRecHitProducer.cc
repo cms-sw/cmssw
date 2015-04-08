@@ -60,7 +60,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                 if ( pHGCHEFDigis.isValid() ) {
                         hefDigis = pHGCHEFDigis.product(); // get a ptr to the product
                         edm::LogInfo("HGCalUncalibRecHitInfo") << "total # hefDigis: " << hefDigis->size() ;
-                        std::cout << "total # eeDigis: " << hefDigis->size() << std::endl;
+                        std::cout << "total # hefDigis: " << hefDigis->size() << std::endl;
                 } else {
                         edm::LogInfo("HGCalUncalibRecHitInfo") << "Info!? can't get the product " << hefDigiCollection_;
                 }
