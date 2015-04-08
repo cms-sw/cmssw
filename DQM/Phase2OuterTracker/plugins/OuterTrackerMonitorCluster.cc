@@ -137,7 +137,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	folder_organizer.setSiStripFolderName(topFolderName_);
 	folder_organizer.setSiStripFolder();	
 	
-	dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
+	dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/#clusters");
 	
 	// NClusters
 	edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
@@ -195,6 +195,8 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTClusterEta.getParameter<double>("xmax"));
   Cluster_Eta->setAxisTitle("#eta", 1);
   Cluster_Eta->setAxisTitle("# TTClusters", 2);
+  
+  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/Position");
 	
 	//Position plots
 	edm::ParameterSet psTTCluster_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Position");

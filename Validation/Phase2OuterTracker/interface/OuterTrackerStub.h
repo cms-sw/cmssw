@@ -33,6 +33,9 @@ public:
   MonitorElement* Stub_Gen_Endcap = 0;
   MonitorElement* Stub_Unkn_Endcap = 0;
   MonitorElement* Stub_Comb_Endcap = 0;
+  MonitorElement* Stub_Gen_EndcapRing = 0;
+  MonitorElement* Stub_Unkn_EndcapRing = 0;
+  MonitorElement* Stub_Comb_EndcapRing = 0;
   MonitorElement* Stub_Gen_Eta = 0;
   MonitorElement* Stub_Unkn_Eta = 0;
   MonitorElement* Stub_Comb_Eta = 0;

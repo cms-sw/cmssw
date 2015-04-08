@@ -149,14 +149,17 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         if ( genuineStub )
         {
           Stub_Gen_Endcap->Fill( detIdStub.iDisk() );
+//           Stub_Gen_EndcapRing->Fill( detIdStub.iRing() );
         }
         else if ( combinStub )
         {
           Stub_Comb_Endcap->Fill( detIdStub.iDisk() );
+//           Stub_Comb_EndcapRing->Fill( detIdStub.iRing() );
         }
         else
         {
           Stub_Unkn_Endcap->Fill( detIdStub.iDisk() );
+//           Stub_Unkn_EndcapRing->Fill( detIdStub.iRing() );
         }
         
       }	// end if isEndcap()
@@ -196,54 +199,80 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
   dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/");
   
   /// TTStub stacks
-  edm::ParameterSet psTTStubStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
+  edm::ParameterSet psTTStubLayer =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Layer");
   std::string HistoName = "NStubs_Gen_Barrel";
   Stub_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubStacks.getParameter<int32_t>("Nbinsx"),
-      psTTStubStacks.getParameter<double>("xmin"),
-      psTTStubStacks.getParameter<double>("xmax"));
+      psTTStubLayer.getParameter<int32_t>("Nbinsx"),
+      psTTStubLayer.getParameter<double>("xmin"),
+      psTTStubLayer.getParameter<double>("xmax"));
   Stub_Gen_Barrel->setAxisTitle("Barrel Layer", 1);
   Stub_Gen_Barrel->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Unkn_Barrel";
   Stub_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubStacks.getParameter<int32_t>("Nbinsx"),
-      psTTStubStacks.getParameter<double>("xmin"),
-      psTTStubStacks.getParameter<double>("xmax"));
+      psTTStubLayer.getParameter<int32_t>("Nbinsx"),
+      psTTStubLayer.getParameter<double>("xmin"),
+      psTTStubLayer.getParameter<double>("xmax"));
   Stub_Unkn_Barrel->setAxisTitle("Barrel Layer", 1);
   Stub_Unkn_Barrel->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Comb_Barrel";
   Stub_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubStacks.getParameter<int32_t>("Nbinsx"),
-      psTTStubStacks.getParameter<double>("xmin"),
-      psTTStubStacks.getParameter<double>("xmax"));
+      psTTStubLayer.getParameter<int32_t>("Nbinsx"),
+      psTTStubLayer.getParameter<double>("xmin"),
+      psTTStubLayer.getParameter<double>("xmax"));
   Stub_Comb_Barrel->setAxisTitle("Barrel Layer", 1);
   Stub_Comb_Barrel->setAxisTitle("# TTStubs", 2);
   
+  edm::ParameterSet psTTStubDisk =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Disk");
   HistoName = "NStubs_Gen_Endcap";
   Stub_Gen_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubStacks.getParameter<int32_t>("Nbinsx"),
-      psTTStubStacks.getParameter<double>("xmin"),
-      psTTStubStacks.getParameter<double>("xmax"));
+      psTTStubDisk.getParameter<int32_t>("Nbinsx"),
+      psTTStubDisk.getParameter<double>("xmin"),
+      psTTStubDisk.getParameter<double>("xmax"));
   Stub_Gen_Endcap->setAxisTitle("Endcap Disc", 1);
   Stub_Gen_Endcap->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Unkn_Endcap";
   Stub_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubStacks.getParameter<int32_t>("Nbinsx"),
-      psTTStubStacks.getParameter<double>("xmin"),
-      psTTStubStacks.getParameter<double>("xmax"));
+      psTTStubDisk.getParameter<int32_t>("Nbinsx"),
+      psTTStubDisk.getParameter<double>("xmin"),
+      psTTStubDisk.getParameter<double>("xmax"));
   Stub_Unkn_Endcap->setAxisTitle("Endcap Disc", 1);
   Stub_Unkn_Endcap->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Comb_Endcap";
   Stub_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubStacks.getParameter<int32_t>("Nbinsx"),
-      psTTStubStacks.getParameter<double>("xmin"),
-      psTTStubStacks.getParameter<double>("xmax"));
+      psTTStubDisk.getParameter<int32_t>("Nbinsx"),
+      psTTStubDisk.getParameter<double>("xmin"),
+      psTTStubDisk.getParameter<double>("xmax"));
   Stub_Comb_Endcap->setAxisTitle("Encap Disc", 1);
   Stub_Comb_Endcap->setAxisTitle("# TTStubs", 2);
+  
+  edm::ParameterSet psTTStubRing =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Ring");
+  HistoName = "NStubs_Gen_EndcapRing";
+  Stub_Gen_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
+      psTTStubRing.getParameter<int32_t>("Nbinsx"),
+      psTTStubRing.getParameter<double>("xmin"),
+      psTTStubRing.getParameter<double>("xmax"));
+  Stub_Gen_EndcapRing->setAxisTitle("Endcap Ring", 1);
+  Stub_Gen_EndcapRing->setAxisTitle("# TTStubs", 2);
+  
+  HistoName = "NStubs_Unkn_EndcapRing";
+  Stub_Unkn_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
+      psTTStubRing.getParameter<int32_t>("Nbinsx"),
+      psTTStubRing.getParameter<double>("xmin"),
+      psTTStubRing.getParameter<double>("xmax"));
+  Stub_Unkn_EndcapRing->setAxisTitle("Endcap Ring", 1);
+  Stub_Unkn_EndcapRing->setAxisTitle("# TTStubs", 2);
+  
+  HistoName = "NStubs_Comb_EndcapRing";
+  Stub_Comb_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
+      psTTStubRing.getParameter<int32_t>("Nbinsx"),
+      psTTStubRing.getParameter<double>("xmin"),
+      psTTStubRing.getParameter<double>("xmax"));
+  Stub_Comb_EndcapRing->setAxisTitle("Encap Ring", 1);
+  Stub_Comb_EndcapRing->setAxisTitle("# TTStubs", 2);
   
   edm::ParameterSet psTTStubEta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Gen_Eta";

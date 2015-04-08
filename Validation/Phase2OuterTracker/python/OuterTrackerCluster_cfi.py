@@ -6,11 +6,24 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
     TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
     TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"),    
 
-
-# Cluster Stacks
-    TH1TTCluster_Stack = cms.PSet(
+# Cluster Barrel Layers    
+    TH1TTCluster_Layers = cms.PSet(
         Nbinsx = cms.int32(6),
         xmax = cms.double(6.5),                      
+        xmin = cms.double(0.5)
+        ),
+    
+# Cluster EC Disks    
+    TH1TTCluster_Disks = cms.PSet(
+        Nbinsx = cms.int32(5),
+        xmax = cms.double(5.5),                      
+        xmin = cms.double(0.5)
+        ),
+    
+# Cluster EC Rings
+    TH1TTCluster_Rings = cms.PSet(
+        Nbinsx = cms.int32(16),
+        xmax = cms.double(16.5),                      
         xmin = cms.double(0.5)
         ),
 

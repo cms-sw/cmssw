@@ -143,14 +143,17 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         if ( genuineClu )
         {
           Cluster_Gen_Endcap->Fill( detIdClu.iDisk() );
+          Cluster_Gen_EndcapRing->Fill( detIdClu.iRing() );
         }
         else if ( combinClu )
         {
           Cluster_Comb_Endcap->Fill( detIdClu.iDisk() );
+          Cluster_Comb_EndcapRing->Fill( detIdClu.iRing() );
         }
         else
         {
           Cluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
+          Cluster_Unkn_EndcapRing->Fill( detIdClu.iRing() );
         }
         
       }	// end if isEndcap()
@@ -188,54 +191,80 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
   
   /// TTCluster stacks
-  edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
+  edm::ParameterSet psTTClusterLayers =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Layers");
   std::string HistoName = "NClusters_Gen_Barrel";
   Cluster_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacks.getParameter<double>("xmin"),
-      psTTClusterStacks.getParameter<double>("xmax"));
+      psTTClusterLayers.getParameter<int32_t>("Nbinsx"),
+      psTTClusterLayers.getParameter<double>("xmin"),
+      psTTClusterLayers.getParameter<double>("xmax"));
   Cluster_Gen_Barrel->setAxisTitle("Barrel Layer", 1);
   Cluster_Gen_Barrel->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Unkn_Barrel";
   Cluster_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacks.getParameter<double>("xmin"),
-      psTTClusterStacks.getParameter<double>("xmax"));
+      psTTClusterLayers.getParameter<int32_t>("Nbinsx"),
+      psTTClusterLayers.getParameter<double>("xmin"),
+      psTTClusterLayers.getParameter<double>("xmax"));
   Cluster_Unkn_Barrel->setAxisTitle("Barrel Layer", 1);
   Cluster_Unkn_Barrel->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Comb_Barrel";
   Cluster_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacks.getParameter<double>("xmin"),
-      psTTClusterStacks.getParameter<double>("xmax"));
+      psTTClusterLayers.getParameter<int32_t>("Nbinsx"),
+      psTTClusterLayers.getParameter<double>("xmin"),
+      psTTClusterLayers.getParameter<double>("xmax"));
   Cluster_Comb_Barrel->setAxisTitle("Barrel Layer", 1);
   Cluster_Comb_Barrel->setAxisTitle("# Clusters", 2);
   
+  edm::ParameterSet psTTClusterDisks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Disks");
   HistoName = "NClusters_Gen_Endcap";
   Cluster_Gen_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacks.getParameter<double>("xmin"),
-      psTTClusterStacks.getParameter<double>("xmax"));
+      psTTClusterDisks.getParameter<int32_t>("Nbinsx"),
+      psTTClusterDisks.getParameter<double>("xmin"),
+      psTTClusterDisks.getParameter<double>("xmax"));
   Cluster_Gen_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Gen_Endcap->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Unkn_Endcap";
   Cluster_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacks.getParameter<double>("xmin"),
-      psTTClusterStacks.getParameter<double>("xmax"));
+      psTTClusterDisks.getParameter<int32_t>("Nbinsx"),
+      psTTClusterDisks.getParameter<double>("xmin"),
+      psTTClusterDisks.getParameter<double>("xmax"));
   Cluster_Unkn_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Unkn_Endcap->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Comb_Endcap";
   Cluster_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacks.getParameter<double>("xmin"),
-      psTTClusterStacks.getParameter<double>("xmax"));
+      psTTClusterDisks.getParameter<int32_t>("Nbinsx"),
+      psTTClusterDisks.getParameter<double>("xmin"),
+      psTTClusterDisks.getParameter<double>("xmax"));
   Cluster_Comb_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Comb_Endcap->setAxisTitle("# Clusters", 2);
+  
+  edm::ParameterSet psTTClusterRings =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Rings");
+  HistoName = "NClusters_Gen_EndcapRing";
+  Cluster_Gen_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
+      psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+      psTTClusterRings.getParameter<double>("xmin"),
+      psTTClusterRings.getParameter<double>("xmax"));
+  Cluster_Gen_EndcapRing->setAxisTitle("Endcap Ring", 1);
+  Cluster_Gen_EndcapRing->setAxisTitle("# Clusters", 2);
+  
+  HistoName = "NClusters_Unkn_EndcapRing";
+  Cluster_Unkn_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
+      psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+      psTTClusterRings.getParameter<double>("xmin"),
+      psTTClusterRings.getParameter<double>("xmax"));
+  Cluster_Unkn_EndcapRing->setAxisTitle("Endcap Ring", 1);
+  Cluster_Unkn_EndcapRing->setAxisTitle("# Clusters", 2);
+  
+  HistoName = "NClusters_Comb_EndcapRing";
+  Cluster_Comb_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
+      psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+      psTTClusterRings.getParameter<double>("xmin"),
+      psTTClusterRings.getParameter<double>("xmax"));
+  Cluster_Comb_EndcapRing->setAxisTitle("Endcap Ring", 1);
+  Cluster_Comb_EndcapRing->setAxisTitle("# Clusters", 2);
   
   edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Gen_Eta";
