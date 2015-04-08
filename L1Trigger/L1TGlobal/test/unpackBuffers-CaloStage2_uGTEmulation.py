@@ -269,7 +269,7 @@ process.emL1uGtFromGtInput = cms.EDProducer("l1t::GtProducer",
     AlgorithmTriggersUnprescaled = cms.bool(False),
     ProduceL1GtDaqRecord = cms.bool(True),
     GmtInputTag = cms.InputTag(""),
-    caloInputTag = cms.InputTag("gtStage2Digis"),
+    caloInputTag = cms.InputTag("gtStage2Digis","GT"),
     AlternativeNrBxBoardDaq = cms.uint32(0),
     BstLengthBytes = cms.int32(-1),
     Verbosity = cms.untracked.int32(5)
@@ -293,6 +293,7 @@ process.emL1uGtFromDemuxOutput = cms.EDProducer("l1t::GtProducer",
 
 # object analyser
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
+process.l1tStage2CaloAnalyzer.doText = cms.untracked.bool(options.debug)
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
@@ -301,17 +302,18 @@ process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 
 # gt analyzer
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
+    doText = cms.untracked.bool(options.debug),
     dmxEGToken = cms.InputTag("None"),
     dmxTauToken = cms.InputTag("None"),
     dmxJetToken = cms.InputTag("caloStage2Digis"),
     dmxEtSumToken = cms.InputTag("caloStage2Digis"),
     egToken = cms.InputTag("None"),
     tauToken = cms.InputTag("None"),
-    jetToken = cms.InputTag("None"),
-    etSumToken = cms.InputTag("None"),
+    jetToken = cms.InputTag("gtStage2Digis","GT"),
+    etSumToken = cms.InputTag("gtStage2Digis","GT"),
     gtAlgToken = cms.InputTag("gtStage2Digis"),
     emulDxAlgToken = cms.InputTag("emL1uGtFromDemuxOutput"),
-    emulGtAlgToken = cms.InputTag("None")
+    emulGtAlgToken = cms.InputTag("emL1uGtFromGtInput")
 )
 
 
@@ -324,7 +326,7 @@ process.path = cms.Path(
     +process.dumpRaw
     +process.caloStage2Digis
     +process.gtStage2Digis
-#    +process.emL1uGtFromGtInput
+    +process.emL1uGtFromGtInput
     +process.emL1uGtFromDemuxOutput
     +process.l1tStage2CaloAnalyzer
     +process.l1tGlobalAnalyzer
