@@ -98,6 +98,10 @@ for type in plot_types:
 add_reco_strings(efficiency_strings)
 
 #--- IMPORTANT: Here you have to add the analyses one by one.
+hltExoticaPostLowPtTrimuon = hltExoticaPostProcessor.clone()
+hltExoticaPostLowPtTrimuon.subDirs = ['HLT/Exotica/LowPtTrimuon']
+hltExoticaPostLowPtTrimuon.efficiencyProfile = efficiency_strings
+
 hltExoticaPostHighPtDimuon = hltExoticaPostProcessor.clone()
 hltExoticaPostHighPtDimuon.subDirs = ['HLT/Exotica/HighPtDimuon']
 hltExoticaPostHighPtDimuon.efficiencyProfile = efficiency_strings
@@ -191,6 +195,8 @@ hltExoticaHTDisplacedJets.subDirs = ['HLT/Exotica/HTDisplacedJets']
 hltExoticaHTDisplacedJets.efficiencyProfile = efficiency_strings
 
 hltExoticaPostProcessors = cms.Sequence(
+    # Tri-lepton paths
+    hltExoticaPostLowPtTrimuon +
     # Di-lepton paths
     hltExoticaPostHighPtDimuon +
     hltExoticaPostHighPtDielectron +
