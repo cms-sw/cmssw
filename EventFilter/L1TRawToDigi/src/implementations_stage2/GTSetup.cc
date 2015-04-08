@@ -23,6 +23,10 @@ namespace l1t {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
 
+		     PackerFactory::get()->make("stage2::EGammaPacker"),
+		     PackerFactory::get()->make("stage2::EtSumPacker"),
+		     PackerFactory::get()->make("stage2::JetPacker"),
+		     PackerFactory::get()->make("stage2::TauPacker"),
                      PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
                      PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
                   };
@@ -32,7 +36,11 @@ namespace l1t {
             };
 
             virtual void registerProducts(edm::one::EDProducerBase& prod) override {
-
+	      
+	       prod.produces<EGammaBxCollection>("GT");
+	       prod.produces<EtSumBxCollection>("GT");
+	       prod.produces<JetBxCollection>("GT");
+	       prod.produces<TauBxCollection>("GT");
                prod.produces<GlobalAlgBlkBxCollection>();
                prod.produces<GlobalExtBlkBxCollection>();
 
@@ -44,6 +52,10 @@ namespace l1t {
 
             virtual UnpackerMap getUnpackers(int fed, int board, int amc, int fw) override {
 
+  	       auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
+	       auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
+	       auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
+	       auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
                auto alg_unp = UnpackerFactory::get()->make("stage2::GlobalAlgBlkUnpacker");
                auto ext_unp = UnpackerFactory::get()->make("stage2::GlobalExtBlkUnpacker");
 

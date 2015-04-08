@@ -10,6 +10,10 @@ namespace l1t {
       {
          auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
 
+         egammaToken_ = cc.consumes<EGammaBxCollection>(tag);
+         etSumToken_ = cc.consumes<EtSumBxCollection>(tag);
+         jetToken_ = cc.consumes<JetBxCollection>(tag);
+         tauToken_ = cc.consumes<TauBxCollection>(tag);
          algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(tag);
          extToken_ = cc.consumes<GlobalExtBlkBxCollection>(tag);
 

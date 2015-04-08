@@ -18,7 +18,6 @@ namespace l1t {
          public:
             GTCollections(edm::Event& e) :
                L1TObjectCollections(e),
-		 
 		 algBlk_(new GlobalAlgBlkBxCollection()),
 		 extBlk_(new GlobalExtBlkBxCollection())  {};
 
