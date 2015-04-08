@@ -34,7 +34,7 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TOB;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TOB];}
  
 
  private:

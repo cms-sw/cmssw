@@ -42,13 +42,13 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const TrackerTopology& ttopo, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
   : theDet(nullptr), theTopol(nullptr), theRecTopol(nullptr), theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
     isOnEdge_(false), hasBadPixels_(false),
-    spansTwoROCs_(false), hasFilledProb_(false),
+    spansTwoROCs_(false), hasFilledProb_(false),ttopo_(ttopo),
     loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla
@@ -107,12 +107,19 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     case GeomDetEnumerators::PixelBarrel:
       // A barrel!  A barrel!
       break;
+    case GeomDetEnumerators::P1PXB:
+      // A barrel!  A barrel!
+      break;
     case GeomDetEnumerators::PixelEndcap:
       // A forward!  A forward!
       break;
+    case GeomDetEnumerators::P1PXEC:
+      // A forward!  A forward!
+      break;
     default:
-      throw cms::Exception("PixelCPEBase::setTheDet :")
-      	<< "PixelCPEBase: A non-pixel detector type in here?" ;
+      if(!(theDet->type().isTrackerPixel()))  // last chance: check if it is a pixel-like detector (in case of upgrade geometry)
+	throw cms::Exception("PixelCPEBase::setTheDet :")
+	  << "PixelCPEBase: A non-pixel detector type in here?" ;
     }
 
   //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
@@ -163,7 +170,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   theLShiftY = lorentzShiftY();
 
   // testing 
-  if(thePart == GeomDetEnumerators::PixelBarrel) {
+  if((theDet->type().isTrackerPixel()) && (theDet->type().isBarrel())) {
     //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
     theLShiftY=0.;
   }

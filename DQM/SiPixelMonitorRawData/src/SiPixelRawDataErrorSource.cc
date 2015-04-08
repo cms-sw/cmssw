@@ -182,7 +182,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
 
-    if( ((*it)->subDetector()==GeomDetEnumerators::PixelBarrel) || ((*it)->subDetector()==GeomDetEnumerators::PixelEndcap) ){
+    if( GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
       DetId detId = (*it)->geographicalId();
       const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
       const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);

@@ -62,8 +62,8 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(const S
 	std::pair<float,float> element;
   std::pair<float,float> errors;
 	
-	switch (pixelPart)
-	{
+  switch (GeomDetEnumerators::subDetGeom[pixelPart])  // the _real_ subdetector enumerator is projected into the geometry subdetector enumerator
+        {
 		case GeomDetEnumerators::PixelBarrel:
 			element = std::pair<float,float>(index(1, sizex, alpha, beta, bigInX),  //1 -- Bx
                           			       index(0, sizey, alpha, beta, bigInY)); //0 -- By
@@ -94,7 +94,7 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(GeomDet
 	std::pair<float,float> element;
   std::pair<float,float> errors;
 	
-	switch (pixelPart)
+  switch (GeomDetEnumerators::subDetGeom[pixelPart])  // the _real_ subdetector enumerator is projected into the geometry subdetector enumerator
 	{
 		case GeomDetEnumerators::PixelBarrel:
 			element = std::pair<float,float>(index(1, sizex, alpha, beta, bigInX),  //1 -- Bx

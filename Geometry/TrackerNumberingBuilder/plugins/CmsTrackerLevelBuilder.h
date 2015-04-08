@@ -20,7 +20,7 @@ public:
   
   struct subDetByType{
     bool operator()(const GeometricDet* a, const GeometricDet* b) const {
-      return a->type() < b->type();
+      return a->type()%100 < b->type()%100; // it relies on the fact that the GeometricDet::GDEnumType enumerators used to identify the subdetectors in the upgrade geometries are equal to the ones of the present detector + n*100
     }
   };
   
@@ -58,42 +58,6 @@ public:
     }
   };
   
-  struct LessModExtPhase2Z{
-    bool operator()(const GeometricDet* a, const GeometricDet* b) const
-    {
-      std::string det_name_a = a->name();
-      std::string det_name_b = b->name();
-      if ( (det_name_a.find("PixelForwardDisk") < det_name_a.size()) &&
-	   (det_name_b.find("PixelForwardDisk") < det_name_b.size()) )
-	{
-	  // both are inner pixels
-	  // sort by z
-	  return fabs(a->translation().z()) < fabs(b->translation().z());  
-	}
-      else if ( !(det_name_a.find("PixelForwardDisk") < det_name_a.size()) &&
-		!(det_name_b.find("PixelForwardDisk") < det_name_b.size()) )
-	{
-	  // both are outer tracker
-	  // sort by z
-	  return fabs(a->translation().z()) < fabs(b->translation().z());
-	}
-      else
-	{
-	  if ( det_name_a.find("PixelForwardDisk") < det_name_a.size() )
-	    {
-	      // a is inner pixel
-	      // let it be first
-	      return true;
-	    }
-	  else
-	    {
-	      // b is inner pixel
-	      // let it be first
-	      return false;
-	    }
-	}
-    }
-  };
 
   struct ExtractPhi:public uFcn{
     double operator()(const GeometricDet* a)const{

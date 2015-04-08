@@ -30,15 +30,15 @@
       <PartSelector path="//PixelBarrelActiveFull3"/>
        <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
      </SpecPar>
-    <SpecPar name="PixelEndcapSubDetPar">
+    <SpecPar name="PixelPhase2EndcapSubDetPar">
       <PartSelector path="//PixelForward"/>
-       <Parameter name="TkDDDStructure" value="PixelEndcapSubDet"/>
+       <Parameter name="TkDDDStructure" value="PixelPhase2EndcapSubDet"/>
      </SpecPar>
-     <SpecPar name="PixelEndcapDiskPar">
+     <SpecPar name="PixelPhase2EndcapFullDiskPar">
       <PartSelector path="//PixelForwardDisk1"/>
       <PartSelector path="//PixelForwardDisk2"/>
       <PartSelector path="//PixelForwardDisk3"/>
-       <Parameter name="TkDDDStructure" value="PixelEndcapDisk"/>
+       <Parameter name="TkDDDStructure" value="PixelPhase2EndcapFullDisk"/>
      </SpecPar>
       <SpecPar name="PixelEndcapPanelPar">
       <PartSelector path="//PixelForwardWafer1"/>
@@ -173,7 +173,7 @@
 <PartSelector path="//Layer4"/>
 <PartSelector path="//Layer5"/>
 <PartSelector path="//Layer6"/>
-<Parameter name="TkDDDStructure" value="PixelBarrelLayer"/>
+<Parameter name="TkDDDStructure" value="Phase2OTBarrelLayer"/>
 </SpecPar>
 <SpecPar name="OuterTrackerPixelBarrelLadderPar">
 <PartSelector path="//Rod1"/>
@@ -190,7 +190,7 @@
 <PartSelector path="//Disc8"/>
 <PartSelector path="//Disc9"/>
 <PartSelector path="//Disc10"/>
-<Parameter name="TkDDDStructure" value="PixelEndcapDisk"/>
+<Parameter name="TkDDDStructure" value="Phase2OTEndcapDisk"/>
 </SpecPar>
 <SpecPar name="OuterTrackerPixelEndcapPanelPar">
 <PartSelector path="//Ring1Disc6"/>

@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -14,8 +15,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -30,6 +30,12 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
 //
 // class decleration
 //
@@ -74,7 +80,7 @@ class TrackClusterRemover : public edm::EDProducer {
         std::vector<uint8_t> pixels, strips;                // avoid unneed alloc/dealloc of this
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
-        inline void process(const TrackingRecHit *hit, float chi2);
+        inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
         inline void process(const OmniClusterRef & cluRef, uint32_t subdet, bool fromTrack);
 
 
@@ -266,7 +272,7 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subd
 }
 
 
-void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
+void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg) {
     DetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
@@ -275,7 +281,7 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
     // chi2 cut
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
-    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+    if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
         if (!doPixel_) return;
         // this is a pixel, and i *know* it is
         const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
@@ -338,6 +344,9 @@ void
 TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 {
     ProductID pixelOldProdID, stripOldProdID;
+
+    edm::ESHandle<TrackerGeometry> tgh;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tgh);
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     if (doPixel_) {
@@ -440,7 +449,7 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	for (itm = tms.begin(), endtm = tms.end(); itm != endtm; ++itm) {
 	  const TrackingRecHit *hit = itm->recHit()->hit();
 	  if (!hit->isValid()) continue; 
-	  process( hit, itm->estimate() );
+	  process( hit, itm->estimate(),tgh.product() );
 	}
       }
     }

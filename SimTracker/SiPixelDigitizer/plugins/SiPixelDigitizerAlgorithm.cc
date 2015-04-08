@@ -158,7 +158,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //theAdcFullScale(conf.getUntrackedParameter<int>("AdcFullScale",255)),
   theAdcFullScale(conf.getParameter<int>("AdcFullScale")),
   theAdcFullScaleStack(conf.exists("AdcFullScaleStack")?conf.getParameter<int>("AdcFullScaleStack"):255),
-  theFirstStackLayer(conf.exists("FirstStackLayer")?conf.getParameter<int>("FirstStackLayer"):5),
+  //  theFirstStackLayer(conf.exists("FirstStackLayer")?conf.getParameter<int>("FirstStackLayer"):5),
 
   // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels
@@ -391,7 +391,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 		     // The next is needed for Phase2 Tracker studies
 		     if (NumberOfBarrelLayers>=5){
 			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
-			// For Phase2 tracker layers just set the outermost BPix inefficiency to 99.9%
+			// For Phase2 tracker layers just set the outermost BPix inefficiency to 99.9% THESE VALUES ARE HARDCODED ALSO ELSEWHERE IN THIS FILE
 			for (int j=5 ; j<=NumberOfBarrelLayers ; j++){
 			    thePixelColEfficiency[j-1]=0.999;
 			    thePixelEfficiency[j-1]=0.999;
@@ -414,7 +414,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
                      // The next is needed for Phase2 Tracker studies
                      if (NumberOfEndcapDisks>=4){
                         if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
-                        // For Phase2 tracker layers just set the extra FPix disk inefficiency to 99.9%
+                        // For Phase2 tracker layers just set the extra FPix disk inefficiency to 99.9% THESE VALUES ARE HARDCODED ALSO ELSEWHERE IN THIS FILE
                         for (int j=4+FPixIndex ; j<=NumberOfEndcapDisks+NumberOfBarrelLayers ; j++){
                             thePixelColEfficiency[j-1]=0.999;
                             thePixelEfficiency[j-1]=0.999;
@@ -465,7 +465,7 @@ SiPixelDigitizerAlgorithm::PixelAging::PixelAging(const edm::ParameterSet& conf,
     //To be removed when Phase2 digitizer will be available
     if (NumberOfEndcapDisks>=4){
       if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
-      // For Phase2 tracker layers just set the extra FPix disk aging to 0.
+      // For Phase2 tracker layers just set the extra FPix disk aging to 0. BE CAREFUL THESE VALUES ARE HARDCODED ALSO ELSEWHERE IN THIS FILE !!
       for (int j=4+FPixIndex ; j<=NumberOfEndcapDisks+NumberOfBarrelLayers ; j++){
 	thePixelPseudoRadDamage[j-1]=0.;
       }
@@ -547,33 +547,33 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
     //thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons ;
     // Find the threshold in noise units, needed for the noiser.
 
-  unsigned int Sub_detid=DetId(detID).subdetId();
 
   float thePixelThresholdInE = 0.;
 
   if(theNoiseInElectrons>0.){
-    if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
-      int lay = tTopo->pxbLayer(detID);
+    if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){ // Barrel modules
+      int lay = tTopo->layer(detID);
       if(addThresholdSmearing) {
-	if(lay==1) {
+	if((pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB)  && lay==1) {
 	  thePixelThresholdInE = smearedThreshold_BPix_L1_->fire(); // gaussian smearing
 	} else {
 	  thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing
 	}
       } else {
-	if(lay==1) {
+	if((pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB)  && lay==1) {
 	  thePixelThresholdInE = theThresholdInE_BPix_L1;
 	} else {
 	  thePixelThresholdInE = theThresholdInE_BPix; // no smearing
 	}
       }
-    } else { // Forward disks modules
+    } else if(pixdet->type().isTrackerPixel()) { // Forward disks modules
       if(addThresholdSmearing) {
 	thePixelThresholdInE = smearedThreshold_FPix_->fire(); // gaussian smearing
       } else {
 	thePixelThresholdInE = theThresholdInE_FPix; // no smearing
       }
     }
+    else {throw cms::Exception("NotAPixelGeomDetUnit") << "Not a pixel geomdet unit" << detID;}
   }
 
 
@@ -608,7 +608,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
       }
     }
 
-    make_digis(thePixelThresholdInE, detID, digis, simlinks, tTopo);
+    make_digis(thePixelThresholdInE, detID, pixdet, digis, simlinks, tTopo);
 
 #ifdef TP_DEBUG
   LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << digis.size() << " PixelDigis in DetUnit" << detID;
@@ -1117,6 +1117,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
 // Build pixels, check threshold, add misscalibration, ...
 void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
                                            uint32_t detID,
+					   const PixelGeomDetUnit* pixdet,
                                            std::vector<PixelDigi>& digis,
                                            std::vector<PixelDigiSimLink>& simlinks,
 					   const TrackerTopology *tTopo) const  {
@@ -1149,10 +1150,9 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
     if( signalInElectrons >= thePixelThresholdInE) { // check threshold
 
-      if(DetId(detID).subdetId() == PixelSubdetector::PixelBarrel){ // Barrel modules
-	if (tTopo->pxbLayer(detID) > 4) signalInElectrons = theThresholdInE_BPix*6.0;
-      } else {
-	if (tTopo->pxfDisk(detID) > 10) signalInElectrons = theThresholdInE_FPix*6.0;
+      if(pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTB || 
+	 pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC){ // Phase 2 OT
+	signalInElectrons = theThresholdInE_BPix*6.0;
       }
 
       int chan =  (*i).first;  // channel number
@@ -1163,23 +1163,19 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       if(doMissCalibrate) {
 	int row = ip.first;  // X in row
 	int col = ip.second; // Y is in col
-	adc = int(missCalibrate(detID, col, row, signalInElectrons)); //full misscalib.
+	adc = int(missCalibrate(detID, pixdet, col, row, signalInElectrons)); //full misscalib.
       } else { // Just do a simple electron->adc conversion
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
       adc = std::min(adc, theAdcFullScale); // Check maximum value
 // Calculate layerIndex
      if (theAdcFullScale!=theAdcFullScaleStack){
-        unsigned int Sub_detid=DetId(detID).subdetId();
-        if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
-          int lay = tTopo->pxbLayer(detID);
-          if (lay>=theFirstStackLayer) {
-            // Set to 1 if over the threshold
-            if (theAdcFullScaleStack==1) {adc=1;}
-            // Make it a linear fit to the full scale of the normal adc count.   Start new adc from 1 not zero.
-            if (theAdcFullScaleStack!=1&&theAdcFullScaleStack!=theAdcFullScale) {adc = int (1 + adc * (theAdcFullScaleStack-1)/float(theAdcFullScale) );}
-          }
-        }
+       if(pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTB) { // Phase 2 OT Barrel only
+	 // Set to 1 if over the threshold
+	 if (theAdcFullScaleStack==1) {adc=1;}
+	 // Make it a linear fit to the full scale of the normal adc count.   Start new adc from 1 not zero.
+	 if (theAdcFullScaleStack!=1&&theAdcFullScaleStack!=theAdcFullScale) {adc = int (1 + adc * (theAdcFullScaleStack-1)/float(theAdcFullScale) );}
+       }
      } // Only enter this if the Adc changes for the outer layers
 #ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer")
@@ -1352,9 +1348,9 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   float chipEfficiency   = 1.0;
 
   // setup the chip indices conversion
-  unsigned int Subid=DetId(detID).subdetId();
-  if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
-    int layerIndex=tTopo->pxbLayer(detID);
+  if    (pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
+	 pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB){// barrel layers
+    int layerIndex=tTopo->layer(detID);
     pixelEfficiency  = eff.thePixelEfficiency[layerIndex-1];
     columnEfficiency = eff.thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = eff.thePixelChipEfficiency[layerIndex-1];
@@ -1364,14 +1360,16 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
        if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
        if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
     }
-  } else {                // forward disks
-    unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+  } else if(pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
+	    pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	    pixdet->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC){                // forward disks
+    unsigned int diskIndex=tTopo->layer(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
     //if (eff.FPixIndex>diskIndex-1){throw cms::Exception("Configuration") <<"SiPixelDigitizer is using the wrong efficiency value. index = "
-    //                                                                       <<diskIndex-1<<" , MinIndex = "<<eff.FPixIndex<<" ... "<<tTopo->pxfDisk(detID);}
+    //                                                                       <<diskIndex-1<<" , MinIndex = "<<eff.FPixIndex<<" ... "<<tTopo->layer(detID);}
     pixelEfficiency  = eff.thePixelEfficiency[diskIndex-1];
     columnEfficiency = eff.thePixelColEfficiency[diskIndex-1];
     chipEfficiency   = eff.thePixelChipEfficiency[diskIndex-1];
-    //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->pxfDisk(detID)<<"\n";
+    //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->layer(detID)<<"\n";
     // Sometimes the forward pixels have wrong size,
     // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
@@ -1381,6 +1379,11 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
          return;
        }
     }
+  } else if(pixdet->subDetector()==GeomDetEnumerators::SubDetector::P2OTB ||pixdet->subDetector()==GeomDetEnumerators::SubDetector::P2OTEC) {
+    // If phase 2 outer tracker, hardcoded values as they have been so far
+    pixelEfficiency  = 0.999;
+    columnEfficiency = 0.999;
+    chipEfficiency   = 0.999;
   } // if barrel/forward
 
 #ifdef TP_DEBUG
@@ -1473,23 +1476,27 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
 
 
   // setup the chip indices conversion
-  unsigned int Subid=DetId(detID).subdetId();
-  if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
-    int layerIndex=tTopo->pxbLayer(detID);
+  if    (pixdet->subDetector() ==  GeomDetEnumerators::SubDetector::PixelBarrel ||
+	 pixdet->subDetector() ==  GeomDetEnumerators::SubDetector::P1PXB){// barrel layers
+    int layerIndex=tTopo->layer(detID);
  
      pseudoRadDamage  = aging.thePixelPseudoRadDamage[layerIndex-1];
 
      //  std::cout << "pixel_aging: " << std::endl;
      //  std::cout << "Subid " << Subid << " layerIndex " << layerIndex << std::endl;
  
-  } else {                // forward disks
-    unsigned int diskIndex=tTopo->pxfDisk(detID)+aging.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+  } else if (pixdet->subDetector() == GeomDetEnumerators::SubDetector::PixelEndcap ||
+	     pixdet->subDetector() == GeomDetEnumerators::SubDetector::P1PXEC ||
+	     pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {                // forward disks
+    unsigned int diskIndex=tTopo->layer(detID)+aging.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
 
     pseudoRadDamage  = aging.thePixelPseudoRadDamage[diskIndex-1];
 
     //    std::cout << "pixel_aging: " << std::endl;
     //    std::cout << "Subid " << Subid << " diskIndex " << diskIndex << std::endl;
-
+  } else if (pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTB || pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC) {
+    // if phase 2 OT hardcoded value as it has always been
+    pseudoRadDamage = 0.;
   } // if barrel/forward
 
   //  std::cout << " pseudoRadDamage " << pseudoRadDamage << std::endl;
@@ -1511,7 +1518,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
   //float offset  = RandGaussQ::shoot(0.,theOffsetSmearing);
   //float newAmp = amp * gain + offset;
   // More complex misscalibration
-float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, int col,int row,
+float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const PixelGeomDetUnit* pixdet, int col,int row,
 				 const float signalInElectrons) const {
   // Central values
   //const float p0=0.00352, p1=0.868, p2=112., p3=113.; // pix(0,0,0)
@@ -1528,19 +1535,20 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, int col,int row,
   float p2=0.0;
   float p3=0.0;
 
-  unsigned int Sub_detid=DetId(detID).subdetId();
 
-    if(Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
+  if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){// barrel layers
       p0 = BPix_p0;
       p1 = BPix_p1;
       p2 = BPix_p2;
       p3 = BPix_p3;
-    } else {// forward disks
+  } else if(pixdet->type().isTrackerPixel()) {// forward disks
       p0 = FPix_p0;
       p1 = FPix_p1;
       p2 = FPix_p2;
       p3 = FPix_p3;
-    }
+  } else {
+    throw cms::Exception("NotAPixelGeomDetUnit") << "Not a pixel geomdet unit" << detID;
+  }
 
   //  const float electronsPerVCAL = 65.5; // our present VCAL calibration (feb 2009)
   //  const float electronsPerVCAL_Offset = -414.0; // our present VCAL calibration (feb 2009)
@@ -1616,7 +1624,6 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
 
   uint32_t detID= pixdet->geographicalId().rawId();
 
-  unsigned int Sub_detid=DetId(detID).subdetId();
 
   // Read Lorentz angle from cfg file:**************************************************************
 
@@ -1630,17 +1637,19 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
       alpha2_BPix = 0.0;
     }
     
-    if(Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
+    if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){// barrel layers
       dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
       dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
       dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
       scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
 
-    } else {// forward disks
+    } else if (pixdet->type().isTrackerPixel()) {// forward disks
       dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
       dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
       dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
       scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+    } else {
+      throw cms::Exception("NotAPixelGeomDetUnit") << "Not a pixel geomdet unit" << detID;
     }
   } // end: Read LA from cfg file.
 

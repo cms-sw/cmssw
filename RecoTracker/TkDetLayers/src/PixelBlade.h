@@ -7,7 +7,6 @@
 #include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
 #include "SubLayerCrossings.h"
 
-#include <utility>
 
 /** A concrete implementation for PixelBlade
  */
@@ -20,7 +19,7 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
 	     std::vector<const GeomDet*>& backDets  );
 
   ~PixelBlade();
-
+  
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDiskSector;}
 
@@ -29,15 +28,15 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
   virtual const std::vector<const GeometricSearchDet*>& components() const;
 
   std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
+  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
-
-  virtual void
+  
+  virtual void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			  const Propagator& prop,
 			  const MeasurementEstimator& est,
 			  std::vector<DetGroup> & result) const;
-
+  
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
 
@@ -46,15 +45,15 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
 				      PropagationDirection propDir) const;
-
+  
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const;
-
-  float computeWindowSize( const GeomDet* det,
-			   const TrajectoryStateOnSurface& tsos,
+  
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const;
 
 
@@ -62,33 +61,30 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
 			const Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
-			float window,
+			float window, 
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
   bool overlap( const GlobalPoint& gpos, const GeomDet& det, float phiWin) const;
 
-  // This 2 find methods should be substituted with the use
+  // This 2 find methods should be substituted with the use 
   // of a GeneralBinFinderInR
-
+  
   int findBin( float R,int layer) const;
-  int findBin2( GlobalPoint thispoint,int layer) const;
-
+  
   GlobalPoint findPosition(int index,int diskSectorIndex) const ;
 
   const std::vector<const GeomDet*>& subBlade( int ind) const {
     return (ind==0 ? theFrontDets : theBackDets);
   }
 
-  std::pair<float, float> computeRadiusRanges(const std::vector<const GeomDet*>&);
 
-private:
+
+ private:
   std::vector<const GeomDet*> theDets;
   std::vector<const GeomDet*> theFrontDets;
   std::vector<const GeomDet*> theBackDets;
-  std::pair<float, float> front_radius_range_;
-  std::pair<float, float> back_radius_range_;
-
+  
   ReferenceCountingPointer<BoundDiskSector> theDiskSector;
   ReferenceCountingPointer<BoundDiskSector> theFrontDiskSector;
   ReferenceCountingPointer<BoundDiskSector> theBackDiskSector;
@@ -96,4 +92,4 @@ private:
 
 
 #pragma GCC visibility pop
-#endif
+#endif 

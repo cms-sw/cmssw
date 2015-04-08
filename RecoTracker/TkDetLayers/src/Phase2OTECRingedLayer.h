@@ -30,7 +30,7 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer, public Geom
 			       std::vector<DetGroup> & result) const;
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTEC];}
 
 
  private:

@@ -40,6 +40,9 @@ public:
   virtual const GeomDetUnit*       idToDetUnit(DetId) const;
   virtual const GeomDet*           idToDet(DetId)     const;
 
+  const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
+  unsigned int numberOfLayers(int subdet) const;
+  bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 
   void addType(GeomDetType* p);
   void addDetUnit(GeomDetUnit* p);
@@ -64,6 +67,7 @@ public:
 
 private:
 
+
   GeometricDet const * theTrackerDet; 
 
   /// Aligner has access to map
@@ -86,6 +90,8 @@ private:
   DetContainer      theTOBDets; // not owned: they're also in 'theDets'
   DetContainer      theTECDets; // not owned: they're also in 'theDets'
 
+  GeomDetEnumerators::SubDetector theSubDetTypeMap[6];
+  unsigned int theNumberOfLayers[6];
 
 };
 

@@ -5,8 +5,6 @@
 
 // this is needed to get errors from templates
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
@@ -24,9 +22,9 @@ const double HALF_PI = 1.57079632679489656;
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
-PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
+PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, const TrackerTopology& ttopo,
 	const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject)
+  : PixelCPEBase(conf, ttopo, mag, lorentzAngle, genErrorParm, templateDBobject)
 {
   
   if (theVerboseLevel > 0) 
@@ -54,10 +52,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
-  // First layer/disk number used in Phase2 Tracker
-  Phase2BPixStart_ = (conf.exists("Phase2BPixStart")?conf.getParameter<int>("Phase2BPixStart"):5);
-  Phase2FPixStart_ = (conf.exists("Phase2FPixStart")?conf.getParameter<int>("Phase2FPixStart"):4);
-  //std::cout <<"\n\nSetting up PixLocalReco with Phase2 trackers starting at Layer "<<Phase2BPixStart_<<" and Disk "<<Phase2FPixStart_<<"\n\n";
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
@@ -456,10 +450,12 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Debugging output
   if (theVerboseLevel > 20) {
-    if ( thePart == GeomDetEnumerators::PixelBarrel ) {
+    if ( theDet->type().isTrackerPixel() && theDet->type().isBarrel()) {
       cout << "\t >>> We are in the Barrel." ;
-    } else {
+    } else if(theDet->type().isTrackerPixel()) {
       cout << "\t >>> We are in the Forward." ;
+    } else {
+      cout << "\t >>> We are NOT in the Pixel." ;
     }
     cout 
       << "\n\t >>> cot(angle) = " << cot_angle << "  pitch = " << pitch << "  size = " << size
@@ -611,10 +607,10 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
       //cout << "Use an error parameterization which only depends on cluster size (by Vincenzo Chiochia)." << endl; 
       
-      if ( thePart == GeomDetEnumerators::PixelBarrel ) 
+      if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::P1PXB ) 
 	{
 	  DetId id = (det.geographicalId());
-	  int layer=PXBDetId(id).layer();
+	  int layer=ttopo_.layer(id);
 	  if ( layer==1 ) {
 	    if ( !edgex )
 	      {
@@ -628,7 +624,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		else yerr=yerr_barrel_l1_def_;
 	      }
 	  }
-	  else if (layer<Phase2BPixStart_) {
+	  else  {
 	    if ( !edgex )
 	      {
 		if ( sizex<=xerr_barrel_ln_.size() ) xerr=xerr_barrel_ln_[sizex-1];
@@ -641,31 +637,30 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		else yerr=yerr_barrel_ln_def_;
 	      }
 	  }
-	  else {
-		xerr=thePitchX / sqrt( 12.0f );
-		yerr=thePitchY / sqrt( 12.0f );
-	  }
 	} 
-      else // EndCap
+      else if ( thePart == GeomDetEnumerators::P2OTB ) // phase 2 OT Barrel
+	{
+	  xerr=thePitchX / sqrt( 12.0f );
+	  yerr=thePitchY / sqrt( 12.0f );
+	} 
+      else if( thePart == GeomDetEnumerators::PixelEndcap || thePart == GeomDetEnumerators::P1PXEC || thePart == GeomDetEnumerators::P2PXEC ) // PixelEndCap
 	{ 
-          DetId id = (det.geographicalId());
-          int disk = PXFDetId(id).disk();
-	  if ( !edgex && disk<Phase2FPixStart_)
+	  if ( !edgex )
 	    {
 	      if ( sizex<=xerr_endcap_.size() ) xerr=xerr_endcap_[sizex-1];
 	      else xerr=xerr_endcap_def_;
 	    }
 	
-	  if ( !edgey && disk<Phase2FPixStart_)
+	  if ( !edgey )
 	    {
 	      if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizey-1];
 	      else yerr=yerr_endcap_def_;
 	    }
-          else {
-                xerr=thePitchX / sqrt( 12.0f );
-                yerr=thePitchY / sqrt( 12.0f );
-          }
-
+	}
+      else if ( thePart == GeomDetEnumerators::P2OTEC ) // phase 2 OT Endcap 
+	{
+	  xerr=thePitchX / sqrt( 12.0f );
+	  yerr=thePitchY / sqrt( 12.0f );
 	}
 
     } // if ( !with_track_angle )

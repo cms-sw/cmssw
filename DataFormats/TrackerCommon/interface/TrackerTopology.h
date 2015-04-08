@@ -108,6 +108,7 @@ class TrackerTopology {
 		   const TECValues& tecv, const TIBValues& tibv, 
 		   const TIDValues& tidv, const TOBValues& tobv);
 
+  unsigned int side(const DetId &id) const;
   unsigned int layer(const DetId &id) const;
   unsigned int module(const DetId &id) const;
 

@@ -32,7 +32,7 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
 			       std::vector<DetGroup> & result) const;
  
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TIB;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TIB];}
 
 
  private:
