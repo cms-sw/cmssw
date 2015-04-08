@@ -1,38 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
+OuterTrackerMonitorPixelDigiMaps = cms.EDAnalyzer('OuterTrackerMonitorPixelDigiMaps',
     
     TopFolderName = cms.string('Phase2OuterTracker'),
-    TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
 
 
-# Number of clusters per layer
-    TH1TTCluster_Stack = cms.PSet(
-        Nbinsx = cms.int32(6),
-        xmax = cms.double(6.5),                      
-        xmin = cms.double(0.5)
-        ),
-    
-# Cluster eta distribution
-    TH1TTCluster_Eta = cms.PSet(
-        Nbinsx = cms.int32(45),
-        xmax = cms.double(3.0),                      
-        xmin = cms.double(-3.0)
-        ),
-    
-# Cluster Width vs. I/O sensor
-    TH2TTCluster_Width = cms.PSet(
-        Nbinsx = cms.int32(7),
-        xmax = cms.double(6.5),                      
-        xmin = cms.double(-0.5),
-        Nbinsy = cms.int32(2),
-        ymax = cms.double(1.5),                      
-        ymin = cms.double(-0.5)
-        ),
-
-# TTCluster barrel y vs x 
-# TTCluster forward/backward endcap y vs x
-    TH2TTCluster_Position = cms.PSet(
+# PixelDigiMaps barrel y vs x 
+# PixelDigiMaps forward/backward endcap y vs x
+    TH2PixelDigiMaps_Position = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(120),                      
         xmin = cms.double(-120),
@@ -41,8 +16,8 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
         ymin = cms.double(-120)
         ),
 	
-#TTCluster barrel y vs x zoomed	
-    TH2TTCluster_Barrel_XY_Zoom = cms.PSet(
+#PixelDigiMaps barrel y vs x zoomed	
+    TH2PixelDigiMaps_Barrel_XY_Zoom = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(60),                      
         xmin = cms.double(30),
@@ -51,8 +26,8 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
         ymin = cms.double(-15)
         ),
 
-#TTCluster #rho vs z
-    TH2TTCluster_RZ = cms.PSet(
+#PixelDigiMaps #rho vs z
+    TH2PixelDigiMaps_RZ = cms.PSet(
         Nbinsx = cms.int32(900),
         xmax = cms.double(300),                      
         xmin = cms.double(-300),
@@ -61,8 +36,8 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
         ymin = cms.double(0)
         ),
 
-#TTCluster Forward Endcap #rho vs. z	
-    TH2TTCluster_Endcap_Fw_RZ_Zoom = cms.PSet(
+#PixelDigiMaps Forward Endcap #rho vs. z	
+    TH2PixelDigiMaps_Endcap_Fw_RZ_Zoom = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(170),                      
         xmin = cms.double(140),
@@ -71,8 +46,8 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
         ymin = cms.double(30)
         ),
 
-#TTCluster Backward Endcap #rho vs. z	
-    TH2TTCluster_Endcap_Bw_RZ_Zoom = cms.PSet(
+#PixelDigiMaps Backward Endcap #rho vs. z	
+    TH2PixelDigiMaps_Endcap_Bw_RZ_Zoom = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(-140),                      
         xmin = cms.double(-170),

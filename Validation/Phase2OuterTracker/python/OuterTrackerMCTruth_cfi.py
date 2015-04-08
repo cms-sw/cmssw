@@ -3,7 +3,13 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
     
     TopFolderName = cms.string('Phase2OuterTrackerV'),
-    
+    TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
+    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"),
+    TTStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
+    TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),    
+
 
 # TPart Pt
     TH1TPart_Pt = cms.PSet(

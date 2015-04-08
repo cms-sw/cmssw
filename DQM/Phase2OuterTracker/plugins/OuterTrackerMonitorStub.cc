@@ -63,7 +63,7 @@ OuterTrackerMonitorStub::OuterTrackerMonitorStub(const edm::ParameterSet& iConfi
 {
    //now do what ever initialization is needed
    topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-
+   tagTTStubs_ = conf_.getParameter< edm::InputTag >("TTStubs");
 }
 
 
@@ -102,7 +102,7 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
    
   /// Track Trigger Stubs
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > PixelDigiTTStubHandle;
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", PixelDigiTTStubHandle );
+  iEvent.getByLabel( tagTTStubs_, PixelDigiTTStubHandle );
    
    
 

@@ -24,43 +24,43 @@ public:
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-  MonitorElement* L1Track_3Stubs_NTracks = 0;
   
-  MonitorElement* L1Track_3Stubs_Pt = 0; 
-  MonitorElement* L1Track_3Stubs_Phi = 0; 
-  MonitorElement* L1Track_3Stubs_Eta = 0;
-  MonitorElement* L1Track_3Stubs_VtxZ0 = 0; 
-  MonitorElement* L1Track_3Stubs_Chi2 = 0; 
-  MonitorElement* L1Track_3Stubs_Chi2R = 0;
+  MonitorElement* Track_N = 0;
+  MonitorElement* Track_NStubs = 0;
+  MonitorElement* Track_NStubs_PhiSector = 0;
+  MonitorElement* Track_NStubs_EtaWedge = 0;
+  MonitorElement* Track_PhiSector_Track_Phi = 0;
+  MonitorElement* Track_EtaWedge_Track_Eta = 0;
   
-  MonitorElement* L1Track_3Stubs_Chi2_NStubs = 0;
-  MonitorElement* L1Track_3Stubs_Chi2R_NStubs = 0;
+  /// Low-quality TTTracks (made from less than X TTStubs)
+  MonitorElement* Track_LQ_N = 0;
+  MonitorElement* Track_LQ_Pt = 0;
+  MonitorElement* Track_LQ_Eta = 0;
+  MonitorElement* Track_LQ_Phi = 0;
+  MonitorElement* Track_LQ_VtxZ0 = 0;
+  MonitorElement* Track_LQ_Chi2 = 0;
+  MonitorElement* Track_LQ_Chi2Red = 0;
+  MonitorElement* Track_LQ_Chi2_NStubs = 0;
+  MonitorElement* Track_LQ_Chi2Red_NStubs = 0;
   
-  MonitorElement* L1Track_2Stubs_NTracks = 0;
-  
-  MonitorElement* L1Track_2Stubs_Pt = 0; 
-  MonitorElement* L1Track_2Stubs_Phi = 0; 
-  MonitorElement* L1Track_2Stubs_Eta = 0; 
-  MonitorElement* L1Track_2Stubs_Theta = 0; 
-  MonitorElement* L1Track_2Stubs_VtxZ0 = 0; 
-  MonitorElement* L1Track_2Stubs_Chi2 = 0; 
-  MonitorElement* L1Track_2Stubs_Chi2R = 0; 
-  
-  MonitorElement* L1Track_2Stubs_Chi2_NStubs = 0;
-  MonitorElement* L1Track_2Stubs_Chi2R_NStubs = 0;
-  
-  MonitorElement* L1Track_NStubs_PhiSector = 0; 
-  MonitorElement* L1Track_NStubs_EtaWedge = 0; 
-  MonitorElement* L1Track_PhiSector_L1Track_Phi = 0; 
-  MonitorElement* L1Track_EtaWedge_L1Track_Eta = 0; 
-  MonitorElement* L1Track_NStubs = 0; 
-  MonitorElement* L1Track_NTracks = 0; 
+  /// High-quality TTTracks (made from at least X TTStubs)
+  MonitorElement* Track_HQ_N = 0;
+  MonitorElement* Track_HQ_Pt = 0;
+  MonitorElement* Track_HQ_Eta = 0;
+  MonitorElement* Track_HQ_Phi = 0;
+  MonitorElement* Track_HQ_VtxZ0 = 0;
+  MonitorElement* Track_HQ_Chi2 = 0;
+  MonitorElement* Track_HQ_Chi2Red = 0;
+  MonitorElement* Track_HQ_Chi2_NStubs = 0;
+  MonitorElement* Track_HQ_Chi2Red_NStubs = 0;
 
 
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  edm::InputTag tagTTTracks_;
 
   std::string topFolderName_;
+  unsigned int HQDelim_;
 };
 #endif

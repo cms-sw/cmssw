@@ -43,6 +43,7 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  edm::InputTag tagTTClusters_;
 
   std::string topFolderName_;
 };
