@@ -25,6 +25,14 @@ TrackWithVertexSelector::TrackWithVertexSelector(const edm::ParameterSet& iConfi
 
 TrackWithVertexSelector::~TrackWithVertexSelector() {  }
 
+
+void TrackWithVertexSelector::init(const edm::Event & event) {
+    edm::Handle<reco::VertexCollection> hVtx;
+    event.getByToken(vertexToken_, hVtx);
+    vcoll_ = hVtx.product();
+}
+
+
 bool TrackWithVertexSelector::testTrack(const reco::Track &t) const {
   using std::abs;
   if ((t.numberOfValidHits() >= numberOfValidHits_) &&
@@ -62,16 +70,9 @@ bool TrackWithVertexSelector::testVertices(const reco::Track &t, const reco::Ver
   return ok;
 }
 
-bool TrackWithVertexSelector::operator()(const reco::Track &t, const edm::Event &evt) const {
+bool TrackWithVertexSelector::operator()(const reco::Track &t) const {
   if (!testTrack(t)) return false;
   if (nVertices_ == 0) return true;
-  edm::Handle<reco::VertexCollection> hVtx;
-  evt.getByToken(vertexToken_, hVtx);
-  return testVertices(t, *hVtx);
+  return testVertices(t, *vcoll_);
 }
 
-bool TrackWithVertexSelector::operator()(const reco::Track &t, const reco::VertexCollection &vtxs) const {
-  if (!testTrack(t)) return false;
-  if (nVertices_ == 0) return true;
-  return testVertices(t, vtxs);
-}

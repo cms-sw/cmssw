@@ -20,8 +20,15 @@ class TrackWithVertexSelector {
         TrackWithVertexSelector(iConfig, iC) {}
       explicit TrackWithVertexSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC);
       ~TrackWithVertexSelector();
-      bool operator()(const reco::Track &t, const edm::Event &iEvent) const ;
-      bool operator()(const reco::Track &t, const reco::VertexCollection &vtxs) const;
+
+      void init(const edm::Event & event, const edm::EventSetup&) {init(event);}
+      void init(const edm::Event & event);
+
+
+      bool operator()(const reco::Track &t) const ;
+      bool operator()(const reco::Track &t, const edm::Event &iEvent) {
+         init(iEvent); return (*this)(t);   
+      }
       bool testTrack(const reco::Track &t) const ;
       bool testVertices(const reco::Track &t, const reco::VertexCollection &vtxs) const ;
    private:
@@ -39,6 +46,7 @@ class TrackWithVertexSelector {
       bool          vtxFallback_;
       double        zetaVtx_, rhoVtx_;
 
+      reco::VertexCollection const * vcoll_ = nullptr;
       typedef math::XYZPoint Point;
 };
 
