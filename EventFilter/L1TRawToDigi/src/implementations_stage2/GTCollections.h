@@ -17,7 +17,11 @@ namespace l1t {
       class GTCollections : public L1TObjectCollections {
          public:
             GTCollections(edm::Event& e) :
-               L1TObjectCollections(e),
+                 L1TObjectCollections(e),
+		 egammas_(new EGammaBxCollection()),
+		 etsums_(new EtSumBxCollection()),
+		 jets_(new JetBxCollection()),
+		 taus_(new TauBxCollection()),
 		 algBlk_(new GlobalAlgBlkBxCollection()),
 		 extBlk_(new GlobalExtBlkBxCollection())  {};
 
