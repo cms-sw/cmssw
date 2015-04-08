@@ -11,13 +11,13 @@ GEMRecHitsValidation::GEMRecHitsValidation(const edm::ParameterSet& cfg): GEMBas
   InputTagToken_RH = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel"));
 }
 
-MonitorElement* GEMRecHitsValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {                                                                             
+MonitorElement* GEMRecHitsValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {                                                                             
 
   string hist_name  = name+string("_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
 
   string hist_label = label+string(" : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num];  
 
-  return ibooker.book1D( hist_name, hist_label,11,-0.5,10.5 ); 
+  return ibooker.book1D( hist_name, hist_label,Nbin,xMin,xMax ); 
 }
 
 void GEMRecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -64,7 +64,8 @@ void GEMRecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
        /* theStrip_phistrip[region_num][station_num][layer_num] = ibooker.book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
         theStrip[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
         theStrip_bx[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5); */
-        gem_cls[region_num][station_num][layer_num] = BookHist1D(ibooker,"cls","ClusterSize Distribution",region_num,station_num,layer_num);
+        gem_cls[region_num][station_num][layer_num] = BookHist1D(ibooker,"cls","ClusterSize Distribution",region_num,station_num,layer_num,11,-0.5,10.5);
+        gem_pullX[region_num][station_num][layer_num] = BookHist1D(ibooker,"pullX","Pull Of X",region_num,station_num,layer_num,100,-50,50);
  	gem_rh_zr[region_num][station_num][layer_num] = BookHistZR(ibooker,"rh","RecHits",region_num,station_num,layer_num);
         gem_rh_xy[region_num][station_num][layer_num] = BookHistXY(ibooker,"rh","RecHits",region_num,station_num,layer_num);
       }
@@ -100,7 +101,6 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     return ;
   }
   
-  std::cout<<"Loooooooooping ------->>  "<<std::endl;
   for (edm::PSimHitContainer::const_iterator hits = gemSimHits->begin(); hits!=gemSimHits->end(); ++hits) {
     
     const GEMDetId id(hits->detUnitId());
@@ -117,7 +117,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
       continue;
     }
    
-    if (!(abs(hits-> particleType())) == 13) continue;
+//    if (!(abs(hits-> particleType())) == 13) continue;
     
     //const LocalPoint p0(0., 0., 0.);
     //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
@@ -128,14 +128,14 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     
     //const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     //Float_t sh_l_r = hitLP.perp();
-    //Float_t sh_l_x = hitLP.x();
+    Float_t sh_l_x = hitLP.x();
     //Float_t sh_l_y = hitLP.y();
     //Float_t sh_l_z = hitLP.z();
 
 	
 	for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
-		//Float_t  rh_l_x = recHit->localPosition().x();
-	 	//Float_t  rh_l_xErr = recHit->localPositionError().xx();
+		Float_t  rh_l_x = recHit->localPosition().x();
+	 	Float_t  rh_l_xErr = recHit->localPositionError().xx();
 	  	//Float_t  rh_l_y = recHit->localPosition().y();
 	  	//Int_t  detId = (Short_t) (*recHit).gemId();
 	  	//Int_t  bx = recHit->BunchX();
@@ -158,12 +158,13 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
 	  	}
 	       	GlobalPoint recHitGP = GEMGeometry_->idToDet((*recHit).gemId())->surface().toGlobal(recHitLP);
 
-	  	Float_t   rh_g_R = recHitGP.perp();
+	  	Float_t     rh_g_R = recHitGP.perp();
 	      	//Float_t rh_g_Eta = recHitGP.eta();
 	  	//Float_t rh_g_Phi = recHitGP.phi();
-	  	Float_t   rh_g_X = recHitGP.x();
-	  	Float_t   rh_g_Y = recHitGP.y();
-	  	Float_t   rh_g_Z = recHitGP.z();
+	  	Float_t     rh_g_X = recHitGP.x();
+	  	Float_t     rh_g_Y = recHitGP.y();
+	  	Float_t     rh_g_Z = recHitGP.z();
+		Float_t   rh_pullX = (Float_t)(rh_l_x - sh_l_x)/(rh_l_xErr);
       
 		std::vector<int> stripsFired;
   		for(int i = firstClusterStrip; i < (firstClusterStrip + clusterSize); i++){
@@ -180,6 +181,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
 << "\t Layer : "<< rh_layer << "\n Radius: " << rh_g_R << "\t X : " << rh_g_X << "\t Y : "<< rh_g_Y << "\t Z : " << rh_g_Z << std::endl;	
 			gem_cls_tot->Fill(clusterSize);
 			gem_cls[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(clusterSize);
+			gem_pullX[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_pullX);
 			gem_rh_zr[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_R ,rh_g_Z);
 			gem_rh_xy[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_X ,rh_g_Y);
 		}
