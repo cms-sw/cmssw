@@ -14,12 +14,12 @@ namespace l1t {
        public:
          L1TObjectCollections(edm::Event& e) :
            UnpackerCollections(e) { };
-	 virtual ~L1TObjectCollections();
+	 virtual ~L1TObjectCollections() ;
 
-	 virtual EGammaBxCollection* getEGammas() ;
-	 virtual EtSumBxCollection* getEtSums() ;
-	 virtual JetBxCollection* getJets() ;
-	 virtual TauBxCollection* getTaus() ;
+	 virtual EGammaBxCollection* getEGammas() = 0;
+	 virtual EtSumBxCollection* getEtSums() = 0;
+	 virtual JetBxCollection* getJets() = 0;
+	 virtual TauBxCollection* getTaus() = 0;
 	 
       };
    }
