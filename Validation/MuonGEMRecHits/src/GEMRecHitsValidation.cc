@@ -182,7 +182,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
 			gem_cls_tot->Fill(clusterSize);
 			gem_cls[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(clusterSize);
 			gem_pullX[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_pullX);
-			gem_rh_zr[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_R ,rh_g_Z);
+			gem_rh_zr[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_Z ,rh_g_R);
 			gem_rh_xy[(int)(rh_region/2.+0.5)][rh_station-1][rh_layer-1]->Fill(rh_g_X ,rh_g_Y);
 		}
 
