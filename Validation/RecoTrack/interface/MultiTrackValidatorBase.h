@@ -21,7 +21,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
