@@ -40,9 +40,8 @@ public:
   MonitorElement* Stub_Endcap = 0; // TTStubs per disk
   MonitorElement* Stub_Endcap_Fw = 0; //TTStub per disk	
   MonitorElement* Stub_Endcap_Bw = 0; //TTStub per disk	
-  MonitorElement* Stub_EndcapRing = 0; // TTStubs per EC ring
-  MonitorElement* Stub_EndcapRing_Fw = 0; //TTStub per EC ring
-  MonitorElement* Stub_EndcapRing_Bw = 0; //TTStub per EC ring
+  MonitorElement* Stub_EndcapRing_Fw[5] = {0, 0, 0, 0, 0}; // TTStubs per EC ring
+  MonitorElement* Stub_EndcapRing_Bw[5] = {0, 0, 0, 0, 0}; //TTStub per EC ring
   
   // * Stub Eta distribution * //
   MonitorElement* Stub_Eta = 0; //TTstub eta distribution
@@ -52,8 +51,10 @@ public:
   MonitorElement* Stub_Barrel_O = 0; // TTStub Offset (layer)
   MonitorElement* Stub_Endcap_W = 0; // TTstub Pos-Corr Displacement (disk)
   MonitorElement* Stub_Endcap_O = 0; // TTStub Offset (disk)
-  MonitorElement* Stub_EndcapRing_W = 0; // TTstub Pos-Corr Displacement (EC ring)
-  MonitorElement* Stub_EndcapRing_O = 0; // TTStub Offset (EC ring)
+  MonitorElement* Stub_EndcapRing_W_Fw[5] = {0, 0, 0, 0, 0}; // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement* Stub_EndcapRing_O_Fw[5] = {0, 0, 0, 0, 0}; // TTStub Offset (EC ring)
+  MonitorElement* Stub_EndcapRing_W_Bw[5] = {0, 0, 0, 0, 0}; // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement* Stub_EndcapRing_O_Bw[5] = {0, 0, 0, 0, 0}; // TTStub Offset (EC ring)
 
  private:
   DQMStore* dqmStore_;

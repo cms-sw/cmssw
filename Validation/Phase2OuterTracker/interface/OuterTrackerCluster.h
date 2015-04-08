@@ -33,9 +33,12 @@ public:
   MonitorElement* Cluster_Gen_Endcap = 0;
   MonitorElement* Cluster_Unkn_Endcap = 0;
   MonitorElement* Cluster_Comb_Endcap = 0;
-  MonitorElement* Cluster_Gen_EndcapRing = 0;
-  MonitorElement* Cluster_Unkn_EndcapRing = 0;
-  MonitorElement* Cluster_Comb_EndcapRing = 0;
+  MonitorElement* Cluster_Gen_EndcapRing_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_Unkn_EndcapRing_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_Comb_EndcapRing_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_Gen_EndcapRing_Bw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_Unkn_EndcapRing_Bw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_Comb_EndcapRing_Bw[5] = {0, 0, 0, 0, 0};
   MonitorElement* Cluster_Gen_Eta = 0;
   MonitorElement* Cluster_Unkn_Eta = 0;
   MonitorElement* Cluster_Comb_Eta = 0;

@@ -58,7 +58,6 @@ OuterTrackerStub::OuterTrackerStub(const edm::ParameterSet& iConfig)
   tagTTStubMCTruth_ = conf_.getParameter< edm::InputTag >("TTStubMCTruth");
 }
 
-
 OuterTrackerStub::~OuterTrackerStub()
 {
   
@@ -66,8 +65,6 @@ OuterTrackerStub::~OuterTrackerStub()
   // (e.g. close files, deallocate resources etc.)
   
 }
-
-
 
 //
 // member functions
@@ -77,7 +74,6 @@ OuterTrackerStub::~OuterTrackerStub()
 void
 OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >                GeometryHandle;
   edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
@@ -128,7 +124,6 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       if ( detIdStub.isBarrel() )
       {
-        
         if ( genuineStub )
         {
           Stub_Gen_Barrel->Fill( detIdStub.iLayer() );
@@ -140,49 +135,39 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         else
         {
           Stub_Unkn_Barrel->Fill( detIdStub.iLayer() );
-        }
-        
+        } 
       } // end if isBarrel()
       else if ( detIdStub.isEndcap() )
       {
-        
         if ( genuineStub )
         {
           Stub_Gen_Endcap->Fill( detIdStub.iDisk() );
-//           Stub_Gen_EndcapRing->Fill( detIdStub.iRing() );
+          if ( detIdStub.iSide() == 1) Stub_Gen_EndcapRing_Bw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
+          else if ( detIdStub.iSide() == 2) Stub_Gen_EndcapRing_Fw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
         }
         else if ( combinStub )
         {
           Stub_Comb_Endcap->Fill( detIdStub.iDisk() );
-//           Stub_Comb_EndcapRing->Fill( detIdStub.iRing() );
+          if ( detIdStub.iSide() == 1) Stub_Comb_EndcapRing_Bw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
+          else if ( detIdStub.iSide() == 2) Stub_Comb_EndcapRing_Fw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
         }
         else
         {
           Stub_Unkn_Endcap->Fill( detIdStub.iDisk() );
-//           Stub_Unkn_EndcapRing->Fill( detIdStub.iRing() );
+          if ( detIdStub.iSide() == 1) Stub_Unkn_EndcapRing_Bw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
+          else if ( detIdStub.iSide() == 2) Stub_Unkn_EndcapRing_Fw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
         }
-        
       }	// end if isEndcap()
       
       /// Eta distribution in function of genuine/combinatorial/unknown stub
-      if ( genuineStub )
-      {
-        Stub_Gen_Eta->Fill( posStub.eta() );
-      }
-      else if ( combinStub )
-      {
-        Stub_Comb_Eta->Fill( posStub.eta() );
-      }
-      else
-      {
-        Stub_Unkn_Eta->Fill( posStub.eta() );
-      }
+      if ( genuineStub ) Stub_Gen_Eta->Fill( posStub.eta() );
+      else if ( combinStub ) Stub_Comb_Eta->Fill( posStub.eta() );
+      else Stub_Unkn_Eta->Fill( posStub.eta() );
       
       //hStub_PID->Fill( partStub );  // SHOULD BE HERE!
       
     }	// end loop contentIter
   }	// end loop inputIter
-  
 }
 
 
@@ -250,29 +235,72 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Comb_Endcap->setAxisTitle("# TTStubs", 2);
   
   edm::ParameterSet psTTStubRing =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Ring");
-  HistoName = "NStubs_Gen_EndcapRing";
-  Stub_Gen_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubRing.getParameter<int32_t>("Nbinsx"),
-      psTTStubRing.getParameter<double>("xmin"),
-      psTTStubRing.getParameter<double>("xmax"));
-  Stub_Gen_EndcapRing->setAxisTitle("Endcap Ring", 1);
-  Stub_Gen_EndcapRing->setAxisTitle("# TTStubs", 2);
   
-  HistoName = "NStubs_Unkn_EndcapRing";
-  Stub_Unkn_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubRing.getParameter<int32_t>("Nbinsx"),
-      psTTStubRing.getParameter<double>("xmin"),
-      psTTStubRing.getParameter<double>("xmax"));
-  Stub_Unkn_EndcapRing->setAxisTitle("Endcap Ring", 1);
-  Stub_Unkn_EndcapRing->setAxisTitle("# TTStubs", 2);
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NStubs_Gen_Disk+%d", i+1);
+    Stub_Gen_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+        psTTStubRing.getParameter<int32_t>("Nbinsx"),
+        psTTStubRing.getParameter<double>("xmin"),
+        psTTStubRing.getParameter<double>("xmax"));
+    Stub_Gen_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+    Stub_Gen_EndcapRing_Fw[i]->setAxisTitle("# TTStubs", 2);
+  }  
   
-  HistoName = "NStubs_Comb_EndcapRing";
-  Stub_Comb_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
-      psTTStubRing.getParameter<int32_t>("Nbinsx"),
-      psTTStubRing.getParameter<double>("xmin"),
-      psTTStubRing.getParameter<double>("xmax"));
-  Stub_Comb_EndcapRing->setAxisTitle("Encap Ring", 1);
-  Stub_Comb_EndcapRing->setAxisTitle("# TTStubs", 2);
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NStubs_Gen_Disk-%d", i+1);
+    Stub_Gen_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+        psTTStubRing.getParameter<int32_t>("Nbinsx"),
+        psTTStubRing.getParameter<double>("xmin"),
+        psTTStubRing.getParameter<double>("xmax"));
+    Stub_Gen_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+    Stub_Gen_EndcapRing_Bw[i]->setAxisTitle("# TTStubs", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NStubs_Unkn_Disk+%d", i+1);
+    Stub_Unkn_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+        psTTStubRing.getParameter<int32_t>("Nbinsx"),
+        psTTStubRing.getParameter<double>("xmin"),
+        psTTStubRing.getParameter<double>("xmax"));
+    Stub_Unkn_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+    Stub_Unkn_EndcapRing_Fw[i]->setAxisTitle("# TTStubs", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NStubs_Unkn_Disk-%d", i+1);
+    Stub_Unkn_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+        psTTStubRing.getParameter<int32_t>("Nbinsx"),
+        psTTStubRing.getParameter<double>("xmin"),
+        psTTStubRing.getParameter<double>("xmax"));
+    Stub_Unkn_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+    Stub_Unkn_EndcapRing_Bw[i]->setAxisTitle("# TTStubs", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NStubs_Comb_Disk+%d", i+1);
+    Stub_Comb_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+        psTTStubRing.getParameter<int32_t>("Nbinsx"),
+        psTTStubRing.getParameter<double>("xmin"),
+        psTTStubRing.getParameter<double>("xmax"));
+    Stub_Comb_EndcapRing_Fw[i]->setAxisTitle("Encap Ring", 1);
+    Stub_Comb_EndcapRing_Fw[i]->setAxisTitle("# TTStubs", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NStubs_Comb_Disk-%d", i+1);
+    Stub_Comb_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+        psTTStubRing.getParameter<int32_t>("Nbinsx"),
+        psTTStubRing.getParameter<double>("xmin"),
+        psTTStubRing.getParameter<double>("xmax"));
+    Stub_Comb_EndcapRing_Bw[i]->setAxisTitle("Encap Ring", 1);
+    Stub_Comb_EndcapRing_Bw[i]->setAxisTitle("# TTStubs", 2);
+  }
   
   edm::ParameterSet psTTStubEta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Gen_Eta";

@@ -74,8 +74,7 @@ OuterTrackerCluster::~OuterTrackerCluster()
 // ------------ method called for each event  ------------
 void
 OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  
+{  
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >                GeometryHandle;
   edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
@@ -114,11 +113,7 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
       //bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
       //int partClu         = 999999999;
-      if ( genuineClu )
-      {
-        edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
-        //partClu = thisTP->pdgId();
-      }
+      if ( genuineClu ) edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr(tempCluRef);  //partClu = thisTP->pdgId();
       
       GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
       
@@ -136,42 +131,33 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         {
           Cluster_Unkn_Barrel->Fill( detIdClu.iLayer() );
         }
-        
       }	// end if isBarrel()
       else if ( detIdClu.isEndcap() )
       {
         if ( genuineClu )
         {
           Cluster_Gen_Endcap->Fill( detIdClu.iDisk() );
-          Cluster_Gen_EndcapRing->Fill( detIdClu.iRing() );
+          if ( detIdClu.iSide() == 1) Cluster_Gen_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          else if ( detIdClu.iSide() == 2) Cluster_Gen_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
         }
         else if ( combinClu )
         {
           Cluster_Comb_Endcap->Fill( detIdClu.iDisk() );
-          Cluster_Comb_EndcapRing->Fill( detIdClu.iRing() );
+          if ( detIdClu.iSide() == 1) Cluster_Comb_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          else if ( detIdClu.iSide() == 2) Cluster_Comb_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
         }
         else
         {
           Cluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
-          Cluster_Unkn_EndcapRing->Fill( detIdClu.iRing() );
+          if ( detIdClu.iSide() == 1) Cluster_Unkn_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          else if ( detIdClu.iSide() == 2) Cluster_Unkn_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
         }
-        
       }	// end if isEndcap()
       
       /// Eta distribution in function of genuine/combinatorial/unknown cluster
-      if ( genuineClu )
-      {
-        Cluster_Gen_Eta->Fill( posClu.eta() );
-      }
-      else if ( combinClu )
-      {
-        Cluster_Comb_Eta->Fill( posClu.eta() );
-      }
-      else
-      {
-        Cluster_Unkn_Eta->Fill( posClu.eta() );
-      }
-      
+      if ( genuineClu ) Cluster_Gen_Eta->Fill( posClu.eta() );
+      else if ( combinClu ) Cluster_Comb_Eta->Fill( posClu.eta() );
+      else Cluster_Unkn_Eta->Fill( posClu.eta() );      
     }	// end loop contentIter
   }	// end loop inputIter
   
@@ -186,7 +172,6 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
   folder_organizer.setSiStripFolder();
-  
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
   
@@ -242,29 +227,72 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   Cluster_Comb_Endcap->setAxisTitle("# Clusters", 2);
   
   edm::ParameterSet psTTClusterRings =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Rings");
-  HistoName = "NClusters_Gen_EndcapRing";
-  Cluster_Gen_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-      psTTClusterRings.getParameter<double>("xmin"),
-      psTTClusterRings.getParameter<double>("xmax"));
-  Cluster_Gen_EndcapRing->setAxisTitle("Endcap Ring", 1);
-  Cluster_Gen_EndcapRing->setAxisTitle("# Clusters", 2);
   
-  HistoName = "NClusters_Unkn_EndcapRing";
-  Cluster_Unkn_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-      psTTClusterRings.getParameter<double>("xmin"),
-      psTTClusterRings.getParameter<double>("xmax"));
-  Cluster_Unkn_EndcapRing->setAxisTitle("Endcap Ring", 1);
-  Cluster_Unkn_EndcapRing->setAxisTitle("# Clusters", 2);
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_Gen_Disk+%d", i+1);     
+    Cluster_Gen_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+        psTTClusterRings.getParameter<double>("xmin"),
+        psTTClusterRings.getParameter<double>("xmax"));
+    Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+    Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+  }
   
-  HistoName = "NClusters_Comb_EndcapRing";
-  Cluster_Comb_EndcapRing = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-      psTTClusterRings.getParameter<double>("xmin"),
-      psTTClusterRings.getParameter<double>("xmax"));
-  Cluster_Comb_EndcapRing->setAxisTitle("Endcap Ring", 1);
-  Cluster_Comb_EndcapRing->setAxisTitle("# Clusters", 2);
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_Gen_Disk-%d", i+1);     
+    Cluster_Gen_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+        psTTClusterRings.getParameter<double>("xmin"),
+        psTTClusterRings.getParameter<double>("xmax"));
+    Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+    Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_Unkn_Disk+%d", i+1);
+    Cluster_Unkn_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+        psTTClusterRings.getParameter<double>("xmin"),
+        psTTClusterRings.getParameter<double>("xmax"));
+    Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+    Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_Unkn_Disk-%d", i+1);
+    Cluster_Unkn_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+        psTTClusterRings.getParameter<double>("xmin"),
+        psTTClusterRings.getParameter<double>("xmax"));
+    Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+    Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+      Char_t histo[200];
+      sprintf(histo, "NClusters_Comb_Disk+%d", i+1);
+    Cluster_Comb_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+        psTTClusterRings.getParameter<double>("xmin"),
+        psTTClusterRings.getParameter<double>("xmax"));
+    Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+    Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+  }
+  
+  for(int i=0;i<5;i++){
+      Char_t histo[200];
+      sprintf(histo, "NClusters_Comb_Disk-%d", i+1);
+    Cluster_Comb_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+        psTTClusterRings.getParameter<double>("xmin"),
+        psTTClusterRings.getParameter<double>("xmax"));
+    Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+    Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+  }
   
   edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Gen_Eta";
@@ -292,7 +320,6 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   Cluster_Comb_Eta->setAxisTitle("# Clusters", 2);
   
 }//end of method
-
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

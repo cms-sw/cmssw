@@ -172,6 +172,8 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	    psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_OMem_Endcap->setAxisTitle("Endcap Disc", 1);
 	Cluster_OMem_Endcap->setAxisTitle("# TTClusters", 2);
+  
+  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters");
         
   //Cluster Width
   edm::ParameterSet psTTClusterWidth =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Width");
