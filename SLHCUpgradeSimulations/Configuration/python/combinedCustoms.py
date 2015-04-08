@@ -4,6 +4,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCC import customise as customiseBE5DPixel10DLHCC
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCCooling import customise as customiseBE5DPixel10DLHCCCooling
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise as customiseBE5DPixel10Ddev
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
@@ -28,6 +29,7 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 from SLHCUpgradeSimulations.Configuration.customise_shashlikTime import cust_shashlikTime
+from SLHCUpgradeSimulations.Configuration.customise_PFlow import customise_phase1ElectronHOverE, customise_shashlikElectronHOverE, customise_HGCalElectronHOverE
 import SLHCUpgradeSimulations.Configuration.aging as aging
 import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
@@ -49,6 +51,14 @@ def cust_phase2_BE5DPixel10D(process):
 def cust_phase2_BE5DPixel10DLHCC(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10DLHCC(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_phase2_BE5DPixel10DLHCCCooling(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10DLHCCCooling(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=jetCustoms.customise_jets(process)
@@ -95,6 +105,7 @@ def cust_2019(process):
     process=customise_HcalPhase1(process)
     process=jetCustoms.customise_jets(process)
 #    process=fixRPCConditions(process)
+    process=customise_phase1ElectronHOverE(process)
     return process
 
 def cust_2019WithGem(process):
@@ -114,6 +125,7 @@ def cust_2023(process):
 
 def cust_2023SHCal(process):
     process=cust_2023Muon(process)
+    process=customise_shashlikElectronHOverE(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
@@ -166,7 +178,9 @@ def cust_2023SHCal(process):
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.pfClusteringECAL += process.particleFlowClusterECAL
         #process.particleFlowCluster += process.pfClusteringEK
-        
+
+        process.particleFlowSuperClusterECALMustache.usePUEtHardCut = cms.bool(True) 
+
         #clone photons to mustache photons so we can compare back to old reco
         process.mustachePhotonCore = process.photonCore.clone(scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"))
         process.mustachePhotons = process.photons.clone(photonCoreProducer = cms.InputTag('mustachePhotonCore'), endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK"))        
@@ -244,6 +258,7 @@ def cust_2023SHCal(process):
 
 def cust_2023SHCalNoExtPix(process):
     process=cust_2023MuonNoExtPix(process)
+    process=customise_shashlikElectronHOverE(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
@@ -375,6 +390,7 @@ def cust_2023HGCal_common(process):
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
     process=customise_rpc(process)
+    process=customise_HGCalElectronHOverE(process)
     process=jetCustoms.customise_jets(process)
     if hasattr(process,'L1simulation_step'):
     	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
@@ -424,14 +440,19 @@ def cust_2023HGCal_common(process):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
                 process.ecalDrivenElectronSeeds.SeedConfiguration.endcapHCALClusters = cms.InputTag('particleFlowClusterHGCHEF')
                 process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodEndcap = cms.int32(3)
-                process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = cms.double(0.2) 
+                process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEConeSizeEndcap = cms.double(0.087)
+                process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = cms.double(0.1) 
                 process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.15)
                 process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.15)
                 if hasattr(process,'ecalDrivenGsfElectrons'):
                     process.ecalDrivenGsfElectrons.hOverEMethodEndcap = cms.int32(3)
+                    process.ecalDrivenGsfElectrons.hOverEConeSizeEndcap = cms.double(0.087)
+                    process.ecalDrivenGsfElectrons.maxDeltaEtaEndcaps = cms.double(0.015)
                     process.ecalDrivenGsfElectrons.hcalEndcapClusters = cms.InputTag('particleFlowClusterHGCHEF')
                     if hasattr(process,'gsfElectrons'):
                         process.gsfElectrons.hOverEMethodEndcap = cms.int32(3)
+                        process.gsfElectrons.hOverEConeSizeEndcap = cms.double(0.087)
+                        process.gsfElectrons.maxDeltaEtaEndcaps = cms.double(0.015)
                         process.gsfElectrons.hcalEndcapClusters = cms.InputTag('particleFlowClusterHGCHEF')
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
@@ -482,6 +503,17 @@ def cust_2023SHCalTime(process):
     process=cust_2023SHCal(process)
     process=cust_shashlikTime(process)
     process=cust_ecalTime(process)    
+    if hasattr(process,'RECOSIMEventContent'):
+        process.RECOSIMEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+    if hasattr(process,'FEVTDEBUGEventContent'):
+     	process.FEVTDEBUGEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+     	process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+    if hasattr(process,'digitisation_step'):
+    	process.mix.mixObjects.mixVertices.makeCrossingFrame=cms.untracked.bool(True)
+	process.mix.mixObjects.mixTracks.makeCrossingFrame=cms.untracked.bool(True)
+    if hasattr(process,'reconstruction_step'):
+	process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     return process
 
 def cust_2023Pixel(process):
@@ -531,6 +563,22 @@ def cust_2023TTI(process):
     process=customisePostLS1(process)
     process=customiseTTI(process)
     process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase0(process)
+    process=customise_ev_l1tracker(process)
+    return process
+
+def cust_2023TTILHCC(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10DLHCC(process)
+    process=customise_HcalPhase0(process)
+    process=customise_ev_l1tracker(process)
+    return process
+
+def cust_2023TTILHCCCool(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10DLHCCCooling(process)
     process=customise_HcalPhase0(process)
     process=customise_ev_l1tracker(process)
     return process

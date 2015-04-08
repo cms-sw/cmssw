@@ -27,18 +27,18 @@ def customise(process):
     if hasattr(process,'validation_step'):
         process=customise_Validation(process,float(n))
     process=customise_condOverRides(process)
-    
+
     return process
 
 def customise_Digi(process):
     process.digitisation_step.remove(process.mix.digitizers.pixel)
-    process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')    
+    process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
     process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
     process.mix.digitizers.pixel=process.phase2TrackerDigitizer
     process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
                          'g4SimHitsTrackerHitsPixelEndcapLowTof')
     # Check if mergedtruth is in the sequence first, could be taken out depending on cmsDriver options
-    if hasattr(process.mix.digitizers,"mergedtruth") :    
+    if hasattr(process.mix.digitizers,"mergedtruth") :
         process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"))
         process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"))
         process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"))
@@ -47,7 +47,7 @@ def customise_Digi(process):
         process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
         process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
         process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
-    
+
     return process
 
 
@@ -62,10 +62,10 @@ def customise_RawToDigi(process):
 
 def customise_Reco(process,pileup):
     # insert the new clusterizer
-    process.load('SimTracker.SiPhase2Digitizer.phase2clusterizer_cfi')
+    process.load('SimTracker.SiPhase2Digitizer.phase2TrackerClusterizer_cfi')
     itIndex = process.pixeltrackerlocalreco.index(process.siPixelClusters)
     process.pixeltrackerlocalreco.insert(itIndex, process.siPhase2Clusters)
- 
+
     # keep new clusters
     alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
     for a in alist:
@@ -124,17 +124,17 @@ def customise_Reco(process,pileup):
     del process.ConvStep
     del process.earlyMuons
     del process.muonSeededStepCore
-    del process.muonSeededStepExtra 
+    del process.muonSeededStepExtra
     del process.muonSeededStep
     del process.muonSeededStepDebug
-    
+
     # add the correct tracking back in
     process.load("RecoTracker.Configuration.RecoTrackerPhase2BEPixel10D_cff")
 
     process.globalreco.insert(itIndex,process.trackingGlobalReco)
     process.reconstruction.insert(grIndex,process.globalreco)
     #Note process.reconstruction_fromRECO is broken
-    
+
     # End of new tracking configuration which can be removed if new Reconstruction is used.
 
 
@@ -143,12 +143,12 @@ def customise_Reco(process,pileup):
     process.reconstruction.remove(process.ak7BasicJets)
     process.reconstruction.remove(process.ak7CastorJetID)
 
-    #the quadruplet merger configuration     
+    #the quadruplet merger configuration
     process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
     process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
     process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
     process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )    
+    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )
     process.pixelseedmergerlayers.layerList = cms.vstring('BPix1+BPix2+BPix3+BPix4',
 						       'BPix1+BPix2+BPix3+FPix1_pos','BPix1+BPix2+BPix3+FPix1_neg',
 						       'BPix1+BPix2+FPix1_pos+FPix2_pos', 'BPix1+BPix2+FPix1_neg+FPix2_neg',
@@ -160,8 +160,8 @@ def customise_Reco(process,pileup):
 						       'FPix5_pos+FPix6_pos+FPix7_pos+FPix8_pos', 'FPix5_neg+FPix6_neg+FPix7_neg+FPix8_neg',
 						       'FPix5_pos+FPix6_pos+FPix7_pos+FPix9_pos', 'FPix5_neg+FPix6_neg+FPix7_neg+FPix9_neg',
 						       'FPix6_pos+FPix7_pos+FPix8_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix8_neg+FPix9_neg')
-    
-    
+
+
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
     # PixelCPEGeneric #
@@ -182,7 +182,7 @@ def customise_Reco(process,pileup):
     process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
     # End of pixel template needed section
-    
+
     process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
     process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
@@ -276,16 +276,16 @@ def customise_DQM(process,pileup):
     process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
-    
+
     from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU140
     process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
     if hasattr(process,"globalrechitsanalyze") : # Validation takes this out if pileup is more than 30
        process.globalrechitsanalyze.ROUList = cms.vstring(
-          'g4SimHitsTrackerHitsPixelBarrelLowTof', 
-          'g4SimHitsTrackerHitsPixelBarrelHighTof', 
-          'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+          'g4SimHitsTrackerHitsPixelBarrelLowTof',
+          'g4SimHitsTrackerHitsPixelBarrelHighTof',
+          'g4SimHitsTrackerHitsPixelEndcapLowTof',
           'g4SimHitsTrackerHitsPixelEndcapHighTof')
     return process
 
@@ -294,12 +294,12 @@ def customise_Validation(process,pileup):
     process.validation_step.remove(process.stripRecHitsValid)
     process.validation_step.remove(process.trackerHitsValid)
     process.validation_step.remove(process.StripTrackingRecHitsValid)
-    
+
     # Include Phase 2 Upgrade Outer Tracker
     stripVIndex=process.globalValidation.index(process.trackerDigisValidation)
     process.load("Validation.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
     process.validation_step.insert(stripVIndex, process.OuterTrackerSource)
-    
+
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
@@ -324,7 +324,7 @@ def customise_Validation(process,pileup):
         process.mix.minBunch = cms.int32(0)
         process.mix.maxBunch = cms.int32(0)
 
-    if hasattr(process,'simHitTPAssocProducer'):    
+    if hasattr(process,'simHitTPAssocProducer'):
         process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
                                                               cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
 
@@ -335,14 +335,14 @@ def customise_harvesting(process):
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.dqmHarvesting.remove(process.sipixelCertification)
-    
+
     # Include Phase 2 Upgrade Outer Tracker
     strip2Index=process.DQMOffline_SecondStep_PreDPG.index(process.SiStripOfflineDQMClient)
     process.load("DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff")
-    process.dqmHarvesting.insert(strip2Index, process.OuterTrackerClient) 
-    
+    process.dqmHarvesting.insert(strip2Index, process.OuterTrackerClient)
+
     strip2VIndex=process.postValidation.index(process.bTagCollectorSequenceMCbcl)
     process.load("Validation.Phase2OuterTracker.OuterTrackerClientConfig_cff")
-    process.validationHarvesting.insert(strip2VIndex, process.OuterTrackerClient)    
+    process.validationHarvesting.insert(strip2VIndex, process.OuterTrackerClient)
     return (process)
 

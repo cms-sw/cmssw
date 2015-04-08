@@ -8,15 +8,11 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2023HGCalReco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023HGCal_cff')
-#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')##
-process.load ('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')##
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')##
+process.load('Configuration.Geometry.GeometryExtended2023HGCalV6MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCalV6Muon_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-#process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')##
+process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -30,7 +26,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("EmptySource",
@@ -40,7 +36,7 @@ process.source = cms.Source("EmptySource",
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(11),
+        PartID = cms.vint32(13),
         MinEta = cms.double(1.75),
         MaxEta = cms.double(2.50),
         MinPhi = cms.double(-3.1415926),
@@ -49,7 +45,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxE   = cms.double(10.00)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(True)
 )
 
 
@@ -64,14 +60,7 @@ process.ValidationOutput = cms.OutputModule("PoolOutputModule",
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
-process.load("Validation.HGCalValidation.simhitValidation_cfi")
-process.hgcalSimHitValidationEE.Verbosity     = 0
-process.hgcalSimHitValidationHEF = process.hgcalSimHitValidationEE.clone(
-    DetectorName = cms.string("HGCalHESiliconSensitive"),
-    CaloHitSource = cms.string("HGCHitsHEfront"))
-process.hgcalSimHitValidationHEB = process.hgcalSimHitValidationEE.clone(
-    DetectorName = cms.string("HGCalHEScintillatorSensitive"),
-    CaloHitSource = cms.string("HGCHitsHEback"))
+process.load("Validation.HGCalValidation.simhitValidationV6_cff")
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
@@ -91,3 +80,4 @@ process.output_step = cms.EndPath(process.ValidationOutput)
 process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.p1,process.p2,process.output_step)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
+process.g4SimHits.HCalSD.TestNumberingScheme = True

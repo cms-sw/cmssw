@@ -81,7 +81,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
       float zValue = 526.75 * zSign;
 
-      Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
+      Plane plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
 
       //Getting the initial variables for propagation
 
@@ -105,7 +105,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
       const SteppingHelixPropagator* ThisshProp = 
 	dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
 	
-      lastrecostate = ThisshProp->propagate(startrecostate, *plane);
+      lastrecostate = ThisshProp->propagate(startrecostate, plane);
 	
       FreeTrajectoryState finalrecostate;
       lastrecostate.getFreeState(finalrecostate);

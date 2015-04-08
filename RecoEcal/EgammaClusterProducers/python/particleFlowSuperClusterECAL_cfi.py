@@ -87,6 +87,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
 
     #this overrides both dphi cuts below if true!
     useDynamicDPhiWindow = cms.bool(True), 
+    usePUEtHardCut = cms.bool(False),
                                 
     #use shower start cut?
     useHGCEmPreID = cms.bool(False),

@@ -91,6 +91,36 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
   return bins;
 }
 
+std::pair<double,double> HcalDDDRecConstants::getEtaPhi(int subdet, int ieta,
+							int iphi) const {
+  int ietaAbs = (ieta > 0) ? ieta : -ieta;
+  const double fiveDegInRad = 2*M_PI/72;
+  double eta(0), phi(0);
+  if ((subdet == static_cast<int>(HcalBarrel)) || 
+      (subdet == static_cast<int>(HcalEndcap)) ||
+      (subdet == static_cast<int>(HcalOuter))) {  // Use Eta Table
+    int unit    = (int)(phibin[ietaAbs-1]/fiveDegInRad+0.5);
+    int kphi    = (unit == 2) ? ((iphi-1)/2 + 1) : iphi;
+    double foff = (ietaAbs <= iEtaMax[0]) ? phioff[0] : phioff[1];
+    eta         = 0.5*(etaTable[ietaAbs-1]+etaTable[ietaAbs]);
+    phi         = foff + (kphi-0.5)*phibin[ietaAbs-1];
+  } else {
+    ietaAbs    -= iEtaMin[3];
+    int unit    = (int)(phibinHF[ietaAbs-1]/fiveDegInRad+0.5);
+    int kphi    = (unit == 4) ? ((iphi-3)/4 + 1) : ((iphi-1)/2 + 1);
+    double foff = (unit > 2) ? phioff[4] : phioff[2];
+    eta         = 0.5*(etaTableHF[ietaAbs-1]+etaTableHF[ietaAbs]);
+    phi         = foff + (kphi-0.5)*phibinHF[ietaAbs-1];
+  }
+  if (ieta < 0)   eta  = -eta;
+  if (phi > M_PI) phi -= (2*M_PI);
+#ifdef DebugLog
+  std::cout << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta << "|"
+	    << iphi << " eta|phi " << eta << "|" << phi << std::endl;
+#endif
+  return std::pair<double,double>(eta,phi);
+}
+
 HcalDDDRecConstants::HcalID 
 HcalDDDRecConstants::getHCID(int subdet,int ieta, int iphi, int lay,
 			     int idepth) const {
@@ -138,6 +168,35 @@ HcalDDDRecConstants::getHCID(int subdet,int ieta, int iphi, int lay,
   return HcalDDDRecConstants::HcalID(subdet,eta,phi,depth);
 }
 
+
+double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
+
+  int ietaAbs = (ieta > 0) ? ieta : -ieta;
+  double rz(0);
+#ifdef DebugLog
+  int    lay(0);
+#endif
+  if (ietaAbs < nEta) {
+    for (unsigned int k=0; k< layerGroup[ietaAbs-1].size(); ++k) {
+      if (depth == layerGroup[ietaAbs-1][k]) {
+	rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[k].first) :
+	      (gconsHE[k].first));
+	if (rz > 10.) {
+#ifdef DebugLog
+	  lay = k;
+#endif
+	  break;
+	}
+      }
+    }
+  }
+#ifdef DebugLog
+  std::cout << "getRZ: subdet|ieta|depth " << subdet << "|" << ieta << "|"
+	    << depth << " lay|rz " << lay << "|" << rz << std::endl;
+#endif
+  return rz;
+}
+ 	
 std::vector<HcalDDDRecConstants::HcalActiveLength> 
 HcalDDDRecConstants::getThickActive(const int type) const {
 

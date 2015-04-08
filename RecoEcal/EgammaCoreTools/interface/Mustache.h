@@ -15,7 +15,7 @@ namespace reco {
 		      const float ClusPhi);
       bool inDynamicDPhiWindow(const float seedEta, const float seedPhi,
 			       const float ClustE, const float ClusEta,
-			       const float clusPhi);
+			       const float clusPhi, const bool puEtHardCut=false);
      
   }
 

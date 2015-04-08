@@ -45,11 +45,8 @@ private:
   //member data
   std::string dirName_;
   std::string nameDetector_;
-  int verbosity_;
-  HGCalDDDConstants *hgcons_;
-  bool geometrydefined_, symmDet_;
-  //  unsigned int layers_;
-  std::map<uint32_t, HepGeom::Transform3D> transMap_;
+  int          verbosity_;
+  unsigned int layers_;
 
 public:
   explicit HGCalSimHitsClient(const edm::ParameterSet& );
@@ -63,8 +60,7 @@ public:
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   virtual void runClient_();   
   //const HcalDDDRecConstants *hcons;
-  int SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
-  bool defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH);
+  int simHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };
 
 #endif

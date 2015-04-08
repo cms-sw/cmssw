@@ -176,8 +176,19 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
       int    fioff = (units == 4) ? 3 : 1;
       nphi        *= units;
       for (unsigned int k=0; k<etabins[i].layer.size(); ++k) {
-	double zmin = layerDepths[etabins[i].layer[k].first-1];
-	double zmax = layerDepths[etabins[i].layer[k].second-1];
+	int layf = etabins[i].layer[k].first-1;
+	int layl = etabins[i].layer[k].second-1;
+	double zmin = layerDepths[layf];
+	double zmax = layerDepths[layl];
+	if (zmin < 1.0) {
+	  for (int k2=layf; k2<=layl; ++k2) {
+	    if (layerDepths[k2] > 10) {
+	      zmin = layerDepths[k2];
+	      break;
+	    }
+	  }
+	}
+	if (zmin >= zmax) zmax = zmin+10.;
 #ifdef DebugLog
 	std::cout << "HERing " << iring << " eta " << etabins[i].etaMin << ":"
 		  << etabins[i].etaMax << " depth " << depth << " Z " << zmin

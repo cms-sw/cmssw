@@ -1,0 +1,8 @@
+<use name="pandora"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/ForwardDetId"/>
+
+<export>
+  <lib   name="1"/>
+</export>

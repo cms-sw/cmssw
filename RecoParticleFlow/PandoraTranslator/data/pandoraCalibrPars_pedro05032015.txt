@@ -1,0 +1,54 @@
+Calibr_ADC2GeV_EE  1.
+Calibr_ADC2GeV_HEF 1.
+Calibr_ADC2GeV_HEB 1.
+
+#additional calibration 
+#this number is energy scale/MIP from Pedro's slides
+EMaddCalibrEE  219.60072595
+EMaddCalibrHEF 191.76470588
+EMaddCalibrHEB 14.949279231
+
+#mu_k * alpha_k (calibrated to lambdas) /MIP from Pedro's slides
+# slope * mu_i * alpha_i_lambda / MIP-in-GeV 
+HADaddCalibrEE  4676.8435572
+HADaddCalibrHEF 2360.6841204
+HADaddCalibrHEB 176.1126
+
+# #threshold in GeV -- increase a little bit
+ECalThresEndCap 27.75e-6
+HCalThresEndCapHEF 42.70e-6
+HCalThresEndCapHEB 760.2e-6
+ECalThresBarrel 0.
+HCalThresBarrel 0.
+
+ECalMipThresEndCap 0.5
+HCalMipThresEndCapHEF 0.5
+HCalMipThresEndCapHEB 0.5
+ECalMipThresBarrel 10.
+HCalMipThresBarrel 10.
+
+# mip calibration ----------- 1/MIP-in-GeV
+ECalToMipEndCap 18148.82
+HCalToMipEndCapHEF 11764.71
+HCalToMipEndCapHEB 667.38
+HCalToMipBarrel 3.333333
+ECalToMipBarrel 3.333333
+
+MuonToMip 10.0
+
+# EM calibration ----------------
+ECalToEMGeVEndCap 1.0
+HCalToEMGeVEndCapHEF 1.0
+HCalToEMGeVEndCapHEB 1.0
+ECalToEMGeVBarrel 1.0
+HCalToEMGeVBarrel 1.0
+
+# Hadron calibration
+ECalToHadGeVEndCap 1.0
+HCalToHadGeVEndCapHEF 1.0
+HCalToHadGeVEndCapHEB 1.0
+ECalToHadGeVBarrel 1.0
+HCalToHadGeVBarrel 1.0
+
+ 
+

@@ -1,13 +1,15 @@
 #include "Validation/HGCalValidation/plugins/HGCalDigiClient.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 HGCalDigiClient::HGCalDigiClient(const edm::ParameterSet& iConfig) {
@@ -18,7 +20,7 @@ HGCalDigiClient::HGCalDigiClient(const edm::ParameterSet& iConfig) {
   verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
 
   if (!dbe_) {
-    edm::LogError("HGCalDigiClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
+    edm::LogError("HGCalValidation") << "unable to get DQMStore service, upshot is no client histograms will be made";
   }
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
     if (dbe_) dbe_->setVerbose(0);
@@ -35,10 +37,19 @@ void HGCalDigiClient::endJob() {
 }
 
 void HGCalDigiClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) { 
-   edm::ESTransientHandle<DDCompactView> pDD;
-   iSetup.get<IdealGeometryRecord>().get( pDD );
-   const DDCompactView & cview = *pDD;
-   hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
+  
+  if (nameDetector_ == "HCal") {
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+    iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+    const HcalDDDRecConstants *hcons  = &(*pHRNDC);
+    layers_ = hcons->getMaxDepth(1);
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    iSetup.get<IdealGeometryRecord>().get( pDD );
+    const DDCompactView & cview = *pDD;
+    HGCalDDDConstants *hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
+    layers_ = hgcons_->layers(true);
+  }
 }
 
 void HGCalDigiClient::endRun(const edm::Run& , const edm::EventSetup& ) {
@@ -52,29 +63,33 @@ void HGCalDigiClient::endLuminosityBlock(const edm::LuminosityBlock&, const edm:
 void HGCalDigiClient::runClient_() {
   if (!dbe_) return; 
   dbe_->setCurrentFolder("/"); 
-  if (verbosity_) std::cout << "\nrunClient" << std::endl;
+  if (verbosity_) edm::LogInfo("HGCalValidation") << "\nrunClient";
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = dbe_->getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
-    if (verbosity_) std::cout << "\nfullPath: " << fullDirPath.at(i) << std::endl;
+    if (verbosity_) 
+      edm::LogInfo("HGCalValidation") << "\nfullPath: " << fullDirPath.at(i);
     dbe_->setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = dbe_->getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
-      if (verbosity_) std::cout << "fullSubPath: " << fullSubDirPath.at(j) << std::endl;
+      if (verbosity_) 
+	edm::LogInfo("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
       std::string nameDirectory = "HGCalDigiV/"+nameDetector_;
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = dbe_->getContents(fullSubDirPath.at(j));
-        if (verbosity_) std::cout << "hgcalMES size : " << hgcalMEs.size() <<std::endl;
-        if( !DigisEndjob(hgcalMEs) ) std::cout<< "\nError in DigisEndjob!" << std::endl <<std::endl;
+        if (verbosity_) 
+	  edm::LogInfo("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
+        if (!digisEndjob(hgcalMEs)) 
+	  edm::LogInfo("HGCalValidation") << "\nError in DigisEndjob!";
       }
     }
 
   }
 }
 
-int HGCalDigiClient::DigisEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
+int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
 
   std::vector<MonitorElement*> charge_;
   std::vector<MonitorElement*> DigiOccupancy_XY_;
@@ -87,8 +102,6 @@ int HGCalDigiClient::DigisEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
   double nevent;
   int nbinsx, nbinsy;
   
-  int layers_ = hgcons_->layers(true);
-
   for (int ilayer = 0; ilayer < layers_; ilayer++ ){ 
     //charge
     name.str(""); name << "charge_layer_" << ilayer;
