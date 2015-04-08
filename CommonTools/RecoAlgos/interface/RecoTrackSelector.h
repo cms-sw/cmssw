@@ -39,8 +39,8 @@ class RecoTrackSelector {
     min3DLayer_(cfg.getParameter<int>("min3DLayer")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
     bsSrcToken_(iC.consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))),
-    vertexToken_(iC.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexTag")))
-    {
+    usePV_(cfg.getParameter<bool>("usePV")) {
+      if (usePV_) vertexToken_ = iC.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexTag"));
       std::vector<std::string> quality = cfg.getParameter<std::vector<std::string> >("quality");
       for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j]));
       std::vector<std::string> algorithm = cfg.getParameter<std::vector<std::string> >("algorithm");
@@ -55,7 +55,13 @@ class RecoTrackSelector {
      edm::Handle<reco::BeamSpot> beamSpot;
      event.getByToken(bsSrcToken_,beamSpot);
      vertex_ = beamSpot->position();
+     if (!usePV_) return;
+     edm::Handle<reco::VertexCollection> hVtx;
+     event.getByToken(vertexToken_, hVtx);
+     if (hVtx->empty()) return;
+     vertex_ = (*hVtx)[0].position();
   }
+
   virtual void select( const edm::Handle<collection>& c, const edm::Event & event, const edm::EventSetup&es) {
     init(event,es);
     selected_.clear();
@@ -115,6 +121,7 @@ class RecoTrackSelector {
   std::vector<reco::TrackBase::TrackQuality> quality_;
   std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
   edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
+  bool usePV_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   reco::Track::Point vertex_;
   container selected_;
