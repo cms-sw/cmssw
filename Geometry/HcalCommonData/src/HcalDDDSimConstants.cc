@@ -34,7 +34,7 @@ HcalDDDSimConstants::HcalDDDSimConstants(const DDCompactView& cpv) {
 
 HcalDDDSimConstants::~HcalDDDSimConstants() { 
 #ifdef DebugLog
-  std::cout << "HcalDDDSimConstants::destructed!!!" << std::endl;
+  edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants::destructed!!!";
 #endif
 }
 
@@ -243,8 +243,9 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
     }
     eta = (z >= 0. ? eta : -eta);
 #ifdef DebugLog
-    std::cout << "R " << r << " Z " << z << " eta " << etaR <<":" <<eta <<"\n";
-    if (eta != etaR) std::cout << "**** Check *****\n";
+    edm::LogInfo ("HCalGeom") << "R " << r << " Z " << z << " eta " << etaR 
+			      << ":" << eta;
+    if (eta != etaR) edm::LogInfo ("HCalGeom") << "**** Check *****";
 #endif
     return eta;
   } else {
@@ -821,7 +822,7 @@ void HcalDDDSimConstants::loadGeometry(const DDFilteredView& _fv) {
       // HE
 #ifdef DebugLog
       edm::LogInfo("HCalGeom") << "HE " << sol.name() << " Shape " << sol.shape()
-			   << " Layer " << lay << " Z " << t.z();
+			       << " Layer " << lay << " Z " << t.z();
 #endif
       if (lay >=0 && lay < 20) {
 	ie[lay]++;
@@ -845,7 +846,7 @@ void HcalDDDSimConstants::loadGeometry(const DDFilteredView& _fv) {
 	  laye.push_back(lay);
 	}
       }
-      if (copy[nsiz-1] == 21) {
+      if (copy[nsiz-1] == 21 || copy[nsiz-1] == 71) {
 	int iz = copy[nsiz-7];
 	int fi = copy[nsiz-5];
 	unsigned int it1 = find(iz, ize);
@@ -898,7 +899,7 @@ void HcalDDDSimConstants::loadGeometry(const DDFilteredView& _fv) {
     }
 #ifdef DebugLog
     edm::LogInfo("HCalGeom") << "Index " << i << " Barrel " << ib[i] << " "
-			 << rb[i] << " Endcap " << ie[i] << " " << ze[i];
+			     << rb[i] << " Endcap " << ie[i] << " " << ze[i];
 #endif
   }
   for (int i = 4; i >= 0; i--) {

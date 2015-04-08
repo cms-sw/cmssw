@@ -13,8 +13,3 @@ HGCalHESilGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
                                               Name = cms.untracked.string("HGCalHESiliconSensitive")
                                               )
 
-
-HGCalHESciGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
-                                              Name = cms.untracked.string("HGCalHEScintillatorSensitive")
-                                              )
-

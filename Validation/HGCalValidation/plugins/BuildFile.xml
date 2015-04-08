@@ -1,9 +1,10 @@
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/FCalGeometry"/>
 <use name="SimDataFormats/CaloHit"/>
-
+<use name="CalibFormats/HcalObjects"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/HcalDetId"/>
@@ -13,4 +14,5 @@
 <use name="SimG4CMS/Calo"/>
 <use name="Geometry/Records"/>
 <use name="DetectorDescription/Core"/>
+<use name="hepmc"/>
 <flags EDM_PLUGIN="1"/>

@@ -12,25 +12,20 @@
 
 #include <memory>
 #include <unistd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-
-#include <iostream>
-#include <fstream>
-#include <vector>
 
 class DQMStore;
 class MonitorElement;
@@ -47,8 +42,7 @@ private:
   //member data
   std::string dirName_;
   std::string nameDetector_;
-  HGCalDDDConstants *hgcons_;
-  //  std::map<uint32_t, HepGeom::Transform3D> transMap_;
+  unsigned int layers_;
 
 public:
   explicit HGCalRecHitsClient(const edm::ParameterSet& );
@@ -62,7 +56,7 @@ public:
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   virtual void runClient_();   
 
-  int RecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
+  int recHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };
 
 #endif

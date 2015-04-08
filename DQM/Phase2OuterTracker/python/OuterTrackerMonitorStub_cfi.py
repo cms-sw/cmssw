@@ -64,17 +64,51 @@ OuterTrackerMonitorStub = cms.EDAnalyzer('OuterTrackerMonitorStub',
         xmax = cms.double(3)
         ),
 	
-#TTStub stack (Endcap or Barrel)
-TH1TTStub_Stack = cms.PSet(
+#TTStub Barrel Layers
+TH1TTStub_Layers = cms.PSet(
         Nbinsx = cms.int32(6), 
         xmin = cms.double(0.5), 
         xmax = cms.double(6.5)
         ),
 	
-#TTStub displacement or offset
-TH2TTStub_DisOf = cms.PSet(
+#TTStub EC Disks
+TH1TTStub_Disks = cms.PSet(
+        Nbinsx = cms.int32(5), 
+        xmin = cms.double(0.5), 
+        xmax = cms.double(5.5)
+        ),
+
+#TTStub EC Rings
+TH1TTStub_Rings = cms.PSet(
+        Nbinsx = cms.int32(16), 
+        xmin = cms.double(0.5), 
+        xmax = cms.double(16.5)
+        ),
+
+#TTStub displacement or offset per Layer
+TH2TTStub_DisOf_Layer = cms.PSet(
         Nbinsx = cms.int32(6),
         xmax = cms.double(6.5),                      
+        xmin = cms.double(0.5),
+        Nbinsy = cms.int32(43),
+        ymax = cms.double(10.75),                      
+        ymin = cms.double(-10.75)
+        ), 
+
+#TTStub displacement or offset per Disk
+TH2TTStub_DisOf_Disk = cms.PSet(
+        Nbinsx = cms.int32(5),
+        xmax = cms.double(5.5),                      
+        xmin = cms.double(0.5),
+        Nbinsy = cms.int32(43),
+        ymax = cms.double(10.75),                      
+        ymin = cms.double(-10.75)
+        ), 
+
+#TTStub displacement or offset per Ring
+TH2TTStub_DisOf_Ring = cms.PSet(
+        Nbinsx = cms.int32(16),
+        xmax = cms.double(16.5),                      
         xmin = cms.double(0.5),
         Nbinsy = cms.int32(43),
         ymax = cms.double(10.75),                      

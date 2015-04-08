@@ -613,7 +613,10 @@ QuickTrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectoryS
   edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #seeds="
                                       << pSeedCollectionHandle_->size()<<" #TPs="<<trackingParticleCollectionHandle->size();
 
-  initialiseHitAssociator( pEvent );
+  // get the Cluster2TPMap or initialize hit associator
+  if (useClusterTPAssociation_) prepareCluster2TPMap(pEvent);
+  else initialiseHitAssociator( pEvent );
+
   pTrackCollectionHandle_=NULL;
   pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
   pTrackCollection_=NULL;

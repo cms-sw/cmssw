@@ -39,3 +39,32 @@ def customise_use3DHCalClusters( process ) :
             process.tcMetWithPFclusters.PFClustersHFHAD = cms.InputTag("particleFlowClusterHF")
     return process
 
+def customise_phase1ElectronHOverE( process ) :
+    if hasattr( process, "ecalDrivenElectronSeeds" ) :
+        process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodBarrel = 0 # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4) 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodEndcap = 1 # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4)
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEBarrel = 0.15 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = 0.1 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEOuterEndcaps = 0.2
+    return process
+
+def customise_shashlikElectronHOverE( process ) :
+    if hasattr( process, "ecalDrivenElectronSeeds" ) :
+        process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodBarrel = 0 # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4) 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodEndcap = 3 # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4)
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEBarrel = 0.15 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = 0.5 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEOuterEndcaps = 1.0
+    if hasattr(process,'ecalDrivenGsfElectrons'):
+        process.ecalDrivenGsfElectrons.hOverEMethodEndcap = cms.int32(3)
+        process.ecalDrivenGsfElectrons.maxHOverEEndcaps = cms.double(99999.)
+    if hasattr(process,'gsfElectrons'):
+        process.gsfElectrons.hOverEMethodEndcap = cms.int32(3)
+        process.gsfElectrons.maxHOverEEndcaps = cms.double(99999.)
+    return process
+
+def customise_HGCalElectronHOverE( process ) :
+    if hasattr( process, "ecalDrivenElectronSeeds" ) :
+        process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodBarrel = 0 # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4) 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEBarrel = 0.15 
+    return process

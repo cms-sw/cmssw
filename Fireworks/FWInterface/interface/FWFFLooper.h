@@ -31,7 +31,7 @@ class FWPathsPopup;
 
 namespace fireworks
 {
-   class Context;
+   class ContextFF;
 }
 
 class TEveManager;
@@ -90,7 +90,7 @@ private:
    edm::Service<FWFFHelper>            m_appHelper;
    std::auto_ptr<FWFFNavigator>        m_navigator;
    std::auto_ptr<FWFFMetadataManager>  m_metadataManager;
-   std::auto_ptr<fireworks::Context>   m_context;
+   std::auto_ptr<fireworks::ContextFF>   m_context;
 
    TEveManager  *m_EveManager;
    TRint        *m_Rint;
@@ -108,6 +108,7 @@ private:
    bool          m_autoReload;
    bool          m_isFirstEvent;
    bool          m_isLastEvent;
+
 
    edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
 };

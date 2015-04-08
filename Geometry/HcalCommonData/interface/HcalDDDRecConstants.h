@@ -58,6 +58,7 @@ public:
   }
   std::vector<int>          getDepth(const int i) const {return layerGroup[i];}
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
+  std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
     {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
   std::vector<double>       getEtaTable()   const {return etaTable;}
@@ -73,6 +74,7 @@ public:
   std::vector<double>       getPhiOffs()    const {return phioff;}
   std::vector<double>       getPhiTable()   const {return phibin;}
   std::vector<double>       getPhiTableHF() const {return phibinHF;}
+  double                    getRZ(int subdet, int ieta, int depth) const;
   std::vector<HcalActiveLength> getThickActive(const int type) const;
   std::string               getTopoMode() const {return modeTopo;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;

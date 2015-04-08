@@ -42,6 +42,8 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include <CLHEP/Geometry/Transform3D.h>
 
 #include <iostream>
@@ -89,11 +91,12 @@ private:
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
-  std::string           nameDetector_, caloHitSource_;
-  DQMStore             *dbe_;
-  HGCalDDDConstants    *hgcons_;
-  int                   verbosity_;
-  bool                  geometrydefined_, symmDet_;
+  std::string                nameDetector_, caloHitSource_;
+  DQMStore                  *dbe_;
+  const HGCalDDDConstants   *hgcons_;
+  const HcalDDDRecConstants *hcons;
+  int                       verbosity_;
+  bool                      heRebuild_, testNumber_, geometrydefined_, symmDet_;
   unsigned int          layers_;
   std::map<uint32_t, HepGeom::Transform3D> transMap_;
   

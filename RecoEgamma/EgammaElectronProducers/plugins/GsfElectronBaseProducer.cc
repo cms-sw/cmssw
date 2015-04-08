@@ -257,7 +257,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 
   // hcal helpers
   // barrel
-  hcalCfgBarrel_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
+  hcalCfgBarrel_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizeBarrel") ;
   if (hcalCfgBarrel_.hOverEConeSize>0)
    {
     hcalCfgBarrel_.useTowers = true ;
@@ -270,7 +270,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
         hcalCfgBarrel_.hcalClusters = cfg.getParameter<edm::InputTag>("hcalBarrelClusters") ;
      }
   // endcap
-  hcalCfgEndcap_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
+  hcalCfgEndcap_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizeEndcap") ;
   if (hcalCfgEndcap_.hOverEConeSize>0)
    {
     hcalCfgEndcap_.useTowers = true ;
