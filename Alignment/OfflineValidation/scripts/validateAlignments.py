@@ -30,6 +30,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation \
     import TrackSplittingValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
+    import *
 import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
     as globalDictionaries
 
@@ -124,20 +126,27 @@ class ValidationJob:
         elif valType == "offline":
             validation = OfflineValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingoffline":
+            validation = PreexistingOfflineValidation(name, self.__config)
         elif valType == "offlineDQM":
             validation = OfflineValidationDQM( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         elif valType == "mcValidate":
             validation = MonteCarloValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingmcValidate":
+            validation = PreexistingMonteCarloValidation(name, self.__config)
         elif valType == "split":
             validation = TrackSplittingValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingsplit":
+            validation = PreexistingTrackSplittingValidation(name, self.__config)
         elif valType == "zmumu":
             validation = ZMuMuValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError, "Unknown validation mode '%s'"%valType
+        self.preexisting = ("preexisting" in valType)
         return validation
 
     def __createJob( self, jobMode, outpath ):
@@ -151,10 +160,17 @@ class ValidationJob:
 
     def createJob(self):
         """This is the method called to create the job files."""
+        if self.preexisting:
+            return
         self.__createJob( self.validation.jobmode,
                           os.path.abspath( self.__commandLineOptions.Name) )
 
     def runJob( self ):
+        if self.preexisting:
+            log = ">             " + self.validation.name + " is already validated."
+            print log
+            return log
+
         general = self.__config.getGeneral()
         log = ""
         for script in self.__scripts:
@@ -268,6 +284,7 @@ def createMergeScript( path, validations ):
         for referenceName in validation.filesToCompare:
             validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
             validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
+            validationName = validationName.split("Preexisting")[-1]
             if validationName in comparisonLists:
                 comparisonLists[ validationName ].append( validation )
             else:
@@ -284,7 +301,7 @@ def createMergeScript( path, validations ):
     anythingToMerge = []
     for validationType in comparisonLists:
         for validation in comparisonLists[validationType]:
-            if validation.NJobs == 1:
+            if isinstance(validation, PreexistingValidation) or validation.NJobs == 1:
                 continue
             if validationType not in anythingToMerge:
                 anythingToMerge += [validationType]
