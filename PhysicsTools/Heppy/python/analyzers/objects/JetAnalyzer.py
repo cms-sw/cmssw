@@ -85,9 +85,11 @@ class JetAnalyzer( Analyzer ):
         self.rho = rho
 
         ## Read jets, if necessary recalibrate and shift MET
-#        allJets = map(Jet, self.handles['jets'].product()) #members of allJets are not protected from other JetAnalyzer instances
-        import ROOT
-        allJets = map(lambda j:Jet(ROOT.pat.Jet(j)), self.handles['jets'].product()) #copy-by-value is safe if JetAnalyzer is ran more than once 
+        if self.cfg_ana.copyJetsByValue: 
+          import ROOT
+          allJets = map(lambda j:Jet(ROOT.pat.Jet(j)), self.handles['jets'].product()) #copy-by-value is safe if JetAnalyzer is ran more than once
+        else: 
+          allJets = map(Jet, self.handles['jets'].product()) 
 
         self.deltaMetFromJEC = [0.,0.]
 #        print "before. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
@@ -386,6 +388,7 @@ class JetAnalyzer( Analyzer ):
 setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = JetAnalyzer,
     jetCol = 'slimmedJets',
+    copyJetsByValue = False,      #Whether or not to copy the input jets or to work with references (should be 'True' if JetAnalyzer is run more than once)
     genJetCol = 'slimmedGenJets',
     rho = ('fixedGridRhoFastjetAll','',''),
     jetPt = 25.,
