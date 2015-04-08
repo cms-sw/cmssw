@@ -3,7 +3,7 @@
 // Package:    Phase2OuterTracker
 // Class:      Phase2OuterTracker
 //
-/**\class Phase2OuterTracker OuterTrackerMonitorL1Track.cc DQM/Phase2OuterTracker/plugins/OuterTrackerMonitorL1Track.cc
+/**\class Phase2OuterTracker OuterTrackerMonitorTrack.cc DQM/Phase2OuterTracker/plugins/OuterTrackerMonitorTrack.cc
  
  Description: [one line class summary]
  
@@ -31,7 +31,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorL1Track.h"
+#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTrack.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -46,7 +46,7 @@
 //
 // constructors and destructor
 //
-OuterTrackerMonitorL1Track::OuterTrackerMonitorL1Track(const edm::ParameterSet& iConfig)
+OuterTrackerMonitorTrack::OuterTrackerMonitorTrack(const edm::ParameterSet& iConfig)
 : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
@@ -54,7 +54,7 @@ OuterTrackerMonitorL1Track::OuterTrackerMonitorL1Track(const edm::ParameterSet& 
   HQDelim_ = conf_.getParameter<int>("HQDelim");
 }
 
-OuterTrackerMonitorL1Track::~OuterTrackerMonitorL1Track()
+OuterTrackerMonitorTrack::~OuterTrackerMonitorTrack()
 {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
@@ -65,7 +65,7 @@ OuterTrackerMonitorL1Track::~OuterTrackerMonitorL1Track()
 //
 
 // ------------ method called for each event  ------------
-void OuterTrackerMonitorL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void OuterTrackerMonitorTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Track Trigger Tracks
   edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > PixelDigiTTTrackHandle;
@@ -150,7 +150,7 @@ void OuterTrackerMonitorL1Track::analyze(const edm::Event& iEvent, const edm::Ev
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup& es)
+OuterTrackerMonitorTrack::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
@@ -303,7 +303,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   Track_LQ_Chi2Red->setAxisTitle("# Level-1 Tracks", 2);
   
   edm::ParameterSet psTrack_Chi2_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2_Track_Chi2_NStubs");
-  HistoName = "Track_LQ_Chi2_N";
+  HistoName = "Track_LQ_Chi2_NStubs";
   Track_LQ_Chi2_NStubs = dqmStore_->book2D(HistoName, HistoName,
       psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2_NStubs.getParameter<double>("xmin"),
@@ -394,7 +394,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   Track_HQ_Chi2Red->setAxisTitle("Level-1 Track #chi^{2}/ndf", 1);
   Track_HQ_Chi2Red->setAxisTitle("# Level-1 Tracks", 2);
   
-  HistoName = "Track_HQ_Chi2_N";
+  HistoName = "Track_HQ_Chi2_NStubs";
   Track_HQ_Chi2_NStubs = dqmStore_->book2D(HistoName, HistoName,
       psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2_NStubs.getParameter<double>("xmin"),
@@ -427,9 +427,9 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerMonitorL1Track::endJob(void) 
+OuterTrackerMonitorTrack::endJob(void) 
 {
 	
 }
 
-DEFINE_FWK_MODULE(OuterTrackerMonitorL1Track);
+DEFINE_FWK_MODULE(OuterTrackerMonitorTrack);

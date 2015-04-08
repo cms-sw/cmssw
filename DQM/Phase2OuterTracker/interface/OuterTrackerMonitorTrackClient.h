@@ -1,5 +1,5 @@
-#ifndef Phase2OuterTracker_OuterTrackerMonitorL1TrackClient_h
-#define Phase2OuterTracker_OuterTrackerMonitorL1TrackClient_h
+#ifndef Phase2OuterTracker_OuterTrackerMonitorTrackClient_h
+#define Phase2OuterTracker_OuterTrackerMonitorTrackClient_h
 
 
 #include <vector>
@@ -17,11 +17,11 @@
 
 class DQMStore;
 
-class OuterTrackerMonitorL1TrackClient : public edm::EDAnalyzer {
+class OuterTrackerMonitorTrackClient : public edm::EDAnalyzer {
 
 public:
-  explicit OuterTrackerMonitorL1TrackClient(const edm::ParameterSet&);
-  ~OuterTrackerMonitorL1TrackClient();
+  explicit OuterTrackerMonitorTrackClient(const edm::ParameterSet&);
+  ~OuterTrackerMonitorTrackClient();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //virtual void beginJob() ;
   virtual void endJob() ;

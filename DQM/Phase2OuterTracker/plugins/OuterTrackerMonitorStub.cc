@@ -194,8 +194,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Barrel_XY.getParameter<double>("ymin"),
       psTTStub_Barrel_XY.getParameter<double>("ymax"));
   //set titles
-  Stub_Barrel_XY->setAxisTitle("TTStub Barrel position x ", 1);
-  Stub_Barrel_XY->setAxisTitle("TTStub Barrel position y", 2);
+  Stub_Barrel_XY->setAxisTitle("Level-1 Stub Barrel position x ", 1);
+  Stub_Barrel_XY->setAxisTitle("Level-1 Stub Barrel position y", 2);
   
   edm::ParameterSet psTTStub_Barrel_XY_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Barrel_XY_Zoom");
   HistoName = "Stub_Barrel_XY_Zoom";
@@ -208,8 +208,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Barrel_XY_Zoom.getParameter<double>("ymin"),
       psTTStub_Barrel_XY_Zoom.getParameter<double>("ymax"));
   //set titles
-  Stub_Barrel_XY_Zoom->setAxisTitle("TTStub Barrel position x ", 1);
-  Stub_Barrel_XY_Zoom->setAxisTitle("TTStub Barrel position y", 2);
+  Stub_Barrel_XY_Zoom->setAxisTitle("Level-1 Stub Barrel position x ", 1);
+  Stub_Barrel_XY_Zoom->setAxisTitle("Level-1 Stub Barrel position y", 2);
   
   
   edm::ParameterSet psTTStub_Endcap_Fw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
@@ -223,8 +223,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Fw_XY.getParameter<double>("ymin"),
       psTTStub_Endcap_Fw_XY.getParameter<double>("ymax"));
   //set titles
-  Stub_Endcap_Fw_XY->setAxisTitle("TTStub Forward Endcap position x ", 1);
-  Stub_Endcap_Fw_XY->setAxisTitle("TTStub Forward Endcap y", 2);
+  Stub_Endcap_Fw_XY->setAxisTitle("Level-1 Stub Forward Endcap position x ", 1);
+  Stub_Endcap_Fw_XY->setAxisTitle("Level-1 Stub Forward Endcap y", 2);
   
   
   edm::ParameterSet psTTStub_Endcap_Bw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
@@ -238,8 +238,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Bw_XY.getParameter<double>("ymin"),
       psTTStub_Endcap_Bw_XY.getParameter<double>("ymax"));
   //set titles
-  Stub_Endcap_Bw_XY->setAxisTitle("TTStub Backward Endcap position x ", 1);
-  Stub_Endcap_Bw_XY->setAxisTitle("TTStub Backward Endcap y", 2);
+  Stub_Endcap_Bw_XY->setAxisTitle("Level-1 Stub Backward Endcap position x ", 1);
+  Stub_Endcap_Bw_XY->setAxisTitle("Level-1 Stub Backward Endcap y", 2);
   
   //TTStub #rho vs. z
   edm::ParameterSet psTTStub_RZ =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
@@ -253,8 +253,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_RZ.getParameter<double>("ymin"),
       psTTStub_RZ.getParameter<double>("ymax"));
   //set titles
-  Stub_RZ->setAxisTitle("TTStub z ", 1);
-  Stub_RZ->setAxisTitle("TTStub #rho", 2);
+  Stub_RZ->setAxisTitle("Level-1 Stub z ", 1);
+  Stub_RZ->setAxisTitle("Level-1 Stub #rho", 2);
   
   //TTStub Forward Endcap #rho vs. z
   edm::ParameterSet psTTStub_Endcap_Fw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Endcap_Fw_RZ_Zoom");
@@ -268,8 +268,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("ymin"),
       psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("ymax"));
   //set titles
-  Stub_Endcap_Fw_RZ_Zoom->setAxisTitle("TTStub Forward Endcap z ", 1);
-  Stub_Endcap_Fw_RZ_Zoom->setAxisTitle("TTStub Forward Endcap #rho", 2);
+  Stub_Endcap_Fw_RZ_Zoom->setAxisTitle("Level-1 Stub Forward Endcap z ", 1);
+  Stub_Endcap_Fw_RZ_Zoom->setAxisTitle("Level-1 Stub Forward Endcap #rho", 2);
   
   //TTStub Backward Endcap #rho vs. z
   edm::ParameterSet psTTStub_Endcap_Bw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Endcap_Bw_RZ_Zoom");
@@ -283,8 +283,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("ymin"),
       psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("ymax"));
   //set titles
-  Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap z ", 1);
-  Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap #rho", 2);  
+  Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("Level-1 Stub Backward Endcap z ", 1);
+  Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("Level-1 Stub Backward Endcap #rho", 2);  
   
   //TTStub eta 
   edm::ParameterSet psTTStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
@@ -294,8 +294,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Eta.getParameter<double>("xmin"), 
       psTTStub_Eta.getParameter<double>("xmax")); 
   //SetTitle
-  Stub_Eta->setAxisTitle("TTStub #eta",1); 
-  Stub_Eta->setAxisTitle("# TTStubs ",2);
+  Stub_Eta->setAxisTitle("Level-1 Stub #eta",1); 
+  Stub_Eta->setAxisTitle("# Level-1 Stubs ",2);
   
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
@@ -317,7 +317,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap.getParameter<double>("xmax")); 
   //SetTitle
   Stub_Endcap->setAxisTitle("Endcap Disc",1); 
-  Stub_Endcap->setAxisTitle("# TTStubs ",2);
+  Stub_Endcap->setAxisTitle("# Level-1 Stubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap_Fw =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
@@ -328,7 +328,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Fw.getParameter<double>("xmax")); 
   //SetTitle
   Stub_Endcap_Fw->setAxisTitle("Forward Endcap Disc",1); 
-  Stub_Endcap_Fw->setAxisTitle("# TTStubs ",2);
+  Stub_Endcap_Fw->setAxisTitle("# Level-1 Stubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap_Bw =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
@@ -339,7 +339,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Bw.getParameter<double>("xmax")); 
   //SetTitle
   Stub_Endcap_Bw->setAxisTitle("Backward Endcap Disc",1); 
-  Stub_Endcap_Bw->setAxisTitle("# TTStubs ",2);
+  Stub_Endcap_Bw->setAxisTitle("# Level-1 Stubs ",2);
   
   //TTStub displ/offset
   edm::ParameterSet psTTStub_Barrel_W =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
@@ -381,8 +381,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_W.getParameter<double>("ymin"),
       psTTStub_Endcap_W.getParameter<double>("ymax"));
   //set titles
-  Stub_Endcap_W->setAxisTitle("Layer",1); 
-  Stub_Endcap_W->setAxisTitle("Displacement - Offset",2);
+  Stub_Endcap_W->setAxisTitle("Disc",1); 
+  Stub_Endcap_W->setAxisTitle("Displacement - Offset",2);	// separate PS/2S modules
   
   edm::ParameterSet psTTStub_Endcap_O =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
   HistoName = "Stub_Offset_Endcap";
@@ -395,8 +395,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_O.getParameter<double>("ymin"),
       psTTStub_Endcap_O.getParameter<double>("ymax"));
   //Set titles
-  Stub_Endcap_O->setAxisTitle("Layer",1); 
-  Stub_Endcap_O->setAxisTitle("Trigger Offset",2);
+  Stub_Endcap_O->setAxisTitle("Disc",1); 
+  Stub_Endcap_O->setAxisTitle("Trigger Offset",2);	// separate PS/2S modules
 
 
 }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OuterTrackerMonitorL1Track = cms.EDAnalyzer('OuterTrackerMonitorL1Track',
+OuterTrackerMonitorTrack = cms.EDAnalyzer('OuterTrackerMonitorTrack',
     
     TopFolderName  = cms.string('Phase2OuterTracker'),
     TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
@@ -85,8 +85,8 @@ OuterTrackerMonitorL1Track = cms.EDAnalyzer('OuterTrackerMonitorL1Track',
 
 #Chi2 of the track vs Nb of stubs
     TH2_Track_Chi2_NStubs = cms.PSet(
-        Nbinsx = cms.int32(20),
-        xmax = cms.double(19.5),                      
+        Nbinsx = cms.int32(11),
+        xmax = cms.double(10.5),                      
         xmin = cms.double(-0.5), 
         Nbinsy = cms.int32(100),
         ymax = cms.double(50),                      
@@ -95,8 +95,8 @@ OuterTrackerMonitorL1Track = cms.EDAnalyzer('OuterTrackerMonitorL1Track',
 
 #Chi2R of the track vs Nb of stubs
     TH2_Track_Chi2R_NStubs = cms.PSet(
-        Nbinsx = cms.int32(20),
-        xmax = cms.double(19.5),                      
+        Nbinsx = cms.int32(11),
+        xmax = cms.double(10.5),                      
         xmin = cms.double(-0.5), 
         Nbinsy = cms.int32(100),
         ymax = cms.double(10),                      
