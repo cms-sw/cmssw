@@ -90,7 +90,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023HGCalMuon4Eta' : 'auto:upgradePLS3',
              'Extended2023HGCalV4' : 'auto:upgradePLS3',
              'Extended2023HGCalMuonPandora' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
-             'Extended2023SHCalNoTaperFast' : 'auto:upgradePLS3'
+             'Extended2023SHCalNoTaperFast' : 'auto:upgradePLS3',
              'Extended2023HGCalNoExtPix' : 'auto:upgradePLS3'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
@@ -119,8 +119,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023HGCalMuon4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
                  'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
                  'Extended2023HGCalMuonPandora' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuon',
-                 'Extended2023SHCalNoTaperFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCalTime'
-                 'Extended2023HGCalNoExtPix' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalPandoraMuonNoExtPix',
+                 'Extended2023SHCalNoTaperFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCalTime',
+                 'Extended2023HGCalNoExtPix' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalPandoraMuonNoExtPix'
                  }
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
