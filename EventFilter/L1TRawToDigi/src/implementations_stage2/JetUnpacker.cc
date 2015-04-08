@@ -2,7 +2,7 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-#include "CaloCollections.h"
+#include "L1TObjectCollections.h"
 
 namespace l1t {
    namespace stage2 {
@@ -34,7 +34,7 @@ namespace stage2 {
        lastBX = ceil((double)nBX/2.)-1;
      }
 
-     auto res_ = static_cast<CaloCollections*>(coll)->getJets();
+     auto res_ = static_cast<L1TObjectCollections*>(coll)->getJets();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
