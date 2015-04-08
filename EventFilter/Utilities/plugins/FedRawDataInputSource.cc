@@ -195,7 +195,9 @@ bool FedRawDataInputSource::checkNextEvent()
     startupCv_.wait(lk);
   }
   //signal hltd to start event accounting
-  daqDirector_->createProcessingNotificationMaybe();
+  if (!currentLumiSection_)
+    daqDirector_->createProcessingNotificationMaybe();
+
   switch (nextEvent() ) {
     case evf::EvFDaqDirector::runEnded: {
 
