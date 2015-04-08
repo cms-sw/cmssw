@@ -47,21 +47,35 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
         if( sample.mode() ) {
           // threshold == true is TDC, == false is ADC
           if( sample.threshold() ) {
-            energy += double(sample.data()) * tdcLSBInfC_ * fCToMIP_;
+            energy += double(sample.data()) * tdcLSBInfC_ / fCToMIP_;
             jitter_ = double(sample.toa()) * toaLSBToNS_;
-            std::cout << "set the jitter to: " << jitter_ << std::endl;
+            std::cout << "TDC+: set the energy to: " << energy << ' ' << sample.data() 
+                      << ' ' << tdcLSBInfC_ << ' ' << fCToMIP_ << std::endl;
+            std::cout << "TDC+: set the jitter to: " << jitter_ << ' ' 
+                      << sample.toa() << ' ' << toaLSBToNS_ << std::endl;
           } else {
-            energy += double(sample.data()) * adcLSBInfC_ * fCToMIP_;
+            energy += double(sample.data()) * adcLSBInfC_ / fCToMIP_;
+            std::cout << "ADC+: set the energy to: " << energy << ' ' << sample.data() 
+                      << ' ' << adcLSBInfC_ << ' ' << fCToMIP_ << std::endl;
           }
         } else { // false means we are ADC only mode
-          energy += double(sample.data()) * adcLSBInfC_ * fCToMIP_;
+          if( sample.threshold() && iSample == 2 ) {            
+            energy += double(sample.data()) * adcLSBInfC_ / fCToMIP_;
+            std::cout << "ADC: set the energy to: " << energy << ' ' << sample.data() 
+                      << ' ' << adcLSBInfC_ << ' ' << fCToMIP_ << std::endl;
+          }
         }              
       } else { // use adcToMIP value
-        energy += double(sample.data()) * adcToMIP_;
+        if( sample.threshold() && iSample == 2 ) {  
+          energy += double(sample.data()) * adcToMIP_;
+          std::cout << "ADC simple: set the energy to: " << energy << ' ' << sample.data() 
+                    << ' ' << adcToMIP_ << std::endl;
+        }
       }
     }
     
     amplitude_ = energy; // fast-track simhits propagation
+    std::cout << "set the amplitude to : " << amplitude_ << std::endl;
     
     return HGCUncalibratedRecHit( dataFrame.id(), amplitude_, 
                                   pedestal_, jitter_, chi2_, flag);

@@ -39,11 +39,10 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     }
     
     //    float clockToNsConstant = 25;
-    std::cout << "rechit input amplitude/jitter is:" << uncalibRH.amplitude() << '/' << uncalibRH.jitter() << std::endl;
     float energy = uncalibRH.amplitude() * adcToGeVConstant_;
-    std::cout << "rechit energy is: " << std::scientific << energy << std::endl;
     float time   = uncalibRH.jitter();
-    if(time<0) time   = 0; // fast-track digi conversion
+
+    //if(time<0) time   = 0; // fast-track digi conversion
     
     HGCRecHit rh( uncalibRH.id(), energy, time );
     
