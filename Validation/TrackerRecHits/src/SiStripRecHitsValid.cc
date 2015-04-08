@@ -47,6 +47,7 @@ namespace helper {
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   conf_(ps),
+  trackerHitAssociator_(new TrackerHitAssociator(ps, consumesCollector())),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
   // rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
@@ -230,7 +231,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   int totrechitstereo =0;
   int totrechitmatched =0;
    
-  TrackerHitAssociator associate(e, conf_);
+  TrackerHitAssociator& associate = *trackerHitAssociator_;
+  associate.processEvent(e);
   
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -1011,11 +1013,11 @@ void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker & ibooker,std::strin
 //------------------------------------------------------------------------------------------
 MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker & ibooker, const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
-  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+  edm::ParameterSet parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,HistoTitle,
-			   Parameters.getParameter<int32_t>("Nbinx"),
-			   Parameters.getParameter<double>("xmin"),
-			   Parameters.getParameter<double>("xmax")
+			   parameters.getParameter<int32_t>("Nbinx"),
+			   parameters.getParameter<double>("xmin"),
+			   parameters.getParameter<double>("xmax")
 			   );
 }
 
