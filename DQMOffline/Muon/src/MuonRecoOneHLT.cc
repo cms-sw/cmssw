@@ -46,6 +46,7 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
   phiMax = parameters.getParameter<double>("phiMax");
 }
 MuonRecoOneHLT::~MuonRecoOneHLT() {
+  delete theService;
   delete _SingleMuonEventFlag;
   delete _DoubleMuonEventFlag;
 }

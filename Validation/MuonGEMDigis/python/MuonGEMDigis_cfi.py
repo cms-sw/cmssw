@@ -25,6 +25,22 @@ gemCoPadValidation = cms.EDAnalyzer('GEMCoPadDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360), 
 )
 
+gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
+  simInputLabel = cms.untracked.string('g4SimHits'),
+  simTrackCollection = cms.InputTag('g4SimHits'),
+  simVertexCollection = cms.InputTag('g4SimHits'),
+  verboseSimHit = cms.untracked.int32(0),
+  # GEM digi matching:
+  verboseGEMDigi = cms.untracked.int32(0),
+  gemDigiInput = cms.InputTag("simMuonGEMDigis"),
+  gemPadDigiInput = cms.InputTag("simMuonGEMPadDigis"),
+  gemCoPadDigiInput = cms.InputTag("simMuonGEMPadDigis", "Coincidence"),
+  minBXGEM = cms.untracked.int32(-1),
+  maxBXGEM = cms.untracked.int32(1),
+  matchDeltaStripGEM = cms.untracked.int32(1),
+  gemMinPt = cms.untracked.double(5.0),
+  gemMinEta = cms.untracked.double(1.55),
+  gemMaxEta = cms.untracked.double(2.45),
+)
 
-#gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemCoPadValidation)
-gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation)
+gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemDigiTrackValidation)
