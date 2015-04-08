@@ -65,6 +65,7 @@ GeometryConf={
     'SLHC'        : 'Configuration.Geometry.GeometrySLHCSimIdeal_cff,Configuration.Geometry.GeometrySLHCReco_cff',
     'Design'      : 'Design,DesignReco',
     'Extended2023SHCalNoTaperNoExtPix'    : 'Extended2023SHCalNoTaperNoExtPix,Extended2023SHCalNoTaperNoExtPixReco',
+    'Extended2023HGCalNoExtPix'    : 'Extended2023HGCalNoExtPix,Extended2023HGCalNoExtPixReco'
      }
 
 FastSimGeometryConf={
