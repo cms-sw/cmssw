@@ -64,8 +64,11 @@ namespace l1t {
 	       
                if (fed == 1404) {
                   
-		 // Need to fill input collections         
-                  
+		 // Need to fill other input collections         
+		  res[12] = jet_unp;
+                  res[14] = jet_unp;
+                  res[20] = etsum_unp;
+
                   res[1] = alg_unp;
                   res[3] = alg_unp;
                   res[5] = alg_unp;
