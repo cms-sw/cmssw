@@ -53,7 +53,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023Muon' : 'Extended2023Muon,Extended2023MuonReco',
                'BE5DPixel10DLHCC' : 'ExtendedPhase2TkBE5DPixel10DLHCC',
                'Extended2023HGCalV6Muon' : 'Extended2023HGCalV6Muon,Extended2023HGCalV6MuonReco',
-               'Extended2023HGCalNoExtPix' : 'Extended2023HGCalNoExtPix',
+               'Extended2023SHCalNoTaperNoExtPix' : 'Extended2023SHCalNoTaperNoExtPix',
                'Extended2023Pixel' : 'Extended2023Pixel,Extended2023PixelReco',
                'Extended2023SHCalNoTaper' : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco',
                'Extended2023SHCalNoTaper4Eta' : 'Extended2023SHCalNoTaper4Eta,Extended2023SHCalNoTaper4EtaReco',
@@ -61,8 +61,8 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco',
                'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco',
                'Extended2023HGCalMuonPandora' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
-               'Extended2023SHCalNoTaperFast' : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco'
-               'Extended2023SHCalNoTaperNoExtPix' : 'Extended2023SHCalNoTaperNoExtPix'
+               'Extended2023SHCalNoTaperFast' : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco',
+               'Extended2023HGCalNoExtPix' : 'Extended2023HGCalNoExtPix'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
