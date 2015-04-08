@@ -55,6 +55,10 @@ class testRefInROOT: public CppUnit::TestFixture
 public:
   testRefInROOT() { }
   void setUp() {
+    if(!sWasRun_) {
+      AutoLibraryLoader::enable();
+      sWasRun_ = true;
+    }
     tmpdir = "tmp/";
     tmpdir += getenv("SCRAM_ARCH");
     tmpdir += "/";
