@@ -30,7 +30,7 @@ upgradeKeys=['2017',
              '2019WithGEMAgingPU',
              'Extended2023HGCalMuonPandora',
              'Extended2023HGCalMuonPandoraPU',
-             'Extended2023SHCalNoTaperFast'
+             'Extended2023SHCalNoTaperFast',
              'Extended2023HGCalNoExtPix'
          ]
 
@@ -187,7 +187,6 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10DLHCC':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV6Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaperNoExtPix':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalNoExtPix':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023Pixel':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
@@ -199,7 +198,8 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
                    'Extended2023HGCalMuonPandora':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023HGCalMuonPandoraPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
-                   'Extended2023SHCalNoTaperFast' : ['GenSimHLBeamSpotfixFull','DigiFullFastTimer','RecoFullFastTimer','HARVESTFull']
+                   'Extended2023SHCalNoTaperFast' : ['GenSimHLBeamSpotfixFull','DigiFullFastTimer','RecoFullFastTimer','HARVESTFull'],
+                   'Extended2023HGCalNoExtPix' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL']
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
