@@ -169,7 +169,7 @@ RecoToSimCollection
 MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track>& tC,
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
     					  const edm::Event * e, const edm::EventSetup * setup) const{
-  RecoToSimCollection  outputCollection;
+  RecoToSimCollection  outputCollection(&e->productGetter());
 
   MuonAssociatorByHitsHelper::TrackHitsCollection tH;
   for (auto it = tC.begin(), ed = tC.end(); it != ed; ++it) {
@@ -216,7 +216,7 @@ MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e, const edm::EventSetup * setup) const{
 
-  SimToRecoCollection  outputCollection;
+  SimToRecoCollection  outputCollection(&e->productGetter());
   MuonAssociatorByHitsHelper::TrackHitsCollection tH;
   for (auto it = tC.begin(), ed = tC.end(); it != ed; ++it) {
     tH.push_back(std::make_pair((*it)->recHitsBegin(), (*it)->recHitsEnd()));

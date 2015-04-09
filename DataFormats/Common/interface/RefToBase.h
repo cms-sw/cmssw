@@ -14,7 +14,7 @@ Using an edm:RefToBase<T> allows one to hold references to items in different co
 within the edm::Event where those objects are only related by a base class, T.
 
 \code
-edm::Ref<Foo> foo(...);
+edm::Ref<FooCollection> foo(...);
 std::vector<edm::RefToBase<Bar> > bars;
 bars.push_back(edm::RefToBase<Bar>(foo));
 \endcode
@@ -34,10 +34,6 @@ reference type.
 
 // user include files
 
-#include <memory>
-#include "boost/static_assert.hpp"
-#include "boost/type_traits/is_base_of.hpp"
-
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -46,6 +42,11 @@ reference type.
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+
+#include <memory>
+#ifndef __GCCXML__
+#include <type_traits>
+#endif
 
 namespace edm {
   //--------------------------------------------------------------------
@@ -76,9 +77,13 @@ namespace edm {
     explicit RefToBase(RefProd<C> const& r);
     RefToBase(RefToBaseProd<T> const& r, size_t i);
     RefToBase(Handle<View<T> > const& handle, size_t i);
+#ifndef __GCCXML__
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
+    RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
+#endif
     RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
+
     ~RefToBase();
 
     RefToBase& operator= (RefToBase const& rhs);
@@ -104,13 +109,13 @@ namespace edm {
     std::auto_ptr<reftobase::RefHolderBase> holder() const;
 
     EDProductGetter const* productGetter() const;
-    bool hasProductCache() const;
-    void const * product() const;
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
     bool isAvailable() const { return holder_? holder_->isAvailable(): false; }
-    
+
+    bool isTransient() const { return holder_ ? holder_->isTransient() : false; }
+
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
   private:
@@ -151,6 +156,7 @@ namespace edm {
     holder_(new reftobase::Holder<T,RefProd<C> >(iRef))
   { }
 
+#ifndef __GCCXML__
   template <class T>
   template <typename T1>
   inline
@@ -164,8 +170,15 @@ namespace edm {
     //   as Holder<T,RefToBase<T1>> would need dictionaries we will never have.
     // In this way we only need the IndirectHolder<T> and the RefHolder of the real type of the item
     // This might cause a small performance penalty.
-    BOOST_STATIC_ASSERT( ( boost::is_base_of<T, T1>::value ) );
+    static_assert( std::is_base_of<T, T1>::value, "RefToBase::RefToBase T not base of T1" );
   }
+
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>> p):
+    holder_(p.release())
+  {}
+#endif
 
   template <class T>
   inline
@@ -234,34 +247,72 @@ namespace edm {
     return  holder_->key();
   }
 
-  /// cast to a concrete type
+#ifndef __GCCXML__
+  namespace {
+    // If the template parameters are classes or structs they should be
+    // related by inheritance, otherwise they should be the same type.
+    template<typename T, typename U>
+    typename std::enable_if<std::is_class<T>::value>::type
+    checkTypeCompatibility() { static_assert(std::is_base_of<T, U>::value ||
+                                             std::is_base_of<U, T>::value,
+                                             "RefToBase::castTo error element types are not related by inheritance"); }
+
+    template<typename T, typename U>
+    typename std::enable_if<!std::is_class<T>::value>::type
+    checkTypeCompatibility() { static_assert(std::is_same<T, U>::value,
+                               "RefToBase::castTo error non-class element types are not the same"); }
+
+    // Convert the pointer types, use dynamic_cast if they are classes
+    template<typename T, typename OUT>
+    typename std::enable_if<std::is_class<T>::value, OUT const*>::type
+    convertTo(T const* t) { return dynamic_cast<OUT const*>(t); }
+
+    template<typename T, typename OUT>
+    typename std::enable_if<!std::is_class<T>::value, OUT const*>::type
+    convertTo(T const* t) { return t;}
+  }
+
   template <class T>
   template <class REF>
   REF
-  RefToBase<T>::castTo() const
-  {
-    if (!holder_)
-      {
-	Exception::throwThis(errors::InvalidReference,
-	  "attempting to cast a null RefToBase;\n"
-	  "You should check for nullity before casting.");
-      }
+  RefToBase<T>::castTo() const {
 
-    reftobase::RefHolder<REF> concrete_holder;
-    std::string hidden_ref_type;
-    if (!holder_->fillRefIfMyTypeMatches(concrete_holder,
-					 hidden_ref_type))
-      {
-	Exception::throwThis(errors::InvalidReference,
-	  "cast to type: ",
-	  typeid(REF).name(),
-	  "\nfrom type: ",
-	  hidden_ref_type.c_str(),
-	  " failed. Catch this exception in case you need to check"
-	  " the concrete reference type.");
-      }
-    return concrete_holder.getRef();
+    if (!holder_) {
+      Exception::throwThis(errors::InvalidReference,
+                           "attempting to cast a null RefToBase;\n"
+                           "You should check for nullity before casting.");
+    }
+
+    checkTypeCompatibility<T, typename REF::value_type>();
+
+    // If REF is type edm::Ref<C,T,F>, then it is impossible to
+    // check the container type C here. We just have to assume
+    // that the caller provided the correct type.
+
+    EDProductGetter const* getter = productGetter();
+    if(getter) {
+      return REF(id(), key(), getter);
+    }
+
+    T const* value = get();
+    if(value == nullptr) {
+      return REF(id());
+    }
+    typename REF::value_type const* newValue = convertTo<T, typename REF::value_type>(value);
+    if(newValue) {
+      return REF(id(), newValue, key(), isTransient());
+    }
+
+    Exception::throwThis(errors::InvalidReference,
+                         "RefToBase<T>::castTo Error attempting to cast mismatched types\n"
+                         "casting from RefToBase with T: ",
+                         typeid(T).name(),
+                         "\ncasting to: ",
+                         typeid(REF).name()
+                         );
+    return REF();
   }
+#endif
 
   /// Checks for null
   template <class T>
@@ -320,18 +371,6 @@ namespace edm {
   inline
   EDProductGetter const* RefToBase<T>::productGetter() const {
     return holder_? holder_->productGetter():nullptr;
-  }
-
-  template <class T>
-  inline
-  bool RefToBase<T>::hasProductCache() const {
-    return holder_?holder_->hasProductCache():false;
-  }
-
-  template <class T>
-  inline
-  void const * RefToBase<T>::product() const {
-    return holder_?holder_->product():nullptr;
   }
 
   template <class T>

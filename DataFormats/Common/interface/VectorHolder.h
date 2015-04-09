@@ -74,9 +74,6 @@ namespace edm {
       virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const {
         return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV>( refVector_ ) );
       }
-      virtual const void * product() const {
-        return refVector_.product();
-      }
       
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.

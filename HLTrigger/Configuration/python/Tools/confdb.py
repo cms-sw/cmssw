@@ -208,12 +208,12 @@ class HLTProcess(object):
 
   # add release-specific customizations
   def releaseSpecificCustomize(self):
-    # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customize()
+    # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customiseHLTforCMSSW(.,.)
     self.data += """
 # add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customise
-process = customise(process)
-"""
+from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
+process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
+""" % (self.config.type,self.config.fastsim)
 
   # customize the configuration according to the options
   def customize(self):
@@ -283,13 +283,13 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     else:
 
       if self.config.type not in ('Fake',) :
-        if self.config.type in ('50nsGRun',) :
+        if '50ns' in self.config.type :
           self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
 process = loadL1Menu(process)
 """
-        elif self.config.type in ('HIon',) :
+        elif 'HIon' in self.config.type :
           self.data += """
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
@@ -699,6 +699,8 @@ for module in process.__dict__.itervalues():
     if self.config.name is None:
       return
 
+    # sanitise process name
+    self.config.name = self.config.name.replace("_","")
     # override the process name
     quote = '[\'\"]'
     self.data = re.compile(r'^(process\s*=\s*cms\.Process\(\s*' + quote + r')\w+(' + quote + r'\s*\).*)$', re.MULTILINE).sub(r'\1%s\2' % self.config.name, self.data, 1)

@@ -5,8 +5,8 @@ process = cms.Process("ana")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("SimGeneral.TrackingAnalysis.Playback_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.VertexAssociation.VertexAssociatorByTracks_cfi")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
 
@@ -65,16 +65,13 @@ process.TFileService = cms.Service("TFileService",
 
 
 process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
-      process.vertexClassifier,                              
-      cms.PSet(
-
-              vertexCollection = cms.untracked.InputTag('svTagInfoProxy')
-         )
-         
-
+    process.vertexClassifier,
+    vertexCollection = cms.untracked.InputTag('svTagInfoProxy'),
+    associatorByChi2 = cms.untracked.InputTag('trackAssociatorByChi2'),
+    associatorByHits = cms.untracked.InputTag('trackAssociatorByHits'),
 )
 
-process.p = cms.Path( process.mix * process.trackingParticles * process.svTagInfoProxy * process.testanalyzer )
+process.p = cms.Path( process.mix * process.trackingParticles * process.svTagInfoProxy * process.trackAssociatorByChi2 * process.trackAssociatorByHits * process.testanalyzer )
 
 
 

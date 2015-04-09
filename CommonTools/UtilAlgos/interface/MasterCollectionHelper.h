@@ -15,12 +15,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 
 namespace helper {
   template<typename C1>
   struct MasterCollection {
     typedef edm::Ref<C1> ref_type;
-    explicit MasterCollection(const edm::Handle<C1> & handle) : 
+    explicit MasterCollection(const edm::Handle<C1> & handle, edm::Event const& event) : 
       handle_(handle) { }
     size_t size() const { return handle_->size(); }
     size_t index(size_t i) const { return i; }
@@ -35,10 +36,11 @@ namespace helper {
   template<typename T>
   struct MasterCollection<edm::View<T> > {
     typedef edm::RefToBase<T> ref_type;
-    explicit MasterCollection(const edm::Handle<edm::View<T> > & handle) :
+    explicit MasterCollection(const edm::Handle<edm::View<T> > & handle, edm::Event const& event) :
       handle_(handle) {
-      if(handle_->size() != 0) 
-	ref_ = edm::RefToBaseProd<T>(handle_->refAt(0));
+      if(handle_->size() != 0) {
+        ref_ = edm::makeRefToBaseProdFrom(handle_->refAt(0), event);
+      }
     }
     size_t size() const { 
       if (ref_.isNull()) return 0;

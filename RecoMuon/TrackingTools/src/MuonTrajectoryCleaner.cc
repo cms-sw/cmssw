@@ -17,7 +17,7 @@ using namespace std;
 
 typedef edm::AssociationMap<edm::OneToMany<L2MuonTrajectorySeedCollection, L2MuonTrajectorySeedCollection> > L2SeedAssoc;
 
-void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event) {
+void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event, const edm::Handle<edm::View<TrajectorySeed> >& seeds) {
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
   LogTrace(metname) << "Muon Trajectory Cleaner called" << endl;
@@ -163,6 +163,13 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
     LogTrace(metname) << " Creating map between chosen seed and ghost seeds." << std::endl;
 
     auto_ptr<L2SeedAssoc> seedToSeedsMap(new L2SeedAssoc);
+    if(!seeds->empty()) {
+      edm::Ptr<TrajectorySeed> ptr = seeds->ptrAt(0);
+      edm::Handle<L2MuonTrajectorySeedCollection> seedsHandle;
+      event.get(ptr.id(), seedsHandle);
+      seedToSeedsMap.reset(new L2SeedAssoc(seedsHandle, seedsHandle));
+    }
+
     int seedcnt(0);
 
     for(map<int, vector<int> >::iterator itmap=seedmap.begin(); itmap!=seedmap.end(); ++itmap, ++seedcnt) {

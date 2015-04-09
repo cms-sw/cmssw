@@ -7,8 +7,8 @@
 #include "SimTracker/Records/interface/VertexAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
@@ -29,7 +29,10 @@ using namespace std;
 using namespace edm;
 
 
-testVertexAssociator::testVertexAssociator(edm::ParameterSet const& conf) : theConfig_(conf) {
+testVertexAssociator::testVertexAssociator(edm::ParameterSet const& conf) :
+  associatorByChi2Token(consumes<reco::TrackToTrackingParticleAssociator>(conf.getUntrackedParameter<edm::InputTag>("associatorByChi2"))),
+  associatorByHitsToken(consumes<reco::TrackToTrackingParticleAssociator>(conf.getUntrackedParameter<edm::InputTag>("associatorByHits")))
+{
 
   vertexCollection_ = conf.getUntrackedParameter<edm::InputTag>( "vertexCollection" );
 
@@ -107,13 +110,13 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   edm::ESHandle<MagneticField> theMF;
   setup.get<IdealMagneticFieldRecord>().get(theMF);
 
-  edm::ESHandle<TrackAssociatorBase> theChiAssociator;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
-  associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theChiAssociator;
+  event.getByToken(associatorByChi2Token, theChiAssociator);
+  associatorByChi2 = theChiAssociator.product();
 
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
-  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
+  event.getByToken(associatorByHitsToken, theHitsAssociator);
+  associatorByHits = theHitsAssociator.product();
 
   edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
   setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
@@ -153,9 +156,9 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   cout << "                      ****************** Reco To Sim ****************** " << endl << endl;
 
   //cout << "-- Associator by hits --" << endl;
-  reco::RecoToSimCollection r2sTracks = associatorByHits->associateRecoToSim (trackCollection,TPCollection,&event,&setup );
+  reco::RecoToSimCollection r2sTracks = associatorByHits->associateRecoToSim (trackCollection,TPCollection);
 
-  reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollection,TPCollection,&event, &setup );
+  reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollection,TPCollection);
   //associatorByChi2->associateRecoToSim (trackCollection,TPCollection,&event );
 
   reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection,TVCollection,event,r2sTracks);

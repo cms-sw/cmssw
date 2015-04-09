@@ -13,15 +13,15 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( Fake GRun HIon PIon 50nsGRun )
+  set tables = ( GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 Fake )
 else if ( ($2 == dev) || ($2 == DEV) ) then
-  set tables = ( GRun HIon PIon 50nsGRun )
+  set tables = ( GRun 50nsGRun HIon PIon )
 else if ( ($2 == full) || ($2 == FULL) ) then
   set tables = ( FULL )
 else if ( ($2 == fake) || ($2 == FAKE) ) then
   set tables = ( Fake )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
-  set tables = ( Fake )
+  set tables = ( 25ns14e33_v1 50ns_5e33_v1 Fake )
 else
   set tables = ( $2 )
 endif
@@ -114,7 +114,7 @@ end
 
 # running each HLT trigger path individually one by one
 
-if ( ($2 != all) && ($2 != dev) && ($2 != frozen) && ($2 != full) ) then
+if ( ($2 != all) && ($2 != dev) && ($2 != full) && ($2 != fake) && ($2 != frozen) ) then
   ./runIntegration.csh $1 $2
 endif
 

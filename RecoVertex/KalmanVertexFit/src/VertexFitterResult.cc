@@ -1,6 +1,5 @@
 #include "RecoVertex/KalmanVertexFit/interface/VertexFitterResult.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
 

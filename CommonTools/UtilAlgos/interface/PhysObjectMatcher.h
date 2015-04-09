@@ -125,7 +125,7 @@ namespace reco {
       //
       Q comparator(config_,*cands,*matched);
       typename MatchMap::Filler filler(*matchMap);
-      ::helper::MasterCollection<C1> master(cands);
+      ::helper::MasterCollection<C1> master(cands, evt);
       vector<int> indices(master.size(), -1);      // result: indices in target collection
       vector<bool> mLock(matched->size(),false);   // locks in target collection
       MatchContainer matchPairs;                   // container of matched pairs

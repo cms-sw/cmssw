@@ -150,4 +150,4 @@ FWPhotonDetailView::addSceneInfo(const reco::Photon *i, TEveElementList* tList)
    tList->AddElement(seedposition);
 }
 
-REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon);
+REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,ecalRecHit);

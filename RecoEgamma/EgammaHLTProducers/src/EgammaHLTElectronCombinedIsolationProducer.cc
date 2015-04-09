@@ -67,7 +67,7 @@ void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, con
   if(TrackIsolWeight_ != 0) 
     iEvent.getByToken(TrackIsolTag_,TrackIsoMap);
   
-  reco::ElectronIsolationMap TotalIsolMap;
+  reco::ElectronIsolationMap TotalIsolMap(electronHandle);
   double TotalIso=0;
   for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
     TotalIso=0; 

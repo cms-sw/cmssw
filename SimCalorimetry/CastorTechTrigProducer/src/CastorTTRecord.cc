@@ -20,6 +20,8 @@ CastorTTRecord::CastorTTRecord(const edm::ParameterSet& ps)
     TrigNames_      = ps.getParameter< std::vector<std::string> >("TriggerBitNames");
     TrigThresholds_ = ps.getParameter< std::vector<double> >("TriggerThresholds");
 
+    reweighted_gain = 1.0;
+
     produces<L1GtTechnicalTriggerRecord>();
 }
 
@@ -28,6 +30,8 @@ CastorTTRecord::~CastorTTRecord() {
 }
 
 void CastorTTRecord::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+
+    // std::cerr << "**** RUNNING THROUGH CastorTTRecord::produce" << std::endl;
 
     std::vector<L1GtTechnicalTrigger> vecTT(ttpBits_.size()) ;
 
@@ -46,6 +50,7 @@ void CastorTTRecord::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
         getTriggerDecisions(decision,cas_efC);
 
         for(unsigned int i=0; i<ttpBits_.size(); i++) {
+            // if( decision.at(i) ) std::cerr << "**** Something Triggered" << std::endl;
             // std::cout << "Run CastorTTRecord::produce. TriggerBit = " << ttpBits_.at(i) << "; TriggerName = " << TrigNames_.at(i) << "; Decision = " << decision[i] << std::endl;
             vecTT.at(i) = L1GtTechnicalTrigger(TrigNames_.at(i), ttpBits_.at(i), 0, decision.at(i)) ;
         }
@@ -62,8 +67,10 @@ void CastorTTRecord::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
 
 void CastorTTRecord::getEnergy_fC(double energy[16][14], edm::Handle<CastorDigiCollection>& CastorDigiColl,
-                                  edm::Event& e, const edm::EventSetup& eventSetup) const
+                                  edm::Event& e, const edm::EventSetup& eventSetup)
 {
+    // std::cerr << "**** RUNNING THROUGH CastorTTRecord::getEnergy_fC" << std::endl;
+
     // Get Conditions
     edm::ESHandle<CastorDbService> conditions ;
     eventSetup.get<CastorDbRecord>().get(conditions) ;
@@ -91,7 +98,9 @@ void CastorTTRecord::getEnergy_fC(double energy[16][14], edm::Handle<CastorDigiC
         // pedestal substraction
         int capid=digi[CastorSignalTS_].capid();
         double fC = tool[CastorSignalTS_] - calibrations.pedestal(capid);
-        // double eGeV = fC * calibrations.gain(capid); // fC --> GeV
+
+        // to correct threshold levels in fC for different gains
+        reweighted_gain = calibrations.gain(capid) / 0.015;
         
         energy[digi.id().sector()-1][digi.id().module()-1] = fC;
     }
@@ -99,6 +108,8 @@ void CastorTTRecord::getEnergy_fC(double energy[16][14], edm::Handle<CastorDigiC
 
 void CastorTTRecord::getTriggerDecisions(std::vector<bool>& decision, double energy[16][14]) const
 {
+    // std::cerr << "**** RUNNING THROUGH CastorTTRecord::getTriggerDecisions" << std::endl;
+
     // check if number of bits is at least four
     if( decision.size() < 4 ) return;
 
@@ -112,8 +123,9 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool>& decision, double ene
     decision.at(2) = false;
     decision.at(3) = false;
 
-    bool EM_decision = false;
-    bool HAD_decision = false;
+    // canceld for low pt jet
+    // bool EM_decision = false;
+    // bool HAD_decision = false;
     // loop over castor octants
     for(int ioct=0; ioct<8; ioct++) {
         int next_oct = (ioct+1)%8;
@@ -127,8 +139,9 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool>& decision, double ene
         if( tdpo[ioct].at(2) ) decision.at(1) = true;
 
         // electron
-        if( tdpo[ioct].at(3) ) EM_decision = true;
-        if( tdpo[ioct].at(4) ) HAD_decision = true;
+        // canceld for low pt jet
+        // if( tdpo[ioct].at(3) ) EM_decision = true;
+        // if( tdpo[ioct].at(4) ) HAD_decision = true;
 
         // iso muon
         if( tdpo[ioct].at(5) ) {
@@ -148,14 +161,20 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool>& decision, double ene
             }
             // when not no iso muon
         }
+
+        // low pt jet Trigger
+        if( tdpo[ioct].at(6) ) decision.at(2) = true;
     }
 
     // for EM Trigger whole castor not hadronic and somewhere EM
-    decision.at(2) = EM_decision && !HAD_decision;
+    // canceld for low pt jet
+    // decision.at(2) = EM_decision && !HAD_decision;
 }
 
 void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], double energy[16][14]) const
 {
+    // std::cerr << "**** RUNNING THROUGH CastorTTRecord::getTriggerDecisionsPerOctant" << std::endl;
+
     // loop over octatants
     for(int ioct=0; ioct<8; ioct++)
     {
@@ -166,9 +185,11 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], dou
         // 3. EM any sector
         // 4. HAD any sector
         // 5. muon any sector
-        tdpo[ioct].resize(6);
+        // add instead of EM Trigger (not bit 6 in real)
+        // 6. low pt jet any sector
+        tdpo[ioct].resize(7);
 
-        for(int ibit=0; ibit<6; ibit++)
+        for(int ibit=0; ibit<7; ibit++)
             tdpo[ioct].at(ibit) = false;
 
         // loop over castor sectors in octant
@@ -180,6 +201,7 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], dou
             // init module sums for every sector
             double fCsum_mod = 0;
             double fCsum_em = 0, fCsum_ha = 0;
+            double fCsum_jet_had = 0;
             double fCsum_col[3] = { 0, 0, 0 };
             
             // loop over modules
@@ -195,6 +217,9 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], dou
                 if( imod < 4 )       fCsum_col[0] += energy[isec][imod];
                 else if( imod < 8 )  fCsum_col[1] += energy[isec][imod];
                 else if( imod < 12 ) fCsum_col[2] += energy[isec][imod];
+
+                // HAD sum for jet trigger v2
+                if( imod > 1 && imod < 5 ) fCsum_jet_had += energy[isec][imod];
             }
 
             // gap Trigger
@@ -203,12 +228,24 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], dou
                 else if( ioctsec == 1 ) tdpo[ioct].at(1) = true;
             }
 
-            // jet Trigger
-            if( fCsum_mod > TrigThresholds_.at(1) ) 
+            // jet Trigger 
+            // with gain correction
+            /* old version of jet trigger ( deprecated because of saturation )
+            if( fCsum_mod > TrigThresholds_.at(1) / reweighted_gain ) 
                 tdpo[ioct].at(2) = true; 
+            */
+            if( fCsum_jet_had > TrigThresholds_.at(1) / reweighted_gain )
+            // additional high threshold near saturation for EM part
+                if( energy[isec][0] > 26000 / reweighted_gain && energy[isec][1] > 26000 / reweighted_gain )
+                    tdpo[ioct].at(2) = true;
+
+            // low pt jet Trigger
+            if( fCsum_mod > TrigThresholds_.at(5) / reweighted_gain ) 
+                tdpo[ioct].at(6) = true; 
 
             // egamma Trigger
-            if( fCsum_em > TrigThresholds_.at(2) )
+            // with gain correction only in the EM threshold
+            if( fCsum_em > TrigThresholds_.at(2) / reweighted_gain )
                 tdpo[ioct].at(3) = true;
             if( fCsum_ha > TrigThresholds_.at(3) ) 
                 tdpo[ioct].at(4) = true; 

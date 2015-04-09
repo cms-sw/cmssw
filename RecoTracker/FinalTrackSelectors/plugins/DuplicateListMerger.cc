@@ -184,7 +184,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr< std::vector<Trajectory> > outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
   outputTrajs->reserve(originalTrajHandle->size()+mergedTrajHandle->size());
   edm::RefProd< std::vector<Trajectory> > refTrajs;
-  std::auto_ptr< TrajTrackAssociationCollection >  outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
   //std::auto_ptr< TrajectorySeedCollection > outputSeeds
 
   std::auto_ptr<reco::TrackExtraCollection> outputTrkExtras;
@@ -264,6 +263,8 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<reco::Track> inputTracks;
 
   refTrajs = iEvent.getRefBeforePut< std::vector<Trajectory> >();
+
+  std::auto_ptr< TrajTrackAssociationCollection >  outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection(refTrajs, refTrks));
 
   for(matchIter0 = matches.begin(); matchIter0 != matches.end(); matchIter0++){
     reco::TrackRef inTrkRef1 = matchIter0->second->second.first;

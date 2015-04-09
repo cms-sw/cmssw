@@ -80,6 +80,7 @@ namespace pat {
     /// function, which should be non accessible to any other user
     friend class PATJetProducer;
     friend class PATJetSlimmer;
+    friend class PATJetUpdater;
 
     public:
 
@@ -91,6 +92,10 @@ namespace pat {
       Jet(const edm::RefToBase<reco::Jet> & aJetRef);
       /// constructor from ref to reco::Jet
       Jet(const edm::Ptr<reco::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::RefToBase<pat::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::Ptr<pat::Jet> & aJetRef);
       /// destructor
       virtual ~Jet();
       /// required reimplementation of the Candidate's clone method

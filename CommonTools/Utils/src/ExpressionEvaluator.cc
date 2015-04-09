@@ -10,10 +10,11 @@
 #include <regex>
 #include <dlfcn.h>
 
+#define VI_DEBUG
 
 #ifdef VI_DEBUG
 #include <iostream>
-#define COUT std::cout;
+#define COUT std::cout
 #else
 #define COUT LogDebug("ExpressionEvaluator")
 #endif
@@ -37,6 +38,14 @@ namespace {
   system(rm.c_str());
 
  }
+
+ std::string patchArea() {
+    auto n1 = execSysCommand("scram tool tag cmssw CMSSW_BASE");
+    n1.pop_back();
+    COUT << "base area " << n1 << std::endl;
+    return n1[0]=='/' ? n1 : std::string();
+ }
+
 
 }
 
@@ -74,9 +83,20 @@ ExpressionEvaluator::ExpressionEvaluator(const char * pkg, const char * iname, s
        std::string file = relDir + incDir + pch + ".cxxflags";
        COUT << "file in release area: " << file << std::endl;
        std::ifstream ss(file.c_str());
-       if (!ss) throw  cms::Exception("ExpressionEvaluator", pch + " file not found neither in " + baseDir + " nor in " + relDir);
-       std::getline(ss,cxxf);
-       incDir = relDir + incDir;
+       if (ss) {
+         std::getline(ss,cxxf);
+         incDir = relDir + incDir;
+       } else {
+         // look in release is a patch area 
+         auto paDir = patchArea();
+         if (paDir.empty())  throw  cms::Exception("ExpressionEvaluator", pch + " file not found neither in " + baseDir + " nor in " + relDir);
+         std::string file = paDir + incDir + pch + ".cxxflags";
+         COUT << "file in base release area: " << file << std::endl;
+         std::ifstream ss(file.c_str());
+         if (!ss)  throw  cms::Exception("ExpressionEvaluator", pch + " file not found neither in " + baseDir + " nor in " + relDir  + " nor in " + paDir);
+         std::getline(ss,cxxf);
+         incDir = paDir + incDir;
+       }
     }
 
     { std::regex rq("-I[^ ]+"); cxxf = std::regex_replace(cxxf,rq,std::string("")); }

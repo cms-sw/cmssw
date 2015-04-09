@@ -93,7 +93,6 @@ void TeVMuonTrackCleaner::produceTrackExtras(edm::Event& evt, const edm::EventSe
 
   for ( typename std::vector<todoListEntryType>::const_iterator todoItem = todoList_.begin();
 	todoItem != todoList_.end(); ++todoItem ) {
-    std::auto_ptr<TrackToTrackMap> trackToTrackMap_cleaned(new TrackToTrackMap());
     
     edm::Handle<TrackToTrackMap> trackToTrackMap;
     evt.getByLabel(todoItem->srcTracks_, trackToTrackMap);
@@ -103,6 +102,8 @@ void TeVMuonTrackCleaner::produceTrackExtras(edm::Event& evt, const edm::EventSe
 	std::cout << "trackToTrackMap[" << entry->key.id() << ":" << entry->key.key() << "] = " << entry->val.id() << ":" << entry->val.key() << std::endl;
       }
     }
+
+    std::auto_ptr<TrackToTrackMap> trackToTrackMap_cleaned(new TrackToTrackMap(globalMuons_cleaned, trackToTrackMap->refProd().val));
     
     size_t numGlobalMuons_cleaned = globalMuons_cleaned->size();
     for ( size_t iGlobalMuons_cleaned = 0; iGlobalMuons_cleaned < numGlobalMuons_cleaned; ++iGlobalMuons_cleaned ) {

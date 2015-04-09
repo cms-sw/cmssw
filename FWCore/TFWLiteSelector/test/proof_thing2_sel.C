@@ -50,7 +50,7 @@ void proof_thing2_sel()
   //This creates the 'data set' which defines what files we need to process
   // NOTE: the files given must be accessible by the remote systems
   TDSet c( "TTree", "Events");
-  c.Add("$CMSSW_BASE/test.root");
+  c.Add("testTFWLiteSelector.root");
   
   //This makes the actual processing happen
   c.Process( "tfwliteselectortest::ThingsTSelector2" );
