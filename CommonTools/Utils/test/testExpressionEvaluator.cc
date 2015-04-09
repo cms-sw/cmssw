@@ -9,7 +9,6 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "Cintex/Cintex.h"
 
 
 class testExpressionEvaluator : public CppUnit::TestFixture {
