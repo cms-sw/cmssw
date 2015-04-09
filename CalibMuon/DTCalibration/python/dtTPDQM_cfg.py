@@ -15,7 +15,7 @@ process.MessageLogger.cerr =  cms.untracked.PSet(
 )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ""
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")

@@ -6,7 +6,7 @@ process.load("CalibMuon.DTCalibration.messageLoggerDebug_cff")
 process.MessageLogger.debugModules = cms.untracked.vstring('dtT0WireInChamberReferenceCorrection')
 
 #process.load("Configuration.StandardSequences.Geometry_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 #process.GlobalTag.globaltag = ''
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")

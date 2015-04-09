@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = "GR10_P_V5::All"
 #process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 
