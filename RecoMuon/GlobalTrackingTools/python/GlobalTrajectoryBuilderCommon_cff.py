@@ -60,6 +60,8 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         TrackerSkipSystem	= cms.int32(-1),
         
         # layer, wheel, or disk depending on the system
-        TrackerSkipSection	= cms.int32(-1)
+        TrackerSkipSection	= cms.int32(-1),
+
+	RefitFlag = cms.bool(True)
         ),
 )
