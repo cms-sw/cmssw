@@ -3,6 +3,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CLHEP/Random/RandGauss.h"
+
 /**
    @class HGCFEElectronics
    @short models the behavior of the front-end electronics
@@ -23,12 +25,12 @@ class HGCFEElectronics
   /**
      @short switches according to the firmware version
    */
-  inline void runShaper(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa)
+  inline void runShaper(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::RandGauss* reso)
   {
     switch(fwVersion_)
       {
       case SIMPLE :  { runSimpleShaper(dataFrame,chargeColl);      break; }
-      case WITHTOT : { runShaperWithToT(dataFrame,chargeColl,toa); break; }
+      case WITHTOT : { runShaperWithToT(dataFrame,chargeColl,toa,reso); break; }
       default :      { runTrivialShaper(dataFrame,chargeColl);     break; }
       }
   }
@@ -55,7 +57,7 @@ class HGCFEElectronics
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
    */
-  void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa);
+  void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa,CLHEP::RandGauss* reso);
   
   /**
      @short DTOR
@@ -67,7 +69,8 @@ class HGCFEElectronics
   //private members
   uint32_t fwVersion_;
   std::vector<double> adcPulse_,tdcChargeDrainParameterisation_;
-  float adcLSB_fC_, tdcLSB_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_; 
+  float adcLSB_fC_, tdcLSB_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
+  
 };
 
 //#include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
