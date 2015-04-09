@@ -5,7 +5,7 @@
 // Created 21/11/2012 - C. Battilana
 // 
 //
-// Original code : L1TriggerDPG/L1Ntuples/L1RecoMuonProducer - Luigi Guiducci
+// Original code : L1Trigger/L1TNtuples/L1RecoMuonProducer - Luigi Guiducci
 //-------------------------------------------------------------------------------
 
 #include <vector>

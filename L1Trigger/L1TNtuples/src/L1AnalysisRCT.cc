@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRCT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRCT.h"
 
 // need of maxRCTREG ??
 

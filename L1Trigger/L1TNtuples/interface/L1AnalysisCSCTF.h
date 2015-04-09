@@ -5,7 +5,7 @@
 // Created 08/03/2010 - A.-C. Le Bihan
 //
 //x
-// Original code : L1TriggerDPG/L1Ntuples/L1NtupleProducer -  Gian Piero Di Giovanni
+// Original code : L1Trigger/L1TNtuples/L1NtupleProducer -  Gian Piero Di Giovanni
 //-------------------------------------------------------------------------------
 
 

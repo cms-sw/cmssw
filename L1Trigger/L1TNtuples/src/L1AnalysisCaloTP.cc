@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisCaloTP.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisCaloTP.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"

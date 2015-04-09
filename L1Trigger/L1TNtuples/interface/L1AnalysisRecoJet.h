@@ -5,7 +5,7 @@
 // Created 05/03/2010 - A.C. Le Bihan
 // 
 //
-// Original code : L1TriggerDPG/L1Ntuples/L1RecoJetNtupleProducer - Jim Brooke
+// Original code : L1Trigger/L1TNtuples/L1RecoJetNtupleProducer - Jim Brooke
 //-------------------------------------------------------------------------------
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"

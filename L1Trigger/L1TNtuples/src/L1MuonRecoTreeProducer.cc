@@ -1,6 +1,6 @@
-// -*- C++ -*- // // Package: UserCode/L1TriggerDPG // Class: L1MuonRecoTreeProducer // /**\class L1MuonRecoTreeProducer L1MuonRecoTreeProducer.cc 
+// -*- C++ -*- // // Package: UserCode/L1Trigger // Class: L1MuonRecoTreeProducer // /**\class L1MuonRecoTreeProducer L1MuonRecoTreeProducer.cc 
 /*
-UserCode/L1TriggerDPG/src/L1MuonRecoTreeProducer.cc
+UserCode/L1Trigger/src/L1MuonRecoTreeProducer.cc
 
  Description: Produce Muon Reco tree
 
@@ -70,8 +70,8 @@ UserCode/L1TriggerDPG/src/L1MuonRecoTreeProducer.cc
 #include "TF1.h"
 #include "TMath.h"
 
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMuon.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoRpcHit.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoRpcHit.h"
 
 // GP
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"

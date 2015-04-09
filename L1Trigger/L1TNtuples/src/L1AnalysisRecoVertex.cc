@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoVertex.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertex.h"
 
 
 void L1Analysis::L1AnalysisRecoVertex::SetVertices(const edm::Handle<reco::VertexCollection> vertices, unsigned maxVtx)

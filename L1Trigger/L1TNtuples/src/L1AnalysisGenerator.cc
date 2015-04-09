@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGenerator.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGenerator.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenParticle.h"

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1TriggerDPG/L1Ntuples
+// Package:    L1Trigger/L1TNtuples
 // Class:      L1RecoTreeProducer
 //
-/**\class L1RecoTreeProducer L1RecoTreeProducer.cc L1TriggerDPG/L1Ntuples/src/L1RecoTreeProducer.cc
+/**\class L1RecoTreeProducer L1RecoTreeProducer.cc L1Trigger/L1TNtuples/src/L1RecoTreeProducer.cc
 
  Description: Produces tree containing reco quantities
         Merging of former L1JetRecoTree & L1EgammaRecoTree analyzers (Jim Brooke)
@@ -63,11 +63,11 @@
 #include "TF1.h"
 
 //local  data formats
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoJet.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMet.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoCluster.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoVertex.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoTrack.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoJet.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMet.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoCluster.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertex.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoTrack.h"
 
 //
 // class declaration

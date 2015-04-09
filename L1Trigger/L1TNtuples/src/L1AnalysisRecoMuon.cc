@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMuon.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon.h"
 
 L1Analysis::L1AnalysisRecoMuon::L1AnalysisRecoMuon() 
 {

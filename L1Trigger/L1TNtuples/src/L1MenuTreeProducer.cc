@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1TriggerDPG/L1Ntuples
+// Package:    L1Trigger/L1TNtuples
 // Class:      L1ExtraTreeProducer
 // 
-/**\class L1ExtraTreeProducer L1ExtraTreeProducer.cc L1TriggerDPG/L1Ntuples/src/L1ExtraTreeProducer.cc
+/**\class L1ExtraTreeProducer L1ExtraTreeProducer.cc L1Trigger/L1TNtuples/src/L1ExtraTreeProducer.cc
 
 Description: Produce L1 Extra tree
 
@@ -37,7 +37,7 @@ Implementation:
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
 
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisL1Menu.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1Menu.h"
 
 //
 // class declaration

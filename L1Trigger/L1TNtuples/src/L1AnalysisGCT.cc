@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGCT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGCT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1Analysis::L1AnalysisGCT::L1AnalysisGCT():verbose_(false)

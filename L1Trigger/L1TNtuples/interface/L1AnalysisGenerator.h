@@ -5,10 +5,10 @@
 // Created 06/01/2010 - A.C. Le Bihan
 // 
 // 
-// Original code : L1TriggerDPG/L1Ntuples/L1NtupleProducer
+// Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 #include "FWCore/Framework/interface/Event.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGeneratorDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGeneratorDataFormat.h"
 
 namespace L1Analysis
 {

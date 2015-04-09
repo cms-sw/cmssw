@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisEvent.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisEvent.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

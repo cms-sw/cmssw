@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisL1Menu.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1Menu.h"
 #include <vector>
 
 void L1Analysis::L1AnalysisL1Menu::SetPrescaleFactorIndex(L1GtUtils & l1GtUtils_, const edm::Event& iEvent)

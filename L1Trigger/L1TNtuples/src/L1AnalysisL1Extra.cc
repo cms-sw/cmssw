@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisL1Extra.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1Extra.h"
 
 L1Analysis::L1AnalysisL1Extra::L1AnalysisL1Extra()
 {

@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoJet.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoJet.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 

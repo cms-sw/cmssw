@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoRpcHit.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoRpcHit.h"
 
 L1Analysis::L1AnalysisRecoRpcHit::L1AnalysisRecoRpcHit() 
 {

@@ -5,7 +5,7 @@
 // Created 15/04/2010 - E. Conte, A.C. Le Bihan
 // 
 //
-// Original code : L1TriggerDPG/L1Ntuples/L1TrackVertexRecoTreeProducer - Jim Brooke
+// Original code : L1Trigger/L1TNtuples/L1TrackVertexRecoTreeProducer - Jim Brooke
 //-------------------------------------------------------------------------------
 
 #include <vector>

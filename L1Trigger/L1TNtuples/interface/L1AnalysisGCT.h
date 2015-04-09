@@ -5,7 +5,7 @@
 // Created 06/01/2010 - A.C. Le Bihan
 // 
 // 
-// Original code : L1TriggerDPG/L1Ntuples/L1NtupleProducer
+// Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"

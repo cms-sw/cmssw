@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGMT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGMT.h"
 
 
 L1Analysis::L1AnalysisGMT::L1AnalysisGMT()

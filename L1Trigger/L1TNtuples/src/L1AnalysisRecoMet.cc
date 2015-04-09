@@ -1,4 +1,4 @@
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMet.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMet.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include <TVector2.h>

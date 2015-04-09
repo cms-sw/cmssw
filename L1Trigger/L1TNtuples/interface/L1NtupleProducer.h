@@ -43,16 +43,16 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisEvent.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGMT.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGT.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGCT.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRCT.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisDTTF.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisCSCTF.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisCaloTP.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGenerator.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisSimulation.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisEvent.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGMT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGCT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRCT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisDTTF.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisCSCTF.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisCaloTP.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGenerator.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisSimulation.h"
 
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"

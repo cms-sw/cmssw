@@ -1,5 +1,5 @@
 #include "stdint.h"
-#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisGT.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisGT.h"
 #include "stdint.h"
 
 

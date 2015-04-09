@@ -5,7 +5,7 @@
 // Created 02/03/2010 - A.C. Le Bihan
 // 
 // 
-// Original code : L1TriggerDPG/L1Ntuples/L1ExtraTreeProducer - Jim Brooke
+// Original code : L1Trigger/L1TNtuples/L1ExtraTreeProducer - Jim Brooke
 //-------------------------------------------------------------------------------
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"

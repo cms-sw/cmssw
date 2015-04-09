@@ -5,7 +5,7 @@
 // Created 20/04/2010 - E. Conte, A.C. Le Bihan
 // 
 //
-// Original code : L1TriggerDPG/L1Ntuples/L1RecoMuonDataFormatProducer - Luigi Guiducci
+// Original code : L1Trigger/L1TNtuples/L1RecoMuonDataFormatProducer - Luigi Guiducci
 //-------------------------------------------------------------------------------
 
 #include <vector>

@@ -5,7 +5,7 @@
 // Created 05/02/2010 - A.C. Le Bihan
 // 
 //
-// Original code : L1TriggerDPG/L1Ntuples/L1RecoMuonProducer - Luigi Guiducci
+// Original code : L1Trigger/L1TNtuples/L1RecoMuonProducer - Luigi Guiducci
 //-------------------------------------------------------------------------------
 
 #include "FWCore/Framework/interface/Event.h"
