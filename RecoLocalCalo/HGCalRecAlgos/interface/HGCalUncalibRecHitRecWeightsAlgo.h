@@ -61,21 +61,17 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
         } else { // false means we are ADC only mode
           if( sample.threshold() && iSample == 2 ) {            
             energy += double(sample.data()) * adcLSBInfC_ / fCToMIP_;
-            std::cout << "ADC: set the energy to: " << energy << ' ' << sample.data() 
-                      << ' ' << adcLSBInfC_ << ' ' << fCToMIP_ << std::endl;
           }
         }              
       } else { // use adcToMIP value
         if( sample.threshold() && iSample == 2 ) {  
           energy += double(sample.data()) * adcToMIP_;
-          std::cout << "ADC simple: set the energy to: " << energy << ' ' << sample.data() 
-                    << ' ' << adcToMIP_ << std::endl;
         }
       }
     }
     
     amplitude_ = energy; // fast-track simhits propagation
-    std::cout << "set the amplitude to : " << amplitude_ << std::endl;
+    //std::cout << "set the amplitude to : " << amplitude_ << std::endl;
     
     return HGCUncalibratedRecHit( dataFrame.id(), amplitude_, 
                                   pedestal_, jitter_, chi2_, flag);

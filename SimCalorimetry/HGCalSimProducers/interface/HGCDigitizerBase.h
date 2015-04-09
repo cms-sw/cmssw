@@ -51,6 +51,7 @@ class HGCDigitizerBase {
   void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
   {       
     simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,mipInKeV_/mip2noise_ );
+    tdcNoiseGen_ = new CLHEP::RandGauss(engine);
   }
   
   /**
@@ -95,7 +96,7 @@ class HGCDigitizerBase {
 	
 	//run the shaper to create a new data frame
 	D rawDataFrame( it->first );
-	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa);
+	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa,tdcNoiseGen_);
 	
 	//update the output according to the final shape
 	updateOutput(coll,rawDataFrame);
@@ -146,7 +147,7 @@ class HGCDigitizerBase {
   edm::ParameterSet myCfg_;
 
   //a simple noise generator
-  mutable CLHEP::RandGauss *simpleNoiseGen_;
+  mutable CLHEP::RandGauss *simpleNoiseGen_, *tdcNoiseGen_;
   
   //parameters for the trivial digitization scheme
   double mipInKeV_, mipInfC_,  mip2noise_;
