@@ -221,6 +221,8 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* deltaPhiPhoMET_photon80;
         MonitorElement* diPhotonMass_HT250;
         MonitorElement* diPhotonMass_MET100;
+        MonitorElement* MR_Rsq0p02Diphoton;
+        MonitorElement* Rsq_MR100Diphoton;
 
         //Hadronic -- histograms exclude events with selected leptons
         MonitorElement* leadingJetPt_pT80;
@@ -384,6 +386,8 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     booker.setCurrentFolder("Physics/Susy/DiPhoton");
     diPhotonMass_HT250 = booker.book1D("diPhotonMass_HT250", "Diphoton mass, HT > 250 (GeV); mass (GeV)", 50, 0., 500);
     diPhotonMass_MET100 = booker.book1D("diPhotonMass_MET100", "Diphoton mass, MET > 100 (GeV); mass (GeV)", 50, 0., 500);
+    MR_Rsq0p02Diphoton = booker.book1D("MR_diphoton", "MR in diphoton events (GeV); MR (GeV)", 50, 0., 800);
+    Rsq_MR100Diphoton = booker.book1D("Rsq_diphoton", "R^{2} in diphoton events (GeV); R^{2}", 50, 0., 0.6);
 
     //book jet histograms
     booker.setCurrentFolder("Physics/Susy/Hadronic");
@@ -938,13 +942,33 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillPhotonic(const edm::Event& evt) {
         
         if(HT > 250) diPhotonMass_HT250->Fill(invMass);
         if(MET > 100) diPhotonMass_MET100->Fill(invMass);
+        
+        if(goodJets.size() > 0){
+            //compute razor variables
+
+            vector<math::XYZTLorentzVector> goodJetsP4;
+            //jets as XYZTLorentzVectors
+            for(uint j = 0; j < goodJets.size(); j++) goodJetsP4.push_back(math::XYZTLorentzVector(goodJets[j]->px(), goodJets[j]->py(), goodJets[j]->pz(), goodJets[j]->energy()));
+            //add the diphoton system to the hemispheres
+            goodJetsP4.push_back(math::XYZTLorentzVector(goodPhotons[0]->px()+goodPhotons[1]->px(), goodPhotons[0]->py()+goodPhotons[1]->py(), goodPhotons[0]->pz()+goodPhotons[1]->pz(), goodPhotons[0]->energy()+goodPhotons[1]->energy()));
+            //partition the jets and photons into hemispheres for razor calculation
+            vector<math::XYZTLorentzVector> hemispheresRazor = createHemispheresRazor(goodJetsP4);
+            //switch to TLorentzVectors for compatibility with razor variable computation
+            TLorentzVector ja(hemispheresRazor[0].x(),hemispheresRazor[0].y(),hemispheresRazor[0].z(),hemispheresRazor[0].t());
+            TLorentzVector jb(hemispheresRazor[1].x(),hemispheresRazor[1].y(),hemispheresRazor[1].z(),hemispheresRazor[1].t());
+
+            double MR = calcMR(ja, jb);
+            double Rsq = calcRsq(MR, ja, jb, met);
+            if(Rsq > 0.02) MR_Rsq0p02Diphoton->Fill(MR);
+            if(MR > 100) Rsq_MR100Diphoton->Fill(Rsq);
+        }
     }
 }
 
-//fill hadronic histograms
-template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
-void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillHadronic(const edm::Event& evt) {
-    if(goodMuons.size() > 0 || goodElectrons.size() > 0) return; //consider all-hadronic events only
+    //fill hadronic histograms
+    template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
+        void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillHadronic(const edm::Event& evt) {
+            if(goodMuons.size() > 0 || goodElectrons.size() > 0) return; //consider all-hadronic events only
 
     //compute HT, MHT and MET, and minDeltaPhi
     double MET = met->front().pt();
