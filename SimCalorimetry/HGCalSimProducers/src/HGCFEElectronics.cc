@@ -1,12 +1,16 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
+
+
 using namespace std;
 
 //
 template<class D>
 HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
 {
+  tdcResolutionInNs_ = 1e-9; // set time resolution very small by default
+
   fwVersion_                      = ps.getParameter< uint32_t >("fwVersion");
   std::cout << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
   if( ps.exists("adcPulse") )                       adcPulse_                       = ps.getParameter< std::vector<double> >("adcPulse");
@@ -28,6 +32,7 @@ HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
   if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
   if( ps.exists("tdcChargeDrainParameterisation") ) tdcChargeDrainParameterisation_ = ps.getParameter< std::vector<double> >("tdcChargeDrainParameterisation");
+  if( ps.exists("tdcResolutionInPs") )              tdcResolutionInNs_              = ps.getParameter<double>("tdcResolutionInPs")*1e-3; // convert to ns
 }
 
 
@@ -94,12 +99,12 @@ void HGCFEElectronics<D>::runSimpleShaper(D &dataFrame,std::vector<float> &charg
 
 //
 template<class D>
-void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl)
+void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl, CLHEP::RandGauss* tdcReso)
 {
   std::vector<bool>  busyFlags(chargeColl.size(),false),totFlags(chargeColl.size(),false);
   std::vector<float> newCharge(chargeColl.size(),0);
   std::vector<float> toaFromToT(chargeColl.size(),0);
-
+  
   //first identify bunches which will trigger ToT
   bool debug(false);
   for(int it=0; it<(int)(chargeColl.size()); it++)
@@ -194,7 +199,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  finalToA /= totalCharge;
 	}
 
-      toaFromToT[it] = finalToA;
+      toaFromToT[it] = tdcReso->fire(finalToA,tdcResolutionInNs_);
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
 
       if(debug) std::cout << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
