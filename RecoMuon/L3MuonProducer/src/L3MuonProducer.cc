@@ -171,6 +171,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.addUntracked<bool>("PutTkTrackIntoEvent", false);
+    psd0.add<std::string>("TTRHBuilder", "hltESPTTRHBWithTrackAngle");
     psd0.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
     psd0.addUntracked<bool>("SmoothTkTrack", false);
     psd0.addUntracked<std::string>("MuonSeededTracksInstance", "L2Seeded");
