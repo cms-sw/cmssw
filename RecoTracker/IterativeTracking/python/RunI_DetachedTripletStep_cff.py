@@ -58,7 +58,8 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 detachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('detachedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(9.0),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
 )
 
 # TRACK BUILDING
@@ -184,7 +185,8 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             d0_par2 = ( 1.0, 4.0 ),
             dz_par2 = ( 1.0, 4.0 )
             )
-        ) #end of vpset
+        ),
+    vertices = cms.InputTag("pixelVertices") #end of vpset
     ) #end of clone
 
 
