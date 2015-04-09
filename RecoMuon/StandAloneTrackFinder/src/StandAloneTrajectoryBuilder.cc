@@ -8,6 +8,7 @@
  *  \author D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  *  
  *  Modified by C. Calabria
+ *  Modified by D. Nash
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
@@ -236,16 +237,18 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     LogTrace(metname) << "Total compatible chambers: " << filter()->getTotalCompatibleChambers() << ";  DT: " 
 		      << filter()->getDTCompatibleChambers() << ";  CSC: " << filter()->getCSCCompatibleChambers() 
 		      << ";  RPC: " << filter()->getRPCCompatibleChambers()
-		      << ";  GEM: " << filter()->getGEMCompatibleChambers() << endl;
+		      << ";  GEM: " << filter()->getGEMCompatibleChambers()
+		      << ";  ME0: " << filter()->getME0CompatibleChambers() << endl;
     return trajectoryContainer; 
   }
   // -- end 2nd attempt
 
-  LogTrace(metname) << "Number of DT/CSC/RPC/GEM chamber used (fw): " 
+  LogTrace(metname) << "Number of DT/CSC/RPC/GEM/ME0 chamber used (fw): " 
        << filter()->getDTChamberUsed() << "/"
        << filter()->getCSCChamberUsed() << "/"
        << filter()->getRPCChamberUsed() << "/"
-       << filter()->getGEMChamberUsed() <<endl;
+       << filter()->getGEMChamberUsed() << "/"
+       << filter()->getME0ChamberUsed() <<endl;
   LogTrace(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
 
@@ -313,11 +316,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   LogTrace(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
-    << "Number of DT/CSC/RPC/GEM chamber used (bw): " 
+    << "Number of DT/CSC/RPC/GEM/ME0 chamber used (bw): " 
     << bwfilter()->getDTChamberUsed() << "/"
     << bwfilter()->getCSCChamberUsed() << "/" 
     << bwfilter()->getRPCChamberUsed() << "/"
-    << bwfilter()->getGEMChamberUsed();
+    << bwfilter()->getGEMChamberUsed() << "/"
+    << bwfilter()->getME0ChamberUsed();
   
   // -- The trajectory is "good" if there are at least 2 chambers used in total and at
   //    least 1 is "tracking" (DT or CSC)
@@ -368,7 +372,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   // 2nd attempt
   if( bwfilter()->goodState() ) {
-    LogTrace(metname) << debug.dumpLayer( bwfilter()->lastDetLayer() );
+    LogTrace(metname) << "Compatibility satisfied, everything worked perfectly:"
+		      << debug.dumpLayer( bwfilter()->lastDetLayer() );
   }
   else if( bwfilter()->isCompatibilitySatisfied() ) {
     LogTrace(metname) << "Compatibility satisfied after Backward filter, but too few valid RecHits ("

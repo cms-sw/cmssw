@@ -10,6 +10,7 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *
  *  Modified by C. Calabria
+ *  Modified by D. Nash
  */
 
 // Class Header
@@ -47,11 +48,13 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
 	theRPCLayer = par.getParameter<bool>("RPCLayers");
 	theCSCLayer = par.getUntrackedParameter<bool>("CSCLayers",true);
 	theGEMLayer = par.getUntrackedParameter<bool>("GEMLayers",false);
+	theME0Layer = par.getUntrackedParameter<bool>("ME0Layers",false);
   }
   else {
   	theRPCLayer = true;
   	theCSCLayer = true;
   	theGEMLayer = true;
+  	theME0Layer = true;
   }
 
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
@@ -119,7 +122,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
     if ( theMuonNavigationFlag ) {
       if(theSchool) delete theSchool;
-      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer,theCSCLayer,theGEMLayer);
+      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer,theCSCLayer,theGEMLayer,theME0Layer);
     }
   }
   

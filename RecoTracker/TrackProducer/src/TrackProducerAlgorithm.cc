@@ -29,6 +29,9 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
+
+//To Remove:
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 namespace {
 #ifdef STAT_TSB
   struct StatCount {
@@ -88,6 +91,17 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   reco::Track * theTrack;
   Trajectory * theTraj; 
   PropagationDirection seedDir = seed.direction();
+
+  //Temporarily adding debug output to understand:
+
+  for(auto ihit = hits.begin(); ihit != hits.end(); ++ihit) {
+
+    const TransientTrackingRecHit & hit = (**ihit);
+    DetId hitId = hit.geographicalId();
+    if(hitId.det() == DetId::Muon) {
+      if (hitId.subdetId() == MuonSubdetId::ME0 )  LogTrace("TrackFitters") << " I am ME0, in TrackProducerAlgorithm: " << ME0DetId(hitId);
+    }
+  }
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
@@ -198,6 +212,18 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   if unlikely(!trajTmp.isValid()) return false;
   
   
+
+  //Temporarily adding debug output to understand:
+
+  for(auto ihit = hits.begin(); ihit != hits.end(); ++ihit) {
+
+    const TransientTrackingRecHit & hit = (**ihit);
+    DetId hitId = hit.geographicalId();
+    if(hitId.det() == DetId::Muon) {
+      if (hitId.subdetId() == MuonSubdetId::ME0 )  LogTrace("TrackFitters") << " I am ME0, in TrackProducerAlgorithm: " << ME0DetId(hitId);
+    }
+  }
+      
   theTraj = new Trajectory( std::move(trajTmp) );
   theTraj->setSeedRef(seedRef);
   

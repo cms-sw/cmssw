@@ -3,6 +3,7 @@
  *
  *  \author C. Liu, R. Bellan, N. Amapane
  *  \modified by C. Calabria to include GEMs
+ *  \modified by D. Nash to include ME0s
  *
  */
 
@@ -26,23 +27,28 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
 						   edm::InputTag csclabel, 
 						   edm::InputTag rpclabel,
 						   edm::InputTag gemlabel,
-						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM): 
+						   edm::InputTag me0label,
+						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0): 
   theDTRecHitLabel(dtlabel),
   theCSCRecHitLabel(csclabel),
   theRPCRecHitLabel(rpclabel),
   theGEMRecHitLabel(gemlabel),
+  theME0RecHitLabel(me0label),
   enableDTMeasurement(enableDT),
   enableCSCMeasurement(enableCSC),
   enableRPCMeasurement(enableRPC),
   enableGEMMeasurement(enableGEM),
+  enableME0Measurement(enableME0),
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
   theGEMRecHits(),
+  theME0RecHits(),
   theDTEventID(),
   theCSCEventID(),
   theRPCEventID(),
   theGEMEventID(),
+  theME0EventID(),
   theEvent(0){
 	  static int procInstance(0);
 	  std::ostringstream sDT;
@@ -57,6 +63,9 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
 	  std::ostringstream sGEM;
 	  sGEM<<"MuonDetLayerMeasurements::checkGEMRecHits::" << procInstance;
 	  theGEMCheckName = sGEM.str();
+	  std::ostringstream sME0;
+	  sME0<<"MuonDetLayerMeasurements::checkME0RecHits::" << procInstance;
+	  theME0CheckName = sME0.str();
 	  procInstance++;
   }
 
@@ -69,6 +78,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
   theEvent = &iEvent;
   MuonRecHitContainer result;
 
+  //LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "About to check subdets"<<std::endl;
   if (geoId.subdetId()  == MuonSubdetId::DT) {
     if(enableDTMeasurement) 
     {
@@ -99,11 +109,12 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
       // Get the CSC-Segment which relies on this chamber
       CSCSegmentCollection::range range = theCSCRecHits->get(chamberId);
-    
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of CSC rechits available =  " << theCSCRecHits->size()<<std::endl;
       // Create the MuonTransientTrackingRecHit
       for (CSCSegmentCollection::const_iterator rechit = range.first; 
            rechit!=range.second; ++rechit)
         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit)); 
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of CSC rechits = " << result.size()<<std::endl;
     }
   }
   
@@ -141,6 +152,33 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
       for (GEMRecHitCollection::const_iterator rechit = range.first; 
            rechit!=range.second; ++rechit)
         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+    }
+  }
+  else if (geoId.subdetId()  == MuonSubdetId::ME0) {
+    if(enableME0Measurement)
+    {
+      checkME0RecHits(); 
+
+      // Create the chamber Id
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "raw id: "<<geoId.rawId()<<std::endl;
+      ME0DetId chamberId(geoId.rawId());
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): "<<chamberId<<std::endl;
+    
+      // Get the ME0-Segment which relies on this chamber
+      // Getting rechits right now, not segments - maybe it should be segments?
+      //ME0RecHitCollection::range range = theME0RecHits->get(chamberId);
+      ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
+
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()<<std::endl;
+
+      // Create the MuonTransientTrackingRecHit
+      // for (ME0RecHitCollection::const_iterator rechit = range.first; 
+      //      rechit!=range.second; ++rechit)
+      //   result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+      for (ME0SegmentCollection::const_iterator rechit = range.first; 
+	   rechit!=range.second; ++rechit)
+	result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits = " << result.size()<<std::endl;
     }
   }
   else {
@@ -215,6 +253,23 @@ void MuonDetLayerMeasurements::checkGEMRecHits()
 }
 
 
+void MuonDetLayerMeasurements::checkME0RecHits()
+{
+  checkEvent();
+  if (!edm::Service<UpdaterService>()->checkOnce(theME0CheckName)) return;
+
+  {
+    theME0EventID = theEvent->id();
+    theEvent->getByLabel(theME0RecHitLabel, theME0RecHits);
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "ME0RecHitLabel =  " << theME0RecHitLabel<<std::endl;
+  }
+  if(!theME0RecHits.isValid())
+  {
+    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
+  }
+}
+
+
 ///measurements method if already got the Event 
 MeasurementContainer
 MuonDetLayerMeasurements::measurements( const DetLayer* layer,
@@ -263,6 +318,14 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
   
   // Get the Segments which relies on the GeomDet given by compatibleDets
   MuonRecHitContainer muonRecHits = recHits(det, iEvent);
+
+  DetId geoId = det->geographicalId();
+  if (geoId.subdetId()  == MuonSubdetId::ME0) {
+    if(enableME0Measurement) {
+      ME0DetId chamberId(geoId.rawId());
+      LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "ME0 Chamber ID in measurements: "<<chamberId<<std::endl;
+    }
+  }
   
   // Create the Trajectory Measurement
   for(MuonRecHitContainer::const_iterator rechit = muonRecHits.begin();

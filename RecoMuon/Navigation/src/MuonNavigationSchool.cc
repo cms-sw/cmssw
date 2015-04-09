@@ -17,6 +17,9 @@
  *
  * Cesare Calabria:
  * GEMs implementation.
+
+ * David Nash:
+ * ME0s implementation.
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
@@ -39,7 +42,7 @@
 using namespace std;
 
 /// Constructor
-MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC, bool enableCSC, bool enableGEM ) : theMuonDetLayerGeometry(muonLayout) {
+MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC, bool enableCSC, bool enableGEM, bool enableME0 ) : theMuonDetLayerGeometry(muonLayout) {
 
   theAllDetLayersInSystem=&muonLayout->allLayers(); 
 
@@ -54,12 +57,14 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
     addBarrelLayer(mbp);
   }
 
-  // get all endcap DetLayers (CSC + optional RPC, GEM)
+  // get all endcap DetLayers (CSC + optional RPC, GEM, ME0)
   vector<DetLayer*> endcap;
-  if ( enableCSC & enableGEM & enableRPC ) endcap = muonLayout->allEndcapLayers(); //CSC + RPC + GEM 
-  else if ( enableCSC & enableGEM & !enableRPC ) endcap = muonLayout->allEndcapCscGemLayers(); // CSC + GEM
-  else if ( !enableCSC & enableGEM & !enableRPC ) endcap = muonLayout->allGEMLayers(); //GEM only
-  else if ( enableCSC & !enableGEM & !enableRPC ) endcap = muonLayout->allCSCLayers(); //CSC only
+  if ( enableCSC & enableGEM & enableRPC & enableME0) endcap = muonLayout->allEndcapLayers(); //CSC + RPC + GEM +ME0
+  else if ( enableCSC & enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allEndcapCscGemLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allCSCLayers(); //CSC only
+  else if ( enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allEndcapCscME0Layers(); // CSC + ME0
+  else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allME0Layers(); // ME0 only
   else endcap = muonLayout->allCSCLayers(); //CSC only for all the remaining cases
 
   for ( vector<DetLayer*>::const_iterator i = endcap.begin(); i != endcap.end(); i++ ) {
