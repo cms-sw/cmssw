@@ -74,13 +74,50 @@ def get_PileUpSimulatorPSet_PileUpProducer(_input):
     return PileUpSimulator
 
 
+def digitizersFull2Fast(digitizers):
+
+    # fastsim does not simulate castor
+    if hasattr(digitizers,"castor"):
+        delattr(digitizers,"castor")
+    else:
+        print "WARNING: digitizers has no attribute 'castor'"
+        
+    # fastsim does not digitize pixel and strip hits, it mixes tracks
+    if hasattr(digitizers,"pixel") and hasattr(digitizers,"strip"):
+        delattr(digitizers,"pixel")
+        delattr(digitizers,"strip")
+        import FastSimulation.Tracking.recoTrackAccumulator_cfi
+        digitizers.tracker = cms.PSet(FastSimulation.Tracking.recoTrackAccumulator_cfi.recoTrackAccumulator)
+    else:
+        print "WARNING: digitizers has no attribute 'pixel' and/or 'strip'"
+        print "       : => not mixing tracks"
+
+    # fastsim has its own names for simhit collections
+    for element in ["ecal","hcal"]:
+        if hasattr(digitizers,element):
+            getattr(digitizers,element).hitsProducer = "famosSimHits"
+        else:
+            print "WARNING: digitizers has no attribute '{0}'".format(element)
+            
+    # fastsim has different input for merged truth
+    if hasattr(digitizers,"mergedtruth"):
+        digitizers.mergedtruth.allowDifferentSimHitProcesses = True
+        digitizers.mergedtruth.simHitCollections = cms.PSet(
+            muon = cms.VInputTag( cms.InputTag('MuonSimHits','MuonDTHits'),
+                                  cms.InputTag('MuonSimHits','MuonCSCHits'),
+                                  cms.InputTag('MuonSimHits','MuonRPCHits') ),
+            trackerAndPixel = cms.VInputTag( cms.InputTag('famosSimHits','TrackerHits') )
+            )
+        digitizers.mergedtruth.simTrackCollection = cms.InputTag('famosSimHits')
+        digitizers.mergedtruth.simVertexCollection = cms.InputTag('famosSimHits')
+
+    return digitizers
+
+
 def prepareGenMixing(process):
     
     # prepare digitizers and mixObjects for Gen-mixing
     process = prepareDigiRecoMixing(process)
-
-    # for reasons of simplicity track mixing is not switched off,
-    # although it has no effect in case of Gen-mixing
 
     # OOT PU not supported for Gen-mixing: disable it
     process.mix.maxBunch = cms.int32(0)
@@ -112,8 +149,8 @@ def prepareGenMixing(process):
     del process.mix.input
 
     # Insert the PileUpProducer in the simulation sequence
-    pos = process.simulationSequence.index(process.famosSimHits)
-    process.simulationSequence.insert(pos,process.famosPileUp)
+    pos = process.psim.index(process.famosSimHits)
+    process.psim.insert(pos,process.famosPileUp)
 
     # No track mixing when Gen-mixing
     del process.mix.digitizers.tracker
@@ -125,9 +162,36 @@ def prepareGenMixing(process):
 
     # Use generalTracks where DIGI-RECO mixing requires preMixTracks
     process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracks')
-    # it's not nice but gen-mixing will be depricated anyhow
     process.trackerDrivenElectronSeedsTmp.TkColList = cms.VInputTag(cms.InputTag("generalTracks"))
-    process.trackerDrivenElectronSeeds.oldTrackCollection = cms.InputTag('generalTracks')
+    process.trackerDrivenElectronSeeds.oldTrackCollection = "generalTracks"
+
+    # take care of the track aliases for HLT
+    
+    _parameters = {
+        "generalTracks":cms.VPSet( cms.PSet(type=cms.string('recoTracks')),
+                                   cms.PSet(type=cms.string('recoTrackExtras')),
+                                   cms.PSet(type=cms.string('TrackingRecHitsOwned')),
+                                   cms.PSet(type=cms.string('floatedmValueMap')))
+        }
+    process.hltIter4Merged = cms.EDAlias(**_parameters)
+    process.hltIter2Merged = cms.EDAlias(**_parameters)
+    process.hltIter4Tau3MuMerged = cms.EDAlias(**_parameters)
+    process.hltIter4MergedReg = cms.EDAlias(**_parameters)
+    process.hltIter2MergedForElectrons = cms.EDAlias(**_parameters)
+    process.hltIter2MergedForPhotons = cms.EDAlias(**_parameters)
+    process.hltIter2L3MuonMerged = cms.EDAlias(**_parameters)
+    process.hltIter2L3MuonMergedReg = cms.EDAlias(**_parameters)
+    process.hltIter2MergedForBTag = cms.EDAlias(**_parameters)
+    process.hltIter2MergedForTau = cms.EDAlias(**_parameters)
+    process.hltIter4MergedForTau = cms.EDAlias(**_parameters)
+    process.hltIter2GlbTrkMuonMerged = cms.EDAlias(**_parameters)
+    process.hltIter2HighPtTkMuMerged  = cms.EDAlias(**_parameters)
+    process.hltIter2HighPtTkMuIsoMerged  = cms.EDAlias(**_parameters)
+    process.hltIter2DisplacedJpsiMerged     = cms.EDAlias(**_parameters)
+    process.hltIter2DisplacedPsiPrimeMerged = cms.EDAlias(**_parameters)
+    process.hltIter2DisplacedNRMuMuMerged   = cms.EDAlias(**_parameters)
+    process.hltIter0PFlowTrackSelectionHighPurityForBTag = cms.EDAlias(**_parameters)
+    process.hltIter4MergedWithIter012DisplacedJets = cms.EDAlias(**_parameters)
 
     # PileUp info must be read from PileUpProducer, rather than from MixingModule
     process.addPileupInfo.PileupMixingLabel = cms.InputTag("famosPileUp")
@@ -137,35 +201,28 @@ def prepareGenMixing(process):
 def prepareDigiRecoMixing(process):
 
     # switch to FastSim digitizers
-    if hasattr(process,"theDigitizersValid"):
-        del process.theDigitizersValid
-    from FastSimulation.Configuration.digitizers_cfi import theDigitizersValid
-    process.mix.digitizers = theDigitizersValid
+    process.mix.digitizers = digitizersFull2Fast(process.mix.digitizers)
 
     # switch to FastSim mixObjects
-    if hasattr(process,"theMixObjects"):
-        del process.theMixObjects
-    from FastSimulation.Configuration.mixObjects_cfi import theMixObjects
-    process.mix.mixObjects = theMixObjects
+    import FastSimulation.Configuration.mixObjects_cfi
+    process.mix.mixObjects = FastSimulation.Configuration.mixObjects_cfi.theMixObjects
 
-    # get rid of FullSim specific EDAliases for collections from MixingModule
-    del process.simCastorDigis
-    del process.simSiPixelDigis
-    del process.simSiStripDigis
+    # fastsim does not simulate castor
+    # fastsim does not digitize pixel and strip hits
+    for element in ["simCastorDigis","simSiPixelDigis","simSiStripDigis"]:
+        if hasattr(process,element):
+            delattr(process,element)
     
-    # import the FastSim specific EDAliases for collections from MixingModule
-    from FastSimulation.Configuration.digitizers_cfi import generalTracks
-    process.generalTracks = generalTracks
-
     # get rid of some FullSim specific psets that work confusing when dumping FastSim cfgs 
     # (this is optional)
+    del process.theDigitizers
+    del process.theDigitizersValid    
     del process.trackingParticles
     del process.stripDigitizer
     del process.SiStripSimBlock
     del process.castorDigitizer
     del process.pixelDigitizer
     del process.ecalDigitizer
-    
     
     # get rid of FullSim specific services that work confusing when dumping FastSim cfgs
     # (this is optional)
