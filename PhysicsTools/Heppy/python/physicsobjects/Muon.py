@@ -1,6 +1,14 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 
 class Muon( Lepton ):
+    def __init__(self, *args, **kwargs):
+        super(Muon, self).__init__(*args, **kwargs)
+        self._trackForDxyDz = "muonBestTrack"
+
+    def setTrackForDxyDz(self,what):
+        if not hasattr(self,what):
+            raise RuntimeError, "I don't have a track called "+what
+        self._trackForDxyDz = what
 
     def looseId( self ):
         '''Loose ID as recommended by mu POG.'''
@@ -53,7 +61,11 @@ class Muon( Lepton ):
         '''
         if vertex is None:
             vertex = self.associatedVertex
-        return self.innerTrack().dxy( vertex.position() )
+        return getattr(self,self._trackForDxyDz)().dxy( vertex.position() )
+
+    def edxy(self):
+        '''returns the uncertainty on dxy (from gsf track)'''
+        return getattr(self,self._trackForDxyDz)().dxyError()
  
 
     def dz(self, vertex=None):
@@ -63,7 +75,11 @@ class Muon( Lepton ):
         '''
         if vertex is None:
             vertex = self.associatedVertex
-        return self.innerTrack().dz( vertex.position() )
+        return getattr(self,self._trackForDxyDz)().dz( vertex.position() )
+
+    def edz(self):
+        '''returns the uncertainty on dxz (from gsf track)'''
+        return getattr(self,self._trackForDxyDz)().dzError()
 
     def chargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumChargedHadronPt 

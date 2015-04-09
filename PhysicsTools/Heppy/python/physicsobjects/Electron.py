@@ -198,6 +198,11 @@ class Electron( Lepton ):
         if vertex is None:
             vertex = self.associatedVertex
         return self.gsfTrack().dxy( vertex.position() )
+
+    def edxy(self):
+        '''returns the uncertainty on dxy (from gsf track)'''
+        return self.gsfTrack().dxyError()
+
     def p4(self):
 	 return ROOT.reco.Candidate.p4(self.physObj)
 
@@ -212,6 +217,11 @@ class Electron( Lepton ):
         if vertex is None:
             vertex = self.associatedVertex
         return self.gsfTrack().dz( vertex.position() )
+
+    def edz(self):
+        '''returns the uncertainty on dxz (from gsf track)'''
+        return self.gsfTrack().dzError()
+
 
     def lostInner(self) :
         if hasattr(self.gsfTrack(),"trackerExpectedHitsInner") :
