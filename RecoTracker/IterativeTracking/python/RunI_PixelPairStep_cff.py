@@ -71,7 +71,7 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryFilter')),
-    maxCand = 3,
+    maxCand = 2,
     estimator = cms.string('pixelPairStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
