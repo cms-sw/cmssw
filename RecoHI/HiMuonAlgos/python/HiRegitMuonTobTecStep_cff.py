@@ -9,9 +9,10 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons"
 
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
 
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseFixedRegion = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.2
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.1
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed     = True
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed     = True
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaPhi      = 0.2
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaEta      = 0.1
 
 ###################################
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
@@ -45,7 +46,7 @@ hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet                                 
 hiRegitMuTobTecStepSeedsTripl.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
-hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 0.2 # this give you the length 
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuTobTecStepSeedsTripl.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuTobTecStepSeedLayersTripl'
 
@@ -54,7 +55,7 @@ hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet                                  
 hiRegitMuTobTecStepSeedsPair.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
-hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 0.2 # this give you the length 
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuTobTecStepSeedsPair.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuTobTecStepSeedLayersPair'
 
