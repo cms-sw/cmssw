@@ -22,6 +22,7 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = 100000
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -34,7 +35,8 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 initialStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('initialStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(30.0)
+    MaxChi2 = cms.double(30.0),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
 )
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -85,7 +87,8 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
             name = 'initialStep',
             preFilterName = 'initialStepTight',
             ),
-        ) #end of vpset
+        ), #end of vpset
+    vertices = cms.InputTag("pixelVertices")
     ) #end of clone
 
 # Final sequence
