@@ -44,15 +44,28 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsig
   }
 }
 
-  void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset) {
+void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset) {
 
-    EncodedEventId id(bcr,evtNr);
-    for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
+  EncodedEventId id(bcr,evtNr);
+  for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
+    {
       SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<SiTrackerGSMatchedRecHit2D*>(&(*it));
+      std::cout << rechit << std::endl;
       if(rechit){
 	rechit->setEeId(id.rawId());
+	continue;
+      }
+    }
+    {
+      SiTrackerGSRecHit2D * rechit = dynamic_cast<SiTrackerGSRecHit2D*>(&(*it));
+      std::cout << rechit << std::endl;
+      if(rechit){
+	rechit->setEeId(id.rawId());
+	continue;
       }
     }
   }
+}
+
 } // end namespace detail
 } // end namespace edm                   
