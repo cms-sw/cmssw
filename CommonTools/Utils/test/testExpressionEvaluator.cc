@@ -18,7 +18,7 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testExpressionEvaluator() {ROOT::Cintex::Cintex::Enable();} // for crappy pats
+  testExpressionEvaluator() {} // for crappy pats
   ~testExpressionEvaluator(){}
   void checkAll(); 
 
