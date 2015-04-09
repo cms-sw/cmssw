@@ -271,7 +271,7 @@ def initCrabEnvironment():
 
     #print sys.path
 
-    os.environ['LD_LIBRARY_PATH'] = os.environ['GLITE_LOCATION'] + '/lib' + ':' + os.environ['LD_LIBRARY_PATH']
+    #os.environ['LD_LIBRARY_PATH'] = os.environ['GLITE_LOCATION'] + '/lib' + ':' + os.environ['LD_LIBRARY_PATH']
     os.environ['VOMS_PROXY_INFO_DONT_VERIFY_AC'] = '1'
     #print os.environ['LD_LIBRARY_PATH']
     #print os.environ['VOMS_PROXY_INFO_DONT_VERIFY_AC'] 
