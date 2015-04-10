@@ -49,17 +49,6 @@ ZDCMonitorClient::ZDCMonitorClient(std::string myname, const edm::ParameterSet& 
 	HcalBaseDQClient(myname, ps),
 	ZDCGoodLumi_(ps.getUntrackedParameter<std::vector<double> > ("ZDC_QIValueForGoodLS")),
 	ZDCsubdir_(ps.getUntrackedParameter<std::string>("ZDCsubdir", "ZDCMonitor/ZDCMonitor_Hcal/"))
-//	inputFile_(ps.getUntrackedParameter<std::string>("inputFile","")),
-//	mergeRuns_(ps.getUntrackedParameter<bool>("mergeRuns", false)),
-//	prescaleFactor_(ps.getUntrackedParameter<int>("prescaleFactor", -1)),
-//	updateTime_(ps.getUntrackedParameter<int>("UpdateTime",0)),
-//	baseHtmlDir_(ps.getUntrackedParameter<std::string>("baseHtmlDir", "")),
-//	htmlUpdateTime_(ps.getUntrackedParameter<int>("htmlUpdateTime", 0)),
-//	databasedir_(ps.getUntrackedParameter<std::string>("databaseDir","")),
-//	databaseUpdateTime_(ps.getUntrackedParameter<int>("databaseUpdateTime",0)),
-//	databaseFirstUpdate_(ps.getUntrackedParameter<int>("databaseFirstUpdate",10)),
-//	htmlFirstUpdate_(ps.getUntrackedParameter<int>("htmlFirstUpdate",20)),
-//	saveByLumiSection_(ps.getUntrackedParameter<bool>("saveByLumiSection",false))
 {
 
 	if (ZDCsubdir_.size()>0 && ZDCsubdir_.substr(ZDCsubdir_.size()-1,ZDCsubdir_.size())!="/")
@@ -76,17 +65,6 @@ ZDCMonitorClient::~ZDCMonitorClient(){
 
 
 //--------------------------------------------------------
-//void ZDCMonitorClient::beginJob()
-//{
-//	dqmStore_ = edm::Service<DQMStore>().operator->();
-//	if (debug_>0)
-//	{
-//		std::cout <<"<ZDCMonitorClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-//		dqmStore_->showDirStructure();
-//	}
-//}
-
-//--------------------------------------------------------
 void ZDCMonitorClient::beginRun(void) {
 
 	begin_run_ = true;
@@ -94,18 +72,6 @@ void ZDCMonitorClient::beginRun(void) {
 
 	evt_=0;
 	jevt_=0;
-//	htmlcounter_=0;
-	/*  if (!dqmStore_)
-	    {
-	    if (debug_>0) std::cout <<"<ZDCMonitorClient::beginRun> dqmStore does not exist!"<<std::endl;
-	    return;
-	    }*/
-	//subdir_="Hcal/";
-//	dqmStore_->setCurrentFolder(subdir_); // what is Hcal/ZDCMonitor/EventInfoDUMMY folder
-
-	// Add new histograms; remove those created in previous runs
-	// prefixMe = Hcal/
-
 }
 
 
@@ -119,10 +85,6 @@ void ZDCMonitorClient::endJob(void) {
 }
 
 //--------------------------------------------------------
-//void ZDCMonitorClient::endRun(void){analyze();}
-
-//void ZDCMonitorClient::setup(void){}
-//void ZDCMonitorClient::cleanup(void){}
 
 void ZDCMonitorClient::analyze(DQMStore::IBooker & ib, DQMStore::IGetter & ig)
 {
@@ -260,7 +222,6 @@ void ZDCMonitorClient::analyze(DQMStore::IBooker & ib, DQMStore::IGetter & ig)
 
 	// Make a rate plot, by first getting plots from tasks
 	MonitorElement* me;
-	std::string s;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////  1)   DIGI ERROR RATE PLOT     /////////////////////////////////////////

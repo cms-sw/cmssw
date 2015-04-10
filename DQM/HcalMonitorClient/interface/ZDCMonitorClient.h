@@ -78,58 +78,24 @@ private:
 	bool begin_run_;
 	bool end_run_;
 
-	/////New Variables as of Fall 2012
-	int LumiCounter;
-	int PZDC_GoodLumiCounter;
-	int NZDC_GoodLumiCounter;
-	double PZDC_LumiRatio;
-	double NZDC_LumiRatio;
-	//////end new variables of Fall 2012////
-
 	// parameter set inputs
 
 	std::vector<double> ZDCGoodLumi_;
 	std::string ZDCsubdir_;
 
-//	std::string inputFile_;
-//	bool mergeRuns_;
-//	int prescaleFactor_;
-//	std::vector<std::string > enabledClients_;
-
-//	int updateTime_; // update time for updating histograms 
-//	std::string baseHtmlDir_;
-//	int htmlUpdateTime_; //update time for updating histograms
-//	std::string databasedir_;
-//	int databaseUpdateTime_; //update time for dumping db info (offset by 10 minutes, so that always dump after 10 minutes)
-//	int databaseFirstUpdate_; // first update time (in minutes)
-//	int htmlFirstUpdate_; // first update for html
-
-//	int htmlcounter_;
-
-//	bool saveByLumiSection_;  //produces separate LS certification values when enabled
-//	std::string subdir_;
-
-	// time parameters
-//	time_t current_time_;
-//	time_t last_time_update_;
-//	time_t last_time_html_;
-//	time_t last_time_db_;
-
-//	std::vector<HcalBaseDQClient*> clients_;
-
-//	DQMStore* dqmStore_;
-//	HcalChannelQuality* chanquality_;
-
-//	HcalSummaryClient* summaryClient_;
-
 	///////////////////New plots as of Fall 2012/////////////
+	int LumiCounter;
+	int PZDC_GoodLumiCounter;
+	int NZDC_GoodLumiCounter;
+	double PZDC_LumiRatio;
+	double NZDC_LumiRatio;
+
 	MonitorElement* ZDCChannelSummary_;
 	MonitorElement* ZDCHotChannelFraction_;
 	MonitorElement* ZDCColdChannelFraction_;
 	MonitorElement* ZDCDeadChannelFraction_;
 	MonitorElement* ZDCDigiErrorFraction_;
 	MonitorElement* ZDCReportSummary_;
-
 	/////////////new plots as of Fall 2012//////////////////
 };
 
