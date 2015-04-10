@@ -71,7 +71,7 @@ class METAnalyzer( Analyzer ):
 
     def makeMETNoMu(self, event):
         event.metNoMu = copy.deepcopy(event.met)
-        event.metNoMuNoPU = copy.deepcopy(event.metNoPU)
+        if self.cfg_ana.doMetNoPU: event.metNoMuNoPU = copy.deepcopy(event.metNoPU)
 
         mupx = 0
         mupy = 0
@@ -88,7 +88,6 @@ class METAnalyzer( Analyzer ):
 
     def makeMETNoPhoton(self, event):
         event.metNoPhoton = copy.deepcopy(event.met)
-        event.metNoPhotonNoPU = copy.deepcopy(event.metNoPU)
 
         phopx = 0
         phopy = 0
@@ -100,13 +99,15 @@ class METAnalyzer( Analyzer ):
         #subtract photon momentum and construct met                                                                                                                                                                                                     
         px,py = event.metNoPhoton.px()-phopx, event.metNoPhoton.py()-phopy
         event.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        px,py = event.metNoPhotonNoPU.px()-phopx, event.metNoPhotonNoPU.py()-phopy
-        event.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        if self.cfg_ana.doMetNoPU: 
+          event.metNoPhotonNoPU = copy.deepcopy(event.metNoPU)
+          px,py = event.metNoPhotonNoPU.px()-phopx, event.metNoPhotonNoPU.py()-phopy
+          event.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
 
     def makeMETs(self, event):
         event.met = self.handles['met'].product()[0]
-        event.metNoPU = self.handles['nopumet'].product()[0]
+        if self.cfg_ana.doMetNoPU: event.metNoPU = self.handles['nopumet'].product()[0]
 
         #Shifted METs
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
@@ -127,13 +128,15 @@ class METAnalyzer( Analyzer ):
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'):
             px,py = event.met.px()+event.deltaMetFromJetSmearing[0], event.met.py()+event.deltaMetFromJetSmearing[1]
             event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            px,py = event.metNoPU.px()+event.deltaMetFromJetSmearing[0], event.metNoPU.py()+event.deltaMetFromJetSmearing[1]
-            event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+            if self.cfg_ana.doMetNoPU: 
+              px,py = event.metNoPU.px()+event.deltaMetFromJetSmearing[0], event.metNoPU.py()+event.deltaMetFromJetSmearing[1]
+              event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
             px,py = event.met.px()+event.deltaMetFromJEC[0], event.met.py()+event.deltaMetFromJEC[1]
             event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            px,py = event.metNoPU.px()+event.deltaMetFromJEC[0], event.metNoPU.py()+event.deltaMetFromJEC[1]
-            event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+            if self.cfg_ana.doMetNoPU: 
+              px,py = event.metNoPU.px()+event.deltaMetFromJEC[0], event.metNoPU.py()+event.deltaMetFromJEC[1]
+              event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
         
         if self.cfg_ana.doMetNoMu and hasattr(event, 'selectedMuons'):
             self.makeMETNoMu(event)
@@ -162,6 +165,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     noPUMetCollection = "slimmedMETs",
     recalibrate = True,
     doTkMet = False,
+    doMetNoPU = True,  
     doMetNoMu = False,  
     doMetNoPhoton = False,  
     candidates='packedPFCandidates',
