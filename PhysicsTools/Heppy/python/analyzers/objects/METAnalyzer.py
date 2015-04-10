@@ -120,7 +120,7 @@ class METAnalyzer( Analyzer ):
         if copyMETsByValue:
           import ROOT
           self.met = ROOT.pat.MET(self.handles['met'].product()[0])
-          if self.cfg_ana.doMetNoPU: ROOT.pat.MET(self.metNoPU = self.handles['nopumet'].product()[0])
+          if self.cfg_ana.doMetNoPU: self.metNoPU = ROOT.pat.MET(self.handles['nopumet'].product()[0])
         else:
           self.met = self.handles['met'].product()[0]
           if self.cfg_ana.doMetNoPU: self.metNoPU = self.handles['nopumet'].product()[0]
