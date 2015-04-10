@@ -46,9 +46,10 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 
 	// spike threshold
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
-        // leading edge parameters
+
         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
         eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
+
 	// chi2 parameters
         kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
 	kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");;
@@ -89,7 +90,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 
 	// spike threshold
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
-        // leading edge parameters
+
         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
         eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
 	// chi2 parameters
@@ -117,7 +118,6 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
 
         // for the ratio method
 
-        // for the leading edge method
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalTimeOffsetConstantRcd>().get(offtime);
 
@@ -270,42 +270,17 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         }
 
         if ( leadingSample >= 0 ) { // saturation
-                if ( leadingSample != 4 ) {
-                        // all samples different from the fifth are not reliable for the amplitude estimation
-                        // put by default the energy at the saturation threshold and flag as saturated
-                        float sratio = 1;
-                        if ( detid.subdetId()==EcalBarrel) {
-                                sratio = ebPulseShape_[5] / ebPulseShape_[4];
-                        } else {
-                                sratio = eePulseShape_[5] / eePulseShape_[4];
-                        }
-			uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
-                        uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
+                // all samples different from the fifth are not reliable for the amplitude estimation
+                // put by default the energy at the saturation threshold and flag as saturated
+                // fifth sample also not reliable due to stron non-linearity induced by the slew-rate limit in gain 12
+                float sratio = 1;
+                if ( detid.subdetId()==EcalBarrel) {
+                        sratio = ebPulseShape_[5] / ebPulseShape_[4];
                 } else {
-                        // float clockToNsConstant = 25.;
-                        // reconstruct the rechit
-                        if (detid.subdetId()==EcalEndcap) {
-                                leadingEdgeMethod_endcap_.setPulseShape( eePulseShape_ );
-                                // float mult = (float)eePulseShape_.size() / (float)(*itdg).size();
-                                // bin (or some analogous mapping) will be used instead of the leadingSample
-                                //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
-                                // bin is not uset for the moment
-                                leadingEdgeMethod_endcap_.setLeadingEdgeSample( leadingSample );
-                                uncalibRecHit = leadingEdgeMethod_endcap_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
-                                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
-                                leadingEdgeMethod_endcap_.setLeadingEdgeSample( -1 );
-                        } else {
-                                leadingEdgeMethod_barrel_.setPulseShape( ebPulseShape_ );
-                                // float mult = (float)ebPulseShape_.size() / (float)(*itdg).size();
-                                // bin (or some analogous mapping) will be used instead of the leadingSample
-                                //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
-                                // bin is not uset for the moment
-                                leadingEdgeMethod_barrel_.setLeadingEdgeSample( leadingSample );
-                                uncalibRecHit = leadingEdgeMethod_barrel_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
-                                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
-                                leadingEdgeMethod_barrel_.setLeadingEdgeSample( -1 );
-                        }
+                        sratio = eePulseShape_[5] / eePulseShape_[4];
                 }
+	        uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
+                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
 		// do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
                 uncalibRecHit.setChi2(0);
         } else {
