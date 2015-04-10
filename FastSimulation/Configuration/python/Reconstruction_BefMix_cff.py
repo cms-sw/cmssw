@@ -27,14 +27,7 @@ from FastSimulation.Tracking.GSTrackFinalFitCommon_cff import *
 #  MeasurementTrackerEvent
 from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
-import RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi
-MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi.MeasurementTrackerEvent.clone(
-    pixelClusterProducer = '',
-    stripClusterProducer = '',
-    inactivePixelDetectorLabels = cms.VInputTag(),
-    inactiveStripDetectorLabels = cms.VInputTag(),
-    switchOffPixelsIfEmpty = False
-)
+from FastSimulation.Tracking.MeasurementTrackerEventProducer_cfi import MeasurementTrackerEvent
 
 # services needed by tracking
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import TransientTrackBuilderESProducer
