@@ -79,7 +79,7 @@ WP_Medium_EE = WorkingPoint_V1(
 idName = "cutBasedPhotonID-PHYS14-PU20bx25-V1-standalone-tight"
 WP_Tight_EB = WorkingPoint_V1(
     idName    ,  # idName
-    0.0099    ,  # hOverECut
+    0.011     ,  # hOverECut
     0.0099    ,  # full5x5_SigmaIEtaIEtaCut
     # Isolation cuts are generally absIso < C1 + pt*C2
     1.86      ,  # absPFChaHadIsoWithEACut_C1
@@ -103,12 +103,30 @@ WP_Tight_EE = WorkingPoint_V1(
     0.0059       # absPFPhoIsoWithEACut_C2
     )
 
+
+# Second, define where to find the precomputed isolations and what effective
+# areas to use for pile-up correction
+isoInputs = IsolationCutInputs(
+    # chHadIsolationMapName  
+    'photonIDValueMapProducer:phoChargedIsolation' ,
+    # chHadIsolationEffAreas 
+    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons.txt" ,
+    # neuHadIsolationMapName
+    'photonIDValueMapProducer:phoNeutralHadronIsolation' ,
+    # neuHadIsolationEffAreas
+    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons.txt" ,
+    # phoIsolationMapName  
+    "photonIDValueMapProducer:phoPhotonIsolation" ,
+    # phoIsolationEffAreas
+    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons.txt"
+)
+
 #
-# Second, set up VID configuration for all cuts
+# Finally, set up VID configuration for all cuts
 #
-cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_loose  = configureVIDCutBasedPhoID_V1 ( WP_Loose_EB, WP_Loose_EE)
-cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_medium = configureVIDCutBasedPhoID_V1 ( WP_Medium_EB, WP_Medium_EE)
-cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight  = configureVIDCutBasedPhoID_V1 ( WP_Tight_EB, WP_Tight_EE)
+cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_loose  = configureVIDCutBasedPhoID_V1 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_medium = configureVIDCutBasedPhoID_V1 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight  = configureVIDCutBasedPhoID_V1 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 #
 # The MD5 sum numbers below reflect the exact set of cut variables
@@ -119,8 +137,8 @@ cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_loose.idName,
-                             'f5e8afd610fee496483d2ae702cfc93f')
+                             'dd6bfd9474187cd31aeaabf90f2a51ca')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_medium.idName,
-                             '0cf17a9d445fb70d3fbde377f2e311ba')
+                             '38324dea128c659171cfc517c4327c97')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight.idName,
-                             'a49864a3837a3db7e57424f809938849')
+                             'ee67005da6543678d1d3f9d12ecbd6bd')

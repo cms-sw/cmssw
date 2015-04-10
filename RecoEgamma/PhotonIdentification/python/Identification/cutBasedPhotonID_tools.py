@@ -1,6 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
+# Barrel/endcap division in eta
 ebCutOff = 1.479
 
 class WorkingPoint_V1:
@@ -30,13 +31,33 @@ class WorkingPoint_V1:
         self.absPFPhoIsoWithEACut_C1     = absPFPhoIsoWithEACut_C1    # photon isolation C1
         self.absPFPhoIsoWithEACut_C2     = absPFPhoIsoWithEACut_C2    # ........ C2
 
-def configureVIDCutBasedPhoID_V1( wpEB, wpEE ):
+class IsolationCutInputs:
+    """
+    A container class that holds the names of the isolation maps in the event record
+    and the names of the files with the effective area constants for pile-up corrections
+    """
+    def __init__(self, 
+                 chHadIsolationMapName,
+                 chHadIsolationEffAreas,
+                 neuHadIsolationMapName,
+                 neuHadIsolationEffAreas,
+                 phoIsolationMapName,
+                 phoIsolationEffAreas
+                 ):
+                 self.chHadIsolationMapName   = chHadIsolationMapName    
+                 self.chHadIsolationEffAreas  = chHadIsolationEffAreas  
+                 self.neuHadIsolationMapName  = neuHadIsolationMapName  
+                 self.neuHadIsolationEffAreas = neuHadIsolationEffAreas 
+                 self.phoIsolationMapName     = phoIsolationMapName     
+                 self.phoIsolationEffAreas    = phoIsolationEffAreas    
+
+def configureVIDCutBasedPhoID_V1( wpEB, wpEE, isoInputs ):
     """
     This function configures the full cms.PSet for a VID ID and returns it.
     The inputs: two objects of the type WorkingPoint_V1, one
     containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
     """
-    print "VID: Configuring cut set %s" % wpEB.idName
+    # print "VID: Configuring cut set %s" % wpEB.idName
     parameterSet =  cms.PSet(
         #
         idName = cms.string( wpEB.idName ), # same name stored in the _EB and _EE objects
@@ -55,7 +76,7 @@ def configureVIDCutBasedPhoID_V1( wpEB, wpEE ):
                     ),
                       needsAdditionalProducts = cms.bool(False),
                       isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('PhoHadronicOverEMCut'),
+            cms.PSet( cutName = cms.string('PhoSingleTowerHadOverEmCut'),
                       hadronicOverEMCutValueEB = cms.double( wpEB.hOverECut ),
                       hadronicOverEMCutValueEE = cms.double( wpEE.hOverECut ),
                       barrelCutOff = cms.double(ebCutOff),
@@ -68,36 +89,42 @@ def configureVIDCutBasedPhoID_V1( wpEB, wpEE ):
                       barrelCutOff = cms.double(ebCutOff),
                       needsAdditionalProducts = cms.bool(True),
                       isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('PhoAnyPFIsoWithEACut'),
+            cms.PSet( cutName = cms.string('PhoAnyPFIsoWithEACut'), # Charged hadrons isolation block
                       anyPFIsoWithEACutValue_C1_EB = cms.double( wpEB.absPFChaHadIsoWithEACut_C1 ),
                       anyPFIsoWithEACutValue_C2_EB = cms.double( wpEB.absPFChaHadIsoWithEACut_C2 ),
                       anyPFIsoWithEACutValue_C1_EE = cms.double( wpEE.absPFChaHadIsoWithEACut_C1 ),
                       anyPFIsoWithEACutValue_C2_EE = cms.double( wpEE.absPFChaHadIsoWithEACut_C2 ),
-                      anyPFIsoWithEAMap = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
+                      anyPFIsoMap = cms.InputTag( isoInputs.chHadIsolationMapName ),
                       barrelCutOff = cms.double(ebCutOff),
                       useRelativeIso = cms.bool(False),
                       needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('PhoAnyPFIsoWithEACut'),
+                      isIgnored = cms.bool(False),
+                      rho = cms.InputTag("fixedGridRhoFastjetAll"),
+                      effAreasConfigFile = cms.FileInPath( isoInputs.chHadIsolationEffAreas ) ),
+            cms.PSet( cutName = cms.string('PhoAnyPFIsoWithEACut'), # Neutral hadrons isolation block
                       anyPFIsoWithEACutValue_C1_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C1 ),
                       anyPFIsoWithEACutValue_C2_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C2 ),
                       anyPFIsoWithEACutValue_C1_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C1 ),
                       anyPFIsoWithEACutValue_C2_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C2 ),
-                      anyPFIsoWithEAMap = cms.InputTag('photonIDValueMapProducer:phoNeutralHadronIsolation'),
+                      anyPFIsoMap = cms.InputTag( isoInputs.neuHadIsolationMapName ),
                       barrelCutOff = cms.double(ebCutOff),
                       useRelativeIso = cms.bool(False),
                       needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('PhoAnyPFIsoWithEACut'),
+                      isIgnored = cms.bool(False),
+                      rho = cms.InputTag("fixedGridRhoFastjetAll"),
+                      effAreasConfigFile = cms.FileInPath( isoInputs.neuHadIsolationEffAreas ) ),
+            cms.PSet( cutName = cms.string('PhoAnyPFIsoWithEACut'), # Photons isolation block
                       anyPFIsoWithEACutValue_C1_EB = cms.double( wpEB.absPFPhoIsoWithEACut_C1 ),
                       anyPFIsoWithEACutValue_C2_EB = cms.double( wpEB.absPFPhoIsoWithEACut_C2 ),
                       anyPFIsoWithEACutValue_C1_EE = cms.double( wpEE.absPFPhoIsoWithEACut_C1 ),
                       anyPFIsoWithEACutValue_C2_EE = cms.double( wpEE.absPFPhoIsoWithEACut_C2 ),
-                      anyPFIsoWithEAMap = cms.InputTag('photonIDValueMapProducer:phoPhotonIsolation'),
+                      anyPFIsoMap = cms.InputTag( isoInputs.phoIsolationMapName ),
                       barrelCutOff = cms.double(ebCutOff),
                       useRelativeIso = cms.bool(False),
                       needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False))
+                      isIgnored = cms.bool(False),
+                      rho = cms.InputTag("fixedGridRhoFastjetAll"),
+                      effAreasConfigFile = cms.FileInPath( isoInputs.phoIsolationEffAreas ) ),
             )
         )
     #
