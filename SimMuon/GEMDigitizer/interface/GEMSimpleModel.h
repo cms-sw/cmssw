@@ -45,7 +45,6 @@ private:
   double timeResolution_;
   double timeJitter_;
   double averageNoiseRate_;
-// std::vector<double> clsParametrization_;
   double signalPropagationSpeed_;
   bool cosmics_;
   int bxwidth_;
