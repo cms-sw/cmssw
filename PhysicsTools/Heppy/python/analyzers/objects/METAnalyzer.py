@@ -117,8 +117,8 @@ class METAnalyzer( Analyzer ):
 
 
     def makeMETs(self, event):
+        import ROOT
         if self.cfg_ana.copyMETsByValue:
-          import ROOT
           self.met = ROOT.pat.MET(self.handles['met'].product()[0])
           if self.cfg_ana.doMetNoPU: self.metNoPU = ROOT.pat.MET(self.handles['nopumet'].product()[0])
         else:
@@ -155,11 +155,11 @@ class METAnalyzer( Analyzer ):
             self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
-          print 'before JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
+#          print 'before JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
           self.applyDeltaMet(self.met, deltaMetJEC)
           if self.cfg_ana.doMetNoPU: 
             self.applyDeltaMet(self.metNoPU, deltaMetJEC)
-          print 'after JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
+#          print 'after JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
 
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
