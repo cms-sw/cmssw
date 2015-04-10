@@ -33,6 +33,10 @@ class METAnalyzer( Analyzer ):
         count = self.counters.counter('events')
         count.register('all events')
 
+    def applyDeltaMet(self, met, deltaMet):
+        px,py = self.met.px()+event.deltaMet[0], self.met.py()+event.deltaMet[1]
+        met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+
     def makeTkMETs(self, event):
 
         charged = []
@@ -88,6 +92,8 @@ class METAnalyzer( Analyzer ):
         self.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
         px,py = self.metNoMuNoPU.px()-mupx, self.metNoMuNoPU.py()-mupy
         self.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        setattr(event, "metNoMu"+self.cfg_ana.collectionPostFix, self.metNoMu)
+        if self.cfg_ana.doMetNoPU: setattr(event, "metNoMuNoPU"+self.cfg_ana.collectionPostFix, self.metNoMuNoPU)
 
     def makeMETNoPhoton(self, event):
         self.metNoPhoton = copy.deepcopy(self.met)
@@ -99,13 +105,15 @@ class METAnalyzer( Analyzer ):
             phopx += pho.px()
             phopy += pho.py()
 
-        #subtract photon momentum and construct met                                                                                                                                                                                                     
+        #subtract photon momentum and construct met
         px,py = self.metNoPhoton.px()-phopx, self.metNoPhoton.py()-phopy
         self.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        setattr(event, "metNoPhoton"+self.cfg_ana.collectionPostFix, self.metNoPhoton)
         if self.cfg_ana.doMetNoPU: 
           self.metNoPhotonNoPU = copy.deepcopy(self.metNoPU)
           px,py = self.metNoPhotonNoPU.px()-phopx, self.metNoPhotonNoPU.py()-phopy
           self.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+          setattr(event, "metNoPhotonNoPU"+self.cfg_ana.collectionPostFix, self.metNoPhotonNoPU)
 
 
     def makeMETs(self, event):
@@ -128,18 +136,23 @@ class METAnalyzer( Analyzer ):
         self.metraw = self.met.shiftedPt(12, 0)
         self.metType1chs = self.met.shiftedPt(12, 1)
 
-        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'): #FIXME!!!!!!!!!
-            px,py = self.met.px()+event.deltaMetFromJetSmearing[0], self.met.py()+event.deltaMetFromJetSmearing[1]
-            self.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
+            deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+            self.applyDeltaMet(self.met, deltaMetSmear)
+            if self.cfg_ana.doMetNoPU:
+              self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
+            deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+            self.applyDeltaMet(self.met, deltaMetJEC)
             if self.cfg_ana.doMetNoPU: 
-              px,py = self.metNoPU.px()+event.deltaMetFromJetSmearing[0], self.metNoPU.py()+event.deltaMetFromJetSmearing[1]
-              self.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
-            px,py = self.met.px()+event.deltaMetFromJEC[0], self.met.py()+event.deltaMetFromJEC[1]
-            self.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            if self.cfg_ana.doMetNoPU: 
-              px,py = self.metNoPU.px()+event.deltaMetFromJEC[0], self.metNoPU.py()+event.deltaMetFromJEC[1]
-              self.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+              self.applyDeltaMet(self.metNoPU, deltaMetJEC)
+
+        setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
+        if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
+        setattr(event, "met_sig"+self.cfg_ana.collectionPostFix, self.met_sig)
+        setattr(event, "met_sumet"+self.cfg_ana.collectionPostFix, self.met_sumet)
+        setattr(event, "metraw"+self.cfg_ana.collectionPostFix, self.metraw)
+        setattr(event, "metType1chs"+self.cfg_ana.collectionPostFix, self.metType1chs)
         
         if self.cfg_ana.doMetNoMu and hasattr(event, 'selectedMuons'):
             self.makeMETNoMu(event)
@@ -166,6 +179,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     metCollection     = "slimmedMETs",
     noPUMetCollection = "slimmedMETs",
     recalibrate = True,
+    jetAnalyzerCalibrationPostFix = "",
     doTkMet = False,
     doMetNoPU = True,  
     doMetNoMu = False,  
