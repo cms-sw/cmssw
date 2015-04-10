@@ -34,7 +34,7 @@ class METAnalyzer( Analyzer ):
         count.register('all events')
 
     def applyDeltaMet(self, met, deltaMet):
-        px,py = self.met.px()+event.deltaMet[0], self.met.py()+event.deltaMet[1]
+        px,py = self.met.px()+deltaMet[0], self.met.py()+deltaMet[1]
         met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
     def makeTkMETs(self, event):
@@ -137,15 +137,17 @@ class METAnalyzer( Analyzer ):
         self.metType1chs = self.met.shiftedPt(12, 1)
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
-            deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
-            self.applyDeltaMet(self.met, deltaMetSmear)
-            if self.cfg_ana.doMetNoPU:
-              self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
+          deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+          self.applyDeltaMet(self.met, deltaMetSmear)
+          if self.cfg_ana.doMetNoPU:
+            self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
-            deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
-            self.applyDeltaMet(self.met, deltaMetJEC)
-            if self.cfg_ana.doMetNoPU: 
-              self.applyDeltaMet(self.metNoPU, deltaMetJEC)
+          deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+          self.applyDeltaMet(self.met, deltaMetJEC)
+          if self.cfg_ana.doMetNoPU: 
+            self.applyDeltaMet(self.metNoPU, deltaMetJEC)
+
+          print self.cfg_ana.collectionPostFix, self.met.pt(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
 
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
