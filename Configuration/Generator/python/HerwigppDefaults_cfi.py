@@ -80,8 +80,8 @@ herwigDefaultsBlock = cms.PSet(
         pdfCT10 = cms.vstring(
                 'cd /Herwig/Partons',
                 'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName CT10.LHgrid',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set cmsPDFSet:PDFName CT10.LHgrid',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
                  'cd /',
@@ -90,8 +90,8 @@ herwigDefaultsBlock = cms.PSet(
         pdfNNPDF30NLO = cms.vstring(
                 'cd /Herwig/Partons',
                 'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName NNPDF30_nlo_as_0118.LHgrid',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set cmsPDFSet:PDFName NNPDF30_nlo_as_0118.LHgrid',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
                  'cd /',
@@ -195,8 +195,8 @@ herwigDefaultsBlock = cms.PSet(
                 'set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General',
                 'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost',
                 'cd /Herwig/EventHandlers',
-                'set LHEReader:PDFA cmsPDFSet',
-                'set LHEReader:PDFB cmsPDFSet',
+                'set LHEReader:PDFA /Herwig/Partons/cmsPDFSet',
+                'set LHEReader:PDFB /Herwig/Partons/cmsPDFSet',
                 'cd /',                 
 	),
 
