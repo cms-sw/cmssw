@@ -40,6 +40,9 @@
 //#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloConfigHelper.h"
+#include "CondFormats/DataRecord/interface/L1TCaloConfigRcd.h"
+
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 
@@ -80,12 +83,10 @@ using namespace l1t;
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
+    unsigned long long m_configCacheId; // Cache-ID from current parameters, to check if needs to be updated.
     CaloParamsStage1* m_params;
+    CaloConfigHelper m_config;
 
-    //boost::shared_ptr<const CaloParamsStage1> m_params; // Database parameters for the trigger, to be updated as needed.
-    //boost::shared_ptr<const FirmwareVersion> m_fwv;
-    //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
-    int m_fwv;
 
     boost::shared_ptr<Stage1Layer2MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
@@ -117,40 +118,15 @@ using namespace l1t;
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
     candsToken = consumes<BXVector<CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
-    int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
+    //int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
 
     m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
 
-    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
-
-    if (ifwv == 1){
-      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
-      //std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
-    }else if (ifwv == 2){
-      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running pp implementation\n";
-      //std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
-    } else if (ifwv == 3){
-      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running SimpleHW implementation\n";
-      //std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
-    }else{
-      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Unknown implementation.\n";
-      //std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
-    }
-    //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
-    // m_fw = m_factory.create(*m_fwv /*,*m_params*/);
-    m_fwv = ifwv;
-
     m_params = new CaloParamsStage1;
-
-    m_fw = m_factory.create(m_fwv ,m_params);
-    //printf("Success create.\n");
-    if (! m_fw) {
-      // we complain here once per job
-      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
-    }
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
+    m_configCacheId = 0;
   }
 
 
@@ -288,9 +264,9 @@ L1TStage1Layer2Producer::endJob() {
 // ------------ method called when starting to processes a run ------------
 
 void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
+  unsigned long long id = 0;
 
-  unsigned long long id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();
-
+  id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
@@ -310,6 +286,29 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     }
 
   }
+
+  id = iE.get<L1TCaloConfigRcd>().cacheIdentifier();
+  if (id != m_configCacheId) {
+    m_configCacheId = id;
+
+    edm::ESHandle<CaloConfig> configHandle;
+
+    iE.get<L1TCaloConfigRcd>().get(m_conditionsLabel, configHandle);
+
+
+    if (! configHandle.product()){
+      edm::LogError("l1t|caloStage1") << "Could not retrieve config from Event Setup" << std::endl;
+    } else {
+      //update our DB payload in CaloConfigHelper:
+      m_config.UpdatePayload(configHandle.product());
+      //cout << "DEBUG:  L1T Calo Config reports the Layer2 firmware version is " << m_config.fwv() << "\n";
+    }      
+  }
+
+
+
+
+
 
   LogDebug("l1t|stage 1 jets") << "L1TStage1Layer2Producer::beginRun function called...\n";
 
@@ -364,6 +363,36 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     //  LogError("l1t|stage 1 jets") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
     //}
   }
+
+
+
+    int ifwv=m_config.fwv();
+    //cout << "DEBUG:  ifwv is " << ifwv << "\n";
+    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    if (ifwv == 1){
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
+    }else if (ifwv == 2){
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running pp implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
+    } else if (ifwv == 3){
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running SimpleHW implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
+    }else{
+      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Unknown implementation.\n";
+      //std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
+    }
+    //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
+    // m_fw = m_factory.create(*m_fwv /*,*m_params*/);
+    //m_fwv = ifwv;
+    m_fw = m_factory.create(ifwv ,m_params);
+    //printf("Success create.\n");
+    if (! m_fw) {
+      // we complain here once per job
+      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
+    }
+
+
 
 
 }
