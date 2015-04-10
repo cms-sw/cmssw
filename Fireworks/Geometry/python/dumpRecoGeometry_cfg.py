@@ -51,6 +51,11 @@ def recoGeoLoad(score):
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
       process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
 
+    elif  score == "2023":
+      from Configuration.AlCa.GlobalTag import GlobalTag
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+      process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+
     elif  score == "2023Muon":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
