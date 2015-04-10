@@ -106,7 +106,7 @@ private:
 	sumsinNoWgt+=s;
 	sumcosNoWgt+=c;
 
-	sumw+=w;
+	sumw+=fabs(w);
 	sumw2+=w*w;
 	sumPtOrEt+=PtOrEt;
 	sumPtOrEt2+=PtOrEt*PtOrEt;

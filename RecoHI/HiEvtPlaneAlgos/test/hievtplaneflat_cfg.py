@@ -25,9 +25,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery=1000
 process.source = cms.Source("PoolSource",
 #                            fileNames = readFiles, secondaryFileNames = secFiles,
     fileNames = cms.untracked.vstring(
-       'root://cmsxrootd.fnal.gov//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_100_1_gMP.root',
-       'root://cmsxrootd.fnal.gov//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_101_1_dNN.root',
-       'root://cmsxrootd.fnal.gov//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_102_1_wS1.root'
+       'root://xrootd.unl.edu//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_100_1_gMP.root',
+       'root://xrootd.unl.edu//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_101_1_dNN.root',
+       'root://xrootd.unl.edu//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_102_1_wS1.root'
         ),
                             inputCommands=cms.untracked.vstring(
         'keep *',
@@ -45,21 +45,21 @@ process.GlobalTag.toGet.extend([
    ),
 ])
 
-process.CondDBCommon.connect = "sqlite_file:HeavyIonRPRcd_Hydjet_74x_v02_mc.db"
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-                                       process.CondDBCommon,
-                                       toGet = cms.VPSet(cms.PSet(record = cms.string('HeavyIonRPRcd'),
-                                                                  tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v02_mc')
-                                                                  )
-                                                         )
-                                      )
+#process.CondDBCommon.connect = "sqlite_file:HeavyIonRPRcd_Hydjet_74x_v02_mc.db"
+#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+#                                       process.CondDBCommon,
+#                                       toGet = cms.VPSet(cms.PSet(record = cms.string('HeavyIonRPRcd'),
+#                                                                  tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v02_mc')
+#                                                                  )
+#                                                         )
+#                                      )
 
-#process.GlobalTag.toGet.extend([
-#        cms.PSet(record = cms.string("HeavyIonRPRcd"),
-#                 tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v01_mc'),
-#                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_PAT_000")
-#                 )
-#        ])
+process.GlobalTag.toGet.extend([
+        cms.PSet(record = cms.string("HeavyIonRPRcd"),
+                 tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v02_mc')
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_PAT_000")
+                 )
+        ])
 
 
 process.TFileService = cms.Service("TFileService",
