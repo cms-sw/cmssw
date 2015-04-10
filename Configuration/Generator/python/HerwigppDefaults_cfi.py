@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+# Import UE tune for CTEQ6L
+from Configuration.Generator.HerwigppUE_EE_5C_cfi import *
+from Configuration.Generator.HerwigppUE_V23_cfi import *
+from Configuration.Generator.HerwigppUE_V24_cfi import *
+
 herwigDefaultsBlock = cms.PSet(
 	dataLocation = cms.string('${HERWIGPATH}'),
 
@@ -40,7 +45,7 @@ herwigDefaultsBlock = cms.PSet(
                 'cd /Herwig/Particles',
                 'set p+:PDF cmsPDFSet',
                 'set pbar-:PDF cmsPDFSet',
-		'+ue_2_3',
+		'+ue_2_3', # Default tune from 2.3
 		'cd /',
 	),
 	# Default pdf for Herwig++ 2.4
@@ -49,7 +54,7 @@ herwigDefaultsBlock = cms.PSet(
                 'cd /Herwig/Particles',
                 'set p+:PDF cmsPDFSet',
                 'set pbar-:PDF cmsPDFSet',
-		'+ue_2_4',
+		'+ue_2_4', # Default tune from 2.4
 		'cd /',
 	),
 	pdfCTEQ6LL = cms.vstring(
@@ -59,6 +64,7 @@ herwigDefaultsBlock = cms.PSet(
                  'set cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+                 '+EE5C', # Tune for CTEQ6L1 from 2.7
                  'cd /',
         ),
         pdfCTEQ6L1 = cms.vstring(
@@ -68,6 +74,7 @@ herwigDefaultsBlock = cms.PSet(
                  'set cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+                 '+EE5C', # Tune for CTEQ6L1 from 2.7                 
                  'cd /',
         ),        
         pdfCT10 = cms.vstring(
