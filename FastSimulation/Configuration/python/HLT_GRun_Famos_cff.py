@@ -43,8 +43,8 @@ for _seq in fragment.sequences_().values():
         _seq.remove(_entry)
 
 # change labels for seed collections
-fragment.hltEgammaElectronPixelSeedsUnseeded.initialSeeds = cms.InputTag( "globalPixelSeeds")
-fragment.hltEgammaElectronPixelSeeds.initialSeeds = cms.InputTag( "globalPixelSeeds")
+fragment.hltEgammaElectronPixelSeedsUnseeded.SeedConfiguration.initialSeeds = cms.InputTag( "globalPixelSeeds")
+fragment.hltEgammaElectronPixelSeeds.SeedConfiguration.initialSeeds = cms.InputTag( "globalPixelSeeds")
 
 import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
 fragment.hltEcalPreshowerDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalPreShowerDigisAliasInfo)
