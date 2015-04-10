@@ -123,9 +123,11 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 
 void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setup ){
   dcs_ = true;
+  
   //Check HV status
-  this->makeDcsInfo(event);
-  if( !dcs_){
+  //this->makeDcsInfo(event); //For the time being, ignore DCS bit due to its unreliability
+ 
+  if( !dcs_){ //This condition, now is always false
     edm::LogWarning ("rpcmonitordigi") <<"[RPCMonitorDigi]: DCS bit OFF" ;  
     return;//if RPC not ON there's no need to continue
   }
@@ -137,8 +139,8 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   edm::Handle<reco::CandidateView> muonCands;
   event.getByToken(muonLabel_, muonCands);
 
-
   std::map<RPCDetId  , std::vector<RPCRecHit> > rechitMuon;
+  rechitMuon.clear();
 
   int  numMuons = 0;
   int  numRPCRecHit = 0 ;
@@ -178,7 +180,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     }
 
     if( NumberOfMuon_)  NumberOfMuon_->Fill(numMuons);
-    if( NumberOfRecHitMuon_)  NumberOfRecHitMuon_->Fill( numRPCRecHit);
+    if( NumberOfRecHitMuon_ && numMuons>0)  NumberOfRecHitMuon_->Fill( numRPCRecHit);
     
   }else{
     edm::LogError ("rpcmonitordigi") <<"[RPCMonitorDigi]: Muons - Product not valid for event" << counter;
@@ -188,7 +190,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   edm::Handle<RPCRecHitCollection> rpcHits;
   event.getByToken( rpcRecHitLabel_ , rpcHits);
   std::map<RPCDetId  , std::vector<RPCRecHit> > rechitNoise;
-
+  rechitNoise.clear();
   
   if(rpcHits.isValid()){
    
@@ -211,11 +213,16 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   }
 
  
-  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(1);
-  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(1);
+  if( useMuonDigis_  && !rechitMuon.empty() ){
+    if(muonRPCEvents_ != 0 )  {muonRPCEvents_->Fill(1);}
+    this->performSourceOperation(rechitMuon, muonFolder_);   
+  }
+  
+  if( !rechitNoise.empty()) {
+    if( noiseRPCEvents_ != 0) {   noiseRPCEvents_->Fill(1);}
+    this->performSourceOperation(rechitNoise, noiseFolder_);
+  }
 
-  if(useMuonDigis_ ) this->performSourceOperation(rechitMuon, muonFolder_);
-  this->performSourceOperation(rechitNoise, noiseFolder_);
 }
 
 
