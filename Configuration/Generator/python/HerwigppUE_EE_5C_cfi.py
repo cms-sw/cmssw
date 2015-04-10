@@ -10,7 +10,6 @@ herwigppUESettingsBlock = cms.PSet(
         ),
 
       EE5C =  cms.vstring(
-        '+pdfCTEQ6L1',
         '+EE5CEnergyExtrapol',
         # Colour reconnection settings
         'set /Herwig/Hadronization/ColourReconnector:ColourReconnection Yes',
