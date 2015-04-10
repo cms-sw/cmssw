@@ -15,6 +15,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -104,6 +105,16 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   {
    edm::LogWarning("FWRecoGeometryProducerException")
      << "Exception caught while building GEM geometry: " << exception.what()
+     << std::endl; 
+  }
+  try 
+  {
+    addME0Geometry();
+  }
+  catch( cms::Exception& exception )
+  {
+   edm::LogWarning("FWRecoGeometryProducerException")
+     << "Exception caught while building ME0 geometry: " << exception.what()
      << std::endl; 
   }
   
@@ -289,6 +300,41 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
 }
 
+void
+FWRecoGeometryESProducer::addME0Geometry( void )
+{
+  //
+  // ME0 geometry
+  //
+  DetId detId( DetId::Muon, 4 );
+  const ME0Geometry* gemGeom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+  for( auto it = gemGeom->etaPartitions().begin(),
+	   end = gemGeom->etaPartitions().end(); 
+       it != end; ++it )
+  {
+    const ME0EtaPartition* roll = (*it);
+    if( roll )
+    {
+      unsigned int rawid = (*it)->geographicalId().rawId();
+      unsigned int current = insert_id( rawid );
+      fillShapeAndPlacement( current, roll );
+
+      const StripTopology& topo = roll->specificTopology();
+      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+
+      float height = topo.stripLength()/2;
+      LocalPoint  lTop( 0., height, 0.);
+      LocalPoint  lBottom( 0., -height, 0.);
+      m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+      m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+      m_fwGeometry->idToName[current].topology[5] = roll->npads();
+    }
+  }
+
+  m_fwGeometry->extraDet.Add(new TNamed("ME0", "ME0 muon detector"));
+}
 
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
