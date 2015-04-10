@@ -41,6 +41,7 @@ herwigDefaultsBlock = cms.PSet(
                 'set p+:PDF cmsPDFSet',
                 'set pbar-:PDF cmsPDFSet',
 		'+ue_2_3',
+		'cd /',
 	),
 	# Default pdf for Herwig++ 2.4
 	pdfMRST2008LOss = cms.vstring(
@@ -49,24 +50,25 @@ herwigDefaultsBlock = cms.PSet(
                 'set p+:PDF cmsPDFSet',
                 'set pbar-:PDF cmsPDFSet',
 		'+ue_2_4',
+		'cd /',
 	),
 	pdfCTEQ6LL = cms.vstring(
                 'cd /Herwig/Partons',
                 'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName cteq6ll.LHpdf',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set cmsPDFSet:PDFName cteq6ll.LHpdf',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 'cd /'
+                 'cd /',
         ),
         pdfCTEQ6L1 = cms.vstring(
                 'cd /Herwig/Partons',
                 'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName cteq6ll.LHpdf',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set cmsPDFSet:PDFName cteq6ll.LHpdf',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 'cd /'
+                 'cd /',
         ),        
         pdfCT10 = cms.vstring(
                 'cd /Herwig/Partons',
@@ -75,7 +77,7 @@ herwigDefaultsBlock = cms.PSet(
                  'set /cmsPDFSet:RemnantHandler HadronRemnants',
                  'set /Herwig/Particles/p+:PDF cmsPDFSet',
                  'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 'cd /'
+                 'cd /',
         ),
 
 	# CME presets
@@ -111,7 +113,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set KtCut:MinKT 4.0',
 		'set UECuts:MHatMin 8.0',
 		'set MPIHandler:InvRadius 1.5',
-		'cd /'
+		'cd /',
 	),
 	# UE Tune from Herwig++ 2.4 (MRST2008LO**)
 	ue_2_4 = cms.vstring(
@@ -119,7 +121,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set KtCut:MinKT 4.3',
 		'set UECuts:MHatMin 8.6',
 		'set MPIHandler:InvRadius 1.2',
-		'cd /'
+		'cd /',
 	),
 
 	# reweight presets
@@ -195,8 +197,8 @@ herwigDefaultsBlock = cms.PSet(
                 'set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General',
                 'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost',
                 'cd /Herwig/EventHandlers',
-                'set LHEReader:PDFA /cmsPDFSet',
-                'set LHEReader:PDFB /cmsPDFSet',
+                'set LHEReader:PDFA cmsPDFSet',
+                'set LHEReader:PDFB cmsPDFSet',
                 'cd /',                 
 	),
 
@@ -226,5 +228,6 @@ herwigDefaultsBlock = cms.PSet(
 		'create Herwig::GGtoHHardGenerator GGtoHHardGenerator',
 		'set GGtoHHardGenerator:ShowerAlpha AlphaQCD',
 		'insert PowhegEvolver:HardGenerator 0 GGtoHHardGenerator',
+		'cd /',
 	)
 )
