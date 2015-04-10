@@ -31,7 +31,7 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::one::ED
   theCastorDigitizer(0),
   theCastorHits()
 {
-  edm::InputTag theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
+  theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
   iC.consumes<std::vector<PCaloHit> >(theHitsProducerTag);
   
   mixMod.produces<CastorDigiCollection>();
