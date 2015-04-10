@@ -43,6 +43,8 @@ public:
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
 private:
+  
+
   void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing, CLHEP::HepRandomEngine*);
 
   /// fills the vectors for each subdetector
@@ -52,6 +54,8 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
+
+  edm::InputTag theHitsProducerTag;
 
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
