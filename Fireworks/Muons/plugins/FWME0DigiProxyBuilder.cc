@@ -1,4 +1,5 @@
-#include "TEveStraightLineSet.h"
+//#include "TEveStraightLineSet.h"
+#include "TEveBoxSet.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
 
@@ -7,7 +8,7 @@
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "DataFormats/GEMDigi/interface/ME0DigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
 
@@ -27,7 +28,7 @@ private:
 
 void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const ME0DigiCollection* digis = 0;
+  const ME0DigiPreRecoCollection* digis = 0;
  
   iItem->get(digis);
 
@@ -38,11 +39,11 @@ void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( ME0DigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
+  for ( ME0DigiPreRecoCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
         dri != driEnd; ++dri )
   {
     unsigned int rawid = (*dri).first.rawId();
-    const ME0DigiCollection::Range& range = (*dri).second;
+    const ME0DigiPreRecoCollection::Range& range = (*dri).second;
 
     if( ! geom->contains( rawid ))
     {
@@ -54,44 +55,23 @@ void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       
       continue;
     }
-
-    const float* parameters = geom->getParameters( rawid );
-    float nStrips = parameters[0];
-    float halfStripLength = parameters[1]*0.5;
-    float topPitch = parameters[3];
-    float bottomPitch = parameters[4];
-
-    for( ME0DigiCollection::const_iterator dit = range.first;
+    
+    for( ME0DigiPreRecoCollection::const_iterator dit = range.first;
 	 dit != range.second; ++dit )
     {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
-      stripDigiSet->SetLineWidth(3);
+      TEveBoxSet* stripDigiSet = new TEveBoxSet;
       setupAddElement( stripDigiSet, product );
+      
+      float localPoint[3] =    {(*dit).x(), (*dit).y(), 0.0};
+      float globalPoint[3];
 
-      int strip = (*dit).strip();
-      float topOfStrip = (strip-0.5)*topPitch - 0.5*nStrips*topPitch;
-      float bottomOfStrip = (strip-0.5)*bottomPitch - 0.5*nStrips*bottomPitch;
+      geom->localToGlobal( rawid, localPoint, globalPoint);
 
-      float localPointTop[3] =
-      {
-        topOfStrip, halfStripLength, 0.0
-      };
-
-      float localPointBottom[3] = 
-      {
-        bottomOfStrip, -halfStripLength, 0.0
-      };
-
-      float globalPointTop[3];
-      float globalPointBottom[3];
-
-      geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
-
-      stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
-                            globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
+      stripDigiSet->AddBox(globalPoint[0], globalPoint[1], globalPoint[2],
+                            (*dit).ex(), (*dit).ey(), 0.1);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWME0DigiProxyBuilder, ME0DigiCollection, "ME0Digi", 
+REGISTER_FWPROXYBUILDER(FWME0DigiProxyBuilder, ME0DigiPreRecoCollection, "ME0Digi", 
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
