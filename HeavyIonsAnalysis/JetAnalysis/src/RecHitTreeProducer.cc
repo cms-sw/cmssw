@@ -68,7 +68,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
 #include "RecoHI/HiJetAlgos/interface/UEParameters.h"
