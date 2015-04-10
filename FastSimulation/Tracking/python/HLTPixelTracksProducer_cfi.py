@@ -9,7 +9,7 @@ hltPixelTracks = cms.EDProducer("PixelTracksProducer",
         ComponentName = cms.string('PixelFitterByHelixProjections'),
         TTRHBuilder = cms.string('WithoutRefit')
     ),
-    SeedProducer = cms.InputTag("pixelTripletSeeds","PixelTriplet"),
+    SeedProducer = cms.InputTag("pixelTripletSeeds"),
     RegionFactoryPSet = cms.PSet(
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
