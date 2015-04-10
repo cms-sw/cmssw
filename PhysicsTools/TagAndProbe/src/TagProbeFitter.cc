@@ -486,17 +486,9 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
     minimizer.minimize("Minuit2","Scan");
     minuit.migrad();
     minuit.hesse();
-    // initialize the profile likelihood
-    profileLL.getVal();
-    RooMinimizer* profMinuit = profileLL.minimizer();
-    profMinuit->setProfile(true);    
-    profMinuit->setStrategy(2);  
-    profMinuit->setPrintLevel(1);
-    profMinuit->minos(*w->var("efficiency"));
-    res.reset( profMinuit->save() );
-    //res = w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), Strategy(2),
-    //Minos(*w->var("efficiency")), PrintLevel(quiet?-1:1), 
-    //				  PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
+    res.reset( w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), Strategy(2),
+                                    Minos(*w->var("efficiency")), PrintLevel(quiet?-1:1), 
+      				  PrintEvalErrors(quiet?-1:1), Warnings(!quiet)) );
    }
 
 
