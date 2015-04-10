@@ -32,8 +32,6 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
     originRadius = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
     layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value()
 )
-from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSeedLayers as _pixelLessStepSeedLayers
-pixelLessSeeds.layerList = _pixelLessStepSeedLayers.layerList
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

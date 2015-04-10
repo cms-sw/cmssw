@@ -68,13 +68,9 @@ mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixe
     Propagator = 'PropagatorWithMaterial'
 )
 
-# simtrack id producer
-mixedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                             trackCollection = cms.InputTag("mixedTripletStepTracks"),
-                                             HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-
 # final selection
 mixedTripletStepSelector = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSelector.clone()
+mixedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
 
 # Final sequence 

@@ -12,6 +12,7 @@ jetCoreRegionalStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
 # a dummy track selector
 import RecoTracker.IterativeTracking.JetCoreRegionalStep_cff
 jetCoreRegionalStepSelector = RecoTracker.IterativeTracking.JetCoreRegionalStep_cff.jetCoreRegionalStepSelector.clone()
+jetCoreRegionalStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # a dummy sequence
 JetCoreRegionalStep = cms.Sequence(jetCoreRegionalStepTracks*
