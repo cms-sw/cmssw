@@ -34,7 +34,6 @@ class METAnalyzer( Analyzer ):
         count.register('all events')
 
     def makeTkMETs(self, event):
-        self.tkMet = 0  
 
         charged = []
         chargedchs = []
@@ -153,7 +152,6 @@ class METAnalyzer( Analyzer ):
         self.counters.counter('events').inc('all events')
 
         self.makeMETs(event)
-        self.tkMet = 0 
 
         if self.cfg_ana.doTkMet: 
             self.makeTkMETs(event);
