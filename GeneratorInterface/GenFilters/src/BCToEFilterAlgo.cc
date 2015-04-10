@@ -1,15 +1,15 @@
 #include "GeneratorInterface/GenFilters/interface/BCToEFilterAlgo.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-using namespace edm;
-using namespace std;
-
-
-BCToEFilterAlgo::BCToEFilterAlgo(const edm::ParameterSet& iConfig) { 
+BCToEFilterAlgo::BCToEFilterAlgo(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) {
 
   //set constants
   FILTER_ETA_MAX_=2.5;
   eTThreshold_=(float)iConfig.getParameter<double>("eTThreshold");
-  genParSource_=iConfig.getParameter<edm::InputTag>("genParSource");
+  genParSource_=iC.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParSource"));
 
 }
 
@@ -25,8 +25,8 @@ bool BCToEFilterAlgo::filter(const edm::Event& iEvent)  {
 
   
   
-  Handle<reco::GenParticleCollection> genParsHandle;
-  iEvent.getByLabel(genParSource_,genParsHandle);
+  edm::Handle<reco::GenParticleCollection> genParsHandle;
+  iEvent.getByToken(genParSource_,genParsHandle);
   reco::GenParticleCollection genPars=*genParsHandle;
 
   for (uint32_t ig=0;ig<genPars.size();ig++) {
