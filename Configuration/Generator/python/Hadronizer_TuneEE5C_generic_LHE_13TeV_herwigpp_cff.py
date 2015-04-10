@@ -14,5 +14,6 @@ generator = cms.EDFilter("ThePEGHadronizerFilter",
 		'cmsDefaults',
 		'EE5C',
 		'lheDefaults',
+		'cm13TeV',
 	),
 )
