@@ -117,8 +117,13 @@ class METAnalyzer( Analyzer ):
 
 
     def makeMETs(self, event):
-        self.met = self.handles['met'].product()[0]
-        if self.cfg_ana.doMetNoPU: self.metNoPU = self.handles['nopumet'].product()[0]
+        if copyMETsByValue:
+          import ROOT
+          self.met = ROOT.pat.MET(self.handles['met'].product()[0])
+          if self.cfg_ana.doMetNoPU: ROOT.pat.MET(self.metNoPU = self.handles['nopumet'].product()[0])
+        else:
+          self.met = self.handles['met'].product()[0]
+          if self.cfg_ana.doMetNoPU: self.metNoPU = self.handles['nopumet'].product()[0]
 
         #Shifted METs
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
@@ -143,11 +148,11 @@ class METAnalyzer( Analyzer ):
             self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+          print 'before JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
           self.applyDeltaMet(self.met, deltaMetJEC)
           if self.cfg_ana.doMetNoPU: 
             self.applyDeltaMet(self.metNoPU, deltaMetJEC)
-
-          print self.cfg_ana.collectionPostFix, self.met.pt(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
+          print 'after JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
 
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
@@ -180,6 +185,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = METAnalyzer,
     metCollection     = "slimmedMETs",
     noPUMetCollection = "slimmedMETs",
+    copyMETsByValue = True,
     recalibrate = True,
     jetAnalyzerCalibrationPostFix = "",
     doTkMet = False,
