@@ -11,6 +11,34 @@ from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
 
 from PhysicsTools.HeppyCore.framework.heppy import split
 
+def batchScriptPADOVA( index, jobDir='./'):
+   '''prepare the LSF version of the batch script, to run on LSF'''
+   script = """#!/bin/bash
+#BSUB -q local
+#BSUB -J test
+#BSUB -o test.log
+cd {jdir}
+echo 'PWD:'
+pwd
+export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
+source $VO_CMS_SW_DIR/cmsset_default.sh
+echo 'environment:'
+echo
+env > local.env
+env
+# ulimit -v 3000000 # NO
+echo 'copying job dir to worker'
+eval `scram runtime -sh`
+ls
+echo 'running'
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
+exit $? 
+#echo
+#echo 'sending the job directory back'
+#echo cp -r Loop/* $LS_SUBCWD 
+""".format(jdir=jobDir)
+
+   return script
 
 def batchScriptPISA( index, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
@@ -248,6 +276,8 @@ class MyBatchManager( BatchManager ):
            scriptFile.write( batchScriptLocal( storeDir, value) )  # watch out arguments are swapped (although not used)
        elif mode == 'PISA' :
 	   scriptFile.write( batchScriptPISA( storeDir, value) ) 	
+       elif mode == 'PADOVA' :
+           scriptFile.write( batchScriptPADOVA( value, jobDir) )        
        elif mode == 'IC':
            scriptFile.write( batchScriptIC(jobDir) )
        scriptFile.close()
