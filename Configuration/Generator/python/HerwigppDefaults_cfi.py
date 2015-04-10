@@ -121,25 +121,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 	),
 
-	# UE tunes
-	##############################
-
-	# UE Tune from Herwig++ 2.3 (MRST2001)
-	ue_2_3 = cms.vstring(
-		'cd /Herwig/UnderlyingEvent',
-		'set KtCut:MinKT 4.0',
-		'set UECuts:MHatMin 8.0',
-		'set MPIHandler:InvRadius 1.5',
-		'cd /',
-	),
-	# UE Tune from Herwig++ 2.4 (MRST2008LO**)
-	ue_2_4 = cms.vstring(
-		'cd /Herwig/UnderlyingEvent',
-		'set KtCut:MinKT 4.3',
-		'set UECuts:MHatMin 8.6',
-		'set MPIHandler:InvRadius 1.2',
-		'cd /',
-	),
 
 	# reweight presets
 	##############################
