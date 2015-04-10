@@ -67,11 +67,11 @@ class METAnalyzer( Analyzer ):
         import ROOT
         setattr(event, "tkMet"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, math.hypot((sum([x.px() for x in charged])),(sum([x.py() for x in charged]))) ))
-        setattr(event, "tkMetchs"+self.cfg_ana.collectionPostFix, \ 
+        setattr(event, "tkMetchs"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedchs])) , -1.*(sum([x.py() for x in chargedchs])), 0, math.hypot((sum([x.px() for x in chargedchs])),(sum([x.py() for x in chargedchs]))) ))
-        setattr(event, "tkMetPVLoose"+self.cfg_ana.collectionPostFix, \ 
+        setattr(event, "tkMetPVLoose"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVLoose])) , -1.*(sum([x.py() for x in chargedPVLoose])), 0, math.hypot((sum([x.px() for x in chargedPVLoose])),(sum([x.py() for x in chargedPVLoose]))) ))
-        setattr(event, "tkMetPVTight"+self.cfg_ana.collectionPostFix, \ 
+        setattr(event, "tkMetPVTight"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) ))
 ##        print 'tkmet',self.tkMet.pt(),'tkmetphi',self.tkMet.phi()
 
