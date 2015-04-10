@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+# Tune in Herwig version 2.7 for the CTEQ6L1 PDF
+# UE-EE-5-CTEQ6L1, see
+# https://herwig.hepforge.org/trac/wiki/MB_UE_tunes
+
 herwigppUESettingsBlock = cms.PSet(
 
      EE5CEnergyExtrapol =  cms.vstring(
