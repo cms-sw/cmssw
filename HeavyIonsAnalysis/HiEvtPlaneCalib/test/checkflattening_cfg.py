@@ -63,8 +63,8 @@ process.source = cms.Source("PoolSource",
 
 process.GlobalTag.toGet.extend([
         cms.PSet(record = cms.string("HeavyIonRPRcd"),
-                 tag = cms.string('HeavyIonRPRcd_PbPb2011_74X_v01_offline'),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_PAT_000")
+                 tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v02_mc'),
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         ])
 
