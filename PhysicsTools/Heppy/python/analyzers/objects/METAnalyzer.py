@@ -142,8 +142,11 @@ class METAnalyzer( Analyzer ):
 
 
         ###https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h
-        self.metraw = self.met.shiftedPt(12, 0)
-        self.metType1chs = self.met.shiftedPt(12, 1)
+        if not self.cfg_ana.copyMETsByValue:
+          self.metraw = self.met.shiftedPt(12, 0)
+          self.metType1chs = self.met.shiftedPt(12, 1)
+          setattr(event, "metraw"+self.cfg_ana.collectionPostFix, self.metraw)
+          setattr(event, "metType1chs"+self.cfg_ana.collectionPostFix, self.metType1chs)
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
@@ -162,8 +165,6 @@ class METAnalyzer( Analyzer ):
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
         setattr(event, "met_sig"+self.cfg_ana.collectionPostFix, self.met_sig)
         setattr(event, "met_sumet"+self.cfg_ana.collectionPostFix, self.met_sumet)
-        setattr(event, "metraw"+self.cfg_ana.collectionPostFix, self.metraw)
-        setattr(event, "metType1chs"+self.cfg_ana.collectionPostFix, self.metType1chs)
         
         if self.cfg_ana.doMetNoMu and hasattr(event, 'selectedMuons'):
             self.makeMETNoMu(event)
