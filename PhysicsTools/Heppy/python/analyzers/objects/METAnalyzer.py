@@ -127,15 +127,19 @@ class METAnalyzer( Analyzer ):
 
         #Shifted METs
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
-        for i in range(event.met.METUncertaintySize):
-            m = ROOT.pat.MET(event.met)
-            px  = m.shiftedPx(i);
-            py  = m.shiftedPy(i);
-            m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            setattr(event, "met_shifted_{0}".format(i), m)
-        event.met_sig = event.met.significance()
-        event.met_sumet = event.met.sumEt()
-        #event.met_sigm = event.met.getSignificanceMatrix()
+        #event.met_shifted = []
+        if not self.cfg_ana.copyMETsByValue:
+          for i in range(14):
+              m = deepcopy(self.met)
+              px  = m.shiftedPx(i);
+              py  = m.shiftedPy(i);
+              m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+              #event.met_shifted += [m]
+              setattr(event, "met{0}_shifted_{1}".format(self.cfg_ana.collectionPostFix, i), m)
+
+        self.met_sig = self.met.significance()
+        self.met_sumet = self.met.sumEt()
+
 
         ###https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h
         self.metraw = self.met.shiftedPt(12, 0)
@@ -185,7 +189,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = METAnalyzer,
     metCollection     = "slimmedMETs",
     noPUMetCollection = "slimmedMETs",
-    copyMETsByValue = True,
+    copyMETsByValue = False,
     recalibrate = True,
     jetAnalyzerCalibrationPostFix = "",
     doTkMet = False,
