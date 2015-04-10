@@ -57,3 +57,24 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'egmGsfElectronIDs',idName)
         
+
+####
+# Muons
+####
+
+#tuns on the VID muon ID producer
+def switchOnVIDMuonIdProducer(process):
+    process.load("RecoMuon.MuonIdentification.patMuonVIDs_cfi")
+    print "Added 'patMuonVIDs' to process definition!"
+
+def setupVIDMuonSelection(process, cutflow, patProducer=None):
+    moduleName = "patMuonVIDs"
+    if not hasattr(process, moduleName):
+        raise Exception("VIDProducerNotAvailable", "%s producer not available in process!" % moduleName)
+    setupVIDSelection(getattr(process, moduleName), cutflow)
+    #add to PAT electron producer if available or specified
+    #if hasattr(process,'patMuons') or patProducer is not None:
+    #    if patProducer is None:
+    #        patProducer = process.patMuons
+    #    idName = cutflow.idName.value()
+    #    addVIDSelectionToPATProducer(patProducer, moduleName, idName)
