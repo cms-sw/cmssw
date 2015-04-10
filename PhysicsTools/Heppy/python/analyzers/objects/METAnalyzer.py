@@ -22,8 +22,8 @@ class METAnalyzer( Analyzer ):
 
     def declareHandles(self):
         super(METAnalyzer, self).declareHandles()
-        self.handles['met'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
-        self.handles['nopumet'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
+        self.handles['met'] = AutoHandle( self.cfg_ana.metCollection, 'std::vector<pat::MET>' )
+        self.handles['nopumet'] = AutoHandle( self.cfg_ana.noPUMetCollection, 'std::vector<pat::MET>' )
         self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
 
@@ -158,6 +158,8 @@ class METAnalyzer( Analyzer ):
 
 setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = METAnalyzer,
+    metCollection     = "slimmedMETs",
+    noPUMetCollection = "slimmedMETs",
     recalibrate = True,
     doTkMet = False,
     doMetNoMu = False,  
