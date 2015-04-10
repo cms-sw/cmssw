@@ -60,7 +60,7 @@ OuterTrackerTrack::OuterTrackerTrack(const edm::ParameterSet& iConfig)
   tagTTTracks_ = conf_.getParameter< edm::InputTag >("TTTracks");
   tagTTTrackMCTruth_ = conf_.getParameter< edm::InputTag >("TTTrackMCTruth");
   HQDelim_ = conf_.getParameter<int>("HQDelim");
-  verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",true);
+  verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }
 
 
@@ -84,21 +84,17 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   /// Track Trigger
   edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > >            PixelDigiTTTrackHandle;
   iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
-  //iEvent.getByLabel( "TTTracksFromPixelDigis", "Level1TTTracks",PixelDigiTTTrackHandle );
   
   /// Track Trigger MC Truth
-  edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
-  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
   edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > >   MCTruthTTTrackHandle;
   iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
-  //iEvent.getByLabel( "TTTrackAssociatorFromPixelDigis", "Level1TTTracks", MCTruthTTTrackHandle );
 	
 	
   /// TrackingParticles
-  edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
-  iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
-  edm::Handle< std::vector< TrackingVertex > > TrackingVertexHandle;
-  iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingVertexHandle );
+  //edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
+  //iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
+  //edm::Handle< std::vector< TrackingVertex > > TrackingVertexHandle;
+  //iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingVertexHandle );
   
   
   unsigned int numHQTracks = 0;
@@ -134,64 +130,30 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       
       if ( !genuineTrack ) continue;
       
-      edm::Ptr< TrackingParticle > tpPtr = MCTruthTTTrackHandle->findTrackingParticlePtr( tempTrackPtr );
-      
-      /// Get the corresponding vertex and reject the track
-      /// if its vertex is outside the beampipe
-      if ( tpPtr->vertex().rho() >= 2 )
-        continue;
-      
       Track_NStubs->Fill(nStubs);
       
-      double tpPt = tpPtr->p4().pt();
-      double tpEta = tpPtr->momentum().eta();
-//      double tpTheta = tpPtr->momentum().theta();
-      double tpPhi = tpPtr->momentum().phi();
-      double tpVtxZ0 = tpPtr->vertex().z();
       
       if ( nStubs >= HQDelim_ )
       {
+        numHQTracks++;
         Track_HQ_Pt->Fill( trackPt );
         Track_HQ_Eta->Fill( trackEta );
         Track_HQ_Phi->Fill( trackPhi );
         Track_HQ_VtxZ0->Fill( trackVtxZ0 );
         Track_HQ_Chi2->Fill( trackChi2 );
         Track_HQ_Chi2Red->Fill( trackChi2R );
-        
-        numHQTracks++;
-        Track_HQ_Pt_TPart_Pt->Fill( tpPt, trackPt );
-        Track_HQ_PtRes_TPart_Eta->Fill( tpEta, trackPt - tpPt );
-        Track_HQ_InvPt_TPart_InvPt->Fill( 1./tpPt, 1./trackPt );
-        Track_HQ_InvPtRes_TPart_Eta->Fill( tpEta, 1./trackPt - 1./tpPt );
-        Track_HQ_Phi_TPart_Phi->Fill( tpPhi, trackPhi );
-        Track_HQ_PhiRes_TPart_Eta->Fill( tpEta, trackPhi - tpPhi );
-        Track_HQ_Eta_TPart_Eta->Fill( tpEta, trackEta );
-        Track_HQ_EtaRes_TPart_Eta->Fill( tpEta, trackEta - tpEta );
-        Track_HQ_VtxZ0_TPart_VtxZ0->Fill( tpVtxZ0, trackVtxZ0 );
-        Track_HQ_VtxZ0Res_TPart_Eta->Fill( tpEta, trackVtxZ0 - tpVtxZ0 );
         Track_HQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
         Track_HQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );
       }
       else
       {
+        numLQTracks++;
         Track_LQ_Pt->Fill( trackPt );
         Track_LQ_Eta->Fill( trackEta );
         Track_LQ_Phi->Fill( trackPhi );
         Track_LQ_VtxZ0->Fill( trackVtxZ0 );
         Track_LQ_Chi2->Fill( trackChi2 );
         Track_LQ_Chi2Red->Fill( trackChi2R );
-        
-        numLQTracks++;
-        Track_LQ_Pt_TPart_Pt->Fill( tpPt, trackPt );
-        Track_LQ_PtRes_TPart_Eta->Fill( tpEta, trackPt - tpPt );
-        Track_LQ_InvPt_TPart_InvPt->Fill( 1./tpPt, 1./trackPt );
-        Track_LQ_InvPtRes_TPart_Eta->Fill( tpEta, 1./trackPt - 1./tpPt );
-        Track_LQ_Phi_TPart_Phi->Fill( tpPhi, trackPhi );
-        Track_LQ_PhiRes_TPart_Eta->Fill( tpEta, trackPhi - tpPhi );
-        Track_LQ_Eta_TPart_Eta->Fill( tpEta, trackEta );
-        Track_LQ_EtaRes_TPart_Eta->Fill( tpEta, trackEta - tpEta );
-        Track_LQ_VtxZ0_TPart_VtxZ0->Fill( tpVtxZ0, trackVtxZ0 );
-        Track_LQ_VtxZ0Res_TPart_Eta->Fill( tpEta, trackVtxZ0 - tpVtxZ0 );
         Track_LQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
         Track_LQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );     
       }
@@ -230,7 +192,7 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   
   
   /// Plots where all TTTracks are made from up to X TTStubs
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/LQ");
+  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/LQ/");
   
   // Number of TTTracks
   edm::ParameterSet psTrack_N =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_N");
@@ -421,265 +383,6 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   Track_HQ_Chi2Red_NStubs->setAxisTitle("# Level-1 Stubs", 1);
   Track_HQ_Chi2Red_NStubs->setAxisTitle("Level-1 Track #chi^{2}/ndf", 2);
   
-  
-  
-  
-  /// Track properties compared to TParticles
-  dqmStore_->setCurrentFolder(topFolderName_+"/TTTrackVSTPart/LQ/");
-  
-  // Pt
-  edm::ParameterSet psTrack_Sim_Pt =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Pt");
-  HistoName = "Track_LQ_Pt_TPart_Pt";
-  Track_LQ_Pt_TPart_Pt = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Pt.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Pt.getParameter<double>("xmin"),
-      psTrack_Sim_Pt.getParameter<double>("xmax"),
-      psTrack_Sim_Pt.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Pt.getParameter<double>("ymin"),
-      psTrack_Sim_Pt.getParameter<double>("ymax"));
-  Track_LQ_Pt_TPart_Pt->setAxisTitle("TPart Pt", 1);
-  Track_LQ_Pt_TPart_Pt->setAxisTitle("TTTrack Pt", 2);
-  
-  // PtRes
-  edm::ParameterSet psTrack_Sim_PtRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_PtRes");
-  HistoName = "Track_LQ_PtRes_TPart_Eta";
-  Track_LQ_PtRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_PtRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_PtRes.getParameter<double>("xmin"),
-      psTrack_Sim_PtRes.getParameter<double>("xmax"),
-      psTrack_Sim_PtRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_PtRes.getParameter<double>("ymin"),
-      psTrack_Sim_PtRes.getParameter<double>("ymax"));
-  Track_LQ_PtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_PtRes_TPart_Eta->setAxisTitle("TTTrack Pt - TPart Pt", 2);
-  
-  // InvPt
-  edm::ParameterSet psTrack_Sim_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_InvPt");
-  HistoName = "Track_LQ_InvPt_TPart_InvPt";
-  Track_LQ_InvPt_TPart_InvPt = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_InvPt.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_InvPt.getParameter<double>("xmin"),
-      psTrack_Sim_InvPt.getParameter<double>("xmax"),
-      psTrack_Sim_InvPt.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_InvPt.getParameter<double>("ymin"),
-      psTrack_Sim_InvPt.getParameter<double>("ymax"));
-  Track_LQ_InvPt_TPart_InvPt->setAxisTitle("TPart 1/Pt", 1);
-  Track_LQ_InvPt_TPart_InvPt->setAxisTitle("TTTrack 1/Pt", 2);
-  
-  // InvPtRes
-  edm::ParameterSet psTrack_Sim_InvPtRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_InvPtRes");
-  HistoName = "Track_LQ_InvPtRes_TPart_Eta";
-  Track_LQ_InvPtRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_InvPtRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_InvPtRes.getParameter<double>("xmin"),
-      psTrack_Sim_InvPtRes.getParameter<double>("xmax"),
-      psTrack_Sim_InvPtRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_InvPtRes.getParameter<double>("ymin"),
-      psTrack_Sim_InvPtRes.getParameter<double>("ymax"));
-  Track_LQ_InvPtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_InvPtRes_TPart_Eta->setAxisTitle("TTTrack 1/Pt - TPart 1/Pt", 2);
-  
-  // Phi
-  edm::ParameterSet psTrack_Sim_Phi =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Phi");
-  HistoName = "Track_LQ_Phi_TPart_Phi";
-  Track_LQ_Phi_TPart_Phi = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Phi.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Phi.getParameter<double>("xmin"),
-      psTrack_Sim_Phi.getParameter<double>("xmax"),
-      psTrack_Sim_Phi.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Phi.getParameter<double>("ymin"),
-      psTrack_Sim_Phi.getParameter<double>("ymax"));
-  Track_LQ_Phi_TPart_Phi->setAxisTitle("TPart Phi", 1);
-  Track_LQ_Phi_TPart_Phi->setAxisTitle("TTTrack Phi", 2);
-  
-  // PhiRes
-  edm::ParameterSet psTrack_Sim_PhiRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_PhiRes");
-  HistoName = "Track_LQ_PhiRes_TPart_Eta";
-  Track_LQ_PhiRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_PhiRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_PhiRes.getParameter<double>("xmin"),
-      psTrack_Sim_PhiRes.getParameter<double>("xmax"),
-      psTrack_Sim_PhiRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_PhiRes.getParameter<double>("ymin"),
-      psTrack_Sim_PhiRes.getParameter<double>("ymax"));
-  Track_LQ_PhiRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_PhiRes_TPart_Eta->setAxisTitle("TTTrack Phi - TPart Phi", 2);
-  
-  // Eta
-  edm::ParameterSet psTrack_Sim_Eta =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Eta");
-  HistoName = "Track_LQ_Eta_TPart_Eta";
-  Track_LQ_Eta_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Eta.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Eta.getParameter<double>("xmin"),
-      psTrack_Sim_Eta.getParameter<double>("xmax"),
-      psTrack_Sim_Eta.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Eta.getParameter<double>("ymin"),
-      psTrack_Sim_Eta.getParameter<double>("ymax"));
-  Track_LQ_Eta_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_Eta_TPart_Eta->setAxisTitle("TTTrack Eta", 2);
-  
-  // EtaRes
-  edm::ParameterSet psTrack_Sim_EtaRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_EtaRes");
-  HistoName = "Track_LQ_EtaRes_TPart_Eta";
-  Track_LQ_EtaRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_EtaRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_EtaRes.getParameter<double>("xmin"),
-      psTrack_Sim_EtaRes.getParameter<double>("xmax"),
-      psTrack_Sim_EtaRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_EtaRes.getParameter<double>("ymin"),
-      psTrack_Sim_EtaRes.getParameter<double>("ymax"));
-  Track_LQ_EtaRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_EtaRes_TPart_Eta->setAxisTitle("TTTrack Eta - TPart Eta", 2);
-  
-  // Vertex position in z
-  edm::ParameterSet psTrack_Sim_Vtx =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Vtx");
-  HistoName = "Track_LQ_VtxZ0_TPart_VtxZ0";
-  Track_LQ_VtxZ0_TPart_VtxZ0 = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Vtx.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Vtx.getParameter<double>("xmin"),
-      psTrack_Sim_Vtx.getParameter<double>("xmax"),
-      psTrack_Sim_Vtx.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Vtx.getParameter<double>("ymin"),
-      psTrack_Sim_Vtx.getParameter<double>("ymax"));
-  Track_LQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex Position in z", 1);
-  Track_LQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TTTrack Vertex Position in z", 2);
-  
-  // Vertex position in z
-  edm::ParameterSet psTrack_Sim_VtxRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_VtxRes");
-  HistoName = "Track_LQ_VtxZ0Res_TPart_Eta";
-  Track_LQ_VtxZ0Res_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_VtxRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_VtxRes.getParameter<double>("xmin"),
-      psTrack_Sim_VtxRes.getParameter<double>("xmax"),
-      psTrack_Sim_VtxRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_VtxRes.getParameter<double>("ymin"),
-      psTrack_Sim_VtxRes.getParameter<double>("ymax"));
-  Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("TTTrack - TPart Vertex Position in z", 2);
-  
-  
-  
-  dqmStore_->setCurrentFolder(topFolderName_+"/TTTrackVSTPart/HQ");
-	
-	// Pt
-  HistoName = "Track_HQ_Pt_TPart_Pt";
-  Track_HQ_Pt_TPart_Pt = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Pt.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Pt.getParameter<double>("xmin"),
-      psTrack_Sim_Pt.getParameter<double>("xmax"),
-      psTrack_Sim_Pt.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Pt.getParameter<double>("ymin"),
-      psTrack_Sim_Pt.getParameter<double>("ymax"));
-  Track_HQ_Pt_TPart_Pt->setAxisTitle("TPart Pt", 1);
-  Track_HQ_Pt_TPart_Pt->setAxisTitle("TTTrack Pt", 2);
-  
-  // PtRes
-  HistoName = "Track_HQ_PtRes_TPart_Eta";
-  Track_HQ_PtRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_PtRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_PtRes.getParameter<double>("xmin"),
-      psTrack_Sim_PtRes.getParameter<double>("xmax"),
-      psTrack_Sim_PtRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_PtRes.getParameter<double>("ymin"),
-      psTrack_Sim_PtRes.getParameter<double>("ymax"));
-  Track_HQ_PtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_PtRes_TPart_Eta->setAxisTitle("TTTrack Pt - TPart Pt", 2);
-  
-  // InvPt
-  HistoName = "Track_HQ_InvPt_TPart_InvPt";
-  Track_HQ_InvPt_TPart_InvPt = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_InvPt.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_InvPt.getParameter<double>("xmin"),
-      psTrack_Sim_InvPt.getParameter<double>("xmax"),
-      psTrack_Sim_InvPt.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_InvPt.getParameter<double>("ymin"),
-      psTrack_Sim_InvPt.getParameter<double>("ymax"));
-  Track_HQ_InvPt_TPart_InvPt->setAxisTitle("TPart 1/Pt", 1);
-  Track_HQ_InvPt_TPart_InvPt->setAxisTitle("TTTrack 1/Pt", 2);
-  
-  // InvPtRes
-  HistoName = "Track_HQ_InvPtRes_TPart_Eta";
-  Track_HQ_InvPtRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_InvPtRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_InvPtRes.getParameter<double>("xmin"),
-      psTrack_Sim_InvPtRes.getParameter<double>("xmax"),
-      psTrack_Sim_InvPtRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_InvPtRes.getParameter<double>("ymin"),
-      psTrack_Sim_InvPtRes.getParameter<double>("ymax"));
-  Track_HQ_InvPtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_InvPtRes_TPart_Eta->setAxisTitle("TTTrack 1/Pt - TPart 1/Pt", 2);
-  
-  // Phi
-  HistoName = "Track_HQ_Phi_TPart_Phi";
-  Track_HQ_Phi_TPart_Phi = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Phi.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Phi.getParameter<double>("xmin"),
-      psTrack_Sim_Phi.getParameter<double>("xmax"),
-      psTrack_Sim_Phi.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Phi.getParameter<double>("ymin"),
-      psTrack_Sim_Phi.getParameter<double>("ymax"));
-  Track_HQ_Phi_TPart_Phi->setAxisTitle("TPart Phi", 1);
-  Track_HQ_Phi_TPart_Phi->setAxisTitle("TTTrack Phi", 2);
-  
-  // PhiRes
-  HistoName = "Track_HQ_PhiRes_TPart_Eta";
-  Track_HQ_PhiRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_PhiRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_PhiRes.getParameter<double>("xmin"),
-      psTrack_Sim_PhiRes.getParameter<double>("xmax"),
-      psTrack_Sim_PhiRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_PhiRes.getParameter<double>("ymin"),
-      psTrack_Sim_PhiRes.getParameter<double>("ymax"));
-  Track_HQ_PhiRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_PhiRes_TPart_Eta->setAxisTitle("TTTrack Phi - TPart Phi", 2);
-  
-  // Eta
-  HistoName = "Track_HQ_Eta_TPart_Eta";
-  Track_HQ_Eta_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Eta.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Eta.getParameter<double>("xmin"),
-      psTrack_Sim_Eta.getParameter<double>("xmax"),
-      psTrack_Sim_Eta.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Eta.getParameter<double>("ymin"),
-      psTrack_Sim_Eta.getParameter<double>("ymax"));
-  Track_HQ_Eta_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_Eta_TPart_Eta->setAxisTitle("TTTrack Eta", 2);
-  
-  // EtaRes
-  HistoName = "Track_HQ_EtaRes_TPart_Eta";
-  Track_HQ_EtaRes_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_EtaRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_EtaRes.getParameter<double>("xmin"),
-      psTrack_Sim_EtaRes.getParameter<double>("xmax"),
-      psTrack_Sim_EtaRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_EtaRes.getParameter<double>("ymin"),
-      psTrack_Sim_EtaRes.getParameter<double>("ymax"));
-  Track_HQ_EtaRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_EtaRes_TPart_Eta->setAxisTitle("TTTrack Eta - TPart Eta", 2);
-  
-  // Vertex position in z
-  HistoName = "Track_HQ_VtxZ0_TPart_VtxZ0";
-  Track_HQ_VtxZ0_TPart_VtxZ0 = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_Vtx.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_Vtx.getParameter<double>("xmin"),
-      psTrack_Sim_Vtx.getParameter<double>("xmax"),
-      psTrack_Sim_Vtx.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_Vtx.getParameter<double>("ymin"),
-      psTrack_Sim_Vtx.getParameter<double>("ymax"));
-  Track_HQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex Position in z", 1);
-  Track_HQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TTTrack Vertex Position in z", 2);
-  
-  // Vertex position in z
-  HistoName = "Track_HQ_VtxZ0Res_TPart_Eta";
-  Track_HQ_VtxZ0Res_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Sim_VtxRes.getParameter<int32_t>("Nbinsx"),
-      psTrack_Sim_VtxRes.getParameter<double>("xmin"),
-      psTrack_Sim_VtxRes.getParameter<double>("xmax"),
-      psTrack_Sim_VtxRes.getParameter<int32_t>("Nbinsy"),
-      psTrack_Sim_VtxRes.getParameter<double>("ymin"),
-      psTrack_Sim_VtxRes.getParameter<double>("ymax"));
-  Track_HQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_VtxZ0Res_TPart_Eta->setAxisTitle("TTTrack - TPart Vertex Position in z", 2);
 }
 
 

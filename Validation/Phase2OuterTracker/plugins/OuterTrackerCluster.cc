@@ -55,6 +55,7 @@ OuterTrackerCluster::OuterTrackerCluster(const edm::ParameterSet& iConfig)
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTClusters_ = conf_.getParameter< edm::InputTag >("TTClusters");
   tagTTClusterMCTruth_ = conf_.getParameter< edm::InputTag >("TTClusterMCTruth");
+  verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }
 
 
@@ -137,20 +138,29 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         if ( genuineClu )
         {
           Cluster_Gen_Endcap->Fill( detIdClu.iDisk() );
-          if ( detIdClu.iSide() == 1) Cluster_Gen_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-          else if ( detIdClu.iSide() == 2) Cluster_Gen_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          if ( verbosePlots_ )
+          {
+            if ( detIdClu.iSide() == 1) Cluster_Gen_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+            else if ( detIdClu.iSide() == 2) Cluster_Gen_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          } /// End verbosePlots
         }
         else if ( combinClu )
         {
           Cluster_Comb_Endcap->Fill( detIdClu.iDisk() );
-          if ( detIdClu.iSide() == 1) Cluster_Comb_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-          else if ( detIdClu.iSide() == 2) Cluster_Comb_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          if ( verbosePlots_ )
+          {
+            if ( detIdClu.iSide() == 1) Cluster_Comb_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+            else if ( detIdClu.iSide() == 2) Cluster_Comb_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          } /// End verbosePlots
         }
         else
         {
           Cluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
-          if ( detIdClu.iSide() == 1) Cluster_Unkn_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-          else if ( detIdClu.iSide() == 2) Cluster_Unkn_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          if ( verbosePlots_ )
+          {
+            if ( detIdClu.iSide() == 1) Cluster_Unkn_EndcapRing_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+            else if ( detIdClu.iSide() == 2) Cluster_Unkn_EndcapRing_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
+          } /// End verbosePlots
         }
       }	// end if isEndcap()
       
@@ -226,73 +236,82 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   Cluster_Comb_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Comb_Endcap->setAxisTitle("# Clusters", 2);
   
-  edm::ParameterSet psTTClusterRings =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Rings");
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_Gen_Disk+%d", i+1);     
-    Cluster_Gen_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
-        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-        psTTClusterRings.getParameter<double>("xmin"),
-        psTTClusterRings.getParameter<double>("xmax"));
-    Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
-    Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
-  }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_Gen_Disk-%d", i+1);     
-    Cluster_Gen_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
-        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-        psTTClusterRings.getParameter<double>("xmin"),
-        psTTClusterRings.getParameter<double>("xmax"));
-    Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
-    Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
-  }
-  
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_Unkn_Disk+%d", i+1);
-    Cluster_Unkn_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
-        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-        psTTClusterRings.getParameter<double>("xmin"),
-        psTTClusterRings.getParameter<double>("xmax"));
-    Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
-    Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
-  }
-  
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_Unkn_Disk-%d", i+1);
-    Cluster_Unkn_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
-        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-        psTTClusterRings.getParameter<double>("xmin"),
-        psTTClusterRings.getParameter<double>("xmax"));
-    Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
-    Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
-  }
-  
-  for(int i=0;i<5;i++){
+  /// Plots for debugging
+  if ( verbosePlots_ )
+  {
+    dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClustersPerRing");
+    edm::ParameterSet psTTClusterRings =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Rings");
+    
+    for(int i=0;i<5;i++){
       Char_t histo[200];
-      sprintf(histo, "NClusters_Comb_Disk+%d", i+1);
-    Cluster_Comb_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
-        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-        psTTClusterRings.getParameter<double>("xmin"),
-        psTTClusterRings.getParameter<double>("xmax"));
-    Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
-    Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
-  }
-  
-  for(int i=0;i<5;i++){
+      sprintf(histo, "NClusters_Gen_Disk+%d", i+1);     
+      Cluster_Gen_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+          psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+          psTTClusterRings.getParameter<double>("xmin"),
+          psTTClusterRings.getParameter<double>("xmax"));
+      Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+      Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+    }
+
+    for(int i=0;i<5;i++){
       Char_t histo[200];
-      sprintf(histo, "NClusters_Comb_Disk-%d", i+1);
-    Cluster_Comb_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
-        psTTClusterRings.getParameter<int32_t>("Nbinsx"),
-        psTTClusterRings.getParameter<double>("xmin"),
-        psTTClusterRings.getParameter<double>("xmax"));
-    Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
-    Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
-  }
+      sprintf(histo, "NClusters_Gen_Disk-%d", i+1);     
+      Cluster_Gen_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+          psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+          psTTClusterRings.getParameter<double>("xmin"),
+          psTTClusterRings.getParameter<double>("xmax"));
+      Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+      Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+    }
+
+    for(int i=0;i<5;i++){
+      Char_t histo[200];
+      sprintf(histo, "NClusters_Unkn_Disk+%d", i+1);
+      Cluster_Unkn_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+          psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+          psTTClusterRings.getParameter<double>("xmin"),
+          psTTClusterRings.getParameter<double>("xmax"));
+      Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+      Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+    }
+
+    for(int i=0;i<5;i++){
+      Char_t histo[200];
+      sprintf(histo, "NClusters_Unkn_Disk-%d", i+1);
+      Cluster_Unkn_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+          psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+          psTTClusterRings.getParameter<double>("xmin"),
+          psTTClusterRings.getParameter<double>("xmax"));
+      Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+      Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+    }
+
+    for(int i=0;i<5;i++){
+        Char_t histo[200];
+        sprintf(histo, "NClusters_Comb_Disk+%d", i+1);
+      Cluster_Comb_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
+          psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+          psTTClusterRings.getParameter<double>("xmin"),
+          psTTClusterRings.getParameter<double>("xmax"));
+      Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
+      Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+    }
+
+    for(int i=0;i<5;i++){
+        Char_t histo[200];
+        sprintf(histo, "NClusters_Comb_Disk-%d", i+1);
+      Cluster_Comb_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
+          psTTClusterRings.getParameter<int32_t>("Nbinsx"),
+          psTTClusterRings.getParameter<double>("xmin"),
+          psTTClusterRings.getParameter<double>("xmax"));
+      Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
+      Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+    }
+  
+  } /// End verbosePlots
+  
   
   edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Gen_Eta";

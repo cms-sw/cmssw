@@ -9,6 +9,8 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
     TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
     TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
     TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),    
+    HQDelim        = cms.int32(4),
+    verbosePlots   = cms.untracked.bool(True),
 
 
 # TPart Pt
@@ -75,6 +77,27 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(250.5),                      
         xmin = cms.double(-250.5),
         ),   
+
+# Track Chi2 vs TPart Eta
+    TH2Track_Chi2 = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(50),
+        ymin = cms.double(0)
+        ),
+
+# Track Chi2/ndf vs TPart Eta
+    TH2Track_Chi2Red = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(10),
+        ymin = cms.double(0)
+        ),
+
 
 # Stub InvPt vs. TPart InvpT    
     TH2Stub_InvPt = cms.PSet(
@@ -175,5 +198,107 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         ymax = cms.double(7.25),                      
         ymin = cms.double(-7.25)
         ),
+
+# Track Pt vs TPart Pt
+    TH2TTTrack_Sim_Pt = cms.PSet(
+        Nbinsx = cms.int32(100),
+        xmax = cms.double(100),
+        xmin = cms.double(0),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(100),
+        ymin = cms.double(0)
+        ),
+
+# Track PtRes vs TPart Eta
+    TH2TTTrack_Sim_PtRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(200),
+        ymax = cms.double(4.0),
+        ymin = cms.double(-4.0)
+        ),
+
+# Track InvPt vs TPart InvPt
+    TH2TTTrack_Sim_InvPt = cms.PSet(
+        Nbinsx = cms.int32(150),
+        xmax = cms.double(0.6),
+        xmin = cms.double(0),
+        Nbinsy = cms.int32(150),
+        ymax = cms.double(0.6),
+        ymin = cms.double(0)
+        ),
+
+# Track InvPtRes vs TPart Eta
+    TH2TTTrack_Sim_InvPtRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(1.0),
+        ymin = cms.double(-1.0)
+        ),
+
+# Track Phi vs TPart Phi
+    TH2TTTrack_Sim_Phi = cms.PSet(
+        Nbinsx = cms.int32(90),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(90),
+        ymax = cms.double(3.1416),
+        ymin = cms.double(-3.1416)
+        ),
+
+# Track PhiRes vs TPart Eta
+    TH2TTTrack_Sim_PhiRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(0.5),
+        ymin = cms.double(-0.5)
+        ),
+
+# Track Eta vs TPart Eta
+    TH2TTTrack_Sim_Eta = cms.PSet(
+        Nbinsx = cms.int32(90),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(90),
+        ymax = cms.double(3.1416),
+        ymin = cms.double(-3.1416)
+        ),
+
+# Track EtaRes vs TPart Eta
+    TH2TTTrack_Sim_EtaRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(0.5),
+        ymin = cms.double(-0.5)
+        ),
+
+# Track Vtx vs TPart Vtx
+    TH2TTTrack_Sim_Vtx = cms.PSet(
+        Nbinsx = cms.int32(100),
+        xmax = cms.double(25),
+        xmin = cms.double(-25),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(25),
+        ymin = cms.double(-25)
+        ),
+
+# Track VtxRes vs TPart Eta
+    TH2TTTrack_Sim_VtxRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(5),
+        ymin = cms.double(-5)
+        ),
+
+
 
 )

@@ -51,6 +51,7 @@ public:
   edm::InputTag tagTTClusterMCTruth_;
 
   std::string topFolderName_;
+  bool verbosePlots_;
   
 };
 #endif
