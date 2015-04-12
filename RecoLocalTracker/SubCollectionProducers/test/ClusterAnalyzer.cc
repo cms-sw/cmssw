@@ -86,7 +86,7 @@ ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig)
   for(auto iS : wantedsubdets){
 
     ClusterSummary::CMSTracker subdet = ClusterSummary::NVALIDENUMS;
-    for(int iN = 0; iN < ClusterSummary::NVALIDENUMS; ++i)
+    for(int iN = 0; iN < ClusterSummary::NVALIDENUMS; ++iN)
       if(ClusterSummary::subDetNames[iN] == iS)
         subdet = ClusterSummary::CMSTracker(iN);
     if(subdet == ClusterSummary::NVALIDENUMS) throw cms::Exception( "No standard selection: ") << iS;
@@ -134,8 +134,8 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    Handle< ClusterSummary  > class_;
    iEvent.getByToken( token, class_);
    
-   for ( unsigned int iM  = 0; iM < class_->GetNumberOfModules(); iM++ ){
-     auto iAllModules = allModules_.find(class_->GetModule(iM));
+   for ( unsigned int iM  = 0; iM < class_->getNumberOfModules(); iM++ ){
+     auto iAllModules = allModules_.find(class_->getModule(iM));
      if(iAllModules == allModules_.end()) continue;
 
      std::string tmpstr = iAllModules->second;
