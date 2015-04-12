@@ -280,6 +280,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             qualityBit = cms.string('highPurity'),
             keepAllTracks = cms.bool(True),
             res_par = ( 0.003, 0.001 ),
+            d0_par1 = ( 1.0, 3.0 ),
             dz_par1 = ( 1.0, 3.0 ),
             d0_par2 = ( 1.1, 3.0 ),
             dz_par2 = ( 1.1, 3.0 )

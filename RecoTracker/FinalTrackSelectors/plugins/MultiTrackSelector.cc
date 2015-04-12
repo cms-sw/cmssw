@@ -258,6 +258,8 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   Handle<TrackCollection> hSrcTrack;
   evt.getByToken(src_, hSrcTrack );
   const TrackCollection& srcTracks(*hSrcTrack);
+  if (hSrcTrack.failedToGet())
+        edm::LogWarning("MultiTrackSelector")<<"could not get Track collection";
 
   // get hits in track..
   Handle<TrackingRecHitCollection> hSrcHits;
@@ -272,7 +274,11 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
-  if (useVertices_) evt.getByToken(vertices_, hVtx);
+  if (useVertices_) { 
+     evt.getByToken(vertices_, hVtx);
+     if (hVtx.failedToGet()) 
+        edm::LogWarning("MultiTrackSelector")<<"could not get Vertex collection";
+  }
 
   unsigned int trkSize=srcTracks.size();
   std::vector<int> selTracksSave( qualityToSet_.size()*trkSize,0);
@@ -280,10 +286,10 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   std::vector<Point> points;
   std::vector<float> vterr, vzerr;
   if (useVertices_) selectVertices(0,*hVtx, points, vterr, vzerr);
-	
+  auto vtxP = points.empty() ? vertexBeamSpot.position() : points[0]; // rare, very rare, still happens!
   for (unsigned int i=0; i<qualityToSet_.size(); i++) {  
     std::vector<float> mvaVals_(srcTracks.size(),-99.f);
-    processMVA(evt,es,vertexBeamSpot,points[0], i, mvaVals_, i == 0 ? true : false);
+    processMVA(evt,es,vertexBeamSpot,vtxP, i, mvaVals_, i == 0 ? true : false);
     std::vector<int> selTracks(trkSize,0);
     auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
