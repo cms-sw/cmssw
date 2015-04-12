@@ -50,7 +50,8 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi imp
 # Composite filter
 lowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters   = [cms.PSet(refToPSet_ = cms.string('lowPtTripletStepStandardTrajectoryFilter')),
-                 cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
+                 # cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))
+                ]
     )
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi

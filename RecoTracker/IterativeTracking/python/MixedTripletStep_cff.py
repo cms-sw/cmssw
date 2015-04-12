@@ -128,7 +128,8 @@ mixedTripletStepSeeds.seedCollections = cms.VInputTag(
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 mixedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    maxLostHits = 0,
+#    maxLostHits = 0,
+    constantValueForLostHitsFractionFilter = 1.4,
     minimumNumberOfHits = 3,
     minPt = 0.1
     )

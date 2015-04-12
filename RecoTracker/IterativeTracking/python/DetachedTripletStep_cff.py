@@ -49,8 +49,8 @@ detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    maxLostHitsFraction = cms.double(1./10.),
-    constantValueForLostHitsFractionFilter = cms.double(0.701),
+#    maxLostHitsFraction = cms.double(1./10.),
+#    constantValueForLostHitsFractionFilter = cms.double(0.701),
     minimumNumberOfHits = 3,
     minPt = 0.075
     )
@@ -60,7 +60,8 @@ detachedTripletStepTrajectoryFilter = cms.PSet(
     ComponentType = cms.string('CompositeTrajectoryFilter'),
     filters = cms.VPSet(
         cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterBase')),
-        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape'))),
+#        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape'))
+    ),
 )
 
 
@@ -113,8 +114,6 @@ detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
     src = 'detachedTripletStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
-
-# TRACK SELECTION AND QUALITY FLAG SETTING.
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
