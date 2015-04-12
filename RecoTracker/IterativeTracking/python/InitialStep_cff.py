@@ -42,7 +42,8 @@ initialStepTrajectoryFilter = cms.PSet(
     ComponentType = cms.string('CompositeTrajectoryFilter'),
     filters = cms.VPSet(
         cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterBase')),
-        cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterShape'))),
+    #    cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterShape'))
+    ),
 )
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
@@ -126,14 +127,12 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
         ),
     detachedTripletStepSelector.trackSelectors[4].clone(
         name = 'initialStepV2',
-#        useMVA = cms.bool(False),
         preFilterName=cms.string(''),
         keepAllTracks = cms.bool(False)
         ),
     detachedTripletStepSelector.trackSelectors[5].clone(
         name = 'initialStepV3',
         preFilterName=cms.string(''),
-#        useMVA = cms.bool(False),
         keepAllTracks = cms.bool(False)
         )
     ) #end of vpset
