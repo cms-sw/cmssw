@@ -8,33 +8,39 @@ using namespace pat;
 
 
 /// default constructor
-MET::MET(): uncorInfo_(nullptr) {
+MET::MET() {
 }
 
 
 /// constructor from reco::MET
-MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET), uncorInfo_(nullptr) {
+MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(&aMET);
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(&aMET);
     if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    const pat::MET * pm = dynamic_cast<const pat::MET *>(&aMET);
+    if (pm != 0) this->operator=(*pm);
 }
 
 
 /// constructor from ref to reco::MET
-MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef), uncorInfo_(nullptr) {
+MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
     if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
+    if (pm != 0) this->operator=(*pm);
 }
 
 /// constructor from ref to reco::MET
-MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef), uncorInfo_(nullptr) {
+MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
     if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
+    if (pm != 0) this->operator=(*pm);
 }
 
 /// copy constructor
@@ -43,19 +49,15 @@ PATObject<reco::MET>(iOther),
 genMET_(iOther.genMET_),
 caloMET_(iOther.caloMET_),
 pfMET_(iOther.pfMET_),
-uncorInfo_(nullptr)
-{
-   auto tmp = iOther.uncorInfo_.load(std::memory_order_acquire);
-   if(tmp != nullptr) {
-      //Only thread-safe to read iOther.nCorrections_ if iOther.uncorInfo_ != nullptr
-      nCorrections_ = iOther.nCorrections_;
-      uncorInfo_.store( new std::vector<UncorInfo>{*tmp},std::memory_order_release);
-   }
+uncertaintiesRaw_(iOther.uncertaintiesRaw_),
+uncertaintiesType1_(iOther.uncertaintiesType1_),
+uncertaintiesType1p2_(iOther.uncertaintiesType1p2_),
+caloPackedMet_(iOther.caloPackedMet_) {
 }
 
 /// destructor
 MET::~MET() {
-   delete uncorInfo_.load(std::memory_order_acquire);
+
 }
 
 MET& MET::operator=(MET const& iOther) {
@@ -63,15 +65,11 @@ MET& MET::operator=(MET const& iOther) {
    genMET_ = iOther.genMET_;
    caloMET_ =iOther.caloMET_;
    pfMET_ =iOther.pfMET_;
-   auto tmp = iOther.uncorInfo_.load(std::memory_order_acquire);
-   if(tmp != nullptr) {
-      //Only thread-safe to read iOther.nCorrections_ if iOther.uncorInfo_ != nullptr
-      nCorrections_ = iOther.nCorrections_;
-      delete uncorInfo_.exchange( new std::vector<UncorInfo>{*tmp},std::memory_order_acq_rel);
-   } else {
-      nCorrections_ = 0;
-      delete uncorInfo_.exchange(nullptr, std::memory_order_acq_rel);
-   }
+   uncertaintiesRaw_ = iOther.uncertaintiesRaw_;
+   uncertaintiesType1_ = iOther.uncertaintiesType1_;
+   uncertaintiesType1p2_ = iOther.uncertaintiesType1p2_;
+   caloPackedMet_ = iOther.caloPackedMet_;
+
    return *this;
 }
 
@@ -87,127 +85,125 @@ void MET::setGenMET(const reco::GenMET & gm) {
 }
 
 //! return uncorrrection related stuff
-unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
+//unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
-float MET::corEx(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return 0;
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEx;
+float MET::uncorrectedPt() const {
+  return shiftedPt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
-float MET::corEy(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return 0;
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEy;
+float MET::uncorrectedPhi() const {
+   return shiftedPhi(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
-float MET::corSumEt(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return 0;
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corSumEt;
-}
-float MET::uncorrectedPt(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return pt();
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].pt;
-}
-float MET::uncorrectedPhi(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return phi();
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].phi;
+float MET::uncorrectedSumEt() const {
+  return shiftedSumEt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
 
-
-//! check and set transients
-void MET::checkUncor_() const {
-  if (uncorInfo_.load(std::memory_order_acquire)!=nullptr ) return;
-
-  const std::vector<CorrMETData>& corrs(mEtCorr());
-  const auto nCorrectionsTmp = corrs.size();
-  
-  std::unique_ptr<std::vector<UncorInfo>> uncorInfoTmpPtr{ new std::vector<UncorInfo>{uncorrMAXN} };
-  auto& uncorInfoTmp = *uncorInfoTmpPtr;
-
-  UncorrectionType ix;
-
-  //! ugly
-  //! ALL
-  ix = uncorrALL;
-  uncorInfoTmp[ix] = UncorInfo();
-  for (unsigned int iC=0; iC < nCorrectionsTmp; ++iC){
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //! JES
-  ix = uncorrJES;
-  uncorInfoTmp[ix] = UncorInfo();
-  if (nCorrectionsTmp >=1 ){
-    unsigned int iC = 0;
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //! MUON
-  ix = uncorrMUON;
-  uncorInfoTmp[ix] = UncorInfo();
-  if (nCorrectionsTmp >=2 ){
-    unsigned int iC = 1;
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //! TAU
-  ix = uncorrTAU;
-  uncorInfoTmp[ix] = UncorInfo();
-  if (nCorrectionsTmp >=3 ){
-    unsigned int iC = 2;
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //The compare_exchange_strong guarantees that the new value of nCorrections_ will be seen by other
-  // threads
-  nCorrections_ = nCorrectionsTmp;
-  
-  std::vector<UncorInfo>* expected=nullptr;
-  if(uncorInfo_.compare_exchange_strong(expected,uncorInfoTmpPtr.get(),std::memory_order_acq_rel)) {
-     uncorInfoTmpPtr.release();
-  }
-}
-
-void MET::setPtPhi_(UncorInfo& uci) const {
-  float lpx = px() - uci.corEx;
-  float lpy = py() - uci.corEy;
-  uci.pt = sqrt(lpx*lpx + lpy*lpy);
-  uci.phi = atan2(lpy, lpx);
-}
 
 MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METUncertaintyLevel level)  const {
+    if (level != Type1 && level != Type1p2 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw, Type1 and Type1p2\n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
     if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.size() == 1) {
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        return Vector2{ (px() + v.front().dpx()), (py() + v.front().dpy()) };
+    }
     Vector2 ret{ (px() + v[shift].dpx()), (py() + v[shift].dpy()) };
     return ret;
 }
 MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METUncertaintyLevel level)  const {
+    if (level != Type1 && level != Type1p2 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw, Type1 and Type1p2\n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
     if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.size() == 1) {
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        return Vector(px() + v.front().dpx(), py() + v.front().dpy(), 0);
+    }
     return Vector(px() + v[shift].dpx(), py() + v[shift].dpy(), 0);
 }
 MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METUncertaintyLevel level)  const {
+    if (level != Type1 && level != Type1p2 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw, Type1 and Type1p2\n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
     if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.size() == 1) {
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        double x = px() + v.front().dpx(), y = py() + v.front().dpy();
+        return LorentzVector(x, y, 0, std::hypot(x,y));
+    }
     double x = px() + v[shift].dpx(), y = py() + v[shift].dpy();
     return LorentzVector(x, y, 0, std::hypot(x,y));
 }
 double MET::shiftedSumEt(MET::METUncertainty shift, MET::METUncertaintyLevel level) const {
+    if (level != Type1 && level != Type1p2 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw, Type1 and Type1p2\n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
     if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.size() == 1) {
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        return sumEt() + v.front().dsumEt();
+    }
     return sumEt() + v[shift].dsumEt();
 }
+
 void MET::setShift(double px, double py, double sumEt, MET::METUncertainty shift, MET::METUncertaintyLevel level) {
+  if( level != Calo ) {
+    if (level != Type1 && level != Type1p2 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw, Type1 and Type1p2\n");
     std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
-    if (v.empty()) v.resize(METUncertaintySize);
-    v[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+    if (shift == MET::METUncertainty::NoShift) {
+        if (v.empty()) { // fresh MET: make size 1, add this
+            v.resize(1);
+            v.back().set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+        } else if (v.size() == 1) {  // only unshifted, and I'm updating it
+            v.back().set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+        } else if (v.size() != MET::METUncertainty::METUncertaintySize) { 
+            // already initialized with something I don't understand
+            throw cms::Exception("Unsupported", "setShift called after the set of uncertainties is not of a supported size (not 0, 1, or METUncertaintySize)\n");
+        } else {
+            // full set of uncertainties, and I'm updating the no-shift one
+            v[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+        }
+    } else {
+        if (v.empty()) { // fresh MET. make room for all
+            v.resize(METUncertaintySize);
+        } else if (v.size() == 1) { // I had set only the unshifted, so I extend it copying over the existing one
+            v.resize(METUncertaintySize, v.back()); 
+        } else if (v.size() != MET::METUncertainty::METUncertaintySize) { // already initialized with something I don't understand
+            throw cms::Exception("Unsupported", "setShift called after the set of uncertainties is not of a supported size (not 0, 1, or METUncertaintySize)\n");
+        }
+        v[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+    }
+  } else {
+    caloPackedMet_.set(px, py, sumEt);
+  }
 }
+
+
+MET::Vector2 MET::caloMETP2() const {
+  Vector2 ret{ caloPackedMet_.dpx(), caloPackedMet_.dpy() };
+  return ret;
+}
+
+double MET::caloMETPt() const {
+  return caloMETP2().pt();
+}
+
+double MET::caloMETPhi() const {
+  return caloMETP2().phi();
+}
+
+double MET::caloMETSumEt() const {
+  return caloPackedMet_.dsumEt();
+}
+
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
+
+void MET::PackedMETUncertainty::pack() {
+  packedDpx_  =  MiniFloatConverter::float32to16(dpx_);
+  packedDpy_  =  MiniFloatConverter::float32to16(dpy_);
+  packedDSumEt_  =  MiniFloatConverter::float32to16(dsumEt_);
+}
+void  MET::PackedMETUncertainty::unpack() const {
+  unpacked_=true;
+  dpx_=MiniFloatConverter::float16to32(packedDpx_);
+  dpy_=MiniFloatConverter::float16to32(packedDpy_);
+  dsumEt_=MiniFloatConverter::float16to32(packedDSumEt_);
+
+}
+

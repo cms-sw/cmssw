@@ -4,13 +4,11 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="FWCore/RootAutoLibraryLoader"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
 <use   name="boost"/>
-<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="roothistmatrix"/>
 <use   name="xerces-c"/>

@@ -49,7 +49,16 @@
       int gainId = digi[isample].gainId();
       //int gainId = 1;
 
-      result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
+      if(gainId == 1) {
+        result[isample] = float(digi[isample].adc())/1000./peToA; // special coding                   
+      }
+      else if(gainId > 1) {
+        result[isample] = float(digi[isample].adc())*LSB[gainId-1]*icalconst/peToA;
+      }  // gain = 0                                                                                  
+      else { result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;}
+
+      // old version:
+      //result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
     }
 
     //std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
@@ -111,7 +120,16 @@
       int gainId = digi[isample].gainId();
       //int gainId = 1;
 
-      result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
+      if(gainId == 1) {
+        result[isample] = float(digi[isample].adc())/1000./peToA; // special coding                   
+      }
+      else if(gainId > 1) {
+        result[isample] = float(digi[isample].adc())*LSB[gainId-1]*icalconst/peToA;
+      }  // gain = 0                                                                                  
+      else { result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;}
+
+      // old version
+      //result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
     }
 
     //std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;

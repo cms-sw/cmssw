@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TClass.h"
+#include "TError.h"
 
 // user include files
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
@@ -38,7 +39,7 @@
 enum MenuOptions {
    kSetVisibleMO,
    kSetColorMO,
-   kPrint,
+   //   kPrint,
    kOpenDetailViewMO,
    kAfterOpenDetailViewMO,
    kOpenObjectControllerMO=100,
@@ -141,7 +142,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          m_colorPopup->SetSelection(id.item()->modelInfo(id.index()).displayProperties().color());
          m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
          break;
-      }
+      }/*
       case kPrint:
       {
          FWModelId id = *(m_selectionManager->selected().begin());
@@ -161,7 +162,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
 
 
          break;
-      }
+         }*/
       case kOpenObjectControllerMO:
       {
          m_guiManager->showModelPopup();
@@ -256,19 +257,19 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 
    if( m_selectionManager->selected().size()==1 ) {
       {
-         edm::TypeWithDict rtype(edm::TypeWithDict::byName(id.item()->modelType()->GetName()));
-         edm::ObjectWithDict o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-         edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
-         if ( rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), Long_t(kIsConstant)), 0, inh))
-         {
-            m_modelPopup->EnableEntry(kPrint);
+         //edm::TypeWithDict rtype(edm::TypeWithDict::byName(id.item()->modelType()->GetName()));
+         //edm::ObjectWithDict o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         //edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
+         //if ( rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), Long_t(kIsConstant)), 0, inh))
+         //{
+            //m_modelPopup->EnableEntry(kPrint);
             // std::cout <<  "Enable " <<std::endl;
-         }
-         else
-         {           
+         //}
+         //else
+         //{           
             m_modelPopup->DisableEntry(kPrint);
             // printf("Disable print \n");
-         }         
+         //}         
       }
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
@@ -284,8 +285,15 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
          const std::string kStart("Open ");
          const std::string kEnd(" Detail View ...");
          for(unsigned int index=0; index != viewChoices.size(); ++index) {
-            m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+viewChoices[index]+kEnd).c_str());
-            m_modelPopup->EnableEntry(index+kOpenDetailViewMO);
+            m_modelPopup->EnableEntry(index+kOpenDetailViewMO); // need to call this to make it visible
+            if ( viewChoices[index][0] != '!') {
+               m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+viewChoices[index]+kEnd).c_str());
+            }
+            else 
+            {
+               m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+&viewChoices[index][1]+kEnd).c_str());
+               m_modelPopup->DisableEntry(index+kOpenDetailViewMO);
+            }
          }
          for(unsigned int i =viewChoices.size(); i <m_nDetailViewEntries; ++i) {
             m_modelPopup->HideEntry(kOpenDetailViewMO+i);
@@ -325,7 +333,7 @@ FWModelContextMenuHandler::createModelContext() const
       
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
-      m_modelPopup->AddEntry("Print ...",kPrint);
+      //      m_modelPopup->AddEntry("Print ...",kPrint);
       m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO);
       m_nDetailViewEntries=1;
       m_modelPopup->AddSeparator();

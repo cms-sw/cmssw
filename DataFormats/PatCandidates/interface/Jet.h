@@ -71,6 +71,7 @@ namespace pat {
   typedef std::vector<edm::FwdPtr<reco::BaseTagInfo> > TagInfoFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCandidateFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<CaloTower> > CaloTowerFwdPtrCollection;
+  typedef std::vector<edm::Ptr<pat::Jet> > JetPtrCollection;
 
 
   class Jet : public PATObject<reco::Jet> {
@@ -79,6 +80,7 @@ namespace pat {
     /// function, which should be non accessible to any other user
     friend class PATJetProducer;
     friend class PATJetSlimmer;
+    friend class PATJetUpdater;
 
     public:
 
@@ -90,6 +92,10 @@ namespace pat {
       Jet(const edm::RefToBase<reco::Jet> & aJetRef);
       /// constructor from ref to reco::Jet
       Jet(const edm::Ptr<reco::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::RefToBase<pat::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::Ptr<pat::Jet> & aJetRef);
       /// destructor
       virtual ~Jet();
       /// required reimplementation of the Candidate's clone method
@@ -481,6 +487,29 @@ namespace pat {
       /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Jet& obj);
 
+
+
+      /// Access to subjet list
+      pat::JetPtrCollection const & subjets( unsigned int index = 0 ) const;
+
+
+      /// String access to subjet list
+      pat::JetPtrCollection const & subjets( std::string label ) const ;
+
+      /// Add new set of subjets
+      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
+
+      /// Check to see if the subjet collection exists
+      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      
+      /// Number of subjet collections
+      unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
+      
+      /// Subjet collection names
+      std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
+
+
+
     protected:
 
       // ---- for content embedding ----
@@ -496,6 +525,10 @@ namespace pat {
       reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
       reco::PFCandidateFwdPtrVector pfCandidatesFwdPtr_; // Refactorized content embedding
 
+
+      // ---- Jet Substructure ----
+      std::vector< pat::JetPtrCollection> subjetCollections_;
+      std::vector< std::string>          subjetLabels_; 
 
       // ---- MC info ----
 

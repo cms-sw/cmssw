@@ -134,7 +134,8 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  jend = fjInputs.end(); j != jend; ++j ) {
     const reco::Candidate& cand = pfCandidates->at(j->user_index());
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(cand.pdgId());
-    reco::PFCandidate pCand( cand.charge(), cand.p4(), id );
+    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&cand);
+    reco::PFCandidate pCand( pPF ? *pPF : reco::PFCandidate(cand.charge(), cand.p4(), id) );
     auto val = j->user_index();
     auto skmatch = find_if( soft_killed_event.begin(), soft_killed_event.end(), [&val](fastjet::PseudoJet const & i){return i.user_index() == val;} );
     LorentzVector pVec;

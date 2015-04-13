@@ -8,6 +8,7 @@ class LHEAnalyzer( Analyzer ):
     """    """
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(LHEAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
+        self.lheh=Handle('LHEEventProduct')
 
     def declareHandles(self):
         super(LHEAnalyzer, self).declareHandles()
@@ -23,13 +24,19 @@ class LHEAnalyzer( Analyzer ):
             return True
         event.lheHT=0
         event.lheNj=0
+        event.lheNb=0
+        event.lheNc=0
+        event.lheNl=0
+        event.lheNg=0
         event.lheV_pt = 0
-        h=Handle('LHEEventProduct')
-        event.input.getByLabel( 'externalLHEProducer',h)
-        if not  h.isValid() :
+        try:
+          event.input.getByLabel( 'externalLHEProducer',self.lheh)
+        except :
+          return True
+        if not  self.lheh.isValid() :
             return True
         self.readCollections( event.input )
-        hepeup=h.product().hepeup()
+        hepeup=self.lheh.product().hepeup()
         pup=hepeup.PUP
         l=None
         lBar=None
@@ -43,6 +50,14 @@ class LHEAnalyzer( Analyzer ):
           if status == 1 and ( ( idabs == 21 ) or (idabs > 0 and idabs < 7) ) : # gluons and quarks
               event.lheHT += sqrt( pup[i][0]**2 + pup[i][1]**2 ) # first entry is px, second py
               event.lheNj +=1
+              if idabs==5:
+                event.lheNb += 1
+              if idabs==4:
+                event.lheNc += 1
+              if idabs in [1,2,3]:
+                event.lheNl += 1
+              if idabs==21:
+                event.lheNg += 1
           if idabs in [12,14,16] :  
               if id > 0 :
                 nu = i

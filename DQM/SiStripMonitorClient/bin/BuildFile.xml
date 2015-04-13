@@ -1,8 +1,8 @@
 <use   name="root"/>
-<use   name="rootcintex"/>
 <use   name="rootgraphics"/>
 <bin   name="check_runcomplete" file="check_runcomplete.cc"></bin>
 <bin   name="listbadmodule" file="listbadmodule.cc"></bin>
 <bin   name="modulediff" file="modulediff.cc"></bin>
 <bin   name="ls_cert" file="ls_cert.cc"></bin>
 <bin   name="lsbs_cert" file="lsbs_cert.cc"></bin>
+<bin   name="moduleOccupancyPlots" file="moduleOccupancyPlots.cc"></bin>

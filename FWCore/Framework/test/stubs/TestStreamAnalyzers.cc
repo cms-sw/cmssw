@@ -96,7 +96,7 @@ struct Cache {
       m_count = 0;
     }
     
-    void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
       ++m_count;
       ++(runCache()->value);
        

@@ -416,7 +416,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
       }
       
       // book sub-detector plots
-      std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
 	ibooker.setCurrentFolder(sdet_pair.first);
 	createSubDetMEs( ibooker , sdet_pair.second );        

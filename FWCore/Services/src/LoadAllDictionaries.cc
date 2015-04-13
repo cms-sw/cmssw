@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include "Cintex/Cintex.h"
 
 // user include files
 #include "FWCore/Services/src/LoadAllDictionaries.h"
@@ -36,8 +35,6 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
 {
    bool doLoad(iConfig.getUntrackedParameter<bool>("doLoad"));
    if(doLoad) {
-     ROOT::Cintex::Cintex::Enable();
-
      edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
      
      typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;

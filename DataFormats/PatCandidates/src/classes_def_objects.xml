@@ -16,7 +16,11 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="29">
+  <class name="pat::Electron"  ClassVersion="33">
+   <version ClassVersion="33" checksum="459924678"/>
+   <version ClassVersion="32" checksum="3508125821"/>
+   <version ClassVersion="31" checksum="1881133053"/>
+   <version ClassVersion="30" checksum="3949366163"/>
    <version ClassVersion="29" checksum="1784986402"/>
    <version ClassVersion="28" checksum="2518240031"/>
    <version ClassVersion="27" checksum="3863179876"/>
@@ -35,7 +39,9 @@
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >" />
+  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >">
+   <field name="m_data" transient="true"/>
+  </class>
   <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
@@ -50,7 +56,8 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="17">
+  <class name="pat::Muon"  ClassVersion="18">
+   <version ClassVersion="18" checksum="1163602263"/>
    <version ClassVersion="17" checksum="1509153359"/>
    <version ClassVersion="16" checksum="2674665735"/>
    <version ClassVersion="15" checksum="1248517999"/>
@@ -91,8 +98,12 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-   <class name="edm::AtomicPtrCache<reco::TrackRefVector>"/>
-   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >" />
+   <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
+     <field name="m_data" transient="true"/>
+  </class>
+   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >">
+     <field name="m_data" transient="true"/>
+  </class>
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
   <![CDATA[isolationTracksTransientRefVector_.reset();]]>
   </ioread>
@@ -176,7 +187,8 @@
   </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="17">
+  <class name="pat::Photon"  ClassVersion="18">
+   <version ClassVersion="18" checksum="1413598928"/>
    <version ClassVersion="17" checksum="2394457997"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="16" checksum="344001813"/>
@@ -192,8 +204,9 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="14">
-   <version ClassVersion="15" checksum="1826981639"/>
+  <class name="pat::Jet"  ClassVersion="16">
+   <version ClassVersion="16" checksum="4069285947"/>
+   <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -205,17 +218,27 @@
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="13">
+  <class name="pat::MET"  ClassVersion="14">
+   <version ClassVersion="14" checksum="1795935545"/>
    <version ClassVersion="13" checksum="2368359386"/>
    <version ClassVersion="12" checksum="1474251442"/>
    <version ClassVersion="11" checksum="1829185007"/>
    <version ClassVersion="10" checksum="1136648776"/>
-    <field name="uncorInfo_" transient="true"/>
-    <field name="nCorrections_" transient="true"/>
   </class>
-  <class name="pat::MET::PackedMETUncertainty" ClassVersion="10">
+  <class name="pat::MET::PackedMETUncertainty" ClassVersion="11">
+    <version ClassVersion="11" checksum="3523936012"/>
     <version ClassVersion="10" checksum="1984780659"/>
+    <field name="dpx_" transient="true" />
+    <field name="dpy_" transient="true" />
+    <field name="dsumEt_" transient="true" />
+    <field name="unpacked_" transient="true" />
+
   </class>
+  <ioread sourceClass="pat::MET::PackedMETUncertainty"  version="[1-]" targetClass="pat::MET::PackedMETUncertainty" source="" target="unpacked_">
+        <![CDATA[unpacked_ = false; ]]>
+  </ioread>
+  <class name="pat::MET::Vector2"  transient="true" />
+
   <class name="std::vector<pat::MET::PackedMETUncertainty>" />
   <class name="pat::MHT"  ClassVersion="12">
    <version ClassVersion="12" checksum="965016657"/>
@@ -232,7 +255,7 @@
    <version ClassVersion="11" checksum="3492108938"/>
    <version ClassVersion="10" checksum="417284221"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="12">
+  <class name="pat::PFParticle"  ClassVersion="13">
    <version ClassVersion="13" checksum="223824921"/>
    <version ClassVersion="12" checksum="4118931093"/>
    <version ClassVersion="11" checksum="2923110109"/>
@@ -252,8 +275,9 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="16">
-   <version ClassVersion="17" checksum="1633877368"/>
+  <class name="pat::PackedCandidate" ClassVersion="18">
+    <version ClassVersion="18" checksum="4275117305"/>
+    <version ClassVersion="17" checksum="1257500115"/>
     <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>
@@ -292,7 +316,7 @@
     ]]>
   </ioread>
 
-  <class name="pat::PackedGenParticle" ClassVersion="11">
+  <class name="pat::PackedGenParticle" ClassVersion="12">
     <version ClassVersion="12" checksum="2626711017"/>
     <version ClassVersion="11" checksum="25552245"/>
     <version ClassVersion="10" checksum="389883266"/>
@@ -463,6 +487,12 @@
   <class name="edm::RefProd<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Association<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > >"/>
+
+  <!--- vectors of Ptrs -->
+  <class name="std::vector<edm::Ptr<pat::Jet> >" />
+  <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
+  <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
+  <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
 
   </selection>
  <exclusion>

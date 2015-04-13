@@ -12,12 +12,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/Common/interface/Association.h"
 //Main File
 #include "fastjet/PseudoJet.hh"
 #include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
@@ -36,8 +39,10 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
     = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
  
 
-  produces<edm::ValueMap<float> > ("PuppiWeights");
-  produces<edm::ValueMap<LorentzVector> > ("PuppiP4s");
+  produces<edm::ValueMap<float> > ();
+  produces<edm::ValueMap<LorentzVector> > ();
+  produces< edm::ValueMap<reco::CandidatePtr> >(); 
+
   produces<PFOutputCollection>();
 
 
@@ -128,6 +133,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   lPupFiller.insert(hPFProduct,lWeights.begin(),lWeights.end());
   lPupFiller.fill();
 
+
   // This is a dummy to access the "translate" method which is a
   // non-static member function even though it doesn't need to be. 
   // Will fix in the future. 
@@ -141,15 +147,17 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   fPuppiCandidates.reset( new PFOutputCollection );
   std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
+  std::vector<reco::CandidatePtr> values(hPFProduct->size());
+  //std::vector<int> values(hPFProduct->size());
+  
   for ( auto i0 = hPFProduct->begin(),
 	  i0begin = hPFProduct->begin(),
 	  i0end = hPFProduct->end(); i0 != i0end; ++i0 ) {
     //for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(i0->pdgId());
-    reco::PFCandidate pCand( i0->charge(),
-			     i0->p4(),
-			     id );
+    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*i0));
+    reco::PFCandidate pCand( pPF ? *pPF : reco::PFCandidate(i0->charge(), i0->p4(), id) );
     LorentzVector pVec = i0->p4();
     int val = i0 - i0begin;
 
@@ -169,10 +177,21 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ValueMap<LorentzVector>::Filler  p4PupFiller(*p4PupOut);
   p4PupFiller.insert(hPFProduct,puppiP4s.begin(), puppiP4s.end() );
   p4PupFiller.fill();
-
-  iEvent.put(lPupOut,"PuppiWeights");
-  iEvent.put(p4PupOut,"PuppiP4s");
-  iEvent.put(fPuppiCandidates);
+  
+  iEvent.put(lPupOut);
+  iEvent.put(p4PupOut);
+  edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( fPuppiCandidates );
+  for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
+      reco::CandidatePtr pkref( oh, ic );
+      values[ic] = pkref;
+    
+   }  
+  std::auto_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
+  edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
+  filler.insert(hPFProduct, values.begin(), values.end());
+  filler.fill();
+  iEvent.put(pfMap_p);
+  
 }
 
 // ------------------------------------------------------------------------------------------

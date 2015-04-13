@@ -2,15 +2,12 @@
 <use   name="cppunit"/>
 <use   name="DataFormats/Provenance"/>
 <bin   name="testDataFormatsProvenance"file="testRunner.cpp,eventid_t.cppunit.cc,timestamp_t.cppunit.cc,parametersetid_t.cppunit.cc,indexIntoFile_t.cppunit.cc,indexIntoFile1_t.cppunit.cc,indexIntoFile2_t.cppunit.cc,indexIntoFile3_t.cppunit.cc,indexIntoFile4_t.cppunit.cc,indexIntoFile5_t.cppunit.cc,lumirange_t.cppunit.cc,eventrange_t.cppunit.cc">
-  <use   name="rootcintex"/>
 </bin>
 <bin   file="EntryDescription_t.cpp">
 </bin>
 <bin   name="testProductHolderIndexHelper" file="testRunner.cpp productHolderIndexHelper_t.cppunit.cc">
-  <use name="FWCore/RootAutoLibraryLoader"/>
   <use name="DataFormats/TestObjects"/>
 </bin>
 <bin   name="productHolderIndexHelperTest" file="productHolderIndexHelperTest.cc">
-  <use name="FWCore/RootAutoLibraryLoader"/>
   <flags NO_TESTRUN="1"/>
 </bin>

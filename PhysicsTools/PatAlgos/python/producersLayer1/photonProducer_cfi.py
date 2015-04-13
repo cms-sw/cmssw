@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
     photonSource = cms.InputTag("gedPhotons"),
-             
+    electronSource = cms.InputTag("gedGsfElectrons"),                            
     beamLineSrc = cms.InputTag("offlineBeamSpot"),
 
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
@@ -45,7 +45,10 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Photon::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
-    userIsolation = cms.PSet(),
+    userIsolation = cms.PSet(
+        #PFClusterEcalIso = cms.InputTag('electronEcalPFClusterIsolationProducer'),
+        #PFClusterHcalIso = cms.InputTag('electronHcalPFClusterIsolationProducer'),
+        ),
 
     # photon ID
     addPhotonID = cms.bool(True),
@@ -66,6 +69,8 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
 
     # resolutions
     addResolutions  = cms.bool(False),
-    resolutions     = cms.PSet()
+    resolutions     = cms.PSet(),
 
+    # PFClusterIso
+    addPFClusterIso = cms.bool(False)
 )

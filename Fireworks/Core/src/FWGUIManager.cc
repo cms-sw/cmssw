@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <sstream>
 #include <thread>
+#include <future>
 
 #include "TGButton.h"
 #include "TGLabel.h"
@@ -159,7 +160,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
 
-      m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
+      m_detailViewManager  = new FWDetailViewManager(m_context);
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
 
@@ -916,7 +917,8 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
       }
    }
 
-   std::vector<std::thread> workers;
+   std::vector<std::future<int>> futures;
+   
    const edm::EventBase *event = getCurrentEvent();
    for (name_map_i i = vls.begin(); i != vls.end(); ++i)
    {
@@ -937,7 +939,7 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
          if (GLEW_EXT_framebuffer_object)
          {
             // Multi-threaded save
-            workers.push_back((*j)->CaptureAndSaveImage(file, height));
+            futures.push_back((*j)->CaptureAndSaveImage(file, height));
          }
          else
          {
@@ -950,9 +952,9 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
       }
    }
 
-   for (auto &w : workers)
+   for (auto &f : futures)
    {
-      w.join();
+      f.get();
    }
 }
 

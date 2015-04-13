@@ -1,8 +1,10 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake"
+TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
 HLT_Fake="/dev/CMSSW_7_4_0/Fake"
+HLT_50ns_5e33_v1="/frozen/2015/50ns_5e33/v1.0/HLT"
+HLT_25ns14e33_v1="/frozen/2015/25ns14e33/v1.0/HLT"
 
 # print extra messages ?
 VERBOSE=false
@@ -31,8 +33,14 @@ function getConfigForOnline() {
   local NAME="$2"
   log "  dumping full HLT for $NAME from $CONFIG"
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
-  hltGetConfiguration --full --offline --data $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
-  hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_mc_${NAME}"  --input "file:RelVal_Raw_${NAME}_MC.root" > OnMc_HLT_${NAME}.py
+
+  if [ "$NAME" == "Fake" ]; then
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_mc_${NAME}"  --input "file:RelVal_Raw_${NAME}_MC.root" > OnMc_HLT_${NAME}.py
+  else
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run2_mc_${NAME}"  --input "file:RelVal_Raw_${NAME}_MC.root" > OnMc_HLT_${NAME}.py
+  fi
 }
 
 # make sure we're using *this* working area

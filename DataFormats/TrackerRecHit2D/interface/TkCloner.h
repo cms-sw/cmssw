@@ -18,7 +18,7 @@ public:
     return hit.clone(*this, tsos);
   }
 
-#ifdef NO_DICT
+#ifndef __GCCXML__
   TrackingRecHit::ConstRecHitPointer makeShared(TrackingRecHit::ConstRecHitPointer const & hit, TrajectoryStateOnSurface const& tsos) const {
     return hit->canImproveWithTrack() ?  hit->cloneSH(*this, tsos) : hit;
     // return  hit->cloneSH(*this, tsos);
@@ -31,7 +31,7 @@ public:
   virtual std::unique_ptr<SiStripMatchedRecHit2D> operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
   virtual std::unique_ptr<ProjectedSiStripRecHit2D> operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
 
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual TrackingRecHit::ConstRecHitPointer makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const=0;
   virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
   virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const=0;

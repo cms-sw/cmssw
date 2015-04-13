@@ -70,10 +70,10 @@ namespace pat {
     virtual int charge() const {
       switch (abs(pdgId_)) {
       case 211: return (pdgId_>0)-(pdgId_<0);
-      case 11:  return (-1)*(pdgId_>0)-(pdgId_<0); //e
-      case 13:  return (-1)*(pdgId_>0)-(pdgId_<0); //mu
-      case 15:  return (-1)*(pdgId_>0)-(pdgId_<0); //tau
-      case 24:  return (-1)*(pdgId_>0)-(pdgId_<0); //W
+      case 11:  return (-1)*(pdgId_>0)+(pdgId_<0); //e
+      case 13:  return (-1)*(pdgId_>0)+(pdgId_<0); //mu
+      case 15:  return (-1)*(pdgId_>0)+(pdgId_<0); //tau
+      case 24:  return (pdgId_>0)-(pdgId_<0); //W
       default:  return 0;  //FIXME: charge is not defined
       }
     }
@@ -345,6 +345,10 @@ namespace pat {
     virtual bool isConvertedPhoton() const { return false; }
     virtual bool isJet() const { return false; }
 
+    // puppiweight
+    void setPuppiWeight(float p);
+    float puppiWeight() const;
+    
   protected:
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
     uint16_t packedDxy_, packedDz_, packedDPhi_;
@@ -359,6 +363,7 @@ namespace pat {
     void packBoth() { pack(false); packVtx(false); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
     void unpackTrk() const ;
 
+    int8_t packedPuppiweight_;
     /// the four vector                                                 
     mutable PolarLorentzVector p4_;
     mutable LorentzVector p4c_;

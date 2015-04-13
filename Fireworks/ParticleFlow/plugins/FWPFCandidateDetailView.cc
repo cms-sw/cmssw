@@ -440,7 +440,6 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
 
 void FWPFCandidateDetailView::buildGLEventScene()
 {
-   printf("BUILD \n");
    if (m_eventList->HasChildren()) m_eventList->DestroyElements();
 
 
@@ -529,4 +528,4 @@ void FWPFCandidateDetailView::buildGLEventScene()
 
 }
 
-REGISTER_FWDETAILVIEW(FWPFCandidateDetailView, reco::PFCandidate);
+REGISTER_FWDETAILVIEW(FWPFCandidateDetailView, reco::PFCandidate, particleFlowRecHitECAL&particleFlowRecHitHF&particleFlowClusterECAL);

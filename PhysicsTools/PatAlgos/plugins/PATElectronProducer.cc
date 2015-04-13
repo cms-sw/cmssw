@@ -75,6 +75,12 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   reducedBarrelRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
   reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
   reducedEndcapRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_);
+
+  // PFCluster Isolation maps
+  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
+  ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
+  hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
+
   // MC matching configurables (scheduled mode)
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
@@ -367,7 +373,21 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           // add missing mva variables
           std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
           anElectron.setMvaVariables(vCov[1], ip3d);
+	  // PFClusterIso
+	  if (addPFClusterIso_) {
+	    // Get PFCluster Isolation
+	    edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
+	    iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
+	    edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
+	    iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
 
+	    anElectron.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[elecsRef]);
+	    anElectron.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[elecsRef]);
+	  } else {
+	    anElectron.setEcalPFClusterIso(-999.);
+	    anElectron.setHcalPFClusterIso(-999.);
+	  }
+	    
 	  std::vector<DetId> selectedCells;
           bool barrel = itElectron->isEB();
           //loop over sub clusters
@@ -571,6 +591,20 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       // add mva variables
       std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
       anElectron.setMvaVariables(vCov[1], ip3d);
+      // PFCluster Isolation
+      if (addPFClusterIso_) {
+	// Get PFCluster Isolation
+	edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
+	iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
+	edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
+	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
+	
+	anElectron.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[elecsRef]);
+	anElectron.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[elecsRef]);
+      } else {
+	anElectron.setEcalPFClusterIso(-999.);
+	anElectron.setHcalPFClusterIso(-999.);
+      }
 
       std::vector<DetId> selectedCells;
       bool barrel = itElectron->isEB();
@@ -851,6 +885,12 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   // input source
   iDesc.add<edm::InputTag>("pfCandidateMap", edm::InputTag("no default"))->setComment("input collection");
   iDesc.add<edm::InputTag>("electronSource", edm::InputTag("no default"))->setComment("input collection");
+
+  iDesc.ifValue(edm::ParameterDescription<bool>("addPFClusterIso", false, true),
+		true >> (edm::ParameterDescription<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag("electronEcalPFClusterIsolationProducer"), true) and
+			 edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag("electronHcalPFClusterIsolationProducer"),true)) or
+		false >> (edm::ParameterDescription<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag(""), true) and
+			  edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag(""),true)));
 
   // embedding
   iDesc.add<bool>("embedGsfElectronCore", true)->setComment("embed external gsf electron core");

@@ -34,8 +34,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 {
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
-  electronToken_ = consumes<reco::GsfElectronCollection>(edm::InputTag("gedGsfElectrons"));
-  hConversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
+  electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronSource"));
+  hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionSource"));
   beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
   embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );
@@ -62,6 +62,10 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   if (addEfficiencies_) {
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
+  // PFCluster Isolation maps
+  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
+  ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
+  hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
   // photon ID configurables
   addPhotonID_ = iConfig.getParameter<bool>( "addPhotonID" );
   if (addPhotonID_) {
@@ -348,6 +352,18 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     aPhoton.setIEta( ecalRegData.seedCrysIEtaOrIX() );
     aPhoton.setIPhi( ecalRegData.seedCrysIPhiOrIY() );
 
+    // Get PFCluster Isolation
+    if (addPFClusterIso_) {
+      edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
+      iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
+      edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
+      iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
+      aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
+      aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+    } else {
+      aPhoton.setEcalPFClusterIso(-999.);
+      aPhoton.setHcalPFClusterIso(-999.);
+    }
 
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);
@@ -372,9 +388,16 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   // input source
   iDesc.add<edm::InputTag>("photonSource", edm::InputTag("no default"))->setComment("input collection");
   iDesc.add<edm::InputTag>("electronSource", edm::InputTag("no default"))->setComment("input collection");
+  iDesc.add<edm::InputTag>("conversionSource", edm::InputTag("allConversions"))->setComment("input collection");
 
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));  
+  
+  iDesc.ifValue(edm::ParameterDescription<bool>("addPFClusterIso", false, true),
+		true >> (edm::ParameterDescription<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag("photonEcalPFClusterIsolationProducer"), true) and
+			 edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag("photonHcalPFClusterIsolationProducer"),true)) or
+		false >> (edm::ParameterDescription<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag(""), true) and
+			  edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag(""),true)));
   
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
   iDesc.add<bool>("embedSeedCluster", true)->setComment("embed external seed cluster");

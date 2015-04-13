@@ -31,7 +31,8 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_metUncertainties_cfg.py || die 'Failure using patTuple_metUncertainties_cfg.py' $?
 
-cmsRun ${LOCAL_TEST_DIR}/patMiniAOD_standard_cfg.py || die 'Failure using patMiniAOD_standard_cfg.py' $?
+#---- disabled while the release is still open and changes to AOD event content are still allowed
+#cmsRun ${LOCAL_TEST_DIR}/patMiniAOD_standard_cfg.py || die 'Failure using patMiniAOD_standard_cfg.py' $?
 
 # Not needed in IBs
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyElectrons_cfg.py || die 'Failure using patTuple_onlyElectrons_cfg.py' $?
