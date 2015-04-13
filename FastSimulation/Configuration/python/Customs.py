@@ -16,4 +16,16 @@ def disableOOTPU(process):
     process.mix.bunchspace = 450
     return process
 
-# more to come
+# run this customisation function during the digi-step
+# when processing a gen-sim sample that was generated with the HCALECAL geometry
+def fakeSimHits_for_geometry_HCALECAL(process):
+    import FastSimulation.EmptySimHits.EmptySimHits_cfi
+    process.g4SimHits = FastSimulation.EmptySimHits.EmptySimHits_cfi.emptySimHits.clone(
+        pCaloHitInstanceLabels = ["CastorFI"],
+        pSimHitInstanceLabels = []
+        )
+    for _entry  in process.mix.mixObjects.mixSH.input:
+        process.g4SimHits.pSimHitInstanceLabels.append(_entry.getProductInstanceLabel())
+    process.emptySimHits_step = cms.Path(process.g4SimHits)
+    process.schedule.insert(0,process.emptySimHits_step)
+    return process
