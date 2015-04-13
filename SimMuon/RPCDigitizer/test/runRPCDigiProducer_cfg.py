@@ -18,28 +18,28 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 ### 2023 Geometry w/ ME0 ###
 ############################
 # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_design', '')
-# from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixRPCConditions # RPC Conditions for Phase2 Detector (2023)
-# process = fixRPCConditions(process)                                               # RPC Conditions for Phase2 Detector (2023)
-# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only # Customize for GEM
-# process = customize_digi_addGEM_muon_only(process)                                # Digi only Muon Detectors
+# from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions # RPC Conditions for Phase2 Detector (2023)
+# process = fixRPCConditions(process)                                                           # RPC Conditions for Phase2 Detector (2023)
+# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only             # Customize for CSC + DT + GEM + RPC
+# process = customize_digi_addGEM_muon_only(process)                                            # Digi only Muon Detectors
 # process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 # process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
 ############################
 
 ### 2023 Geometry w/o ME0 ###
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_design', '')
-# from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixRPCConditions # RPC Conditions for Phase2 Detector (2023)
-# process = fixRPCConditions(process)                                               # RPC Conditions for Phase2 Detector (2023)
-# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only # Customize for GEM
-# process = customize_digi_addGEM_muon_only(process)                                # Digi only Muon Detectors
-# process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-# process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_design', '')
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions # RPC Conditions for Phase2 Detector (2023)
+process = fixRPCConditions(process)                                                           # RPC Conditions for Phase2 Detector (2023)
+from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only             # Customize for CSC + DT + GEM + RPC
+process = customize_digi_addGEM_muon_only(process)                                            # Digi only Muon Detectors
+process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023_cff')
 #############################
 
 ### 2019 Geometry w/ GEM ###
 # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2019_design', '')
-# from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixRPCConditions # RPC Conditions for Phase2 Detector (2019)
-# process = fixRPCConditions(process)                                               # RPC Conditions for Phase2 Detector (2019)
+# from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions # RPC Conditions for Phase2 Detector (2019)
+# process = fixRPCConditions(process)                                                           # RPC Conditions for Phase2 Detector (2019)
 ### Info:
 ### conditions for RPC in 2023 are not updated for higher noises or lower efficiency
 ### conditions for RPC in 2019 loaded by the global tag are the same as he 2023 conditions
@@ -48,18 +48,18 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 ### by loading the fixRPCConditions the previous RPC Simulation Model will be loaded
 ### in future we ll have to give different conditions payload to the 2019 geometry
 ### such that the newest RPC Simulation Model (RPCSimAsymmetricCls.h) can be used.
-# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only   # Customize for GEM
+# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only   # Customize for CSC + DT + GEM + RPC
 # process = customize_digi_addGEM_muon_only(process)                                  # Digi only Muon Detectors
 # process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 # process.load('Configuration.Geometry.GeometryExtended2019_cff')
 ############################
 
 ### 2015 Geometry ###
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-from SimMuon.RPCDigitizer.customizeRPCDigi import customize_digi_muon_only  # Customize for CSC+DT+RPC
-process = customize_digi_muon_only(process)                                 # Digi only Muon Detectors
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+# from SimMuon.RPCDigitizer.customizeRPCDigi import customize_digi_muon_only  # Customize for CSC + DT + RPC
+# process = customize_digi_muon_only(process)                                 # Digi only Muon Detectors
+# process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+# process.load('Configuration.Geometry.GeometryExtended2015_cff')
 ############################
 
 
