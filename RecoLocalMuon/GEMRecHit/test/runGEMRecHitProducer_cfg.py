@@ -67,9 +67,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 # Fix DT and CSC Alignment #
 ############################
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixDTAlignmentConditions
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
 process = fixDTAlignmentConditions(process)
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixCSCAlignmentConditions
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
 process = fixCSCAlignmentConditions(process)
 
 # Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
