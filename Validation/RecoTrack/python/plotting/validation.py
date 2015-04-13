@@ -647,7 +647,7 @@ def _copySubDir(oldfile, newfile, basenames, dirname):
         if dirold:
             break
     if not dirold:
-        raise Exception("Did not find any of %s directories from file %s" % (",".join(basenames, oldfile)))
+        raise Exception("Did not find any of %s directories from file %s" % (",".join(basenames), oldfile))
     if dirname:
         d = dirold.Get(dirname)
         if not d:

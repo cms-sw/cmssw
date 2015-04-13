@@ -29,7 +29,7 @@ startupsamples= [
 
 pileupstartupsamples = [
     Sample('RelValTTbar', putype="25ns", midfix="13"),
-    Sample('RelValTTbar', putype="50ns", midfix="13")
+    Sample('RelValTTbar', putype="50ns", midfix="13"),
     Sample('RelValZMM', putype="25ns", midfix="13"),
     Sample('RelValZMM', putype="50ns", midfix="13")
 ]
