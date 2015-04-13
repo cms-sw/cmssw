@@ -151,7 +151,11 @@ def OptionsFromItems(items):
 
     if options.filein=="" and not (first_step in ("ALL","GEN","LHE","SIM_CHAIN")):
         options.dirin="file:"+options.dirin.replace('file:','')
-        options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
+        if first_step in prec_step:
+            options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
+        else:
+            print "ERROR: the given steps require an input file, please specify it using the option --filein"
+            sys.exit(1)
 
 
     # Prepare the canonical file name for output / config file etc
