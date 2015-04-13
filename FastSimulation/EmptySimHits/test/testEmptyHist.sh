@@ -4,7 +4,7 @@ cmsDriver.py SingleElectronPt10_pythia8_cfi  --conditions auto:run2_mc -n 10 --e
 
 # Standard digitisation with the standard geometry
 # Use customisation functions to put empty SimHit collections for the detector parts that were not simulated
-cmsDriver.py step2  --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,FastSimulation/Configuration/Customs.fakeSimHits_for_geometry_HCALECAL --conditions auto:run2_mc -s DIGI:pdigi_valid,L1,DIGI2\
+cmsDriver.py step2  --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,FastSimulation/Configuration/Customs.fakeSimHits_for_geometry_ECALHCAL --conditions auto:run2_mc -s DIGI:pdigi_valid,L1,DIGI2\
 RAW,HLT:@relval25ns,RAW2DIGI,L1Reco --datatier GEN-SIM-DIGI-RAW-HLTDEBUG -n 10 --magField 38T_PostLS1 --eventcontent FEVTDEBUGHLT --filein file:gensim.root --fileout digi.root
 
 # Reconstruct with the standard reconstruction sequence

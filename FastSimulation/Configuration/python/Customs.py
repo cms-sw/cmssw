@@ -18,7 +18,7 @@ def disableOOTPU(process):
 
 # run this customisation function during the digi-step
 # when processing a gen-sim sample that was generated with the HCALECAL geometry
-def fakeSimHits_for_geometry_HCALECAL(process):
+def fakeSimHits_for_geometry_ECALHCAL(process):
     import FastSimulation.EmptySimHits.EmptySimHits_cfi
     process.g4SimHits = FastSimulation.EmptySimHits.EmptySimHits_cfi.emptySimHits.clone(
         pCaloHitInstanceLabels = ["CastorFI"],
