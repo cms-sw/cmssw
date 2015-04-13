@@ -15,6 +15,9 @@
 #include "TPaveLabel.h"
 #include <vector>
 
+void NormalizeHistogramsToFirst(TH1* h1, TH1* h2);
+void NormalizeHistogramsTo1(TH1* h1, TH1* h2);
+
 /////
 // Uncomment the following line to get more debuggin output
 // #define DEBUG
@@ -74,7 +77,7 @@ TList* GetListOfDirectories(TDirectory* dir, const char* match = 0) {
   TKey*  key    = 0;
   TKey*  oldkey = 0;
 
-  while ( key = (TKey*)nextkey() ) {
+  while (( key = (TKey*)nextkey() )) {
     TObject *obj = key->ReadObj();
     if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       TString theName = obj->GetName();
@@ -279,7 +282,7 @@ void PlotNHistograms(const TString& pdfFile,
 		     const char* canvasName, const char* canvasTitle,
 		     const TString& refLabel, const TString& newLabel,
 		     unsigned int nhistos, const char** hnames, const char** htitles = 0,
-		     bool* logy = 0, bool* doKolmo = 0, Double_t* norm = 0, bool *resol = false,
+		     bool* logy = 0, bool* doKolmo = 0, Double_t* norm = 0, bool *resol = 0,
 		     Double_t* minx = 0, Double_t* maxx = 0,
 		     Double_t* miny = 0, Double_t* maxy = 0) {
 #ifdef DEBUG
@@ -372,11 +375,11 @@ void PlotNHistograms(const TString& pdfFile,
     hnames_tmp=hnamesi;
     
     sdir->cd(scollname);
-    TIter next(gDirectory->GetListOfKeys());
-    TKey *key;
-    while ((key = (TKey*)next())) { 
+    TIter next2(gDirectory->GetListOfKeys());
+    TKey *key2;
+    while ((key2 = (TKey*)next2())) { 
     
-      TObject *obj = key->ReadObj();
+      TObject *obj = key2->ReadObj();
       TString temp = obj->GetName();
       if ( (temp.Contains("nhits_vs_eta_pfx")) &&
 	   hnamesi.Contains("hits_eta")
@@ -411,23 +414,23 @@ void PlotNHistograms(const TString& pdfFile,
       sh = proj;
     }
 
-    if(TString(sh->GetName()).Contains(" vs "))norm= -999.;
+    if(TString(sh->GetName()).Contains(" vs "))norm[i]= -999.;
 
 
     // Normalize
-    if (norm == -1.)
+    if (norm[i] == -1.)
       NormalizeHistogramsTo1(rh, sh);
-    else if (norm == 0.)
+    else if (norm[i] == 0.)
       NormalizeHistogramsToFirst(rh,sh);
-    else if (norm == -999.){
+    else if (norm[i] == -999.){
       cout << "DEBUG: Normalizing histograms to nothing" << "..." << endl;
     }
     /*    else {
 #ifdef DEBUG
-      cout << "DEBUG: Normalizing histograms to " << norm << "..." << endl;
+      cout << "DEBUG: Normalizing histograms to " << norm[i] << "..." << endl;
 #endif
-      sh->Scale(norm);
-      rh->Scale(norm);
+      sh->Scale(norm[i]);
+      rh->Scale(norm[i]);
       }*/
 
 
@@ -456,7 +459,7 @@ void PlotNHistograms(const TString& pdfFile,
     }
     //Change y axis range
     if (miny) {
-      if (miny < -1E99) {
+      if (miny[i] < -1E99) {
 	rh->GetYaxis()->SetRangeUser(miny[i],maxy[i]);
 	sh->GetYaxis()->SetRangeUser(miny[i],maxy[i]);
       }
@@ -577,7 +580,7 @@ void Plot6Histograms(const TString& pdfFile,
 		     const char* canvasName, const char* canvasTitle,
 		     const TString& refLabel, const TString& newLabel,
 		     const char** hnames, const char** htitles = 0,
-		     bool* logy = 0, bool* doKolmo = 0, Double_t* norm = 0,bool *resol=false,
+		     bool* logy = 0, bool* doKolmo = 0, Double_t* norm = 0,bool *resol=0,
 		     Double_t* minx = 0, Double_t* maxx = 0,
 		     Double_t* miny = 0, Double_t* maxy = 0) {
   
@@ -601,7 +604,7 @@ void Plot5Histograms(const TString& pdfFile,
 		     const char* canvasName, const char* canvasTitle,
 		     const TString& refLabel, const TString& newLabel,
 		     const char** hnames, const char** htitles = 0,
-		     bool* logy = 0, bool* doKolmo = 0, Double_t* norm = 0,bool *resol=false,
+		     bool* logy = 0, bool* doKolmo = 0, Double_t* norm = 0,bool *resol=0,
 		     Double_t* minx = 0, Double_t* maxx = 0,
 		     Double_t* miny = 0, Double_t* maxy = 0) {
   
@@ -644,7 +647,7 @@ void NormalizeHistogramsTo1(TH1* h1, TH1* h2) {
   if (!h1 || !h2) return;
   
   if ( h1->Integral() != 0 && h2->Integral() != 0 ) {
-∂    Double_t scale1 = 1.0/h1->Integral();
+    Double_t scale1 = 1.0/h1->Integral();
     Double_t scale2 = 1.0/h2->Integral();
     h1->Scale(scale1);
     h2->Scale(scale2);

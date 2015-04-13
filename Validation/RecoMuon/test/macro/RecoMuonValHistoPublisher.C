@@ -1,27 +1,27 @@
 #include <vector>
 #include <algorithm>
 #include "TMath.h"
+#include "PlotHelpers.C"
 
 /////
 // Uncomment the following line to get more debuggin output
 // #define DEBUG
 
-void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
+void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="REF_FILE") {
   cout << ">> Starting RecoMuonValHistoPublisher(" << newFile << "," << refFile << ")..." << endl;
 
   //====  To be replaced from python ====================
   
-  char* dataType = "DATATYPE";
-  char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
-  char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
-  char* fastSim = "IS_FSIM";
+  const char* dataType = "DATATYPE";
+  const char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
+  const char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+  const char* fastSim = "IS_FSIM";
 
 
   // ==== Initial settings and loads
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
   //gROOT ->Reset();
   gROOT ->SetBatch();
-  gROOT->LoadMacro("macro/PlotHelpers.C");
   gErrorIgnoreLevel = kWarning; // Get rid of the info messages
 
 
@@ -95,7 +95,8 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
     TString newDir("NEW_RELEASE/NEWSELECTION/NEW_LABEL/");
     newDir+=myName;
     gSystem->mkdir(newDir,kTRUE);
-    bool *resol = false;
+    bool resolx = false;
+    bool *resol = &resolx;
     bool    logy    [] = {false,   false,  false,      false    };
     bool    doKolmo [] = {true,    true,   true,       true     };
     Double_t minx   [] = {-1E100, -1E100,    -1E100,   5.,    -1E100, -1E100 };
