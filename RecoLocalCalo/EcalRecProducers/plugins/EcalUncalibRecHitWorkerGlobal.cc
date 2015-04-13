@@ -269,20 +269,39 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
         }
 
-        if ( leadingSample >= 0 ) { // saturation
-                // all samples different from the fifth are not reliable for the amplitude estimation
-                // put by default the energy at the saturation threshold and flag as saturated
-                // fifth sample also not reliable due to stron non-linearity induced by the slew-rate limit in gain 12
-                float sratio = 1;
-                if ( detid.subdetId()==EcalBarrel) {
-                        sratio = ebPulseShape_[5] / ebPulseShape_[4];
-                } else {
-                        sratio = eePulseShape_[5] / eePulseShape_[4];
-                }
-	        uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
-                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
-		// do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
-                uncalibRecHit.setChi2(0);
+        if ( leadingSample == 4 ) { // saturation on the expected max sample
+               float sratio = 1;
+               if ( detid.subdetId()==EcalBarrel) {
+                       sratio = ebPulseShape_[5] / ebPulseShape_[4];
+               } else {
+                       sratio = eePulseShape_[5] / eePulseShape_[4];
+               }
+	       uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
+               uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
+	       // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
+               uncalibRecHit.setChi2(0);
+        } else if ( leadingSample >= 0 ) { // saturation on other samples: cannot extrapolate from the fourth one
+               double pedestal = 0.;
+               double gainratio = 1.;
+               int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
+
+               if (gainId==0 || gainId==3) {
+                 pedestal = aped->mean_x1;
+                 gainratio = aGain->gain6Over1()*aGain->gain12Over6();
+               }
+               else if (gainId==1) {
+                 pedestal = aped->mean_x12;
+                 gainratio = 1.;
+               }
+               else if (gainId==2) {
+                 pedestal = aped->mean_x6;
+                 gainratio = aGain->gain12Over6();
+               }
+               double amplitude = ((double)(((EcalDataFrame)(*itdg)).sample(5).adc()) - pedestal) * gainratio;
+               uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), amplitude, 0, 0, 0);
+               uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
+               // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
+               uncalibRecHit.setChi2(0);
         } else {
                 // weights method
                 EcalTBWeights::EcalTDCId tdcid(1);
