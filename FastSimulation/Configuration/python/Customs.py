@@ -29,3 +29,13 @@ def fakeSimHits_for_geometry_HCALECAL(process):
     process.emptySimHits_step = cms.Path(process.g4SimHits)
     process.schedule.insert(0,process.emptySimHits_step)
     return process
+
+def disableMaterialInteractionsTracker(process):
+    process.famosSimHits.MaterialEffects.Bremsstrahlung = False
+    process.famosSimHits.MaterialEffects.NuclearInteraction = False
+    process.famosSimHits.MaterialEffects.PairProduction = False
+    process.famosSimHits.MaterialEffects.MuonBremsstrahlung = False
+    process.famosSimHits.MaterialEffects.MultipleScattering = False
+    process.famosSimHits.MaterialEffects.EnergyLoss = False
+    return process
+
