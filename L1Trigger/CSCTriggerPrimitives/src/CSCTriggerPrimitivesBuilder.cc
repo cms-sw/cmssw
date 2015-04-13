@@ -50,11 +50,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   // special configuration parameters for ME11 treatment
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
-  smartME1aME1b = commonParams.getUntrackedParameter<bool>("smartME1aME1b", false);
-  disableME1a = commonParams.getUntrackedParameter<bool>("disableME1a", false);
-  disableME42 = commonParams.getUntrackedParameter<bool>("disableME42", false);
+  smartME1aME1b = commonParams.getParameter<bool>("smartME1aME1b");
+  disableME1a = commonParams.getParameter<bool>("disableME1a");
+  disableME42 = commonParams.getParameter<bool>("disableME42");
 
-  checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
+  checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
   runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
