@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("hcalval")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
@@ -16,7 +16,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #process.DQM.collectorHost = ''
 
 process.load("DQMServices.Core.DQMStore_cfi")
-process.load("DQMServices.Components.MEtoEDMConverter_cfi")
+#process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 #process.load("DQMOffline.Configuration.DQMOffline_cff")
 
