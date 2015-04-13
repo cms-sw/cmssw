@@ -32,6 +32,8 @@
 #include "TFile.h"
 #include "TTree.h"
 
+//#define debugLog
+
 // class declaration
 class SimAnalyzerMinbias : public edm::EDAnalyzer {
 
@@ -56,9 +58,9 @@ private:
   int   mydet, mysubd, depth, iphi, ieta, cells;
   float mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
   struct myInfo{
-    double theMB0, theMB1, theMB2, theMB4;
+    double theMB0, theMB1, theMB2, theMB3, theMB4;
     void MyInfo() {
-      theMB0 = theMB1 = theMB2 = theMB4 = 0;
+      theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0;
     }
   };
   std::map<HcalDetId,myInfo>               myMap;
@@ -76,6 +78,11 @@ SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
   // get token names of modules, producing object collections
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
+
+#ifdef debugLog
+  std::cout << "Use Time cut of " << timeCut << " ns and store o/p in "
+	    << fOutputFileName << std::endl;
+#endif
 }
   
 SimAnalyzerMinbias::~SimAnalyzerMinbias() {
@@ -102,6 +109,7 @@ void SimAnalyzerMinbias::beginJob() {
   myTree->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
   myTree->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
   myTree->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
+  myTree->Branch("mom3_MB",  &mom2_MB, "mom3_MB/F");
   myTree->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
 
   myMap.clear();
@@ -126,17 +134,27 @@ void SimAnalyzerMinbias::endJob() {
       mom0_MB = info.theMB0;
       mom1_MB = info.theMB1;
       mom2_MB = info.theMB2;
+      mom3_MB = info.theMB3;
       mom4_MB = info.theMB4;
       cells++;
       
       edm::LogInfo("AnalyzerMB") << " Result=  " << mysubd << " " << ieta << " "
 				 << iphi << " mom0  " << mom0_MB << " mom1 " 
-				 << mom1_MB << " mom2 " << mom2_MB << " mom4 "
-				 << mom4_MB;
+				 << mom1_MB << " mom2 " << mom2_MB << " mom3 "
+				 << mom3_MB << " mom4 " << mom4_MB;
+#ifdef debugLog
+      std::cout                  << " Result=  " << mysubd << " " << ieta << " "
+				 << iphi << " mom0  " << mom0_MB << " mom1 " 
+				 << mom1_MB << " mom2 " << mom2_MB << " mom3 "
+				 << mom3_MB << " mom4 " << mom4_MB << std::endl;
+#endif
       myTree->Fill();
     }
   }
-  edm::LogInfo("AnalyzerMB") << "cells" << " " << cells;    
+  edm::LogInfo("AnalyzerMB") << "cells " << cells;    
+#ifdef debugLog
+  std::cout                  << "cells " << cells << std::endl;
+#endif
   hOutputFile->cd();
   myTree->Write();
   hOutputFile->Write();   
@@ -152,18 +170,28 @@ void SimAnalyzerMinbias::endJob() {
   
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup&) {
-    
-  //std::cout<<" Start SimAnalyzerMinbias::analyze "<<nevent<<std::endl;
+#ifdef debugLog    
+  std::cout << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() 
+	    << ":" << iEvent.id().event() << std::endl;
+#endif
   
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_evt_, evtMC);  
   if (!evtMC.isValid()) {
     edm::LogInfo("AnalyzerMB") << "no HepMCProduct found";
+#ifdef debugLog
+    std::cout                  << "no HepMCProduct found" << std::endl;
+#endif
   } else {
     const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
     edm::LogInfo("AnalyzerMB") << "Event with " << myGenEvent->particles_size()
 			       << " particles + " << myGenEvent->vertices_size()
 			       << " vertices";
+#ifdef debugLog
+    std::cout                  << "Event with " << myGenEvent->particles_size()
+			       << " particles + " << myGenEvent->vertices_size()
+			       << " vertices" << std::endl;
+#endif
   }
 
  
@@ -171,6 +199,10 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent,
   iEvent.getByToken(tok_hcal_,hcalHits);
   if (!hcalHits.isValid()) {
     edm::LogInfo("AnalyzerMB") << "Error! can't get HcalHits product!";
+#ifdef debugLog
+    std::cout                  << "Error! can't get HcalHits product!" 
+			       << std::endl;
+#endif
     return ;
   }
   
@@ -187,9 +219,13 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent,
 	hitMap[hid] = 0;
 	itr1 = hitMap.find(hid);
       }
-      itr1->second += energyhit;
+       itr1->second += energyhit;
     }
   }
+#ifdef debugLog
+  std::cout << "extract information of " << hitMap.size() << " towers from "
+	    << HitHcal->size() << " hits" << std::endl;
+#endif
 
   for (std::map<HcalDetId,double>::const_iterator hcalItr=hitMap.begin(); 
        hcalItr != hitMap.end(); ++hcalItr) {
@@ -204,7 +240,11 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent,
     itr1->second.theMB0++;
     itr1->second.theMB1 += energyhit;
     itr1->second.theMB2 += (energyhit*energyhit);
+    itr1->second.theMB3 += (energyhit*energyhit*energyhit);
     itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
+#ifdef debugLog
+    std::cout << "ID " << hid << " with energy " << energyhit << std::endl;
+#endif
   }
 }
 
