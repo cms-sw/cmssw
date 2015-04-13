@@ -12,9 +12,11 @@ import plotting
 
 # Mapping from releases to GlobalTags
 _globalTags = {
+    "CMSSW_6_2_0": {"default": "PRE_ST62_V8"},
     "CMSSW_6_2_0_SLHC15": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC17": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
+    "CMSSW_7_0_0": {"default": "POSTLS170_V3", "fullsim_50ns": "POSTLS170_V4"},
     "CMSSW_7_0_0_AlcaCSA14": {"default": "POSTLS170_V5_AlcaCSA14", "fullsim_50ns": "POSTLS170_V6_AlcaCSA14"},
     "CMSSW_7_0_7_pmx": {"default": "PLS170_V7AN1", "fullsim_50ns": "PLS170_V6AN1"},
     "CMSSW_7_0_9_patch3": {"default": "PLS170_V7AN2", "fullsim_50ns": "PLS170_V6AN2"},
@@ -49,6 +51,7 @@ _globalTags = {
     "CMSSW_7_4_0_pre6": {"default": "MCRUN2_74_V1", "fullsim_50ns": "MCRUN2_74_V0"},
     "CMSSW_7_4_0_pre6_pmx": {"default": "MCRUN2_74_V1", "fullsim_50ns": "MCRUN2_74_V0"},
     "CMSSW_7_4_0_pre8": {"default": "MCRUN2_74_V7", "fullsim_25ns": "MCRUN2_74_V5_AsympMinGT", "fullsim_50ns": "MCRUN2_74_V4_StartupMinGT"},
+    "CMSSW_7_4_0_pre8_minimal": {"default": "MCRUN2_74_V5_MinGT", "fullsim_25ns": "MCRUN2_74_V5_AsympMinGT", "fullsim_50ns": "MCRUN2_74_V4_StartupMinGT"},
     "CMSSW_7_4_0_pre8_25ns_asymptotic": {"default": "MCRUN2_74_V7"},
     "CMSSW_7_4_0_pre8_50ns_startup":    {"default": "MCRUN2_74_V6"},
     "CMSSW_7_4_0_pre8_50ns_asympref":   {"default": "MCRUN2_74_V5A_AsympMinGT"}, # for reference of 50ns asymptotic
@@ -56,10 +59,36 @@ _globalTags = {
     "CMSSW_7_4_0_pre8_ROOT6": {"default": "MCRUN2_74_V7"},
     "CMSSW_7_4_0_pre8_pmx": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
     "CMSSW_7_4_0_pre8_pmx_v2": {"default": "MCRUN2_74_V7_gs_pre7", "fullsim_50ns": "MCRUN2_74_V6_gs_pre7"},
+    "CMSSW_7_4_0_pre8_pmx_v3": {"default": "MCRUN2_74_V7_bis", "fullsim_50ns": "MCRUN2_74_V6_bis"},
+    "CMSSW_7_4_0_pre9": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_4_0_pre9_ROOT6": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_4_0_pre9_ROOT6_pmx": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_4_0_pre9_extended": {"default": "MCRUN2_74_V7_extended"},
+    "CMSSW_7_4_0": {"default": "MCRUN2_74_V7_gensim_740pre7", "fullsim_50ns": "MCRUN2_74_V6_gensim_740pre7", "fastsim": "MCRUN2_74_V7"},
+    "CMSSW_7_4_0_71XGENSIM": {"default": "MCRUN2_74_V7_GENSIM_7_1_15", "fullsim_50ns": "MCRUN2_74_V6_GENSIM_7_1_15"},
+    "CMSSW_7_4_0_71XGENSIM_PU": {"default": "MCRUN2_74_V7_gs7115_puProd", "fullsim_50ns": "MCRUN2_74_V6_gs7115_puProd"},
+    "CMSSW_7_4_0_71XGENSIM_PXworst": {"default": "MCRUN2_74_V7C_pxWorst_gs7115", "fullsim_50ns": "MCRUN2_74_V6A_pxWorst_gs7115"},
+    "CMSSW_7_4_0_71XGENSIM_PXbest": {"default": "MCRUN2_74_V7D_pxBest_gs7115", "fullsim_50ns": "MCRUN2_74_V6B_pxBest_gs7115"},
+    "CMSSW_7_4_0_pmx": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_4_1": {"default": "MCRUN2_74_V9_gensim_740pre7", "fullsim_50ns": "MCRUN2_74_V8_gensim_740pre7", "fastsim": "MCRUN2_74_V9"},
+    "CMSSW_7_4_1_71XGENSIM": {"default": "MCRUN2_74_V9_gensim71X", "fullsim_50ns": "MCRUN2_74_V8_gensim71X"},
+    "CMSSW_7_4_1_extended": {"default": "MCRUN2_74_V9_extended"},
+    "CMSSW_7_4_3": {"default": "MCRUN2_74_V9", "fullsim_50ns": "MCRUN2_74_V8", "fastsim": "MCRUN2_74_V9", "fastsim_25ns": "MCRUN2_74_V9_fixMem"},
+    "CMSSW_7_4_3_extended": {"default": "MCRUN2_74_V9_ext","fastsim": "MCRUN2_74_V9_fixMem"},
+    "CMSSW_7_4_3_pmx": {"default": "MCRUN2_74_V9_ext", "fullsim_50ns": "MCRUN2_74_V8", "fastsim": "MCRUN2_74_V9_fixMem"},
+    "CMSSW_7_4_3_patch1_unsch": {"default": "MCRUN2_74_V9_unsch", "fullsim_50ns": "MCRUN2_74_V8_unsch"},
+    "CMSSW_7_4_4": {"default": "MCRUN2_74_V9_38Tbis", "fullsim_50ns": "MCRUN2_74_V8_38Tbis"},
+    "CMSSW_7_4_4_0T": {"default": "MCRUN2_740TV1_0Tv2", "fullsim_50ns": "MCRUN2_740TV0_0TV2", "fullsim_25ns": "MCRUN2_740TV1_0TV2"},
+    "CMSSW_7_5_0_pre1": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_5_0_pre2": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_5_0_pre3": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_5_0_pre3_pmx": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_5_0_pre4": {"default": "MCRUN2_75_V1", "fullsim_50ns": "MCRUN2_75_V0"},
+    "CMSSW_7_5_0_pre4_pmx": {"default": "MCRUN2_75_V1", "fullsim_50ns": "MCRUN2_75_V0"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_pmx_v2", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -85,11 +114,17 @@ def _getGlobalTag(sample, release):
     if sample.fullsim():
         if sample.hasScenario():
             return gtmap[sample.scenario()]
-        if sample.pileupType() == "50ns":
-            return gtmap.get("fullsim_50ns", gtmap["default"])
-        if sample.pileupType() == "25ns":
-            return gtmap.get("fullsim_25ns", gtmap["default"])
+        if sample.hasPileup():
+            puType = sample.pileupType()
+            if "50ns" in puType:
+                return gtmap.get("fullsim_50ns", gtmap["default"])
+            if "25ns" in puType:
+                return gtmap.get("fullsim_25ns", gtmap["default"])
     if sample.fastsim():
+        if sample.hasPileup():
+            puType = sample.pileupType()
+            if "25ns" in puType:
+                return gtmap.get("fastsim_25ns", gtmap["default"])
         return gtmap.get("fastsim", gtmap["default"])
     return gtmap["default"]
 
@@ -101,6 +136,7 @@ _relvalUrls = {
     "7_2_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_2_x/",
     "7_3_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_3_x/",
     "7_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_4_x/",
+    "7_5_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_5_x/",
 }
 
 def _getRelValUrl(release):
@@ -429,8 +465,12 @@ class Validation:
         refSelection = refGlobalTag+tmp
         newSelection = newGlobalTag+tmp
         if sample.hasPileup() and not sample.fastsim():
-            refSelection += "_"+sample.pileupType(self._refRelease)
-            newSelection += "_"+sample.pileupType(self._newRelease)
+            refPu = sample.pileupType(self._refRelease)
+            if refPu != "":
+                refSelection += "_"+refPu
+            newPu = sample.pileupType(self._newRelease)
+            if newPu != "":
+                newSelection += "_"+newPu
 
         # Check that the new DQM file exists
         harvestedfile = sample.filename(self._newRelease)
