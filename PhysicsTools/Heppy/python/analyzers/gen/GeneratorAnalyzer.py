@@ -45,6 +45,9 @@ class GeneratorAnalyzer( Analyzer ):
        event.genwzquarks and event.genbquarks, might have overlaps 
        event.genbquarksFromTop and event.genbquarksFromH are all contained in event.genbquarks
        
+       In addition to genParticles, if makeLHEweights is set to True, the list WeightsInfo objects of the LHE branch
+       is stored in event.LHE_weights
+       
        """
 
     def __init__(self, cfg_ana, cfg_comp, looperName ):
@@ -55,12 +58,11 @@ class GeneratorAnalyzer( Analyzer ):
         self.makeSplittedGenLists  = cfg_ana.makeSplittedGenLists
         self.allGenTaus            = cfg_ana.allGenTaus if self.makeSplittedGenLists else False
 	self.makeLHEweights  = cfg_ana.makeLHEweights
-        	
  
     def declareHandles(self):
         super(GeneratorAnalyzer, self).declareHandles()
         self.mchandles['genParticles'] = AutoHandle( 'prunedGenParticles', 'std::vector<reco::GenParticle>' )
-	self.mchandles['LHEweights'] = AutoHandle( 'source', 'LHEEventProduct')
+	self.mchandles['LHEweights'] = AutoHandle( 'source', 'LHEEventProduct', mayFail = True, lazy = False )
 
     def beginLoop(self,setup):
         super(GeneratorAnalyzer,self).beginLoop(setup)
@@ -243,13 +245,10 @@ class GeneratorAnalyzer( Analyzer ):
                     event.genwzquarks.append(p)
 
         #Add LHE weight info
-	event.LHEweights = self.mchandles['LHEweights'].product()
-	if self.makeLHEweights:
-	    event.LHE_weights = []
-	    
-	    for w in event.LHEweights.weights():
+	event.LHE_weights = []
+	if self.makeLHEweights and self.mchandles['LHEweights'].isValid():
+	    for w in self.mchandles['LHEweights'].product().weights():
 	        event.LHE_weights.append(w)
-	      
 
     def process(self, event):
         self.readCollections( event.input )
