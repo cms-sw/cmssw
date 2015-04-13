@@ -52,7 +52,7 @@ process = customize_digi_addGEM_muon_only(process)
 
 ### Fix RPC Digitization ###
 ############################
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixRPCConditions 
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions 
 process = fixRPCConditions(process)
 ############################
 
