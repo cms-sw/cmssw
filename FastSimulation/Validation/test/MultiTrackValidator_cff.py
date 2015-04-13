@@ -19,7 +19,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: MTV --conditions auto:run2_mc --fast -n -1 --eventcontent DQM --relval 100000,1000 -s VALIDATION --datatier DQMIO --beamspot NominalCollision2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1 --no_exec --filein file:YOURFILE.root --fileout MTV_inDQM.root
+# with command line options: MTV --conditions auto:run2_mc --fast -n -1 --eventcontent DQM --relval 100000,1000 -s VALIDATION --datatier DQMIO --beamspot NominalCollision2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1 --no_exec --filein file:YOURFILE.root --fileout MTV.root
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('VALIDATION')
@@ -65,7 +65,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('MTV_VALIDATION_inDQM.root'),
+    fileName = cms.untracked.string('MTV_inDQM.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
