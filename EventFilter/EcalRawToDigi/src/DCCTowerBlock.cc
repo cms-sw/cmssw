@@ -223,16 +223,21 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
   
   short firstGainWrong=-1;
   short numGainWrong=0;
-  
+  double higherGain = 1.;
+
   for (unsigned int i=1; i<nTSamples_; i++ ) {
+
     if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
-          numGainWrong++;
+          higherGain = xtalGains_[i];
           if (firstGainWrong == -1) { firstGainWrong=i;}
     }
+
+    if ( xtalGains_[i] == higherGain ) numGainWrong++;
+
   }
   
   
-  if (numGainWrong > 0) {
+  if (numGainWrong > 0 && numGainWrong < 5) {
     if (! DCCDataUnpacker::silentMode_) {
       edm::LogWarning("IncorrectGain")
         << "A wrong gain transition switch was found for Tower Block in strip " << stripId << " and xtal " << xtalId
