@@ -42,6 +42,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
+
+### Try to do RecoLocalMuon on all muon detectors ###
+#####################################################
+from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
+process.localreco = cms.Sequence(muonlocalreco)
+
+
+
 #????
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 #process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
@@ -57,19 +65,32 @@ process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
+# Fix DT and CSC Alignment #
+############################
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixDTAlignmentConditions
+process = fixDTAlignmentConditions(process)
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import fixCSCAlignmentConditions
+process = fixCSCAlignmentConditions(process)
 
-# Load GEM RecHit process
-#########################
+# Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
+##########################################################
+process.gemRecHits.gemDigiLabel = cms.InputTag("simMuonGEMDigis","","GEMDIGI")
+process.rpcRecHits.rpcDigiLabel = cms.InputTag('simMuonRPCDigis')
+process.csc2DRecHits.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+process.dt1DRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
+process.dt1DCosmicRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
+
 process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
     recAlgoConfig = cms.PSet(),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
-    gemDigiLabel = cms.InputTag("simMuonGEMDigis","","GEMDIGI"),
-    #maskSource = cms.string('File'),
-    #maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
-    #deadSource = cms.string('File'),
-    #deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
-    #process.muonlocalreco += process.gemRecHits
+    gemDigiLabel = cms.InputTag("simMuonGEMDigis"),
+    # maskSource = cms.string('File'),
+    # maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
+    # deadSource = cms.string('File'),
+    # deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
 )
+
 ### Input and Output Files
 ##########################
 process.source = cms.Source("PoolSource",
@@ -92,7 +113,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ### Paths and Schedules
 #######################
-process.rechit_step    = cms.Path(process.gemRecHits)
+process.rechit_step  = cms.Path(process.localreco+process.gemRecHits)
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
 
