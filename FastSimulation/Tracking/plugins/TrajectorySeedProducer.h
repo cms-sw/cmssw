@@ -188,6 +188,9 @@ class TrajectorySeedProducer:
             bool forward
     ) const;
 
+    // lv
+    bool testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
+
     //! method inserts hit into the tree structure at an empty position. 
     /*!
     \param trackerRecHits list of all TrackerRecHits.
