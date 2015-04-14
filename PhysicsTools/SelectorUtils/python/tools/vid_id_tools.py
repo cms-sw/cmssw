@@ -51,7 +51,7 @@ def switchOnVIDElectronIdProducer(process, dataFormat):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
     dataFormatString = "Undefined"
     if dataFormat == DataFormat.AOD:
-        # Do reconfiguration required, default settings are for AOD
+        # No reconfiguration is required, default settings are for AOD
         dataFormatString = "AOD"
     elif dataFormat == DataFormat.MiniAOD:
         # If we are dealing with MiniAOD, we overwrite the electron collection
@@ -105,7 +105,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat):
     process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
     dataFormatString = "Undefined"
     if dataFormat == DataFormat.AOD:
-        # Do reconfiguration requires, default settings are for AOD
+        # No reconfiguration is required, default settings are for AOD
         dataFormatString = "AOD"
     elif dataFormat == DataFormat.MiniAOD:
         # If we are dealing with MiniAOD, we overwrite the electron collection
