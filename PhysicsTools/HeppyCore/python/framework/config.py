@@ -140,7 +140,7 @@ class Component( CFG ):
 class DataComponent( Component ):
 
     def __init__(self, name, files, intLumi=None, triggers=[], json=None):
-        super(DataComponent, self).__init__(name, files, triggers)
+        super(DataComponent, self).__init__(name, files, triggers=triggers)
         self.isData = True
         self.intLumi = intLumi
         self.json = json
