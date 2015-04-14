@@ -562,9 +562,12 @@ TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & inner
   
   const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+
   for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-    //const HitRZCompatibility *checkRZ = 
-    (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer);
+    auto const & gs = outerHit.hit()->globalState();
+    auto loc = gs.position-(*ir)->origin().basicVector();
+    (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+		   loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
   }
   return false;
 }
