@@ -35,6 +35,11 @@
 
 #include <unordered_set>
 
+// lv
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
@@ -140,6 +145,15 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
+
+    // lv
+    if(conf.exists("RegionFactoryPSet")){
+      edm::ParameterSet regfactoryPSet = 
+	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+    }
+
 }
 
 void
