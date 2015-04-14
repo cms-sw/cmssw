@@ -42,8 +42,13 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDElectronIdProducer(process):
+def switchOnVIDElectronIdProducer(process, isMiniAOD=False):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
+    # If we are dealing with MiniAOD, we overwrite the electron collection
+    # name appropriately, for the fragment we just loaded above. The default
+    # is the standard AOD collection name.
+    if isMiniAOD == True:
+        process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
     print 'Added \'egmGsfElectronIDs\' to process definition!'
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
@@ -84,8 +89,13 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 
 #turns on the VID photon ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDPhotonIdProducer(process):
+def switchOnVIDPhotonIdProducer(process, isMiniAOD = False):
     process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
+    # If we are dealing with MiniAOD, we overwrite the photon collection
+    # name appropriately, for the fragment we just loaded above. The default
+    # is the standard AOD collection name.
+    if isMiniAOD == True:
+        process.egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
     print 'Added \'egmPhotonIDs\' to process definition!'
 
 def setupVIDPhotonSelection(process,cutflow,patProducer=None):
