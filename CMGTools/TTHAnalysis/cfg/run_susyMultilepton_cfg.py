@@ -233,6 +233,37 @@ elif test == '2lss-sync': # sync
     comp.splitFactor = 1
     comp.fineSplitFactor = 10
     selectedComponents = [ comp ]
+elif test == '74X-MC':
+    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+    what = getHeppyOption("sample")
+    if what == "TT":
+        selectedComponents = [ TT_bx25 ]
+    elif what == "Z":
+        selectedComponents = [ ZEE_bx25, ZMM_bx25, ZTT_bx25 ]
+    else:
+        selectedComponents = RelVals740
+    if getHeppyOption("single"):
+        for comp in selectedComponents:
+            comp.files = comp.files[:1]
+            comp.splitFactor = 1
+            comp.fineSplitFactor = 1
+elif test == '74X-Data':
+    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+    what = getHeppyOption("sample")
+    if what == "SingleMu":
+        selectedComponents = [ SingleMu ]
+    elif what == "Z":
+        selectedComponents = [ SingleMuZ, DoubleElectronZ ]
+    elif what == "MuEG":
+        selectedComponents = [ MuEG ]
+    else:
+        selectedComponents = dataSamples740p9
+    if getHeppyOption("single"):
+        for comp in selectedComponents:
+            comp.files = comp.files[:1]
+            comp.splitFactor = 1
+            comp.fineSplitFactor = 1
+
 
 ## output histogram
 outputService=[]
