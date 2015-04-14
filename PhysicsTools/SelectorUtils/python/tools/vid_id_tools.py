@@ -36,20 +36,32 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupFunction(process,item,patProducer)
 
+# Supported data formats defined via "enum"
+class DataFormat:
+    AOD     = 1
+    MiniAOD = 2
+
 ####
 # Electrons
 ####
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDElectronIdProducer(process, isMiniAOD=False):
+def switchOnVIDElectronIdProducer(process, dataFormat):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
-    # If we are dealing with MiniAOD, we overwrite the electron collection
-    # name appropriately, for the fragment we just loaded above. The default
-    # is the standard AOD collection name.
-    if isMiniAOD == True:
+    dataFormatString = "Undefined"
+    if dataFormat == DataFormat.AOD:
+        # Do reconfiguration required, default settings are for AOD
+        dataFormatString = "AOD"
+    elif dataFormat == DataFormat.MiniAOD:
+        # If we are dealing with MiniAOD, we overwrite the electron collection
+        # name appropriately, for the fragment we just loaded above. 
         process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-    print 'Added \'egmGsfElectronIDs\' to process definition!'
+        dataFormatString = "MiniAOD"
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    #    
+    print 'Added \'egmGsfElectronIDs\' to process definition (%s format)!' % dataFormatString
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmGsfElectronIDs'):
@@ -89,14 +101,21 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 
 #turns on the VID photon ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDPhotonIdProducer(process, isMiniAOD = False):
+def switchOnVIDPhotonIdProducer(process, dataFormat):
     process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
-    # If we are dealing with MiniAOD, we overwrite the photon collection
-    # name appropriately, for the fragment we just loaded above. The default
-    # is the standard AOD collection name.
-    if isMiniAOD == True:
+    dataFormatString = "Undefined"
+    if dataFormat == DataFormat.AOD:
+        # Do reconfiguration requires, default settings are for AOD
+        dataFormatString = "AOD"
+    elif dataFormat == DataFormat.MiniAOD:
+        # If we are dealing with MiniAOD, we overwrite the electron collection
+        # name appropriately, for the fragment we just loaded above. 
         process.egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
-    print 'Added \'egmPhotonIDs\' to process definition!'
+        dataFormatString = "MiniAOD"
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    #    
+    print 'Added \'egmPhotonIDs\' to process definition (%s format)!' % dataFormatString
 
 def setupVIDPhotonSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmPhotonIDs'):
