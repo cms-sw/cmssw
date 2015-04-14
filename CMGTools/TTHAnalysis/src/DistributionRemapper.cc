@@ -16,8 +16,8 @@ DistributionRemapper::DistributionRemapper(const TH1 *source, const TH1 *target)
 {
     int ns = source->GetNbinsX();
     int nt = target->GetNbinsX(); 
-    TAxis *axs = source->GetXaxis();
-    TAxis *axt = target->GetXaxis(); 
+    const TAxis *axs = source->GetXaxis();
+    const TAxis *axt = target->GetXaxis(); 
 
     std::vector<double> xt, yt;
     xt.resize(nt+3);
