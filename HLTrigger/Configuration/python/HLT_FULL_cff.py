@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V102 (CMSSW_7_4_0)
+# /dev/CMSSW_7_4_0/HLT/V103 (CMSSW_7_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V102')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V103')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -50897,10 +50897,7 @@ fragment.hltIter1HighPtPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHits
       ),
       SeedingLayers = cms.InputTag( "hltIter1HighPtPixelLayerTriplets" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsTripletOnlyCreator" ) )
 )
 fragment.hltIter1HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1HighPtPixelSeeds" ),
@@ -51232,10 +51229,7 @@ fragment.hltIter2HighPtPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHits
       ),
       SeedingLayers = cms.InputTag( "hltIter2HighPtPixelLayerPairs" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreatorIT" ) )
 )
 fragment.hltIter2HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2HighPtPixelSeeds" ),
@@ -51451,7 +51445,8 @@ fragment.hltIter3HighPtLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer"
       useRingSelector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 1 )
+      maxRing = cms.int32( 1 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet(  ),
     FPix = cms.PSet( 
@@ -51474,7 +51469,10 @@ fragment.hltIter3HighPtLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer"
       skipClusters = cms.InputTag( "hltIter3HighPtClustersRefRemoval" ),
       hitErrorRPhi = cms.double( 0.0027 )
     ),
-    TIB = cms.PSet(  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ) )
+    TIB = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
+    )
 )
 fragment.hltIter3HighPtMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
@@ -51523,10 +51521,7 @@ fragment.hltIter3HighPtMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHits
       ),
       SeedingLayers = cms.InputTag( "hltIter3HighPtLayerTriplets" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsTripletOnlyCreator" ) )
 )
 fragment.hltIter3HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter3HighPtMixedSeeds" ),
@@ -51793,14 +51788,16 @@ fragment.hltIter4HighPtPixelLessLayerTriplets = cms.EDProducer( "SeedingLayersED
       skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 2 )
+      maxRing = cms.int32( 2 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet( 
       skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 3 ),
-      maxRing = cms.int32( 3 )
+      maxRing = cms.int32( 3 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     FPix = cms.PSet(  ),
     MTEC = cms.PSet( 
@@ -51808,24 +51805,28 @@ fragment.hltIter4HighPtPixelLessLayerTriplets = cms.EDProducer( "SeedingLayersED
       skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       minRing = cms.int32( 3 ),
-      maxRing = cms.int32( 3 )
+      maxRing = cms.int32( 3 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTIB = cms.PSet( 
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     TID = cms.PSet( 
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
       maxRing = cms.int32( 2 ),
-      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     TOB = cms.PSet(  ),
     BPix = cms.PSet(  ),
     TIB = cms.PSet( 
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     )
 )
 fragment.hltIter4HighPtPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
@@ -51900,10 +51901,7 @@ fragment.hltIter4HighPtPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegion
       ),
       SeedingLayers = cms.InputTag( "hltIter4HighPtPixelLessLayerTriplets" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsTripletOnlyCreator" ) )
 )
 fragment.hltIter4HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter4HighPtPixelLessSeeds" ),
