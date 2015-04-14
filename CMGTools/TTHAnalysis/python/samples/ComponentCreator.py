@@ -1,7 +1,6 @@
 import PhysicsTools.HeppyCore.framework.config as cfg
-from CMGTools.Production.datasetToSource import datasetToSource, myDatasetToSource
-from CMGTools.Production.datasetInformation import DatasetInformation
 from CMGTools.Production import eostools
+from CMGTools.Production.dataset import createDataset, createMyDataset
 import re
 
 class ComponentCreator(object):
@@ -159,8 +158,8 @@ class ComponentCreator(object):
 
     def getFiles(self, dataset, user, pattern, useAAA=False):
         # print 'getting files for', dataset,user,pattern
-        ds = datasetToSource( user, dataset, pattern, True )
-        files = ds.fileNames
+        ds = createDataset( user, dataset, pattern, True )
+        files = ds.listOfGoodFiles()
         mapping = 'root://eoscms.cern.ch//eos/cms%s'
         if useAAA: mapping = 'root://cms-xrd-global.cern.ch/%s'
         return [ mapping % f for f in files]
@@ -168,13 +167,14 @@ class ComponentCreator(object):
 
     def getMyFiles(self, dataset, user, pattern, dbsInstance, useAAA=False):
         # print 'getting files for', dataset,user,pattern
-        ds = myDatasetToSource( user, dataset, pattern, dbsInstance, True )
-        files = ds.fileNames
+        ds = createMyDataset( user, dataset, pattern, dbsInstance, True )
+        files = ds.listOfGoodFiles()
         mapping = 'root://eoscms.cern.ch//eos/cms%s'
         if useAAA: mapping = 'root://cms-xrd-global.cern.ch/%s'
         return [ mapping % f for f in files]
 
     def getSkimEfficiency(self,dataset,user):
+        from CMGTools.Production.datasetInformation import DatasetInformation
         info=DatasetInformation(dataset,user,'',False,False,'','','')
         fraction=info.dataset_details['PrimaryDatasetFraction']
         if fraction<0.001:
