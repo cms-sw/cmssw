@@ -62,7 +62,8 @@ class GeneratorAnalyzer( Analyzer ):
     def declareHandles(self):
         super(GeneratorAnalyzer, self).declareHandles()
         self.mchandles['genParticles'] = AutoHandle( 'prunedGenParticles', 'std::vector<reco::GenParticle>' )
-	self.mchandles['LHEweights'] = AutoHandle( 'source', 'LHEEventProduct', mayFail = True, lazy = False )
+	if self.makeLHEweights:
+		self.mchandles['LHEweights'] = AutoHandle( 'source', 'LHEEventProduct', mayFail = True, lazy = False )
 
     def beginLoop(self,setup):
         super(GeneratorAnalyzer,self).beginLoop(setup)
@@ -246,9 +247,10 @@ class GeneratorAnalyzer( Analyzer ):
 
         #Add LHE weight info
 	event.LHE_weights = []
-	if self.makeLHEweights and self.mchandles['LHEweights'].isValid():
-	    for w in self.mchandles['LHEweights'].product().weights():
-	        event.LHE_weights.append(w)
+	if self.makeLHEweights:
+	    if self.mchandles['LHEweights'].isValid():
+	    	for w in self.mchandles['LHEweights'].product().weights():
+	        	event.LHE_weights.append(w)
 
     def process(self, event):
         self.readCollections( event.input )
