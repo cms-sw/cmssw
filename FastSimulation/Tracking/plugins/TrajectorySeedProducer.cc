@@ -40,6 +40,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
@@ -153,7 +154,9 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
       std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
       theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
     }
+
 
 }
 
@@ -486,10 +489,15 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
             The implementation has been chosen such that the tree only needs to be build once upon construction.
         */
-
+	// lv
 	regions.clear();
-	if(theRegionProducer)
+	if(theRegionProducer){
 	  regions = theRegionProducer->regions(e,es);
+	  edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
+	  e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
+	  measurementTrackerEvent = measurementTrackerEventHandle.product();
+	}
+
         std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
 
         if (seedHitNumbers.size()>0)
