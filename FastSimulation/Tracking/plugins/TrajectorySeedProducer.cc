@@ -52,7 +52,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     testBeamspotCompatibility(false),
     beamSpot(nullptr),
     testPrimaryVertexCompatibility(false),
-    primaryVertices(nullptr)
+    primaryVertices(nullptr),
+    theRegionProducer(nullptr)
 {  
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
