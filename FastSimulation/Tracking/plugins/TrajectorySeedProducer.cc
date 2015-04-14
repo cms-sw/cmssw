@@ -492,6 +492,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	// lv
 	regions.clear();
 	if(theRegionProducer){
+	  es_ = &es;
 	  regions = theRegionProducer->regions(e,es);
 	  edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
 	  e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
@@ -547,7 +548,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
             int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
             initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
             output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-
+	    
         }
     } //end loop over simtracks
     
@@ -555,8 +556,16 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.put(output);
 }
 
+// lv
 bool
 TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
+  
+  const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    //const HitRZCompatibility *checkRZ = 
+    (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer);
+  }
   return false;
 }
 
