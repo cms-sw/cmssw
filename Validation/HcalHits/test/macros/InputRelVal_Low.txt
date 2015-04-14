@@ -1,0 +1,179 @@
+HcalHitEtaHB0   1     HcalHitEtaHB0.gif   1  -16   16  0  0.005     1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HB depth1
+HcalHitEtaHB1   1     HcalHitEtaHB1.gif   1  -16   16  0  0.005    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HB depth2
+HcalHitEtaHE0+z   1     HcalHitEtaHE0+z.gif   1  16   30  0  0.015     1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HE+z depth1
+HcalHitEtaHE1+z   1     HcalHitEtaHE1+z.gif   1  16   30  0  0.005   1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HE+z depth2
+HcalHitEtaHE2+z   1     HcalHitEtaHE2+z.gif   1  16   30  0  0.020    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HE+z depth3
+HcalHitEtaHE0-z   1     HcalHitEtaHE0-z.gif   1 -30  -16   0  0.015     1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HE-z depth1
+HcalHitEtaHE1-z   1     HcalHitEtaHE1-z.gif   1 -30  -16  0  0.005   1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HE-z depth2
+HcalHitEtaHE2-z   1     HcalHitEtaHE2-z.gif   1 -30 -16  0  0.020    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HE-z depth3
+HcalHitEtaHO0     1     HcalHitEtaHO0.gif   1 -15 15  0  0.00001    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HO
+HcalHitEtaHFL0+z   1     HcalHitEtaHFL0+z.gif   1 29 41  0  15.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL0+z
+HcalHitEtaHFL1+z   1     HcalHitEtaHFL1+z.gif   1 29 41  0  0.50    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL1+z
+HcalHitEtaHFL2+z   1     HcalHitEtaHFL2+z.gif   1 29 41  0  0.10    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL2+z
+HcalHitEtaHFL3+z   1     HcalHitEtaHFL3+z.gif   1 29 41  0  0.15    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL3+z
+HcalHitEtaHFS0+z   1     HcalHitEtaHFS0+z.gif   1 29 41  0  10.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS0+z
+HcalHitEtaHFS1+z   1     HcalHitEtaHFS1+z.gif   1 29 41  0  0.50    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS1+z
+HcalHitEtaHFS2+z   1     HcalHitEtaHFS2+z.gif   1 29 41  0  0.10    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS2+z
+HcalHitEtaHFS3+z   1     HcalHitEtaHFS3+z.gif   1 29 41  0 10.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS3+z
+HcalHitEtaHFL0-z   1     HcalHitEtaHFL0-z.gif   1 -41 -29  0 15.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL0-z
+HcalHitEtaHFL1-z   1     HcalHitEtaHFL1-z.gif   1 -41 -29  0  0.50    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL1-z
+HcalHitEtaHFL2-z   1     HcalHitEtaHFL2-z.gif   1 -41 -29  0  0.10    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL2-z
+HcalHitEtaHFL3-z   1     HcalHitEtaHFL3-z.gif   1 -41 -29  0  0.15    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFL3-z
+HcalHitEtaHFS0-z   1     HcalHitEtaHFS0-z.gif   1 -41 -29  0  10.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS0-z
+HcalHitEtaHFS1-z   1     HcalHitEtaHFS1-z.gif   1 -41 -29  0  0.50    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS1-z
+HcalHitEtaHFS2-z   1     HcalHitEtaHFS2-z.gif   1 -41 -29  0  0.10    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS2-z
+HcalHitEtaHFS3-z   1     HcalHitEtaHFS3-z.gif   1 -41 -29  0  10.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(energy_weighted)_vs_ieta_HFS3-z
+
+HcalHitTimeAEtaHB0   1     HcalHitTimeAEtaHB0.gif   1  -16   16  0  7000     1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HB depth1
+HcalHitTimeAEtaHB1   1     HcalHitTimeAEtaHB1.gif   1  -16   16  0  7000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HB depth2
+HcalHitTimeAEtaHE0+z   1     HcalHitTimeAEtaHE0+z.gif   1  16   30  0  7000     1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HE+z depth1
+HcalHitTimeAEtaHE1+z   1     HcalHitTimeAEtaHE1+z.gif   1  16   30  0  7000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HE+z depth2
+HcalHitTimeAEtaHE2+z   1     HcalHitTimeAEtaHE2+z.gif   1  16   30  0  7000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HE+z depth3
+HcalHitTimeAEtaHE0-z   1     HcalHitTimeAEtaHE0-z.gif   1 -30  -16   0  7000     1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HE-z depth1
+HcalHitTimeAEtaHE1-z   1     HcalHitTimeAEtaHE1-z.gif   1 -30  -16  0  7000   1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HE-z depth2
+HcalHitTimeAEtaHE2-z   1     HcalHitTimeAEtaHE2-z.gif   1 -30 -16  0  7000   1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HE-z depth3
+HcalHitTimeAEtaHO0     1     HcalHitTimeAEtaHO0.gif   1 -15 15  0  10.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HO
+HcalHitTimeAEtaHFL0+z   1     HcalHitTimeAEtaHFL0+z.gif   1 29 41  0 5000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL0+z
+HcalHitTimeAEtaHFL1+z   1     HcalHitTimeAEtaHFL1+z.gif   1 29 41  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL1+z
+HcalHitTimeAEtaHFL2+z   1     HcalHitTimeAEtaHFL2+z.gif   1 29 41  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL2+z
+HcalHitTimeAEtaHFL3+z   1     HcalHitTimeAEtaHFL3+z.gif   1 29 41  0  20.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL3+z
+HcalHitTimeAEtaHFS0+z   1     HcalHitTimeAEtaHFS0+z.gif   1 29 41  0  5000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS0+z
+HcalHitTimeAEtaHFS1+z   1     HcalHitTimeAEtaHFS1+z.gif   1 29 41  0 1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS1+z
+HcalHitTimeAEtaHFS2+z   1     HcalHitTimeAEtaHFS2+z.gif   1 29 41  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS2+z
+HcalHitTimeAEtaHFS3+z   1     HcalHitTimeAEtaHFS3+z.gif   1 29 41  0  20.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS3+z
+HcalHitTimeAEtaHFL0-z   1     HcalHitTimeAEtaHFL0-z.gif   1 -41 -29  0 5000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL0-z
+HcalHitTimeAEtaHFL1-z   1     HcalHitTimeAEtaHFL1-z.gif   1 -41 -29  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL1-z
+HcalHitTimeAEtaHFL2-z   1     HcalHitTimeAEtaHFL2-z.gif   1 -41 -29  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL2-z
+HcalHitTimeAEtaHFL3-z   1     HcalHitTimeAEtaHFL3-z.gif   1 -41 -29  0  20.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFL3-z
+HcalHitTimeAEtaHFS0-z   1     HcalHitTimeAEtaHFS0-z.gif   1 -41 -29  0  5000    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS0-z
+HcalHitTimeAEtaHFS1-z   1     HcalHitTimeAEtaHFS1-z.gif   1 -41 -29  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS1-z
+HcalHitTimeAEtaHFS2-z   1     HcalHitTimeAEtaHFS2-z.gif   1 -41 -29  0  1.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS2-z
+HcalHitTimeAEtaHFS3-z   1     HcalHitTimeAEtaHFS3-z.gif   1 -41 -29  0  20.0    1D   noStat noChi2 NoLog  41   42   No_of_Hit(time_weighted)_vs_ieta_HFS3-z
+
+Energy_HB   1     Energy_HB.gif   1 0 1  0  0.15    1D   noStat noChi2 NoLog  41   42   Energy_HB
+Energy_HE   1     Energy_HE.gif   1 0 1  0  0.30    1D   noStat noChi2 NoLog  41   42   Energy_HE
+Energy_HO   1     Energy_HO.gif   1 0 1  0  0.15    1D   noStat noChi2 NoLog  41   42   Energy_HO
+Energy_HF   1     Energy_HF.gif   1 0 1  0  0.15    1D   noStat noChi2 NoLog  41   42   Energy_HF
+
+Time_Enweighted_HB   1     Time_Enweighted_HB.gif   1 -150 150  0  0.00001    1D   noStat noChi2 NoLog  41   42   Time_Enweighted_HB
+Time_Enweighted_HE   1     Time_Enweighted_HE.gif   1 -150 150  0  0.00001   1D   noStat noChi2 NoLog  41   42   Time_Enweighted_HE
+Time_Enweighted_HO   1     Time_Enweighted_HO.gif   1 -150 150  0  0.00001    1D   noStat noChi2 NoLog  41   42   Time_Enweighted_HO
+Time_Enweighted_HF   1     Time_Enweighted_HF.gif   1 -150 150  0  0.00001    1D   noStat noChi2 NoLog  41   42   Time_Enweighted_HF
+
+
+HcalHitE25HB0   1     HcalHitE25HB0.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HB depth1
+HcalHitE25HB1   1     HcalHitE25HB1.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HB depth2
+HcalHitE25HE0+z   1     HcalHitE25HE0+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HE+z depth1
+HcalHitE25HE1+z	  1     HcalHitE25HE1+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HE+z depth2
+HcalHitE25HE2+z   1     HcalHitE25HE2+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HE+z depth3
+HcalHitE25HE0-z   1     HcalHitE25HE0-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HE-z depth1
+HcalHitE25HE1-z   1     HcalHitE25HE1-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HE-z depth2
+HcalHitE25HE2-z   1     HcalHitE25HE2-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HE-z depth3
+HcalHitE25HO0   1     HcalHitE25HO0.gif   1  -15   15  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HO
+HcalHitE25HFL0+z  1  HcalHitE25HFL0+z.gif   1  29  41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL+z depth1
+HcalHitE25HFL1+z  1  HcalHitE25HFL1+z.gif   1 29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL+z depth2
+HcalHitE25HFL2+z  1  HcalHitE25HFL2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL+z depth3
+HcalHitE25HFL3+z  1  HcalHitE25HFL3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL+z depth4
+HcalHitE25HFL0-z  1  HcalHitE25HFL0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL-z depth1
+HcalHitE25HFL1-z  1  HcalHitE25HFL1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL-z depth2
+HcalHitE25HFL2-z  1  HcalHitE25HFL2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL-z depth3
+HcalHitE25HFL3-z  1  HcalHitE25HFL3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFL-z depth4
+HcalHitE25HFS0+z  1  HcalHitE25HFS0+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS+z depth1
+HcalHitE25HFS1+z  1  HcalHitE25HFS1+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS+z depth2
+HcalHitE25HFS2+z  1  HcalHitE25HFS2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS+z depth3
+HcalHitE25HFS3+z  1  HcalHitE25HFS3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS+z depth4
+HcalHitE25HFS0-z  1  HcalHitE25HFS0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS-z depth1
+HcalHitE25HFS1-z  1  HcalHitE25HFS1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS-z depth2
+HcalHitE25HFS2-z  1  HcalHitE25HFS2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS-z depth3
+HcalHitE25HFS3-z  1  HcalHitE25HFS3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 25 for a tower in HHFS-z depth4
+
+
+
+HcalHitE50HB0   1     HcalHitE50HB0.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HB depth1
+HcalHitE50HB1   1     HcalHitE50HB1.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HB depth2
+HcalHitE50HE0+z   1     HcalHitE50HE0+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HE+z depth1
+HcalHitE50HE1+z	  1     HcalHitE50HE1+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HE+z depth2
+HcalHitE50HE2+z   1     HcalHitE50HE2+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HE+z depth3
+HcalHitE50HE0-z   1     HcalHitE50HE0-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HE-z depth1
+HcalHitE50HE1-z   1     HcalHitE50HE1-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HE-z depth2
+HcalHitE50HE2-z   1     HcalHitE50HE2-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HE-z depth3
+HcalHitE50HO0   1     HcalHitE50HO0.gif   1  -15   15  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HO
+HcalHitE50HFL0+z  1  HcalHitE50HFL0+z.gif   1  29  41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL+z depth1
+HcalHitE50HFL1+z  1  HcalHitE50HFL1+z.gif   1 29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL+z depth2
+HcalHitE50HFL2+z  1  HcalHitE50HFL2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL+z depth3
+HcalHitE50HFL3+z  1  HcalHitE50HFL3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL+z depth4
+HcalHitE50HFL0-z  1  HcalHitE50HFL0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL-z depth1
+HcalHitE50HFL1-z  1  HcalHitE50HFL1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL-z depth2
+HcalHitE50HFL2-z  1  HcalHitE50HFL2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL-z depth3
+HcalHitE50HFL3-z  1  HcalHitE50HFL3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFL-z depth4
+HcalHitE50HFS0+z  1  HcalHitE50HFS0+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS+z depth1
+HcalHitE50HFS1+z  1  HcalHitE50HFS1+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS+z depth2
+HcalHitE50HFS2+z  1  HcalHitE50HFS2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS+z depth3
+HcalHitE50HFS3+z  1  HcalHitE50HFS3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS+z depth4
+HcalHitE50HFS0-z  1  HcalHitE50HFS0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS-z depth1
+HcalHitE50HFS1-z  1  HcalHitE50HFS1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS-z depth2
+HcalHitE50HFS2-z  1  HcalHitE50HFS2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS-z depth3
+HcalHitE50HFS3-z  1  HcalHitE50HFS3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 50 for a tower in HHFS-z depth4
+
+
+
+
+HcalHitE100HB0   1     HcalHitE100HB0.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HB depth1
+HcalHitE100HB1   1     HcalHitE100HB1.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HB depth2
+HcalHitE100HE0+z   1   HcalHitE100HE0+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HE+z depth1
+HcalHitE100HE1+z 1     HcalHitE100HE1+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HE+z depth2
+HcalHitE100HE2+z   1    HcalHitE100HE2+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HE+z depth3
+HcalHitE100HE0-z   1  HcalHitE100HE0-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HE-z depth1
+HcalHitE100HE1-z   1  HcalHitE100HE1-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HE-z depth2
+HcalHitE100HE2-z   1  HcalHitE100HE2-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HE-z depth3
+HcalHitE100HO0   1     HcalHitE100HO0.gif   1  -15   15  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HO
+HcalHitE100HFL0+z  1  HcalHitE100HFL0+z.gif   1  29  41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL+z depth1
+HcalHitE100HFL1+z  1  HcalHitE100HFL1+z.gif   1 29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL+z depth2
+HcalHitE100HFL2+z  1 HcalHitE100HFL2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL+z depth3
+HcalHitE100HFL3+z  1 HcalHitE100HFL3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL+z depth4
+HcalHitE100HFL0-z  1 HcalHitE100HFL0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL-z depth1
+HcalHitE100HFL1-z  1  HcalHitE100HFL1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL-z depth2
+HcalHitE100HFL2-z  1  HcalHitE100HFL2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL-z depth3
+HcalHitE100HFL3-z  1  HcalHitE100HFL3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFL-z depth4
+HcalHitE100HFS0+z  1  HcalHitE100HFS0+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS+z depth1
+HcalHitE100HFS1+z  1  HcalHitE100HFS1+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS+z depth2
+HcalHitE100HFS2+z  1  HcalHitE100HFS2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS+z depth3
+HcalHitE100HFS3+z  1  HcalHitE100HFS3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS+z depth4
+HcalHitE100HFS0-z  1  HcalHitE100HFS0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS-z depth1
+HcalHitE100HFS1-z  1  HcalHitE100HFS1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS-z depth2
+HcalHitE100HFS2-z  1  HcalHitE100HFS2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS-z depth3
+HcalHitE100HFS3-z  1  HcalHitE100HFS3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 100 for a tower in HHFS-z depth4
+
+
+
+
+
+
+HcalHitE250HB0   1     HcalHitE250HB0.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HB depth1
+HcalHitE250HB1   1     HcalHitE250HB1.gif   1  -16   16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HB depth2
+HcalHitE250HE0+z   1   HcalHitE250HE0+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HE+z depth1
+HcalHitE250HE1+z 1     HcalHitE250HE1+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HE+z depth2
+HcalHitE250HE2+z   1    HcalHitE250HE2+z.gif   1  16   30  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HE+z depth3
+HcalHitE250HE0-z   1  HcalHitE250HE0-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HE-z depth1
+HcalHitE250HE1-z   1  HcalHitE250HE1-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HE-z depth2
+HcalHitE250HE2-z   1  HcalHitE250HE2-z.gif   1  -30   -16  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HE-z depth3
+HcalHitE250HO0   1     HcalHitE250HO0.gif   1  -15   15  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HO
+HcalHitE250HFL0+z  1  HcalHitE250HFL0+z.gif   1  29  41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL+z depth1
+HcalHitE250HFL1+z  1  HcalHitE250HFL1+z.gif   1 29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL+z depth2
+HcalHitE250HFL2+z  1 HcalHitE250HFL2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL+z depth3
+HcalHitE250HFL3+z  1 HcalHitE250HFL3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL+z depth4
+HcalHitE250HFL0-z  1 HcalHitE250HFL0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL-z depth1
+HcalHitE250HFL1-z  1  HcalHitE250HFL1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL-z depth2
+HcalHitE250HFL2-z  1  HcalHitE250HFL2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL-z depth3
+HcalHitE250HFL3-z  1  HcalHitE250HFL3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFL-z depth4
+HcalHitE250HFS0+z  1  HcalHitE250HFS0+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS+z depth1
+HcalHitE250HFS1+z  1  HcalHitE250HFS1+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS+z depth2
+HcalHitE250HFS2+z  1  HcalHitE250HFS2+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS+z depth3
+HcalHitE250HFS3+z  1  HcalHitE250HFS3+z.gif   1  29   41  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS+z depth4
+HcalHitE250HFS0-z  1  HcalHitE250HFS0-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS-z depth1
+HcalHitE250HFS1-z  1  HcalHitE250HFS1-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS-z depth2
+HcalHitE250HFS2-z  1  HcalHitE250HFS2-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS-z depth3
+HcalHitE250HFS3-z  1  HcalHitE250HFS3-z.gif   1  -41   -29  0  72    2D   noStat noChi2 NoLog  2   1   Occupancy map in time window 0 to 250 for a tower in HHFS-z depth4
+
+
+
