@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("EmptySource")
 
-process.load("FastSimulation.EmptySimHits.EmptySimHits_cfi")
+process.load("FastSimulation.Validation.EmptySimHits_cfi")
 process.emptySimHits.pCaloHitInstanceLabels = cms.vstring("CastorFI")
 process.emptySimHits.pSimHitInstanceLabels = cms.vstring("muonCSCHits","muonRPCHits")
 
