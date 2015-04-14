@@ -37,7 +37,7 @@ class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
 // lv
-class TrackingRegionProducer;
+class MeasurementTrackerEvent;
 
 class TrajectorySeedProducer:
     public edm::stream::EDProducer<>
@@ -210,7 +210,8 @@ class TrajectorySeedProducer:
     typedef std::vector<TrackingRegion* > Regions;
     Regions regions;
     std::unique_ptr<TrackingRegionProducer> theRegionProducer;
-
+    edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken;
+    const MeasurementTrackerEvent * measurementTrackerEvent;
 };
 
 #endif
