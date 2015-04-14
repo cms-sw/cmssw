@@ -212,6 +212,7 @@ class TrajectorySeedProducer:
     std::unique_ptr<TrackingRegionProducer> theRegionProducer;
     edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken;
     const MeasurementTrackerEvent * measurementTrackerEvent;
+    const edm::EventSetup * es_;
 };
 
 #endif
