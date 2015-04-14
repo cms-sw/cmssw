@@ -1,7 +1,29 @@
 #include <string>
 
+// Note: for this macro to be runnable, MINEFF, MAXEFF, and MAXFAKE must be replaced with double literals (e.g. 0.0)
+// This is done in various scripts.
 
-void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
+void fixRangeY(TH1* r,TH1* s);
+TH1* getEfficiency(TH1* numer, TH1* denom, const char* name, const char* title, bool isEff);
+TH1* getEfficiency(TH1* numer1, TH1* numer2, TH1* denom, const char* name, const char* title, bool isEff);
+void NormalizeHistograms(TH1* h1, TH1* h2);
+void plotBuilding(TCanvas *canvas, TH1 **s, TH1 **r, int n,TText* te, const char * option, double startingY, double startingX = .1,bool fit = false, unsigned int logx=0);
+void plotPulls(TCanvas *canvas, 
+     TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4, TH1 *s5,TH1 *r5,TH1 *s6,TH1 *r6,
+     TText* te, const char * option, double startingY, double startingX = .1,bool fit = false);
+void plotResolutions(TCanvas *canvas, 
+     TH2F *s1_2,TH2F *r1_2, TH2F *s2_2,TH2F *r2_2, TH2F *s3_2,TH2F *r3_2, TH2F *s4_2,TH2F *r4_2, TH2F *s5_2,TH2F *r5_2,
+     const char* ystr1, const char* ystr2, const char* ystr3, const char* ystr4, const char* ystr5, const char* xstr,
+     TText* te, const char * option, double startingY, bool logx=false, double startingX = .1,bool fit = false);
+void plot4histos(TCanvas *canvas, 
+     TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4, TText* te,
+     const char * option, double startingY, double startingX = .1,bool fit = false, bool statflag = true);
+void plot6histos(TCanvas *canvas,
+     TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4, TH1 *s5,TH1 *r5, TH1 *s6,TH1 *r6,
+     TText* te, const char * option, double startingY, double startingX = .1,bool fit = false);
+void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit = false);
+
+void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="REF_FILE")
 {
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
  gROOT ->Reset();
@@ -18,8 +40,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  //tyle->SetTitleYSize(0.3);
  //gStyle->SetLabelSize(0.6) 
  //gStyle->SetTextSize(0.5);
- char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
- char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+ const char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
+ const char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
 
 
  //=============================================
@@ -171,7 +193,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //text->SetFillColor(0);
    //text->SetTextColor(1);
    //text->Draw();
-   l = new TLegend(0.10,0.64,0.90,0.69);
+   TLegend* l = new TLegend(0.10,0.64,0.90,0.69);
    l->SetTextSize(0.016);
    l->SetLineColor(1);
    l->SetLineWidth(1);
@@ -270,10 +292,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //rh6->GetXaxis()->SetRangeUser(0,10);
    //sh6->GetXaxis()->SetRangeUser(0,10);
    
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1 * r2[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1 * s2[6]={sh1,sh2,sh3,sh4,sh5,sh6};
    
-   plotBuilding(canvas,s, r,6,
+   plotBuilding(canvas,s2, r2,6,
         te,"UU",-1, 1, false, 0xC);
 
    canvas->cd();
@@ -355,10 +377,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("Charge Mis-IDed Tracks","Tracks: charge mis-id rate",1000,1400);
 
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1 * r3[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1 * s3[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
-   plotBuilding(canvas,s, r,6,
+   plotBuilding(canvas,s3, r3,6,
         te,"UU",-1, 1, false, 2);
 
    canvas->cd();
@@ -383,8 +405,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    nhits_vs_eta_r->SetName("nhits_vs_eta_r");                                                                                                                               
    sdir->GetObject(collname2+"/nhits_vs_eta",nhits_vs_eta_s); 
    nhits_vs_eta_s->SetName("nhits_vs_eta_s");                                                                                                                                                                               
-   (TProfile*)rh1 = nhits_vs_eta_r->ProfileX();
-   (TProfile*)sh1 = nhits_vs_eta_s->ProfileX();
+   rh1 = nhits_vs_eta_r->ProfileX();
+   sh1 = nhits_vs_eta_s->ProfileX();
 
    rdir->GetObject(collname1+"/hits",rh2);                                                                                                                                                                                    
    sdir->GetObject(collname2+"/hits",sh2);         
@@ -454,8 +476,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/chi2_vs_eta", chi2_vs_eta_s);
    chi2_vs_eta_s->SetName("chi2_vs_eta_s");
 
-   (TProfile*)rh3 = chi2_vs_eta_r->ProfileX();
-   (TProfile*)sh3 = chi2_vs_eta_s->ProfileX();
+   rh3 = chi2_vs_eta_r->ProfileX();
+   sh3 = chi2_vs_eta_s->ProfileX();
 
    rdir->GetObject(collname1+"/chi2",rh1);
    sdir->GetObject(collname2+"/chi2",sh1);
@@ -912,10 +934,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1400);
 
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1 * r5[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1 * s5[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
-   plotBuilding(canvas,s, r,6,
+   plotBuilding(canvas,s5, r5,6,
 		te,"UU",-1);
 
    canvas->cd();
@@ -1001,10 +1023,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("TracksDup8","Tracks: efficiency & fakerate",1000,1400);
 
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1 * r6[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1 * s6[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
-   plotBuilding(canvas,s, r,6,
+   plotBuilding(canvas,s6, r6,6,
         te,"UU",-1);
 
    canvas->cd();
@@ -1399,7 +1421,7 @@ void plot4histos(TCanvas *canvas,
 		TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, 
 		TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
 		TText* te,
-	       char * option, double startingY, double startingX = .1,bool fit = false, bool statflag = true){
+	        const char * option, double startingY, double startingX = .1,bool fit = false, bool statflag = true){
   canvas->Divide(2,2);
 
   s1->SetMarkerStyle(20);
@@ -1475,9 +1497,9 @@ void plot4histos(TCanvas *canvas,
   if (statflag) s4->Draw("sames");
   else s4->Draw("same");    
 
-  TPad *pad=canvas->cd(3);
+  TPad *pad=dynamic_cast<TPad*>(canvas->cd(3));
   if(!statflag)pad->SetLogx();
-  pad=(TPad*)canvas->cd(4);
+  pad=dynamic_cast<TPad*>(canvas->cd(4));
   if(!statflag)pad->SetLogx();
 
 }
@@ -1487,7 +1509,7 @@ void plot6histos(TCanvas *canvas,
         TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
         TH1 *s5,TH1 *r5, TH1 *s6,TH1 *r6,
         TText* te,
-           char * option, double startingY, double startingX = .1,bool fit = false){
+           const char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
   
   s1->SetMarkerStyle(20);
@@ -1593,7 +1615,7 @@ void plot6histos(TCanvas *canvas,
 }
 
 void plotBuilding(TCanvas *canvas, TH1 **s, TH1 **r, int n,TText* te,
-		  char * option, double startingY, double startingX = .1,bool fit = false, unsigned int logx=0){
+		  const char * option, double startingY, double startingX = .1,bool fit = false, unsigned int logx=0){
   canvas->Divide(2,(n+1)/2); //this should work also for odd n
   for(int i=0; i<n;i++){
     s[i]->SetMarkerStyle(20);
@@ -1607,7 +1629,7 @@ void plotBuilding(TCanvas *canvas, TH1 **s, TH1 **r, int n,TText* te,
     s[i]->SetLineWidth(1);
     r[i]->SetLineWidth(1);
 
-    TPad *pad=canvas->cd(i+1);
+    TPad *pad=dynamic_cast<TPad*>(canvas->cd(i+1));
     setStats(s[i],r[i], -1, 0, false);
     if((logx>>i)&1)pad->SetLogx();
     r[i]->Draw();
@@ -1653,7 +1675,7 @@ void plotPulls(TCanvas *canvas,
 	       TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
 	       TH1 *s5,TH1 *r5,TH1 *s6,TH1 *r6,
 	       TText* te,
-	       char * option, double startingY, double startingX = .1,bool fit = false){
+	       const char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
 
   s1->SetMarkerStyle(20);
@@ -1763,7 +1785,7 @@ void plotPulls(TCanvas *canvas,
 }
 
 TH1* getEfficiency(TH1* numer, TH1* denom, const char* name, const char* title, bool isEff) {
-    TH1* efficiencyHist = denom->Clone(name);
+    TH1* efficiencyHist = dynamic_cast<TH1*>(denom->Clone(name));
     efficiencyHist->SetTitle(title);
 
     for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++){
@@ -1784,7 +1806,7 @@ TH1* getEfficiency(TH1* numer, TH1* denom, const char* name, const char* title, 
 }
 
 TH1* getEfficiency(TH1* numer1, TH1* numer2, TH1* denom, const char* name, const char* title, bool isEff) {
-    TH1* efficiencyHist = denom->Clone(name);
+    TH1* efficiencyHist = dynamic_cast<TH1*>(denom->Clone(name));
     efficiencyHist->SetTitle(title);
 
     for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++){
@@ -1811,7 +1833,7 @@ void plotResolutions(TCanvas *canvas,
 		     TH2F *s5_2,TH2F *r5_2,
              const char* ystr1, const char* ystr2, const char* ystr3, const char* ystr4, const char* ystr5, const char* xstr,
 		     TText* te,
-		     char * option, double startingY, bool logx=false, double startingX = .1,bool fit = false){
+		     const char * option, double startingY, bool logx=false, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
 
   s1_2->FitSlicesY();  
@@ -2137,7 +2159,7 @@ void plotResolutionsDirect(TCanvas *canvas,
 
 }
 
-void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
+void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit = false){
   if (startingY<0){
     s->SetStats(0);
     r->SetStats(0);
