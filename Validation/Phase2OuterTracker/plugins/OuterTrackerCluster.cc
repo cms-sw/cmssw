@@ -182,12 +182,13 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
   folder_organizer.setSiStripFolder();
+  std::string HistoName;
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
   
   /// TTCluster stacks
   edm::ParameterSet psTTClusterLayers =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Layers");
-  std::string HistoName = "NClusters_Gen_Barrel";
+  HistoName = "NClusters_Gen_Barrel";
   Cluster_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
       psTTClusterLayers.getParameter<int32_t>("Nbinsx"),
       psTTClusterLayers.getParameter<double>("xmin"),

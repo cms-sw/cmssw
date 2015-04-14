@@ -27,11 +27,33 @@ public:
  
   
   // TrackingParticle and TrackingVertex
+  MonitorElement* SimVtx_XY = 0;
+  MonitorElement* SimVtx_RZ = 0;
+  
   MonitorElement* TPart_Pt = 0;
   MonitorElement* TPart_Eta_Pt10 = 0;
   MonitorElement* TPart_Phi_Pt10 = 0;
-  MonitorElement* SimVtx_XY = 0;
-  MonitorElement* SimVtx_RZ = 0;
+  
+  MonitorElement* TPart_Cluster_Pt = 0;
+  MonitorElement* TPart_Cluster_Phi_Pt10 = 0;
+  MonitorElement* TPart_Cluster_Eta_Pt10 = 0;
+  
+  MonitorElement* TPart_Stub_Pt = 0;
+  MonitorElement* TPart_Stub_Phi_Pt10 = 0;
+  MonitorElement* TPart_Stub_Eta_Pt10 = 0;
+  
+  MonitorElement* TPart_Track_LQ_Pt = 0;
+  MonitorElement* TPart_Track_LQ_Phi_Pt10 = 0;
+  MonitorElement* TPart_Track_LQ_Eta_Pt10 = 0;
+  MonitorElement* TPart_Track_HQ_Pt = 0;
+  MonitorElement* TPart_Track_HQ_Phi_Pt10 = 0;
+  MonitorElement* TPart_Track_HQ_Eta_Pt10 = 0;
+  
+  // Stub in PS/2S module vs. TPart Eta
+  MonitorElement* TPart_Stub_Eta_Pt10_Normalization = 0;
+  MonitorElement* TPart_Stub_Eta_Pt10_NumPS = 0;
+  MonitorElement* TPart_Stub_Eta_Pt10_Num2S = 0;
+  
   // CW vs. TPart Eta
   MonitorElement* TPart_Eta_INormalization = 0;
   MonitorElement* TPart_Eta_ICW_1 = 0;
@@ -41,13 +63,11 @@ public:
   MonitorElement* TPart_Eta_OCW_1 = 0;
   MonitorElement* TPart_Eta_OCW_2 = 0;
   MonitorElement* TPart_Eta_OCW_3 = 0;
-  // Stub in PS/2S module vs. TPart Eta
-  MonitorElement* TPart_Eta_Pt10_Normalization = 0;
-  MonitorElement* TPart_Eta_Pt10_NumPS = 0;
-  MonitorElement* TPart_Eta_Pt10_Num2S = 0;
+  
   // PID
   MonitorElement* Cluster_PID = 0;
   MonitorElement* Stub_PID = 0;
+  
   // Track Chi2(Red)
   MonitorElement* Track_LQ_Chi2_TPart_Eta = 0;
 	MonitorElement* Track_LQ_Chi2Red_TPart_Eta = 0;

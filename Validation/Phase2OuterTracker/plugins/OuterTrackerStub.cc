@@ -187,13 +187,13 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
   folder_organizer.setSiStripFolder();
-  
+  std::string HistoName;
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/");
   
   /// TTStub stacks
   edm::ParameterSet psTTStubLayer =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Layer");
-  std::string HistoName = "NStubs_Gen_Barrel";
+  HistoName = "NStubs_Gen_Barrel";
   Stub_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
       psTTStubLayer.getParameter<int32_t>("Nbinsx"),
       psTTStubLayer.getParameter<double>("xmin"),
