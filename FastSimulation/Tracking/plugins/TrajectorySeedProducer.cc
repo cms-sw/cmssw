@@ -487,6 +487,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
             The implementation has been chosen such that the tree only needs to be build once upon construction.
         */
 
+	regions.clear();
+	if(theRegionProducer)
+	  regions = theRegionProducer->regions(e,es);
         std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
 
         if (seedHitNumbers.size()>0)
