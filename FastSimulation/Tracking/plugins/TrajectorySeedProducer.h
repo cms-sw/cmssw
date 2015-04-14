@@ -207,6 +207,8 @@ class TrajectorySeedProducer:
     ) const;
     
     // lv
+    typedef std::vector<TrackingRegion* > Regions;
+    Regions regions;
     std::unique_ptr<TrackingRegionProducer> theRegionProducer;
 
 };
