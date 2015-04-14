@@ -1,7 +1,9 @@
-all : singlePi RelValMacro
+GCC=g++ -g `root-config --cflags --glibs` $< -o $@
 
-singlePi : SinglePi.C
-	g++ -g `root-config --cflags --glibs` SinglePi.C -o SinglePi.exe
+all : singlePi.exe RelValMacro.exe
 
-RelValMacro : RelValMacro.C
-	g++ -g `root-config --cflags --glibs` RelValMacro.C -o RelValMacro.exe
+singlePi.exe : SinglePi.C
+	$(GCC)
+
+RelValMacro.exe : RelValMacro.C
+	$(GCC)
