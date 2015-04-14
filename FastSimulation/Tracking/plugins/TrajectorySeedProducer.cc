@@ -249,6 +249,9 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
     const GlobalPoint& globalHitPos2 = hit2.globalPosition();
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
+    if (theRegionProducer){
+      return testWithRegions(hit1,hit2);
+    }
     if (testBeamspotCompatibility)
       {
 	return compatibleWithBeamSpot(globalHitPos1,globalHitPos2,error,forward);
@@ -541,7 +544,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.put(output);
 }
 
-
+bool
+TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
+  return false;
+}
 
 bool
 TrajectorySeedProducer::compatibleWithBeamSpot(
