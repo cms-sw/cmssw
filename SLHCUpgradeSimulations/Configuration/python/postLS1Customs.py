@@ -102,6 +102,9 @@ def customise_DQM(process):
     # Turn off "low bias voltage" region in HCAL noise filters
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
+    # Use a different HBHE noise filter flag in caloMetDQMAnalyzer
+    if hasattr(process,'caloMetDQMAnalyzer'):
+        process.caloMetDQMAnalyzer.HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun2Loose")
     return process
 
 
