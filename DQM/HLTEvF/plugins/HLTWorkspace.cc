@@ -329,7 +329,6 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	  MonitorElement * ME_photonEta = dbe->get(fullPathPhotonEta);
 	  TH1F * hist_photonEta = ME_photonEta->getTH1F();
 	  hist_photonEta->Fill(trgObj1.eta());
-	  break;
 	}
 
       //muon pt + eta
@@ -346,7 +345,6 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	  MonitorElement * ME_muonEta = dbe->get(fullPathMuonEta);
 	  TH1F * hist_muonEta = ME_muonEta->getTH1F();
 	  hist_muonEta->Fill(trgObj1.eta());
-	  break;
 	}
 
       //electron pt + eta
@@ -363,7 +361,6 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	  MonitorElement * ME_electronEta = dbe->get(fullPathElectronEta);
 	  TH1F * hist_electronEta = ME_electronEta->getTH1F();
 	  hist_electronEta->Fill(trgObj1.eta());
-	  break;
 	}
 
       //start second for loop for double-object plots
@@ -394,7 +391,6 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
                     mu2.SetPtEtaPhiM(trgObj2.pt(), trgObj2.eta(), trgObj2.phi(), mu_mass);
                     dimu = mu1+mu2;
                     hist_dimuonLowMass->Fill(dimu.M());
-		    break;
                   }
                 }
 
