@@ -237,16 +237,17 @@ elif test == '74X-MC':
     from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
     what = getHeppyOption("sample")
     if what == "TT":
+        ttHLepSkim.minLeptons = 0
         selectedComponents = [ TT_bx25 ]
     elif what == "Z":
         selectedComponents = [ ZEE_bx25, ZMM_bx25, ZTT_bx25 ]
     else:
         selectedComponents = RelVals740
-    if getHeppyOption("single"):
+    if not getHeppyOption("all"):
         for comp in selectedComponents:
             comp.files = comp.files[:1]
             comp.splitFactor = 1
-            comp.fineSplitFactor = 1
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
 elif test == '74X-Data':
     from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
     what = getHeppyOption("sample")
@@ -258,11 +259,11 @@ elif test == '74X-Data':
         selectedComponents = [ MuEG ]
     else:
         selectedComponents = dataSamples740p9
-    if getHeppyOption("single"):
+    if not getHeppyOption("all"):
         for comp in selectedComponents:
             comp.files = comp.files[:1]
             comp.splitFactor = 1
-            comp.fineSplitFactor = 1
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
 
 
 ## output histogram
