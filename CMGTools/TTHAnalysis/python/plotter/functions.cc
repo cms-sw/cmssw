@@ -1,5 +1,6 @@
 #include <cmath>
 #include "Math/GenVector/LorentzVector.h"
+#include "Math/GenVector/PtEtaPhiM4D.h"
 
 //// UTILITY FUNCTIONS NOT IN TFORMULA ALREADY
 
