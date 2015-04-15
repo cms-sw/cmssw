@@ -1,3 +1,4 @@
+{
 /*
  * A Root macro to initialise testing of the functionality of the PFClusterTools package
  * 
