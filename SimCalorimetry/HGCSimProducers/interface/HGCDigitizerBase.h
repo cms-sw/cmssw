@@ -36,13 +36,12 @@ class HGCDigitizerBase {
     bxTime_        = ps.getParameter<double>("bxTime");
     myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
     doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
-    mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
-    if(myCfg_.exists("mipInfC")) mipInfC_ = myCfg_.getParameter<double>("mipInfC");
-    else                         mipInfC_ = 0;
-    mip2noise_     = myCfg_.getParameter<double>("mip2noise");
-
+    if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");    
+    else                          keV2fC_   = 1.0;
+    if(myCfg_.exists("noise_fC")) noise_fC_ = myCfg_.getParameter<double>("noise_fC");
+    else                          noise_fC_ = 1.0;
     edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-    myFEelectronics_ = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg) );
+    myFEelectronics_        = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg) );
   }
   
   /**
@@ -50,8 +49,8 @@ class HGCDigitizerBase {
    */
   void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
   {       
-    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,mipInKeV_/mip2noise_ );
-    tdcNoiseGen_ = new CLHEP::RandGauss(engine);
+    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noise_fC_);
+    tdcResoGen_     = new CLHEP::RandGauss(engine);
   }
   
   /**
@@ -76,27 +75,27 @@ class HGCDigitizerBase {
 	std::vector<float> chargeColl( it->second[0].size(), 0 ),toa( it->second[0].size(), 0 );
 	for(size_t i=0; i<it->second[0].size(); i++) 
 	  {
-	    //convert total energy GeV->keV counts
-	    double totalEn=(it->second)[0][i]*1e6;
-	    
-	    //time of arrival
-	    if(totalEn>0) toa[i]=(it->second)[1][i]*1e6/totalEn;
-	    
-	    ////bool debug(totalEn>0);
-	    ////if(debug) std::cout << "[" << i << "] " << totalEn << "keV ->";
+	    double rawEn((it->second)[0][i]);
 
-	    //add noise (in keV)
-	    double noiseEn=simpleNoiseGen_->fire();
-	    totalEn += noiseEn;
+	    //time of arrival
+	    if(rawEn>0) toa[i]=(it->second)[1][i]/rawEn;
+	    else        toa[i]=0;
+	    
+	    //convert total energy in GeV to charge (fC)
+	    double totalEn=rawEn*1e6*keV2fC_;
+
+	    //add noise (in fC)
+	    //we assume it's randomly distributed and won't impact ToA measurement
+	    totalEn += max(simpleNoiseGen_->fire(),0.);
 	    if(totalEn<0) totalEn=0;
 
-	    //convert keV -> MIP -> fC
-	    chargeColl[i]= ((totalEn/mipInKeV_)* mipInfC_);
+	    //convert fC -> MIP
+	    chargeColl[i]= totalEn;
 	  }
 	
 	//run the shaper to create a new data frame
 	D rawDataFrame( it->first );
-	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa,tdcNoiseGen_);
+	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa,tdcResoGen_);
 	
 	//update the output according to the final shape
 	updateOutput(coll,rawDataFrame);
@@ -147,10 +146,13 @@ class HGCDigitizerBase {
   edm::ParameterSet myCfg_;
 
   //a simple noise generator
-  mutable CLHEP::RandGauss *simpleNoiseGen_, *tdcNoiseGen_;
+  mutable CLHEP::RandGauss *simpleNoiseGen_, *tdcResoGen_;
+
+  //1keV in fC
+  float keV2fC_;
   
-  //parameters for the trivial digitization scheme
-  double mipInKeV_, mipInfC_,  mip2noise_;
+  //noise level
+  float noise_fC_;
   
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<D> > myFEelectronics_;

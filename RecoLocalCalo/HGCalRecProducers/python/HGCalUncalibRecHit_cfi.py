@@ -14,33 +14,30 @@ HGCalUncalibRecHit = cms.EDProducer(
     
     HGCEEConfig = cms.PSet(
         isSiFE = cms.bool(True),
-        # number of fC in a MIP
-        mipInfC = hgceeDigitizer.digiCfg.mipInfC,
         # adc information
-        adcNbits = hgceeDigitizer.digiCfg.feCfg.adcNbits,
-        adcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC,
+        adcNbits      = hgceeDigitizer.digiCfg.feCfg.adcNbits,
+        adcSaturation = hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC,
         #tdc information
-        tdcNbits = hgceeDigitizer.digiCfg.feCfg.tdcNbits,
-        tdcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
-        toaLSB_ns = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns
+        tdcNbits      = hgceeDigitizer.digiCfg.feCfg.tdcNbits,
+        tdcSaturation = hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        toaLSB_ns     = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns
         ),
     
     HGCHEFConfig = cms.PSet(
         isSiFE = cms.bool(True),
-        # number of fC in a MIP
-        mipInfC = hgchefrontDigitizer.digiCfg.mipInfC,
         # adc information
-        adcNbits = hgchefrontDigitizer.digiCfg.feCfg.adcNbits,
-        adcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.adcSaturation_fC,
+        adcNbits      = hgchefrontDigitizer.digiCfg.feCfg.adcNbits,
+        adcSaturation = hgchefrontDigitizer.digiCfg.feCfg.adcSaturation_fC,
         #tdc information
-        tdcNbits = hgchefrontDigitizer.digiCfg.feCfg.tdcNbits,
-        tdcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC,
-        toaLSB_ns = hgchefrontDigitizer.digiCfg.feCfg.toaLSB_ns
+        tdcNbits      = hgchefrontDigitizer.digiCfg.feCfg.tdcNbits,
+        tdcSaturation = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        toaLSB_ns     = hgchefrontDigitizer.digiCfg.feCfg.toaLSB_ns
         ),
 
     HGCHEBConfig = cms.PSet(
-        isSiFE = cms.bool(False),
-        lsbInMIP = hgchebackDigitizer.digiCfg.feCfg.lsbInMIP
+        isSiFE  = cms.bool(False),
+        adcNbits      = hgchebackDigitizer.digiCfg.feCfg.adcNbits,
+        adcSaturation = hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
         ),
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")

@@ -10,12 +10,10 @@ template< typename DET >
 void configureIt(const edm::ParameterSet& conf, 
                  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<DET,HGCSample>>& maker) {
   constexpr char isSiFE[]           = "isSiFE";
-  constexpr char mipInfC[]          = "mipInfC";
   constexpr char adcNbits[]         = "adcNbits";
-  constexpr char adcSaturation_fC[] = "adcSaturation_fC";
+  constexpr char adcSaturation[]    = "adcSaturation";
   constexpr char tdcNbits[]         = "tdcNbits";
-  constexpr char tdcSaturation_fC[] = "tdcSaturation_fC";
-  constexpr char lsbInMIP[]         = "lsbInMIP";
+  constexpr char tdcSaturation[]    = "tdcSaturation";
   constexpr char toaLSB_ns[]        = "toaLSB_ns";
   
   if( conf.exists(isSiFE) ) {
@@ -25,39 +23,27 @@ void configureIt(const edm::ParameterSet& conf,
   }
 
   if( conf.exists(adcNbits) ) {
-    uint32_t nBits       = conf.getParameter<uint32_t>(adcNbits);
-    double saturation_fC = conf.getParameter<double>(adcSaturation_fC);
-    float adcLSB_fC      = saturation_fC/pow(2.,nBits);    
-    maker.set_ADCLSBInfC(adcLSB_fC);
+    uint32_t nBits     = conf.getParameter<uint32_t>(adcNbits);
+    double saturation  = conf.getParameter<double>(adcSaturation);
+    float adcLSB       = saturation/pow(2.,nBits);    
+    maker.set_ADCLSB(adcLSB);
   } else {
-    maker.set_ADCLSBInfC(-1.);
+    maker.set_ADCLSB(-1.);
   }
   
   if( conf.exists(tdcNbits) ) {
-    uint32_t nBits       = conf.getParameter<uint32_t>(tdcNbits);
-    double saturation_fC = conf.getParameter<double>(tdcSaturation_fC);
-    float tdcLSB_fC      = saturation_fC/pow(2.,nBits); 
-    maker.set_TDCLSBInfC(tdcLSB_fC);
+    uint32_t nBits    = conf.getParameter<uint32_t>(tdcNbits);
+    double saturation = conf.getParameter<double>(tdcSaturation);
+    float tdcLSB      = saturation/pow(2.,nBits); 
+    maker.set_TDCLSB(tdcLSB);
   } else {
-    maker.set_TDCLSBInfC(-1.);
+    maker.set_TDCLSB(-1.);
   } 
     
   if( conf.exists(toaLSB_ns) ) {
     maker.set_toaLSBToNS(conf.getParameter<double>(toaLSB_ns));
   } else {
     maker.set_toaLSBToNS(-1.);
-  }
-
-  if( conf.exists(mipInfC) ) {
-    maker.set_fCToMIP(conf.getParameter<double>(mipInfC));
-  } else {
-    maker.set_fCToMIP(-1.);
-  }
-  
-  if(conf.exists(lsbInMIP) ) {
-    maker.set_ADCToMIP(conf.getParameter<double>(lsbInMIP));
-  } else {
-    maker.set_ADCToMIP(-1.);
   }
 }
 

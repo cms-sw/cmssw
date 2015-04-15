@@ -33,10 +33,11 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
 
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration") << "HGCDigitizer requires the RandomNumberGeneratorService - please add this service or remove the modules that require it";
-  }
-
+  if ( ! rng.isAvailable()) 
+    {
+      throw cms::Exception("Configuration") << "HGCDigitizer requires the RandomNumberGeneratorService - please add this service or remove the modules that require it";
+    }
+  
   CLHEP::HepRandomEngine& engine = rng->getEngine();
   if(hitCollection_.find("HitsEE")!=std::string::npos) { 
     mySubDet_=ForwardSubdetector::HGCEE;  

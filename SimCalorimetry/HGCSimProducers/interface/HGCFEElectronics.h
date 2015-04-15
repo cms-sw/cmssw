@@ -26,7 +26,7 @@ class HGCFEElectronics
      @short switches according to the firmware version
    */
   inline void runShaper(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::RandGauss* reso)
-  {
+  {    
     switch(fwVersion_)
       {
       case SIMPLE :  { runSimpleShaper(dataFrame,chargeColl);      break; }
@@ -69,7 +69,8 @@ class HGCFEElectronics
   //private members
   uint32_t fwVersion_;
   std::vector<double> adcPulse_,tdcChargeDrainParameterisation_;
-  float adcLSB_fC_, tdcLSB_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
+  float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
+    adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
   
 };
 

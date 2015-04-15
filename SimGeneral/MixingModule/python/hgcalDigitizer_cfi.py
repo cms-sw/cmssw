@@ -13,9 +13,8 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                            makeDigiSimLinks  = cms.bool(False),
                            useAllChannels    = cms.bool(True),
                            verbosity         = cms.untracked.uint32(0),
-                           digiCfg = cms.PSet( mipInKeV         = cms.double(55.1),                                               
-                                               mipInfC          = cms.double(2.35),
-                                               mip2noise        = cms.double(7.0),
+                           digiCfg = cms.PSet( keV2fC           = cms.double(0.042),
+                                               noise_fC         = cms.double(0.336),
                                                doTimeSamples    = cms.bool(False),                                         
                                                feCfg   = cms.PSet( # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
                                                                    fwVersion         = cms.uint32(2),
@@ -57,9 +56,8 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                 makeDigiSimLinks  = cms.bool(False),
                                 useAllChannels    = cms.bool(True),
                                 verbosity         = cms.untracked.uint32(0),
-                                digiCfg = cms.PSet( mipInKeV         = cms.double(85.0),                                               
-                                                    mipInfC          = cms.double(3.52),
-                                                    mip2noise        = cms.double(7.0),
+                                digiCfg = cms.PSet( keV2fC           = cms.double(0.042),
+                                                    noise_fC         = cms.double(0.336),                                                    
                                                     doTimeSamples    = cms.bool(False),                                         
                                                     feCfg   = cms.PSet( # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
                                                                         fwVersion         = cms.uint32(2),
@@ -102,20 +100,22 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                makeDigiSimLinks  = cms.bool(False),
                                useAllChannels    = cms.bool(True),
                                verbosity         = cms.untracked.uint32(0),
-                               digiCfg = cms.PSet( mipInKeV = cms.double(1498.4),
-                                                   mip2noise = cms.double(5.0),                                                   
+                               digiCfg = cms.PSet( keV2MIP           = cms.double(1./1498.4),
+                                                   noise_MIP         = cms.double(0.20),
                                                    doTimeSamples = cms.bool(False),
-                                                   feCfg   = cms.PSet( fwVersion      = cms.uint32(0),
-                                                                       adcThreshold  = cms.double(4),
-                                                                       lsbInMIP = cms.double(0.25),
-                                                                       shaperN       = cms.double(1.),
-                                                                       shaperTau     = cms.double(0.) ),
-                                                   lsbInMIP = cms.double(0.25),
                                                    nPEperMIP = cms.double(11.0),
-                                                   #1156 pixels => saturation ~600MIP
-                                                   nTotalPE  = cms.double(11560),
+                                                   nTotalPE  = cms.double(11560), #1156 pixels => saturation ~600MIP
                                                    xTalk     = cms.double(0.25),
-                                                   sdPixels  = cms.double(3.0) #)
+                                                   sdPixels  = cms.double(3.0),
+                                                   feCfg   = cms.PSet( # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
+                                                                       fwVersion       = cms.uint32(0),
+                                                                       # n bits for the ADC 
+                                                                       adcNbits        = cms.uint32(12),
+                                                                       # ADC saturation : in this case we use the same variable but fC=MIP
+                                                                       adcSaturation_fC = cms.double(2048),
+                                                                       # threshold for digi production : in this case we use the same variable but fC=MIP
+                                                                       adcThreshold_fC = cms.double(1.0)
+                                                                       )
                                                    )                              
                                )
 

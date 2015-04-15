@@ -18,7 +18,8 @@ class HGCHEbackDigitizer : public HGCDigitizerBase<HGCHEDataFrame>
  private:
 
   //calice-like digitization parameters
-  float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_, lsbInMIP_;
+  float keV2MIP_, noise_MIP_;
+  float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
   mutable CLHEP::RandPoisson *peGen_;
   mutable CLHEP::RandGauss *sigGen_;
   void runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData);
