@@ -75,10 +75,9 @@ void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSe
 
    theRPCSimSetUp->setGeometry( pGeom );
    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
-//    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
+   // theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
   
   theDigitizer->setGeometry( pGeom );
-  theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
 }
 
