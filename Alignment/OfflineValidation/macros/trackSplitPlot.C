@@ -9,6 +9,7 @@ Table Of Contents
 6. TDR Style
 ***********************************/
 
+#include <vector>
 #include "trackSplitPlot.h"
 
 //===================
@@ -119,7 +120,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     if (type == Profile || type == ScatterPlot || type == Histogram || type == Resolution)
         axislimits(nFiles,files,yvar,'y',relative,pull,ymin,ymax);
 
-    TString meansrmss[n];
+    std::vector<TString> meansrmss(n);
     Bool_t  used[n];        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
 
     for (Int_t i = 0; i < n; i++)
