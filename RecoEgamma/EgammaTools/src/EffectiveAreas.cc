@@ -1,4 +1,4 @@
-#include "RecoEgamma/PhotonIdentification/interface/EffectiveAreas.h"
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <math.h>

@@ -8,6 +8,7 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="root"/>
 <use   name="rootcore"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/ElectronIdentification"/>
 <library   file="*.cc" name="RecoEgammaElectronIdentificationPlugins">
   <flags   EDM_PLUGIN="1"/>
