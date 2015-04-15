@@ -22,11 +22,10 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result);
   
  protected:
-
-  double HGCEEmipInKeV_, HGCEElsbInMIP_, HGCEEmip2noise_;
-  double HGCHEFmipInKeV_, HGCHEFlsbInMIP_, HGCHEFmip2noise_;
-  double HGCHEBmipInKeV_, HGCHEBlsbInMIP_, HGCHEBmip2noise_;
-  double hgceeADCtoGeV_, hgchefADCtoGeV_, hgchebADCtoGeV_;
+  
+  double HGCEE_keV2DIGI_,  hgceeUncalib2GeV_;
+  double HGCHEF_keV2DIGI_, hgchefUncalib2GeV_;
+  double HGCHEB_keV2DIGI_, hgchebUncalib2GeV_;
   
   std::vector<int> v_chstatus_;
   
