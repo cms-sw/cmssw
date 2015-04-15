@@ -2,7 +2,7 @@
 //
 // Package:    DQM/HLTWorkspace
 // Class:      HLTWorkspace
-// 
+//
 /**\class HLTWorkspace HLTWorkspace.cc DQM/HLTEvF/plugins/HLTWorkspace.cc
 
  Description: [one line class summary]
@@ -43,6 +43,8 @@
 #include "TMath.h"
 
 #include "TStyle.h"
+
+#include "TLorentzVector.h"
 //
 // class declaration
 //
@@ -65,29 +67,29 @@ class HLTWorkspace : public edm::EDAnalyzer {
       virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
-  
+
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       virtual void bookPlots();
 
-  virtual void fillPlots(int, string, TriggerObject);
+  virtual void fillPlots(int, string, edm::Handle<trigger::TriggerEvent>);
       // ----------member data ---------------------------
 
   bool debugPrint;
-  
+
   string topDirectoryName;
   string mainShifterFolder;
   string backupFolder;
 
   DQMStore * dbe;
-  
+
   HLTConfigProvider hltConfig_;
 
   map<string, unsigned int> lookupIndex;
   map<string, string> lookupFilter;
-  
+
   vector<string> quickCollectionPaths;
 
   //set Token(-s)
@@ -129,7 +131,7 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
 
 HLTWorkspace::~HLTWorkspace()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -145,7 +147,7 @@ void
 HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   if (debugPrint) std::cout << "Inside analyze(). " << std::endl;   
+   if (debugPrint) std::cout << "Inside analyze(). " << std::endl;
    int eventNumber = iEvent.id().event();
 
    // access trigger results
@@ -157,24 +159,16 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    if (!aodTriggerEvent.isValid()) return;
 
-   const TriggerObjectCollection objects = aodTriggerEvent->getObjects();
-
-   for (string & pathName : quickCollectionPaths)
+   for (string & pathName : quickCollectionPaths) //loop over paths
      {
        if (triggerResults->accept(lookupIndex[pathName]) && hltConfig_.saveTags(lookupFilter[pathName]))
 	 {
-	   InputTag moduleFilter(lookupFilter[pathName],"","TEST");
-	   unsigned int moduleFilterIndex = aodTriggerEvent->filterIndex(moduleFilter);
 
-	   const Keys &keys = aodTriggerEvent->filterKeys( moduleFilterIndex );
-	   for (const auto & key : keys)
-	     {
-	       TriggerObject trigObject = objects[key];
-	       fillPlots(eventNumber, pathName, trigObject);
-	     }
+	   fillPlots(eventNumber, pathName, aodTriggerEvent);
+
 	 }
      }
-   
+
 
 
 
@@ -182,7 +176,7 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 HLTWorkspace::beginJob()
 {
   if (debugPrint) std::cout << "Calling beginJob. " << std::endl;
@@ -191,18 +185,18 @@ HLTWorkspace::beginJob()
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTWorkspace::endJob() 
+void
+HLTWorkspace::endJob()
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void 
+void
 HLTWorkspace::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
   if (debugPrint) std::cout << "Calling beginRun. " << std::endl;
   bool changed = true;
-  if (hltConfig_.init(iRun, iSetup, "TEST", changed)) 
+  if (hltConfig_.init(iRun, iSetup, "TEST", changed))
     {
       if (debugPrint) std::cout << "Extracting HLTconfig. " << std::endl;
     }
@@ -228,7 +222,7 @@ HLTWorkspace::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 // ------------ method called when ending the processing of a run  ------------
 
-void 
+void
 HLTWorkspace::endRun(edm::Run const&, edm::EventSetup const&)
 {
   if (debugPrint) std::cout << "Calling endRun. " << std::endl;
@@ -236,7 +230,7 @@ HLTWorkspace::endRun(edm::Run const&, edm::EventSetup const&)
 
 void HLTWorkspace::bookPlots()
 {
-  
+
   //link all paths and filters needed
   quickCollectionPaths.push_back("HLT_Photon30_R9Id90_HE10_IsoM");
   lookupFilter["HLT_Photon30_R9Id90_HE10_IsoM"] = "hltEG30R9Id90HE10IsoMTrackIsoFilter";
@@ -246,6 +240,9 @@ void HLTWorkspace::bookPlots()
 
   quickCollectionPaths.push_back("HLT_Ele27_eta2p1_WP75_Gsf");
   lookupFilter["HLT_Ele27_eta2p1_WP75_Gsf"] = "hltEle27WP75GsfTrackIsoFilter";
+
+  quickCollectionPaths.push_back("HLT_DoubleMu4_3_Jpsi_Displaced");
+  lookupFilter["HLT_DoubleMu4_3_Jpsi_Displaced"] = "hltDisplacedmumuFilterDoubleMu43Jpsi";
 
   ////////////////////////////////
   ///
@@ -269,13 +266,18 @@ void HLTWorkspace::bookPlots()
   hist_electronPt->SetMinimum(0);
   dbe->book1D("Electron_pT",hist_electronPt);
 
+  //dimuon low mass
+  TH1F * hist_dimuonLowMass = new TH1F("Dimuon_LowMass","Dimuon Low Mass",100,2.5,3.5);
+  hist_dimuonLowMass->SetMinimum(0);
+  dbe->book1D("Dimuon_LowMass",hist_dimuonLowMass);
+
   ////////////////////////////////
   ///
   /// Backup workspace plots
   ///
   ////////////////////////////////
   dbe->setCurrentFolder(backupFolder);
-  
+
   //photon eta
   TH1F * hist_photonEta = new TH1F("Photon_eta","Photon eta",50,0,3);
   hist_photonEta->SetMinimum(0);
@@ -293,62 +295,118 @@ void HLTWorkspace::bookPlots()
 
 }
 
-void HLTWorkspace::fillPlots(int evtNum, string pathName, TriggerObject trgObj)
+void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::TriggerEvent> aodTriggerEvent)
 {
   if (debugPrint) std::cout << "Inside fillPlots( " << evtNum << " , " << pathName << " ) " << std::endl;
-  
-  //photon pt + eta
-  if (pathName == "HLT_Photon30_R9Id90_HE10_IsoM")
+
+   const TriggerObjectCollection objects = aodTriggerEvent->getObjects();
+  InputTag moduleFilter(lookupFilter[pathName],"","TEST");
+  unsigned int moduleFilterIndex = aodTriggerEvent->filterIndex(moduleFilter);
+  const Keys &keys = aodTriggerEvent->filterKeys( moduleFilterIndex );
+
+  unsigned int kCnt1 = 0;
+  for (const auto & key1 : keys)
     {
-      //photon pt
-      string fullPathPhotonPt = mainShifterFolder+"/Photon_pT";
-      MonitorElement * ME_photonPt = dbe->get(fullPathPhotonPt);
-      TH1F * hist_photonPt = ME_photonPt->getTH1F();
-      hist_photonPt->Fill(trgObj.pt());
+      TriggerObject trgObj1 = objects[key1];
 
-      //photon eta
-      string fullPathPhotonEta = backupFolder+"/Photon_eta";
-      MonitorElement * ME_photonEta = dbe->get(fullPathPhotonEta);
-      TH1F * hist_photonEta = ME_photonEta->getTH1F();
-      hist_photonEta->Fill(trgObj.eta());
-    }
-  
-  //muon pt + eta
-  else if (pathName == "HLT_IsoMu27")
-    {
-      //muon pt
-      string fullPathMuonPt = mainShifterFolder+"/Muon_pT";
-      MonitorElement * ME_muonPt = dbe->get(fullPathMuonPt);
-      TH1F * hist_muonPt = ME_muonPt->getTH1F();
-      hist_muonPt->Fill(trgObj.pt());
+      ////////////////////////////////
+      ///
+      /// single-object plots
+      ///
+      ////////////////////////////////
 
-      //muon eta
-      string fullPathMuonEta = backupFolder+"/Muon_eta";
-      MonitorElement * ME_muonEta = dbe->get(fullPathMuonEta);
-      TH1F * hist_muonEta = ME_muonEta->getTH1F();
-      hist_muonEta->Fill(trgObj.eta());
-    }
+      //photon pt + eta
+      if (pathName == "HLT_Photon30_R9Id90_HE10_IsoM")
+	{
+	  //photon pt
+	  string fullPathPhotonPt = mainShifterFolder+"/Photon_pT";
+	  MonitorElement * ME_photonPt = dbe->get(fullPathPhotonPt);
+	  TH1F * hist_photonPt = ME_photonPt->getTH1F();
+	  hist_photonPt->Fill(trgObj1.pt());
 
-  //electron pt + eta
-  else if (pathName == "HLT_Ele27_eta2p1_WP75_Gsf")
-    {
-      //electron pt
-      string fullPathElectronPt = mainShifterFolder+"/Electron_pT";
-      MonitorElement * ME_electronPt = dbe->get(fullPathElectronPt);
-      TH1F * hist_electronPt = ME_electronPt->getTH1F();
-      hist_electronPt->Fill(trgObj.pt());
+	  //photon eta
+	  string fullPathPhotonEta = backupFolder+"/Photon_eta";
+	  MonitorElement * ME_photonEta = dbe->get(fullPathPhotonEta);
+	  TH1F * hist_photonEta = ME_photonEta->getTH1F();
+	  hist_photonEta->Fill(trgObj1.eta());
+	  break;
+	}
 
-      //electron eta
-      string fullPathElectronEta = backupFolder+"/Electron_eta";
-      MonitorElement * ME_electronEta = dbe->get(fullPathElectronEta);
-      TH1F * hist_electronEta = ME_electronEta->getTH1F();
-      hist_electronEta->Fill(trgObj.eta());
-    }
+      //muon pt + eta
+      else if (pathName == "HLT_IsoMu27")
+	{
+	  //muon pt
+	  string fullPathMuonPt = mainShifterFolder+"/Muon_pT";
+	  MonitorElement * ME_muonPt = dbe->get(fullPathMuonPt);
+	  TH1F * hist_muonPt = ME_muonPt->getTH1F();
+	  hist_muonPt->Fill(trgObj1.pt());
 
+	  //muon eta
+	  string fullPathMuonEta = backupFolder+"/Muon_eta";
+	  MonitorElement * ME_muonEta = dbe->get(fullPathMuonEta);
+	  TH1F * hist_muonEta = ME_muonEta->getTH1F();
+	  hist_muonEta->Fill(trgObj1.eta());
+	  break;
+	}
+
+      //electron pt + eta
+      else if (pathName == "HLT_Ele27_eta2p1_WP75_Gsf")
+	{
+	  //electron pt
+	  string fullPathElectronPt = mainShifterFolder+"/Electron_pT";
+	  MonitorElement * ME_electronPt = dbe->get(fullPathElectronPt);
+	  TH1F * hist_electronPt = ME_electronPt->getTH1F();
+	  hist_electronPt->Fill(trgObj1.pt());
+
+	  //electron eta
+	  string fullPathElectronEta = backupFolder+"/Electron_eta";
+	  MonitorElement * ME_electronEta = dbe->get(fullPathElectronEta);
+	  TH1F * hist_electronEta = ME_electronEta->getTH1F();
+	  hist_electronEta->Fill(trgObj1.eta());
+	  break;
+	}
+
+      //start second for loop for double-object plots
+      unsigned int kCnt2 = 0;
+      for (const auto & key2 : keys)
+      	{
+      	  if (key1 != key2 && kCnt2 > kCnt1) // avoid filling hists with same objs && avoid double counting separate objs
+      	    {
+      	      TriggerObject trgObj2 = objects[key2];
+
+      	      ////////////////////////////////
+      	      ///
+      	      /// double-object plots
+      	      ///
+      	      ////////////////////////////////
+
+              //double muon low mass
+              if (pathName == "HLT_DoubleMu4_3_Jpsi_Displaced")
+                {
+                  if (abs(trgObj1.id()) == 13 && abs(trgObj2.id()) == 13 && (trgObj1.id()+trgObj2.id()==0)) { // check muon id and dimuon charge
+                    //dimuon low mass
+                    string fullPathDimuonLowMass = mainShifterFolder+"/Dimuon_LowMass";
+                    MonitorElement * ME_dimuonLowMass = dbe->get(fullPathDimuonLowMass);
+                    TH1F * hist_dimuonLowMass = ME_dimuonLowMass->getTH1F();
+                    const double mu_mass(.105658);
+                    TLorentzVector mu1, mu2, dimu;
+                    mu1.SetPtEtaPhiM(trgObj1.pt(), trgObj1.eta(), trgObj1.phi(), mu_mass);
+                    mu2.SetPtEtaPhiM(trgObj2.pt(), trgObj2.eta(), trgObj2.phi(), mu_mass);
+                    dimu = mu1+mu2;
+                    hist_dimuonLowMass->Fill(dimu.M());
+		    break;
+                  }
+                }
+
+      	    }
+      	  kCnt2 +=1;
+      	} //end second for loop over trig objs
+      kCnt1 +=1;
+    } //end first for loop over trig objs
 }
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
-void 
+void
 HLTWorkspace::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
@@ -356,7 +414,7 @@ HLTWorkspace::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup 
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
-void 
+void
 HLTWorkspace::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
