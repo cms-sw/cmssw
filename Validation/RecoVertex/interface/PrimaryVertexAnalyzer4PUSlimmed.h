@@ -127,6 +127,9 @@ class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void bookHistograms(edm::Run const&,
                               edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&iRun, edm::EventSetup const &iSetup) {
+    bookHistograms(iRun, iSetup);
+  }
 
  private:
   void resetSimPVAssociation(std::vector<simPrimaryVertex>&);
