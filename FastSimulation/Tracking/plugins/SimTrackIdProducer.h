@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
@@ -26,13 +26,16 @@ class SimTrackIdProducer : public edm::stream::EDProducer <>
 
       virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
 
-      std::vector<int> SimTrackIds;
 
 private:
 
       // consumes 
       edm::EDGetTokenT<reco::TrackCollection>  trackToken;
-
+      double maxChi2_;
+      std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
+      bool filterTracks_ = false;
+      reco::TrackBase::TrackQuality trackQuality_;
+     
 };
 
 #endif

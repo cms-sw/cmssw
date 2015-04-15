@@ -24,20 +24,22 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 # 
 from FastSimulation.Tracking.GSTrackFinalFitCommon_cff import *
 
-# we need this stuff to prevent MeasurementTrackerEvent to crash
+#  MeasurementTrackerEvent
 from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
+from FastSimulation.Tracking.MeasurementTrackerEventProducer_cfi import MeasurementTrackerEvent
 
 # services needed by tracking
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import TransientTrackBuilderESProducer
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cfi import navigationSchoolESProducer
 
 
-from FastSimulation.Tracking.IterativeTracking_cff import *
+from FastSimulation.Tracking.iterativeTk_cff import *
 from TrackingTools.TrackFitters.TrackFitters_cff import *
 
 reconstruction_befmix = cms.Sequence(
     offlineBeamSpot
     * siTrackerGaussianSmearingRecHits
+    * MeasurementTrackerEvent
     * iterTracking
     )
