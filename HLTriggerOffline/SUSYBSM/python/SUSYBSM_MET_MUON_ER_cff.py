@@ -27,6 +27,7 @@ SUSY_HLT_MET_MUON_ER_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu14er_PFMET120_NoiseCleaned_v'),   
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT900_v'),

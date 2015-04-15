@@ -9,6 +9,7 @@ SUSY_HLT_MET_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_Mu5_v'),
+  TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT900_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
   TriggerFilter = cms.InputTag('hltPFMET120Mu5L3PreFiltered','','HLT'), #the last filter in the path
   ptMuonOffline = cms.untracked.double(7.0), 
