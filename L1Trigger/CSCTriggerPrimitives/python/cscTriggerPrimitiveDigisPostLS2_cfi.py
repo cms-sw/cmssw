@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
-cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
+cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCCommonTrigger,
 
     # if False, parameters will be read in from DB using EventSetup mechanism
