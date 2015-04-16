@@ -1,12 +1,6 @@
-# define python base classes for VID selectors
-import os
-__path__.append(os.path.dirname(os.path.abspath(__file__).rsplit('/PhysicsTools/SelectorUtils/',1)[0])+'/cfipython/slc6_amd64_gcc491/PhysicsTools/SelectorUtils')
-
 import ROOT
 import string
 import random
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
 
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
@@ -30,6 +24,9 @@ def process_pset( builder, pythonpset ):
     idname = pythonpset.idName.value().replace('-','_')
         
     return builder(escaped_pset,idname)
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 class VIDSelectorBase:
     def __init__(self, vidSelectorBuilder, ptrMaker, printer, pythonpset = None):        

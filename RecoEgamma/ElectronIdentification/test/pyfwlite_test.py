@@ -18,24 +18,17 @@ import FWCore.ParameterSet.Config as cms
 
 # load FWlite python libraries
 from DataFormats.FWLite import Handle, Events
-from RecoEgamma.ElectronIdentification import VIDElectronSelector
+from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 
 
-from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V0_cff import cutBasedElectronID_CSA14_50ns_V0_standalone_tight
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_cff import cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight
 
-#foo = VIDElectronSelector()
-#foo.initialize(cutBasedElectronID_CSA14_50ns_V0_standalone_tight)
-
-cutBasedElectronID_CSA14_50ns_V0_standalone_tight.cutFlow[6].vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices')
-cutBasedElectronID_CSA14_50ns_V0_standalone_tight.cutFlow[7].vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices')
-cutBasedElectronID_CSA14_50ns_V0_standalone_tight.cutFlow[10].conversionSrc = cms.InputTag('reducedEgamma:reducedConversions')
-
-selectElectron = VIDElectronSelector(cutBasedElectronID_CSA14_50ns_V0_standalone_tight)
+selectElectron = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight)
 print 'Initialized VID Selector for Electrons'
 print selectElectron
 
 # try muons!
-from RecoMuon.MuonIdentification import VIDMuonSelector
+from RecoMuon.MuonIdentification.VIDMuonSelector import VIDMuonSelector
 from RecoMuon.MuonIdentification.Identification.globalMuonPromptTight_V0_cff import globalMuonPromptTight_V0
 
 selectMuon = VIDMuonSelector(globalMuonPromptTight_V0)
