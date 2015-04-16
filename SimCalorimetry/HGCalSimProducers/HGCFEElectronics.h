@@ -68,7 +68,7 @@ class HGCFEElectronics
 
   //private members
   uint32_t fwVersion_;
-  std::vector<double> adcPulse_,tdcChargeDrainParameterisation_;
+  std::vector<double> adcPulse_,pulseAvgT_, tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
     adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
   
