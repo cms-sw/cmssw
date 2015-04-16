@@ -1,9 +1,5 @@
-#definition of pythonized VIDElectron class
-import os
-__path__.append(os.path.dirname(os.path.abspath(__file__).rsplit('/RecoMuon/MuonIdentification/',1)[0])+'/cfipython/slc6_amd64_gcc491/RecoMuon/MuonIdentification')
-
 import ROOT
-from PhysicsTools.SelectorUtils import VIDSelectorBase
+from PhysicsTools.SelectorUtils.VIDSelectorBase import VIDSelectorBase
 
 class VIDMuonSelector(VIDSelectorBase):
     def __init__(self,pythonpset = None):

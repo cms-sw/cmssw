@@ -78,13 +78,6 @@ class VersionedSelector : public Selector<T> {
     return (bool)ret;
   }
   
-  virtual bool operator()(const T& ref) override final {
-    this->retInternal_.set(false);
-    this->operator()(ref, this->retInternal_);
-    this->setIgnored(this->retInternal_);
-    return (bool)this->retInternal_;
-  }
-
   virtual bool operator()(const T& ref, edm::EventBase const& e, pat::strbitset& ret) override final {
     // setup isolation needs
     for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
@@ -97,7 +90,22 @@ class VersionedSelector : public Selector<T> {
     return this->operator()(ref, ret);
   }
   
-  using Selector<T>::operator();
+  //repeat the other operator() we left out here
+  //in the base class here so they are exposed to ROOT
+  
+  virtual bool operator()( T const & t ) override final {
+    this->retInternal_.set(false);
+    this->operator()(t, this->retInternal_);
+    this->setIgnored(this->retInternal_);
+    return (bool)this->retInternal_;
+  }
+  
+  virtual bool operator()( T const & t, edm::EventBase const & e) override final {
+    this->retInternal_.set(false);
+    this->operator()(t, e, this->retInternal_);
+    this->setIgnored(this->retInternal_);
+    return (bool)this->retInternal_;
+  }
 
   const unsigned char* md55Raw() const { return id_md5_; } 
   bool operator==(const VersionedSelector& other) const {
