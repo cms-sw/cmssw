@@ -582,27 +582,6 @@ class PlotGroup:
         self._name = name
         self._plots = plots
 
-        if len(self._plots) <= 2:
-            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 500)
-        elif len(self._plots) <= 4:
-            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 1050)
-        elif len(self._plots) <= 6:
-            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 1400)
-        elif len(self._plots) <= 8:
-            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 1750)
-        elif len(self._plots) <= 10:
-            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 2100)
-        else:
-            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 2450)
-
-        self._canvasSingle = ROOT.TCanvas(self._name+"Single", self._name, 500, 500)
-        # from TDRStyle
-        self._canvasSingle.SetTopMargin(0.05)
-        self._canvasSingle.SetBottomMargin(0.13)
-        self._canvasSingle.SetLeftMargin(0.16)
-        self._canvasSingle.SetRightMargin(0.05)
-
-
         def _set(attr, default):
             setattr(self, "_"+attr, kwargs.get(attr, default))
 
@@ -635,15 +614,31 @@ class PlotGroup:
         if separate:
             return self._drawSeparate(algo, legendLabels, prefix, saveFormat)
 
-        self._canvas.Divide(2, int((len(self._plots)+1)/2)) # this should work also for odd n
+        cwidth = 1000
+        if len(self._plots) <= 2:
+            cheight = 500
+        elif len(self._plots) <= 4:
+            cheight = 1050
+        elif len(self._plots) <= 6:
+            cheight = 1400
+        elif len(self._plots) <= 8:
+            cheight = 1750
+        elif len(self._plots) <= 10:
+            cheight = 2100
+        else:
+            cheight = 2450
+
+        canvas = ROOT.TCanvas(self._name, self._name, cwidth, cheight)
+
+        canvas.Divide(2, int((len(self._plots)+1)/2)) # this should work also for odd n
 
         # Draw plots to canvas
         for i, plot in enumerate(self._plots):
-            self._canvas.cd(i+1)
+            canvas.cd(i+1)
             plot.draw(algo)
 
         # Setup legend
-        self._canvas.cd()
+        canvas.cd()
         if len(self._plots) <= 4:
             lx1 = 0.2
             lx2 = 0.9
@@ -667,9 +662,17 @@ class PlotGroup:
         plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
         legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2)
 
-        return self._save(self._canvas, saveFormat, prefix=prefix)
+        return self._save(canvas, saveFormat, prefix=prefix)
 
     def _drawSeparate(self, algo, legendLabels, prefix, saveFormat):
+        canvas = ROOT.TCanvas(self._name+"Single", self._name, 500, 500)
+        # from TDRStyle
+        canvas.SetTopMargin(0.05)
+        canvas.SetBottomMargin(0.13)
+        canvas.SetLeftMargin(0.16)
+        canvas.SetRightMargin(0.05)
+
+
         lx1def = 0.6
         lx2def = 0.95
         ly1def = 0.85
@@ -679,7 +682,7 @@ class PlotGroup:
 
         for plot in self._plots:
             # Draw plot to canvas
-            self._canvasSingle.cd()
+            canvas.cd()
             plot.draw(algo)
 
             # Setup legend
@@ -701,7 +704,7 @@ class PlotGroup:
 
             legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03)
 
-            ret.extend(self._save(self._canvasSingle, saveFormat, prefix=prefix, postfix="_"+plot.getName()))
+            ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName()))
         return ret
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016):
