@@ -217,7 +217,9 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
   if( speedup_ == false )
   {
     if( PATmuons_ ) {
-      selectGeneratedMuons(collAll, collMuSel, genPair, plotter);
+      // EM 2015.04.02 temporary fix to run on MINIAODSIM (which contains PAT muons) but not the "onia2MuMuPatTrkTrk" collection   
+      // selectGeneratedMuons(collAll, collMuSel, genPair, plotter);
+      selectGenSimMuons(event, genPair, simPair, plotter);
     }
     else {
       selectGenSimMuons(event, genPair, simPair, plotter);
