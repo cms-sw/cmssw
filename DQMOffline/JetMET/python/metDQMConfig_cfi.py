@@ -159,6 +159,3 @@ pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     JetCollectionLabel  = cms.InputTag("slimmedJets"),
     JetCorrections = cms.InputTag(""),#not called, since corrected by default
 )
-
-from Configuration.StandardSequences.Eras import eras
-eras.run2_common.toModify(caloMetDQMAnalyzer, HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun2Loose"))

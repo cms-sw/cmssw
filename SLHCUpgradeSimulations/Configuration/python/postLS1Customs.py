@@ -100,11 +100,10 @@ def customise_DQM(process):
     # Turn off flag of gangedME11a
     process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
     # Turn off "low bias voltage" region in HCAL noise filters
+    # and switch the default decision
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
-    # Use a different HBHE noise filter flag in caloMetDQMAnalyzer
-    if hasattr(process,'caloMetDQMAnalyzer'):
-        process.caloMetDQMAnalyzer.HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun2Loose")
+        process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
     return process
 
 
