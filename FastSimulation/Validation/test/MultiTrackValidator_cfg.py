@@ -27,7 +27,7 @@ process.Timing = cms.Service("Timing"
 )
 
 # BEGIN FASTSIM SPECIFIC: FastSim does not need secondary files 
-source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:YOUR_FILE.root"))
+source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:GENSIMDIGIRECO.root"))
 
 """
 # source
