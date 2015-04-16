@@ -237,7 +237,6 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  newCharge[it+busyBxs] +=  tdcOnsetLeakage;
 	}
     }
-  debug=false;
   
   //including the leakage from bunches in SARS ADC when not declared busy or in ToT
   for(int it=0; it<(int)(chargeColl.size()); it++)
