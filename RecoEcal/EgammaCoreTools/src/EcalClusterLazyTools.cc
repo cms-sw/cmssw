@@ -22,10 +22,21 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, 
-						    edm::EDGetTokenT<EcalRecHitCollection> token1, 
-						    edm::EDGetTokenT<EcalRecHitCollection> token2,
-						    edm::EDGetTokenT<EcalRecHitCollection> token3) {
+EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2) {
+
+  ebRHToken_ = token1;
+  eeRHToken_ = token2;
+ 
+  getGeometry( es );
+  getTopology( es );
+  getEBRecHits( ev );
+  getEERecHits( ev );
+  getIntercalibConstants( es );
+  getADCToGeV ( es );
+  getLaserDbService ( es );
+}
+
+EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3) {
 
   ebRHToken_ = token1;
   eeRHToken_ = token2;
@@ -35,11 +46,7 @@ EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const 
   getTopology( es );
   getEBRecHits( ev );
   getEERecHits( ev );
-  // The ES retrieval is optional, we skip this step if
-  // the ES collection token is not initialized
-  if( !esRHToken_. isUninitialized() )
-    getESRecHits( ev );
-
+  getESRecHits( ev );
   getIntercalibConstants( es );
   getADCToGeV ( es );
   getLaserDbService ( es );
@@ -247,7 +254,6 @@ float EcalClusterLazyToolsBase::SuperClusterTime(const reco::SuperCluster &clust
 // get Preshower effective sigmaIRIR
 float EcalClusterLazyToolsBase::eseffsirir(const reco::SuperCluster &cluster)
 {
-
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
 
   const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
