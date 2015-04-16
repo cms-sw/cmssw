@@ -36,15 +36,32 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupFunction(process,item,patProducer)
 
+# Supported data formats defined via "enum"
+class DataFormat:
+    AOD     = 1
+    MiniAOD = 2
+
 ####
 # Electrons
 ####
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDElectronIdProducer(process):
+def switchOnVIDElectronIdProducer(process, dataFormat):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
-    print 'Added \'egmGsfElectronIDs\' to process definition!'
+    dataFormatString = "Undefined"
+    if dataFormat == DataFormat.AOD:
+        # No reconfiguration is required, default settings are for AOD
+        dataFormatString = "AOD"
+    elif dataFormat == DataFormat.MiniAOD:
+        # If we are dealing with MiniAOD, we overwrite the electron collection
+        # name appropriately, for the fragment we just loaded above. 
+        process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+        dataFormatString = "MiniAOD"
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    #    
+    print 'Added \'egmGsfElectronIDs\' to process definition (%s format)!' % dataFormatString
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmGsfElectronIDs'):
@@ -56,4 +73,58 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
             patProducer = process.patElectrons
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'egmGsfElectronIDs',idName)
+
+####
+# Muons
+####
+
+#turns on the VID electron ID producer, possibly with extra options
+# for PAT and/or MINIAOD
+def switchOnVIDMuonIdProducer(process):
+    process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
+    print 'Added \'muoMuonIDs\' to process definition!'
+
+def setupVIDMuonSelection(process,cutflow,patProducer=None):
+    if not hasattr(process,'muoMuonIDs'):
+        raise Exception('VIDProducerNotAvailable','muoMuonIDs producer not available in process!')
+    setupVIDSelection(process.egmGsfElectronIDs,cutflow)
+    #add to PAT electron producer if available or specified
+    if hasattr(process,'patMuons') or patProducer is not None:
+        if patProducer is None:
+            patProducer = process.patElectrons
+        idName = cutflow.idName.value()
+        addVIDSelectionToPATProducer(patProducer,'muoMuonIDs',idName)
+        
+####
+# Photons
+####
+
+#turns on the VID photon ID producer, possibly with extra options
+# for PAT and/or MINIAOD
+def switchOnVIDPhotonIdProducer(process, dataFormat):
+    process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
+    dataFormatString = "Undefined"
+    if dataFormat == DataFormat.AOD:
+        # No reconfiguration is required, default settings are for AOD
+        dataFormatString = "AOD"
+    elif dataFormat == DataFormat.MiniAOD:
+        # If we are dealing with MiniAOD, we overwrite the electron collection
+        # name appropriately, for the fragment we just loaded above. 
+        process.egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
+        dataFormatString = "MiniAOD"
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    #    
+    print 'Added \'egmPhotonIDs\' to process definition (%s format)!' % dataFormatString
+
+def setupVIDPhotonSelection(process,cutflow,patProducer=None):
+    if not hasattr(process,'egmPhotonIDs'):
+        raise Exception('VIDProducerNotAvailable','egmPhotonIDs producer not available in process!')
+    setupVIDSelection(process.egmPhotonIDs,cutflow)
+    #add to PAT photon producer if available or specified
+    if hasattr(process,'patPhotons') or patProducer is not None:
+        if patProducer is None:
+            patProducer = process.patPhotons
+        idName = cutflow.idName.value()
+        addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName)
         
