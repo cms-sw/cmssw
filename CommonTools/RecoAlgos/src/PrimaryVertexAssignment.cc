@@ -92,7 +92,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
 
   // if the track is not compatible with other PVs but is compatible with the BeamSpot, we may simply have not reco'ed the PV!
   //  we still point it to the closest in Z, but flag it as possible orphan-primary
-  if(track->dxy(vertices[0].position())<maxDxyForNotReconstructedPrimary_ && track->dxy(vertices[0].position())/track->dxyError()<maxDxySigForNotReconstructedPrimary_)
+  if(std::abs(track->dxy(vertices[0].position()))<maxDxyForNotReconstructedPrimary_ && std::abs(track->dxy(vertices[0].position())/track->dxyError())<maxDxySigForNotReconstructedPrimary_)
      return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::NotReconstructedPrimary);
  
   //FIXME: here we could better handle V0s and NucInt
