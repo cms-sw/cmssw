@@ -17,7 +17,10 @@ const HcalCalibrations& HcalCalibrationsSet::getCalibrations(const DetId fId) co
   else {
     cell = std::find(mItems.begin(),mItems.end(), target);
   }
-  if (cell == mItems.end() || cell->id != fId) 
+  if (cell == mItems.end() ||
+      ((fId.det()==DetId::Hcal && HcalDetId(cell->id) != HcalDetId(fId)) ||
+       (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->id) != HcalZDCDetId(fId)) ||
+       (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->id != fId))))
     throw cms::Exception ("Conditions not found") << "Unavailable HcalCalibrations for cell " << HcalGenericDetId(fId);
   return cell->calib;
 }
