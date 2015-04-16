@@ -613,6 +613,10 @@ def customise_aging_100(process):
     process=aging.customise_aging_100(process)
     return process
 
+def customise_aging_150(process):
+    process=aging.customise_aging_150(process)
+    return process
+
 def customise_aging_200(process):
     process=aging.customise_aging_200(process)
     return process
@@ -636,7 +640,6 @@ def customise_aging_600(process):
 def customise_aging_700(process):
     process=aging.customise_aging_700(process)
     return process
-
 
 def customise_aging_1000(process):
     process=aging.customise_aging_1000(process)
@@ -680,10 +683,6 @@ def turn_off_HF_aging(process):
 
 def turn_off_Pixel_aging(process):
     process=aging.turn_off_Pixel_aging(process)
-    return process
-
-def turn_on_Pixel_aging_1000(process):
-    process=aging.turn_on_Pixel_aging_1000(process)
     return process
 
 def hf_complete_aging(process):
