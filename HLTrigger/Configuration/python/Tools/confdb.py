@@ -66,6 +66,14 @@ class HLTProcess(object):
     "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
     "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
     "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
+    "HLT_MET75_IsoTrk50_v*",
+    "HLT_MET90_IsoTrk50_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*",
   )
 
   def __init__(self, configuration):
@@ -410,27 +418,38 @@ process = customizeHLTforMC(process)
       # fix the definition of some modules
       # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
-      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'simGtDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'simGtDigis')
-      self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
+      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
+      self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds')
       self._fix_parameter(name = 'preFilteredSeeds',     type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOfflineBeamSpot',   replace = 'offlineBeamSpot')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOnlineBeamSpot',    replace = 'offlineBeamSpot')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'simMuonCSCDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'muonCSCDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'muonDTDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'muonRPCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
       self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
       self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltIter4Tau3MuMerged', replace = 'hltIter4Merged')
 
       # MeasurementTrackerEvent
-      self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters', replace = 'MeasurementTrackerEvent')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters',   replace = 'MeasurementTrackerEvent')
+
+      # hltEcalRecHit
+      self._fix_parameter(name='killDeadChannels',       type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(name='recoverEBFE',            type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(name='recoverEEFE',            type = 'bool',     value = 'True',                 replace = 'False')
+
+      self._fix_parameter(                               type = 'Inputtag', value = 'hltHbhereco',          replace = 'hbhereco')
+      self._fix_parameter(                               type = 'Inputtag', value = 'hltHoreco',            replace = 'horeco')
+      self._fix_parameter(                               type = 'Inputtag', value = 'hltHfreco',            replace = 'hfreco')
+      self._fix_parameter(                               type = 'Inputtag', value = 'hltEcalPreshowerDigis',replace = 'simEcalPreshowerDigis')
+      self._fix_parameter(                               type = 'Inputtag', value = 'hltEcalDigis',         replace = 'simEcalDigis')
 
       # fix the definition of sequences and paths
-      self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
-      self.data = re.sub( r'process.hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
-      self.data = re.sub( r'process.hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
+      self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "muonCSCDigis" )',     self.data )
+      self.data = re.sub( r'process.hltMuonDTDigis',  r'cms.SequencePlaceholder( "muonDTDigis" )',      self.data )
+      self.data = re.sub( r'process.hltMuonRPCDigis', r'cms.SequencePlaceholder( "muonRPCDigis" )',     self.data )
       self.data = re.sub( r'process.HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
       self.data = re.sub( r'hltGtDigis',              r'HLTBeginSequence',                              self.data )
 
@@ -1216,6 +1235,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "hltDt1DRecHits" )
       self.options['modules'].append( "hltRpcRecHits" )
       self.options['modules'].append( "-hltScalersRawToDigi" )
+
+      self.options['modules'].append( "-hltEcalPreshowerDigis" )
+      self.options['modules'].append( "-hltEcalDigis" )
+      self.options['modules'].append( "-hltEcalDetIdToBeRecovered" )
 
       self.options['sequences'].append( "-HLTL1SeededEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTEcalActivityEgammaRegionalRecoTrackerSequence" )

@@ -1559,11 +1559,10 @@ class ConfigBuilder(object):
 		else:
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-                if self._options.fast:
-			print "WARNING: using a temporary cfg for FastSim HLT"
-			self.loadAndRemember('FastSimulation.Configuration.HLT_%s_Famos_cff'  % sequence )
-                else:
-                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+		if self._options.fast:
+			self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
+		else:
+			self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
 		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
