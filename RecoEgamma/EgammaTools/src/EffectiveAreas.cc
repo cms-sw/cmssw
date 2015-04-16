@@ -11,7 +11,7 @@ EffectiveAreas::EffectiveAreas(TString filename):
 {
 
   // Open the file with the effective area constants
-  ifstream inputFile;
+  std::ifstream inputFile;
   inputFile.open(filename_.Data());
   if( !inputFile.is_open() )
     throw cms::Exception("EffectiveAreas config failure")

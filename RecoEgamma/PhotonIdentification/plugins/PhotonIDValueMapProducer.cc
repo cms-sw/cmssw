@@ -240,7 +240,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(pfCandidatesTokenMiniAOD_, pfCandidatesHandle);
 
   if( !isAOD && src->size() ) {
-    edm::Ptr<pat::Photon> test(src->ptrVector()[0]);
+    edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")
 	<<"DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
@@ -334,7 +334,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       if(isAOD) {
       	inFootprint = isInFootprint( (*particleBasedIsolationMap)[iPho], iCand );
       } else {	
-      	edm::Ptr<pat::Photon> patPhotonPtr(src->ptrVector()[idxpho]);
+      	edm::Ptr<pat::Photon> patPhotonPtr(src->ptrAt(idxpho));
       	inFootprint = isInFootprint(patPhotonPtr->associatedPackedPFCandidates(), iCand);
       }
 
