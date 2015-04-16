@@ -109,66 +109,88 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   unsigned int current_nStrips;
 
   LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: ClusterSizeItem :: begin"<<std::endl;
+  std::stringstream sslogclsitem;
   // ### ClusterSizeItem #######################################################                        
   std::vector<RPCClusterSize::ClusterSizeItem>::const_iterator itCls;
   int clsCounter(1);
   std::vector<double> clsVect;
   // ### loop for New Format (120 entries)
   for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
-    LogDebug ("RPCSimSetup")<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
+    sslogclsitem<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
     clsVect.push_back(((double)(itCls->clusterSize)));
-    LogDebug ("RPCSimSetup")<<"Filling cls in _mapDetCls[detId,clsVect] :: detId = "<<detId;
-    LogDebug ("RPCSimSetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
-    LogDebug ("RPCSimSetup")<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
-    LogDebug ("RPCSimSetup")<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
-    LogDebug ("RPCSimSetup")<<std::endl;
+    sslogclsitem<<"Filling cls in _mapDetCls[detId,clsVect] :: detId = "<<detId;
+    sslogclsitem<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
+    sslogclsitem<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
+    sslogclsitem<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
+    sslogclsitem<<std::endl;
 
     // New Format :: loop until 120
     if((!(clsCounter%120)) && (clsCounter!=0)){
       detId=itCls->dpid;
       _mapDetClsMap[detId]=clsVect;
+      std::stringstream LogDebugClsVectString;
+      LogDebugClsVectString<<"[";
+      for(std::vector<double>::iterator itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
+        LogDebugClsVectString<<*itClsVect<<",";
+      }
+      LogDebugClsVectString<<"]";
+      std::string LogDebugClsVectStr = LogDebugClsVectString.str();
+      LogDebug ("RPCSimSetup")<<"Filling clsVect in _mapDetCls[detId,clsVect] :: detId = "<<RPCDetId(detId)<<" = "<<detId<<" clsVec = "<<LogDebugClsVectStr;
+
+      sslogclsitem<<" --> New Method ";
+      sslogclsitem<<" --> saved in map "<<std::endl;
+      sslogclsitem<<"Filling cls in _mapDetClsMap[detId,clsVect] :: detId = "<<detId;
+      sslogclsitem<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
       clsVect.clear();
-      LogDebug ("RPCSimSetup")<<" --> New Method ";
-      LogDebug ("RPCSimSetup")<<" --> saved in map "<<std::endl;
-      LogDebug ("RPCSimSetup")<<"Filling cls in _mapDetClsMap[detId,clsVect] :: detId = "<<detId;
-      LogDebug ("RPCSimSetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
       clsCounter=0;
     }
     else{
-      LogDebug ("RPCSimSetup")<<" --> not saved in map "<<std::endl;
+      sslogclsitem<<" --> not saved in map "<<std::endl;
     }
     ++clsCounter;
   }
   // ### loop for Old Format (100 entries)
   for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
-    LogDebug ("RPCSimSetup")<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
+    sslogclsitem<<" Push back clustersize = "<<itCls->clusterSize<<std::endl;
     clsVect.push_back(((double)(itCls->clusterSize)));
-    LogDebug ("RPCSimSetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
-    LogDebug ("RPCSimSetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
-    LogDebug ("RPCSimSetup")<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
-    LogDebug ("RPCSimSetup")<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
-    LogDebug ("RPCSimSetup")<<std::endl;
+    sslogclsitem<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+    sslogclsitem<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted?";
+    sslogclsitem<<" New Format ::"<<((!(clsCounter%120)) && (clsCounter!=0)); // <<std::endl;
+    sslogclsitem<<" Old Format ::"<<((!(clsCounter%100)) && (clsCounter!=0)); // <<std::endl;
+    sslogclsitem<<std::endl;
 
     // Old Format :: same until 100
     if((!(clsCounter%100)) && (clsCounter!=0)){
       detId=itCls->dpid;
       _mapDetClsMapLegacy[detId]=clsVect;
+      std::stringstream LogDebugClsVectString;
+      LogDebugClsVectString<<"[";
+      for(std::vector<double>::iterator itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
+        LogDebugClsVectString<<*itClsVect<<",";
+      }
+      LogDebugClsVectString<<"]";
+      std::string LogDebugClsVectStr = LogDebugClsVectString.str();
+      LogDebug ("RPCSimSetup")<<"Filling clsVect in _mapDetClsLegacy[detId,clsVect] :: detId = "<<RPCDetId(detId)<<" = "<<detId<<" clsVec = "<<LogDebugClsVectStr;
+
+      sslogclsitem<<" --> Old Method ";
+      sslogclsitem<<" --> saved in map "<<std::endl;
+      sslogclsitem<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
+      sslogclsitem<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
       clsVect.clear();
-      LogDebug ("RPCSimSetup")<<" --> Old Method ";
-      LogDebug ("RPCSimSetup")<<" --> saved in map "<<std::endl;
-      LogDebug ("RPCSimSetup")<<"Filling cls in _mapDetClsMapLegacy[detId,clsVect] :: detId = "<<detId;
-      LogDebug ("RPCSimSetup")<<" --> will it be accepted? clsCounter = "<<clsCounter<<" accepted? "<<((!(clsCounter%120)) && (clsCounter!=0))<<std::endl;
       clsCounter=0;
     }
     else{
-      LogDebug ("RPCSimSetup")<<" --> not saved in map "<<std::endl;
-      }
+      sslogclsitem<<" --> not saved in map "<<std::endl;
+    }
     ++clsCounter;
   }
   // ###########################################################################
+  std::string logclsitem = sslogclsitem.str(); sslogclsitem.clear();
+  LogDebug ("RPCSimSetupClsLoopDetails")<<logclsitem<<std::endl;
   LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: ClusterSizeItem :: end"<<std::endl;
 
   LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: begin"<<std::endl;
+  std::stringstream sslognoiseitem;
   // ### NoiseItem #############################################################
   unsigned int count_strips = 1;
   unsigned int count_all    = 1;
@@ -186,22 +208,22 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
     const RPCRoll* roll = theGeometry->roll(current_rpcId);
     if(roll==0) {
-      LogDebug ("RPCSimSetup") <<"Searching for first valid detid :: current_detId = "<<current_detId;
-      LogDebug ("RPCSimSetup") <<" aka "<<current_rpcId<<" is not in current Geometry --> Skip "<<std::endl;
+      sslognoiseitem <<"Searching for first valid detid :: current_detId = "<<current_detId;
+      sslognoiseitem <<" aka "<<current_rpcId<<" is not in current Geometry --> Skip "<<std::endl;
       continue;
     }
     else {
-      LogDebug ("RPCSimSetup") <<"Searching for first valid detid :: current_detId = "<<current_detId;
-      LogDebug ("RPCSimSetup") <<" aka "<<current_rpcId<<" is the first (valid) roll in the current Geometry --> Accept, Assign & Quit Loop"<<std::endl;
+      sslognoiseitem <<"Searching for first valid detid :: current_detId = "<<current_detId;
+      sslognoiseitem <<" aka "<<current_rpcId<<" is the first (valid) roll in the current Geometry --> Accept, Assign & Quit Loop"<<std::endl;
       current_roll    = theGeometry->roll(current_rpcId);
       current_nStrips = current_roll->nstrips();
       quitLoop = true;
     }
   }
 
-  LogDebug ("RPCSimSetup") <<"Start Position ::            current_detId = "<<current_detId<<" aka "<<current_rpcId;
-  LogDebug ("RPCSimSetup") <<" is a valid roll with pointer "<<current_roll<<" and has "<<current_roll->nstrips()<<" strips"<<std::endl;
-  LogDebug ("RPCSimSetup") <<" ------------------------------------------------------------------------------------------------------------------------------------- "<<std::endl;
+  sslognoiseitem <<"Start Position ::            current_detId = "<<current_detId<<" aka "<<current_rpcId;
+  sslognoiseitem <<" is a valid roll with pointer "<<current_roll<<" and has "<<current_roll->nstrips()<<" strips"<<std::endl;
+  sslognoiseitem <<" ------------------------------------------------------------------------------------------------------------------------------------- "<<std::endl;
   for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it) {
 
     // roll associated to the conditions of this strip (iterator)
@@ -210,34 +232,36 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
     const RPCRoll* roll = theGeometry->roll(this_rpcId);
     if(roll==0) {
-      LogDebug ("RPCSimSetup") <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" which is not in current Geometry --> Skip "<<std::endl;
+      sslognoiseitem <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" which is not in current Geometry --> Skip "<<std::endl;
       continue;
     }
 
-    LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 1"<<std::endl;
     // Case 1 :: FIRST ENTRY
     // ---------------------
     if(this_detId == current_detId && count_strips == 1) {
-      LogDebug ("RPCSimSetup") <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2";
-      LogDebug ("RPCSimSetup") <<" is a valid roll with pointer "<<roll<<" and has "<<roll->nstrips()<<" strips"<<std::endl;
+      sslognoiseitem<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 1"<<std::endl;
+      sslognoiseitem<<this_detId<<" = "<<this_rpcId<<" with "<<roll->nstrips()<<" strips"<<std::endl;
       // fill bx in map
       _bxmap[current_detId] = it->time;
+      sslognoiseitem<<"[NoiseItem :: n = "<<count_all<<"] Filling time in _bxmap[detId] :: detId = "<<RPCDetId(it->dpid)<<" time = "<<it->time<<std::endl;
       // clear vectors
       vveff.clear();
       vvnoise.clear();
       // fill the vectors
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
+      sslognoiseitem <<"First Value :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId;
+      sslognoiseitem <<" Strip "<<std::setw(3)<<count_strips<<" Noise = "<<it->noise<<" Hz/cm2"<<std::endl;
       // update counter
       ++count_strips;
       ++count_all;
     }
-
-    LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 2"<<std::endl;
     // Case 2 :: 2ND ENTRY --> LAST-1 ENTRY
     // ------------------------------------
-    if(this_detId == current_detId && count_strips > 1 && count_strips < current_nStrips) {
-      LogDebug ("RPCSimSetup") <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2"<<std::endl;
+    else if(this_detId == current_detId && count_strips > 1 && count_strips < current_nStrips) {
+      sslognoiseitem<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 2"<<std::endl;
+      sslognoiseitem <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId;
+      sslognoiseitem <<" Strip "<<std::setw(3)<<count_strips<<" Noise = "<<it->noise<<" Hz/cm2"<<std::endl;
       // fill the vectors
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
@@ -246,44 +270,62 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       ++count_all;
     }
 
-    LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 3"<<std::endl;
     // Case 3 :: LAST ENTRY
     // --------------------
-    if(this_detId == current_detId && count_strips == current_nStrips) {
+    else if(this_detId == current_detId && count_strips == current_nStrips) {
+      sslognoiseitem<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: case 3"<<std::endl;
       // fill last value in the vector
-      LogDebug ("RPCSimSetup") <<"Last Value ::  ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2";
+      sslognoiseitem <<"Last Value ::  ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId;
+      sslognoiseitem <<" Strip "<<std::setw(3)<<count_strips<<" Noise = "<<it->noise<<" Hz/cm2"<<std::endl;
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
       // update counter
       ++count_strips;
       ++count_all;
       // fill vectors into map
-      LogDebug ("RPCSimSetup") <<" fill vectors into map"<<std::endl;
+      sslognoiseitem <<" fill vectors into map"<<std::endl;
       _mapDetIdNoise[current_detId]= vvnoise;
       _mapDetIdEff[current_detId] = vveff;
+
+      std::stringstream LogDebugNoiVectString, LogDebugEffVectString;
+      LogDebugNoiVectString<<"[";
+      for(std::vector<float>::iterator itNoiVect = vvnoise.begin(); itNoiVect != vvnoise.end(); ++itNoiVect) {
+        LogDebugNoiVectString<<(*itNoiVect)<<",";
+      }
+      LogDebugNoiVectString<<"]";
+      std::string LogDebugNoiVectStr = LogDebugNoiVectString.str();
+      LogDebugEffVectString<<"[";
+      for(std::vector<float>::iterator itEffVect = vveff.begin(); itEffVect != vveff.end(); ++itEffVect) {
+        LogDebugEffVectString<<(*itEffVect)<<",";
+      }
+      LogDebugEffVectString<<"]";
+      std::string LogDebugEffVectStr = LogDebugEffVectString.str();
+      LogDebug ("RPCSimSetup")<<"Filling vvnoise in _mapDetIdNoise[detId] :: detId = "<<RPCDetId(it->dpid)<<" = "<<(RPCDetId(it->dpid)).rawId()<<" vvnoise = "<<LogDebugNoiVectStr;
+      LogDebug ("RPCSimSetup")<<"Filling veff    in _mapDetIdEff[detId]   :: detId = "<<RPCDetId(it->dpid)<<" = "<<(RPCDetId(it->dpid)).rawId()<<" veff    = "<<LogDebugEffVectStr;
+
       // look for next different detId and rename it to the current_detId
       // at this point we skip all the conditions for the strips that are not in this roll
       // and we will go to the conditions for the first strip of the next roll
       bool next_detId_found = 0;
-      LogDebug ("RPCSimSetup") <<"look for next different detId"<<std::endl;
+      sslognoiseitem <<"look for next different detId"<<std::endl;
       while(next_detId_found==0 && it != vnoise.end()-1) {
         ++it;
         this_detId = it->dpid;
         this_rpcId = RPCDetId(this_detId);
         this_roll = theGeometry->roll(this_rpcId);
         if(!this_roll) continue;
-        LogDebug ("RPCSimSetup") <<"Inside While:: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2"<<std::endl;
+        sslognoiseitem <<"Inside While:: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2"<<std::endl;
         ++count_strips;
         // ++count_all;                                                                      
         if(this_detId != current_detId) {
-          LogDebug ("RPCSimSetup") <<"Different detId is found ::                  "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2";
+          sslognoiseitem <<"Different detId is found ::                  "<<this_detId<<" aka "<<this_rpcId<<" Noise = "<<it->noise<<" Hz/cm2";
           // next roll is found. update current_detId to this newly found detId
           // and update also the number of strips
           current_detId = this_detId;
           current_rpcId = RPCDetId(current_detId);
           next_detId_found = 1;
           current_nStrips = (theGeometry->roll(current_rpcId))->nstrips();
-          LogDebug ("RPCSimSetup") <<" with "<<current_nStrips<<" strips"<<std::endl;
+          sslognoiseitem <<" with "<<current_nStrips<<" strips"<<std::endl;
           --it; // subtract one, because at the end of the loop the iterator will be increased with one
 	  // in fact the treatment for roll N stops when we find the first occurence of roll N+1
 	  // however we want to start the treatment for roll N+1 with the first occurence of roll N+1
@@ -294,8 +336,13 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       // reset count_strips
       count_strips = 1;
     }
+    // There should be no Case 4
+    // -------------------------
+    else {}
   }
   // ###########################################################################
+  std::string lognoiseitem = sslognoiseitem.str(); sslognoiseitem.clear();
+  LogDebug ("RPCSimSetupNoiseLoopDetails")<<lognoiseitem<<std::endl;
   LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: NoiseItem :: end"<<std::endl;
 
   LogDebug ("RPCSimSetup")<<"RPCSimSetUp::setRPCSetUp :: end"<<std::endl;
@@ -309,7 +356,7 @@ const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id)
     throw cms::Exception("DataCorrupt") 
       << "Exception from RPCSimSetUp - no noise information for DetId\t"<<id<< std::endl;
   }
-  LogDebug ("RPCSimSetup")<< "All OK from RPCSimSetUp - noise information for DetId\t"<<id<< std::endl;
+  LogDebug ("RPCSimSetupChecks")<< "All OK from RPCSimSetUp - noise information for DetId\t"<<id<< std::endl;
   return iter->second;
 }
 
@@ -360,7 +407,7 @@ const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
 const std::vector<double>& RPCSimSetUp::getCls(uint32_t id) //legacy member function
 {
 
-  LogDebug ("RPCSimSetup")<<"RPCSimSetUp::getCls"<<std::endl;
+  LogDebug ("RPCSimSetupChecks")<<"RPCSimSetUp::getCls"<<std::endl;
 
   map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
   if(iter == _mapDetClsMapLegacy.end()){
@@ -371,13 +418,13 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id) //legacy member func
     throw cms::Exception("DataCorrupt") 
       << "Exception from RPCSimSetUp - _mapDetClsMapLegacy - cluster size information in a wrong format for DetId\t"<<id<< std::endl;
   }
-  LogDebug ("RPCSimSetup")<< "All OK from RPCSimSetUp - _mapDetClsMapLegacy - cluster size information for DetId\t"<<id<< std::endl;
+  LogDebug ("RPCSimSetupChecks")<< "All OK from RPCSimSetUp - _mapDetClsMapLegacy - cluster size information for DetId\t"<<id<< std::endl;
   return iter->second;
 }
 
 const std::vector<double> & RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id, uint32_t slice){
 
-  LogDebug ("RPCSimSetup")<<"RPCSimSetUp::getAsymmetricClsDistribution"<<std::endl;
+  LogDebug ("RPCSimSetupChecks")<<"RPCSimSetUp::getAsymmetricClsDistribution"<<std::endl;
 
   map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
   if(iter == _mapDetClsMap.end()){
@@ -443,7 +490,7 @@ double control1=0;
 
 const std::vector<double> & RPCSimSetUp::getAsymmetryForCls(uint32_t id, uint32_t slice, uint32_t cls){
 
-  LogDebug ("RPCSimSetup")<<"RPCSimSetUp::getAsymmetryForCls"<<std::endl;
+  LogDebug ("RPCSimSetupChecks")<<"RPCSimSetUp::getAsymmetryForCls"<<std::endl;
 
  map<uint32_t,std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
   if(iter == _mapDetClsMap.end()){
