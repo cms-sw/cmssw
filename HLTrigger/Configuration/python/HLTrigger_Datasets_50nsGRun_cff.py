@@ -205,6 +205,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v1', 
     'HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v1', 
     'HLT_Mu10_CentralPFJet30_BTagCSV0p5PF_v1', 
+    'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v1', 
     'HLT_Mu12_Photon25_CaloIdL_L1ISO_v1', 
     'HLT_Mu12_Photon25_CaloIdL_L1OR_v1', 
     'HLT_Mu12_Photon25_CaloIdL_v1', 

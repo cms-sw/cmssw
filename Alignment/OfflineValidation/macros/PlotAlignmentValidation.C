@@ -60,13 +60,13 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
 //------------------------------------------------------------------------------
 PlotAlignmentValidation::~PlotAlignmentValidation()
 {
-  delete sourcelist;
 
   for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
       it != sourceList.end(); ++it){
     delete (*it);
   }
 
+  delete sourcelist;
 }
 
 //------------------------------------------------------------------------------
@@ -214,7 +214,7 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, std
   
   gStyle->SetOptStat(111111);
   gStyle->SetStatY(0.9);
-  //TList treelist=getTreeList();
+  //TList* treelist=getTreeList();
   
   TCanvas *c1 = new TCanvas("canv", "canv", 800, 500);
   //setCanvasStyle( *c1 );
@@ -312,13 +312,13 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, std
 }
 
 //------------------------------------------------------------------------------
-TList PlotAlignmentValidation::getTreeList()
+TList* PlotAlignmentValidation::getTreeList()
 {
-  TList treeList = new TList();
+  TList *treeList = new TList();
   TFile *first_source = (TFile*)sourcelist->First();
   std::cout<<first_source->GetName()<<std::endl;
   TDirectoryFile *d=(TDirectoryFile*)first_source->Get( treeBaseDir.c_str() ); 
-  treeList.Add( (TTree*)(*d).Get("TkOffVal") );
+  treeList->Add( (TTree*)(*d).Get("TkOffVal") );
   
   if( moreThanOneSource ==true ){
     TFile *nextsource = (TFile*)sourcelist->After( first_source );
@@ -326,7 +326,7 @@ TList PlotAlignmentValidation::getTreeList()
       std::cout<<nextsource->GetName()<<std::endl;
       d=(TDirectoryFile*)nextsource->Get("TrackerOfflineValidation"); 
       
-      treeList.Add((TTree*)(*d).Get("TkOffVal"));
+      treeList->Add((TTree*)(*d).Get("TkOffVal"));
       
       nextsource = (TFile*)sourcelist->After( nextsource );
     }
