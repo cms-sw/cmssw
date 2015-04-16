@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def agePixel(process,lumi):
-    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'pixel') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'pixel'):
         process.mix.digitizers.pixel.DoPixelAging = cms.bool(True)
         if lumi>299:#scenario updated with new values E. Migliore et al. 140807
             process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(0.4)
@@ -193,6 +193,14 @@ def customise_aging_100(process):
     process=agePixel(process,100)
     return process
 
+def customise_aging_150(process):
+
+    process=ageHcal(process,150)
+    process=ageEcal(process,150)
+    process=agePixel(process,150)
+    return process
+
+
 def customise_aging_200(process):
 
     process=ageHcal(process,200)
@@ -293,18 +301,15 @@ def ecal_complete_aging(process):
     return process
 
 def turn_off_Pixel_aging(process):
-
-    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
-        setattr(process.mix.digitizers.pixel,'NoAging',cms.double(1.))
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(0.)
-    return process
-
-def turn_on_Pixel_aging_1000(process):
-    # just incase we want aging afterall
-    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.5)
-        process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
-
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'pixel'):
+        process.mix.digitizers.pixel.DoPixelAging = cms.bool(False)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix1 = cms.double(0.)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix2 = cms.double(0.)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix3 = cms.double(0.)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_BPix4 = cms.double(0.)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix1 = cms.double(0.)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix2 = cms.double(0.)
+        process.mix.digitizers.pixel.thePixelPseudoRadDamage_FPix3 = cms.double(0.)
     return process
 
 def ecal_complete_aging_300(process):
