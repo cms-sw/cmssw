@@ -47,11 +47,12 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
 	flag       = !sample.threshold();  //raise flag if busy cell
 	amplitude_ = double(sample.data()) * tdcLSB_;
 	jitter_    = double(sample.toa()) * toaLSBToNS_;
-	if(debug) std::cout << "TDC+: set the energy to: " << amplitude_ << ' ' << sample.data() 
-			    << ' ' << tdcLSB_ << std::endl
-			    << "TDC+: set the jitter to: " << jitter_ << ' ' 
-			    << sample.toa() << ' ' << toaLSBToNS_ << ' '
-			    << " flag=" << flag << std::endl;
+	if(debug) 
+	  std::cout << "TDC+: set the energy to: " << amplitude_ << ' ' << sample.data() 
+		    << ' ' << tdcLSB_ << std::endl
+		    << "TDC+: set the jitter to: " << jitter_ << ' ' 
+		    << sample.toa() << ' ' << toaLSBToNS_ << ' '
+		    << " flag=" << flag << std::endl;
       } 
       else {
 	amplitude_ = double(sample.data()) * adcLSB_;

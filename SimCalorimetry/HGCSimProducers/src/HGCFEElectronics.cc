@@ -13,8 +13,11 @@ HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
 
   fwVersion_                      = ps.getParameter< uint32_t >("fwVersion");
   std::cout << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
-  if( ps.exists("adcPulse") )                       adcPulse_                       = ps.getParameter< std::vector<double> >("adcPulse");
-
+  if( ps.exists("adcPulse") )                       
+    {
+      adcPulse_  = ps.getParameter< std::vector<double> >("adcPulse");
+      pulseAvgT_ = ps.getParameter< std::vector<double> >("pulseAvgT");
+    }
   adcSaturation_fC_=-1.0;
   if( ps.exists("adcNbits") )
     {
@@ -30,9 +33,9 @@ HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
   if( ps.exists("tdcNbits") )
     {
       uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");
-      double tdcSaturation_fC = ps.getParameter<double>("tdcSaturation_fC");
-      tdcLSB_fC_=tdcSaturation_fC/pow(2.,tdcNbits);
-      cout << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_ << " fC" << endl;
+      tdcSaturation_fC_ = ps.getParameter<double>("tdcSaturation_fC");
+      tdcLSB_fC_=tdcSaturation_fC_/pow(2.,tdcNbits);
+      cout << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_ << " saturation to occur @ " << tdcSaturation_fC_ << endl;
     }
   if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
@@ -126,7 +129,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
   bool debug(false);
 
   //first identify bunches which will trigger ToT
-  if(debug) std::cout << "[runShaperWithToT]" << endl;
+  if(debug) std::cout << "[runShaperWithToT]" << endl;  
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {
       //if already flagged as busy it can't be re-used to trigger the ToT
@@ -191,10 +194,10 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	      if(deltaT+2>(int)(adcPulse_.size())) continue;
 
 	      float leakCharge( adcPulse_[deltaT+2]*chargeDep_jt );
-	      if(debug) std::cout << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << std::endl;
+	      if(debug) std::cout << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
 
 	      totalCharge  += leakCharge;
-	      finalToA     += leakCharge*dataFrame[jt].toa(); 
+	      finalToA     += leakCharge*pulseAvgT_[deltaT+2];
 	    }
 
 	  //add contamination from posterior bunches
@@ -220,7 +223,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
 
       if(debug) std::cout << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
-			  << "\t Total integrated=" << totalCharge << " fC <toa>=" << toaFromToT[it] << " ns " << std::endl; 
+			  << "\t Total integrated=" << totalCharge << " fC <toa>=" << toaFromToT[it] << " (raw=" << finalToA << ") ns " << std::endl; 
       
       //last fC (tdcOnset) are dissipated trough pulse
       if(it+busyBxs<(int)(newCharge.size())) 
@@ -234,6 +237,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  newCharge[it+busyBxs] +=  tdcOnsetLeakage;
 	}
     }
+  debug=false;
   
   //including the leakage from bunches in SARS ADC when not declared busy or in ToT
   for(int it=0; it<(int)(chargeColl.size()); it++)
@@ -260,7 +264,6 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       
       if(debug) std::cout << std::endl;
     }
-  
 
   //set new ADCs and ToA
   if(debug) std::cout << "\t final result : ";
@@ -278,7 +281,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	      while(finalToA>25) finalToA-=25;
 
 	      //brute force saturation, maybe could to better with an exponential like saturation
-	      float saturatedCharge(min(newCharge[it],tdcSaturation_fC_));
+	      float saturatedCharge(min(newCharge[it],tdcSaturation_fC_));	      
 	      newSample.set(true,true,finalToA/toaLSB_ns_,floor(saturatedCharge/tdcLSB_fC_));
 	    }
 	  else
