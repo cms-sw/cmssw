@@ -62,7 +62,6 @@ void GsfEleEffAreaPFIsoCut::setConsumes(edm::ConsumesCollector& cc) {
 
 void GsfEleEffAreaPFIsoCut::getEventContent(const edm::EventBase& ev) {  
 
-  printf("\n\nDEBUG: rho label is %s\n\n", rhoString_);
   ev.getByLabel(contentTags_[rhoString_],_rhoHandle);
 }
 
@@ -70,7 +69,6 @@ CutApplicatorBase::result_type
 GsfEleEffAreaPFIsoCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
 
-  printf("DEBUG:  1\n");
   // Establish the cut value
   double absEta = std::abs(cand->superCluster()->position().eta());
   const float isoCut =
@@ -79,28 +77,20 @@ operator()(const reco::GsfElectronPtr& cand) const{
       :
       ( absEta < _barrelCutOff ? _isoCutEBHighPt : _isoCutEEHighPt ) );
 
-  printf("DEBUG:  2\n");
   // Compute the combined isolation with effective area correction
   const reco::GsfElectron::PflowIsolationVariables& pfIso =
     cand->pfIsolationVariables();
   const float chad = pfIso.sumChargedHadronPt;
   const float nhad = pfIso.sumNeutralHadronEt;
   const float pho = pfIso.sumPhotonEt;
-  printf("DEBUG:  2b\n");
   float  eA = _effectiveAreas.getEffectiveArea( absEta );
-  printf("DEBUG:  3\n");
-  if( !_rhoHandle.isValid() )
-    printf("\n\nDEBUG: rho handle is not valid!\n\n");
   float rho = (float)(*_rhoHandle); // std::max likes float arguments
-  printf("DEBUG:  4\n");
   float iso = chad + std::max(0.0f, nhad + pho - rho*eA);
-  printf("DEBUG:  5\n");
   
   // Divide by pT if the relative isolation is requested
   if( _isRelativeIso )
     iso /= cand->pt();
 
-  printf("DEBUG:  6\n");
   // Apply the cut and return the result
   return iso < isoCut;
 }
