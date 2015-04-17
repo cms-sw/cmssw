@@ -10,6 +10,7 @@ import netrc
 import os
 import re
 import sys
+import stat
 import subprocess
 import tempfile
 import textwrap
@@ -301,8 +302,9 @@ class Colors(object):
     end = '\033[0m'
 
     def __init__(self, args):
-        if args.nocolors:
-            # TODO: Also disable if we are not running in a terminal
+
+    	if ( stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode)  or  # we are running in a pipe
+             args.nocolors ):
             for member in dir(self):
                 if not member.startswith('_'):
                     setattr(self, member, '')
@@ -508,6 +510,9 @@ def search(args):
         def _ilike_or_regexp_highlight_filter(cell):
             return _ilike_or_regexp_highlight(args, cell, args.string)
 
+    def size(cell):
+        return str( sys.getsizeof( bytearray(cell) ) )
+
     output_table(args,
         session.query(conddb.Tag.name, conddb.Tag.time_type, conddb.Tag.object_type, conddb.Tag.synchronization, conddb.Tag.insertion_time, conddb.Tag.description).\
             filter(
@@ -523,7 +528,7 @@ def search(args):
     )
 
     output_table(args,
-        session.query(conddb.Payload.hash, conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time).\
+        session.query(conddb.Payload.hash, conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time, conddb.Payload.data).\
             filter(
                 _ilike_or_regexp(args, connection, conddb.Payload.hash, args.string)
                 | _ilike_or_regexp(args, connection, conddb.Payload.object_type, args.string)
@@ -531,8 +536,8 @@ def search(args):
             order_by(conddb.Payload.insertion_time.desc()).\
             limit(args.limit).\
             all(),
-        ['Payload', 'Object Type', 'Version', 'Insertion Time'],
-        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, None],
+        ['Payload', 'Object Type', 'Version', 'Insertion Time', 'Size'],
+        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, size],
     )
 
     output_table(args,
@@ -1400,7 +1405,6 @@ def main():
     if args.noLimit:
        args.limit = None
        logging.info("noLimit specified, setting limit to %s" % str(args.limit))
-
 
     if args.verbose >= 1:
         # Include the traceback
