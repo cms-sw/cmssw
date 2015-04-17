@@ -287,19 +287,15 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   if (smartME1aME1b) {
     // use of localized dead-time zones
-    use_dead_time_zoning = 
-      conf.getParameter<bool>("useDeadTimeZoning");
-    clct_state_machine_zone = 
-      conf.getParameter<unsigned int>("clctStateMachineZone");
-    dynamic_state_machine_zone = 
-      conf.getParameter<bool>("useDynamicStateMachineZone");
+    use_dead_time_zoning = conf.existsAs<bool>("useDeadTimeZoning")?conf.getParameter<bool>("useDeadTimeZoning"):true;
+    clct_state_machine_zone = conf.existsAs<unsigned int>("clctStateMachineZone")?conf.getParameter<unsigned int>("clctStateMachineZone"):8;
+    dynamic_state_machine_zone = conf.existsAs<bool>("useDynamicStateMachineZone")?conf.getParameter<bool>("useDynamicStateMachineZone"):true;
 
     // how far away may trigger happen from pretrigger
-    pretrig_trig_zone = 
-      conf.getParameter<unsigned int>("clctPretriggerTriggerZone");
+    pretrig_trig_zone = conf.existsAs<unsigned int>("clctPretriggerTriggerZone")?conf.getParameter<unsigned int>("clctPretriggerTriggerZone"):5;
 
     // whether to calculate bx as corrected_bx instead of pretrigger one
-    use_corrected_bx = conf.getParameter<bool>("clctUseCorrectedBx");
+    use_corrected_bx = conf.existsAs<bool>("clctUseCorrectedBx")?conf.getParameter<bool>("clctUseCorrectedBx"):true;
   }
   
   // Motherboard parameters: common for all configurations.
