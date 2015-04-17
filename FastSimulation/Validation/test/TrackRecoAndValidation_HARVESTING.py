@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:TrackRecoAndTrackValidation_inDQM.root')
+    fileNames = cms.untracked.vstring('file:TrackRecoAndValidation_inDQM.root')
 )
 
 process.options = cms.untracked.PSet(

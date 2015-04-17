@@ -75,7 +75,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('TrackRecoAndTrackValidation_inDQM.root'),
+    fileName = cms.untracked.string('TrackRecoAndValidation_inDQM.root'),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
