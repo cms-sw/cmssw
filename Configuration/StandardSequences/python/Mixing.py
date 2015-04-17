@@ -151,6 +151,8 @@ addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_
 addMixingScenario("Flat_20_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_50ns_cfi'})
 addMixingScenario("Flat_0_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_25ns_cfi'})
 addMixingScenario("Flat_0_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_50ns_cfi'})
+addMixingScenario("Flat_10_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_25ns_cfi'})
+addMixingScenario("Flat_10_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_50ns_cfi'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 
