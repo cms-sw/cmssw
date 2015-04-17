@@ -4,5 +4,7 @@ def customise_HFSLrun1(process):
     process.g4SimHits.HCalSD.UseParametrize     = False
     process.g4SimHits.HCalSD.UsePMTHits         = False
     process.g4SimHits.HCalSD.UseFibreBundleHits = False
+    process.g4SimHits.HFShower.UseShowerLibrary = True
+    process.g4SimHits.HFShower.UseHFGflash      = False
 
     return process
