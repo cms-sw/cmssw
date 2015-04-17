@@ -22,7 +22,9 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
                            CastorBasicJetsLabel = cms.InputTag("ak7CastorJets"),
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
-			  
+                      HLTtriggerResults          = cms.InputTag("TriggerResults","","HLT"),
+                         ratioThreshold = cms.untracked.double(0.9),
+                         QrmsDead = cms.untracked.double(1.01),
 			 
                            DataIntMonitor= cms.untracked.bool(True),
                            TowerJetMonitor= cms.untracked.bool(True),
