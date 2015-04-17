@@ -95,3 +95,8 @@ HLTDoLocalStripSequenceRegForBTag = cms.Sequence(striptrackerlocalreco)
 
 from FastSimulation.Tracking.HLTIterativeTracking_cff import *
 
+hltMuonCSCDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltMuonDTDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltMuonRPCDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltGtDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+
