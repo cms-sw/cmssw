@@ -440,11 +440,11 @@ process = customizeHLTforMC(process)
       self._fix_parameter(name='recoverEBFE',            type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(name='recoverEEFE',            type = 'bool',     value = 'True',                 replace = 'False')
 
-      self._fix_parameter(                               type = 'Inputtag', value = 'hltHbhereco',          replace = 'hbhereco')
-      self._fix_parameter(                               type = 'Inputtag', value = 'hltHoreco',            replace = 'horeco')
-      self._fix_parameter(                               type = 'Inputtag', value = 'hltHfreco',            replace = 'hfreco')
-      self._fix_parameter(                               type = 'Inputtag', value = 'hltEcalPreshowerDigis',replace = 'simEcalPreshowerDigis')
-      self._fix_parameter(                               type = 'Inputtag', value = 'hltEcalDigis',         replace = 'simEcalDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltHbhereco',          replace = 'hbhereco')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltHoreco',            replace = 'horeco')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltHfreco',            replace = 'hfreco')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltEcalPreshowerDigis',replace = 'simEcalPreshowerDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltEcalDigis',         replace = 'simEcalDigis')
 
       # fix the definition of sequences and paths
       self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "muonCSCDigis" )',     self.data )
