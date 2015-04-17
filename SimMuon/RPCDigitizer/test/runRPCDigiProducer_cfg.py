@@ -79,14 +79,11 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
 
 ### Input file  
-### GEM-SIM file in 2023Muon Geometry
-### works for all geometry scenarios above
-##########################################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      # 'file:/afs/cern.ch/work/a/archie/public/SingleMuPt100_GEN-SIM__CMSSW_75X.root' # Upgrade MC
       '/store/relval/CMSSW_7_1_0_pre7/RelValSingleMuPt10/GEN-SIM/PRE_STA71_V3-v1/00000/EC57E8A1-3ED1-E311-8416-002618943882.root' # Run 1 MC
       # '/store/relval/CMSSW_7_4_0_pre7/RelValSingleMuPt10_UP15/GEN-SIM/MCRUN2_74_V7-v1/00000/6A0EACAD-FEB6-E411-90C7-0025905A48FC.root' # Run 2 MC
+      # 'file:/afs/cern.ch/work/a/archie/public/SingleMuPt100_GEN-SIM__CMSSW_75X.root' # Upgrade MC (GEN-SIM in 2023 works for all)
     )
 )
 process.output = cms.OutputModule("PoolOutputModule",
@@ -113,10 +110,19 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-### TO ACTIVATE LogTrace IN RPCDigitizer NEED TO COMPILE IT WITH scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"
+### TO ACTIVATE LogTrace IN RPCDigitizer NEED TO COMPILE IT WITH: 
+### --> scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"
+### Make sure that you first cleaned your CMSSW version: 
+### --> scram b clean 
+### before issuing the scram command above
+### ------------------------------------------------------------
 ### LogTrace output goes to cout; all other output to "junk.log"
 ### Code/Configuration with thanks to Tim Cox
-#############################################
+### ------------------------------------------------------------
+### to have a handle on the loops inside RPCSimSetup 
+### I have split the LogDebug stream in several streams
+### that can be activated independently
+################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 ## process.MessageLogger.categories.append("RPCGeometry")
 process.MessageLogger.categories.append("RPCDigiProducer")
@@ -128,7 +134,6 @@ process.MessageLogger.categories.append("RPCSynchronizer")
 process.MessageLogger.categories.append("RPCDigitizer")
 process.MessageLogger.categories.append("RPCSimAsymmetricCls")
 ## process.MessageLogger.categories.append("RPCSimAverageNoiseEffCls")
-# module label is something like "muonRPCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
 process.MessageLogger.cout = cms.untracked.PSet(
