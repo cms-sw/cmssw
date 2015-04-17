@@ -419,6 +419,7 @@ process = customizeHLTforMC(process)
       # FIXME: this should be updated to take into accout the --l1-emulator option
 
       # input tags for digis
+      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltEcalDigis',         replace = 'ecalDigis')
