@@ -88,12 +88,33 @@ class METAnalyzer( Analyzer ):
             mupy += mu.py()
 
         #subtract muon momentum and construct met                                                                                                                                                                                                     
-        px,py = self.metNoMu.px()-mupx, self.metNoMu.py()-mupy
+        px,py = self.metNoMu.px()+mupx, self.metNoMu.py()+mupy
         self.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        px,py = self.metNoMuNoPU.px()-mupx, self.metNoMuNoPU.py()-mupy
+        px,py = self.metNoMuNoPU.px()+mupx, self.metNoMuNoPU.py()+mupy
         self.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
         setattr(event, "metNoMu"+self.cfg_ana.collectionPostFix, self.metNoMu)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoMuNoPU"+self.cfg_ana.collectionPostFix, self.metNoMuNoPU)
+
+        
+    def makeMETNoEle(self, event):
+        self.metNoEle = copy.deepcopy(self.met)
+        if self.cfg_ana.doMetNoPU: self.metNoEleNoPU = copy.deepcopy(self.metNoPU)
+
+        elepx = 0
+        elepy = 0
+        #sum electron momentum                                                                                                                                                                                                                            
+        for ele in event.selectedElectrons:
+            elepx += ele.px()
+            elepy += ele.py()
+
+        #subtract electron momentum and construct met                                                                                                                                                                                                     
+        px,py = self.metNoEle.px()+elepx, self.metNoEle.py()+elepy
+        self.metNoEle.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+
+        px,py = self.metNoEleNoPU.px()+elepx, self.metNoEleNoPU.py()+elepy
+        self.metNoEleNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        setattr(event, "metNoEle"+self.cfg_ana.collectionPostFix, self.metNoEle)
+        if self.cfg_ana.doMetNoPU: setattr(event, "metNoEleNoPU"+self.cfg_ana.collectionPostFix, self.metNoEleNoPU)
 
     def makeMETNoPhoton(self, event):
         self.metNoPhoton = copy.deepcopy(self.met)
@@ -106,12 +127,12 @@ class METAnalyzer( Analyzer ):
             phopy += pho.py()
 
         #subtract photon momentum and construct met
-        px,py = self.metNoPhoton.px()-phopx, self.metNoPhoton.py()-phopy
+        px,py = self.metNoPhoton.px()+phopx, self.metNoPhoton.py()+phopy
         self.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
         setattr(event, "metNoPhoton"+self.cfg_ana.collectionPostFix, self.metNoPhoton)
         if self.cfg_ana.doMetNoPU: 
           self.metNoPhotonNoPU = copy.deepcopy(self.metNoPU)
-          px,py = self.metNoPhotonNoPU.px()-phopx, self.metNoPhotonNoPU.py()-phopy
+          px,py = self.metNoPhotonNoPU.px()+phopx, self.metNoPhotonNoPU.py()+phopy
           self.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
           setattr(event, "metNoPhotonNoPU"+self.cfg_ana.collectionPostFix, self.metNoPhotonNoPU)
 
@@ -169,6 +190,9 @@ class METAnalyzer( Analyzer ):
         if self.cfg_ana.doMetNoMu and hasattr(event, 'selectedMuons'):
             self.makeMETNoMu(event)
 
+        if self.cfg_ana.doMetNoEle and hasattr(event, 'selectedElectrons'):
+            self.makeMETNoEle(event)
+
         if self.cfg_ana.doMetNoPhoton and hasattr(event, 'selectedPhotons'):
             self.makeMETNoPhoton(event)
 
@@ -196,6 +220,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     doTkMet = False,
     doMetNoPU = True,  
     doMetNoMu = False,  
+    doMetNoEle = False,  
     doMetNoPhoton = False,  
     candidates='packedPFCandidates',
     candidatesTypes='std::vector<pat::PackedCandidate>',
