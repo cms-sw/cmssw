@@ -32,17 +32,12 @@
 // constructors and destructor
 //
 
-HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& iConfig)
+HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& config) :
+  rpcRecHitsToken(   consumes<RPCRecHitCollection>( config.getParameter<edm::InputTag>("rpcRecHits") ) ),
+  rpcDTPointsToken(  consumes<RPCRecHitCollection>( config.getParameter<edm::InputTag>("rpcDTPoints") ) ),
+  rpcCSCPointsToken( consumes<RPCRecHitCollection>( config.getParameter<edm::InputTag>("rpcCSCPoints") ) ),
+  rangestrips( config.getUntrackedParameter<double>("rangestrips", 1.) )
 {
-   //now do what ever initialization is needed
-
-  rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",1.);
-  rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
-  rpcDTPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcDTPoints");
-  rpcCSCPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcCSCPoints");
-  rpcRecHitsToken = consumes<RPCRecHitCollection>(rpcRecHitsLabel);
-  rpcDTPointsToken = consumes<RPCRecHitCollection>(rpcDTPointsLabel);
-  rpcCSCPointsToken = consumes<RPCRecHitCollection>(rpcCSCPointsLabel);
 }
 
 
@@ -68,7 +63,7 @@ HLTRPCFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTRPCFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByToken(rpcRecHitsToken,rpcHits);
