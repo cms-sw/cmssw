@@ -69,7 +69,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 
 process.p = cms.Path(process.dtunpacker*
                      process.dtTPmonitor+process.dtTPmonitorTest+

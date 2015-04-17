@@ -53,4 +53,4 @@ else:
 
 process.dqm_step = cms.Path(process.EDMtoMEConverter*
                             process.ALCARECODTCalibSynchDQMClient*process.dqmSaver)
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
