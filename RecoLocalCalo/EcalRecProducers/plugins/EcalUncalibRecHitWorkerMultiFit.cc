@@ -322,13 +322,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         int leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
 
         if ( leadingSample == 4 ) { // saturation on the expected max sample
-               float sratio = 1;
-               if ( detid.subdetId()==EcalBarrel) {
-                       sratio = ebPulseShape_[5] / ebPulseShape_[4];
-               } else {
-                       sratio = eePulseShape_[5] / eePulseShape_[4];
-               }
-	       uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
+	       uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12, 0, 0, 0);
                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
 	       // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
                uncalibRecHit.setChi2(0);
