@@ -557,17 +557,31 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 }
 
 // lv
+// inspired by RecoTracker/TkSeedGenerator/plugins/SeedGeneratorFromRegionHitsEDProducer.cc
+// and RecoTracker/TkHitPairs/src/RecHitsSortedInPhi.cc
 bool
 TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
   
   const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  typedef PixelRecoRange<float> Range;
 
   for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
     auto const & gs = outerHit.hit()->globalState();
     auto loc = gs.position-(*ir)->origin().basicVector();
-    (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
 		   loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
+    
+    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR; 
+    constexpr float nSigmaRZ = 3.46410161514f;
+    Range allowed = checkRZ->range(u);
+    float vErr = nSigmaRZ * dv;
+    Range hitRZ(v-vErr, v+vErr);
+    Range crossRange = allowed.intersection(hitRZ);
+    if( ! crossRange.empty())
+      return true;
   }
   return false;
 }
