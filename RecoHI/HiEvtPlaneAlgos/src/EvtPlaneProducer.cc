@@ -345,10 +345,11 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Get Centrality
   //
   int bin = 0;
-  iEvent.getByToken(centralityBinToken, cbin_);
-  int cbin = *cbin_;
-  bin = cbin/CentBinCompression_; 
-
+  if(loadDB_) {
+    iEvent.getByToken(centralityBinToken, cbin_);
+    int cbin = *cbin_;
+    bin = cbin/CentBinCompression_; 
+  }
   //
   //Get Vertex
   //
@@ -387,7 +388,8 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(tower_energyet<minet) continue;
 	  if(tower_energyet>maxet) continue;
 	  if(EPDet[i]==HF) {
-	    double w = tower_energyet*flat[i]->GetEtScale(vzr_sell,bin);
+	    double w = tower_energyet;
+	    if(loadDB_) w = tower_energyet*flat[i]->GetEtScale(vzr_sell,bin);
 	    if(EPOrder[i]==1 ) {
 	      if(MomConsWeight[i][0]=='y' && loadDB_ ) {
 		w = flat[i]->GetW(tower_energyet, vzr_sell, bin);
