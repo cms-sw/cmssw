@@ -90,11 +90,12 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     edm::ESHandle<CSCGeometry> h;
     setup.get<MuonGeometryRecord>().get(h);
     CSCTriggerGeometry::setGeometry(h);
+    lctBuilder_->setCSCGeometry(&*h);
 
     edm::ESHandle<GEMGeometry> h_gem;
     try {
       setup.get<MuonGeometryRecord>().get(h_gem);
-      //      lctBuilder_->setGEMGeometry(&*h_gem);
+      lctBuilder_->setGEMGeometry(&*h_gem);
     } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
       edm::LogInfo("L1CSCTPEmulatorNoGEMGeometry") 
 	<< "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
