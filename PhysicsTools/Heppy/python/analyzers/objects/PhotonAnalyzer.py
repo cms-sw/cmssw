@@ -82,13 +82,15 @@ class PhotonAnalyzer( Analyzer ):
                     gamma.idCutBased = False
                 if abs(gamma.eta())>=1.479 and gamma.full5x5_sigmaIetaIeta()>0.0321 : 
                     gamma.idCutBased = False
+                if gamma.hasPixelSeed():
+                    keepThisPhoton = False
+                    gamma.idCutBased = 0
             else:
-              keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
+                # Reading from miniAOD directly
+                # keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
 
-            if gamma.hasPixelSeed():
-              keepThisPhoton = False
-              gamma.idCutBased = 0
-
+                # implement cut based ID with CMGTools
+                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID)
 
             if keepThisPhoton:
                 event.selectedPhotons.append(gamma)
