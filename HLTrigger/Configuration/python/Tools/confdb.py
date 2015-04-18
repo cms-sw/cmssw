@@ -74,6 +74,9 @@ class HLTProcess(object):
     "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*",
     "HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*",
     "HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*",
+    "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*",
+    "HLT_DoubleMu18NoFiltersNoVtx_v*",
   )
 
   def __init__(self, configuration):
@@ -445,6 +448,7 @@ process = customizeHLTforMC(process)
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForTau', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2GlbTrkMuonMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtTkMuMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type ='VInputTag', value = 'hltIter2HighPtTkMuMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtTkMuIsoMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedJpsiMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedPsiPrimeMerged', replace = 'generalTracks')
