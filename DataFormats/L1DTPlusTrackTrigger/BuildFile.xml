@@ -1,0 +1,19 @@
+<flags   GENREFLEX_ARGS="--"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="L1Trigger/DTBti"/>
+<use   name="L1Trigger/DTTrackFinder"/>
+<use   name="L1Trigger/DTTraco"/>
+<use   name="L1Trigger/DTTriggerServerPhi"/>
+<use   name="boost"/>
+<use   name="rootrflx"/>
+<use   name="hepmc"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>
+

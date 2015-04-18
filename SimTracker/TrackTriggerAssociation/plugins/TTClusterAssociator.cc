@@ -178,8 +178,11 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
             else 
             {
               /// In case no TrackingParticle is found, store a NULL pointer
-              edm::Ptr< TrackingParticle >* tempTPPtr = new edm::Ptr< TrackingParticle >();
-              clusterToTrackingParticleVectorMap.find( tempCluRef )->second.push_back( *tempTPPtr );
+/* IR 2014 04 20
+ * from pointer to object to deallocate memory in the correct way
+*/
+              edm::Ptr< TrackingParticle > tempTPPtr; // = new edm::Ptr< TrackingParticle >();
+              clusterToTrackingParticleVectorMap.find( tempCluRef )->second.push_back( tempTPPtr );
             }
           } /// End of loop over PixelDigiSimLink
         } /// End of loop over all the hits composing the Cluster
