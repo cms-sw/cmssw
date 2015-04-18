@@ -156,7 +156,7 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
           Stub_Endcap_Fw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
           Stub_Endcap_Fw->Fill(disk);
           Stub_EndcapRing_Fw[disk-1]->Fill(ring);
-          Stub_EndcapRing_Fw[disk-1]->Fill(ring, displStub - offsetStub);
+          Stub_EndcapRing_W_Fw[disk-1]->Fill(ring, displStub - offsetStub);
           Stub_EndcapRing_O_Fw[disk-1]->Fill(ring, offsetStub);
         }
         else
