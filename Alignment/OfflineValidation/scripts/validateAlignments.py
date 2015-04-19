@@ -276,7 +276,10 @@ def createMergeScript( path, validations ):
             "DownloadData":"",
             "CompareAlignments":"",
             "RunExtendedOfflineValidation":"",
-            "RunTrackSplitPlot":""
+            "RunTrackSplitPlot":"",
+            "CMSSW_BASE": os.environ["CMSSW_BASE"],
+            "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
+            "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
             })
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
