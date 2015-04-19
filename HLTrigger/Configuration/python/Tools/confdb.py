@@ -217,14 +217,46 @@ class HLTProcess(object):
     return self.data
 
 
-  # add release-specific customizations
-  def releaseSpecificCustomize(self):
-    # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customiseHLTforCMSSW(.,.)
-    self.data += """
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
-""" % (self.config.type,self.config.fastsim)
+  # add specific customizations
+  def specificCustomize(self):
+    # specific customizations now live in HLTrigger.Configuration.customizeHLTforALL.customizeHLTforAll(.,.)
+    if self.config.fragment:
+      self.data += """
+# add specific customizations
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+fragment = customizeHLTforAll(fragment)
+"""
+    else:
+      _menuType = self.config.type
+      if _menuType=="Fake":
+        prefix = "run1"
+      else:
+        prefix = "run2"
+      _gtData = "auto:"+prefix+"_hlt_"+_menuType
+      _gtMc   = "auto:"+prefix+"_mc_" +_menuType
+      if self.config.data:
+        _inputFile = "file:RelVal_Raw_"+_menuType+"_DATA.root"
+      else:
+        _inputFile = "file:RelVal_Raw_"+_menuType+"_MC.root"
+      self.data += """
+# add specific customizations
+_customInfo = {}
+_customInfo['menuType'  ]= "%s"
+_customInfo['globalTags']= {}
+_customInfo['globalTags'][True ] = "%s"
+_customInfo['globalTags'][False] = "%s"
+_customInfo['inputFiles']={}
+_customInfo['inputFiles'][True] = "file:RelVal_Raw_%s_DATA.root"
+_customInfo['inputFiles'][False] ="file:RelVal_Raw_%s_MC.root"
+_customInfo['maxEvents' ]= "%s"
+_customInfo['globalTag' ]= "%s"
+_customInfo['inputFile' ]= "%s"
+_customInfo['realData'  ]= "%s"
+_customInfo['fastSim'   ]= "%s"
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+process = customizeHLTforAll(process,_customInfo)
+""" % (_menuType,_gtData,_gtMc,_menuType,_menuType,self.config.events,self.config.globaltag,_inputFile,self.config.data,self.config.fastsim)
+
 
   # customize the configuration according to the options
   def customize(self):
@@ -260,9 +292,6 @@ process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
 #    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
 #"""
 
-    # if running on MC, adapt the configuration accordingly
-    self.fixForMC()
-
     # if requested, remove the HLT prescales
     self.fixPrescales()
 
@@ -274,9 +303,6 @@ process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
 
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
-
-    # add version-specific customisations
-    self.releaseSpecificCustomize()
 
     if self.config.fragment:
       self.data += """
@@ -360,6 +386,9 @@ process = loadL1menu(process)
 #        }
 #      )
 
+    # add specific customisations
+    self.specificCustomize()
+
 
   def addGlobalOptions(self):
     # add global options
@@ -396,17 +425,6 @@ process = loadL1menu(process)
           r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args,
           r'cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
           self.data)
-
-
-  def fixForMC(self):
-    if not self.config.data:
-      # customise the HLT menu for running on MC
-      if not self.config.fragment:
-        self.data += """
-# customise the HLT menu for running on MC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-process = customizeHLTforMC(process)
-"""
 
 
   def fixForFastSim(self):
