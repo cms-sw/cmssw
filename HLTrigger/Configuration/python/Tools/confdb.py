@@ -66,6 +66,17 @@ class HLTProcess(object):
     "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
     "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
     "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
+    "HLT_MET75_IsoTrk50_v*",
+    "HLT_MET90_IsoTrk50_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*",
+    "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*",
+    "HLT_DoubleMu18NoFiltersNoVtx_v*",
   )
 
   def __init__(self, configuration):
@@ -1180,6 +1191,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForPhotons" )
       self.options['modules'].append( "-hltPixelTracksForEgamma" )
       self.options['modules'].append( "-hltPixelTracksElectrons" )
+      self.options['modules'].append( "-hltPixelTracksForHighPt" )
+      self.options['modules'].append( "-hltHighPtPixelTracks" )
       self.options['modules'].append( "-hltPixelTracksForNoPU" )
 
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
@@ -1241,6 +1254,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingIter04" )
       self.options['sequences'].append( "-HLTIterativeTrackingIter02" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForHighPt" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTIterativeTrackingReg" )
       self.options['sequences'].append( "-HLTIterativeTrackingForElectronIter02" )

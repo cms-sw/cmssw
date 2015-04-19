@@ -397,15 +397,15 @@ HLT_PFHT400_SixJet30_BTagCSV0p5_2PFBTagCSV_v*			# JIRA: CMSHLT-309
 HLT_PFHT450_SixJet40_v*						# JIRA: CMSHLT-309
 HLT_PFHT400_SixJet30_v*						# JIRA: CMSHLT-309
 
-#HLT_DoubleMu18NoFiltersNoVtx_v*					# JIRA: CMSHLT-310
-#HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*			# JIRA: CMSHLT-310
-#HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*		# JIRA: CMSHLT-310
-#HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v* 	# JIRA: CMSHLT-310
-#HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v* 			# JIRA: CMSHLT-310
-#HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v* 	# JIRA: CMSHLT-310
-#HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v* 	# JIRA: CMSHLT-310
-#HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v* 			# JIRA: CMSHLT-310
-#HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*			# JIRA: CMSHLT-310
+HLT_DoubleMu18NoFiltersNoVtx_v*                                        # JIRA: CMSHLT-310
+HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*                     # JIRA: CMSHLT-310
+HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*                # JIRA: CMSHLT-310
+HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*        # JIRA: CMSHLT-310
+HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*                         # JIRA: CMSHLT-310
+HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*        # JIRA: CMSHLT-310
+HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*        # JIRA: CMSHLT-310
+HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*                         # JIRA: CMSHLT-310
+HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*                     # JIRA: CMSHLT-310
 
 #HLT_VBF_DisplacedJet40_VTightID_Hadronic_v* 			# JIRA: CMSHLT-318
 #HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v*  			# JIRA: CMSHLT-318
@@ -414,10 +414,10 @@ HLT_PFHT400_SixJet30_v*						# JIRA: CMSHLT-309
   
 HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v*	# JIRA: CMSHLT-317
 
-#HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for low PU runs)
-#HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
-#HLT_FullTrack30_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
-#HLT_FullTrack50_v* 						# JIRA: CMSHLT-273 (for low PU runs)
+HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for low PU runs)
+HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
+HLT_FullTrack30_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
+HLT_FullTrack50_v* 						# JIRA: CMSHLT-273 (for low PU runs)
 
 HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
 HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
