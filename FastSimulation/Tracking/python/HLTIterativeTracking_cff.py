@@ -10,6 +10,7 @@ import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
 HLTIterativeTrackingIter04 = cms.Sequence()
 HLTIterativeTrackingIter02 = cms.Sequence()
 HLTIterativeTracking = cms.Sequence()
+HLTIterativeTrackingForHighPt = cms.Sequence()
 HLTIterativeTrackingTau3Mu = cms.Sequence()
 HLTIterativeTrackingReg = cms.Sequence()
 HLTIterativeTrackingForElectronIter02 = cms.Sequence()
