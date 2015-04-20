@@ -29,12 +29,11 @@ multiTrackValidator = cms.EDAnalyzer(
 
     
     ### matching configuration ###
-    associatormap = cms.InputTag("trackingParticleRecoTrackAsssociation"),
-    #associatormap = cms.InputTag("assoc2secStepTk"),
-    #associatormap = cms.InputTag("assoc2thStepTk"),
-    #associatormap = cms.InputTag("assoc2GsfTracks"),
-    associators = cms.vstring('trackAssociatorByHitsRecoDenom'),    
-    UseAssociators = cms.bool(True), # if False, the TP-RecoTrack maps has to be specified 
+    # Example of TP-Track map
+    #associators = cms.untracked.VInputTag("trackingParticleRecoTrackAsssociation"),
+    # Example of associator
+    associators = cms.untracked.VInputTag("quickTrackAssociatorByHits"),
+    UseAssociators = cms.bool(True), # if False, the src's above should specify the TP-RecoTrack
 
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),

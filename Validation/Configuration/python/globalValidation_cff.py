@@ -42,7 +42,7 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
     simHitTPAssocProducer
-  * tracksValidationSelectors
+  * tracksPreValidation
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
@@ -50,7 +50,7 @@ globalPrevalidation = cms.Sequence(
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
-    tracksValidationSelectors
+    tracksPreValidation
 )
 
 globalValidation = cms.Sequence(   trackerHitsValidation 

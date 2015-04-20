@@ -48,9 +48,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   histoProducerAlgo_ = MTVHistoProducerAlgoFactory::get()->create(histoProducerAlgoName ,psetForHistoProducerAlgo, consumesCollector());
 
   dirName_ = pset.getParameter<std::string>("dirName");
-  assMapInput = pset.getParameter< edm::InputTag >("associatormap");
-  associatormapStR = mayConsume<reco::SimToRecoCollection>(assMapInput);
-  associatormapRtS = mayConsume<reco::RecoToSimCollection>(assMapInput);
   UseAssociators = pset.getParameter< bool >("UseAssociators");
 
   m_dEdx1Tag = mayConsume<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx1Tag"));
@@ -96,15 +93,16 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 
   labelTokenForDrCalculation = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("trackCollectionForDrCalculation"));
 
-  if (!UseAssociators) {
-    associators.clear();
-    associators.push_back(assMapInput.label());
+  if(UseAssociators) {
+    for (auto const& src: associators) {
+      associatorTokens.push_back(consumes<reco::TrackToTrackingParticleAssociator>(src));
+    }
   } else {   
-    for (auto const& associatorName : associators) {
-      consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(associatorName));
+    for (auto const& src: associators) {
+      associatormapStRs.push_back(consumes<reco::SimToRecoCollection>(src));
+      associatormapRtSs.push_back(consumes<reco::RecoToSimCollection>(src));
     }
   }
-
 }
 
 
@@ -127,7 +125,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       if (dirName.find("Tracks")<dirName.length()){
     dirName.replace(dirName.find("Tracks"),6,"");
       }
-      string assoc= associators[ww];
+      string assoc= associators[ww].label();
       if (assoc.find("Track")<assoc.length()){
     assoc.replace(assoc.find("Track"),5,"");
       }
@@ -163,15 +161,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
-
-  std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
-  if (UseAssociators) {
-    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
-    for (auto const& associatorName : associators) {
-      event.getByLabel(associatorName,theAssociator);
-      associator.push_back( theAssociator.product() );
-    }
-  }
 
 
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
@@ -271,37 +260,29 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       reco::SimToRecoCollection simRecCollL;
 
       //associate tracks
+      edm::LogVerbatim("TrackValidator") << "Analyzing "
+                                         << label[www] << " with "
+                                         << associators[ww] <<"\n";
       if(UseAssociators){
-	edm::LogVerbatim("TrackValidator") << "Analyzing "
-					   << label[www].process()<<":"
-					   << label[www].label()<<":"
-					   << label[www].instance()<<" with "
-					   << associators[ww].c_str() <<"\n";
+        edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+        event.getByToken(associatorTokens[ww], theAssociator);
 
 	LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
-	recSimCollL = std::move(associator[ww]->associateRecoToSim(trackCollection,
+	recSimCollL = std::move(theAssociator->associateRecoToSim(trackCollection,
                                                                    TPCollectionHfake));
          recSimCollP = &recSimCollL;
 	LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
-	simRecCollL = std::move(associator[ww]->associateSimToReco(trackCollection,
+	simRecCollL = std::move(theAssociator->associateSimToReco(trackCollection,
                                                                    TPCollectionHeff));
         simRecCollP = &simRecCollL;
       }
       else{
-	edm::LogVerbatim("TrackValidator") << "Analyzing "
-					   << label[www].process()<<":"
-					   << label[www].label()<<":"
-					   << label[www].instance()<<" with "
-					   << assMapInput.process()<<":"
-					   << assMapInput.label()<<":"
-					   << assMapInput.instance()<<"\n";
-
 	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	event.getByToken(associatormapStR,simtorecoCollectionH);
+	event.getByToken(associatormapStRs[ww], simtorecoCollectionH);
 	simRecCollP = simtorecoCollectionH.product();
 
 	Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	event.getByToken(associatormapRtS,recotosimCollectionH);
+	event.getByToken(associatormapRtSs[ww],recotosimCollectionH);
 	recSimCollP = recotosimCollectionH.product();
       }
 

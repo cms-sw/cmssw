@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi 
-import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi 
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 import Validation.RecoTrack.MultiTrackValidator_cfi
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
@@ -9,9 +9,6 @@ from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
 from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
-
-trackAssociatorByHitsRecoDenom= SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
-    )
 
 # Validation iterative steps
 cutsRecoTracksZero = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
@@ -141,8 +138,17 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksNinthHp* 
                                 cutsRecoTracksTenth*
                                 cutsRecoTracksTenthHp )
+tracksPreValidation = cms.Sequence(
+    tracksValidationSelectors +
+    tpClusterProducer +
+    quickTrackAssociatorByHits
+)
+tracksPreValidationFS = cms.Sequence(
+    tracksValidationSelectors +
+    quickTrackAssociatorByHits
+)
 
 # selectors go into separate "prevalidation" sequence
-tracksValidation = cms.Sequence( tpClusterProducer * trackAssociatorByHitsRecoDenom * trackValidator)
-tracksValidationFS = cms.Sequence( trackAssociatorByHitsRecoDenom * trackValidator )
+tracksValidation = cms.Sequence( trackValidator)
+tracksValidationFS = cms.Sequence( trackValidator )
 
