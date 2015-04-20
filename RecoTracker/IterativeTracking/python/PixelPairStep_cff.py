@@ -62,7 +62,8 @@ pixelPairStepTrajectoryFilter = cms.PSet(
     ComponentType = cms.string('CompositeTrajectoryFilter'),
     filters = cms.VPSet(
         cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterBase')),
-        cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))),
+    #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
+    ),
 )
 
 
@@ -114,16 +115,18 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelPairStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
             name = 'pixelPairStepLoose',
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
             name = 'pixelPairStepTight',
             preFilterName = 'pixelPairStepLoose',
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
             name = 'pixelPairStep',
             preFilterName = 'pixelPairStepTight',
             ),
