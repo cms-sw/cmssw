@@ -24,7 +24,7 @@ public:
   MonitorElement* theStrip[2][3][2];
   MonitorElement* theStrip_bx[2][3][2];
   MonitorElement* theStrip_zr[2][3][2];
-  //std::map< UInt_t , MonitorElement* > theStrip_ro_phi;
+  std::map< UInt_t , MonitorElement* > theStrip_xy_ch;
   //std::map< UInt_t , MonitorElement* > theStrip_st_dphi;
   //std::map< UInt_t , MonitorElement* > theStrip_phiz_st_ch;
   
