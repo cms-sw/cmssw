@@ -31,7 +31,9 @@
 //
 // -- Contructor
 //
-SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) {
+SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) :
+  m_cacheID_(0) {
+
   // Create MessageSender
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 
