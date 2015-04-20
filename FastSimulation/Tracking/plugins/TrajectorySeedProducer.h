@@ -37,7 +37,6 @@ class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
 // lv
-class MeasurementTrackerEvent;
 
 class TrajectorySeedProducer:
     public edm::stream::EDProducer<>
@@ -189,7 +188,7 @@ class TrajectorySeedProducer:
     ) const;
 
     // lv
-    bool testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
+    bool testWithRegions(const GlobalPoint & innerHit,const GlobalPoint & outerHit) const;
 
     //! method inserts hit into the tree structure at an empty position. 
     /*!
@@ -210,9 +209,6 @@ class TrajectorySeedProducer:
     typedef std::vector<TrackingRegion* > Regions;
     Regions regions;
     std::unique_ptr<TrackingRegionProducer> theRegionProducer;
-    edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken;
-    const MeasurementTrackerEvent * measurementTrackerEvent;
-    const edm::EventSetup * es_;
 };
 
 #endif
