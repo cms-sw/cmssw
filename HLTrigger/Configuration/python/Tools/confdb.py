@@ -439,6 +439,7 @@ process = customizeHLTforMC(process)
       self._fix_parameter(name='killDeadChannels',       type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(name='recoverEBFE',            type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(name='recoverEEFE',            type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
 
       # input tags for track collections
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtMerged', replace = 'generalTracks')
@@ -455,9 +456,8 @@ process = customizeHLTforMC(process)
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedPsiPrimeMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedNRMuMuMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter0PFlowTrackSelectionHighPurityForBTag', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter4HighPtMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
-      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
-      # probably not necessary self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltIter4Tau3MuMerged', replace = 'hltIter4Merged')
       
       # other
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
