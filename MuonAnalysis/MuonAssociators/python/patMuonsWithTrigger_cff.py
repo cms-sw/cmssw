@@ -18,6 +18,7 @@ patMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.
     embedPFCandidate    = False,
     embedCaloMETMuonCorrs = cms.bool(False),
     embedTcMETMuonCorrs   = cms.bool(False),
+    embedPfEcalEnergy     = cms.bool(False),
     # then switch off some features we don't need
     #addTeVRefits = False, ## <<--- this doesn't work. PAT bug ??
     embedPickyMuon = False,
