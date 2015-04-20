@@ -16,7 +16,6 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -24,10 +23,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include <DataFormats/VertexReco/interface/VertexFwd.h>
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+DEFINE_FWK_MODULE(PCCNTupler);
 
 
 #include <TROOT.h>
@@ -44,6 +43,7 @@ using namespace reco;
 // ----------------------------------------------------------------------
 PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig): 
     fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
+    fPrimaryVertexCollectionLabel(iConfig.getUntrackedParameter<InputTag>("vertexCollLabel", edm::InputTag("offlinePrimaryVertices"))), 
     fPixelClusterLabel(iConfig.getUntrackedParameter<InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters"))), 
     fHLTProcessName(iConfig.getUntrackedParameter<string>("HLTProcessName")),
     saveType(iConfig.getUntrackedParameter<string>("saveType")),
@@ -67,6 +67,7 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     if(includeVertexInformation){
         tree->Branch("nGoodVtx","map<int,int>",&nGoodVtx); 
         tree->Branch("num_Trks",&nTrk,"nTrk/I");
+        recoVtxToken=consumes<reco::VertexCollection>(fPrimaryVertexCollectionLabel);
     }
 
     if(includePixels){
@@ -83,6 +84,7 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
         deadModules[3] = 344019460;
         deadModules[4] = 344019464;
         deadModules[5] = 344019468;  
+        pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
     }
 
 }
@@ -98,7 +100,7 @@ void PCCNTupler::endJob() {
 
 // ----------------------------------------------------------------------
 void PCCNTupler::beginJob() {
-  
+
 }
 
 
@@ -190,7 +192,8 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
    
     if(includeVertexInformation){
         edm::Handle<reco::VertexCollection> recVtxs;
-        iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+        iEvent.getByToken(recoVtxToken,recVtxs);
+        
    
         if(recVtxs.isValid()){
             for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
@@ -233,7 +236,8 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     }
     // -- Pixel cluster
     edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-    iEvent.getByLabel(fPixelClusterLabel, hClusterColl);
+    iEvent.getByToken(pixelToken,hClusterColl);
+    
     const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
     
     
@@ -282,6 +286,5 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
 } 
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(PCCNTupler);
 
 

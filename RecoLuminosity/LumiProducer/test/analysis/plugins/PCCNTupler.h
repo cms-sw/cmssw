@@ -20,11 +20,15 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "TObject.h"
 #include "TH1F.h"
@@ -38,16 +42,19 @@ class TFile;
 class RectangularPixelTopology;
 class DetId; 
 
-class PCCNTupler : public edm::EDAnalyzer {
+
+class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
-    explicit PCCNTupler(const edm::ParameterSet& ps);
+    //explicit PCCNTupler(const edm::ParameterSet& ps);
+    PCCNTupler(const edm::ParameterSet&);
     virtual ~PCCNTupler();
-    virtual void beginJob();
+    virtual void beginJob() override;
+    virtual void endJob() override;
+    virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
     virtual void beginRun(const edm::Run &, const edm::EventSetup &);
     virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    virtual void endJob();
-    virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  
+
+
   protected:
     void init();
     void fillEvent();
@@ -64,6 +71,9 @@ class PCCNTupler : public edm::EDAnalyzer {
 
 
   private:
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >  pixelToken;
+    edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
+    
     int             fVerbose; 
     std::string     fRootFileName; 
     std::string     fGlobalTag, fType;
@@ -136,5 +146,6 @@ class PCCNTupler : public edm::EDAnalyzer {
     edm::InputTag vertexBSTags_; //used to select what vertices with BS correction 
 
 };
+
 
 #endif
