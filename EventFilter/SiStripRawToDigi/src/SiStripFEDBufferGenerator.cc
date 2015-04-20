@@ -129,6 +129,12 @@ namespace sistrip {
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
       fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled);
       break;
+    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
+      fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled);
+      break;
     case READOUT_MODE_PREMIX_RAW:
       fillPreMixRawChannelBuffer(channelBuffer,data,channelEnabled);
       break;

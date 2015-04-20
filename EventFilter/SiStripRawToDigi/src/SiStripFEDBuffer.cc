@@ -80,6 +80,12 @@ namespace sistrip {
     case READOUT_MODE_PREMIX_RAW:
       minLength = 2;
       break;
+    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      minLength = 7;
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
+      minLength = 2;
+      break;
     default:
       minLength = 3;
       break;
@@ -394,8 +400,12 @@ namespace sistrip {
     case READOUT_MODE_ZERO_SUPPRESSED:
       return PACKET_CODE_ZERO_SUPPRESSED;
       break;
+    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      return PACKET_CODE_ZERO_SUPPRESSED;
+      break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
     case READOUT_MODE_PREMIX_RAW:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
     case READOUT_MODE_SPY:
     case READOUT_MODE_INVALID:
     default:
