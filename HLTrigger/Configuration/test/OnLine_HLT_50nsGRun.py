@@ -50186,13 +50186,13 @@ _customInfo['globalTags']= {}
 _customInfo['globalTags'][True ] = "auto:run2_hlt_50nsGRun"
 _customInfo['globalTags'][False] = "auto:run2_mc_50nsGRun"
 _customInfo['inputFiles']={}
-_customInfo['inputFiles'][True] = "file:RelVal_Raw_50nsGRun_DATA.root"
-_customInfo['inputFiles'][False] ="file:RelVal_Raw_50nsGRun_MC.root"
-_customInfo['maxEvents' ]= "100"
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_50nsGRun_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_50nsGRun_MC.root"
+_customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "auto:run2_hlt_50nsGRun"
-_customInfo['inputFile' ]= "file:RelVal_Raw_50nsGRun_DATA.root"
-_customInfo['realData'  ]= "True"
-_customInfo['fastSim'   ]= "False"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_50nsGRun_DATA.root']
+_customInfo['realData'  ]=  True
+_customInfo['fastSim'   ]=  False
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,_customInfo)
 

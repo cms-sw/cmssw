@@ -426,13 +426,13 @@ _customInfo['globalTags']= {}
 _customInfo['globalTags'][True ] = "auto:run1_hlt_Fake"
 _customInfo['globalTags'][False] = "auto:run1_mc_Fake"
 _customInfo['inputFiles']={}
-_customInfo['inputFiles'][True] = "file:RelVal_Raw_Fake_DATA.root"
-_customInfo['inputFiles'][False] ="file:RelVal_Raw_Fake_MC.root"
-_customInfo['maxEvents' ]= "100"
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_Fake_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_Fake_MC.root"
+_customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "auto:run1_hlt_Fake"
-_customInfo['inputFile' ]= "file:RelVal_Raw_Fake_DATA.root"
-_customInfo['realData'  ]= "True"
-_customInfo['fastSim'   ]= "False"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_Fake_DATA.root']
+_customInfo['realData'  ]=  True
+_customInfo['fastSim'   ]=  False
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,_customInfo)
 

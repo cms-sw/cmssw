@@ -227,17 +227,12 @@ from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 fragment = customizeHLTforAll(fragment)
 """
     else:
-      _menuType = self.config.type
-      if _menuType=="Fake":
+      if self.config.type=="Fake":
         prefix = "run1"
       else:
         prefix = "run2"
-      _gtData = "auto:"+prefix+"_hlt_"+_menuType
-      _gtMc   = "auto:"+prefix+"_mc_" +_menuType
-      if self.config.data:
-        _inputFile = "file:RelVal_Raw_"+_menuType+"_DATA.root"
-      else:
-        _inputFile = "file:RelVal_Raw_"+_menuType+"_MC.root"
+      _gtData = "auto:"+prefix+"_hlt_"+self.config.type
+      _gtMc   = "auto:"+prefix+"_mc_" +self.config.type
       self.data += """
 # add specific customizations
 _customInfo = {}
@@ -246,16 +241,16 @@ _customInfo['globalTags']= {}
 _customInfo['globalTags'][True ] = "%s"
 _customInfo['globalTags'][False] = "%s"
 _customInfo['inputFiles']={}
-_customInfo['inputFiles'][True] = "file:RelVal_Raw_%s_DATA.root"
-_customInfo['inputFiles'][False] ="file:RelVal_Raw_%s_MC.root"
-_customInfo['maxEvents' ]= "%s"
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_%s_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_%s_MC.root"
+_customInfo['maxEvents' ]=  %s
 _customInfo['globalTag' ]= "%s"
-_customInfo['inputFile' ]= "%s"
-_customInfo['realData'  ]= "%s"
-_customInfo['fastSim'   ]= "%s"
+_customInfo['inputFile' ]=  %s
+_customInfo['realData'  ]=  %s
+_customInfo['fastSim'   ]=  %s
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,_customInfo)
-""" % (_menuType,_gtData,_gtMc,_menuType,_menuType,self.config.events,self.config.globaltag,_inputFile,self.config.data,self.config.fastsim)
+""" % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.fastsim)
 
 
   # customize the configuration according to the options
