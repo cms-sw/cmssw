@@ -75,7 +75,7 @@ NearbyCandCountComputer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     for (probe = probes->begin(); probe != endprobes; ++probe) {
         float count = 0;
         for (object = beginobjects; object != endobjects; ++object) {
-            if ((deltaR2(*probe, *object) >= deltaR2_) &&
+            if ((deltaR2(*probe, *object) < deltaR2_) &&
                 objCut_(*object) &&
                 pairCut_(pat::DiObjectProxy(*probe, *object))) {
                     count++;
