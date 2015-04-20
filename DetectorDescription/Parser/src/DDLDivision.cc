@@ -28,6 +28,8 @@
 
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
+using namespace DDI;
+
 DDLDivision::DDLDivision( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
 {}
