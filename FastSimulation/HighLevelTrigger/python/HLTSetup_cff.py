@@ -6,6 +6,11 @@ import FWCore.ParameterSet.Config as cms
 #--- Dummy replacements of HLT modules ---#
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 
+hltHfreco = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltHoreco = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltHbhereco = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltEcalDetIdToBeRecovered = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+
 hltScalersRawToDigi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltEcalPreshowerDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -89,4 +94,9 @@ HLTDoLocalStripSequenceReg        = cms.Sequence(striptrackerlocalreco)
 HLTDoLocalStripSequenceRegForBTag = cms.Sequence(striptrackerlocalreco)
 
 from FastSimulation.Tracking.HLTIterativeTracking_cff import *
+
+hltMuonCSCDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltMuonDTDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltMuonRPCDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltGtDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 

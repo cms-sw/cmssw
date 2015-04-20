@@ -91,7 +91,19 @@ muonCSCDigisAliasInfo = cms.VPSet(
 gtDigisAliasInfo = cms.VPSet (
     cms.PSet(
         key = cms.string("simGtDigis"),
-        value = cms.VPSet(cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")))
+        value = cms.VPSet(
+            cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")),
+            cms.PSet(type = cms.string("L1GlobalTriggerObjectMapRecord"))
+            )
+        )
+    )
+
+gmtDigisAliasInfo = cms.VPSet (
+    cms.PSet(
+        key = cms.string("simGmtDigis"),
+        value = cms.VPSet(
+            cms.PSet(type = cms.string("L1MuGMTReadoutCollection"))
+            )
         )
     )
 
