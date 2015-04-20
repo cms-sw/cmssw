@@ -278,19 +278,23 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   int nProcessed = fms ? (fms->getEventsProcessedForLumi(lumi)) : -1;
 
   // Stat the data file: if not there, throw
+  std::string dataFileName;
   struct stat dataFileStat;
-  if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
-    throw cms::Exception("fillJson")
-          << "Internal error, cannot get data file: "
-          << dataFilePathName;
-  // Extract only the data file name from the full path
-  std::string dataFileName = bfs::path(dataFilePathName).filename().string();
+  dataFileStat.st_size=0;
+  if (nProcessed) {
+    if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
+      throw cms::Exception("fillJson")
+            << "Internal error, cannot get data file: "
+            << dataFilePathName;
+    // Extract only the data file name from the full path
+    dataFileName = bfs::path(dataFilePathName).filename().string();
+  }
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
   bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
 
   processedEvents.put("", nProcessed); // Processed events
-  acceptedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
+  acceptedEvents.put("", nProcessed); // Accepted events, same as processed for our purposes
 
   errorEvents.put("", 0); // Error events
   bitmask.put("", 0); // Bitmask of abs of CMSSW return code
@@ -364,13 +368,14 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
     }
   }
 
-  if (fileFormat == ROOT)
-  {
-    // Save the file with the full directory tree,
-    // modifying it according to @a rewrite,
-    // but not looking for MEs inside the DQMStore, as in the online case,
-    // nor filling new MEs, as in the offline case.
-    dbe_->save(openHistoFilePathName,
+  if (fms_ ? fms_->getEventsProcessedForLumi(lumi) : true) {
+    if (fileFormat == ROOT)
+    {
+      // Save the file with the full directory tree,
+      // modifying it according to @a rewrite,
+      // but not looking for MEs inside the DQMStore, as in the online case,
+      // nor filling new MEs, as in the offline case.
+      dbe_->save(openHistoFilePathName,
              "",
              "^(Reference/)?([^/]+)",
              rewrite,
@@ -380,23 +385,24 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
              saveReferenceQMin_,
              fileUpdate_ ? "UPDATE" : "RECREATE",
              true);
-  }
-  else if (fileFormat == PB)
-  {
-    // Save the file in the open directory.
-    dbe_->savePB(openHistoFilePathName,
+    }
+    else if (fileFormat == PB)
+    {
+      // Save the file in the open directory.
+      dbe_->savePB(openHistoFilePathName,
         filterName_,
         enableMultiThread_ ? run : 0,
         lumi,
         true);
-  }
-  else
-    throw cms::Exception("DQMFileSaver")
-      << "Internal error, can save files"
-      << " only in ROOT or ProtocolBuffer format.";
+    }
+    else
+      throw cms::Exception("DQMFileSaver")
+        << "Internal error, can save files"
+        << " only in ROOT or ProtocolBuffer format.";
 
-  // Now move the the data and json files into the output directory.
-  rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+    // Now move the the data and json files into the output directory.
+    rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+  }
 
   // Write the json file in the open directory.
   bpt::ptree pt = fillJson(run, lumi, histoFilePathName, transferDestination_, fms_);
