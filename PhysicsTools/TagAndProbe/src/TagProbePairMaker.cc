@@ -26,10 +26,10 @@ tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig, edm:
 
   if (iConfig.existsAs<bool>("phiCutForTwoLeg")) {
     phiCutForTwoLeg_ = iConfig.getParameter<bool>("phiCutForTwoLeg");
-    std::cout << "Set phiCutForTwoLeg_ to " << phiCutForTwoLeg_ << std::endl;
+    //std::cout << "Set phiCutForTwoLeg_ to " << phiCutForTwoLeg_ << std::endl;
   } else {
     phiCutForTwoLeg_ = false;
-    std::cout << "Set phiCutForTwoLeg_ to default " << phiCutForTwoLeg_ << std::endl;
+    //std::cout << "Set phiCutForTwoLeg_ to default " << phiCutForTwoLeg_ << std::endl;
   }
 }
 
