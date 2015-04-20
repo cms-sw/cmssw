@@ -207,7 +207,7 @@ process.GsfMatchedPhotonCands.src = cms.InputTag("goodPhotons")
 process.PassingWP95 = process.goodElectrons.clone()
 process.PassingWP95.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 1)"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') <= 1)"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt < 0.15 && dr03EcalRecHitSumEt/p4.Pt < 2.0 && dr03HcalTowerSumEt/p4.Pt < 0.12 )" 
     " && (sigmaIetaIeta<0.01)"
@@ -226,7 +226,7 @@ process.PassingWP95.cut = cms.string(
 process.PassingWP90 = process.goodElectrons.clone()
 process.PassingWP90.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"
@@ -245,7 +245,7 @@ process.PassingWP90.cut = cms.string(
 process.PassingWP85 = process.goodElectrons.clone()
 process.PassingWP85.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.08 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"
@@ -264,7 +264,7 @@ process.PassingWP85.cut = cms.string(
 process.PassingWP80 = process.goodElectrons.clone()
 process.PassingWP80.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"
@@ -283,7 +283,7 @@ process.PassingWP80.cut = cms.string(
 process.PassingWP70 = process.goodElectrons.clone()
 process.PassingWP70.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
     " && (sigmaIetaIeta<0.01)"
@@ -302,7 +302,7 @@ process.PassingWP70.cut = cms.string(
 process.PassingWP60 = process.goodElectrons.clone()
 process.PassingWP60.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.04 && dr03EcalRecHitSumEt/p4.Pt < 0.04 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
     " && (sigmaIetaIeta<0.01)"
@@ -404,11 +404,17 @@ process.JetMultiplicityInSCEvents = cms.EDProducer("CandMultiplicityCounter",
     objects = cms.InputTag(JET_COLL),
     objectSelection = cms.string(JET_CUTS + " && pt > 20.0"),
 )
-
+process.SCConvRejVars = cms.EDProducer("ElectronConversionRejectionVars",
+    probes = cms.InputTag("goodSuperClusters")
+)
+process.GsfConvRejVars = process.SCConvRejVars.clone()
+process.GsfConvRejVars.probes = cms.InputTag( ELECTRON_COLL )
 process.PhotonDRToNearestJet = process.superClusterDRToNearestJet.clone()
 process.PhotonDRToNearestJet.probes =cms.InputTag("goodPhotons")
 process.JetMultiplicityInPhotonEvents = process.JetMultiplicityInSCEvents.clone()
 process.JetMultiplicityInPhotonEvents.probes = cms.InputTag("goodPhotons")
+process.PhotonConvRejVars = process.SCConvRejVars.clone()
+process.PhotonConvRejVars.probes = cms.InputTag("goodPhotons")
 
 process.GsfDRToNearestJet = process.superClusterDRToNearestJet.clone()
 process.GsfDRToNearestJet.probes = cms.InputTag( ELECTRON_COLL )
@@ -419,10 +425,13 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
     #process.ak5PFResidual + 
     process.superClusterDRToNearestJet +
     process.JetMultiplicityInSCEvents +
+    process.SCConvRejVars +
     process.PhotonDRToNearestJet +
     process.JetMultiplicityInPhotonEvents +    
+    process.PhotonConvRejVars + 
     process.GsfDRToNearestJet +
-    process.JetMultiplicityInGsfEvents
+    process.JetMultiplicityInGsfEvents +
+    process.GsfConvRejVars
     )
 
 
@@ -433,8 +442,7 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 ##     |_|\__,_|\__, | |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
 ##              |___/
 ## 
-#process.Tag = process.PassingHLT.clone()
-process.Tag = process.PassingWP80.clone()
+process.Tag = process.PassingHLT.clone()
 process.Tag.InputProducer = cms.InputTag( "PassingWP80" )
 process.TagMatchedSuperClusterCandsClean = cms.EDProducer("ElectronMatchedCandidateProducer",
    src     = cms.InputTag("goodSuperClustersClean"),
@@ -774,11 +782,11 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_theta  = cms.string("theta"),    
     probe_gsfEle_charge = cms.string("charge"),
     probe_gsfEle_rapidity  = cms.string("rapidity"),
-    probe_gsfEle_missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+    probe_gsfEle_missingHits = cms.string("gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')"),
     probe_gsfEle_convDist = cms.string("convDist"),
     probe_gsfEle_convDcot = cms.string("convDcot"),
     probe_gsfEle_convRadius = cms.string("convRadius"),        
-    probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
+    probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel()"),
     ## super cluster quantities
     probe_sc_energy = cms.string("superCluster.energy"),
     probe_sc_et    = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
@@ -852,11 +860,11 @@ TagVariablesToStore = cms.PSet(
     gsfEle_theta  = cms.string("theta"),    
     gsfEle_charge = cms.string("charge"),
     gsfEle_rapidity  = cms.string("rapidity"),
-    gsfEle_missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+    gsfEle_missingHits = cms.string("gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')"),
     gsfEle_convDist = cms.string("convDist"),
     gsfEle_convDcot = cms.string("convDcot"),
     gsfEle_convRadius = cms.string("convRadius"),     
-    gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
+    gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel()"),
     ## super cluster quantities
     sc_energy = cms.string("superCluster.energy"),
     sc_et     = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
@@ -1035,6 +1043,10 @@ process.SuperClusterToGsfElectron = cms.EDAnalyzer("TagProbeFitTreeProducer",
 )
 process.SuperClusterToGsfElectron.variables.probe_dRjet = cms.InputTag("superClusterDRToNearestJet")
 process.SuperClusterToGsfElectron.variables.probe_nJets = cms.InputTag("JetMultiplicityInSCEvents")
+process.SuperClusterToGsfElectron.variables.probe_dist = cms.InputTag("SCConvRejVars","dist")
+process.SuperClusterToGsfElectron.variables.probe_dcot = cms.InputTag("SCConvRejVars","dcot")
+process.SuperClusterToGsfElectron.variables.probe_convradius = cms.InputTag("SCConvRejVars","convradius")
+process.SuperClusterToGsfElectron.variables.probe_passConvRej = cms.InputTag("SCConvRejVars","passConvRej")
 process.SuperClusterToGsfElectron.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
 process.SuperClusterToGsfElectron.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.SuperClusterToGsfElectron.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
@@ -1047,8 +1059,11 @@ process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight2 = cms.InputTag(
 process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.SuperClusterToGsfElectron.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
-if MC_flag:
-    process.SuperClusterToGsfElectron.PUWeightSrc = cms.InputTag("pileupReweightingProducer","pileupWeights")
+process.SuperClusterToGsfElectron.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.SuperClusterToGsfElectron.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.SuperClusterToGsfElectron.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.SuperClusterToGsfElectron.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+
 
 
 ## good photon --> gsf electron
@@ -1082,6 +1097,10 @@ process.PhotonToGsfElectron.variables.probe_ecaliso = cms.string("ecalRecHitSumE
 process.PhotonToGsfElectron.variables.probe_hcaliso = cms.string("hcalTowerSumEtConeDR03")
 process.PhotonToGsfElectron.variables.probe_HoverE  = cms.string("hadronicOverEm")
 process.PhotonToGsfElectron.variables.probe_sigmaIetaIeta = cms.string("sigmaIetaIeta")
+process.PhotonToGsfElectron.variables.probe_dist = cms.InputTag("PhotonConvRejVars","dist")
+process.PhotonToGsfElectron.variables.probe_dcot = cms.InputTag("PhotonConvRejVars","dcot")
+process.PhotonToGsfElectron.variables.probe_convradius = cms.InputTag("PhotonConvRejVars","convradius")
+process.PhotonToGsfElectron.variables.probe_passConvRej = cms.InputTag("PhotonConvRejVars","passConvRej")
 process.PhotonToGsfElectron.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
 process.PhotonToGsfElectron.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.PhotonToGsfElectron.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
@@ -1094,7 +1113,10 @@ process.PhotonToGsfElectron.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHy
 process.PhotonToGsfElectron.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.PhotonToGsfElectron.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.PhotonToGsfElectron.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
-
+process.PhotonToGsfElectron.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.PhotonToGsfElectron.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.PhotonToGsfElectron.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.PhotonToGsfElectron.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 
 ##   ____      __       __    ___                 ___    _ 
 ##  / ___|___ / _|      \ \  |_ _|___  ___       |_ _|__| |
@@ -1140,6 +1162,10 @@ process.GsfElectronToId.variables.probe_eidCicHyperTight2 = cms.InputTag("eidHyp
 process.GsfElectronToId.variables.probe_eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.GsfElectronToId.variables.probe_eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.GsfElectronToId.variables.probe_eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.GsfElectronToId.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToId.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToId.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToId.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 process.GsfElectronToId.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
 process.GsfElectronToId.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.GsfElectronToId.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
@@ -1152,6 +1178,10 @@ process.GsfElectronToId.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHyperT
 process.GsfElectronToId.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.GsfElectronToId.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.GsfElectronToId.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.GsfElectronToId.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToId.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToId.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToId.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 process.GsfElectronToId.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
 process.GsfElectronToId.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
 process.GsfElectronToId.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")
