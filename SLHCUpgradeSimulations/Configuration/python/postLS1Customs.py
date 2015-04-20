@@ -49,6 +49,8 @@ def customisePostLS1(process):
     # 25ns specific customisation
     if hasattr(process,'digitisation_step'):
         process = customise_Digi_25ns(process)
+    if hasattr(process,'dqmoffline_step'):
+        process = customise_DQM_25ns(process)
 
     return process
 
@@ -99,6 +101,16 @@ def customise_DQM(process):
     #process.dqmoffline_step.remove(process.jetMETAnalyzer)
     # Turn off flag of gangedME11a
     process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
+    # Turn off "low bias voltage" region in HCAL noise filters
+    if hasattr(process,'HBHENoiseFilterResultProducer'):
+        process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
+    return process
+
+
+def customise_DQM_25ns(process):
+    # Switch the default decision of the HCAL noise filter
+    if hasattr(process,'HBHENoiseFilterResultProducer'):
+        process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
     return process
 
 
