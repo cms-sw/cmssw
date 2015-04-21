@@ -15,7 +15,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -24,7 +23,8 @@
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
    : dqmStore_( edm::Service<DQMStore>().operator->() )
    , conf_(iConfig), m_cacheID_(0)
-   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector())) {
+   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector()))
+   , avalidator_(iConfig, consumesCollector()) {
   ModOn = conf_.getParameter<bool>("Mod_On");
 }
 
@@ -157,7 +157,6 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  TrackerValidationVariables avalidator_(iSetup,conf_);
   std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;
   avalidator_.fillHitQuantities(iEvent,v_hitstruct);
   for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = v_hitstruct.begin(),

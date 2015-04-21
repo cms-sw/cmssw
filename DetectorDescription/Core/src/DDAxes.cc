@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDAxes.h"
 
-namespace DDI { } using namespace DDI;
+using namespace DDI;
 
 AxesNames::AxesNames()
   : axesmap_{{"x", x }, {"y", y}, {"z", z}, {"rho", rho}, {"radial3D", radial3D}, {"phi", phi}, {"undefined", undefined }}
