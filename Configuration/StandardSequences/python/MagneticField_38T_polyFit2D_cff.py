@@ -1,7 +1,6 @@
-import FWCore.ParameterSet.Config as cms
+#Configuration for teh RUN 1 field map + detailed (2D) parametrization of tracker region.
 
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine.
+import FWCore.ParameterSet.Config as cms
 from MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi import *
 
 
