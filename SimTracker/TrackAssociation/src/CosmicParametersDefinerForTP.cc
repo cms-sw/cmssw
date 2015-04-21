@@ -9,6 +9,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "SimTracker/TrackAssociatorESProducer/src/TrackAssociatorByPositionESProducer.hh"
 #include <DataFormats/GeometrySurface/interface/Surface.h>
 #include <DataFormats/GeometrySurface/interface/GloballyPositioned.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
@@ -28,6 +30,8 @@ TrackingParticle::Vector
 
   ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  edm::ESHandle<GlobalTrackingGeometry> theGeometry;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);
   
   edm::ESHandle<MagneticField> theMF;
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
@@ -35,15 +39,15 @@ TrackingParticle::Vector
   edm::Handle<reco::BeamSpot> bs;
   iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
 
-  // cout<<"TrackingParticle pdgId = "<<tpr->pdgId()<<endl;
-  // cout<<"with tpr->vertex(): ("<<tpr->vertex().x()<<", "<<tpr->vertex().y()<<", "<<tpr->vertex().z()<<")"<<endl;
-  // cout<<"with tpr->momentum(): ("<<tpr->momentum().x()<<", "<<tpr->momentum().y()<<", "<<tpr->momentum().z()<<")"<<endl;
-  
-  GlobalVector finalGV;
-  GlobalPoint finalGP;
+  GlobalVector finalGV(0,0,0);
+  GlobalPoint finalGP(0,0,0);
   double radius(9999);
   bool found(0);
   TrackingParticle::Vector momentum(0,0,0);
+
+  edm::LogVerbatim("CosmicParametersDefinerForTP")<<"\t in CosmicParametersDefinerForTP::momentum"; 
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"\t \t Original TP state:          pt = "<<tpr->pt()<<", pz = "<<tpr->pz();
 
   if (simHitsTPAssoc.isValid()==0) {
     LogError("TrackAssociation") << "Invalid handle!";
@@ -55,11 +59,21 @@ TrackingParticle::Vector
 				clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
   for(auto ip = range.first; ip != range.second; ++ip) {
     TrackPSimHitRef it = ip->second;
-    const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
+    const GeomDet* tmpDet  = theGeometry->idToDet( DetId(it->detUnitId()) ) ;
+    if (!tmpDet) {
+      edm::LogVerbatim("CosmicParametersDefinerForTP")
+	<<"***WARNING in CosmicParametersDefinerForTP::momentum: no GeomDet for: "<<it->detUnitId()<<". Skipping it."<<"\n";
+      continue;
+    } 
+
     LocalVector  lv = it->momentumAtEntry();
     Local3DPoint lp = it->localPosition ();
     GlobalVector gv = tmpDet->surface().toGlobal( lv );
     GlobalPoint  gp = tmpDet->surface().toGlobal( lp );
+
+    // discard hits related to low energy debris from the primary particle
+    if (it->processType()!=0) continue;
+
     if(gp.perp()<radius){
       found=true;
       radius = gp.perp();
@@ -68,21 +82,36 @@ TrackingParticle::Vector
     }
   }
 
-  //cout<<"found = "<<found<<endl;
-  // cout<<"Closest Hit Position: ("<<finalGP.x()<<", "<<finalGP.y()<<", "<<finalGP.z()<<")"<<endl;
-  //cout<<"Momentum at Closest Hit to BL: ("<<finalGV.x()<<", "<<finalGV.y()<<", "<<finalGV.z()<<")"<<endl;
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    //   <<"\t FINAL State at InnerMost Hit: Radius = "<< finalGP.perp() << ", z = "<< finalGP.z() 
+    //  <<", pt = "<< finalGV.perp() << ", pz = "<< finalGV.z();
+    <<"\t \t FINAL State at InnerMost Hit:   pt = "<< finalGV.perp() << ", pz = "<< finalGV.z();
 
   if(found) 
     {
       FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tpr->charge()),theMF.product());
       TSCBLBuilderNoMaterial tscblBuilder;
       TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
+
       if(tsAtClosestApproach.isValid()){
 	GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
 	momentum = TrackingParticle::Vector(p.x(), p.y(), p.z());
       }
+      else {
+	edm::LogVerbatim("CosmicParametersDefinerForTP")
+	  <<"*** WARNING in CosmicParametersDefinerForTP::momentum: tsAtClosestApproach is not valid." <<"\n";
+      }
+
+      edm::LogVerbatim("CosmicParametersDefinerForTP")
+	<<"\t \t FINAL State extrap. at PCA: pt = "<< sqrt(momentum.x()*momentum.x()+momentum.y()*momentum.y()) << ", pz = "<< momentum.z() <<"\n";
+
       return momentum;
     }
+
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"*** WARNING in CosmicParametersDefinerForTP::momentum: NOT found the innermost TP point" <<"\n";
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"*** FINAL Reference MOMENTUM TP (px,py,pz) = "<<momentum.x()<<momentum.y()<<momentum.z()<<"\n";
   return momentum;
 }
 
@@ -94,6 +123,8 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
 
   ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  edm::ESHandle<GlobalTrackingGeometry> theGeometry;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);    
   
   edm::ESHandle<MagneticField> theMF;
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
@@ -101,11 +132,15 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
   edm::Handle<reco::BeamSpot> bs;
   iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
 
-  GlobalVector finalGV;
-  GlobalPoint finalGP;
+  GlobalVector finalGV(0,0,0);
+  GlobalPoint finalGP(0,0,0);
   double radius(9999);
   bool found(0);
   TrackingParticle::Point vertex(0,0,0);
+
+  edm::LogVerbatim("CosmicParametersDefinerForTP")<<"\t in CosmicParametersDefinerForTP::vertex";
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"\t \t Original TP state:          radius = "<<sqrt(tpr->vertex().x()*tpr->vertex().x()+tpr->vertex().y()*tpr->vertex().y())<<", z = "<<tpr->vertex().z();
 
   if (simHitsTPAssoc.isValid()==0) {
     LogError("TrackAssociation") << "Invalid handle!";
@@ -117,11 +152,21 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
 				clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
   for(auto ip = range.first; ip != range.second; ++ip) {
     TrackPSimHitRef it = ip->second;
-    const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
+    const GeomDet* tmpDet  = theGeometry->idToDet( DetId(it->detUnitId()) ) ;
+    if (!tmpDet) {
+      edm::LogVerbatim("CosmicParametersDefinerForTP")
+	<<"***WARNING in CosmicParametersDefinerForTP::vertex: no GeomDet for: "<<it->detUnitId()<<". Skipping it."<<"\n";
+      continue;
+    }
+
     LocalVector  lv = it->momentumAtEntry();
     Local3DPoint lp = it->localPosition ();
     GlobalVector gv = tmpDet->surface().toGlobal( lv );
     GlobalPoint  gp = tmpDet->surface().toGlobal( lp );
+
+    // discard hits related to low energy debris from the primary particle
+    if (it->processType()!=0) continue;
+
     if(gp.perp()<radius){
       found=true;
       radius = gp.perp();
@@ -129,17 +174,35 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
       finalGP = gp;
     }
   }
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"\t \t FINAL State at InnerMost Hit:   radius = "<< finalGP.perp() << ", z = "<< finalGP.z();
+
   if(found)
     {
       FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tpr->charge()),theMF.product());
       TSCBLBuilderNoMaterial tscblBuilder;
       TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
+
       if(tsAtClosestApproach.isValid()){
 	GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
 	vertex = TrackingParticle::Point(v.x()-bs->x0(),v.y()-bs->y0(),v.z()-bs->z0());
       }
+      else {
+	edm::LogVerbatim("CosmicParametersDefinerForTP")
+	  <<"*** WARNING in CosmicParametersDefinerForTP::vertex: tsAtClosestApproach is not valid." <<"\n";
+      }
+      edm::LogVerbatim("CosmicParametersDefinerForTP")
+	<<"\t \t FINAL State extrap. at PCA: radius = "
+        <<sqrt(vertex.x()*vertex.x()+vertex.y()*vertex.y())<<", z = "<<vertex.z()<<"\n";
+
       return vertex;
     }
+
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"*** WARNING in CosmicParametersDefinerForTP::vertex: NOT found the innermost TP point" <<"\n";
+  edm::LogVerbatim("CosmicParametersDefinerForTP")
+    <<"*** FINAL Reference VERTEX TP   V(x,y,z) = "<<vertex.x()<<vertex.y()<<vertex.z()<<"\n";
+
   return vertex;
 }
 
