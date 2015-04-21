@@ -155,6 +155,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
                                         std::vector<recoPrimaryVertex>&,
                                         int, bool);
 
+  double calculateSharedTrackFraction(const recoPrimaryVertex& recoV, const TrackingVertex& simV) const;
+
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);
 
