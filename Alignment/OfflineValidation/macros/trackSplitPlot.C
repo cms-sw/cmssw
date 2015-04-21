@@ -556,23 +556,15 @@ void saveplot(TCanvas *c1,TString saveas)
     if (saveas == "")
         return;
     TString saveas2 = saveas,
-            saveas3 = saveas,
-            saveas4;
+            saveas3 = saveas;
     saveas2.ReplaceAll(".pngepsroot","");
     saveas3.Remove(saveas3.Length()-11);
     if (saveas2 == saveas3)
     {
-        stringstream s1,s2,s3;
-        s1 << saveas2 << ".png";
-        s2 << saveas2 << ".eps";
-        s3 << saveas2 << ".root";
-        saveas2 = s1.str();
-        saveas3 = s2.str();
-        saveas4 = s3.str();
-        c1->SaveAs(saveas2);
-        c1->SaveAs(saveas3);
-        c1->SaveAs(saveas4);
-        return;
+        c1->SaveAs(saveas.ReplaceAll(".pngepsroot",".png"));
+        c1->SaveAs(saveas.ReplaceAll(".png",".eps"));
+        c1->SaveAs(saveas.ReplaceAll(".eps",".root"));
+        c1->SaveAs(saveas.ReplaceAll(".root",".pdf"));
     }
     else
     {
