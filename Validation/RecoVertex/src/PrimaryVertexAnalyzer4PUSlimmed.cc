@@ -35,6 +35,8 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
           iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
       abs_z_match_(
           iConfig.getUntrackedParameter<double>("abs_z_match", 0.1)),
+      shared_track_fraction_match_(
+          iConfig.getUntrackedParameter<double>("shared_track_fraction_match", -1)),
       root_folder_(
           iConfig.getUntrackedParameter<std::string>("root_folder",
                                                 "Validation/Vertices")),
@@ -561,9 +563,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book1dlogx("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", 15, &log_pt2_bins[0]);
 
     // Shared tracks
-    book1d("RecoAllAssoc2GenSingleMatched_SharedTracks", 100, 0, 1);
-    book1d("RecoAllAssoc2MultiMatchedGen_SharedTracks", 100, 0, 1);
-    book1d("RecoAllAssoc2GenMultiMatched_SharedTracks", 100, 0, 1);
+    book1d("RecoAllAssoc2GenSingleMatchedSpatial_SharedTracks", 100, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatchedSpatial_SharedTracks", 100, 0, 1);
   }
 }
 
@@ -658,11 +659,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
       mes_[label]["RecoAllAssoc2GenMatched_ClosestDistanceZ"]
           ->Fill(v.closest_vertex_distance_z);
 
-    const double sharedTracks = calculateSharedTrackFraction(v, *(v.sim_vertices[0]));
-    if(v.sim_vertices.size() == 1) {
-      mes_[label]["RecoAllAssoc2GenSingleMatched_SharedTracks"]->Fill(sharedTracks);
-    }
-
     // Fill resolution and pull plots here (as in MultiTrackValidator)
     fillResolutionAndPullHistograms(label, num_pileup_vertices, v);
 
@@ -681,8 +677,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
       if (v.closest_vertex_distance_z > 0.)
         mes_[label]["RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ"]
             ->Fill(v.closest_vertex_distance_z);
-
-      mes_[label]["RecoAllAssoc2MultiMatchedGen_SharedTracks"]->Fill(sharedTracks);
     }
     // This is meant to be used as "denominator" for the merge-rate
     // plots produced starting from reco quantities. We   enter here
@@ -707,14 +701,20 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     if (v.sim_vertices_internal[0]->closest_vertex_distance_z > 0.)
       mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"]
           ->Fill(v.sim_vertices_internal[0]->closest_vertex_distance_z);
-
-    for(const auto &simV: v.sim_vertices) {
-      const double shared = calculateSharedTrackFraction(v, *simV);
-      mes_[label]["RecoAllAssoc2GenMultiMatched_SharedTracks"]->Fill(shared);
-    }
-
   }
   mes_[label]["RecoAllAssoc2GenProperties"]->Fill(v.kind_of_vertex);
+
+
+  if(v.sim_vertices_shared_fraction_only_spatial_matching.size() == 1) {
+    mes_[label]["RecoAllAssoc2GenSingleMatchedSpatial_SharedTracks"]->Fill(v.sim_vertices_shared_fraction_only_spatial_matching[0]);
+  }
+  else if(v.sim_vertices_shared_fraction_only_spatial_matching.size() > 1) {
+    for(double fraction: v.sim_vertices_shared_fraction_only_spatial_matching) {
+      mes_[label]["RecoAllAssoc2GenMultiMatchedSpatial_SharedTracks"]->Fill(fraction);
+    }
+  }
+
+
 }
 
 void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
@@ -851,9 +851,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::calculatePurityAndFillHistograms(
     mes_[label]["RecoAssoc2GenPVMatchedNotHighest_Pt2"]->Fill(recopvs[genpv_position_in_reco_collection].ptsq);
 }
 
-double PrimaryVertexAnalyzer4PUSlimmed::calculateSharedTrackFraction(const recoPrimaryVertex& recoV, const TrackingVertex& simV) const {
+double PrimaryVertexAnalyzer4PUSlimmed::calculateSharedTrackFraction(const reco::Vertex& recoV, const TrackingVertex& simV) const {
   size_t sharedTracks = 0;
-  for(auto iTrack = recoV.recVtx->tracks_begin(); iTrack != recoV.recVtx->tracks_end(); ++iTrack) {
+  for(auto iTrack = recoV.tracks_begin(); iTrack != recoV.tracks_end(); ++iTrack) {
     auto found = r2s_->find(*iTrack);
 
     if(found == r2s_->end())
@@ -870,9 +870,7 @@ double PrimaryVertexAnalyzer4PUSlimmed::calculateSharedTrackFraction(const recoP
     }
   }
 
-  //std::cout << " reco vtx ntracks " << recoV.nRecoTrk << " sim " << simV.nDaughterTracks() << " shared " << sharedTracks << std::endl;
-
-  return double(sharedTracks)/recoV.nRecoTrk;
+  return double(sharedTracks)/recoV.tracksSize();
 }
 
 /* Extract information form TrackingParticles/TrackingVertex and fill
@@ -1144,11 +1142,19 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(
       }
       if (((fabs(vrec->z() - vsim->z) / vrec->zError()) < sigma_z_match_)
           && (fabs(vrec->z() - vsim->z) < abs_z_match_)) {
-        vsim->rec_vertices.push_back(&(*vrec));
-        if (verbose_) {
-          std::cout << "Trying a matching vertex for " << vsim->z << " at "
-                    << vrec->z() << " with sign: "
-                    << fabs(vrec->z() - vsim->z) / vrec->zError() << std::endl;
+        const double sharedTrackFraction = calculateSharedTrackFraction(*vrec, *(vsim->sim_vertex));
+
+        if(shared_track_fraction_match_ < 0 ||
+           sharedTrackFraction > shared_track_fraction_match_) {
+ 
+          vsim->rec_vertices.push_back(&(*vrec));
+          if (verbose_) {
+            std::cout << "Trying a matching vertex for " << vsim->z << " at "
+                      << vrec->z() << " with sign: "
+                      << fabs(vrec->z() - vsim->z) / vrec->zError()
+                      << " shared track fraction " << sharedTrackFraction
+                      << std::endl;
+          }
         }
       }
     }  // end of loop on reconstructed vertices
@@ -1198,21 +1204,28 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
       if (((fabs(vrec->z - vsim->position().z()) / vrec->recVtx->zError()) <
           sigma_z_match_)
           && (fabs(vrec->z - vsim->position().z()) < abs_z_match_)) {
-        //calculateSharedTrackFraction(*vrec, *vsim);
-        vrec->sim_vertices.push_back(&(*vsim));
-        for (std::vector<simPrimaryVertex>::const_iterator vv = simpv.begin();
-             vv != simpv.end(); vv++) {
-          if (vv->sim_vertex == &(*vsim)) {
-            vrec->sim_vertices_internal.push_back(&(*vv));
-          }
-        }
 
-        if (verbose_) {
-          std::cout << "Matching Reco vertex for " << vrec->z
-                    << " at Sim Vertex " << vsim->position().z()
-                    << " with sign: " << fabs(vsim->position().z() - vrec->z) /
-                                             vrec->recVtx->zError()
-                    << std::endl;
+        const double sharedTrackFraction = calculateSharedTrackFraction(*(vrec->recVtx), *vsim);
+        vrec->sim_vertices_shared_fraction_only_spatial_matching.push_back(sharedTrackFraction);
+
+        if(shared_track_fraction_match_ < 0 ||
+           sharedTrackFraction > shared_track_fraction_match_) {
+          vrec->sim_vertices.push_back(&(*vsim));
+          for (std::vector<simPrimaryVertex>::const_iterator vv = simpv.begin();
+               vv != simpv.end(); vv++) {
+            if (vv->sim_vertex == &(*vsim)) {
+              vrec->sim_vertices_internal.push_back(&(*vv));
+            }
+          }
+
+          if (verbose_) {
+            std::cout << "Matching Reco vertex for " << vrec->z
+                      << " at Sim Vertex " << vsim->position().z()
+                      << " with sign: " << fabs(vsim->position().z() - vrec->z) /
+                                               vrec->recVtx->zError()
+                      << " shared track fraction " << sharedTrackFraction
+                      << std::endl;
+          }
         }
       }
     }  // end of loop on simulated vertices

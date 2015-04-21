@@ -115,6 +115,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
     double purity; // calculated and assigned in calculatePurityAndFillHistograms
     int nRecoTrk;
     int kind_of_vertex;
+    std::vector<double> sim_vertices_shared_fraction_only_spatial_matching;
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
     const reco::Vertex *recVtx;
@@ -155,7 +156,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
                                         std::vector<recoPrimaryVertex>&,
                                         int, bool);
 
-  double calculateSharedTrackFraction(const recoPrimaryVertex& recoV, const TrackingVertex& simV) const;
+  double calculateSharedTrackFraction(const reco::Vertex& recoV, const TrackingVertex& simV) const;
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);
@@ -172,6 +173,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public edm::EDAnalyzer {
   bool use_TP_associator_;
   double sigma_z_match_;
   double abs_z_match_;
+  double shared_track_fraction_match_;
   std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
