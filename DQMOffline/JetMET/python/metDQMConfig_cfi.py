@@ -149,7 +149,7 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
-    fillMetHighLevel = cms.bool(True),
+    fillMetHighLevel = cms.bool(False),
     fillCandidateMaps = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),

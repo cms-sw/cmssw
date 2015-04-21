@@ -20,7 +20,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"2
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -861,10 +861,6 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     meCHFracEndCapMinus_BXm2BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
     mePtEndCapMinus_BXm2BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
     mePtEndCapMinus_BXm2BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
-    meCHFracEndCapMinus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
-    meCHFracEndCapMinus_BXm2BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
-    mePtEndCapMinus_BXm2BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
-    mePtEndCapMinus_BXm2BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
     meHFHFracMinus_BXm2BXm1Empty   = ibooker.book1D("HFHFracMinus_BXm2BXm1Empty",   "HFHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
     meHFHFracMinus_BXm2BXm1Filled = ibooker.book1D("HFHFracMinus_BXm2BXm1Filled", "HFHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
     meHFEMFracMinus_BXm2BXm1Empty   = ibooker.book1D("HFEMFracMinus_BXm2BXm1Empty",   "HFEMFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
@@ -939,10 +935,6 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     mePhFracEndCapMinus_BXm1Filled        = ibooker.book1D("PhFracEndCapMinus_BXm1Filled",      "PHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
     meNHFracEndCapMinus_BXm1Empty   = ibooker.book1D("NHFracEndCapMinus_BXm1Empty",   "NHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
     meNHFracEndCapMinus_BXm1Filled = ibooker.book1D("NHFracEndCapMinus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
-    meCHFracEndCapMinus_BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
-    meCHFracEndCapMinus_BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
-    mePtEndCapMinus_BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm1Empty",   "pT prev empty 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
-    mePtEndCapMinus_BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm1Filled", "pT prev filled 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
     meCHFracEndCapMinus_BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
     meCHFracEndCapMinus_BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
     mePtEndCapMinus_BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm1Empty",   "pT prev empty 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
