@@ -50,8 +50,8 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     virtual void beginJob() override;
     virtual void endJob() override;
     virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 
   protected:
