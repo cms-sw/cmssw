@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("APVGAIN")
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 #this block is there to solve issue related to SiStripQualityRcd
@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.GlobalTag.globaltag = 'XXX_GT_XXX::All'
+process.GlobalTag.globaltag = 'XXX_GT_XXX'
 
 calibTreeList = cms.vstring()
 XXX_CALIBTREE_XXX
