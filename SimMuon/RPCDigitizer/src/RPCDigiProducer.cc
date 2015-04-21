@@ -90,7 +90,8 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
   LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
-  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] Fired RandFlat :: "<<CLHEP::RandFlat::shoot(engine);
+  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] to activate the test go in RPCDigiProducer.cc and uncomment the line below";
+  // LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] Fired RandFlat :: "<<CLHEP::RandFlat::shoot(engine);
 
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
