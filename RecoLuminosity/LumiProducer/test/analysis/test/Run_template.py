@@ -54,7 +54,6 @@ process.lumi = cms.EDAnalyzer(
     dumpAllEvents                = cms.untracked.int32(0),
     vertexCollLabel              = cms.untracked.InputTag('offlinePrimaryVertices'),
     pixelClusterLabel            = cms.untracked.InputTag('siPixelClusters'),
-    HLTProcessName               = cms.untracked.string('HLT'), 
     saveType                     = cms.untracked.string('LumiSect'), # LumiSect, LumiNib, Event
     sampleType                   = cms.untracked.string('DATA'), # MC, DATA
     L1GTReadoutRecordLabel       = cms.untracked.InputTag('gtDigis'), 

@@ -43,16 +43,15 @@ class RectangularPixelTopology;
 class DetId; 
 
 
-class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {
   public:
-    //explicit PCCNTupler(const edm::ParameterSet& ps);
     PCCNTupler(const edm::ParameterSet&);
     virtual ~PCCNTupler();
     virtual void beginJob() override;
     virtual void endJob() override;
     virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-    virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-    virtual void endRun(edm::Run const&, edm::EventSetup const&);
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 
   protected:
@@ -80,7 +79,6 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     int             fDumpAllEvents;
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPixelClusterLabel;
-    std::string     fHLTProcessName; 
 
     bool fAccessSimHitInfo;
 
@@ -106,9 +104,6 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     int nDeadModules;
     uint32_t  deadModules[6]; 
     int nDeadPrint; 
-
-    HLTConfigProvider fHltConfig;  
-    bool fValidHLTConfig;
 
     // saving events per LS, LN or event
     std::string saveType = "LumiSect"; // LumiSect or LumiNib or Event

@@ -45,7 +45,6 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
     fPrimaryVertexCollectionLabel(iConfig.getUntrackedParameter<InputTag>("vertexCollLabel", edm::InputTag("offlinePrimaryVertices"))), 
     fPixelClusterLabel(iConfig.getUntrackedParameter<InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters"))), 
-    fHLTProcessName(iConfig.getUntrackedParameter<string>("HLTProcessName")),
     saveType(iConfig.getUntrackedParameter<string>("saveType")),
     sampleType(iConfig.getUntrackedParameter<string>("sampleType"))
 {
@@ -94,7 +93,6 @@ PCCNTupler::~PCCNTupler() { }
 
 // ----------------------------------------------------------------------
 void PCCNTupler::endJob() { 
-    tree->Fill();
     cout << "==>PCCNTupler> Succesfully gracefully ended job" << endl;
 }
 
@@ -104,17 +102,13 @@ void PCCNTupler::beginJob() {
 }
 
 
-// ----------------------------------------------------------------------
-void  PCCNTupler::beginRun(const Run &run, const EventSetup &iSetup) {
-    bool hasChanged;
-    fValidHLTConfig = fHltConfig.init(run,iSetup,fHLTProcessName,hasChanged);
+void PCCNTupler::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& isetup){
+    firstEvent = true;
 }
 
-// ----------------------------------------------------------------------
-void PCCNTupler::endRun(Run const&run, EventSetup const&iSetup) {
-    fValidHLTConfig = false;
-} 
-
+void PCCNTupler::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& isetup){
+    tree->Fill();
+}
 
 
 // ----------------------------------------------------------------------
@@ -128,7 +122,6 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     sameEvent = (eventNo==(int)iEvent.id().event());
     sameLumiNib = true; // FIXME where is this info?
     sameLumiSect = (LSNo==(int)iEvent.getLuminosityBlock().luminosityBlock());
-    firstEvent = (LSNo==-99);
     
     // When arriving at the new LS, LN or event the tree 
     // must be filled and branches must be reset.
