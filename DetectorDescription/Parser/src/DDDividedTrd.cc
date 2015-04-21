@@ -19,6 +19,8 @@
 #include <cmath>
 #include <cstdlib>
 
+using namespace DDI;
+
 DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject(div,cpv)
 {
