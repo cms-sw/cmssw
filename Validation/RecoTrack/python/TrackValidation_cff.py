@@ -12,104 +12,104 @@ import cutsRecoTracks_cfi
 from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
 
 # Validation iterative steps
-cutsRecoTracksZero = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksZero.algorithm=cms.vstring("initialStep")
+cutsRecoTracksInitialStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksInitialStep.algorithm=cms.vstring("initialStep")
 
-cutsRecoTracksFirst = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksFirst.algorithm=cms.vstring("lowPtTripletStep")
+cutsRecoTracksLowPtTripletStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksLowPtTripletStep.algorithm=cms.vstring("lowPtTripletStep")
 
-cutsRecoTracksSecond = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksSecond.algorithm=cms.vstring("pixelPairStep")
+cutsRecoTracksPixelPairStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksPixelPairStep.algorithm=cms.vstring("pixelPairStep")
 
-cutsRecoTracksThird = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksThird.algorithm=cms.vstring("detachedTripletStep")
+cutsRecoTracksDetachedTripletStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksDetachedTripletStep.algorithm=cms.vstring("detachedTripletStep")
 
-cutsRecoTracksFourth = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksFourth.algorithm=cms.vstring("mixedTripletStep")
+cutsRecoTracksMixedTripletStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksMixedTripletStep.algorithm=cms.vstring("mixedTripletStep")
 
-cutsRecoTracksFifth = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksFifth.algorithm=cms.vstring("pixelLessStep")
+cutsRecoTracksPixelLessStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksPixelLessStep.algorithm=cms.vstring("pixelLessStep")
 
-cutsRecoTracksSixth = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksSixth.algorithm=cms.vstring("tobTecStep")
+cutsRecoTracksTobTecStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksTobTecStep.algorithm=cms.vstring("tobTecStep")
 
-cutsRecoTracksSeventh = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksSeventh.algorithm=cms.vstring("jetCoreRegionalStep")
+cutsRecoTracksJetCoreRegionalStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksJetCoreRegionalStep.algorithm=cms.vstring("jetCoreRegionalStep")
 
-cutsRecoTracksNinth = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksNinth.algorithm=cms.vstring("muonSeededStepInOut")
+cutsRecoTracksMuonSeededStepInOut = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksMuonSeededStepInOut.algorithm=cms.vstring("muonSeededStepInOut")
 
-cutsRecoTracksTenth = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksTenth.algorithm=cms.vstring("muonSeededStepOutIn")
+cutsRecoTracksMuonSeededStepOutIn = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksMuonSeededStepOutIn.algorithm=cms.vstring("muonSeededStepOutIn")
 
 # high purity
 cutsRecoTracksHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
 cutsRecoTracksHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksZeroHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksZeroHp.algorithm=cms.vstring("initialStep")
-cutsRecoTracksZeroHp.quality=cms.vstring("highPurity")
+cutsRecoTracksInitialStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksInitialStepHp.algorithm=cms.vstring("initialStep")
+cutsRecoTracksInitialStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksFirstHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksFirstHp.algorithm=cms.vstring("lowPtTripletStep")
-cutsRecoTracksFirstHp.quality=cms.vstring("highPurity")
+cutsRecoTracksLowPtTripletStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksLowPtTripletStepHp.algorithm=cms.vstring("lowPtTripletStep")
+cutsRecoTracksLowPtTripletStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksSecondHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksSecondHp.algorithm=cms.vstring("pixelPairStep")
-cutsRecoTracksSecondHp.quality=cms.vstring("highPurity")
+cutsRecoTracksPixelPairStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksPixelPairStepHp.algorithm=cms.vstring("pixelPairStep")
+cutsRecoTracksPixelPairStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksThirdHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksThirdHp.algorithm=cms.vstring("detachedTripletStep")
-cutsRecoTracksThirdHp.quality=cms.vstring("highPurity")
+cutsRecoTracksDetachedTripletStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksDetachedTripletStepHp.algorithm=cms.vstring("detachedTripletStep")
+cutsRecoTracksDetachedTripletStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksFourthHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksFourthHp.algorithm=cms.vstring("mixedTripletStep")
-cutsRecoTracksFourthHp.quality=cms.vstring("highPurity")
+cutsRecoTracksMixedTripletStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksMixedTripletStepHp.algorithm=cms.vstring("mixedTripletStep")
+cutsRecoTracksMixedTripletStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksFifthHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksFifthHp.algorithm=cms.vstring("pixelLessStep")
-cutsRecoTracksFifthHp.quality=cms.vstring("highPurity")
+cutsRecoTracksPixelLessStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksPixelLessStepHp.algorithm=cms.vstring("pixelLessStep")
+cutsRecoTracksPixelLessStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksSixthHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksSixthHp.algorithm=cms.vstring("tobTecStep")
-cutsRecoTracksSixthHp.quality=cms.vstring("highPurity")
+cutsRecoTracksTobTecStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksTobTecStepHp.algorithm=cms.vstring("tobTecStep")
+cutsRecoTracksTobTecStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksSeventhHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksSeventhHp.algorithm=cms.vstring("jetCoreRegionalStep")
-cutsRecoTracksSeventhHp.quality=cms.vstring("highPurity")
+cutsRecoTracksJetCoreRegionalStepHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksJetCoreRegionalStepHp.algorithm=cms.vstring("jetCoreRegionalStep")
+cutsRecoTracksJetCoreRegionalStepHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksNinthHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksNinthHp.algorithm=cms.vstring("muonSeededStepInOut")
-cutsRecoTracksNinthHp.quality=cms.vstring("highPurity")
+cutsRecoTracksMuonSeededStepInOutHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksMuonSeededStepInOutHp.algorithm=cms.vstring("muonSeededStepInOut")
+cutsRecoTracksMuonSeededStepInOutHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksTenthHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
-cutsRecoTracksTenthHp.algorithm=cms.vstring("muonSeededStepOutIn")
-cutsRecoTracksTenthHp.quality=cms.vstring("highPurity")
+cutsRecoTracksMuonSeededStepOutInHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
+cutsRecoTracksMuonSeededStepOutInHp.algorithm=cms.vstring("muonSeededStepOutIn")
+cutsRecoTracksMuonSeededStepOutInHp.quality=cms.vstring("highPurity")
 
 trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksHp"),
-                                   cms.InputTag("cutsRecoTracksZero"),
-                                   cms.InputTag("cutsRecoTracksZeroHp"),
-                                   cms.InputTag("cutsRecoTracksFirst"),
-                                   cms.InputTag("cutsRecoTracksFirstHp"),
-                                   cms.InputTag("cutsRecoTracksSecond"),
-                                   cms.InputTag("cutsRecoTracksSecondHp"),
-                                   cms.InputTag("cutsRecoTracksThird"),
-                                   cms.InputTag("cutsRecoTracksThirdHp"),
-                                   cms.InputTag("cutsRecoTracksFourth"),
-                                   cms.InputTag("cutsRecoTracksFourthHp"),
-                                   cms.InputTag("cutsRecoTracksFifth"),
-                                   cms.InputTag("cutsRecoTracksFifthHp"),
-                                   cms.InputTag("cutsRecoTracksSixth"),
-                                   cms.InputTag("cutsRecoTracksSixthHp"),
-                                   cms.InputTag("cutsRecoTracksSeventh"),
-                                   cms.InputTag("cutsRecoTracksSeventhHp"),
-                                   cms.InputTag("cutsRecoTracksNinth"),
-                                   cms.InputTag("cutsRecoTracksNinthHp"),
-                                   cms.InputTag("cutsRecoTracksTenth"),
-                                   cms.InputTag("cutsRecoTracksTenthHp"),
+                                   cms.InputTag("cutsRecoTracksInitialStep"),
+                                   cms.InputTag("cutsRecoTracksInitialStepHp"),
+                                   cms.InputTag("cutsRecoTracksLowPtTripletStep"),
+                                   cms.InputTag("cutsRecoTracksLowPtTripletStepHp"),
+                                   cms.InputTag("cutsRecoTracksPixelPairStep"),
+                                   cms.InputTag("cutsRecoTracksPixelPairStepHp"),
+                                   cms.InputTag("cutsRecoTracksDetachedTripletStep"),
+                                   cms.InputTag("cutsRecoTracksDetachedTripletStepHp"),
+                                   cms.InputTag("cutsRecoTracksMixedTripletStep"),
+                                   cms.InputTag("cutsRecoTracksMixedTripletStepHp"),
+                                   cms.InputTag("cutsRecoTracksPixelLessStep"),
+                                   cms.InputTag("cutsRecoTracksPixelLessStepHp"),
+                                   cms.InputTag("cutsRecoTracksTobTecStep"),
+                                   cms.InputTag("cutsRecoTracksTobTecStepHp"),
+                                   cms.InputTag("cutsRecoTracksJetCoreRegionalStep"),
+                                   cms.InputTag("cutsRecoTracksJetCoreRegionalStepHp"),
+                                   cms.InputTag("cutsRecoTracksMuonSeededStepInOut"),
+                                   cms.InputTag("cutsRecoTracksMuonSeededStepInOutHp"),
+                                   cms.InputTag("cutsRecoTracksMuonSeededStepOutIn"),
+                                   cms.InputTag("cutsRecoTracksMuonSeededStepOutInHp"),
                                    )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
@@ -119,26 +119,26 @@ trackValidator.useLogPt=cms.untracked.bool(True)
 
 # the track selectors
 tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
-                                cutsRecoTracksZero*
-                                cutsRecoTracksZeroHp*
-                                cutsRecoTracksFirst*
-                                cutsRecoTracksFirstHp*
-                                cutsRecoTracksSecond*
-                                cutsRecoTracksSecondHp*
-                                cutsRecoTracksThird*
-                                cutsRecoTracksThirdHp*
-                                cutsRecoTracksFourth*
-                                cutsRecoTracksFourthHp*
-                                cutsRecoTracksFifth*
-                                cutsRecoTracksFifthHp*
-                                cutsRecoTracksSixth*
-                                cutsRecoTracksSixthHp* 
-                                cutsRecoTracksSeventh*
-                                cutsRecoTracksSeventhHp* 
-                                cutsRecoTracksNinth*
-                                cutsRecoTracksNinthHp* 
-                                cutsRecoTracksTenth*
-                                cutsRecoTracksTenthHp )
+                                cutsRecoTracksInitialStep*
+                                cutsRecoTracksInitialStepHp*
+                                cutsRecoTracksLowPtTripletStep*
+                                cutsRecoTracksLowPtTripletStepHp*
+                                cutsRecoTracksPixelPairStep*
+                                cutsRecoTracksPixelPairStepHp*
+                                cutsRecoTracksDetachedTripletStep*
+                                cutsRecoTracksDetachedTripletStepHp*
+                                cutsRecoTracksMixedTripletStep*
+                                cutsRecoTracksMixedTripletStepHp*
+                                cutsRecoTracksPixelLessStep*
+                                cutsRecoTracksPixelLessStepHp*
+                                cutsRecoTracksTobTecStep*
+                                cutsRecoTracksTobTecStepHp*
+                                cutsRecoTracksJetCoreRegionalStep*
+                                cutsRecoTracksJetCoreRegionalStepHp*
+                                cutsRecoTracksMuonSeededStepInOut*
+                                cutsRecoTracksMuonSeededStepInOutHp*
+                                cutsRecoTracksMuonSeededStepOutIn*
+                                cutsRecoTracksMuonSeededStepOutInHp )
 tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
