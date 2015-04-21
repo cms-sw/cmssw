@@ -138,6 +138,7 @@ class HcalNoiseSummary
   bool HasBadRBXTS4TS5(void) const;
   bool HasBadRBXRechitR45Loose(void) const;
   bool HasBadRBXRechitR45Tight(void) const;
+  bool goodJetFoundInLowBVRegion(void) const;
 
   double GetCalibChargeHF(void) const;
   int    GetCalibCountHF(void)  const;
@@ -197,6 +198,7 @@ class HcalNoiseSummary
   bool hasBadRBXTS4TS5_;
   bool hasBadRBXRechitR45Loose_;
   bool hasBadRBXRechitR45Tight_;
+  bool goodJetFoundInLowBVRegion_;
 
   int calibCountTS45_;
   int calibCountgt15TS45_;
@@ -216,7 +218,6 @@ class HcalNoiseSummary
   edm::RefVector<CaloTowerCollection> loosenoisetwrs_;
   edm::RefVector<CaloTowerCollection> tightnoisetwrs_;
   edm::RefVector<CaloTowerCollection> hlnoisetwrs_;
-
 };
 
 #endif

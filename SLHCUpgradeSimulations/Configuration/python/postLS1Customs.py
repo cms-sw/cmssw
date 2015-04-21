@@ -99,6 +99,11 @@ def customise_DQM(process):
     #process.dqmoffline_step.remove(process.jetMETAnalyzer)
     # Turn off flag of gangedME11a
     process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
+    # Turn off "low bias voltage" region in HCAL noise filters
+    # and switch the default decision
+    if hasattr(process,'HBHENoiseFilterResultProducer'):
+        process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
+        process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
     return process
 
 
