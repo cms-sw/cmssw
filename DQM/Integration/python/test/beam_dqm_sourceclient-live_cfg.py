@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("BeamMonitor")
 
+#----------------------------------------------
+# Switch to change between firstStep and Pixel
+#-----------------------------------------------
+runFirstStepTrk = True  
+
 #----------------------------
 # Common part for PP and H.I Running
 #-----------------------------
@@ -33,16 +38,19 @@ process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
 #----------------------------
 # BeamMonitor
 #-----------------------------
-#process.load("DQM.BeamMonitor.BeamMonitor_cff") # for reducing/normal tracking
-process.load("DQM.BeamMonitor.BeamMonitor_Pixel_cff") #for pixel tracks/vertices
+if (runFirstStepTrk):
+    process.load("DQM.BeamMonitor.BeamMonitor_cff") # for reduced/firsStep/normal tracking
+else:
+    process.load("DQM.BeamMonitor.BeamMonitor_Pixel_cff") #for pixel tracks/vertices
+
 process.load("DQM.BeamMonitor.BeamSpotProblemMonitor_cff")
-process.load("DQM.BeamMonitor.BeamMonitorBx_cff")
-process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
+#process.load("DQM.BeamMonitor.BeamMonitorBx_cff")
+#process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
 process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
 
 ####  SETUP TRACKING RECONSTRUCTION ####
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
@@ -65,10 +73,10 @@ else:
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
   process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt'
-#process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
-#process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
-  process.dqmBeamMonitorBx.BeamFitter.WriteAscii = True
-  process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
+  #process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
+  #process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
+  #process.dqmBeamMonitorBx.BeamFitter.WriteAscii = False
+  #process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
 
 
 ## TKStatus
@@ -93,7 +101,10 @@ process.dqmBeamSpotProblemMonitor.AlarmONThreshold  = 10
 process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 12
 process.dqmBeamSpotProblemMonitor.nCosmicTrk        = 10
 process.dqmBeamSpotProblemMonitor.doTest            = False
-
+if (runFirstStepTrk):
+    process.dqmBeamSpotProblemMonitor.pixelTracks   = 'initialStepTracks'
+else:
+    process.dqmBeamSpotProblemMonitor.pixelTracks   = 'pixelTracks'
 
 process.qTester = cms.EDAnalyzer("QualityTester",
                                  qtList = cms.untracked.FileInPath('DQM/BeamMonitor/test/BeamSpotAvailableTest.xml'),
@@ -123,7 +134,7 @@ process = customise(process)
 
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.hpu_run):
 
-    print "Running pp"
+    print "beam_dqm_sourceclient-live_cfg: Running pp"
 
     process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
     process.csctfDigis.producer = cms.InputTag("rawDataCollector")
@@ -143,50 +154,73 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 
 
     process.load("Configuration.StandardSequences.Reconstruction_cff")
-    process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
-
-
     # Offline Beam Spot
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
-
-    process.dqmBeamMonitor.OnlineMode = True              
+    process.dqmBeamMonitor.OnlineMode = True
     process.dqmBeamMonitor.resetEveryNLumi = 5
     process.dqmBeamMonitor.resetPVEveryNLumi = 5
     process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
     process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
-    process.dqmBeamMonitor.PVFitter.errorScale = 1.3 #keep checking this with new release
 
+     
+    if (runFirstStepTrk): # first step tracking
+        print "beam_dqm_sourceclient-live_cfg:: firstStepTracking"
+        # Import TrackerLocalReco sequence
+        process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
+        # Import MeasurementTrackerEvents used during patter recognition
+        process.load('RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi')
+        #Import stuff to run the initial step - PreSplitting - of the
+        #iterative tracking and remove Calo-related sequences
+        process.load('RecoTracker.IterativeTracking.InitialStep_cff')
+        #Increase pT threashold at seeding stage (not so accurate)                                                                                      
+        process.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+      
+        # some inputs to BeamMonitor
+        process.dqmBeamMonitor.BeamFitter.TrackCollection = 'initialStepTracks'         
+        process.dqmBeamMonitor.primaryVertex = 'firstStepPrimaryVertices'
+        process.dqmBeamMonitor.PVFitter.VertexCollection = 'firstStepPrimaryVertices'
+   
+        process.dqmBeamMonitor.PVFitter.errorScale = 0.95 #keep checking this with new release expected close to 1
+ 
+        process.tracking_FirstStep  = cms.Sequence( process.siPixelDigis*
+                                                    process.siStripDigis*
+                                                    process.pixeltrackerlocalreco*
+                                                    process.striptrackerlocalreco*
+                                                    process.offlineBeamSpot*                          
+                                                    process.MeasurementTrackerEvent*
+                                                    process.siPixelClusterShapeCache*
+                                                    process.InitialStep
+                                                   )  
+  
+    else: # pixel tracking
+        print "beam_dqm_sourceclient-live_cfg:: pixelTracking"
+        process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
+        #pixel  track/vertices reco
+        process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+        process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
+        process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
+      
+        process.dqmBeamMonitor.PVFitter.errorScale = 1.25 #keep checking this with new release expected close to 1.2
+      
+        process.tracking_FirstStep  = cms.Sequence(process.siPixelDigis* 
+                                                   process.offlineBeamSpot*
+                                                   process.siPixelClusters*
+                                                   process.siPixelRecHits*
+                                                   process.siPixelClusterShapeCache*
+                                                   process.PixelLayerTriplets*
+                                                   process.recopixelvertexing
+                                                  )
+ 
 
     #TriggerName for selecting pv for DIP publication, NO wildcard needed here
     #it will pick all triggers which has these strings in theri name
     process.dqmBeamMonitor.jetTrigger  = cms.untracked.vstring("HLT_PAZeroBias_v",
                                                                "HLT_ZeroBias_v", 
-                                                               "HLT_QuadJet60_Di",
-                                                               "HLT_QuadJet80_L1",
-                                                               "HLT_QuadJet90_L1")
+                                                               "HLT_QuadJet")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 
-    #pixel  track/vertices reco
-    process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-
-    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
-
-    process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
-
-    process.tracking_FirstStep  = cms.Sequence(process.siPixelDigis* 
-                                               process.offlineBeamSpot*
-                                               process.siPixelClusters*
-                                               process.siPixelRecHits*
-                                               process.siPixelClusterShapeCache*
-                                               process.PixelLayerTriplets*
-#                                               process.pixelTracks*
-#                                               process.pixelVertices
-                                               process.recopixelvertexing
-                                           )
-
-    #--pixel tracking ends here-----
 
     process.p = cms.Path(process.scalersRawToDigi
                          *process.dqmTKStatus
@@ -205,7 +239,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 #--------------------------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
 
-    print "Running HI"
+    print "beam_dqm_sourceclient-live_cfg: Running HI"
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
     process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
@@ -232,7 +266,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.dqmBeamMonitor.BeamFitter.MinimumTotalLayers = 3   ## using pixel triplets
     process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
     process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
-    process.dqmBeamMonitor.PVFitter.errorScale = 1.3
+    process.dqmBeamMonitor.PVFitter.errorScale = 1.25
 
     process.dqmBeamMonitor.jetTrigger  = cms.untracked.vstring("HLT_HI")
 
