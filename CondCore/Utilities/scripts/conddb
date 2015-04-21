@@ -306,10 +306,12 @@ class Colors(object):
 
     	if ( stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode)  or  # we are running in a pipe
              args.nocolors ):
-            for member in dir(self):
-                if not member.startswith('_'):
-                    setattr(self, member, '')
+	     self.noColors()
 
+    def noColors(self):
+       for member in dir(self):
+           if not member.startswith('_'):
+               setattr(self, member, '')
 
 colors = None
 
@@ -951,6 +953,10 @@ def copy(args):
 
 
 def edit(args):
+
+    global colors
+    colors.noColors()
+
     connection = connect(args, read_only=False)
     session = connection.session()
 
