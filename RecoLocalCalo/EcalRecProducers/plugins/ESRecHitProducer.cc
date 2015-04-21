@@ -12,13 +12,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) {
-
-  digiToken_ = consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"));
-  rechitCollection_ = ps.getParameter<std::string>("ESrechitCollection");
+ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) :
+  digiToken_( consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection")) ),
+  rechitCollection_( ps.getParameter<std::string>("ESrechitCollection") )
+{
   produces<ESRecHitCollection>(rechitCollection_);
   
-  std::string componentType = ps.getParameter<std::string>("algo");
+  std::string const & componentType = ps.getParameter<std::string>("algo");
   worker_ = ESRecHitWorkerFactory::get()->create( componentType, ps );
 }
 
