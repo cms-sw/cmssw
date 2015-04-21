@@ -30,14 +30,14 @@ class ProbeMulteplicityProducer : public edm::EDProducer {
         virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-        edm::InputTag pairs_;            
+        edm::EDGetTokenT<reco::CandidateView> pairs_;            
         StringCutObjectSelector<reco::Candidate,true> pairCut_;  // lazy parsing, to allow cutting on variables not in reco::Candidate class
         StringCutObjectSelector<reco::Candidate,true> probeCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
 
 ProbeMulteplicityProducer::ProbeMulteplicityProducer(const edm::ParameterSet & iConfig) :
-    pairs_(iConfig.getParameter<edm::InputTag>("pairs")),
+    pairs_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("pairs"))),
     pairCut_(iConfig.existsAs<std::string>("pairSelection") ? iConfig.getParameter<std::string>("pairSelection") : "", true),
     probeCut_(iConfig.existsAs<std::string>("probeSelection") ? iConfig.getParameter<std::string>("probeSelection") : "", true)
 {
@@ -57,7 +57,7 @@ ProbeMulteplicityProducer::produce(edm::Event & iEvent, const edm::EventSetup & 
 
     // read input
     Handle<View<reco::Candidate> > pairs;
-    iEvent.getByLabel(pairs_,  pairs);
+    iEvent.getByToken(pairs_,  pairs);
     
     // fill
     unsigned int i = 0;

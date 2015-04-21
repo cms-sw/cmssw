@@ -19,8 +19,8 @@ namespace pat { namespace helper {
       typedef typename Map::Filler MapFiller;
       explicit AnythingToValueMap(const edm::ParameterSet & iConfig) :
             failSilently_(iConfig.getUntrackedParameter<bool>("failSilently", false)),
-            src_(iConfig.getParameter<edm::InputTag>("src")),
-            adaptor_(iConfig) { 
+            src_(consumes<Collection>(iConfig.getParameter<edm::InputTag>("src"))),
+            adaptor_(iConfig,consumesCollector()) { 
                 produces< Map >(adaptor_.label());
             }
       ~AnythingToValueMap() { }
@@ -29,14 +29,14 @@ namespace pat { namespace helper {
 
     private:
       bool failSilently_;
-      edm::InputTag src_;
+      edm::EDGetTokenT<Collection> src_;
       Adaptor adaptor_;
   };
 
 template<class Adaptor, class Collection, typename value_type>
 void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     edm::Handle<Collection> handle;
-    iEvent.getByLabel(src_, handle);
+    iEvent.getByToken(src_, handle);
     if (handle.failedToGet() && failSilently_) return;
 
     bool adaptorOk = adaptor_.init(iEvent); 
@@ -61,11 +61,11 @@ void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEv
       typedef typename Map::Filler MapFiller;
       explicit ManyThingsToValueMaps(const edm::ParameterSet & iConfig) :
             failSilently_(iConfig.getUntrackedParameter<bool>("failSilently", false)),
-            src_(iConfig.getParameter<edm::InputTag>("collection")),
+            src_(consumes<Collection>(iConfig.getParameter<edm::InputTag>("collection"))),
             inputs_(iConfig.getParameter<std::vector<edm::InputTag> >("associations"))
             { 
                for (std::vector<edm::InputTag>::const_iterator it = inputs_.begin(), ed = inputs_.end(); it != ed; ++it) {
-                   adaptors_.push_back(Adaptor(*it, iConfig));
+                   adaptors_.push_back(Adaptor(*it, iConfig, consumesCollector()));
                    produces< Map >(adaptors_.back().label());
                } 
             }
@@ -75,7 +75,7 @@ void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEv
 
     private:
       bool failSilently_;
-      edm::InputTag src_;
+      edm::EDGetTokenT<Collection> src_;
       std::vector<edm::InputTag> inputs_;
       std::vector<Adaptor>       adaptors_;
   };
@@ -83,7 +83,7 @@ void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEv
 template<class Adaptor, class Collection, typename value_type>
 void ManyThingsToValueMaps<Adaptor,Collection,value_type>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     edm::Handle<Collection> handle;
-    iEvent.getByLabel(src_, handle);
+    iEvent.getByToken(src_, handle);
     if (handle.failedToGet() && failSilently_) return;
 
     std::vector<value_type> ret; 
