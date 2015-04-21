@@ -267,6 +267,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 		// Creating MuonCandidate using only the tracker trajectory:
 		finalTrajectory = new MuonCandidate(new Trajectory(*tkTrajectory), it->muonTrack(), it->trackerTrack(),new Trajectory(*tkTrajectory));
 		if (finalTrajectory) refittedResult.push_back(finalTrajectory);
+		if(tkTrajectory) delete tkTrajectory;
 	  }
   }
 
