@@ -267,8 +267,8 @@ void CSCMotherboard::checkConfigParameters() {
 
 void CSCMotherboard::run(
  const std::vector<int> w_times[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
- const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
- const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
+ const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+ const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
   // Debug version.  -JM
   clear();
   alct->run(w_times);            // run anode LCT
