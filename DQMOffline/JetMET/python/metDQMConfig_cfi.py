@@ -159,4 +159,3 @@ pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     JetCollectionLabel  = cms.InputTag("slimmedJets"),
     JetCorrections = cms.InputTag(""),#not called, since corrected by default
 )
-
