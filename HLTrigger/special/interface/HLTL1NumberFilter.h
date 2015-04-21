@@ -22,7 +22,7 @@ Implementation:
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -36,26 +36,25 @@ Implementation:
 // class declaration
 //
 
-class HLTL1NumberFilter : public edm::EDFilter {
+class HLTL1NumberFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTL1NumberFilter(const edm::ParameterSet&);
   virtual ~HLTL1NumberFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   
   // ----------member data ---------------------------
 
   /// raw data
-  edm::InputTag input_ ; 
-  edm::EDGetTokenT<FEDRawDataCollection> inputToken_;
+  const edm::EDGetTokenT<FEDRawDataCollection> inputToken_;
   /// accept the event if its event number is a multiple of period_
-  unsigned int period_;
+  const unsigned int period_;
+  /// FED from which to get lv1ID number
+  const int fedId_;
   /// if invert_=true, invert that event accept decision
-  bool invert_;
-  //FED from which to get lv1ID number
-  int fedId_;
+  const bool invert_;
 };
 
 #endif
