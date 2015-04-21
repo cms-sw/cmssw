@@ -35,7 +35,7 @@ class ObjectCountEventSelector : public EventSelectorBase
     sizeSelect_( reco::modules::make<N>( cfg, iC ) ) {
   }
 
-  bool operator()(edm::Event& evt, const edm::EventSetup&) {
+  bool operator()(edm::Event& evt, const edm::EventSetup&) const {
     edm::Handle<C> source;
     evt.getByToken( srcToken_, source );
     return CS::filter( * source, select_, sizeSelect_ );

@@ -22,13 +22,15 @@ Implementation:
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
+#include <array>
+#include <atomic>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -38,25 +40,21 @@ namespace edm {
 // class declaration
 //
 
-class HLTHcalCalibTypeFilter : public edm::EDFilter {
+class HLTHcalCalibTypeFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
   virtual ~HLTHcalCalibTypeFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual void beginJob(void);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void);
+  virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void endJob(void) override;
   
   // ----------member data ---------------------------
-  
-  edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;
-  edm::InputTag DataInputTag_ ;
-  bool          Summary_ ;
-  std::vector<int> CalibTypes_ ;   
-  std::vector<int> eventsByType ; 
-
+  const edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;
+  const std::vector<int> CalibTypes_;
+  const bool Summary_;
+  mutable std::array<std::atomic<int>, 8> eventsByType_;
 };
 
 #endif

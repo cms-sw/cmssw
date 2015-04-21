@@ -1,7 +1,7 @@
 #ifndef RecoLocalCalo_EcalRecProducers_ESRecHitProducer_HH
 #define RecoLocalCalo_EcalRecProducers_ESRecHitProducer_HH
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,7 +14,7 @@
 
 class ESDigiCollection;
 
-class ESRecHitProducer : public edm::EDProducer {
+class ESRecHitProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -24,9 +24,8 @@ class ESRecHitProducer : public edm::EDProducer {
 
  private:
 
-
-  edm::EDGetTokenT<ESDigiCollection> digiToken_;
-  std::string rechitCollection_; // secondary name to be given to collection of hits
+  const edm::EDGetTokenT<ESDigiCollection> digiToken_;
+  const std::string rechitCollection_; // secondary name to be given to collection of hits
 
   ESRecHitWorkerBaseClass * worker_;
 };
