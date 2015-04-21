@@ -357,6 +357,10 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_VBF_DisplacedJet40_Hadronic_v1', 
     'HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v1', 
     'HLT_VBF_DisplacedJet40_TightID_Hadronic_v1', 
+    'HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v1', 
+    'HLT_VBF_DisplacedJet40_VTightID_Hadronic_v1', 
+    'HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v1', 
+    'HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v1', 
     'HLT_ZeroBias_v1' ) )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
@@ -373,6 +377,11 @@ streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_AK4CaloJe
     'HLT_CaloMETCleanedForMC_v1', 
     'HLT_CaloMETForMC_v1', 
     'HLT_CaloMHTForMC_v1', 
+    'HLT_DoubleGlbTrkMu_TrkIsoVVL_DZ_SaveObjects_v1', 
+    'HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v1', 
+    'HLT_DoubleMu_TrkIsoVVL_DZ_SaveObjects_v1', 
+    'HLT_IsoMu_SaveObjects_v1', 
+    'HLT_IsoTkMu15_SaveObjects_v1', 
     'HLT_PFHTForMC_v1', 
     'HLT_PFMETForMC_v1', 
     'HLT_PFMHTForMC_v1', 

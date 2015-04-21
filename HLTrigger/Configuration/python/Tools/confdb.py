@@ -58,16 +58,16 @@ class HLTProcess(object):
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
     "HLT_HT500_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet40_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_Hadronic_v*",
     "HLT_HT550_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
     "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
     "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
     "HLT_MET75_IsoTrk50_v*",
     "HLT_MET90_IsoTrk50_v*",
+    "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*",
     "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*",
     "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*",
     "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*",
@@ -77,6 +77,7 @@ class HLTProcess(object):
     "HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*",
     "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*",
     "HLT_DoubleMu18NoFiltersNoVtx_v*",
+    "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
   )
 
   def __init__(self, configuration):
