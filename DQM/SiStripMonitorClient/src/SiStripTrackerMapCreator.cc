@@ -159,6 +159,21 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   std::string tmap_title = " Tracker Map from  " + map_type;
   trackerMap_->setTitle(tmap_title);
 
+  if(tkmapPset.exists("TopModules"))
+    topModules=tkmapPset.getUntrackedParameter<bool>("TopModules");
+  else
+    topModules=false;
+
+  if(tkmapPset.exists("numberTopModules"))
+      numTopModules=tkmapPset.getUntrackedParameter<int32_t>("numberTopModules");
+  else
+      numTopModules = 20;
+  
+  if (tkmapPset.exists("topModLabel"))
+        topModLabel=tkmapPset.getUntrackedParameter<int32_t>("topModLabel");
+  else
+        topModLabel = " top Modules " + map_type;
+
   if (map_type == "QTestAlarm") {
     setTkMapFromAlarm(dqm_store, eSetup);
   }
@@ -360,7 +375,8 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 
   nDet     = 0;
   tkMapMax_ = 0.0; 
-  tkMapMin_ = 0.0; 
+  tkMapMin_ = 0.0;
+  std::vector<std::pair<float,uint32_t> >* topNmodVec = new std::vector<std::pair<float,uint32_t> >; 
 
   for (std::vector<std::string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); it++) {
     std::string dname = mechanicalview_dir + "/" + (*it);
@@ -385,14 +401,33 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 	} 
       }
       if (tkhmap_me != 0) {
-        paintTkMapFromHistogram(dqm_store,tkhmap_me, htype);
+	if (topModules){
+        	paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, topNmodVec);
+	}
+	else paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, 0);
       } 
     }
     dqm_store->cd(mechanicalview_dir);
   }
   dqm_store->cd();
+  if (topModules) printTopModules(topNmodVec);
+  delete topNmodVec;
 }
-void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype) {
+
+void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec){
+   std::sort(topNmodVec->rbegin(), topNmodVec->rend());
+   topNmodVec->resize(numTopModules);
+   edm::LogVerbatim("TopModules") << topModLabel;
+   edm::LogVerbatim("TopModules") << "-----------------------------------------";
+   for (std::vector<std::pair<float,uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); itNmod++){
+       std::pair<float,uint32_t> aPair=(*itNmod);
+       edm::LogVerbatim("TopModules") << "module " << aPair.second << " " << aPair.first;
+   }
+   edm::LogVerbatim("TopModules") << "-----------------------------------------";
+}
+
+
+void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype, std::vector<std::pair<float,uint32_t> >* topNmodVec) {
 
   //  edm::ESHandle<SiStripQuality> ssq;
 
@@ -434,6 +469,10 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
  	trackerMap_->fill_current_val(det_id, fval);
       }
       tkMapMax_ += fval;
+      if(topNmodVec){
+        auto detPair = std::make_pair(fval,det_id);
+        topNmodVec->push_back(detPair);
+      }
     }
   }
 } 
