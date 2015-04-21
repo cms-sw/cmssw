@@ -31,9 +31,11 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
@@ -64,12 +66,16 @@ namespace edm {
         return kExtendedBaseForEDProducer;
       if (std::is_base_of<edm::EDFilter, T>::value)
         return kExtendedBaseForEDFilter;
+      if (std::is_base_of<edm::OutputModule, T>::value)
+        return kExtendedBaseForOutputModule;
       if (std::is_base_of<edm::one::EDAnalyzerBase, T>::value)
         return kExtendedBaseForOneEDAnalyzer;
       if (std::is_base_of<edm::one::EDProducerBase, T>::value)
         return kExtendedBaseForOneEDProducer;
       if (std::is_base_of<edm::one::EDFilterBase, T>::value)
         return kExtendedBaseForOneEDFilter;
+      if (std::is_base_of<edm::one::OutputModuleBase, T>::value)
+        return kExtendedBaseForOneOutputModule;
       if (std::is_base_of<edm::stream::EDAnalyzerBase, T>::value)
         return kExtendedBaseForStreamEDAnalyzer;
       if (std::is_base_of<edm::stream::EDProducerBase, T>::value)
