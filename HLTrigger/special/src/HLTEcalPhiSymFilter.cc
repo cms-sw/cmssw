@@ -9,35 +9,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
-HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
+HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& config) :
+  barrelDigisToken_( consumes<EBDigiCollection>( config.getParameter<edm::InputTag> ("barrelDigiCollection") ) ),
+  endcapDigisToken_( consumes<EEDigiCollection>( config.getParameter<edm::InputTag> ("endcapDigiCollection") ) ),
+  barrelUncalibHitsToken_( consumes<EcalUncalibratedRecHitCollection>( config.getParameter<edm::InputTag> ("barrelUncalibHitCollection") ) ),
+  endcapUncalibHitsToken_( consumes<EcalUncalibratedRecHitCollection>( config.getParameter<edm::InputTag> ("endcapUncalibHitCollection") ) ),
+  barrelHitsToken_( consumes<EBRecHitCollection>( config.getParameter<edm::InputTag> ("barrelHitCollection") ) ),
+  endcapHitsToken_( consumes<EERecHitCollection>( config.getParameter<edm::InputTag> ("endcapHitCollection") ) ),
+  phiSymBarrelDigis_( config.getParameter<std::string> ("phiSymBarrelDigiCollection") ),
+  phiSymEndcapDigis_( config.getParameter<std::string> ("phiSymEndcapDigiCollection") ),
+  ampCut_barl_( config.getParameter<double> ("ampCut_barrel") ),
+  ampCut_endc_( config.getParameter<double> ("ampCut_endcap") ),
+  statusThreshold_( config.getParameter<uint32_t> ("statusThreshold") ),
+  useRecoFlag_( config.getParameter<bool>("useRecoFlag") )
 {
-  barrelDigis_ = iConfig.getParameter<edm::InputTag> ("barrelDigiCollection");
-  endcapDigis_ = iConfig.getParameter<edm::InputTag> ("endcapDigiCollection");
-  barrelUncalibHits_ = iConfig.getParameter<edm::InputTag> ("barrelUncalibHitCollection");
-  endcapUncalibHits_ = iConfig.getParameter<edm::InputTag> ("endcapUncalibHitCollection");
-  barrelHits_ = iConfig.getParameter<edm::InputTag> ("barrelHitCollection");
-  endcapHits_ = iConfig.getParameter<edm::InputTag> ("endcapHitCollection");
-  phiSymBarrelDigis_ = 
-    iConfig.getParameter<std::string> ("phiSymBarrelDigiCollection");
-  phiSymEndcapDigis_ = 
-    iConfig.getParameter<std::string> ("phiSymEndcapDigiCollection");
-  ampCut_barl_ = iConfig.getParameter<double> ("ampCut_barrel");
-  ampCut_endc_ = iConfig.getParameter<double> ("ampCut_endcap");
-  
-  statusThreshold_ = iConfig.getParameter<uint32_t> ("statusThreshold");
-  useRecoFlag_ =  iConfig.getParameter<bool>("useRecoFlag");
-
-  barrelDigisToken_ = consumes<EBDigiCollection>(barrelDigis_);
-  endcapDigisToken_ = consumes<EEDigiCollection>(endcapDigis_);
-  barrelUncalibHitsToken_ = consumes<EcalUncalibratedRecHitCollection>(barrelUncalibHits_);
-  endcapUncalibHitsToken_ = consumes<EcalUncalibratedRecHitCollection>(endcapUncalibHits_);
-  barrelHitsToken_ = consumes<EBRecHitCollection>(barrelHits_);
-  endcapHitsToken_ = consumes<EERecHitCollection>(endcapHits_);
-
   //register your products
   produces<EBDigiCollection>(phiSymBarrelDigis_);
   produces<EEDigiCollection>(phiSymEndcapDigis_);
-
 }
 
 
@@ -64,16 +52,15 @@ HLTEcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 
 // ------------ method called to produce the data  ------------
-bool
-HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool 
+HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const
 {
-
   using namespace edm;
   using namespace std;
   
   //Get ChannelStatus from DB
   edm::ESHandle<EcalChannelStatus> csHandle;
-  if (! useRecoFlag_) iSetup.get<EcalChannelStatusRcd>().get(csHandle);
+  if (! useRecoFlag_) setup.get<EcalChannelStatusRcd>().get(csHandle);
   const EcalChannelStatus& channelStatus = *csHandle; 
 
   Handle<EBDigiCollection> barrelDigisHandle;
@@ -83,12 +70,12 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
-  iEvent.getByToken(barrelDigisToken_,barrelDigisHandle);
-  iEvent.getByToken(endcapDigisToken_,endcapDigisHandle);  
-  iEvent.getByToken(barrelUncalibHitsToken_,barrelUncalibRecHitsHandle);
-  iEvent.getByToken(endcapUncalibHitsToken_,endcapUncalibRecHitsHandle);
-  iEvent.getByToken(barrelHitsToken_,barrelRecHitsHandle);
-  iEvent.getByToken(endcapHitsToken_,endcapRecHitsHandle);
+  event.getByToken(barrelDigisToken_,barrelDigisHandle);
+  event.getByToken(endcapDigisToken_,endcapDigisHandle);  
+  event.getByToken(barrelUncalibHitsToken_,barrelUncalibRecHitsHandle);
+  event.getByToken(endcapUncalibHitsToken_,endcapUncalibRecHitsHandle);
+  event.getByToken(barrelHitsToken_,barrelRecHitsHandle);
+  event.getByToken(endcapHitsToken_,endcapRecHitsHandle);
  
   //Create empty output collections
   std::auto_ptr< EBDigiCollection > phiSymEBDigiCollection( new EBDigiCollection );
@@ -129,8 +116,8 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
 
   //Put selected information in the event
-  iEvent.put( phiSymEBDigiCollection, phiSymBarrelDigis_);
-  iEvent.put( phiSymEEDigiCollection, phiSymEndcapDigis_);
+  event.put( phiSymEBDigiCollection, phiSymBarrelDigis_);
+  event.put( phiSymEEDigiCollection, phiSymEndcapDigis_);
   
   return true;
 }
