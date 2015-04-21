@@ -1,14 +1,17 @@
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DQM/PhysicsHWW/interface/MVAJetIdMaker.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 typedef math::XYZTLorentzVectorF LorentzVector;
 
-MVAJetIdMaker::MVAJetIdMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector iCollector){
+MVAJetIdMaker::MVAJetIdMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iCollector){
 
   PFJetCollection_     = iCollector.consumes<reco::PFJetCollection> (iConfig.getParameter<edm::InputTag>("pfJetsInputTag"));
   thePVCollection_     = iCollector.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag"));
-  jetCorrector_        = iConfig.getParameter<std::string>("jetCorrector");
+  jetCorrectorToken_   = iCollector.consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jetCorrector"));
 
   fPUJetIdAlgo = new PileupJetIdAlgo(iConfig);
 
@@ -49,13 +52,13 @@ void MVAJetIdMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
   if(!validToken) return;
   VertexCollection lVertices = *lHVertices;
 
-  const JetCorrector* corrector=0;
-  corrector = JetCorrector::getJetCorrector(jetCorrector_, iSetup); 
+  edm::Handle<reco::JetCorrector> jetCorrector;
+  iEvent.getByToken( jetCorrectorToken_, jetCorrector );
   std::vector<reco::PFJet> lCJets;
   for(reco::PFJetCollection::const_iterator jet=lUCJets.begin(); jet!=lUCJets.end(); ++jet){
 
     reco::PFJet tempJet = *jet; 
-    tempJet.scaleEnergy(corrector ? corrector->correction(*jet, iEvent, iSetup) : 1.);
+    tempJet.scaleEnergy(jetCorrector->correction(*jet));
     lCJets.push_back(tempJet);
 
   }
