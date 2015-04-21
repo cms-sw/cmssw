@@ -106,6 +106,7 @@ typedef HLTDoublet<Electron            ,CaloMET> HLT2ElectronCaloMET;
 typedef HLTDoublet<RecoChargedCandidate,CaloMET> HLT2MuonCaloMET;
 typedef HLTDoublet<Electron            ,    MET> HLT2ElectronMET;
 typedef HLTDoublet<RecoChargedCandidate,    MET> HLT2MuonMET;
+typedef HLTDoublet<RecoEcalCandidate   ,MET> HLT2PhotonMET;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
@@ -129,6 +130,7 @@ DEFINE_FWK_MODULE(HLT2ElectronCaloMET);
 DEFINE_FWK_MODULE(HLT2MuonCaloMET);
 DEFINE_FWK_MODULE(HLT2ElectronMET);
 DEFINE_FWK_MODULE(HLT2MuonMET);
+DEFINE_FWK_MODULE(HLT2PhotonMET);
 
 
 DEFINE_FWK_MODULE(HLT1Electron);

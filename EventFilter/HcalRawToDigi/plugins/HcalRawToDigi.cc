@@ -32,6 +32,10 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   if (fedUnpackList_.empty()) {
     for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
       fedUnpackList_.push_back(i);
+    // HF uTCA
+    fedUnpackList_.push_back(1118);
+    fedUnpackList_.push_back(1120);
+    fedUnpackList_.push_back(1122);
   } 
   
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);

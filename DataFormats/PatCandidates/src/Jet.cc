@@ -596,7 +596,7 @@ pat::JetPtrCollection const & Jet::subjets( unsigned int index) const {
 pat::JetPtrCollection const & Jet::subjets( std::string label ) const { 
   auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
   if ( found != subjetLabels_.end() ){
-    auto index = std::distance( found , subjetLabels_.begin() );
+    auto index = std::distance( subjetLabels_.begin(), found );
     return subjetCollections_[index]; 
   }
   else {

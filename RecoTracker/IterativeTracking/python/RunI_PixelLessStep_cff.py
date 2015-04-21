@@ -24,7 +24,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
         'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg'),
     TIB = cms.PSet(
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters')
     ),
@@ -32,7 +32,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -40,7 +40,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     )
@@ -51,9 +51,8 @@ import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
-pixelLessStepSeeds.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
@@ -76,7 +75,8 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(16.0),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 # TRACK BUILDING
@@ -106,7 +106,7 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 pixelLessStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     ComponentName = cms.string('pixelLessStepTrajectoryCleanerBySharedHits'),
-    fractionShared = cms.double(0.11),
+    fractionShared = cms.double(0.19),
     allowSharedFirstHit = cms.bool(True)
     )
 pixelLessStepTrackCandidates.TrajectoryCleaner = 'pixelLessStepTrajectoryCleanerBySharedHits'
@@ -123,33 +123,33 @@ pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelLessStepTracks',
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('MVASelectorIter5'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelLessStepLoose',
-            chi2n_par = 0.4,
+            chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
             maxNumberLostLayers = 1,
             minNumber3DLayers = 3,
-            d0_par1 = ( 1.2, 4.0 ),
-            dz_par1 = ( 1.2, 4.0 ),
-            d0_par2 = ( 1.2, 4.0 ),
-            dz_par2 = ( 1.2, 4.0 )
+            d0_par1 = ( 1.3, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.3, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'pixelLessStepTight',
             preFilterName = 'pixelLessStepLoose',
-            chi2n_par = 0.3,
+            chi2n_par = 0.35,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.9, 4.0 ),
-            dz_par1 = ( 0.9, 4.0 ),
-            d0_par2 = ( 0.9, 4.0 ),
-            dz_par2 = ( 0.9, 4.0 )
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'pixelLessStep',
@@ -159,14 +159,13 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             minNumberLayers = 4,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 3,
-            max_minMissHitOutOrIn = 2,
-            max_lostHitFraction = 1.0,
-            d0_par1 = ( 0.7, 4.0 ),
-            dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.7, 4.0 ),
-            dz_par2 = ( 0.7, 4.0 )
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
             ),
-        ) #end of vpset
+        ),
+    vertices = cms.InputTag("pixelVertices")#end of vpset
     ) #end of clone
 
 
