@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V35 (CMSSW_7_4_0)
+# /dev/CMSSW_7_4_0/PIon/V38 (CMSSW_7_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V35')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V38')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -8525,10 +8525,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-process = customiseHLTforCMSSW(process,menuType="PIon",fastSim=False)
-
 # load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
 process = loadL1menu(process)
@@ -8592,4 +8588,21 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.categories.append('FastReport')
+
+# add specific customizations
+_customInfo = {}
+_customInfo['menuType'  ]= "PIon"
+_customInfo['globalTags']= {}
+_customInfo['globalTags'][True ] = "auto:run2_hlt_PIon"
+_customInfo['globalTags'][False] = "auto:run2_mc_PIon"
+_customInfo['inputFiles']={}
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_PIon_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_PIon_MC.root"
+_customInfo['maxEvents' ]=  100
+_customInfo['globalTag' ]= "auto:run2_hlt_PIon"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_PIon_DATA.root']
+_customInfo['realData'  ]=  True
+_customInfo['fastSim'   ]=  False
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+process = customizeHLTforAll(process,_customInfo)
 

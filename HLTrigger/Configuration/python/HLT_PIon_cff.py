@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V35 (CMSSW_7_4_0)
+# /dev/CMSSW_7_4_0/PIon/V38 (CMSSW_7_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V35')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V38')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -7918,14 +7918,14 @@ fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltL1GtTrigReport + fragment
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_CaloJet260_v1, fragment.HLT_Ele27_eta2p1_WP75_Gsf_v1, fragment.HLT_Mu50_v1, fragment.HLT_PFJet260_v1, fragment.HLT_Photon20_CaloIdVL_IsoL_v1, fragment.HLT_Physics_v1, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
 
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-fragment = customiseHLTforCMSSW(fragment,menuType="PIon",fastSim=False)
-
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :
     fragment.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
     )
     fragment.HLTriggerFirstPath.replace(fragment.hltGetConditions,fragment.hltDummyConditions)
+
+# add specific customizations
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+fragment = customizeHLTforAll(fragment)
 

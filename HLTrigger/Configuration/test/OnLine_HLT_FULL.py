@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V102 (CMSSW_7_4_0)
+# /dev/CMSSW_7_4_0/HLT/V104 (CMSSW_7_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V102')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V104')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -51459,10 +51459,7 @@ process.hltIter1HighPtPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsE
       ),
       SeedingLayers = cms.InputTag( "hltIter1HighPtPixelLayerTriplets" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsTripletOnlyCreator" ) )
 )
 process.hltIter1HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1HighPtPixelSeeds" ),
@@ -51794,10 +51791,7 @@ process.hltIter2HighPtPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsE
       ),
       SeedingLayers = cms.InputTag( "hltIter2HighPtPixelLayerPairs" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreatorIT" ) )
 )
 process.hltIter2HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2HighPtPixelSeeds" ),
@@ -52013,7 +52007,8 @@ process.hltIter3HighPtLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       useRingSelector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 1 )
+      maxRing = cms.int32( 1 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet(  ),
     FPix = cms.PSet( 
@@ -52036,7 +52031,10 @@ process.hltIter3HighPtLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       skipClusters = cms.InputTag( "hltIter3HighPtClustersRefRemoval" ),
       hitErrorRPhi = cms.double( 0.0027 )
     ),
-    TIB = cms.PSet(  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ) )
+    TIB = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
+    )
 )
 process.hltIter3HighPtMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
@@ -52085,10 +52083,7 @@ process.hltIter3HighPtMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsE
       ),
       SeedingLayers = cms.InputTag( "hltIter3HighPtLayerTriplets" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsTripletOnlyCreator" ) )
 )
 process.hltIter3HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter3HighPtMixedSeeds" ),
@@ -52355,14 +52350,16 @@ process.hltIter4HighPtPixelLessLayerTriplets = cms.EDProducer( "SeedingLayersEDP
       skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 2 )
+      maxRing = cms.int32( 2 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet( 
       skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 3 ),
-      maxRing = cms.int32( 3 )
+      maxRing = cms.int32( 3 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     FPix = cms.PSet(  ),
     MTEC = cms.PSet( 
@@ -52370,24 +52367,28 @@ process.hltIter4HighPtPixelLessLayerTriplets = cms.EDProducer( "SeedingLayersEDP
       skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       minRing = cms.int32( 3 ),
-      maxRing = cms.int32( 3 )
+      maxRing = cms.int32( 3 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTIB = cms.PSet( 
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     TID = cms.PSet( 
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
       maxRing = cms.int32( 2 ),
-      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     TOB = cms.PSet(  ),
     BPix = cms.PSet(  ),
     TIB = cms.PSet( 
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltIter4HighPtClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     )
 )
 process.hltIter4HighPtPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
@@ -52462,10 +52463,7 @@ process.hltIter4HighPtPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionH
       ),
       SeedingLayers = cms.InputTag( "hltIter4HighPtPixelLessLayerTriplets" )
     ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-    )
+    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsTripletOnlyCreator" ) )
 )
 process.hltIter4HighPtCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter4HighPtPixelLessSeeds" ),
@@ -54455,20 +54453,12 @@ process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_AK
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_FULL_MC.root',
+        'file:RelVal_Raw_FULL_DATA.root',
     ),
     inputCommands = cms.untracked.vstring(
         'keep *'
     )
 )
-
-# customise the HLT menu for running on MC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-process = customizeHLTforMC(process)
-
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-process = customiseHLTforCMSSW(process,menuType="FULL",fastSim=False)
 
 # load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
@@ -54519,7 +54509,7 @@ process.options = cms.untracked.PSet(
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_mc_FULL')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_FULL')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     for pset in process.GlobalTag.toGet.value():
@@ -54533,4 +54523,21 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.categories.append('FastReport')
+
+# add specific customizations
+_customInfo = {}
+_customInfo['menuType'  ]= "FULL"
+_customInfo['globalTags']= {}
+_customInfo['globalTags'][True ] = "auto:run2_hlt_FULL"
+_customInfo['globalTags'][False] = "auto:run2_mc_FULL"
+_customInfo['inputFiles']={}
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_FULL_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_FULL_MC.root"
+_customInfo['maxEvents' ]=  100
+_customInfo['globalTag' ]= "auto:run2_hlt_FULL"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_FULL_DATA.root']
+_customInfo['realData'  ]=  True
+_customInfo['fastSim'   ]=  False
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+process = customizeHLTforAll(process,_customInfo)
 
