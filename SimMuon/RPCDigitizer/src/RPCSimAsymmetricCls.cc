@@ -335,8 +335,6 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll,
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
   LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulateNoise] Treating DetId :: "<<rpcId<<" = "<<rpcId.rawId()<<" which has "<<roll->nstrips()<<" strips";
-  float testfire = CLHEP::RandFlat::shoot(engine);
-  LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulateNoise] Fired RandFlat :: "<<testfire;
 
   std::stringstream vnoisestream; vnoisestream<<"[";
   for(std::vector<float>::iterator vnoiseIt = vnoise.begin(); vnoiseIt != vnoise.end(); ++vnoiseIt) { vnoisestream<<(*vnoiseIt)<<","; }
