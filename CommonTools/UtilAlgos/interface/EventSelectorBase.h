@@ -29,7 +29,7 @@ class EventSelectorBase
   // function implementing actual cut
   // ( return value = true  : event passes cut
   //                  false : event fails cut ) 
-  virtual bool operator()(edm::Event&, const edm::EventSetup&) = 0;
+  virtual bool operator()(edm::Event&, const edm::EventSetup&) const = 0;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
