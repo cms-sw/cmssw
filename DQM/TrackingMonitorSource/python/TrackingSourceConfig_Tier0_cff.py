@@ -155,11 +155,11 @@ for tracks in selectedTracks :
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
@@ -176,7 +176,7 @@ for tracks in selectedTracks :
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'

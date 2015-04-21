@@ -12,12 +12,12 @@
 #include <boost/shared_ptr.hpp>
 
 class  CosmicParametersDefinerForTPESProducer: public edm::ESProducer{
-  typedef boost::shared_ptr<ParametersDefinerForTP> ReturnType;
+  typedef boost::shared_ptr<CosmicParametersDefinerForTP> ReturnType;
 
  public:
   CosmicParametersDefinerForTPESProducer(const edm::ParameterSet & p);
   virtual ~CosmicParametersDefinerForTPESProducer(); 
-  boost::shared_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
+  boost::shared_ptr<CosmicParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
 };
 
