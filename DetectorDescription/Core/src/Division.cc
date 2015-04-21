@@ -5,6 +5,7 @@
 #include <algorithm>
 
 using DDI::Division;
+using namespace DDI;
 
 Division::Division(const DDLogicalPart & parent,
 		   const DDAxes axis,
