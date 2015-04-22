@@ -99,6 +99,14 @@ def MassReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker"):
     return(process)
 
 
+def MassReplaceParameter(process,name="",old="rawDataCollector",new="rawDataRepacker"):
+#   replace Parameter values (adapted from Configuration/Applications/python/ConfigBuilder.py)
+    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
+    for s in process.paths_().keys():
+        massSearchReplaceParam(getattr(process,s),name,old,new)
+    return(process)
+
+
 def L1REPACK(process):
 #   Replace only the L1 parts and keep the rest
     if 'DigiToRaw' in process.__dict__:

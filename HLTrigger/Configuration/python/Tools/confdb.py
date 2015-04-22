@@ -66,6 +66,17 @@ class HLTProcess(object):
     "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
     "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
     "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
+    "HLT_MET75_IsoTrk50_v*",
+    "HLT_MET90_IsoTrk50_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*",
+    "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*",
+    "HLT_DoubleMu18NoFiltersNoVtx_v*",
   )
 
   def __init__(self, configuration):
@@ -409,30 +420,61 @@ process = customizeHLTforMC(process)
 
       # fix the definition of some modules
       # FIXME: this should be updated to take into accout the --l1-emulator option
+
+      # input tags for digis
+      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltEcalDigis',         replace = 'ecalDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'muonCSCDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'muonDTDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'muonRPCDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltEcalPreshowerDigis',replace = 'ecalPreshowerDigis')
+      
+      # input tags for rechits
+      self._fix_parameter(                               type = 'InputTag', value = 'hltHbhereco',          replace = 'hbhereco')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltHoreco',            replace = 'horeco')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltHfreco',            replace = 'hfreco')
+      # ecal rechits
+      self._fix_parameter(name='killDeadChannels',       type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(name='recoverEBFE',            type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(name='recoverEEFE',            type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
+
+      # input tags for track collections
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForElectrons', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForPhotons', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2L3MuonMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForBTag', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForTau', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2GlbTrkMuonMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtTkMuMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type ='VInputTag', value = 'hltIter2HighPtTkMuMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtTkMuIsoMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedJpsiMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedPsiPrimeMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2DisplacedNRMuMuMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter0PFlowTrackSelectionHighPurityForBTag', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter4HighPtMerged', replace = 'generalTracks')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
+      
+      # other
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
-      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'simGtDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'simGtDigis')
-      self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
+      self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds')
       self._fix_parameter(name = 'preFilteredSeeds',     type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOfflineBeamSpot',   replace = 'offlineBeamSpot')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOnlineBeamSpot',    replace = 'offlineBeamSpot')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'simMuonCSCDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
-      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
-      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltIter4Tau3MuMerged', replace = 'hltIter4Merged')
 
       # MeasurementTrackerEvent
-      self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters', replace = 'MeasurementTrackerEvent')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters',   replace = 'MeasurementTrackerEvent')
 
       # fix the definition of sequences and paths
-      self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
-      self.data = re.sub( r'process.hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
-      self.data = re.sub( r'process.hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
+      #self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "muonCSCDigis" )',     self.data )
+      #self.data = re.sub( r'process.hltMuonDTDigis',  r'cms.SequencePlaceholder( "muonDTDigis" )',      self.data )
+      #self.data = re.sub( r'process.hltMuonRPCDigis', r'cms.SequencePlaceholder( "muonRPCDigis" )',     self.data )
       self.data = re.sub( r'process.HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
-      self.data = re.sub( r'hltGtDigis',              r'HLTBeginSequence',                              self.data )
+      #self.data = re.sub( r'hltGtDigis',              r'HLTBeginSequence',                              self.data )
 
 
   def fixPrescales(self):
@@ -1180,6 +1222,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForPhotons" )
       self.options['modules'].append( "-hltPixelTracksForEgamma" )
       self.options['modules'].append( "-hltPixelTracksElectrons" )
+      self.options['modules'].append( "-hltPixelTracksForHighPt" )
+      self.options['modules'].append( "-hltHighPtPixelTracks" )
       self.options['modules'].append( "-hltPixelTracksForNoPU" )
 
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
@@ -1217,6 +1261,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "hltRpcRecHits" )
       self.options['modules'].append( "-hltScalersRawToDigi" )
 
+      self.options['modules'].append( "-hltEcalPreshowerDigis" )
+      self.options['modules'].append( "-hltEcalDigis" )
+      self.options['modules'].append( "-hltEcalDetIdToBeRecovered" )
+
       self.options['sequences'].append( "-HLTL1SeededEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTEcalActivityEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTPixelMatchElectronActivityTrackingSequence" )
@@ -1241,6 +1289,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingIter04" )
       self.options['sequences'].append( "-HLTIterativeTrackingIter02" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForHighPt" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTIterativeTrackingReg" )
       self.options['sequences'].append( "-HLTIterativeTrackingForElectronIter02" )
@@ -1260,6 +1309,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingForBTagIteration0" )
       self.options['sequences'].append( "-HLTIterativeTrackingIteration4DisplacedJets" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
+      # this could probably run for FastSim, if the parameter digiCollName is set to cms.string( "hltHcalDigis" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's

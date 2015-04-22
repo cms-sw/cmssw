@@ -42,22 +42,6 @@ echo "./cmsDriver.csh"
 time  ./cmsDriver.csh
 
 echo
-echo "Creating special FastSim IntegrationTestWithHLT"
-
-foreach task ( IntegrationTestWithHLT_cfg )
-  echo
-  set name = ${task}
-  rm -f $name.py
-
-  if ( -f $CMSSW_BASE/src/FastSimulation/Configuration/test/$name.py ) then
-    cp         $CMSSW_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
-  else
-    cp $CMSSW_RELEASE_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
-  endif
-  ls -l $name.py
-end
-
-echo
 date +%F\ %a\ %T
 echo
 echo "Running selected cfg files from:"

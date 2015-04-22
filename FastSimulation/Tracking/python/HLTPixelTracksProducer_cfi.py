@@ -42,6 +42,8 @@ hltPixelTracksHighPtTkMuIso = hltPixelTracks.clone()
 hltPixelTracksForPhotons = hltPixelTracks.clone()
 hltPixelTracksForEgamma = hltPixelTracks.clone()
 hltPixelTracksElectrons = hltPixelTracks.clone()
+hltPixelTracksForHighPt = hltPixelTracks.clone()
+hltHighPtPixelTracks = hltPixelTracks.clone()
 
 hltPixelTracksForNoPU = hltPixelTracks.clone()
 hltDummyLocalPixel = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
