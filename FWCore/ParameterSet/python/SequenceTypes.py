@@ -460,7 +460,10 @@ class SequencePlaceholder(_Sequenceable):
         if not self._name in processDict:
             #print str(processDict.keys())
             raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
-        return  processDict[self._name].resolve(processDict)
+        o = processDict[self._name]
+        if not isinstance(o,_Sequenceable):
+            raise RuntimeError("The SequencePlaceholder "+self._name+ " refers to an object type which is not allowed to be on a sequence: "+str(type(o)))
+        return o.resolve(processDict)
 
     def _clonesequence(self, lookuptable):
         if id(self) not in lookuptable:

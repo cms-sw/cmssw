@@ -817,7 +817,7 @@ ProvenanceDumper::work_() {
             storedProvBranch->GetEntry(i);
             for(auto const& item : info) {
               edm::BranchID bid(item.branchID_);
-              perProductParentage[bid].insert(orderedParentageIDs[item.parentageIDIndex_]);
+              perProductParentage[bid].insert(orderedParentageIDs.at(item.parentageIDIndex_));
             }
           }
         } else {
