@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeHLTforMC(process):
+def customizeHLTforMC(process,_fastSim=False):
   """adapt the HLT to run on MC, instead of data
   see Configuration/StandardSequences/Reconstruction_Data_cff.py
   which does the opposite, for RECO"""

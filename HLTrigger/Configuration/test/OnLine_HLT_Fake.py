@@ -359,10 +359,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-process = customiseHLTforCMSSW(process,menuType="Fake",fastSim=False)
-
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTFake' )
@@ -422,4 +418,21 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.categories.append('FastReport')
+
+# add specific customizations
+_customInfo = {}
+_customInfo['menuType'  ]= "Fake"
+_customInfo['globalTags']= {}
+_customInfo['globalTags'][True ] = "auto:run1_hlt_Fake"
+_customInfo['globalTags'][False] = "auto:run1_mc_Fake"
+_customInfo['inputFiles']={}
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_Fake_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_Fake_MC.root"
+_customInfo['maxEvents' ]=  100
+_customInfo['globalTag' ]= "auto:run1_hlt_Fake"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_Fake_DATA.root']
+_customInfo['realData'  ]=  True
+_customInfo['fastSim'   ]=  False
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+process = customizeHLTforAll(process,_customInfo)
 
