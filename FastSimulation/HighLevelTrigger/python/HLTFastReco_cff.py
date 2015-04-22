@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Load subdetector specific common files
 #
-from FastSimulation.Tracking.HLTPixelVerticesProducer_cff import *
+from FastSimulation.Tracking.PixelVerticesProducer_cff import *
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 
 #Specific reconstruction sequences for FastSimulation.
