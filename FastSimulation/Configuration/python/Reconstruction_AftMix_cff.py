@@ -45,8 +45,6 @@ for _key,_value in _reco.__dict__.items():
 ###########################################
 fragment = cms.ProcessFragment("RECO")
 fragment.load("Configuration.StandardSequences.Reconstruction_cff")
-#from Configuration.StandardSequences.Reconstruction_cff import *
-
 
 ###########################################
 # no castor / zdc in FastSim
@@ -109,10 +107,8 @@ fragment.newCombinedSeeds = FastSimulation.Tracking.globalCombinedSeeds_cfi.newC
 # However, in FastSim jobs, trajectories are only available for the 'before mixing' track collections
 # Therefore we let the seeds depend on the 'before mixing' generalTracks collection
 # TODO: investigate whether the dependence on trajectories can be avoided
-#_index = fragment.electronSeeds.index(fragment.trackerDrivenElectronSeeds)
-#fragment.electronSeeds.remove(fragment.trackerDrivenElectronSeeds)
 fragment.trackerDrivenElectronSeedsTmp = fragment.trackerDrivenElectronSeeds.clone(
-    TkColList = cms.InputTag("generalTracksBeforeMixing"))
+    TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing")))
 import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
 fragment.trackerDrivenElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
 fragment.trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenElectronSeedsTmp") 
@@ -207,38 +203,3 @@ import FastSimulation.ParticleFlow.FSparticleFlow_cfi
 fragment.particleFlowTmp = FastSimulation.ParticleFlow.FSparticleFlow_cfi.FSparticleFlow
 fragment.particleFlowTmp.pfCandidates = cms.InputTag("particleFlowTmpTmp")
 fragment.particleFlowReco.replace(fragment.particleFlowTmp,fragment.particleFlowTmpTmp+fragment.particleFlowTmp)
-
-
-###########################################
-# sequences that are not part of any path
-# but cause python compilation errors after the full track sequence removal
-###########################################
-
-"""
-del ckftracks_plus_pixelless
-del ckftracks_woBH
-del reconstruction_fromRECO
-del ckftracks_wodEdX
-"""
-###########################################
-# deleting some services that are not used
-###########################################
-
-"""
-del BeamHaloMPropagatorAlong
-del BeamHaloMPropagatorOpposite
-del BeamHaloPropagatorAlong
-del BeamHaloPropagatorAny
-del BeamHaloPropagatorOpposite
-del BeamHaloSHPropagatorAlong
-del BeamHaloSHPropagatorAny
-del BeamHaloSHPropagatorOpposite
-"""
-############################################
-# the final reconstruction sequence
-############################################
-# this is the standard reconstruction sequence, 
-# except for the logErrorHarvester which is traditinally not run in FastSim
-#reconstruction = cms.Sequence(localreco*newCombinedSeeds*globalreco*highlevelreco)
-
-#print particleFlow.PFCandidate
