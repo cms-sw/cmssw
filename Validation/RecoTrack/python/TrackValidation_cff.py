@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi 
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import *
 import Validation.RecoTrack.MultiTrackValidator_cfi
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
@@ -138,14 +139,23 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksNinthHp* 
                                 cutsRecoTracksTenth*
                                 cutsRecoTracksTenthHp )
+tracksValidationTruth = cms.Sequence(
+    tpClusterProducer +
+    quickTrackAssociatorByHits +
+    trackingParticleRecoTrackAsssociation
+)
+tracksValidationTruthFS = cms.Sequence(
+    quickTrackAssociatorByHits +
+    trackingParticleRecoTrackAsssociation
+)
+
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
-    tpClusterProducer +
-    quickTrackAssociatorByHits
+    tracksValidationTruth
 )
 tracksPreValidationFS = cms.Sequence(
     tracksValidationSelectors +
-    quickTrackAssociatorByHits
+    tracksValidationTruthFS
 )
 
 # selectors go into separate "prevalidation" sequence
