@@ -6,3 +6,4 @@ for _entry in [SimL1TechnicalTriggers]:
 
 import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
 gtDigis = _aliasInfo.infoToAlias(_aliasInfo.gtDigisAliasInfo)
+gmtDigis = _aliasInfo.infoToAlias(_aliasInfo.gmtDigisAliasInfo)

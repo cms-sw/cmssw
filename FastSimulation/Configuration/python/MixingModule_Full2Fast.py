@@ -173,6 +173,8 @@ def prepareGenMixing(process):
                                    cms.PSet(type=cms.string('TrackingRecHitsOwned')),
                                    cms.PSet(type=cms.string('floatedmValueMap')))
         }
+    process.hltIter4HighPtMerged = cms.EDAlias(**_parameters)
+    process.hltIter2HighPtMerged = cms.EDAlias(**_parameters)
     process.hltIter4Merged = cms.EDAlias(**_parameters)
     process.hltIter2Merged = cms.EDAlias(**_parameters)
     process.hltIter4Tau3MuMerged = cms.EDAlias(**_parameters)

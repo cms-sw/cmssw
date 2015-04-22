@@ -68,22 +68,6 @@ foreach gtag ( $1 )
 
 end
 
-# special fastsim integration test
-
-if ( $1 == MC ) then
-  foreach task ( IntegrationTestWithHLT_cfg )
-
-    echo
-    set name = ${task}
-    rm -f $name.{log,root}
-    echo "`date +%T` cmsRun $name.py >& $name.log"
-#   ls -l        $name.py
-    time  cmsRun $name.py >& $name.log
-    echo "`date +%T` exit status: $?"
-
-  end
-endif
-
 # separate hlt+reco and reco+(validation)+dqm workflows
 
 foreach gtag ( $1 )
