@@ -397,20 +397,20 @@ HLT_PFHT400_SixJet30_BTagCSV0p5_2PFBTagCSV_v*			# JIRA: CMSHLT-309
 HLT_PFHT450_SixJet40_v*						# JIRA: CMSHLT-309
 HLT_PFHT400_SixJet30_v*						# JIRA: CMSHLT-309
 
-#HLT_DoubleMu18NoFiltersNoVtx_v*					# JIRA: CMSHLT-310
-#HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*			# JIRA: CMSHLT-310
-#HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*		# JIRA: CMSHLT-310
-#HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v* 	# JIRA: CMSHLT-310
-#HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v* 			# JIRA: CMSHLT-310
-#HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v* 	# JIRA: CMSHLT-310
-#HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v* 	# JIRA: CMSHLT-310
-#HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v* 			# JIRA: CMSHLT-310
-#HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*			# JIRA: CMSHLT-310
+HLT_DoubleMu18NoFiltersNoVtx_v*					# JIRA: CMSHLT-310
+HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*			# JIRA: CMSHLT-310
+HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*		# JIRA: CMSHLT-310
+HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*		# JIRA: CMSHLT-310
+HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*			# JIRA: CMSHLT-310
+HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*		# JIRA: CMSHLT-310
+HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*		# JIRA: CMSHLT-310
+HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*			# JIRA: CMSHLT-310
+HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*			# JIRA: CMSHLT-310
 
-#HLT_VBF_DisplacedJet40_VTightID_Hadronic_v* 			# JIRA: CMSHLT-318
-#HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v*  			# JIRA: CMSHLT-318
-#HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*  		# JIRA: CMSHLT-318
-#HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*  		# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VTightID_Hadronic_v* 			# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v*  			# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*  		# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*  		# JIRA: CMSHLT-318
   
 HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v*	# JIRA: CMSHLT-317
 
@@ -457,6 +457,21 @@ HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v*	# JIRA: CMSHLT
 #HLT_DiPFJetAve35_Central_v*					# JIRA: CMSHLT-285 (for low PU runs)
 #HLT_L1RomanPots_SinglePixelTrack02_v*				# JIRA: CMSHLT-285 (for low PU runs)
 
+#HLT_AK4CaloJet30_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4CaloJet40_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4CaloJet50_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4CaloJet80_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4CaloJet100_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4PFJet30_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4PFJet50_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4PFJet80_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_AK4PFJet100_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_HISinglePhoton10_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_HISinglePhoton15_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_HISinglePhoton20_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_HISinglePhoton40_v*						# JIRA: CMSHLT-279 (for low PU runs)
+#HLT_HISinglePhoton60_v*						# JIRA: CMSHLT-279 (for low PU runs)
+
 HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261
 HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261
 HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261
@@ -501,6 +516,11 @@ HLT_AK8PFJetsForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
 HLT_AK8TrimPFJetsForMC_v*					# JIRA: CMSHLT-315 (template paths only for MC)
 HLT_AK8PFHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
 HLT_AK8CaloHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
+HLT_IsoMu_SaveObjects_v*					# JIRA: CMSHLT-322 (template paths only for MC)
+HLT_IsoTkMu15_SaveObjects_v*					# JIRA: CMSHLT-322 (template paths only for MC)
+HLT_DoubleMu_TrkIsoVVL_DZ_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)
+HLT_DoubleGlbTrkMu_TrkIsoVVL_DZ_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)
+HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)
 
 #DQM_FEDIntegrity_v*
 HLTriggerFirstPath

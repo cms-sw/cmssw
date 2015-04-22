@@ -58,14 +58,26 @@ class HLTProcess(object):
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
     "HLT_HT500_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet40_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_Hadronic_v*",
     "HLT_HT550_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
     "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
     "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
+    "HLT_MET75_IsoTrk50_v*",
+    "HLT_MET90_IsoTrk50_v*",
+    "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v*",
+    "HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*",
+    "HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v*",
+    "HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*",
+    "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*",
+    "HLT_DoubleMu18NoFiltersNoVtx_v*",
+    "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
   )
 
   def __init__(self, configuration):
@@ -206,14 +218,41 @@ class HLTProcess(object):
     return self.data
 
 
-  # add release-specific customizations
-  def releaseSpecificCustomize(self):
-    # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customiseHLTforCMSSW(.,.)
-    self.data += """
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
-""" % (self.config.type,self.config.fastsim)
+  # add specific customizations
+  def specificCustomize(self):
+    # specific customizations now live in HLTrigger.Configuration.customizeHLTforALL.customizeHLTforAll(.,.)
+    if self.config.fragment:
+      self.data += """
+# add specific customizations
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+fragment = customizeHLTforAll(fragment)
+"""
+    else:
+      if self.config.type=="Fake":
+        prefix = "run1"
+      else:
+        prefix = "run2"
+      _gtData = "auto:"+prefix+"_hlt_"+self.config.type
+      _gtMc   = "auto:"+prefix+"_mc_" +self.config.type
+      self.data += """
+# add specific customizations
+_customInfo = {}
+_customInfo['menuType'  ]= "%s"
+_customInfo['globalTags']= {}
+_customInfo['globalTags'][True ] = "%s"
+_customInfo['globalTags'][False] = "%s"
+_customInfo['inputFiles']={}
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_%s_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_%s_MC.root"
+_customInfo['maxEvents' ]=  %s
+_customInfo['globalTag' ]= "%s"
+_customInfo['inputFile' ]=  %s
+_customInfo['realData'  ]=  %s
+_customInfo['fastSim'   ]=  %s
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+process = customizeHLTforAll(process,_customInfo)
+""" % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.fastsim)
+
 
   # customize the configuration according to the options
   def customize(self):
@@ -249,9 +288,6 @@ process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
 #    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
 #"""
 
-    # if running on MC, adapt the configuration accordingly
-    self.fixForMC()
-
     # if requested, remove the HLT prescales
     self.fixPrescales()
 
@@ -263,9 +299,6 @@ process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
 
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
-
-    # add version-specific customisations
-    self.releaseSpecificCustomize()
 
     if self.config.fragment:
       self.data += """
@@ -349,6 +382,9 @@ process = loadL1menu(process)
 #        }
 #      )
 
+    # add specific customisations
+    self.specificCustomize()
+
 
   def addGlobalOptions(self):
     # add global options
@@ -385,17 +421,6 @@ process = loadL1menu(process)
           r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args,
           r'cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
           self.data)
-
-
-  def fixForMC(self):
-    if not self.config.data:
-      # customise the HLT menu for running on MC
-      if not self.config.fragment:
-        self.data += """
-# customise the HLT menu for running on MC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-process = customizeHLTforMC(process)
-"""
 
 
   def fixForFastSim(self):
@@ -1180,6 +1205,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForPhotons" )
       self.options['modules'].append( "-hltPixelTracksForEgamma" )
       self.options['modules'].append( "-hltPixelTracksElectrons" )
+      self.options['modules'].append( "-hltPixelTracksForHighPt" )
+      self.options['modules'].append( "-hltHighPtPixelTracks" )
       self.options['modules'].append( "-hltPixelTracksForNoPU" )
 
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
@@ -1241,6 +1268,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingIter04" )
       self.options['sequences'].append( "-HLTIterativeTrackingIter02" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForHighPt" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTIterativeTrackingReg" )
       self.options['sequences'].append( "-HLTIterativeTrackingForElectronIter02" )
