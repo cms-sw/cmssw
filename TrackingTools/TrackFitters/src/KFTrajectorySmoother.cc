@@ -100,7 +100,9 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     if unlikely(!predTsos.isValid()) {
       LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
       LogDebug("TrackFitters") << " retry with last hit removed" << "\n";
-      std::cout << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' 
+      LogDebug("TrackFitters")
+      // std::cout 
+                << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' 
                 << hitSize << ' ' << hitCounter << ' ' << hit->geographicalId() << ' '  
                 << hit->surface()->position().perp() << ' ' << hit->surface()->eta() << ' ' << hit->surface()->phi() << std::endl;
       start++;
@@ -178,13 +180,9 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	    "pred Tsos pos: " << predTsos.globalPosition() << "\n" <<
 	    "pred Tsos mom: " << predTsos.globalMomentum() << "\n" <<
 	    "TrackingRecHit: " << hit->surface()->toGlobal(hit->localPosition()) << "\n" ;
-	  if( myTraj.foundHits() >= minHits_ ) {
-	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	  } else {        
-	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	    return Trajectory();
-	  }
-	  break;      
+          start++;
+          retry = true;
+          break;
 	}
       
         assert( (hit->geographicalId()!=0U) | (!hit->canImproveWithTrack()) );
@@ -224,13 +222,9 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	
 	if unlikely(!smooTsos.isValid()) {
 	    LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
-	    if( myTraj.foundHits() >= minHits_ ) {
-	      LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	    } else {        
-	      LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	      return Trajectory();  
-	    }
-	    break;
+            start++;
+            retry = true;
+            break;
 	  }
 	
 	double estimate;
