@@ -210,8 +210,7 @@ pfcluscorsource = cms.ESSource("PoolDBESSource",
     )
 )
 
-#pfcluscorsource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
-pfcluscorsource.connect = cms.string("sqlite_file:/afs/cern.ch/user/b/bendavid/work/public/ecalPFClusterCorV2_22042015.db")
+pfcluscorsource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
 
 pfclusprefer = cms.ESPrefer(
     'PoolDBESSource',
