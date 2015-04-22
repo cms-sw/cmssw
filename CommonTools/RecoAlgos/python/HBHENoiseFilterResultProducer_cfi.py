@@ -12,4 +12,4 @@ HBHENoiseFilterResultProducer = cms.EDProducer(
 
 from Configuration.StandardSequences.Eras import eras
 eras.run2_common.toModify(HBHENoiseFilterResultProducer, IgnoreTS4TS5ifJetInLowBVRegion=False)
-eras.run2_common.toModify(HBHENoiseFilterResultProducer, defaultDecision="HBHENoiseFilterResultRun2Loose")
+eras.run2_25ns_specific.toModify(HBHENoiseFilterResultProducer, defaultDecision="HBHENoiseFilterResultRun2Loose")
