@@ -1,6 +1,5 @@
 #include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
