@@ -543,19 +543,22 @@ def search(args):
         filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, size],
     )
 
-    output_table(args,
-        session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
-            filter(
-                _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
-                | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
-                | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
-            ).\
-            order_by(conddb.GlobalTag.insertion_time.desc()).\
-            limit(args.limit).\
-            all(),
-        ['Global Tag', 'Release', 'Insertion Time', 'Description'],
-        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
-    )
+    try:
+        output_table(args,
+            session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
+                filter(
+                    _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
+                    | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
+                    | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
+                ).\
+                order_by(conddb.GlobalTag.insertion_time.desc()).\
+                limit(args.limit).\
+                all(),
+            ['Global Tag', 'Release', 'Insertion Time', 'Description'],
+            filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
+    	 )
+    except sqlalchemy.exc.OperationalError:
+    	 sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
 
 def _inserted_before(timestamp):
@@ -673,18 +676,22 @@ def list_(args):
                 filters = [_since_filter(time_type), None, None, None],
             )
 
-        is_global_tag = _exists(session, conddb.GlobalTag.name, name)
-        if is_global_tag:
-            if args.long:
-                _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+	try:
+            is_global_tag = _exists(session, conddb.GlobalTag.name, name)
+            if is_global_tag:
+                if args.long:
+                    _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+	    
+                output_table(args,
+                    session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+                        filter(conddb.GlobalTagMap.global_tag_name == name).\
+                        order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
+                        all(),
+                    ['Record', 'Label', 'Tag'],
+                )
+	except sqlalchemy.exc.OperationalError:
+            sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
-            output_table(args,
-                session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
-                    filter(conddb.GlobalTagMap.global_tag_name == name).\
-                    order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
-                    all(),
-                ['Record', 'Label', 'Tag'],
-            )
 
         if not is_tag and not is_global_tag:
             raise Exception('There is no tag or global tag named %s in the database.' % name)
