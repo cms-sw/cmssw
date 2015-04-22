@@ -167,6 +167,9 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring& t
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof) 
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
 
+  SimHitMap.clear();  // Start fresh after previous event.
+  SimHitCollMap.clear();
+
   for(auto const& trackerContainer : trackerContainers) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     edm::InputTag tag_cf("mix", trackerContainer);
