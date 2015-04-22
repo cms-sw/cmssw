@@ -21,7 +21,7 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   hfRechitLabel                = cms.untracked.InputTag("hfreco"),
 
                                   # disable testing of HO ring 2
-                                  excludeHORing2  = cms.untracked.bool(True),
+                                  excludeHORing2  = cms.untracked.bool(False),
                                   
                                   # Booleans for various tests
                                   test_energy     = cms.untracked.bool(False),  # dropped in favor of ET test
