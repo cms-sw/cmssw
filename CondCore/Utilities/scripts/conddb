@@ -259,7 +259,13 @@ def connect(args, init=False, read_only=True):
 
         # read_only refers to the destination database only
         # (the source is always read_only) -- see copy() command
-        return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+	if os.path.exists(args.destdb): 
+           return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+	else: # dest DB not yet there, needs init ... 
+	   conn1 = _connect(args.db, init, args.verbose, True, args.force)
+	   conn2 = _connect(args.destdb, True, args.verbose, False, args.force)
+	   conn2.init()
+	   return conn1, conn2
 
     return _connect(args.db, init, args.verbose, read_only, args.force)
 
