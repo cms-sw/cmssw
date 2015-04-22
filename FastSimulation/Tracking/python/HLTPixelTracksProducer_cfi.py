@@ -64,7 +64,3 @@ hltPixelLayerTripletsReg = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummy
 hltPixelLayerTripletsHITHB = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltPixelLayerTripletsHITHE = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltMixedLayerPairs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-
-import FastSimulation.Tracking.PixelTripletSeedProducer_cff
-hltPixelTripletSeeds = FastSimulation.Tracking.PixelTripletSeedProducer_cff.pixelTripletSeeds.clone()
-hltPixelTracking = cms.Sequence(hltPixelTripletSeeds+hltPixelTracks)
