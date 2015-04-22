@@ -85,6 +85,7 @@ class BPhysicsValidation : public DQMEDAnalyzer {
   TString name;
   ParticleMonitor particle;
   std::vector<ParticleMonitor> daughters;
+  MonitorElement *Nobj;
 };
 
 #endif

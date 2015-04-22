@@ -44,7 +44,7 @@ class BPhysicsSpectrum : public DQMEDAnalyzer {
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
   
  private:
-  MonitorElement *mass; 
+  MonitorElement *mass, *Nobj; 
   edm::InputTag genparticleCollection_;
   edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
   TString name;
