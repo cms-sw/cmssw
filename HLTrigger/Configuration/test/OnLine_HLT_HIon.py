@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V35 (CMSSW_7_4_0)
+# /dev/CMSSW_7_4_0/HIon/V41 (CMSSW_7_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V35')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V41')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2040,7 +2040,7 @@ process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     verbose = cms.untracked.bool( False )
 )
 process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "rawDataCollector" )
+    RawDataCollection = cms.InputTag( "rawDataRepacker" )
 )
 process.hltBoolFalse = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
@@ -2053,14 +2053,14 @@ process.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     Verbosity = cms.untracked.int32( 0 ),
     UnpackBxInEvent = cms.int32( 5 ),
     ActiveBoardsMask = cms.uint32( 0xffff ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
+    DaqGtInputTag = cms.InputTag( "rawDataRepacker" )
 )
 process.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     lenSlinkTrailer = cms.untracked.int32( 8 ),
     lenAMC13Header = cms.untracked.int32( 8 ),
     lenAMC13Trailer = cms.untracked.int32( 8 ),
     Setup = cms.string( "stage1::CaloSetup" ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
+    InputLabel = cms.InputTag( "rawDataRepacker" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
     FWId = cms.untracked.int32( 2 ),
     FedIds = cms.vint32( 1352 ),
@@ -2115,7 +2115,7 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     hfRingBitCountsSource = cms.InputTag( "hltCaloStage1LegacyFormatDigis" )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
-    scalersInputTag = cms.InputTag( "rawDataCollector" )
+    scalersInputTag = cms.InputTag( "rawDataRepacker" )
 )
 process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     maxZ = cms.double( 40.0 ),
@@ -2189,7 +2189,7 @@ process.hltHIL1SingleMu3Filtered = cms.EDFilter( "HLTMuonL1Filter",
 process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     useStandardFEDid = cms.bool( True ),
     maxFEDid = cms.untracked.int32( 779 ),
-    inputLabel = cms.InputTag( "rawDataCollector" ),
+    inputLabel = cms.InputTag( "rawDataRepacker" ),
     minFEDid = cms.untracked.int32( 770 ),
     dataType = cms.string( "DDU" ),
     readOutParameters = cms.PSet( 
@@ -2308,7 +2308,7 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     UseExaminer = cms.bool( True ),
     Debug = cms.untracked.bool( False ),
     ErrorMask = cms.uint32( 0x0 ),
-    InputObjects = cms.InputTag( "rawDataCollector" ),
+    InputObjects = cms.InputTag( "rawDataRepacker" ),
     ExaminerMask = cms.uint32( 0x1febf3f6 ),
     runDQM = cms.untracked.bool( False ),
     UnpackStatusDigis = cms.bool( False ),
@@ -2462,7 +2462,7 @@ process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     algo_type = cms.int32( 1 )
 )
 process.hltMuonRPCDigis = cms.EDProducer( "RPCUnpackingModule",
-    InputLabel = cms.InputTag( "rawDataCollector" ),
+    InputLabel = cms.InputTag( "rawDataRepacker" ),
     doSynchro = cms.bool( False )
 )
 process.hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
@@ -2858,7 +2858,7 @@ process.hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
     UsePilotBlade = cms.bool( False ),
     UsePhase1 = cms.bool( False ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
+    InputLabel = cms.InputTag( "rawDataRepacker" ),
     IncludeErrors = cms.bool( False ),
     ErrorList = cms.vint32(  ),
     Regions = cms.PSet(  ),
@@ -2887,10 +2887,10 @@ process.hltHISiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
     CPE = cms.string( "hltESPPixelCPEGeneric" )
 )
 process.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
-    ProductLabel = cms.InputTag( "rawDataCollector" )
+    ProductLabel = cms.InputTag( "rawDataRepacker" )
 )
 process.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFromRaw",
-    ProductLabel = cms.InputTag( "rawDataCollector" ),
+    ProductLabel = cms.InputTag( "rawDataRepacker" ),
     DoAPVEmulatorCheck = cms.bool( False ),
     Algorithms = cms.PSet( 
       SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
@@ -3876,7 +3876,7 @@ process.hltHIDimuonL3FilterOpenOSNoCowboy = cms.EDFilter( "HLTMuonDimuonL3Filter
     MinInvMass = cms.vdouble( 0.0 )
 )
 process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataCollector" ),
+    inputTag = cms.InputTag( "rawDataRepacker" ),
     fedList = cms.vuint32( 1023 )
 )
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
@@ -3981,20 +3981,12 @@ process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Ph
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_HIon_MC.root',
+        'file:RelVal_Raw_HIon_DATA.root',
     ),
     inputCommands = cms.untracked.vstring(
         'keep *'
     )
 )
-
-# customise the HLT menu for running on MC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-process = customizeHLTforMC(process)
-
-# add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-process = customiseHLTforCMSSW(process,menuType="HIon",fastSim=False)
 
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
@@ -4045,7 +4037,7 @@ process.options = cms.untracked.PSet(
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_mc_HIon')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_HIon')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     for pset in process.GlobalTag.toGet.value():
@@ -4059,4 +4051,21 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.categories.append('FastReport')
+
+# add specific customizations
+_customInfo = {}
+_customInfo['menuType'  ]= "HIon"
+_customInfo['globalTags']= {}
+_customInfo['globalTags'][True ] = "auto:run2_hlt_HIon"
+_customInfo['globalTags'][False] = "auto:run2_mc_HIon"
+_customInfo['inputFiles']={}
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_HIon_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_HIon_MC.root"
+_customInfo['maxEvents' ]=  100
+_customInfo['globalTag' ]= "auto:run2_hlt_HIon"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_HIon_DATA.root']
+_customInfo['realData'  ]=  True
+_customInfo['fastSim'   ]=  False
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+process = customizeHLTforAll(process,_customInfo)
 

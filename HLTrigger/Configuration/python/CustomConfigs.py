@@ -98,6 +98,13 @@ def MassReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker"):
         massSearchReplaceAnyInputTag(getattr(process,s),old,new)
     return(process)
 
+def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker"):
+#   replace values of named parameters
+    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
+    for s in process.paths_().keys():
+        massSearchReplaceParam(getattr(process,s),name,old,new)
+    return(process)
+
 
 def L1REPACK(process):
 #   Replace only the L1 parts and keep the rest
