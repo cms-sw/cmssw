@@ -25,7 +25,16 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetInitialPD_selector.l1tResults = cms.InputTag('')
 streamA_datasetInitialPD_selector.throw      = cms.bool(False)
-streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p41_v1', 
+streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK4CaloJet100_v1', 
+    'HLT_AK4CaloJet30_v1', 
+    'HLT_AK4CaloJet40_v1', 
+    'HLT_AK4CaloJet50_v1', 
+    'HLT_AK4CaloJet80_v1', 
+    'HLT_AK4PFJet100_v1', 
+    'HLT_AK4PFJet30_v1', 
+    'HLT_AK4PFJet50_v1', 
+    'HLT_AK4PFJet80_v1', 
+    'HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p41_v1', 
     'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1', 
     'HLT_AK8PFJet360_TrimMass30_v1', 
     'HLT_Activity_Ecal_SC7_v1', 
@@ -147,6 +156,11 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_FullTrack20_v1', 
     'HLT_FullTrack30_v1', 
     'HLT_FullTrack50_v1', 
+    'HLT_HISinglePhoton10_v1', 
+    'HLT_HISinglePhoton15_v1', 
+    'HLT_HISinglePhoton20_v1', 
+    'HLT_HISinglePhoton40_v1', 
+    'HLT_HISinglePhoton60_v1', 
     'HLT_HT200_v1', 
     'HLT_HT250_v1', 
     'HLT_HT300_v1', 
@@ -394,6 +408,10 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_VBF_DisplacedJet40_Hadronic_v1', 
     'HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v1', 
     'HLT_VBF_DisplacedJet40_TightID_Hadronic_v1', 
+    'HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v1', 
+    'HLT_VBF_DisplacedJet40_VTightID_Hadronic_v1', 
+    'HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v1', 
+    'HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v1', 
     'HLT_ZeroBias_v1' ) )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
@@ -410,6 +428,11 @@ streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_AK4CaloJe
     'HLT_CaloMETCleanedForMC_v1', 
     'HLT_CaloMETForMC_v1', 
     'HLT_CaloMHTForMC_v1', 
+    'HLT_DoubleGlbTrkMu_TrkIsoVVL_DZ_SaveObjects_v1', 
+    'HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v1', 
+    'HLT_DoubleMu_TrkIsoVVL_DZ_SaveObjects_v1', 
+    'HLT_IsoMu_SaveObjects_v1', 
+    'HLT_IsoTkMu15_SaveObjects_v1', 
     'HLT_PFHTForMC_v1', 
     'HLT_PFMETForMC_v1', 
     'HLT_PFMHTForMC_v1', 
