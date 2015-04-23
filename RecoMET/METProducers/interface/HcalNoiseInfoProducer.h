@@ -35,6 +35,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace reco {
 
@@ -66,6 +67,7 @@ namespace reco {
     void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&);
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
+    void filljetinfo(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
 
     // other helper functions
     void fillOtherSummaryVariables(HcalNoiseSummary& summary, const CommonHcalNoiseRBXData& data) const;
@@ -87,17 +89,21 @@ namespace reco {
     int maxCaloTowerIEta_;      // maximum caloTower ieta
     double maxTrackEta_;        // maximum eta of the track
     double minTrackPt_;         // minimum track Pt
+    double maxNHF_;
+    int maxjetindex_;
     
     std::string digiCollName_;         // name of the digi collection
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection
     std::string trackCollName_;        // name of the track collection
+    std::string jetCollName_;          // name of the jet collection
 
     edm::EDGetTokenT<HBHEDigiCollection> hbhedigi_token_;
     edm::EDGetTokenT<HcalCalibDigiCollection> hcalcalibdigi_token_;
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
     edm::EDGetTokenT<reco::TrackCollection> track_token_;
+    edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
 
     double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
 

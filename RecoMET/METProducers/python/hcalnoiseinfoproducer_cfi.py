@@ -107,12 +107,15 @@ hcalnoise = cms.EDProducer(
     maxCaloTowerIEta = cms.int32(20),
     maxTrackEta = cms.double(2.0),
     minTrackPt = cms.double(1.0),
+    maxNHF = cms.double(0.9),
+    maxjetindex = cms.int32(0),
 
     # collection names
     digiCollName = cms.string('hcalDigis'),
     recHitCollName = cms.string('hbhereco'),
     caloTowerCollName = cms.string('towerMaker'),
     trackCollName = cms.string('generalTracks'),
+    jetCollName = cms.string('ak4PFJets'),
 
     # severity level
     HcalAcceptSeverityLevel = cms.uint32(9),
