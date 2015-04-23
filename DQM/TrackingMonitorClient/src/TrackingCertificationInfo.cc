@@ -36,6 +36,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   , trackingLSCertificationBooked_(false)
   , nFEDConnected_(0)
   , allPixelFEDConnected_(true)
+  , m_cacheID_(0)
 {
   // Create MessageSender
   edm::LogInfo( "TrackingCertificationInfo") << "TrackingCertificationInfo::Deleting TrackingCertificationInfo ";
