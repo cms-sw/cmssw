@@ -160,11 +160,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             if(dz<dist) {pvi=ii;dist=dz; }
           }
           PV = reco::VertexRef(PVs, pvi);
-          PVpos = PV->position();
           math::XYZPoint vtx = cand.vertex();
           pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
           const reco::VertexRef & PVOrig = associatedPV[reco::CandidatePtr(cands,ic)];
-          PV = reco::VertexRef(PVs, PVOrig.key()); // WARNING: assume the PV slimmer is keeping same order
+          if(PVOrig.isNonnull()) PV = reco::VertexRef(PVs, PVOrig.key()); // WARNING: assume the PV slimmer is keeping same order
           int quality=associationQuality[reco::CandidatePtr(cands,ic)];
 //          if ((size_t)pvi!=PVOrig.key()) std::cout << "not closest in Z" << pvi << " " << PVOrig.key() << " " << cand.pt() << " " << quality << std::endl;
           //          TrajectoryStateOnSurface tsos = extrapolator.extrapolate(trajectoryStateTransform::initialFreeState(*ctrack,&*magneticField), RecoVertex::convertPos(PV->position()));
