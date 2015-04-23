@@ -26,11 +26,9 @@ endif
 foreach gtag ( $1 )
 
   if ( $gtag == DATA ) then
-    set basepy = OnData
     set flags  = ""
     set infix  = hlt
   else
-    set basepy = OnMc
     set flags  = --mc
     set infix  = mc
   endif
@@ -42,7 +40,7 @@ foreach gtag ( $1 )
     touch  ${name}
     rm -rf ${name}*
 
-    set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
+    set config = `grep tableName OnLine_HLT_${table}.py | cut -f2 -d "'"`
     if ($table == Fake) then
       set basegt = auto:run1_${infix}_${table}
     else 

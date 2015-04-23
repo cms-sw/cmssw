@@ -43,10 +43,8 @@ function getConfigForCVS() {
   log "  dumping HLT cffs for $NAME from $CONFIG"
 
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME > HLT_${NAME}_cff.py
-  hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_data_cff.py
+  hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
   hltGetConfiguration --fastsim              $CONFIG --type $NAME > HLT_${NAME}_Famos_cff.py
-  diff -C0 HLT_${NAME}_cff.py HLT_${NAME}_data_cff.py
 }
 
 function getContentForCVS() {
@@ -87,27 +85,10 @@ function getConfigForOnline() {
 
   log "  dumping full HLT for $NAME from $CONFIG"
   # override L1 menus
-  if [ "$NAME" == "2014" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP1 --globaltag auto:run1_hlt_2014    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP1 --globaltag auto:run1_mc_2014     > OnMc_HLT_$NAME.py 
-  elif [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP1 --globaltag auto:run1_hlt_Fake    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP1 --globaltag auto:run1_mc_Fake     > OnMc_HLT_$NAME.py 
-  elif [ "$NAME" == "FULL" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_hlt_FULL    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_mc_FULL     > OnMc_HLT_$NAME.py 
-  elif [ "$NAME" == "GRun" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_hlt_GRun    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_mc_GRun     > OnMc_HLT_$NAME.py 
-  elif [ "$NAME" == "HIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_hlt_HIon    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_mc_HIon     > OnMc_HLT_$NAME.py
-  elif [ "$NAME" == "PIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_hlt_PIon    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_mc_PIon     > OnMc_HLT_$NAME.py
+  if [ "$NAME" == "Fake" ]; then
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_hlt_GRun    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME $L1TPP2 --globaltag auto:run2_mc_GRun     > OnMc_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   fi
 
 }
@@ -133,7 +114,7 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
-FILES=$(eval echo On{Data,Mc}_HLT_FULL.py On{Data,Mc}_HLT_{$TABLES_}.py)
+FILES=$(eval echo OnLine_HLT_FULL.py OnLine_HLT_{$TABLES_}.py)
 rm -f $FILES
 getConfigForOnline $MASTER FULL
 for TABLE in $TABLES; do
