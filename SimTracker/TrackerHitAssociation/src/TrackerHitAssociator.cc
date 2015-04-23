@@ -110,6 +110,9 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent) {
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof)
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
 
+  SimHitMap.clear();  // Start fresh after previous event.
+  SimHitCollMap.clear();
+
   for(auto const& cfToken : cfTokens_) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     int Nhits = 0;
@@ -163,6 +166,9 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring& t
   //  The collections are specified via ROUList in the configuration, and can
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof) 
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
+
+  SimHitMap.clear();  // Start fresh after previous event.
+  SimHitCollMap.clear();
 
   for(auto const& trackerContainer : trackerContainers) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
