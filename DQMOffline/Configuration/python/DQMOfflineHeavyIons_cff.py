@@ -40,7 +40,7 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
 triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
 
-egammaDQMOffline.remove(electronAnalyzerSequence)
+#egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
 egammaDQMOffline.remove(zmumugammaOldAnalysis)
 egammaDQMOffline.remove(photonAnalysis)
