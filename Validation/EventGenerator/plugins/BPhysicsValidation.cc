@@ -32,7 +32,7 @@ void BPhysicsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, 
   DQMHelper dqm(&i); i.setCurrentFolder("Generator/BPhysics");
   Nobj   = dqm.book1dHisto("N"+name, "N"+name, 1, 0., 1,"bin","Number of "+name);
   particle.Configure(i);
-  for(unsigned int j=0;j<daughters.size();j++){std::cout << j << std::endl; daughters[j].Configure(i);}
+  for(unsigned int j=0;j<daughters.size();j++){daughters[j].Configure(i);}
 }
 
 void BPhysicsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup){ 
