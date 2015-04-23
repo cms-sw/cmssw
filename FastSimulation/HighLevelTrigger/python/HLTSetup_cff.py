@@ -79,7 +79,6 @@ from FastSimulation.HighLevelTrigger.RecoLocalTracker_cff import *
 # Calorimeter = Ecal and Hcal
 #
 from FastSimulation.HighLevelTrigger.RecoLocalCalo_cff import *
-from FastSimulation.HighLevelTrigger.EcalRegionalReco_cff import *
 # Specific reconstruction sequences for FastSimulation
 from FastSimulation.HighLevelTrigger.HLTFastReco_cff import *
 HLTDoLocalPixelSequence           = cms.Sequence(pixeltrackerlocalreco)
