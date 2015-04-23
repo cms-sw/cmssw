@@ -168,16 +168,11 @@ RPCDetId::buildfromTrIndex(int trIndex)
   trIndex = trIndex%10000;
   int sector_id = trIndex/100;
   /*
-  // This piece targets exactly RE1/1
-  // it makes the chamber at x=0 (phi=0) start as CH02 instead of CH01  
-  // which is not desired, therefore commented out. 
-  // need to understand why historically it was done like this
+  // RE+1/1 :: the chamber at x=0 (phi=0) start as CH02 instead of CH01, which is not desired
+  // while for other chambers: RE+1/(2,3) and RE+2,3,4/(2,3) the rotation is arbitrary
+  // therefore commented out. Though need to understand why historically it was done like this
   if (region!=0) {
     if ( !(ring == 1 && station > 1 && region==1)) {     
-      // statement is true for all chambers in region == -1
-      // statement is true for all chambers in station 1 in region == +1
-      // statement is true for all chambers in ring 2,3 of stations 2,3,4 of region == +1
-      // statement is coded in terrible way ... test with and without and compare list of DetIds 
       sector_id+=1;
       if (sector_id==37)sector_id=1;
     }
