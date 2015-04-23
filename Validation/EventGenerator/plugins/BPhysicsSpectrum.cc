@@ -8,9 +8,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"  
 
-#include "CLHEP/Units/defs.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 using namespace edm;
 
 BPhysicsSpectrum::BPhysicsSpectrum(const edm::ParameterSet& iPSet): 

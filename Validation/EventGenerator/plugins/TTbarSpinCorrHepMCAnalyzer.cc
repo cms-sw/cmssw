@@ -88,9 +88,9 @@ void TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 // ------------ method called once each job just before starting event loop  ------------
 void TTbarSpinCorrHepMCAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
     ///Setting the DQM top directories
-    TString dir="Generator/";
+  std::string dir="Generator/";
     dir+="TTbarSpinCorr";
-    DQMHelper dqm(&i); i.setCurrentFolder(dir.Data());
+    DQMHelper dqm(&i); i.setCurrentFolder(dir);
 
     // Number of analyzed events
     nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");

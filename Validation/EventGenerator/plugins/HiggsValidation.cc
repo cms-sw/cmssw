@@ -37,9 +37,9 @@ void HiggsValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
 void HiggsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
 
     ///Setting the DQM top directories
-    TString dir="Generator/";
+  std::string dir="Generator/";
     dir+=particle_name;
-    DQMHelper dqm(&i); i.setCurrentFolder(dir.Data());
+    DQMHelper dqm(&i); i.setCurrentFolder(dir);
     
     // Number of analyzed events
     nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");
