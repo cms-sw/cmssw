@@ -5,7 +5,6 @@
 #include <algorithm>
 
 using DDI::Division;
-using namespace DDI;
 
 Division::Division(const DDLogicalPart & parent,
 		   const DDAxes axis,
@@ -40,7 +39,7 @@ void Division::stream(std::ostream & os)
   os << std::endl;
   os << "  LogicalPart: " << parent_ << std::endl;
   os << "  Solid: " << parent_.solid() << std::endl;
-  os << " axis: " << axis() << " nReplicas: " << nReplicas()
+  os << " axis: " << DDAxesNames::name( axis()) << " nReplicas: " << nReplicas()
      << " width: " << width() << " offset: " << offset() << std::endl; 
 }
 

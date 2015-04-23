@@ -18,6 +18,7 @@
 #include<stdlib.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class RPCGeometry;
 //class RPCSimSetUp;
