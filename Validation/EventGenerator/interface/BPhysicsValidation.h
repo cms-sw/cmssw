@@ -47,11 +47,11 @@ class BPhysicsValidation : public DQMEDAnalyzer {
   
   class ParticleMonitor{
   public:
-  ParticleMonitor(TString _name,const edm::ParameterSet &_p):p(_p),name(_name),pdgid(p.getParameter<int>("pdgid")){};
+  ParticleMonitor(std::string name_,const edm::ParameterSet &p_):p(p_),name(name_),pdgid(p.getParameter<int>("pdgid")){};
     ~ParticleMonitor(){};
     
     void Configure(DQMStore::IBooker &i){
-      TString pname=p.getParameter<std::string>("pname");
+      std::string pname=p.getParameter<std::string>("pname");
       double mass_min=p.getParameter<double>("massmin");
       double mass_max=p.getParameter<double>("massmax");
       DQMHelper dqm(&i); i.setCurrentFolder("Generator/BPhysics");
@@ -74,7 +74,7 @@ class BPhysicsValidation : public DQMEDAnalyzer {
     
   private:
     const edm::ParameterSet p;
-    TString name;
+    std::string name;
     int pdgid;
     MonitorElement *pt, *eta, *phi, *mass; 
   };
@@ -82,7 +82,7 @@ class BPhysicsValidation : public DQMEDAnalyzer {
   void FillDaughters(const reco::GenParticle* p);
   edm::InputTag genparticleCollection_;
   edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
-  TString name;
+  std::string name;
   ParticleMonitor particle;
   std::vector<ParticleMonitor> daughters;
   MonitorElement *Nobj;

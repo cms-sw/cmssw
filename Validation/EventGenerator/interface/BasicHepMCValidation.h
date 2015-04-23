@@ -51,7 +51,7 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
     
     class ParticleMonitor{
     public:
-    ParticleMonitor(TString _name,int pdgid_, DQMStore::IBooker &i,bool nlog_=false):name(_name),pdgid(pdgid_),count(0),nlog(nlog_){
+    ParticleMonitor(std::string name_,int pdgid_, DQMStore::IBooker &i,bool nlog_=false):name(name_),pdgid(pdgid_),count(0),nlog(nlog_){
 	DQMHelper dqm(&i);
 	// Number of analyzed events
 	if(!nlog){
@@ -141,7 +141,7 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
 	return p; 
       } 
       
-      TString name;
+      std::string name;
       int pdgid;
       unsigned int count;
       bool nlog;

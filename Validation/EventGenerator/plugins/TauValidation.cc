@@ -137,16 +137,16 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     MODEID =dqm.book1dHisto("JAKID","JAK ID",NMODEID+1,-0.5,NMODEID+0.5);
     for(unsigned int j=0; j<NMODEID+1;j++){
       MODEInvMass.push_back(std::vector<MonitorElement *>());
-      TString tmp="JAKID";
-      tmp+=j;
-      MODEInvMass.at(j).push_back(dqm.book1dHisto("M"+std::string(tmp.Data()),"M_{"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
+      std::string tmp="JAKID";
+      tmp+=std::to_string(j);
+      MODEInvMass.at(j).push_back(dqm.book1dHisto("M"+tmp,"M_{"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
       MODEID->setBinLabel(1+j,TauDecay::DecayMode(j));
       if(j==TauDecay::MODE_3PI || j==TauDecay::MODE_PI2PI0 ||
 	 j==TauDecay::MODE_KPIK ||
 	 j==TauDecay::MODE_KPIPI ){
-	MODEInvMass.at(j).push_back(dqm.book1dHisto("M13"+std::string(tmp.Data()),"M_{13,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{13,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
-	MODEInvMass.at(j).push_back(dqm.book1dHisto("M23"+std::string(tmp.Data()),"M_{23,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{23,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
-	MODEInvMass.at(j).push_back(dqm.book1dHisto("M12"+std::string(tmp.Data()),"M_{12,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{12,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
+	MODEInvMass.at(j).push_back(dqm.book1dHisto("M13"+tmp,"M_{13,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{13,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
+	MODEInvMass.at(j).push_back(dqm.book1dHisto("M23"+tmp,"M_{23,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{23,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
+	MODEInvMass.at(j).push_back(dqm.book1dHisto("M12"+tmp,"M_{12,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{12,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
       }
     }
   return;

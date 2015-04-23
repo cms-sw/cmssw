@@ -47,7 +47,7 @@ class BPhysicsSpectrum : public DQMEDAnalyzer {
   MonitorElement *mass, *Nobj; 
   edm::InputTag genparticleCollection_;
   edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
-  TString name;
+  std::string name;
   double mass_min, mass_max;
   std::vector<int> Particles;
 };
