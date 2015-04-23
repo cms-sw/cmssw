@@ -45,6 +45,7 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
     fPrimaryVertexCollectionLabel(iConfig.getUntrackedParameter<InputTag>("vertexCollLabel", edm::InputTag("offlinePrimaryVertices"))), 
     fPixelClusterLabel(iConfig.getUntrackedParameter<InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters"))), 
+    fPileUpInfoLabel(edm::InputTag("addPileupInfo")),
     saveType(iConfig.getUntrackedParameter<string>("saveType")),
     sampleType(iConfig.getUntrackedParameter<string>("sampleType"))
 {
@@ -86,6 +87,9 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
         pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
     }
 
+    if(sampleType=="MC"){
+        pileUpToken=consumes<std::vector< PileupSummaryInfo> >(fPileUpInfoLabel);
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -147,10 +151,10 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     }
 
     if(sampleType=="MC"){
-        edm::Handle<std::vector< PileupSummaryInfo> > PupInfo;
-        iEvent.getByLabel("addPileupInfo", PupInfo);
+        edm::Handle<std::vector< PileupSummaryInfo> > pileUpInfo;
+        iEvent.getByToken(pileUpToken, pileUpInfo);
         std::vector<PileupSummaryInfo>::const_iterator PVI;
-        for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+        for(PVI = pileUpInfo->begin(); PVI != pileUpInfo->end(); ++PVI) {
             int pu_bunchcrossing = PVI->getBunchCrossing();
             //std::cout<<"pu_bunchcrossing getPU_NumInteractions getTrueNumInteractions "<<pu_bunchcrossing<<" "<<PVI->getPU_NumInteractions()<<" "<<PVI->getTrueNumInteractions()<<std::endl;
             if(pu_bunchcrossing == 0) {

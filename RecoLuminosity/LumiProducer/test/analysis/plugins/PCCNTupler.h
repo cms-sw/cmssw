@@ -72,6 +72,7 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
   private:
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >  pixelToken;
     edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
+    edm::EDGetTokenT<std::vector< PileupSummaryInfo> > pileUpToken;
     
     int             fVerbose; 
     std::string     fRootFileName; 
@@ -79,6 +80,7 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     int             fDumpAllEvents;
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPixelClusterLabel;
+    edm::InputTag   fPileUpInfoLabel;
 
     bool fAccessSimHitInfo;
 
