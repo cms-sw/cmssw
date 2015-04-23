@@ -46,7 +46,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
@@ -70,7 +69,6 @@ private:
   edm::InputTag tpTags_; //used to select what tracks to read from configuration file
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOldToken;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOutToken;
-  //RecoTrackSelector selectRecoTracks;
   TrackerHitAssociator* hitAssociator;
   edm::ESHandle<TrackerGeometry> theG;
   std::string out;
