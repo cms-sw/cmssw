@@ -329,7 +329,8 @@ void HcalBaseDQMonitor::CheckSubdetectorStatus(const edm::Handle<FEDRawDataColle
       if (!dccHeader) return;
       int dccid=dccHeader->getSourceId();
       // check for HF
-      if (subdet == HcalForward && dccid>=1118 && dccid<=1122)
+      if (subdet == HcalForward && ((dccid>=1118 && dccid<=1122) || 
+				  (dccid>=718 && dccid<=723)))
 	{
 	  HFpresent_=true;
 	  return;
