@@ -109,7 +109,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
     */
   } else {
     trackerMap_->fill_all_blank();
-    setTkMapFromHistogram(dqm_store, map_type);
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
     setTkMapRange(map_type);
   }
   trackerMap_->printonline();
@@ -178,7 +178,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
     setTkMapFromAlarm(dqm_store, eSetup);
   }
   else {
-    setTkMapFromHistogram(dqm_store, map_type);
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
   }
   // if not overwitten by manual configuration min=0 and max= mean value * meanToMaxFactor_
   setTkMapRangeOffline();
@@ -358,7 +358,7 @@ void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, const Tracke
 
 //
 // --  Paint Tracker Map from TkHistoMap Histograms
-void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype) {
+void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype, const edm::EventSetup& eSetup) {
   dqm_store->cd();
 
   std::string mdir = "MechanicalView";
@@ -410,24 +410,41 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
     dqm_store->cd(mechanicalview_dir);
   }
   dqm_store->cd();
-  if (topModules) printTopModules(topNmodVec);
+  if (topModules) printTopModules(topNmodVec, eSetup);
   delete topNmodVec;
 }
 
-void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec){
+void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup){
+
+   //////////////Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   const TrackerTopology* const tTopo = tTopoHandle.product();  
+
    std::sort(topNmodVec->rbegin(), topNmodVec->rend());
    topNmodVec->resize(numTopModules);
+   
    edm::LogVerbatim("TopModules") << topModLabel;
    edm::LogVerbatim("TopModules") << "-----------------------------------------";
-   for (std::vector<std::pair<float,uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); itNmod++){
-       std::pair<float,uint32_t> aPair=(*itNmod);
-       edm::LogVerbatim("TopModules") << "module " << aPair.second << " " << aPair.first;
+   
+   for (std::vector<std::pair<float, uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); itNmod++){
+       std::pair<float, uint32_t> aPair=(*itNmod);
+       uint32_t det_id = aPair.second;
+       std::ostringstream comment;
+       std::string subdetector;
+       SiStripDetId ssdetid(aPair.second);
+       if(ssdetid.subDetector()==SiStripDetId::TIB) subdetector = "TIB ";
+       if(ssdetid.subDetector()==SiStripDetId::TID) subdetector = "TID ";
+       if(ssdetid.subDetector()==SiStripDetId::TOB) subdetector = "TOB ";
+       if(ssdetid.subDetector()==SiStripDetId::TEC) subdetector = "TEC ";
+       uint16_t flag = getDetectorFlagAndComment(0, det_id, tTopo, comment);
+       if (flag == 0) edm::LogVerbatim("TopModules") << subdetector << comment.str() << " value: "<< aPair.first;
    }
    edm::LogVerbatim("TopModules") << "-----------------------------------------";
 }
 
 
-void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype, std::vector<std::pair<float,uint32_t> >* topNmodVec) {
+void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype, std::vector<std::pair<float, uint32_t> >* topNmodVec) {
 
   //  edm::ESHandle<SiStripQuality> ssq;
 
@@ -470,6 +487,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
       }
       tkMapMax_ += fval;
       if(topNmodVec){
+	//std::ostringstream ss; ss << fval;
         auto detPair = std::make_pair(fval,det_id);
         topNmodVec->push_back(detPair);
       }
@@ -529,7 +547,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
   if(conns.size()==1) {	comment << "              ";      }
   if(conns.size()==2) {	comment << "       ";      }
     //  }
-
+  if(!dqm_store) return flag;
   // get PSU channel corresponding to the det_id
   /*
   comment << " PSU: ";
