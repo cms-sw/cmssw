@@ -47,6 +47,7 @@ postValidation_fastsim = cms.Sequence(
     + MuIsoValPostProcessor
     + fastSimPhotonPostProcessor
     + bTagCollectorSequenceMC
+    + runTauEff
 )
 
  
