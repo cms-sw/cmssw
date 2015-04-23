@@ -30,7 +30,8 @@
 //
 // -- Contructor
 //
-SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) {
+SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) :
+  m_cacheID_(0) {
   // Create MessageSender
   edm::LogInfo( "SiStripCertificationInfo") << "SiStripCertificationInfo::Deleting SiStripCertificationInfo ";
   // get back-end interface

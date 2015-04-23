@@ -16,7 +16,7 @@ def numberOfEvents(file):
 	return NEntries	
 
 
-globaltag = "GR_E_V42" 
+globaltag = "GR_P_V53" 
 path = "/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/CRUZET15" #no slash at the end
 #path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12"
 #path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
@@ -24,7 +24,7 @@ firstRun = -1
 #firstRun = 192701	#value of the first run with the new calibration --> this is needed to avoid mixing runs with different calibrations
 lastRun  = -1
 MC=""
-publish = True
+publish = False
 mail = "loic.quertenmont@gmail.com"
 automatic = True;
 
@@ -50,10 +50,10 @@ for info in calibTreeInfo:
 	run = int(subParts[4].replace(path+'/',"").replace("calibTree_","").replace(".root","")) 
 	if(run<firstRun):continue
         if(lastRun>0 and run>lastRun):continue
-	os.system("stager_get -M " + subParts[4] + " &");	
+#	os.system("stager_get -M " + subParts[4] + " &");	
 	NEvents = numberOfEvents("root://eoscms//eos/cms"+subParts[4]);	
 	if(calibTreeList==""):firstRun=run;
-	calibTreeList += '  "root://eoscms//eos/cms'+subParts[4]+'", #' + str(size).rjust(6)+'MB  NEvents='+str(NEvents/1000).rjust(8)+'K\n'
+	calibTreeList += 'calibTreeList += ["root://eoscms//eos/cms'+subParts[4]+'"] #' + str(size).rjust(6)+'MB  NEvents='+str(NEvents/1000).rjust(8)+'K\n'
 	NTotalEvents += NEvents;
 #	if(NTotalEvents>2500000): #commented for CRUZET15
 #		break;
