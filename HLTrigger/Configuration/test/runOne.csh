@@ -31,8 +31,10 @@ foreach gtag ( $1 )
   foreach table ( $tables )
 
     if ($gtag == DATA) then
+      set realData = True
       set base = RelVal_${rawLHC}
     else
+      set realData = False
       set base = RelVal_${rawSIM}
     endif
 
@@ -51,10 +53,19 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      echo "`date +%T` cmsRun $name.py >& $name.log"
-#     ls -l        $name.py
-      time  cmsRun $name.py >& $name.log
-      echo "`date +%T` exit status: $?"
+
+      if ( $task == OnLine_HLT ) then
+        set short = ${task}_${table}
+        echo "`date +%T` cmsRun $short.py realData=${realData} globalTag="@" inputFiles="@" >& $name.log"
+#       ls -l        $short.py
+        time  cmsRun $short.py realData=${realData} globalTag="@" inputFiles="@" >& $name.log
+        echo "`date +%T` exit status: $?"
+      else
+        echo "`date +%T` cmsRun $name.py >& $name.log"
+#       ls -l        $name.py
+        time  cmsRun $name.py >& $name.log
+        echo "`date +%T` exit status: $?"
+      endif
 
       if ( ( $task == RelVal_${rawLHC} ) || ( $task == RelVal_${rawSIM} ) ) then
 #       link to input file for subsequent steps
