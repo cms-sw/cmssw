@@ -14,7 +14,7 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -85,6 +85,7 @@ int RPCSimAsymmetricCls::getClSize(uint32_t id,float posX, CLHEP::HepRandomEngin
   int min = 1;
 
   double rr_cl = CLHEP::RandFlat::shoot(engine);
+  LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::getClSize] Fired RandFlat :: "<<rr_cl;
   for(unsigned int i = 0 ; i < clsForDetId.size(); i++){
     cnt++;
     if(rr_cl > clsForDetId[i]){
@@ -107,6 +108,8 @@ int RPCSimAsymmetricCls::getClSize(float posX, CLHEP::HepRandomEngine* engine)
   std::vector<double> sum_clsize;
 
   double rr_cl = CLHEP::RandFlat::shoot(engine);
+  LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::getClSize] Fired RandFlat :: "<<rr_cl;
+
   if(0.0 <= posX && posX < 0.2)  {
     func = (clsMap[1])[(clsMap[1]).size()-1]*(rr_cl);
     sum_clsize = clsMap[1];
@@ -168,21 +171,32 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
     
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
     
-    // Effinciecy
+    std::stringstream veffstream; veffstream<<"[";
+    for(std::vector<float>::iterator veffIt = veff.begin(); veffIt != veff.end(); ++veffIt) { veffstream<<(*veffIt)<<","; }
+    veffstream<<"]";
+    std::string veffstr = veffstream.str();
+    LogDebug("RPCSimAsymmetricCls")<<"Get Eff from RPCSimSetup for detId = "<<rpcId.rawId()<<" :: "<<veffstr;  
+
+
+    // Efficiency
     int centralStrip = topology.channel(entr)+1;
     float fire = CLHEP::RandFlat::shoot(engine);
+    LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulate] Fired RandFlat :: "<<fire<<" --> < "<<veff[centralStrip-1]<<" ? --> "<<((fire < veff[centralStrip-1])?1:0);
 
     if (fire < veff[centralStrip-1]) {
-      
+      LogDebug ("RPCSimAsymmetricCls")<<"Detector is Efficient for this simhit";
+
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       
       // Compute the cluster size
       double w = CLHEP::RandFlat::shoot(engine);
+      LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulate] Fired RandFlat :: "<<w<<" (w is not used)";
       if (w < 1.e-10) w=1.e-10;
 
       int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
-      
+      LogDebug ("RPCSimAsymmetricCls")<<"Clustersize = "<<clsize;
+
       std::vector<int> cls;
  
       cls.push_back(centralStrip);
@@ -229,6 +243,8 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       
       //Now calculate the shift according to the distribution
       float fire1 = CLHEP::RandFlat::shoot(engine);
+      LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulate] Fired RandFlat :: "<<fire1<<" (fire1 is used for a shift of the cluster)";
+
       int strip_shift=0;
       
       int offset;
@@ -284,9 +300,12 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
 	   i!=shifted_cls.end();i++){
 	// Check the timing of the adjacent strip
 	if(*i != centralStrip){
-	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
+	  double fire2 = CLHEP::RandFlat::shoot(engine);
+          LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulate] Fired RandFlat :: "<<fire2<<" (check whether adjacent strips are efficient)";
+	  if(fire2 < veff[*i-1]){
 	    std::pair<int, int> digi(*i,time_hit);
 	    strips.insert(digi);
+	    LogDebug ("RPCSimAsymmetricCls")<<"RPC Digi inserted :: Signl :: DetId :: "<<rpcId<<" = "<<rpcId.rawId()<<" ==> digi <"<<digi.first<<","<<digi.second<<">";  
 	    
 	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	  }
@@ -294,8 +313,9 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
 	else {
 	  std::pair<int, int> digi(*i,time_hit);
 	  theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
-	  
+
 	  strips.insert(digi);
+	  LogDebug ("RPCSimAsymmetricCls")<<"RPC Digi inserted :: Signl :: DetId :: "<<rpcId<<" = "<<rpcId.rawId()<<" ==> digi <"<<digi.first<<","<<digi.second<<">";  
 	}
       }
     }
@@ -313,6 +333,15 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll,
 
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
+
+  LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulateNoise] Treating DetId :: "<<rpcId<<" = "<<rpcId.rawId()<<" which has "<<roll->nstrips()<<" strips";
+
+  std::stringstream vnoisestream; vnoisestream<<"[";
+  for(std::vector<float>::iterator vnoiseIt = vnoise.begin(); vnoiseIt != vnoise.end(); ++vnoiseIt) { vnoisestream<<(*vnoiseIt)<<","; }
+  vnoisestream<<"]";
+  std::string vnoisestr = vnoisestream.str();
+  LogDebug("RPCSimAsymmetricCls")<<"Get Noise from RPCSimSetup for detId = "<<rpcId.rawId()<<" :: vector with "<<vnoise.size()<<"entries :: "<<vnoisestr;  
+ 
 
   unsigned int nstrips = roll->nstrips();
   double area = 0.0;
@@ -335,28 +364,35 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll,
       area = striplength*(xmax-xmin);
     }
 
+  LogDebug ("RPCSimAsymmetricCls")<<"Noise :: vnoise.size() = "<<vnoise.size();
+
   for(unsigned int j = 0; j < vnoise.size(); ++j){
     
     if(j >= nstrips) break; 
 
     // The efficiency of 0% does not imply on the noise rate.
     // If the strip is masked the noise rate should be 0 Hz/cm^2
-    //    if(veff[j] == 0) continue;
+    // if(veff[j] == 0) continue;
     
-    //    double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
+    // double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
     // The vnoise is the noise rate per strip, so we shout multiply not
     // by the chamber area,
     // but the strip area which is area/((float)roll->nstrips()));
-    double ave =
-      vnoise[j]*nbxing*gate*area*1.0e-9*frate/((float)roll->nstrips());
-    
+    double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate/((float)roll->nstrips());
+    LogDebug ("RPCSimAsymmetricCls")<<"Noise :: strip "<<j<<" Average = "<<ave<<" = vnoise[j]*nbxing*gate*area*1.0e-9*frate/((float)roll->nstrips()) = "<<vnoise[j]<<"*"<<nbxing<<"*"<<gate<<"*"<<area<<"*"<<1.0e-9<<"*"<<frate<<"/"<<((float)roll->nstrips());
+
     CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
     N_hits = randPoissonQ.fire();
+    LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulateNoise] Fired RandPoissonQ :: "<<N_hits;
+    LogDebug ("RPCSimAsymmetricCls")<<"Noise :: Amount of Noise Hits for DetId :: "<<rpcId<<" = "<<rpcId.rawId()<<" = N_hits = randPoissonQ.fire() = "<<N_hits;
 
     for (int i = 0; i < N_hits; i++ ){
-      int time_hit = (static_cast<int>(CLHEP::RandFlat::shoot((nbxing*gate)/gate))) - nbxing/2;
+      double time2 = CLHEP::RandFlat::shoot((nbxing*gate)/gate);
+      LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulateNoise] Fired RandFlat :: "<<time2;
+      int time_hit = (static_cast<int>(time2) - nbxing/2);
       std::pair<int, int> digi(j+1,time_hit);
       strips.insert(digi);
+      LogDebug ("RPCSimAsymmetricCls")<<"RPC Digi inserted :: Noise :: DetId :: "<<rpcId<<" = "<<rpcId.rawId()<<" ==> digi <"<<digi.first<<","<<digi.second<<">";
     }
   }
 }
