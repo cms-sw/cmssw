@@ -1,26 +1,26 @@
 #include <vector>
 #include <algorithm>
 #include "TMath.h"
+#include "PlotHelpers.C"
 
 
 //Uncomment the following line to get some more output
 //#define DEBUG 1
 
-void SeedValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
+void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="REF_FILE") {
   cout << ">> Starting SeedValHistoPublisher(" << newFile << "," << refFile << ")..." << endl;
 
   //====  To be replaced from python ====================
   
-  char* dataType = "DATATYPE";
-  char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
-  char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+  const char* dataType = "DATATYPE";
+  const char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
+  const char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
 
 
   // ==== Initial settings and loads
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
   //gROOT ->Reset();
   gROOT ->SetBatch();
-  gROOT->LoadMacro("macro/PlotHelpers.C");
   gErrorIgnoreLevel = kWarning; // Get rid of the info messages
 
   
