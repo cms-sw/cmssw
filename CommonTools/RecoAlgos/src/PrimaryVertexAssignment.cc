@@ -9,7 +9,8 @@
 
 std::pair<int,PrimaryVertexAssignment::Quality>
 PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vertices,
-                                   const reco::TrackRef& track,
+                                   const reco::TrackRef& trackRef,
+                                   const reco::Track* track,
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
 
@@ -19,7 +20,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   typedef reco::Vertex::trackRef_iterator IT;
   float bestweight=0;
   for( auto const & vtx : vertices) {
-      float w = vtx.trackWeight(track);
+      float w = vtx.trackWeight(trackRef);
       if (w > bestweight){
           bestweight=w;
           iVertex=index;
@@ -100,7 +101,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   // all other tracks could be non-B secondaries and we just attach them with closest Z
   if(vtxIdMinDz>=0)
      return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::OtherDz);
-
+   std::cout << "UNASSIGNED! " <<  vtxIdMinDz << std::endl;
   //If for some reason even the dz failed (when?) we consider the track not assigned
   return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
 }
