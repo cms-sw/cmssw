@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
 #include "TRandom.h"
 #include "TFile.h"
@@ -149,7 +150,7 @@ namespace edm {
     RecordEventID(std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T& eventOperator)
       : ids_(ids), eventOperator_(eventOperator), eventCount(0) {
     }
-    void operator()(EventPrincipal const& eventPrincipal, unsigned int fileNameHash) {
+    void operator()(EventPrincipal const& eventPrincipal, size_t fileNameHash) {
       ids_.emplace_back(eventPrincipal.id(), fileNameHash);
       eventOperator_(eventPrincipal, ++eventCount);
     }
