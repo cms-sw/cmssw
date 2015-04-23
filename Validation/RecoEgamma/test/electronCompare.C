@@ -1,4 +1,5 @@
 #include <TObjArray.h>
+#include <sstream>
 
 TH1F * DivideHistos
  ( TFile * f,
@@ -22,7 +23,7 @@ TH1F * DivideHistos
  }
 
 void Join
- ( const TObjArray * tokens, TString & common )
+ ( TObjArray * tokens, TString & common )
  {
   tokens->Compress() ;
   if (tokens->GetEntries()==0)
@@ -389,7 +390,7 @@ int electronCompare()
     if (first==std::string::npos) continue ;
     if (line[first]=='#') continue ;
 
-    std::istrstream linestream(line) ;
+    std::basic_istringstream<char> linestream(line) ;
     divide = 0 ; num = denom = "" ;
     linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
 
@@ -587,4 +588,5 @@ int electronCompare()
   web_page<<"\n</html>"<<std::endl ;
   web_page.close() ;
 
+  return 0;
  }

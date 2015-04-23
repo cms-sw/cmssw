@@ -85,7 +85,7 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
    */
   DDDivision(const DDName & name,
              const DDLogicalPart & parent,
-	     const DDI::DDAxes axis,
+	     const DDAxes axis,
 	     const int nReplicas,
 	     const double width,
 	     const double offset );
@@ -96,7 +96,7 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
    */
   DDDivision(const DDName & name,
 	     const DDLogicalPart & parent,
-	     const DDI::DDAxes axis,
+	     const DDAxes axis,
 	     const int nReplicas,
 	     const double offset );
 
@@ -105,13 +105,13 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
    */
   DDDivision(const DDName & name,
              const DDLogicalPart & parent,
-	     const DDI::DDAxes axis,
+	     const DDAxes axis,
 	     const double width,
 	     const double offset );
   
   //  virtual ~G4PVDivision();
 
-  DDI::DDAxes axis() const;
+  DDAxes axis() const;
   int nReplicas() const;
   double width() const;
   double offset() const;
