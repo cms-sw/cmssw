@@ -49,6 +49,8 @@ def customisePostLS1(process):
     # 25ns specific customisation
     if hasattr(process,'digitisation_step'):
         process = customise_Digi_25ns(process)
+    if hasattr(process,'dqmoffline_step'):
+        process = customise_DQM_25ns(process)
 
     return process
 

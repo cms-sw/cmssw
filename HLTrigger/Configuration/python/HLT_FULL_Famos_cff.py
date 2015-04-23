@@ -31687,21 +31687,21 @@ fragment.hltPreVBFDisplacedJet40VTightIDHadronic = cms.EDFilter( "HLTPrescaler",
 fragment.hltHighHadFractionCaloJetSelectorVTightID = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
     src = cms.InputTag( "hltAK4CaloJetsCorrected" ),
-    cut = cms.string( "abs(eta) < 2 && (( energyFractionHadronic > 0.90 && ( n90 < 8 && n60 < 5 && towersArea < 0.18 )) || energyFractionHadronic > .99)" )
+    cut = cms.string( "abs(eta) < 2 && (( energyFractionHadronic > 0.85 && ( n90 < 12 && n60 < 6 && towersArea < 0.20 )) || energyFractionHadronic > .98)" )
 )
-fragment.hltCentralHadronCaloJetpt40VTightID = cms.EDFilter( "HLT1CaloJet",
+fragment.hltCentralHadronCaloJetpt40 = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
     MinPt = cms.double( 40.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltHighHadFractionCaloJetSelectorVTightID" ),
+    inputTag = cms.InputTag( "hltHighHadFractionCaloJetSelector" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-fragment.hltCentralHadronCaloJetpt40CollectionProducerVTightID = cms.EDProducer( "HLTCaloJetCollectionProducer",
+fragment.hltCentralHadronCaloJetpt40CollectionProducer = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 85 ),
-    HLTObject = cms.InputTag( "hltCentralHadronCaloJetpt40VTightID" )
+    HLTObject = cms.InputTag( "hltCentralHadronCaloJetpt40" )
 )
 fragment.hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsVTightID = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltCentralHadronCaloJetpt40CollectionProducerVTightID" ),
@@ -31710,7 +31710,7 @@ fragment.hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsVT
     coneSize = cms.double( 0.4 ),
     pvSrc = cms.InputTag( "" )
 )
-fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVTightID = cms.EDProducer( "TrackIPProducer",
+fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJets = cms.EDProducer( "TrackIPProducer",
     maximumTransverseImpactParameter = cms.double( 0.1 ),
     minimumNumberOfHits = cms.int32( 8 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
@@ -31718,7 +31718,7 @@ fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVTightID = 
     maximumLongitudinalImpactParameter = cms.double( 0.1 ),
     computeGhostTrack = cms.bool( False ),
     ghostTrackPriorDeltaR = cms.double( 0.03 ),
-    jetTracks = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsVTightID" ),
+    jetTracks = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJets" ),
     jetDirectionUsingGhostTrack = cms.bool( False ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     jetDirectionUsingTracks = cms.bool( False ),
@@ -31726,22 +31726,22 @@ fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVTightID = 
     useTrackQuality = cms.bool( False ),
     maximumChiSquared = cms.double( 20.0 )
 )
-fragment.hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVTightID = cms.EDProducer( "JetTagProducer",
+fragment.hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJets = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltESPDisplacedDijethltPromptTrackCountingESProducer" ),
-    tagInfos = cms.VInputTag( 'hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVTightID' )
+    tagInfos = cms.VInputTag( 'hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJets' )
 )
-fragment.hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJetsVTightID = cms.EDFilter( "HLTCaloJetTag",
+fragment.hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJets = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVTightID" ),
+    JetTags = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJets" ),
     TriggerType = cms.int32( 85 ),
-    Jets = cms.InputTag( "hltCentralHadronCaloJetpt40CollectionProducerVTightID" ),
+    Jets = cms.InputTag( "hltCentralHadronCaloJetpt40CollectionProducer" ),
     MinTag = cms.double( -999999.0 ),
     MaxTag = cms.double( 1.5 )
 )
-fragment.hltDisplacedHLTHadronJetCollectionProducerVTightID = cms.EDProducer( "HLTCaloJetCollectionProducer",
+fragment.hltDisplacedHLTHadronJetCollectionProducer = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 85 ),
-    HLTObject = cms.InputTag( "hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJetsVTightID" )
+    HLTObject = cms.InputTag( "hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJets" )
 )
 fragment.hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadronJetsVTightID = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltDisplacedHLTHadronJetCollectionProducerVTightID" ),
@@ -31750,7 +31750,7 @@ fragment.hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadron
     coneSize = cms.double( 0.4 ),
     pvSrc = cms.InputTag( "" )
 )
-fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVTightID = cms.EDProducer( "TrackIPProducer",
+fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJets = cms.EDProducer( "TrackIPProducer",
     maximumTransverseImpactParameter = cms.double( 0.1 ),
     minimumNumberOfHits = cms.int32( 8 ),
     minimumTransverseMomentum = cms.double( 0.5 ),
@@ -31758,7 +31758,7 @@ fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVTightID
     maximumLongitudinalImpactParameter = cms.double( 0.1 ),
     computeGhostTrack = cms.bool( False ),
     ghostTrackPriorDeltaR = cms.double( 0.03 ),
-    jetTracks = cms.InputTag( "hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadronJetsVTightID" ),
+    jetTracks = cms.InputTag( "hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadronJets" ),
     jetDirectionUsingGhostTrack = cms.bool( False ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     jetDirectionUsingTracks = cms.bool( False ),
@@ -31766,16 +31766,16 @@ fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVTightID
     useTrackQuality = cms.bool( False ),
     maximumChiSquared = cms.double( 20.0 )
 )
-fragment.hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVTightID = cms.EDProducer( "JetTagProducer",
+fragment.hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJets = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltESPDisplacedDijethltPromptTrackCountingESProducer" ),
-    tagInfos = cms.VInputTag( 'hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVTightID' )
+    tagInfos = cms.VInputTag( 'hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJets' )
 )
-fragment.hltL4PromptHadronJetsFullTracksHLTCaloJetTagFilterVTightID = cms.EDFilter( "HLTCaloJetTag",
+fragment.hltL4PromptHadronJetsFullTracksHLTCaloJetTagFilter = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVTightID" ),
+    JetTags = cms.InputTag( "hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJets" ),
     TriggerType = cms.int32( 85 ),
-    Jets = cms.InputTag( "hltDisplacedHLTHadronJetCollectionProducerVTightID" ),
+    Jets = cms.InputTag( "hltDisplacedHLTHadronJetCollectionProducer" ),
     MinTag = cms.double( -999999.0 ),
     MaxTag = cms.double( 1.5 )
 )
@@ -31783,24 +31783,24 @@ fragment.hltPreVBFDisplacedJet40VVTightIDHadronic = cms.EDFilter( "HLTPrescaler"
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltHighHadFractionCaloJetSelectorVVTightID = cms.EDFilter( "CaloJetSelector",
+fragment.hltHighHadFractionCaloJetSelectorTightID = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
     src = cms.InputTag( "hltAK4CaloJetsCorrected" ),
-    cut = cms.string( "abs(eta) < 2 && (( energyFractionHadronic > 0.93 && ( n90 < 8 && n60 < 5 && towersArea < 0.18 )) || energyFractionHadronic > .99)" )
+    cut = cms.string( "abs(eta) < 2 && (( energyFractionHadronic > 0.88 && ( n90 < 10 && n60 < 5 && towersArea < 0.18 )) || energyFractionHadronic > .98)" )
 )
-fragment.hltCentralHadronCaloJetpt40VVTightID = cms.EDFilter( "HLT1CaloJet",
+fragment.hltCentralHadronCaloJetpt40TightID = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
     MinPt = cms.double( 40.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltHighHadFractionCaloJetSelectorVVTightID" ),
+    inputTag = cms.InputTag( "hltHighHadFractionCaloJetSelectorTightID" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-fragment.hltCentralHadronCaloJetpt40CollectionProducerVVTightID = cms.EDProducer( "HLTCaloJetCollectionProducer",
+fragment.hltCentralHadronCaloJetpt40CollectionProducerTightID = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 85 ),
-    HLTObject = cms.InputTag( "hltCentralHadronCaloJetpt40VVTightID" )
+    HLTObject = cms.InputTag( "hltCentralHadronCaloJetpt40TightID" )
 )
 fragment.hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsVVTightID = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltCentralHadronCaloJetpt40CollectionProducerVVTightID" ),
@@ -31809,7 +31809,7 @@ fragment.hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsVV
     coneSize = cms.double( 0.4 ),
     pvSrc = cms.InputTag( "" )
 )
-fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVVTightID = cms.EDProducer( "TrackIPProducer",
+fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsTightID = cms.EDProducer( "TrackIPProducer",
     maximumTransverseImpactParameter = cms.double( 0.1 ),
     minimumNumberOfHits = cms.int32( 8 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
@@ -31817,7 +31817,7 @@ fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVVTightID =
     maximumLongitudinalImpactParameter = cms.double( 0.1 ),
     computeGhostTrack = cms.bool( False ),
     ghostTrackPriorDeltaR = cms.double( 0.03 ),
-    jetTracks = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsVVTightID" ),
+    jetTracks = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTracksAssociatorAtVertexForHadronJetsTightID" ),
     jetDirectionUsingGhostTrack = cms.bool( False ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     jetDirectionUsingTracks = cms.bool( False ),
@@ -31825,22 +31825,22 @@ fragment.hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVVTightID =
     useTrackQuality = cms.bool( False ),
     maximumChiSquared = cms.double( 20.0 )
 )
-fragment.hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVVTightID = cms.EDProducer( "JetTagProducer",
+fragment.hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsTightID = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltESPDisplacedDijethltPromptTrackCountingESProducer" ),
-    tagInfos = cms.VInputTag( 'hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsVVTightID' )
+    tagInfos = cms.VInputTag( 'hltL3DisplacedDijet100FullTracksTrackIPProducerForHadronJetsTightID' )
 )
-fragment.hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJetsVVTightID = cms.EDFilter( "HLTCaloJetTag",
+fragment.hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJetsTightID = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVVTightID" ),
+    JetTags = cms.InputTag( "hltL3DisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsTightID" ),
     TriggerType = cms.int32( 85 ),
-    Jets = cms.InputTag( "hltCentralHadronCaloJetpt40CollectionProducerVVTightID" ),
+    Jets = cms.InputTag( "hltCentralHadronCaloJetpt40CollectionProducerTightID" ),
     MinTag = cms.double( -999999.0 ),
     MaxTag = cms.double( 1.5 )
 )
-fragment.hltDisplacedHLTHadronJetCollectionProducerVVTightID = cms.EDProducer( "HLTCaloJetCollectionProducer",
+fragment.hltDisplacedHLTHadronJetCollectionProducerTightID = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 85 ),
-    HLTObject = cms.InputTag( "hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJetsVVTightID" )
+    HLTObject = cms.InputTag( "hltOnePromptHLTL3DisplacedDijetFullTracksHLTCaloJetTagFilterForHadronJetsTightID" )
 )
 fragment.hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadronJetsVVTightID = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltDisplacedHLTHadronJetCollectionProducerVVTightID" ),
@@ -31849,7 +31849,7 @@ fragment.hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadron
     coneSize = cms.double( 0.4 ),
     pvSrc = cms.InputTag( "" )
 )
-fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVVTightID = cms.EDProducer( "TrackIPProducer",
+fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsTightID = cms.EDProducer( "TrackIPProducer",
     maximumTransverseImpactParameter = cms.double( 0.1 ),
     minimumNumberOfHits = cms.int32( 8 ),
     minimumTransverseMomentum = cms.double( 0.5 ),
@@ -31857,7 +31857,7 @@ fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVVTightI
     maximumLongitudinalImpactParameter = cms.double( 0.1 ),
     computeGhostTrack = cms.bool( False ),
     ghostTrackPriorDeltaR = cms.double( 0.03 ),
-    jetTracks = cms.InputTag( "hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadronJetsVVTightID" ),
+    jetTracks = cms.InputTag( "hltL4DisplacedDijetFullTracksJetPromptTracksAssociatorAtVertexForHadronJetsTightID" ),
     jetDirectionUsingGhostTrack = cms.bool( False ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     jetDirectionUsingTracks = cms.bool( False ),
@@ -31865,16 +31865,16 @@ fragment.hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVVTightI
     useTrackQuality = cms.bool( False ),
     maximumChiSquared = cms.double( 20.0 )
 )
-fragment.hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVVTightID = cms.EDProducer( "JetTagProducer",
+fragment.hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsTightID = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltESPDisplacedDijethltPromptTrackCountingESProducer" ),
-    tagInfos = cms.VInputTag( 'hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsVVTightID' )
+    tagInfos = cms.VInputTag( 'hltL4PromptDisplacedDijetFullTracksTrackIPProducerForHadronJetsTightID' )
 )
-fragment.hltL4PromptHadronJetsFullTracksHLTCaloJetTagFilterVVTightID = cms.EDFilter( "HLTCaloJetTag",
+fragment.hltL4PromptHadronJetsFullTracksHLTCaloJetTagFilterTightID = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsVVTightID" ),
+    JetTags = cms.InputTag( "hltL4PromptDisplacedDijetFullTracksJetTagProducerFromIPForHadronJetsTightID" ),
     TriggerType = cms.int32( 85 ),
-    Jets = cms.InputTag( "hltDisplacedHLTHadronJetCollectionProducerVVTightID" ),
+    Jets = cms.InputTag( "hltDisplacedHLTHadronJetCollectionProducerTightID" ),
     MinTag = cms.double( -999999.0 ),
     MaxTag = cms.double( 1.5 )
 )
