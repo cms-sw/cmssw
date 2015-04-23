@@ -598,7 +598,9 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       int subdet = -1;
       
       if(dccid >= 700 && dccid<=717)  { subdet = 0; mindigisizeHBHE_ = NTS; maxdigisizeHBHE_ = NTS; } // HBHE
-      if(dccid >= 1118 && dccid<=1122)  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
+      if((dccid >= 1118 && dccid<=1122) || 
+			  (dccid>=718 && dccid<=723))  
+	  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
       if(dccid >= 724 && dccid<=731)  { subdet = 1; mindigisizeHO_ = NTS; maxdigisizeHO_ = NTS; }     // HO
       
       DigiExpectedSize->Fill(subdet,int(NTS),1);
