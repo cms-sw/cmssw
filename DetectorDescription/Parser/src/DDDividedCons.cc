@@ -17,8 +17,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-using namespace DDI;
-
 DDDividedConsRho::DDDividedConsRho( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
 {

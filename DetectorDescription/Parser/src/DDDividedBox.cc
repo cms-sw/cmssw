@@ -16,8 +16,6 @@
 
 #include <iomanip>
 
-using namespace DDI;
-
 DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv)
   : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
 {

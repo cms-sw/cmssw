@@ -30,6 +30,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandFlat.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -73,11 +74,12 @@ void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSe
    edm::ESHandle<RPCClusterSize> clsRcd;
    eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
 
+  theRPCSimSetUp->setGeometry( pGeom );
    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
 //    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
   
   theDigitizer->setGeometry( pGeom );
-  theRPCSimSetUp->setGeometry( pGeom );
+  // theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
 }
 
@@ -85,6 +87,12 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
+  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
+  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
+  LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] to activate the test go in RPCDigiProducer.cc and uncomment the line below";
+  // LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] Fired RandFlat :: "<<CLHEP::RandFlat::shoot(engine);
+
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
   // Obsolate code, based on getByLabel  

@@ -19,8 +19,6 @@
 #include <cmath>
 #include <cstdlib>
 
-using namespace DDI;
-
 DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject(div,cpv)
 {
@@ -62,7 +60,7 @@ DDDividedTrdX::makeDDTranslation( const int copyNo ) const
 
   DCOUT_V ('P', " DDDividedTrdX: " << copyNo << "\n Position: x=" << posi << "  Axis= " << DDAxesNames::name(div_.axis()) << "\n");
 
-  if( div_.axis() == x )
+  if( div_.axis() == DDAxes::x )
   {
     return DDTranslation(posi, 0.0, 0.0);
   }
@@ -215,7 +213,7 @@ DDDividedTrdY::makeDDTranslation( const int copyNo ) const
 
   DCOUT_V ('P', " DDDividedTrdY: " << copyNo << "\n Position: y=" << posi << "  Axis= " << DDAxesNames::name(div_.axis()) << "\n");
 
-  if( div_.axis() == y )
+  if( div_.axis() == DDAxes::y )
   {
     return DDTranslation(0.0, posi, 0.0);
   }
@@ -352,7 +350,7 @@ DDDividedTrdZ::makeDDTranslation( const int copyNo ) const
 
   DCOUT_V ('P', " DDDividedTrdZ: " << copyNo << "\n Position: z=" << posi << "  Axis= " << DDAxesNames::name(div_.axis()) << "\n");
 
-  if( div_.axis() == z )
+  if( div_.axis() == DDAxes::z )
   {
     return DDTranslation(0.0, 0.0, posi);
   }

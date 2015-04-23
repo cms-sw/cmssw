@@ -50,7 +50,7 @@ DDDivision::DDDivision( const DDName & name) : DDBase<DDName,DDI::Division*>()
 
 DDDivision::DDDivision( const DDName & name,
 			const DDLogicalPart & parent,
-			const DDI::DDAxes axis,
+			const DDAxes axis,
 			const int nReplicas,
 			const double width,
 			const double offset ) :  DDBase<DDName,DDI::Division*>()
@@ -62,7 +62,7 @@ DDDivision::DDDivision( const DDName & name,
 
 DDDivision::DDDivision( const DDName & name,
 			const DDLogicalPart & parent,
-			const DDI::DDAxes axis,
+			const DDAxes axis,
 			const int nReplicas,
 			const double offset )
 {
@@ -73,7 +73,7 @@ DDDivision::DDDivision( const DDName & name,
 
 DDDivision::DDDivision( const DDName & name,
 			const DDLogicalPart & parent,
-			const DDI::DDAxes axis,
+			const DDAxes axis,
 			const double width,
 			const double offset )
 {
@@ -82,7 +82,7 @@ DDDivision::DDDivision( const DDName & name,
   //  DD_NDC(name);
 }
 
-DDI::DDAxes DDDivision::axis() const
+DDAxes DDDivision::axis() const
 {
   return rep().axis();
 }
