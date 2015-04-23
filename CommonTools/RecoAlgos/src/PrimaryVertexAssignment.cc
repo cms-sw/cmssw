@@ -101,7 +101,6 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   // all other tracks could be non-B secondaries and we just attach them with closest Z
   if(vtxIdMinDz>=0)
      return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::OtherDz);
-   std::cout << "UNASSIGNED! " <<  vtxIdMinDz << std::endl;
   //If for some reason even the dz failed (when?) we consider the track not assigned
   return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
 }
