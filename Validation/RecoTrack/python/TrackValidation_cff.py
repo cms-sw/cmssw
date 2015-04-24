@@ -86,6 +86,10 @@ cutsRecoTracksMuonSeededStepOutInHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
 cutsRecoTracksMuonSeededStepOutInHp.algorithm=cms.vstring("muonSeededStepOutIn")
 cutsRecoTracksMuonSeededStepOutInHp.quality=cms.vstring("highPurity")
 
+# BTV-like selection
+import PhysicsTools.RecoAlgos.btvTracks_cfi as btvTracks_cfi
+cutsRecoTracksBtvLike = btvTracks_cfi.btvTrackRefs.clone()
+
 trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
@@ -110,6 +114,7 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepInOutHp"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepOutIn"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepOutInHp"),
+                                   cms.InputTag("cutsRecoTracksBtvLike"),
                                    )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
@@ -139,7 +144,8 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksMuonSeededStepInOut*
                                 cutsRecoTracksMuonSeededStepInOutHp*
                                 cutsRecoTracksMuonSeededStepOutIn*
-                                cutsRecoTracksMuonSeededStepOutInHp )
+                                cutsRecoTracksMuonSeededStepOutInHp*
+                                cutsRecoTracksBtvLike)
 tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
