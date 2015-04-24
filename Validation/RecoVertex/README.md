@@ -120,7 +120,7 @@ sequence. Again, we think it is better to provide you with the
 cmsDriver command to do that:
 
 ```
-cmsDriver.py step4  --scenario pp --filetype DQM --conditions auto:run2_mc --mc  -s HARVESTING:postProcessorVertexStandAlone -n -1 --filein file:step3_VertexValidation.root
+cmsDriver.py step4  --scenario pp --filetype DQM --conditions auto:run2_mc --mc  -s HARVESTING:postProcessorVertexStandAlone -n -1 --filein file:step3_VertexValidation.root -no_exec
 ```
 This command will create a final, plain, ROOT file named:
 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root that will contain
