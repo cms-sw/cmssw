@@ -4,6 +4,7 @@ from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from Validation.RecoTrack.TrackValidation_cff import *
 quickTrackAssociatorByHits.associateStrip = False
 quickTrackAssociatorByHits.associatePixel = False
+quickTrackAssociatorByHits.useClusterTPAssociation = False
 #TrackAssociatorByHitsRecoDenom.ROUList = ['famosSimHitsTrackerHits']
 trackValidator.UseAssociators = True
 trackValidator.skipHistoFit=cms.untracked.bool(True)
