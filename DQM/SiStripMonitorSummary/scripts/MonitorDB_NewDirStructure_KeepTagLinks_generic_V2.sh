@@ -21,7 +21,7 @@ DBTAGCOLLECTION=DBTagsIn_${DB}.txt
 GLOBALTAGCOLLECTION=GlobalTagsForDBTag.txt
 DBTAGDIR=DBTagCollection
 GLOBALTAGDIR=GlobalTags
-STORAGEPATH=/afs/cern.ch/cms/tracker/sistrcalib/WWW/CondDBMonitoringV2
+STORAGEPATH=/afs/cern.ch/cms/tracker/sistrcalib/WWW/CondDBMonitoring
 WORKDIR=$PWD
 
 #Function to publish png pictures on the web. Will be used at the end of the script:
@@ -76,7 +76,7 @@ if [ ! -d "$STORAGEPATH/$DB/$GLOBALTAGDIR" ]; then
 fi
 
 # Access of all SiStrip Tags uploaded to the given DB account
-conddb --db $DB --nocolors search -L 100 $SEARCHSTRING | grep --regexp=^$SEARCHSTRING | awk '{if(match($1,"V0")!=0 || match($1,"/")!=0) {} else {print $1}}' > $DBTAGCOLLECTION
+conddb --db $DB --nocolors listTags | grep --regexp=^$SEARCHSTRING | awk '{if(match($1,"V0")!=0 || match($1,"/")!=0) {} else {print $1}}' > $DBTAGCOLLECTION
 
 # Loop on all DB Tags
 for tag in `cat $DBTAGCOLLECTION`; do
