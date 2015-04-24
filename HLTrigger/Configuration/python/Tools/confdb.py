@@ -456,6 +456,7 @@ process = loadL1menu(process)
       self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
 
       # input tags for track collections
+      self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtTkMuMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2HighPtMerged', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForElectrons', replace = 'generalTracks')
       self._fix_parameter(                               type = 'InputTag', value = 'hltIter2MergedForPhotons', replace = 'generalTracks')
