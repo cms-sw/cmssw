@@ -851,6 +851,7 @@ class ConfigBuilder(object):
         self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
         self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
+        self.CFSLIMWRTDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
         if "DATAMIX" in self.stepMap.keys():
@@ -872,6 +873,7 @@ class ConfigBuilder(object):
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
         self.CFWRITERDefaultSeq=None
+        self.CFSLIMWRTDefaultSeq=None
         self.RAW2DIGIDefaultSeq='RawToDigi'
         self.L1RecoDefaultSeq='L1Reco'
         self.L1TrackTriggerDefaultSeq='L1TrackTrigger'
@@ -1371,6 +1373,12 @@ class ConfigBuilder(object):
 	    """ Enrich the schedule with the crossing frame writer step"""
 	    self.loadAndRemember(self.CFWRITERDefaultCFF)
 	    self.scheduleSequence('pcfw','cfwriter_step')
+	    return
+
+    def prepare_CFSLIMWRT(self, sequence = None):
+	    """ Enrich the schedule with the crossing frame slimmed writer step"""
+	    self.loadAndRemember(self.CFSLIMWRTDefaultCFF)
+	    self.scheduleSequence('pcfsw','cfslimwrt_step')
 	    return
 
     def prepare_DATAMIX(self, sequence = None):
