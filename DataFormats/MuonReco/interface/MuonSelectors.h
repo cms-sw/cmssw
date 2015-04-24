@@ -83,6 +83,7 @@ namespace muon {
 
    bool isTightMuon(const reco::Muon&, const reco::Vertex&);
    bool isLooseMuon(const reco::Muon&);
+   bool isMediumMuon(const reco::Muon&);
    bool isSoftMuon(const reco::Muon&, const reco::Vertex&);
    bool isHighPtMuon(const reco::Muon&, const reco::Vertex&);
    
