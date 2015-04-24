@@ -33268,7 +33268,7 @@ fragment.hltPreIsoTkMu15SaveObjects = cms.EDFilter( "HLTPrescaler",
 )
 fragment.hltHighPtTkMu15TkFilt = cms.EDFilter( "HLTTrackWithHits",
     saveTags = cms.bool( False ),
-    src = cms.InputTag( "hltIter2HighPtTkMuMerged" ),
+    src = cms.InputTag( "generalTracks" ),
     MinPT = cms.double( 15.0 ),
     MinN = cms.int32( 1 ),
     MinPXL = cms.int32( 1 ),
