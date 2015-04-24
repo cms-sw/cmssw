@@ -251,6 +251,9 @@ void HLTWorkspace::bookPlots()
   quickCollectionPaths.push_back("HLT_PFHT200_DiPFJet90_PFAlphaT0p57");
   lookupFilter["HLT_PFHT200_DiPFJet90_PFAlphaT0p57"] = "hltPFHT200PFAlphaT0p57";
 
+  quickCollectionPaths.push_back("HLT_PFJet200");
+  lookupFilter["HLT_PFJet200"] = "hltSinglePFJet200";
+
   ////////////////////////////////
   ///
   /// Main shifter workspace plots
@@ -272,6 +275,11 @@ void HLTWorkspace::bookPlots()
   TH1F * hist_electronPt = new TH1F("Electron_pT","Electron pT",75,0,150);
   hist_electronPt->SetMinimum(0);
   dbe->book1D("Electron_pT",hist_electronPt);
+
+  //jet pt
+  TH1F * hist_jetPt = new TH1F("Jet_pT","Jet pT",75,150,550);
+  hist_jetPt->SetMinimum(0);
+  dbe->book1D("Jet_pT",hist_jetPt);
 
   //dimuon low mass
   TH1F * hist_dimuonLowMass = new TH1F("Dimuon_LowMass","Dimuon Low Mass",100,2.5,3.5);
@@ -425,7 +433,17 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	  hist_electronPhi->Fill(objects[key].phi());
 	}
     }
- 
+  
+  //jet pt
+  else if (pathName == "HLT_PFJet200")
+    {
+      //jet pt
+      string fullPathJetPt = mainShifterFolder+"/Jet_pT";
+      MonitorElement * ME_jetPt = dbe->get(fullPathJetPt);
+      TH1F * hist_jetPt = ME_jetPt->getTH1F();
+      for (const auto & key : keys) hist_jetPt->Fill(objects[key].pt());
+    }
+  
  //CSV
   // else if (pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq240" || pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07")
   //   {
