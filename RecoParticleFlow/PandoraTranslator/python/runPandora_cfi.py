@@ -10,7 +10,8 @@ pandorapfanew = cms.EDProducer('PandoraCMSPFCandProducer',
     genParticles= cms.InputTag("genParticles"),
     # use slow algorithms until fast algoritms are available in the CMSSW external pandora library
 #    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms_slow.xml'),
-    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms.xml'),
+#    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms.xml'),
+    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms_NoFragRemoval.xml'),
 
     energyCorrMethod = cms.string('ABSCORR'),
 #   absorber thickness correction
