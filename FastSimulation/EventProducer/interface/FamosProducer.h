@@ -32,18 +32,11 @@ class FamosProducer : public edm::stream::EDProducer <>
   HepMC::GenEvent * evt_;
   bool simulateMuons;
 
-  // labels
-  edm::InputTag sourceLabel; // FUTURE OBSOLETE
-  edm::InputTag genParticleLabel;
   
-  // tokens
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
-  // FUTURE OBSOLETE CODE
+  // token for hepmc from signal event
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
+  // token for hepmc from pu
   edm::EDGetTokenT<edm::HepMCProduct> puToken;
-  // OBSOLETE CODE
-  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > mixSourceToken;
-  edm::EDGetTokenT<reco::GenParticleCollection> mixGenParticleToken;
 };
 
 #endif
