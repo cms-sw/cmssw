@@ -159,44 +159,22 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 {
   //  myGenEvent = evt;
   
-  if (evt != 0 || particles != 0) {
-    iEvent++;
-    edm::EventID id(m_pRunNumber,1U,iEvent);
+  iEvent++;
+  edm::EventID id(m_pRunNumber,1U,iEvent);
 
 
-    // Fill the event from the original generated event
-    if (evt ) 
-      mySimEvent->fill(*evt,id);
-    
-    else 
-      mySimEvent->fill(*particles,id);
-    
-    //    mySimEvent->printMCTruth(*evt);
-    /*
-      mySimEvent->print();
-      std::cout << "----------------------------------------" << std::endl;
-    */
-    
-    // Get the pileup events and add the particles to the main event
+  // Fill the event from the original generated event
+  mySimEvent->fill(*evt,id);
+        
+  // Get the pileup events and add the particles to the main event
+  if(pu)
     myPileUpSimulator->produce(pu);
-    /*
-      mySimEvent->print();
-    std::cout << "----------------------------------------" << std::endl;
-    */
     
-    // And propagate the particles through the detector
-    myTrajectoryManager->reconstruct(tTopo, random);
-    /*
-      mySimEvent->print();
-      std::cout << "=========================================" 
-      << std::endl
-      << std::endl;
-    */
+  // And propagate the particles through the detector
+  myTrajectoryManager->reconstruct(tTopo, random);
 
-    if ( myCalorimetry ) myCalorimetry->reconstruct(random);
-  }
+  if ( myCalorimetry ) myCalorimetry->reconstruct(random);
 
-  // Should be moved to LogInfo
   edm::LogInfo("FamosManager")  << " saved : Event  " << iEvent
 				<< " of weight " << mySimEvent->weight()
 				<< " with " << mySimEvent->nTracks()
