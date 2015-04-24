@@ -3,9 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" // future obsolete
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"    // obsolete
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 class FamosManager;
 class ParameterSet;
