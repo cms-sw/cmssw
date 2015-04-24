@@ -93,3 +93,5 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
                          ),
     outputFileName = cms.untracked.string("")
 )
+
+postProcessorTrackStandalone = cms.Sequence(postProcessorTrack)

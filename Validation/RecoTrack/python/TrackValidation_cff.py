@@ -163,3 +163,4 @@ tracksPreValidationFS = cms.Sequence(
 tracksValidation = cms.Sequence( trackValidator)
 tracksValidationFS = cms.Sequence( trackValidator )
 
+tracksValidationStandalone = cms.Sequence(tracksPreValidation+tracksValidation)
