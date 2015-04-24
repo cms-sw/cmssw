@@ -132,6 +132,16 @@ def miniAOD_customizeCommon(process):
     process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
 
+    ## CaloJets
+    process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+         src = process.patJets.jetSource,
+         matched = cms.InputTag("ak4CaloJets"),
+         distMax = cms.double(0.4),
+         values = cms.vstring('pt','emEnergyFraction'),
+	 valueLabels = cms.vstring('pt','emEnergyFraction'),
+	 lazyParser = cms.bool(True) )
+    process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
+
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
