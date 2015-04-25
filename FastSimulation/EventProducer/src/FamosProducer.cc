@@ -43,22 +43,14 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     simulateMuons = p.getParameter<bool>("SimulateMuons");
     if ( simulateMuons ) produces<edm::SimTrackContainer>("MuonSimTracks");
 
-    // The generator input label
-    sourceLabel = p.getParameter<edm::InputTag>("SourceLabel");
-    genParticleLabel = p.getParameter<edm::InputTag>("GenParticleLabel");
-
-    // consume declarations
-    genParticleToken = consumes<reco::GenParticleCollection>(genParticleLabel);
-    // FUTURE OBSOLETE CODE
+    // hepmc event from signal event
+    edm::InputTag sourceLabel = p.getParameter<edm::InputTag>("SourceLabel");
     sourceToken = consumes<edm::HepMCProduct>(sourceLabel);
+    
+    // for gen-mixing
     edm::InputTag _label = edm::InputTag("famosPileUp","PileUpEvents");
     puToken = consumes<edm::HepMCProduct>(_label);
-    // OBSOLETE CODE
-    _label = edm::InputTag("mixGenPU","generator");
-    mixSourceToken = consumes<CrossingFrame<edm::HepMCProduct> >(_label);
-    _label = edm::InputTag("genParticlesFromMixingModule");
-    mixGenParticleToken = consumes<reco::GenParticleCollection>(_label);
-    
+
     // famos manager
     famosManager_ = new FamosManager(p);
 }
@@ -83,76 +75,23 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    es.get<IdealGeometryRecord>().get(tTopoHand);
    const TrackerTopology *tTopo=tTopoHand.product();
 
-      
-   const HepMC::GenEvent* myGenEvent = 0;
-   FSimEvent* fevt = famosManager_->simEvent();
-   
-   // Get the generated event(s) from the edm::Event
-   // 1. Check if a HepMCProduct exists
-   //    a. Take the VtxSmeared if it exists
-   //    b. Take the source  otherwise
-   // 2. Otherwise go for the CandidateCollection
-   
+   // get the signal event
    Handle<HepMCProduct> theHepMCProduct;
+   iEvent.getByToken(sourceToken,theHepMCProduct);
+   const HepMC::GenEvent * myGenEvent = theHepMCProduct->GetEvent();
    
-   const reco::GenParticleCollection* myGenParticlesXF = 0; //OBSOLETE
-   const reco::GenParticleCollection* myGenParticles = 0;
-   const HepMC::GenEvent* thePUEvents = 0;
+   // get the pu event (for gen-mixing)
+   Handle<HepMCProduct> thePileUpEvents;
+   bool isPileUp = iEvent.getByToken(puToken,thePileUpEvents);
+   const HepMC::GenEvent * thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
 
-   // BEGIN OBSOLETE CODE
-   Handle<CrossingFrame<HepMCProduct> > theHepMCProductCrossingFrame;
-   bool isPileUpXF = iEvent.getByToken(mixSourceToken,theHepMCProductCrossingFrame);
-   if (isPileUpXF){// take the GenParticle from crossingframe event collection, if it exists 
-     Handle<reco::GenParticleCollection> genEvtXF;
-     bool genPartXF = iEvent.getByToken(mixGenParticleToken,genEvtXF);
-     if(genPartXF) myGenParticlesXF = &(*genEvtXF);
-   }
-   else{// otherwise, use the old famos PU     
-   // END OBSOLETE CODE
-     // Get the generated signal event
-     // BEGIN FUTURE OBSOLETE CODE
-     bool source = iEvent.getByToken(sourceToken,theHepMCProduct);
-     if ( source ) { 
-       myGenEvent = theHepMCProduct->GetEvent();
-     } 
+   // do the simulation
+   famosManager_->reconstruct(myGenEvent,thePUEvents,tTopo, &random);
 
-     // GEN LEVEL INFO NOT IN HEPMC FORMAT
-     //     In case there is no HepMCProduct, seek a genParticle Candidate Collection
-     bool genPart = false;
-     if ( !myGenEvent ) { 
-       //END FUTURE OBSOLETE CODE
-       // Look for the particle CandidateCollection
-       Handle<reco::GenParticleCollection> genEvt;
-       genPart = iEvent.getByToken(genParticleToken,genEvt);
-       if ( genPart ) myGenParticles = &(*genEvt);
-     }
-       
-     if ( !myGenEvent && !genPart )
-       std::cout << "There is no generator input for this event, under " 
-		 << "any form (HepMCProduct, genParticles)" << std::endl
-		 << "Please check SourceLabel or GenParticleLabel" << std::endl;
-       
-     // BEGIN FUTURE OBSOLETE CODE
-     // Get the pile-up events from the pile-up producer
-     // There might be no pile-up events, by the way, in that case, just continue
-     Handle<HepMCProduct> thePileUpEvents;
-     bool isPileUp = iEvent.getByToken(puToken,thePileUpEvents);
-     thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
-     // END FUTURE OBSOLETE CODE
-   }//end else
-   
-
-   // pass the event to the Famos Manager for propagation and simulation
-   if (myGenParticlesXF) {// OBSOLETE OPTION
-     famosManager_->reconstruct(myGenParticlesXF,tTopo, &random);
-   } else {
-     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents,tTopo, &random); // FUTURE OBSOLETE ARGUMENTS: myGenEvents, thePUEvents 
-   }
-
+   // get the hits, simtracks and simvertices and put in the event
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
    
-   // Save everything in the edm::Event
    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
@@ -163,24 +102,21 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    std::auto_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
    std::auto_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
    
+   FSimEvent* fevt = famosManager_->simEvent();
    fevt->load(*p1,*m1);
    fevt->load(*p2);
    fevt->load(*v1);
-   //   fevt->print();
    tracker->loadSimHits(*p3);
 
-   //   fevt->print();
 
    if ( calo ) {  
      calo->loadFromEcalBarrel(*p4);
      calo->loadFromEcalEndcap(*p5);
      calo->loadFromPreshower(*p6);
      calo->loadFromHcal(*p7);
-     // update the muon SimTracks
      calo->loadMuonSimTracks(*m1);
    }
 
-   // Write muon first, to allow tracking particles to work... (pending MixingModule fix)
    if ( simulateMuons ) iEvent.put(m1,"MuonSimTracks");
    iEvent.put(p1);
    iEvent.put(p2);
