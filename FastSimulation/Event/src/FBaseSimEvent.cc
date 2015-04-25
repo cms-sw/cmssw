@@ -98,7 +98,241 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
 
 }
 
+void
+FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, 
+		    const std::vector<SimVertex>& simVertices) {
 
+  // Watch out there ! A SimVertex is in mm (stupid), 
+  //            while a FSimVertex is in cm (clever).
+  
+  clear();
+
+  unsigned nVtx = simVertices.size();
+  unsigned nTks = simTracks.size();
+
+  // Empty event, do nothin'
+  if ( nVtx == 0 ) return;
+
+  // Two arrays for internal use.
+  std::vector<int> myVertices(nVtx,-1);
+  std::vector<int> myTracks(nTks,-1);
+
+  // create a map associating geant particle id and position in the 
+  // event SimTrack vector
+  
+  std::map<unsigned, unsigned> geantToIndex;
+  for( unsigned it=0; it<simTracks.size(); ++it ) {
+    geantToIndex[ simTracks[it].trackId() ] = it;
+  }  
+
+  // Create also a map associating a SimTrack with its endVertex
+  /*
+  std::map<unsigned, unsigned> endVertex;
+  for ( unsigned iv=0; iv<simVertices.size(); ++iv ) { 
+    endVertex[ simVertices[iv].parentIndex() ] = iv;
+  }
+  */
+
+  // Set the main vertex for the kine particle filter
+  // SimVertices were in mm until 110_pre2
+  //  HepLorentzVector primaryVertex = simVertices[0].position()/10.;
+  // SImVertices are now in cm
+  // Also : position is copied until SimVertex switches to Mathcore.
+  //  XYZTLorentzVector primaryVertex = simVertices[0].position();
+  // The next 5 lines to be then replaced by the previous line
+  XYZTLorentzVector primaryVertex(simVertices[0].position().x(),
+				  simVertices[0].position().y(),
+				  simVertices[0].position().z(),
+				  simVertices[0].position().t());
+  //
+  myFilter->setMainVertex(primaryVertex);
+  // Add the main vertex to the list.
+  addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
+  myVertices[0] = 0;
+
+  for( unsigned trackId=0; trackId<nTks; ++trackId ) {
+
+    // The track
+    const SimTrack& track = simTracks[trackId];
+    //    std::cout << std::endl << "SimTrack " << trackId << " " << track << std::endl;
+
+    // The origin vertex
+    int vertexId = track.vertIndex();
+    const SimVertex& vertex = simVertices[vertexId];
+    //std::cout << "Origin vertex " << vertexId << " " << vertex << std::endl;
+
+    // The mother track 
+    int motherId = -1;
+    if( !vertex.noParent() ) { // there is a parent to this vertex
+      // geant id of the mother
+      unsigned motherGeantId =   vertex.parentIndex(); 
+      std::map<unsigned, unsigned >::iterator association  
+	= geantToIndex.find( motherGeantId );
+      if(association != geantToIndex.end() )
+	motherId = association->second;
+    }
+    int originId = motherId == - 1 ? -1 : myTracks[motherId];
+    //std::cout << "Origin id " << originId << std::endl;
+
+    /*
+    if ( endVertex.find(trackId) != endVertex.end() ) 
+      std::cout << "End vertex id = " << endVertex[trackId] << std::endl;
+    else
+      std::cout << "No endVertex !!! " << std::endl;
+    std::cout << "Tracker surface position " << track.trackerSurfacePosition() << std::endl;
+    */
+
+    // Add the vertex (if it does not already exist!)
+    XYZTLorentzVector position(vertex.position().px(),vertex.position().py(),
+			       vertex.position().pz(),vertex.position().e());
+    if ( myVertices[vertexId] == -1 ) 
+      // Momentum and position are copied until SimTrack and SimVertex
+      // switch to Mathcore.
+      //      myVertices[vertexId] = addSimVertex(vertex.position(),originId); 
+      // The next line to be then replaced by the previous line
+      myVertices[vertexId] = addSimVertex(position,originId); 
+
+    // Add the track (with protection for brem'ing electrons and muons)
+    int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
+
+    bool notBremInDetector =
+      (abs(motherType) != 11 && abs(motherType) != 13) ||
+      motherType != track.type() ||
+      position.Perp2() < lateVertexPosition ;
+
+    if ( notBremInDetector ) {
+      // Momentum and position are copied until SimTrack and SimVertex
+      // switch to Mathcore.
+      //      RawParticle part(track.momentum(), vertex.position());
+      // The next 3 lines to be then replaced by the previous line
+      XYZTLorentzVector momentum(track.momentum().px(),track.momentum().py(),
+				 track.momentum().pz(),track.momentum().e());
+      RawParticle part(momentum,position);
+      //
+      part.setID(track.type()); 
+      //std::cout << "Ctau  = " << part.PDGcTau() << std::endl;
+      // Don't save tracks that have decayed immediately but for which no daughters
+      // were saved (probably due to cuts on E, pT and eta)
+      //  if ( part.PDGcTau() > 0.1 || endVertex.find(trackId) != endVertex.end() ) 
+      myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
+      if ( myTracks[trackId] >= 0 ) { 
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
+      }
+    } else {
+
+      myTracks[trackId] = myTracks[motherId];
+      if ( myTracks[trackId] >= 0 ) { 
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
+      }
+    }
+    
+  }
+
+  // Now loop over the remaining end vertices !
+  for( unsigned vertexId=0; vertexId<nVtx; ++vertexId ) {
+
+    // if the vertex is already saved, just ignore.
+    if ( myVertices[vertexId] != -1 ) continue;
+
+    // The yet unused vertex
+    const SimVertex& vertex = simVertices[vertexId];
+
+    // The mother track 
+    int motherId = -1;
+    if( !vertex.noParent() ) { // there is a parent to this vertex
+
+      // geant id of the mother
+      unsigned motherGeantId =   vertex.parentIndex(); 
+      std::map<unsigned, unsigned >::iterator association  
+	= geantToIndex.find( motherGeantId );
+      if(association != geantToIndex.end() )
+	motherId = association->second;
+    }
+    int originId = motherId == - 1 ? -1 : myTracks[motherId];
+
+    // Add the vertex
+    // Momentum and position are copied until SimTrack and SimVertex
+    // switch to Mathcore.
+    //    myVertices[vertexId] = addSimVertex(vertex.position(),originId);
+    // The next 3 lines to be then replaced by the previous line
+    XYZTLorentzVector position(vertex.position().px(),vertex.position().py(),
+			       vertex.position().pz(),vertex.position().e());
+    myVertices[vertexId] = addSimVertex(position,originId); 
+  }
+
+  // Finally, propagate all particles to the calorimeters
+  BaseParticlePropagator myPart;
+  XYZTLorentzVector mom;
+  XYZTLorentzVector pos;
+
+
+  // Loop over the tracks
+  for( int fsimi=0; fsimi < (int)nTracks() ; ++fsimi) {
+
+    
+    FSimTrack& myTrack = track(fsimi);
+    double trackerSurfaceTime = myTrack.vertex().position().t() 
+                              + myTrack.momentum().e()/myTrack.momentum().pz()
+                              * ( myTrack.trackerSurfacePosition().z()
+				- myTrack.vertex().position().z() );
+    pos = XYZTLorentzVector(myTrack.trackerSurfacePosition().x(),
+			    myTrack.trackerSurfacePosition().y(),
+			    myTrack.trackerSurfacePosition().z(),
+			            trackerSurfaceTime);
+    mom = XYZTLorentzVector(myTrack.trackerSurfaceMomentum().x(),
+			    myTrack.trackerSurfaceMomentum().y(),
+			    myTrack.trackerSurfaceMomentum().z(),
+			    myTrack.trackerSurfaceMomentum().t());
+
+    if ( mom.T() >  0. ) {  
+      // The particle to be propagated
+      myPart = BaseParticlePropagator(RawParticle(mom,pos),0.,0.,4.);
+      myPart.setCharge(myTrack.charge());
+      
+      // Propagate to Preshower layer 1
+      myPart.propagateToPreshowerLayer1(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
+	myTrack.setLayer1(myPart,myPart.getSuccess());
+      
+      // Propagate to Preshower Layer 2 
+      myPart.propagateToPreshowerLayer2(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
+	myTrack.setLayer2(myPart,myPart.getSuccess());
+      
+      // Propagate to Ecal Endcap
+      myPart.propagateToEcalEntrance(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	myTrack.setEcal(myPart,myPart.getSuccess());
+      
+      // Propagate to HCAL entrance
+      myPart.propagateToHcalEntrance(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	myTrack.setHcal(myPart,myPart.getSuccess());
+      
+      // Attempt propagation to HF for low pt and high eta 
+      if ( myPart.cos2ThetaV()>0.8 || mom.T() < 3. ) {
+	// Propagate to VFCAL entrance
+	myPart.propagateToVFcalEntrance(false);
+	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+ 	myTrack.setVFcal(myPart,myPart.getSuccess());
+	
+	// Otherwise propagate to the HCAL exit and HO.
+      } else { 
+	// Propagate to HCAL exit
+	myPart.propagateToHcalExit(false);
+	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	  myTrack.setHcalExit(myPart,myPart.getSuccess());     
+	// Propagate to HOLayer entrance
+	myPart.setMagneticField(0);
+	myPart.propagateToHOLayer(false);
+	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	  myTrack.setHO(myPart,myPart.getSuccess());
+      } 
+    }
+  }
+}
 
 void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {

@@ -15,6 +15,13 @@ FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id) {
   FBaseSimEvent::fill(hev);
   id_ = Id;
 }
+
+void
+FSimEvent::fill(const std::vector<SimTrack>& simTracks, 
+		const std::vector<SimVertex>& simVertices) {
+  FBaseSimEvent::fill(simTracks,simVertices);
+  id_ = edm::EventID();
+} 
     
 edm::EventID 
 FSimEvent::id() const { 
