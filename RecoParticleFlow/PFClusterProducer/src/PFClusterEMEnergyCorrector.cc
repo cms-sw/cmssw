@@ -23,7 +23,6 @@ PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& 
   if (_applyMVACorrections) {
     _recHitsEB = cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsEBLabel"));
     _recHitsEE = cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsEELabel"));
-    _vertices  = cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("verticesLabel"));
     
     autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
 
@@ -35,33 +34,49 @@ PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& 
       bunchSpacingManual_ = conf.getParameter<int>("bunchSpacing");
     }
     
-    _condnames_mean_50ns.push_back("ecalPFClusterCor_EB_pfSize1_mean_50ns");
-    _condnames_mean_50ns.push_back("ecalPFClusterCor_EB_pfSize2_mean_50ns");
-    _condnames_mean_50ns.push_back("ecalPFClusterCor_EB_pfSize3_mean_50ns");
-    _condnames_mean_50ns.push_back("ecalPFClusterCor_EE_pfSize1_mean_50ns");
-    _condnames_mean_50ns.push_back("ecalPFClusterCor_EE_pfSize2_mean_50ns");
-    _condnames_mean_50ns.push_back("ecalPFClusterCor_EE_pfSize3_mean_50ns");
-
-    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EB_pfSize1_sigma_50ns");
-    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EB_pfSize2_sigma_50ns");
-    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EB_pfSize3_sigma_50ns");
-    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EE_pfSize1_sigma_50ns");
-    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EE_pfSize2_sigma_50ns");
-    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EE_pfSize3_sigma_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EB_pfSize1_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EB_pfSize2_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin1_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin2_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin3_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EE_pfSize1_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EE_pfSize2_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin1_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin2_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin3_mean_50ns");
     
-    _condnames_mean_25ns.push_back("ecalPFClusterCor_EB_pfSize1_mean_25ns");
-    _condnames_mean_25ns.push_back("ecalPFClusterCor_EB_pfSize2_mean_25ns");
-    _condnames_mean_25ns.push_back("ecalPFClusterCor_EB_pfSize3_mean_25ns");
-    _condnames_mean_25ns.push_back("ecalPFClusterCor_EE_pfSize1_mean_25ns");
-    _condnames_mean_25ns.push_back("ecalPFClusterCor_EE_pfSize2_mean_25ns");
-    _condnames_mean_25ns.push_back("ecalPFClusterCor_EE_pfSize3_mean_25ns");
-
-    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EB_pfSize1_sigma_25ns");
-    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EB_pfSize2_sigma_25ns");
-    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EB_pfSize3_sigma_25ns");
-    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EE_pfSize1_sigma_25ns");
-    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EE_pfSize2_sigma_25ns");
-    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EE_pfSize3_sigma_25ns");      
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EB_pfSize1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EB_pfSize2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin3_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EE_pfSize1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EE_pfSize2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin3_sigma_50ns");
+    
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EB_pfSize1_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EB_pfSize2_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin1_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin2_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin3_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EE_pfSize1_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EE_pfSize2_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin1_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin2_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin3_mean_25ns");
+    
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EB_pfSize1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EB_pfSize2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EB_pfSize3_ptbin3_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EE_pfSize1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EE_pfSize2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCorV2_EE_pfSize3_ptbin3_sigma_25ns");
   }
   
 
@@ -133,42 +148,32 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     }
   }
   
-  const unsigned int ncor = 6;
-  
-  std::vector<edm::ESHandle<GBRForestD> > forestH_mean(ncor);
-  std::vector<edm::ESHandle<GBRForestD> > forestH_sigma(ncor);
-  
   const std::vector<std::string> condnames_mean = (bunchspacing == 25) ? _condnames_mean_25ns : _condnames_mean_50ns;
   const std::vector<std::string> condnames_sigma = (bunchspacing == 25) ? _condnames_sigma_25ns : _condnames_sigma_50ns;
+  
+  const unsigned int ncor = condnames_mean.size();
+  
+  std::vector<edm::ESHandle<GBRForestD> > forestH_mean(ncor);
+  std::vector<edm::ESHandle<GBRForestD> > forestH_sigma(ncor);  
   
   for (unsigned int icor=0; icor<ncor; ++icor) {
     es.get<GBRDWrapperRcd>().get(condnames_mean[icor],forestH_mean[icor]);
     es.get<GBRDWrapperRcd>().get(condnames_sigma[icor],forestH_sigma[icor]);
   }
   
-  std::array<float,11> eval;
+  std::array<float,5> eval;
     
   EcalClusterLazyTools lazyTool(evt, es, _recHitsEB, _recHitsEE);
-
-  //count number of primary vertices for pileup correction
-  edm::Handle<reco::VertexCollection> vtxH;
-  evt.getByToken(_vertices,vtxH);
-  int nvtx = 0;
-  for (const reco::Vertex &vtx : *vtxH) {
-    if (!vtx.isFake()) {
-      ++nvtx;  
-    }
-  }
   
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
-  const double meanlimlow = 1./1.4;
-  const double meanlimhigh = 1./0.4;
+  const double meanlimlow = -0.336;
+  const double meanlimhigh = 0.916;
   const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
   const double meanscale = 0.5*(meanlimhigh-meanlimlow);
   
-  const double sigmalimlow = 0.003;
-  const double sigmalimhigh = 0.5;
+  const double sigmalimlow = 0.001;
+  const double sigmalimhigh = 0.4;
   const double sigmaoffset = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
   const double sigmascale = 0.5*(sigmalimhigh-sigmalimlow);  
   
@@ -177,8 +182,7 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     reco::PFCluster &cluster = cs[idx];
     
     double e = cluster.energy();
-    double eta = cluster.eta();
-    double phi = cluster.phi();    
+    double pt = cluster.pt(); 
     
     double invE = (e == 0.) ? 0. : 1./e; //guard against dividing by 0.
     
@@ -186,21 +190,37 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     
     bool iseb = cluster.layer() == PFLayer::ECAL_BARREL;
 
-    //find index of corrections (0-2 for EB, 3-5 for EE, depending on cluster size)
+    //find index of corrections (0-4 for EB, 5-9 for EE, depending on cluster size and raw pt)
     int coridx = std::min(size,3)-1;
+    if (coridx==2) {
+      if (pt>4.5) {
+        coridx += 1;
+      }
+      if (pt>18.) {
+        coridx += 1;
+      }
+    }
     if (!iseb) {
-      coridx += 3;
+      coridx += 5;
     }
     
     const GBRForestD &meanforest = *forestH_mean[coridx].product();
     const GBRForestD &sigmaforest = *forestH_sigma[coridx].product();
     
-    double e1x3    = lazyTool.e1x3(cluster);
-    double e2x2    = lazyTool.e2x2(cluster);
-    double e2x5max = lazyTool.e2x5Max(cluster);    
-    double e3x3    = lazyTool.e3x3(cluster);
-    double e5x5    = lazyTool.e5x5(cluster);    
-    
+    //find seed crystal indices
+    int ietaix=0;
+    int iphiiy=0;
+    if (iseb) {
+      EBDetId ebseed(cluster.seed());
+      ietaix = ebseed.ieta();
+      iphiiy = ebseed.iphi();
+    }
+    else {
+      EEDetId eeseed(cluster.seed());
+      ietaix = eeseed.ix();
+      iphiiy = eeseed.iy();      
+    }
+
     
     //compute preshower energies for endcap clusters
     double ePS1=0, ePS2=0;
@@ -227,37 +247,13 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     
     //fill array for forest evaluation
     eval[0] = e;
-    eval[1] = eta;
-    eval[2] = phi;
-    
-    if (size==1) {
-      eval[3] = nvtx;
-      if (!iseb) {
-        eval[4] = ePS1*invE;
-        eval[5] = ePS2*invE;
-      }
+    eval[1] = ietaix;
+    eval[2] = iphiiy;
+    if (!iseb) {
+      eval[3] = ePS1*invE;
+      eval[4] = ePS2*invE;
     }
-    else if (size==2) {
-      eval[3] = e1x3*invE;
-      eval[4] = nvtx;
-      if (!iseb) {
-        eval[5] = ePS1*invE;
-        eval[6] = ePS2*invE;
-      }
-    }
-    else if (size>2) {
-      eval[3] = e1x3*invE;
-      eval[4] = e2x2*invE;
-      eval[5] = e2x5max*invE;
-      eval[6] = e3x3*invE;
-      eval[7] = e5x5*invE;
-      eval[8] = nvtx;
-      if (!iseb) {
-        eval[9] = ePS1*invE;
-        eval[10] = ePS2*invE;
-      }
-    }
-    
+        
     //these are the actual BDT responses
     double rawmean = meanforest.GetResponse(eval.data());
     double rawsigma = sigmaforest.GetResponse(eval.data());
@@ -266,8 +262,13 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
     double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
     
-    cluster.setCorrectedEnergy(mean*e);
-    cluster.setCorrectedEnergyUncertainty(sigma*e);
+    //regression target is ln(Etrue/Eraw)
+    //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
+    double ecor = exp(mean)*e;
+    double sigmacor = sigma*ecor;
+    
+    cluster.setCorrectedEnergy(ecor);
+    cluster.setCorrectedEnergyUncertainty(sigmacor);
     
   }
   

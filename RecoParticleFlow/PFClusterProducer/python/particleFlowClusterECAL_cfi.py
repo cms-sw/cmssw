@@ -9,7 +9,6 @@ _emEnergyCorrector = cms.PSet(
     applyMVACorrections = cms.bool(True),
     recHitsEBLabel = cms.InputTag('ecalRecHit', 'EcalRecHitsEB'),
     recHitsEELabel = cms.InputTag('ecalRecHit', 'EcalRecHitsEE'),
-    verticesLabel = cms.InputTag('offlinePrimaryVertices'),    
     autoDetectBunchSpacing = cms.bool(True),
 )
 
