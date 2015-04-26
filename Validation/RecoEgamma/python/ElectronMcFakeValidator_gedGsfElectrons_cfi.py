@@ -31,12 +31,16 @@ electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   OutputFolderName = cms.string("EgammaV/ElectronMcFakeValidator"),
     
   matchingObjectCollection = cms.InputTag("ak4GenJets"),
-  electronCollection = cms.InputTag("gedGsfElectrons"),
+  #electronCollection = cms.InputTag("gedGsfElectrons"),
+  electronCollection = cms.InputTag("gedGsfElectronsTmp"),   # for electron in HI
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
-  electronSeedCollection = cms.InputTag("electronMergedSeeds"),
+  #electronSeedCollection = cms.InputTag("electronMergedSeeds"),
+  electronSeedCollection = cms.InputTag("ecalDrivenElectronSeeds"),  # for electron in HI
+
   # ajout 04/02/2015
-  offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
+  #offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
+  offlinePrimaryVertices = cms.InputTag("hiSelectedVertex"),   # for electron in Hi
   # fin ajout
   
   beamSpot = cms.InputTag("offlineBeamSpot"),
