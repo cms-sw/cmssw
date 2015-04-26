@@ -35,6 +35,12 @@
 
 #include <unordered_set>
 
+// lv
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
@@ -47,7 +53,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     testBeamspotCompatibility(false),
     beamSpot(nullptr),
     testPrimaryVertexCompatibility(false),
-    primaryVertices(nullptr)
+    primaryVertices(nullptr),
+    theRegionProducer(nullptr)
 {  
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
@@ -140,6 +147,17 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
+
+    // lv
+    if(conf.exists("RegionFactoryPSet")){
+      edm::ParameterSet regfactoryPSet = 
+	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
+    }
+
+
 }
 
 void
@@ -234,6 +252,9 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
     const GlobalPoint& globalHitPos2 = hit2.globalPosition();
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
+    if (theRegionProducer){
+      return testWithRegions(hit1,hit2);
+    }
     if (testBeamspotCompatibility)
       {
 	return compatibleWithBeamSpot(globalHitPos1,globalHitPos2,error,forward);
@@ -468,6 +489,15 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
             The implementation has been chosen such that the tree only needs to be build once upon construction.
         */
+	// lv
+	regions.clear();
+	if(theRegionProducer){
+	  es_ = &es;
+	  regions = theRegionProducer->regions(e,es);
+	  edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
+	  e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
+	  measurementTrackerEvent = measurementTrackerEventHandle.product();
+	}
 
         std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
 
@@ -518,7 +548,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
             int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
             initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
             output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-
+	    
         }
     } //end loop over simtracks
     
@@ -526,7 +556,35 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.put(output);
 }
 
+// lv
+// inspired by RecoTracker/TkSeedGenerator/plugins/SeedGeneratorFromRegionHitsEDProducer.cc
+// and RecoTracker/TkHitPairs/src/RecHitsSortedInPhi.cc
+bool
+TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
+  
+  const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  typedef PixelRecoRange<float> Range;
 
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    auto const & gs = outerHit.hit()->globalState();
+    auto loc = gs.position-(*ir)->origin().basicVector();
+    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+		   loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
+    
+    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR; 
+    constexpr float nSigmaRZ = 3.46410161514f;
+    Range allowed = checkRZ->range(u);
+    float vErr = nSigmaRZ * dv;
+    Range hitRZ(v-vErr, v+vErr);
+    Range crossRange = allowed.intersection(hitRZ);
+    if( ! crossRange.empty())
+      return true;
+  }
+  return false;
+}
 
 bool
 TrajectorySeedProducer::compatibleWithBeamSpot(
