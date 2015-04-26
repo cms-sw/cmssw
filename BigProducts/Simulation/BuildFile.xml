@@ -19,7 +19,7 @@
 <use name="SimDataFormats/ValidationFormats"/>
 <use name="geant4static"/>
 <flags DROP_DEP="geant4core"/>
-<architecture name="slc6_amd64_gcc49">
+<architecture name="slc[6|7]_amd64_gcc49">
   # hack needed to avoid undefined variable in CLHEP.
   <flags REM_CXXFLAGS="-Werror=unused-variable"/>
   # disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.x
