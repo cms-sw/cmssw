@@ -14,10 +14,10 @@
 
 
 PSimVertexFilter::PSimVertexFilter(edm::ParameterSet const & config):
-  vtxToken_( consumes<PCrossingFrame<SimVertex> >( config.getParameter<edm::InputTag> ("simVtxTag") ) )
+    vtxToken_( consumes<CrossingFrame<SimVertex> >( config.getParameter<edm::InputTag> ("simVtxTag") ) )
 {
-  //register your products
-  produces<edm::SimVertexContainer >(simVtxFiltered_);
+    //register your products
+    produces<edm::SimVertexContainer >(simVtxFiltered_);
 }
 
 
@@ -28,24 +28,24 @@ PSimVertexFilter::~PSimVertexFilter()
 bool 
 PSimVertexFilter::filter(edm::Event& event, const edm::EventSetup& setup)
 {
-  edm::Handle<PCrossingFrame<SimVertex> > genVtxsHandle;
-  event.getByToken(vtxToken_, genVtxsHandle);
-  const PCrossingFrame<SimVertex>* SimVtx = genVtxsHandle.product(); 
+    edm::Handle<CrossingFrame<SimVertex> > genVtxsHandle;
+    event.getByToken(vtxToken_, genVtxsHandle);
+    const CrossingFrame<SimVertex>* SimVtx = genVtxsHandle.product(); 
 
-  //Create empty output collections
-  std::auto_ptr<edm::SimVertexContainer> simVtxFiltered( new edm::SimVertexContainer );
+    //Create empty output collections
+    std::auto_ptr<edm::SimVertexContainer> simVtxFiltered( new edm::SimVertexContainer );
   
 
-  //Select interesting objects
-  for(unsigned int iGen=0; iGen<SimVtx->getPileups().size(); ++iGen){
-    if(SimVtx->getPileups().at(iGen)->vertexId() == 0)
-      simVtxFiltered->push_back(SimVertex(SimVtx->getPileups().at(iGen)->position(), SimVtx->getPileups().at(iGen)->position().t(), iGen)); 
-      }
+    //Select interesting objects
+    for(unsigned int iGen=0; iGen<SimVtx->getPileups().size(); ++iGen){
+        if(SimVtx->getPileups().at(iGen)->vertexId() == 0)
+            simVtxFiltered->push_back(SimVertex(SimVtx->getPileups().at(iGen)->position(), SimVtx->getPileups().at(iGen)->position().t(), iGen)); 
+    }
 
-  //Put selected information in the event
-  event.put(simVtxFiltered, simVtxFiltered_);
+    //Put selected information in the event
+    event.put(simVtxFiltered, simVtxFiltered_);
   
-  return true;
+    return true;
 }
 
 

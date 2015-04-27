@@ -20,15 +20,15 @@
 //
 
 class PSimVertexFilter : public edm::EDFilter{
- public:
-  explicit PSimVertexFilter(const edm::ParameterSet&);
-  ~PSimVertexFilter();
+public:
+    explicit PSimVertexFilter(const edm::ParameterSet&);
+    ~PSimVertexFilter();
 
-  virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
+    virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
 
- private:
-  const edm::EDGetTokenT<PCrossingFrame<SimVertex> > vtxToken_;
-  const std::string simVtxFiltered_;
+private:
+    const edm::EDGetTokenT<CrossingFrame<SimVertex> > vtxToken_;
+    const std::string simVtxFiltered_;
 };
 
 #endif
