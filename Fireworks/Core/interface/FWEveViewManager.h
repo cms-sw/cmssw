@@ -77,7 +77,7 @@ public:
 
    FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-   static void syncAllViews() { s_syncAllViews = true; }
+   static void syncAllViews() { s_syncAllViews = false; }
 protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
