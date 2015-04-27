@@ -44,7 +44,7 @@ hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobT
 hiRegitMuTobTecStepSeedsTripl     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.clone()
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuTobTecStepSeedsTripl.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 2.0
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 0.2 # this give you the length 
 hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
@@ -53,7 +53,7 @@ hiRegitMuTobTecStepSeedsTripl.OrderedHitsFactoryPSet.SeedingLayers              
 hiRegitMuTobTecStepSeedsPair     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.clone()
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuTobTecStepSeedsPair.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 2.0
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 0.2 # this give you the length 
 hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())

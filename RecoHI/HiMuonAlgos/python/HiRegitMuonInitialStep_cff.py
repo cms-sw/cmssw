@@ -22,7 +22,7 @@ hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.in
 hiRegitMuInitialStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuInitialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = cms.InputTag("hiRegitMuInitialStepSeedLayers")
 hiRegitMuInitialStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 3.0
+hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 3.0
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 1 # default = 0.2
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 1 # this give you the length 
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
