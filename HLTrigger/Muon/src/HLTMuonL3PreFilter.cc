@@ -275,9 +275,9 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
 	// Using the same method that was used to create the links
 	// ToDo: there should be a better way than dR,dPt matching
 	const reco::Track& globalTrack = *link->globalTrack();
-	float dR  = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
+	float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
 	float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
-	if (dR < 0.02 and dPt < 0.001) {
+	if (dR2 < 0.02*0.02 and dPt < 0.001) {
 		useThisLink=true;
 	}
 

@@ -8,12 +8,12 @@ MuonTrackingRegionCommon = cms.PSet(
 	DeltaR = cms.double(0.2),
 	DeltaZ = cms.double(15.9),
 
-	EscapePt = cms.double(1.5),
+	Pt_min = cms.double(1.5),
 	EtaR_UpperLimit_Par1 = cms.double(0.25),
 	EtaR_UpperLimit_Par2 = cms.double(0.15),
 	Eta_fixed = cms.bool(False),
 	Eta_min = cms.double(0.1),
-	MeasurementTrackerName = cms.InputTag("hltESPMeasurementTracker"),
+	MeasurementTrackerName = cms.InputTag(""),
 
 	OnDemand = cms.int32(-1),
 	# -1. : nothing is made on demand
@@ -25,17 +25,16 @@ MuonTrackingRegionCommon = cms.PSet(
 	Phi_fixed = cms.bool(False),
 	Phi_min = cms.double(0.1),
 	Pt_fixed = cms.bool(False),
-	Pt_min = cms.double(0.0),
 	Rescale_Dz = cms.double(3.0),
 	Rescale_eta = cms.double(3.0),
 	Rescale_phi = cms.double(3.0),
 	UseVertex = cms.bool(False),
 	Z_fixed = cms.bool(True),
-	beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-	input = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
+	beamSpot = cms.InputTag("offlineBeamSpot"),
+	input = cms.InputTag(""),
 	maxRegions = cms.int32(1),
 	precise = cms.bool(True),
-	vertexCollection = cms.InputTag("pixelVertices")
+	vertexCollection = cms.InputTag("")
     )
 )
 
