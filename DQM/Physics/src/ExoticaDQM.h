@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -78,6 +79,8 @@
 //
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include <iostream>
 #include <fstream>
@@ -166,13 +169,14 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
   edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
+  edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
+
   ///////////////////////////
   // Parameters
   ///////////////////////////
   // Cuts - MultiJets
   // inputs
-  std::string CaloJetCorService_;
-  std::string PFJetCorService_;
+
   reco::helper::JetIDHelper *jetID;
 
   //Varibles Used
