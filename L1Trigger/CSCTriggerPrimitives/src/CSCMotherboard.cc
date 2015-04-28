@@ -52,9 +52,11 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
-
+  
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
 
+  //  std::cout << "Constructing Motherboard station " << theStation << " ring " << theRing << std::endl;
+  
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static bool config_dumped = false;

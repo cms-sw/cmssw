@@ -184,9 +184,6 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc,
                     const GEMPadDigiCollection* gemPads) 
 {
-  /*
-  
-
   clear();
 
   if (!( alct and clct and runME21ILT_))
@@ -297,16 +294,19 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     buildCoincidencePads(gemPads, *GEMCoPad, csc_id);
     
     // retrieve pads and copads in a certain BX window for this CSC 
-    pads_ = retrieveGEMPads(gemPads, gem_id_long);
+    //    pads_ = retrieveGEMPads(gemPads, gem_id_long);
     //coPads_ = retrieveGEMPads(pCoPads.get(), gem_id_long, true); 
-    coPads_ = retrieveGEMPads( GEMCoPad, gem_id_long, true); 
+    //    coPads_ = retrieveGEMPads( GEMCoPad, gem_id_long, true); 
   }
 
-  const bool hasPads(pads_.size()!=0);
-  const bool hasCoPads(hasPads and coPads_.size()!=0);
+  // int used_clct_mask[20];
+  // for (int c=0;c<20;++c) used_clct_mask[c]=0;
 
-  int used_clct_mask[20];
-  for (int c=0;c<20;++c) used_clct_mask[c]=0;
+  // const bool hasPads(pads_.size()!=0);
+  // const bool hasCoPads(hasPads and coPads_.size()!=0);
+
+
+  /*
 
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
@@ -991,16 +991,18 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
 {
   gemCoPadV.clear();
 
+  // std::cout << "CSCMotherboardME21GEM::buildCoincidencePads" << std::endl;
+
   // build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
-    //std::cout<<"GEMDet Id " << id << std::endl;
 
     // same chamber
     if (id.region() != csc_id.zendcap() or 
 	id.ring() != csc_id.ring() or id.chamber() != csc_id.chamber()) continue;
-    // build coincidences only in station 2
-    if (id.station() != 2 and id.station() != 3) continue;
+
+    // build coincidences only for long superchamber pads
+    if (id.station() != 3) continue;
     
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
@@ -1015,8 +1017,8 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
     // now let's correlate the pads in two layers of this partition
     const auto& pads_range = (*det_range).second;
     for (auto p = pads_range.first; p != pads_range.second; ++p) {
+      // std::cout<<"Detid "<< id <<"Pad in layer1 " << *p <<std::endl;    
       for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p) {
-        // std::cout<<"Detid "<< id <<"Pad in layer1 " << *p <<std::endl;
 	// std::cout<<"DetId "<<co_id<<"Pad in layer2 " << *co_p <<std::endl;
 	  // check the match in pad
         if (std::abs(p->pad() - co_p->pad()) > maxDeltaPadInCoPad_) continue;
@@ -1027,24 +1029,17 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
 
         // always use layer1 pad's BX as a copad's BX
-        GEMPadDigi co_pad_digi(p->pad(), p->bx());
+        // GEMPadDigi co_pad_digi(p->pad(), p->bx());
 	//std::cout<<"building Copad : "<< co_pad_digi <<std::endl;
-        out_co_pads.insertDigi(id, co_pad_digi);
-	bool buildSuccess(true);
-	if (buildSuccess) 
-	{
-	  // std::cout<<"Copad is built successfully" << std::endl;   
-	    break;
-        }
+        // out_co_pads.insertDigi(id, co_pad_digi);
       }
     }
-
-    if (debug_gem_matching){ 
-      auto temp_copad = (out_co_pads).get(id);
-      for (auto c = temp_copad.first; c != temp_copad.second; ++c)
-	std::cout<<"copad built:" << *c << std::endl;    
-    }
   }
+  // std::cout << "Debugging copads" << std::endl;
+  // std::cout << "DetId " << csc_id << std::endl;
+  // std::cout << "gemCoPadV " << gemCoPadV.size() << std::endl;
+  // for(auto& pad: gemCoPadV)
+  //   std::cout << "\t" << pad << std::endl;
 }
 
 

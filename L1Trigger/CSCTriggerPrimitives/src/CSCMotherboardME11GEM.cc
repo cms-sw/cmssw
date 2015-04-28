@@ -1,5 +1,4 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-//#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
@@ -370,8 +369,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                              const CSCComparatorDigiCollection* compdc,
                              const GEMPadDigiCollection* gemPads)
 {
-  // std::cout << "Running CSCMotherboardME11GEM" << std::endl;
-  // std::cout << "Station " << theStation << " theRing " << theRing << std::endl;
+  std::cout << "Running CSCMotherboardME11GEM" << std::endl;
+  std::cout << "Station " << theStation << " theRing " << theRing << std::endl;
 
   clear();
   
@@ -392,21 +391,16 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       << "+++ run() called for GEM-CSC integrated trigger! +++ \n";
     gemGeometryAvailable = true;
   }
-
-  /*
+  
   int used_clct_mask[20], used_clct_mask_1a[20];
   for (int b=0;b<20;b++)
     used_clct_mask[b] = used_clct_mask_1a[b] = 0;
-  */
 
   // retrieve CSCChamber geometry                                                                                                                                       
   CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
   const CSCChamber* cscChamberME1b(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
   const CSCDetId me1bId(cscChamberME1b->id());
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
-  // std::cout << "ME1b detId " << me1bId << " ME1a detId " << me1aId << std::endl;
-  // if (csc_g)
-  //   std::cout << "geometry exists" << std::endl;
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
   if (runME11ILT_){
@@ -486,15 +480,15 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       cscHsToGemPadME1b_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
     if (debug_luts){
-      std::cout << "detId " << me1bId << std::endl;
-      std::cout << "CSCHSToGEMPad LUT in ME1a" << std::endl;
+      LogDebug("CSCMotherboardME11GEM") << "detId " << me1bId;
+      LogDebug("CSCMotherboardME11GEM") << "CSCHSToGEMPad LUT in ME1a";
       for(auto p : cscHsToGemPadME1a_) {
-        std::cout << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second << std::endl;
+        LogDebug("CSCMotherboardME11GEM") << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second;
       }
-      std::cout << "detId " << me1aId << std::endl;
-      std::cout << "CSCHSToGEMPad LUT in ME1b" << std::endl;
+       << "detId " << me1aId;
+      LogDebug("CSCMotherboardME11GEM") << "CSCHSToGEMPad LUT in ME1b";
       for(auto p : cscHsToGemPadME1b_) {
-        std::cout << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second << std::endl;
+        LogDebug("CSCMotherboardME11GEM") << "CSC HS "<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second;
       }
     }
 
@@ -511,14 +505,14 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       gemPadToCscHsME1b_[i] = (int) (stripME1b - 0.25)/0.5;
     }
     if (debug_luts){
-      std::cout << "detId " << me1bId << std::endl;
-      std::cout << "GEMPadToCSCHs LUT in ME1a" << std::endl;
+      LogDebug("CSCMotherboardME11GEM") << "detId " << me1bId;
+      LogDebug("CSCMotherboardME11GEM") << "GEMPadToCSCHs LUT in ME1a";
       for(auto p : gemPadToCscHsME1a_) {
-        std::cout << "GEM Pad "<< p.first << " CSC HS: " << p.second << std::endl;
+        LogDebug("CSCMotherboardME11GEM") << "GEM Pad "<< p.first << " CSC HS: " << p.second;
       }
-      std::cout << "GEMPadToCSCHs LUT in ME1b" << std::endl;
+      LogDebug("CSCMotherboardME11GEM") << "GEMPadToCSCHs LUT in ME1b";
       for(auto p : gemPadToCscHsME1b_) {
-        std::cout << "GEM Pad "<< p.first << " CSC HS: " << p.second << std::endl;
+        LogDebug("CSCMotherboardME11GEM") << "GEM Pad "<< p.first << " CSC HS: " << p.second;
       }
     }
 
@@ -527,11 +521,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     std::auto_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads, me1bId);
     
-    return;
     // retrieve pads and copads in a certain BX window for this CSC 
     pads_.clear();
     coPads_.clear();
-    // retrieveGEMPads(gemPads, gem_id);
+    retrieveGEMPads(gemPads, gem_id);
     // retrieveGEMPads(pCoPads.get(), gem_id, true);
 
     const bool debugStubs(false);
@@ -563,7 +556,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }    
   }
 
-  /*
+  return;
+
   const bool hasPads(pads_.size()!=0);
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
@@ -1024,7 +1018,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   //   if (infoV > 1) LogTrace("CSCMotherboardME11GEM")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
   // 					       <<CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber)
   // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
-  */
 }
 
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11GEM::readoutLCTs1a()
@@ -1580,7 +1573,8 @@ void CSCMotherboardME11GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
     case 22:
       lct1 = constructLCTsGEM(secondALCT, secondCLCT, hasPads, hasCoPads);
       break;
-    default: return;  
+    default: 
+      return;  
   }
   lct1.setTrknmb(1);
 
@@ -1603,7 +1597,8 @@ void CSCMotherboardME11GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
       lct2.setTrknmb(2);
       if (dbg) LogTrace("CSCMotherboardME11GEM")<<"lct2: "<<lct2<<std::endl;
       return;
-    default: return;
+    default: 
+      return;
   }
   if (dbg) LogTrace("CSCMotherboardME11GEM")<<"out of correlateLCTs"<<std::endl;
 
@@ -1791,15 +1786,12 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
 {
   gemCoPadV.clear();
 
-  std::cout << "CSCMotherboardME11GEM::buildCoincidencePads" << std::endl;
-
   // Build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
    // same chamber
     if (id.region() != csc_id.zendcap() or id.station() != csc_id.station() or 
 	id.ring() != csc_id.ring() or id.chamber() != csc_id.chamber()) continue;
-    std::cout << id << std::endl;
 
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
@@ -1807,8 +1799,6 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
     // find the corresponding id with layer=2
     GEMDetId co_id(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
     
-    std::cout << co_id << std::endl;
-
     auto co_pads_range = out_pads->get(co_id);
     // empty range = no possible coincidence pads
     if (co_pads_range.first == co_pads_range.second) continue;
@@ -1833,27 +1823,6 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
       }
     }
   }
-  std::cout << "Debugging copads" << std::endl;
-  std::cout << "DetId " << csc_id << std::endl;
-  std::cout << "gemCoPadV " << gemCoPadV.size() << std::endl;
-  for(auto& pad: gemCoPadV)
-    std::cout << "\t" << pad << std::endl;
-
-  /*
-  // removal of duplicates in copads
-  std::auto_ptr<GEMPadDigiCollection> pCoPads(new GEMPadDigiCollection());
-  const bool removeDuplicates(true);
-  if (removeDuplicates){
-    for (auto det_range = out_co_pads.begin(); det_range != out_co_pads.end(); ++det_range) {
-      const GEMDetId& id = (*det_range).first;
-      auto co_pads_range = out_co_pads.get(id);
-      std::set<GEMPadDigi> clean_co_pads(co_pads_range.first,co_pads_range.second);
-      for (auto& p : clean_co_pads)
-        (*pCoPads).insertDigi(id, p);
-    }
-    out_co_pads = *pCoPads;
-  }
-  */
 }
 
 
@@ -2180,7 +2149,6 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
   }
 }
 
-/*
 void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id, bool iscopad)
 {
   auto superChamber(gem_g->superChamber(id));
@@ -2203,7 +2171,6 @@ void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
     }
   }
 }
-*/
 
 bool CSCMotherboardME11GEM::isPadInOverlap(int roll)
 {

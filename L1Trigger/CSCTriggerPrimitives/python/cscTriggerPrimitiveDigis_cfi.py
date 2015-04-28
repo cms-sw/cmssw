@@ -23,14 +23,15 @@ def _modifyCscTriggerPrimitiveDigisForRun2( object ) :
     object.tmbParam.matchTrigWindowSize = 3
 
 
-def _modifyCscTriggerPrimitiveDigisForRun2GEM( object ) :
+def _modifyCscTriggerPrimitiveDigisForRun2GE11( object ) :
     """
     Modifies cscTriggerPrimitiveDigis for Run 2 + GEMs
     """
     object.commonParam.runME11ILT = cms.bool(True)
-    object.commonParam.runME21ILT = cms.bool(False)
+    object.clctSLHC.clctNplanesHitPattern = 3
+    object.clctSLHC.clctPidThreshPretrig = 2
     
-   # to be used by ME11 chambers with GEM-CSC ILT
+    # to be used by ME11 chambers with GEM-CSC ILT
     me11tmbSLHCGEM = cms.PSet(
         mpcBlockMe1a    = cms.uint32(0),
         alctTrigEnable  = cms.uint32(0),
@@ -102,8 +103,85 @@ def _modifyCscTriggerPrimitiveDigisForRun2GEM( object ) :
         ## cross BX algorithm
         firstTwoLCTsInChamber = cms.bool(True),
     )
+
     object.me11tmbSLHCGEM = me11tmbSLHCGEM
 
+def _modifyCscTriggerPrimitiveDigisForRun4GE21( object ) :
+    """
+    Modifies cscTriggerPrimitiveDigis for Run 4 + GEMs
+    """
+    object.commonParam.runME21ILT = cms.bool(False)
+    object.clctSLHCME21 = object.clctSLHC.clone()
+    object.alctSLHCME21 = object.alctSLHC.clone()
+    object.alctSLHCME21.alctNplanesHitPattern = 3
+
+    # to be used by ME21 chambers with GEM-CSC ILT
+    me21tmbSLHCGEM = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestAlctME21Only = cms.bool(False),
+        matchEarliestClctME21Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME21LCTs = cms.uint32(2),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+        debugGEMDphi = cms.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatALCTGEM = cms.bool(True),
+        useOldLCTDataFormatCLCTGEM = cms.bool(True),
+
+        ## copad construction
+        maxDeltaBXInCoPad = cms.int32(1),
+        maxDeltaPadInCoPad = cms.int32(2),
+
+        ## matching to pads in case LowQ CLCT
+        maxDeltaBXPad = cms.int32(1),
+        maxDeltaPadPadOdd = cms.int32(4),
+        maxDeltaPadPadEven = cms.int32(3),
+        maxDeltaWg = cms.int32(2),
+
+        ## matching to pads in case absent CLCT
+        maxDeltaBXCoPad = cms.int32(1),
+        maxDeltaPadCoPad = cms.int32(2),
+
+        ## efficiency recovery switches
+        dropLowQualityALCTsNoGEMs = cms.bool(False),
+        dropLowQualityCLCTsNoGEMs = cms.bool(True),
+        buildLCTfromALCTandGEM = cms.bool(True),
+        buildLCTfromCLCTandGEM = cms.bool(False),
+        doLCTGhostBustingWithGEMs = cms.bool(False),
+        correctLCTtimingWithGEM = cms.bool(False),
+        promoteALCTGEMpattern = cms.bool(True),
+        promoteALCTGEMquality = cms.bool(True),
+        promoteCLCTGEMquality = cms.bool(True),
+
+        ## rate reduction 
+        doGemMatching = cms.bool(True),
+        gemMatchDeltaEta = cms.double(0.08),
+        gemMatchDeltaBX = cms.int32(1),
+        gemMatchDeltaPhiOdd = cms.double(1),
+        gemMatchDeltaPhiEven = cms.double(1),
+        gemMatchMinEta = cms.double(1.5),
+        gemMatchMaxEta = cms.double(2.45),
+        gemClearNomatchLCTs = cms.bool(False),
+
+        firstTwoLCTsInChamber = cms.bool(True),
+    )
+
+    object.me21tmbSLHCGEM = me21tmbSLHCGEM
 
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
@@ -150,7 +228,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         disableME42 = cms.bool(False),
 
         ## enable the GEM-CSC integrated triggers for ME11 or ME21
-        runME11ILT = cms.bool(True),
+        runME11ILT = cms.bool(False),
         runME21ILT = cms.bool(False),
     ),
 
@@ -426,4 +504,5 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 #
 from Configuration.StandardSequences.Eras import eras
 eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2 )
-eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2GEM )
+eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2GE11 )
+eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun4GE21 )

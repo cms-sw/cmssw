@@ -132,7 +132,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
 			    GEMCoPadDigiCollection& out_co_pads,
 			    CSCDetId csc_id);
 
-  /* void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false); */
+  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false);
 
   void createGEMRollEtaLUT(bool isEven);
 
