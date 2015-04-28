@@ -888,14 +888,14 @@ namespace evf {
         throw cms::Exception("EvFDaqDirector") << msg.str();
       else {
         edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)";
-        return std::string();
+        return std::string("Failsafe");
       }
     }
     //return empty if strict check parameter is not on
     if (!requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
       edm::LogWarning("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter."
                                         << "Switch on requireTSPSet parameter to enforce this requirement. Setting mode to empty string.";
-      return std::string();
+      return std::string("Failsafe");
     }
     if (requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
       throw cms::Exception("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter.";
@@ -909,7 +909,7 @@ namespace evf {
            throw cms::Exception("EvFDaqDirector") << msg.str();
          else
            edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)"; 
-           return std::string();
+           return std::string("Failsafe");
     }
     Json::Value destsVec = transferSystemJson_->get(streamRequestName, "").get(selectedTransferMode_,"");
 
