@@ -5,7 +5,7 @@
 // Original Author (of Derivative Producer):  Eric Appelt
 //         Created:  Mon Apr 27, 2015
 
-#include <tuple>
+#include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -168,6 +168,7 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
 reco::ClusterCompatibility ClusterCompatibilityProducer::getContainedHits(const std::vector<VertexHit> &hits, double z0) const
 {
+
   // Calculate number of hits contained in v-shaped window in cluster y-width vs. z-position.
   int n = 0;
   double chi = 0.;
