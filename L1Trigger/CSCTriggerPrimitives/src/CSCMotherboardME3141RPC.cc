@@ -212,17 +212,6 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   alctV = alct->run(wiredc); // run anodeLCT
   clctV = clct->run(compdc); // run cathodeLCT
   
-  const bool debugStubs(false);
-  if (debugStubs){
-    for (auto& p : alctV){
-      std::cout << "ALCT: " << p << std::endl;
-    }
-    
-    for (auto& p : clctV){
-      std::cout << "CLCT: " << p << std::endl;
-    }
-  }
-
   bool rpcGeometryAvailable(false);
   if (rpc_g != nullptr) {
     if (infoV >= 0) edm::LogInfo("L1CSCTPEmulatorSetupInfo")
@@ -329,8 +318,8 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
       }
     }
     //select correct scenarios, even or odd
-     maxDeltaStripRPC_ = (isEven ?  maxDeltaStripRPCEven_ :  maxDeltaStripRPCOdd_);
-
+    maxDeltaStripRPC_ = (isEven ?  maxDeltaStripRPCEven_ :  maxDeltaStripRPCOdd_);
+    
     rpcDigis_.clear();
     retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }
