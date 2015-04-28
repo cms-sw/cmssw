@@ -29,8 +29,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) ;
   virtual ~MTVHistoProducerAlgoForTracker();
 
-  void initialize(){};
-
   void bookSimHistos(DQMStore::IBooker& ibook);
 
   void bookRecoHistos(DQMStore::IBooker& ibook);

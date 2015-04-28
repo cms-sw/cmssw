@@ -141,9 +141,6 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
       ibook.setCurrentFolder(dirName.c_str());
 
-      // vector of vector initialization
-      histoProducerAlgo_->initialize(); //TO BE FIXED. I'D LIKE TO AVOID THIS CALL
-
       string subDirName = dirName + "/simulation";
       ibook.setCurrentFolder(subDirName.c_str());
 

@@ -91,9 +91,6 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
 
       ibook.setCurrentFolder(dirName.c_str());
 
-      // vector of vector initialization
-      histoProducerAlgo_->initialize(); //TO BE FIXED. I'D LIKE TO AVOID THIS CALL
-
       string subDirName = dirName + "/simulation";
       ibook.setCurrentFolder(subDirName.c_str());
 

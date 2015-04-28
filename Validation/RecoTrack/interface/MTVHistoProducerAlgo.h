@@ -30,8 +30,6 @@ class MTVHistoProducerAlgo{
  MTVHistoProducerAlgo(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) : MTVHistoProducerAlgo(pset, iC){};
  MTVHistoProducerAlgo(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) : pset_(pset){};
   virtual ~MTVHistoProducerAlgo() {}
-  // to be implemented in the concrete classes
-  virtual void initialize()=0;
 
   virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
