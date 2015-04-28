@@ -11,7 +11,7 @@ import Validation.RecoTrack.plotting.validation as validation
 RefRelease='CMSSW_7_4_0_pre6'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-RefRelease='CMSSW_7_4_0_pre8'
+NewRelease='CMSSW_7_4_0_pre8'
 
 #import Validation.RecoTrack.plotting.plotting as plotting
 #plotting.missingOk = True
@@ -33,7 +33,7 @@ startupsamples= [
 
 pileupstartupsamples = [
     Sample('RelValTTbar', putype="25ns", midfix="13"),
-    Sample('RelValTTbar', putype="50ns", midfix="13")
+    Sample('RelValTTbar', putype="50ns", midfix="13"),
     Sample('RelValZMM', putype="25ns", midfix="13"),
     Sample('RelValZMM', putype="50ns", midfix="13")
 ]
@@ -67,7 +67,7 @@ pileupfastsimstartupsamples = [
 ]
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6','iter7','iter9','iter10']
+Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn']
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
 
