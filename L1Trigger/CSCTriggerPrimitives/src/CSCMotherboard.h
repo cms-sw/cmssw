@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboard_h
-#define CSCTriggerPrimitives_CSCMotherboard_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboard_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboard_h
 
 /** \class CSCMotherboard
  *
@@ -34,9 +34,9 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
 class CSCMotherboard
 {

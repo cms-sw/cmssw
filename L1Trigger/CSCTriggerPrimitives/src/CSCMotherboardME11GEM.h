@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME11GEM_h
-#define CSCTriggerPrimitives_CSCMotherboardME11GEM_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11GEM_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11GEM_h
 
 /** \class CSCMotherboardME11GEM
  *
@@ -11,9 +11,8 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
-#include <DataFormats/GEMDigi/interface/GEMPadDigiCollection.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 class CSCGeometry;
