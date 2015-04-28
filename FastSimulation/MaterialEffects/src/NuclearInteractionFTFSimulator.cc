@@ -1,5 +1,4 @@
 // Framework Headers
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Fast Sim headers
@@ -19,6 +18,7 @@
 #include "G4ExcitedStringDecay.hh"
 #include "G4LundStringFragmentation.hh"
 #include "G4GeneratorPrecompoundInterface.hh"
+#include "G4CascadeInterface.hh"
 
 #include "G4Proton.hh"
 #include "G4Neutron.hh"
@@ -56,20 +56,66 @@
 #include "G4Material.hh"
 #include "G4DecayPhysics.hh"
 #include "G4ParticleTable.hh"
+#include "G4IonTable.hh"
+#include "G4ProcessManager.hh"
+#include "G4PhysicsLogVector.hh"
 #include "G4SystemOfUnits.hh"
+
+const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {0};
+int NuclearInteractionFTFSimulator::theId[] = {0};
 
 const double fact = 1.0/CLHEP::GeV;
 
+// interaction length corrections per particle and energy 
+const double corrfactors[numHadrons][npoints] = {
+  {1.0872, 1.1026, 1.111, 1.111, 1.0105, 0.97622, 0.9511, 0.9526, 0.97591, 0.99277, 1.0099, 1.015, 1.0217, 1.0305, 1.0391, 1.0438, 1.0397, 1.0328, 1.0232, 1.0123, 1.0},
+  {1.0416, 1.1044, 1.1467, 1.1273, 1.026, 0.99085, 0.96572, 0.96724, 0.99091, 1.008, 1.0247, 1.0306, 1.0378, 1.0427, 1.0448, 1.0438, 1.0397, 1.0328, 1.0232, 1.0123, 1.0},
+  {0.5308, 0.53589, 0.67059, 0.80253, 0.82341, 0.79083, 0.85967, 0.90248, 0.93792, 0.9673, 1.0034, 1.022, 1.0418, 1.0596, 1.0749, 1.079, 1.0704, 1.0576, 1.0408, 1.0214, 1.0},
+  {0.49107, 0.50571, 0.64149, 0.77209, 0.80472, 0.78166, 0.83509, 0.8971, 0.93234, 0.96154, 0.99744, 1.0159, 1.0355, 1.0533, 1.0685, 1.0732, 1.0675, 1.0485, 1.0355, 1.0191, 1.0},
+  {1.9746, 1.7887, 1.5645, 1.2817, 1.0187, 0.95216, 0.9998, 1.035, 1.0498, 1.0535, 1.0524, 1.0495, 1.0461, 1.0424, 1.0383, 1.0338, 1.0287, 1.0228, 1.0161, 1.0085, 1.0},
+  {0.46028, 0.59514, 0.70355, 0.70698, 0.62461, 0.65103, 0.71945, 0.77753, 0.83582, 0.88422, 0.92117, 0.94889, 0.96963, 0.98497, 0.99596, 1.0033, 1.0075, 1.0091, 1.0081, 1.005, 1.0},
+  {0.75016, 0.89607, 0.97185, 0.91083, 0.77425, 0.77412, 0.8374, 0.88848, 0.93104, 0.96174, 0.98262, 0.99684, 1.0065, 1.0129, 1.0168, 1.0184, 1.018, 1.0159, 1.0121, 1.0068, 1.0},
+  {0.75016, 0.89607, 0.97185, 0.91083, 0.77425, 0.77412, 0.8374, 0.88848, 0.93104, 0.96174, 0.98262, 0.99684, 1.0065, 1.0129, 1.0168, 1.0184, 1.018, 1.0159, 1.0121, 1.0068, 1.0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0},
+  {1.1006, 1.1332, 1.121, 1.1008, 1.086, 1.077, 1.0717, 1.0679, 1.0643, 1.0608, 1.057, 1.053, 1.0487, 1.0441, 1.0392, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {1.1318, 1.1255, 1.1062, 1.0904, 1.0802, 1.0742, 1.0701, 1.0668, 1.0636, 1.0602, 1.0566, 1.0527, 1.0485, 1.044, 1.0391, 1.0337, 1.028, 1.0217, 1.015, 1.0078, 1.0},
+  {1.1094, 1.1332, 1.1184, 1.0988, 1.0848, 1.0765, 1.0714, 1.0677, 1.0642, 1.0607, 1.0569, 1.053, 1.0487, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {1.1087, 1.1332, 1.1187, 1.099, 1.0849, 1.0765, 1.0715, 1.0677, 1.0642, 1.0607, 1.057, 1.053, 1.0487, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0},
+  {1.1192, 1.132, 1.1147, 1.0961, 1.0834, 1.0758, 1.0711, 1.0674, 1.064, 1.0606, 1.0569, 1.0529, 1.0486, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {1.1188, 1.1321, 1.1149, 1.0963, 1.0834, 1.0758, 1.0711, 1.0675, 1.0641, 1.0606, 1.0569, 1.0529, 1.0486, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {0.50776, 0.5463, 0.5833, 0.61873, 0.65355, 0.68954, 0.72837, 0.7701, 0.81267, 0.85332, 0.89037, 0.92329, 0.95177, 0.97539, 0.99373, 1.0066, 1.014, 1.0164, 1.0144, 1.0087, 1.0},
+  {0.50787, 0.5464, 0.58338, 0.6188, 0.65361, 0.6896, 0.72841, 0.77013, 0.8127, 0.85333, 0.89038, 0.92329, 0.95178, 0.9754, 0.99373, 1.0066, 1.014, 1.0164, 1.0144, 1.0087, 1.0},
+  {1.1006, 1.1332, 1.121, 1.1008, 1.086, 1.077, 1.0717, 1.0679, 1.0643, 1.0608, 1.057, 1.053, 1.0487, 1.0441, 1.0392, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {1.1318, 1.1255, 1.1062, 1.0904, 1.0802, 1.0742, 1.0701, 1.0668, 1.0636, 1.0602, 1.0566, 1.0527, 1.0485, 1.044, 1.0391, 1.0337, 1.028, 1.0217, 1.015, 1.0078, 1.0},
+  {1.1094, 1.1332, 1.1184, 1.0988, 1.0848, 1.0765, 1.0714, 1.0677, 1.0642, 1.0607, 1.0569, 1.053, 1.0487, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {1.1087, 1.1332, 1.1187, 1.099, 1.0849, 1.0765, 1.0715, 1.0677, 1.0642, 1.0607, 1.057, 1.053, 1.0487, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0},
+  {1.1192, 1.132, 1.1147, 1.0961, 1.0834, 1.0758, 1.0711, 1.0674, 1.064, 1.0606, 1.0569, 1.0529, 1.0486, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {1.1188, 1.1321, 1.1149, 1.0963, 1.0834, 1.0758, 1.0711, 1.0675, 1.0641, 1.0606, 1.0569, 1.0529, 1.0486, 1.0441, 1.0391, 1.0338, 1.028, 1.0218, 1.015, 1.0078, 1.0},
+  {0.47677, 0.51941, 0.56129, 0.60176, 0.64014, 0.67589, 0.70891, 0.73991, 0.77025, 0.80104, 0.83222, 0.86236, 0.8901, 0.91518, 0.9377, 0.95733, 0.97351, 0.98584, 0.9942, 0.99879, 1.0},
+  {0.49361, 0.53221, 0.56976, 0.60563, 0.63954, 0.67193, 0.70411, 0.73777, 0.77378, 0.81114, 0.84754, 0.88109, 0.91113, 0.93745, 0.95974, 0.97762, 0.99081, 0.99929, 1.0033, 1.0034, 1.0},
+  {0.4873, 0.52744, 0.56669, 0.60443, 0.64007, 0.67337, 0.70482, 0.73572, 0.76755, 0.80086, 0.83456, 0.86665, 0.8959, 0.92208, 0.94503, 0.96437, 0.97967, 0.99072, 0.99756, 1.0005, 1.0},
+  {0.48729, 0.52742, 0.56668, 0.60442, 0.64006, 0.67336, 0.70482, 0.73571, 0.76754, 0.80086, 0.83455, 0.86665, 0.8959, 0.92208, 0.94503, 0.96437, 0.97967, 0.99072, 0.99756, 1.0005, 1.0},
+};
+
+// interaction length in Silicon at 1 TeV per particle
+const double nuclIntLength[numHadrons] = {
+4.5606, 4.4916, 5.7511, 5.7856, 6.797, 6.8373, 6.8171, 6.8171, 0, 0, 4.6926, 4.6926, 4.6926, 4.6926, 0, 4.6926, 4.6926, 4.3171, 4.3171, 4.6926, 4.6926, 4.6926, 4.6926, 0, 4.6926, 4.6926, 2.509, 2.9048, 2.5479, 2.5479
+};
+
 NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(  
-  unsigned int distAlgo, 
-  double distCut) :
+  unsigned int distAlgo, double distCut, double elimit, double eth) :
+  curr4Mom(0.,0.,0.,0.),
+  vectProj(0.,0.,1.),
+  theBoost(0.,0.,0.),
+  theBertiniLimit(elimit),
+  theEnergyLimit(eth),
   theDistCut(distCut),
   distMin(1E99),
   theDistAlgo(distAlgo)
 {
-  theEnergyLimit = 1*CLHEP::GeV;
-  currIdx = 0;
-
   // FTF model
   theHadronicModel = new G4TheoFSGenerator("FTF");
   theStringModel = new G4FTFModel();
@@ -83,92 +129,66 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theHadronicModel->SetHighEnergyGenerator(theStringModel);
   theHadronicModel->SetMinEnergy(theEnergyLimit);
 
-  // Geant4 particles
-  numHadrons = 30;
-  theG4Hadron.resize(numHadrons,0);
-  theG4Hadron[0] = G4Proton::Proton();
-  theG4Hadron[1] = G4Neutron::Neutron();
-  theG4Hadron[2] = G4PionPlus::PionPlus();
-  theG4Hadron[3] = G4PionMinus::PionMinus();
-  theG4Hadron[4] = G4AntiProton::AntiProton();
-  theG4Hadron[5] = G4KaonPlus::KaonPlus();
-  theG4Hadron[6] = G4KaonMinus::KaonMinus();
-  theG4Hadron[7] = G4KaonZeroLong::KaonZeroLong();
-  theG4Hadron[8] = G4KaonZeroShort::KaonZeroShort();
-  theG4Hadron[9] = G4KaonZero::KaonZero();
-  theG4Hadron[10]= G4AntiKaonZero::AntiKaonZero();
-  theG4Hadron[11]= G4Lambda::Lambda();
-  theG4Hadron[12]= G4OmegaMinus::OmegaMinus();
-  theG4Hadron[13]= G4SigmaMinus::SigmaMinus();
-  theG4Hadron[14]= G4SigmaPlus::SigmaPlus();
-  theG4Hadron[15]= G4SigmaZero::SigmaZero();
-  theG4Hadron[16]= G4XiMinus::XiMinus();
-  theG4Hadron[17]= G4XiZero::XiZero();
-  theG4Hadron[18]= G4AntiNeutron::AntiNeutron();
-  theG4Hadron[19]= G4AntiLambda::AntiLambda();
-  theG4Hadron[20]= G4AntiOmegaMinus::AntiOmegaMinus();
-  theG4Hadron[21]= G4AntiSigmaMinus::AntiSigmaMinus();
-  theG4Hadron[22]= G4AntiSigmaPlus::AntiSigmaPlus();
-  theG4Hadron[23]= G4AntiSigmaZero::AntiSigmaZero();
-  theG4Hadron[24]= G4AntiXiMinus::AntiXiMinus();
-  theG4Hadron[25]= G4AntiXiZero::AntiXiZero();
-  theG4Hadron[26]= G4AntiAlpha::AntiAlpha();
-  theG4Hadron[27]= G4AntiDeuteron::AntiDeuteron();
-  theG4Hadron[28]= G4AntiTriton::AntiTriton();
-  theG4Hadron[29]= G4AntiHe3::AntiHe3();
+  // Bertini Cascade 
+  theBertiniCascade = new G4CascadeInterface();
 
-  G4GenericIon::GenericIon();
-  G4DecayPhysics decays;
-  decays.ConstructParticle();  
-  G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-  partTable->SetReadiness();
+  // Geant4 particles and cross sections
+  if(!theG4Hadron[0]) {
+    theG4Hadron[0] = G4Proton::Proton();
+    theG4Hadron[1] = G4Neutron::Neutron();
+    theG4Hadron[2] = G4PionPlus::PionPlus();
+    theG4Hadron[3] = G4PionMinus::PionMinus();
+    theG4Hadron[4] = G4KaonPlus::KaonPlus();
+    theG4Hadron[5] = G4KaonMinus::KaonMinus();
+    theG4Hadron[6] = G4KaonZeroLong::KaonZeroLong();
+    theG4Hadron[7] = G4KaonZeroShort::KaonZeroShort();
+    theG4Hadron[8] = G4KaonZero::KaonZero();
+    theG4Hadron[9] = G4AntiKaonZero::AntiKaonZero();
+    theG4Hadron[10]= G4Lambda::Lambda();
+    theG4Hadron[11]= G4OmegaMinus::OmegaMinus();
+    theG4Hadron[12]= G4SigmaMinus::SigmaMinus();
+    theG4Hadron[13]= G4SigmaPlus::SigmaPlus();
+    theG4Hadron[14]= G4SigmaZero::SigmaZero();
+    theG4Hadron[15]= G4XiMinus::XiMinus();
+    theG4Hadron[16]= G4XiZero::XiZero();
+    theG4Hadron[17]= G4AntiProton::AntiProton();
+    theG4Hadron[18]= G4AntiNeutron::AntiNeutron();
+    theG4Hadron[19]= G4AntiLambda::AntiLambda();
+    theG4Hadron[20]= G4AntiOmegaMinus::AntiOmegaMinus();
+    theG4Hadron[21]= G4AntiSigmaMinus::AntiSigmaMinus();
+    theG4Hadron[22]= G4AntiSigmaPlus::AntiSigmaPlus();
+    theG4Hadron[23]= G4AntiSigmaZero::AntiSigmaZero();
+    theG4Hadron[24]= G4AntiXiMinus::AntiXiMinus();
+    theG4Hadron[25]= G4AntiXiZero::AntiXiZero();
+    theG4Hadron[26]= G4AntiAlpha::AntiAlpha();
+    theG4Hadron[27]= G4AntiDeuteron::AntiDeuteron();
+    theG4Hadron[28]= G4AntiTriton::AntiTriton();
+    theG4Hadron[29]= G4AntiHe3::AntiHe3();
 
-  // interaction length in units of radiation length 
-  // computed for 5 GeV projectile energy, default value for K0_L
-  theNuclIntLength.resize(numHadrons,6.46);
-  theNuclIntLength[0] = 4.528;
-  theNuclIntLength[1] = 4.524;
-  theNuclIntLength[2] = 4.493;
-  theNuclIntLength[3] = 4.493;
-  theNuclIntLength[4] = 3.593;
-  theNuclIntLength[5] = 7.154;
-  theNuclIntLength[6] = 5.889;
-  theNuclIntLength[11]= 4.986;
-  theNuclIntLength[12]= 4.983;
-  theNuclIntLength[13]= 4.986;
-  theNuclIntLength[14]= 4.986;
-  theNuclIntLength[15]= 4.986;
-  theNuclIntLength[16]= 4.986;
-  theNuclIntLength[17]= 4.986;
-  theNuclIntLength[18]= 3.597;
-  theNuclIntLength[19]= 3.608;
-  theNuclIntLength[20]= 3.639;
-  theNuclIntLength[21]= 3.613;
-  theNuclIntLength[22]= 3.613;
-  theNuclIntLength[23]= 3.613;
-  theNuclIntLength[24]= 3.62;
-  theNuclIntLength[25]= 3.62;
-  theNuclIntLength[26]= 1.971;
-  theNuclIntLength[27]= 2.301;
-  theNuclIntLength[28]= 1.997;
-  theNuclIntLength[29]= 1.997;
+    // other Geant4 particles
+    G4ParticleDefinition* ion = G4GenericIon::GenericIon();
+    ion->SetProcessManager(new G4ProcessManager(ion));
+    G4DecayPhysics decays;
+    decays.ConstructParticle();  
+    G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+    partTable->SetVerboseLevel(0);
+    partTable->SetReadiness();
 
-  // list of PDG codes
-  theId.resize(numHadrons,0);
+    for(int i=0; i<numHadrons; ++i) {
+      theId[i] = theG4Hadron[i]->GetPDGEncoding();
+    }
+  }
 
   // local objects
+  vect = new G4PhysicsLogVector(npoints-1,100*MeV,TeV);
   currIdx = 0;
+  index = 0;
   currTrack = 0;
   currParticle = theG4Hadron[0];
-  vectProj.set(0.0,0.0,1.0);  
-  theBoost.set(0.0,0.0,1.0);  
 
   // fill projectile particle definitions
   dummyStep = new G4Step();
   dummyStep->SetPreStepPoint(new G4StepPoint());
-  for(int i=0; i<numHadrons; ++i) {
-    theId[i] = theG4Hadron[i]->GetPDGEncoding();
-  }
 
   // target is always Silicon
   targetNucleus.SetParameters(28, 14);
@@ -179,6 +199,7 @@ NuclearInteractionFTFSimulator::~NuclearInteractionFTFSimulator() {
   delete theStringDecay;
   delete theStringModel;
   delete theLund;
+  delete vect;
 }
 
 void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle, 
@@ -206,15 +227,26 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
   if(!currParticle) { return; }
 
   // fill projectile for Geant4
-  double e = CLHEP::GeV*Particle.momentum().e();
   double mass = currParticle->GetPDGMass();
+  double ekin = CLHEP::GeV*Particle.momentum().e() - mass;
+  double ff;
+  if(ekin <= vect->Energy(0)) {
+    ff = corrfactors[currIdx][0];
+  } else if(ekin >= vect->Energy(npoints-1)) {
+    ff = 1.0;
+  } else {
+    index = vect->FindBin(ekin, index);
+    double e1 = vect->Energy(index);
+    double e2 = vect->Energy(index+1);
+    ff = (corrfactors[currIdx][index]*(e2 - ekin) + 
+	  corrfactors[currIdx][index+1]*(ekin - e1))/(e2 - e1);
+  }
   /*
   std::cout << " Primary " <<  currParticle->GetParticleName() 
   	    << "  E(GeV)= " << e*fact << std::endl;
   */
-  if(e <= theEnergyLimit + mass) { return; }
 
-  double  currInteractionLength = -G4Log(random->flatShoot())*theNuclIntLength[currIdx]; 
+  double currInteractionLength = -G4Log(random->flatShoot())*nuclIntLength[currIdx]*ff; 
   /*
   std::cout << "*NuclearInteractionFTFSimulator::compute: R(X0)= " << radLengths
 	    << " Rnuc(X0)= " << theNuclIntLength[currIdx] << "  IntLength(X0)= " 
@@ -235,15 +267,21 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
 	    << px << " " << py << " " << pz << ")" << std::endl;
   */
 
-  G4DynamicParticle* dynParticle = new G4DynamicParticle(theG4Hadron[currIdx],dir,e-mass);
+  G4DynamicParticle* dynParticle = new G4DynamicParticle(theG4Hadron[currIdx],dir,ekin);
   currTrack = new G4Track(dynParticle, 0.0, vectProj);
   currTrack->SetStep(dummyStep);
 
   theProjectile.Initialise(*currTrack); 
   delete currTrack;
 
-  G4HadFinalState* result = theHadronicModel->ApplyYourself(theProjectile, targetNucleus);
-
+  G4HadFinalState* result;
+  // Bertini cascade for low-energy hadrons (except light anti-nuclei)
+  // FTFP is applied above energy limit and for all anti-hyperons and anti-ions 
+  if(ekin <= theBertiniLimit && currIdx < 17) { 
+    result = theBertiniCascade->ApplyYourself(theProjectile, targetNucleus);
+  } else {
+    result = theHadronicModel->ApplyYourself(theProjectile, targetNucleus);
+  }
   if(result) {
 
     int nsec = result->GetNumberOfSecondaries();
@@ -284,11 +322,16 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
           lv.boost(theBoost);
 	  saveDaughter(Particle, lv, 22); 
           curr4Mom -= lv;
-	  saveDaughter(Particle, curr4Mom, 22); 
+          if(curr4Mom.e() > theEnergyLimit) { 
+	    saveDaughter(Particle, curr4Mom, 22); 
+	  } 
 	} else {
-	  saveDaughter(Particle, curr4Mom, thePid); 
+          if(curr4Mom.e() > theEnergyLimit + dp->GetParticleDefinition()->GetPDGMass()) { 
+	    saveDaughter(Particle, curr4Mom, thePid); 
+	  }
 	}
       }
+      result->Clear();
     }
   }
 }
