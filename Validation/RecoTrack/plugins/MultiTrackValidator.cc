@@ -124,17 +124,17 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       InputTag algo = label[www];
       string dirName=dirName_;
       if (algo.process()!="")
-    dirName+=algo.process()+"_";
+        dirName+=algo.process()+"_";
       if(algo.label()!="")
-    dirName+=algo.label()+"_";
+        dirName+=algo.label()+"_";
       if(algo.instance()!="")
-    dirName+=algo.instance()+"_";
+        dirName+=algo.instance()+"_";
       if (dirName.find("Tracks")<dirName.length()){
-    dirName.replace(dirName.find("Tracks"),6,"");
+        dirName.replace(dirName.find("Tracks"),6,"");
       }
       string assoc= associators[ww].label();
       if (assoc.find("Track")<assoc.length()){
-    assoc.replace(assoc.find("Track"),5,"");
+        assoc.replace(assoc.find("Track"),5,"");
       }
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
