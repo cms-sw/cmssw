@@ -1056,6 +1056,12 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       out += "process = parentProcess"+str(hash(self))+"\n"
       out += "process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +")\n"
       return out
+   def process(self):
+      return self.__process
+   def SelectEvents(self):
+      return self.__SelectEvents
+   def outputCommands(self):
+      return self.__outputCommands
    def type_(self):
       return 'subProcess'
    def nameInProcessDesc_(self,label):
