@@ -50,6 +50,7 @@ detachedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSelector,detachedTripletStep
+detachedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # sequence
 DetachedTripletStep = cms.Sequence(iterativeDetachedTripletSeeds+
