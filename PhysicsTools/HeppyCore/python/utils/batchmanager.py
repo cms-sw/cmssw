@@ -44,6 +44,9 @@ class BatchManager:
         self.parser_.add_option("-b", "--batch", dest="batch",
                                 help="batch command. default is: 'bsub -q 8nh < batchScript.sh'. You can also use 'nohup < ./batchScript.sh &' to run locally.",
                                 default="bsub -q 8nh < ./batchScript.sh")
+        self.parser_.add_option("-p", "--parametric", action="store_true",
+                                dest="parametric", default=False,
+                                help="submit jobs parametrically, implemented for IC so far")
 
         
     def ParseOptions(self):     
@@ -174,17 +177,51 @@ class BatchManager:
             print '*NOT* SUBMITTING JOBS - exit '
             return
         print 'SUBMITTING JOBS ======== '
-        for jobDir  in self.listOfJobs_:
-            root = os.getcwd()
-            # run it
-            print 'processing ', jobDir
-            os.chdir( jobDir )
-            self.SubmitJob( jobDir )
-            # and come back
-            os.chdir(root)
-            print 'waiting %s seconds...' % waitingTimeInSec
-            time.sleep( waitingTimeInSec )
-            print 'done.'
+
+        mode = self.RunningMode(self.options_.batch)
+
+        #  If at IC write all the job directories to a file then submit a parameteric
+        # job that depends on the file number. This is required to circumvent the 2000
+        # individual job limit at IC
+        if mode=="IC" and self.options_.parametric:
+
+            jobDirsFile = os.path.join(self.outputDir_,"jobDirectories.txt")
+            with open(jobDirsFile, 'w') as f:
+                for jobDir in self.listOfJobs_:
+                    print>>f,jobDir
+
+            readLine = "readarray JOBDIR < "+jobDirsFile+"\n"
+
+            submitScript = os.path.join(self.outputDir_,"parametricSubmit.sh")
+            with open(submitScript,'w') as batchScript:
+                batchScript.write("#!/bin/bash\n")
+                batchScript.write("#$ -e /dev/null -o /dev/null \n")
+                batchScript.write("cd "+self.outputDir_+"\n") 
+                batchScript.write(readLine)
+                batchScript.write("cd ${JOBDIR[${SGE_TASK_ID}-1]}\n")
+                batchScript.write( "./batchScript.sh > BATCH_outputLog.txt 2> BATCH_errorLog.txt" )
+
+            #Find the queue
+            splitBatchOptions = self.options_.batch.split()
+            if '-q' in splitBatchOptions: queue =  splitBatchOptions[splitBatchOptions.index('-q')+1]
+            else: queue = "hepshort.q"
+
+            os.system("qsub -q "+queue+" -t 1-"+str(len(self.listOfJobs_))+" "+submitScript)
+            
+        else:
+        #continue as before, submitting one job per directory
+
+            for jobDir  in self.listOfJobs_:
+                root = os.getcwd()
+                # run it
+                print 'processing ', jobDir
+                os.chdir( jobDir )
+                self.SubmitJob( jobDir )
+                # and come back
+                os.chdir(root)
+                print 'waiting %s seconds...' % waitingTimeInSec
+                time.sleep( waitingTimeInSec )
+                print 'done.'
 
     def SubmitJob( self, jobDir ):
         '''Hook for job submission.'''
