@@ -131,34 +131,9 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       vhits.push_back(vh);
     }
  
-    // get CompatibleHits for each z-position
-    // estimate best z-position from cluster lengths
-    double zest = 0.0;
-    reco::ClusterCompatibility chits;
-    int nhits = 0, nhits_max = 0;
-    double chi = 0.0, chi_max = 1e+9;
-    for(double z0 = minZ_; z0 <= maxZ_; z0 += zStep_) {
-      chits = getContainedHits(vhits, z0);
-      creco->push_back(chits); 
-      nhits = chits.nHit();
-      chi = chits.chi();
-      if(nhits == 0)
-        continue;
-      if(nhits > nhits_max) {
-        chi_max = 1e+9;
-        nhits_max = nhits;
-      }
-      if(nhits >= nhits_max && chi < chi_max) {
-        chi_max = chi;
-        zest = z0;
-      }
-    }
-
-    // make sure to also store best z-position +/- 10 cm
-    // if this is out of range
-    double zminus = zest - 10., zplus = zest + 10.;
-    if( zminus < minZ_ ) creco->push_back(getContainedHits(vhits, zminus));
-    if( zplus > maxZ_ ) creco->push_back(getContainedHits(vhits, zplus));
+    // produce ClusterCompatibility object for each z-position
+    for(double z0 = minZ_; z0 <= maxZ_; z0 += zStep_) 
+      creco->push_back(getContainedHits(vhits, z0));
 
   }
   iEvent.put(creco);
