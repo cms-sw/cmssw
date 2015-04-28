@@ -23,6 +23,7 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,9 +49,11 @@ class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::Share
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag gemPadDigiProducer_;
+  edm::InputTag rpcDigiProducer_;
   edm::EDGetTokenT<CSCComparatorDigiCollection> comp_token_;
   edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
   edm::EDGetTokenT<GEMPadDigiCollection> gem_pad_token_;
+  edm::EDGetTokenT<RPCDigiCollection> rpc_digi_token_;
  
   // switch to force the use of parameters from config file rather then from DB
   bool debugParameters_;

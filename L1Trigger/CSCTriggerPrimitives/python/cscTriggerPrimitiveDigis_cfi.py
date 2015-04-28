@@ -116,6 +116,8 @@ def _modifyCscTriggerPrimitiveDigisForRun4GE21( object ) :
     object.clctSLHCME21 = object.clctSLHC.clone()
     object.alctSLHCME21 = object.alctSLHC.clone()
     object.alctSLHCME21.alctNplanesHitPattern = 3
+    object.alctSLHCME21.clctNplanesHitPattern = 3
+    object.alctSLHCME21.clctPidThreshPretrig = 2
 
     # to be used by ME21 chambers with GEM-CSC ILT
     me21tmbSLHCGEM = cms.PSet(
@@ -184,6 +186,70 @@ def _modifyCscTriggerPrimitiveDigisForRun4GE21( object ) :
 
     object.me21tmbSLHCGEM = me21tmbSLHCGEM
 
+def _modifyCscTriggerPrimitiveDigisForRun4RPC( object ) :
+    """
+    Modifies cscTriggerPrimitiveDigis for Run 4 + RPCs
+    """
+    object.RPCDigiProducer = "simMuonRPCDigis"
+    object.commonParam.runME3141ILT = cms.bool(False)
+    object.clctSLHCME3141 = object.clctSLHC.clone()
+    object.alctSLHCME3141 = object.alctSLHC.clone()
+    object.alctSLHCME3141.alctNplanesHitPattern = 3
+    object.alctSLHCME3141.clctNplanesHitPattern = 3
+    object.alctSLHCME3141.clctPidThreshPretrig = 2
+
+    # to be used by ME31-ME41 chambers with RPC-CSC ILT
+    me3141tmbSLHCRPC = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestClctME3141Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME3141LCTs = cms.uint32(2),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatC = cms.bool(True),
+
+        ## matching to digis in case LowQ CLCT
+        maxDeltaBXRPC = cms.int32(0),
+        maxDeltaStripRPCOdd = cms.int32(6),
+        maxDeltaStripRPCEven = cms.int32(4),
+        maxDeltaWg = cms.int32(2),
+
+        ## efficiency recovery switches
+        dropLowQualityCLCTsNoRPCs = cms.bool(True),
+        buildLCTfromALCTandRPC = cms.bool(True),
+        buildLCTfromCLCTandRPC = cms.bool(False),
+        buildLCTfromLowQstubandRPC = cms.bool(True),
+        promoteCLCTRPCquality = cms.bool(True),
+        promoteALCTRPCpattern = cms.bool(True),
+        promoteALCTRPCquality = cms.bool(True),
+
+        ## rate reduction 
+        doRpcMatching = cms.bool(True),
+        rpcMatchDeltaEta = cms.double(0.08),
+        rpcMatchDeltaBX = cms.int32(1),
+        rpcMatchDeltaPhiOdd = cms.double(1),
+        rpcMatchDeltaPhiEven = cms.double(1),
+        rpcMatchMinEta = cms.double(1.5),
+        rpcClearNomatchLCTs = cms.bool(False),
+    ),
+
+    object.me3141tmbSLHCRPC = me3141tmbSLHCRPC
+
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
@@ -198,6 +264,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     GEMPadDigiProducer = cms.InputTag(""),
+    RPCDigiProducer = cms.InputTag(""),
 
     # for SLHC studies we don't want bad chambers checks so far
     checkBadChambers = cms.bool(True),
@@ -231,6 +298,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         ## enable the GEM-CSC integrated triggers for ME11 or ME21
         runME11ILT = cms.bool(False),
         runME21ILT = cms.bool(False),
+        runME3141ILT = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: old MC studies

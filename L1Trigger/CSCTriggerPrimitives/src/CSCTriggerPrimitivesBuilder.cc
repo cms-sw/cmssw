@@ -18,6 +18,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h>
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,6 +27,7 @@
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 //------------------
 // Static variables
@@ -56,8 +58,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
-  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
+  runME11ILT_ = commonParams.getParameter<bool>("runME11ILT");
+  runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
+  runME3141ILT_ = commonParams.getParameter<bool>("runME3141ILT");
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++)
@@ -93,6 +96,8 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf);
             else if (stat==2 && ring==1 && runME21ILT_)
 	      tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf);
+            else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf);
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboard(endc, stat, sect, subs, cham, conf);
           }
@@ -175,6 +180,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					const CSCWireDigiCollection* wiredc,
 					const CSCComparatorDigiCollection* compdc,
 					const GEMPadDigiCollection* gemPads,
+					const RPCDigiCollection* rpcDigis,
 					CSCALCTDigiCollection& oc_alct,
 					CSCCLCTDigiCollection& oc_clct,
                                         CSCCLCTPreTriggerCollection & oc_pretrig,
@@ -517,7 +523,55 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 		oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), gemId);
 	      }
 	    }
-
+	    // running upgraded ME3/1-ME4/1 TMBs
+            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_)
+	    {
+	      CSCMotherboardME3141RPC* tmb3141RPC = static_cast<CSCMotherboardME3141RPC*>(tmb);
+	      tmb3141RPC->setCSCGeometry(csc_g);
+	      tmb3141RPC->setRPCGeometry(rpc_g);
+	      tmb3141RPC->run(wiredc, compdc, rpcDigis);
+	      std::vector<CSCCorrelatedLCTDigi> lctV = tmb3141RPC->readoutLCTs();
+	      std::vector<CSCALCTDigi> alctV = tmb3141RPC->alct->readoutALCTs();
+	      std::vector<CSCCLCTDigi> clctV = tmb3141RPC->clct->readoutCLCTs();
+	      std::vector<int> preTriggerBXs = tmb3141RPC->clct->preTriggerBXs();
+	      
+	      if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
+		LogTrace("L1CSCTrigger")
+		  << "CSCTriggerPrimitivesBuilder got results in " <<detid;
+	      }
+	      
+	      // Correlated LCTs.
+	      if (!lctV.empty()) {
+		LogTrace("L1CSCTrigger")
+		  << "Put " << lctV.size() << " LCT digi"
+		  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
+		oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
+	      }
+	      // Anode LCTs.
+	      if (!alctV.empty()) {
+		LogTrace("L1CSCTrigger")
+		  << "Put " << alctV.size() << " ALCT digi"
+		  << ((alctV.size() > 1) ? "s " : " ") << "in collection\n";
+		oc_alct.put(std::make_pair(alctV.begin(),alctV.end()), detid);
+	      }
+	      
+	      // Cathode LCTs.
+	      if (!clctV.empty()) {
+		LogTrace("L1CSCTrigger")
+		  << "Put " << clctV.size() << " CLCT digi"
+		  << ((clctV.size() > 1) ? "s " : " ") << "in collection\n";
+		oc_clct.put(std::make_pair(clctV.begin(),clctV.end()), detid);
+	      }
+	      
+	      // Cathode LCTs pretriggers
+	      if (!preTriggerBXs.empty()) {
+		LogTrace("L1CSCTrigger")
+		  << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
+		  << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
+		oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+	      }
+	    }	    
+	    
             // running non-upgraded TMB
             else
             {
