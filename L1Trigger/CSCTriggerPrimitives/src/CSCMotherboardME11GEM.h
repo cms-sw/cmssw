@@ -131,14 +131,14 @@ class CSCMotherboardME11GEM : public CSCMotherboard
 			    GEMCoPadDigiCollection& out_co_pads,
 			    CSCDetId csc_id);
 
-  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false);
+  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
+  void retrieveGEMCoPads(const GEMCoPadDigiCollection* pads, unsigned id);
 
   void createGEMRollEtaLUT(bool isEven);
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
   int deltaPad(int hs, int pad);
-  int getRandomWGForGEMRoll(int roll);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMPadDigi& gem,
                                         int me, bool oldDataFormat = false); 

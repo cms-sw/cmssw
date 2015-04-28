@@ -22,9 +22,9 @@ class GEMSuperChamber;
 
 class CSCMotherboardME21GEM : public CSCMotherboard
 {
-  typedef std::map<int, std::vector<std::pair<unsigned int, const GEMPadDigi*> > > GEMPads;
   typedef std::pair<unsigned int, const GEMPadDigi*> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
+  typedef std::map<int, GEMPadsBX> GEMPads;
 
  public:
   /** Normal constructor. */
@@ -48,17 +48,17 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
   void buildCoincidencePads(const GEMPadDigiCollection* out_pads, 
-                            GEMPadDigiCollection& out_co_pads,
+                            GEMCoPadDigiCollection& out_co_pads,
 			    CSCDetId csc_id);
 
-  GEMPads retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false);
+  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
+  void retrieveGEMCoPads(const GEMCoPadDigiCollection* pads, unsigned id);
 
   std::map<int,std::pair<double,double> > createGEMRollEtaLUT();
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
   int deltaPad(int hs, int pad);
-  int getRandomWGForGEMRoll(int roll);
 
   void printGEMTriggerPads(int minBX, int maxBx, bool iscopad = false);
 
