@@ -95,7 +95,7 @@ _ntracks = PlotGroup("ntracks", [
                             legendDy=-0.02, legendDh=-0.01
 )
 _tuning = PlotGroup("tuning", [
-    Plot("chi2", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="#chi^{2}"),
+    Plot("chi2", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=[0.1, 0.2, 0.5, 1.0001], drawStyle="hist", xtitle="#chi^{2}"),
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
     Plot("chi2_vs_eta", stat=True, profileX=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
     Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{t} / p_{t} > [%]", ymin=-1.5, ymax=1.5)
