@@ -27,7 +27,7 @@ def _modifyCscTriggerPrimitiveDigisForRun2GE11( object ) :
     """
     Modifies cscTriggerPrimitiveDigis for Run 2 + GEMs
     """
-    object.commonParam.runME11ILT = cms.bool(True)
+    object.commonParam.runME11ILT = cms.bool(False)
     object.clctSLHC.clctNplanesHitPattern = 3
     object.clctSLHC.clctPidThreshPretrig = 2
     
@@ -503,5 +503,3 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 #
 from Configuration.StandardSequences.Eras import eras
 eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2 )
-eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2GE11 )
-eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun4GE21 )
