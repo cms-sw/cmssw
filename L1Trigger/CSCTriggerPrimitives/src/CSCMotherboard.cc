@@ -55,8 +55,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
 
-  //  std::cout << "Constructing Motherboard station " << theStation << " ring " << theRing << std::endl;
-  
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static bool config_dumped = false;
@@ -99,8 +97,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                            conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
   const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
                                            conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
-  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
-                                             conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
 
   const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);  
   const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);  
@@ -834,7 +830,6 @@ void CSCMotherboard::dumpConfigParams() const {
        << tmb_l1a_window_size << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
-  //std::cerr << strm.str()<<std::endl;
 }
 
 
