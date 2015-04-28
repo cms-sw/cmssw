@@ -826,7 +826,6 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
 
 for x in ["ZEE_13",'TTbar_13','H130GGgluonfusion_13','QQH1352T_13','ZTT_13','ZMM_13','NuGun_UP15']:
     key = "FS_" + x + "_PRMXUP15_PU25"
-    print key
     steps[key] = merge([FS_PREMIXUP15_PU25_OVERLAY,{"cfg":steps[x]["cfg"]}])
 
 # step2 
