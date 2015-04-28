@@ -158,6 +158,10 @@ class JetAnalyzer( Analyzer ):
         self.gamma_cleanJetsFwd = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         ###
 
+        if self.cfg_ana.alwaysCleanPhotons:
+            self.cleanJets = self.gamma_cleanJets
+            self.cleanJetsAll = self.gamma_cleanJetsAll
+            self.cleanJetsFwd = self.gamma_cleanJetsFwd
 
         ## Associate jets to leptons
         leptons = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
@@ -410,6 +414,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     cleanJetsFromFirstPhoton = False,
     cleanJetsFromTaus = False,
     cleanJetsFromIsoTracks = False,
+    alwaysCleanPhotons = False,
     jecPath = "",
     cleanGenJetsFromPhoton = False,
     collectionPostFix = ""
