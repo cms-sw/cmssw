@@ -87,6 +87,13 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
     }
     else {
       TSOS innerState   = backwardPropagator(seed)->propagate(outerState,hitGeomDet->surface());
+
+      // try to recover if propagation failed
+      if unlikely(!innerState.isValid())
+        innerState =
+          trajectoryStateTransform::transientState(pState, &(hitGeomDet->surface()),
+                                                            forwardPropagator(seed)->magneticField());
+
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 	result.emplace(invalidState, innerUpdated, recHit, 0, hitLayer);
