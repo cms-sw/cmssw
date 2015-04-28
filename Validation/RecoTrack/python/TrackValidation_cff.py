@@ -90,6 +90,19 @@ cutsRecoTracksMuonSeededStepOutInHp.quality=cms.vstring("highPurity")
 import PhysicsTools.RecoAlgos.btvTracks_cfi as btvTracks_cfi
 cutsRecoTracksBtvLike = btvTracks_cfi.btvTrackRefs.clone()
 
+# Select tracks associated to AK4 jets
+import RecoJets.JetAssociationProducers.ak4JTA_cff as ak4JTA_cff
+ak4JetTracksAssociatorAtVertexPFAll = ak4JTA_cff.ak4JetTracksAssociatorAtVertexPF.clone(
+    jets = "ak4PFJets"
+)
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
+import CommonTools.RecoAlgos.jetTracksAssociationToTrackRefs_cfi as jetTracksAssociationToTrackRefs_cfi
+cutsRecoTracksAK4PFJets = jetTracksAssociationToTrackRefs_cfi.jetTracksAssociationToTrackRefs.clone(
+    association = "ak4JetTracksAssociatorAtVertexPFAll",
+    jets = "ak4PFJets",
+    correctedPtMin = 10,
+)
+
 trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
@@ -115,6 +128,7 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepOutIn"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepOutInHp"),
                                    cms.InputTag("cutsRecoTracksBtvLike"),
+                                   cms.InputTag("cutsRecoTracksAK4PFJets"),
                                    )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
@@ -145,7 +159,9 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksMuonSeededStepInOutHp*
                                 cutsRecoTracksMuonSeededStepOutIn*
                                 cutsRecoTracksMuonSeededStepOutInHp*
-                                cutsRecoTracksBtvLike)
+                                cutsRecoTracksBtvLike*
+                                ak4JetTracksAssociatorAtVertexPFAll*
+                                cutsRecoTracksAK4PFJets)
 tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
@@ -169,4 +185,8 @@ tracksPreValidationFS = cms.Sequence(
 tracksValidation = cms.Sequence( trackValidator)
 tracksValidationFS = cms.Sequence( trackValidator )
 
-tracksValidationStandalone = cms.Sequence(tracksPreValidation+tracksValidation)
+tracksValidationStandalone = cms.Sequence(
+    ak4PFL1FastL2L3CorrectorChain+
+    tracksPreValidation+
+    tracksValidation
+)
