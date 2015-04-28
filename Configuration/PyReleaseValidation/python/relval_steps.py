@@ -779,7 +779,7 @@ PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_1
 
 
 
-#PU for FastSim
+# PU for FastSim
 # FS_PU_INPUT_13TEV = "file:/afs/cern.ch/work/l/lveldere/minbias.root" # placeholder for relval to be produced with wf  135.8
 PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 # PUFS2={'--pileup':'2012_Startup_50ns_PoissonOOTPU'} # not used anywhere
@@ -803,6 +803,31 @@ steps['FS_SMS-T1tttt_mGl-1500_mLSP-100_13_PU25']=merge([PUFS25,Kby(100,500),step
 steps['FS__PU25']=merge([PUFS25,Kby(100,500),steps['NuGunFS_UP15']] ) # needs the placeholder
 steps['FS_TTbar_13_PUAVE10_DRMIX_ITO']=merge([PUFSAVE10_DRMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
 steps['FS_TTbar_13_PUAVE35_DRMIX_ITO']=merge([PUFSAVE35_DRMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
+
+# PU premixed for FastSim
+steps["FS_PREMIXUP15_PU25"] = merge([
+        {"cfg":"SingleNuE10_cfi",
+         "--fast":"",
+         "--conditions":"auto:run2_mc",
+         "--magField":"38T_PostLS1",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGIPREMIX,L1,DIGI2RAW",
+         "--eventcontent":"PREMIX",
+         "--datatier":"GEN-SIM-DIGI-RAW",
+         "--customise":"SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"
+         },
+        PUFS25,Kby(100,500)])
+FS_PREMIXUP15_PU25_OVERLAY = merge([
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns",
+         "--datamix" : "PreMix",
+         "--pileup_input" : "file:/afs/cern.ch/user/l/lveldere/FastSimDev_April/premixwf/CMSSW_7_5_X_2015-04-08-2300/src/minbias_premixed.root", # NEEDS CHANGE
+         "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
+         },
+        step1FastUpg2015Defaults])
+
+for x in ["ZEE_13",'TTbar_13','H130GGgluonfusion_13','QQH1352T_13','ZTT_13','ZMM_13','NuGun_UP15']:
+    key = "FS_" + x + "_PRMXUP15_PU25"
+    print key
+    steps[key] = merge([FS_PREMIXUP15_PU25_OVERLAY,{"cfg":steps[x]["cfg"]}])
 
 # step2 
 step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco',
