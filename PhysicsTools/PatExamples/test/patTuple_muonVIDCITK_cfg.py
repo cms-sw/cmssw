@@ -7,6 +7,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
+process.load("RecoMuon.MuonIdentification.Identification.cutBasedMuonId_MuonPOG_V0_cff")
 process.load("RecoMuon.MuonIsolation.muonPFIsolationCitk_cff")
 
 ## ------------------------------------------------------
@@ -27,11 +28,12 @@ process.out.fileName = 'patTuple_isoval.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 
-process.out.outputCommands = ['keep *_muonPFNoPileUpIsolation_*_*',
-                               'keep *_muonPFPileUpIsolation_*_*',
-                               'keep *_muPFIsoValue*_*_*',
-                               'keep recoMuons_muons_*_*',
-                               'keep *_patMuons_*_*',
-                              ]
-
+process.out.outputCommands = [
+    'keep *_muonPFNoPileUpIsolation_*_*',
+    'keep *_muonPFPileUpIsolation_*_*',
+    'keep *_muPFIsoValue*_*_*',
+    'keep recoMuons_muons_*_*',
+    'keep *_cutBasedMuonId*_*_*',
+    'keep *_patMuons_*_*',
+]
 
