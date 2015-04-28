@@ -27,6 +27,7 @@ def _modifyCscTriggerPrimitiveDigisForRun2GE11( object ) :
     """
     Modifies cscTriggerPrimitiveDigis for Run 2 + GEMs
     """
+    object.GEMPadDigiProducer = "simMuonGEMPadDigis"
     object.commonParam.runME11ILT = cms.bool(False)
     object.clctSLHC.clctNplanesHitPattern = 3
     object.clctSLHC.clctPidThreshPretrig = 2
@@ -110,6 +111,7 @@ def _modifyCscTriggerPrimitiveDigisForRun4GE21( object ) :
     """
     Modifies cscTriggerPrimitiveDigis for Run 4 + GEMs
     """
+    object.GEMPadDigiProducer = "simMuonGEMPadDigis"
     object.commonParam.runME21ILT = cms.bool(False)
     object.clctSLHCME21 = object.clctSLHC.clone()
     object.alctSLHCME21 = object.alctSLHC.clone()
@@ -195,7 +197,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-    GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
+    GEMPadDigiProducer = cms.InputTag(""),
 
     # for SLHC studies we don't want bad chambers checks so far
     checkBadChambers = cms.bool(True),
@@ -282,7 +284,25 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         alctNarrowMaskForR1 = cms.bool(False),
 
         # configured, not hardcoded, hit persistency
-        alctHitPersist  = cms.uint32(6)
+        alctHitPersist  = cms.uint32(6),
+
+        # configure, not hardcode, up to how many BXs in the past
+        # ghost cancellation in neighboring WGs may happen
+        alctGhostCancellationBxDepth = cms.int32(4),
+
+        # whether to compare the quality of stubs in neighboring WGs in the past
+        # to the quality of a stub in current WG 
+        # when doing ghost cancellation 
+        alctGhostCancellationSideQuality = cms.bool(False),
+        
+        # how soon after pretrigger and alctDriftDelay can next pretrigger happen?
+        alctPretrigDeadtime = cms.uint32(4),
+        
+        # SLHC only for ME11:
+        # whether to store the "corrected" ALCT stub time 
+        # (currently it is median time of particular hits in a pattern) into the ASCCLCTDigi bx,
+        # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
+        alctUseCorrectedBx = cms.bool(False)
     ),
 
     # Parameters for ALCT processors: SLHC studies
