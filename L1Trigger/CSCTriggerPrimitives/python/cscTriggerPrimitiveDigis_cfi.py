@@ -56,8 +56,8 @@ def _modifyCscTriggerPrimitiveDigisForRun2GE11( object ) :
         debugGEMDphi = cms.bool(False),
 
         ## use old dataformat
-        useOldLCTDataFormatALCTGEM = cms.bool(True),
-        useOldLCTDataFormatCLCTGEM = cms.bool(True),
+        useOldLCTDataFormat = cms.bool(True),
+
         ## copad construction
         maxDeltaBXInCoPad = cms.int32(1),
         maxDeltaPadInCoPad = cms.int32(1),
@@ -140,8 +140,7 @@ def _modifyCscTriggerPrimitiveDigisForRun4GE21( object ) :
         debugGEMDphi = cms.bool(False),
 
         ## use old dataformat
-        useOldLCTDataFormatALCTGEM = cms.bool(True),
-        useOldLCTDataFormatCLCTGEM = cms.bool(True),
+        useOldLCTDataFormat = cms.bool(True),
 
         ## copad construction
         maxDeltaBXInCoPad = cms.int32(1),

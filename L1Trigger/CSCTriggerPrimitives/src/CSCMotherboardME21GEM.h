@@ -195,8 +195,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   bool buildLCTfromALCTandGEM_;
   bool buildLCTfromCLCTandGEM_;
 
-  bool useOldLCTDataFormatALCTGEM_;
-  bool useOldLCTDataFormatCLCTGEM_;
+  bool useOldLCTDataFormat_;
 
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;

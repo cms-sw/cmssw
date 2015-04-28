@@ -147,8 +147,7 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
   doLCTGhostBustingWithGEMs_ = me21tmbParams.getParameter<bool>("doLCTGhostBustingWithGEMs");
 
   // use "old" or "new" dataformat for integrated LCTs?
-  useOldLCTDataFormatALCTGEM_ = me21tmbParams.getParameter<bool>("useOldLCTDataFormatALCTGEM");
-  useOldLCTDataFormatCLCTGEM_ = me21tmbParams.getParameter<bool>("useOldLCTDataFormatCLCTGEM");
+  useOldLCTDataFormat_ = me21tmbParams.getParameter<bool>("useOldLCTDataFormat");
 
   // promote ALCT-GEM pattern
   promoteALCTGEMpattern_ = me21tmbParams.getParameter<bool>("promoteALCTGEMpattern");
@@ -704,7 +703,7 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  and bestALCT.isValid()) or
       (match_trig_enable and bestALCT.isValid()))
   {
-    lct1 = constructLCTsGEM(bestALCT, gemPad, useOldLCTDataFormatALCTGEM_);
+    lct1 = constructLCTsGEM(bestALCT, gemPad, useOldLCTDataFormat_);
     lct1.setTrknmb(1);
     // lct1.setGEMDPhi(0.0);
   }
@@ -712,7 +711,7 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  and secondALCT.isValid()) or
       (match_trig_enable and secondALCT.isValid() and secondALCT != bestALCT))
   {
-    lct2 = constructLCTsGEM(secondALCT, gemPad, useOldLCTDataFormatALCTGEM_);
+    lct2 = constructLCTsGEM(secondALCT, gemPad, useOldLCTDataFormat_);
     lct2.setTrknmb(2);
     // lct2.setGEMDPhi(0.0);
   }
@@ -734,14 +733,14 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
   if ((clct_trig_enable  and bestCLCT.isValid()) or
       (match_trig_enable and bestCLCT.isValid()))
   {
-    lct1 = constructLCTsGEM(bestCLCT, gemPad, roll, useOldLCTDataFormatCLCTGEM_);
+    lct1 = constructLCTsGEM(bestCLCT, gemPad, roll, useOldLCTDataFormat_);
     lct1.setTrknmb(1);
   }
 
   if ((clct_trig_enable  and secondCLCT.isValid()) or
        (match_trig_enable and secondCLCT.isValid() and secondCLCT != bestCLCT))
     {
-    lct2 = constructLCTsGEM(secondCLCT, gemPad, roll, useOldLCTDataFormatCLCTGEM_);
+    lct2 = constructLCTsGEM(secondCLCT, gemPad, roll, useOldLCTDataFormat_);
     lct2.setTrknmb(2);
   }
 }

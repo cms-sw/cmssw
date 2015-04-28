@@ -256,8 +256,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   bool correctLCTtimingWithGEM_;
 
   // send LCT old dataformat
-  bool useOldLCTDataFormatALCTGEM_;
-  bool useOldLCTDataFormatCLCTGEM_;
+  bool useOldLCTDataFormat_;
 
   // send only first 2 lcts
   bool firstTwoLCTsInChamber_;
