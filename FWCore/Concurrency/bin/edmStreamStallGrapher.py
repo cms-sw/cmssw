@@ -4,6 +4,10 @@
 def printHelp():
     s = """Purpose: Convert a cmsRun log with Tracer info into a stream stall graph.
 
+edmStreamStallGrapher [-g] <log file name>
+
+Option: -g instead of ascii art, create a pdf file showing the work being done on each stream
+
 To Use: Add the Tracer Service to the cmsRun job you want to check for stream stalls.
  Make sure to use the 'printTimstamps' option
     cms.Service("Tracer", printTimestamps = cms.untracked.bool(True))
@@ -17,7 +21,8 @@ To Read: The script will then print an 'ASCII art' stall graph which consists of
  The state of a stream is represented by a symbol:
    blank (" ") the stream is currently running a module
    line  ("|") the stream is waiting to run a module
-   star  ("*") the stream has just finished waiting and is starting a module
+   minus ("-") the stream has just finished waiting and is starting a module
+   plus  ("+") the stream just finished running a module
  If a module had to wait more than 0.1 seconds, the end of the line will have "STALLED".
  Once the first 4 events have finished processing, the program prints "FINISH INIT".
  This is useful if one wants to ignore stalled caused by startup actions, e.g. reading
@@ -145,7 +150,11 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
 #----------------------------------------------
 def printStalledModulesInOrder(stalledModules):
   priorities = list()
+  maxNameSize = 0
   for n,t in stalledModules.iteritems():
+    nameLength = len(n)
+    if nameLength > maxNameSize:
+      maxNameSize = nameLength
     t.sort(reverse=True)
     priorities.append((n,sum(t),t))
 
@@ -153,8 +162,17 @@ def printStalledModulesInOrder(stalledModules):
     return cmp(i[1],j[1])
   priorities.sort(cmp=sumSort, reverse=True)
 
+  nameColumn = "Stalled Module"
+  if len(nameColumn) > maxNameSize:
+    maxNameSize = len(nameColumn)
+  
+  stallColumn = "Tot Stall Time"
+  stallColumnLength = len(stallColumn)
+  
+  print "%-*s" % (maxNameSize, nameColumn), "%-*s"%(stallColumnLength,stallColumn), " Stall Times"
   for n,s,t in priorities:
-    print n, "%.2f"%s, [ "%.2f"%x for x in t]
+    paddedName = "%-*s:" % (maxNameSize,n)
+    print paddedName, "%-*.2f"%(stallColumnLength,s), ", ".join([ "%.2f"%x for x in t])
 
 
 def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
@@ -166,8 +184,6 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
   streamColors = [[] for x in xrange(numStreams+1)]
 
   stalledModuleNames = [ x for x in stalledModuleInfo.iterkeys()]
-  
-  fig, ax = plt.subplots()
   
   streamStartTimes = [ [] for x in xrange(numStreams+1)]
   streamColors = [[] for x in xrange(numStreams+1)]
@@ -188,11 +204,49 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
         #elif len(streamColors[s]) %2:
         #  c="blue"
         streamColors[s].append(c)
+  
+  #consolodate contiguous blocks with the same color
+  # this drastically reduces the size of the pdf file
+  oldStreamTimes = streamStartTimes
+  oldStreamColors = streamColors
+
+  streamStartTimes = [ [] for x in xrange(numStreams+1)]
+  streamColors = [[] for x in xrange(numStreams+1)]
+  
+  for s in xrange(numStreams+1):
+    streamStartTimes[s].append(oldStreamTimes[s][0])
+    streamColors[s].append(oldStreamColors[s][0])
+    lastStartTime,lastTimeLength = oldStreamTimes[s][0]
+    lastColor = oldStreamColors[s][0]
+    for i in xrange(1, len(oldStreamTimes[s])):
+      start,length = oldStreamTimes[s][i]
+      color = oldStreamColors[s][i]
+      #use a millisecond tolerance to avoid rounding
+      if color == lastColor and abs(lastStartTime+lastTimeLength-start)<0.001:
+        lastTimeLength += length
+      else:
+        streamStartTimes[s].append((lastStartTime,lastTimeLength))
+        streamColors[s].append(lastColor)
+        lastStartTime = start
+        lastTimeLength = length
+        lastColor = color
+    streamStartTimes[s].append((lastStartTime,lastTimeLength))
+    streamColors[s].append(lastColor)
+
+  fig, ax = plt.subplots()
+  ax.set_xlabel("Time (sec)")
+  ax.set_ylabel("Stream ID")
+
   i=1
   for s in xrange(numStreams+1):
     t = streamStartTimes[s]
     ax.broken_barh(t,(i-0.4,0.8),facecolors=streamColors[s],edgecolors=streamColors[s],linewidth=0)
     i=i+1
+  
+  #add key .1, .3, .7
+  fig.text(0.1, 0.95, "modules running", color = "green", horizontalalignment = 'left')
+  fig.text(0.5, 0.95, "stalled module running", color = "red", horizontalalignment = 'center')
+  fig.text(0.9, 0.95, "read from input", color = "orange", horizontalalignment = 'right')
   plt.savefig("stall.pdf")
 
 
