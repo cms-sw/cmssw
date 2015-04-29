@@ -53,7 +53,7 @@ def customiseFor8356(process):
             if hasattr(l3MPModule.L3TrajBuilderParameters, 'MuonTrackingRegionBuilder'):
                 l3MPModule.L3TrajBuilderParameters.MuonTrackingRegionBuilder = MTRBPSet
 
-    listL3seedingModule = ['hltL3TrajSeedIOHit','hltL3NoFiltersNoVtxTrajSeedIOHit']
+    listL3seedingModule = ['hltL3TrajSeedIOHit','hltL3NoFiltersNoVtxTrajSeedIOHit','hltHIL3TrajSeedIOHit']
     for l3IOTrajModule in listL3seedingModule:
 	if hasattr(process, l3IOTrajModule):
 	    if hasattr(getattr(process, l3IOTrajModule), 'MuonTrackingRegionBuilder'):
