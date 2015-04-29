@@ -17,6 +17,7 @@
 
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
+#include "TEveCompound.h"
 
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -26,6 +27,7 @@
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -154,16 +156,17 @@ FW3DViewGeometry::showMuonBarrelFull(bool showMuonBarrel)
 void
 FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 {
-   if( showMuonEndcap && !m_muonEndcapElements )
+  if( showMuonEndcap && !m_muonEndcapElements )
    {
-      m_muonEndcapElements = new TEveElementList( "CSC" );
+      m_muonEndcapElements = new TEveElementList( "EndCap" );
+
       for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
       { 
          TEveElementList* cEndcap = 0;
          if( iEndcap == 1 )
-            cEndcap = new TEveElementList( "Forward" );
+            cEndcap = new TEveElementList( "CSC Forward" );
          else
-            cEndcap = new TEveElementList( "Backward" );
+            cEndcap = new TEveElementList( "CSC Backward" );
          m_muonEndcapElements->AddElement( cEndcap );
 	 // Actual CSC geometry:
 	 // Station 1 has 4 rings with 36 chambers in each
@@ -179,7 +182,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
             for( Int_t iRing = 1; iRing <= 4; ++iRing )
 	    {
                if( iStation > 1 && iRing > 2 ) continue;
-               // if( iStation > 3 && iRing > 1 ) continue;
+               if( iStation > 3 && iRing > 1 ) continue;
                std::ostringstream s; s << "Ring" << iRing;
                TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
                cStation->AddElement( cRing );
@@ -196,9 +199,48 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 		  cRing->AddElement( shape );
                }
             }
+	 }
+      }
+
+      //  m_muonEndcapElements->AddElement(CSClist);
+
+
+      TEveElementList*  GEMlist = new TEveCompound( "GEM" );     
+      for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; ++iRegion )
+      {
+         for( Int_t iStation = GEMDetId::minStationId; iStation <= GEMDetId::maxStationId; ++iStation )
+         {
+            TEveElementList* cStation  = new TEveCompound(Form("Station_%d Region_%d", iStation, iRegion) );
+              GEMlist->AddElement( cStation );
+            for( Int_t iRing =  GEMDetId::minRingId; iRing <= GEMDetId::maxRingId; ++iRing )
+            {
+               TEveCompound* cRing  = new TEveCompound( Form("Ring_%d", iRing) );
+                cStation->AddElement( cRing );
+               for( Int_t iChamber = GEMDetId::minChamberId; iChamber <= GEMDetId::maxChamberId; ++iChamber )
+               {
+                  for( Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId ; ++iLayer )
+                  {
+                     for (Int_t iRoll = GEMDetId::minRollId; iRoll <= GEMDetId::maxRollId ; ++iRoll )
+                     {
+                        GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
+                        TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
+                        shape->SetTitle(TString::Format("GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u",
+                                                        iRing, iStation, iChamber, iRoll, id.rawId()));
+ 	  	            
+                        cRing->AddElement( shape );
+                        addToCompound(shape, kFWMuonEndcapLineColorIndex );
+                     }
+                  }
+               }
+            }
          }
       }
+      m_muonEndcapElements->AddElement(GEMlist);
+
+      // EVE debug :: add list on bottom of TEveBrowser list tree
+      gEve->AddToListTree(GEMlist, false);
       AddElement( m_muonEndcapElements );
+
    }
 
    if( m_muonEndcapElements )

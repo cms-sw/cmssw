@@ -96,25 +96,6 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
   // Add the particles in the FSimEvent
   addParticles(myGenEvent);
 
-  /*
-  std::cout << "The MC truth! " << std::endl;
-  printMCTruth(myGenEvent);
-
-  std::cout << std::endl  << "The FAMOS event! " << std::endl;
-  print();
-  */
-
-}
-
-void
-FBaseSimEvent::fill(const reco::GenParticleCollection& myGenParticles) {
-  
-  // Clear old vectors
-  clear();
-
-  // Add the particles in the FSimEvent
-  addParticles(myGenParticles);
-
 }
 
 void
@@ -353,7 +334,6 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   }
 }
 
-
 void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
@@ -544,139 +524,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
 }
 
-void
-FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
-
-  // If no particles, no work to be done !
-  unsigned int nParticles = myGenParticles.size();
-  nGenParticles = nParticles;
-
-  if ( !nParticles ) return;
-
-  /// Some internal array to work with.
-  std::map<const reco::Candidate*,int> myGenVertices;
-
-  // Are there particles in the FSimEvent already ? 
-  int offset = nTracks();
-
-  // Skip the incoming protons
-  nGenParticles = 0;
-  unsigned int ip = 0;
-  if ( nParticles > 1 && 
-       myGenParticles[0].pdgId() == 2212 &&
-       myGenParticles[1].pdgId() == 2212 ) { 
-    ip = 2;
-    nGenParticles = 2;
-  }
-
-  // Primary vertex
-  XYZTLorentzVector primaryVertex (myGenParticles[ip].vx(),
-				   myGenParticles[ip].vy(),
-				   myGenParticles[ip].vz(),
-				   0.);
-
-  // Set the main vertex
-  myFilter->setMainVertex(primaryVertex);
-
-  // This is the main vertex index
-  int mainVertex = addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
-
-  // Loop on the particles of the generated event
-  for ( ; ip<nParticles; ++ip ) { 
-    
-    // nGenParticles = ip;
-    
-    nGenParticles++;
-    const reco::GenParticle& p = myGenParticles[ip];
-
-    // Reject particles with late origin vertex (i.e., coming from late decays)
-    // This should not happen, but one never knows what users may be up to!
-    // For example exotic particles might decay late - keep the decay products in the case.
-    XYZTLorentzVector productionVertexPosition(0.,0.,0.,0.);
-    const reco::Candidate* productionMother = p.numberOfMothers() ? p.mother(0) : 0;
-    if ( productionMother ) {
-      unsigned motherId = productionMother->pdgId();
-      if ( abs(motherId) < 1000000 )
-	productionVertexPosition = XYZTLorentzVector(p.vx(), p.vy(), p.vz(), 0.);
-    }
-    if ( !myFilter->accept(productionVertexPosition) ) continue;
-
-    // Keep only: 
-    // 1) Stable particles
-    bool testStable = p.status()%1000==1;
-    // Declare stable standard particles that decay after a macroscopic path length 
-    // (except if exotic particle)
-    if ( p.status() == 2 && abs(p.pdgId()) < 1000000 ) {
-      unsigned int nDaughters = p.numberOfDaughters();
-      if ( nDaughters ) { 
-	const reco::Candidate* daughter = p.daughter(0);
-	XYZTLorentzVector decayPosition = 
-	  XYZTLorentzVector(daughter->vx(), daughter->vy(), daughter->vz(), 0.);
-	// If the particle flew enough to be beyond the beam pipe enveloppe, just declare it stable
-	if ( decayPosition.Perp2() > lateVertexPosition ) testStable = true;
-      }
-    }
-
-    // 2) or particles with stable daughters
-    bool testDaugh = false;
-    unsigned int nDaughters = p.numberOfDaughters();
-    if ( !testStable  && 
-	 //	 p.status() == 2 && 
-	 nDaughters ) {  
-      for ( unsigned iDaughter=0; iDaughter<nDaughters; ++iDaughter ) {
-	const reco::Candidate* daughter = p.daughter(iDaughter);
-	if ( daughter->status()%1000==1 ) {
-	  testDaugh=true;
-	  break;
-	}
-      }
-    }
-
-    // 3) or particles that fly more than one micron.
-    double dist = 0.;
-    if ( !testStable && !testDaugh ) {
-      XYZTLorentzVector productionVertex(p.vx(),p.vy(),p.vz(),0.);
-      dist = (primaryVertex-productionVertex).Vect().Mag2();
-    }
-    bool testDecay = ( dist > 1e-8 ) ? true : false; 
-
-    // Save the corresponding particle and vertices
-    if ( testStable || testDaugh || testDecay ) {
-      
-      const reco::Candidate* mother = p.numberOfMothers() ? p.mother(0) : 0;
-
-      int originVertex = 
-	mother &&  
-	myGenVertices.find(mother) != myGenVertices.end() ? 
-      	myGenVertices[mother] : mainVertex;
-      
-      XYZTLorentzVector momentum(p.px(),p.py(),p.pz(),p.energy());
-      RawParticle part(momentum, vertex(originVertex).position());
-      part.setID(p.pdgId());
-
-      // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
-
-      // It there an end vertex ?
-      if ( !nDaughters ) continue; 
-      const reco::Candidate* daughter = p.daughter(0);
-
-      // Add the vertex to the event and to the various lists
-      XYZTLorentzVector decayVertex = 
-	XYZTLorentzVector(daughter->vx(), daughter->vy(),
-			  daughter->vz(), 0.);
-      int theVertex = addSimVertex(decayVertex,theTrack, FSimVertexType::DECAY_VERTEX);
-
-      if ( theVertex != -1 ) myGenVertices[&p] = theVertex;
-
-      // There we are !
-    }
-  }
-
-  // There is no GenParticle's in that case...
-  // nGenParticles=0;
-
-}
 
 int 
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 

@@ -1,5 +1,5 @@
-#ifndef RecoLocalMuon_GEMRecHitProducer_h
-#define RecoLocalMuon_GEMRecHitProducer_h
+#ifndef RecoLocalMuon_GEMRecHit_GEMRecHitProducer_h
+#define RecoLocalMuon_GEMRecHit_GEMRecHitProducer_h
 
 /** \class GEMRecHitProducer
  *  Module for GEMRecHit production. 
@@ -16,7 +16,7 @@
 #include <bitset>
 #include <map>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
@@ -36,7 +36,7 @@ namespace edm {
 
 class GEMRecHitBaseAlgo;
 
-class GEMRecHitProducer : public edm::EDProducer {
+class GEMRecHitProducer : public edm::stream::EDProducer<> {
 
 public:
   /// Constructor
