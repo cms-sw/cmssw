@@ -39,9 +39,6 @@ operator()(const reco::GsfElectronPtr& cand) const{
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _full5x5SigmaIEtaIEtaCutValueEB : _full5x5SigmaIEtaIEtaCutValueEE );
   
-  // Retrieve the variable value for this particle
-  const float full5x5SigmaIEtaIEta = cand->full5x5_sigmaIetaIeta();
-
   // Apply the cut and return the result
   return cand->full5x5_sigmaIetaIeta() < full5x5SigmaIEtaIEtaCutValue;
 }
