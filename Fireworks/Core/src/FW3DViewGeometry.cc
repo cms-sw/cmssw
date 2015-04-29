@@ -205,37 +205,37 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 
       //  m_muonEndcapElements->AddElement(CSClist);
 
-
       TEveElementList*  GEMlist = new TEveCompound( "GEM" );     
-      for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; ++iRegion )
-      {
-         for( Int_t iStation = GEMDetId::minStationId; iStation <= GEMDetId::maxStationId; ++iStation )
-         {
-            TEveElementList* cStation  = new TEveCompound(Form("Station_%d Region_%d", iStation, iRegion) );
+      for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion= iRegion+2)
+	{
+	  for( Int_t iStation = GEMDetId::minStationId; iStation <= 2; ++iStation )
+	    {
+	      TEveElementList* cStation  = new TEveCompound(Form("Station_%d Region_%d", iStation, iRegion) );
               GEMlist->AddElement( cStation );
-            for( Int_t iRing =  GEMDetId::minRingId; iRing <= GEMDetId::maxRingId; ++iRing )
-            {
-               TEveCompound* cRing  = new TEveCompound( Form("Ring_%d", iRing) );
-                cStation->AddElement( cRing );
-               for( Int_t iChamber = GEMDetId::minChamberId; iChamber <= GEMDetId::maxChamberId; ++iChamber )
-               {
+	      //   for( Int_t iRing =  GEMDetId::minRingId; iRing <= GEMDetId::maxRingId; ++iRing )
+	      // {
+	      Int_t iRing = 1;
+	      TEveCompound* cRing  = new TEveCompound( Form("Ring_%d", iRing) );
+	      cStation->AddElement( cRing );
+	      for( Int_t iChamber = GEMDetId::minChamberId; iChamber <= GEMDetId::maxChamberId; ++iChamber )
+		{
                   for( Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId ; ++iLayer )
-                  {
-                     for (Int_t iRoll = GEMDetId::minRollId; iRoll <= GEMDetId::maxRollId ; ++iRoll )
-                     {
-                        GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
-                        TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-                        shape->SetTitle(TString::Format("GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u",
-                                                        iRing, iStation, iChamber, iRoll, id.rawId()));
+		    {
+		      for (Int_t iRoll = GEMDetId::minRollId; iRoll <= GEMDetId::maxRollId ; ++iRoll )
+			{
+			  GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
+			  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
+			  shape->SetTitle(TString::Format("GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u",
+							  iRing, iStation, iChamber, iRoll, id.rawId()));
  	  	            
-                        cRing->AddElement( shape );
-                        addToCompound(shape, kFWMuonEndcapLineColorIndex );
-                     }
-                  }
-               }
+			  cRing->AddElement( shape );
+			  addToCompound(shape, kFWMuonEndcapLineColorIndex );
+			}
+		    }
+		}
             }
-         }
-      }
+	}
+      //}
       m_muonEndcapElements->AddElement(GEMlist);
 
       // EVE debug :: add list on bottom of TEveBrowser list tree
@@ -243,7 +243,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
       
       // adding me0
       TEveElementList*  ME0list = new TEveElementList( "ME0" );     
-      for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; ++iRegion ){
+      for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; iRegion= iRegion+2 ){
 	TEveElementList* eRegion  = new TEveElementList(Form("Region_%d", iRegion) );
 	ME0list->AddElement( eRegion );
 	for( Int_t iChamber = ME0DetId::minChamberId; iChamber <= ME0DetId::maxChamberId; ++iChamber )
