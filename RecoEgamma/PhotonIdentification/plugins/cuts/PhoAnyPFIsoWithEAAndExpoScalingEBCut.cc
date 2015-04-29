@@ -3,9 +3,9 @@
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
 
-class PhoAnyPFIsoWithEACut : public CutApplicatorWithEventContentBase {
+class PhoAnyPFIsoWithEAAndExpoScalingEBCut : public CutApplicatorWithEventContentBase {
 public:
-  PhoAnyPFIsoWithEACut(const edm::ParameterSet& c);
+  PhoAnyPFIsoWithEAAndExpoScalingEBCut(const edm::ParameterSet& c);
   
   result_type operator()(const reco::PhotonPtr&) const override final;
 
@@ -20,6 +20,7 @@ private:
   // Cut values
   float _C1_EB;
   float _C2_EB;
+  float _C3_EB;
   float _C1_EE;
   float _C2_EE;
   // Configuration
@@ -36,17 +37,18 @@ private:
   constexpr static char rhoString_     [] = "rho";
 };
 
-constexpr char PhoAnyPFIsoWithEACut::anyPFIsoWithEA_[];
-constexpr char PhoAnyPFIsoWithEACut::rhoString_[];
+constexpr char PhoAnyPFIsoWithEAAndExpoScalingEBCut::anyPFIsoWithEA_[];
+constexpr char PhoAnyPFIsoWithEAAndExpoScalingEBCut::rhoString_[];
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
-		  PhoAnyPFIsoWithEACut,
-		  "PhoAnyPFIsoWithEACut");
+		  PhoAnyPFIsoWithEAAndExpoScalingEBCut,
+		  "PhoAnyPFIsoWithEAAndExpoScalingEBCut");
 
-PhoAnyPFIsoWithEACut::PhoAnyPFIsoWithEACut(const edm::ParameterSet& c) :
+PhoAnyPFIsoWithEAAndExpoScalingEBCut::PhoAnyPFIsoWithEAAndExpoScalingEBCut(const edm::ParameterSet& c) :
   CutApplicatorWithEventContentBase(c),
   _C1_EB(c.getParameter<double>("C1_EB")),
   _C2_EB(c.getParameter<double>("C2_EB")),
+  _C3_EB(c.getParameter<double>("C3_EB")),
   _C1_EE(c.getParameter<double>("C1_EE")),
   _C2_EE(c.getParameter<double>("C2_EE")),
   _barrelCutOff(c.getParameter<double>("barrelCutOff")),
@@ -62,7 +64,7 @@ PhoAnyPFIsoWithEACut::PhoAnyPFIsoWithEACut(const edm::ParameterSet& c) :
 
 }
 
-void PhoAnyPFIsoWithEACut::setConsumes(edm::ConsumesCollector& cc) {
+void PhoAnyPFIsoWithEAAndExpoScalingEBCut::setConsumes(edm::ConsumesCollector& cc) {
   auto anyPFIsoWithEA = 
     cc.consumes<edm::ValueMap<float> >(contentTags_[anyPFIsoWithEA_]);
   contentTokens_.emplace(anyPFIsoWithEA_,anyPFIsoWithEA);
@@ -71,24 +73,27 @@ void PhoAnyPFIsoWithEACut::setConsumes(edm::ConsumesCollector& cc) {
   contentTokens_.emplace(rhoString_, rho);
 }
 
-void PhoAnyPFIsoWithEACut::getEventContent(const edm::EventBase& ev) {  
+void PhoAnyPFIsoWithEAAndExpoScalingEBCut::getEventContent(const edm::EventBase& ev) {  
   ev.getByLabel(contentTags_[anyPFIsoWithEA_],_anyPFIsoMap);
   ev.getByLabel(contentTags_[rhoString_],_rhoHandle);
 }
 
 CutApplicatorBase::result_type 
-PhoAnyPFIsoWithEACut::
+PhoAnyPFIsoWithEAAndExpoScalingEBCut::
 operator()(const reco::PhotonPtr& cand) const{  
 
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
+  const float pt = cand->pt();
+
+  // In this version of the isolation cut we apply
+  // exponential pt scaling to the barrel isolation cut,
+  // and linear pt scaling to the endcap isolation cut.
   double absEta = std::abs(cand->superCluster()->position().eta());
-  const float anyPFIsoWithEACutValue = 
+  const float isolationCutValue = 
     ( absEta < _barrelCutOff ? 
-      _C1_EB + cand->pt() * _C2_EB
-      : 
-      _C1_EE + cand->pt() * _C2_EE
-      );
+      _C1_EB + exp( pt*_C2_EB + _C3_EB)
+      : _C1_EE + pt * _C2_EE);
   
   // Retrieve the variable value for this particle
   float anyPFIso = (*_anyPFIsoMap)[cand];
@@ -100,8 +105,8 @@ operator()(const reco::PhotonPtr& cand) const{
 
   // Divide by pT if the relative isolation is requested
   if( _useRelativeIso )
-    anyPFIsoWithEA /= cand->pt();
+    anyPFIsoWithEA /= pt;
 
   // Apply the cut and return the result
-  return anyPFIsoWithEA < anyPFIsoWithEACutValue;
+  return anyPFIsoWithEA < isolationCutValue;
 }
