@@ -16,6 +16,8 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 class CastorRecHitMonitor: public CastorBaseMonitor {
 public:
   CastorRecHitMonitor(const edm::ParameterSet& ps); 
@@ -25,7 +27,7 @@ public:
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
   void processEvent(const CastorRecHitCollection& castorHits);
  void processEventTowers(const reco::CastorTowerCollection& castorTowers);
-
+ void processEventJets(const reco::BasicJetCollection& Jets);
 private:  
  int ievt_;
  float energyInEachChannel[14][16];
@@ -35,6 +37,10 @@ private:
  MonitorElement *hTowerDepth;
  MonitorElement *h2TowerEMhad;
  MonitorElement *hTowerMultipl;
+ MonitorElement *hJetsMultipl;
+ MonitorElement *hJetEnergy;
+ MonitorElement *hJetEta;
+ MonitorElement *hJetPhi;
 
  TH2F *h2RecHitMap;
  MonitorElement* h2RHchan;
