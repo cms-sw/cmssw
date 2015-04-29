@@ -3,6 +3,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 using namespace std;
 using namespace edm;
@@ -138,7 +140,6 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
             iEvent.getByToken(refObj.token, collHandle);
             if(!collHandle.isValid())
               continue;
-
             if(refObj.objID == 11) {
               refC.electrons.insert(refC.electrons.end(), collHandle->begin(), collHandle->end());
             }
@@ -149,8 +150,14 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
               refC.taus.insert(refC.taus.end(), collHandle->begin(), collHandle->end());
             }
           }
+	  edm::Handle<reco::CaloMETCollection> metHandle;
+	  iEvent.getByLabel("caloMet",metHandle);
+	  reco::CaloMET met = metHandle.product()->front();
+	  LV p4;
+	  p4.SetPxPyPzE(met.px(),met.py(),0,0);
+	  refC.met.push_back(p4);
         }
-        
+
         //Path Plotters
         for(auto& pathPlotter: pathPlotters_) {
           if(pathPlotter.isValid())

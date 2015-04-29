@@ -33,7 +33,6 @@ def makePFTauAnalyzer(monitorModule):
             title = "%s %s %s efficiency%s" % (level, titleObject, titleLabel, postfix)
             m1.efficiencyProfile.append("%s '%s' helpers/%sNum helpers/%sDenom" % (name, title, name, name))
 
-
     _addEfficiencies("L1", [("Et", "E_{T}"),
                             ("Eta", "#eta"),
                             ("Phi", "#phi")], "%sTau%sEff")
@@ -43,13 +42,22 @@ def makePFTauAnalyzer(monitorModule):
     _addEfficiencies("L1", [("HighEt", "E_{T}")], "%sJet%sEff", "central jet", postfix="(high E_{T})")
     _addEfficiencies("L1", [("Eta", "#eta"),
                             ("Phi", "#phi")], "%sJet%sEff", "central jet", "(E_{T} > %.1f)" % monitorModule.L1Plotter.L1JetMinEt.value())
+    _addEfficiencies("L1", [("Et", "E_{T}")], "%sETM%sEff", "ETM")
+
+    _addEfficiencies("L2", [("Et", "E_{T}"),
+                            ("Phi", "#phi")], "%sTrigMET%sEff", "MET")
 
     for level in ["L2", "L3"]:
         _addEfficiencies(level, [("Et", "p_{T}"),
                                  ("Eta", "#eta"),
                                  ("Phi", "#phi")], "%sTrigTau%sEff")
         _addEfficiencies(level, [("HighEt", "p_{T}")], "%sTrigTau%sEff", postfix="(high p_{T})")
-
+        _addEfficiencies(level, [("Et", "p_{T}"),
+                                 ("Eta", "#eta"),
+                                 ("Phi", "#phi")], "%sTrigElectron%sEff", "electron")
+        _addEfficiencies(level, [("Et", "p_{T}"),
+                                 ("Eta", "#eta"),
+                                 ("Phi", "#phi")], "%sTrigMuon%sEff", "muon")
     return (m1, m2)
 
 
