@@ -28,10 +28,10 @@ DEFINE_FWK_MODULE(DTLocalTriggerTest);
 #include "DQM/DTMonitorClient/src/DTLocalTriggerEfficiencyTest.h"
 DEFINE_FWK_MODULE(DTLocalTriggerEfficiencyTest);
 
-##include "DQM/DTMonitorClient/src/DTLocalTriggerLutTest.h"
+#include "DQM/DTMonitorClient/src/DTLocalTriggerLutTest.h"
 DEFINE_FWK_MODULE(DTLocalTriggerLutTest);
 
-include "DQM/DTMonitorClient/src/DTLocalTriggerSynchTest.h"
+#include "DQM/DTMonitorClient/src/DTLocalTriggerSynchTest.h"
 DEFINE_FWK_MODULE(DTLocalTriggerSynchTest);
 
 #include "DQM/DTMonitorClient/src/DTLocalTriggerTPTest.h"
