@@ -36,6 +36,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 //
 //
@@ -61,7 +62,8 @@ FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    m_trackerBarrelElements(0),
    m_trackerEndcapElements(0),
    m_rpcEndcapElements(0),
-   m_GEMElements(0)
+   m_GEMElements(0),
+   m_ME0Elements(0)
 {
    SetElementName("RPZGeomShared");
 }
@@ -583,6 +585,40 @@ FWRPZViewGeometry::showGEM( bool show )
       gEve->Redraw3D();
    }
 }
+
+void
+FWRPZViewGeometry::showME0( bool show )
+{
+   if( !m_ME0Elements && show )
+   {
+      m_ME0Elements = new TEveElementList("ME0");
+
+      std::vector<ME0DetId> ids;
+      int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
+
+      for (int region=ME0DetId::minRegionId; region<=ME0DetId::maxRegionId; ++region){
+	for (int layer=ME0DetId::minLayerId; layer<=ME0DetId::maxLayerId; ++layer){
+	  for (int ci= 0; ci < 4; ++ci) {
+	    for (int roll=ME0DetId::minRollId; roll<=ME0DetId::maxRollId; ++roll){		
+	      ME0DetId id(region, layer, cArr[ci], roll);
+	      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+	      addToCompound(shape, kFWMuonEndcapLineColorIndex);
+	      m_ME0Elements->AddElement( shape );
+	    }
+	  }
+	}
+      }
+      
+      AddElement(m_ME0Elements);
+      importNew(m_ME0Elements);
+   }
+   if (m_ME0Elements)
+   {
+      m_ME0Elements->SetRnrState(show);
+      gEve->Redraw3D();
+   }
+}
+
 //-------------------------------------
 
 void FWRPZViewGeometry::importNew(TEveElementList* x)

@@ -286,8 +286,6 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   }
 }
 
-
-
 void
 FWRecoGeometryESProducer::addME0Geometry( void )
 {
@@ -327,8 +325,6 @@ FWRecoGeometryESProducer::addME0Geometry( void )
     edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
   }
 }  
-  
-
 
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
