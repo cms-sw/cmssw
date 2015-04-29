@@ -50,7 +50,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   for(int j=1; j<nySec; j++) ySec[j+1] = E0sec*exp(j*lnBsec);
   for(int i=0; i<=N_Sec; i++) xSec[i]=i;
 
-  sprintf(s,"CastorRecHit Sectors");
+  sprintf(s,"CastorRecHit by Sectors");
     h2RHvsSec = ibooker.book2D(s,s, N_Sec, xSec, nySec, ySec);
     h2RHvsSec->getTH2F()->GetXaxis()->SetTitle("sectorPhi");
     h2RHvsSec->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
@@ -127,6 +127,18 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
    hTowerE = ibooker.book1D(s,s,NEtow+1,ETower);
    hTowerE->getTH1F()->GetXaxis()->SetTitle("GeV");
 
+  sprintf(s,"CASTORJetsMultiplicity");
+   hJetsMultipl = ibooker.book1D(s,s,16, 0.,16.);
+
+  sprintf(s,"CASTORJetEnergy");
+   hJetEnergy = ibooker.book1D(s,s,5000, 0.,500.);
+
+  sprintf(s,"CASTORJetEta");
+   hJetEta = ibooker.book1D(s,s,126, -6.3, 6.3);
+
+  sprintf(s,"CASTORJetPhi");
+   hJetPhi = ibooker.book1D(s,s,63, -3.15,3.15);
+
   if(fVerbosity>0) 
     std::cout<<"CastorRecHitMonitor::bookHistograms(end)"<<std::endl;
   return;
@@ -149,7 +161,7 @@ void CastorRecHitMonitor::processEventTowers(
  hTowerMultipl->Fill(nTowers);
 }
 //================== processEvent ==========================//
-void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits )
+void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
 {
  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (begin)"<< std::endl;
  ievt_++; 
@@ -160,6 +172,9 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
  if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); } 
 
  if(castorHits.size() <= 0) return;
+
+ //for(edm::TriggerResults::const_iterator iTrig= hltResults->begin();
+//  iTrig!= hltResults->end(); iTrig++) {;}
 
  for(CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter)
  { 
@@ -179,6 +194,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
    h2RHentriesMap->Fill(module-1,sector-1);
  } // end for(CASTORiter=castorHits.begin(); CASTORiter!= ...
 
+  double etot = 0.;
   for(int phi=0; phi<16; phi++) {
     double es = 0.;
     for (int z=0; z<14; z++) {
@@ -191,6 +207,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       es += rh;
     }
     h2RHvsSec->Fill(phi,es);
+    etot += es;
   } // end for(int phi=0;
 
  if(ievt_ %100 == 0) 
@@ -202,3 +219,18 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (end)"<< std::endl;
   return;
 }
+
+void CastorRecHitMonitor::processEventJets(const reco::BasicJetCollection& Jets)
+{
+ int nJets=0;
+ for(reco::BasicJetCollection::const_iterator ibegin = Jets.begin(),
+  iend = Jets.end(), ijet = ibegin; ijet!= iend; ++ijet) {
+  nJets++;
+  float energy = ijet->energy()*0.001;
+  hJetEnergy->Fill(energy);
+  hJetEta->Fill(ijet->eta());
+  hJetPhi->Fill(ijet->phi());
+ }
+ hJetsMultipl->Fill(nJets);
+}
+
