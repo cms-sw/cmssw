@@ -594,21 +594,20 @@ FWRPZViewGeometry::showME0( bool show )
       m_ME0Elements = new TEveElementList("ME0");
 
       std::vector<ME0DetId> ids;
-      int rArr [] = { -1, 1};  // front back region
       int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
 
-      for (int ri = 0; ri < 2; ++ri ) 
-	for (int ci= 0; ci < 4; ++ci) {
-	  int minRoll = 2; 
-	  //if (ci == 1 || ci == 3) minRoll = 2;
-	  for (int layer = 1; layer <=2; ++layer)
-	    {
-	      ME0DetId id(rArr[ri], cArr[ci], layer);
+      for (int region=ME0DetId::minRegionId; region<=ME0DetId::maxRegionId; ++region){
+	for (int layer=ME0DetId::minLayerId; layer<=ME0DetId::maxLayerId; ++layer){
+	  for (int ci= 0; ci < 4; ++ci) {
+	    for (int roll=ME0DetId::minRollId; roll<=ME0DetId::maxRollId; ++roll){		
+	      ME0DetId id(region, layer, cArr[ci], roll);
 	      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
 	      addToCompound(shape, kFWMuonEndcapLineColorIndex);
 	      m_ME0Elements->AddElement( shape );
 	    }
+	  }
 	}
+      }
       
       AddElement(m_ME0Elements);
       importNew(m_ME0Elements);
