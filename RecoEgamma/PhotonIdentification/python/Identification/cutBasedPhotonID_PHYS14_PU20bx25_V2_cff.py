@@ -5,6 +5,11 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools import *
 
 #
+# !!!!! THE CUT VALUES HERE ARE SAME AS FOR V1, THIS FILE NEEDS UPDATING !!!!!
+#
+
+
+#
 # This is the first version of PHYS14 cuts, optimized on  PHYS14 samples. 
 #
 # The ID cuts below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
@@ -35,7 +40,7 @@ WP_Loose_EB = WorkingPoint_V2(
     0.001        # absPFPhoIsoWithEACut_C2
     )
 
-WP_Loose_EE = WorkingPoint_V2(
+WP_Loose_EE = WorkingPoint_V1(
     idName    ,  #idName
     0.069     ,  # hOverECut
     0.0266    ,  # full5x5_SigmaIEtaIEtaCut
@@ -64,7 +69,7 @@ WP_Medium_EB = WorkingPoint_V2(
     0.001        # absPFPhoIsoWithEACut_C2
     )
 
-WP_Medium_EE = WorkingPoint_V2(
+WP_Medium_EE = WorkingPoint_V1(
     idName    ,  #idName
     0.0166    ,  # hOverECut
     0.0264    ,  # full5x5_SigmaIEtaIEtaCut
@@ -93,7 +98,7 @@ WP_Tight_EB = WorkingPoint_V2(
     0.001        # absPFPhoIsoWithEACut_C2
     )
 
-WP_Tight_EE = WorkingPoint_V2(
+WP_Tight_EE = WorkingPoint_V1(
     idName    ,  #idName
     0.015     ,  # hOverECut
     0.0263    ,  # full5x5_SigmaIEtaIEtaCut
@@ -127,9 +132,9 @@ isoInputs = IsolationCutInputs(
 #
 # Finally, set up VID configuration for all cuts
 #
-cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose  = configureVIDCutBasedPhoID_V1 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium = configureVIDCutBasedPhoID_V1 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoID_V1 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose  = configureVIDCutBasedPhoID_V2 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium = configureVIDCutBasedPhoID_V2 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoID_V2 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 #
 # The MD5 sum numbers below reflect the exact set of cut variables
@@ -140,8 +145,8 @@ cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             'dd6bfd9474187cd31aeaabf90f2a51ca')
+                             '7acf1fe25e8b19e20fc0cf2aa8d4da58')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             '38324dea128c659171cfc517c4327c97')
+                             'b5a3294b7bdf9e64545975ebfe716398')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             'ee67005da6543678d1d3f9d12ecbd6bd')
+                             '5230643edc7f21b8431309bb7d4ee333')
