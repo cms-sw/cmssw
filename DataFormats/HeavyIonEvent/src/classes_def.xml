@@ -23,7 +23,4 @@
 <class name="edm::Wrapper<std::vector<reco::VoronoiBackground> >" />
 <class name="reco::ClusterCompatibility" />
 <class name="edm::Wrapper<reco::ClusterCompatibility>"/>
-<class name="edm::ValueMap<reco::ClusterCompatibility>" />
-<class name="std::vector<reco::ClusterCompatibility>" />
-<class name="edm::Wrapper<std::vector<reco::ClusterCompatibility> >" />
 </lcgdict>

@@ -1,16 +1,18 @@
 #include "DataFormats/HeavyIonEvent/interface/ClusterCompatibility.h"
 using namespace reco;
 
-ClusterCompatibility::ClusterCompatibility(float z0, int nHit, float chi):
-  z0_(z0),
-  nHit_(nHit),
-  chi_(chi)
-{}
-
 ClusterCompatibility::ClusterCompatibility():
-  z0_(0.),
-  nHit_(0),
-  chi_(0.)
+  nValidPixelHits_(0),
+  z0_(),
+  nHit_(),
+  chi_()
 {}
 
 ClusterCompatibility::~ClusterCompatibility() {}
+
+void
+ClusterCompatibility::append(float z0, int nHit, float chi) {
+  z0_.push_back(z0);
+  nHit_.push_back(nHit);
+  chi_.push_back(chi);
+}

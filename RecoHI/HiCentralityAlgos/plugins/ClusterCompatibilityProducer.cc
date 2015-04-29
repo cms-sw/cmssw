@@ -58,7 +58,14 @@ class ClusterCompatibilityProducer : public edm::EDProducer {
       float w;
     };
 
-    reco::ClusterCompatibility getContainedHits(const std::vector<VertexHit> &hits, double z0) const;
+    struct ContainedHits
+    {
+      float z0;
+      int nHit;
+      float chi;
+    };
+
+    ContainedHits getContainedHits(const std::vector<VertexHit> &hits, double z0) const;
 
 };
 
@@ -70,7 +77,7 @@ ClusterCompatibilityProducer::ClusterCompatibilityProducer(const edm::ParameterS
 {
   inputToken_ = consumes<SiPixelRecHitCollection>(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
-  produces<reco::ClusterCompatibilityCollection>();
+  produces<reco::ClusterCompatibility>();
 }
 
 ClusterCompatibilityProducer::~ClusterCompatibilityProducer() {}
@@ -78,7 +85,7 @@ ClusterCompatibilityProducer::~ClusterCompatibilityProducer() {}
 void
 ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<reco::ClusterCompatibilityCollection> creco(new reco::ClusterCompatibilityCollection());
+  std::auto_ptr<reco::ClusterCompatibility> creco(new reco::ClusterCompatibility());
 
   // get hold of products from Event
   edm::Handle<SiPixelRecHitCollection> hRecHits;
@@ -130,10 +137,15 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       vh.w = hit->cluster()->sizeY();
       vhits.push_back(vh);
     }
+
+    creco->setNValidPixelHits(nPxlHits);
  
-    // produce ClusterCompatibility object for each z-position
-    for(double z0 = minZ_; z0 <= maxZ_; z0 += zStep_) 
-      creco->push_back(getContainedHits(vhits, z0));
+    // append cluster compatibility  for each z-position
+    for(double z0 = minZ_; z0 <= maxZ_; z0 += zStep_)
+    { 
+      ContainedHits c = getContainedHits(vhits, z0);
+      creco->append(c.z0, c.nHit, c.chi);
+    }
 
   }
   iEvent.put(creco);
@@ -141,7 +153,7 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 }
 
 
-reco::ClusterCompatibility ClusterCompatibilityProducer::getContainedHits(const std::vector<VertexHit> &hits, double z0) const
+ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getContainedHits(const std::vector<VertexHit> &hits, double z0) const
 {
 
   // Calculate number of hits contained in v-shaped window in cluster y-width vs. z-position.
@@ -155,7 +167,11 @@ reco::ClusterCompatibility ClusterCompatibilityProducer::getContainedHits(const 
       n++;
     }
   }
-  return reco::ClusterCompatibility(z0, n, chi);
+  ClusterCompatibilityProducer::ContainedHits output;
+  output.z0 = z0;
+  output.nHit = n;
+  output.chi = chi;
+  return output;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -53,6 +53,7 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiEgammaSequence
                                               * hiParticleFlowReco
                                               * hiCentrality
+                                              * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
                                               )

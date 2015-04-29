@@ -24,9 +24,6 @@ namespace DataFormats_HeavyIonEvent {
      reco::ClusterCompatibility clus_compat;
      edm::Wrapper<reco::ClusterCompatibility> w_clus_compat;
 
-     reco::ClusterCompatibilityCollection clus_compat_col;
-     edm::Wrapper<reco::ClusterCompatibilityCollection> w_clus_compat_col;
-
      reco::VoronoiBackground vor;
      edm::Wrapper<reco::VoronoiBackground> wvor;
 
