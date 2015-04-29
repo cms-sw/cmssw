@@ -73,7 +73,7 @@ hiHighpurityMTS= hiTightMTS.clone(
 
 #typical configuration is six selectors... something like this to
 #make cloning easier.
-hiMultiTrackSelector = cms.EDProducer("MultiTrackSelector",
+hiMultiTrackSelector = cms.EDProducer("HIMultiTrackSelector",
                                     src = cms.InputTag("hiGeneralTracks"),
                                     beamspot = cms.InputTag("offlineBeamSpot"),
                                     useVertices = cms.bool(True),

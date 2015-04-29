@@ -17,6 +17,10 @@
 <use   name="MagneticField/Records"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="CondFormats/EgammaObjects"/>
+<library   file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <export>
   <lib   name="1"/>
 </export>
