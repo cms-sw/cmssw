@@ -33,7 +33,6 @@ class PFClusterEMEnergyCorrector {
   
   edm::EDGetTokenT<EcalRecHitCollection> _recHitsEB;
   edm::EDGetTokenT<EcalRecHitCollection> _recHitsEE;  
-  edm::EDGetTokenT<reco::VertexCollection> _vertices;
   
   std::vector<std::string> _condnames_mean_50ns;
   std::vector<std::string> _condnames_sigma_50ns;

@@ -6,6 +6,7 @@ from RecoJets.Configuration.RecoTrackJets_cff import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoJets.Configuration.RecoJPTJets_cff import *
+from JetMETCorrections.Configuration.JetCorrectorsForReco_cff import *
 
 jetGlobalReco = cms.Sequence(recoJets*recoJetIds*recoTrackJets)
-jetHighLevelReco = cms.Sequence(recoPFJets*recoJetAssociations*recoJetAssociationsExplicit*recoJPTJets)
+jetHighLevelReco = cms.Sequence(recoPFJets*jetCorrectorsForReco*recoJetAssociations*recoJetAssociationsExplicit*recoJPTJets)

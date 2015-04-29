@@ -578,6 +578,13 @@ def _low(n):
     return int(n) & 0xffffffff
 
 
+def _convertTimeType(since):
+    try:
+        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+    except ValueError:
+        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
+
+
 def _since_filter(time_type):
     '''Returns a filter function for the given time type that returns
     a human-readable string of the given since.
@@ -594,7 +601,7 @@ def _since_filter(time_type):
     '''
 
     if time_type == conddb.TimeType.time:
-        return lambda since: str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+        return _convertTimeType
 
     if time_type == conddb.TimeType.lumi:
         return lambda since: '%s Lumi %5s' % (_high(since), _low(since))
