@@ -101,6 +101,7 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
       ibook.setCurrentFolder(dirName.c_str());
 
       //Booking histograms concerning with reconstructed tracks
+      histoProducerAlgo_->bookSimTrackHistos(ibook);
       histoProducerAlgo_->bookRecoHistos(ibook);
       if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
     }//end loop www

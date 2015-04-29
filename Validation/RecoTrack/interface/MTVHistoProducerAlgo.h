@@ -32,6 +32,7 @@ class MTVHistoProducerAlgo{
   virtual ~MTVHistoProducerAlgo() {}
 
   virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookSimTrackHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecodEdxHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook)=0;

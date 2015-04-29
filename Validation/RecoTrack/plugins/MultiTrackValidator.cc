@@ -44,6 +44,9 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   MultiTrackValidatorBase(pset,consumesCollector()),
   parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+  doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
+  doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
+  doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
   dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots"))
 {
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
@@ -141,18 +144,25 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
       ibook.setCurrentFolder(dirName.c_str());
 
-      string subDirName = dirName + "/simulation";
-      ibook.setCurrentFolder(subDirName.c_str());
-
       //Booking histograms concerning with simulated tracks
-      histoProducerAlgo_->bookSimHistos(ibook);
+      if(doSimPlots_) {
+        string subDirName = dirName + "/simulation";
+        ibook.setCurrentFolder(subDirName.c_str());
 
-      ibook.cd();
-      ibook.setCurrentFolder(dirName.c_str());
+        histoProducerAlgo_->bookSimHistos(ibook);
+
+        ibook.cd();
+        ibook.setCurrentFolder(dirName.c_str());
+      }
+      if(doSimTrackPlots_) {
+        histoProducerAlgo_->bookSimTrackHistos(ibook);
+      }
 
       //Booking histograms concerning with reconstructed tracks
-      histoProducerAlgo_->bookRecoHistos(ibook);
-      if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
+      if(doRecoTrackPlots_) {
+        histoProducerAlgo_->bookRecoHistos(ibook);
+        if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
+      }
       if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
 
     }//end loop www
@@ -424,8 +434,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// - dxySim
 	// - dzSim
 
-	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp.eventId().bunchCrossing());
-
+        if(doSimPlots_) {
+          histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp.eventId().bunchCrossing());
+        }
+        if(!doSimTrackPlots_)
+          continue;
 
 	// ##############################################
 	// fill RecoAssociated SimTracks' histograms
@@ -470,6 +483,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       // ##############################################
       // fill recoTracks histograms (LOOP OVER TRACKS)
       // ##############################################
+      if(!doRecoTrackPlots_)
+        continue;
       LogTrace("TrackValidator") << "\n# of reco::Tracks with "
                                  << label[www].process()<<":"
                                  << label[www].label()<<":"

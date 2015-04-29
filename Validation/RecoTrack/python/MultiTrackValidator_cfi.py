@@ -63,5 +63,8 @@ multiTrackValidator = cms.EDAnalyzer(
     trackCollectionForDrCalculation = cms.InputTag("generalTracks"),
 
     ### Allow switching off particular histograms
+    doSimPlots = cms.untracked.bool(True),
+    doSimTrackPlots = cms.untracked.bool(True),
+    doRecoTrackPlots = cms.untracked.bool(True),
     dodEdxPlots = cms.untracked.bool(False),
 )

@@ -234,7 +234,11 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       // - dxyGen
       // - dzGen
       
-      histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->collisionId());//fixme: check meaning of collisionId
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->collisionId());//fixme: check meaning of collisionId
+      }
+      if(!doSimTrackPlots_)
+        continue;
       
       
       // ##############################################
@@ -282,6 +286,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       // ##############################################
       // fill recoTracks histograms (LOOP OVER TRACKS)
       // ##############################################
+    if(!doRecoTrackPlots_)
+      continue;
     edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with "
                                        << label[www].process()<<":"
                                        << label[www].label()<<":"
