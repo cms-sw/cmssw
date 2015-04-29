@@ -555,27 +555,42 @@ FWRPZViewGeometry::showGEM( bool show )
    {
       m_GEMElements = new TEveElementList("GEM");
 
+      //int rArr [] = { -1, 1};  // front back region
+      //int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
+
+      // for (int ri = 0; ri < 2; ++ri ){ 
+      // 	for (int st = 1; st < 3; ++st ){ 
+      // 	  for (int ci= 0; ci < 4; ++ci) {
+      //       int minRoll = 2; 
+      //       //if (ci == 1 || ci == 3) minRoll = 2;
+      //       for (int roll = minRoll; roll <=10; ++roll){
+      // 	      for (int layer = 1; layer <=2; ++layer)
+      // 		{
+      //             GEMDetId id(rArr[ri], 1, st, layer, cArr[ci], roll);
+      //             TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+      //             addToCompound(shape, kFWMuonEndcapLineColorIndex);
+      //             m_GEMElements->AddElement( shape );
+      // 		}
+      // 	    }
+      // 	  }
+      // 	}
+      // }
+      for (int region=GEMDetId::minRegionId; region<=GEMDetId::maxRegionId; region=region+2){
+	int ring = 1;
+	for (int station=GEMDetId::minStationId; station<=2; ++station){
+	  for (int layer=GEMDetId::minLayerId; layer<=GEMDetId::maxLayerId; ++layer){
+	    for (int chamber=GEMDetId::minChamberId; chamber<=GEMDetId::maxChamberId; ++chamber){
+	      for (int roll=GEMDetId::minRollId; roll<=GEMDetId::maxRollId; ++roll){	
+		GEMDetId id(region, ring, station, layer, chamber, roll);
+		TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+		addToCompound(shape, kFWMuonEndcapLineColorIndex);
+		m_GEMElements->AddElement( shape );
+	      }
+	    }
+	  }
+	}
+      }
       
-      std::vector<GEMDetId> ids;
-      int rArr [] = { -1, 1};  // front back region
-      int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
-
-      for (int ri = 0; ri < 2; ++ri ) 
-         for (int ci= 0; ci < 4; ++ci) {
-            int minRoll = 2; 
-            //if (ci == 1 || ci == 3) minRoll = 2;
-            for (int roll = minRoll; roll <=10; ++roll)
-               for (int layer = 1; layer <=2; ++layer)
-               {
-                  GEMDetId id(rArr[ri], 1, 1, layer, cArr[ci], roll);
-                  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                  m_GEMElements->AddElement( shape );
-               }
-         }
-
-
-
       AddElement(m_GEMElements);
       importNew(m_GEMElements);
    }
@@ -593,14 +608,13 @@ FWRPZViewGeometry::showME0( bool show )
    {
       m_ME0Elements = new TEveElementList("ME0");
 
-      std::vector<ME0DetId> ids;
-      int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
+      //int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
 
-      for (int region=ME0DetId::minRegionId; region<=ME0DetId::maxRegionId; ++region){
+      for (int region=ME0DetId::minRegionId; region<=ME0DetId::maxRegionId; region=region+2){
 	for (int layer=ME0DetId::minLayerId; layer<=ME0DetId::maxLayerId; ++layer){
-	  for (int ci= 0; ci < 4; ++ci) {
+	for (int chamber=ME0DetId::minChamberId; chamber<=ME0DetId::maxChamberId; ++chamber){
 	    for (int roll=ME0DetId::minRollId; roll<=ME0DetId::maxRollId; ++roll){		
-	      ME0DetId id(region, layer, cArr[ci], roll);
+	      ME0DetId id(region, layer, chamber, roll);
 	      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
 	      addToCompound(shape, kFWMuonEndcapLineColorIndex);
 	      m_ME0Elements->AddElement( shape );
