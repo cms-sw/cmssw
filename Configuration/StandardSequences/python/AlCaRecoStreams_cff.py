@@ -37,6 +37,14 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 
 ###############################################################
+# LUMI Calibration
+###############################################################
+# AlCaReco for ALCALUMIPIXELS stream
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
+# AlCaReco for A stream (PD=MinBias)
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+
+###############################################################
 # ECAL Calibration
 ###############################################################
 # ECAL calibration with isol. electrons
@@ -117,6 +125,9 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
+
+pathALCARECOLumiPixels = cms.Path(seqALCARECOLumiPixels)
+pathALCARECOLumiPixelsMinBias = cms.Path(seqALCARECOLumiPixelsMinBias)
 
 pathALCARECOEcalCalZElectron = cms.Path(seqALCARECOEcalCalZElectron)
 pathALCARECOEcalCalWElectron = cms.Path(seqALCARECOEcalCalWElectron)
@@ -241,6 +252,24 @@ ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	paths  = (pathALCARECOSiStripCalZeroBias),
 	content = OutALCARECOSiStripCalZeroBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalZeroBias.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamLumiPixelsMinBias = cms.FilteredStream(
+	responsible = 'Chris Palmer',
+	name = 'LumiPixelsMinBias',
+	paths  = (pathALCARECOLumiPixelsMinBias),
+	content = OutALCARECOLumiPixelsMinBias.outputCommands,
+	selectEvents = OutALCARECOLumiPixelsMinBias.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamLumiPixels = cms.FilteredStream(
+	responsible = 'Chris Palmer',
+	name = 'LumiPixels',
+	paths  = (pathALCARECOLumiPixels),
+	content = OutALCARECOLumiPixels.outputCommands,
+	selectEvents = OutALCARECOLumiPixels.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
