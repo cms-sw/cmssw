@@ -56,7 +56,7 @@ process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
 #add in the heep ID to the producer. You can run with other IDs but heep ID must be loaded with setupVIDSelection, not setupAllVIDSelection as heep works differently because mini-aod and aod are defined in the same file to ensure consistancy (you cant change cuts of aod without changing miniaod
 process.load('RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff')
-setupVIDSelection(process.egmGsfElectronIDs,process.heepElectronID_HEEPV51_miniAOD)
+setupVIDSelection(process.egmGsfElectronIDs,process.heepElectronID_HEEPV51)
 
 # Do not forget to add the egmGsfElectronIDSequence to the path,
 # as in the example below!
@@ -67,7 +67,7 @@ setupVIDSelection(process.egmGsfElectronIDs,process.heepElectronID_HEEPV51_miniA
 
 process.idExample = cms.EDAnalyzer('VIDUsageExample',
      eles = cms.InputTag("slimmedElectrons"),
-     id = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51-miniAOD"),
+     id = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
 )
 
 

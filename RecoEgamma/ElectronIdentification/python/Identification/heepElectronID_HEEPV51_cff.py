@@ -76,12 +76,12 @@ heepElectronID_HEEPV51 = cms.PSet(
                   rhoConstant = cms.double(0.28),
                   rho = cms.InputTag("fixedGridRhoFastjetAll"),
                   needsAdditionalProducts = cms.bool(True),
-                  isIgnored = cms.bool(False)),
-    
+                  isIgnored = cms.bool(False)),    
         cms.PSet( cutName = cms.string('GsfEleDxyCut'),#9
                   dxyCutValueEB = cms.double(0.02),
                   dxyCutValueEE = cms.double(0.05),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
+                  vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
                   barrelCutOff = cms.double(ebCutOff),
                   needsAdditionalProducts = cms.bool(True),
                   isIgnored = cms.bool(False)),
@@ -95,17 +95,4 @@ heepElectronID_HEEPV51 = cms.PSet(
     )
 )
 
-
-from RecoEgamma.ElectronIdentification.Identification.idTools import convertIDToRunOnMiniAOD
-heepElectronID_HEEPV51_miniAOD = heepElectronID_HEEPV51.clone()
-convertIDToRunOnMiniAOD(heepElectronID_HEEPV51_miniAOD)
-
-central_id_registry.register(heepElectronID_HEEPV51.idName,"f90fd5f69a25837d6a677bc06abbebfd")
-central_id_registry.register(heepElectronID_HEEPV51_miniAOD.idName,"7d19616b4352fecd3e1fa3d2e97a27e5")
-
-
-#central_id_registry.register(heepElectronID_HEEPV51.idName,"28a015307cd3122d009f169194325fbb")
-#central_id_registry.register(heepElectronID_HEEPV51_miniAOD.idName,"261de4318aefb803cf4cc8ed914c3da6")
-
-
-#calculateIdMD5 RecoEgamma/ElectronIdentification/python/Identification/heepElectronID_HEEPV51_cff.py heepElectronID_HEEPV51_miniAOD | awk '{print "central_id_registry.register("$1".idName,\""$3"\")"}'
+central_id_registry.register(heepElectronID_HEEPV51.idName,"d930c34a554f86e6d4e8c247c4737140")
