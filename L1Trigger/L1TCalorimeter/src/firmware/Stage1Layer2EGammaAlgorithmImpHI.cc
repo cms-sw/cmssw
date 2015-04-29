@@ -30,12 +30,15 @@ Stage1Layer2EGammaAlgorithmImpHI::~Stage1Layer2EGammaAlgorithmImpHI(){};
 
 void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, const std::vector<l1t::Jet> * jets, std::vector<l1t::EGamma>* egammas) {
 
+  std::string regionPUSType = params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
+
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
   std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
 
 
-  HICaloRingSubtraction(regions, subRegions);
+  HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
@@ -60,10 +63,10 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
 
     enum {MAX_LUT_ADDRESS = 0x7fff}; // upper bit is used to indicate Barrel / Endcap
     enum {LUT_BARREL_OFFSET = 0x0, LUT_ENDCAP_OFFSET = 0x8000};
-   
+
     if (eg_et >0){
       if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
-      if (isinBarrel){	
+      if (isinBarrel){
     	isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + lutAddress);
       } else{
     	isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + lutAddress);

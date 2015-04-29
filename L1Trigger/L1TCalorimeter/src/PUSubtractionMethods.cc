@@ -8,6 +8,7 @@
 
 //#include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "TMath.h"
 
 //#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include <vector>
@@ -16,27 +17,37 @@ namespace l1t {
 
   /// --------------- For heavy ion -------------------------------------
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
-			     std::vector<l1t::CaloRegion> *subRegions)
+			     std::vector<l1t::CaloRegion> *subRegions,
+			     std::vector<double> regionPUSParams,
+			     std::string regionPUSType)
   {
     int puLevelHI[L1CaloRegionDetId::N_ETA];
     double r_puLevelHI[L1CaloRegionDetId::N_ETA];
     int etaCount[L1CaloRegionDetId::N_ETA];
+    double r_puLevelHI2[L1CaloRegionDetId::N_ETA];
+
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
     {
       puLevelHI[i] = 0;
       r_puLevelHI[i] = 0.0;
       etaCount[i] = 0;
+      r_puLevelHI2[i] = 0.0;
     }
 
     for(std::vector<CaloRegion>::const_iterator region = regions.begin();
 	region != regions.end(); region++){
       r_puLevelHI[region->hwEta()] += region->hwPt();
+      r_puLevelHI2[region->hwEta()] += (region->hwPt() * region->hwPt());
       etaCount[region->hwEta()]++;
     }
 
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
     {
       puLevelHI[i] = floor(r_puLevelHI[i]/etaCount[i] + 0.5);
+      if(regionPUSType == "sigmaSubtraction")
+      {
+	puLevelHI[i] += floor(TMath::Sqrt( r_puLevelHI2[i]/18. - (r_puLevelHI[i]/18.)*(r_puLevelHI[i]/18.)) + 0.5);
+      }
     }
 
     for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
@@ -91,7 +102,7 @@ namespace l1t {
     }
 
     if (regionPUSType == "HICaloRingSub") {
-      HICaloRingSubtraction(regions, subRegions);
+      HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
     }
 
     if (regionPUSType == "PUM0") {

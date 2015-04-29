@@ -25,11 +25,14 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 						  std::vector<l1t::Tau> * isoTaus,
 						  std::vector<l1t::Tau> * taus)
 {
+  std::string regionPUSType = params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
+
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
 
-  HICaloRingSubtraction(regions, subRegions);
+  HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
   findRegions(subRegions, preGtEtaTaus);
   TauToGtEtaScales(params_, preGtEtaTaus, preGtTaus);
   TauToGtPtScales(params_, preGtTaus, taus);
