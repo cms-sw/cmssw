@@ -28,6 +28,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -240,7 +241,31 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
       // EVE debug :: add list on bottom of TEveBrowser list tree
       gEve->AddToListTree(GEMlist, false);
       AddElement( m_muonEndcapElements );
-
+      
+      // adding me0
+      TEveElementList*  ME0list = new TEveElementList( "ME0" );     
+      for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; ++iRegion )
+	{
+	  TEveElementList* eRegion  = new TEveElementList(Form("Region_%d", iRegion) );
+	  ME0list->AddElement( eRegion );
+	  for( Int_t iChamber = ME0DetId::minChamberId; iChamber <= ME0DetId::maxChamberId; ++iChamber )
+	    {
+	      for( Int_t iLayer = ME0DetId::minLayerId; iLayer <= ME0DetId::maxLayerId ; ++iLayer )
+		{
+		  for (Int_t iRoll = ME0DetId::minRollId; iRoll <= ME0DetId::maxRollId ; ++iRoll )
+		    {
+		      ME0DetId id( iRegion, iLayer, iChamber, iRoll );
+		      TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
+		      shape->SetTitle(TString::Format("ME0: , Ch=%d Rl=%d\ndet-id=%u",
+						      iChamber, iRoll, id.rawId()));
+ 	  	            
+		      eRegion->AddElement( shape );
+		      addToCompound(shape, kFWMuonEndcapLineColorIndex );
+		    }
+		}
+	    }
+	}
+      m_muonEndcapElements->AddElement(ME0list);
    }
 
    if( m_muonEndcapElements )
