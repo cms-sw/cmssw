@@ -144,7 +144,8 @@ TrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   iEvent.getByToken(simHitTpMapToken_,simHitsTPAssoc);
 
   std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl( 
-                   new TrackAssociatorByHitsImpl( std::move(thAssoc),
+                   new TrackAssociatorByHitsImpl( iEvent.productGetter(),
+                                                  std::move(thAssoc),
                                                   &(*tTopoHand),
                                                   &(*simHitsTPAssoc),
                                                   SimToRecoDenominator,

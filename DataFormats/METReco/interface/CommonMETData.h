@@ -11,6 +11,7 @@
 //____________________________________________________________________________||
 struct CommonMETData
 {
+  CommonMETData() :met(0), mex(0), mey(0), mez(0), sumet(0), phi(0) {}
   double met;
   double mex;
   double mey;

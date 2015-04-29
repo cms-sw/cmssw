@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -26,6 +26,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -110,10 +111,10 @@ private:
 
   int ievt_;
   int NBunchesOrbit;
-  edm::InputTag inputLabelRaw_;
-  edm::InputTag inputLabelReport_;
-  edm::InputTag inputLabelDigi_;
-  edm::InputTag inputLabelRecHitCASTOR_;
+  edm::EDGetTokenT<FEDRawDataCollection> inputTokenRaw_;
+  edm::EDGetTokenT<HcalUnpackerReport> inputTokenReport_;
+  edm::EDGetTokenT<CastorDigiCollection> inputTokenDigi_;
+  edm::EDGetTokenT<CastorRecHitCollection> inputTokenRecHitCASTOR_;
 
   CastorRecHitMonitor*      RecHitMon_;
   CastorDigiMonitor*        DigiMon_;

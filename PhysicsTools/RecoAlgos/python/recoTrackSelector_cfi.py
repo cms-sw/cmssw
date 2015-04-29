@@ -10,9 +10,13 @@ recoTrackSelector = cms.EDProducer("RecoTrackSelector",
     maxRapidity = cms.double(5.0),
     quality = cms.vstring('loose'),
     algorithm = cms.vstring(),
-    minHit = cms.int32(3),
-    min3DHit = cms.int32(0),
+    minLayer = cms.int32(3),
+    min3DLayer = cms.int32(0),
+    minHit = cms.int32(0),
+    minPixelHit = cms.int32(0),
     beamSpot = cms.InputTag("offlineBeamSpot"),
+    usePV = cms.bool(False),
+    vertexTag = cms.InputTag('offlinePrimaryVertices'),
     copyExtras = cms.untracked.bool(True), ## copies also extras and rechits on RECO
     copyTrajectories = cms.untracked.bool(False) # don't set this to true on AOD!
 )

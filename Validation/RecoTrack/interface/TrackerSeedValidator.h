@@ -8,14 +8,14 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-class TrackerSeedValidator : public edm::EDAnalyzer, protected MultiTrackValidatorBase {
+class TrackerSeedValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
  public:
   /// Constructor
   TrackerSeedValidator(const edm::ParameterSet& pset);
@@ -25,11 +25,11 @@ class TrackerSeedValidator : public edm::EDAnalyzer, protected MultiTrackValidat
 
 
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   /// Method called at the end of the event loop
-  void endRun(edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   /// Method called to book the DQM histograms
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   
  private:
   std::string builderName;

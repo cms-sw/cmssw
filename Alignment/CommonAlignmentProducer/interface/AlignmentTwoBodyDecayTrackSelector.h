@@ -3,8 +3,9 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignmentTwoBodyDecayTrackSelector_h
 
 //Framework
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 //STL
 #include <vector>
 // forward declaration:
@@ -18,7 +19,7 @@ class AlignmentTwoBodyDecayTrackSelector
   typedef std::vector<const reco::Track*> Tracks; 
 
   /// constructor
-  AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg);
+  AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
 
   /// destructor
   ~AlignmentTwoBodyDecayTrackSelector();
@@ -57,7 +58,7 @@ class AlignmentTwoBodyDecayTrackSelector
   int theCharge;
   bool theUnsignedSwitch;
   //missing ET Filter
-  edm::InputTag theMissingETSource;
+  edm::EDGetTokenT<reco::CaloMETCollection> theMissingETToken;
   //acoplanarity Filter
   double theAcoplanarDistance;
   //helpers

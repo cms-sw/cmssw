@@ -107,7 +107,7 @@ class MatrixInjector(object):
             "Multicore" : opt.nThreads,
             "Memory" : 2400,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 1
+            "TimePerEvent" : 0.1
             }
 
         self.defaultHarvest={
@@ -199,7 +199,7 @@ class MatrixInjector(object):
                     thisLabel=self.speciallabel
                     #if 'HARVESTGEN' in s[3]:
                     if len( [step for step in s[3] if "HARVESTGEN" in step] )>0:
-                        chainDict['TimePerEvent']=0.1
+                        chainDict['TimePerEvent']=0.01
                         thisLabel=thisLabel+"_gen"
                     processStrPrefix=''
                     setPrimaryDs=None

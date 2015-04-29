@@ -78,6 +78,8 @@ namespace edm {
 
     void pushBackItem(RefCore const& productToBeInserted, bool checkPointer);
 
+    void pushBackRefItem(RefCore const& productToBeInserted);
+
  private:
     RefCore(void const* iCache, ProcessIndex iProcessIndex, ProductIndex iProductIndex):
     cachePtr_(iCache), processIndex_(iProcessIndex), productIndex_(iProductIndex) {}

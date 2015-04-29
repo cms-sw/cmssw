@@ -36,18 +36,35 @@
  </class>
  
  <class name="PTrackerParameters" class_version="0"> 
-   <field name="pxb" mapping="blob"/>
-   <field name="pxf" mapping="blob"/>
-   <field name="tec" mapping="blob"/>
-   <field name="tib" mapping="blob"/>
-   <field name="tid" mapping="blob"/>
-   <field name="tob" mapping="blob"/>
+   <field name="vitems" mapping="blob"/>
+   <field name="vpars" mapping="blob"/>
  </class>
- <class name="PTrackerParameters::PxbItem"/>
- <class name="PTrackerParameters::PxfItem"/>
- <class name="PTrackerParameters::TECItem"/>
- <class name="PTrackerParameters::TIBItem"/>
- <class name="PTrackerParameters::TIDItem"/>
- <class name="PTrackerParameters::TOBItem"/>
+ <class name="PTrackerParameters::Item"/>
+ <class name="std::vector<PTrackerParameters::Item>"/>
 
+ <class name="PHcalParameters" class_version="0"> 
+   <field name="phioff" mapping="blob"/>
+   <field name="etaTable" mapping="blob"/>
+   <field name="rTable" mapping="blob"/>
+   <field name="phibin" mapping="blob"/>
+   <field name="phitable" mapping="blob"/>
+   <field name="etaRange" mapping="blob"/>
+   <field name="gparHF" mapping="blob"/>
+   <field name="noff" mapping="blob"/>
+   <field name="Layer0Wt" mapping="blob"/>
+   <field name="HBGains" mapping="blob"/>
+   <field name="HEGains" mapping="blob"/>
+   <field name="HFGains" mapping="blob"/>
+   <field name="etaMin" mapping="blob"/>
+   <field name="etaMax" mapping="blob"/>
+   <field name="HBShift" mapping="blob"/>
+   <field name="HEShift" mapping="blob"/>
+   <field name="HFShift" mapping="blob"/>
+   <field name="etagroup" mapping="blob"/>
+   <field name="phigroup" mapping="blob"/>
+   <field name="layerGroupEta" mapping="blob"/>
+ </class>
+ <class name="PHcalParameters::LayerItem"/>
+ <class name="std::vector<PHcalParameters::LayerItem>"/>
+ 
 </lcgdict> 

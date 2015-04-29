@@ -31,7 +31,8 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::one::ED
   theCastorDigitizer(0),
   theCastorHits()
 {
-  iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits", "CastorFI"));
+  theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
+  iC.consumes<std::vector<PCaloHit> >(theHitsProducerTag);
   
   mixMod.produces<CastorDigiCollection>();
 
@@ -102,7 +103,7 @@ void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHit
 void CastorDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&) {
   // Step A: Get and accumulate digitized hits 
   edm::Handle<std::vector<PCaloHit> > castorHandle;
-  e.getByLabel(edm::InputTag("g4SimHits", "CastorFI"), castorHandle);
+  e.getByLabel(theHitsProducerTag, castorHandle);
 
   accumulateCaloHits(*castorHandle.product(), 0, randomEngine(e.streamID()));
 }
@@ -110,7 +111,7 @@ void CastorDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&)
 void CastorDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&, edm::StreamID const& streamID) {
   // Step A: Get and accumulate digitized hits 
   edm::Handle<std::vector<PCaloHit> > castorHandle;
-  e.getByLabel(edm::InputTag("g4SimHits", "CastorFI"), castorHandle);
+  e.getByLabel(theHitsProducerTag, castorHandle);
 
   accumulateCaloHits(*castorHandle.product(), e.bunchCrossing(), randomEngine(streamID));
 }

@@ -7,31 +7,26 @@
 #include <map>
 
 //! analagous to geant4/source/global/HEPGeometry/include/geomdefs.hh
-enum DDAxes {x, y, z, rho, radial3D, phi, undefined};
+
+enum class DDAxes {x, y, z, rho, radial3D, phi, undefined};
 
 class AxesNames
-{
-  
-public:
+{  
+ public:
   AxesNames();
   ~AxesNames();
   
-  const std::string name(const DDAxes& s) ;
+  const std::string name( const DDAxes& s );
   
-  DDAxes index(const std::string & s);
-  
-private:
+ private:
   std::map<std::string, DDAxes> axesmap_;
 };
-  
 
 class DDAxesNames : public DDI::Singleton<AxesNames>
 {
-public:
+ public:
 
-  static const std::string name(const DDAxes& s);
-
-  static DDAxes index(const std::string & s);
+  static const std::string name( const DDAxes& s );
 };	   
 
 #endif // DDAxes_h

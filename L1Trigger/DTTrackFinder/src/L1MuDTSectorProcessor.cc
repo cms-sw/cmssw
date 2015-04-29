@@ -51,9 +51,10 @@ using namespace std;
 //----------------
 
 L1MuDTSectorProcessor::L1MuDTSectorProcessor(const L1MuDTTrackFinder& tf,
-                                             const L1MuDTSecProcId& id) :
+                                             const L1MuDTSecProcId& id,
+                                             edm::ConsumesCollector&& iC) :
       m_tf(tf), m_spid(id), 
-      m_SectorReceiver(new L1MuDTSectorReceiver(*this)),
+      m_SectorReceiver(new L1MuDTSectorReceiver(*this, std::move(iC))),
       m_DataBuffer(new L1MuDTDataBuffer(*this)),
       m_EU(new L1MuDTExtrapolationUnit(*this)),
       m_TA(new L1MuDTTrackAssembler(*this)), 

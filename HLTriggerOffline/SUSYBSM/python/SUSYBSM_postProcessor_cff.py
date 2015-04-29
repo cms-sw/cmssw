@@ -26,7 +26,8 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_MuEle_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Muon_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Electron_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_alphaT_cff import *
-
+from HLTriggerOffline.SUSYBSM.SUSYBSM_DiJet_MET_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_VBF_Mu_cff import *
 
 SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_InclusiveHT_POSTPROCESSING +
@@ -54,8 +55,12 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_alphaT_POSTPROCESSING +
+                              SUSY_HLT_DiJet_MET_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING+
-                              SUSY_HLT_alphaT_POSTPROCESSING)
+                              SUSY_HLT_alphaT_POSTPROCESSING+
+                              SUSY_HLT_Mu_VBF_POSTPROCESSING)
 
 SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_InclusiveHT_FASTSIM_POSTPROCESSING +
@@ -83,5 +88,5 @@ SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_HT_DoubleEle_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_HT_MuEle_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Muon_BJet_FASTSIM_POSTPROCESSING +
-                                      SUSY_HLT_Electron_BJet_FASTSIM_POSTPROCESSING)
-
+                                      SUSY_HLT_Electron_BJet_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Mu_VBF_FASTSIM_POSTPROCESSING)

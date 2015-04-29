@@ -112,7 +112,7 @@ void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const 
   iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
   const CaloGeometry* caloGeom = caloGeomHandle.product();
   
-  reco::RecoEcalCandidateIsolationMap isoMap;
+  reco::RecoEcalCandidateIsolationMap isoMap(recoEcalCandHandle);
   
    
   for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){

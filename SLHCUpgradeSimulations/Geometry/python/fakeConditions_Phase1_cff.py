@@ -5,59 +5,20 @@ siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
         )
 es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
 
-from CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi import *
-SiStripNoisesGenerator.NoiseStripLengthSlope=cms.vdouble(51.) #dec mode
-SiStripNoisesGenerator.NoiseStripLengthQuote=cms.vdouble(630.)
-
-siStripNoisesFakeESSource  = cms.ESSource("SiStripNoisesFakeESSource")
-es_prefer_fake_strip_noise = cms.ESPrefer("SiStripNoisesFakeESSource",
-                                                  "siStripNoisesFakeESSource")
-
-from CalibTracker.SiStripESProducers.fake.SiStripQualityFakeESSource_cfi import *
-siStripQualityFakeESSource  = cms.ESSource("SiStripQualityFakeESSource")
-es_prefer_fake_strip_quality = cms.ESPrefer("SiStripQualityFakeESSource",
-                                                     "siStripQualityFakeESSource")
-
-from CalibTracker.SiStripESProducers.fake.SiStripPedestalsFakeESSource_cfi import *
-siStripPedestalsFakeESSource  = cms.ESSource("SiStripPedestalsFakeESSource")
-es_prefer_fake_strip_pedestal = cms.ESPrefer("SiStripPedestalsFakeESSource",
-                                                     "siStripPedestalsFakeESSource")
-
-from CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi import *
-siStripLorentzAngleFakeESSource  = cms.ESSource("SiStripLorentzAngleFakeESSource")
-es_prefer_fake_strip_LA = cms.ESPrefer("SiStripLorentzAngleFakeESSource",
-                                               "siStripLorentzAngleFakeESSource")
-
-siStripLorentzAngleSimFakeESSource  = cms.ESSource("SiStripLorentzAngleSimFakeESSource")
-es_prefer_fake_strip_LA_sim = cms.ESPrefer("SiStripLorentzAngleSimFakeESSource",
-                                                   "siStripLorentzAngleSimFakeESSource")
-
-from CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi import *
-SiStripApvGainGenerator.MeanGain=cms.double(1.0)
-SiStripApvGainGenerator.SigmaGain=cms.double(0.0)
-SiStripApvGainGenerator.genMode = cms.string("default")
-
-myStripApvGainFakeESSource = cms.ESSource("SiStripApvGainFakeESSource")
-es_prefer_myStripApvGainFakeESSource  = cms.ESPrefer("SiStripApvGainFakeESSource",
-                                                  "myStripApvGainFakeESSource")
-
-myStripApvGainSimFakeESSource  = cms.ESSource("SiStripApvGainSimFakeESSource")
-es_prefer_myStripApvGainSimFakeESSource = cms.ESPrefer("SiStripApvGainSimFakeESSource",
-                                                               "myStripApvGainSimFakeESSource")
-
-from CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi import *
-siStripThresholdFakeESSource  = cms.ESSource("SiStripThresholdFakeESSource")
-es_prefer_fake_strip_threshold = cms.ESPrefer("SiStripThresholdFakeESSource",
-                                                     "siStripThresholdFakeESSource")
-
 # from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import * Double check this later
 # TrackerDigiGeometryESModule.applyAlignment = False
 
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
-MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
 
+from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
+mergedtruth.volumeRadius = cms.double(100.0)
+mergedtruth.volumeZ = cms.double(900.0)
+mergedtruth.discardOutVolume = cms.bool(True)
+
+#from Geometry.TrackerNumberingBuilder.pixelSLHCGeometryConstants_cfi import *
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
+
+# this assumes that the beamspot is gaussian
+# remove this when the right global tag is used!
 from RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi import *
 BeamSpotFakeConditions.X0 = cms.double(0.0)
 BeamSpotFakeConditions.Y0 = cms.double(0.0)
@@ -77,13 +38,4 @@ BeamSpotFakeConditions.errordxdz = cms.double(0.0)
 BeamSpotFakeConditions.errordydz = cms.double(0.0)
 BeamSpotFakeConditions.errorSigmaZ = cms.double(0.03000)
 BeamSpotFakeConditions.errorWidth = cms.double(0.00003)
-
 es_prefer_beamspot = cms.ESPrefer("BeamSpotFakeConditions","")
-
-from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
-mergedtruth.volumeRadius = cms.double(100.0)
-mergedtruth.volumeZ = cms.double(900.0)
-mergedtruth.discardOutVolume = cms.bool(True)
-
-#from Geometry.TrackerNumberingBuilder.pixelSLHCGeometryConstants_cfi import *
-from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *

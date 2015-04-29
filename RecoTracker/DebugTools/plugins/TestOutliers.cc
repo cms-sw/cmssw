@@ -31,9 +31,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <TH1.h>
 #include <TH2.h>
 #include <TFile.h>
@@ -47,7 +46,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //
@@ -69,9 +67,8 @@ private:
   edm::InputTag trackTagsOut_; //used to select what tracks to read from configuration file
   edm::InputTag trackTagsOld_; //used to select what tracks to read from configuration file
   edm::InputTag tpTags_; //used to select what tracks to read from configuration file
-  TrackAssociatorBase * theAssociatorOld;
-  TrackAssociatorBase * theAssociatorOut;
-  //RecoTrackSelector selectRecoTracks;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOldToken;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOutToken;
   TrackerHitAssociator* hitAssociator;
   edm::ESHandle<TrackerGeometry> theG;
   std::string out;
@@ -106,7 +103,6 @@ private:
   TH1F *gainedhits,*gainedhits2;
   TH1F *probXgood,*probXbad,*probXdelta,*probXshared,*probXnoshare;
   TH1F *probYgood,*probYbad,*probYdelta,*probYshared,*probYnoshare;
-  edm::ParameterSet psetold,psetout;
 };
 //
 // constants, enums and typedefs
@@ -126,6 +122,8 @@ TestOutliers::TestOutliers(const edm::ParameterSet& iConfig)
   trackTagsOut_(iConfig.getUntrackedParameter<edm::InputTag>("tracksOut")),
   trackTagsOld_(iConfig.getUntrackedParameter<edm::InputTag>("tracksOld")),
   tpTags_(iConfig.getUntrackedParameter<edm::InputTag>("tp")),
+  theAssociatorOldToken(consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<edm::InputTag>("TrackAssociatorByHitsOld"))),
+  theAssociatorOutToken(consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<edm::InputTag>("TrackAssociatorByHitsOut"))),
   out(iConfig.getParameter<std::string>("out"))
 {
   LogTrace("TestOutliers") <<"constructor";
@@ -138,8 +136,6 @@ TestOutliers::TestOutliers(const edm::ParameterSet& iConfig)
 // 				       cuts.getParameter<int>("minHit"),
 // 				       cuts.getParameter<double>("maxChi2"));
   
-  psetold = iConfig.getParameter<ParameterSet>("TrackAssociatorByHitsPSetOld");
-  psetout = iConfig.getParameter<ParameterSet>("TrackAssociatorByHitsPSetOut");
   LogTrace("TestOutliers") <<"end constructor";
 }
 
@@ -183,10 +179,16 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   hitAssociator = new TrackerHitAssociator(iEvent);
 
-  theAssociatorOld = new TrackAssociatorByHits(psetold);
-  theAssociatorOut = new TrackAssociatorByHits(psetout);
-  reco::RecoToSimCollection recSimCollOut=theAssociatorOut->associateRecoToSim(tracksOut, tps, &iEvent,&iSetup);
-  reco::RecoToSimCollection recSimCollOld=theAssociatorOld->associateRecoToSim(tracksOld, tps, &iEvent,&iSetup);
+  edm::Handle<reco::TrackToTrackingParticleAssociator> hAssociatorOld;
+  iEvent.getByToken(theAssociatorOldToken, hAssociatorOld);
+  const reco::TrackToTrackingParticleAssociator *theAssociatorOld = hAssociatorOld.product();
+
+  edm::Handle<reco::TrackToTrackingParticleAssociator> hAssociatorOut;
+  iEvent.getByToken(theAssociatorOutToken, hAssociatorOut);
+  const reco::TrackToTrackingParticleAssociator *theAssociatorOut = hAssociatorOut.product();
+
+  reco::RecoToSimCollection recSimCollOut=theAssociatorOut->associateRecoToSim(tracksOut, tps);
+  reco::RecoToSimCollection recSimCollOld=theAssociatorOld->associateRecoToSim(tracksOld, tps);
   sizeOut->Fill(recSimCollOut.size());
   sizeOld->Fill(recSimCollOld.size());
   sizeOutT->Fill(tracksOut->size());
@@ -887,8 +889,6 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }    
   }
   delete hitAssociator;
-  delete theAssociatorOld;
-  delete theAssociatorOut;
 }
 
 

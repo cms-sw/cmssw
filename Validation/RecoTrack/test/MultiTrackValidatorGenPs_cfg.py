@@ -55,21 +55,21 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### validation-specific includes
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.MultiTrackValidatorGenPs_cfi")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Validation.Configuration.postValidation_cff")
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.TrackAssociatorByChi2ESProducer.chi2cut = cms.double(500.0)
-process.TrackAssociatorByPullESProducer = process.TrackAssociatorByChi2ESProducer.clone(chi2cut = 50.0,onlyDiagonal = True,ComponentName = 'TrackAssociatorByPull')
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.trackAssociatorByChi2.chi2cut = cms.double(500.0)
+process.trackAssociatorByPull = process.trackAssociatorByChi2.clone(chi2cut = 50.0,onlyDiagonal = True)
 
 
 ########### configuration MultiTrackValidatorGenPs ########
 process.multiTrackValidatorGenPs.outputFile = 'multitrackvalidatorgenps.root'
-process.multiTrackValidatorGenPs.associators = ['TrackAssociatorByChi2','TrackAssociatorByPull']
+process.multiTrackValidatorGenPs.associators = ['trackAssociatorByChi2','trackAssociatorByPull']
 process.multiTrackValidatorGenPs.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidatorGenPs.UseAssociators = cms.bool(True)
 process.multiTrackValidatorGenPs.runStandalone = cms.bool(True)
@@ -150,6 +150,8 @@ process.refit = cms.Sequence(
 process.validation = cms.Sequence(
     #process.cutsRecoTracks *
     process.selectedVertices*process.selectedFirstPrimaryVertex*process.trackWithVertexSelector *
+    process.trackAssociatorByChi2 *
+    process.trackAssociatorByPull *
     process.multiTrackValidatorGenPs
 )
 

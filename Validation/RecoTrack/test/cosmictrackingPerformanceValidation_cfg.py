@@ -25,9 +25,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cosmiccuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -122,6 +122,7 @@ process.options = cms.untracked.PSet(
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.tracksP5*
                                    process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                   process.quickTrackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
@@ -129,14 +130,17 @@ process.re_tracking_and_TP = cms.Sequence(process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.tracksP5*
                                    process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                   process.quickTrackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
 process.only_validation = cms.Sequence(process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                       process.quickTrackAssociatorByHits*
                                        process.multiTrackValidator)
     
 process.only_validation_and_TP = cms.Sequence(process.trackingParticles*
                                               process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                              process.quickTrackAssociatorByHits*
                                               process.multiTrackValidator)
 
 ### customized versoin of the OutputModule

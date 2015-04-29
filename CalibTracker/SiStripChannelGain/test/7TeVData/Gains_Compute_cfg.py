@@ -2,18 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("APVGAIN")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 #this block is there to solve issue related to SiStripQualityRcd
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripDetVOffFakeESSource_cfi")
 process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
-
-
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')  ),
@@ -31,12 +27,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.GlobalTag.globaltag = 'XXX_GT_XXX::All'
+process.GlobalTag.globaltag = 'XXX_GT_XXX'
+
+calibTreeList = cms.vstring()
+XXX_CALIBTREE_XXX
 
 process.load("CalibTracker.SiStripChannelGain.computeGain_cff")
-process.SiStripCalib.InputFiles          = cms.vstring(
-XXX_CALIBTREE_XXX
-)
+process.SiStripCalib.InputFiles          = calibTreeList
 process.SiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 process.SiStripCalib.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
 
@@ -59,4 +56,9 @@ process.TFileService = cms.Service("TFileService",
         fileName = cms.string('Gains_Tree.root')  
 )
 
-process.p = cms.Path(process.SiStripCalib)
+process.DQMStore = cms.Service("DQMStore")
+process.load("DQMServices.Components.DQMFileSaver_cfi")
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
+
+process.p = cms.Path(process.SiStripCalib * process.dqmSaver) 

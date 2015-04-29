@@ -797,7 +797,7 @@ class Process(object):
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
-    def prune(self,verbose=False):
+    def prune(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
         """ Remove clutter from the process which we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
@@ -811,9 +811,9 @@ class Process(object):
             delattr(self, name)
         #first we need to resolve any SequencePlaceholders being used
         for x in self.paths.itervalues():
-            x.resolve(self.__dict__)
+            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         for x in self.endpaths.itervalues():
-            x.resolve(self.__dict__)
+            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         usedModules = set()
         unneededPaths = set()
         if self.schedule_():
@@ -1861,6 +1861,16 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 'b'))
             self.assert_(hasattr(p, 's'))
             self.assert_(hasattr(p, 'pth'))
+            #test unresolved SequencePlaceholder
+            p = Process("test")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.s = Sequence(SequencePlaceholder("a")+p.b)
+            p.pth = Path(p.s)
+            p.prune(keepUnresolvedSequencePlaceholders=True)
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(hasattr(p, 's'))
+            self.assert_(hasattr(p, 'pth'))
+            self.assertEqual(p.s.dumpPython(''),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
         def testModifier(self):
             m1 = Modifier()
             p = Process("test",m1)

@@ -1,5 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+def customizeHLTforFastSim(process,_fastSim=True):
+  process=customizeHLTforMC(process,_fastSim)
+  return process
+
+def customizeHLTforFullSim(process,_fastSim=False):
+  process=customizeHLTforMC(process,_fastSim)
+  return process
+
 def customizeHLTforMC(process,_fastSim=False):
   """adapt the HLT to run on MC, instead of data
   see Configuration/StandardSequences/Reconstruction_Data_cff.py

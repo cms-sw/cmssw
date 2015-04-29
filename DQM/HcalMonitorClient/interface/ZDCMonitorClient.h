@@ -1,143 +1,102 @@
 #ifndef ZDCMonitorClient_H
 #define ZDCMonitorClient_H
 
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+// Update on September 21, 2012 to match HcalMonitorClient
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
-#include "FWCore/Utilities/interface/CPUTimer.h"
-
-#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
+#include "DQM/HcalMonitorClient/interface/HcalSummaryClient.h"
 
 class DQMStore;
-class TH2F;
-class TH1F;
-class TFile;
+//class TH2F;
+//class TH1F;
+//class TFile;
 
-class ZDCMonitorClient : public edm::EDAnalyzer{
-  
+class ZDCMonitorClient : public HcalBaseDQClient {
+
 public:
-  
-  /// Constructors
-  ZDCMonitorClient();
-  ZDCMonitorClient(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  ~ZDCMonitorClient();
-  
-  // Initialize
-  void initialize(const edm::ParameterSet& ps);
-  void offlineSetup();
 
-  /// Analyze
-  void analyze(void);
-  void analyze(const edm::Event& evt, const edm::EventSetup& es);
-  
-  /// BeginJob
-  void beginJob();
-  /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup & c);
-  /// BeginLumiBlock
-  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+	/// Constructors
+	//ZDCMonitorClient();
+	ZDCMonitorClient(std::string myname, const edm::ParameterSet& ps);
 
-  /// EndJob
-  void endJob(void);
-  /// EndRun
-  void endRun(const edm::Run & r, const edm::EventSetup & c);
-  /// EndLumiBlock
-  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
-  
-  /// HtmlOutput
-  void htmlOutput(void);
+	/// Destructor
+	virtual ~ZDCMonitorClient();
 
-  /// Create reports
-  void report(bool update);
+	/// Analyze
+	virtual void analyze(DQMStore::IBooker &, DQMStore::IGetter &) override; // fill new histograms
 
-  /// Generate error summary
-  void errorSummary();
+	/// BeginJob
+	// void beginJob();
 
-  /// Create tests
-  void createTests(void);
+	/// EndJob
+	void endJob(void) override;
 
-  /// reset all monitor elements
-  void resetAllME(void);
+	/// BeginRun
+	void beginRun() override;
+	//  void beginRun(const edm::Run& r, const edm::EventSetup & c);
 
-  //Offline output functions
-  void loadHistograms(TFile* infile, const char* fname);
-  void dumpHistograms(int& runNum, std::vector<TH1F*> &hist1d, std::vector<TH2F*> &hist2d);
+	/// EndRun
+	//  void endRun();
+	//  void endRun(const edm::Run & r, const edm::EventSetup & c);
 
-  /// Boolean prescale test for this event
-  bool prescale();
+	/// BeginLumiBlock
+	//  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
- private:
-  void removeAllME(void);
-  void writeDBfile();
-  /********************************************************/
-  //  The following member variables can be specified in  //
-  //  the configuration input file for the process.       //
-  /********************************************************/
+	/// EndLumiBlock
+	//  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
-  /// Prescale variables for restricting the frequency of analyzer
-  /// behavior.  The base class does not implement prescales.
-  /// Set to -1 to be ignored.
-  int prescaleEvt_;    ///units of events
-  int prescaleLS_;     ///units of lumi sections
-  int prescaleTime_;   ///units of minutes
-  int prescaleUpdate_; ///units of "updates", TBD
+	/// Reset
+	void reset(void);
 
-  /// The name of the monitoring process which derives from this
-  /// class, used to standardize filename and file structure
-  std::string monitorName_;
+	/// Setup
+	// void setup(void) override;
 
-  /// Verbosity switch used for debugging or informational output
-  int debug_ ;
-  
-  // Timing diagnostic switch
-  bool showTiming_; // controls whether to show timing diagnostic info 
-  edm::CPUTimer cpu_timer; //  
+	/// Cleanup
+	// void cleanup(void) override;
 
-  /// counters and flags
-    //int nevt_; // counts number of events actually analyzed by ZDCMonitorClient
-  int nlumisecs_;
-  bool saved_;
-  bool Online_;
-  
-  struct{
-    timeval startTV,updateTV;
-    double startTime;
-    double elapsedTime; 
-    double updateTime;
-  } psTime_;    
-  
-  ///Connection to the DQM backend
-  DQMStore* dbe_;  
-  
-  // environment variables
-  edm::RunNumber_t irun_;
-  edm::EventNumber_t ievent_;
-  int itime_;
-  int ilumisec_;
-  int maxlumisec_, minlumisec_;
+	/// SoftReset
+	void softReset(bool flag);
 
-  time_t mytime_;
+	// Write channelStatus info
+	void writeChannelStatus();
 
-  std::string rootFolder_;
+	// Write html output
+	void writeHtml();
 
-  int ievt_; // counts number of events read by client (and analyzed by tasks)
-  int resetEvents_;
-  int resetLS_;
-  
-  bool runningStandalone_;
-  bool enableMonitorDaemon_;
+private:
 
-  std::string inputFile_;
-  std::string baseHtmlDir_;
+	int ievt_; // all events
+	int jevt_; // events in current run
+	int run_;
+	int evt_;
+	bool begin_run_;
+	bool end_run_;
 
+	// parameter set inputs
+
+	std::vector<double> ZDCGoodLumi_;
+	std::string ZDCsubdir_;
+
+	///////////////////New plots as of Fall 2012/////////////
+	int LumiCounter;
+	int PZDC_GoodLumiCounter;
+	int NZDC_GoodLumiCounter;
+	double PZDC_LumiRatio;
+	double NZDC_LumiRatio;
+
+	MonitorElement* ZDCChannelSummary_;
+	MonitorElement* ZDCHotChannelFraction_;
+	MonitorElement* ZDCColdChannelFraction_;
+	MonitorElement* ZDCDeadChannelFraction_;
+	MonitorElement* ZDCDigiErrorFraction_;
+	MonitorElement* ZDCReportSummary_;
+	/////////////new plots as of Fall 2012//////////////////
 };
 
 #endif

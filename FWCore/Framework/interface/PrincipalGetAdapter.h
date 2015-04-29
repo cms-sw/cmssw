@@ -86,6 +86,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include <typeinfo>
 #include <string>
 #include <vector>
+#include <boost/type_traits.hpp>
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -104,6 +105,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/ProductLabels.h"
 
 
 namespace edm {
@@ -201,6 +203,8 @@ namespace edm {
     // Also isolates the PrincipalGetAdapter class
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
+
+    void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const;
 
   private:
     // Is this an Event, a LuminosityBlock, or a Run.

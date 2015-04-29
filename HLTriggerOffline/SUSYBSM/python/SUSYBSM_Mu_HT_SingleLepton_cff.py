@@ -8,7 +8,7 @@ SUSY_HLT_Mu_HT_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                              pfJetCollection = cms.InputTag('ak4PFJets'),
                                              jetTagCollection = cms.InputTag(''),
 
-                                             vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
+                                             vertexCollection = cms.InputTag('offlinePrimaryVertices'),
                                              conversionCollection = cms.InputTag(''),
                                              beamSpot = cms.InputTag(''),
 
@@ -23,7 +23,7 @@ SUSY_HLT_Mu_HT_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 
                                              hltProcess = cms.string('HLT'),
 
-                                             triggerPath = cms.string('HLT_Mu15_IsoVVVL_PFHT600'),
+                                             triggerPath = cms.string('HLT_Mu15_IsoVVVL_PFHT600_v'),
                                              triggerPathAuxiliary = cms.string('HLT_IsoMu27_v'),
                                              triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
 

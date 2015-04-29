@@ -95,6 +95,11 @@ class TrackAnalyzer
 	//For HI Plots
 	bool doHIPlots_;
 
+        // IP significance plots
+        bool doSIPPlots_;
+
+	std::string qualityString_;
+	
         struct TkParameterMEs {
 	  TkParameterMEs() :
 	    TrackP(NULL)
@@ -261,7 +266,19 @@ class TrackAnalyzer
 	//new plots for Heavy Ion DQM
 	MonitorElement* LongDCASig;
 	MonitorElement* TransDCASig;
-	
+	MonitorElement* dNdPhi_HighPurity;
+	MonitorElement* dNdEta_HighPurity;
+	MonitorElement* dNdPt_HighPurity;
+	MonitorElement* NhitVsEta_HighPurity;
+	MonitorElement* NhitVsPhi_HighPurity;
+
+	// IP significance plots
+	MonitorElement *sipDxyToBS;
+	MonitorElement *sipDzToBS;
+	MonitorElement *sip3dToPV;
+	MonitorElement *sip2dToPV;
+	MonitorElement *sipDxyToPV;
+	MonitorElement *sipDzToPV;
 	
 	struct TkRecHitsPerSubDetMEs {
 	  MonitorElement* NumberOfRecHitsPerTrack;

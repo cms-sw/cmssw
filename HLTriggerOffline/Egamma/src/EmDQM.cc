@@ -1093,8 +1093,8 @@ EmDQM::findEgammaPaths()
          int eleCount = countSubstring(path, "Ele");
          int doubleEleCount = countSubstring(path, "DoubleEle");
          int tripleEleCount = countSubstring(path, "TripleEle");
-         int photonCount = countSubstring(path, "Photon");
-         int doublePhotonCount = countSubstring(path, "DoublePhoton");
+         int photonCount = countSubstring(path, "hoton");
+         int doublePhotonCount = countSubstring(path, "DoublePhoton") + countSubstring(path, "Diphoton");
 
          int totEleCount = 2*tripleEleCount + doubleEleCount + eleCount + scCount;
          int totPhotonCount = doublePhotonCount + photonCount;
@@ -1163,7 +1163,7 @@ EmDQM::getPrimaryEtCut(const std::string& path)
 {
    double minEt = -1;
 
-   boost::regex reg("^HLT_.*?(Ele|Photon|EG|SC)([[:digit:]]+).*");
+   boost::regex reg("^HLT_.*?(Ele|hoton|EG|SC)([[:digit:]]+).*");
 
    boost::smatch what;
    if (boost::regex_match(path, what, reg, boost::match_extra))

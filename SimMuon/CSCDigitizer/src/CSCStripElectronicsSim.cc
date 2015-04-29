@@ -250,7 +250,10 @@ CSCStripElectronicsSim::getKeyStripsFromMC() const
   // assumes the detector hit map is filled
   std::list<int> result;
   transform(theDetectorHitMap.begin(), theDetectorHitMap.end(), 
-            back_inserter(result), boost::bind(&DetectorHitMap::value_type::first,_1));
+  //   back_inserter(result), boost::bind(&DetectorHitMap::value_type::first,_1));
+  // suggested code from Chris Jones
+      back_inserter(result), std::bind(&DetectorHitMap::value_type::first,std::placeholders::_1));
+  //  back_inserter(result), [](DetectorHitMap::value_type const& iValue) { return iValue.first; } );
   result.sort();
   result.unique();
   return result;

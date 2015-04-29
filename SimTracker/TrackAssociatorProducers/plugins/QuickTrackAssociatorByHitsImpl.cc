@@ -85,7 +85,8 @@ namespace
 
 } // end of the unnamed namespace
 
-QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(std::shared_ptr<const TrackerHitAssociator> hitAssoc,
+QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
+                                                               std::shared_ptr<const TrackerHitAssociator> hitAssoc,
                                                                std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap,
 
                                                                bool absoluteNumberOfHits,
@@ -94,6 +95,7 @@ QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(std::shared_ptr<c
                                                                double cutRecoToSim,
                                                                bool threeHitTracksAreSpecial,
                                                                SimToRecoDenomType simToRecoDenominator):
+  productGetter_(&productGetter),
   hitAssociator_(std::move(hitAssoc)),
   clusterToTPMap_(std::move(clusterToTPMap)),
   qualitySimToReco_(qualitySimToReco),
@@ -141,7 +143,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToReco( co
 template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
 reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
-	reco::RecoToSimCollection returnValue;
+	reco::RecoToSimCollection returnValue(productGetter_);
 
 	size_t collectionSize=::collectionSize(trackCollection); // Delegate away type specific part
 
@@ -181,13 +183,14 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 			}
 		}
 	}
+	returnValue.post_insert();
 	return returnValue;
 }
 
 template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
 reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
-	reco::SimToRecoCollection returnValue;
+	reco::SimToRecoCollection returnValue(productGetter_);
 
 	size_t collectionSize=::collectionSize(trackCollection); // Delegate away type specific part
 
@@ -238,6 +241,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 			}
 		}
 	}
+	returnValue.post_insert();
 	return returnValue;
 
 }
@@ -520,7 +524,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
 	edm::LogVerbatim( "TrackAssociator" ) << "Starting TrackAssociatorByHitsImpl::associateRecoToSim - #seeds=" << pSeedCollectionHandle_->size()
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
-	reco::RecoToSimCollectionSeed returnValue;
+	reco::RecoToSimCollectionSeed returnValue(productGetter_);
 
 	size_t collectionSize=pSeedCollectionHandle_->size();
 
@@ -574,7 +578,7 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 	edm::LogVerbatim( "TrackAssociator" ) << "Starting TrackAssociatorByHitsImpl::associateSimToReco - #seeds=" << pSeedCollectionHandle_->size()
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
-	reco::SimToRecoCollectionSeed returnValue;
+	reco::SimToRecoCollectionSeed returnValue(productGetter_);
 
 	size_t collectionSize=pSeedCollectionHandle_->size();
 
@@ -627,7 +631,6 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 			}
 		}
 	}
-	return returnValue;
 
 	LogTrace("TrackAssociator") << "% of Assoc TPs=" << ((double)returnValue.size())/((double)trackingParticleCollectionHandle->size());
 	returnValue.post_insert();

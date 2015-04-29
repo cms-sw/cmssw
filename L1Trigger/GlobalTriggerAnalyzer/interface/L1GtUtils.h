@@ -509,11 +509,11 @@ private:
     /// flag for call of getL1GtRunCache in beginRun
     bool m_beginRunCache;
 
-    /// cached input tags from provenance - they are updated once per run only
+    /// cached input tags from provenance
 
-    mutable edm::InputTag m_provL1GtRecordInputTag;
-    mutable edm::InputTag m_provL1GtReadoutRecordInputTag;
-    mutable edm::InputTag m_provL1GtTriggerMenuLiteInputTag;
+    edm::InputTag m_provL1GtRecordInputTag;
+    edm::InputTag m_provL1GtReadoutRecordInputTag;
+    edm::InputTag m_provL1GtTriggerMenuLiteInputTag;
     
     /// run cache ID 
     edm::RunID m_runIDCache;

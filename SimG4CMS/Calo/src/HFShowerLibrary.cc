@@ -211,16 +211,40 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
+#ifdef DebugLog
+  G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+  double zoff   = localPos.z() + 0.5*gpar[1];
+  //  if (zoff < 0) zoff = 0;
+  edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
+                           << " of energy " << pin/GeV << " GeV"
+                           << "  dir.orts " << momDir.x() << ", " <<momDir.y()
+                           << ", " << momDir.z() << "  Pos x,y,z = "
+                           << hitPoint.x() << "," << hitPoint.y() << ","
+                           << hitPoint.z() << " (" << zoff
+                           << ")   sphi,cphi,stheta,ctheta  = " << sin(momDir.phi())
+                           << ","  << cos(momDir.phi()) << ", " << sin(momDir.theta()) 
+                           << "," << cos(momDir.theta());
+#endif
+
+  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
+  double pin    = preStepPoint->GetTotalEnergy();
+
+  return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
+}
+
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitPoint,
+                               G4ThreeVector & momDir,
+                               int parCode, double pin, bool & ok,
+                               double weight, double tSlice,bool onlyLong) {
+
   std::vector<HFShowerLibrary::Hit> hit;
   ok = false;
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
       parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG)
     return hit;
   ok = true;
 
-  double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
-  double pin    = preStepPoint->GetTotalEnergy();
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
 
@@ -233,20 +257,6 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
-#ifdef DebugLog
-  G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-  double zoff   = localPos.z() + 0.5*gpar[1];
-  //  if (zoff < 0) zoff = 0;
-  edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
-			   << " of energy " << pin/GeV << " GeV"
-			   << "  dir.orts " << momDir.x() << ", " <<momDir.y() 
-			   << ", " << momDir.z() << "  Pos x,y,z = " 
-			   << hitPoint.x() << "," << hitPoint.y() << "," 
-			   << hitPoint.z() << " (" << zoff 
-			   << ")   sphi,cphi,stheta,ctheta  = " << sphi 
-			   << ","  << cphi << ", " << stheta << "," << ctheta; 
-#endif    
-                       
   if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
@@ -382,7 +392,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
-  return hit;
+ return hit;
 
 }
 

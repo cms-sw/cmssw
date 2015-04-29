@@ -15,8 +15,11 @@ using namespace std;
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), count(0)
+  printProvenanceInfo(false), trackerHitAssociator_(iPSet, consumesCollector()), count(0)
 {
+  consumesMany<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit> > >();
+  consumesMany<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit> > >();
+  consumesMany<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit> > >();
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_GlobalRecHitsAnalyzer";
 
   // get information from parameter set
@@ -45,8 +48,6 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   MuCSCSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
   MuRPCSimSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSimSrc");
-
-  conf_ = iPSet;
 
   // fix for consumes
   ECalUncalEBSrc_Token_ = consumes<EBUncalibratedRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalUncalEBSrc"));
@@ -912,7 +913,8 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
     validstrip = false;
   }  
   
-  TrackerHitAssociator associate(iEvent,conf_);
+  TrackerHitAssociator& associate = trackerHitAssociator_;
+  associate.processEvent(iEvent);
   
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);

@@ -91,7 +91,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.3), # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
@@ -170,7 +170,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.3), # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
@@ -196,4 +196,3 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Define Path
     #----------------------------
     process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.pixelVertexDQM*process.dqmmodules)
-    

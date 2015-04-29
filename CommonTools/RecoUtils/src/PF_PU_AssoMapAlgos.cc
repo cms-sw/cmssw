@@ -110,7 +110,7 @@ std::auto_ptr<TrackToVertexAssMap>
 PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap());
+	auto_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap(vtxcollH, trkcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -162,7 +162,7 @@ std::auto_ptr<VertexToTrackAssMap>
 PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap());
+  	auto_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;

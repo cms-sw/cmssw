@@ -124,9 +124,15 @@ namespace pat {
       /// and hcal 
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
+      /// get and set PFCluster isolation
+      float ecalPFClusterIso() const { return ecalPFClusIso_;}
+      float hcalPFClusterIso() const { return hcalPFClusIso_;}
+      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_=ecalPFClus;}
+      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_=hcalPFClus;}
+
       /// PARTICLE FLOW ISOLATION
       /// Returns the isolation calculated with all the PFCandidates
-      float particleIso() const { return userIsolation(pat::PfAllParticleIso); }
+      float patParticleIso() const { return userIsolation(pat::PfAllParticleIso); }
       /// Returns the isolation calculated with only the charged hadron
       /// PFCandidates
       float chargedHadronIso() const { return reco::Photon::chargedHadronIso(); }
@@ -139,11 +145,6 @@ namespace pat {
       /// Returns the isolation calculated with only the pile-up charged hadron
       /// PFCandidates
       float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
-      /// get and set PFCluster Isolation                                                                                                                                     
-      float ecalPFClusterIso() const { return ecalPFClusIso_; };
-      float hcalPFClusterIso() const { return hcalPFClusIso_; };
-      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
-      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
 
       /// Returns a user defined isolation value
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }

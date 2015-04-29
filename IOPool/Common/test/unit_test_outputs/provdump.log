@@ -73,7 +73,7 @@ Module: intProducerU PROD1
  }
 
 Module: intVectorProducer PROD1
- PSet id:ba265ff620ae29cae20b80dcd626da39
+ PSet id:c016fa1f72fbfead00d09bc2e8e8a3c4
  products: {
   ints_intVectorProducer__PROD1.
  }
@@ -82,6 +82,7 @@ Module: intVectorProducer PROD1
   @module_label: string tracked  = 'intVectorProducer'
   @module_type: string tracked  = 'IntVectorProducer'
   count: int32 tracked  = 9
+  delta: int32 tracked  = 0
   ivalue: int32 tracked  = 11
  }
 

@@ -38,6 +38,8 @@
 #include "TVector3.h"
 #include "TMath.h"
 
+#include <algorithm>
+
 //____________________________________________________________________________||
 typedef math::XYZPoint Point;
 
@@ -61,7 +63,10 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   maxpt_eta25_            = iConfig.getParameter<double>   ("maxpt_eta25");
 
   // get configuration parameters
-  maxTrackAlgo_    = iConfig.getParameter<int>("trackAlgo_max");
+  std::vector<std::string> algos = iConfig.getParameter<std::vector<std::string> >("trackAlgos");
+  std::transform(algos.begin(), algos.end(), std::back_inserter(trkAlgos_), [](const std::string& a) {
+      return reco::TrackBase::algoByName(a);
+    });
   maxd0cut_        = iConfig.getParameter<double>("d0_max"       );
   minpt_           = iConfig.getParameter<double>("pt_min"       );
   maxpt_           = iConfig.getParameter<double>("pt_max"       );
@@ -71,7 +76,10 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   maxPtErr_        = iConfig.getParameter<double>("ptErr_max"    );
 
   trkQuality_      = iConfig.getParameter<std::vector<int> >("track_quality");
-  trkAlgos_        = iConfig.getParameter<std::vector<int> >("track_algos"  );
+  algos = iConfig.getParameter<std::vector<std::string> >("track_algos");
+  std::transform(algos.begin(), algos.end(), std::back_inserter(trkAlgos_), [](const std::string& a) {
+      return reco::TrackBase::algoByName(a);
+    });
   maxchi2_tight_   = iConfig.getParameter<double>("chi2_max_tight");
   minhits_tight_   = iConfig.getParameter<double>("nhits_min_tight");
   maxPtErr_tight_  = iConfig.getParameter<double>("ptErr_max_tight");
@@ -310,7 +318,7 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
       d0 = -1 * siTrack->dxy( bspot );
     }
 
-  if( siTrack->algo() < maxTrackAlgo_ )
+  if(std::find(trackAlgos_.begin(), trackAlgos_.end(), siTrack->algo()) != trackAlgos_.end())
     {
       //1st 4 tracking iterations (pT-dependent d0 cut)
        

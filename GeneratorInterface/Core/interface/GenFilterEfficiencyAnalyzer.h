@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 //
@@ -38,7 +38,7 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endJob() override;
 
-  edm::InputTag genFilterInfoTag_;
+  edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
   GenFilterInfo totalGenFilterInfo_;
 
   // ----------member data ---------------------------

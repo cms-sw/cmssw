@@ -35,7 +35,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
   electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronSource"));
-  hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionSource"));
+hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionSource"));
   beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
   embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );

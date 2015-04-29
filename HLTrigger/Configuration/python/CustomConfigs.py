@@ -105,7 +105,6 @@ def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDat
         massSearchReplaceParam(getattr(process,s),name,old,new)
     return(process)
 
-
 def L1REPACK(process):
 #   Replace only the L1 parts and keep the rest
     if 'DigiToRaw' in process.__dict__:

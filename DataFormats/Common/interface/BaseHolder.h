@@ -58,15 +58,14 @@ namespace edm {
       virtual std::auto_ptr<RefHolderBase> holder() const = 0;
 
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const = 0;
 
       virtual EDProductGetter const* productGetter() const = 0;
-      virtual bool hasProductCache() const = 0;
-      virtual void const* product() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const = 0;
+
+      virtual bool isTransient() const = 0;
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)

@@ -26,12 +26,9 @@ public:
 
   void checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
-	std::string pname = "classes.txt.dumperall.unsorted";
-	checkASTDecl(RD,mgr,BR,pname);
+     std::string pname = "classes.txt.dumperall.unsorted";
+     checkASTDecl(RD,mgr,BR,pname);
 }
-
-private:
-  CmsException m_exception;
 
 };
 
@@ -42,9 +39,6 @@ public:
   void checkASTDecl(const clang::ClassTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const ;
 
-private:
-  CmsException m_exception;
-
 };
 
 class ClassDumperFT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
@@ -54,9 +48,6 @@ public:
   void checkASTDecl(const clang::FunctionTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const ;
 
-private:
-  CmsException m_exception;
-
 };
 
 class ClassDumperInherit : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
@@ -64,9 +55,6 @@ class ClassDumperInherit : public clang::ento::Checker<clang::ento::check::ASTDe
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const ;
-
-private:
-  CmsException m_exception;
 
 };
 

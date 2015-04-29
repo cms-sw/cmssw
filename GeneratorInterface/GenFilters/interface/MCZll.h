@@ -34,6 +34,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class MCZll : public edm::EDFilter {
    public:
@@ -44,7 +47,7 @@ class MCZll : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-      std::string label_;
+      edm::EDGetTokenT<edm::HepMCProduct> token_;
       int leptonFlavour_;
       double leptonPtMin_;
       double leptonPtMax_;

@@ -1,5 +1,5 @@
-#ifndef FastSimulation_Tracking_TrajectorySeedProducer2_h
-#define FastSimulation_Tracking_TrajectorySeedProducer2_h
+#ifndef FastSimulation_Tracking_TrajectorySeedProducer_h
+#define FastSimulation_Tracking_TrajectorySeedProducer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -23,6 +23,7 @@
 	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include <memory>
 #include <vector>
 #include <sstream>
 
@@ -32,60 +33,51 @@ class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
 
-class TrajectorySeedProducer: public edm::stream::EDProducer <>
+class TrajectorySeedProducer:
+    public edm::stream::EDProducer<>
 {
     private:
         SeedingTree<TrackingLayer> _seedingTree;
-
 
         const MagneticField* magneticField;
         const MagneticFieldMap* magneticFieldMap;
         const TrackerGeometry* trackerGeometry;
         const TrackerTopology* trackerTopology;
+
+        std::shared_ptr<PropagatorWithMaterial> thePropagator;
+
+        double simTrack_pTMin;
+        double simTrack_maxD0;
+        double simTrack_maxZ0;
         
-        PropagatorWithMaterial* thePropagator;
-
-        double pTMin;
-        double maxD0;
-        double maxZ0;
-        unsigned int minRecHits;
-        edm::InputTag hitProducer;
-        edm::InputTag theBeamSpot;
-
-        bool seedCleaning;
-        unsigned int absMinRecHits;
-        unsigned int numberOfHits;
-        
-        std::string outputSeedCollectionName;
-
+        unsigned int minLayersCrossed;
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;
-        
-        math::XYZPoint beamspotPosition;
 
         double originRadius;
+        double ptMin;
         double originHalfLength;
-        double originpTMin;
-
-        double zVertexConstraint;
+        double nSigmaZ;
         
-        bool skipPVCompatibility;
-
-        const reco::VertexCollection* vertices;
- 
+        bool testBeamspotCompatibility;
+        const reco::BeamSpot* beamSpot;
+        bool testPrimaryVertexCompatibility;
+        const reco::VertexCollection* primaryVertices;
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
         edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
-	std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
+        std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
 
     public:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
-    virtual ~TrajectorySeedProducer();
+    virtual ~TrajectorySeedProducer()
+    {
+    }
 
     virtual void beginRun(edm::Run const& run, const edm::EventSetup & es);
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
@@ -174,8 +166,17 @@ class TrajectorySeedProducer: public edm::stream::EDProducer <>
 
     /// Check that the seed is compatible with a track coming from within
     /// a cylinder of radius originRadius, with a decent pT.
-    bool compatibleWithBeamAxis(
+    bool compatibleWithBeamSpot(
             const GlobalPoint& gpos1, 
+            const GlobalPoint& gpos2,
+            double error,
+            bool forward
+    ) const;
+
+    /// Check that the seed is compatible with a track coming from within
+    /// a cylinder of radius originRadius, with a decent pT.
+    bool compatibleWithPrimaryVertex(
+            const GlobalPoint& gpos1,
             const GlobalPoint& gpos2,
             double error,
             bool forward

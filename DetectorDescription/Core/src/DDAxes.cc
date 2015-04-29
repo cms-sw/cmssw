@@ -1,9 +1,7 @@
 #include "DetectorDescription/Core/interface/DDAxes.h"
 
-namespace DDI { } using namespace DDI;
-
 AxesNames::AxesNames()
-  : axesmap_{{"x", x }, {"y", y}, {"z", z}, {"rho", rho}, {"radial3D", radial3D}, {"phi", phi}, {"undefined", undefined }}
+  : axesmap_{{"x", DDAxes::x }, {"y", DDAxes::y}, {"z", DDAxes::z}, {"rho", DDAxes::rho}, {"radial3D", DDAxes::radial3D}, {"phi", DDAxes::phi}, {"undefined", DDAxes::undefined }}
 {}
 
 AxesNames::~AxesNames() { }
@@ -11,30 +9,16 @@ AxesNames::~AxesNames() { }
 const std::string
 AxesNames::name(const DDAxes& s) 
 {
-  std::map<std::string, DDAxes>::const_iterator it;
-
-  for(it = axesmap_.begin(); it != axesmap_.end(); ++it)
+  for( const auto& it : axesmap_ )
   {
-    if(it->second == s)
-      break;
+    if( it.second == s )
+      return it.first;
   }
-  return it->first;
-}
-
-DDAxes
-AxesNames::index(const std::string & s)
-{
-  return axesmap_[s];
+  return "undefined";
 }
 
 const std::string
 DDAxesNames::name(const DDAxes& s) 
 {
   return instance().name(s);
-}
-
-DDAxes
-DDAxesNames::index(const std::string & s) 
-{
-  return instance().index(s);
 }

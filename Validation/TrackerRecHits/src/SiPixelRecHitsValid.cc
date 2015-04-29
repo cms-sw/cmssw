@@ -49,7 +49,7 @@
 #include <math.h>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
-  : conf_(ps)
+  : trackerHitAssociator_(new TrackerHitAssociator(ps, consumesCollector()))
   , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
 }
@@ -300,7 +300,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   es.get<TrackerDigiGeometryRecord>().get(geom); 
   const TrackerGeometry& theTracker(*geom);
   
-  TrackerHitAssociator associate( e, conf_ ); 
+  trackerHitAssociator_->processEvent(e);
   
   //iterate over detunits
   for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) 
@@ -324,7 +324,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	{
 	  matched.clear();
-	  matched = associate.associateHit(*pixeliter);
+	  matched = trackerHitAssociator_->associateHit(*pixeliter);
 	  
 	  if ( !matched.empty() ) 
 	    {

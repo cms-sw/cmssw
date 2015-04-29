@@ -180,7 +180,7 @@ namespace HcalSimpleRecAlgoImpl {
     // and without OOT pileup corrections. Try to
     // arrange the calculations so that we do not
     // repeat them.
-    double uncorrectedEnergy[CaloSamples::MAXSAMPLES], buf[CaloSamples::MAXSAMPLES];
+    double uncorrectedEnergy[CaloSamples::MAXSAMPLES] {}, buf[CaloSamples::MAXSAMPLES] {};
     double* correctedEnergy = 0;
     double fc_ampl = 0.0, corr_fc_ampl = 0.0;
     bool pulseShapeCorrApplied = false, readjustTiming = false;
@@ -190,8 +190,8 @@ namespace HcalSimpleRecAlgoImpl {
     {
         correctedEnergy = &buf[0];
 
-        double correctionInput[CaloSamples::MAXSAMPLES];
-        double gains[CaloSamples::MAXSAMPLES];
+        double correctionInput[CaloSamples::MAXSAMPLES] {};
+        double gains[CaloSamples::MAXSAMPLES] {};
 
         for (int i=0; i<nRead; ++i)
         {

@@ -14,6 +14,32 @@
 #include <iostream>
 #include <map>
 
+
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+
+namespace {
+GeomDetEnumerators::SubDetector
+geometricDetToGeomDet(GeometricDet::GDEnumType gdenum) {
+  // provide a map between the GeometricDet enumerators and the GeomDet enumerators of the possible tracker subdetectors
+  if(gdenum == GeometricDet::GDEnumType::PixelBarrel ) return GeomDetEnumerators::SubDetector::PixelBarrel;
+  if(gdenum == GeometricDet::GDEnumType::PixelEndCap) return GeomDetEnumerators::SubDetector::PixelEndcap;
+  if(gdenum == GeometricDet::GDEnumType::TIB) return GeomDetEnumerators::SubDetector::TIB;
+  if(gdenum == GeometricDet::GDEnumType::TID) return GeomDetEnumerators::SubDetector::TID;
+  if(gdenum == GeometricDet::GDEnumType::TOB) return GeomDetEnumerators::SubDetector::TOB;
+  if(gdenum == GeometricDet::GDEnumType::TEC) return GeomDetEnumerators::SubDetector::TEC;
+  if(gdenum == GeometricDet::GDEnumType::PixelPhase1Barrel) return GeomDetEnumerators::SubDetector::P1PXB;
+  if(gdenum == GeometricDet::GDEnumType::PixelPhase1EndCap) return GeomDetEnumerators::SubDetector::P1PXEC;
+  if(gdenum == GeometricDet::GDEnumType::PixelPhase2EndCap) return GeomDetEnumerators::SubDetector::P2PXEC;
+  if(gdenum == GeometricDet::GDEnumType::OTPhase2Barrel) return GeomDetEnumerators::SubDetector::P2OTB;
+  if(gdenum == GeometricDet::GDEnumType::OTPhase2EndCap) return GeomDetEnumerators::SubDetector::P2OTEC;
+  return GeomDetEnumerators::SubDetector::invalidDet;
+}
+                                      
+   
+
+}
+
+
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
 {
   for(unsigned int i=0;i<6;++i) {
@@ -227,21 +253,4 @@ const TrackerGeometry::DetIdContainer&
 TrackerGeometry::detIds()   const 
 {
   return theDetIds;
-}
-
-const GeomDetEnumerators::SubDetector 
-TrackerGeometry::geometricDetToGeomDet(GeometricDet::GDEnumType gdenum) {
-  // provide a map between the GeometricDet enumerators and the GeomDet enumerators of the possible tracker subdetectors
-  if(gdenum == GeometricDet::GDEnumType::PixelBarrel ) return GeomDetEnumerators::SubDetector::PixelBarrel;
-  if(gdenum == GeometricDet::GDEnumType::PixelEndCap) return GeomDetEnumerators::SubDetector::PixelEndcap;
-  if(gdenum == GeometricDet::GDEnumType::TIB) return GeomDetEnumerators::SubDetector::TIB;
-  if(gdenum == GeometricDet::GDEnumType::TID) return GeomDetEnumerators::SubDetector::TID;
-  if(gdenum == GeometricDet::GDEnumType::TOB) return GeomDetEnumerators::SubDetector::TOB;
-  if(gdenum == GeometricDet::GDEnumType::TEC) return GeomDetEnumerators::SubDetector::TEC;
-  if(gdenum == GeometricDet::GDEnumType::PixelPhase1Barrel) return GeomDetEnumerators::SubDetector::P1PXB;
-  if(gdenum == GeometricDet::GDEnumType::PixelPhase1EndCap) return GeomDetEnumerators::SubDetector::P1PXEC;
-  if(gdenum == GeometricDet::GDEnumType::PixelPhase2EndCap) return GeomDetEnumerators::SubDetector::P2PXEC;
-  if(gdenum == GeometricDet::GDEnumType::OTPhase2Barrel) return GeomDetEnumerators::SubDetector::P2OTB;
-  if(gdenum == GeometricDet::GDEnumType::OTPhase2EndCap) return GeomDetEnumerators::SubDetector::P2OTEC;
-  return GeomDetEnumerators::SubDetector::invalidDet;
 }

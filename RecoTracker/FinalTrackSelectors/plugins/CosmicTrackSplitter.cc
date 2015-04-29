@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -75,7 +75,7 @@
  *     detsToIgnore        = individual list of detids on which hits must be discarded
  */
 namespace reco { namespace modules {
-	class CosmicTrackSplitter : public edm::EDProducer {
+       class CosmicTrackSplitter : public edm::stream::EDProducer<> {
     public:
 		CosmicTrackSplitter(const edm::ParameterSet &iConfig) ;
 		virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;

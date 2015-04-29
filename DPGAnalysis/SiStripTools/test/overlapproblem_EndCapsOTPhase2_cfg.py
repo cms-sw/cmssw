@@ -87,7 +87,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import *
@@ -254,6 +254,7 @@ process.myrereco = cms.Sequence(
 
 process.p0 = cms.Path(   process.myrereco +
                          process.seqTrackRefitting
+                       + process.trackAssociatorByHits
                        + process.overlapproblemtsosanalyzer
                        + process.overlapproblemtsosall
                        + process.seqProducers

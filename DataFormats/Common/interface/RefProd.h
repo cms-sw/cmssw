@@ -36,15 +36,20 @@ Ref: A template for an interproduct reference to a product.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
+// Not really needed but things depend on it being here ...
+#include "DataFormats/Common/interface/Ref.h"
+
+#include <utility>
+
 namespace edm {
+
+  class EDProductGetter;
 
   template<typename C>
   class RefProd {
@@ -86,14 +91,6 @@ namespace edm {
     product_(handle.id(), handle.product(), 0, true) {
       checkTypeAtCompileTime(handle.product());
     }
-
-    /// Constructor from Ref<C, T, F>
-    template<typename T, typename F>
-    explicit RefProd(Ref<C, T, F> const& ref);
-
-    /// Constructor from RefVector<C, T, F>
-    template<typename T, typename F>
-    explicit RefProd(RefVector<C, T, F> const& ref);
 
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
@@ -169,28 +166,9 @@ namespace edm {
   };
 }
 
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefCoreGet.h"
 
 namespace edm {
-  template<typename C, typename T, typename F>
-  class RefVector;
-
-  /// Constructor from Ref.
-  template<typename C>
-  template<typename T, typename F>
-  inline
-  RefProd<C>::RefProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) {
-  }
-
-  /// Constructor from RefVector.
-  template<typename C>
-  template<typename T, typename F>
-  inline
-  RefProd<C>::RefProd(RefVector<C, T, F> const& ref) :
-      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) {
-  }
 
   /// Dereference operator
   template<typename C>
@@ -241,45 +219,7 @@ namespace edm {
   }
 }
 
-#include "DataFormats/Common/interface/HolderToVectorTrait.h"
-
-namespace edm {
-  namespace reftobase {
-
-    template<typename T>
-    struct RefProdHolderToVector {
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-        return std::auto_ptr<BaseVectorHolder<T> >();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-    };
-
-    template<typename C, typename T>
-    struct HolderToVectorTrait<T, RefProd<C> > {
-      typedef RefProdHolderToVector<T> type;
-    };
-
-    struct RefProdRefHolderToRefVector {
-      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-    };
-
-    template<typename C>
-    struct RefHolderToRefVectorTrait<RefProd<C> > {
-      typedef RefProdRefHolderToRefVector type;
-    };
-
-  }
-}
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_RefProd_specialization.h"
 
 #endif

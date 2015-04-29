@@ -42,14 +42,14 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepSeedClusters'),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )
@@ -73,6 +73,8 @@ tobTecStepSeeds.SeedComparitorPSet = cms.PSet(
     )
 tobTecStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 tobTecStepSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(0)
+tobTecStepSeeds.SeedCreatorPSet.magneticField = ''
+tobTecStepSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -102,7 +104,6 @@ tobTecStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProdu
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    clustersToSkip = cms.InputTag('tobTecStepClusters'),
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('tobTecStepTrajectoryFilter')),
     inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('tobTecStepInOutTrajectoryFilter')),
     useSameTrajFilter = False,
@@ -119,6 +120,7 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('tobTecStepSeeds'),
+    clustersToSkip = cms.InputTag('tobTecStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -186,7 +188,7 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
     AlgorithmName = cms.string('tobTecStep'),
     #Fitter = 'tobTecStepFitterSmoother',
     Fitter = cms.string('tobTecFlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+    TTRHBuilder=cms.string('WithTrackAngle')
     )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

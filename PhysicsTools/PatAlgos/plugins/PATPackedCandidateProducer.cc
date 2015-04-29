@@ -133,6 +133,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     edm::Handle<reco::VertexCollection> PVs;
     iEvent.getByToken( PVs_, PVs );
     reco::VertexRef PV(PVs.id());
+    reco::VertexRefProd PVRefProd(PVs);
     math::XYZPoint  PVpos;
 
 
@@ -181,7 +182,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
           }
 
 
-          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
           if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
@@ -205,7 +206,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             PVpos = PV->position();
           }
 
-          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
 	

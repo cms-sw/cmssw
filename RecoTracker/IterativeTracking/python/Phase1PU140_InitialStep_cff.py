@@ -6,10 +6,14 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
+# SEEDING LAYERS
+import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
+initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
+
 # seeding
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
 initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
@@ -20,12 +24,15 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
             )
     ),
     SeedMergerPSet = cms.PSet(
-        layerList = PixelSeedMergerQuadruplets,
+        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
 	addRemainingTriplets = cms.bool(False),
 	mergeTriplets = cms.bool(True),
 	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
     )
 )
+initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
+initialStepSeeds.SeedCreatorPSet.magneticField = ''
+initialStepSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
@@ -50,8 +57,9 @@ initialStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProd
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('initialStepTrajectoryFilter')),
+    minNrOfHitsForRebuild = 1,
     alwaysUseInvalidHits = True,
-    maxCand = 6,
+    maxCand = 7,
     estimator = cms.string('initialStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
@@ -74,7 +82,7 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     src = 'initialStepTrackCandidates',
     AlgorithmName = cms.string('initialStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+    TTRHBuilder=cms.string('WithTrackAngle')
 )
 
 # Final selection
@@ -89,42 +97,43 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
             minNumberLayers = 3,
             maxNumberLostLayers = 3,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.7, 4.0 ),
-            dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
-            dz_par2 = ( 0.6, 4.0 )
+            d0_par1 = ( 0.8, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.6, 4.0 ),
+            dz_par2 = ( 0.8, 4.0 )
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'initialStepTight',
             preFilterName = 'initialStepLoose',
-            chi2n_par = 1.0,
+            chi2n_par = 1.4,
             res_par = ( 0.003, 0.002 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.7, 4.0 ),
+            dz_par1 = ( 0.8, 4.0 ),
+            d0_par2 = ( 0.5, 4.0 ),
+            dz_par2 = ( 0.7, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'initialStep',
+            preFilterName = 'initialStepTight',
+            chi2n_par = 1.0,
+            res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.6, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.35, 4.0 ),
-            dz_par2 = ( 0.5, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'initialStep',
-            preFilterName = 'initialStepTight',
-            chi2n_par = 0.7,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.5, 4.0 ),
-            dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.25, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
+            d0_par2 = ( 0.45, 4.0 ),
+            dz_par2 = ( 0.55, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone
 
 # Final sequence
-InitialStep = cms.Sequence(initialStepSeeds*
+InitialStep = cms.Sequence(initialStepSeedLayers*
+                           initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
                            initialStepSelector)

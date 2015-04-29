@@ -82,7 +82,8 @@ public:
   TH1* h0() {return h0_;}
   TH1* h1() {return h1_;}
 
-  const TLegend& Legend() {return legend_;}
+  TLegend& Legend() {return legend_;}
+  const TLegend& Legend() const {return legend_;}
   
   // set the styles for further plots
   void SetStyles( Style* s0, 

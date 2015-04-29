@@ -20,7 +20,7 @@ def customise(process):
 	        type = cms.string('RHStopTracer'),
 		RHStopTracer = cms.PSet(
 		verbose = cms.untracked.bool (False),
-		traceParticle = cms.string ("(~|tau1).*"),
+		traceParticle = cms.string ("((anti_)?~|tau1).*"), #this one regular expression is needed to look for ~HIP*, anti_~HIP*, ~tau1, anti_~tau1, ~g_rho0, ~g_Deltabar0, ~T_uu1++, etc
 		stopRegularParticles = cms.untracked.bool (False)
 		)        
 	    )

@@ -22,9 +22,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -49,7 +49,7 @@ process.multiTrackValidator.runStandalone = True
 process.cutsRecoTracks.algorithm = cms.vstring(ALGORITHM)
 process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
-#process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+#process.multiTrackValidator.associators = ['trackAssociatorByHits']
 process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
 process.multiTrackValidator.minpT = cms.double(0.1)
@@ -81,6 +81,7 @@ process.digi2track = cms.Sequence(process.siPixelDigis*process.siStripDigis*
                                   process.trackerlocalreco*
                                   process.ckftracks*
                                   process.cutsRecoTracks*
+                                  process.quickTrackAssociatorByHits*
                                   process.multiTrackValidator)
 #redo also tracking particles
 process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
@@ -88,11 +89,13 @@ process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                   process.trackerlocalreco*
                                   process.ckftracks*
                                   process.cutsRecoTracks*
+                                  process.quickTrackAssociatorByHits*
                                   process.multiTrackValidator)
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
+                                   process.quickTrackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
@@ -100,18 +103,20 @@ process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
+                                   process.quickTrackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.only_validation = cms.Sequence(process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.quickTrackAssociatorByHits*process.multiTrackValidator)
 else:
-    process.only_validation = cms.Sequence(process.cutsRecoTracks*process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.cutsRecoTracks*process.quickTrackAssociatorByHits*process.multiTrackValidator)
     
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.multiTrackValidator)
+    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.quickTrackAssociatorByHits*process.multiTrackValidator)
 else:
     process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.cutsRecoTracks*
+                                                  process.quickTrackAssociatorByHits*
                                                   process.multiTrackValidator)
 
 ### customized versoin of the OutputModule

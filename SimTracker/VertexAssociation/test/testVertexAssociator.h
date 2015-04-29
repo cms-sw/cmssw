@@ -26,8 +26,9 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <cmath>
 
-
-class TrackAssociatorBase;
+namespace reco {
+  class TrackToTrackingParticleAssociator;
+}
 class VertexAssociatorBase;
 
 class testVertexAssociator : public edm::EDAnalyzer {
@@ -40,12 +41,13 @@ class testVertexAssociator : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
-  TrackAssociatorBase*  associatorByChi2;
-  TrackAssociatorBase*  associatorByHits;
+  const reco::TrackToTrackingParticleAssociator*  associatorByChi2;
+  const reco::TrackToTrackingParticleAssociator*  associatorByHits;
   VertexAssociatorBase* associatorByTracks;
 
-  edm::ParameterSet theConfig_;
   edm::InputTag vertexCollection_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associatorByChi2Token;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associatorByHitsToken;
 
   int n_event_;
   int n_rs_vertices_;

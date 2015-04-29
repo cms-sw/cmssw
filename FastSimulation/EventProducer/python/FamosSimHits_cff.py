@@ -1,11 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# Here so that python translator can see the names
-# Now beta function vertex smearing 
-#from FastSimulation.Event.Early10TeVCollisionVertexGenerator_cfi import *
-#from FastSimulation.Event.Realistic7TeV2011CollisionVertexGenerator_cfi import *
-from FastSimulation.Configuration.CommonInputs_cff import *
-
 from FastSimulation.Event.ParticleFilter_cfi import *
 from FastSimulation.MaterialEffects.MaterialEffects_cfi import *
 from FastSimulation.TrajectoryManager.ActivateDecays_cfi import *
@@ -43,7 +37,7 @@ famosSimHits = cms.EDProducer("FamosProducer",
     RunNumber = cms.untracked.int32(1001),
     Verbosity = cms.untracked.int32(0),
     # If false, no misalignment can be applied in the tracker
-    ApplyAlignment = cms.bool(False),
+    ApplyAlignment = cms.bool(True),
     # If false, no SimHits are simulated in the tracker
     # (but the tracker material is still here)
     SimulateTracking = cms.bool(True),

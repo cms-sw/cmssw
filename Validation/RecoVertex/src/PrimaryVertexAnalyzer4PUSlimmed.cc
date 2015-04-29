@@ -19,6 +19,8 @@
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <numeric>
+
 //
 // constructors and destructor
 //
@@ -27,8 +29,6 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
           "use_only_charged_tracks", true)),
-      use_TP_associator_(
-          iConfig.getUntrackedParameter<bool>("use_TP_associator", false)),
       sigma_z_match_(
           iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
       abs_z_match_(
@@ -38,23 +38,24 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
                                                 "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
-      recoTrackCollectionToken_(consumes<reco::TrackCollection>(edm::InputTag(
-          iConfig.getUntrackedParameter<std::string>("recoTrackProducer")))),
-      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(edm::InputTag(
-          iConfig.getUntrackedParameter<std::string>("recoTrackProducer")))),
+      recoTrackCollectionToken_(consumes<reco::TrackCollection>(
+          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
+      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(
+          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
       trackingParticleCollectionToken_(consumes<TrackingParticleCollection>(
-          edm::InputTag(std::string("mix"), std::string("MergedTrackTruth")))),
+          iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollection"))),
       trackingVertexCollectionToken_(consumes<TrackingVertexCollection>(
-          edm::InputTag(std::string("mix"), std::string("MergedTrackTruth")))) {
+          iConfig.getUntrackedParameter<edm::InputTag>("trackingVertexCollection"))),
+      simToRecoAssociationToken_(consumes<reco::SimToRecoCollection>(
+          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
+      recoToSimAssociationToken_(consumes<reco::RecoToSimCollection>(
+          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag> >(
       "vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(
         edm::EDGetTokenT<reco::VertexCollection>(
             consumes<reco::VertexCollection>(l)));
-  }
-  if(use_TP_associator_) {
-    recoTrackToTrackingParticleAssociatorToken_ = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits"));
   }
 }
 
@@ -465,6 +466,96 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         17, &log_mergez_bins[0]);
+
+
+    // Resolution and pull histograms
+    auto book1d = [&](const char *name, int bins, double min, double max) {
+      mes_[label][name] = i.book1D(name, name, bins, min, max);
+    };
+    auto book1dlogx = [&](const char *name, int bins, float *xbinedges) {
+      mes_[label][name] = i.book1D(name, name, bins, xbinedges);
+    };
+    auto book2d = [&](const char *name,
+                      int xbins, double xmin, double xmax,
+                      int ybins, double ymin, double ymax) {
+      mes_[label][name] = i.book2D(name, name, xbins,xmin,xmax, ybins,ymin,ymax);
+    };
+    auto book2dlogx = [&](const char *name,
+                          int xbins, float *xbinedges,
+                          int ybins, double ymin, double ymax) {
+      auto me = i.book2D(name, name, xbins,xbinedges[0],xbinedges[xbins], ybins,ymin,ymax);
+      me->getTH2F()->GetXaxis()->Set(xbins, xbinedges);
+      mes_[label][name] = me;
+    };
+
+    const double resolx = 0.1;
+    const double resoly = 0.1;
+    const double resolz = 0.1;
+    const double resolpt2 = 10;
+
+    // Non-merged vertices
+    book1d("RecoAllAssoc2GenMatched_ResolX",   100,-resolx,resolx);
+    book1d("RecoAllAssoc2GenMatched_ResolY",   100,-resoly,resoly);
+    book1d("RecoAllAssoc2GenMatched_ResolZ",   100,-resolz,resolz);
+    book1d("RecoAllAssoc2GenMatched_ResolPt2", 100,-resolpt2,resolpt2);
+
+    book2d("RecoAllAssoc2GenMatched_ResolX_vs_PU",   125,0.,250., 100,-resolx,resolx);
+    book2d("RecoAllAssoc2GenMatched_ResolY_vs_PU",   125,0.,250., 100,-resoly,resoly);
+    book2d("RecoAllAssoc2GenMatched_ResolZ_vs_PU",   125,0.,250., 100,-resolz,resolz);
+    book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_PU", 125,0.,250., 100,-resolpt2,resolpt2);
+
+    book2dlogx("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolx,resolx);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+
+    book1d("RecoAllAssoc2GenMatched_PullX", 250,-25,25);
+    book1d("RecoAllAssoc2GenMatched_PullY", 250,-25,25);
+    book1d("RecoAllAssoc2GenMatched_PullZ", 250,-25,25);
+
+    // Merged vertices
+    book1d("RecoAllAssoc2GenMatchedMerged_ResolX",   100,-resolx,resolx);
+    book1d("RecoAllAssoc2GenMatchedMerged_ResolY",   100,-resoly,resoly);
+    book1d("RecoAllAssoc2GenMatchedMerged_ResolZ",   100,-resolz,resolz);
+    book1d("RecoAllAssoc2GenMatchedMerged_ResolPt2", 100,-resolpt2,resolpt2);
+
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolX_vs_PU",   125,0.,250., 100,-resolx,resolx);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_PU",   125,0.,250., 100,-resoly,resoly);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_PU",   125,0.,250., 100,-resolz,resolz);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_PU", 125,0.,250., 100,-resolpt2,resolpt2);
+
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolx,resolx);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+
+    book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
+    book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
+    book1d("RecoAllAssoc2GenMatchedMerged_PullZ", 250,-25,25);
+
+
+    // Purity histograms
+    // Reco PV (vtx0) matched to hard-scatter gen vertex
+    book1d("RecoPVAssoc2GenPVMatched_Purity", 50, 0, 1);
+    book1d("RecoPVAssoc2GenPVMatched_Missing", 50, 0, 1);
+    book2d("RecoPVAssoc2GenPVMatched_Purity_vs_Index", 100,0,100, 50,0,1);
+
+    // RECO PV (vtx0) not matched to hard-scatter gen vertex
+    book1d("RecoPVAssoc2GenPVNotMatched_Purity", 50, 0, 1);
+    book1d("RecoPVAssoc2GenPVNotMatched_Missing", 50, 0, 1);
+    book2d("RecoPVAssoc2GenPVNotMatched_Purity_vs_Index", 100,0,100, 50,0,1);
+
+    // Purity vs. fake rate
+    book1d("RecoAllAssoc2Gen_Purity", 50, 0, 1); // denominator
+    book1d("RecoAllAssoc2GenMatched_Purity", 50, 0, 1); // 1-numerator
+
+    // Vertex sum(pt2)
+    // The first two are orthogonal (i.e. their sum includes all reco vertices)
+    book1dlogx("RecoAssoc2GenPVMatched_Pt2", 15, &log_pt2_bins[0]);
+    book1dlogx("RecoAssoc2GenPVNotMatched_Pt2", 15, &log_pt2_bins[0]);
+
+    book1dlogx("RecoAssoc2GenPVMatchedNotHighest_Pt2", 15, &log_pt2_bins[0]);
+    book1dlogx("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", 15, &log_pt2_bins[0]);
   }
 }
 
@@ -540,6 +631,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   mes_[label]["RecoAllAssoc2Gen_Ndof"]->Fill(v.recVtx->ndof());
   mes_[label]["RecoAllAssoc2Gen_NumTracks"]->Fill(v.nRecoTrk);
   mes_[label]["RecoAllAssoc2Gen_PU"]->Fill(num_pileup_vertices);
+  mes_[label]["RecoAllAssoc2Gen_Purity"]->Fill(v.purity);
   if (v.closest_vertex_distance_z > 0.)
     mes_[label]["RecoAllAssoc2Gen_ClosestDistanceZ"]
         ->Fill(v.closest_vertex_distance_z);
@@ -553,9 +645,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     mes_[label]["RecoAllAssoc2GenMatched_Ndof"]->Fill(v.recVtx->ndof());
     mes_[label]["RecoAllAssoc2GenMatched_NumTracks"]->Fill(v.nRecoTrk);
     mes_[label]["RecoAllAssoc2GenMatched_PU"]->Fill(num_pileup_vertices);
+    mes_[label]["RecoAllAssoc2GenMatched_Purity"]->Fill(v.purity);
     if (v.closest_vertex_distance_z > 0.)
       mes_[label]["RecoAllAssoc2GenMatched_ClosestDistanceZ"]
           ->Fill(v.closest_vertex_distance_z);
+
+    // Fill resolution and pull plots here (as in MultiTrackValidator)
+    fillResolutionAndPullHistograms(label, num_pileup_vertices, v);
+
     // Now keep track of all RecoVTX associated to a SimVTX that
     // itself is associated to more than one RecoVTX, for
     // duplicate-rate plots on reco quantities.
@@ -597,6 +694,140 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
           ->Fill(v.sim_vertices_internal[0]->closest_vertex_distance_z);
   }
   mes_[label]["RecoAllAssoc2GenProperties"]->Fill(v.kind_of_vertex);
+}
+
+void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
+    const std::string& label,
+    int num_pileup_vertices,
+    PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
+
+  std::string prefix = "RecoAllAssoc2GenMatched";
+  const simPrimaryVertex *bestMatch = v.sim_vertices_internal[0];
+  if(v.sim_vertices_internal.size() > 1) {
+
+    prefix += "Merged";
+    // Pick the sim-vertex with largest number of tracks associated to
+    // reco-tracks as the best match
+    auto bestVtx = std::max_element(v.sim_vertices_internal.begin(),
+                                    v.sim_vertices_internal.end(),
+                                    [](const simPrimaryVertex *a, const simPrimaryVertex *b) {
+                                      return a->num_matched_reco_tracks < b->num_matched_reco_tracks;
+                                    });
+    bestMatch = *bestVtx;
+  }
+
+
+  const double xres = v.x - bestMatch->x;
+  const double yres = v.y - bestMatch->y;
+  const double zres = v.z - bestMatch->z;
+  const double pt2res = v.ptsq - bestMatch->ptsq;
+
+  const double xresol = xres;
+  const double yresol = yres;
+  const double zresol = zres;
+  const double pt2resol = pt2res/v.ptsq;
+
+  mes_[label][prefix+"_ResolX"]->Fill(xresol);
+  mes_[label][prefix+"_ResolY"]->Fill(yresol);
+  mes_[label][prefix+"_ResolZ"]->Fill(zresol);
+  mes_[label][prefix+"_ResolPt2"]->Fill(pt2resol);
+
+  mes_[label][prefix+"_ResolX_vs_PU"]->Fill(num_pileup_vertices, xresol);
+  mes_[label][prefix+"_ResolY_vs_PU"]->Fill(num_pileup_vertices, yresol);
+  mes_[label][prefix+"_ResolZ_vs_PU"]->Fill(num_pileup_vertices, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_PU"]->Fill(num_pileup_vertices, pt2resol);
+
+  mes_[label][prefix+"_ResolX_vs_NumTracks"]->Fill(v.nRecoTrk, xresol);
+  mes_[label][prefix+"_ResolY_vs_NumTracks"]->Fill(v.nRecoTrk, yresol);
+  mes_[label][prefix+"_ResolZ_vs_NumTracks"]->Fill(v.nRecoTrk, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_NumTracks"]->Fill(v.nRecoTrk, pt2resol);
+
+  mes_[label][prefix+"_PullX"]->Fill(xres/v.recVtx->xError());
+  mes_[label][prefix+"_PullY"]->Fill(yres/v.recVtx->yError());
+  mes_[label][prefix+"_PullZ"]->Fill(zres/v.recVtx->zError());
+}
+
+bool PrimaryVertexAnalyzer4PUSlimmed::matchRecoTrack2SimSignal(const reco::TrackBaseRef& recoTrack) {
+  auto found = r2s_->find(recoTrack);
+
+  // reco track not matched to any TP
+  if(found == r2s_->end())
+    return false;
+
+  // reco track matched to some TP from signal vertex
+  for(const auto& tp: found->val) {
+    if(tp.first->eventId().bunchCrossing() == 0 && tp.first->eventId().event() == 0)
+      return true;
+  }
+
+  // reco track not matched to any TP from signal vertex
+  return false;
+}
+
+void PrimaryVertexAnalyzer4PUSlimmed::calculatePurityAndFillHistograms(
+    const std::string& label,
+    std::vector<recoPrimaryVertex>& recopvs,
+    int genpv_position_in_reco_collection,
+    bool signal_is_highest_pt) {
+  if(recopvs.empty()) return;
+
+  std::vector<double> vtx_sumpt_sigmatched;
+  std::vector<double> vtx_sumpt2_sigmatched;
+
+  vtx_sumpt_sigmatched.reserve(recopvs.size());
+  vtx_sumpt2_sigmatched.reserve(recopvs.size());
+
+  // Calculate purity
+  for(auto& v: recopvs) {
+    double sumpt_all = 0;
+    double sumpt_sigmatched = 0;
+    double sumpt2_sigmatched = 0;
+    const reco::Vertex *vertex = v.recVtx;
+    for(auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
+      double pt = (*iTrack)->pt();
+      sumpt_all += pt;
+      if(matchRecoTrack2SimSignal(*iTrack)) {
+        sumpt_sigmatched += pt;
+        sumpt2_sigmatched += pt*pt;
+      }
+    }
+    v.purity = sumpt_sigmatched / sumpt_all;
+
+    vtx_sumpt_sigmatched.push_back(sumpt_sigmatched);
+    vtx_sumpt2_sigmatched.push_back(sumpt2_sigmatched);
+  }
+
+  const double vtxAll_sumpt_sigmatched = std::accumulate(vtx_sumpt_sigmatched.begin(), vtx_sumpt_sigmatched.end(), 0.0);
+  const double vtxNot0_sumpt_sigmatched = vtxAll_sumpt_sigmatched - vtx_sumpt_sigmatched[0];
+  const double missing = vtxNot0_sumpt_sigmatched / vtxAll_sumpt_sigmatched;
+
+  // Fill purity
+  std::string prefix = "RecoPVAssoc2GenPVNotMatched_";
+  if(genpv_position_in_reco_collection == 0)
+    prefix = "RecoPVAssoc2GenPVMatched_";
+
+  mes_[label][prefix+"Purity"]->Fill(recopvs[0].purity);
+  mes_[label][prefix+"Missing"]->Fill(missing);
+  auto hpurity = mes_[label][prefix+"Purity_vs_Index"];
+  for(size_t i=0; i<recopvs.size(); ++i) {
+    hpurity->Fill(i, recopvs[i].purity);
+  }
+
+  // Fill sumpt2
+  for(size_t i=0; i<recopvs.size(); ++i) {
+    if(static_cast<int>(i) == genpv_position_in_reco_collection) {
+      mes_[label]["RecoAssoc2GenPVMatched_Pt2"]->Fill(recopvs[i].ptsq);
+    }
+    else {
+      double pt2 = recopvs[i].ptsq;
+      mes_[label]["RecoAssoc2GenPVNotMatched_Pt2"]->Fill(pt2);
+      // Subtract hard-scatter track pt2 from the pileup pt2
+      double pt2_pu = pt2-vtx_sumpt2_sigmatched[i];
+      mes_[label]["RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2"]->Fill(pt2_pu);
+    }
+  }
+  if(!signal_is_highest_pt && genpv_position_in_reco_collection >= 0)
+    mes_[label]["RecoAssoc2GenPVMatchedNotHighest_Pt2"]->Fill(recopvs[genpv_position_in_reco_collection].ptsq);
 }
 
 /* Extract information form TrackingParticles/TrackingVertex and fill
@@ -688,9 +919,9 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
       double match_quality = -1;
       if (use_only_charged_tracks_ && (**iTP).charge() == 0)
           continue;
-      if (s2r_.find(*iTP) != s2r_.end()) {
-        matched_best_reco_track = s2r_[*iTP][0].first.get();
-        match_quality = s2r_[*iTP][0].second;
+      if (s2r_->find(*iTP) != s2r_->end()) {
+        matched_best_reco_track = (*s2r_)[*iTP][0].first.get();
+        match_quality = (*s2r_)[*iTP][0].second;
       }
       if (verbose_) {
         std::cout << "  Daughter momentum:      " << momentum;
@@ -786,14 +1017,14 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     recoPrimaryVertex sv(v->position().x(), v->position().y(),
                          v->position().z());
     sv.recVtx = &(*v);
-    // this is a new vertex, add it to the list of sim-vertices
+    // this is a new vertex, add it to the list of reco-vertices
     recopv.push_back(sv);
     PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex* vp = &recopv.back();
 
     // Loop over daughter track(s)
     for (auto iTrack = v->tracks_begin(); iTrack != v->tracks_end(); ++iTrack) {
       auto momentum = (*(*iTrack)).innerMomentum();
-      // TODO(rovere) better handle the pixelVerticies, whose tracks
+      // TODO(rovere) better handle the pixelVertices, whose tracks
       // do not have the innerMomentum defined. This is a temporary
       // hack to overcome this problem.
       if (momentum.mag2() == 0)
@@ -988,30 +1219,24 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   iEvent.getByToken(edmView_recoTrack_Token_, trackCollectionH);
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
+  iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
+
   edm::Handle<TrackingVertexCollection> TVCollectionH;
-  bool gotTP =
-      iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
-  bool gotTV = iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
+  iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
 
   // TODO(rovere) the idea is to put in case a track-selector in front
   // of this module and then use its label to get the selected tracks
   // out of the event instead of making an hard-coded selection in the
   // code.
 
-  if (gotTP) {
-    // TODO(rovere) fetch an already existing collection from the
-    // event instead of making another association on the fly???
-    if (use_TP_associator_) {
-      edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
-      iEvent.getByToken(recoTrackToTrackingParticleAssociatorToken_,
-                        theHitsAssociator);
-      associatorByHits_ = theHitsAssociator.product();
-      r2s_ = associatorByHits_->associateRecoToSim(
-          trackCollectionH, TPCollectionH);
-      s2r_ = associatorByHits_->associateSimToReco(
-          trackCollectionH, TPCollectionH);
-    }
-  }
+  edm::Handle<reco::SimToRecoCollection> simToRecoH;
+  iEvent.getByToken(simToRecoAssociationToken_, simToRecoH);
+
+  edm::Handle<reco::RecoToSimCollection> recoToSimH;
+  iEvent.getByToken(recoToSimAssociationToken_, recoToSimH);
+
+  s2r_ = simToRecoH.product();
+  r2s_ = recoToSimH.product();
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
                                         // MC vertices
@@ -1027,8 +1252,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                                                   const simPrimaryVertex& rhs) {
                                                  return lhs.ptsq < rhs.ptsq;
                                                }) == simpv.begin();
-  kind_of_signal_vertex = (kind_of_signal_vertex & ~(1<<HIGHEST_PT)) |
-      (signal_is_highest_pt << HIGHEST_PT);
+  kind_of_signal_vertex |= (signal_is_highest_pt << HIGHEST_PT);
   mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
       signal_is_highest_pt ? 1. : 0.);
   computePairDistance(simpv,
@@ -1046,20 +1270,20 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           << std::endl;
       continue;
     }
-    if (gotTV) {
-      resetSimPVAssociation(simpv);
-      matchSim2RecoVertices(simpv, *recVtxs.product());
-      recopv = getRecoPVs(recVtxs);
-      computePairDistance(recopv,
-                          mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"]);
-      matchReco2SimVertices(recopv, *TVCollectionH.product(), simpv);
-    }
+
+    resetSimPVAssociation(simpv);
+    matchSim2RecoVertices(simpv, *recVtxs.product());
+    recopv = getRecoPVs(recVtxs);
+    computePairDistance(recopv,
+                        mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"]);
+    matchReco2SimVertices(recopv, *TVCollectionH.product(), simpv);
 
     int num_total_gen_vertices_assoc2reco = 0;
     int num_total_reco_vertices_assoc2gen = 0;
     int num_total_gen_vertices_multiassoc2reco = 0;
     int num_total_reco_vertices_multiassoc2gen = 0;
     int num_total_reco_vertices_duplicate = 0;
+    int genpv_position_in_reco_collection = -1;
     for (auto const& v : simpv) {
       float mistag = 1.;
       // TODO(rovere) put selectors here in front of fill* methods.
@@ -1067,14 +1291,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
           mistag = 0.;
-          kind_of_signal_vertex =
-              (kind_of_signal_vertex & ~(1<<IS_ASSOC2FIRST_RECO)) |
-              (signal_is_highest_pt << IS_ASSOC2FIRST_RECO);
+          kind_of_signal_vertex |= (1 << IS_ASSOC2FIRST_RECO);
         } else {
           if (v.rec_vertices.size()) {
-            kind_of_signal_vertex =
-                (kind_of_signal_vertex & ~(1<<IS_ASSOC2ANY_RECO)) |
-                (signal_is_highest_pt << IS_ASSOC2ANY_RECO);
+            kind_of_signal_vertex |= (1 << IS_ASSOC2ANY_RECO);
           }
         }
         mes_[label]["KindOfSignalPV"]->Fill(kind_of_signal_vertex);
@@ -1120,6 +1340,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                 ->Fill(pv_position_in_reco_collection);
             mes_[label]["TruePVLocationIndexCumulative"]
                 ->Fill(pv_position_in_reco_collection > 0 ? 1 : 0);
+
             if (signal_is_highest_pt) {
               mes_[label]["TruePVLocationIndexSignalIsHighest"]
                 ->Fill(pv_position_in_reco_collection);
@@ -1127,6 +1348,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
               mes_[label]["TruePVLocationIndexSignalIsNotHighest"]
                 ->Fill(pv_position_in_reco_collection);
             }
+
+            genpv_position_in_reco_collection = pv_position_in_reco_collection;
             break;
           }
         }
@@ -1152,6 +1375,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       if (label_index == 0) fillGenericGenVertexHistograms(v);
       fillRecoAssociatedGenVertexHistograms(label, v);
     }
+    calculatePurityAndFillHistograms(label, recopv, genpv_position_in_reco_collection, signal_is_highest_pt);
+
     mes_[label]["GenAllAssoc2Reco_NumVertices"]
         ->Fill(simpv.size(), simpv.size());
     mes_[label]["GenAllAssoc2RecoMatched_NumVertices"]
@@ -1179,6 +1404,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     mes_[label]["RecoVtx_vs_GenVtx"]->Fill(simpv.size(), recopv.size());
     mes_[label]["MatchedRecoVtx_vs_GenVtx"]
         ->Fill(simpv.size(), num_total_reco_vertices_assoc2gen);
+
   }
 }  // end of analyze
 

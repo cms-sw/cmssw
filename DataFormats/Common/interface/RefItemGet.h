@@ -13,50 +13,62 @@ RefItemGet: Free function to get pointer to a referenced item.
 namespace edm {
   
   namespace refitem {
+
+    template <typename C, typename T, typename F, typename K> inline
+    void findRefItem(RefCore const& refCore, C const* container, K const& key) {
+      F finder;
+      T const* item = finder(*container, key);
+      refCore.setProductPtr(item);
+    }
+
     template< typename C, typename T, typename F, typename KEY>
-    struct GetPtrImpl {
-      static T const* getPtr_(RefCore const& product, KEY const& key) {
-        C const* prod = edm::template getProduct<C>(product);
+    struct GetRefPtrImpl {
+      static T const* getRefPtr_(RefCore const& product, KEY const& key) {
+        T const* item = static_cast<T const*>(product.productPtr());
+        if(item != nullptr) {
+          return item;
+        }
+        C const* prod = edm::template getProductWithCoreFromRef<C>(product);
         /*
         typename C::const_iterator it = prod->begin();
          std::advance(it, item.key());
          T const* p = it.operator->();
         */
         F func;
-        T const* p = func(*prod, key);
-        return p;
+        item = func(*prod, key);
+        product.setProductPtr(item);
+        return item;
       }
     };
 
     template< typename C, typename T, typename F>
-    struct GetPtrImpl<C, T, F, unsigned int> {
-      static T const* getPtr_(RefCore const& product, unsigned int key) {
-        C const* prod = edm::template tryToGetProduct<C>(product);
+    struct GetRefPtrImpl<C, T, F, unsigned int> {
+      static T const* getRefPtr_(RefCore const& product, unsigned int key) {
+        T const* item = static_cast<T const*>(product.productPtr());
+        if(item != nullptr) {
+          return item;
+        }
+        C const* prod = edm::template tryToGetProductWithCoreFromRef<C>(product);
         if(prod != nullptr) {
           F func;
-          T const* p = func(*prod, key);
-          return p;
+          item = func(*prod, key);
+          product.setProductPtr(item);
+          return item;
         }
         unsigned int thinnedKey = key;
         prod = edm::template getThinnedProduct<C>(product, thinnedKey);
         F func;
-        T const* p = func(*prod, thinnedKey);
-        return p;
+        item = func(*prod, thinnedKey);
+        product.setProductPtr(item);
+        return item;
       }
     };
   }
 
   template <typename C, typename T, typename F, typename KEY>
   inline
-  T const* getPtr_(RefCore const& product, KEY const& key) {
-    return refitem::GetPtrImpl<C, T, F, KEY>::getPtr_(product, key);
-  }
-
-  template <typename C, typename T, typename F, typename KEY>
-  inline
-  T const* getPtr(RefCore const& product, KEY const& iKey) {
-    T const* p=refitem::GetPtrImpl<C, T, F, KEY>::getPtr_(product, iKey);
-    return p;
+  T const* getRefPtr(RefCore const& product, KEY const& iKey) {
+    return refitem::GetRefPtrImpl<C, T, F, KEY>::getRefPtr_(product, iKey);
   }
 
   namespace refitem {

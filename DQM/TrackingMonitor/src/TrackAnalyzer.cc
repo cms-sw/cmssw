@@ -9,6 +9,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,6 +39,8 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doLumiAnalysis_                  ( conf_.getParameter<bool>("doLumiAnalysis") )
     , doTestPlots_                     ( conf_.getParameter<bool>("doTestPlots") )
     , doHIPlots_                       ( conf_.getParameter<bool>("doHIPlots")  )
+    , doSIPPlots_                      ( conf_.getParameter<bool>("doSIPPlots") )
+    , qualityString_                   ( conf_.getParameter<std::string>("qualityString"))
 {
   initHistos();
   TopFolder_ = conf_.getParameter<std::string>("FolderName"); 
@@ -111,8 +114,19 @@ void TrackAnalyzer::initHistos()
   ////////////////////////////////////////////////////////////                                                                                                                                             
   LongDCASig = NULL;
   TransDCASig = NULL;
+  dNdPhi_HighPurity = NULL;
+  dNdEta_HighPurity = NULL;
+  dNdPt_HighPurity = NULL;
+  NhitVsEta_HighPurity = NULL;
+  NhitVsPhi_HighPurity = NULL;
 
-
+  // IP significance
+  sipDxyToBS = NULL;
+  sipDzToBS = NULL;
+  sip3dToPV = NULL;
+  sip2dToPV = NULL;
+  sipDxyToPV = NULL;
+  sipDzToPV = NULL;
 
 }
 
@@ -308,6 +322,28 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
           histname = "TransDCASig_";
           TransDCASig = ibooker.book1D(histname+CategoryName,histname+CategoryName,TransDCABins,TransDCAMin,TransDCAMax);
           TransDCASig->setAxisTitle("dxy/#sigma_{dxy}",1);
+
+	  histname = "dNdPhi_HighPurity_";
+	  dNdPhi_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax);
+	  dNdPhi_HighPurity->setAxisTitle("#phi",1);
+
+	  histname = "dNdEta_HighPurity_";
+          dNdEta_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,EtaBin,EtaMin,EtaMax);
+          dNdEta_HighPurity->setAxisTitle("#eta",1);
+
+          histname = "dNdPt_HighPurity_";
+          dNdPt_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,150,0,0.3);
+          dNdPt_HighPurity->setAxisTitle("#sigma_{p_{T}}/p_{T}",1);
+
+	  histname = "NhitVsEta_HighPurity_";
+	  NhitVsEta_HighPurity = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,EtaBin,EtaMin,EtaMax,-0.5,39.5,"");
+	  NhitVsEta_HighPurity->setAxisTitle("Track #eta",1);
+	  NhitVsEta_HighPurity->setAxisTitle("Number of Valid RecHits in each Track",2);
+
+          histname = "NhitVsPhi_HighPurity_";
+          NhitVsPhi_HighPurity = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax,-0.5,39.5,"");
+          NhitVsPhi_HighPurity->setAxisTitle("Track #phi",1);
+          NhitVsPhi_HighPurity->setAxisTitle("Number of Valid RecHits in each Track",2);
         }
 
 
@@ -595,6 +631,46 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       }
     }
 
+
+    if (doSIPPlots_ || doAllPlots_) {
+      const double sipBins = 200;
+      const double sipMin = -20;
+      const double sipMax = 20;
+
+      ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
+
+      // SIP wrt. beamspot
+      histname = "SIPDxyToBS_";
+      sipDxyToBS = ibooker.book1D(histname+CategoryName, histname+CategoryName, sipBins, sipMin, sipMax);
+      sipDxyToBS->setAxisTitle("Track dxy significance wrt beam spot",1);
+      sipDxyToBS->setAxisTitle("Number of Tracks",2);
+
+      histname = "SIPDzToBS_";
+      sipDzToBS = ibooker.book1D(histname+CategoryName, histname+CategoryName, sipBins, sipMin, sipMax);
+      sipDzToBS->setAxisTitle("Track dz significance wrt beam spot",1);
+      sipDzToBS->setAxisTitle("Number of Tracks",2);
+
+      // SIP wrt. vertex
+      histname = "SIP3DToPV_";
+      sip3dToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, sipBins, sipMin, sipMax);
+      sip3dToPV->setAxisTitle("3D IP significance wrt primary vertex",1);
+      sip3dToPV->setAxisTitle("Number of Tracks",2);
+
+      histname = "SIP2DToPV_";
+      sip2dToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, sipBins, sipMin, sipMax);
+      sip2dToPV->setAxisTitle("2D IP significance wrt primary vertex",1);
+      sip2dToPV->setAxisTitle("Number of Tracks",2);
+
+      histname = "SIPDxyToPV_";
+      sipDxyToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, sipBins, sipMin, sipMax);
+      sipDxyToPV->setAxisTitle("Track dxy significance wrt primary vertex",1);
+      sipDxyToPV->setAxisTitle("Number of Tracks",2);
+
+      histname = "SIPDzToPV_";
+      sipDzToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, sipBins, sipMin, sipMax);
+      sipDzToPV->setAxisTitle("Track dz significance wrt primary vertex",1);
+      sipDzToPV->setAxisTitle("Number of Tracks",2);
+    }
 }
 
 // -- Analyse
@@ -660,11 +736,11 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Chi2oNDF_lumiFlag                -> Fill(chi2oNDF);
   }
 
-  if(doDCAPlots_ || doBSPlots_ || doAllPlots_) {
+  if(doDCAPlots_ || doBSPlots_ || doSIPPlots_ || doAllPlots_) {
     
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
-    reco::BeamSpot bs = *recoBeamSpotHandle;      
+    const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
     DistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position()));
     DistanceOfClosestApproachToBSVsPhi -> Fill(track.phi(), track.dxy(bs.position()));
@@ -677,13 +753,18 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       TESTDistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position(track.vz())));
       TESTDistanceOfClosestApproachToBSVsPhi -> Fill(track.phi(), track.dxy(bs.position(track.vz())));
     }
+
+    if(doSIPPlots_) {
+      sipDxyToBS->Fill(track.dxy(bs.position())/track.dxyError());
+      sipDzToBS->Fill(track.dz(bs.position())/track.dzError());
+    }
   }
   
-  if(doDCAPlots_ || doPVPlots_ || doAllPlots_) {
+  if(doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_) {
     edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
     iEvent.getByToken(pvToken_,recoPrimaryVerticesHandle);
     if (recoPrimaryVerticesHandle->size() > 0) {
-      reco::Vertex pv = recoPrimaryVerticesHandle->at(0);      
+      const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
     
 
       //////////////////
@@ -699,6 +780,14 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            if(xyerr2 > 0) transDCAsig = track.dxy(pv.position())/xyerr2;	   
 	   LongDCASig->Fill(longDCAsig);
 	   TransDCASig->Fill(transDCAsig);
+	   if(track.quality(reco::TrackBase::qualityByName(qualityString_)) ==1)
+	     {
+	       dNdEta_HighPurity->Fill(track.eta());
+	       dNdPhi_HighPurity->Fill(track.phi());
+	       dNdPt_HighPurity->Fill(track.ptError()/track.pt());
+	       NhitVsEta_HighPurity->Fill(track.eta(),track.numberOfValidHits());
+	       NhitVsPhi_HighPurity->Fill(track.phi(),track.numberOfValidHits());
+	     }//end of high quality tracks requirement
         }
 
 
@@ -707,6 +796,21 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       DistanceOfClosestApproachToPVVsPhi -> Fill(track.phi(), track.dxy(pv.position()));
       xPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vx()-pv.position().x()));
       yPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vy()-pv.position().y()));
+
+
+      if(doSIPPlots_) {
+        edm::ESHandle<TransientTrackBuilder> theB;
+        iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+        reco::TransientTrack transTrack = theB->build(track);
+
+        GlobalVector dir(track.px(), track.py(), track.pz());
+        std::pair<bool, Measurement1D> ip3d = IPTools::signedImpactParameter3D(transTrack, dir, pv);
+        std::pair<bool, Measurement1D> ip2d = IPTools::signedTransverseImpactParameter(transTrack, dir, pv);
+        sip3dToPV->Fill(ip3d.second.value() / ip3d.second.error());
+        sip2dToPV->Fill(ip2d.second.value() / ip2d.second.error());
+        sipDxyToPV->Fill(track.dxy(pv.position())/track.dxyError());
+        sipDzToPV->Fill(track.dz(pv.position())/track.dzError());
+      }
     }
   }
 

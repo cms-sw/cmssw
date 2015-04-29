@@ -22,12 +22,14 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // system include files
 #include "boost/type_traits/is_base_of.hpp"
@@ -59,15 +61,20 @@ namespace edm {
     // defined in DataFormats/Common/interface/RefToPtr.h
     // to construct a Ptr<T> from a Ref<C>, where T is C::value_type.
 
-    // Constructor for ref to object that is not in an event.
+    // Constructors for ref to object that is not in an event.
     // An exception will be thrown if an attempt is made to persistify
     // any object containing this Ptr.  Also, in the future work will
     // be done to throw an exception if an attempt is made to put any object
     // containing this Ptr into an event(or run or lumi).
+
     template<typename C>
     Ptr(C const* iProduct, key_type iItemKey, bool /*setNow*/ = true):
-    core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
-    key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
+      core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
+      key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
+
+    Ptr(T const* item, key_type iItemKey):
+      core_(ProductID(), item, nullptr, true),
+      key_(item != nullptr ? iItemKey : key_traits<key_type>::value) {}
 
     // Constructor from test handle.
     // An exception will be thrown if an attempt is made to persistify
@@ -93,6 +100,11 @@ namespace edm {
     Ptr(ProductID const& productID, T const* item, key_type item_key) :
     core_(productID, item, 0, false),
     key_(item_key) {
+    }
+
+    Ptr(ProductID const& productID, T const* item, key_type item_key, bool transient) :
+      core_(productID, item, nullptr, transient),
+      key_(item_key) {
     }
 
     /** Constructor that creates an invalid ("null") Ptr that is
@@ -179,15 +191,7 @@ namespace edm {
     CMS_CLASS_VERSION(10)
 
   private:
-    //Ptr(Ptr const&); // stop default
 
-    /** Constructor for extracting a transient Ptr from a PtrVector. */
-    Ptr(T const* item, key_type item_key) :
-    core_(ProductID(), item, 0, true),
-    key_(item_key) {
-    }
-
-    //Ptr const& operator=(Ptr const&); // stop default
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
 
@@ -273,7 +277,34 @@ namespace edm {
     /// a collection will be identical to the ordering of the referenced objects in the collection.
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
-
 }
+
+//The following is needed to get RefToBase to work with an edm::Ptr
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ptr_specialization.h"
+#include <vector>
+
+#ifndef __GCCXML__
+namespace edm {
+  template <typename T>
+  inline
+  void
+  fillView(std::vector<edm::Ptr<T> > const& obj,
+           ProductID const& id,
+           std::vector<void const*>& pointers,
+           FillViewHelperVector& helpers) {
+    pointers.reserve(obj.size());
+    helpers.reserve(obj.size());
+    for (auto const& p: obj) {
+      if(p.isAvailable()) {
+        pointers.push_back(p.get());
+      }else {
+        pointers.push_back(nullptr);
+      }
+      helpers.emplace_back(p.id(),p.key());
+    }
+  }
+}
+#endif
 
 #endif
