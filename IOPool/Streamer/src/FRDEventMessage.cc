@@ -57,7 +57,7 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
   }
 
   // event number
-  if (version_ >= 4) {
+  if (version_ == 4) {
     uint64 eventLow =  *bufPtr;
     size_ += sizeof(uint32);
     ++bufPtr;
@@ -80,18 +80,21 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
       size_ += sizeof(uint32) + eventSize_;
       ++bufPtr;
 
-      // padding size
-      paddingSize_ = *bufPtr;
-      size_ += sizeof(uint32) + paddingSize_;
-      ++bufPtr;
-
-      // event checksum (adler32 or CRC-32C)
-      if (version_ >= 5)
+      if (version_ >= 5) {
         crc32c_ = *bufPtr;
-      else 
+        size_ += sizeof(uint32);
+        ++bufPtr;
+      }
+      else {
+        // padding size up to V4
+        paddingSize_ = *bufPtr;
+        size_ += sizeof(uint32) + paddingSize_;
+        ++bufPtr;
+
         adler32_ = *bufPtr;
-      size_ += sizeof(uint32);
-      ++bufPtr;
+        size_ += sizeof(uint32);
+        ++bufPtr;
+      }
   }
   else {
       for (int idx = 0; idx < 1024; idx++) {

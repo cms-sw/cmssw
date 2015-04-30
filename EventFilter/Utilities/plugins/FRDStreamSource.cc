@@ -41,21 +41,20 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
   }
 
-  const uint32_t headerSize[6]={0,2*sizeof(uint32),(4+1024)*sizeof(uint32_t),7*sizeof(uint32_t),8*sizeof(uint32_t),8*sizeof(uint32_t)};//FRD header size per version
   if ( detectedFRDversion_==0) {
     fin_.read((char*)&detectedFRDversion_,sizeof(uint32_t));
     assert(detectedFRDversion_>0 && detectedFRDversion_<=5);
-    if ( buffer_.size() < headerSize[detectedFRDversion_] )
-      buffer_.resize(headerSize[detectedFRDversion_]);
+    if ( buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_] )
+      buffer_.resize(FRDHeaderVersionSize[detectedFRDversion_]);
     *((uint32_t*)(&buffer_[0]))=detectedFRDversion_;
-    fin_.read(&buffer_[0] + sizeof(uint32_t),headerSize[detectedFRDversion_]-sizeof(uint32_t));
-    assert( fin_.gcount() == headerSize[detectedFRDversion_]-(unsigned int)(sizeof(uint32_t) ));
+    fin_.read(&buffer_[0] + sizeof(uint32_t),FRDHeaderVersionSize[detectedFRDversion_]-sizeof(uint32_t));
+    assert( fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_]-(unsigned int)(sizeof(uint32_t) ));
   }
   else {
-    if ( buffer_.size() < headerSize[detectedFRDversion_] )
-      buffer_.resize(headerSize[detectedFRDversion_]);
-    fin_.read(&buffer_[0],headerSize[detectedFRDversion_]);
-    assert( fin_.gcount() == headerSize[detectedFRDversion_] );
+    if ( buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_] )
+      buffer_.resize(FRDHeaderVersionSize[detectedFRDversion_]);
+    fin_.read(&buffer_[0],FRDHeaderVersionSize[detectedFRDversion_]);
+    assert( fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_] );
   }
 
   std::unique_ptr<FRDEventMsgView> frdEventMsg(new FRDEventMsgView(&buffer_[0]));
@@ -66,9 +65,9 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
   if ( totalSize > buffer_.size() ) {
     buffer_.resize(totalSize);
   }
-  if ( totalSize > headerSize[detectedFRDversion_] ) {
-    fin_.read(&buffer_[0]+headerSize[detectedFRDversion_],totalSize-headerSize[detectedFRDversion_]);
-    if ( fin_.gcount() != totalSize-headerSize[detectedFRDversion_] ) {
+  if ( totalSize > FRDHeaderVersionSize[detectedFRDversion_] ) {
+    fin_.read(&buffer_[0]+FRDHeaderVersionSize[detectedFRDversion_],totalSize-FRDHeaderVersionSize[detectedFRDversion_]);
+    if ( fin_.gcount() != totalSize-FRDHeaderVersionSize[detectedFRDversion_] ) {
       throw cms::Exception("FRDStreamSource::setRunAndEventInfo") <<
         "premature end of file " << *itFileName_;
     }

@@ -20,10 +20,8 @@
  *   uint32 - format version number
  *   uint32 - run number
  *   uint32 - lumi number
- *   uint32 - event number low 32 bits
- *   uint32 - event number high 32 bits
+ *   uint32 - event number
  *   uint32 - event size
- *   uint32 - padding size needed to fill memory page size (_SC_PAGE_SIZE)
  *   uint32 - crc32c checksum of FED data (excluding event header)
  *   variable size - FED data
  *
@@ -106,6 +104,15 @@ struct FRDEventHeader_V1
 {
   uint32 run_;
   uint32 event_;
+};
+
+const uint32 FRDHeaderVersionSize[6] = {
+  0,
+  2*sizeof(uint32),
+  (4 + 1024) * sizeof(uint32),
+  7*sizeof(uint32),
+  8*sizeof(uint32),
+  6*sizeof(uint32)
 };
 
 class FRDEventMsgView
