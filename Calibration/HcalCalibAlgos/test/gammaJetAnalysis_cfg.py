@@ -1,13 +1,66 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('ANALYSIS')
 
-process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#process.MessageLogger.messages = cms.untracked.PSet(
-#        threshold =  cms.untracked.vstring('DEBUG')
-#)
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('warnings','errors',
+                                         'cout','cerr'),
+    categories = cms.untracked.vstring('GammaJetAnalysis'), 
+    debugModules = cms.untracked.vstring('*'),
+    warnings = cms.untracked.PSet(
+        placeholder = cms.untracked.bool(True)
+    ),
+    default = cms.untracked.PSet(
+
+    ),
+    errors = cms.untracked.PSet(
+        placeholder = cms.untracked.bool(True)
+    ),
+    cerr = cms.untracked.PSet(
+        optionalPSet = cms.untracked.bool(True),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        noTimeStamps = cms.untracked.bool(False),
+        FwkReport = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
+            reportEvery = cms.untracked.int32(500),
+            limit = cms.untracked.int32(10000000)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
+        Root_NoDictionary = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
+            limit = cms.untracked.int32(0)
+        ),
+        FwkJob = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
+            limit = cms.untracked.int32(0)
+        ),
+        FwkSummary = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
+            reportEvery = cms.untracked.int32(1),
+            limit = cms.untracked.int32(10000000)
+        ),
+        threshold = cms.untracked.string('INFO')
+     ),
+     cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+        noTimeStamps = cms.untracked.bool(True),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        GammaJetAnalysis = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+       )
+    )
+)
 
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
@@ -51,16 +104,15 @@ process.GammaJetAnalysis_noCHS.pfJetCorrName = cms.string('ak4PFL2L3')
 
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
+        'file:gjet.root'
 #    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/522CE329-7B81-E411-B6C3-0025905A6110.root',
 #    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/5279D224-7B81-E411-BCAA-002618943930.root'
-      'file:../../HcalAlCaRecoProducers/test/gjet.root'
+#    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/522CE329-7B81-E411-B6C3-0025905A6110.root'
+#    '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-#process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG') # does not work?
-process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(500)
-process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(1)
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
 # Load pfNoPileUP
@@ -72,11 +124,12 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 #)
 
 #process.load('Calibration.HcalCalibAlgos.gammaJetAnalysis_CHSJECs_cff')
-
+# name of the process that used the GammaJetProd producer
+process.GammaJetAnalysis.prodProcess = 'MYGAMMAJET'
 # specify 'workOnAOD=2' to apply tokens from GammaJetProd producer
-process.GammaJetAnalysis.workOnAOD = cms.int32(2)
-process.GammaJetAnalysis.doGenJets = cms.bool(False)
-process.GammaJetAnalysis.debug = cms.untracked.int32(1)
+process.GammaJetAnalysis.workOnAOD = 2
+process.GammaJetAnalysis.doGenJets = False
+process.GammaJetAnalysis.debug     = 2
 
 process.p = cms.Path(
 #    process.PF2PAT
