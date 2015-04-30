@@ -32,6 +32,23 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
+enum MVAVARIABLES {chi2perdofperlayer = 0,
+		     dxyperdxyerror = 1,
+		     dzperdzerror = 2,
+		     relpterr = 3,
+		     lostmidfrac = 4,
+		     minlost = 5,
+		     nhits = 6,
+		     eta = 7,
+		     chi2n_no1dmod = 8,
+		     chi2n = 9,
+		     nlayerslost = 10,
+		     nlayers3d = 11,
+		     nlayers = 12,
+		     ndof = 13,
+		     etaerror = 14 };
+
+
     class dso_hidden HIMultiTrackSelector : public edm::stream::EDProducer<> {
         private:
         public:
@@ -74,6 +91,8 @@
 
 	    void processMVA(edm::Event& evt, const edm::EventSetup& es, std::vector<float> & mvaVals_,const reco::VertexCollection &hVtx) const;
 
+
+	    void ParseForestVars();
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
             edm::EDGetTokenT<TrackingRecHitCollection> hSrc_;
@@ -138,6 +157,8 @@
 	    //setup mva selector
 	    std::vector<bool> useMVA_;
 	    //std::vector<TMVA::Reader*> mvaReaders_;
+
+	    std::vector<int>  mvavars_indices;
 
 	    std::vector<double> min_MVA_;
 

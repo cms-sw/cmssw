@@ -61,6 +61,36 @@ HIMultiTrackSelector::HIMultiTrackSelector()
   forest_ = nullptr;
 }
 
+void HIMultiTrackSelector::ParseForestVars()
+{
+  mvavars_indices.clear();
+  for (unsigned i=0;i<forestVars_.size();i++)
+    {
+      std::string v = forestVars_[i];
+      int ind = -1;
+      if (v=="chi2perdofperlayer") ind=chi2perdofperlayer; 
+      if (v=="dxyperdxyerror") ind=dxyperdxyerror;
+      if (v=="dzperdzerror") ind=dzperdzerror;
+      if (v=="relpterr") ind=relpterr;
+      if (v=="lostmidfrac") ind=lostmidfrac;
+      if (v=="minlost") ind=minlost;
+      if (v=="nhits") ind=nhits;
+      if (v=="eta") ind=eta;
+      if (v=="chi2n_no1dmod") ind=chi2n_no1dmod;
+      if (v=="chi2n") ind=chi2n ;
+      if (v=="nlayerslost") ind=nlayerslost ;
+      if (v=="nlayers3d") ind=nlayers3d ;
+      if (v=="nlayers") ind=nlayers ;
+      if (v=="ndof") ind=ndof ;
+      if (v=="etaerror") ind=etaerror;
+
+      if (ind==-1) edm::LogWarning("HIMultiTrackSelector") << "Unknown forest variable "<<v<<". Please make sure it's in the list of supported variables\n";
+
+      mvavars_indices.push_back(ind);
+    }
+   
+}
+
 HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
   src_( consumes<reco::TrackCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
   hSrc_(consumes<TrackingRecHitCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
@@ -70,9 +100,7 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
   // now get the pset for each selector
 {
   if (useVertices_) vertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ));
-  if(useVtxError_){
-       edm::LogWarning("MultiTRackSelector") << "you are executing buggy code, if intentional please help to fix it";
-  }
+
   useAnyMVA_ = false;
   forestLabel_ = "MVASelectorIter0";
   std::string type = "BDTG";
@@ -85,12 +113,14 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
   if(useAnyMVA_){
     if(cfg.exists("mvaType"))type = cfg.getParameter<std::string>("mvaType");
     if(cfg.exists("GBRForestLabel"))forestLabel_ = cfg.getParameter<std::string>("GBRForestLabel");
-    if(cfg.exists("GBRForestVars"))forestVars_ = cfg.getParameter<std::vector<std::string> >("GBRForestVars");
+    if(cfg.exists("GBRForestVars")) {
+      forestVars_ = cfg.getParameter<std::vector<std::string> >("GBRForestVars");
+      ParseForestVars();
+    }
     if(cfg.exists("GBRForestFileName")){
       dbFileName_ = cfg.getParameter<std::string>("GBRForestFileName");
       useForestFromDB_ = false;
     }
-    std::cout<<"mvaType "<<type<<" GBRForestLabel "<<forestLabel_<<" GBRForestFileName "<<dbFileName_<<std::endl;
      mvaType_ = type;
   }
   std::vector<edm::ParameterSet> trkSelectors( cfg.getParameter<std::vector< edm::ParameterSet> >("trackSelectors") );
@@ -235,10 +265,8 @@ HIMultiTrackSelector::~HIMultiTrackSelector() {
 
 void HIMultiTrackSelector::beginStream(edm::StreamID) {
   if(!useForestFromDB_){
-    std::cout<<"Reading "<<dbFileName_.c_str()<<" file with object "<<forestLabel_.c_str()<<std::endl;
     TFile gbrfile(dbFileName_.c_str());
     forest_ = (GBRForest*)gbrfile.Get(forestLabel_.c_str());
-    std::cout<<"forest object : "<<forest_<<std::endl;
   }
 
 }
@@ -564,17 +592,23 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
     return;
   }
 
+  bool checkvertex = std::find(mvavars_indices.begin(), mvavars_indices.end(),dxyperdxyerror)!=mvavars_indices.end()
+        || std::find(mvavars_indices.begin(), mvavars_indices.end(),dzperdzerror)!=mvavars_indices.end();
+
   size_t current = 0;
   for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
     const Track & trk = * it;
-    auto tmva_ndof_ = trk.ndof();
-    auto tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
-    auto tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement()
-        + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-    auto tmva_nlayerslost_ = trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
-    float chi2n =  trk.normalizedChi2();
-    float chi2n_no1Dmod = chi2n;
-    
+
+    float mvavalues[15];
+    mvavalues[ndof] = trk.ndof();
+    mvavalues[nlayers] = trk.hitPattern().trackerLayersWithMeasurement();
+    mvavalues[nlayers3d] =  trk.hitPattern().pixelLayersWithMeasurement() + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    mvavalues[nlayerslost] =  trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
+    mvavalues[chi2n_no1dmod] = trk.normalizedChi2();
+    mvavalues[chi2perdofperlayer] = mvavalues[chi2n_no1dmod]/mvavalues[nlayers];
+
+
+    float chi2n1d =  trk.normalizedChi2();
     int count1dhits = 0;
     auto ith = trk.extra()->firstRecHit();
     auto  edh = ith + trk.recHitsSize();
@@ -585,80 +619,42 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
     if (count1dhits > 0) {
       float chi2 = trk.chi2();
       float ndof = trk.ndof();
-      chi2n = (chi2+count1dhits)/float(ndof+count1dhits);
+      chi2n1d = (chi2+count1dhits)/float(ndof+count1dhits);
     }
-    auto tmva_chi2n_ = chi2n;
-    auto tmva_chi2n_no1dmod_ = chi2n_no1Dmod;
-    auto tmva_eta_ = trk.eta();
-    auto tmva_relpterr_ = float(trk.ptError())/std::max(float(trk.pt()),0.000001f);
-    auto tmva_nhits_ = trk.numberOfValidHits();
+
+    mvavalues[chi2n] = chi2n1d;//chi2 and 1d modes
+
+    mvavalues[eta] = trk.eta();
+    mvavalues[relpterr] = float(trk.ptError())/std::max(float(trk.pt()),0.000001f);
+    mvavalues[nhits] = trk.numberOfValidHits();
+
     int lostIn = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
     int lostOut = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
-    auto tmva_minlost_ = std::min(lostIn,lostOut);
-    auto tmva_lostmidfrac_ = trk.numberOfLostHits() / (trk.numberOfValidHits() + trk.numberOfLostHits());
+    mvavalues[minlost] = std::min(lostIn,lostOut);
+    mvavalues[lostmidfrac] = trk.numberOfLostHits() / (trk.numberOfValidHits() + trk.numberOfLostHits());
+
+    mvavalues[etaerror] = trk.etaError();
 
     float reldz = 0;
     float reldxy = 0;
-    float etaerror = 0;
-
-
-    //not setting forestVars == using old mva with 11 variables
-    if (forestVars_.size()>0) {
-      int vtxind = 0;
-      if (vertices.size()>1) std::cout<<"THERE ARE "<<vertices.size()<<" vertices IN THE EVENT!"<<std::endl;
+    if (checkvertex) {
+      int vtxind = 0; // only first vertex is taken into account for the speed purposes
       float dxy = trk.dxy(vertices[vtxind].position()), dxyE =  sqrt(trk.dxyError()*trk.dxyError()+vertices[vtxind].xError()*vertices[vtxind].yError());
       float dz = trk.dz(vertices[vtxind].position()), dzE =  sqrt(trk.dzError()*trk.dzError()+vertices[vtxind].zError()*vertices[vtxind].zError());
       reldz = dz/dzE;
       reldxy = dxy/dxyE;
-      etaerror = trk.etaError();
       
     }
-
-    float gbrVals_[11];
-    gbrVals_[0] = tmva_lostmidfrac_;
-    gbrVals_[1] = tmva_minlost_;
-    gbrVals_[2] = tmva_nhits_;
-    gbrVals_[3] = tmva_relpterr_;
-    gbrVals_[4] = tmva_eta_;
-    gbrVals_[5] = tmva_chi2n_no1dmod_;
-    gbrVals_[6] = tmva_chi2n_;
-    gbrVals_[7] = tmva_nlayerslost_;
-    gbrVals_[8] = tmva_nlayers3D_;
-    gbrVals_[9] = tmva_nlayers_;
-    gbrVals_[10] = tmva_ndof_;
-
+    mvavalues[dxyperdxyerror] = reldxy;
+    mvavalues[dzperdzerror] = reldz;
 
     std::vector<float> gbrValues;
-    for (std::vector<string>::const_iterator it = forestVars_.begin(); it!=forestVars_.end(); ++it)
-      {
-	string var = *it;
-	float val;
-	if (var=="Chi2/Ndof/Nlayer") val=chi2n_no1Dmod/tmva_nlayers_;
-	if (var=="Dxy1/DxyError1")   val=reldxy;
-	if (var=="Dz1/DzError1") val=reldz;
-	if (var=="PtError/Pt") val=tmva_relpterr_;
-	if (var=="NHit") val=tmva_nhits_;
-	if (var=="Nlayer") val=tmva_nlayers_;
-	if (var=="Eta") val=tmva_eta_;
 
+    //fill in the gbrValues vector with the necessary variables
+    for (unsigned i=0;i<mvavars_indices.size();i++) {
+      gbrValues.push_back(mvavalues[mvavars_indices[i]]);
+    }
 
-	if (var=="lostmidfrac") val=tmva_lostmidfrac_;
-	if (var=="minlost") val=tmva_minlost_;
-	if (var=="nhits") val=tmva_nhits_;
-	if (var=="relpterr") val=tmva_relpterr_;
-	if (var=="eta") val=tmva_eta_;
-	if (var=="chi2n_no1dmod") val=tmva_chi2n_no1dmod_;
-	if (var=="chi2n") val=tmva_chi2n_;
-	if (var=="nlayerslost") val=tmva_nlayerslost_;
-	if (var=="nlayers3D") val=tmva_nlayers3D_;
-	if (var=="nlayers") val=tmva_nlayers_;
-	if (var=="ndof") val=tmva_ndof_;
-
-	if (var=="etaerror") val=etaerror;
-
-	gbrValues.push_back(val); 
-      }
-    
 
     GBRForest const * forest = forest_;
     if(useForestFromDB_){
@@ -667,7 +663,7 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
       forest = forestHandle.product();
     }
     
-    auto gbrVal = forest->GetClassifier(forestVars_.size()>0 ? &gbrValues[0] : gbrVals_);
+    auto gbrVal = forest->GetClassifier(&gbrValues[0]);
     mvaVals_[current] = gbrVal;
   }
   mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
