@@ -97,8 +97,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   event.getByLabel(label_, instance_, fedBuffers);
 
   // determine the expected size of the FRDEvent IN BYTES !!!!!
-  int nEntries = frdVersion_>3 ? 8:7;
-  int headerSize = frdVersion_<3 ? (4+1024)*sizeof(uint32) : nEntries*sizeof(uint32);
+  int headerSize = FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
   int nFeds = frdVersion_<3? 1024 : FEDNumbering::lastFEDId()+1;
 
@@ -116,8 +115,8 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   *bufPtr++ = (uint32) event.id().run();
   *bufPtr++ = (uint32) event.luminosityBlock();
   *bufPtr++ = (uint32) event.id().event();
-  if (frdVersion_>3)
-    *bufPtr++ = 0;//should support 64-bit event id
+  if (frdVersion_==4)
+    *bufPtr++ = 0;//64-bit event id high part
 
   if (frdVersion_<3) {
     uint32 fedsize[1024];
@@ -132,7 +131,8 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   else {
     *bufPtr++ = expectedSize-headerSize;
     *bufPtr++ = 0;
-    *bufPtr++ = 0;
+     if (frdVersion_<=4)
+      *bufPtr++ = 0;
   }
   uint32 *payloadPtr=bufPtr;
   for (int idx = 0; idx < nFeds; ++idx) {
@@ -145,13 +145,13 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   if (frdVersion_>4) {
     //crc32c checksum
     uint32_t crc = 0;
-    *(payloadPtr-1) = crc32c(crc,(const unsigned char*) payloadPtr, expectedSize-nEntries*sizeof(uint32));
+    *(payloadPtr-1) = crc32c(crc,(const unsigned char*) payloadPtr, expectedSize-headerSize);
   }
   else if (frdVersion_>=3) {
     //adler32 checksum
     uint32 adlera = 1;
     uint32 adlerb = 0;
-    cms::Adler32((const char*) payloadPtr, expectedSize-nEntries*sizeof(uint32), adlera, adlerb);
+    cms::Adler32((const char*) payloadPtr, expectedSize-headerSize, adlera, adlerb);
     *(payloadPtr-1) = (adlerb << 16) | adlera;
   }
 

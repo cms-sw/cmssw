@@ -313,7 +313,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::nextEvent()
 
 inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 {
-  const size_t headerSize[6] = {0,2*sizeof(uint32),(4 + 1024) * sizeof(uint32),7*sizeof(uint32),8*sizeof(uint32),8*sizeof(uint32)}; //size per version of FRDEventHeader
 
   if (setExceptionState_) threadError();
   if (!currentFile_)
@@ -419,7 +418,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
 
   //file is too short
-  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < headerSize[detectedFRDversion_])
+  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < FRDHeaderVersionSize[detectedFRDversion_])
   {
     throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
       "Premature end of input file while reading event header";
@@ -435,8 +434,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     unsigned char *dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
 
     //conditions when read amount is not sufficient for the header to fit
-    if (!bufferInputRead_ || bufferInputRead_ < headerSize[detectedFRDversion_]
-       ||  eventChunkSize_ - currentFile_->chunkPosition_ < headerSize[detectedFRDversion_])
+    if (!bufferInputRead_ || bufferInputRead_ < FRDHeaderVersionSize[detectedFRDversion_]
+       ||  eventChunkSize_ - currentFile_->chunkPosition_ < FRDHeaderVersionSize[detectedFRDversion_])
     {
       readNextChunkIntoBuffer(currentFile_);
 
@@ -450,7 +449,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
-      if ( bufferInputRead_ < headerSize[detectedFRDversion_])
+      if ( bufferInputRead_ < FRDHeaderVersionSize[detectedFRDversion_])
       {
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
 	"Premature end of input file while reading event header";
@@ -465,7 +464,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
     }
 
-    const uint32_t msgSize = event_->size()-headerSize[detectedFRDversion_];
+    const uint32_t msgSize = event_->size()-FRDHeaderVersionSize[detectedFRDversion_];
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
@@ -497,7 +496,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     unsigned char *dataPosition;
 
     //read header, copy it to a single chunk if necessary
-    bool chunkEnd = currentFile_->advance(dataPosition,headerSize[detectedFRDversion_]);
+    bool chunkEnd = currentFile_->advance(dataPosition,FRDHeaderVersionSize[detectedFRDversion_]);
 
     event_.reset( new FRDEventMsgView(dataPosition) );
     if (event_->size()>eventChunkSize_) {
@@ -507,7 +506,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
     }
 
-    const uint32_t msgSize = event_->size()-headerSize[detectedFRDversion_];
+    const uint32_t msgSize = event_->size()-FRDHeaderVersionSize[detectedFRDversion_];
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
@@ -517,16 +516,16 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     if (chunkEnd) {
       //header was at the chunk boundary, we will have to move payload as well
-      currentFile_->moveToPreviousChunk(msgSize,headerSize[detectedFRDversion_]);
+      currentFile_->moveToPreviousChunk(msgSize,FRDHeaderVersionSize[detectedFRDversion_]);
       chunkIsFree_ = true;
     }
     else {
       //header was contiguous, but check if payload fits the chunk
       if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
 	//rewind to header start position
-	currentFile_->rewindChunk(headerSize[detectedFRDversion_]);
+	currentFile_->rewindChunk(FRDHeaderVersionSize[detectedFRDversion_]);
 	//copy event to a chunk start and move pointers
-	chunkEnd = currentFile_->advance(dataPosition,headerSize[detectedFRDversion_]+msgSize);
+	chunkEnd = currentFile_->advance(dataPosition,FRDHeaderVersionSize[detectedFRDversion_]+msgSize);
 	assert(chunkEnd);
 	chunkIsFree_=true;
 	//header is moved
