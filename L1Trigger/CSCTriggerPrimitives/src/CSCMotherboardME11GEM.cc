@@ -75,9 +75,7 @@ const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[8][3] = {
   {7, 0.01475524, 0.00650928},                                                                                                  
   {10, 0.01023299, 0.00458796},                                                                                                 
   {15, 0.00689220, 0.00331313},                                                                  
-  {20, 0.00535176, 0.00276152},                                                                                                                                  
-  {30, 0.00389050, 0.00224959},                                                                                                                                       
-  {40, 0.00329539, 0.00204670}};
+  {20, 0.00535176, 0.00276152},                                                                                                                        {30, 0.00389050, 0.00224959},                                                                                                                        {40, 0.00329539, 0.00204670}};
 
 const double CSCMotherboardME11GEM::lut_wg_etaMin_etaMax_odd[48][3] = {
 {0, 2.44005, 2.44688},
@@ -372,7 +370,9 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                              const CSCComparatorDigiCollection* compdc,
                              const GEMPadDigiCollection* gemPads)
 {
-  /*
+  // std::cout << "Running CSCMotherboardME11GEM" << std::endl;
+  // std::cout << "Station " << theStation << " theRing " << theRing << std::endl;
+
   clear();
   
   if (!( alct and clct and  clct1a and smartME1aME1b))
@@ -393,19 +393,24 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     gemGeometryAvailable = true;
   }
 
+  /*
   int used_clct_mask[20], used_clct_mask_1a[20];
   for (int b=0;b<20;b++)
     used_clct_mask[b] = used_clct_mask_1a[b] = 0;
+  */
 
   // retrieve CSCChamber geometry                                                                                                                                       
   CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
   const CSCChamber* cscChamberME1b(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
   const CSCDetId me1bId(cscChamberME1b->id());
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
+  // std::cout << "ME1b detId " << me1bId << " ME1a detId " << me1aId << std::endl;
+  // if (csc_g)
+  //   std::cout << "geometry exists" << std::endl;
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
   if (runME11ILT_){
-
+      
     // check for GEM geometry
     if (not gemGeometryAvailable){
       if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
@@ -433,11 +438,11 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >    
     createGEMRollEtaLUT(isEven);
     if (debug_luts){
-      std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
+      LogDebug("CSCMotherboardME11GEM") << "me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " 
+					<< (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
-        for(auto p : gemRollToEtaLimits_) {
-          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
-        }
+        for(auto p : gemRollToEtaLimits_) 
+	  LogDebug("CSCMotherboardME11GEM") << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
     }
     
     // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
@@ -449,7 +454,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
     if (debug_luts){
       for(auto p : cscWgToGemRoll_) {
-        std::cout << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
+	LogDebug("CSCMotherboardME11GEM") << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
       }
     }
 
@@ -517,16 +522,18 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
 
+
     // build coincidence pads
-    std::auto_ptr<GEMPadDigiCollection> pCoPads(new GEMPadDigiCollection());
+    std::auto_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads, me1bId);
     
+    return;
     // retrieve pads and copads in a certain BX window for this CSC 
     pads_.clear();
     coPads_.clear();
-    retrieveGEMPads(gemPads, gem_id);
-    retrieveGEMPads(pCoPads.get(), gem_id, true);
-    
+    // retrieveGEMPads(gemPads, gem_id);
+    // retrieveGEMPads(pCoPads.get(), gem_id, true);
+
     const bool debugStubs(false);
     if (debugStubs){
       for (auto& p : alctV){
@@ -556,6 +563,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }    
   }
 
+  /*
   const bool hasPads(pads_.size()!=0);
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
@@ -1778,10 +1786,12 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
 
 
 void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out_pads, 
-	                                         GEMPadDigiCollection& out_co_pads,
+	                                         GEMCoPadDigiCollection& out_co_pads,
 						 CSCDetId csc_id)
 {
   gemCoPadV.clear();
+
+  std::cout << "CSCMotherboardME11GEM::buildCoincidencePads" << std::endl;
 
   // Build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
@@ -1789,6 +1799,7 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
    // same chamber
     if (id.region() != csc_id.zendcap() or id.station() != csc_id.station() or 
 	id.ring() != csc_id.ring() or id.chamber() != csc_id.chamber()) continue;
+    std::cout << id << std::endl;
 
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
@@ -1796,6 +1807,8 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
     // find the corresponding id with layer=2
     GEMDetId co_id(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
     
+    std::cout << co_id << std::endl;
+
     auto co_pads_range = out_pads->get(co_id);
     // empty range = no possible coincidence pads
     if (co_pads_range.first == co_pads_range.second) continue;
@@ -1808,17 +1821,25 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         if (std::abs(p->pad() - co_p->pad()) > maxDeltaPadInCoPad_) continue;
         // check the match in BX
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
+	std::cout << GEMCoPadDigi(*p,*co_p) << std::endl;
 
-        // make a new coincidence pad digi
+        // make a new coincidence pad digi	
         gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
         
-        // always use layer1 pad's BX as a copad's BX
-        GEMPadDigi co_pad_digi(p->pad(), p->bx());
-        out_co_pads.insertDigi(id, co_pad_digi);
+        // // always use layer1 pad's BX as a copad's BX
+        // GEMPadDigi pad2(p->pad(), p->bx());
+	
+        // out_co_pads.insertDigi(id, co_pad_digi);
       }
     }
   }
+  std::cout << "Debugging copads" << std::endl;
+  std::cout << "DetId " << csc_id << std::endl;
+  std::cout << "gemCoPadV " << gemCoPadV.size() << std::endl;
+  for(auto& pad: gemCoPadV)
+    std::cout << "\t" << pad << std::endl;
 
+  /*
   // removal of duplicates in copads
   std::auto_ptr<GEMPadDigiCollection> pCoPads(new GEMPadDigiCollection());
   const bool removeDuplicates(true);
@@ -1832,6 +1853,7 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
     }
     out_co_pads = *pCoPads;
   }
+  */
 }
 
 
@@ -2158,7 +2180,7 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
   }
 }
 
-
+/*
 void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id, bool iscopad)
 {
   auto superChamber(gem_g->superChamber(id));
@@ -2181,7 +2203,7 @@ void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
     }
   }
 }
-
+*/
 
 bool CSCMotherboardME11GEM::isPadInOverlap(int roll)
 {

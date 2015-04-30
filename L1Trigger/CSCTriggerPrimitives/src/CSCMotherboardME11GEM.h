@@ -129,10 +129,10 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   void matchGEMPads(enum ME11Part = ME1B);
 
   void buildCoincidencePads(const GEMPadDigiCollection* out_pads, 
-			    GEMPadDigiCollection& out_co_pads,
+			    GEMCoPadDigiCollection& out_co_pads,
 			    CSCDetId csc_id);
 
-  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false);
+  /* void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false); */
 
   void createGEMRollEtaLUT(bool isEven);
 
