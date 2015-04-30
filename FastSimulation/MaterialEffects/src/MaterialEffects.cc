@@ -203,7 +203,10 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
 
     // Construction
     if ( doG4NuclInteraction ) { 
-      NuclearInteraction = new NuclearInteractionFTFSimulator(distAlgo, distCut); 
+      double elimit = matEff.getParameter<double>("EkinBertiniGeV")*CLHEP::GeV;
+      double eth = matEff.getParameter<double>("EkinLimitGeV")*CLHEP::GeV;
+      NuclearInteraction = 
+	new NuclearInteractionFTFSimulator(distAlgo, distCut, elimit, eth); 
     } else {
       NuclearInteraction = 
 	new NuclearInteractionSimulator(hadronEnergies, hadronTypes, hadronNames, 
