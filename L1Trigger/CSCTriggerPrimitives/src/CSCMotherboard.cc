@@ -52,7 +52,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
-
+  
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
 
   // Normal constructor.  -JM
@@ -102,6 +102,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 
   const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);  
   const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);  
+  const bool runME3141ILT(commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
   if (isSLHC and theRing == 1){    
@@ -117,6 +118,11 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
       tmbParams = me21tmbGemParams;
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
+    }
+    else if ((theStation == 3 or theStation == 4) and runME3141ILT) {
+      tmbParams = me3141tmbRpcParams;
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
     }
   }
 
@@ -832,7 +838,6 @@ void CSCMotherboard::dumpConfigParams() const {
        << tmb_l1a_window_size << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
-  //std::cerr << strm.str()<<std::endl;
 }
 
 

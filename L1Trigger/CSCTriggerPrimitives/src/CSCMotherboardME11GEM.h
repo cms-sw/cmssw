@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME11GEM_h
-#define CSCTriggerPrimitives_CSCMotherboardME11GEM_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11GEM_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11GEM_h
 
 /** \class CSCMotherboardME11GEM
  *
@@ -11,9 +11,8 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
-#include <DataFormats/GEMDigi/interface/GEMPadDigiCollection.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 class CSCGeometry;
@@ -132,14 +131,14 @@ class CSCMotherboardME11GEM : public CSCMotherboard
 			    GEMCoPadDigiCollection& out_co_pads,
 			    CSCDetId csc_id);
 
-  /* void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id, bool iscopad = false); */
+  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
+  void retrieveGEMCoPads(const GEMCoPadDigiCollection* pads, unsigned id);
 
   void createGEMRollEtaLUT(bool isEven);
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
   int deltaPad(int hs, int pad);
-  int getRandomWGForGEMRoll(int roll);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMPadDigi& gem,
                                         int me, bool oldDataFormat = false); 
@@ -257,8 +256,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   bool correctLCTtimingWithGEM_;
 
   // send LCT old dataformat
-  bool useOldLCTDataFormatALCTGEM_;
-  bool useOldLCTDataFormatCLCTGEM_;
+  bool useOldLCTDataFormat_;
 
   // send only first 2 lcts
   bool firstTwoLCTsInChamber_;
