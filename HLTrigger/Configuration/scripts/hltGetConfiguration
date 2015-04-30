@@ -172,11 +172,6 @@ group.add_argument('--mc',
                     action  = 'store_false',
                     default = not defaults.data,
                     help    = 'Prepare a menu for running on MC (raw events in "rawDataCollector")' )
-group.add_argument('--fastsim',
-                    dest    = 'fastsim',
-                    action  = 'store_true',
-                    default = defaults.fastsim,
-                    help    = 'Prepare a menu suitable for Fast Simulation (implies --mc and --fragment)' )
 
 parser.add_argument('--hilton',
                     dest    = 'hilton',
