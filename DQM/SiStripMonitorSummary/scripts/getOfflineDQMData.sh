@@ -1,14 +1,15 @@
 #!/bin/bash
 
-if [[ $4 == '' || $5 != '' ]]
+if [[ $5 == '' || $6 != '' ]]
 then
   echo "This script accepts exactly 4 command line arguments"
   echo "Invoke it in this way:"
-  echo "getOfflineDQMData.sh DBName DBAccount MonitoredVariable DBTag"
+  echo "getOfflineDQMData.sh DBName DBAccount MonitoredVariable DBTag StoragePath"
   echo "    DBname:            name of the database (Ex: cms_orcoff_prod)"
   echo "    DBAccount:         name of the database account (Ex: CMS_COND_31X_STRIP)"
   echo "    monitoredVariable: must be one among SiStripBadChannel, SiStripFedCabling, SiStripVoltage or RunInfo"
   echo "    DBTag:             name of the database tag (Ex: SiStripBadComponents_OfflineAnalysis_GR09_31X_v1_offline)"
+  echo "    StoragePath:       name of the directory where to find the results of the DB condition monitoring"
   echo "Exiting."
   exit 1
 fi
@@ -22,7 +23,8 @@ export DBAccount=$2
 export monitoredVariable=$3
 # Example: SiStripBadComponents_OfflineAnalysis_GR09_31X_v1_offline
 export DBTag=$4
-
+#Example: 
+export STORAGEPATH=$5
 if [[ $monitoredVariable == "SiStripBadChannel" ]]
 then
   baseDir=QualityLog
@@ -41,10 +43,10 @@ then
   baseName=QualityInfo_Run
 else
   echo "The monitored variable that was entered is not valid!"
-  echo "Valid choices are: SiStrip, SiStripFedCabling, SiStripVoltage or RunInfo."
+  echo "Valid choices are: SiStripBadChannel, SiStripFedCabling, SiStripVoltage or RunInfo."
   echo "Exiting."
   exit 1
 fi
 
-getOfflineDQMDataGeneric.sh /afs/cern.ch/cms/tracker/sistrcalib/WWW/CondDBMonitoring/$DBName/$DBAccount/DBTagCollection/$monitoredVariable/$DBTag $baseDir $baseName
+getOfflineDQMDataGeneric.sh $STORAGEPATH/$DBName/$DBAccount/DBTagCollection/$monitoredVariable/$DBTag $baseDir $baseName
 

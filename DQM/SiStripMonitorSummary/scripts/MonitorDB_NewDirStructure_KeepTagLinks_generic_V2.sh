@@ -4,24 +4,20 @@
 shopt -s nullglob
 date
 
-if [ $# -ne 5 ]; then
-    afstokenchecker.sh "You have to provide a <tag_search_string>, a <DB>, an <Account>, a <GTAccount> and the <FrontierPath> !!!"
+if [ $# -ne 3 ]; then
+    afstokenchecker.sh "You have to provide a <tag_search_string>, a <DB> and a DB name for the connection string!!!"
     exit
 fi
 
-afstokenchecker.sh "Starting execution of MonitorDB_NewDirStructure_KeepTagLinks $1 $2 $3 $4"
+afstokenchecker.sh "Starting execution of MonitorDB_NewDirStructure_KeepTagLinks_generic_V2 $1 $2 $3"
 
 #Example: SEARCHSTRING=SiStrip
 SEARCHSTRING=$1
 #Example: DB=cms_orcoff_prod
 DB=$2
-#Example: ACCOUNT=CMS_COND_21X_STRIP
-ACCOUNT=$3
-#Example: GTACCOUNT=CMS_COND_21X_GLOBALTAG
-GTACCOUNT=$4
-#Example: FRONTIER=FrontierProd
-FRONTIER=$5
-DBTAGCOLLECTION=DBTagsIn_${DB}_${ACCOUNT}.txt
+ACCOUNT=CMS_CONDITIONS #to be checked if it is ok
+FRONTIER=$3 #to be fixed for dev?
+DBTAGCOLLECTION=DBTagsIn_${DB}.txt
 GLOBALTAGCOLLECTION=GlobalTagsForDBTag.txt
 DBTAGDIR=DBTagCollection
 GLOBALTAGDIR=GlobalTags
@@ -64,7 +60,7 @@ if [ ! -d "$STORAGEPATH/$DB" ]; then
 fi
 
 if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT" ]; then 
-    afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$ACCOUNT"
+    afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR"
     mkdir $STORAGEPATH/$DB/$ACCOUNT; 
 fi
 
@@ -80,8 +76,7 @@ if [ ! -d "$STORAGEPATH/$DB/$GLOBALTAGDIR" ]; then
 fi
 
 # Access of all SiStrip Tags uploaded to the given DB account
-cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$ACCOUNT -P /afs/cern.ch/cms/DB/conddb -a | grep $SEARCHSTRING | awk '{if(match($0,"V0")!=0) {} else {print $0}}' > $DBTAGCOLLECTION # Access via Frontier
-#cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$ACCOUNT -P /afs/cern.ch/cms/DB/conddb -a | grep $SEARCHSTRING | awk '{print $0}' > $DBTAGCOLLECTION # Access via Frontier
+conddb --db $DB --nocolors listTags | grep --regexp=^$SEARCHSTRING | awk '{if(match($1,"V0")!=0 || match($1,"/")!=0) {} else {print $1}}' > $DBTAGCOLLECTION
 
 # Loop on all DB Tags
 for tag in `cat $DBTAGCOLLECTION`; do
@@ -234,7 +229,7 @@ for tag in `cat $DBTAGCOLLECTION`; do
 
     # Get the list of IoVs for the given DB-Tag
     afstokenchecker.sh "Getting the list of IOVs for the given DB tag..."
-    iov_list_tag.py -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$ACCOUNT -P /afs/cern.ch/cms/DB/conddb -t $tag > list_Iov.txt # Access via Frontier
+    conddb --db $DB --nocolors list -L 5000 $tag | awk '{if(match($1,"[a-z]")!=0 || match($1,"-")!=0) {} else {print $1}}' > list_Iov.txt
 
     # Access DB for the given DB-Tag and dump values in a root-file and histograms in .png if not existing yet
     afstokenchecker.sh "Now the values are retrieved from the DB..."
@@ -355,49 +350,10 @@ for tag in `cat $DBTAGCOLLECTION`; do
 
     fi
 
-#    if [ `ls *.png | wc -w` -gt 0 ]; then
     if [ `echo *.png | wc -w` -gt 0 ]; then
 	rm *.png;
     fi
 
-#    if [ "$RECORD" = "SiStripDetVOffRcd" ] && [ "$NEWTAG" = "True" ]; then
-#	ROOTFILE="${tag}_Timestamp_XYZ.root"
-#	cat template_DBReader_cfg.py | sed -e "s@insertRun@insertTimestamp@g" -e "s@runnumber@timestamp@g" -e "s@insertLog@$LOGDESTINATION@g" -e "s@insertDB@$DB@g" -e "s@insertFrontier@$FRONTIER@g" -e "s@insertAccount@$ACCOUNT@g" -e "s@insertTag@$tag@g" -e "s@insertRecord@$RECORD@g" -e "s@insertOutFile@$ROOTFILE@g" -e "s@insertPedestalMon@$MONITOR_PEDESTAL@g" -e "s@insertNoiseMon@$MONITOR_NOISE@g" -e "s@insertQualityMon@$MONITOR_QUALITY@g" -e "s@insertGainMon@$MONITOR_GAIN@g" -e "s@insertCablingMon@$MONITOR_CABLING@g" -e "s@insertLorentzAngleMon@$MONITOR_LA@g" -e "s@insertThresholdMon@$MONITOR_THRESHOLD@g" -e "s@insertMonitorCumulative@$MONITORCUMULATIVE@g" -e "s@insertActiveDetId@$USEACTIVEDETID@g"> DBReader_cfg.py
-#	cat >> DBReader_cfg.py  << EOF
-#
-#process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
-#   ReduceGranularity = cms.bool(False),
-#   PrintDebugOutput = cms.bool(False),
-#   UseEmptyRunInfo = cms.bool(False),
-#   ListOfRecordToMerge = cms.VPSet(cms.PSet(
-#   record = cms.string('$RECORD'),
-#   tag = cms.string('')
-#   ))
-#)
-#
-#process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-#    TkMapFileName = cms.untracked.string(''),
-#    dataLabel = cms.untracked.string('')
-#)
-#
-#process.e = cms.EndPath(process.stat)
-#EOF
-#
-#	cp DBReader_cfg.py $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/cfg/${tag}_cfg.py
-#
-#	cat >> ${tag}_documentation << EOF
-#<html>
-#<body>
-#<a href="https://twiki.cern.ch/twiki/bin/view/CMS/StripTrackerDBTagsForCalibrations#${tag}">https://twiki.cern.ch/twiki/bin/view/CMS/StripTrackerDBTagsForCalibrations#${tag}</a>
-#</body>
-#</html>
-#EOF
-#
-#	mv ${tag}_documentation $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/Documentation;
-#
-#	rm $LOGDESTINATION.log
-#	continue
-#    fi
 
     # Process each IOV of the given DB-Tag seperately
     for IOV_number in `cat list_Iov.txt`; do
