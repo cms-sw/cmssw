@@ -72,7 +72,8 @@
 				  std::vector<float> &vterr,
 				  std::vector<float> &vzerr) const;
 
-	    void processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, Point point, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
+	    void processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, reco::VertexCollection vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
+	    Point getBestVertex(const reco::TrackBaseRef,const reco::VertexCollection) const;
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;

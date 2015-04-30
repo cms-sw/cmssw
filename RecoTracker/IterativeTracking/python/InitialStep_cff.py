@@ -120,37 +120,43 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
         name = 'initialStepV1',
         preFilterName = 'initialStepTight',
         ),
-    lowPtTripletStepSelector.trackSelectors[2].clone(
-        name = 'initialStepV4',
-        preFilterName=cms.string(''),
-        keepAllTracks = cms.bool(False)
-        ),
-    detachedTripletStepSelector.trackSelectors[4].clone(
-        name = 'initialStepV2',
-        preFilterName=cms.string(''),
-        keepAllTracks = cms.bool(False)
-        ),
-    detachedTripletStepSelector.trackSelectors[5].clone(
-        name = 'initialStepV3',
-        preFilterName=cms.string(''),
-        keepAllTracks = cms.bool(False)
-        )
+#    lowPtTripletStepSelector.trackSelectors[2].clone(
+#        name = 'initialStepV4',
+#        preFilterName=cms.string(''),
+#        keepAllTracks = cms.bool(False)
+#        ),
+#    detachedTripletStepSelector.trackSelectors[4].clone(
+#        name = 'initialStepV2',
+#        preFilterName=cms.string(''),
+#        keepAllTracks = cms.bool(False)
+#        ),
+#    detachedTripletStepSelector.trackSelectors[5].clone(
+#        name = 'initialStepV3',
+#        preFilterName=cms.string(''),
+#        keepAllTracks = cms.bool(False)
+#        )
     ) #end of vpset
 )#end of clone
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 initialStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks'),
-                                   cms.InputTag('initialStepTracks'),
-                                   cms.InputTag('initialStepTracks'),
-                                   cms.InputTag('initialStepTracks')),
-    hasSelector=cms.vint32(1,1,1,1),
+    TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks')),
+    hasSelector=cms.vint32(1),
     shareFrac = cms.double(0.99),
-    indivShareFrac=cms.vdouble(1.0,1.0,1.0,1.0),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStepV1"),
-                                       cms.InputTag("initialStepSelector","initialStepV4"),
-                                       cms.InputTag("initialStepSelector","initialStepV2"),
-                                       cms.InputTag("initialStepSelector","initialStepV3")),
-    setsToMerge = cms.VPSet(cms.PSet( tLists=cms.vint32(0,1,2,3), pQual=cms.bool(True) )),
+    indivShareFrac=cms.vdouble(1.0),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStepV1")),
+    setsToMerge = cms.VPSet(cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) )),
+#    TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks'),
+#                                   cms.InputTag('initialStepTracks'),
+#                                   cms.InputTag('initialStepTracks'),
+#                                   cms.InputTag('initialStepTracks')),
+#    hasSelector=cms.vint32(1,1,1,1),
+#    shareFrac = cms.double(0.99),
+#    indivShareFrac=cms.vdouble(1.0,1.0,1.0,1.0),
+#    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStepV1"),
+#                                       cms.InputTag("initialStepSelector","initialStepV4"),
+#                                       cms.InputTag("initialStepSelector","initialStepV2"),
+#                                       cms.InputTag("initialStepSelector","initialStepV3")),
+#    setsToMerge = cms.VPSet(cms.PSet( tLists=cms.vint32(0,1,2,3), pQual=cms.bool(True) )),
     writeOnlyTrkQuals=cms.bool(True)
     )
 
