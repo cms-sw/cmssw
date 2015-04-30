@@ -1,0 +1,3 @@
+import FWCore.ParameterSet.Config as cms
+
+candidateBoostedDoubleSecondaryVertexAK8Computer = cms.ESProducer("CandidateBoostedDoubleSecondaryVertexESProducer")

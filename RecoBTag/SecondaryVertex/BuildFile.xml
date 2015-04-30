@@ -6,6 +6,7 @@
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="RecoBTau/JetTagComputer"/>
 <use name="rootmath"/>
 <export>
   <lib name="1"/>

@@ -8,6 +8,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerESProducer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
 
+#include "RecoBTag/SecondaryVertex/interface/CandidateBoostedDoubleSecondaryVertexComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/GhostTrackComputer.h"
@@ -75,3 +76,6 @@ DEFINE_FWK_EVENTSETUP_MODULE(SimpleSecondaryVertexESProducer);
 
 typedef JetTagComputerESProducer<CandidateCombinedSVSoftLeptonJetTagComputer> CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer);
+
+typedef JetTagComputerESProducer<CandidateBoostedDoubleSecondaryVertexComputer> CandidateBoostedDoubleSecondaryVertexESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateBoostedDoubleSecondaryVertexESProducer);
