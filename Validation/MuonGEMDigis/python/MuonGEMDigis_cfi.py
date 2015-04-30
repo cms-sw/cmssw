@@ -43,4 +43,7 @@ gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
   gemMaxEta = cms.untracked.double(2.45),
 )
 
-gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemCoPadValidation+gemDigiTrackValidation)
+gemGeometryChecker = cms.EDAnalyzer('GEMCheckGeometry')
+
+gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemCoPadValidation+gemDigiTrackValidation+gemGeometryChecker)
+
