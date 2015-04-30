@@ -548,8 +548,11 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
     if ( connectionString.empty() )
       throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
     std::tuple<std::string,std::string,std::string> connPars = cond::persistency::parseConnectionString( connectionString );
-    if( std::get<2>( connPars ) == "CMS_COND_31X_GLOBALTAG" ) 
+    if( std::get<2>( connPars ) == "CMS_COND_31X_GLOBALTAG" ){
       edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are reading Global Tag \""<<roottag<<"\" from V1 account \"CMS_COND_31X_GLOBALTAG\". The concerned Conditions might be out of date."<<std::endl;
+    } else if( roottag.rfind("::All")!=std::string::npos && std::get<2>( connPars ) == "CMS_CONDITIONS" ){
+      edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are trying to read Global Tag \""<<roottag<<"\" - postfix \"::All\" should not be used for V2."<<std::endl;      
+    }
     cond::persistency::Session session = m_connection.createSession( connectionString );
     session.transaction().start( true );
     cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix ); 

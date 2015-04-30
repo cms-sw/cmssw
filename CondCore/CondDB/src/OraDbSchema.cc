@@ -311,7 +311,7 @@ namespace cond {
 
     bool OraGTTable::select( const std::string& name ){
       cond::TagCollectionRetriever gtRetriever( m_session, "", "" );
-      return gtRetriever.existsTagCollection( name+"::All" );
+      return gtRetriever.existsTagCollection( name );
     }
       
     bool OraGTTable::select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime){
