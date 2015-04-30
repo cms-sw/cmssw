@@ -257,6 +257,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   // Get tracks 
   Handle<TrackCollection> hSrcTrack;
   evt.getByToken(src_, hSrcTrack );
+
   const TrackCollection& srcTracks(*hSrcTrack);
   if (hSrcTrack.failedToGet())
         edm::LogWarning("MultiTrackSelector")<<"could not get Track collection";
@@ -286,10 +287,10 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   std::vector<Point> points;
   std::vector<float> vterr, vzerr;
   if (useVertices_) selectVertices(0,*hVtx, points, vterr, vzerr);
-  auto vtxP = points.empty() ? vertexBeamSpot.position() : points[0]; // rare, very rare, still happens!
+  //auto vtxP = points.empty() ? vertexBeamSpot.position() : points[0]; // rare, very rare, still happens!
   for (unsigned int i=0; i<qualityToSet_.size(); i++) {  
     std::vector<float> mvaVals_(srcTracks.size(),-99.f);
-    processMVA(evt,es,vertexBeamSpot,vtxP, i, mvaVals_, i == 0 ? true : false);
+    processMVA(evt,es,vertexBeamSpot,*(hVtx.product()), i, mvaVals_, i == 0 ? true : false);
     std::vector<int> selTracks(trkSize,0);
     auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
@@ -542,7 +543,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   }
 }
 
-void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, Point point, int selIndex, std::vector<float> & mvaVals_, bool writeIt) const
+void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, reco::VertexCollection vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt) const
 {
 
   using namespace std; 
@@ -553,6 +554,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   Handle<TrackCollection> hSrcTrack;
   evt.getByToken( src_, hSrcTrack );
   const TrackCollection& srcTracks(*hSrcTrack);
+  RefToBaseProd<Track> rtbpTrackCollection(hSrcTrack);
   assert(mvaVals_.size()==srcTracks.size());
 
  // get hits in track..
@@ -579,6 +581,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   size_t current = 0;
   for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
     const Track & trk = * it;
+    RefToBase<Track> trackRef(rtbpTrackCollection,current);
     auto tmva_ndof_ = trk.ndof();
     auto tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
     auto tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement()
@@ -610,8 +613,10 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     auto tmva_lostmidfrac_ = trk.numberOfLostHits() / (trk.numberOfValidHits() + trk.numberOfLostHits());
     auto tmva_absd0_ = fabs(-trk.dxy(beamspot.position()));
     auto tmva_absdz_ = fabs(trk.dz(beamspot.position()));
-    auto tmva_absd0PV_ = fabs(trk.dxy(point));
-    auto tmva_absdzPV_ = fabs(trk.dz(point));
+    Point bestVertex = getBestVertex(trackRef,vertices);
+    auto tmva_absd0PV_ = fabs(trk.dxy(bestVertex));
+    auto tmva_absdzPV_ = fabs(trk.dz(bestVertex));
+    auto tmva_pt_ = trk.pt();
 
     GBRForest const * forest = forest_[selIndex];
     if(useForestFromDB_){
@@ -620,42 +625,31 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
       forest = forestHandle.product();
     }
 
+    float gbrVals_[16];
+    gbrVals_[0] = tmva_pt_;
+    gbrVals_[1] = tmva_lostmidfrac_;
+    gbrVals_[2] = tmva_minlost_;
+    gbrVals_[3] = tmva_nhits_;
+    gbrVals_[4] = tmva_relpterr_;
+    gbrVals_[5] = tmva_eta_;
+    gbrVals_[6] = tmva_chi2n_no1dmod_;
+    gbrVals_[7] = tmva_chi2n_;
+    gbrVals_[8] = tmva_nlayerslost_;
+    gbrVals_[9] = tmva_nlayers3D_;
+    gbrVals_[10] = tmva_nlayers_;
+    gbrVals_[11] = tmva_ndof_;
+    gbrVals_[12] = tmva_absd0PV_;
+    gbrVals_[13] = tmva_absdzPV_;
+    gbrVals_[14] = tmva_absdz_;
+    gbrVals_[15] = tmva_absd0_;
 
-    if (mvaType_[selIndex] == "Prompt"){
-      float gbrVals_[15];
-      gbrVals_[0] = tmva_absd0PV_;
-      gbrVals_[1] = tmva_absdzPV_;
-      gbrVals_[2] = tmva_absdz_;
-      gbrVals_[3] = tmva_absd0_;
-      gbrVals_[4] = tmva_lostmidfrac_;
-      gbrVals_[5] = tmva_minlost_;
-      gbrVals_[6] = tmva_nhits_;
-      gbrVals_[7] = tmva_relpterr_;
-      gbrVals_[8] = tmva_eta_;
-      gbrVals_[9] = tmva_chi2n_no1dmod_;
-      gbrVals_[10] = tmva_chi2n_;
-      gbrVals_[11] = tmva_nlayerslost_;
-      gbrVals_[12] = tmva_nlayers3D_;
-      gbrVals_[13] = tmva_nlayers_;
-      gbrVals_[14] = tmva_ndof_;
-      
+    if (mvaType_[selIndex] == "Prompt"){      
       auto gbrVal = forest->GetClassifier(gbrVals_);
       mvaVals_[current] = gbrVal;
     }else{
-      float gbrVals_[11];
-      gbrVals_[0] = tmva_lostmidfrac_;
-      gbrVals_[1] = tmva_minlost_;
-      gbrVals_[2] = tmva_nhits_;
-      gbrVals_[3] = tmva_relpterr_;
-      gbrVals_[4] = tmva_eta_;
-      gbrVals_[5] = tmva_chi2n_no1dmod_;
-      gbrVals_[6] = tmva_chi2n_;
-      gbrVals_[7] = tmva_nlayerslost_;
-      gbrVals_[8] = tmva_nlayers3D_;
-      gbrVals_[9] = tmva_nlayers_;
-      gbrVals_[10] = tmva_ndof_;
-      
-      auto gbrVal = forest->GetClassifier(gbrVals_);
+      float detachedGbrVals_[12];
+      for(int jjj = 0; jjj < 12; jjj++)detachedGbrVals_[jjj] = gbrVals_[jjj];
+      auto gbrVal = forest->GetClassifier(detachedGbrVals_);
       mvaVals_[current] = gbrVal;
     }
   }
@@ -667,6 +661,31 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   }
 
 }
+
+MultiTrackSelector::Point MultiTrackSelector::getBestVertex(TrackBaseRef track,VertexCollection vertices) const {
+  Point p(0,0,-99999);
+  Point p_dz(0,0,-99999);
+  float bestWeight = 0;
+  float dzmin = 10000;
+  bool weightMatch = false;
+  for(auto const & vertex : vertices){
+    float w = vertex.trackWeight(track);
+    Point v_pos = vertex.position();
+    if(w > bestWeight){
+      p = v_pos;
+      bestWeight = w;
+      weightMatch = true;
+    }
+    float dz = fabs(track.get()->dz(v_pos));
+    if(dz < dzmin){
+      p_dz = v_pos;
+      dzmin = dz;
+    }
+  }
+  if(weightMatch)return p;
+  else return p_dz;
+}
+
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
