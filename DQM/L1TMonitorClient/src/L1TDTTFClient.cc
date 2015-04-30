@@ -37,6 +37,8 @@ L1TDTTFClient::~L1TDTTFClient(){
 void L1TDTTFClient::book(DQMStore::IBooker &ibooker)
 {
 
+  ibooker.setCurrentFolder(l1tdttffolder_);
+  
   edm::LogInfo("L1TDTTFClient")<<"[L1TDTTFClient]: Begin Job";
 
   wheelpath_[0] = l1tdttffolder_ + "/02-WHEEL_N2";
