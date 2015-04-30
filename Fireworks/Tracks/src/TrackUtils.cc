@@ -788,6 +788,7 @@ info(const DetId& id) {
 	       }
 	    }
 	    break;
+<<<<<<< HEAD
             case MuonSubdetId::GEM:
 	    {
 	       GEMDetId detId(id.rawId());
@@ -808,6 +809,28 @@ info(const DetId& id) {
 		   << detId.layer();
 	    }
 	    break;
+=======
+	 case MuonSubdetId::GEM:
+	   {
+	     GEMDetId detId(id.rawId());
+	     oss << "GEM chamber (region, station, ring, chamber, layer): "
+		 << detId.region() << ", "
+		 << detId.station() << ", "
+		 << detId.ring() << ", "
+		 << detId.chamber() << ", "
+		 << detId.layer();
+	   }
+	   break;
+	 case MuonSubdetId::ME0:
+	   {
+	     ME0DetId detId(id.rawId());
+	     oss << "ME0 chamber (region, chamber, layer): "
+		 << detId.region() << ", "
+		 << detId.chamber() << ", "
+		 << detId.layer();
+	   }
+	   break;
+>>>>>>> f421e28fd0b393015fadf66da47e622c29e643a4
 	 }
 	 break;
     
