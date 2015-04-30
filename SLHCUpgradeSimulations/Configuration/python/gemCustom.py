@@ -36,8 +36,8 @@ def customise_harvesting(process):
   return process
 
 def customise_L1Emulator2023(process) :
-  from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS3_cfi import cscTriggerPrimitiveDigisPostLS3
-  process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS3
+  from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTriggerPrimitiveDigis
+  process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigis
   process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
   process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
   process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
