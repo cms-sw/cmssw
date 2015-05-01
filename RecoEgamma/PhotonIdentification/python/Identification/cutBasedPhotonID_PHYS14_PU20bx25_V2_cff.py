@@ -18,7 +18,7 @@ from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools impor
 #       (where they may not stay, if a newer version of cuts becomes available for these
 #        conditions)
 # See also the presentation explaining these working points (this will not change):
-#       https://indico.cern.ch/event/367863/contribution/0/material/slides/0.pdf
+#    https://indico.cern.ch/event/369225/contribution/1/material/slides/0.pdf
 
 #
 # First, define cut values
