@@ -159,9 +159,9 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
   using namespace reco;
 
-  edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
-				 << "Analyzing new event" << "\n"
-				 << "====================================================\n" << "\n";
+  LogDebug("TrackValidator") << "\n====================================================" << "\n"
+                             << "Analyzing new event" << "\n"
+                             << "====================================================\n" << "\n";
 
 
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
@@ -261,9 +261,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       reco::SimToRecoCollection simRecCollL;
 
       //associate tracks
-      edm::LogVerbatim("TrackValidator") << "Analyzing "
-                                         << label[www] << " with "
-                                         << associators[ww] <<"\n";
+      LogTrace("TrackValidator") << "Analyzing "
+                                 << label[www] << " with "
+                                 << associators[ww] <<"\n";
       if(UseAssociators){
         edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
         event.getByToken(associatorTokens[ww], theAssociator);
@@ -315,7 +315,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
       //compute number of tracks per eta interval
       //
-      edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
+      LogTrace("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
       int ats(0);  	  //This counter counts the number of simTracks that are "associated" to recoTracks
       int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
       unsigned sts(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut
@@ -376,12 +376,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    ats++; //This counter counts the number of simTracks that have a recoTrack associated
 	    // isRecoMatched = true; // UNUSED
 	    matchedTrackPointer = rt.begin()->first.get();
-	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st
-					       << " with pt=" << sqrt(momentumTP.perp2())
-					       << " associated with quality:" << rt.begin()->second <<"\n";
+	    LogTrace("TrackValidator") << "TrackingParticle #" << st
+                                       << " with pt=" << sqrt(momentumTP.perp2())
+                                       << " associated with quality:" << rt.begin()->second <<"\n";
 	  }
 	}else{
-	  edm::LogVerbatim("TrackValidator")
+	  LogTrace("TrackValidator")
 	    << "TrackingParticle #" << st
 	    << " with pt,eta,phi: "
 	    << sqrt(momentumTP.perp2()) << " , "
@@ -409,11 +409,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       // ##############################################
       // fill recoTracks histograms (LOOP OVER TRACKS)
       // ##############################################
-      edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with "
-					 << label[www].process()<<":"
-					 << label[www].label()<<":"
-					 << label[www].instance()
-					 << ": " << trackCollection->size() << "\n";
+      LogTrace("TrackValidator") << "\n# of reco::Tracks with "
+                                 << label[www].process()<<":"
+                                 << label[www].label()<<":"
+                                 << label[www].instance()
+                                 << ": " << trackCollection->size() << "\n";
 
       int sat(0); //This counter counts the number of recoTracks that are associated to SimTracks from Signal only
       int at(0); //This counter counts the number of recoTracks that are associated to SimTracks
@@ -496,11 +496,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 		break;
 	      }
             }
-	    edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt()
-					       << " associated with quality:" << tp.begin()->second <<"\n";
+	    LogTrace("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt()
+                                       << " associated with quality:" << tp.begin()->second <<"\n";
 	} else {
-	  edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt()
-					     << " NOT associated to any TrackingParticle" << "\n";
+	  LogTrace("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt()
+                                     << " NOT associated to any TrackingParticle" << "\n";
 	}
 
 	double dR=dR_trk[i];
@@ -560,11 +560,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
       histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
 
-      edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
-					 << "Total Associated (simToReco): " << ats << "\n"
-					 << "Total Reconstructed: " << rT << "\n"
-					 << "Total Associated (recoToSim): " << at << "\n"
-					 << "Total Fakes: " << rT-at << "\n";
+      LogTrace("TrackValidator") << "Total Simulated: " << st << "\n"
+                                 << "Total Associated (simToReco): " << ats << "\n"
+                                 << "Total Reconstructed: " << rT << "\n"
+                                 << "Total Associated (recoToSim): " << at << "\n"
+                                 << "Total Fakes: " << rT-at << "\n";
 
       w++;
     } // End of  for (unsigned int www=0;www<label.size();www++){
