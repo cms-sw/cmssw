@@ -182,6 +182,7 @@
 
     if (!native("file"))      addType(mgr, "^file:");
     if (!native("http"))      addType(mgr, "^http:");
+    if (!native("http"))      addType(mgr, "^http[s]?:");
     if (!native("ftp"))       addType(mgr, "^ftp:");
     /* always */              addType(mgr, "^web:");
     /* always */              addType(mgr, "^gsiftp:");
