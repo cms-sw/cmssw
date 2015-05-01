@@ -14,11 +14,9 @@ dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
     OutputFolderName = cms.string("Egamma/Electrons/TagAndProbe"),
     
     Selection = cms.int32(3), # 0=All elec, 1=Etcut, 2=Iso, 3=eId
-    #ElectronCollection = cms.InputTag("gedGsfElectrons"),
-    ElectronCollection = cms.InputTag("gedGsfElectronsTmp"),  # for electron in HI
+    ElectronCollection = cms.InputTag("gedGsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    #TrackCollection = cms.InputTag("generalTracks"),
-    TrackCollection = cms.InputTag("hiGeneralTracks"),    # for electron in Hi
+    TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),
     VertexCollection = cms.InputTag(""),
     BeamSpot = cms.InputTag("offlineBeamSpot"),

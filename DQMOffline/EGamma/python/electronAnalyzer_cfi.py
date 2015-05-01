@@ -18,14 +18,11 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     OutputFolderName = cms.string("Egamma/Electrons"),
     
     Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId
-    #ElectronCollection = cms.InputTag("gedGsfElectrons"),
-    ElectronCollection = cms.InputTag("gedGsfElectronsTmp"),  #for electron in HI
+    ElectronCollection = cms.InputTag("gedGsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    #TrackCollection = cms.InputTag("generalTracks"),
-    TrackCollection = cms.InputTag("hiGeneralTracks"),  # for electron in HI
+    TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),
-    #VertexCollection = cms.InputTag("offlinePrimaryVertices"),
-    VertexCollection = cms.InputTag("hiSelectedVertex"),  # for electron in HI
+    VertexCollection = cms.InputTag("offlinePrimaryVertices"),
     BeamSpot = cms.InputTag("offlineBeamSpot"),
     ReadAOD = cms.bool(False),
     

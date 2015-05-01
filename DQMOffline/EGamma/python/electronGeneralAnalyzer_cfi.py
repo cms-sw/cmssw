@@ -10,14 +10,11 @@ dqmElectronGeneralAnalysis = cms.EDAnalyzer("ElectronGeneralAnalyzer",
     InputFolderName = cms.string("Egamma/Electrons/General"),
     OutputFolderName = cms.string("Egamma/Electrons/General"),
     
-    #ElectronCollection = cms.InputTag("gedGsfElectrons"),
-    ElectronCollection = cms.InputTag("gedGsfElectronsTmp"),  # for electron in HI
+    ElectronCollection = cms.InputTag("gedGsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    #TrackCollection = cms.InputTag("generalTracks"),
-    TrackCollection = cms.InputTag("hiGeneralTracks"),    # for electron in Hi
+    TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),
-    #VertexCollection = cms.InputTag("offlinePrimaryVertices"),
-    VertexCollection = cms.InputTag("hiSelectedVertex"),  # for electron in HI
+    VertexCollection = cms.InputTag("offlinePrimaryVertices"),
     BeamSpot = cms.InputTag("offlineBeamSpot"),
     TriggerResults = cms.InputTag("TriggerResults::HLT")
     #HltPaths = cms.vstring('HLT_Ele10_SW_L1R','HLT_Ele15_SW_L1R','HLT_Ele15_SW_EleId_L1R','HLT_Ele15_SW_LooseTrackIso_L1R','HLT_Ele15_SC15_SW_LooseTrackIso_L1R','HLT_Ele15_SC15_SW_EleId_L1R','HLT_Ele20_SW_L1R','HLT_Ele20_SC15_SW_L1R','HLT_Ele25_SW_L1R','HLT_Ele25_SW_EleId_LooseTrackIso_L1R','HLT_DoubleEle10_SW_L1R')
