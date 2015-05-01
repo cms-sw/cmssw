@@ -254,6 +254,11 @@ void HLTWorkspace::bookPlots()
   quickCollectionPaths.push_back("HLT_PFJet200");
   lookupFilter["HLT_PFJet200"] = "hltSinglePFJet200";
 
+  quickCollectionPaths.push_back("HLT_MET75_IsoTrk50");
+  lookupFilter["HLT_MET75_IsoTrk50"] = "hltMETClean75";
+  
+  
+
   ////////////////////////////////
   ///
   /// Main shifter workspace plots
@@ -290,6 +295,11 @@ void HLTWorkspace::bookPlots()
   TH1F * hist_alphaT = new TH1F("alphaT","alphaT",30,0,5);
   hist_alphaT->SetMinimum(0);
   dbe->book1D("AlphaT",hist_alphaT);
+
+  //caloMET pt
+  TH1F * hist_caloMetPt = new TH1F("CaloMET_pT","CaloMET pT",75,0,150);
+  hist_caloMetPt->SetMinimum(0);
+  dbe->book1D("CaloMET_pT",hist_caloMetPt);
 
   ////////////////////////////////
   ///
@@ -443,6 +453,18 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
       TH1F * hist_jetPt = ME_jetPt->getTH1F();
       for (const auto & key : keys) hist_jetPt->Fill(objects[key].pt());
     }
+
+  //caloMET pt
+  else if (pathName == "HLT_MET75_IsoTrk50")
+    {
+      // pt
+      string fullPathCaloMetPt = mainShifterFolder+"/CaloMET_pT";
+      MonitorElement * ME_caloMetPt = dbe->get(fullPathCaloMetPt);
+      TH1F * hist_caloMetPt = ME_caloMetPt->getTH1F();
+      for (const auto & key : keys) hist_caloMetPt->Fill(objects[key].pt());
+    }
+
+  
   
  //CSV
   // else if (pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq240" || pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07")
