@@ -123,7 +123,8 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
   mainShifterFolder = TString(topDirectoryName+"/MainShifter");
   backupFolder = TString(topDirectoryName+"/Backup");
 
-  //set Token(s)
+  //set Token(s) 
+  //will need to change 'TEST' to 'HLT' or something else before implementation
   triggerResultsToken_ = consumes<edm::TriggerResults>(InputTag("TriggerResults","", "TEST"));
   aodTriggerToken_ = consumes<trigger::TriggerEvent>(InputTag("hltTriggerSummaryAOD", "", "TEST"));
   lumiScalersToken_ = consumes<LumiScalersCollection>(InputTag("hltScalersRawToDigi","",""));
@@ -256,7 +257,12 @@ void HLTWorkspace::bookPlots()
 
   quickCollectionPaths.push_back("HLT_MET75_IsoTrk50");
   lookupFilter["HLT_MET75_IsoTrk50"] = "hltMETClean75";
-  
+
+  quickCollectionPaths.push_back("HLT_PFHT750_4Jet");
+  lookupFilter["HLT_PFHT750_4Jet"] = "hltPF4JetHT750";
+
+  quickCollectionPaths.push_back("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg");
+  lookupFilter["HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"] = "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg";
   
 
   ////////////////////////////////
@@ -286,6 +292,11 @@ void HLTWorkspace::bookPlots()
   hist_jetPt->SetMinimum(0);
   dbe->book1D("Jet_pT",hist_jetPt);
 
+  //tau pt
+  TH1F * hist_tauPt = new TH1F("Tau_pT","Tau pT",75,30,350);
+  hist_tauPt->SetMinimum(0);
+  dbe->book1D("Tau_pT",hist_tauPt);
+
   //dimuon low mass
   TH1F * hist_dimuonLowMass = new TH1F("Dimuon_LowMass","Dimuon Low Mass",100,2.5,3.5);
   hist_dimuonLowMass->SetMinimum(0);
@@ -297,9 +308,16 @@ void HLTWorkspace::bookPlots()
   dbe->book1D("AlphaT",hist_alphaT);
 
   //caloMET pt
-  TH1F * hist_caloMetPt = new TH1F("CaloMET_pT","CaloMET pT",75,0,150);
+  TH1F * hist_caloMetPt = new TH1F("CaloMET_pT","CaloMET pT",60,50,550);
   hist_caloMetPt->SetMinimum(0);
   dbe->book1D("CaloMET_pT",hist_caloMetPt);
+
+  //PFHT pt
+  TH1F * hist_pfHtPt = new TH1F("PFHT_pT","PFHT pT",200,0,1500);
+  hist_pfHtPt->SetMinimum(0);
+  dbe->book1D("PFHT_pT",hist_pfHtPt);
+
+
 
   ////////////////////////////////
   ///
@@ -326,7 +344,6 @@ void HLTWorkspace::bookPlots()
   hist_muonPhi->SetMinimum(0);
   dbe->book1D("Muon_phi",hist_muonPhi);
 
-
   //electron eta
   TH1F * hist_electronEta = new TH1F("Electron_eta","Electron eta",50,0,3);
   hist_electronEta->SetMinimum(0);
@@ -335,6 +352,11 @@ void HLTWorkspace::bookPlots()
   TH1F * hist_electronPhi = new TH1F("Electron_phi","Electron phi",50,-3.4,3.4);
   hist_electronPhi->SetMinimum(0);
   dbe->book1D("Electron_phi",hist_electronPhi);
+
+  //caloMET phi
+  TH1F * hist_caloMetPhi = new TH1F("CaloMET_phi","CaloMET phi",50,-3.4,3.4);
+  hist_caloMetPhi->SetMinimum(0);
+  dbe->book1D("CaloMET_phi",hist_caloMetPhi);
 
 }
 
@@ -454,18 +476,46 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
       for (const auto & key : keys) hist_jetPt->Fill(objects[key].pt());
     }
 
-  //caloMET pt
+  //tau pt
+  else if (pathName == "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg")
+    {
+      //tau pt
+      string fullPathTauPt = mainShifterFolder+"/Tau_pT";
+      MonitorElement * ME_tauPt = dbe->get(fullPathTauPt);
+      TH1F * hist_tauPt = ME_tauPt->getTH1F();
+      for (const auto & key : keys) hist_tauPt->Fill(objects[key].pt());
+    }
+
+  //caloMET pt+phi
   else if (pathName == "HLT_MET75_IsoTrk50")
     {
       // pt
       string fullPathCaloMetPt = mainShifterFolder+"/CaloMET_pT";
       MonitorElement * ME_caloMetPt = dbe->get(fullPathCaloMetPt);
       TH1F * hist_caloMetPt = ME_caloMetPt->getTH1F();
-      for (const auto & key : keys) hist_caloMetPt->Fill(objects[key].pt());
+      // phi
+      string fullPathCaloMetPhi = backupFolder+"/CaloMET_phi";
+      MonitorElement * ME_caloMetPhi = dbe->get(fullPathCaloMetPhi);
+      TH1F * hist_caloMetPhi = ME_caloMetPhi->getTH1F();
+
+      for (const auto & key : keys)
+	{
+	  hist_caloMetPt->Fill(objects[key].pt());
+	  hist_caloMetPhi->Fill(objects[key].phi());
+	}
+    }
+  
+  //PFHT pt
+  else if (pathName == "HLT_PFHT750_4Jet")
+    {
+      // pt
+      string fullPathPfHtPt = mainShifterFolder+"/PFHT_pT";
+      MonitorElement * ME_pfHtPt = dbe->get(fullPathPfHtPt);
+      TH1F * hist_pfHtPt = ME_pfHtPt->getTH1F();
+      for (const auto & key : keys) hist_pfHtPt->Fill(objects[key].pt());
     }
 
-  
-  
+
  //CSV
   // else if (pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq240" || pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07")
   //   {
