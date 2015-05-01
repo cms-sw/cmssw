@@ -65,6 +65,9 @@ namespace cond {
 
     inline std::string convertoToOracleConnection(const std::string & input){
 
+      // leave the connection string unmodified for sqlite
+      if( input.find("sqlite") == 0 ) return input;
+
       //static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
       static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
       static const boost::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
@@ -101,7 +104,7 @@ namespace cond {
 	match = true;
       }
 
-      if( !match ) throwException("Connection string can't be converted.","convertoToOracleConnection");
+      if( !match ) throwException("Connection string "+input+" can't be converted to oracle connection.","convertoToOracleConnection");
 
       if( service == "FrontierArc" ){
 	size_t len = account.size()-5;
