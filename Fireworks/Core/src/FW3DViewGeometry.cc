@@ -225,11 +225,13 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 			{
 			  GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
 			  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-			  shape->SetTitle(TString::Format("GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u",
-							  iRing, iStation, iChamber, iRoll, id.rawId()));
+			  if (shape){
+			    shape->SetTitle(TString::Format("GEM: , Rng=%d, St=%d, Ch=%d Rl=%d\ndet-id=%u",
+							    iRing, iStation, iChamber, iRoll, id.rawId()));
  	  	            
-			  cRing->AddElement( shape );
-			  addToCompound(shape, kFWMuonEndcapLineColorIndex );
+			    cRing->AddElement( shape );
+			    addToCompound(shape, kFWMuonEndcapLineColorIndex );
+			  }
 			}
 		    }
 		}
@@ -254,15 +256,19 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 		  {
 		    ME0DetId id( iRegion, iLayer, iChamber, iRoll );
 		    TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-		    shape->SetTitle(TString::Format("ME0: , Ch=%d Rl=%d\ndet-id=%u",
-						    iChamber, iRoll, id.rawId()));
+		    if (shape){
+		      shape->SetTitle(TString::Format("ME0: , Ch=%d Rl=%d\ndet-id=%u",
+						      iChamber, iRoll, id.rawId()));
  	  	            
-		    eRegion->AddElement( shape );
-		    addToCompound(shape, kFWMuonEndcapLineColorIndex );
+		      eRegion->AddElement( shape );
+		      addToCompound(shape, kFWMuonEndcapLineColorIndex );
+		    }
 		  }
 	      }
 	  }
       }
+      gEve->AddToListTree(ME0list, false);
+
       m_muonEndcapElements->AddElement(ME0list);
       AddElement( m_muonEndcapElements );
    }

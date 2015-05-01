@@ -412,10 +412,6 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
       if (showGEM) det.addParam(&m_showGEM);
       bool showME0 = m_context->getGeom()->versionInfo().haveExtraDet("ME0");
       if (showME0) det.addParam(&m_showME0);
-      std::cout << " showGEM " << showGEM
-		<< " showME0 " << showME0
-		<< " m_context->getGeom()->versionInfo().haveExtraDet() " << m_context->getGeom()->versionInfo().haveExtraDet("GEM2")
-		<< std::endl;
    }
 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE

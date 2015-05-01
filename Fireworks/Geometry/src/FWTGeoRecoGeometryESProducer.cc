@@ -31,6 +31,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -804,21 +805,20 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 void
 FWTGeoRecoGeometryESProducer::addME0Geometry( )
 {
-   
-  TGeoVolume* tv =  GetTopHolder("Muon", kMuonCSC);
+  TGeoVolume* tv =  GetTopHolder("Muon", kMuonME0);
   TGeoVolume *assembly = GetDaughter(tv, "ME0", kMuonME0);
 
   DetId detId( DetId::Muon, 5 );
   try 
     {
       const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
-  
+
       for(auto roll : me0Geom->etaPartitions())
 	{ 
 	  if( roll )
 	    {
 	      unsigned int rawid = roll->geographicalId().rawId();
-	      // std::cout << "AMT FWTTTTRecoGeometryES\n" << rawid ;
+	      //std::cout << "AMT FWTTTTRecoGeometryES\n" << rawid ;
                         
 	      ME0DetId detid(rawid);
 	      std::stringstream s;
