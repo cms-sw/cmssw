@@ -551,17 +551,26 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
 void
 FWRPZViewGeometry::showGEM( bool show )
 {
-  if( !m_GEMElements && show )
-    {
-      m_GEMElements = new TEveElementList("GEM");
+  // hardcoded gem and me0; need to find better way for different gem geometries
+  if( !m_GEMElements && show ){
+    m_GEMElements = new TEveElementList("GEM");
 
-      for (int region=GEMDetId::minRegionId; region<=GEMDetId::maxRegionId; region=region+2){
-      	int ring = 1;
-      	for (int station=GEMDetId::minStationId; station<=2; ++station){
-      	  for (int layer=GEMDetId::minLayerId; layer<=GEMDetId::maxLayerId; ++layer){
-	    int chamber = 1;
-	    for (int roll=GEMDetId::minRollId; roll<=GEMDetId::maxRollId; ++roll){	
-	      GEMDetId id(region, ring, station, layer, chamber, roll);
+    for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion= iRegion+2){
+      int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? 3:1; 
+
+      for( Int_t iStation = GEMDetId::minStationId; iStation <= mxSt; ++iStation ){	      
+	Int_t iRing = 1;
+	for( Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId ; ++iLayer ){
+	  int maxChamber = 36;
+	  if (iStation >= 2) maxChamber = 18;
+
+	  for( Int_t iChamber = 1; iChamber <= maxChamber; ++iChamber ){
+	    int maxRoll = iChamber%2 ? 9:10;
+	    if (iStation == 2) maxRoll = 8;
+	    if (iStation == 3) maxRoll = 12;
+
+	    for (Int_t iRoll = GEMDetId::minRollId; iRoll <= maxRoll ; ++iRoll ){
+	      GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
 	      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
 	      if (shape){
 		addToCompound(shape, kFWMuonEndcapLineColorIndex);
@@ -572,47 +581,45 @@ FWRPZViewGeometry::showGEM( bool show )
 	  }
 	}
       }
+    }
       
-      AddElement(m_GEMElements);
-      importNew(m_GEMElements);
-   }
-   if (m_GEMElements)
-   {
-      m_GEMElements->SetRnrState(show);
-      gEve->Redraw3D();
-   }
+    AddElement(m_GEMElements);
+    importNew(m_GEMElements);
+  }
+  if (m_GEMElements){
+    m_GEMElements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
 }
 
 void
 FWRPZViewGeometry::showME0( bool show )
 {
-   if( !m_ME0Elements && show )
-   {
-      m_ME0Elements = new TEveElementList("ME0");
+  if( !m_ME0Elements && show ){
+    m_ME0Elements = new TEveElementList("ME0");
 
-      for (int region=ME0DetId::minRegionId; region<=ME0DetId::maxRegionId; region=region+2){
-	for (int layer=ME0DetId::minLayerId; layer<=ME0DetId::maxLayerId; layer=layer+15){
-	  int chamber = 1;
-	  for (int roll=ME0DetId::minRollId; roll<=ME0DetId::maxRollId; ++roll){		
-	    ME0DetId id(region, layer, chamber, roll);
-	    TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-	    if (shape){
-	      addToCompound(shape, kFWMuonEndcapLineColorIndex);
-	      m_ME0Elements->AddElement( shape );
-	      gEve->AddToListTree(shape, true);
-	    }
+    for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; iRegion= iRegion+2 ){
+      for( Int_t iLayer = 1; iLayer <= 6 ; ++iLayer ){
+	for( Int_t iChamber = 1; iChamber <= 18; ++iChamber ){
+	  Int_t iRoll = 1;
+	  ME0DetId id( iRegion, iLayer, iChamber, iRoll );
+	  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+	  if (shape){
+	    addToCompound(shape, kFWMuonEndcapLineColorIndex);
+	    m_ME0Elements->AddElement( shape );
+	    gEve->AddToListTree(shape, true);
 	  }
 	}
       }
+    }
       
-      AddElement(m_ME0Elements);
-      importNew(m_ME0Elements);
-   }
-   if (m_ME0Elements)
-   {
-      m_ME0Elements->SetRnrState(show);
-      gEve->Redraw3D();
-   }
+    AddElement(m_ME0Elements);
+    importNew(m_ME0Elements);
+  }
+  if (m_ME0Elements){
+    m_ME0Elements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
 }
 
 //-------------------------------------
