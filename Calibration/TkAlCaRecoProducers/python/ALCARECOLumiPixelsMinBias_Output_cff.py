@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # AlCaReco for track based calibration using MinBias events
-OutALCARECOLumiPixels_noDrop = cms.PSet(
+OutALCARECOLumiPixelsMinBias_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOLumiPixels')
+        SelectEvents = cms.vstring('pathALCARECOLumiPixelsMinBias')
     ),
     outputCommands = cms.untracked.vstring( 
         'keep *_siPixelClusters_*_*',
@@ -18,5 +18,5 @@ OutALCARECOLumiPixels_noDrop = cms.PSet(
 
 
 import copy
-OutALCARECOLumiPixels=copy.deepcopy(OutALCARECOLumiPixels_noDrop)
-OutALCARECOLumiPixels.outputCommands.insert(0,"drop *")
+OutALCARECOLumiPixelsMinBias=copy.deepcopy(OutALCARECOLumiPixelsMinBias_noDrop)
+OutALCARECOLumiPixelsMinBias.outputCommands.insert(0,"drop *")
