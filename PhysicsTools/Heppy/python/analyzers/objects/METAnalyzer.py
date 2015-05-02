@@ -67,7 +67,7 @@ class METAnalyzer( Analyzer ):
         import ROOT
         setattr(event, "tkMet"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, math.hypot((sum([x.px() for x in charged])),(sum([x.py() for x in charged]))) ))
-        setattr(event, "tkMetchs"+self.cfg_ana.collectionPostFix, \
+        setattr(event, "tkMetPVchs"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedchs])) , -1.*(sum([x.py() for x in chargedchs])), 0, math.hypot((sum([x.px() for x in chargedchs])),(sum([x.py() for x in chargedchs]))) ))
         setattr(event, "tkMetPVLoose"+self.cfg_ana.collectionPostFix, \
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVLoose])) , -1.*(sum([x.py() for x in chargedPVLoose])), 0, math.hypot((sum([x.px() for x in chargedPVLoose])),(sum([x.py() for x in chargedPVLoose]))) ))
@@ -75,6 +75,16 @@ class METAnalyzer( Analyzer ):
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) ))
 ##        print 'tkmet',self.tkMet.pt(),'tkmetphi',self.tkMet.phi()
 
+
+        event.tkSumEt = sum([x.pt() for x in charged])
+        event.tkPVchsSumEt = sum([x.pt() for x in chargedchs])
+        event.tkPVLooseSumEt = sum([x.pt() for x in chargedPVLoose])
+        event.tkPVTightSumEt = sum([x.pt() for x in chargedPVTight])
+
+
+    def makeGenTkMet(self, event):
+        genCharged = [ x for x in event.genParticles if x.charge() != 0 and abs(x.eta())<2.4 ]
+        event.tkGenMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in genCharged])) , -1.*(sum([x.py() for x in genCharged])), 0, math.hypot((sum([x.px() for x in genCharged])),(sum([x.py() for x in genCharged]))) )
 
     def makeMETNoMu(self, event):
         self.metNoMu = copy.deepcopy(self.met)
@@ -95,7 +105,7 @@ class METAnalyzer( Analyzer ):
         setattr(event, "metNoMu"+self.cfg_ana.collectionPostFix, self.metNoMu)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoMuNoPU"+self.cfg_ana.collectionPostFix, self.metNoMuNoPU)
 
-        
+
     def makeMETNoEle(self, event):
         self.metNoEle = copy.deepcopy(self.met)
         if self.cfg_ana.doMetNoPU: self.metNoEleNoPU = copy.deepcopy(self.metNoPU)
@@ -205,7 +215,8 @@ class METAnalyzer( Analyzer ):
         if self.cfg_ana.doTkMet: 
             self.makeTkMETs(event);
 
-
+            if self.cfg_comp.isMC and hasattr(event, 'genParticles'):
+                self.makeGenTkMet(event)
 
         return True
 
