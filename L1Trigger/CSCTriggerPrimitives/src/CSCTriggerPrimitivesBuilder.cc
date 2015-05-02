@@ -58,9 +58,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  runME11ILT_ = commonParams.getParameter<bool>("runME11ILT");
-  runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
-  runME3141ILT_ = commonParams.getParameter<bool>("runME3141ILT");
+  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
+  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
+  runME3141ILT_ = commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false;
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++)

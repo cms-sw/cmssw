@@ -111,7 +111,6 @@ def _modifyCscTriggerPrimitiveDigisForRun4GE21( object ) :
     """
     Modifies cscTriggerPrimitiveDigis for Run 4 + GEMs
     """
-    object.GEMPadDigiProducer = "simMuonGEMPadDigis"
     object.commonParam.runME21ILT = cms.bool(False)
     object.clctSLHCME21 = object.clctSLHC.clone()
     object.alctSLHCME21 = object.alctSLHC.clone()

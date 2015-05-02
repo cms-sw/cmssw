@@ -47,12 +47,11 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  gemPadDigiProducer_ = conf.getParameter<edm::InputTag>("GEMPadDigiProducer");
-  rpcDigiProducer_ = conf.getParameter<edm::InputTag>("RPCDigiProducer");
+  gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
+  rpcDigiProducer_ = conf.existsAs<edm::InputTag>("RPCDigiProducer")?conf.getParameter<edm::InputTag>("RPCDigiProducer"):edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
-
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
-
+  
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   gem_pad_token_ = consumes<GEMPadDigiCollection>(gemPadDigiProducer_);
