@@ -1559,10 +1559,7 @@ class ConfigBuilder(object):
 		else:
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-		if self._options.fast:
-			self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-		else:
-			self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+		self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
 		if self._options.fast:
