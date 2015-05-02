@@ -137,8 +137,8 @@ cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_loose.idName,
-                             'dd6bfd9474187cd31aeaabf90f2a51ca')
+                             '28dabb0be297b7a5eb26df8ffeef22b9')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_medium.idName,
-                             '38324dea128c659171cfc517c4327c97')
+                             'd3d464d7b45f94f3944de95a1c0f498e')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight.idName,
-                             'ee67005da6543678d1d3f9d12ecbd6bd')
+                             'c61288dd4defe947df67dafc2e868d15')
