@@ -1,3 +1,4 @@
+import os
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLTNew1')
@@ -8,9 +9,11 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.StandardSequences.GeometrySimDB_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('HLTrigger.Configuration.HLT_GRun_cff')
@@ -38,7 +41,6 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.options = cms.untracked.PSet(
-
 )
 
 # Production Info
@@ -76,8 +78,7 @@ process.IsoTrackCalibration.Verbosity = 0
 process.analyze = cms.EndPath(process.IsoTrigHB + process.IsoTrigHE + process.IsoTrackCalibration)
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 
-                              'auto:run2_mc_GRun', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_GRun', '')
 
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 
@@ -98,7 +99,7 @@ process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence +
                                       process.hltIter0PFLowPixelSeedsFromPixelTracks +
                                       process.hltIter0PFlowCkfTrackCandidates +
                                       process.hltIter0PFlowCtfWithMaterialTracks +
-                                      process.hltHITIPTCorrectorHE + 
+                                      process.hltHcalITIPTCorrectorHE + 
                                       process.hltIsolPixelTrackL3FilterHE + 
                                       process.HLTEndSequence 
                                       )
@@ -120,7 +121,7 @@ process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence +
                                       process.hltIter0PFLowPixelSeedsFromPixelTracks +
                                       process.hltIter0PFlowCkfTrackCandidates +
                                       process.hltIter0PFlowCtfWithMaterialTracks +
-                                      process.hltHITIPTCorrectorHB + 
+                                      process.hltHcalITIPTCorrectorHB + 
                                       process.hltIsolPixelTrackL3FilterHB + 
                                       process.HLTEndSequence 
                                       )
@@ -322,12 +323,16 @@ process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step])
 process.schedule.extend([process.analyze])
 process.schedule.extend([process.FastTimerOutput])
+
 # customisation of the process.
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+process = customisePostLS1(process)
+
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-#from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
 
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
-#process = customizeHLTforMC(process)
+process = customizeHLTforMC(process)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 #from SLHCUpgradeSimulations.Configuration.postLS1Customs import *
