@@ -40,7 +40,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 # LUMI Calibration
 ###############################################################
 # AlCaReco for A stream (PD=MinBias)
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_cff import *
 
 ###############################################################
 # ECAL Calibration
