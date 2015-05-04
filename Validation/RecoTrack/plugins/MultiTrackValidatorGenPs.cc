@@ -120,6 +120,18 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     return;
   }
 
+  // dE/dx
+  // at some point this could be generalized, with a vector of tags and a corresponding vector of Handles
+  // I'm writing the interface such to take vectors of ValueMaps
+  std::vector<const edm::ValueMap<reco::DeDxData> *> v_dEdx;
+  if(dodEdxPlots_) {
+    edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx1Handle;
+    edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx2Handle;
+    event.getByToken(m_dEdx1Tag, dEdx1Handle);
+    event.getByToken(m_dEdx2Tag, dEdx2Handle);
+    v_dEdx.push_back(dEdx1Handle.product());
+    v_dEdx.push_back(dEdx2Handle.product());
+  }
 
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int www=0;www<label.size();www++){
@@ -280,29 +292,6 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     int at(0); //This counter counts the number of recoTracks that are associated to GenTracks
     int rT(0); //This counter counts the number of recoTracks in general
     
-    
-    // dE/dx
-    // at some point this could be generalized, with a vector of tags and a corresponding vector of Handles
-    // I'm writing the interface such to take vectors of ValueMaps
-    edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx1Handle;
-    edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx2Handle;
-    std::vector<edm::ValueMap<reco::DeDxData> > v_dEdx;
-    v_dEdx.clear();
-    //std::cout << "PIPPO: label is " << label[www] << std::endl;
-    if (label[www].label()=="generalTracks") {
-      try {
-        event.getByToken(m_dEdx1Tag, dEdx1Handle);
-        const edm::ValueMap<reco::DeDxData> dEdx1 = *dEdx1Handle.product();
-        event.getByToken(m_dEdx2Tag, dEdx2Handle);
-        const edm::ValueMap<reco::DeDxData> dEdx2 = *dEdx2Handle.product();
-        v_dEdx.push_back(dEdx1);
-        v_dEdx.push_back(dEdx2);
-      } catch (cms::Exception e){
-        LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
-      }
-    }
-    //end dE/dx
-    
     for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
       
       RefToBase<Track> track(trackCollection, i);
@@ -351,9 +340,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
       
       // dE/dx
-      //	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );
-      if (v_dEdx.size() > 0) histoProducerAlgo_->fill_dedx_recoTrack_histos(w,track, v_dEdx);
-      //if (v_dEdx.size() > 0) histoProducerAlgo_->fill_dedx_recoTrack_histos(track2, v_dEdx);
+      if (dodEdxPlots_) histoProducerAlgo_->fill_dedx_recoTrack_histos(w,track, v_dEdx);
       
       
       //Fill other histos

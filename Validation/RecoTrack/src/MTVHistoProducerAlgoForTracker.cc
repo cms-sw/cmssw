@@ -385,16 +385,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   nrecHit_vs_nsimHit_rec2sim.push_back( ibook.book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
 
-  // dE/dx stuff
-  // FIXME: it would be nice to have an array
-  h_dedx_estim1.push_back( ibook.book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx) );
-  h_dedx_estim2.push_back( ibook.book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx) );
-  h_dedx_nom1.push_back( ibook.book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit) );
-  h_dedx_nom2.push_back( ibook.book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit) );
-  h_dedx_sat1.push_back( ibook.book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
-  h_dedx_sat2.push_back( ibook.book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
-
-
   if(useLogPt){
     BinLogX(dzres_vs_pt.back()->getTH2F());
     BinLogX(dxyres_vs_pt.back()->getTH2F());
@@ -408,6 +398,22 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
     BinLogX(h_assoc2pT.back()->getTH1F());
     BinLogX(h_simulpT.back()->getTH1F());
   }
+}
+
+void MTVHistoProducerAlgoForTracker::bookRecodEdxHistos(DQMStore::IBooker& ibook) {
+  // dE/dx stuff
+  h_dedx_estim.emplace_back(std::initializer_list<MonitorElement*>{
+      ibook.book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx),
+      ibook.book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx)
+      });
+  h_dedx_nom.emplace_back(std::initializer_list<MonitorElement*>{
+      ibook.book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit),
+      ibook.book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit)
+      });
+  h_dedx_sat.emplace_back(std::initializer_list<MonitorElement*>{
+      ibook.book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit),
+      ibook.book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit)
+      });
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook){
@@ -601,26 +607,13 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 }
 
 // dE/dx
-void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx) {
-//void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx) {
-  double dedx;
-  int nom;
-  int sat;
-  edm::ValueMap<reco::DeDxData> dEdxTrack;
+void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx) {
   for (unsigned int i=0; i<v_dEdx.size(); i++) {
-    dEdxTrack = v_dEdx.at(i);
-    dedx = dEdxTrack[trackref].dEdx();
-    nom  = dEdxTrack[trackref].numberOfMeasurements();
-    sat  = dEdxTrack[trackref].numberOfSaturatedMeasurements();
-    if (i==0) {
-      h_dedx_estim1[count]->Fill(dedx);
-      h_dedx_nom1[count]->Fill(nom);
-      h_dedx_sat1[count]->Fill(sat);
-    } else if (i==1) {
-      h_dedx_estim2[count]->Fill(dedx);
-      h_dedx_nom2[count]->Fill(nom);
-      h_dedx_sat2[count]->Fill(sat);
-    }
+    const edm::ValueMap<reco::DeDxData>& dEdxTrack = *(v_dEdx[i]);
+    const reco::DeDxData& dedx = dEdxTrack[trackref];
+    h_dedx_estim[count][i]->Fill(dedx.dEdx());
+    h_dedx_nom[count][i]->Fill(dedx.numberOfMeasurements());
+    h_dedx_sat[count][i]->Fill(dedx.numberOfSaturatedMeasurements());
   }
 }
 
