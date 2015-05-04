@@ -263,7 +263,7 @@ for _entry in [FEVTDEBUGEventContent,FEVTSIMEventContent,GENRAWEventContent,FEVT
     _entry.outputCommands.append('drop *_gtDigis_*_*')
     _entry.outputCommands.append('drop *_hltIter*_*_*')
     _entry.outputCommands.append('drop *_hlt*Digis_*_*')
-
+    _entry.outputCommands.append('drop *_gmtDigis_*_*')
 
 #####################################################################
 #

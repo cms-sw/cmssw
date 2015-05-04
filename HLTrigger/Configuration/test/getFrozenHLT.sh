@@ -25,7 +25,6 @@ function getConfigForCVS() {
   log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
   hltGetConfiguration --cff --offline --data  $CONFIG --type $NAME  > HLT_${NAME}_cff.py
-  hltGetConfiguration --fastsim               $CONFIG --type $NAME  > HLT_${NAME}_Famos_cff.py
 }
 
 function getConfigForOnline() {
@@ -47,7 +46,7 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
-FILES=$(eval echo HLT_{$TABLES_}_cff.py HLT_{$TABLES_}_Famos_cff.py)
+FILES=$(eval echo HLT_{$TABLES_}_cff.py)
 rm -f $FILES
 for TABLE in $TABLES; do
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
