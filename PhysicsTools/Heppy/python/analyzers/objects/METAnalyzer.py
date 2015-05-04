@@ -26,6 +26,7 @@ class METAnalyzer( Analyzer ):
         self.handles['nopumet'] = AutoHandle( self.cfg_ana.noPUMetCollection, 'std::vector<pat::MET>' )
         self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
+        self.mchandles['packedGen'] = AutoHandle( 'packedGenParticles', 'std::vector<pat::PackedGenParticle>' )
 
     def beginLoop(self, setup):
         super(METAnalyzer,self).beginLoop(setup)
@@ -83,7 +84,7 @@ class METAnalyzer( Analyzer ):
 
 
     def makeGenTkMet(self, event):
-        genCharged = [ x for x in event.genParticles if x.charge() != 0 and abs(x.eta())<2.4 ]
+        genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
         event.tkGenMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in genCharged])) , -1.*(sum([x.py() for x in genCharged])), 0, math.hypot((sum([x.px() for x in genCharged])),(sum([x.py() for x in genCharged]))) )
 
     def makeMETNoMu(self, event):
