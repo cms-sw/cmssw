@@ -17,14 +17,11 @@ public:
  private:
 
   MonitorElement* theCSCCoPad_xy[2][3];
-
   MonitorElement* theCSCCoPad_phipad[2][3];
-
   MonitorElement* theCSCCoPad[2][3];
-
   MonitorElement* theCSCCoPad_bx[2][3];
-
   MonitorElement* theCSCCoPad_zr[2][3];
+	std::map< UInt_t , MonitorElement* > theCSCCoPad_xy_ch;
 
 };
 

@@ -39,6 +39,14 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
         theCSCPad_bx[region_num][station_num][layer_num] = ibooker.book1D( ("pad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
         theCSCPad_zr[region_num][station_num][layer_num] = BookHistZR(ibooker,"pad_dg","Pad Digi",region_num,station_num,layer_num);
         theCSCPad_xy[region_num][station_num][layer_num] = BookHistXY(ibooker,"pad_dg","Pad Digi",region_num,station_num,layer_num);
+				TString xy_name = TString::Format("pad_dg_xy%s_odd",name_prefix.c_str());
+        TString xy_title = TString::Format("Digi XY occupancy %s at odd chambers",label_prefix.c_str());
+        theCSCPad_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
+        std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
+        xy_name = TString::Format("pad_dg_xy%s_even",name_prefix.c_str());
+        xy_title = TString::Format("Digi XY occupancy %s at even chambers",label_prefix.c_str());
+        theCSCPad_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
+        std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
       }
     }
   }
@@ -85,6 +93,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
     Short_t region = (Short_t) id.region();
     Short_t layer = (Short_t) id.layer();
     Short_t station = (Short_t) id.station();
+		Short_t chamber = (Short_t) id.chamber();
     GEMPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -115,6 +124,11 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
       theCSCPad[region_num][station_num][layer_num]->Fill(pad);
       theCSCPad_bx[region_num][station_num][layer_num]->Fill(bx);
       theCSCPad_zr[region_num][station_num][layer_num]->Fill(g_z,g_r);
+		  std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
+      TString hname;
+      if ( chamber %2 == 0 ) { hname = TString::Format("pad_dg_xy%s_even",name_prefix.c_str()); }
+      else { hname = TString::Format("pad_dg_xy%s_odd",name_prefix.c_str()); }
+      theCSCPad_xy_ch[hname.Hash()]->Fill(g_x,g_y);
     }
   }
 }

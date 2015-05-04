@@ -20,7 +20,7 @@ public:
   MonitorElement* theCSCPad[2][3][2];
   MonitorElement* theCSCPad_bx[2][3][2];
   MonitorElement* theCSCPad_zr[2][3][2];
-
+	std::map< UInt_t , MonitorElement* > theCSCPad_xy_ch;
 };
 
 #endif
