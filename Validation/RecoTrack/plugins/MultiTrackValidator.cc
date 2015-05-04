@@ -216,14 +216,14 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   //calculate dR for TPs
   float dR_tPCeff[(*TPCollectionHeff).size()];
+  bool selected_tPCeff[(*TPCollectionHeff).size()];
   {
     int j=0;
     float etaL[(*TPCollectionHeff).size()], phiL[(*TPCollectionHeff).size()];
-    bool okL[(*TPCollectionHeff).size()];
     for (   auto const & tp2 : *TPCollectionHeff) {
-      okL[j]=false;
+      selected_tPCeff[j]=false;
       if(tpSelector(tp2)) { //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-        okL[j]=true;
+        selected_tPCeff[j]=true;
         auto  && p = tp2.momentum();
         etaL[j] = etaFromXYZ(p.x(),p.y(),p.z());
         phiL[j] = atan2f(p.y(),p.x());
@@ -240,7 +240,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         float phi = atan2f(p.y(),p.x());
         for (auto j=0U; j< (*TPCollectionHeff).size(); ++j ) {
 	  if (i==j) {continue;}
-	  if(okL[j]) { //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+	  if(selected_tPCeff[j]) { //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
             auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
             if (dR_tmp<dR) dR=dR_tmp;
           }
@@ -353,7 +353,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
 	if(!parametersDefinerIsCosmic_)
 	  {
-	    if(! tpSelector(tp)) continue;
+	    if(!selected_tPCeff[i]) continue;
 	    momentumTP = tp.momentum();
 	    vertexTP = tp.vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
