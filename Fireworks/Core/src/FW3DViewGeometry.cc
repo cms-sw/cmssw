@@ -205,7 +205,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 
       //  m_muonEndcapElements->AddElement(CSClist);
 
-
+      /*(
       TEveElementList*  GEMlist = new TEveCompound( "GEM" );     
       for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; ++iRegion )
       {
@@ -237,10 +237,10 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
          }
       }
       m_muonEndcapElements->AddElement(GEMlist);
-
       // EVE debug :: add list on bottom of TEveBrowser list tree
       gEve->AddToListTree(GEMlist, false);
       AddElement( m_muonEndcapElements );
+      */
 
       // adding gem
       TEveElementList*  GEMlist = new TEveElementList( "GEM" );     
