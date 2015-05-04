@@ -70,7 +70,6 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_HT350_alphaT0p53 +
                                 SUSY_HLT_HT400_alphaT0p52 + 
                                 SUSY_HLT_DiJet_MET +
-                                SUSY_HLT_HT400_alphaT0p51 +
                                 SUSY_HLT_Mu_VBF
                                 )
 
