@@ -28,6 +28,7 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Trig":     return self.mvaIDTight()
         elif id == "POG_MVA_ID_NonTrig_full5x5":  return self.mvaIDLoose(full5x5=True)
         elif id == "POG_MVA_ID_Trig_full5x5":     return self.mvaIDTight(full5x5=True)
+        elif id == "POG_MVA_ID_Run2_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigPhys14","VLoose")
         elif id == "POG_MVA_ID_Run2_NonTrig_Loose":    return self.mvaIDRun2("NonTrigPhys14","Loose")
         elif id == "POG_MVA_ID_Run2_NonTrig_Tight":    return self.mvaIDRun2("NonTrigPhys14","Tight")
         elif id.startswith("POG_Cuts_ID_"):
@@ -177,6 +178,10 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > +0.35;
                     elif (eta < 1.479): return self.mvaRun2(name) > +0.20;
                     else              : return self.mvaRun2(name) > -0.52;
+                elif wp=="VLoose":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.35;
+                    else              : return self.mvaRun2(name) > -0.55;
                 elif wp=="Tight":
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
