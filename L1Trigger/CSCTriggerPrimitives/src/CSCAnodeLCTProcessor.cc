@@ -206,10 +206,10 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   accel_mode       = conf.getParameter<unsigned int>("alctAccelMode");
   l1a_window_width = conf.getParameter<unsigned int>("alctL1aWindowWidth");
 
-  hit_persist  = conf.getUntrackedParameter<unsigned int>("alctHitPersist", 6);
+  hit_persist  = conf.getParameter<unsigned int>("alctHitPersist");
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
+  infoV        = conf.getParameter<int>("verbosity");
 
   // Other parameters.
   // Use open pattern instead of more restrictive (slim) ones.
@@ -218,27 +218,27 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   isTMB07      = comm.getParameter<bool>("isTMB07");
 
   // Flag for SLHC studies
-  isSLHC       = comm.getUntrackedParameter<bool>("isSLHC", false);
+  isSLHC       = comm.getParameter<bool>("isSLHC");
 
   // special configuration parameters for ME11 treatment
-  disableME1a = comm.getUntrackedParameter<bool>("disableME1a", false);
+  disableME1a = comm.getParameter<bool>("disableME1a");
 
   // separate handle for early time bins
-  early_tbins = conf.getUntrackedParameter<int>("alctEarlyTbins",-1);
+  early_tbins = conf.getParameter<int>("alctEarlyTbins");
   int fpga_latency = 6;
   if (early_tbins<0) early_tbins  = fifo_pretrig - fpga_latency;
 
   // delta BX time depth for ghostCancellationLogic
-  ghost_cancellation_bx_depth = conf.getUntrackedParameter<int>("alctGhostCancellationBxDepth", 4);
+  ghost_cancellation_bx_depth = conf.getParameter<int>("alctGhostCancellationBxDepth");
 
   // whether to consider ALCT candidates' qualities while doing ghostCancellationLogic on +-1 wire groups
-  ghost_cancellation_side_quality = conf.getUntrackedParameter<bool>("alctGhostCancellationSideQuality", false);
+  ghost_cancellation_side_quality = conf.getParameter<bool>("alctGhostCancellationSideQuality");
 
   // deadtime clocks after pretrigger (extra in addition to drift_delay)
-  pretrig_extra_deadtime = conf.getUntrackedParameter<unsigned int>("alctPretrigDeadtime", 4);
+  pretrig_extra_deadtime = conf.getParameter<unsigned int>("alctPretrigDeadtime");
 
   // whether to use narrow pattern mask for the rings close to the beam
-  narrow_mask_r1 = conf.getUntrackedParameter<bool>("alctNarrowMaskForR1", false);
+  narrow_mask_r1 = conf.getParameter<bool>("alctNarrowMaskForR1");
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -263,8 +263,16 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   // whether to calculate bx as corrected_bx instead of pretrigger one
   use_corrected_bx = false;
   if (isSLHC && isME11) {
-    use_corrected_bx = conf.getUntrackedParameter<bool>("alctUseCorrectedBx", false);
+    use_corrected_bx = conf.getParameter<bool>("alctUseCorrectedBx");
   }
+
+  // run the ALCT processor for the Phase-II ME2/1 integrated local trigger
+  runME21ILT_ = conf.existsAs<bool>("runME21ILT")?
+    conf.getParameter<bool>("runME21ILT"):false;
+
+  // run the ALCT processor for the Phase-II ME3/1-ME4/1 integrated local trigger
+  runME3141ILT_ = conf.existsAs<bool>("runME3141ILT")?
+    conf.getParameter<bool>("runME3141ILT"):false;
 
   //if (theStation==1 && theRing==2) infoV = 3;
 
@@ -967,8 +975,12 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
       else {
         // Quality definition changed on 22 June 2007: it no longer depends
         // on pattern_thresh.
-        if (temp_quality > 3) temp_quality -= 3;
-        else                  temp_quality  = 0; // quality code 0 is valid!
+        int Q;
+        // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+        if (temp_quality == 3 and (runME21ILT_ or runME3141ILT_)) Q = 4;
+        else if (temp_quality > 3) Q = temp_quality - 3;
+        else                  Q = 0; // quality code 0 is valid!
+        temp_quality = Q;
       }
 
       if (i_pattern == 0) {
@@ -1115,6 +1127,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
       int qual_this = quality[key_wire][i_pattern];
       if (qual_this > 0) {
 
+	if (runME21ILT_ or runME3141ILT_) qual_this = (qual_this & 0x03); 
         // Previous wire.
         int dt = -1;
         int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
@@ -1123,6 +1136,9 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
             dt = first_bx_corrected[key_wire] - first_bx_corrected[key_wire-1];
           else
             dt = first_bx[key_wire] - first_bx[key_wire-1];
+          // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+          if (runME21ILT_ or runME3141ILT_) qual_prev = (qual_prev & 0x03); 
+
           // Cancel this wire
           //   1) If the candidate at the previous wire is at the same bx
           //      clock and has better quality (or equal? quality - this has
@@ -1162,6 +1178,9 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
             dt = first_bx_corrected[key_wire] - first_bx_corrected[key_wire+1];
           else
             dt = first_bx[key_wire] - first_bx[key_wire+1];
+          // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+          if (runME21ILT_ or runME3141ILT_)
+            qual_next = (qual_next & 0x03);
           // Same cancellation logic as for the previous wire.
           if (dt == 0) {
             if (qual_next >= qual_this) ghost_cleared[key_wire][i_pattern] = 1;
