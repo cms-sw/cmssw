@@ -263,8 +263,13 @@ void HLTWorkspace::bookPlots()
 
   quickCollectionPaths.push_back("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg");
   lookupFilter["HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"] = "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg";
-  
 
+  quickCollectionPaths.push_back("HLT_PFMET120_PFMHT120_IDLoose");
+  lookupFilter["HLT_PFMET120_PFMHT120_IDLoose"] = "hltPFMET120";
+
+  // quickCollectionPaths.push_back("HLT_HT650_DisplacedDijet80_Inclusive");
+  // lookupFilter["HLT_HT650_DisplacedDijet80_Inclusive"] = "";
+  
   ////////////////////////////////
   ///
   /// Main shifter workspace plots
@@ -317,6 +322,10 @@ void HLTWorkspace::bookPlots()
   hist_pfHtPt->SetMinimum(0);
   dbe->book1D("PFHT_pT",hist_pfHtPt);
 
+  //PFMET pt
+  TH1F * hist_PFMetPt = new TH1F("PFMET_pT","PFMET pT",60,50,550);
+  hist_PFMetPt->SetMinimum(0);
+  dbe->book1D("PFMET_pT",hist_PFMetPt);
 
 
   ////////////////////////////////
@@ -357,6 +366,12 @@ void HLTWorkspace::bookPlots()
   TH1F * hist_caloMetPhi = new TH1F("CaloMET_phi","CaloMET phi",50,-3.4,3.4);
   hist_caloMetPhi->SetMinimum(0);
   dbe->book1D("CaloMET_phi",hist_caloMetPhi);
+
+  //PFMET phi
+  TH1F * hist_PFMetPhi = new TH1F("PFMET_phi","PFMET phi",50,-3.4,3.4);
+  hist_PFMetPhi->SetMinimum(0);
+  dbe->book1D("PFMET_phi",hist_PFMetPhi);
+
 
 }
 
@@ -515,6 +530,24 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
       for (const auto & key : keys) hist_pfHtPt->Fill(objects[key].pt());
     }
 
+  //PFMET pt
+  else if (pathName == "HLT_PFMET120_PFMHT120_IDLoose")
+    {
+      // pt
+      string fullPathPfMetPt = mainShifterFolder+"/PFMET_pT";
+      MonitorElement * ME_pfMetPt = dbe->get(fullPathPfMetPt);
+      TH1F * hist_pfMetPt = ME_pfMetPt->getTH1F();
+      // phi
+      string fullPathPfMetPhi = mainShifterFolder+"/PFMET_phi";
+      MonitorElement * ME_pfMetPhi = dbe->get(fullPathPfMetPhi);
+      TH1F * hist_pfMetPhi = ME_pfMetPhi->getTH1F();
+
+      for (const auto & key : keys)
+	{
+	  hist_pfMetPt->Fill(objects[key].pt());
+	  hist_pfMetPhi->Fill(objects[key].phi());
+	}
+    }
 
  //CSV
   // else if (pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq240" || pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07")
