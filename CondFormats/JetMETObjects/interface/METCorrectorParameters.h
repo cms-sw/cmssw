@@ -6,13 +6,10 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
 #include <iostream>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //____________________________________________________________________________||
-class METCorrectorParameters 
+class METCorrectorParameters
 {
 public:
 
