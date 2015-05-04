@@ -265,8 +265,8 @@ void HLTWorkspace::bookPlots()
   quickCollectionPaths.push_back("HLT_PFMET120_PFMHT120_IDTight");
   lookupFilter["HLT_PFMET120_PFMHT120_IDTight"] = "hltPFMET120";
 
-  // quickCollectionPaths.push_back("HLT_HT650_DisplacedDijet80_Inclusive");
-  // lookupFilter["HLT_HT650_DisplacedDijet80_Inclusive"] = "";
+  quickCollectionPaths.push_back("HLT_HT650_DisplacedDijet80_Inclusive");
+  lookupFilter["HLT_HT650_DisplacedDijet80_Inclusive"] = "hltHT650";
   
   ////////////////////////////////
   ///
@@ -314,6 +314,11 @@ void HLTWorkspace::bookPlots()
   TH1F * hist_caloMetPt = new TH1F("CaloMET_pT","CaloMET pT",60,50,550);
   hist_caloMetPt->SetMinimum(0);
   dbe->book1D("CaloMET_pT",hist_caloMetPt);
+
+  //caloHT pt
+  TH1F * hist_caloHtPt = new TH1F("CaloHT_pT","CaloHT pT",200,0,2000);
+  hist_caloHtPt->SetMinimum(0);
+  dbe->book1D("CaloHT_pT",hist_caloHtPt);
 
   //PFHT pt
   TH1F * hist_pfHtPt = new TH1F("PFHT_pT","PFHT pT",200,0,2000);
@@ -516,6 +521,16 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	  hist_caloMetPt->Fill(objects[key].pt());
 	  hist_caloMetPhi->Fill(objects[key].phi());
 	}
+    }
+
+  //caloHT pt
+  else if (pathName == "HLT_HT650_DisplacedDijet80_Inclusive")
+    {
+      // pt
+      string fullPathCaloHtPt = mainShifterFolder+"/CaloHT_pT";
+      MonitorElement * ME_caloHtPt = dbe->get(fullPathCaloHtPt);
+      TH1F * hist_caloHtPt = ME_caloHtPt->getTH1F();
+      for (const auto & key : keys) hist_caloHtPt->Fill(objects[key].pt());
     }
   
   //PFHT pt
