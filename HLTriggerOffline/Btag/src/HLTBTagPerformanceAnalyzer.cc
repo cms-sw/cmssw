@@ -137,7 +137,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 		for (auto & BtagJT: JetTag) {
 			//fill 1D btag plot for 'all'
-			H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(BtagJT.second);
+			H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(std::fmax(0.0,BtagJT.second));
 			if (MCOK) {
 				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
 				unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
