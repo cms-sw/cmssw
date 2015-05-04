@@ -17,7 +17,6 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    toPut = cms.VPSet(
       cms.PSet(
          record = cms.string('MetShiftXY'),
-         #record = cms.string('METCorrectionsRecord'),
          tag    = cms.string('METCorrectorParametersCollection_MET15_V0'),
          label  = cms.string('MetShiftXY')
       )
