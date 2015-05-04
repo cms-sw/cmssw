@@ -2,9 +2,12 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) : 
-  changed(false), nRun(0), t_trackP(0), t_trackPx(0), t_trackPy(0),
+  changed(false),
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this),
+  nRun(0), t_trackP(0), t_trackPx(0), t_trackPy(0),
   t_trackPz(0), t_trackEta(0), t_trackPhi(0), t_trackPt(0), t_neu_iso(0),
   t_charge_iso(0), t_emip(0), t_ehcal(0), t_trkL3mindr(0), t_ieta(0),
   t_disthotcell(0), t_ietahotcell(0), t_eventweight(0), t_l1pt(0), t_l1eta(0),
@@ -132,6 +135,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			     << " Bunch " << iEvent.bunchCrossing() << " start";
   clearTreeVectors();
 
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
   //Get magnetic field and ECAL channel status
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
@@ -214,8 +219,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
       for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
       bool ok(false);
-	unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[iHLT]);
-	const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
+	unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[iHLT]);
+	const std::vector<std::string>& moduleLabels(hltConfig.moduleLabels(triggerindx));
         edm::LogInfo("IsoTrack") << iHLT << "   " <<triggerNames_[iHLT];
 	int ipos = -1;
 	for (unsigned int i=0; i<HLTNames.size(); ++i) {
@@ -249,7 +254,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  edm::LogInfo("IsoTrack") << "Trigger fired? : " << ok;
 	if (ok) {
 	  std::vector<math::XYZTLorentzVector> vec[3];
-	  const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[iHLT]));
+	  const std::pair<int,int> prescales(hltPrescaleProvider_.prescaleValues(iEvent,iSetup,triggerNames_[iHLT]));
 	  int preL1  = prescales.first;
 	  int preHLT = prescales.second;
 	  int prescale = preL1*preHLT;
@@ -471,9 +476,9 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	changed = false;
 	if ((verbosity/10)%10 > 1) {
 	  edm::LogInfo("IsoTrack") <<"New trigger menu found !!!";
-	  const unsigned int n(hltConfig_.size());
+	  const unsigned int n(hltConfig.size());
 	  for (unsigned itrig=0; itrig<triggerNames_.size(); itrig++) {
-	    unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[itrig]);
+	    unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[itrig]);
 	    if (triggerindx >= n)
 	      edm::LogInfo("IsoTrack") << triggerNames_[itrig] << " " 
 				       << triggerindx << " does not exist";
@@ -573,7 +578,7 @@ void IsoTrackCalib::endJob() {
 // ------------ method called when starting to processes a run  ------------
 void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::LogInfo("IsoTrack") << "Run[" << nRun <<"] " << iRun.run() 
-			   << " hltconfig.init " << hltConfig_.init(iRun,iSetup,"HLT",changed);
+			   << " hltconfig.init " << hltPrescaleProvider_.init(iRun,iSetup,"HLT",changed);
   char  hname[100], htit[100];
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());

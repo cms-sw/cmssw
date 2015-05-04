@@ -1,7 +1,4 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtilsHelper.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/BranchType.h"

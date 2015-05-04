@@ -4,6 +4,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "TString.h"
 #include "TRegexp.h"
@@ -20,7 +21,8 @@ CandidateTriggerObjectProducer::CandidateTriggerObjectProducer(const edm::Parame
   triggerResultsToken_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
   triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent")),
   triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_)),
-  triggerName_(ps.getParameter<std::string>("triggerName"))
+  triggerName_(ps.getParameter<std::string>("triggerName")),
+  hltPrescaleProvider_(ps, consumesCollector(), *this)
 {
 
 //   cout << "Trigger Object Producer:" << endl
@@ -44,7 +46,7 @@ CandidateTriggerObjectProducer::beginRun(const edm::Run& iRun, edm::EventSetup c
   using namespace edm;
 
   bool changed(false);
-  if(!hltConfig_.init(iRun,iSetup,triggerEventTag_.process(),changed) ){
+  if(!hltPrescaleProvider_.init(iRun,iSetup,triggerEventTag_.process(),changed) ){
     edm::LogError( "CandidateTriggerObjectProducer" ) <<
       "Error! Can't initialize HLTConfigProvider";
     throw cms::Exception("HLTConfigProvider::init() returned non 0");
@@ -75,13 +77,16 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
     edm::LogError( "CandidateTriggerObjectProducer" ) << "CandidateTriggerObjectProducer::analyze: Error in getting TriggerEvent product from Event!" ;
     return;
   }
-  // sanity check
-  //   std::cout << hltConfig_.size() << std::endl;
-  //   std::cout << triggerResultsHandle_->size() << std::endl;
-  assert(triggerResultsHandle_->size()==hltConfig_.size());
 
-  const unsigned int n(hltConfig_.size());
-  std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
+  // sanity check
+  //   std::cout << hltConfig.size() << std::endl;
+  //   std::cout << triggerResultsHandle_->size() << std::endl;
+  assert(triggerResultsHandle_->size()==hltConfig.size());
+
+  const unsigned int n(hltConfig.size());
+  std::vector<std::string> activeHLTPathsInThisEvent = hltConfig.triggerNames();
   std::map<std::string, bool> triggerInMenu;
   std::map<std::string, bool> triggerUnprescaled;
 
@@ -92,7 +97,7 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
       if (TString(*iHLT).Contains(TRegexp(TString(triggerName_))))
 	 {
 	   triggerInMenu[*iHLT] = true;
-	   const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,*iHLT));
+	   const std::pair<int,int> prescales(hltPrescaleProvider_.prescaleValues(iEvent,iSetup,*iHLT));
 	   if (prescales.first * prescales.second == 1)
 	     triggerUnprescaled[*iHLT] = true;
 	 }
@@ -104,7 +109,7 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
       //using only unprescaled triggers
       if (!(iMyHLT->second && triggerUnprescaled[iMyHLT->first]))
 	continue;
-      const unsigned int triggerIndex(hltConfig_.triggerIndex(iMyHLT->first));
+      const unsigned int triggerIndex(hltConfig.triggerIndex(iMyHLT->first));
 
       assert(triggerIndex==iEvent.triggerNames(*triggerResultsHandle_).triggerIndex(iMyHLT->first));
 
@@ -116,8 +121,8 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
       }
 
       // modules on this trigger path
-      //      const unsigned int m(hltConfig_.size(triggerIndex));
-      const std::vector<std::string>& moduleLabels(hltConfig_.saveTagsModules(triggerIndex));
+      //      const unsigned int m(hltConfig.size(triggerIndex));
+      const std::vector<std::string>& moduleLabels(hltConfig.saveTagsModules(triggerIndex));
 
       // Results from TriggerResults product
       if (!(triggerResultsHandle_->wasrun(triggerIndex)) ||
@@ -135,7 +140,7 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
       for (unsigned int imodule=0;imodule<moduleLabels.size();++imodule)
 	{
 	  const std::string& moduleLabel(moduleLabels[imodule]);
-	  const std::string  moduleType(hltConfig_.moduleType(moduleLabel));
+	  const std::string  moduleType(hltConfig.moduleType(moduleLabel));
 	  //Avoiding L1 seeds
 	  if (moduleType.find("Level1GTSeed") != std::string::npos)
 	    continue;

@@ -107,7 +107,8 @@ EwkMuDQM::EwkMuDQM(const ParameterSet& cfg)
 
       // Photon cuts
       ptThrForPhoton_(cfg.getUntrackedParameter<double>("ptThrForPhoton", 5.)),
-      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)) {
+      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)),
+      hltPrescaleProvider_(cfg, consumesCollector(), *this) {
   isValidHltConfig_ = false;
 
 }
@@ -126,7 +127,7 @@ void EwkMuDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   bool isConfigChanged = false;
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
   isValidHltConfig_ =
-      hltConfigProvider_.init(iRun, iSet, "HLT", isConfigChanged);
+      hltPrescaleProvider_.init(iRun, iSet, "HLT", isConfigChanged);
 }
 
 void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
@@ -404,6 +405,8 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
   //  LogWarning("")<<"Loop over triggers";
 
+  HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
+
   /*  change faulty logic of triggering
   for (unsigned int i=0; i<triggerResults->size(); i++)
   {
@@ -419,10 +422,10 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
           if(!found) {continue;}
 
           bool prescaled=false;
-          for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize();
+          for (unsigned int ps= 0; ps<  hltConfigProvider.prescaleSize();
   ps++){
               const unsigned int prescaleValue =
-  hltConfigProvider_.prescaleValue(ps, trigName) ;
+  hltConfigProvider.prescaleValue(ps, trigName) ;
               if (prescaleValue != 1) prescaled =true;
           }
 
@@ -433,7 +436,7 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   */
 
   // get the prescale set for this event
-  const int prescaleSet = hltConfigProvider_.prescaleSet(ev, iSet);
+  const int prescaleSet = hltPrescaleProvider_.prescaleSet(ev, iSet);
   if (prescaleSet == -1) {
     LogTrace("") << "Failed to determine prescaleSet\n";
     // std::cout << "Failed to determine prescaleSet. Check the GlobalTag in
@@ -457,15 +460,15 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
     // skip trigger, if it is prescaled
     if (prescaleSet != -1) {
-      if (hltConfigProvider_.prescaleValue(prescaleSet, trigName) != 1)
+      if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1)
         continue;
     } else {
       // prescaleSet is not known.
       // This branch is not needed, if prescaleSet=-1 forces to skip event
       int prescaled = 0;
       for (unsigned int ps = 0;
-           !prescaled && (ps < hltConfigProvider_.prescaleSize()); ++ps) {
-        if (hltConfigProvider_.prescaleValue(ps, trigName) != 1) {
+           !prescaled && (ps < hltConfigProvider.prescaleSize()); ++ps) {
+        if (hltConfigProvider.prescaleValue(ps, trigName) != 1) {
           prescaled = 1;
         }
       }

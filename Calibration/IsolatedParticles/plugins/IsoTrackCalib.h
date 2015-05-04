@@ -41,7 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
@@ -95,7 +95,7 @@ private:
 
   bool                       changed;
   edm::Service<TFileService> fs;
-  HLTConfigProvider          hltConfig_;
+  HLTPrescaleProvider hltPrescaleProvider_;
   std::vector<std::string>   trigNames, HLTNames;
   int                        verbosity;
   spr::trackSelectionParameters selectionParameters;

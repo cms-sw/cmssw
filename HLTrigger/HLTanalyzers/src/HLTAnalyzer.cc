@@ -24,7 +24,8 @@ bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> 
 }
 
 // Boiler-plate constructor definition of an analyzer module:
-HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
+HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) :
+  hlt_analysis_(conf, consumesCollector(), *this) {
     
     // If your module takes parameters, here is where you would define
     // their names and types, and access them to initialize internal

@@ -24,8 +24,10 @@
 #include "Calibration/IsolatedParticles/interface/eCone.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) : 
+IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) :
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this),
   changed(false), t_timeL2Prod(0), t_nPixCand(0), t_nPixSeed(0), t_nGoodTk(0),
   t_TrkhCone(0), t_TrkP(0), t_TrkselTkFlag(0), t_TrkqltyFlag(0),
   t_TrkMissFlag(0), t_TrkPVFlag(0), t_TrkNuIsolFlag(0),
@@ -214,6 +216,8 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 #endif
   int RunNo = iEvent.id().run();
 
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
   iSetup.get<CaloGeometryRecord>().get(pG);
   const MagneticField *bField = bFieldH.product();   
@@ -309,8 +313,8 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 #endif
     int hlt(-1), preL1(-1), preHLT(-1), prescale(-1);
     for (unsigned int i=0; i<triggerResults->size(); i++) {
-      unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[i]);
-      const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
+      unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[i]);
+      const std::vector<std::string>& moduleLabels(hltConfig.moduleLabels(triggerindx));
       
       for (unsigned int in=0; in<trigNames.size(); ++in) {
 	//	  if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos || triggerNames_[i]==" ") {
@@ -327,7 +331,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    edm::Handle<trigger::TriggerFilterObjectWithRefs> L1cands;
 	    iEvent.getByToken(tok_l1cand_, L1cands); 
 	    
-	    const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[i]));
+	    const std::pair<int,int> prescales(hltPrescaleProvider_.prescaleValues(iEvent,iSetup,triggerNames_[i]));
 	    preL1  = prescales.first;
 	    preHLT = prescales.second;
 	    prescale = preL1*preHLT;
@@ -421,9 +425,9 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 #ifdef DebugLog
       if ((verbosity/10)%10 > 1) {
 	std::cout << "New trigger menu found !!!" << std::endl;
-	const unsigned int n(hltConfig_.size());
+	const unsigned int n(hltConfig.size());
 	for (unsigned itrig=0; itrig<triggerNames_.size(); itrig++) {
-	  unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[itrig]);
+	  unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[itrig]);
 	  std::cout << triggerNames_[itrig] << " " << triggerindx << " ";
 	  if (triggerindx >= n)
 	    std::cout << "does not exist in the current menu" << std::endl;
@@ -812,7 +816,7 @@ void IsoTrig::endJob() {
 // ------------ method called when starting to processes a run  ------------
 void IsoTrig::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::LogWarning ("IsoTrack") << "Run " << iRun.run() << " hltconfig.init " 
-			       << hltConfig_.init(iRun,iSetup,processName,changed);
+			       << hltPrescaleProvider_.init(iRun,iSetup,processName,changed);
 }
 
 // ------------ method called when ending the processing of a run  ------------

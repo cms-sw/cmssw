@@ -62,11 +62,11 @@ class HLTSeedL1LogicScalers : public DQMEDAnalyzer {
   std::string fDQMFolder;
   std::string fProcessname;
 
-  L1GtUtils m_l1GtUtils;
 
   HLTConfigProvider fHLTConfig;
   edm::InputTag fL1GtDaqReadoutRecordInputTag;
   edm::InputTag fL1GtRecordInputTag;
+  L1GtUtils m_l1GtUtils;
 
   std::vector<std::string> fMonitorPaths;
   std::vector<MonitorElement*> fMonitorPathsME;

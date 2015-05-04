@@ -47,9 +47,6 @@ L1TMenuHelper::L1TMenuHelper(const edm::EventSetup& iSetup){
 
   m_l1GtMenu                = menuRcd   .product();                 // Getting the menu
   m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors()); // Retriving the list of prescale sets
-
-  myUtils.retrieveL1EventSetup(iSetup);
-
 }
 
 
@@ -62,7 +59,9 @@ L1TMenuHelper::~L1TMenuHelper(){}
 // Method: fetLUSOTrigger
 //   * Get Lowest Unprescaled Single Object Triggers and Energy Sums
 //-------------------------------------------------------------------------------------
-map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& iCategories, int IndexRefPrescaleFactors){
+map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& iCategories,
+                                                 int IndexRefPrescaleFactors,
+                                                 L1GtUtils const& myUtils){
   map<string,string> out;
 
   // Getting information from the menu

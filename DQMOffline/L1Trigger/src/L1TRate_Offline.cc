@@ -18,7 +18,8 @@ using namespace edm;
 using namespace std;
 
 //_____________________________________________________________________
-L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps){
+L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps) :
+  m_l1GtUtils(ps, consumesCollector(), false, *this) {
 
   m_maxNbins   = 2500; // Maximum LS for each run (for binning purposes)
   m_parameters = ps;
@@ -84,7 +85,8 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
 
   // Getting Lowest Prescale Single Object Triggers from the menu
   L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);
-  m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
+  m_l1GtUtils.retrieveL1EventSetup(iSetup);
+  m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet, m_l1GtUtils);
 
   //-> Getting template fits for the algLo cross sections
   getXSexFitsPython(m_parameters);

@@ -17,6 +17,10 @@
  *
  */
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -24,10 +28,6 @@
 
 #include <string>
 #include <utility>
-
-class L1GlobalTriggerRecord;
-class L1GlobalTriggerReadoutRecord;
-class L1GtTriggerMenuLite;
 
 namespace edm {
   class BranchDescription;

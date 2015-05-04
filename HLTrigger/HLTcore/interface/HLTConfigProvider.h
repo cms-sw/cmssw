@@ -15,15 +15,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
-
-#include "boost/shared_ptr.hpp"
 
 #include<map>
 #include<string>
 #include<vector>
-
 
 //
 // class declaration
@@ -233,21 +229,6 @@ class HLTConfigProvider {
     return hltConfigData_->prescaleValue(set,trigger);
   }
 
-  /// HLT prescale values via (L1) EventSetup
-  /// current (default) prescale set index - to be taken from L1GtUtil via Event
-  int prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
-  // negative == error
-  
-  /// combining the two methods above
-  unsigned int prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
-  
-  /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
-  std::pair<int,int> prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
-  // any one negative => error in retrieving this (L1T or HLT) prescale
-
-  // In case of a complex Boolean expression as L1 seed
-  std::pair<std::vector<std::pair<std::string,int> >,int> prescaleValuesInDetail(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
-
   /// low-level data member access 
   const std::vector<std::string>& prescaleLabels() const {
     return hltConfigData_->prescaleLabels();
@@ -273,7 +254,5 @@ class HLTConfigProvider {
   bool inited_;
   bool changed_;
   const HLTConfigData* hltConfigData_;
-  boost::shared_ptr<L1GtUtils> l1GtUtils_;
-  
 };
 #endif
