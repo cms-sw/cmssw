@@ -14,7 +14,7 @@
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -189,7 +189,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
 
   LogTrace("TestHits") << "\nnew event";

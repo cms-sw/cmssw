@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -129,7 +130,7 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
