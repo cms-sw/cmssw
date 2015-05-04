@@ -1,10 +1,5 @@
+# Load the 4 T field map, with the geometry and configuration specified in the GT
+
 import FWCore.ParameterSet.Config as cms
-
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine.
-#Default is version 85l
-from MagneticField.Engine.volumeBasedMagneticField_1103l_cfi import *
-VolumeBasedMagneticFieldESProducer.version = 'grid_1103l_071212_4t'
-ParametrizedMagneticFieldProducer.parameters.BValue = '4_0T'
-
-
+from MagneticField.Engine.volumeBasedMagneticFieldFromDB_cfi import *
+VolumeBasedMagneticFieldESProducer.valueOverride = 19262
