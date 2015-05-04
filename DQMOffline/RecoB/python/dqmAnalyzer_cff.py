@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#not useful anymore for b-tagging but used in some other sequences
-#from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL2L3,ak4PFL2Relative,ak4PFL3Absolute
-
 #JEC for CHS
 from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
