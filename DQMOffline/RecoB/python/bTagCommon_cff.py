@@ -37,7 +37,8 @@ bTagCommonBlock = cms.PSet(
     #Jet ID and EnergyCorr.
     doJetID = cms.bool(False),
     doJEC = cms.bool(False),
-    JECsource = cms.string("ak5PFCHSL1FastL2L3"),
+    JECsourceMC = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
+    JECsourceData = cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"),
     #tagger configuration
     tagConfig = cms.VPSet(
         cms.PSet(
