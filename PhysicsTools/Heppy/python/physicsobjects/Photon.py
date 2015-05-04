@@ -74,7 +74,7 @@ class Photon(PhysicsObject ):
         #return 0 if the photon is in barrel and 1 if in endcap
         if abs(self.physObj.eta())<1.479 :
             idForBarrel = 0
-        elif abs(self.physObj.eta())< 2.5: 
+        else:
             idForBarrel = 1
         return idForBarrel
 
