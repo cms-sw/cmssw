@@ -342,7 +342,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       unsigned asts(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){ //loop over TPs collection for tracking efficiency
 	TrackingParticleRef tpr(TPCollectionHeff, i);
-	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());  // why????
+	const TrackingParticle& tp = tPCeff[i];
 	TrackingParticle::Vector momentumTP;
 	TrackingParticle::Point vertexTP;
 	double dxySim(0);
@@ -353,9 +353,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
 	if(!parametersDefinerIsCosmic_)
 	  {
-	    if(! tpSelector(*tp)) continue;
-	    momentumTP = tp->momentum();
-	    vertexTP = tp->vertex();
+	    if(! tpSelector(tp)) continue;
+	    momentumTP = tp.momentum();
+	    vertexTP = tp.vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
 	    TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
 	    TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
@@ -383,7 +383,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// - dxySim
 	// - dzSim
 
-	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->eventId().bunchCrossing());
+	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp.eventId().bunchCrossing());
 
 
 	// ##############################################
@@ -413,8 +413,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 
 
-        int nSimHits = tp->numberOfTrackerHits();
-	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
+        int nSimHits = tp.numberOfTrackerHits();
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
           if (matchedTrackPointer) asts++;
 
@@ -468,20 +468,19 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	RefToBase<Track> track(trackCollection, i);
 	rT++;
  
-        std::remove_reference<decltype(recSimColl[track])>::type dummyTP;
-        
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
         bool isChargeMatched(true);
         int numAssocRecoTracks = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
-	auto const & tp = (recSimColl.find(track) != recSimColl.end()) ? recSimColl[track] : dummyTP;
-	
-	if (!tp.empty()) {
+
+        auto tpFound = recSimColl.find(track);
+        isSimMatched = tpFound != recSimColl.end();
+        if (isSimMatched) {
+            const auto& tp = tpFound->val;
 	    nSimHits = tp[0].first->numberOfTrackerHits();
             sharedFraction = tp[0].second;
-	    isSimMatched = true;
             if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
             if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
 	    at++;
@@ -508,13 +507,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 
 	//Fill other histos
- 	//try{ //Is this really necessary ????
-
-	if (tp.size()==0) continue;
+	if (!isSimMatched) continue;
 
 	histoProducerAlgo_->fill_simAssociated_recoTrack_histos(w,*track);
 
-	TrackingParticleRef tpr = tp.begin()->first;
+	TrackingParticleRef tpr = tpFound->val.begin()->first;
 
 	/* TO BE FIXED LATER
 	if (associators[ww]=="trackAssociatorByChi2"){
@@ -543,13 +540,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	//TO BE FIXED
 	//std::vector<PSimHit> simhits=tpr.get()->trackPSimHit(DetId::Tracker);
 	//nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(), (int)(simhits.end()-simhits.begin() ));
-
-	/*
-	  } // End of try{
-	  catch (cms::Exception e){
-	  LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
-	  }
-	*/
 
       } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
 
