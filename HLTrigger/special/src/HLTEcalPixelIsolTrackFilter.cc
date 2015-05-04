@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+//#define DebugLog
+
 HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
   maxEnergyIn_         = iConfig.getParameter<double> ("MaxEnergyIn");
@@ -42,22 +44,32 @@ bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::Event
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
     edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref =
       edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
-    //    std::cout << "candref.isNull() " << candref.isNull() << std::endl;
-    if(candref.isNull()) continue;
-    //    std::cout << "candref.track().isNull() " << candref->track().isNull() << std::endl;
+#ifdef DebugLog
+    edm::LogInfo("IsoTrk") << "candref.isNull() " << candref.isNull();
+#endif
+    if (candref.isNull()) continue;
+#ifdef DebugLog
+    edm::LogInfo("IsoTrk") << "candref.track().isNull() " << candref->track().isNull();
+#endif
     if(candref->track().isNull()) continue;
     // select on transverse momentum
-    //    std::cout << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut() << std::endl;
+#ifdef DebugLog
+    edm::LogInfo("IsoTrk") << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut();
+#endif
     if (candref->energyIn()<maxEnergyIn_&& candref->energyOut()<maxEnergyOut_) {
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
+#ifdef DebugLog
+      edm::LogInfo("IsoTrk") << "EcalIsol:Candidate[" << n <<"] pt|eta|phi "
+			     << candref->pt() << "|" << candref->eta() << "|"
+			     << candref->phi();
+#endif
     }
     if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break; 
 
   } 
   bool accept(n>0);
   if (dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;  
-  //  std::cout << "accept here" << accept << std::endl;
   return accept;
 }
 	  
