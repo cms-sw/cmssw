@@ -104,6 +104,7 @@ hiHighPtStepTruncMTS = hiLooseMTS.clone(
     d0_par2 = cms.vdouble(9999.0, 0.0),              # d0E from tk.d0Error
     dz_par2 = cms.vdouble(9999.0, 0.0),
     max_relpterr = cms.double(9999.),
+    minHitsToBypassChecks = cms.uint32(9999),
     min_nhits = cms.uint32(12),
     applyHIonCuts = cms.bool(True),
     hIon_pTMinCut = cms.vdouble(1.0,1.8,0.15,2.5),
