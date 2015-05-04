@@ -135,7 +135,8 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     saveAndReset = (saveType=="LumiSect" && !sameLumiSect)
                 || (saveType=="LumiNib" && !sameLumiNib)
                 || (saveType=="Event" && !sameEvent);
-   
+
+
     if(   !saveAndReset && !sameLumiSect
        && !sameLumiNib  && !sameEvent) {
         std::cout<<"Diff LS, LN and Event, but not saving/resetting..."<<std::endl;
@@ -150,6 +151,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         layers.clear();
         BXNo.clear();
         nGoodVtx.clear();
+        firstEvent=false;
     }
 
     if(sampleType=="MC"){
