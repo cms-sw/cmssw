@@ -189,7 +189,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
       //---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
       //If the GenParticle is collison like, get the momentum and vertex at production state
-      if(parametersDefiner=="LhcParametersDefinerForTP")
+      if(!parametersDefinerIsCosmic_)
         {
           //fixme this one shold be implemented
           if(! gpSelector(*tp)) continue;
@@ -203,7 +203,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
             * momentum.z()/sqrt(momentum.perp2());
         }
       //If the GenParticle is comics, get the momentum and vertex at PCA
-      if(parametersDefiner=="CosmicParametersDefinerForTP")
+      else
         {
           //if(! cosmictpSelector(*tp,&bs,event,setup)) continue;	
           momentumTP = parametersDefinerTP->momentum(event,setup,*tp);

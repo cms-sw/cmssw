@@ -32,6 +32,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
  protected:
   //these are used by MTVGenPs
   bool UseAssociators;
+  const bool parametersDefinerIsCosmic_;
   MTVHistoProducerAlgo* histoProducerAlgo_;
 
  private:
