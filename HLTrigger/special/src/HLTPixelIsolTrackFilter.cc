@@ -9,8 +9,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//#define DebugLog
-
 HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
   hltGTseedlabel_      = iConfig.getParameter<edm::InputTag> ("L1GTSeedLabel");
@@ -98,11 +96,9 @@ bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
 	(candref->pt()>minpttrack_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_) {
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
-#ifdef DebugLog
-      edm::LogInfo("IsoTrk") << "PixelIsolP:Candidate[" << n <<"] pt|eta|phi "
-			     << candref->pt() << "|" << candref->eta() << "|"
-			     << candref->phi();
-#endif
+      LogDebug("IsoTrk") << "PixelIsolP:Candidate[" << n <<"] pt|eta|phi "
+			 << candref->pt() << "|" << candref->eta() << "|"
+			 << candref->phi() << "\n";
     }
 
     // select on momentum
@@ -110,11 +106,9 @@ bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
       if ((candref->maxPtPxl()<maxptnearby_)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_) {
 	filterproduct.addObject(trigger::TriggerTrack, candref);
 	n++;
-#ifdef DebugLog
-      edm::LogInfo("IsoTrk") << "PixelIsolE:Candidate[" << n <<"] pt|eta|phi "
-			     << candref->pt() << "|" << candref->eta() << "|"
-			     << candref->phi();
-#endif
+	LogDebug("IsoTrk") << "PixelIsolE:Candidate[" << n <<"] pt|eta|phi "
+			   << candref->pt() << "|" << candref->eta() << "|"
+			   << candref->phi() << "\n";
       }
     }
 

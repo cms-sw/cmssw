@@ -7,8 +7,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//#define DebugLog
-
 HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
   maxEnergyIn_         = iConfig.getParameter<double> ("MaxEnergyIn");
@@ -44,26 +42,18 @@ bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::Event
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
     edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref =
       edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
-#ifdef DebugLog
-    edm::LogInfo("IsoTrk") << "candref.isNull() " << candref.isNull();
-#endif
+    LogDebug("IsoTrk") << "candref.isNull() " << candref.isNull() << "\n";
     if (candref.isNull()) continue;
-#ifdef DebugLog
-    edm::LogInfo("IsoTrk") << "candref.track().isNull() " << candref->track().isNull();
-#endif
+    LogDebug("IsoTrk") << "candref.track().isNull() " << candref->track().isNull() << "\n";
     if(candref->track().isNull()) continue;
     // select on transverse momentum
-#ifdef DebugLog
-    edm::LogInfo("IsoTrk") << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut();
-#endif
+    LogDebug("IsoTrk") << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut() << "\n";
     if (candref->energyIn()<maxEnergyIn_&& candref->energyOut()<maxEnergyOut_) {
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
-#ifdef DebugLog
-      edm::LogInfo("IsoTrk") << "EcalIsol:Candidate[" << n <<"] pt|eta|phi "
-			     << candref->pt() << "|" << candref->eta() << "|"
-			     << candref->phi();
-#endif
+      LogDebug("IsoTrk") << "EcalIsol:Candidate[" << n <<"] pt|eta|phi "
+			 << candref->pt() << "|" << candref->eta() << "|"
+			 << candref->phi() << "\n";
     }
     if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break; 
 
