@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
@@ -31,7 +31,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # -- (NBins, minVal, maxValue) for the Eta,Phi and nInterations efficiency plots
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
-    parametersPu       = cms.vdouble(10, 0, 20),
+    parametersPu       = cms.vdouble(10, 0, 50),
     parametersHt       = cms.untracked.vdouble(100, 0, 1000),
 
     # TO BE DEPRECATED --------------------------------------------
@@ -156,10 +156,17 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         hltPathsToCheck = cms.vstring(
             "HLT_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_ForMC_v",
             "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
-            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_v",
             "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v",
             "HLT_Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55_v",
             "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v"
+        ),
+        recPhotonLabel  = cms.string("photons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
+    HggControlPaths = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70_v"
         ),
         recPhotonLabel  = cms.string("photons"),
         # -- Analysis specific cuts
