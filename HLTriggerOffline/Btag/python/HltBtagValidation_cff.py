@@ -35,13 +35,6 @@ HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 		cms.InputTag("hltVerticesL3"), 
 		cms.InputTag("hltFastPrimaryVertex"), 
 		cms.InputTag("hltFastPVPixelVertices"),
-		cms.InputTag("hltVerticesL3"), 
-		cms.InputTag("hltFastPrimaryVertex"), 
-		cms.InputTag("hltFastPVPixelVertices"),
-		cms.InputTag("hltVerticesL3"), 
-		cms.InputTag("hltFastPrimaryVertex"), 
-		cms.InputTag("hltFastPVPixelVertices"),
-		cms.InputTag("hltVerticesPF"), 
 		cms.InputTag("hltVerticesPF"), 
 	)
 )
