@@ -1,17 +1,18 @@
 // -*- C++ -*-
 
-#include <memory>
-#include <string>
-#include <fstream>
-#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
+
+#include <string>
+#include <fstream>
+#include <iostream>
 
 //____________________________________________________________________________||
 class  METCorrectorDBWriter : public edm::EDAnalyzer
@@ -60,16 +61,16 @@ void METCorrectorDBWriter::beginJob()
   std::cout << "Opening PoolDBOutputService" << std::endl;
 
   edm::Service<cond::service::PoolDBOutputService> s;
-  if (s.isAvailable()) 
+  if (s.isAvailable())
     {
       std::cout << "Setting up payload tag " << payloadTag << std::endl;
-      if (s->isNewTagRequest(payloadTag)) 
+      if (s->isNewTagRequest(payloadTag))
         s->createNewIOV<METCorrectorParameters>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
-      else 
+      else
         s->appendSinceTime<METCorrectorParameters>(payload, 111, payloadTag);
     }
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
-  
+
 }
 
 //____________________________________________________________________________||
