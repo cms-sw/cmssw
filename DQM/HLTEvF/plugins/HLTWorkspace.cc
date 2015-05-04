@@ -171,9 +171,7 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        if (triggerResults->accept(lookupIndex[pathName]) && hltConfig_.saveTags(lookupFilter[pathName]))
 	 {
-
 	   fillPlots(eventNumber, pathName, aodTriggerEvent);
-
 	 }
      }
 
@@ -264,8 +262,8 @@ void HLTWorkspace::bookPlots()
   quickCollectionPaths.push_back("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg");
   lookupFilter["HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"] = "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg";
 
-  quickCollectionPaths.push_back("HLT_PFMET120_PFMHT120_IDLoose");
-  lookupFilter["HLT_PFMET120_PFMHT120_IDLoose"] = "hltPFMET120";
+  quickCollectionPaths.push_back("HLT_PFMET120_PFMHT120_IDTight");
+  lookupFilter["HLT_PFMET120_PFMHT120_IDTight"] = "hltPFMET120";
 
   // quickCollectionPaths.push_back("HLT_HT650_DisplacedDijet80_Inclusive");
   // lookupFilter["HLT_HT650_DisplacedDijet80_Inclusive"] = "";
@@ -318,12 +316,12 @@ void HLTWorkspace::bookPlots()
   dbe->book1D("CaloMET_pT",hist_caloMetPt);
 
   //PFHT pt
-  TH1F * hist_pfHtPt = new TH1F("PFHT_pT","PFHT pT",200,0,1500);
+  TH1F * hist_pfHtPt = new TH1F("PFHT_pT","PFHT pT",200,0,2000);
   hist_pfHtPt->SetMinimum(0);
   dbe->book1D("PFHT_pT",hist_pfHtPt);
 
   //PFMET pt
-  TH1F * hist_PFMetPt = new TH1F("PFMET_pT","PFMET pT",60,50,550);
+  TH1F * hist_PFMetPt = new TH1F("PFMET_pT","PFMET pT",60,100,500);
   hist_PFMetPt->SetMinimum(0);
   dbe->book1D("PFMET_pT",hist_PFMetPt);
 
@@ -531,14 +529,14 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
     }
 
   //PFMET pt
-  else if (pathName == "HLT_PFMET120_PFMHT120_IDLoose")
+  else if (pathName == "HLT_PFMET120_PFMHT120_IDTight")
     {
       // pt
       string fullPathPfMetPt = mainShifterFolder+"/PFMET_pT";
       MonitorElement * ME_pfMetPt = dbe->get(fullPathPfMetPt);
       TH1F * hist_pfMetPt = ME_pfMetPt->getTH1F();
       // phi
-      string fullPathPfMetPhi = mainShifterFolder+"/PFMET_phi";
+      string fullPathPfMetPhi = backupFolder+"/PFMET_phi";
       MonitorElement * ME_pfMetPhi = dbe->get(fullPathPfMetPhi);
       TH1F * hist_pfMetPhi = ME_pfMetPhi->getTH1F();
 
