@@ -60,7 +60,7 @@ class MultiTrackValidatorBase {
   edm::EDGetTokenT<TrackingVertexCollection> label_tv;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > label_pileupinfo;
 
-  std::string sim;
+  std::vector<edm::EDGetTokenT<std::vector<PSimHit> > > simHitTokens_;
   std::string parametersDefiner;
 
 

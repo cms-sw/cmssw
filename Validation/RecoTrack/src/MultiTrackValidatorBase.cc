@@ -8,7 +8,10 @@ MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset, 
   label_tp_fake = iC.consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp_fake"));
   label_tv = iC.mayConsume<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));
   label_pileupinfo = iC.consumes<std::vector<PileupSummaryInfo> >(pset.getParameter< edm::InputTag >("label_pileupinfo"));
-  sim = pset.getParameter<std::string>("sim");
+  for(const auto& tag: pset.getParameter<std::vector<edm::InputTag>>("sim")) {
+    simHitTokens_.push_back(iC.consumes<std::vector<PSimHit>>(tag));
+  }
+
   parametersDefiner = pset.getParameter<std::string>("parametersDefiner");
 
 
