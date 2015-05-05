@@ -141,7 +141,7 @@ mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RecHits/
 
 set OLV = `echo ${OLD_VERS} | sed 's/\([^_]*\).*/\1/'`
 set NWV = `echo ${NEW_VERS} | sed 's/\([^_]*\).*/\1/'`
-./SinglePi.exe ${OLV} ${NWV}
+./singlePi.exe ${OLV} ${NWV}
 mv *gif  ${NEW_VERS}_vs_${OLD_VERS}_RelVal/SinglePi50_ECAL+HCAL_Scan
 
 exit
