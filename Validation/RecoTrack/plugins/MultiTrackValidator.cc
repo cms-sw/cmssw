@@ -22,6 +22,7 @@
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoFactory.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackingParticleNumberOfLayers.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -220,6 +221,23 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByToken(label_tv,tvH);
   TrackingVertexCollection const & tv = *tvH;
   */
+
+  // Calculate the number of 3D layers for TPs
+  //
+  // I would have preferred to produce the ValueMap to Event and read
+  // it from there, but there would have been quite some number of
+  // knock-on effects, and again the fact that we take two TP
+  // collections do not support Ref<TP>'s would have complicated that.
+  //
+  // In principle we could use the SimHitTPAssociationList read above
+  // for parametersDefinerIsCosmic_, but since we don't currently
+  // support Ref<TP>s, we can't in general use it since eff/fake TP
+  // collections can, in general, be different.
+  TrackingParticleNumberOfLayers tpNumberOfLayersAlgo(event, simHitTokens_);
+  auto nlayers_tPCeff_ptrs = tpNumberOfLayersAlgo.calculate(TPCollectionHeff, setup);
+  const auto& nLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nTrackerLayers>(nlayers_tPCeff_ptrs));
+  const auto& nPixelLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nPixelLayers>(nlayers_tPCeff_ptrs));
+  const auto& nStripMonoAndStereoLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nStripMonoAndStereoLayers>(nlayers_tPCeff_ptrs));
 
   // Precalculate TP selection (for efficiency), and momentum and vertex wrt PCA
   //
@@ -468,7 +486,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 
         int nSimHits = tp.numberOfTrackerHits();
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
+        int nSimLayers = nLayers_tPCeff[tpr];
+        int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
+        int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
           if (matchedTrackPointer) asts++;
 

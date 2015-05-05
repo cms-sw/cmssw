@@ -43,6 +43,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					   const TrackingParticle& tp,
 					   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 					   double dxy, double dz, int nSimHits,
+                                           int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 					   const reco::Track* track,
 					   int numVertices,
 					   double dR);
@@ -152,6 +153,9 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_looprate, h_misidrate, h_pileupeta;
   std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_loopratepT, h_misidratepT, h_pileuppT;
   std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_loopratehit, h_misidratehit, h_pileuphit;
+  std::vector<MonitorElement*> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer, h_misidlayer, h_pileuplayer;
+  std::vector<MonitorElement*> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer, h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
+  std::vector<MonitorElement*> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer, h_misid3Dlayer, h_pileup3Dlayer;
   std::vector<MonitorElement*> h_effic_vs_pu, h_fake_vs_pu, h_recopu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_loopratepu, h_misidratepu, h_pileuppu;
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_loopratephi, h_misidratephi, h_pileupphi;
   std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_loopratedxy, h_misidratedxy, h_pileupdxy;

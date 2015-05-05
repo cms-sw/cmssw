@@ -186,6 +186,15 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
   h_assochit.push_back( ibook.book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
   h_simulhit.push_back( ibook.book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
 
+  h_assoclayer.push_back( ibook.book1D("num_assoc(simToReco)_layer","N of associated tracks (simToReco) vs layer",nintHit,minHit,maxHit) );
+  h_simullayer.push_back( ibook.book1D("num_simul_layer","N of simulated tracks vs layer",nintHit,minHit,maxHit) );
+
+  h_assocpixellayer.push_back( ibook.book1D("num_assoc(simToReco)_pixellayer","N of associated tracks (simToReco) vs pixel layer",nintHit,minHit,maxHit) );
+  h_simulpixellayer.push_back( ibook.book1D("num_simul_pixellayer","N of simulated tracks vs pixel layer",nintHit,minHit,maxHit) );
+
+  h_assoc3Dlayer.push_back( ibook.book1D("num_assoc(simToReco)_3Dlayer","N of associated tracks (simToReco) vs 3D layer",nintHit,minHit,maxHit) );
+  h_simul3Dlayer.push_back( ibook.book1D("num_simul_3Dlayer","N of simulated tracks vs 3D layer",nintHit,minHit,maxHit) );
+
   h_assocpu.push_back( ibook.book1D("num_assoc(simToReco)_pu","N of associated tracks (simToReco) vs pu",nintPu,minPu,maxPu) );
   h_simulpu.push_back( ibook.book1D("num_simul_pu","N of simulated tracks vs pu",nintPu,minPu,maxPu) );
 
@@ -258,6 +267,24 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_looperhit.push_back( ibook.book1D("num_duplicate_hit","N of associated (recoToSim) duplicate tracks vs hit",nintHit,minHit,maxHit) );
   h_misidhit.push_back( ibook.book1D("num_chargemisid_hit","N of associated (recoToSim) charge misIDed tracks vs hit",nintHit,minHit,maxHit) );
   h_pileuphit.push_back( ibook.book1D("num_pileup_hit","N of associated (recoToSim) pileup tracks vs hit",nintHit,minHit,maxHit) );
+  //
+  h_recolayer.push_back( ibook.book1D("num_reco_layer","N of reco track vs layer",nintHit,minHit,maxHit) );
+  h_assoc2layer.push_back( ibook.book1D("num_assoc(recoToSim)_layer","N of associated (recoToSim) tracks vs layer",nintHit,minHit,maxHit) );
+  h_looperlayer.push_back( ibook.book1D("num_duplicate_layer","N of associated (recoToSim) duplicate tracks vs layer",nintHit,minHit,maxHit) );
+  h_misidlayer.push_back( ibook.book1D("num_chargemisid_layer","N of associated (recoToSim) charge misIDed tracks vs layer",nintHit,minHit,maxHit) );
+  h_pileuplayer.push_back( ibook.book1D("num_pileup_layer","N of associated (recoToSim) pileup tracks vs layer",nintHit,minHit,maxHit) );
+  //
+  h_recopixellayer.push_back( ibook.book1D("num_reco_pixellayer","N of reco track vs pixellayer",nintHit,minHit,maxHit) );
+  h_assoc2pixellayer.push_back( ibook.book1D("num_assoc(recoToSim)_pixellayer","N of associated (recoToSim) tracks vs pixellayer",nintHit,minHit,maxHit) );
+  h_looperpixellayer.push_back( ibook.book1D("num_duplicate_pixellayer","N of associated (recoToSim) duplicate tracks vs pixellayer",nintHit,minHit,maxHit) );
+  h_misidpixellayer.push_back( ibook.book1D("num_chargemisid_pixellayer","N of associated (recoToSim) charge misIDed tracks vs pixellayer",nintHit,minHit,maxHit) );
+  h_pileuppixellayer.push_back( ibook.book1D("num_pileup_pixellayer","N of associated (recoToSim) pileup tracks vs pixellayer",nintHit,minHit,maxHit) );
+  //
+  h_reco3Dlayer.push_back( ibook.book1D("num_reco_3Dlayer","N of reco track vs 3D layer",nintHit,minHit,maxHit) );
+  h_assoc23Dlayer.push_back( ibook.book1D("num_assoc(recoToSim)_3Dlayer","N of associated (recoToSim) tracks vs 3D layer",nintHit,minHit,maxHit) );
+  h_looper3Dlayer.push_back( ibook.book1D("num_duplicate_3Dlayer","N of associated (recoToSim) duplicate tracks vs 3D layer",nintHit,minHit,maxHit) );
+  h_misid3Dlayer.push_back( ibook.book1D("num_chargemisid_3Dlayer","N of associated (recoToSim) charge misIDed tracks vs 3D layer",nintHit,minHit,maxHit) );
+  h_pileup3Dlayer.push_back( ibook.book1D("num_pileup_3Dlayer","N of associated (recoToSim) pileup tracks vs 3D layer",nintHit,minHit,maxHit) );
   //
   h_recopu.push_back( ibook.book1D("num_reco_pu","N of reco track vs pu",nintPu,minPu,maxPu) );
   h_assoc2pu.push_back( ibook.book1D("num_assoc(recoToSim)_pu","N of associated (recoToSim) tracks vs pu",nintPu,minPu,maxPu) );
@@ -578,10 +605,12 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 const TrackingParticle::Vector& momentumTP,
 									 const TrackingParticle::Point& vertexTP,
 									 double dxySim, double dzSim, int nSimHits,
+                                                                         int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 									 const reco::Track* track,
 									 int numVertices,
 									 double dR){
   bool isMatched = track;
+  auto const nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs eta
@@ -589,8 +618,14 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
     //effic vs hits
     fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
+    fillPlotNoFlow(h_simullayer[count], nSimLayers);
+    fillPlotNoFlow(h_simulpixellayer[count], nSimPixelLayers);
+    fillPlotNoFlow(h_simul3Dlayer[count], nSim3DLayers);
     if(isMatched) {
       fillPlotNoFlow(h_assochit[count],(int)nSimHits);
+      fillPlotNoFlow(h_assoclayer[count], nSimLayers);
+      fillPlotNoFlow(h_assocpixellayer[count], nSimPixelLayers);
+      fillPlotNoFlow(h_assoc3Dlayer[count], nSim3DLayers);
       nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
     //effic vs pu
@@ -665,6 +700,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto dxy = track.dxy(bsPosition);
   const auto dz = track.dz(bsPosition);
   const auto nhits = track.found();
+  const auto nlayers = track.hitPattern().trackerLayersWithMeasurement();
+  const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
+  const auto n3DLayers = nPixelLayers + track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
 
   fillPlotNoFlow(h_recoeta[count], eta);
@@ -673,6 +711,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recodxy[count], dxy);
   fillPlotNoFlow(h_recodz[count], dz);
   fillPlotNoFlow(h_recohit[count], nhits);
+  fillPlotNoFlow(h_recolayer[count], nlayers);
+  fillPlotNoFlow(h_recopixellayer[count], nPixelLayers);
+  fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
   h_recodr[count]->Fill(deltar);
   if (isMatched) {
@@ -682,6 +723,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2dxy[count], dxy);
     fillPlotNoFlow(h_assoc2dz[count], dz);
     fillPlotNoFlow(h_assoc2hit[count], nhits);
+    fillPlotNoFlow(h_assoc2layer[count], nlayers);
+    fillPlotNoFlow(h_assoc2pixellayer[count], nPixelLayers);
+    fillPlotNoFlow(h_assoc23Dlayer[count], n3DLayers);
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
     h_assoc2dr[count]->Fill(deltar);
 
@@ -696,6 +740,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_misiddxy[count], dxy);
       fillPlotNoFlow(h_misiddz[count], dz);
       fillPlotNoFlow(h_misidhit[count], nhits);
+      fillPlotNoFlow(h_misidlayer[count], nlayers);
+      fillPlotNoFlow(h_misidpixellayer[count], nPixelLayers);
+      fillPlotNoFlow(h_misid3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_misidpu[count], numVertices);
     }
 
@@ -706,6 +753,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_looperdxy[count], dxy);
       fillPlotNoFlow(h_looperdz[count], dz);
       fillPlotNoFlow(h_looperhit[count], nhits);
+      fillPlotNoFlow(h_looperlayer[count], nlayers);
+      fillPlotNoFlow(h_looperpixellayer[count], nPixelLayers);
+      fillPlotNoFlow(h_looper3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_looperpu[count], numVertices);
     }
     else if(!isSigMatched) {
@@ -715,6 +765,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileupdxy[count], dxy);
       fillPlotNoFlow(h_pileupdz[count], dz);
       fillPlotNoFlow(h_pileuphit[count], nhits);
+      fillPlotNoFlow(h_pileuplayer[count], nlayers);
+      fillPlotNoFlow(h_pileuppixellayer[count], nPixelLayers);
+      fillPlotNoFlow(h_pileup3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_pileuppu[count], numVertices);
       h_pileupdr[count]->Fill(deltar);
     }

@@ -43,6 +43,7 @@ class MTVHistoProducerAlgo{
 						   const TrackingParticle& tp,
 						   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 						   double dxy, double dz, int nSimHits,
+                                                   int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 						   const reco::Track* track,
 						   int numVertices,
 						   double dR)=0;

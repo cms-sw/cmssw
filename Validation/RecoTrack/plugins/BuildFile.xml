@@ -20,6 +20,7 @@
 <use   name="SimTracker/Records"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use   name="root"/>
+<use   name="SimGeneral/TrackingAnalysis"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="DQMServices/ClientConfig"/>
