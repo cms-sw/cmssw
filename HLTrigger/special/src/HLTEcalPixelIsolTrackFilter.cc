@@ -42,22 +42,24 @@ bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::Event
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
     edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref =
       edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
-    //    std::cout << "candref.isNull() " << candref.isNull() << std::endl;
-    if(candref.isNull()) continue;
-    //    std::cout << "candref.track().isNull() " << candref->track().isNull() << std::endl;
+    LogDebug("IsoTrk") << "candref.isNull() " << candref.isNull() << "\n";
+    if (candref.isNull()) continue;
+    LogDebug("IsoTrk") << "candref.track().isNull() " << candref->track().isNull() << "\n";
     if(candref->track().isNull()) continue;
     // select on transverse momentum
-    //    std::cout << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut() << std::endl;
+    LogDebug("IsoTrk") << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut() << "\n";
     if (candref->energyIn()<maxEnergyIn_&& candref->energyOut()<maxEnergyOut_) {
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
+      LogDebug("IsoTrk") << "EcalIsol:Candidate[" << n <<"] pt|eta|phi "
+			 << candref->pt() << "|" << candref->eta() << "|"
+			 << candref->phi() << "\n";
     }
     if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break; 
 
   } 
   bool accept(n>0);
   if (dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;  
-  //  std::cout << "accept here" << accept << std::endl;
   return accept;
 }
 	  
