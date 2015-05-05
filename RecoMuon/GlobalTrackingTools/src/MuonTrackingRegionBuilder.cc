@@ -145,13 +145,12 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   // standard 15.9, if useVertex than use error from  vertex
   double deltaZ = theHalfZ;
 
-  // check if using the bs, otherwise vertexing
-  if ( !useVertex ) {
+  // retrieve beam spot information
+  edm::Handle<reco::BeamSpot> bs;
+  bool bsHandleFlag = ev.getByToken(beamSpotToken, bs);
 
-    // retrieve beam spot information
-    edm::Handle<reco::BeamSpot> bs;
-    ev.getByToken(beamSpotToken, bs);
-
+  // check the validity, otherwise vertexing
+  if ( bsHandleFlag && bs.isValid() && !useVertex ) {
     vertexPos = GlobalPoint(bs->x0(), bs->y0(), bs->z0());
     deltaZ = useFixedZ ? theHalfZ : bs->sigmaZ() * theNsigmaDz;
   } else {
