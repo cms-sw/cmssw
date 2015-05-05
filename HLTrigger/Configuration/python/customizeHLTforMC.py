@@ -464,6 +464,10 @@ def customizeHLTforMC(process,_fastSim=False):
       if hasattr(process,label):
         getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('globalPixelSeeds')
         getattr(process,label).SeedConfiguration.preFilteredSeeds = cms.bool(False)
+        if hasattr(fastsim,'globalPixelSeeds'): 
+          if hasattr(fastsim.globalPixelSeeds,'outputSeedCollectionName'):
+            getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('globalPixelSeeds',fastsim.globalPixelSeeds.outputSeedCollectionName.value())
+
 
 # Extending fastsim import
     fastsim.extend(process)
