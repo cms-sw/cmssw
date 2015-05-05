@@ -94,7 +94,6 @@ class HLTProcessOptions(object):
     self.events     = 100         # (*) run on these many events
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
-    self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim - deprecated (FastSim uses FullSim cff dumps)!
     self.hilton     = False       #     prepare a configuration for running with hilton-like modules
 
 
