@@ -20,7 +20,7 @@
  * 12/Mar/2012 (branch NewTrackingParticle only) Mark Grimes - Updated TrackingParticle creation
  * to fit in with Subir Sarkar's re-implementation of TrackingParticle.
  */
-#include "SimGeneral/TrackingAnalysis/interface/TrackingTruthAccumulator.h"
+#include "SimGeneral/TrackingAnalysis/plugins/TrackingTruthAccumulator.h"
 
 #include <SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
