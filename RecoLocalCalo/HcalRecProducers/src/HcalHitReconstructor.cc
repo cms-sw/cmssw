@@ -13,6 +13,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h"
+#include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
 #include <iostream>
@@ -45,7 +46,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   mcOOTCorrectionName_(""),
   mcOOTCorrectionCategory_("MC"),
   setPileupCorrection_(0),
-  setPileupCorrectionForNegative_(0),
   paramTS(0),
   puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0),
   cntprtCorrMethod_(0),
@@ -97,7 +97,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
     setPileupCorrection_            = 0;
     if(puCorrMethod_ == 1) setPileupCorrection_            = &HcalSimpleRecAlgo::setHBHEPileupCorrection;    
-    setPileupCorrectionForNegative_ = &HBHENegativeFlagSetter::setHBHEPileupCorrection;
 
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
     if (timingShapedCutsFlags)
@@ -159,17 +158,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
                          psPulseShape.getParameter<bool>("TriangleIgnoreSlow"));
       }  // if (setPulseShapeFlags_)
     if (setNegativeFlags_)
-      {
-        const edm::ParameterSet &psNegative = conf.getParameter<edm::ParameterSet>("negativeParameters");
-        hbheNegativeFlagSetter_ = new HBHENegativeFlagSetter(
-                       psNegative.getParameter<double>("MinimumChargeThreshold"),
-                       psNegative.getParameter<double>("TS4TS5ChargeThreshold"),
-                       psNegative.getParameter<int>("First"),
-                       psNegative.getParameter<int>("Last"),
-                       psNegative.getParameter<std::vector<double> >("Threshold"),
-                       psNegative.getParameter<std::vector<double> >("Cut"));
-      }
-
+        hbheNegativeFlagSetter_ = new HBHENegativeFlagSetter();
+ 
     produces<HBHERecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
@@ -253,10 +243,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   if (conf.existsAs<std::string>("mcOOTCorrectionCategory"))
       mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
   if (dataOOTCorrectionName_.empty() && mcOOTCorrectionName_.empty())
-  {
       setPileupCorrection_ = 0;
-      setPileupCorrectionForNegative_ = 0;
-  }
 
   reco_.setpuCorrMethod(puCorrMethod_);
   if(puCorrMethod_ == 2) { 
@@ -287,11 +274,18 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
 HcalHitReconstructor::~HcalHitReconstructor() {
   delete hbheFlagSetter_;
-  delete hfdigibit_;
   delete hbheHSCPFlagSetter_;
   delete hbhePulseShapeFlagSetter_;
+  delete hbheNegativeFlagSetter_;
+  delete hbheTimingShapedFlagSetter_;
+  delete hfdigibit_;
+  
   delete hfS9S1_;
+  delete hfS8S1_;
   delete hfPET_;
+  delete saturationFlagSetter_;
+  delete HFTimingTrustFlagSetter_;
+
   delete paramTS;
 }
 
@@ -385,24 +379,30 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
          if( testMethod1Ptr ) isMethod1Set = true;
          (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName_, cat_));
       }
+  }
 
-      if(setPileupCorrectionForNegative_ && hbheNegativeFlagSetter_)
-        (hbheNegativeFlagSetter_->*setPileupCorrectionForNegative_)(pileupCorrections->get(corrName_, cat_));
-   }
-// Only for HBHE
-   if( subdet_ == HcalBarrel ){
-      if( !cntprtCorrMethod_ ){
-         cntprtCorrMethod_++;
-         if( puCorrMethod_ == 2 ) LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 2" << std::endl;
-         else if( puCorrMethod_ == 1 ){
-            if( isMethod1Set ) LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 1" << std::endl;
-            else edm::LogWarning("HcalPUcorrMethod") <<"puCorrMethod_ set to be 1 but method 1 is NOT activated (method 0 used instead)!\n"
-                                                     <<"Please check GlobalTag usage or method 1 seperately disabled by dataOOTCorrectionName & mcOOTCorrectionName?" << std::endl;
-         }else if (puCorrMethod_ == 3) {
+  // Configure the negative energy filter
+  edm::ESHandle<HBHENegativeEFilter> negEhandle;
+  if (hbheNegativeFlagSetter_)
+  {
+      eventSetup.get<HBHENegativeEFilterRcd>().get(negEhandle);
+      hbheNegativeFlagSetter_->configFilter(negEhandle.product());
+  }
+
+  // Only for HBHE
+  if( subdet_ == HcalBarrel ) {
+     if( !cntprtCorrMethod_ ) {
+        cntprtCorrMethod_++;
+        if( puCorrMethod_ == 2 ) LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 2" << std::endl;
+        else if( puCorrMethod_ == 1 ){
+           if( isMethod1Set ) LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 1" << std::endl;
+           else edm::LogWarning("HcalPUcorrMethod") <<"puCorrMethod_ set to be 1 but method 1 is NOT activated (method 0 used instead)!\n"
+                                                    <<"Please check GlobalTag usage or method 1 separately disabled by dataOOTCorrectionName & mcOOTCorrectionName?" << std::endl;
+        } else if (puCorrMethod_ == 3) {
            LogTrace("HcalPUcorrMethod") << "Using Hcal Deterministic Fit Method!" << std::endl;
-         } else LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 0" << std::endl;
-      }
-   }
+        } else LogTrace("HcalPUcorrMethod") << "Using Hcal OOTPU method 0" << std::endl;
+     }
+  }
 
   // GET THE BEAM CROSSING INFO HERE, WHEN WE UNDERSTAND HOW THINGS WORK.
   // Then, call "setBXInfo" method of the reco_ object.
@@ -532,11 +532,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
 	  hbheFlagSetter_->SetFlagsFromDigi(&(*topo),rec->back(),*i,coder,calibrations,first,toadd);
-	if (setPulseShapeFlags_ == true)
+	if (setPulseShapeFlags_)
 	  hbhePulseShapeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
-	if (setNegativeFlags_ == true)
-     hbheNegativeFlagSetter_->setPulseShapeFlags(rec->back(), *i, coder, calibrations);
-   if (setSaturationFlags_)
+	if (setNegativeFlags_)
+          hbheNegativeFlagSetter_->setPulseShapeFlags(rec->back(), *i, coder, calibrations);
+        if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (correctTiming_)
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
