@@ -9,7 +9,8 @@ import L1Trigger.L1TCalorimeter.caloParams_cfi
 caloStage1Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
 caloStage1Params.regionPUSType    = cms.string("PUM0")       #"None" for no PU subtraction, "PUM0", "HICaloRingSub"
-caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
+#caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
+caloStage1Params.regionPUSParams  = regionSubtaction_all0s
 
 # EG
 caloStage1Params.egLsb                = cms.double(1.)
@@ -44,11 +45,13 @@ caloStage1Params.isoTauEtaMin          = cms.int32(5)
 caloStage1Params.isoTauEtaMax          = cms.int32(16)
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
-caloStage1Params.jetSeedThreshold      = cms.double(10.)
+#caloStage1Params.jetSeedThreshold      = cms.double(10.)
+caloStage1Params.jetSeedThreshold      = cms.double(5.)
 caloStage1Params.jetNeighbourThreshold = cms.double(0.)
 caloStage1Params.jetCalibrationType    = cms.string("Stage1JEC")
 caloStage1Params.jetCalibrationParams  = jetSF_8TeV_data
-caloStage1Params.jetCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1_prelim.txt")
+#caloStage1Params.jetCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1_prelim.txt")
+caloStage1Params.jetCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lutAttempt_symmetric_0is0.txt")
 
 # sums
 caloStage1Params.etSumLsb                = cms.double(0.5)
