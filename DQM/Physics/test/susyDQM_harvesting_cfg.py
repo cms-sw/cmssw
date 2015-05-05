@@ -44,8 +44,7 @@ process.dqmSaver.forceRunNumber = cms.untracked.int32(  1)
 
 ##harvesting module
 process.susyDQMPostProcessor = cms.EDAnalyzer("DQMGenericClient",
-        #subDirs = cms.untracked.vstring('Physics/Run summary/Susy/Hadronic'),
-        subDirs = cms.untracked.vstring('Physics/Susy/Hadronic'),
+        subDirs = cms.untracked.vstring('Physics/Susy/*'),
         verbose = cms.untracked.uint32(2),
         resolution = cms.vstring(""),
         efficiency = cms.vstring(

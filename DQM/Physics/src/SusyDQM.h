@@ -764,7 +764,7 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillLeptonic(const edm::Event& evt) {
     if(useGen){
         for(uint g = 0; g < genParticles->size(); g++){
             const reco::GenParticle gen = genParticles->at(g);
-            if(fabs(gen.pdgId()) == 11 && gen.status() == 1){ //electron
+            if(fabs(gen.pdgId()) == 11 && gen.status() == 1 && fabs(gen.eta()) < eleEtaCut){ //electron
                 //find the particle's mother -- require it to be an electroweak boson
                 const reco::GenParticle *firstMotherWithDifferentID = findFirstMotherWithDifferentID(&gen);
                 if (firstMotherWithDifferentID) {
@@ -788,7 +788,7 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillLeptonic(const edm::Event& evt) {
                     electronEfficiencyVsPt_numerator->Fill(gen.pt());
                 }
             }
-            else if(fabs(gen.pdgId()) == 13 && gen.status() == 1){ //muon
+            else if(fabs(gen.pdgId()) == 13 && gen.status() == 1 && fabs(gen.eta()) < muEtaCut){ //muon
                 //find the particle's mother -- require it to be an electroweak boson
                 const reco::GenParticle *firstMotherWithDifferentID = findFirstMotherWithDifferentID(&gen);
                 if (firstMotherWithDifferentID) {
