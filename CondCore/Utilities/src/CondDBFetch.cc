@@ -238,6 +238,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( SiPixelGainCalibrationForHLT )
       FETCH_PAYLOAD_CASE( SiPixelGainCalibrationOffline )
       FETCH_PAYLOAD_CASE( SiPixelLorentzAngle )
+      FETCH_PAYLOAD_CASE( SiPixelDynamicInefficiency )
       FETCH_PAYLOAD_CASE( SiPixelQuality )
       FETCH_PAYLOAD_CASE( SiPixelTemplateDBObject )
       FETCH_PAYLOAD_CASE( SiPixel2DTemplateDBObject )

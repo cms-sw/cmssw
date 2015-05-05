@@ -288,6 +288,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( SiPixelGainCalibrationForHLT )
       IMPORT_PAYLOAD_CASE( SiPixelGainCalibrationOffline )
       IMPORT_PAYLOAD_CASE( SiPixelLorentzAngle )
+      IMPORT_PAYLOAD_CASE( SiPixelDynamicInefficiency )
       IMPORT_PAYLOAD_CASE( SiPixelQuality )
       IMPORT_PAYLOAD_CASE( SiPixelTemplateDBObject )
       IMPORT_PAYLOAD_CASE( SiPixel2DTemplateDBObject )
