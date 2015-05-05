@@ -634,6 +634,9 @@ namespace evf {
       previousFileSize_ = 0;
     }
 
+    //reached limit
+    if (maxLS>=0 && ls > (unsigned int)maxLS) return false; 
+
     struct stat buf;
     std::stringstream ss;
     unsigned int nextIndex = index;
