@@ -42,6 +42,48 @@ ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
+
+
+# ECAL calibration with phi symmetry 
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_cff import *
+
+from DQMOffline.Configuration.AlCaRecoDQM_cff import *
+
+#pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
+pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym)
+
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
+ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
+        responsible = 'Stefano Argiro',
+        name = 'ALCARECOEcalCalPhiSym',
+        paths  = (pathALCARECOEcalCalPhiSym),
+        content = OutALCARECOEcalCalPhiSym.outputCommands,
+        selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
+
+#HCAL calibration iterative PhiSym                                                                                                                                                                          
+
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_cff import *
+
+from DQMOffline.Configuration.AlCaRecoDQM_cff import *
+
+pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalPhisymDQM)
+
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
+ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
+        responsible = 'Natalia Lychkovskaya',
+        name = 'ALCARECOHcalCalIterativePhiSym',
+        paths  = (pathALCARECOHcalCalIterativePhiSym),
+        content = OutALCARECOHcalCalIterativePhiSym.outputCommands,
+        selectEvents = OutALCARECOHcalCalIterativePhiSym.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
