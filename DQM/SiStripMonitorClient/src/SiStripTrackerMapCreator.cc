@@ -71,7 +71,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   if(!fedcabling) return;
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   if (trackerMap_) delete trackerMap_;
@@ -143,7 +143,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   if(!fedcabling) return;
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   if (trackerMap_) delete trackerMap_;
