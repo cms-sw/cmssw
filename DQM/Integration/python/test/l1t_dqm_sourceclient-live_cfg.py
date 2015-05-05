@@ -48,6 +48,9 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # sequences needed for L1 trigger DQM
 #
 
+l1Condition = 'legacyProd'
+#l1Condition = 'stage1Prod'
+
 # standard unpacking sequence 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
@@ -55,7 +58,11 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # l1tMonitor and l1tMonitorEndPathSeq
 process.load("DQM.L1TMonitor.L1TMonitor_cff")    
-
+if l1Condition == 'legacyProd':
+    process.gtStage1Digis.DaqGtFedId = cms.untracked.int32(809)
+if l1Condition == 'stage1Prod':
+    process.gtStage1Digis.DaqGtFedId = cms.untracked.int32(813)
+    
 # L1 trigger synchronization module - it uses also HltHighLevel filter
 process.load("DQM.L1TMonitor.L1TSync_cff")    
 
@@ -77,7 +84,8 @@ process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 # for GCT, unpack all five samples
 process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
-
+if l1Condition == "stage1Prod":
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 # 
 process.l1tMonitorPath = cms.Path(process.l1tMonitorOnline)
 

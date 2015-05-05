@@ -80,7 +80,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     if(eg_et>=egMinPtHOverEIsolation && eg_et < egMaxPtHOverEIsolation ) {
                  if(egCand->hwIso()) isoFlagRct =1;
     }
-    else {isoFlagRct =1;}   
+    else {isoFlagRct =1;}
 
     int ijet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
     // double jet_pt=ijet_pt*jetLsb;
@@ -88,14 +88,14 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     if (ijet_pt>0 && eg_et>=egMinPtJetIsolation && eg_et<egMaxPtJetIsolation){
 
       // Combined Barrel/Endcap LUT uses upper bit to indicate Barrel / Endcap:
-      enum {MAX_LUT_ADDRESS = 0x7fff}; 
+      enum {MAX_LUT_ADDRESS = 0x7fff};
       enum {LUT_BARREL_OFFSET = 0x0, LUT_ENDCAP_OFFSET = 0x8000};
 
       unsigned int lutAddress = isoLutIndex(eg_et,ijet_pt);
 
       if (eg_et >0){
 	if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
-	if (isinBarrel){	
+	if (isinBarrel){
 	  isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + lutAddress);
 	} else{
 	  isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + lutAddress);

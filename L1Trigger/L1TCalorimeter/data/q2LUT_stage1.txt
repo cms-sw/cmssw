@@ -1,0 +1,5 @@
+# LUT for q2 thresholds in hw scale
+# Index is just threshold number (0-7 inclusive)
+#anything after # is ignored with the exception of the header
+#the header is first valid line starting with #<header> versionStr(unused but may be in future) nrBitsAddress nrBitsData </header>
+#<header> V1 3 14 </header>

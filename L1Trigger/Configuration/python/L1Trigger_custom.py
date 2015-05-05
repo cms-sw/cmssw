@@ -94,12 +94,12 @@ def customiseL1Menu(process):
 
     if l1MenuSource == 'sqlFile' :
         # the menu will be read from the SQL file instead of the global tag
-        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2015_25ns_v1/sqlFile/L1Menu_Collisions2015_25ns_v1_mc.db'
-        menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2015_25ns_v1_mc'
+        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2015_25ns_v2/sqlFile/L1Menu_Collisions2015_25ns_v2_mc.db'
+        menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2015_25ns_v2_mc'
     elif l1MenuSource == 'xmlFile' :
         # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory
         luminosityDirectory = "startup"
-        useXmlFile = 'L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.xml'
+        useXmlFile = 'L1Menu_Collisions2015_25ns_v2_L1T_Scales_20141121_Imp0_0x1030.xml'
     else :
         # use the default L1 trigger menu from the global tag
         pass
@@ -129,28 +129,6 @@ def customiseL1Menu(process):
 
         else :
             print '   Error: no SQL file is given; please provide a valid SQL file for option sqlFile'
-
-    return process
-
-##############################################################################
-
-def customiseL1Menu_HI(process):
-
-    # replace the L1 menu from the global tag with one of the following alternatives
-
-    luminosityDirectory = "startup"
-    useXmlFile = 'L1Menu_CollisionsHeavyIons2011_v0_nobsc_notau_centrality_q2_singletrack.v1.xml'
-
-    print '   Retrieve L1 trigger menu only from XML file '
-    print '       ', useXmlFile
-    print '       '
-
-    process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
-    process.l1GtTriggerMenuXml.TriggerMenuLuminosity = luminosityDirectory
-    process.l1GtTriggerMenuXml.DefXmlFile = useXmlFile
-
-    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 
     return process
 

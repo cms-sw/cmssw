@@ -1401,7 +1401,6 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
     if (psbBlockData == psbBlockEmul) {
         m_myCoutStream << "\nData and emulated PSB blocks: identical.\n";
         psbBlockData.print(m_myCoutStream);
-
     } else {
         m_myCoutStream << "\nData and emulated PSB blocks: different.\n";
 
@@ -1601,6 +1600,8 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     bool validData = false;
 
+    std::cout<<m_dirName<<std::endl;
+
     if (!gtReadoutRecordData.isValid()) {
         m_nrDataEventError++;
     } else {
@@ -1644,7 +1645,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     int gtFdlVectorDataSize = gtFdlVectorData.size();
     int gtFdlVectorEmulSize = gtFdlVectorEmul.size();
-
+      
     if (gtFdlVectorDataSize == gtFdlVectorEmulSize) {
         m_myCoutStream << "\nData and emulated FDL vector size: identical.\n";
         m_myCoutStream << "  Size: " << gtFdlVectorDataSize << std::endl;
@@ -1655,12 +1656,13 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
             const L1GtFdlWord& fdlBlockEmul = gtFdlVectorEmul[iFdl];
 
             compareFDL(iEvent, evSetup, fdlBlockData, fdlBlockEmul, iRec);
+
         }
     } else {
         m_myCoutStream << "\nData and emulated FDL vector size: different.\n";
         m_myCoutStream << "  Data: size = " << gtFdlVectorDataSize << std::endl;
         m_myCoutStream << "  Emul: size = " << gtFdlVectorEmulSize << std::endl;
-
+        
     }
 
     LogDebug("L1GtHwValidation") << m_myCoutStream.str() << std::endl;
@@ -1711,7 +1713,6 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
                     && (bxInEventData == bxInEventEmul)) {
 
                 foundPSB = true;
-
                 // compare the boards
                 comparePSB(iEvent, evSetup, psbBlockData, psbBlockEmul);
             }

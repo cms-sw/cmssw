@@ -17,6 +17,12 @@ deEcal = cms.Sequence(valEcalTriggerPrimitiveDigis)
 deHcal = cms.Sequence(valHcalTriggerPrimitiveDigis)
 deRct = cms.Sequence(valRctDigis)
 deGct = cms.Sequence(valGctDigis)
+deStage1Layer2 = cms.Sequence(
+    simRctUpgradeFormatDigis
+    *simCaloStage1Digis
+    *simCaloStage1FinalDigis
+    *valCaloStage1LegacyFormatDigis
+    )
 deDt = cms.Sequence(valDtTriggerPrimitiveDigis)
 deCsc = cms.Sequence(valCscTriggerPrimitiveDigis)
 deCsctfTracks = cms.Sequence(valCsctfTrackDigis)
@@ -24,6 +30,7 @@ deDttf = cms.Sequence(valDttfDigis)
 deCsctf = cms.Sequence(valCsctfDigis)
 deRpc = cms.Sequence(valRpcTriggerDigis)
 deGmt = cms.Sequence(valGmtDigis)
+deStage1Gt = cms.Sequence(valStage1GtDigis)
 deGt = cms.Sequence(valGtDigis)
 
 # the sequence
@@ -40,5 +47,8 @@ L1HardwareValidation = cms.Sequence(
                                 deRpc+
                                 deGmt+
                                 deGt*
-                                l1compare)
+                                l1compare +
+                                deStage1Layer2 +
+                                deStage1Gt)    
+
 

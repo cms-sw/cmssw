@@ -50,7 +50,7 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
 process.simGtDigis = simGtDigis.clone()
 process.simGtDigis.GmtInputTag = 'simGmtDigis'
-process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
+process.simGtDigis.GctInputTag = 'simCaloStage1LegacyFormatDigis'
 process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
 
 

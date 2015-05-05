@@ -7,7 +7,8 @@ l1tGt = cms.EDAnalyzer("L1TGT",
     runInEndLumi=cms.untracked.bool(True),
     runInEndRun=cms.untracked.bool(True),
     runInEndJob=cms.untracked.bool(False),
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False),
+    DirName = cms.untracked.string("L1T/L1TGT")
 )
 
 

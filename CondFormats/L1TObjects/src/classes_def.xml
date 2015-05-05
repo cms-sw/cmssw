@@ -19,6 +19,7 @@
   <class name="l1t::CaloParams::EgParams"/>
   <class name="l1t::CaloParams::JetParams"/>
   <class name="l1t::CaloParams::TauParams"/>
+  <class name="l1t::CaloConfig"/>
   <class name="L1MuScale"/>
   <class name="L1MuBinnedScale">
     <field name="m_Scale" mapping="blob" />
@@ -165,6 +166,8 @@
   <class name="std::map<int, std::vector<L1GtObject> >"/>  
   <class name="std::map<int, std::vector<L1GtObject> >::value_type"/>  
   <class name="L1GtCondition"/>
+  <enum name="L1GtConditionCategory"/>
+  <enum name="L1GtConditionType"/>
   <class name="L1GtMuonTemplate"/>
   <class name="L1GtMuonTemplate::ObjectParameter"/>
   <class name="std::vector<L1GtMuonTemplate::ObjectParameter>"/>
@@ -236,4 +239,6 @@
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
+  <enum name="L1GtBoard" />
+  <enum name="L1GtPsbQuad" />
 </lcgdict>

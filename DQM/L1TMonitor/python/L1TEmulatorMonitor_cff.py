@@ -20,6 +20,12 @@ valGtDigis.AlgorithmTriggersUnprescaled = True
 valGtDigis.TechnicalTriggersUnprescaled = True
 valGtDigis.TechnicalTriggersVetoUnmasked = True
 
+# stage1 GT
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+gtStage1Digis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
+gtStage1EvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
 
 # DQM modules
 from DQM.L1TMonitor.L1TDEMON_cfi import *
@@ -34,6 +40,8 @@ from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 from DQM.L1TMonitor.l1GtHwValidation_cfi import *
 
+from DQM.L1TMonitor.l1Stage1GtHwValidation_cfi import *
+
 # sequence for expert modules for data - emulator comparison
 # the modules are independent, so uses "+"
 
@@ -45,7 +53,10 @@ l1TdeRCTSeq = cms.Sequence(
 l1ExpertDataVsEmulator = cms.Sequence(
                                 l1TdeGCT + 
                                 l1TdeCSCTF + 
-                                l1GtHwValidation + 
+                                l1GtHwValidation +
+                                gtStage1Digis +
+                                gtStage1EvmDigis +
+                                l1Stage1GtHwValidation +
                                 l1TdeRCTSeq                 
                                 )
 
