@@ -214,37 +214,79 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   TrackingVertexCollection const & tv = *tvH;
   */
 
-  //calculate dR for TPs
-  float dR_tPCeff[(*TPCollectionHeff).size()];
-  bool selected_tPCeff[(*TPCollectionHeff).size()];
-  {
-    int j=0;
-    float etaL[(*TPCollectionHeff).size()], phiL[(*TPCollectionHeff).size()];
-    for (   auto const & tp2 : *TPCollectionHeff) {
-      selected_tPCeff[j]=false;
-      if(tpSelector(tp2)) { //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-        selected_tPCeff[j]=true;
-        auto  && p = tp2.momentum();
-        etaL[j] = etaFromXYZ(p.x(),p.y(),p.z());
-        phiL[j] = atan2f(p.y(),p.x());
-
-      } 
+  // Precalculate TP selection (for efficiency), and momentum and vertex wrt PCA
+  //
+  // TODO: ParametersDefinerForTP ESProduct needs to be changed to
+  // EDProduct because of consumes.
+  //
+  // In principle, we could just precalculate the momentum and vertex
+  // wrt PCA for all TPs for once and put that to the event. To avoid
+  // repetitive calculations those should be calculated only once for
+  // each TP. That would imply that we should access TPs via Refs
+  // (i.e. View) in here, since, in general, the eff and fake TP
+  // collections can be different (and at least HI seems to use that
+  // feature). This would further imply that the
+  // RecoToSimCollection/SimToRecoCollection should be changed to use
+  // View<TP> instead of vector<TP>, and migrate everything.
+  //
+  // Or we could take only one input TP collection, and do another
+  // TP-selection to obtain the "fake" collection like we already do
+  // for "efficiency" TPs.
+  std::vector<size_t> selected_tPCeff;
+  std::vector<std::tuple<TrackingParticle::Vector, TrackingParticle::Point>> momVert_tPCeff;
+  selected_tPCeff.reserve(tPCeff.size());
+  momVert_tPCeff.reserve(tPCeff.size());
+  if(parametersDefinerIsCosmic_) {
+    size_t j=0;
+    for(auto const& tp: tPCeff) {
+      TrackingParticleRef tpr(TPCollectionHeff, j);
+      if(cosmictpSelector(tpr,&bs,event,setup)) {
+        selected_tPCeff.push_back(j);
+        TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
+        TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
+        momVert_tPCeff.emplace_back(momentum, vertex);
+      }
       ++j;
     }
+  }
+  else {
+    size_t j=0;
+    for(auto const& tp: tPCeff) {
+      if(tpSelector(tp)) {
+        selected_tPCeff.push_back(j);
+	TrackingParticleRef tpr(TPCollectionHeff, j);
+        TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
+        TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
+        momVert_tPCeff.emplace_back(momentum, vertex);
+      }
+      ++j;
+    }
+  }
+
+  //calculate dR for TPs
+  float dR_tPCeff[tPCeff.size()];
+  {
+    float etaL[tPCeff.size()], phiL[tPCeff.size()];
+    for(size_t iTP: selected_tPCeff) {
+      //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+      auto const& tp2 = tPCeff[iTP];
+      auto  && p = tp2.momentum();
+      etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
+      phiL[iTP] = atan2f(p.y(),p.x());
+    }
     auto i=0U;
-    for ( auto const & tp : *TPCollectionHeff) {
+    for ( auto const & tp : tPCeff) {
       double dR = std::numeric_limits<double>::max();
       if(dRtpSelector(tp)) {//only for those needed for efficiency!
         auto  && p = tp.momentum();
         float eta = etaFromXYZ(p.x(),p.y(),p.z());
         float phi = atan2f(p.y(),p.x());
-        for (auto j=0U; j< (*TPCollectionHeff).size(); ++j ) {
-	  if (i==j) {continue;}
-	  if(selected_tPCeff[j]) { //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-            auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
-            if (dR_tmp<dR) dR=dR_tmp;
-          }
-        }  // ttp2 (j)
+        for(size_t iTP: selected_tPCeff) {
+          //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+	  if (i==iTP) {continue;}
+          auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP], phiL[iTP]);
+          if (dR_tmp<dR) dR=dR_tmp;
+        }  // ttp2 (iTP)
       }
       dR_tPCeff[i++] = std::sqrt(dR);
     }  // tp
@@ -340,25 +382,30 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
       unsigned sts(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut
       unsigned asts(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
-      for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){ //loop over TPs collection for tracking efficiency
-	TrackingParticleRef tpr(TPCollectionHeff, i);
-	const TrackingParticle& tp = tPCeff[i];
+
+      //loop over already-selected TPs for tracking efficiency
+      for(size_t i=0; i<selected_tPCeff.size(); ++i) {
+        size_t iTP = selected_tPCeff[i];
+	TrackingParticleRef tpr(TPCollectionHeff, iTP);
+	const TrackingParticle& tp = tPCeff[iTP];
+
+        auto const& momVert = momVert_tPCeff[i];
 	TrackingParticle::Vector momentumTP;
 	TrackingParticle::Point vertexTP;
+
 	double dxySim(0);
 	double dzSim(0);
-	double dR=dR_tPCeff[i];
+	double dR=dR_tPCeff[iTP];
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
 	if(!parametersDefinerIsCosmic_)
 	  {
-	    if(!selected_tPCeff[i]) continue;
 	    momentumTP = tp.momentum();
 	    vertexTP = tp.vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
-	    TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
-	    TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
+	    const TrackingParticle::Vector& momentum = std::get<TrackingParticle::Vector>(momVert);
+	    const TrackingParticle::Point& vertex = std::get<TrackingParticle::Point>(momVert);
 	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
 	      * momentum.z()/sqrt(momentum.perp2());
@@ -366,9 +413,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
 	else
 	  {
-	    if(! cosmictpSelector(tpr,&bs,event,setup)) continue;
-	    momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
-	    vertexTP = parametersDefinerTP->vertex(event,setup,tpr);
+	    momentumTP = std::get<TrackingParticle::Vector>(momVert);
+	    vertexTP = std::get<TrackingParticle::Point>(momVert);
 	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
 	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2())
 	      * momentumTP.z()/sqrt(momentumTP.perp2());
