@@ -432,6 +432,7 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 	       break;
 	    case MuonSubdetId::ME0:
 	       name = "ME0";
+	       break;	       
 	    default:
 	       break;
 	    }
