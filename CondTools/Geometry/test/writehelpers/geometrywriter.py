@@ -35,6 +35,7 @@ process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder")
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
+process.HcalParametersWriter = cms.EDAnalyzer("PHcalParametersDBBuilder")
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 
@@ -55,6 +56,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_TagXX')),
+                                                            cms.PSet(record = cms.string('PHcalParametersRcd'), tag = cms.string('HCALParameters_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_TagXX')),
@@ -69,4 +71,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerGeometryExtraWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerGeometryExtraWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
