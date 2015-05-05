@@ -787,16 +787,16 @@ class ConfigBuilder(object):
         self.loadAndRemember(self.ConditionsDefaultCFF)
 
 	if self._options.useCondDBv1:
-		from Configuration.AlCa.GlobalTag import GlobalTag
+		from Configuration.AlCa.GlobalTag_condDBv1 import GlobalTag
 	else:
-		from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+		from Configuration.AlCa.GlobalTag import GlobalTag
 
         self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
 
 	if self._options.useCondDBv1:
-	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag_condDBv1 import GlobalTag')
 	else:
-	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag')
+	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
 
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
@@ -926,9 +926,9 @@ class ConfigBuilder(object):
         self.ALCAHARVESTDefaultCFF="Configuration/StandardSequences/AlCaHarvesting_cff"
         self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
         if self._options.useCondDBv1:
-	    self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	    self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv1_cff"
 	else:
-            self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff"
+            self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
@@ -1559,10 +1559,7 @@ class ConfigBuilder(object):
 		else:
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-		if self._options.fast:
-			self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-		else:
-			self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+		self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
 		if self._options.fast:

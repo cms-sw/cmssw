@@ -9,27 +9,16 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.SequenceTypes import _SequenceCollection
 
-###########################################
-# remove modules from Reconstruction_cff that are run before mixing
-###########################################
-
+# import standard reconstruction
+# apply modifications before doing the actual import at the end
 import Configuration.StandardSequences.Reconstruction_cff as _reco
 
 # list of modules to be deleted
 _mod2del = []
 
-# list the modules we want to get rid of
-_mod2del = _reco.trackingGlobalReco.expandAndClone()._seq._collection
-_mod2del.append(_reco.trackingGlobalReco)
-_mod2del.extend(_reco.recopixelvertexing.expandAndClone()._seq._collection)
-_mod2del.append(_reco.MeasurementTrackerEventPreSplitting)
-
-# actually we want to keep a few modules that we need to run (again) after mixing) 
-for _entry in [_reco.firstStepPrimaryVertices,_reco.ak4CaloJetsForTrk,_reco.caloTowerForTrk,_reco.trackExtrapolator]:
-    while _entry in _mod2del:
-        _mod2del.remove(_entry)
-
-# offlineBeamSpot is reconstructed before mixing 
+##########################################
+# offlineBeamSpot is reconstructed before mixing
+########################################## 
 _mod2del.append(_reco.offlineBeamSpot)
 
 ###########################################
@@ -42,7 +31,6 @@ _reco.hcalLocalRecoSequence.remove(_reco.zdcreco)
 ##########################################
 # Calo rechits
 ##########################################
-
 # not commisoned and not relevant in FastSim (?):
 _reco.reducedEcalRecHitsSequence.remove(_reco.seldigis)
 _reco.ecalRecHitSequence.remove(_reco.ecalCompactTrigPrim)
@@ -53,11 +41,21 @@ _reco.ecalRecHit.killDeadChannels = False
 _reco.ecalRecHit.recoverEBFE = False
 _reco.ecalRecHit.recoverEEFE = False
 _reco.ecalUncalibRecHitSequence.remove(_reco.ecalDetIdToBeRecovered)
+
 ##########################################
 # Changes to tracking sequences
 ##########################################
+# modules to be removed
+_mod2del = _reco.trackingGlobalReco.expandAndClone()._seq._collection
+_mod2del.append(_reco.trackingGlobalReco)
+_mod2del.extend(_reco.recopixelvertexing.expandAndClone()._seq._collection)
+_mod2del.append(_reco.MeasurementTrackerEventPreSplitting)
+# actually we want to keep a few modules that we need to run (again) after mixing) 
+for _entry in [_reco.firstStepPrimaryVertices,_reco.ak4CaloJetsForTrk,_reco.caloTowerForTrk,_reco.trackExtrapolator]:
+    while _entry in _mod2del:
+        _mod2del.remove(_entry)
 
-# remove tracking 
+# remove tracking sequences from main reco sequences
 _reco.localreco.remove(_reco.trackerlocalreco)
 _reco.globalreco.remove(_reco.siPixelClusterShapeCachePreSplitting)
 _reco.globalreco.remove(_reco.trackingGlobalReco)
@@ -77,16 +75,14 @@ _reco.globalreco.insert(0,_reco.trackExtrapolator+_reco.caloTowerForTrk+_reco.fi
 _reco.KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
 _reco.KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
 
-
-##########################################
-# FastSim changes to electron reconstruction
-##########################################
-
 # replace the standard ecal-driven seeds with the FastSim emulated ones
 import FastSimulation.Tracking.globalCombinedSeeds_cfi
 _reco.newCombinedSeeds = FastSimulation.Tracking.globalCombinedSeeds_cfi.newCombinedSeeds
 _reco.globalreco.insert(0,_reco.newCombinedSeeds)
 
+##########################################
+# FastSim changes to electron reconstruction
+##########################################
 # tracker driven electron seeds depend on the generalTracks trajectory collection
 # However, in FastSim jobs, trajectories are only available for the 'before mixing' track collections
 # Therefore we let the seeds depend on the 'before mixing' generalTracks collection
@@ -165,7 +161,6 @@ _reco.tevMuons.RefitterParameters.Propagator = "SmartPropagatorAny"
 ##########################################
 # FastSim changes to jet/met reconstruction
 ##########################################
-
 # not commisoned and not relevant in FastSim (?):
 _reco.jetHighLevelReco.remove(_reco.recoJetAssociationsExplicit)
 
@@ -175,27 +170,9 @@ _reco.metreco.remove(_reco.BeamHaloId)
 # not commisoned and not relevant in FastSim (?):
 _reco.metrecoPlusHCALNoise.remove(_reco.hcalnoise)
 
-##########################################
-# The PF Patch
-##########################################
-
-# throws random neutral hadrons in the detector to fix jet response
-# we should get rid of this asap, but the source of the issue is not known
-import FastSimulation.ParticleFlow.FSparticleFlow_cfi
-_FSparticleFlowTmp = FastSimulation.ParticleFlow.FSparticleFlow_cfi.FSparticleFlow
-_reco.particleFlowReco.replace(_reco.particleFlowTmp,_reco.particleFlowTmp+_FSparticleFlowTmp)
-_reco.particleFlowTmpTmp = _reco.particleFlowTmp
-_reco.particleFlowTmp = _FSparticleFlowTmp
-_reco.particleFlowTmp.pfCandidates = cms.InputTag("particleFlowTmpTmp")
-
 ############################################
-# the final reconstruction sequence
+# deleting modules to avoid clashes with part of reconstruction run before mixing
 ############################################
-# this is the standard reconstruction sequence, 
-# except for the logErrorHarvester which is traditinally not run in FastSim
-#_reco.reconstruction = cms.Sequence(_reco.localreco*_reco.globalreco*_reco.highlevelreco)
-
-
 for _entry in _mod2del:
     for _key,_value in _reco.__dict__.items():
         _index = -1
@@ -218,6 +195,8 @@ for _entry in _mod2del:
         if _entry == _value:
             delattr(_reco,_key)
 
-
+############################################
+# the actual import
+############################################
 from Configuration.StandardSequences.Reconstruction_cff import *
 

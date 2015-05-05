@@ -21,7 +21,8 @@ namespace cond {
 
   namespace persistency {
 
-    // required in the "bridge" mode, to be removed with the ORA based code after the transition
+    // required to handle the tag overriding
+    std::string fullyQualifiedTag( const std::string& tag, const std::string& connectionString );
     std::pair<std::string,std::string> parseTag( const std::string& tag );
 
     class SessionImpl;

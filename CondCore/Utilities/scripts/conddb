@@ -259,7 +259,13 @@ def connect(args, init=False, read_only=True):
 
         # read_only refers to the destination database only
         # (the source is always read_only) -- see copy() command
-        return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+	if os.path.exists(args.destdb): 
+           return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+	else: # dest DB not yet there, needs init ... 
+	   conn1 = _connect(args.db, init, args.verbose, True, args.force)
+	   conn2 = _connect(args.destdb, True, args.verbose, False, args.force)
+	   conn2.init()
+	   return conn1, conn2
 
     return _connect(args.db, init, args.verbose, read_only, args.force)
 
@@ -306,10 +312,12 @@ class Colors(object):
 
     	if ( stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode)  or  # we are running in a pipe
              args.nocolors ):
-            for member in dir(self):
-                if not member.startswith('_'):
-                    setattr(self, member, '')
+	     self.noColors()
 
+    def noColors(self):
+       for member in dir(self):
+           if not member.startswith('_'):
+               setattr(self, member, '')
 
 colors = None
 
@@ -541,19 +549,22 @@ def search(args):
         filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, size],
     )
 
-    output_table(args,
-        session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
-            filter(
-                _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
-                | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
-                | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
-            ).\
-            order_by(conddb.GlobalTag.insertion_time.desc()).\
-            limit(args.limit).\
-            all(),
-        ['Global Tag', 'Release', 'Insertion Time', 'Description'],
-        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
-    )
+    try:
+        output_table(args,
+            session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
+                filter(
+                    _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
+                    | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
+                    | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
+                ).\
+                order_by(conddb.GlobalTag.insertion_time.desc()).\
+                limit(args.limit).\
+                all(),
+            ['Global Tag', 'Release', 'Insertion Time', 'Description'],
+            filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
+    	 )
+    except sqlalchemy.exc.OperationalError:
+    	 sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
 
 def _inserted_before(timestamp):
@@ -578,6 +589,13 @@ def _low(n):
     return int(n) & 0xffffffff
 
 
+def _convertTimeType(since):
+    try:
+        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+    except ValueError:
+        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
+
+
 def _since_filter(time_type):
     '''Returns a filter function for the given time type that returns
     a human-readable string of the given since.
@@ -594,7 +612,7 @@ def _since_filter(time_type):
     '''
 
     if time_type == conddb.TimeType.time:
-        return lambda since: str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+        return _convertTimeType
 
     if time_type == conddb.TimeType.lumi:
         return lambda since: '%s Lumi %5s' % (_high(since), _low(since))
@@ -671,18 +689,22 @@ def list_(args):
                 filters = [_since_filter(time_type), None, None, None],
             )
 
-        is_global_tag = _exists(session, conddb.GlobalTag.name, name)
-        if is_global_tag:
-            if args.long:
-                _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+	try:
+            is_global_tag = _exists(session, conddb.GlobalTag.name, name)
+            if is_global_tag:
+                if args.long:
+                    _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+	    
+                output_table(args,
+                    session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+                        filter(conddb.GlobalTagMap.global_tag_name == name).\
+                        order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
+                        all(),
+                    ['Record', 'Label', 'Tag'],
+                )
+	except sqlalchemy.exc.OperationalError:
+            sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
-            output_table(args,
-                session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
-                    filter(conddb.GlobalTagMap.global_tag_name == name).\
-                    order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
-                    all(),
-                ['Record', 'Label', 'Tag'],
-            )
 
         if not is_tag and not is_global_tag:
             raise Exception('There is no tag or global tag named %s in the database.' % name)
@@ -951,6 +973,10 @@ def copy(args):
 
 
 def edit(args):
+
+    global colors
+    colors.noColors()
+
     connection = connect(args, read_only=False)
     session = connection.session()
 
