@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-#JEC for CHS
-from JetMETCorrections.Configuration.JetCorrectors_cff import *
-
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
 bTagAnalysis.ptRanges = cms.vdouble(0.0)
 bTagAnalysis.doJetID = True
 bTagAnalysis.doJEC = True
 #Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
-bTagPlotsDATA = cms.Sequence(ak4PFCHSL1FastL2L3ResidualCorrector*bTagAnalysis)
+bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
 ########## MC ############
 #Matching
