@@ -7,10 +7,7 @@ class Photon(PhysicsObject ):
     '''                                                                                                                                                                                                                                                                return object from the photon 
     '''
     def hOVERe(self):
-        #return self.physObj.hadronicOverEm() 
-        hadTowDepth1O = self.physObj.hadTowDepth1OverEm() * (self.physObj.superCluster().energy()/self.physObj.full5x5_e5x5() if self.physObj.full5x5_e5x5() else 1)
-        hadTowDepth2O = self.physObj.hadTowDepth2OverEm() * (self.physObj.superCluster().energy()/self.physObj.full5x5_e5x5() if self.physObj.full5x5_e5x5() else 1)
-        return hadTowDepth1O + hadTowDepth2O
+        return self.physObj.hadTowOverEm() 
 
     def r9(self):
         return self.physObj.r9()
