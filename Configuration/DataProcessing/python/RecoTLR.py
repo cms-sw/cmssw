@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
+
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
 #    return (process)
@@ -39,6 +41,10 @@ def customiseDataRun2Common(process):
         process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.untracked.bool(False)
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
+
+    process=customise_Reco(process)
+    process=customise_RawToDigi(process)
+
     return process
 
 ##############################################################################
