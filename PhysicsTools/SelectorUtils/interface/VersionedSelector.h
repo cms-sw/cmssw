@@ -59,6 +59,7 @@ class VersionedSelector : public Selector<T> {
   
   virtual bool operator()( const T& ref, pat::strbitset& ret ) override final {
     howfar_ = 0;
+    bitmap_ = 0;
     bool failed = false;
     if( !initialized_ ) {
       throw cms::Exception("CutNotInitialized")
@@ -69,6 +70,7 @@ class VersionedSelector : public Selector<T> {
       const bool result = (*cuts_[i])(temp);
       if( result || this->ignoreCut(cut_indices_[i]) ) {
 	this->passCut(ret,cut_indices_[i]);
+        bitmap_ |= 1<<i;
 	if( !failed ) ++howfar_;
       } else {
 	failed = true;
@@ -117,6 +119,8 @@ class VersionedSelector : public Selector<T> {
   const std::string& name() const { return name_; }
 
   const unsigned howFarInCutFlow() const { return howfar_; }
+  
+  const unsigned bitMap() const { return bitmap_; }
 
   const size_t cutFlowSize() const { return cuts_.size(); } 
 
@@ -129,7 +133,7 @@ class VersionedSelector : public Selector<T> {
   std::vector<std::shared_ptr<candf::CandidateCut> > cuts_;
   std::vector<bool> needs_event_content_;
   std::vector<typename Selector<T>::index_type> cut_indices_;
-  unsigned howfar_;
+  unsigned howfar_, bitmap_;
 
  private:  
   unsigned char id_md5_[MD5_DIGEST_LENGTH];
