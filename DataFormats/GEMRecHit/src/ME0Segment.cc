@@ -3,7 +3,7 @@
  *  $Date: 2014/02/04 12:41:33 $
  *  \author Marcello Maggi
  */
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DataFormats/GEMRecHit/interface/ME0Segment.h>
 #include <iostream>
 
@@ -60,8 +60,11 @@ AlgebraicVector ME0Segment::parameters() const {
   
   AlgebraicVector result(4);
 
+  if(theLocalDirection.z() != 0)
+  {
   result[0] = theLocalDirection.x()/theLocalDirection.z();
   result[1] = theLocalDirection.y()/theLocalDirection.z();    
+  }
   result[2] = theOrigin.x();
   result[3] = theOrigin.y();
 
@@ -89,13 +92,14 @@ float ME0Segment::time() const {
     const  ME0RecHit *recHit = &(*itRH);
     averageTime+=recHit->tof();
   }
-  averageTime=averageTime/(theME0RecHits.size());
+  if(theME0RecHits.size() != 0)averageTime=averageTime/(theME0RecHits.size());
   return averageTime;
 }
 
 //
 void ME0Segment::print() const {
-  std::cout << *this << std::endl;
+  LogDebug("ME0Segment") << *this;
+
 }
 
 std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
@@ -105,7 +109,7 @@ std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
     "            dir = " << seg.localDirection() <<
     " dirErr = (" << sqrt(seg.localDirectionError().xx())<<","<<sqrt(seg.localDirectionError().yy())<<
     "0,)\n"<<
-    "            chi2/ndf = " << seg.chi2()/double(seg.degreesOfFreedom()) << 
+    "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2()/double(seg.degreesOfFreedom()) :0 ) << 
     " #rechits = " << seg.specificRecHits().size();
   return os;  
 }
