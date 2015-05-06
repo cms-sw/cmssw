@@ -44,7 +44,9 @@ namespace sistrip {
                         READOUT_MODE_ZERO_SUPPRESSED=0xA,
                         READOUT_MODE_ZERO_SUPPRESSED_LITE=0xC,
                         READOUT_MODE_SPY=0xE,
-			READOUT_MODE_PREMIX_RAW=0xF //0x8?
+			READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE=0x4,
+			READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE=0x8,
+			READOUT_MODE_PREMIX_RAW=0xF
                       };
 
   static const uint8_t PACKET_CODE_SCOPE = 0xE5;

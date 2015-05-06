@@ -272,7 +272,7 @@ namespace sistrip {
 	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
       
 
-	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE) { 
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
@@ -322,7 +322,7 @@ namespace sistrip {
 	  
 	}
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	

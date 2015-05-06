@@ -151,6 +151,12 @@ namespace sistrip {
     case READOUT_MODE_SPY:
       os << "Spy channel";
       break;
+    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      os << "Zero suppressed CM Override";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override";
+      break;
     case READOUT_MODE_PREMIX_RAW:
       os << "PreMix raw";
       break;
@@ -365,6 +371,18 @@ namespace sistrip {
     if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE") ||
          (readoutModeString == "ZERO_SUPPRESSED_LITE") ||
          (readoutModeString == "Zero suppressed lite") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE") ||
+         (readoutModeString == "ZERO_SUPPRESSED_CMOVERRIDE") ||
+         (readoutModeString == "ZERO_SUPPRESSED_CMO") ||
+         (readoutModeString == "Zero suppressed CM Override") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMO") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
+         (readoutModeString == "Zero suppressed lite CM Override") ) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE;
     }
     if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
@@ -668,6 +686,8 @@ namespace sistrip {
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_ZERO_SUPPRESSED:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+      case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
       case READOUT_MODE_SPY:
 	return FEDReadoutMode(mode);
       default:
