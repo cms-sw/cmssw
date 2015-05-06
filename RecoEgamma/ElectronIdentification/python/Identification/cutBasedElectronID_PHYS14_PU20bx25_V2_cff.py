@@ -163,10 +163,10 @@ cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight = configureVIDCutBasedEle
 
 
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_veto.idName,
-                             '8850814e57d205ae075ab51963489090')
+                             '2c43cbeaa99c27bdcc01819deac18d13')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             '3136443704ffb72bfd96a711ebaa9f52')
+                             'ef33337667a7163a48657f5d8cdd897c')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             '11a2227750656bef1869abd692e5e944')
+                             '529b4c00e4807b885116f77347e076f4')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             '0c88b3581da6bce380fe7ff051d62161')
+                             '89cd2d6602a0f92c6201332e59fa886b')
