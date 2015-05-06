@@ -53,7 +53,7 @@ private:
 template< class PhysicsObjectPtr , class SelectorType >
 VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 VersionedIdProducer(const edm::ParameterSet& iConfig) {
-  constexpr char bitmap_label[] = "_bitmap";
+  constexpr char bitmap_label[] = "-bitmap";
   
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
   
@@ -118,7 +118,7 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
 template< class PhysicsObjectPtr , class SelectorType >
 void VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  constexpr char bitmap_label[] = "_bitmap";
+  constexpr char bitmap_label[] = "-bitmap";
   
   edm::Handle<Collection> physicsObjectsHandle;
   iEvent.getByToken(physicsObjectSrc_,physicsObjectsHandle);
