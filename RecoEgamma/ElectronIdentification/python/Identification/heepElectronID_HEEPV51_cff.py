@@ -16,69 +16,70 @@ from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools impor
 # The cut values for the  Barrel and Endcap
 idName = "heepElectronID-HEEPV51"
 WP_HEEP51_EB = HEEP_WorkingPoint_V1(
-    idName    ,  # idName
-    0.004     ,  # dEtaInSeedCut,
-    0.06      ,  # dPhiInCut,
-    9999      ,  # full5x5SigmaIEtaIEtaCut,
+    idName=idName,     
+    dEtaInSeedCut=0.004,     
+    dPhiInCut=0.06,      
+    full5x5SigmaIEtaIEtaCut=9999,     
     # Two constants for the GsfEleFull5x5E2x5OverE5x5Cut
-    0.83      ,  # minE1x5OverE5x5Cut,
-    0.94      ,  # minE2x5OverE5x5Cut,
+    minE1x5OverE5x5Cut=0.83,    
+    minE2x5OverE5x5Cut=0.94,     
     # Three constants for the GsfEleHadronicOverEMLinearCut
     #     cut = constTerm if value < slopeStart
     #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
-    0.05      ,  # hOverESlopeTerm,
-    0.00      ,  # hOverESlopeStart,
-    2.00      ,  # hOverEConstTerm,
+    hOverESlopeTerm=0.05,  
+    hOverESlopeStart=0.00,    
+    hOverEConstTerm=2.00,    
     # Three constants for the GsfEleTrkPtIsoCut: 
     #     cut = constTerm if value < slopeStart
     #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
-    0.00      ,  # trkIsoSlopeTerm,
-    0.00      ,  # trkIsoSlopeStart,
-    5.00      ,  # trkIsoConstTerm,
+    trkIsoSlopeTerm=0.00,     
+    trkIsoSlopeStart=0.00,   
+    trkIsoConstTerm=5.00,     
     # Three constants for the GsfEleEmHadD1IsoRhoCut: 
     #     cut = constTerm if value < slopeStart
     #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
     # Also for the same cut, the effective area for the rho correction of the isolation
-    0.03      ,  # ehIsoSlopeTerm,
-    0.00      ,  # ehIsoSlopeStart,
-    2.00      ,  # ehIsoConstTerm,
-    0.28      ,  # effAreaForEHIso, presently same for barrel and endcap
+    ehIsoSlopeTerm=0.03,       
+    ehIsoSlopeStart=0.00,       
+    ehIsoConstTerm=2.00,        
+    effAreaForEHIso=0.28,        
     # other cuts
-    0.02      ,  # dxyCut,
-    1            # maxMissingHitsCut
+    dxyCut=0.02,
+    maxMissingHitsCut=1          
     )
 
 WP_HEEP51_EE = HEEP_WorkingPoint_V1(
-    idName    ,  # idName
-    0.006     ,  # dEtaInSeedCut,
-    0.06      ,  # dPhiInCut,
-    0.03      ,  # full5x5SigmaIEtaIEtaCut,
+     idName=idName,     
+    dEtaInSeedCut=0.006,     
+    dPhiInCut=0.06,      
+    full5x5SigmaIEtaIEtaCut=0.03,     
     # Two constants for the GsfEleFull5x5E2x5OverE5x5Cut
-    -1.0      ,  # minE1x5OverE5x5Cut,
-    -1.0      ,  # minE2x5OverE5x5Cut,
+    minE1x5OverE5x5Cut=-1.0,    
+    minE2x5OverE5x5Cut=-1.0,     
     # Three constants for the GsfEleHadronicOverEMLinearCut
     #     cut = constTerm if value < slopeStart
     #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
-    0.05      ,  # hOverESlopeTerm,
-    0.00      ,  # hOverESlopeStart,
-    12.5      ,  # hOverEConstTerm,
+    hOverESlopeTerm=0.05,  
+    hOverESlopeStart=0.00,    
+    hOverEConstTerm=12.5,    
     # Three constants for the GsfEleTrkPtIsoCut: 
     #     cut = constTerm if value < slopeStart
     #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
-    0.00      ,  # trkIsoSlopeTerm,
-    0.00      ,  # trkIsoSlopeStart,
-    5.00      ,  # trkIsoConstTerm,
+    trkIsoSlopeTerm=0.00,     
+    trkIsoSlopeStart=0.00,   
+    trkIsoConstTerm=5.00,     
     # Three constants for the GsfEleEmHadD1IsoRhoCut: 
     #     cut = constTerm if value < slopeStart
     #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
     # Also for the same cut, the effective area for the rho correction of the isolation
-    0.03      ,  # ehIsoSlopeTerm,
-    50.0      ,  # ehIsoSlopeStart,
-    2.50      ,  # ehIsoConstTerm,
-    0.28      ,  # effAreaForEHIso, presently same for barrel and endcap
+    ehIsoSlopeTerm=0.03,       
+    ehIsoSlopeStart=50.0,       
+    ehIsoConstTerm=2.50,        
+    effAreaForEHIso=0.28,        
     # other cuts
-    0.05      ,  # dxyCut,
-    1            # maxMissingHitsCut
+    dxyCut=0.05,
+    maxMissingHitsCut=1
+  
     )
 
 #
