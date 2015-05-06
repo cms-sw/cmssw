@@ -92,14 +92,19 @@ namespace cond {
   template <typename T> std::pair<Binary,Binary> serialize( const T& payload, bool packingOnly = false ){
     std::pair<Binary,Binary> ret;
     if( !packingOnly ){
-      // save data to buffers
-      std::ostringstream dataBuffer;
-      std::ostringstream streamerInfoBuffer;
-      CondOutputArchive oa( dataBuffer );
-      oa << payload;
-      //TODO: avoid (2!!) copies
-      ret.first.copy( dataBuffer.str() );
-      ret.second.copy( streamerInfoBuffer.str() );
+      try{
+	// save data to buffers
+	std::ostringstream dataBuffer;
+	std::ostringstream streamerInfoBuffer;
+	CondOutputArchive oa( dataBuffer );
+	oa << payload;
+	//TODO: avoid (2!!) copies
+	ret.first.copy( dataBuffer.str() );
+	ret.second.copy( streamerInfoBuffer.str() );
+      } catch ( const std::exception& e ){
+	std::string em( e.what() );
+	throwException("Serialization failed: "+em,"serialize");
+      }
     } else {
       // ORA objects case: nothing to serialize, the object is kept in memory in the original layout - the bare pointer is exchanged
       ret.first = Binary( payload );
@@ -115,16 +120,25 @@ namespace cond {
 								  bool unpackingOnly ){
     boost::shared_ptr<T> payload;
     if( !unpackingOnly ){
-      std::stringbuf sdataBuf;
-      sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
-      std::stringbuf sstreamerInfoBuf;
-      sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
+      try{
+	std::stringbuf sdataBuf;
+	sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+	std::stringbuf sstreamerInfoBuf;
+	sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
 
-      std::istream dataBuffer( &sdataBuf );
-      std::istream streamerInfoBuffer( &sstreamerInfoBuf );
-      CondInputArchive ia( dataBuffer );
-      payload.reset( createPayload<T>(payloadType) );
-      ia >> (*payload);
+	std::istream dataBuffer( &sdataBuf );
+	std::istream streamerInfoBuffer( &sstreamerInfoBuf );
+	CondInputArchive ia( dataBuffer );
+	payload.reset( createPayload<T>(payloadType) );
+	ia >> (*payload);
+      } catch ( const std::exception& e ){
+	std::string errorMsg("De-serialization failed: ");
+	std::string em( e.what() );
+	if( em == "unsupported version" )  errorMsg += "the current boost version is unable to read. Data might have been serialized with a more recent version.";
+	else if( em == "input stream error" ) errorMsg +="data size does not fit with the current class layout. The Class "+payloadType+" might have been changed with respect to the layout used in the serialization/storage."; 
+	else errorMsg += em;
+	throwException( errorMsg, "default_deserialize" );
+      }
     } else {
       // ORA objects case: nothing to de-serialize, the object is already in memory in the final layout, ready to be casted
       payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
