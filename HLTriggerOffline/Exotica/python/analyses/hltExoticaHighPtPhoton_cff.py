@@ -12,8 +12,7 @@ HighPtPhotonPSet = cms.PSet(
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings
-    parametersTurnOn = cms.vdouble( 0, 50, 100, 110, 120, 130, 140, 150, 
-                                    160, 170, 180, 190, 200, 
+    parametersTurnOn = cms.vdouble( 0, 50, 100, 150, 200, 
                                     250, 300, 400, 500, 600, 700, 800, 900, 1000,
                                     1100, 1200, 1500
                                    ),
