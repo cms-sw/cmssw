@@ -253,13 +253,11 @@ namespace l1t {
     }
   }
 
-  void TwoByTwoFinderZeroWalls(const std::vector<l1t::CaloRegion> * regions,
-			       std::vector<l1t::Jet> * uncalibjets)
+  void TwoByTwoFinder(const std::vector<l1t::CaloRegion> * regions,
+		      std::vector<l1t::Jet> * uncalibjets)
   {
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();
-      if(region->hwEta() == 4 || region->hwEta() == 17)
-	regionET = 0;
       int neighborN_et = 0;
       int neighborS_et = 0;
       int neighborE_et = 0;
@@ -271,8 +269,6 @@ namespace l1t {
       unsigned int nNeighbors = 0;
       for(std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
 	int neighborET = neighbor->hwPt();
-	if(neighbor->hwEta() == 4 || region->hwEta() == 17)
-	  neighborET = 0;
 	if(deltaGctPhi(*region, *neighbor) == 1 &&
 	   (region->hwEta()    ) == neighbor->hwEta()) {
 	  neighborN_et = neighborET;
@@ -333,35 +329,35 @@ namespace l1t {
 	 regionET >= neighborE_et &&
 	 regionET >= neighborSE_et &&
 	 regionET >= neighborS_et) {
-
-	// only sum 4 regions
-	// center is always "NW" corner of jet
-	unsigned int jetET = regionET +
-	  neighborS_et + neighborE_et + neighborSE_et;
-
-	int jetPhi = region->hwPhi();
-	int jetEta = region->hwEta();
-
-	bool neighborCheck = (nNeighbors == 8);
-	// On the eta edge we only expect 5 neighbor
-	if (!neighborCheck && (jetEta == 0 || jetEta == 21) && nNeighbors == 5)
-	  neighborCheck = true;
-
-	if (!neighborCheck) {
-	  std::cout << "phi: " << jetPhi << " eta: " << jetEta << " n: " << nNeighbors << std::endl;
-	  assert(false);
-	}
-
-	//first iteration, eta cut defines forward
-	const bool forward = (jetEta < 4 || jetEta > 17);
-	int jetQual = 0;
-	if(forward)
-	  jetQual |= 0x2;
-
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
-	l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
-	uncalibjets->push_back(theJet);
       }
+      // only sum 4 regions
+      // center is always "NW" corner of jet
+      unsigned int jetET = regionET +
+	neighborS_et + neighborE_et + neighborSE_et;
+
+      int jetPhi = region->hwPhi();
+      int jetEta = region->hwEta();
+
+      bool neighborCheck = (nNeighbors == 8);
+      // On the eta edge we only expect 5 neighbor
+      if (!neighborCheck && (jetEta == 0 || jetEta == 21) && nNeighbors == 5)
+	neighborCheck = true;
+
+      if (!neighborCheck) {
+	std::cout << "phi: " << jetPhi << " eta: " << jetEta << " n: " << nNeighbors << std::endl;
+	assert(false);
+      }
+
+      //first iteration, eta cut defines forward
+      const bool forward = (jetEta < 4 || jetEta > 17);
+      int jetQual = 0;
+      if(forward)
+	jetQual |= 0x2;
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
+      l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
+      uncalibjets->push_back(theJet);
     }
+    //}
   }
 }
