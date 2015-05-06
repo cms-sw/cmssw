@@ -5,7 +5,6 @@ from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
 
 # Pedestal Monitor ###
 from DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi import *
-PedsMon.OutputMEsInRootFile = False
 PedsMon.StripQualityLabel = ''
 PedsMon.RunTypeFlag = 'CalculatedPlotsOnly'
 
@@ -15,7 +14,6 @@ SiStripMonitorDigi.SelectAllDetectors = True
 
 # Cluster Monitor ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
-SiStripMonitorCluster.OutputMEsInRootFile = False
 SiStripMonitorCluster.SelectAllDetectors = True
 SiStripMonitorCluster.StripQualityLabel = ''
 
@@ -54,13 +52,11 @@ MonitorTrackResidualsReal = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.Mo
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResidualsReal.Tracks              = 'ctfWithMaterialTracksP5'
 MonitorTrackResidualsReal.trajectoryInput     = 'ctfWithMaterialTracksP5'
-MonitorTrackResidualsReal.OutputMEsInRootFile = False
 # Clone for Real Data
 MonitorTrackResidualsColl = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResidualsColl.Tracks              = 'generalTracks'
 MonitorTrackResidualsColl.trajectoryInput     = 'generalTracks'
-MonitorTrackResidualsColl.OutputMEsInRootFile = False
 
 
 # Tracking Monitor ####
