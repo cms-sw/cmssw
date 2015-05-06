@@ -117,7 +117,7 @@ process = customisePostLS1(process)
 # load tracker seed validator
 process.load('Validation.RecoTrack.TrackerSeedValidator_cfi')
 process.trackerSeedValidator.TTRHBuilder = "WithoutRefit"
-process.trackerSeedValidator.associators = cms.vstring('trackAssociatorByHitsRecoDenom')
+process.trackerSeedValidator.associators = ['quickTrackAssociatorByHits']
 process.trackerSeedValidator.label = cms.VInputTag(
     cms.InputTag("initialStepSeeds"),
     cms.InputTag("detachedTripletStepSeeds"),
@@ -127,6 +127,6 @@ process.trackerSeedValidator.label = cms.VInputTag(
     cms.InputTag("pixelLessStepSeeds"),
     cms.InputTag("tobTecStepSeeds"))
 # redefine validation paths
-process.prevalidation = cms.Sequence(process.tracksValidationSelectors)
+process.prevalidation = cms.Sequence(process.tracksPreValidation)
 process.validation = cms.Sequence(process.trackingTruthValid + process.tracksValidationFS + process.trackerSeedValidator)
 # END MODIFICATIONS
