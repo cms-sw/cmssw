@@ -166,7 +166,7 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
 # step5 is digi+l1tracktrigger
 # step6 is fastsim
 # step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','GenSimHLBeamSpotfixFull','DigiFull','DigiFullFastTimer','RecoFull','RecoFullFastTimer','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','GenSimHLBeamSpotfixFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -198,7 +198,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
                    'Extended2023HGCalMuonPandora':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023HGCalMuonPandoraPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
-                   'Extended2023SHCalNoTaperFast' : ['GenSimHLBeamSpotfixFull','DigiFullFastTimer','RecoFullFastTimer','HARVESTFull'],
+                   'Extended2023SHCalNoTaperFast' : ['GenSimHLBeamSpotfixFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalNoExtPix' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL']
                    }
 

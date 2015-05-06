@@ -615,18 +615,17 @@ def cust_2023HGCalV6Muon(process):
 def cust_2023SHCalTime(process):
     process=cust_2023SHCal(process)
     process=cust_shashlikTime(process)
-    process=cust_ecalTime(process)    
+    process=cust_ecalTime(process)
     if hasattr(process,'RECOSIMEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
-     	process.FEVTDEBUGEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
-     	process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
     if hasattr(process,'digitisation_step'):
-    	process.mix.mixObjects.mixVertices.makeCrossingFrame=cms.untracked.bool(True)
-	process.mix.mixObjects.mixTracks.makeCrossingFrame=cms.untracked.bool(True)
+        process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
-	process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
+        process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     return process
 
 def cust_2023Pixel(process):
