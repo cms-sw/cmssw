@@ -23,16 +23,16 @@ float tof);
   /// Default constructor
   ME0RecHit();
 
-  /// Constructor from a local position, gemId and digi time.
-  /// The 3-dimensional local error is defined as
-  /// resolution (the cell resolution) for the coordinate being measured
-  /// and 0 for the two other coordinates
+  /// Constructor from a local position, ME0Id and digi time.
   ME0RecHit(const ME0DetId& me0Id,
 float tof,
 const LocalPoint& pos);
   
 
-  /// Constructor from a local position and error, gemId and bx.
+  /// Constructor from a local position and error, ME0Id and tof.
+  /// The 3-dimensional local error is defined as
+  /// resolution (the cell resolution) for the coordinate being measured
+  /// and 0 for the two other coordinates
   ME0RecHit(const ME0DetId& me0Id,
 float tof,
 const LocalPoint& pos,
