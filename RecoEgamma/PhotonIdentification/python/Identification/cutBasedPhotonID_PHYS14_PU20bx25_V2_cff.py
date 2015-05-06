@@ -5,7 +5,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools import *
 
 #
-# This is the first version of PHYS14 cuts, optimized on  PHYS14 samples. 
+# These are PHYS14 cuts, optimized on  PHYS14 samples. 
 #
 # The ID cuts below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
 # The cut values are taken from the twiki:
