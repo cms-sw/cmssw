@@ -54,7 +54,7 @@ class MultiTrackValidatorBase {
   //DQMStore* dbe_;
 
   // MTV-specific data members
-  std::vector<std::string> associators;
+  std::vector<edm::InputTag> associators;
   edm::EDGetTokenT<TrackingParticleCollection> label_tp_effic;
   edm::EDGetTokenT<TrackingParticleCollection> label_tp_fake;
   edm::EDGetTokenT<TrackingVertexCollection> label_tv;

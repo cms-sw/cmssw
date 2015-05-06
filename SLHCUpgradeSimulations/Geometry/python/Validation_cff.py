@@ -32,7 +32,7 @@ trackValidator.label=cms.VInputTag(	cms.InputTag("generalTracks")#,
                                   #      cms.InputTag("cutsRecoTracksThirdHpUpg"),
                                   #      cms.InputTag("cutsRecoTracksFourthHpUpg")
                                         )
-trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
+trackValidator.associators = ['quickTrackAssociatorByHits']
 trackValidator.UseAssociators = True
 trackValidator.histoProducerAlgoBlock.nintEta = cms.int32(20)
 trackValidator.histoProducerAlgoBlock.nintPt = cms.int32(100)
