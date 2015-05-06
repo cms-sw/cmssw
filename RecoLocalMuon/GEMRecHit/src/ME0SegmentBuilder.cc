@@ -55,12 +55,12 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
       me0RecHits.push_back(*rechit);
       ens[(*rechit)->me0Id()]=geom_->etaPartition((*rechit)->me0Id());
     }    
-    ME0SegmentAlgorithm::ME0Ensamble ensamble(std::pair<const ME0EtaPartition*, std::map<uint32_t,const ME0EtaPartition *> >(firstlayer,ens));
+    ME0SegmentAlgorithm::ME0Ensemble ensemble(std::pair<const ME0EtaPartition*, std::map<uint32_t,const ME0EtaPartition *> >(firstlayer,ens));
     
     LogDebug("ME0Segment|ME0") << "found " << me0RecHits.size() << " rechits in chamber " << *enIt;
     
     // given the chamber select the appropriate algo... and run it
-    std::vector<ME0Segment> segv = algo->run(ensamble, me0RecHits);
+    std::vector<ME0Segment> segv = algo->run(ensemble, me0RecHits);
     ME0DetId mid(enIt->first);
     LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << mid;
     

@@ -25,8 +25,8 @@ public:
 
   /// Typedefs
 
-  typedef std::vector<const ME0RecHit*> EnsambleHitContainer;
-  typedef std::vector<EnsambleHitContainer> ProtoSegments;
+  typedef std::vector<const ME0RecHit*> EnsembleHitContainer;
+  typedef std::vector<EnsembleHitContainer> ProtoSegments;
   typedef std::deque<bool> BoolContainer;
 
   /// Constructor
@@ -37,21 +37,21 @@ public:
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<ME0Segment> run(ME0Ensamble ensamble, const EnsambleHitContainer& rechits); 
+  std::vector<ME0Segment> run(ME0Ensemble ensemble, const EnsembleHitContainer& rechits); 
 
 private:
   /// Utility functions 
 
   //  Build groups of rechits that are separated in x and y to save time on the segment finding
-  ProtoSegments clusterHits(const EnsambleHitContainer & rechits);
+  ProtoSegments clusterHits(const EnsembleHitContainer & rechits);
 
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
-  ProtoSegments chainHits(const EnsambleHitContainer & rechits);
+  ProtoSegments chainHits(const EnsembleHitContainer & rechits);
 
-  bool isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitContainer & oldChain);
+  bool isGoodToMerge(EnsembleHitContainer & newChain, EnsembleHitContainer & oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
-  std::vector<ME0Segment> buildSegments(const EnsambleHitContainer& rechits);
+  std::vector<ME0Segment> buildSegments(const EnsembleHitContainer& rechits);
 
   void doSlopesAndChi2();
   void fitSlopes();
@@ -79,8 +79,8 @@ private:
   int     maxRecHitsInCluster;
   
  private:
-  EnsambleHitContainer proto_segment;
-  ME0Ensamble theEnsamble;
+  EnsembleHitContainer proto_segment;
+  ME0Ensemble theEnsemble;
   LocalPoint protoIntercept;
   float protoSlope_u;
   float protoSlope_v;

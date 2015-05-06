@@ -83,8 +83,6 @@ void ME0RecHitProducer::produce(Event& event, const EventSetup& setup) {
     // The layerId
     const ME0DetId& me0Id = (*me0dgIt).first;
 
-    // Get the GeomDet from the setup
-    //    const ME0EtaPartition* roll = me0Geom->etaPartition(me0Id);
 
     // Get the iterators over the digis associated with this LayerId
     const ME0DigiPreRecoCollection::Range& range = (*me0dgIt).second;

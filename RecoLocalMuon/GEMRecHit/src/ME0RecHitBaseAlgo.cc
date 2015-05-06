@@ -33,10 +33,12 @@ const ME0DigiPreRecoCollection::Range& digiRange){
     // Call the compute method
     bool OK = this->compute(*digi, point, tmpErr);
     if (!OK) continue;
+   
+    if (std::abs(digi->pdgid()) == 13) {
+       ME0RecHit* recHit = new ME0RecHit(me0Id,digi->tof(),point,tmpErr);
+       result.push_back(recHit);
+    }
 
-    ME0RecHit* recHit = new ME0RecHit(me0Id,digi->tof(),point,tmpErr);
-
-    if (std::abs(digi->pdgid()) == 13) result.push_back(recHit);
   }
   return result;
 }

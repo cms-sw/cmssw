@@ -40,10 +40,10 @@ ME0SegAlgoMM::~ME0SegAlgoMM() {
 }
 
 
-std::vector<ME0Segment> ME0SegAlgoMM::run(ME0Ensamble ensamble, const EnsambleHitContainer& rechits) {
+std::vector<ME0Segment> ME0SegAlgoMM::run(ME0Ensemble ensemble, const EnsembleHitContainer& rechits) {
 
-  theEnsamble = ensamble;
-  //  ME0DetId enId(ensambleId);
+  theEnsemble = ensemble;
+  //  ME0DetId enId(ensembleId);
   // LogTrace("ME0SegAlgoMM") << "[ME0SegAlgoMM::run] build segments in chamber " << enId;
   
   // pre-cluster rechits and loop over all sub clusters seperately
@@ -87,16 +87,14 @@ std::vector<ME0Segment> ME0SegAlgoMM::run(ME0Ensamble ensamble, const EnsambleHi
 
 // ********************************************************************;
 ME0SegAlgoMM::ProtoSegments 
-ME0SegAlgoMM::clusterHits(const EnsambleHitContainer & rechits) {
+ME0SegAlgoMM::clusterHits(const EnsembleHitContainer & rechits) {
 
   ProtoSegments rechits_clusters; // this is a collection of groups of rechits
-  //   const float dXclus_box_cut       = 4.; // seems to work reasonably 070116
-  //   const float dYclus_box_cut       = 8.; // seems to work reasonably 070116
 
   float dXclus_box = 0.0;
   float dYclus_box = 0.0;
 
-  EnsambleHitContainer temp;
+  EnsembleHitContainer temp;
   ProtoSegments seeds;
 
   std::vector<float> running_meanX;
@@ -133,8 +131,7 @@ ME0SegAlgoMM::clusterHits(const EnsambleHitContainer & rechits) {
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
-	LogDebug("ME0Segment|ME0") << "ME0SegAlgoMM::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!";
-	//	std::cout<<"We should never see this line now!!!"<<std::endl;
+	LogDebug("ME0Segment|ME0") << "ME0SegAlgoMM::clusterHits: Warning: Skipping used seeds, this should not happen - inform developers!";
 	continue; //skip seeds that have been used 
       }
 	  
@@ -157,9 +154,9 @@ ME0SegAlgoMM::clusterHits(const EnsambleHitContainer & rechits) {
 	running_meanY[MMM] = (running_meanY[NNN]*seeds[NNN].size() + running_meanY[MMM]*seeds[MMM].size()) / (seeds[NNN].size()+seeds[MMM].size());
 	    
 	// update min/max X and Y for box containing the hits in the merged cluster:
-	if ( seed_minX[NNN] <= seed_minX[MMM] ) seed_minX[MMM] = seed_minX[NNN];
+	if ( seed_minX[NNN] <  seed_minX[MMM] ) seed_minX[MMM] = seed_minX[NNN];
 	if ( seed_maxX[NNN] >  seed_maxX[MMM] ) seed_maxX[MMM] = seed_maxX[NNN];
-	if ( seed_minY[NNN] <= seed_minY[MMM] ) seed_minY[MMM] = seed_minY[NNN];
+	if ( seed_minY[NNN] <  seed_minY[MMM] ) seed_minY[MMM] = seed_minY[NNN];
 	if ( seed_maxY[NNN] >  seed_maxY[MMM] ) seed_maxY[MMM] = seed_maxY[NNN];
 	    
 	// add seed NNN to MMM (lower to larger number)
@@ -188,10 +185,10 @@ ME0SegAlgoMM::clusterHits(const EnsambleHitContainer & rechits) {
 
 
 ME0SegAlgoMM::ProtoSegments 
-ME0SegAlgoMM::chainHits(const EnsambleHitContainer & rechits) {
+ME0SegAlgoMM::chainHits(const EnsembleHitContainer & rechits) {
 
   ProtoSegments rechits_chains; 
-  EnsambleHitContainer temp;
+  EnsembleHitContainer temp;
   ProtoSegments seeds;
 
   std::vector <bool> usedCluster;
@@ -255,15 +252,15 @@ ME0SegAlgoMM::chainHits(const EnsambleHitContainer & rechits) {
       return rechits_chains;
 }
 
-bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitContainer & oldChain) {
+bool ME0SegAlgoMM::isGoodToMerge(EnsembleHitContainer & newChain, EnsembleHitContainer & oldChain) {
    for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     int layer_new = newChain[iRH_new]->me0Id().layer();     
-    float phi_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).phi();
-    float eta_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).eta();
+    float phi_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition()).phi();
+    float eta_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition()).eta();
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
       int layer_old = oldChain[iRH_old]->me0Id().layer();
-      float phi_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi();
-      float eta_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta();
+      float phi_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi();
+      float eta_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta();
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
       // however we'll not make an angle correction because it
@@ -288,7 +285,7 @@ bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitCon
 
 
 
-std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& rechits) {
+std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& rechits) {
   std::vector<ME0Segment> me0segs;
 
   proto_segment.clear();
@@ -326,12 +323,12 @@ void ME0SegAlgoMM::fitSlopes() {
 
   CLHEP::HepMatrix M(4,4,0);
   CLHEP::HepVector B(4,0);
-  // In absence of a geometrical construction of the ME0Ensamble take layer 1  
-  const ME0EtaPartition* ens = theEnsamble.first;
+  // In absence of a geometrical construction of the ME0Ensemble take layer 1  
+  const ME0EtaPartition* ens = theEnsemble.first;
 
   for (auto ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
     const ME0RecHit& hit = (**ih);
-    const ME0EtaPartition* roll  = theEnsamble.second[hit.me0Id()];
+    const ME0EtaPartition* roll  = theEnsemble.second[hit.me0Id()];
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
     // Locat w,r,t, to the first layer;
     LocalPoint  lp         = ens->toLocal(gp); 
@@ -350,7 +347,6 @@ void ME0SegAlgoMM::fitSlopes() {
     IC.invert(ierr); // inverts in place
     if (ierr != 0) {
       LogDebug("ME0Segment|ME0") << "ME0Segment::fitSlopes: failed to invert covariance matrix=\n" << IC;      
-      //       std::cout<< "ME0Segment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n"<<std::endl;
     }
     
     M(1,1) += IC(1,1);
@@ -393,10 +389,10 @@ void ME0SegAlgoMM::fitSlopes() {
 void ME0SegAlgoMM::fillChiSquared() {
   
   double chsq = 0.; 
-  const ME0EtaPartition* ens = theEnsamble.first;
+  const ME0EtaPartition* ens = theEnsemble.first;
   for (auto ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
     const ME0RecHit& hit = (**ih);
-    const ME0EtaPartition* roll  = theEnsamble.second[hit.me0Id()];
+    const ME0EtaPartition* roll  = theEnsemble.second[hit.me0Id()];
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
     // Locat w,r,t, to the first layer;
     LocalPoint  lp         = ens->toLocal(gp); 
@@ -421,7 +417,6 @@ void ME0SegAlgoMM::fillChiSquared() {
     IC.invert(ierr);
     if (ierr != 0) {
       LogDebug("ME0Segment|ME0") << "ME0Segment::fillChiSquared: failed to invert covariance matrix=\n" << IC;
-      //       std::cout << "ME0Segment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";
       
     }
     
@@ -448,7 +443,7 @@ void ME0SegAlgoMM::fillLocalDirection() {
   // localDir may need sign flip to ensure it points outward from IP
   // ptc: Examine its direction and origin in global z: to point outward
   // the localDir should always have same sign as global z...
-  const ME0EtaPartition* ens = theEnsamble.first;
+  const ME0EtaPartition* ens = theEnsemble.first;
 
   double globalZpos    = ( ens->toGlobal( protoIntercept ) ).z();
   double globalZdir    = ( ens->toGlobal( localDir ) ).z();
@@ -491,11 +486,11 @@ CLHEP::HepMatrix ME0SegAlgoMM::derivativeMatrix(){
   CLHEP::HepMatrix matrix(2*nhits, 4);
   int row = 0;
   
-  const ME0EtaPartition* ens = theEnsamble.first;
+  const ME0EtaPartition* ens = theEnsemble.first;
 
   for (auto ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
     const ME0RecHit& hit = (**ih);
-    const ME0EtaPartition* roll  = theEnsamble.second[hit.me0Id()];
+    const ME0EtaPartition* roll  = theEnsemble.second[hit.me0Id()];
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
     // Locat w,r,t, to the first layer;
     LocalPoint  lp         = ens->toLocal(gp); 

@@ -23,7 +23,7 @@
 
 class ME0SegmentAlgorithm {
 public:
-  typedef std::pair<const ME0EtaPartition*, std::map<uint32_t, const ME0EtaPartition*> >ME0Ensamble; 
+  typedef std::pair<const ME0EtaPartition*, std::map<uint32_t, const ME0EtaPartition*> >ME0Ensemble; 
 
     /// Constructor
     explicit ME0SegmentAlgorithm(const edm::ParameterSet&) {};
@@ -32,7 +32,7 @@ public:
 
     /** Run the algorithm = build the segments in this chamber
     */
-    virtual std::vector<ME0Segment> run(ME0Ensamble ensamble, const std::vector<const ME0RecHit*>& rechits) = 0;  
+    virtual std::vector<ME0Segment> run(ME0Ensemble ensemble, const std::vector<const ME0RecHit*>& rechits) = 0;  
 
     private:
 };
