@@ -122,7 +122,30 @@ MultiTrackValidator::~MultiTrackValidator(){delete histoProducerAlgo_;}
 
 void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
 
+  const auto minColl = -0.5;
+  const auto maxColl = label.size()-0.5;
+  const auto nintColl = label.size();
+
+  auto binLabels = [&](MonitorElement *me) {
+    TH1 *h = me->getTH1();
+    for(size_t i=0; i<label.size(); ++i) {
+      h->GetXaxis()->SetBinLabel(i+1, label[i].label().c_str());
+    }
+    return me;
+  };
+
+
   for (unsigned int ww=0;ww<associators.size();ww++){
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_);
+
+    h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
+    h_assoc2_coll.push_back(binLabels( ibook.book1D("num_assoc(recoToSim)_coll", "N of associated (recoToSim) tracks vs track collection", nintColl, minColl, maxColl) ));
+    h_assoc_coll.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
+    h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
+    h_looper_coll.push_back(binLabels( ibook.book1D("num_duplicate_coll", "N of associated (recoToSim) looper tracks vs track collection", nintColl, minColl, maxColl) ));
+    h_pileup_coll.push_back(binLabels( ibook.book1D("num_pileup_coll", "N of associated (recoToSim) pileup tracks vs track collection", nintColl, minColl, maxColl) ));
+
     for (unsigned int www=0;www<label.size();www++){
       ibook.cd();
       InputTag algo = label[www];
@@ -491,7 +514,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
         histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
-          if (matchedTrackPointer) asts++;
+          h_simul_coll[ww]->Fill(www);
+          if (matchedTrackPointer) {
+            asts++;
+            h_assoc_coll[ww]->Fill(www);
+          }
 
 
 
@@ -578,6 +605,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	double dR=dR_trk[i];
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
+        h_reco_coll[ww]->Fill(www);
+        if(isSimMatched) {
+          h_assoc2_coll[ww]->Fill(www);
+          if(numAssocRecoTracks>1) {
+            h_looper_coll[ww]->Fill(www);
+          }
+          else if(!isSigSimMatched) {
+            h_pileup_coll[ww]->Fill(www);
+          }
+        }
 
 	// dE/dx
 	if (dodEdxPlots_) histoProducerAlgo_->fill_dedx_recoTrack_histos(w,track, v_dEdx);

@@ -121,4 +121,15 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorTrackStandalone = cms.Sequence(postProcessorTrack)
+postProcessorTrackSummary = cms.EDAnalyzer("DQMGenericClient",
+    subDirs = cms.untracked.vstring("Tracking/Track"),
+    efficiency = cms.vstring(
+    "effic_vs_coll 'Efficiency vs track collection' num_assoc(simToReco)_coll num_simul_coll",
+    "duplicatesRate_coll 'Duplicates Rate vs track collection' num_duplicate_coll num_reco_coll",
+    "pileuprate_coll 'Pileup rate vs track collection' num_pileup_coll num_reco_coll",
+    "fakerate_vs_coll 'Fake rate vs track collection' num_assoc(recoToSim)_coll num_reco_coll fake",
+    ),
+    resolution = cms.vstring()
+)
+
+postProcessorTrackSequence = cms.Sequence(postProcessorTrack+postProcessorTrackSummary)
