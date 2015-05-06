@@ -167,9 +167,10 @@ HLT_L2DoubleMu23_NoVertex_v*					# JIRA: CMSHLT-103
 HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_v*		# JIRA: CMSHLT-103
 HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_v*		# JIRA: CMSHLT-103
 
-HLT_PFMET120_PFMHT120_IDLoose_v*				# JIRA: CMSHLT-128, mod. CMSHLT-186
-HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v*		# JIRA: CMSHLT-128
-HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v*			# JIRA: CMSHLT-128
+HLT_PFMET120_PFMHT120_IDTight_v*				# JIRA: CMSHLT-128, mod. CMSHLT-186, mod CMSHLT-333
+HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV0p7_v*	# JIRA: CMSHLT-128, mod CMSHLT-333
+HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v*			# JIRA: CMSHLT-128, mod CMSHLT-333
+
 HLT_QuadPFJet_VBF_v*						# JIRA: CMSHLT-128, mod. CMSHLT-181, mod. CMSHLT-234
 HLT_L1_TripleJet_VBF_v*						# JIRA: CMSHLT-128
 HLT_QuadJet45_TripleCSV0p5_v*					# JIRA: CMSHLT-128
@@ -365,9 +366,9 @@ HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*		# JIRA: CMSHLT-196 (only for 7
 HLT_VBF_DisplacedJet40_Hadronic_v*				# JIRA: CMSHLT-196 (only for 7e33)
 HLT_VBF_DisplacedJet40_TightID_Hadronic_v*			# JIRA: CMSHLT-196 (only for 7e33)
 
-HLT_PFMET90_PFMHT90_IDLoose_v*					# JIRA: CMSHLT-203 (only for 7e33)
-HLT_PFMET100_PFMHT100_IDLoose_v*				# JIRA: CMSHLT-203 (only for 7e33)
-HLT_PFMET110_PFMHT110_IDLoose_v*				# JIRA: CMSHLT-203 (only for 7e33)
+HLT_PFMET90_PFMHT90_IDTight_v*					# JIRA: CMSHLT-203 (only for 7e33), mod CMSHLT-333
+HLT_PFMET100_PFMHT100_IDTight_v*				# JIRA: CMSHLT-203 (only for 7e33), mod CMSHLT-333
+HLT_PFMET110_PFMHT110_IDTight_v*				# JIRA: CMSHLT-203 (only for 7e33), mod CMSHLT-333
 
 HLT_Dimuon16_Jpsi_v*						# JIRA: CMSHLT-211 (only for 7e33)
 HLT_Dimuon10_Jpsi_Barrel_v*					# JIRA: CMSHLT-211 (only for 7e33)
@@ -516,6 +517,10 @@ HLT_AK8PFJetsForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
 HLT_AK8TrimPFJetsForMC_v*					# JIRA: CMSHLT-315 (template paths only for MC)
 HLT_AK8PFHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
 HLT_AK8CaloHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
+#HLT_DoubleEle5_CaloIdL_GsfTrkIdVL_MW_ForMC_v*                                           # JIRA: CMSHLT-325 (template paths only for MC)
+#HLT_Ele5_WP75_Gsf_ForMC_v*                                                              # JIRA: CMSHLT-325 (template paths only for MC)
+#HLT_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_ForMC_v*                                      # JIRA: CMSHLT-325 (template paths only for MC)
+#HLT_Diphoton10_10_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Mass95_ForMC_v* # JIRA: CMSHLT-325 (template paths only for MC)
 HLT_IsoMu_SaveObjects_v*					# JIRA: CMSHLT-322 (template paths only for MC)
 HLT_IsoTkMu15_SaveObjects_v*					# JIRA: CMSHLT-322 (template paths only for MC)
 HLT_DoubleMu_TrkIsoVVL_DZ_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)

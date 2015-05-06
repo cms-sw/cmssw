@@ -72,8 +72,10 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
 
     if(includePixels){
         tree->Branch("BXNo","map<int,int>",&BXNo);
-        tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
-        tree->Branch("nClusters","map<int,int>",&nClusters);
+        tree->Branch("nPixelClusters","map<std::pair<int,int>,int>",&nPixelClusters);
+        tree->Branch("nClusters",     "map<std::pair<int,int>,int>",&nClusters);
+        //tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
+        //tree->Branch("nClusters","map<int,int>",&nClusters);
         tree->Branch("layers","map<int,int>",&layers);
         // dead modules
         nDeadModules = 6;
@@ -133,7 +135,8 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     saveAndReset = (saveType=="LumiSect" && !sameLumiSect)
                 || (saveType=="LumiNib" && !sameLumiNib)
                 || (saveType=="Event" && !sameEvent);
-   
+
+
     if(   !saveAndReset && !sameLumiSect
        && !sameLumiNib  && !sameEvent) {
         std::cout<<"Diff LS, LN and Event, but not saving/resetting..."<<std::endl;
@@ -148,6 +151,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         layers.clear();
         BXNo.clear();
         nGoodVtx.clear();
+        firstEvent=false;
     }
 
     if(sampleType=="MC"){
@@ -164,25 +168,29 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     }
 
     // Get the Run, Lumi Section, and Event numbers, etc.
-    runNo = iEvent.id().run();
-    LSNo = iEvent.getLuminosityBlock().luminosityBlock();
-    LNNo = -99; // FIXME need the luminibble
+    runNo   = iEvent.id().run();
+    LSNo    = iEvent.getLuminosityBlock().luminosityBlock();
+    LNNo    = -99; // FIXME need the luminibble
     eventNo = iEvent.id().event();
+    bxNo    = iEvent.bunchCrossing();
     timeStamp = iEvent.time().unixTime();
+    
+    bxModKey.first=bxNo;
+    bxModKey.second=-1;
    
-    if((BXNo.count(iEvent.bunchCrossing())==0||nGoodVtx.count(iEvent.bunchCrossing())==0) && !(BXNo.count(iEvent.bunchCrossing())==0&&nGoodVtx.count(iEvent.bunchCrossing())==0)){
+    if((BXNo.count(bxNo)==0||nGoodVtx.count(bxNo)==0) && !(BXNo.count(bxNo)==0&&nGoodVtx.count(bxNo)==0)){
         std::cout<<"BXNo and nGoodVtx should have the same keys but DO NOT!!!"<<std::endl;
     }
     
-    if(BXNo.count(iEvent.bunchCrossing())==0){
-        BXNo[iEvent.bunchCrossing()]=0;
+    if(BXNo.count(bxNo)==0){
+        BXNo[bxNo]=0;
     }
 
-    if(nGoodVtx.count(iEvent.bunchCrossing())==0){
-        nGoodVtx[iEvent.bunchCrossing()]=0;
+    if(nGoodVtx.count(bxNo)==0){
+        nGoodVtx[bxNo]=0;
     }
 
-    BXNo[iEvent.bunchCrossing()]=BXNo[iEvent.bunchCrossing()]+1;
+    BXNo[bxNo]=BXNo[bxNo]+1;
     // add the vertex information
 
     xV = -9999.; yV = -9999.; zV = -9999.;  chi2 = -9999.;  ndof = -9999;
@@ -199,7 +207,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
                 if(nd > 4 && v->isValid() && (v->isFake() == 0)){
                     nVtx++;
                     if(nnTrk > 0){
-                        nGoodVtx[iEvent.bunchCrossing()]=nGoodVtx[iEvent.bunchCrossing()]+1;
+                        nGoodVtx[bxNo]=nGoodVtx[bxNo]+1;
                         if(nnTrk > nTrk){
                             nTrk = nnTrk;                   
                             //FIXME why are we multiplying by 10000 or 10?
@@ -245,23 +253,24 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         //if (dynamic_cast<PixelGeomDetUnit*>((*it)) != 0){ 
             DetId detId = (*it)->geographicalId();
 
+            bxModKey.second=detId();
 
             // -- clusters on this det
             edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
             if (isearch != clustColl.end()) {  // Not an empty iterator
                 edmNew::DetSet<SiPixelCluster>::const_iterator  di;
                 for (di = isearch->begin(); di != isearch->end(); ++di) {
-                    if(nPixelClusters.count(detId())==0){
-                        nPixelClusters[detId()]=0;
+                    if(nPixelClusters.count(bxModKey)==0){
+                        nPixelClusters[bxModKey]=0;
                     }
-                    nPixelClusters[detId()] = nPixelClusters[detId()]+1;
+                    nPixelClusters[bxModKey] = nPixelClusters[bxModKey]+1;
                 }
 
                 int nCluster = isearch->size();
-                if(nClusters.count(detId())==0){
-                    nClusters[detId()]=0;
+                if(nClusters.count(bxModKey)==0){
+                    nClusters[bxModKey]=0;
                 }
-                nClusters[detId()] += nCluster;
+                nClusters[bxModKey] += nCluster;
 
                 if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
                     PixelBarrelName detName = PixelBarrelName(detId);
