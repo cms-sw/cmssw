@@ -51,6 +51,9 @@ def simGeoLoad(score):
     elif score == "2023Muon":
        process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 
+    elif score == "2023":
+       process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+        
     elif score == "SLHC":
         process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
         
@@ -111,7 +114,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.add_(cms.ESProducer("TGeoMgrFromDdd",
         verbose = cms.untracked.bool(False),
-                            level = cms.untracked.int32(defaultLevel)
+        level = cms.untracked.int32(defaultLevel)
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry", 
