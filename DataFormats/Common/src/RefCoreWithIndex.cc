@@ -17,8 +17,8 @@ namespace edm {
         if(transient) {
           setTransient();
         }
-        if(prodPtr!=0 || prodGetter==0) {
-          setCacheIsProductPtr();
+        if(prodPtr==nullptr && prodGetter!=nullptr) {
+          setCacheIsProductGetter();
         }
       }
 

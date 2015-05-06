@@ -16,6 +16,7 @@
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="cachePtr_">
    <![CDATA[
      edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
+     edm::refcoreimpl::setCacheIsProductGetter(cachePtr_);
       ]]>
  </ioread>
   <class name="edm::RefCoreWithIndex" ClassVersion="11">
@@ -25,6 +26,7 @@
   <ioread sourceClass = "edm::RefCoreWithIndex" version="[1-]" targetClass="edm::RefCoreWithIndex" source="" target="cachePtr_">
     <![CDATA[
       edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
+      edm::refcoreimpl::setCacheIsProductGetter(cachePtr_);
     ]]>
   </ioread>
  <class name="edm::ThinnedAssociation" ClassVersion="10">

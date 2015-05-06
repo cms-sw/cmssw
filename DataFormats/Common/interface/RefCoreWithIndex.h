@@ -21,7 +21,7 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
 namespace edm {  
   class RefCoreWithIndex {
   public:
-    RefCoreWithIndex() :  cachePtr_(0),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
+    RefCoreWithIndex() :  cachePtr_(nullptr),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
 
     RefCoreWithIndex(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient, unsigned int elementIndex);
 
@@ -105,17 +105,21 @@ namespace edm {
     }
     void setTransient() {SETTRANSIENT_IMPL;}
     void setCacheIsProductPtr() const {SETCACHEISPRODUCTPTR_IMPL;}
-    void unsetCacheIsProductPtr() const {UNSETCACHEISPRODUCTPTR_IMPL;}
+    void setCacheIsProductGetter() const {SETCACHEISPRODUCTGETTER_IMPL;}
     bool cacheIsProductPtr() const {CACHEISPRODUCTPTR_IMPL;}
 
     //NOTE: the order MUST remain the same as a RefCore
     // since we play tricks to allow a pointer to a RefCoreWithIndex
     // to be the same as a pointer to a RefCore
+
+    //The low bit of the address is used to determine  if the cachePtr_
+    // is storing the productPtr or the EDProductGetter. The bit is set if
+    // the address refers to the EDProductGetter.
     mutable void const* cachePtr_;               // transient
-    //The following are what is stored in a ProductID
-    // the high two bits of processIndex are used to store info on
-    // if this is transient and if the cachePtr_ is storing the productPtr
-    mutable ProcessIndex processIndex_;
+    //The following is what is stored in a ProductID
+    // the high bit of processIndex is used to store info on
+    // if this is transient.
+    ProcessIndex processIndex_;
     ProductIndex productIndex_;
     unsigned int elementIndex_;
 

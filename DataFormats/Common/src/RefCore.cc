@@ -39,8 +39,8 @@ namespace edm {
         if(transient) {
           setTransient();
         }
-        if(prodPtr!=0 || prodGetter==0) {
-          setCacheIsProductPtr();
+        if(prodPtr==nullptr && prodGetter!=nullptr) {
+          setCacheIsProductGetter();
         }
       }
 
@@ -67,7 +67,7 @@ namespace edm {
     }
 
     //if (productPtr() == 0 && productGetter() == 0) {
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
     WrapperBase const* product = productGetter()->getIt(tId);
@@ -88,7 +88,7 @@ namespace edm {
       throwInvalidRefFromNullOrInvalidRef(TypeID(type));
     }
 
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
     WrapperBase const* product = productGetter()->getIt(tId);
@@ -160,7 +160,7 @@ namespace edm {
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
     cachePtr_ = prodGetter;
-    unsetCacheIsProductPtr();
+    setCacheIsProductGetter();
   }
   
   void 

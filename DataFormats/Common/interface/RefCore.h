@@ -86,17 +86,21 @@ namespace edm {
     void setId(ProductID const& iId);
     void setTransient() {SETTRANSIENT_IMPL;}
     void setCacheIsProductPtr() const {SETCACHEISPRODUCTPTR_IMPL;}
-    void unsetCacheIsProductPtr() const {UNSETCACHEISPRODUCTPTR_IMPL;}
+    void setCacheIsProductGetter() const {SETCACHEISPRODUCTGETTER_IMPL;}
     bool cacheIsProductPtr() const {CACHEISPRODUCTPTR_IMPL;}
+    bool cachePtrIsInvalid() const { return 0 == (reinterpret_cast<std::uintptr_t>(cachePtr_) & refcoreimpl::kCacheIsProductPtrMask); }
 
-    
+
+    //The low bit of the address is used to determine  if the cachePtr_
+    // is storing the productPtr or the EDProductGetter. The bit is set if
+    // the address refers to the EDProductGetter.
     mutable void const* cachePtr_;               // transient
-    //The following are what is stored in a ProductID
-    // the high two bits of processIndex are used to store info on
-    // if this is transient and if the cachePtr_ is storing the productPtr
+    //The following is what is stored in a ProductID
+    // the high bit of processIndex is used to store info on
+    // if this is transient.
     //If the type or order of the member data is changes you MUST also update
     // the custom streamer in RefCoreStreamer.cc and RefCoreWithIndex
-    mutable ProcessIndex processIndex_;
+    ProcessIndex processIndex_;
     ProductIndex productIndex_;
 
   };
