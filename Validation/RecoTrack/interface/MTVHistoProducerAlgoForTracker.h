@@ -134,6 +134,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double minVertpos, maxVertpos;  int nintVertpos;
   double minZpos, maxZpos;  int nintZpos;
   double mindr, maxdr;  int nintdr;
+  double minChi2, maxChi2; int nintChi2;
   double minDeDx, maxDeDx;  int nintDeDx;
   double minVertcount, maxVertcount;  int nintVertcount;
 
@@ -163,6 +164,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_effic_vs_dr, h_fakerate_vs_dr, h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_pileupdr;
+  std::vector<MonitorElement*> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<MonitorElement*> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
   std::vector<MonitorElement*> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;

@@ -72,6 +72,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxdr  = pset.getParameter<double>("maxdr");
   nintdr = pset.getParameter<int>("nintdr");
 
+  // paramers for _vs_chi2 plots
+  minChi2  = pset.getParameter<double>("minChi2");
+  maxChi2  = pset.getParameter<double>("maxChi2");
+  nintChi2 = pset.getParameter<int>("nintChi2");
+
   //parameters for dE/dx plots
   minDeDx  = pset.getParameter<double>("minDeDx");
   maxDeDx  = pset.getParameter<double>("maxDeDx");
@@ -316,6 +321,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   BinLogX(h_recodr.back()->getTH1F());
   BinLogX(h_assoc2dr.back()->getTH1F());
   BinLogX(h_pileupdr.back()->getTH1F());
+
+  h_recochi2.push_back( ibook.book1D("num_reco_chi2","N of reco track vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
+  h_assoc2chi2.push_back( ibook.book1D("num_assoc(recoToSim)_chi2","N of associated (recoToSim) tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
+  h_looperchi2.push_back( ibook.book1D("num_duplicate_chi2","N of associated (recoToSim) looper tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
+  h_misidchi2.push_back( ibook.book1D("num_chargemisid_chi2","N of associated (recoToSim) charge misIDed tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
+  h_pileupchi2.push_back( ibook.book1D("num_pileup_chi2","N of associated (recoToSim) pileup tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
 
   /////////////////////////////////
 
@@ -704,6 +715,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
   const auto n3DLayers = nPixelLayers + track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
+  const auto chi2 = track.normalizedChi2();
 
   fillPlotNoFlow(h_recoeta[count], eta);
   fillPlotNoFlow(h_recophi[count], phi);
@@ -715,6 +727,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recopixellayer[count], nPixelLayers);
   fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
+  fillPlotNoFlow(h_recochi2[count], chi2);
   h_recodr[count]->Fill(deltar);
   if (isMatched) {
     fillPlotNoFlow(h_assoc2eta[count], eta);
@@ -727,6 +740,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pixellayer[count], nPixelLayers);
     fillPlotNoFlow(h_assoc23Dlayer[count], n3DLayers);
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
+    fillPlotNoFlow(h_assoc2chi2[count], chi2);
     h_assoc2dr[count]->Fill(deltar);
 
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
@@ -744,6 +758,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_misidpixellayer[count], nPixelLayers);
       fillPlotNoFlow(h_misid3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_misidpu[count], numVertices);
+      fillPlotNoFlow(h_misidchi2[count], chi2);
     }
 
     if (numAssocRecoTracks>1) {
@@ -757,6 +772,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_looperpixellayer[count], nPixelLayers);
       fillPlotNoFlow(h_looper3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_looperpu[count], numVertices);
+      fillPlotNoFlow(h_looperchi2[count], chi2);
     }
     else if(!isSigMatched) {
       fillPlotNoFlow(h_pileupeta[count], eta);
@@ -769,6 +785,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileuppixellayer[count], nPixelLayers);
       fillPlotNoFlow(h_pileup3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_pileuppu[count], numVertices);
+      fillPlotNoFlow(h_pileupchi2[count], chi2);
       h_pileupdr[count]->Fill(deltar);
     }
   }
