@@ -98,7 +98,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 					  psetVsEta.getParameter<std::vector<int> >("pdgId"));
 
   useGsf = pset.getParameter<bool>("useGsf");
-  runStandalone = pset.getParameter<bool>("runStandalone");
 
   _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
@@ -187,8 +186,6 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         histoProducerAlgo_->bookRecoHistos(ibook);
         if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
       }
-      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
-
     }//end loop www
   }// end loop ww
 }
@@ -670,18 +667,3 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   } //END of for (unsigned int ww=0;ww<associators.size();ww++){
 
 }
-
-void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
-  int w=0;
-  for (unsigned int ww=0;ww<associators.size();ww++){
-    for (unsigned int www=0;www<label.size();www++){
-      if(!skipHistoFit && runStandalone)	histoProducerAlgo_->finalHistoFits(w);
-      if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
-      w++;
-    }
-  }
-  //if ( out.size() != 0 && dbe_ ) dbe_->save(out);
-}
-
-
-

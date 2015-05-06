@@ -126,8 +126,6 @@ process.multiTrackValidator.outputFile = "validphase1_muon_50GeV.root"
 process.multiTrackValidator.nint = cms.int32(20)
 process.multiTrackValidator.nintpT = cms.int32(25)
 process.multiTrackValidator.maxpT = cms.double(50.0)
-process.multiTrackValidator.skipHistoFit = cms.untracked.bool(False)
-process.multiTrackValidator.runStandalone = cms.bool(True)
 
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")

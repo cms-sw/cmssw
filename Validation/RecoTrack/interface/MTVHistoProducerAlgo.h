@@ -35,7 +35,6 @@ class MTVHistoProducerAlgo{
   virtual void bookSimTrackHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecodEdxHistos(DQMStore::IBooker& ibook)=0;
-  virtual void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook)=0;
 
   virtual void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;
 
@@ -82,12 +81,6 @@ class MTVHistoProducerAlgo{
 						 int chargeTP,
 						 const reco::Track& track,
 						 const math::XYZPoint& bsPosition)=0;
-
-  virtual void finalHistoFits(int counter)=0;
-
-
-  virtual void fillProfileHistosFromVectors(int counter)=0;
-
 
  protected:
   //protected functions

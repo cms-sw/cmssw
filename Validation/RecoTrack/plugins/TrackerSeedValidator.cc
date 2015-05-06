@@ -53,8 +53,6 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
 					pset.getParameter<bool>("stableOnlyTP"),
 					pset.getParameter<std::vector<int> >("pdgIdTP"));
 
-  runStandalone = pset.getParameter<bool>("runStandalone");
-
   builderName = pset.getParameter<std::string>("TTRHBuilder");
 
   for (auto const& associator: associators) {
@@ -104,7 +102,6 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
       //Booking histograms concerning with reconstructed tracks
       histoProducerAlgo_->bookSimTrackHistos(ibook);
       histoProducerAlgo_->bookRecoHistos(ibook);
-      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
     }//end loop www
   }// end loop ww
 }
@@ -423,21 +420,3 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
     }
   }
 }
-
-void TrackerSeedValidator::endRun(edm::Run const&, edm::EventSetup const&) {
-  LogTrace("SeedValidator") << "TrackerSeedValidator::endRun()";
-  int w=0;
-  for (unsigned int ww=0;ww<associators.size();ww++){
-    for (unsigned int www=0;www<label.size();www++){
-
-      if (runStandalone) histoProducerAlgo_->finalHistoFits(w);
-      if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
-
-      w++;
-    }
-  }
-  //if ( out.size() != 0 && dbe_ ) dbe_->save(out);
-}
-
-
-

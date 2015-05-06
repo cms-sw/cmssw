@@ -69,16 +69,12 @@ class MultiTrackValidatorBase {
   std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > labelTokenSeed;
   edm::EDGetTokenT<reco::BeamSpot>  bsSrc;
 
-  std::string out;
-
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx1Tag;
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx2Tag;
 
   edm::ESHandle<MagneticField> theMF;
 
   bool ignoremissingtkcollection_;
-  bool skipHistoFit;
-
 };
 
 

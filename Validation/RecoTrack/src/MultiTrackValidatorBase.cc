@@ -23,9 +23,5 @@ MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset, 
   }
   bsSrc = iC.consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>( "beamSpot" ));
 
-  out = pset.getParameter<std::string>("outputFile");   
-
   ignoremissingtkcollection_ = pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false);
-  skipHistoFit = pset.getUntrackedParameter<bool>("skipHistoFit",false);    
-
 }

@@ -33,7 +33,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void bookSimTrackHistos(DQMStore::IBooker& ibook) override;
   void bookRecoHistos(DQMStore::IBooker& ibook) override;
   void bookRecodEdxHistos(DQMStore::IBooker& ibook) override;
-  void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook);
 
 
   void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
@@ -85,12 +84,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					 int chargeTP,
 					 const reco::Track& track,
 					 const math::XYZPoint& bsPosition);
-
-  void finalHistoFits(int counter);
-
-
-  void fillProfileHistosFromVectors(int counter);
-
 
  private:
 
@@ -151,26 +144,25 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge, h_algo;;
-  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_looprate, h_misidrate, h_pileupeta;
-  std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_loopratepT, h_misidratepT, h_pileuppT;
-  std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_loopratehit, h_misidratehit, h_pileuphit;
+  std::vector<MonitorElement*> h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
+  std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
+  std::vector<MonitorElement*> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_pileuphit;
   std::vector<MonitorElement*> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer, h_misidlayer, h_pileuplayer;
   std::vector<MonitorElement*> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer, h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
   std::vector<MonitorElement*> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer, h_misid3Dlayer, h_pileup3Dlayer;
-  std::vector<MonitorElement*> h_effic_vs_pu, h_fake_vs_pu, h_recopu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_loopratepu, h_misidratepu, h_pileuppu;
-  std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_loopratephi, h_misidratephi, h_pileupphi;
-  std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_loopratedxy, h_misidratedxy, h_pileupdxy;
-  std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_loopratedz, h_misidratedz, h_pileupdz;
+  std::vector<MonitorElement*> h_recopu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_pileuppu;
+  std::vector<MonitorElement*> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_pileupphi;
+  std::vector<MonitorElement*> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_pileupdxy;
+  std::vector<MonitorElement*> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
 
-  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
-  std::vector<MonitorElement*> h_effic_vs_dr, h_fakerate_vs_dr, h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_pileupdr;
+  std::vector<MonitorElement*> h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
+  std::vector<MonitorElement*> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_pileupdr;
   std::vector<MonitorElement*> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<MonitorElement*> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
   std::vector<MonitorElement*> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
   std::vector<MonitorElement*> h_assoc2_ootpu_eta, h_assoc2_ootpu_vertcount;
   std::vector<MonitorElement*> h_reco_ootpu_eta, h_reco_ootpu_vertcount;
-  std::vector<MonitorElement*> h_effic_PU_eta, h_effic_PU_vertcount, h_effic_PU_zpos;
   std::vector<MonitorElement*> h_con_eta, h_con_vertcount, h_con_zpos;
 
 
@@ -195,13 +187,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
     nTOBhits_vs_eta,nTEChits_vs_eta,
     nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta,
     nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
-
-
-  std::vector<MonitorElement*> h_hits_eta,
-    h_PXBhits_eta, h_PXFhits_eta, h_TIBhits_eta,h_TIDhits_eta,
-    h_TOBhits_eta,h_TEChits_eta,h_DThits_eta,h_CSChits_eta,h_RPChits_eta,
-    h_LayersWithMeas_eta, h_PXLlayersWithMeas_eta,
-    h_STRIPlayersWithMeas_eta, h_STRIPlayersWith1dMeas_eta, h_STRIPlayersWith2dMeas_eta;
 
 
   //---- second set of histograms (originally not used by the SeedGenerator)
@@ -229,23 +214,9 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
   std::vector<MonitorElement*> dxyres_vs_pt, ptres_vs_pt, dzres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
 
-  std::vector<MonitorElement*> h_dxyrmsh, h_ptrmsh, h_dzrmsh, h_phirmsh, h_cotThetarmsh;
-  std::vector<MonitorElement*> h_dxyrmshPt, h_ptrmshPt, h_dzrmshPt, h_phirmshPt, h_cotThetarmshPt;
-  std::vector<MonitorElement*> h_ptrmshPhi, h_phirmshPhi;
-  //  std::vector<MonitorElement*> h_phimeanh,h_ptmeanhhi, h_phimeanhPhi;
-
-  std::vector<MonitorElement*> h_dxymeanh, h_ptmeanh, h_dzmeanh, h_phimeanh, h_cotThetameanh;
-  std::vector<MonitorElement*> h_dxymeanhPt, h_ptmeanhPt, h_dzmeanhPt, h_phimeanhPt, h_cotThetameanhPt;
-  std::vector<MonitorElement*> h_ptmeanhPhi, h_phimeanhPhi;
-
   //pulls of track params vs eta: to be used with fitslicesytool
   std::vector<MonitorElement*> dxypull_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
   std::vector<MonitorElement*> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
-  std::vector<MonitorElement*> h_dxypulleta, h_ptpulleta, h_dzpulleta, h_phipulleta, h_thetapulleta;
-  std::vector<MonitorElement*> h_ptpullphi, h_phipullphi, h_thetapullphi;
-  std::vector<MonitorElement*> h_dxypulletamean, h_ptpulletamean, h_dzpulletamean, h_phipulletamean, h_thetapulletamean;
-  std::vector<MonitorElement*> h_ptpullphimean, h_phipullphimean, h_thetapullphimean;
-
 };
 
 #endif

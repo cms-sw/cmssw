@@ -130,7 +130,6 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksBtvLike"),
                                    cms.InputTag("cutsRecoTracksAK4PFJets"),
                                    )
-trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
 trackValidator.dodEdxPlots = True
 #trackValidator.minpT = cms.double(-1)

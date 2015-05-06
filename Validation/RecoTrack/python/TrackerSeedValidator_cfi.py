@@ -17,12 +17,6 @@ trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
     # if the track collectio is missing (e.g. HLT):
     ignoremissingtrackcollection=cms.untracked.bool(False),
     
-    # set true if you do not want efficiency fakes and resolution fit
-    # to be calculated in the end run (for automated validation):
-    skipHistoFit=cms.untracked.bool(False),
-
-    runStandalone = cms.bool(True),
-    
     ### matching configuration ###
     associators = cms.VInputTag("trackAssociatorByHits"),
 
@@ -53,7 +47,6 @@ trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
     
     ### output configuration
     dirName = cms.string('Tracking/Seed/'),
-    outputFile = cms.string(''),
 
     TTRHBuilder = cms.string('WithTrackAngle')
 )

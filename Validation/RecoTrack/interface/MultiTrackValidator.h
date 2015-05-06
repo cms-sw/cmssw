@@ -23,8 +23,6 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
   /// Method called once per event
   void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  /// Method called at the end of the event loop
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   /// Method called to book the DQM histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -47,7 +45,6 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   std::string dirName_;
 
   bool useGsf;
-  bool runStandalone;
   // select tracking particles 
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
