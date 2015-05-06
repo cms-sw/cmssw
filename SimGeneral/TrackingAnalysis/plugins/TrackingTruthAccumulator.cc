@@ -17,10 +17,12 @@
  * Changelog:
  * 07/Feb/2013 Mark Grimes - Reorganised and added a bit more documentation. Still not enough
  * though.
- * 12/Mar/2012 (branch NewTrackingParticle only) Mark Grimes - Updated TrackingParticle creation
- * to fit in with Subir Sarkar's re-implementation of TrackingParticle.
+ * 12/Mar/2012 Mark Grimes - Updated TrackingParticle creation to fit in with Subir Sarkar's
+ * re-implementation of TrackingParticle.
+ * 05/May/2015 Mark Grimes - Added functionality to add a collection of just the initial vertices
+ * for FastTimer studies.
  */
-#include "SimGeneral/TrackingAnalysis/interface/TrackingTruthAccumulator.h"
+#include "SimGeneral/TrackingAnalysis/plugins/TrackingTruthAccumulator.h"
 
 #include <SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -221,6 +223,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		maximumSubsequentBunchCrossing_( config.getParameter<unsigned int>("maximumSubsequentBunchCrossing") ),
 		createUnmergedCollection_( config.getParameter<bool>("createUnmergedCollection") ),
 		createMergedCollection_(config.getParameter<bool>("createMergedBremsstrahlung") ),
+		createInitialVertexCollection_(config.getParameter<bool>("createInitialVertexCollection") ),
 		addAncestors_( config.getParameter<bool>("alwaysAddAncestors") ),
 		removeDeadModules_( config.getParameter<bool>("removeDeadModules") ),
 		simTrackLabel_( config.getParameter<edm::InputTag>("simTrackCollection") ),
@@ -284,6 +287,11 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		mixMod.produces<TrackingParticleCollection>("MergedTrackTruth");
 		mixMod.produces<TrackingVertexCollection>("MergedTrackTruth");
 	}
+
+	if( createInitialVertexCollection_ )
+	{
+		mixMod.produces<TrackingVertexCollection>("InitialVertices");
+	}
 }
 
 void TrackingTruthAccumulator::initializeEvent( edm::Event const& event, edm::EventSetup const& setup )
@@ -302,6 +310,11 @@ void TrackingTruthAccumulator::initializeEvent( edm::Event const& event, edm::Ev
 		mergedOutput_.pTrackingVertices.reset( new TrackingVertexCollection );
 		mergedOutput_.refTrackingParticles=const_cast<edm::Event&>( event ).getRefBeforePut<TrackingParticleCollection>("MergedTrackTruth");
 		mergedOutput_.refTrackingVertexes=const_cast<edm::Event&>( event ).getRefBeforePut<TrackingVertexCollection>("MergedTrackTruth");
+	}
+
+	if( createInitialVertexCollection_ )
+	{
+		pInitialVertices_.reset( new TrackingVertexCollection );
 	}
 }
 
@@ -343,6 +356,12 @@ void TrackingTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup
 		event.put( mergedOutput_.pTrackingVertices, "MergedTrackTruth" );
 	}
 
+	if( createInitialVertexCollection_ )
+	{
+		edm::LogInfo("TrackingTruthAccumulator") << "Adding " << pInitialVertices_->size() << " initial TrackingVertexs to the event.";
+
+		event.put( pInitialVertices_, "InitialVertices" );
+	}
 }
 
 template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event, const edm::EventSetup& setup )
@@ -434,6 +453,25 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 		// passes the selection criteria specified in the configuration. If the config
 		// specifies adding ancestors, the function is called recursively to do that.
 		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_, tTopo );
+	}
+
+	// If configured to create a collection of initial vertices, add them from this bunch
+	// crossing. No selection is applied on this collection, but it also has no links to
+	// the TrackingParticle decay products.
+	// There are a lot of "initial vertices", I'm not entirely sure what they all are
+	// (nuclear interactions in the detector maybe?), but the one for the main event is
+	// the one with vertexId==0.
+	if( createInitialVertexCollection_ )
+	{
+		// Pretty sure the one with vertexId==0 is always the first one, but doesn't hurt to check
+		for( const auto& pRootVertex : decayChain.rootVertices )
+		{
+			const SimVertex& vertex=hSimVertices->at(decayChain.rootVertices[0]->simVertexIndex);
+			if( vertex.vertexId()!=0 ) continue;
+
+			pInitialVertices_->push_back( objectFactory.createTrackingVertex(pRootVertex) );
+			break;
+		}
 	}
 }
 
@@ -622,9 +660,7 @@ namespace // Unnamed namespace for things only used in this file
 
 		bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
 
-		// TODO - Still need to set the truth ID properly. I'm not sure what to set
-		// the second parameter of the EncodedTruthId constructor to.
-		TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
+		TrackingVertex returnValue( simVertex.position(), isInVolume, simVertex.eventId() );
 		return returnValue;
 	}
 

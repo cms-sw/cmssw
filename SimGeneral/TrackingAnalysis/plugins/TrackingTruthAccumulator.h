@@ -42,6 +42,13 @@ class PSimHit;
  * <tr><td> createMergedBremsstrahlung     </td><td> bool              </td><td> Whether to create the TrackingParticle collection with bremsstrahlung merged. At
  *                                                                               least one of createUnmergedCollection or createMergedBremsstrahlung should be true
  *                                                                               otherwise nothing will be produced. </td></tr>
+ * <tr><td> createInitialVertexCollection  </td><td> bool              </td><td> Whether to create a collection of just the initial vertices. You can usually get this
+ *                                                                               information from one of the other collections (merged or unmerged bremsstrahlung), but
+ *                                                                               for this collection no selection is applied. Hence you will always have all of the initial
+ *                                                                               vertices regardless of how tightly you select TrackingParticles with the "select" parameter.
+ *                                                                               Note that <b>the collection will have no links to the products of these vertices<b>.  If you
+ *                                                                               want to know what came off these vertices you will have to look in one of the other
+ *                                                                               collections. The name of the collection will be "InitialVertices".</td></tr>
  * <tr><td> alwaysAddAncestors             </td><td> bool              </td><td> If a sim track passes selection and is turned into a TrackingParticle, all of it's
  *                                                                               parents will also be created even if they fail the selection. This was the default
  *                                                                               behaviour for the old TrackingParticleProducer. </td></tr>
@@ -92,6 +99,8 @@ private:
 	/// If bremsstrahlung merging, whether to also add the unmerged collection to the event or not.
 	const bool createUnmergedCollection_;
 	const bool createMergedCollection_;
+	/// Whether or not to create a separate collection for just the initial interaction vertices
+	const bool createInitialVertexCollection_;
 	/// Whether or not to add the full parentage of any TrackingParticle that is inserted in the collection.
 	const bool addAncestors_;
 
@@ -130,6 +139,7 @@ public:
 private:
 	OutputCollections unmergedOutput_;
 	OutputCollections mergedOutput_;
+	std::auto_ptr<TrackingVertexCollection> pInitialVertices_;
 };
 
 #endif // end of "#ifndef TrackingAnalysis_TrackingTruthAccumulator_h"
