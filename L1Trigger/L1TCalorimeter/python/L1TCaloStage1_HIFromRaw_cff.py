@@ -11,6 +11,7 @@ RCTConfigProducers.eMinForFGCut = cms.double(999)
 
 from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 caloStage1Params.jetSeedThreshold = cms.double(0.)
+caloStage1Params.regionPUSType = cms.string("zeroWall")
 
 from Configuration.StandardSequences.RawToDigi_Repacked_cff import ecalDigis, hcalDigis
 
