@@ -26,7 +26,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_Run2_Test02')),
                                                             cms.PSet(record = cms.string('PGeometricDetExtraRcd'),tag = cms.string('TKExtra_Geometry_Run2_Test02')),
-                                                            cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TK_Parameters_Run2_Test02'))
+                                                            cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TKParameters_Geometry_Run2_Test02'))
                                                             )
                                           )
 

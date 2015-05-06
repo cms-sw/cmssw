@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <memory>
@@ -82,7 +82,7 @@ void ClusterMCsplitStrips::
 produce(edm::Event& event, const edm::EventSetup& evSetup)  {
 
   //Retrieve tracker topology from geometry
-  evSetup.get<IdealGeometryRecord>().get(tTopoHandle_);
+  evSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
 
   std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
   output->reserve(10000,4*10000);
