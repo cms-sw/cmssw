@@ -4,8 +4,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
+#include "CondTools/SiStrip/interface/SiStripDepCondObjBuilderBase.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include <string>
 
 /**
@@ -19,17 +20,17 @@
  * for the first layers of TIB and TOB.
  */
 
-class SiStripLorentzAngleGenerator : public SiStripCondObjBuilderBase<SiStripLorentzAngle> {
+class SiStripLorentzAngleGenerator : public SiStripDepCondObjBuilderBase<SiStripLorentzAngle,TrackerTopology> {
  public:
 
   explicit SiStripLorentzAngleGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripLorentzAngleGenerator();
   
-  void getObj(SiStripLorentzAngle* & obj){obj=createObject();}
+  void getObj(SiStripLorentzAngle* & obj, const TrackerTopology* tTopo){obj=createObject(tTopo);}
 
  private:
 
-  SiStripLorentzAngle* createObject();
+  SiStripLorentzAngle* createObject(const TrackerTopology* tTopo);
   float hallMobility_;
   /**
    * This method fills the hallMobility_ variable with different values according to the parameters passed in the cfg. <br>
