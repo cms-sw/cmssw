@@ -80,6 +80,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( DTLVStatus )
       IMPORT_PAYLOAD_CASE( DTMtime )
       IMPORT_PAYLOAD_CASE( DTReadOutMapping )
+      IMPORT_PAYLOAD_CASE( DTRecoConditions )
       IMPORT_PAYLOAD_CASE( DTRecoUncertainties )
       IMPORT_PAYLOAD_CASE( DTStatusFlag )
       IMPORT_PAYLOAD_CASE( DTT0 )
