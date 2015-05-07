@@ -96,8 +96,8 @@ void MuonGEMDigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore
     TProfile* profile_sh = ComputeEff( hist, sh_hist );
     profile_sh->SetName( (profile->GetName()+std::string("_sh")).c_str());
     TString x_axis_title = TString(hist->GetXaxis()->GetTitle());
-    TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;%s;Eff.",suffix.Data(),x_axis_title.Data());
-    TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;%s;Eff.",suffix.Data(),x_axis_title.Data() );
+    TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM digi in %s;%s;Eff.",suffix.Data(),x_axis_title.Data());
+    TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM digi in %s with a matched SimHit;%s;Eff.",suffix.Data(),x_axis_title.Data() );
     profile->SetTitle( title.Data());
     profile_sh->SetTitle( title2.Data() );
     ibooker.bookProfile( profile->GetName(),profile); 
@@ -155,6 +155,7 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
         else std::cout<<"Can not found eta histogram : "<<eta_label<<std::endl;
         ProcessBooking( ibooker, ig, "dg_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
         ProcessBooking( ibooker, ig, "pad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
+        ProcessBooking( ibooker, ig, "copad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
         for ( int k= 0 ; k< 3 ; k++) {
           suffix = TString( s_suffix[i])+TString( l_suffix[j]) +TString(c_suffix[k]);
           TString phi_label = TString(dbe_path_)+"dg_sh_phi"+suffix;
@@ -163,8 +164,9 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
            sh_phi[i][j][k]->Sumw2();
           }
           else { std::cout<<"Can not found phi plots : "<<phi_label<<std::endl; continue; }
-          ProcessBooking( ibooker, ig, "dg_phi",suffix, gem_trk_phi[i][k], sh_phi[i][j][k]);
+          ProcessBooking( ibooker, ig, "dg_phi",suffix, gem_trk_phi[i][k], sh_phi[i][j][k]);      
           ProcessBooking( ibooker, ig, "pad_phi",suffix,gem_trk_phi[i][k], sh_phi[i][j][k]);
+          ProcessBooking( ibooker, ig, "copad_phi",suffix,gem_trk_phi[i][k], sh_phi[i][j][k]);
         }
       }
     }

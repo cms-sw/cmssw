@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
@@ -97,11 +98,11 @@ private:
 
   void matchDigisToSimTrack(const GEMDigiCollection& digis);
   void matchPadsToSimTrack(const GEMPadDigiCollection& pads);
-  void matchCoPadsToSimTrack(const GEMPadDigiCollection& co_pads);
+  void matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads);
 
   edm::Handle<GEMDigiCollection> gem_digis_;
   edm::Handle<GEMPadDigiCollection> gem_pads_;
-  edm::Handle<GEMPadDigiCollection> gem_co_pads_;
+  edm::Handle<GEMCoPadDigiCollection> gem_co_pads_;
 
   const SimHitMatcher& simhit_matcher_;
   const GEMGeometry& gem_geo_;

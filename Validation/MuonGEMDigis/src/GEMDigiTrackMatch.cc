@@ -16,7 +16,7 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatc
 
   gem_digiToken_ = consumes<GEMDigiCollection>(ps.getParameter<edm::InputTag>("gemDigiInput"));
   gem_padToken_  = consumes<GEMPadDigiCollection>(ps.getParameter<edm::InputTag>("gemPadDigiInput"));
-  gem_copadToken_ = consumes<GEMPadDigiCollection>(ps.getParameter<edm::InputTag>("gemCoPadDigiInput")); 
+  gem_copadToken_ = consumes<GEMCoPadDigiCollection>(ps.getParameter<edm::InputTag>("gemCoPadDigiInput")); 
 
   cfg_ = ps;
 }
@@ -60,6 +60,10 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
          string pad_eta_title = pad_eta_name+"; tracks |#eta|; # of tracks";
          pad_eta[i][j] = ibooker.book1D( pad_eta_name.c_str(), pad_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
+         string copad_eta_name = string("copad_eta")+suffix;
+         string copad_eta_title = copad_eta_name+"; tracks |#eta|; # of tracks";
+         copad_eta[i][j] = ibooker.book1D( copad_eta_name.c_str(), copad_eta_title.c_str(), 140, minEta_, maxEta_) ;
+
          for ( unsigned int k = 0 ; k<3 ; k++) {
           suffix = string(s_suffix[j])+string(l_suffix[i])+ string(c_suffix[k]);
           string dg_phi_name = string("dg_phi")+suffix;
@@ -73,6 +77,11 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
           string pad_phi_name = string("pad_phi")+suffix;
           string pad_phi_title = pad_phi_name+"; tracks #phi; # of tracks";
           pad_phi[i][j][k] = ibooker.book1D( (pad_phi_name).c_str(), pad_phi_title.c_str(), 200, -PI,PI) ;
+
+          string copad_phi_name = string("copad_phi")+suffix;
+          string copad_phi_title = copad_phi_name+"; tracks #phi; # of tracks";
+          copad_phi[i][j][k] = ibooker.book1D( (copad_phi_name).c_str(), copad_phi_title.c_str(), 200, -PI,PI) ;
+
          }
       }
    }
@@ -158,12 +167,14 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
     FillWithTrigger( dg_eta,    track_.gem_dg  , fabs( track_.eta) );
     FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
+    FillWithTrigger( copad_eta,   track_.gem_pad , fabs( track_.eta) );
   
     // Separate station.
 
     FillWithTrigger( dg_sh_phi, track_.gem_sh  ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
     FillWithTrigger( dg_phi,    track_.gem_dg  ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
     FillWithTrigger( pad_phi,   track_.gem_pad ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
+    FillWithTrigger( copad_phi,   track_.gem_pad ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
   
    
     /*  

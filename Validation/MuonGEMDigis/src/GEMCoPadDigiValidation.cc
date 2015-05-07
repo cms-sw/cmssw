@@ -82,11 +82,12 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
 
     GEMDetId id = (*cItr).first;
     if ( id.roll() ==0 ) {
+      edm::LogError("GEMCoPadDigiValidation")<< "Can not get roll number from copad collection. Use dummpy roll number.";
       id = GEMDetId(id.region(), id.ring(), id.station(), id.layer(), id.chamber(), 4);  // use dummy eta partition.
     }
     const GeomDet* gdet = GEMGeometry_->idToDet(id);
     if ( gdet == nullptr) { 
-      edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry.";
+      edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry between GEN and DIGI.";
       continue; 
     }
     const BoundPlane & surface = gdet->surface();

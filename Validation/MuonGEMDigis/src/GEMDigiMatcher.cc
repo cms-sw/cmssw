@@ -2,6 +2,7 @@
 #include "Validation/MuonGEMHits/interface/SimHitMatcher.h"
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace matching;
@@ -21,8 +22,9 @@ GEMDigiMatcher::GEMDigiMatcher(const SimHitMatcher& sh, const edm::Event& e, con
   e.getByToken(gem_copadToken, gem_co_pads_);
   if ( !gem_digis_.isValid() || !gem_pads_.isValid() ) return ;
   // CoPad can be missing when we use only digi data.
-  if ( !gem_co_pads_.isValid() ) { gem_co_pads_ = gem_pads_; }
-
+  if ( !gem_co_pads_.isValid() )  { 
+    edm::LogError("GEMDigiMatcher")<<"Copad is missing from collections.Pass copad.";
+  }
   init(e);
 }
 
@@ -34,7 +36,7 @@ GEMDigiMatcher::init(const edm::Event& e)
 {
   matchDigisToSimTrack(*gem_digis_.product());
   matchPadsToSimTrack(*gem_pads_.product());
-  matchCoPadsToSimTrack(*gem_co_pads_.product()); 
+  if ( gem_co_pads_.isValid())  matchCoPadsToSimTrack(*gem_co_pads_.product()); 
 }
 
 
@@ -117,7 +119,7 @@ GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads)
 
 
 void
-GEMDigiMatcher::matchCoPadsToSimTrack(const GEMPadDigiCollection& co_pads)
+GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads)
 {
   auto det_ids = simhit_matcher_.detIdsGEMCoincidences();
   for (auto id: det_ids)
@@ -131,11 +133,14 @@ GEMDigiMatcher::matchCoPadsToSimTrack(const GEMPadDigiCollection& co_pads)
     for (auto pad = co_pads_in_det.first; pad != co_pads_in_det.second; ++pad)
     {
       // check that the pad BX is within the range
-      if (pad->bx() < minBXGEM_ || pad->bx() > maxBXGEM_) continue;
+      if (pad->bx(1) < minBXGEM_ || pad->bx(1) > maxBXGEM_) continue;
+      if (pad->bx(2) < minBXGEM_ || pad->bx(2) > maxBXGEM_) continue;
       // check that it matches a coincidence pad that was hit by SimHits from our track
-      if (hit_co_pads.find(pad->pad()) == hit_co_pads.end()) continue;
+      if (hit_co_pads.find(pad->pad(1)) == hit_co_pads.end()) continue;
+      if (hit_co_pads.find(pad->pad(2)) == hit_co_pads.end()) continue;
 
-      auto mydigi = make_digi(id, pad->pad(), pad->bx(), GEM_COPAD);
+      auto mydigi = make_digi(id, pad->pad(1), pad->bx(1), GEM_COPAD);
+      //auto mydigi = make_digi(id, pad->pad(2), pad->bx(2), GEM_COPAD);  // FIXIT : Solve duplicate problem.
       detid_to_copads_[id].push_back(mydigi);
       superchamber_to_copads_[ superch_id() ].push_back(mydigi);
     }
