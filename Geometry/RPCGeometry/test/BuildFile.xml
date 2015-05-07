@@ -14,5 +14,4 @@
 </library>
 <library   file="RPCCSC.cc" name="testGeometryRPCCSC">
   <use name="Geometry/CSCGeometry"/>
-  <use nname="DataFormats/MuonDetId"/>
 </library>
