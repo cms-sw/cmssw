@@ -9,9 +9,8 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.HLTPaths = ['pathALCARECOTkAlMinBias']
 ALCARECOTkAlMinBiasFilterForSiPixelAli.throw = True ## dont throw on unknown path names
 ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
 
-# Adding geometry here, since this was also added to the process in the
-# original alignment_BASE.py that was the configuration template used for mille
-from Configuration.Geometry.GeometryIdeal_cff import *
+
+
 
 # Ingredient: offlineBeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
