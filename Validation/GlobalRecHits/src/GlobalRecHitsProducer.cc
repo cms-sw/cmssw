@@ -900,6 +900,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   if (!pDD.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerDigiGeometry in event!";
+    associate.clearEvent();
     return;
   }
   const TrackerGeometry &tracker(*pDD);
@@ -1131,6 +1132,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   if (!recHitColl.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find SiPixelRecHitCollection in event!";
+    associate.clearEvent();
     return;
   }  
   
@@ -1140,6 +1142,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   if (!geom.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerDigiGeometry in event!";
+    associate.clearEvent();
     return;
   }
   //const TrackerGeometry& theTracker(*geom);
@@ -1284,6 +1287,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
+  associate.clearEvent();
   return;
 }
 

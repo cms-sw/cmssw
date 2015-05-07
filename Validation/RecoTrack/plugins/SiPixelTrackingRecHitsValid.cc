@@ -1767,5 +1767,5 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	} // tracks > 0.
       
     } //end of MTCCTrack
-
+    trackerHitAssociator_.clearEvent();
 }

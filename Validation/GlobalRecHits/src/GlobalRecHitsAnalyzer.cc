@@ -921,6 +921,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   if (!pDD.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerDigiGeometry in event!";
+    associate.clearEvent();
     return;
   }
   const TrackerGeometry &tracker(*pDD);
@@ -1138,6 +1139,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   if (!geom.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerDigiGeometry in event!";
+    associate.clearEvent();
     return;
   }
 
@@ -1276,6 +1278,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   
+  associate.clearEvent();
   return;
 }
 
