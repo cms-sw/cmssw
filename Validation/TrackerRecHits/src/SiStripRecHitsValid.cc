@@ -410,6 +410,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   fillME(totalMEs.meNumTotStereo,totrechitstereo);
   fillME(totalMEs.meNumTotMatched,totrechitmatched);
  
+  associate.clearEvent();
 }
 
   

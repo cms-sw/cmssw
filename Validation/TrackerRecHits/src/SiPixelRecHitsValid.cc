@@ -384,6 +384,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    }
 	} // <-----end rechit loop 
     } // <------ end detunit loop
+  trackerHitAssociator_->clearEvent();
 }
 
 void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit& simHit, 

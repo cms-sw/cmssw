@@ -948,6 +948,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
   }
   //cout<<"DebugLine303"<<endl;
 
+  associate.clearEvent();
 }
 
 
