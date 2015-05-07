@@ -5,12 +5,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools import *
 
 #
-# !!!!! THE CUT VALUES HERE ARE SAME AS FOR V1, THIS FILE NEEDS UPDATING !!!!!
-#
-
-
-#
-# This is the first version of PHYS14 cuts, optimized on  PHYS14 samples. 
+# These are PHYS14 cuts, optimized on  PHYS14 samples. 
 #
 # The ID cuts below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
 # The cut values are taken from the twiki:
@@ -145,8 +140,8 @@ cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             '7acf1fe25e8b19e20fc0cf2aa8d4da58')
+                             '7966079d9056553038f40e6325d7b259')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             'b5a3294b7bdf9e64545975ebfe716398')
+                             'c4d9f497f0b7541435d2cebc1aae7d9e')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             '5230643edc7f21b8431309bb7d4ee333')
+                             'cf8b12d7950a88a4702690bf2251aa8e')
