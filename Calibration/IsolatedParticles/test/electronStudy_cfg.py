@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ANAL")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryIdeal2015_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Calibration.IsolatedParticles.electronStudy_cfi")

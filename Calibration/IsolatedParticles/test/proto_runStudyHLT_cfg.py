@@ -3,11 +3,11 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 process = cms.Process("Demo")
 
-process.load("RecoLocalCalo/EcalRecAlgos/EcalSeverityLevelESProducer_cfi")
+process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.IsolatedParticles.studyHLT_cfi")
-process.load('Configuration/Geometry/GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff')
+process.load('Configuration.Geometry.GeometryIdeal2015_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 

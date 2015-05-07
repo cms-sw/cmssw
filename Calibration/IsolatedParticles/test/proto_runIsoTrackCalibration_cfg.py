@@ -3,9 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("IsoTrackCalibration")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
+process.load('Configuration.Geometry.GeometryIdeal2015_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 

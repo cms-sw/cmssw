@@ -62,11 +62,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryIdeal2015_cff")
 process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-#from Configuration.AlCa.autoCond_condDBv2 import autoCond
-#process.GlobalTag.globaltag=autoCond['run2_mc']
-process.GlobalTag.globaltag = 'START53_V15::All'
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag=autoCond['run2_mc']
+#process.GlobalTag.globaltag = 'START53_V15::All'
 
 process.load('Calibration.HcalCalibAlgos.isoAnalyzer_cfi')
 process.HcalIsoTrkAnalyzer.ProcessName  = 'HLTNew1'

@@ -62,11 +62,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.GlobalTag.globaltag = 'START53_V15::All'
-
+process.load('Configuration.StandardSequences.GeometryIdeal2015_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag=autoCond['run2_mc']
 
 process.load('Calibration.HcalCalibAlgos.isoAnalyzer_cfi')
 process.source = cms.Source("PoolSource", 
