@@ -237,7 +237,7 @@ void HLTWorkspace::bookPlots()
   //link all paths and filters needed
   quickCollectionPaths.push_back("HLT_Photon30_R9Id90_HE10_IsoM");
   lookupFilter["HLT_Photon30_R9Id90_HE10_IsoM"] = "hltEG30R9Id90HE10IsoMTrackIsoFilter";
-
+  
   quickCollectionPaths.push_back("HLT_IsoMu27");
   lookupFilter["HLT_IsoMu27"] = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09";
 
@@ -267,6 +267,15 @@ void HLTWorkspace::bookPlots()
 
   quickCollectionPaths.push_back("HLT_HT650_DisplacedDijet80_Inclusive");
   lookupFilter["HLT_HT650_DisplacedDijet80_Inclusive"] = "hltHT650";
+
+  quickCollectionPaths.push_back("HLT_PFMET120_NoiseCleaned_BTagCSV07");
+  lookupFilter["HLT_PFMET120_NoiseCleaned_BTagCSV07"] = "hltPFMET120Filter";
+
+  quickCollectionPaths.push_back(" HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500");
+  lookupFilter[" HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"] = "hltCSVPF0p7";
+
+  // quickCollectionPaths.push_back("");
+  // lookupFilter[""] = "";
   
   ////////////////////////////////
   ///
@@ -375,6 +384,14 @@ void HLTWorkspace::bookPlots()
   hist_PFMetPhi->SetMinimum(0);
   dbe->book1D("PFMET_phi",hist_PFMetPhi);
 
+  //bJet phi
+  TH1F * hist_bJetPhi = new TH1F("bJet_phi","b-Jet phi",50,-3.4,3.4);
+  hist_bJetPhi->SetMinimum(0);
+  dbe->book1D("bJet_phi",hist_bJetPhi);
+  //bJet eta
+  TH1F * hist_bJetEta = new TH1F("bJet_eta","b-Jet eta",50,0,3);
+  hist_bJetEta->SetMinimum(0);
+  dbe->book1D("bJet_eta",hist_bJetEta);
 
 }
 
@@ -562,16 +579,30 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	}
     }
 
- //CSV
-  // else if (pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq240" || pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07")
-  //   {
-  //     string fullPathBjetCsv = mainShifterFolder+"";
-  //     //ME;
-  //     //      TH1F*;
-  //     double csvTag = lookupCsv[trgObj.pt()];
-  //     hist->Fill(csvTag);
-  //   }
+  // bjet eta + phi
+  else if (pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07" || pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500")
+    {
+      // eta
+      string fullPathBjetEta = backupFolder+"/bJet_eta";
+      MonitorElement * ME_bJetEta = dbe->get(fullPathBjetEta);
+      TH1F * hist_bJetEta = ME_bJetEta->getTH1F();
+      // phi
+      string fullPathBjetPhi = backupFolder+"/bJet_phi";
+      MonitorElement * ME_bJetPhi = dbe->get(fullPathBjetPhi);
+      TH1F * hist_bJetPhi = ME_bJetPhi->getTH1F();
 
+      for (const auto & key : keys)
+	{
+	  TLorentzVector jet;
+	  jet.SetPxPyPzE(objects[key].px(), objects[key].py(), objects[key].pz(), objects[key].energy());
+	  hist_bJetEta->Fill(objects[key].eta());
+	  std::cout << pathName << std::endl;
+	  std::cout << jet.Eta() << std::endl;
+
+	  hist_bJetPhi->Fill(objects[key].phi());
+	}
+    }
+  
   ////////////////////////////////
   ///
   /// double-object plots
