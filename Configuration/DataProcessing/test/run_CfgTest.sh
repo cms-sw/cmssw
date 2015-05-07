@@ -22,7 +22,7 @@ do
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "hcalnzsRun2")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"

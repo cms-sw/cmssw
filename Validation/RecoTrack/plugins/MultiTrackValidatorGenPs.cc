@@ -48,14 +48,20 @@ MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset
 					 pset.getParameter<std::vector<int> >("pdgIdGP"));
 
   if(UseAssociators) {
-    for(auto const& name: associators) {
-      if( name == kTrackAssociatorByChi2) {
-        label_gen_associator = consumes<reco::TrackToGenParticleAssociator>(edm::InputTag(name));
+    for(auto const& src: associators) {
+      if( src.label() == kTrackAssociatorByChi2) {
+        label_gen_associator = consumes<reco::TrackToGenParticleAssociator>(src);
         break;
       }
     }
   }
-
+  else {
+    for (auto const& src: associators) {
+      associatormapGtR = consumes<reco::GenToRecoCollection>(src);
+      associatormapRtG = consumes<reco::RecoToGenCollection>(src);
+      break;
+    }
+  }
 }
 
 MultiTrackValidatorGenPs::~MultiTrackValidatorGenPs(){}
@@ -100,13 +106,20 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
   }
 
   const reco::TrackToGenParticleAssociator* trackGenAssociator =nullptr;
-  if(UseAssociators and not label_gen_associator.isUninitialized()) {
+  if(UseAssociators) {
+    if(label_gen_associator.isUninitialized()) {
+      return;
+    }
+    else {
       edm::Handle<reco::TrackToGenParticleAssociator> trackGenAssociatorH;
       event.getByToken(label_gen_associator,trackGenAssociatorH);
       trackGenAssociator = trackGenAssociatorH.product();
+    }
+  }
+  else if(associatormapGtR.isUninitialized()) {
+    return;
   }
 
-  if ( not trackGenAssociator) { return ; }
 
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int www=0;www<label.size();www++){
@@ -141,16 +154,14 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
                                          << label[www].process()<<":"
                                          << label[www].label()<<":"
                                          << label[www].instance()<<" with "
-                                         << assMapInput.process()<<":"
-                                         << assMapInput.label()<<":"
-                                         << assMapInput.instance()<<"\n";
+                                         << associators[0] << "\n";
       
       Handle<reco::GenToRecoCollection > gentorecoCollectionH;
-      event.getByToken(associatormapStR,gentorecoCollectionH);
+      event.getByToken(associatormapGtR,gentorecoCollectionH);
       genRecColl= *(gentorecoCollectionH.product()); 
       
       Handle<reco::RecoToGenCollection > recotogenCollectionH;
-      event.getByToken(associatormapRtS,recotogenCollectionH);
+      event.getByToken(associatormapRtG,recotogenCollectionH);
       recGenColl= *(recotogenCollectionH.product()); 
     }
 

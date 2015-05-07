@@ -34,6 +34,7 @@ bool cond::TagCollectionRetriever::existsTagDatabase(){
   return m_coraldb.nominalSchema().existsTable(cond::tagInventoryTable);
 }
 
+#include <iostream>
 bool cond::TagCollectionRetriever::existsTagCollection( const std::string& globaltag ){
   if(!existsTagDatabase()){
     throw cond::nonExistentGlobalTagInventoryException("TagCollectionRetriever::selectTagCollection");

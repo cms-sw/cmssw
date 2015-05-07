@@ -15,7 +15,10 @@ MaterialEffectsBlock = cms.PSet(
         Density = cms.double(2.329),
 	# One radiation length in cm
         RadiationLength = cms.double(9.36),
-
+        # upper energy limit for the Bertini cascade 
+        EkinBertiniGeV = cms.double(3.5),
+        # Kinetic energy threshold for secondaries 
+        EkinLimitGeV = cms.double(0.1),
 	# General switches
 	# Enable photon pair conversion 
         PairProduction = cms.bool(True),

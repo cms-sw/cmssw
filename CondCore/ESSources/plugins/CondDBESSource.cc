@@ -17,6 +17,7 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/Types.h"
+#include "CondCore/CondDB/interface/Utils.h"
 
 #include "CondCore/ESSources/interface/ProxyFactory.h"
 #include "CondCore/ESSources/interface/DataProxy.h"
@@ -120,20 +121,25 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 
   Stats s = {0,0,0,0,0,0,0,0};
   m_stats = s;	
-  /*parameter set parsing and pool environment setting
-   */
-  
-  // default connection string
-  // inproduction used for the global tag
-  m_connectionString= iConfig.getParameter<std::string>("connect");
-  
+
+  /*parameter set parsing
+   */  
+  std::string globaltag("");
+  if( iConfig.exists( "globaltag" ) ) {
+    globaltag = iConfig.getParameter<std::string>( "globaltag" );
+   // the global tag _requires_ a connection string
+   m_connectionString= iConfig.getParameter<std::string>("connect");
+  } else if( iConfig.exists("connect") ) // default connection string
+    m_connectionString= iConfig.getParameter<std::string>("connect");
 
   // connection configuration
-  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>( "DBParameters" );
-  m_connection.setParameters( connectionPset );
+  if( iConfig.exists("DBParameters") ) {
+    edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>( "DBParameters" );
+    m_connection.setParameters( connectionPset );
+  }
   m_connection.configure();
   
-  // load additional record/tag info it will overwrite the global tag
+  // load specific record/tag info - it will overwrite the global tag ( if any )
   std::map<std::string,cond::GTEntry_t> replacements;
   if( iConfig.exists( "toGet" ) ) {
     typedef std::vector< edm::ParameterSet > Parameters;
@@ -142,10 +148,11 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       std::string recordname = itToGet->getParameter<std::string>( "record" );
       std::string labelname = itToGet->getUntrackedParameter<std::string>( "label", "" );
       std::string tag = itToGet->getParameter<std::string>( "tag" );
-      std::string pfn = itToGet->getUntrackedParameter<std::string>( "connect", m_connectionString );
+      std::string pfn("");
+      if( m_connectionString.empty() || itToGet->exists("connect") ) pfn = itToGet->getParameter<std::string>( "connect" );
       std::string recordLabelKey = joinRecordAndLabel( recordname, labelname );
-      std::string fullyQualifiedTag = tag+"@["+pfn+"]";
-      replacements.insert( std::make_pair( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fullyQualifiedTag )  ) ) );
+      std::string fqTag = cond::persistency::fullyQualifiedTag(tag,pfn);
+      replacements.insert( std::make_pair( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fqTag )  ) ) );
     }
   }
   
@@ -154,10 +161,9 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   std::vector<std::string> connectList;
   std::vector<std::string> pfnPrefixList;
   std::vector<std::string> pfnPostfixList;
-  if( iConfig.exists( "globaltag" ) ) {
+  if( !globaltag.empty() ) {
     std::string pfnPrefix(iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ));
     std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ));
-    std::string globaltag(iConfig.getParameter<std::string>( "globaltag" ));
     boost::split( globaltagList, globaltag, boost::is_any_of("|"), boost::token_compress_off );
     fillList(m_connectionString, connectList, globaltagList.size(), "connection");
     fillList(pfnPrefix, pfnPrefixList, globaltagList.size(), "pfnPrefix");
@@ -205,6 +211,12 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     std::map<std::string, cond::persistency::Session>::iterator p = sessions.find( connStr );
     cond::persistency::Session nsess;
     if (p == sessions.end()) {
+      std::string oracleConnStr = cond::persistency::convertoToOracleConnection( connStr );
+      std::tuple<std::string,std::string,std::string> connPars = cond::persistency::parseConnectionString( oracleConnStr );
+      std::string dbService = std::get<1>( connPars );
+      std::string dbAccount = std::get<2>( connPars );
+      if( (dbService == "cms_orcon_prod" || dbService == "cms_orcon_adg") && dbAccount != "CMS_CONDITIONS" )
+	edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are reading tag \""<<tag<<"\" from V1 account \""<<connStr<<"\". The concerned Conditions might be out of date."<<std::endl;
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createReadOnlySession( connStr, "" );
       sessions.insert(std::make_pair( connStr, nsess));
@@ -535,6 +547,12 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
   if ( !roottag.empty() ) {
     if ( connectionString.empty() )
       throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
+    std::tuple<std::string,std::string,std::string> connPars = cond::persistency::parseConnectionString( connectionString );
+    if( std::get<2>( connPars ) == "CMS_COND_31X_GLOBALTAG" ){
+      edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are reading Global Tag \""<<roottag<<"\" from V1 account \"CMS_COND_31X_GLOBALTAG\". The concerned Conditions might be out of date."<<std::endl;
+    } else if( roottag.rfind("::All")!=std::string::npos && std::get<2>( connPars ) == "CMS_CONDITIONS" ){
+      edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are trying to read Global Tag \""<<roottag<<"\" - postfix \"::All\" should not be used for V2."<<std::endl;      
+    }
     cond::persistency::Session session = m_connection.createSession( connectionString );
     session.transaction().start( true );
     cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix ); 

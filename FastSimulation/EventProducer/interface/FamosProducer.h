@@ -3,9 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" // future obsolete
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"    // obsolete
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 class FamosManager;
 class ParameterSet;
@@ -32,18 +30,11 @@ class FamosProducer : public edm::stream::EDProducer <>
   HepMC::GenEvent * evt_;
   bool simulateMuons;
 
-  // labels
-  edm::InputTag sourceLabel; // FUTURE OBSOLETE
-  edm::InputTag genParticleLabel;
   
-  // tokens
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
-  // FUTURE OBSOLETE CODE
+  // token for hepmc from signal event
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
+  // token for hepmc from pu
   edm::EDGetTokenT<edm::HepMCProduct> puToken;
-  // OBSOLETE CODE
-  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > mixSourceToken;
-  edm::EDGetTokenT<reco::GenParticleCollection> mixGenParticleToken;
 };
 
 #endif

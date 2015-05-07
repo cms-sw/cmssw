@@ -94,7 +94,6 @@ class HLTProcessOptions(object):
     self.events     = 100         # (*) run on these many events
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
-    self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim
     self.hilton     = False       #     prepare a configuration for running with hilton-like modules
 
 
@@ -109,11 +108,6 @@ class HLTProcessOptions(object):
     elif name is 'l1Xml' and type(value) is not ConnectionL1TMenuXml:
       # format '--l1Xml' as needed
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
-    elif name is 'fastsim' and value:
-      # '--fastsim' implies '--fragment' and '--mc'
-      object.__setattr__(self, 'fastsim',   True)
-      object.__setattr__(self, 'fragment',  True)
-      object.__setattr__(self, 'data',      False)
     elif name is 'open' and value:
       # '--open' implies '--unprescale'
       object.__setattr__(self, 'open',      True)

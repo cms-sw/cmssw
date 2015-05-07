@@ -122,6 +122,9 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     int LSNo=-99;    // set to indicate first pass of analyze method
     int LNNo=-99;    // set to indicate first pass of analyze method
     int eventNo=-99; // set to indicate first pass of analyze method
+    int bxNo=-99;    // local variable only
+    
+    std::pair<int,int> bxModKey;    // local variable only
    
     int eventCounter=0;
     int totalEvents;
@@ -129,8 +132,8 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     bool includeVertexInformation, includePixels;
     int nVtx, nTrk, ndof;
     std::map<int,int> nGoodVtx;
-    std::map<int,int> nPixelClusters;
-    std::map<int,int> nClusters;
+    std::map<std::pair<int,int>,int> nPixelClusters;
+    std::map<std::pair<int,int>,int> nClusters;
     std::map<int,int> layers;
 
     TH1F* pileup;
