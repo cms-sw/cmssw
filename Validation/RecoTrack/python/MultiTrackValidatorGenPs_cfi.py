@@ -32,11 +32,7 @@ multiTrackValidatorGenPs = cms.EDAnalyzer(
 
     
     ### matching configuration ###
-    associatormap = cms.InputTag("trackingParticleRecoTrackAsssociation"),
-    #associatormap = cms.InputTag("assoc2secStepTk"),
-    #associatormap = cms.InputTag("assoc2thStepTk"),
-    #associatormap = cms.InputTag("assoc2GsfTracks"),
-    associators = cms.vstring('TrackAssociatorByChi2'),    
+    associators = cms.untracked.VInputTag("TrackAssociatorByChi2"),
     UseAssociators = cms.bool(True), # if False, the TP-RecoTrack maps has to be specified 
 
     ### sim input configuration ###

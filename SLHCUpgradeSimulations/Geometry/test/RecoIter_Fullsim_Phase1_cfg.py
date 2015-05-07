@@ -208,7 +208,7 @@ process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksFourthHpUpg")
                                            )
 #process.trackValidator.associators = ['trackAssociatorByHits']
-process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
+process.trackValidator.associators = ['quickTrackAssociatorByHits']
 process.trackValidator.UseAssociators = True
 ## options to match with 363 histos for comparison
 process.trackValidator.histoProducerAlgoBlock.nintEta = cms.int32(20)

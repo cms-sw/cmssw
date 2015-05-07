@@ -7,6 +7,7 @@ _emEnergyCorrector = cms.PSet(
     algoName = cms.string("PFClusterEMEnergyCorrector"),
     applyCrackCorrections = cms.bool(False),
     applyMVACorrections = cms.bool(True),
+    maxPtForMVAEvaluation = cms.double(90.),
     recHitsEBLabel = cms.InputTag('ecalRecHit', 'EcalRecHitsEB'),
     recHitsEELabel = cms.InputTag('ecalRecHit', 'EcalRecHitsEE'),
     autoDetectBunchSpacing = cms.bool(True),

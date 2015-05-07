@@ -63,7 +63,7 @@ namespace evf{
 	  uint32_t nibble;
 	  uint32_t lumiSection;
 	  uint16_t nibblesPerLumiSection;
-	  uint16_t reserved4;
+	  uint16_t triggerTypeFlags;
 	  uint16_t reserved5;
 	  uint16_t inputs;
 	  uint16_t bcid;

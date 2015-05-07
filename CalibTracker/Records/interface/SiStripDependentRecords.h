@@ -27,11 +27,15 @@ class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<
 
 class SiStripDelayRcd : public edm::eventsetup::DependentRecordImplementation<SiStripDelayRcd, boost::mpl::vector<SiStripBaseDelayRcd> > {};
 
-class SiStripLorentzAngleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripLorentzAngleRcd> > {};
+class SiStripLorentzAngleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripLorentzAngleRcd,IdealGeometryRecord> > {};
 
-class SiStripBackPlaneCorrectionDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripBackPlaneCorrectionRcd> > {};
+class SiStripBackPlaneCorrectionDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripBackPlaneCorrectionRcd,IdealGeometryRecord> > {};
 
 class SiStripHashedDetIdRcd : public edm::eventsetup::DependentRecordImplementation<SiStripHashedDetIdRcd, boost::mpl::vector<TrackerDigiGeometryRecord> > {};
+
+class SiStripNoisesDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesDepRcd, boost::mpl::vector<SiStripNoisesRcd,IdealGeometryRecord> > {};
+
+class SiStripBadModuleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleDepRcd, boost::mpl::vector<SiStripBadModuleRcd,IdealGeometryRecord> > {};
 
 #endif 
 

@@ -282,30 +282,30 @@ tpPlotter = Plotter([
 
 _tracks_map = {
     '': { # all tracks
-        'ootb':  'general_trackAssociatorByHitsRecoDenom',
-        'iter0': 'cutsRecoZero_trackAssociatorByHitsRecoDenom',
-        'iter1': 'cutsRecoFirst_trackAssociatorByHitsRecoDenom',
-        'iter2': 'cutsRecoSecond_trackAssociatorByHitsRecoDenom',
-        'iter3': 'cutsRecoThird_trackAssociatorByHitsRecoDenom',
-        'iter4': 'cutsRecoFourth_trackAssociatorByHitsRecoDenom',
-        'iter5': 'cutsRecoFifth_trackAssociatorByHitsRecoDenom',
-        'iter6': 'cutsRecoSixth_trackAssociatorByHitsRecoDenom',
-        'iter7': 'cutsRecoSeventh_trackAssociatorByHitsRecoDenom',
-        'iter9': 'cutsRecoNinth_trackAssociatorByHitsRecoDenom',
-        'iter10':'cutsRecoTenth_trackAssociatorByHitsRecoDenom'
+        'ootb'                : 'general_trackingParticleRecoAsssociation',
+        'initialStep'         : 'cutsRecoInitialStep_trackingParticleRecoAsssociation',
+        'lowPtTripletStep'    : 'cutsRecoLowPtTripletStep_trackingParticleRecoAsssociation',
+        'pixelPairStep'       : 'cutsRecoPixelPairStep_trackingParticleRecoAsssociation',
+        'detachedTripletStep' : 'cutsRecoDetachedTripletStep_trackingParticleRecoAsssociation',
+        'mixedTripletStep'    : 'cutsRecoMixedTripletStep_trackingParticleRecoAsssociation',
+        'pixelLessStep'       : 'cutsRecoPixelLessStep_trackingParticleRecoAsssociation',
+        'tobTecStep'          : 'cutsRecoTobTecStep_trackingParticleRecoAsssociation',
+        'jetCoreRegionalStep' : 'cutsRecoJetCoreRegionalStep_trackingParticleRecoAsssociation',
+        'muonSeededStepInOut' : 'cutsRecoMuonSeededStepInOut_trackingParticleRecoAsssociation',
+        'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutIn_trackingParticleRecoAsssociation'
     },
     "highPurity": {
-        'ootb':   'cutsRecoHp_trackAssociatorByHitsRecoDenom',
-        'iter0':  'cutsRecoZeroHp_trackAssociatorByHitsRecoDenom',
-        'iter1':  'cutsRecoFirstHp_trackAssociatorByHitsRecoDenom',
-        'iter2':  'cutsRecoSecondHp_trackAssociatorByHitsRecoDenom',
-        'iter3':  'cutsRecoThirdHp_trackAssociatorByHitsRecoDenom',
-        'iter4':  'cutsRecoFourthHp_trackAssociatorByHitsRecoDenom',
-        'iter5':  'cutsRecoFifthHp_trackAssociatorByHitsRecoDenom',
-        'iter6':  'cutsRecoSixthHp_trackAssociatorByHitsRecoDenom',
-        'iter7':  'cutsRecoSeventhHp_trackAssociatorByHitsRecoDenom',
-        'iter9':  'cutsRecoNinthHp_trackAssociatorByHitsRecoDenom',
-        'iter10': 'cutsRecoTenthHp_trackAssociatorByHitsRecoDenom'
+        'ootb'                : 'cutsRecoHp_trackingParticleRecoAsssociation',
+        'initialStep'         : 'cutsRecoInitialStepHp_trackingParticleRecoAsssociation',
+        'lowPtTripletStep'    : 'cutsRecoLowPtTripletStepHp_trackingParticleRecoAsssociation',
+        'pixelPairStep'       : 'cutsRecoPixelPairStepHp_trackingParticleRecoAsssociation',
+        'detachedTripletStep' : 'cutsRecoDetachedTripletStepHp_trackingParticleRecoAsssociation',
+        'mixedTripletStep'    : 'cutsRecoMixedTripletStepHp_trackingParticleRecoAsssociation',
+        'pixelLessStep'       : 'cutsRecoPixelLessStepHp_trackingParticleRecoAsssociation',
+        'tobTecStep'          : 'cutsRecoTobTecStepHp_trackingParticleRecoAsssociation',
+        'jetCoreRegionalStep' : 'cutsRecoJetCoreRegionalStepHp_trackingParticleRecoAsssociation',
+        'muonSeededStepInOut' : 'cutsRecoMuonSeededStepInOutHp_trackingParticleRecoAsssociation',
+        'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutInHp_trackingParticleRecoAsssociation'
     }
 }
 

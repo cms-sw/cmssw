@@ -33,6 +33,9 @@ def simGeoLoad(score):
     elif score == "Ideal2015dev":
        process.load("Geometry.CMSCommonData.cmsIdealGeometry2015devXML_cfi")
 
+    elif score == "RPC4RE11":
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015XML_RPC4RE11_cfi")
+
     elif score == "2019":
        process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
   
