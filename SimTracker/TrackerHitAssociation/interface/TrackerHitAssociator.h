@@ -97,6 +97,7 @@ class TrackerHitAssociator {
   std::vector<SimHitIdpr> associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit) const;
   
   void processEvent(const edm::Event& theEvent);
+  void clearEvent();
 
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
   simhit_map SimHitMap;
