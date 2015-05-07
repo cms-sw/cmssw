@@ -42,11 +42,9 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 				TString xy_name = TString::Format("pad_dg_xy%s_odd",name_prefix.c_str());
         TString xy_title = TString::Format("Digi XY occupancy %s at odd chambers",label_prefix.c_str());
         theCSCPad_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
-        std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
         xy_name = TString::Format("pad_dg_xy%s_even",name_prefix.c_str());
         xy_title = TString::Format("Digi XY occupancy %s at even chambers",label_prefix.c_str());
         theCSCPad_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
-        std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
       }
     }
   }
@@ -69,7 +67,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
     GEMGeometry_ = &*hGeom;
   }
   catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    edm::LogError("GEMPadDigiValidaation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return;
   }
   edm::Handle<GEMPadDigiCollection> gem_digis;

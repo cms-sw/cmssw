@@ -27,15 +27,8 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
   int nstations = GEMGeometry_->regions()[0]->stations().size(); 
   LogDebug("GEMStripDIGIValidation")<<"nstations set.\n";
   int nstripsGE11  = 384;
-//GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
   int nstripsGE21 = 768;
  
-  /* 
-  if ( nstations > 1 ) {
-    nstripsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
-  }
-  else LogDebug("GEMStripDIGIValidation")<<"Info : Only 1 station is existed.\n";
-  */
   LogDebug("GEMStripDIGIValidation")<<"Successfully binning set.\n";
 
 
@@ -56,11 +49,9 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
         TString xy_name = TString::Format("strip_dg_xy%s_odd",name_prefix.c_str());
         TString xy_title = TString::Format("Digi XY occupancy %s at odd chambers",label_prefix.c_str());
         theStrip_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
-        std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
         xy_name = TString::Format("strip_dg_xy%s_even",name_prefix.c_str());
         xy_title = TString::Format("Digi XY occupancy %s at even chambers",label_prefix.c_str());
         theStrip_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
-        std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
       }
     }
   }
@@ -123,9 +114,6 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("GEMStripDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;  
-      edm::LogInfo("GEMStripDIGIValidation")<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;  
-      edm::LogInfo("GEMStripDIGIValidation")<<"Global bx "<<bx<<std::endl;  
       // fill hist
       int region_num=0 ;
       if ( region ==-1 ) region_num = 0 ;

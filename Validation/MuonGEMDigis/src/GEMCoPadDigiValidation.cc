@@ -12,7 +12,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
     GEMGeometry_ = &*hGeom;
   }
   catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("GEMCoPadDigiValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    edm::LogError("GEMCoPadDigiValidation") << "+++ Error : GEM geometry is unavailable on histogram booking. +++\n";
     return;
   }
 
@@ -44,11 +44,9 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
 			TString xy_name = TString::Format("copad_dg_xy%s_odd",name_prefix.c_str());
       TString xy_title = TString::Format("Digi XY occupancy %s at odd chambers",label_prefix.c_str());
       theCSCCoPad_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
-      std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
       xy_name = TString::Format("copad_dg_xy%s_even",name_prefix.c_str());
       xy_title = TString::Format("Digi XY occupancy %s at even chambers",label_prefix.c_str());
       theCSCCoPad_xy_ch[ xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360,360, 360, -360, 360);
-      std::cout<<xy_name<<"  "<<xy_name.Hash()<<std::endl;
 		}
 	}
 }
@@ -70,26 +68,29 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     GEMGeometry_ = &*hGeom;
   }
   catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    edm::LogError("GEMCoPadDigiValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return;
   }
   edm::Handle<GEMCoPadDigiCollection> gem_digis;
   e.getByToken(InputTagToken_, gem_digis);
   if (!gem_digis.isValid()) {
     edm::LogError("GEMCoPadDigiValidation") << "Cannot get pads by token.";
+    return ;
   }
+
   for (GEMCoPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
     GEMDetId id = (*cItr).first;
 
     const GeomDet* gdet = GEMGeometry_->idToDet(id);
     if ( gdet == nullptr) { 
-      std::cout<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry."<<std::endl;
+      edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry.";
       continue; 
     }
     const BoundPlane & surface = gdet->surface();
+    LogDebug("GEMCoPadDigiValidation")<<" ID : "<<id;
     const GEMEtaPartition * roll = GEMGeometry_->etaPartition(id);
-
+    LogDebug("GEMCoPadDigiValidation")<<" roll's n pad : "<<roll->npads();
     Short_t region  = (Short_t)  id.region();
     Short_t station = (Short_t) id.station();
 		Short_t chamber = (Short_t) id.chamber();
@@ -99,9 +100,11 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
       Short_t pad = (Short_t) digiItr->pad(1);
-      Short_t bx = (Short_t) digiItr->bx(1);
+      Short_t bx  = (Short_t) digiItr->bx(1);
+      LogDebug("GEMCoPadDigiValidation")<<" copad #1 pad : "<<pad<<"  bx : "<<bx;
+      LogDebug("GEMCoPadDigiValidation")<<" copad #2 pad : "<<digiItr->pad(2)<<"  bx : "<<digiItr->bx(2);
 
-      LocalPoint lp = roll->centreOfPad(digiItr->pad(1));
+      LocalPoint lp = roll->centreOfPad(pad);
 
       GlobalPoint gp = surface.toGlobal(lp);
       Float_t g_r = (Float_t) gp.perp();
@@ -109,9 +112,6 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("GEMCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";  
-      edm::LogInfo("GEMCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl; 
-      edm::LogInfo("GEMCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl; 
 
       int region_num=0;
       int station_num = station-1;
@@ -119,7 +119,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       if ( region == -1 ) region_num = 0 ; 
       else if (region == 1 ) region_num = 1; 
       else {
-        edm::LogInfo("GEMCOPadDIGIValidation")<<"region : "<<region<<std::endl;
+        edm::LogError("GEMCOPadDIGIValidation")<<"region : "<<region<<std::endl;
       }
 
 

@@ -788,7 +788,7 @@ info(const DetId& id) {
 	       }
 	    }
 	    break;
-      case MuonSubdetId::GEM:
+            case MuonSubdetId::GEM:
 	    {
 	       GEMDetId detId(id.rawId());
 	       oss << "GEM chamber (region, station, ring, chamber, layer): "
@@ -799,7 +799,7 @@ info(const DetId& id) {
 		   << detId.layer();
 	    }
 	    break;
-      case MuonSubdetId::ME0:
+            case MuonSubdetId::ME0:
 	    {
 	       ME0DetId detId(id.rawId());
 	       oss << "ME0 chamber (region, chamber, layer): "

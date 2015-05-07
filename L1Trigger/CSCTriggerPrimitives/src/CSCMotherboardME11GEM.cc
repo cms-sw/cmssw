@@ -1782,6 +1782,8 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
 
         // make a new coincidence pad digi	
+        std::cout<<"GE11's first  ID : "<<id<<std::endl;
+        std::cout<<"GE11's second ID : "<<co_id<<std::endl;
         gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
         out_co_pads.insertDigi(id, GEMCoPadDigi(*p,*co_p));
       }
