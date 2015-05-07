@@ -18,7 +18,8 @@
 
 PrescaleWeightProvider::PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
 // default values
-: verbosity_( 0 )
+: init_(false)
+, verbosity_( 0 )
 , triggerResultsTag_( "TriggerResults::HLT" )
 , triggerResultsToken_( iC.mayConsume< edm::TriggerResults >( triggerResultsTag_ ) )
 , l1GtTriggerMenuLiteTag_( "l1GtTriggerMenuLite" )

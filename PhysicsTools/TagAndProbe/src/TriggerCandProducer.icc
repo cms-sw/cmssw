@@ -3,10 +3,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include <string>
 
 template<class object >
-TriggerCandProducer<object>::TriggerCandProducer(const edm::ParameterSet& iConfig )
+TriggerCandProducer<object>::TriggerCandProducer(const edm::ParameterSet& iConfig ) :
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this)
 {
 
   _inputProducer = iConfig.template getParameter<edm::InputTag>("InputProducer");
@@ -71,6 +74,8 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
   using namespace reco;
   using namespace trigger;
 
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
    // Create the output collection
   std::auto_ptr< edm::RefToBaseVector<object> >
     outColRef( new edm::RefToBaseVector<object> );
@@ -110,7 +115,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    event.getByToken(triggerResultsToken_, pTrgResults);
 
    //gracefully choose the single appropriate HLT path from the list of desired paths
-   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
+   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig.triggerNames();
    std::map<std::string, bool> triggerInMenu;
    std::map<std::string, bool> triggerUnprescaled;
    for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin();
@@ -127,7 +132,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
           iMyHLT != hltTags_.end(); ++iMyHLT) {
        if ((*iMyHLT).label() == *iHLT) {
          triggerInMenu[(*iMyHLT).label()] = true;
-         if (hltConfig_.prescaleValue(event, eventSetup, *iHLT) == 1)
+         if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
            triggerUnprescaled[(*iMyHLT).label()] = true;
        }
      }
@@ -159,7 +164,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
      err << "Error: No unprescaled HLT paths in ";
      err << "run " << event.run() << ", event " << event.id().event() << ", lumi section ";
      err << event.getLuminosityBlock().luminosityBlock() << std::endl;
-     err << "Menu name: " << hltConfig_.tableName() << endl;
+     err << "Menu name: " << hltConfig.tableName() << endl;
      std::cerr << err.str();
      edm::LogError("TriggerCandProducer") << err.str();
      throw cms::Exception("GarbageInGarbageOut") << err.str();
@@ -170,7 +175,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
        "   Multiple HLT paths in ";
      err << "run " << event.run() << ", event " << event.id().event() << ", lumi section ";
      err << event.getLuminosityBlock().luminosityBlock() << std::endl;
-     err << "Menu name: " << hltConfig_.tableName() << endl;
+     err << "Menu name: " << hltConfig.tableName() << endl;
      std::cerr << err.str();
      edm::LogError("TriggerCandProducer") << err.str();
      throw cms::Exception("GarbageInGarbageOut") << err.str();
@@ -209,7 +214,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    }
    else{
      std::vector<std::string> filters;
-     try { filters = hltConfig_.moduleLabels( theRightHLTTag_.label() ); }
+     try { filters = hltConfig.moduleLabels( theRightHLTTag_.label() ); }
      catch (std::exception ex) { cout << "bad trigger\n"; }
      for(std::vector<std::string>::iterator filter =
 	   filters.begin(); filter!= filters.end(); ++filter ) {
@@ -314,7 +319,7 @@ void TriggerCandProducer<object>::beginRun(edm::Run const& iRun, edm::EventSetup
   if (!identical) skipEvent_ = true;
 
   //std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << hltTags_[0].process() << ", " << "changed_" << ") in beginRun()" << std::endl;
-  if(!hltConfig_.init(iRun,iSetup,hltTags_[0].process(),changed_) ){
+  if(!hltPrescaleProvider_.init(iRun,iSetup,hltTags_[0].process(),changed_) ){
     edm::LogError("TriggerCandProducer") <<
       "Error! Can't initialize HLTConfigProvider";
     throw cms::Exception("HLTConfigProvider::init() returned non 0");
