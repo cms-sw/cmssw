@@ -626,6 +626,11 @@ def cust_2023SHCalTime(process):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
+    # This next part limits the pileup to be in time only, as
+    # requested by the fast timing group
+    if hasattr(process,'mix'):
+        process.mix.minBunch = 0
+        process.mix.maxBunch = 0
     return process
 
 def cust_2023Pixel(process):
