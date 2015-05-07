@@ -137,30 +137,32 @@ trackValidator.dodEdxPlots = True
 #trackValidator.nintpT = cms.int32(40)
 
 # the track selectors
-tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
-                                cutsRecoTracksInitialStep*
-                                cutsRecoTracksInitialStepHp*
-                                cutsRecoTracksLowPtTripletStep*
-                                cutsRecoTracksLowPtTripletStepHp*
-                                cutsRecoTracksPixelPairStep*
-                                cutsRecoTracksPixelPairStepHp*
-                                cutsRecoTracksDetachedTripletStep*
-                                cutsRecoTracksDetachedTripletStepHp*
-                                cutsRecoTracksMixedTripletStep*
-                                cutsRecoTracksMixedTripletStepHp*
-                                cutsRecoTracksPixelLessStep*
-                                cutsRecoTracksPixelLessStepHp*
-                                cutsRecoTracksTobTecStep*
-                                cutsRecoTracksTobTecStepHp*
-                                cutsRecoTracksJetCoreRegionalStep*
-                                cutsRecoTracksJetCoreRegionalStepHp*
-                                cutsRecoTracksMuonSeededStepInOut*
-                                cutsRecoTracksMuonSeededStepInOutHp*
-                                cutsRecoTracksMuonSeededStepOutIn*
-                                cutsRecoTracksMuonSeededStepOutInHp*
-                                cutsRecoTracksBtvLike*
-                                ak4JetTracksAssociatorAtVertexPFAll*
-                                cutsRecoTracksAK4PFJets)
+tracksValidationSelectors = cms.Sequence(
+    cms.ignore(cutsRecoTracksHp)*
+    cms.ignore(cutsRecoTracksInitialStep)*
+    cms.ignore(cutsRecoTracksInitialStepHp)*
+    cms.ignore(cutsRecoTracksLowPtTripletStep)*
+    cms.ignore(cutsRecoTracksLowPtTripletStepHp)*
+    cms.ignore(cutsRecoTracksPixelPairStep)*
+    cms.ignore(cutsRecoTracksPixelPairStepHp)*
+    cms.ignore(cutsRecoTracksDetachedTripletStep)*
+    cms.ignore(cutsRecoTracksDetachedTripletStepHp)*
+    cms.ignore(cutsRecoTracksMixedTripletStep)*
+    cms.ignore(cutsRecoTracksMixedTripletStepHp)*
+    cms.ignore(cutsRecoTracksPixelLessStep)*
+    cms.ignore(cutsRecoTracksPixelLessStepHp)*
+    cms.ignore(cutsRecoTracksTobTecStep)*
+    cms.ignore(cutsRecoTracksTobTecStepHp)*
+    cms.ignore(cutsRecoTracksJetCoreRegionalStep)*
+    cms.ignore(cutsRecoTracksJetCoreRegionalStepHp)*
+    cms.ignore(cutsRecoTracksMuonSeededStepInOut)*
+    cms.ignore(cutsRecoTracksMuonSeededStepInOutHp)*
+    cms.ignore(cutsRecoTracksMuonSeededStepOutIn)*
+    cms.ignore(cutsRecoTracksMuonSeededStepOutInHp)*
+    cms.ignore(cutsRecoTracksBtvLike)*
+    ak4JetTracksAssociatorAtVertexPFAll*
+    cutsRecoTracksAK4PFJets
+)
 tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
