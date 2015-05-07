@@ -81,7 +81,9 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
   for (GEMCoPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
     GEMDetId id = (*cItr).first;
-
+    if ( id.roll() ==0 ) {
+      id = GEMDetId(id.region(), id.ring(), id.station(), id.layer(), id.chamber(), 4);  // use dummy eta partition.
+    }
     const GeomDet* gdet = GEMGeometry_->idToDet(id);
     if ( gdet == nullptr) { 
       edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry.";
