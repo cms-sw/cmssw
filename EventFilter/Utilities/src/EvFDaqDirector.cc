@@ -491,6 +491,7 @@ namespace evf {
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
 	  // rewind and clear
+          /*
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
 	    ftruncate(fu_readwritelock_fd_, 0);
@@ -498,6 +499,7 @@ namespace evf {
 	  } else
 	      edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
 	                                      << strerror(errno);
+          */
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
@@ -525,8 +527,8 @@ namespace evf {
 			                     << readIndex + 1;
 
 	  } else
-	      edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
-	                                      << strerror(errno);
+	      throw cms::Exception("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
+	                                             << strerror(errno);
 	}
       } else
 	edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for reading failed with error "
