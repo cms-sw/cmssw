@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("IsoTrackCalibration")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryIdeal2015_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond

@@ -2,7 +2,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('ANALYSIS')
 
 process.load('Configuration.StandardSequences.Services_cff')
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag=autoCond['run2_mc']
+#process.GlobalTag.globaltag = 'START53_V15::All'
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('warnings','errors',
@@ -61,12 +66,6 @@ process.MessageLogger = cms.Service("MessageLogger",
        )
     )
 )
-
-process.load("Configuration.Geometry.GeometryIdeal2015_cff")
-process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
-process.GlobalTag.globaltag=autoCond['run2_mc']
-#process.GlobalTag.globaltag = 'START53_V15::All'
 
 process.load('Calibration.HcalCalibAlgos.isoAnalyzer_cfi')
 process.HcalIsoTrkAnalyzer.ProcessName  = 'HLTNew1'

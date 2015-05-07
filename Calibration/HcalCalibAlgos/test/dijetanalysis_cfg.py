@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DIJETSANALYSIS")
 
-process.load("Configuration.Geometry.GeometryIdeal2015_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 

@@ -4,8 +4,8 @@ process = cms.Process('SimAna')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')

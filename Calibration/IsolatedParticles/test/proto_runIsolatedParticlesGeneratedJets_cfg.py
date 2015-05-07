@@ -22,9 +22,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
 
 ##################### digi-2-raw plus L1 emulation #########################
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 
 #################### Conditions and L1 menu ################################
 

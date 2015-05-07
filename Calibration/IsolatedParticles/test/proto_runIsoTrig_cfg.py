@@ -3,8 +3,8 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 process = cms.Process("Demo")
 
-process.load('Configuration.Geometry.GeometryIdeal2015_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Calibration.IsolatedParticles.isoTrig_cfi")

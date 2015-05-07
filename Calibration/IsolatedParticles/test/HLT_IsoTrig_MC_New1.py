@@ -86,8 +86,8 @@ process.IsoTrackCalibration.Verbosity = 0
 process.analyze = cms.EndPath(process.IsoTrigHB + process.IsoTrigHE + process.IsoTrackCalibration)
 process.e = cms.EndPath(process.isotkOutput)
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_GRun', '')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run2_mc']
 
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 

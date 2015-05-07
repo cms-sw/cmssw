@@ -2,17 +2,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('ANALYSIS')
 
 process.load('Configuration.StandardSequences.Services_cff')
+# Specify IdealMagneticField ESSource (needed for CMSSW 730)
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run1_data']
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.categories+=cms.untracked.vstring('GammaJetAnalysis')
 process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(1000)
-
-# Specify IdealMagneticField ESSource (needed for CMSSW 730)
-process.load("Configuration.Geometry.GeometryIdeal2015_cff")
-process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['startup']
 
 #load the analyzer
 process.load('Calibration.HcalCalibAlgos.gammaJetAnalysis_cfi')
