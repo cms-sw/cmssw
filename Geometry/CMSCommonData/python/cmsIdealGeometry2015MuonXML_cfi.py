@@ -9,6 +9,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/normal/cmsextent.xml',
         # 'Geometry/CMSCommonData/data/cms.xml',            # Phase-1 Muon
         'Geometry/CMSCommonData/data/PhaseII/cms.xml',      # Phase-2 Muon
+        'Geometry/CMSCommonData/data/eta3/etaMax.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
         # 'Geometry/CMSCommonData/data/caloBase.xml',         # Phase-1 Muon
@@ -218,8 +219,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         # 'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
         # 'Geometry/HcalCommonData/data/hcalendcapalgo.xml',
         # 'Geometry/HcalCommonData/data/hcalouteralgo.xml',
-        # 'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-        # 'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+        'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
+        'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
 
         # --- Muon ------------------------------------------------------------
         'Geometry/MuonCommonData/data/v1/mbCommon.xml',
