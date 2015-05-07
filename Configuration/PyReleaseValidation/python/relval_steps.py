@@ -817,7 +817,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
          },
         PUFS25,Kby(100,500)])
 FS_PREMIXUP15_PU25_OVERLAY = merge([
-        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns",
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
          "--datamix" : "PreMix",
          "--pileup_input" : "file:/afs/cern.ch/user/l/lveldere/FastSimDev_April/premixwf/CMSSW_7_5_X_2015-04-08-2300/src/minbias_premixed.root", # NEEDS CHANGE
          "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
