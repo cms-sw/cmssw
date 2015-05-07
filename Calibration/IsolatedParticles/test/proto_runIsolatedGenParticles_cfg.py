@@ -26,8 +26,9 @@ process.load('TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff')
 
 #################### Conditions and L1 menu ################################
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START42_V13G::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run2_mc']
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag('offlinePrimaryVertices'),

@@ -10,8 +10,9 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-process.GlobalTag.globaltag = 'FT_R_53_V6::All' ## July15ReReco Run2012A & B
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run1_data']
+#process.GlobalTag.globaltag = 'FT_R_53_V6::All' ## July15ReReco Run2012A & B
 
 ################# CommandLine Parsing
 import os
