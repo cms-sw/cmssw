@@ -22,7 +22,8 @@ HcalDetId::HcalDetId(const DetId& gen) {
     HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
     if (gen.det()!=Hcal || 
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
-	 subdet!=HcalOuter && subdet!=HcalForward )) {
+	 subdet!=HcalOuter && subdet!=HcalForward &&
+	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
       throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
     }  
   }
@@ -34,10 +35,10 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
     HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
     if (gen.det()!=Hcal || 
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
-	 subdet!=HcalOuter && subdet!=HcalForward ))
-      {
-	throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
-      }  
+	 subdet!=HcalOuter && subdet!=HcalForward &&
+	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
+      throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
+    }  
   }
   id_=gen.rawId();
   return (*this);
@@ -61,6 +62,7 @@ std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   case(HcalEndcap) : return s << "(HE " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
   case(HcalForward) : return s << "(HF " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
   case(HcalOuter) : return s << "(HO " << id.ieta() << ',' << id.iphi() << ')';
+  case(HcalTriggerTower) : return s << "(HT " << id.ieta() << ',' << id.iphi() << ')';
   default : return s << id.rawId();
   }
 }
