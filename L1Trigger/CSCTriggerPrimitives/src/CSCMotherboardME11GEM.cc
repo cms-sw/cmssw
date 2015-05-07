@@ -370,8 +370,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                              const CSCComparatorDigiCollection* compdc,
                              const GEMPadDigiCollection* gemPads)
 {
-  std::cout << "Running CSCMotherboardME11GEM" << std::endl;
-  std::cout << "Station " << theStation << " theRing " << theRing << std::endl;
+  LogDebug("CSCMotherboardME11GEM")<< "Running CSCMotherboardME11GEM";
+  LogDebug("CSCMotherboardME11GEM")<< "Station " << theStation << " theRing " << theRing ;
 
   clear();
   
