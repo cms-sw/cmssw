@@ -79,7 +79,7 @@ hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
 )
 
 hltESPTTRHBuilderAngleAndTemplate = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPETemplateReco" ),
@@ -87,11 +87,30 @@ hltESPTTRHBuilderAngleAndTemplate = cms.ESProducer( "TkTransientTrackingRecHitBu
 )
 
 hltESPTTRHBWithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" )
+)
+
+hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
+  ComponentType = cms.string( "StripCPEfromTrackAngle" ),
+  ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
+  parameters = cms.PSet( 
+    mLC_P2 = cms.double( 0.3 ),
+    mLC_P1 = cms.double( 0.618 ),
+    mLC_P0 = cms.double( -0.326 ),
+    useLegacyError = cms.bool( True ),
+    mTEC_P1 = cms.double( 0.471 ),
+    mTEC_P0 = cms.double( -1.885 ),
+    mTOB_P0 = cms.double( -1.026 ),
+    mTOB_P1 = cms.double( 0.253 ),
+    mTIB_P0 = cms.double( -0.742 ),
+    mTIB_P1 = cms.double( 0.202 ),
+    mTID_P0 = cms.double( -1.427 ),
+    mTID_P1 = cms.double( 0.433 )
+  )
 )
 
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
