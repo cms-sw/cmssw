@@ -23,7 +23,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cmsBeam.xml',
         'Geometry/CMSCommonData/data/muonMB.xml',
         'Geometry/CMSCommonData/data/muonMagnet.xml',
-        'Geometry/TrackerCommonData/data/trackerParameters.xml'
+        'Geometry/TrackerCommonData/data/trackerParameters.xml',
         'Geometry/TrackerCommonData/data/dev/Pilot/pixfwdMaterials.xml',
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
         'Geometry/TrackerCommonData/data/pixfwdPlaq.xml',
