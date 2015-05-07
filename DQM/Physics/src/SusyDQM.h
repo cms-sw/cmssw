@@ -228,6 +228,7 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* leadingJetPt_pT80;
         MonitorElement* leadingJetEta_pT80;
         MonitorElement* leadingJetPhi_pT80;
+        MonitorElement* leadingJetMass_pT80;
         MonitorElement* deltaPhiJJ_2Jets80; //inclusive in number of jets
         MonitorElement* missingEt_HT250;
         MonitorElement* missingEt_1BTaggedJet;
@@ -345,21 +346,21 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
 
     //book lepton histograms
     booker.setCurrentFolder("Physics/Susy/SingleLepton");
-    leadingElePt_HT250 = booker.book1D("leadingElePt_HT250", "Leading electron p_{T}, HT > 250 (GeV); p_{T} (GeV)", 50, 20.0 , 2000);
+    leadingElePt_HT250 = booker.book1D("leadingElePt_HT250", "Leading electron p_{T}, HT > 250 (GeV); p_{T} (GeV)", 50, 20.0 , 800);
     leadingEleEta_HT250 = booker.book1D("leadingEleEta_HT250", "Leading electron #eta, HT > 250; #eta", 20, -2.5, 2.5);
     leadingElePhi_HT250 = booker.book1D("leadingElePhi_HT250", "Leading electron #phi, HT > 250; #phi", 20, -3.1415, 3.1415);
-    leadingMuPt_HT250 = booker.book1D("leadingMuPt_HT250", "Leading muon p_{T}, HT > 250 (GeV); p_{T} (GeV)", 50, 20.0, 2000);
+    leadingMuPt_HT250 = booker.book1D("leadingMuPt_HT250", "Leading muon p_{T}, HT > 250 (GeV); p_{T} (GeV)", 50, 20.0, 800);
     leadingMuEta_HT250 = booker.book1D("leadingMuEta_HT250", "Leading muon #eta, HT > 250; #eta", 20, -2.4, 2.4);
     leadingMuPhi_HT250 = booker.book1D("leadingMuPhi_HT250", "Leading muon #phi, HT > 250; #phi", 20, -3.1415, 3.1415);
-    mTLepMET_singleLepton = booker.book1D("mTLepMET_singleLepton", "m_{T} of lepton + MET in single lepton events (GeV); m_{T} (GeV)", 50, 0., 2000);
-    HT_singleLepton60 = booker.book1D("HT_singleLepton60", "HT, single lepton with p_{T} > 60 (GeV); HT (GeV)", 50, 0., 4000);
-    missingEt_singleLepton60 = booker.book1D("missingEt_singleLepton60", "MET, single lepton with p_{T} > 60 (GeV); MET (GeV)", 50, 0., 2000);
-    nJets_singleLepton60 = booker.book1D("nJets_singleLepton60", "n_{jets} p_{T} > 40 GeV , single lepton with p_{T} > 60; n_{jets}", 20, 0, 20);
+    mTLepMET_singleLepton = booker.book1D("mTLepMET_singleLepton", "m_{T} of lepton + MET in single lepton events (GeV); m_{T} (GeV)", 50, 0., 800);
+    HT_singleLepton60 = booker.book1D("HT_singleLepton60", "HT, single lepton with p_{T} > 60 (GeV); HT (GeV)", 50, 0., 2000);
+    missingEt_singleLepton60 = booker.book1D("missingEt_singleLepton60", "MET, single lepton with p_{T} > 60 (GeV); MET (GeV)", 50, 0., 1000);
+    nJets_singleLepton60 = booker.book1D("nJets_singleLepton60", "n_{jets} p_{T} > 40 GeV , single lepton with p_{T} > 60; n_{jets}", 16, 0, 16);
 
-    muonEfficiencyVsPt_numerator = booker.book1D("muonEfficiencyVsPt_numerator", "Loose muon ID efficiency vs p_{T};gen muon p_{T}", 20, 10, 1000); 
-    muonEfficiencyVsPt_denominator = booker.book1D("muonEfficiencyVsPt_denominator", "Loose muon ID efficiency vs p_{T}; gen muon p_{T}", 20, 10, 1000); 
-    electronEfficiencyVsPt_numerator = booker.book1D("electronEfficiencyVsPt_numerator", "Loose electron ID efficiency vs p_{T}; gen electron p_{T}", 20, 10, 1000); 
-    electronEfficiencyVsPt_denominator = booker.book1D("electronEfficiencyVsPt_denominator", "Loose electron ID efficiency vs p_{T}; gen electron p_{T}", 20, 10, 1000); 
+    muonEfficiencyVsPt_numerator = booker.book1D("muonEfficiencyVsPt_numerator", "Loose muon ID efficiency vs p_{T};gen muon p_{T}", 20, 10, 500); 
+    muonEfficiencyVsPt_denominator = booker.book1D("muonEfficiencyVsPt_denominator", "Loose muon ID efficiency vs p_{T}; gen muon p_{T}", 20, 10, 500); 
+    electronEfficiencyVsPt_numerator = booker.book1D("electronEfficiencyVsPt_numerator", "Loose electron ID efficiency vs p_{T}; gen electron p_{T}", 20, 10, 500); 
+    electronEfficiencyVsPt_denominator = booker.book1D("electronEfficiencyVsPt_denominator", "Loose electron ID efficiency vs p_{T}; gen electron p_{T}", 20, 10, 500); 
 
     booker.setCurrentFolder("Physics/Susy/DiLepton");
     osDiMuonMass = booker.book1D("osDiMuonMass", "OS di-muon mass (GeV); mass (GeV)", 50, 0., 500);
@@ -370,18 +371,18 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     ssOfDiLeptonMass = booker.book1D("ssOfDiLeptonMass", "SS opposite-flavor dilepton mass (GeV); mass (GeV)", 50, 0., 500);
 
     booker.setCurrentFolder("Physics/Susy/MultiLepton");
-    HT_threeOrMoreLeptons = booker.book1D("HT_threeOrMoreLeptons", "HT in events with 3+ leptons (GeV); HT (GeV)", 50, 0, 4000);
-    missingEt_threeOrMoreLeptons = booker.book1D("missingEt_threeOrMoreLeptons", "MET in events with 3+ leptons (GeV); MET (GeV)", 50, 0., 2000);
+    HT_threeOrMoreLeptons = booker.book1D("HT_threeOrMoreLeptons", "HT in events with 3+ leptons (GeV); HT (GeV)", 50, 0, 2000);
+    missingEt_threeOrMoreLeptons = booker.book1D("missingEt_threeOrMoreLeptons", "MET in events with 3+ leptons (GeV); MET (GeV)", 50, 0., 1000);
 
     //book photon histograms
     booker.setCurrentFolder("Physics/Susy/SinglePhoton");
-    leadingPhoPt_HT250 = booker.book1D("leadingPhoPt_HT250", "Leading photon p_{T}, HT > 250 (GeV); p_{T} (GeV)", 50, 0., 2000);
+    leadingPhoPt_HT250 = booker.book1D("leadingPhoPt_HT250", "Leading photon p_{T}, HT > 250 (GeV); p_{T} (GeV)", 50, 0., 1000);
     leadingPhoEta_HT250 = booker.book1D("leadingPhoEta_HT250", "Leading photon #eta, HT > 250; #eta", 20, -2.5, 2.5);
     leadingPhoPhi_HT250 = booker.book1D("leadingPhoPhi_HT250", "Leading photon #phi, HT > 250; #phi", 20, -3.1415, 3.1415);
     deltaPhiPhoMET_photon80 = booker.book1D("deltaPhiPhoMET_photon80", "#Delta #phi_{MET, #gamma}, photon p_{T} > 80 GeV; #Delta #phi", 20, 0., 3.1415);
-    HT_photon80 = booker.book1D("HT_photon80", "HT, photon p_{T} > 80 (GeV); HT (GeV)", 50, 0., 4000);
-    missingEt_photon80 = booker.book1D("missingEt_photon80", "MET, photon p_{T} > 80 (GeV); MET (GeV)", 50, 0., 2000);
-    nJets_photon80 = booker.book1D("nJets_photon80", "n_{jets} p_{T} > 40 GeV, photon p_{T} > 80; n_{jets}", 20, 0, 20);
+    HT_photon80 = booker.book1D("HT_photon80", "HT, photon p_{T} > 80 (GeV); HT (GeV)", 50, 0., 2000);
+    missingEt_photon80 = booker.book1D("missingEt_photon80", "MET, photon p_{T} > 80 (GeV); MET (GeV)", 50, 0., 1000);
+    nJets_photon80 = booker.book1D("nJets_photon80", "n_{jets} p_{T} > 40 GeV, photon p_{T} > 80; n_{jets}", 16, 0, 16);
 
     booker.setCurrentFolder("Physics/Susy/DiPhoton");
     diPhotonMass_HT250 = booker.book1D("diPhotonMass_HT250", "Diphoton mass, HT > 250 (GeV); mass (GeV)", 50, 0., 500);
@@ -391,35 +392,36 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
 
     //book jet histograms
     booker.setCurrentFolder("Physics/Susy/Hadronic");
-    leadingJetPt_pT80 = booker.book1D("leadingJetPt_pT80", "Leading jet p_{T} (GeV); p_{T} (GeV)", 50, 80, 2000);
+    leadingJetPt_pT80 = booker.book1D("leadingJetPt_pT80", "Leading jet p_{T} (GeV); p_{T} (GeV)", 50, 80, 1000);
     leadingJetEta_pT80 = booker.book1D("leadingJetEta_pT80", "Leading jet #eta; #eta", 20, -3.0, 3.0);
     leadingJetPhi_pT80 = booker.book1D("leadingJetPhi_pT80", "Leading jet #phi; #phi", 20, -3.1415, 3.1415);
+    leadingJetMass_pT80 = booker.book1D("leadingJetMass_pT80", "Leading jet mass; m_{jet}", 50, 0., 300);
     deltaPhiJJ_2Jets80 = booker.book1D("deltaPhiJJ_2Jets80", "#Delta #phi_{two leading jets}; #Delta #phi", 20, 0., 3.1415);
-    missingEt_HT250 = booker.book1D("missingEt_HT250", "MET (HT > 250) (GeV); MET (GeV)", 50, 0., 2000);
-    missingEt_1BTaggedJet = booker.book1D("missingEt_1BTaggedJet", "MET (>= 1 b-jet in event); MET (GeV)", 50, 0., 2000);
+    missingEt_HT250 = booker.book1D("missingEt_HT250", "MET (HT > 250) (GeV); MET (GeV)", 50, 0., 800);
+    missingEt_1BTaggedJet = booker.book1D("missingEt_1BTaggedJet", "MET (>= 1 b-jet in event); MET (GeV)", 50, 0., 800);
     metPhi_MET150 = booker.book1D("metPhi_MET150", "MET #phi, MET > 150 GeV; #phi", 20, -3.1415, 3.1415);
-    HT_MET150 = booker.book1D("hT_MET150", "HT (MET > 150) (GeV); HT (GeV)", 50, 0., 4000);
-    MHT = booker.book1D("mHT", "MHT (GeV); MHT (GeV)", 50, 0., 2000);
+    HT_MET150 = booker.book1D("hT_MET150", "HT (MET > 150) (GeV); HT (GeV)", 50, 0., 3000);
+    MHT = booker.book1D("mHT", "MHT (GeV); MHT (GeV)", 50, 0., 800);
     missingEtOverMHT = booker.book1D("missingEtOverMHT", "MET/MHT; MET/MHT", 50, 0., 10.0);
-    MHTOverHT = booker.book1D("mHTOverHT", "MHT/HT; MHT/HT", 50, 0., 5.0);
-    nJets = booker.book1D("nJets", "n_{jets} p_{T} > 40 GeV; n_{jets}", 20, 0, 20);
+    MHTOverHT = booker.book1D("mHTOverHT", "MHT/HT; MHT/HT", 50, 0., 2.0);
+    nJets = booker.book1D("nJets", "n_{jets} p_{T} > 40 GeV; n_{jets}", 16, 0, 16);
     nBTaggedJetsCSVV2M_HT250 = booker.book1D("nBTaggedJetsCSVV2M_HT250", "n_{jets} p_{T} > 40 GeV, CSVV2 medium b-tag, HT > 250 GeV; n_{jets}", 10, 0, 10);
-    nJets_HT250 = booker.book1D("nJets_HT250", "n_{jets} p_{T} > 40 GeV (HT > 250); n_{jets}", 20, 0, 20);
-    nJets_MET150 = booker.book1D("nJets_MET150", "n_{jets} p_{T} > 40 GeV (MET > 150); n_{jets}", 20, 0, 20);
+    nJets_HT250 = booker.book1D("nJets_HT250", "n_{jets} p_{T} > 40 GeV (HT > 250); n_{jets}", 16, 0, 16);
+    nJets_MET150 = booker.book1D("nJets_MET150", "n_{jets} p_{T} > 40 GeV (MET > 150); n_{jets}", 16, 0, 16);
     deltaPhiJetMET_jet80 = booker.book1D("deltaPhiJetMET_jet80", "#Delta #phi_{MET, leading jet}; #Delta #phi", 20, 0, 3.1415);
     minDeltaPhiJetMET = booker.book1D("minDeltaPhiJetMET", "Min #Delta #phi_{jet, MET}; Min #Delta #phi", 20, 0., 3.14159);
     deltaPhiJJ_dijet80Exclusive = booker.book1D("deltaPhiJJ_dijet80Exclusive", "#Delta #phi_{two leading jets}, dijet events; #Delta #phi", 20, 0., 3.1415);
-    MR_RSq0p15 = booker.book1D("MR_RSq0p15", "M_{R}, R^{2} > 0.15 (GeV); M_{R} (GeV)", 50, 0., 4000);
-    RSq_MR300 = booker.book1D("RSq_MR300", "R^{2}, M_{R} > 300 GeV; R^{2}", 50, 0., 2.0);
-    alphaT = booker.book1D("alphaT", "#alpha_{T}; #alpha_{T}", 50, 0.0, 3.0);
-    mT2 = booker.book1D("mT2", "M_{T2} (GeV); M_{T2} (GeV)", 50, 0.0, 2000);
+    MR_RSq0p15 = booker.book1D("MR_RSq0p15", "M_{R}, R^{2} > 0.15 (GeV); M_{R} (GeV)", 50, 0., 2500);
+    RSq_MR300 = booker.book1D("RSq_MR300", "R^{2}, M_{R} > 300 GeV; R^{2}", 50, 0., 1.2);
+    alphaT = booker.book1D("alphaT", "#alpha_{T}; #alpha_{T}", 50, 0.0, 1.5);
+    mT2 = booker.book1D("mT2", "M_{T2} (GeV); M_{T2} (GeV)", 50, 0.0, 800);
 
     fractionOfGoodJetsVsEta_numerator = booker.book1D("fractionOfGoodJetsVsEta_numerator", "Fraction of jets passing loose ID; #eta", 20, -3.0, 3.0);
     fractionOfGoodJetsVsEta_denominator = booker.book1D("fractionOfGoodJetsVsEta_denominator", "Fraction of jets passing loose ID; #eta", 20, -3.0, 3.0);
     fractionOfGoodJetsVsPhi_numerator = booker.book1D("fractionOfGoodJetsVsPhi_numerator", "Fraction of jets passing loose ID; #phi", 20, -3.0, 3.0);
     fractionOfGoodJetsVsPhi_denominator = booker.book1D("fractionOfGoodJetsVsPhi_denominator", "Fraction of jets passing loose ID; #phi", 20, -3.0, 3.0);
-    csvV2MediumEfficiencyVsPt_numerator = booker.book1D("csvV2MediumEfficiencyVsPt_numerator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 2000);
-    csvV2MediumEfficiencyVsPt_denominator = booker.book1D("csvV2MediumEfficiencyVsPt_denominator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 2000);
+    csvV2MediumEfficiencyVsPt_numerator = booker.book1D("csvV2MediumEfficiencyVsPt_numerator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 600);
+    csvV2MediumEfficiencyVsPt_denominator = booker.book1D("csvV2MediumEfficiencyVsPt_denominator", "CSVV2M b-tag efficiency vs jet p_{T}; jet p_{T}", 40, 40, 600);
 
     booker.cd();
 }
@@ -1019,6 +1021,7 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::fillPhotonic(const edm::Event& evt) {
        leadingJetPt_pT80->Fill(goodJets[0]->pt());
        leadingJetEta_pT80->Fill(goodJets[0]->eta());
        leadingJetPhi_pT80->Fill(goodJets[0]->phi());
+       leadingJetMass_pT80->Fill(goodJets[0]->mass());
        deltaPhiJetMET_jet80->Fill(reco::deltaPhi(goodJets[0]->phi(), met->front().phi()));
     }
     if(goodJets.size() > 1 && goodJets[0]->pt() > 80 && goodJets[1]->pt() > 80){
