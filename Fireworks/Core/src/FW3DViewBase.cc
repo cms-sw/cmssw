@@ -21,8 +21,10 @@
 #include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveLine.h"
+#include "TEveBoxSet.h"
 #include "TEveScene.h"
 #include "TGLLogicalShape.h"
+#include "TEveCalo.h"
 
 #include "Fireworks/Core/interface/FW3DViewBase.h"
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
@@ -31,6 +33,7 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/src/FW3DViewDistanceMeasureTool.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 
 namespace {
 class TGLClipsiLogical : public TGLLogicalShape
@@ -117,6 +120,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
+   m_ecalBarrel(0),
+   m_showEcalBarrel(this, "Show Ecal Barrel", typeId == FWViewType::kISpy ? true : false),
    m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
    m_clipParam(this, "View dependent Clip", false),
    m_selectable(this, "Enable Tooltips", false),
@@ -149,6 +154,13 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_cameraType.addEntry(TGLViewer::kCameraOrthoXnOZ,"OrthoXnOZ");
    m_cameraType.addEntry(TGLViewer::kCameraOrthoZnOY,"OrthoZnOY" );  
    m_cameraType.changed_.connect(boost::bind(&FW3DViewBase::setCameraType,this, _1));
+
+
+    m_ecalBarrel = new TEveBoxSet("ecalBarrel"); 
+    m_ecalBarrel->UseSingleColor();
+    m_ecalBarrel->SetMainColor(kAzure+10);
+    m_ecalBarrel->SetMainTransparency(98);
+    geoScene()->AddElement(m_ecalBarrel);
 }
 
 FW3DViewBase::~FW3DViewBase()
@@ -168,7 +180,8 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel,m_geometry,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonEndcap,m_geometry,_1));
-   
+   m_showEcalBarrel.changed_.connect(boost::bind(&FW3DViewBase::showEcalBarrel, this,_1));
+
    // don't clip event scene --  ideally, would have TGLClipNoClip in root
    TGLClipPlane* c=new TGLClipPlane();
    c->Setup(TGLVector3(1e10,0,0), TGLVector3(-1,0,0));
@@ -182,6 +195,7 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_DMTline->SetPoint(0, 0, 0, 0);
    m_DMTline->SetPoint(1, 0, 0, 0);
    eventScene()->AddElement(m_DMTline);
+   showEcalBarrel(m_showEcalBarrel.value());
 }
 
 void FW3DViewBase::showMuonBarrel(long x)
@@ -294,6 +308,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showTrackerEndcap).
       addParam(&m_showPixelBarrel).
       addParam(&m_showPixelEndcap).  
+      addParam(&m_showEcalBarrel).  
       separator().
       addParam(&m_rnrStyle).
       addParam(&m_clipParam).
@@ -311,3 +326,31 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
 
 
 
+
+void  FW3DViewBase::showEcalBarrel(bool x) {
+    if (x &&  m_ecalBarrel->GetPlex()->Size() == 0) {
+        const FWGeometry* geom = context().getGeom();
+        std::vector<unsigned int> ids = geom->getMatchedIds(FWGeometry::Detector::Ecal, FWGeometry::SubDetector::PixelBarrel);
+        m_ecalBarrel->Reset(TEveBoxSet::kBT_FreeBox, true, ids.size() );
+        for (std::vector<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it) {
+            const float* cor = context().getGeom()->getCorners(*it);
+            m_ecalBarrel->AddBox(cor);
+        }
+        m_ecalBarrel->RefitPlex();
+    }
+
+    if (m_ecalBarrel->GetRnrSelf() != x) {
+        m_ecalBarrel->SetRnrSelf(x);
+        gEve->Redraw3D();
+    }
+
+    // disable enable grid in 3DView
+    if (typeId() == FWViewType::k3D) {
+       TEveElement* calo = eventScene()->FindChild("calo barrel");
+       if (calo) {
+          TEveCalo3D* c3d = dynamic_cast<TEveCalo3D*>(calo);
+          c3d->SetRnrFrame(!x, !x);
+          c3d->ElementChanged();
+       }
+    }
+}
