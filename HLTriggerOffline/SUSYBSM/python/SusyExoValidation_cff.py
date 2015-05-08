@@ -47,11 +47,6 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_MET_HT_MUON +
                                 SUSY_HLT_MET_HT_MUON_ER +
                                 SUSY_HLT_MET_HT_MUON_BTAG +
-                                SUSY_HLT_Razor_Main + 
-                                SUSY_HLT_Razor_QuadJet +
-                                SUSY_HLT_Razor_DM + 
-                                SUSY_HLT_Razor_Main_7e33 + 
-                                SUSY_HLT_Razor_QuadJet_7e33 +
                                 SUSY_HLT_Razor_Main_RsqMR300 + 
                                 SUSY_HLT_Razor_QuadJet_RsqMR300 +
                                 SUSY_HLT_Razor_DM_Rsq0p36 + 
