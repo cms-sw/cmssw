@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from MagneticField.Engine.autoMagneticFieldProducer_cfi import *
 
 # Parabolic parametrized magnetic field used for track building
-from MagneticField.ParametrizedEngine.ParabolicParametrizedField_cfi import ParametrizedMagneticFieldProducer as ParabolicParametrizedMagneticFieldProducer38T
-ParabolicParametrizedMagneticFieldProducer38T.label = "ParabolicMf38T"
+import MagneticField.ParametrizedEngine.ParabolicParametrizedField_cfi
+ParabolicParametrizedMagneticFieldProducer38T = MagneticField.ParametrizedEngine.ParabolicParametrizedField_cfi.ParametrizedMagneticFieldProducer.clone( label = "ParabolicMf38T" )
 
 AutoParabolicParametrizedMagneticFieldProducer = cms.ESProducer("AutoMagneticFieldESProducer",
     # if positive, set B value (in kGauss), overriding the current reading from DB
