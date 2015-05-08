@@ -83,12 +83,17 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     GEMDetId id = (*cItr).first;
     Short_t region  = (Short_t)  id.region();
     Short_t station = (Short_t) id.station();
+    // Not yet remove station 2_long. station 2 mean station 2_long. So, set it to 3.
+    if ( station ==2 ) {
+      station=3;
+    }
 		Short_t chamber = (Short_t) id.chamber();
     GEMCoPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-      GEMDetId roId = GEMDetId(id.region(), id.ring(), id.station(), id.layer(), id.chamber(),digiItr->roll());
+      GEMDetId roId = GEMDetId(region, id.ring(), station, id.layer(), chamber,digiItr->roll());
+      LogDebug("GEMCoPadDigiValidation")<<"roId : "<<roId;
       const GeomDet* gdet = GEMGeometry_->idToDet(roId);
       if ( gdet == nullptr) { 
         edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry between GEN and DIGI.";
