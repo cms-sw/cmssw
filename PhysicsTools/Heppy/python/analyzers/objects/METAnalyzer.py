@@ -161,8 +161,8 @@ class METAnalyzer( Analyzer ):
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
         #event.met_shifted = []
         if not self.cfg_ana.copyMETsByValue:
-          for i in range(14):
-              m = deepcopy(self.met)
+          for i in range(self.met.METUncertaintySize):
+              m = ROOT.pat.MET(self.met)
               px  = m.shiftedPx(i);
               py  = m.shiftedPy(i);
               m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
