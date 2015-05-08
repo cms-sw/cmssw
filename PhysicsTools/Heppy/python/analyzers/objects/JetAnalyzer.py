@@ -214,10 +214,7 @@ class JetAnalyzer( Analyzer ):
 
         setattr(event,"rho"                    +self.cfg_ana.collectionPostFix, self.rho                    ) 
         setattr(event,"deltaMetFromJEC"        +self.cfg_ana.collectionPostFix, self.deltaMetFromJEC        ) 
-        setattr(event,"deltaMetFromJetSmearing"+self.cfg_ana.collectionPostFix, self.deltaMetFromJetSmearing) 
         setattr(event,"allJetsUsedForMET"      +self.cfg_ana.collectionPostFix, self.allJetsUsedForMET      ) 
-        setattr(event,"genJets"                +self.cfg_ana.collectionPostFix, self.genJets                ) 
-        setattr(event,"cleanGenJets"           +self.cfg_ana.collectionPostFix, self.cleanGenJets           ) 
         setattr(event,"jets"                   +self.cfg_ana.collectionPostFix, self.jets                   ) 
         setattr(event,"jetsFailId"             +self.cfg_ana.collectionPostFix, self.jetsFailId             ) 
         setattr(event,"jetsAllNoID"            +self.cfg_ana.collectionPostFix, self.jetsAllNoID            ) 
@@ -229,10 +226,16 @@ class JetAnalyzer( Analyzer ):
         setattr(event,"gamma_cleanJetsAll"     +self.cfg_ana.collectionPostFix, self.gamma_cleanJetsAll     ) 
         setattr(event,"gamma_cleanJets"        +self.cfg_ana.collectionPostFix, self.gamma_cleanJets        ) 
         setattr(event,"gamma_cleanJetsFwd"     +self.cfg_ana.collectionPostFix, self.gamma_cleanJetsFwd     ) 
-        setattr(event,"bqObjects"              +self.cfg_ana.collectionPostFix, self.bqObjects              ) 
-        setattr(event,"cqObjects"              +self.cfg_ana.collectionPostFix, self.cqObjects              ) 
-        setattr(event,"partons"                +self.cfg_ana.collectionPostFix, self.partons                ) 
-        setattr(event,"heaviestQCDFlavour"     +self.cfg_ana.collectionPostFix, self.heaviestQCDFlavour     ) 
+
+
+	if self.cfg_comp.isMC:
+            setattr(event,"cleanGenJets"           +self.cfg_ana.collectionPostFix, self.cleanGenJets           ) 
+            setattr(event,"bqObjects"              +self.cfg_ana.collectionPostFix, self.bqObjects              ) 
+            setattr(event,"cqObjects"              +self.cfg_ana.collectionPostFix, self.cqObjects              ) 
+            setattr(event,"partons"                +self.cfg_ana.collectionPostFix, self.partons                ) 
+            setattr(event,"heaviestQCDFlavour"     +self.cfg_ana.collectionPostFix, self.heaviestQCDFlavour     ) 
+            setattr(event,"deltaMetFromJetSmearing"+self.cfg_ana.collectionPostFix, self.deltaMetFromJetSmearing) 
+            setattr(event,"genJets"                +self.cfg_ana.collectionPostFix, self.genJets                ) 
  
         return True
 
