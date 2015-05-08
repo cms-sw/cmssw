@@ -547,6 +547,7 @@ TrackListMerger::~TrackListMerger() { }
              selected[jj]=0;
              selected[ii]=10+newQualityMask; // add 10 to avoid the case where mask = 1
              trkUpdated[ii]=true;
+             // std::cout << "select " << int(oriAlgo[ii]) << ' ' << int(oriAlgo[jj]) << std::endl;
        	     if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
          };
 
@@ -641,13 +642,8 @@ TrackListMerger::~TrackListMerger() { }
     //  output selected tracks - if any
     //
 
-    #ifdef __clang__
     std::vector<reco::TrackRef> trackRefs(rSize);
     std::vector<edm::RefToBase<TrajectorySeed>> seedsRefs(rSize);
-    #else
-    reco::TrackRef trackRefs[rSize];
-    edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
-    #endif
 
     unsigned int nToWrite=0;
     for ( unsigned int i=0; i<rSize; i++)
