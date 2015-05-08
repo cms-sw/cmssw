@@ -2,6 +2,7 @@
 #define HcalCondObjectContainer_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 
 #include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -160,9 +161,7 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
       throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << textForId(fId);
     } 
-  } else if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
-	     (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
-	     (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
+  } else if (!hcalEqualDetId(cell,fId)) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions mismatch") 
 	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
@@ -178,9 +177,7 @@ HcalCondObjectContainer<Item>::exists(DetId fId) const {
   const Item* cell = getValues(fId,false);
 
   if (cell) {
-    if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
-	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
-	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
+    if (hcalEqualDetId(cell,fId))
       return true;
   }
   return false;

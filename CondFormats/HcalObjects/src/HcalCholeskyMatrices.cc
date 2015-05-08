@@ -1,4 +1,5 @@
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 
 HcalCholeskyMatrices::HcalCholeskyMatrices(const HcalTopology* topo) : HcalCondObjectContainerBase(topo) 
 {
@@ -44,10 +45,10 @@ HcalCholeskyMatrices::getValues(DetId fId, bool throwOnFail) const
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   //  if (cell->rawId() == emptyHcalCholeskyMatrix.rawId() ) 
-  if ((!cell) ||
-      (fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
-      (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
-      (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
+  if ((!cell) || (!hcalEqualDetId(cell,fId))) {
+//     (fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
+//     (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
+//     (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
@@ -66,9 +67,10 @@ HcalCholeskyMatrices::exists(DetId fId) const
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   if (cell)
-    if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
-	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
-	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
+    if (!hcalEqualDetId(cell,fId))
+//	(fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
+//	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
+//	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
       return true;
   
   return false;
