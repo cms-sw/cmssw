@@ -282,7 +282,9 @@ void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun) {
 
     // get L1GtTriggerMenuLite
     edm::Handle<L1GtTriggerMenuLite> l1GtMenuLite;
-    iRun.getByToken(m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken(), l1GtMenuLite);
+    if( !m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken().isUninitialized() ) {
+      iRun.getByToken(m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken(), l1GtMenuLite);
+    }
 
     if (!l1GtMenuLite.isValid()) {
 
@@ -825,8 +827,9 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
     bool gtReadoutRecordValid = false;
 
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
-    iEvent.getByToken(m_l1GtUtilsHelper->l1GtRecordToken(), gtRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtRecordToken(), gtRecord);
+    }
     if (gtRecord.isValid()) {
 
         validRecord = true;
@@ -840,8 +843,9 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
     }
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByToken(m_l1GtUtilsHelper->l1GtReadoutRecordToken(), gtReadoutRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtReadoutRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtReadoutRecordToken(), gtReadoutRecord);
+    }
     if (gtReadoutRecord.isValid()) {
 
         gtReadoutRecordValid = true;
@@ -1481,8 +1485,9 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
     bool gtReadoutRecordValid = false;
 
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
-    iEvent.getByToken(m_l1GtUtilsHelper->l1GtRecordToken(), gtRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtRecordToken(), gtRecord);
+    }
     if (gtRecord.isValid()) {
 
         validRecord = true;
@@ -1496,8 +1501,9 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
     }
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByToken(m_l1GtUtilsHelper->l1GtReadoutRecordToken(), gtReadoutRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtReadoutRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtReadoutRecordToken(), gtReadoutRecord);
+    }
     if (gtReadoutRecord.isValid()) {
 
         gtReadoutRecordValid = true;

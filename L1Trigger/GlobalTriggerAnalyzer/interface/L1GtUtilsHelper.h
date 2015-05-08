@@ -6,7 +6,7 @@
  *
  *
  * Description: Gets tokens for L1GtUtils to use when getting products
- *              from the Event and Run. This class was introduced to
+ *              from the Event and Run. This class was introduced
  *              when the consumes function calls were added for L1GtUtils.
  *              It preserves the special feature of L1GtUtils that allows
  *              it to run without configuration of InputTags, although it

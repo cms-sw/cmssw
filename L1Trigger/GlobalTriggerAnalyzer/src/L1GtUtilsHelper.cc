@@ -50,6 +50,7 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
   // arguments to the constructor.
 
   if (m_findRecord &&
+      !m_foundRECORecord &&
       branchDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerRecord)) &&
       branchDescription.branchType() == edm::InEvent) {
     edm::InputTag tag{branchDescription.moduleLabel(),
@@ -59,13 +60,14 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
       m_l1GtRecordInputTag = tag;
       m_l1GtRecordToken = m_consumesCollector.consumes<L1GlobalTriggerRecord>(tag);
       m_foundRECORecord = true;
-    } else if (!m_foundRECORecord) {
+    } else if (m_l1GtRecordToken.isUninitialized()) {
       m_l1GtRecordInputTag = tag;
       m_l1GtRecordToken = m_consumesCollector.consumes<L1GlobalTriggerRecord>(tag);
     }
   }
 
   if (m_findReadoutRecord &&
+      !m_foundRECOReadoutRecord &&
       branchDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GlobalTriggerReadoutRecord)) &&
       branchDescription.branchType() == edm::InEvent) {
     edm::InputTag tag{branchDescription.moduleLabel(),
@@ -75,13 +77,14 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
       m_l1GtReadoutRecordInputTag = tag;
       m_l1GtReadoutRecordToken = m_consumesCollector.consumes<L1GlobalTriggerReadoutRecord>(tag);
       m_foundRECOReadoutRecord = true;
-    } else if (!m_foundRECOReadoutRecord) {
+    } else if (m_l1GtReadoutRecordToken.isUninitialized()) {
       m_l1GtReadoutRecordInputTag = tag;
       m_l1GtReadoutRecordToken = m_consumesCollector.consumes<L1GlobalTriggerReadoutRecord>(tag);
     }
   }
 
   if (m_findMenuLite &&
+      !m_foundRECOMenuLite &&
       branchDescription.branchType() == edm::InRun &&
       branchDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GtTriggerMenuLite))) {
     edm::InputTag tag{branchDescription.moduleLabel(),
@@ -91,7 +94,7 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
       m_l1GtTriggerMenuLiteInputTag = tag;
       m_l1GtTriggerMenuLiteToken = m_consumesCollector.consumes<L1GtTriggerMenuLite,edm::InRun>(tag);
       m_foundRECOMenuLite = true;
-    } else if (!m_foundRECOMenuLite) {
+    } else if (m_l1GtTriggerMenuLiteToken.isUninitialized()) {
       m_l1GtTriggerMenuLiteInputTag = tag;
       m_l1GtTriggerMenuLiteToken = m_consumesCollector.consumes<L1GtTriggerMenuLite,edm::InRun>(tag);
     }
