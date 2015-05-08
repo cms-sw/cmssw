@@ -370,9 +370,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                              const CSCComparatorDigiCollection* compdc,
                              const GEMPadDigiCollection* gemPads)
 {
-  std::cout << "Running CSCMotherboardME11GEM" << std::endl;
-  std::cout << "Station " << theStation << " theRing " << theRing << std::endl;
-
   clear();
   
   if (!( alct and clct and  clct1a and smartME1aME1b))
@@ -1782,8 +1779,8 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
 
         // make a new coincidence pad digi	
-        gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
-        out_co_pads.insertDigi(id, GEMCoPadDigi(*p,*co_p));
+        gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+        out_co_pads.insertDigi(id, GEMCoPadDigi(id.roll(),*p,*co_p));
       }
     }
   }

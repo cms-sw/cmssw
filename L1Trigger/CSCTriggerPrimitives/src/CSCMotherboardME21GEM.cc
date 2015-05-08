@@ -1014,8 +1014,8 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
         
         // make a new coincidence pad digi
-        gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
-        out_co_pads.insertDigi(id, GEMCoPadDigi(*p,*co_p));
+        gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+        out_co_pads.insertDigi(id, GEMCoPadDigi(id.roll(),*p,*co_p));
       }
     }
   }
