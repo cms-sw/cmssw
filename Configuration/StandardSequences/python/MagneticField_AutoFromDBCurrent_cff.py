@@ -18,4 +18,4 @@ AutoParabolicParametrizedMagneticFieldProducer = cms.ESProducer("AutoMagneticFie
    label = cms.untracked.string('ParabolicMf')
 )
 
-
+es_prefer_ParabolicMf = cms.ESPrefer("AutoMagneticFieldESProducer", "AutoParabolicParametrizedMagneticFieldProducer")
