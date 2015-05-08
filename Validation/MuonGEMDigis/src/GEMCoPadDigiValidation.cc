@@ -81,27 +81,24 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
   for (GEMCoPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
     GEMDetId id = (*cItr).first;
-    if ( id.roll() ==0 ) {
-      edm::LogError("GEMCoPadDigiValidation")<< "Can not get roll number from copad collection. Use dummpy roll number.";
-      id = GEMDetId(id.region(), id.ring(), id.station(), id.layer(), id.chamber(), 4);  // use dummy eta partition.
-    }
-    const GeomDet* gdet = GEMGeometry_->idToDet(id);
-    if ( gdet == nullptr) { 
-      edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry between GEN and DIGI.";
-      continue; 
-    }
-    const BoundPlane & surface = gdet->surface();
-    LogDebug("GEMCoPadDigiValidation")<<" ID : "<<id;
-    const GEMEtaPartition * roll = GEMGeometry_->etaPartition(id);
-    LogDebug("GEMCoPadDigiValidation")<<" roll's n pad : "<<roll->npads();
     Short_t region  = (Short_t)  id.region();
     Short_t station = (Short_t) id.station();
 		Short_t chamber = (Short_t) id.chamber();
-
     GEMCoPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
+      GEMDetId roId = GEMDetId(id.region(), id.ring(), id.station(), id.layer(), id.chamber(),digiItr->roll());
+      const GeomDet* gdet = GEMGeometry_->idToDet(roId);
+      if ( gdet == nullptr) { 
+        edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry between GEN and DIGI.";
+        continue; 
+      }
+      const BoundPlane & surface = gdet->surface();
+      LogDebug("GEMCoPadDigiValidation")<<" ID : "<<roId;
+      const GEMEtaPartition * roll = GEMGeometry_->etaPartition(roId);
+      LogDebug("GEMCoPadDigiValidation")<<" roll's n pad : "<<roll->npads();
+
       Short_t pad = (Short_t) digiItr->pad(1);
       Short_t bx  = (Short_t) digiItr->bx(1);
       LogDebug("GEMCoPadDigiValidation")<<" copad #1 pad : "<<pad<<"  bx : "<<bx;
