@@ -372,7 +372,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
 {
   LogDebug("CSCMotherboardME11GEM")<< "Running CSCMotherboardME11GEM";
   LogDebug("CSCMotherboardME11GEM")<< "Station " << theStation << " theRing " << theRing ;
-
   clear();
   
   if (!( alct and clct and  clct1a and smartME1aME1b))
@@ -1783,8 +1782,8 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
 
         // make a new coincidence pad digi	
         LogDebug("CSCMotherboardME11GEM")<<"GE11's first  ID : "<<id;
-        gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
-        out_co_pads.insertDigi(id, GEMCoPadDigi(*p,*co_p));
+        gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+        out_co_pads.insertDigi(id, GEMCoPadDigi(id.roll(),*p,*co_p));
       }
     }
   }

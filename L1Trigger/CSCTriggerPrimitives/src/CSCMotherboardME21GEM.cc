@@ -1015,8 +1015,8 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         
         // make a new coincidence pad digi
         LogDebug("CSCMotherboardME21GEM")<<"GE21's first  ID : "<<id;
-        gemCoPadV.push_back(GEMCoPadDigi(*p,*co_p));
-        out_co_pads.insertDigi(id, GEMCoPadDigi(*p,*co_p));
+        gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+        out_co_pads.insertDigi(id, GEMCoPadDigi(id.roll(),*p,*co_p));
       }
     }
   }
