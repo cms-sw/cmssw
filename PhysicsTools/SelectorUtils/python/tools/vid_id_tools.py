@@ -87,11 +87,11 @@ def switchOnVIDMuonIdProducer(process):
 def setupVIDMuonSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'muoMuonIDs'):
         raise Exception('VIDProducerNotAvailable','muoMuonIDs producer not available in process!')
-    setupVIDSelection(process.egmGsfElectronIDs,cutflow)
+    setupVIDSelection(process.muoMuonIDs,cutflow)
     #add to PAT electron producer if available or specified
     if hasattr(process,'patMuons') or patProducer is not None:
         if patProducer is None:
-            patProducer = process.patElectrons
+            patProducer = process.patMuons
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'muoMuonIDs',idName)
         
