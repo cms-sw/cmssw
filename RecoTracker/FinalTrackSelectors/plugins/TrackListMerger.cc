@@ -547,7 +547,6 @@ TrackListMerger::~TrackListMerger() { }
              selected[jj]=0;
              selected[ii]=10+newQualityMask; // add 10 to avoid the case where mask = 1
              trkUpdated[ii]=true;
-             // std::cout << "select " << int(oriAlgo[ii]) << ' ' << int(oriAlgo[jj]) << std::endl;
        	     if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
          };
 
