@@ -29,11 +29,7 @@ process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_mc']
-#process.GlobalTag.globaltag = 'START3X_V25B::All'
-#process.GlobalTag.globaltag = 'START3X_V27::All'
-#process.GlobalTag.globaltag = 'START36_V10::All'
-
+process.GlobalTag.globaltag=autoCond['run1_mc']
 
 process.load('Calibration.IsolatedParticles.isolatedTracksHcalScale_cfi')
 process.isolatedTracksHcal.MaxDxyPV  = 10.

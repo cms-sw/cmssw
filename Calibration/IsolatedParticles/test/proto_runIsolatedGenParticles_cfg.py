@@ -4,8 +4,6 @@ process = cms.Process("L1SKIM")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000
-#process.MessageLogger.categories.append('L1GtTrigReport')
-#process.MessageLogger.categories.append('HLTrigReport')
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -28,7 +26,7 @@ process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_mc']
+process.GlobalTag.globaltag=autoCond['run1_mc']
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag('offlinePrimaryVertices'),

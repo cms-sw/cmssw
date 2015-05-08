@@ -25,8 +25,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_data']
-#process.GlobalTag.globaltag = 'GR_R_42_V13::All'
+process.GlobalTag.globaltag=autoCond['run1_data']
 
 ############ Skim the events according to the L1 seeds  ####################
 

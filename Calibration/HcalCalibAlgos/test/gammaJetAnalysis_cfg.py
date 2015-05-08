@@ -7,7 +7,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['startup']
+process.GlobalTag.globaltag=autoCond['run1_mc']
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.categories+=cms.untracked.vstring('GammaJetAnalysis')

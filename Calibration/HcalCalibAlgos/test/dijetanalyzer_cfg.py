@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['startup']
+process.GlobalTag.globaltag=autoCond['run1_mc']
 
 #load the response corrections calculator
 process.load('Calibration.HcalCalibAlgos.diJetAnalyzer_cfi')

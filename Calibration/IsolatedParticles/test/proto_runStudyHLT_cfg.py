@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
-process = cms.Process("Demo")
+process = cms.Process("StudyHLT")
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.IsolatedParticles.studyHLT_cfi")
@@ -12,7 +12,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run1_data']
-#process.GlobalTag.globaltag = 'FT_R_53_V6::All' ## July15ReReco Run2012A & B
 
 ################# CommandLine Parsing
 import os
