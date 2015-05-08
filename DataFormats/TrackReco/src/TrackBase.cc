@@ -63,6 +63,7 @@ TrackBase::TrackBase() :
     ndof_(0),
     charge_(0),
     algorithm_(undefAlgorithm),
+    originalAlgorithm_(undefAlgorithm),
     quality_(0),
     nLoops_(0)
 {
@@ -83,6 +84,7 @@ TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector
     ndof_(ndof),
     charge_(charge),
     algorithm_(algorithm),
+    originalAlgorithm_(undefAlgorithm),
     quality_(0),
     nLoops_(nloops)
 {
