@@ -237,8 +237,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   selected_tPCeff.reserve(tPCeff.size());
   momVert_tPCeff.reserve(tPCeff.size());
   if(parametersDefinerIsCosmic_) {
-    size_t j=0;
-    for(auto const& tp: tPCeff) {
+    for(size_t j=0; j<tPCeff.size(); ++j) {
       TrackingParticleRef tpr(TPCollectionHeff, j);
       if(cosmictpSelector(tpr,&bs,event,setup)) {
         selected_tPCeff.push_back(j);
@@ -246,7 +245,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
         momVert_tPCeff.emplace_back(momentum, vertex);
       }
-      ++j;
     }
   }
   else {
