@@ -19,6 +19,8 @@ class UniformMagneticField : public MagneticField {
 
   virtual ~UniformMagneticField() {}
 
+  virtual MagneticField* clone() const { return new UniformMagneticField(*this);}
+
   GlobalVector inTesla (const GlobalPoint& gp) const;
 
   GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
