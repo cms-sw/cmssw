@@ -104,6 +104,7 @@ namespace cond {
     public:
       virtual ~IGTTable(){}
       virtual bool exists() = 0;
+      virtual void create() = 0;
       virtual bool select( const std::string& name ) = 0;
       virtual bool select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime ) = 0;
       virtual bool select( const std::string& name, cond::Time_t& validity, std::string& description, 
@@ -118,6 +119,7 @@ namespace cond {
     public:
       virtual ~IGTMapTable(){}
       virtual bool exists() = 0;
+      virtual void create() = 0;
       virtual bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags ) = 0;
       virtual bool select( const std::string& gtName, const std::string& preFix, const std::string& postFix, 
 			   std::vector<std::tuple<std::string,std::string,std::string> >& tags ) = 0;
@@ -128,6 +130,7 @@ namespace cond {
     public: 
       virtual ~IGTSchema(){}
       virtual bool exists() = 0;
+      virtual void create() = 0;
       virtual IGTTable& gtTable() = 0;
       virtual IGTMapTable& gtMapTable() = 0;
     };
