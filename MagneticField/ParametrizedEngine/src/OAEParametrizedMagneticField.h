@@ -32,6 +32,8 @@ class OAEParametrizedMagneticField : public MagneticField {
   /// Destructor
   virtual ~OAEParametrizedMagneticField();
   
+  virtual MagneticField* clone() const { return new OAEParametrizedMagneticField(*this);}
+
   GlobalVector inTesla (const GlobalPoint& gp) const;
 
   GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
