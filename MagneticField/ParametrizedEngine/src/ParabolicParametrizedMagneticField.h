@@ -25,6 +25,8 @@ class ParabolicParametrizedMagneticField : public MagneticField {
   /// Destructor
   virtual ~ParabolicParametrizedMagneticField();
   
+  virtual MagneticField* clone() const { return new ParabolicParametrizedMagneticField(*this);}
+
   GlobalVector inTesla (const GlobalPoint& gp) const;
 
   GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
