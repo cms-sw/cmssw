@@ -247,14 +247,6 @@ def cust_2023SHCal(process):
         #process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
 
 
-
-        for link in process.particleFlowBlock.linkDefinitions:
-            if hasattr(link,'trackerEtaBoundary') : link.trackerEtaBoundary = cms.double(3.0)
-        for importer in process.particleFlowBlock.elementImporters :
-            if importer.source.value()=="particleFlowClusterHF" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
-
-
-
     if hasattr(process,'validation_step'):
         process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.ecalEndcapRecoSummary.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
