@@ -246,6 +246,7 @@ def cust_2023SHCal(process):
         #process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         #process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
 
+
     if hasattr(process,'validation_step'):
         process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.ecalEndcapRecoSummary.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
