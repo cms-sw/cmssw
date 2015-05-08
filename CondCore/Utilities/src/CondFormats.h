@@ -37,6 +37,7 @@
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
