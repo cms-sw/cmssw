@@ -206,6 +206,10 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     isAOD = false;
     iEvent.getByToken(srcMiniAOD_,src);
   }
+  if( !src.isValid() ) {
+    throw cms::Exception("IllDefinedDataTier")
+      << "DataFormat does not contain a photon source!";
+  }
 
   // Configure Lazy Tools
   if( isAOD )

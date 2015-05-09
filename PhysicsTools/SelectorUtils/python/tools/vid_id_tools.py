@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
+import sys
+
 #keep python2.6 compatibility for computing
 #import importlib
 
@@ -16,7 +18,7 @@ def setupVIDSelection(vidproducer,cutflow):
         cms.PSet( idDefinition = cutflow,
                   idMD5 = cms.string(cutflow_md5) )
     )
-    print 'Added ID \'%s\' to %s'%(cutflow.idName.value(),vidproducer.label())
+    print >> sys.stderr,'Added ID \'%s\' to %s'%(cutflow.idName.value(),vidproducer.label())
 
 def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     patProducerIDs = None
@@ -26,7 +28,7 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     if patProducerIDs is None:
         raise Exception('StrangePatModule','%s does not have ID sources!'%patProducer.label())
     setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))
-    print '\t--- %s:%s added to %s'%(idProducer,idName,patProducer.label())
+    print >> sys.stderr,'\t--- %s:%s added to %s'%(idProducer,idName,patProducer.label())
 
 def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None):
 #    idmod = importlib.import_module(id_module_name)
@@ -61,7 +63,7 @@ def switchOnVIDElectronIdProducer(process, dataFormat):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    print 'Added \'egmGsfElectronIDs\' to process definition (%s format)!' % dataFormatString
+    print >> sys.stderr,'Added \'egmGsfElectronIDs\' to process definition (%s format)!' % dataFormatString
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmGsfElectronIDs'):
@@ -82,7 +84,7 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
 # for PAT and/or MINIAOD
 def switchOnVIDMuonIdProducer(process):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
-    print 'Added \'muoMuonIDs\' to process definition!'
+    print >> sys.stderr,'Added \'muoMuonIDs\' to process definition!'
 
 def setupVIDMuonSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'muoMuonIDs'):
@@ -115,7 +117,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    print 'Added \'egmPhotonIDs\' to process definition (%s format)!' % dataFormatString
+    print >> sys.stderr,'Added \'egmPhotonIDs\' to process definition (%s format)!' % dataFormatString
 
 def setupVIDPhotonSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmPhotonIDs'):
