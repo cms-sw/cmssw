@@ -148,7 +148,7 @@ WP_Tight_EE = EleWorkingPoint_V2(
 # Second, define what effective areas to use for pile-up correction
 isoInputs = IsolationCutInputs_V2(
     # phoIsolationEffAreas
-    "EgammaAnalysis/ElectronTools/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt"
+    "RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt"
 )
 
 
@@ -163,10 +163,10 @@ cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight = configureVIDCutBasedEle
 
 
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_veto.idName,
-                             '2c43cbeaa99c27bdcc01819deac18d13')
+                             '8faa425ca2bd76daab6d4783d652a5b2')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             'ef33337667a7163a48657f5d8cdd897c')
+                             'd2a26b2c40038007a1e75f0c75a2e9e5')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             '529b4c00e4807b885116f77347e076f4')
+                             '086215fddf6fc439fb5ece5243eeea09')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             '89cd2d6602a0f92c6201332e59fa886b')
+                             'fe2b8fcecc77ef073c822f97b339f5d3')

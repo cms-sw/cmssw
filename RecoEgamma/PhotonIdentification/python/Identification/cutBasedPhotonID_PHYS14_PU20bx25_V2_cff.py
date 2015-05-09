@@ -118,15 +118,15 @@ isoInputs = IsolationCutInputs(
     # chHadIsolationMapName  
     'photonIDValueMapProducer:phoChargedIsolation' ,
     # chHadIsolationEffAreas 
-    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt" ,
+    "RecoEgamma/PhotonIdentification/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_V2.txt" ,
     # neuHadIsolationMapName
     'photonIDValueMapProducer:phoNeutralHadronIsolation' ,
     # neuHadIsolationEffAreas
-    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt" ,
+    "RecoEgamma/PhotonIdentification/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_V2.txt" ,
     # phoIsolationMapName  
     "photonIDValueMapProducer:phoPhotonIsolation" ,
     # phoIsolationEffAreas
-    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt"
+    "RecoEgamma/PhotonIdentification/data/PHYS14/effAreaPhotons_cone03_pfPhotons_V2.txt"
 )
 
 #
@@ -145,8 +145,8 @@ cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             '7966079d9056553038f40e6325d7b259')
+                             '6f3169e50d62b99e2af34106a19e6321')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             'c4d9f497f0b7541435d2cebc1aae7d9e')
+                             'ffc5f3a5144a8024e5b74a195bbcfe73')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             'cf8b12d7950a88a4702690bf2251aa8e')
+                             'a2b9b998a751b1c721db67865f665af0')
