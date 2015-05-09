@@ -5,8 +5,9 @@ def customise_extendedTrackerBarrel( process ) :
         for link in process.particleFlowBlock.linkDefinitions:
             if hasattr(link,'trackerEtaBoundary') : link.trackerEtaBoundary = cms.double(3.0)
         for importer in process.particleFlowBlock.elementImporters :
-            if importer.source.value()=="particleFlowClusterHFEM" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
-            if importer.source.value()=="particleFlowClusterHFHAD" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
+            if importer.source.value()=="particleFlowClusterHFEM" \
+                or importer.source.value()=="particleFlowClusterHFHAD" \
+                or importer.source.value()=="particleFlowClusterHF" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
     return process
 
 def customise_use3DHCalClusters( process ) :
