@@ -92,7 +92,7 @@ namespace cond {
     static constexpr char const* ARCH_LABEL = "architecture";
     //
     static constexpr char const* TECHNOLOGY = "boost/serialization" ;
-    static constexpr char const* VERSION = BOOST_LIB_VERSION;
+    static std::string techVersion();
     static std::string jsonString();
   };
 
@@ -146,7 +146,7 @@ namespace cond {
 	std::string errorMsg("De-serialization failed: ");
 	std::string em( e.what() );
 	if( em == "unsupported version" )  {
-	  errorMsg += "the current boost version ("+std::string(StreamerInfo::VERSION)+
+	  errorMsg += "the current boost version ("+StreamerInfo::techVersion()+
 	    ") is unable to read the payload. Data might have been serialized with an incompatible version.";
 	} else if( em == "input stream error" ) {
 	  errorMsg +="data size does not fit with the current class layout. The Class "+payloadType+" might have been changed with respect to the layout used in the upload.";

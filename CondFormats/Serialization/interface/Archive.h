@@ -6,7 +6,6 @@
 #include "boost/archive/xml_iarchive.hpp"
 #include "boost/archive/xml_oarchive.hpp"
 #include "boost/archive/xml_oarchive.hpp"
-#include "boost/version.hpp"
 
 #include "CondFormats/Serialization/interface/eos/portable_iarchive.hpp"
 #include "CondFormats/Serialization/interface/eos/portable_oarchive.hpp"
