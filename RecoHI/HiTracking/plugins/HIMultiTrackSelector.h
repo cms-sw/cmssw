@@ -101,6 +101,10 @@ enum MVAVARIABLES {chi2perdofperlayer = 0,
             bool          useVtxError_;
 	    bool          useAnyMVA_;
             edm::EDGetTokenT<reco::VertexCollection> vertices_;
+
+
+            // Boolean indicating if pixel track merging related cuts are to be applied
+            bool applyPixelMergingCuts_;
             
             /// do I have to set a quality bit?
 	    std::vector<bool> setQualityBit_;
@@ -126,6 +130,12 @@ enum MVAVARIABLES {chi2perdofperlayer = 0,
             std::vector<double> max_d0_;
             std::vector<double> max_z0_;
             std::vector<double> nSigmaZ_;
+
+
+            // parameters for pixel track merging pT dependent chi2 cuts
+            std::vector<std::vector<double> > pixel_pTMinCut_;
+            std::vector<std::vector<double> > pixel_pTMaxCut_;
+
 
             /// Cuts on numbers of layers with hits/3D hits/lost hits. 
 	    std::vector<uint32_t> min_layers_;

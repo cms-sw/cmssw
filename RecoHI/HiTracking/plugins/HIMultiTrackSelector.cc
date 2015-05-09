@@ -101,6 +101,10 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
 {
   if (useVertices_) vertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ));
 
+  applyPixelMergingCuts_ = false;
+  if(cfg.exists("applyPixelMergingCuts")) 
+    applyPixelMergingCuts_ = cfg.getParameter<bool>("applyPixelMergingCuts");
+
   useAnyMVA_ = false;
   forestLabel_ = "MVASelectorIter0";
   std::string type = "BDTG";
@@ -138,6 +142,8 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
   max_d0_.reserve(trkSelectors.size());
   max_z0_.reserve(trkSelectors.size());
   nSigmaZ_.reserve(trkSelectors.size());
+  pixel_pTMinCut_.reserve(trkSelectors.size());
+  pixel_pTMaxCut_.reserve(trkSelectors.size());
   min_layers_.reserve(trkSelectors.size());
   min_3Dlayers_.reserve(trkSelectors.size());
   max_lostLayers_.reserve(trkSelectors.size());
@@ -235,6 +241,12 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
 	throw cms::Exception("Configuration") << "Invalid prefilter name in HIMultiTrackSelector " 
 					      << trkSelectors[i].getParameter<std::string>("preFilterName");
 	  
+    }
+
+    if(applyPixelMergingCuts_)
+    {
+      pixel_pTMinCut_.push_back(trkSelectors[i].getParameter< std::vector<double> >("pixel_pTMinCut"));
+      pixel_pTMaxCut_.push_back(trkSelectors[i].getParameter< std::vector<double> >("pixel_pTMaxCut"));
     }
 
     //    produces<std::vector<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
@@ -463,7 +475,24 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
   float lostMidFrac = tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
   if (lostMidFrac > max_lostHitFraction_[tsNum]) return false;
 
-
+  // Pixel Track Merging pT dependent cuts
+  if( applyPixelMergingCuts_ )
+  {
+    // hard cut at absolute min/max pt
+    if( pt < pixel_pTMinCut_[tsNum][0] ) return false;
+    if( pt > pixel_pTMaxCut_[tsNum][0] ) return false;
+    // tapering cuts with chi2n_no1Dmod 
+    double pTMaxCutPos = ( pixel_pTMaxCut_[tsNum][0] - pt ) / 
+                         ( pixel_pTMaxCut_[tsNum][0] - pixel_pTMaxCut_[tsNum][1] );
+    double pTMinCutPos = ( pt - pixel_pTMinCut_[tsNum][0] ) / 
+                         ( pixel_pTMinCut_[tsNum][1] - pixel_pTMinCut_[tsNum][0] );
+    if(  pt > pixel_pTMaxCut_[tsNum][1] && 
+         chi2n_no1Dmod > pixel_pTMaxCut_[tsNum][2]*nlayers*pow(pTMaxCutPos,pixel_pTMaxCut_[tsNum][3]) ) 
+      return false;
+    if(  pt < pixel_pTMinCut_[tsNum][1] && 
+         chi2n_no1Dmod > pixel_pTMinCut_[tsNum][2]*nlayers*pow(pTMinCutPos,pixel_pTMinCut_[tsNum][3]) ) 
+      return false;
+  }
 
   //other track parameters
   float d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
