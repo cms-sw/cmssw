@@ -85,7 +85,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     Short_t station = (Short_t) id.station();
     // Not yet remove station 2_long. station 2 mean station 2_long. So, set it to 3.
     if ( station ==2 ) {
-      station=3;
+      station=3; // It is 2_long chamger.
     }
 		Short_t chamber = (Short_t) id.chamber();
     GEMCoPadDigiCollection::const_iterator digiItr;
