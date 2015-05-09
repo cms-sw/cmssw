@@ -65,6 +65,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( DTLVStatus )
       FETCH_PAYLOAD_CASE( DTMtime )
       FETCH_PAYLOAD_CASE( DTReadOutMapping )
+      FETCH_PAYLOAD_CASE( DTRecoConditions )	
       FETCH_PAYLOAD_CASE( DTRecoUncertainties )
       FETCH_PAYLOAD_CASE( DTStatusFlag )
       FETCH_PAYLOAD_CASE( DTT0 )
