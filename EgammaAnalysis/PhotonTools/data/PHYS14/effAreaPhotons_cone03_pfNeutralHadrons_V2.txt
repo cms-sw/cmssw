@@ -1,4 +1,4 @@
- -D # This file contains Effective Area constants for 
+# This file contains Effective Area constants for 
 # computing pile-up corrections for the Neutral Hadrons isolation
 # for a photon object.
 #   Source: https://indico.cern.ch/event/369225/contribution/1/material/slides/0.pdf
