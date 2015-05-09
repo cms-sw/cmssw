@@ -27,10 +27,15 @@ GEMBaseValidation::~GEMBaseValidation() {
 }
 
 MonitorElement* GEMBaseValidation::BookHistZR( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {
-
-  string hist_name  = name+string("_zr_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
-  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalZ [cm]; globalR[cm]";
-
+  string hist_name, hist_label;
+  if ( layer_num == 0 || layer_num==1 ) {
+    hist_name  = name+string("_zr_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+    hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalZ [cm]; globalR[cm]";
+  }
+  else {
+    hist_name  = name+string("_zr_r") + regionLabel[region_num]+"_st"+stationLabel[station_num];
+    hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" "+" ; globalZ [cm]; globalR[cm]";
+  }
   int xbin = (int)nBinZR_[station_num]; 
   int ybin = (int)nBinZR_[ nBinZR_.size()/2+station_num];
   double xmin = 0;
@@ -51,9 +56,15 @@ MonitorElement* GEMBaseValidation::BookHistZR( DQMStore::IBooker& ibooker, const
 }
 
 MonitorElement* GEMBaseValidation::BookHistXY( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {
-
-  string hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
-  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalX [cm]; globalY[cm]";
+  string hist_name, hist_label;
+  if ( layer_num == 0 || layer_num==1 ) {
+    hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+    hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalX [cm]; globalY[cm]";
+  }
+  else {
+    hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num];
+    hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" "+" ; globalX [cm]; globalY[cm]";
+  } 
   return ibooker.book2D( hist_name, hist_label, nBinXY_, -360,360,nBinXY_,-360,360); 
 }
 
