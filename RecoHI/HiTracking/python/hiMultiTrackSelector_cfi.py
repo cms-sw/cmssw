@@ -19,8 +19,8 @@ hiLooseMTS = cms.PSet(
     res_par = cms.vdouble(99999., 99999.),            # residual parameterization (re-check in HI)
     d0_par1 = cms.vdouble(9999., 0.),                 # parameterized nomd0E
     dz_par1 = cms.vdouble(9999., 0.),
-    d0_par2 = cms.vdouble(8.0, 0.0),              # d0E from tk.d0Error
-    dz_par2 = cms.vdouble(8.0, 0.0),
+    d0_par2 = cms.vdouble(9999.0, 0.0),              # d0E from tk.d0Error
+    dz_par2 = cms.vdouble(9999.0, 0.0),
     # Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
     applyAdaptedPVCuts = cms.bool(True),
 
@@ -33,7 +33,7 @@ hiLooseMTS = cms.PSet(
     minNumberLayers = cms.uint32(0),
     minNumber3DLayers = cms.uint32(0),
     maxNumberLostLayers = cms.uint32(999),
-    minHitsToBypassChecks = cms.uint32(20),
+    minHitsToBypassChecks = cms.uint32(999),
     max_minMissHitOutOrIn = cms.int32(99),
     max_lostHitFraction = cms.double(1.0),
     min_eta = cms.double(-9999.),
@@ -44,13 +44,13 @@ hiLooseMTS = cms.PSet(
     keepAllTracks= cms.bool(False),
 
     # parameters for cutting on pterror/pt and number of valid hits
-    max_relpterr = cms.double(0.1),
-    min_nhits = cms.uint32(10)
+    max_relpterr = cms.double(9999),
+    min_nhits = cms.uint32(8)
     )
 
 hiTightMTS=hiLooseMTS.clone(
     preFilterName='hiTrkLoose',
-    min_nhits = cms.uint32(12),
+    min_nhits = cms.uint32(8),
     max_relpterr = cms.double(0.075),
     d0_par2 = cms.vdouble(5.0, 0.0),
     dz_par2 = cms.vdouble(5.0, 0.0),
@@ -63,7 +63,7 @@ hiTightMTS=hiLooseMTS.clone(
 hiHighpurityMTS= hiTightMTS.clone(
     name= cms.string('hiTrkHighPurity'),
     preFilterName='hiTrkTight',
-    min_nhits = cms.uint32(13),
+    min_nhits = cms.uint32(8),
     max_relpterr = cms.double(0.05),
     d0_par2 = [3.0, 0.0],
     dz_par2 = [3.0, 0.0],
