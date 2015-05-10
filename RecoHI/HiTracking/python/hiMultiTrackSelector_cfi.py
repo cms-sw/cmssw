@@ -14,19 +14,19 @@ hiLooseMTS = cms.PSet(
     copyExtras = cms.untracked.bool(True), ## set to false on AOD
     qualityBit = cms.string('loose'), ## set to '' or comment out if you dont want to set the
 
-    chi2n_par = cms.double(9999),                     # version with 1D hits modification
-    chi2n_no1Dmod_par = cms.double(0.3),                     # normalizedChi2 < nLayers * chi2n_par
+    chi2n_par = cms.double(0.3),                     # version with 1D hits modification
+    chi2n_no1Dmod_par = cms.double(9999.),                     # normalizedChi2 < nLayers * chi2n_par
     res_par = cms.vdouble(99999., 99999.),            # residual parameterization (re-check in HI)
     d0_par1 = cms.vdouble(9999., 0.),                 # parameterized nomd0E
     dz_par1 = cms.vdouble(9999., 0.),
-    d0_par2 = cms.vdouble(9999.0, 0.0),              # d0E from tk.d0Error
-    dz_par2 = cms.vdouble(9999.0, 0.0),
+    d0_par2 = cms.vdouble(0.4, 4.0),              # d0E from tk.d0Error
+    dz_par2 = cms.vdouble(0.4, 4.0),
     # Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
     applyAdaptedPVCuts = cms.bool(True),
 
     # Impact parameter absolute cuts.
-    max_z0 = cms.double(1000),
-    max_d0 = cms.double(1000),
+    max_z0 = cms.double(100),
+    max_d0 = cms.double(100),
     nSigmaZ = cms.double(9999.),
 
    # Cuts on numbers of layers with hits/3D hits/lost hits.
@@ -44,7 +44,7 @@ hiLooseMTS = cms.PSet(
     keepAllTracks= cms.bool(False),
 
     # parameters for cutting on pterror/pt and number of valid hits
-    max_relpterr = cms.double(9999),
+    max_relpterr = cms.double(0.2),
     min_nhits = cms.uint32(8)
     )
 
