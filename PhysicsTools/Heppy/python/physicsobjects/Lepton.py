@@ -11,7 +11,7 @@ class Lepton( PhysicsObject):
         '''3D impact parameter significance.'''
         return abs(self.dB(self.PV3D) / self.edB(self.PV3D))
 
-    def absIsoFromEA(self,rho,eta,effectiveArea1 = None,effectiveArea2 = None):
+    def absIsoFromEA(self,area = "04"):
         '''
         Calculate Isolation using the effective area approach. If fsrPhotons is set
         the list of photons is subtracted from the isolation cone. It works with one or
@@ -20,25 +20,10 @@ class Lepton( PhysicsObject):
         photonIso = self.photonIso()
         if hasattr(self,'fsrPhotons'):
             for gamma in self.fsrPhotons:
-                photonIso=photonIso-gamma.pt()                
-        ea1 = rho
-        ea2 = rho
-        if effectiveArea1 is not None:
-            for element in effectiveArea1:
-                if abs(eta)>= element['etaMin'] and \
-                   abs(eta)< element['etaMax']:
-                    ea1 = ea1 * element['area']
-                    break
-        else:
-            return self.chargedHadronIso()+max(0.,photonIso+self.neutralHadronIso()-ea1)
-        if effectiveArea2 is not None:
-            for element in effectiveArea2:
-                if abs(eta)>= element['etaMin'] and \
-                   abs(eta)< element['etaMax']:
-                    ea2 = ea2 * element['area']
-            return self.chargedHadronIso()+max(0.,photonIso-ea1)+max(0.,self.neutralHadronIso()-ea2)
-        else:
-            return self.chargedHadronIso()+max(0.,photonIso+self.neutralHadronIso()-ea1)
+                photonIso=max(photonIso-gamma.pt(),0.0)                
+
+        offset = self.rho*getattr(self,"EffectiveArea"+area)
+        return self.chargedHadronIso()+max(0.,photonIso+self.neutralHadronIso()-offset)            
 
 
     def absIso(self, dBetaFactor=0, allCharged=0):
