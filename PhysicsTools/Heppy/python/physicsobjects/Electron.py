@@ -1,5 +1,5 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
-from PhysicsTools.Heppy.physicsutils.ElectronMVAID import ElectronMVAID_Trig, ElectronMVAID_NonTrig, ElectronMVAID_TrigNoIP
+from PhysicsTools.Heppy.physicsutils.ElectronMVAID import *
 import ROOT
 
 class Electron( Lepton ):
@@ -18,6 +18,7 @@ class Electron( Lepton ):
         self._mvaNonTrigV0  = {True:None, False:None}
         self._mvaTrigV0     = {True:None, False:None}
         self._mvaTrigNoIPV0 = {True:None, False:None}
+        self._mvaRun2 = {}
 
     def electronID( self, id, vertex=None, rho=None ):
         if id is None or id == "": return True
@@ -27,6 +28,8 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Trig":     return self.mvaIDTight()
         elif id == "POG_MVA_ID_NonTrig_full5x5":  return self.mvaIDLoose(full5x5=True)
         elif id == "POG_MVA_ID_Trig_full5x5":     return self.mvaIDTight(full5x5=True)
+        elif id == "POG_MVA_ID_Run2_NonTrig_Loose":    return self.mvaIDRun2("NonTrigPhys14","Loose")
+        elif id == "POG_MVA_ID_Run2_NonTrig_Tight":    return self.mvaIDRun2("NonTrigPhys14","Tight")
         elif id.startswith("POG_Cuts_ID_"):
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
@@ -137,6 +140,13 @@ class Electron( Lepton ):
             self._mvaTrigNoIPV0[full5x5] = ElectronMVAID_TrigNoIP(self.physObj, self.associatedVertex, self.rho, full5x5, debug)
         return self._mvaTrigNoIPV0[full5x5]
 
+    def mvaRun2( self, name, debug = False ):
+        if name not in self._mvaRun2:
+            if name not in ElectronMVAID_ByName: raise RuntimeError, "Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys())
+            if self.associatedVertex == None: raise RuntimeError, "You need to set electron.associatedVertex before calling any MVA"
+            if self.rho              == None: raise RuntimeError, "You need to set electron.rho before calling any MVA"
+            self._mvaRun2[name] = ElectronMVAID_ByName[name](self.physObj, self.associatedVertex, self.rho, True, debug)
+        return self._mvaRun2[name]
 
     def mvaIDTight(self, full5x5=False):
             eta = abs(self.superCluster().eta())
@@ -159,6 +169,21 @@ class Electron( Lepton ):
                 if   (eta < 0.8)  : return self.mvaNonTrigV0(full5x5) > -0.34;
                 elif (eta < 1.479): return self.mvaNonTrigV0(full5x5) > -0.65;
                 else              : return self.mvaNonTrigV0(full5x5) > +0.60;
+
+    def mvaIDRun2(self, name, wp):
+            eta = abs(self.superCluster().eta())
+            if name == "NonTrigPhys14":
+                if wp=="Loose":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > +0.35;
+                    elif (eta < 1.479): return self.mvaRun2(name) > +0.20;
+                    else              : return self.mvaRun2(name) > -0.52;
+                elif wp=="Tight":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
+                    elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
+                    else              : return self.mvaRun2(name) > 0.05;
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            else: raise RuntimeError, "Ele MVA ID type not found"
+
 
     def mvaIDZZ(self):
         return self.mvaIDLoose() and (self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()<=1)
@@ -198,11 +223,14 @@ class Electron( Lepton ):
         if vertex is None:
             vertex = self.associatedVertex
         return self.gsfTrack().dxy( vertex.position() )
+<<<<<<< HEAD
 
     def edxy(self):
         '''returns the uncertainty on dxy (from gsf track)'''
         return self.gsfTrack().dxyError()
 
+=======
+>>>>>>> my-cmssw/heppy_7_4_0_pre9
     def p4(self):
 	 return ROOT.reco.Candidate.p4(self.physObj)
 
