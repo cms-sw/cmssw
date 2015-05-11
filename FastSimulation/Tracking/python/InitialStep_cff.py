@@ -12,10 +12,14 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
         maxZ0 = -1,
         ),
     minLayersCrossed = 3,
-    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
-    ptMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value()
+#    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
+#    ptMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+#    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    useRegions = cms.double(1),   
+    useRegionsTest = cms.double(0),
     )
 
 # track candidates

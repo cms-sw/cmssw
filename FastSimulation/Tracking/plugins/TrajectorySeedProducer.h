@@ -60,11 +60,12 @@ class TrajectorySeedProducer:
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;
 
-        double originRadius;
-        double ptMin;
-        double originHalfLength;
-        double nSigmaZ;
-        
+        double originRadius = -1;
+        double ptMin = -1;
+        double originHalfLength = -1;
+        double nSigmaZ = -1;
+        double useregions;
+	double useregionsTest;
         bool testBeamspotCompatibility;
         const reco::BeamSpot* beamSpot;
         bool testPrimaryVertexCompatibility;
@@ -190,6 +191,7 @@ class TrajectorySeedProducer:
 
     // lv
     bool testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
+    bool testWithRegionsTest(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
 
     //! method inserts hit into the tree structure at an empty position. 
     /*!

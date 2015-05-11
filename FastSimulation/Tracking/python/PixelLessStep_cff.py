@@ -27,10 +27,14 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
         maxZ0 = -1
         ),
     minLayersCrossed = 3,
-    ptMin = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originHalfLength = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
-    originRadius = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value()
+#    ptMin = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+#    originHalfLength = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
+#    originRadius = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    useRegions = cms.double(1),
+    useRegionsTest = cms.double(0),
 )
 
 # track candidates

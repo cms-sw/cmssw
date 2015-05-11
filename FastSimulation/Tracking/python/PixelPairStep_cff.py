@@ -24,12 +24,14 @@ pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
         maxZ0 = 50
         ),
     minLayersCrossed = 2,
-    nSigmaZ = 3, 
-    ptMin = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+#    nSigmaZ = 3, 
+#    ptMin = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+#    originRadius = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
     layerList = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet,
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    useRegions = cms.double(1),
+    useRegionsTest = cms.double(0),
 )
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("firstStepPrimaryVerticesBeforeMixing")
 

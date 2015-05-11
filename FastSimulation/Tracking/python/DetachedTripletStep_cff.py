@@ -21,10 +21,14 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
         maxZ0 = 50
         ),
     minLayersCrossed = 3,
-    ptMin = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originHalfLength = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
-    originRadius = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.layerList.value()
+#    ptMin = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+#    originHalfLength = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
+#    originRadius = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    useRegions = cms.double(1),
+    useRegionsTest = cms.double(0),
     )
 
 # track candidates

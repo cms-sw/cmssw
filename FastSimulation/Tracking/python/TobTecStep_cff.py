@@ -29,10 +29,14 @@ tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
         maxZ0 = -1
     ),
     minLayersCrossed = 4,
-    ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin,
-    originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originHalfLength,
-    originRadius = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.layerList.value()
+#    ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin,
+#    originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originHalfLength,
+#    originRadius = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    useRegions = cms.double(1),
+    useRegionsTest = cms.double(0),
 )
 #pair seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -50,10 +54,14 @@ tobTecStepSeedsPair = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traject
         maxZ0 = 99
     ),
     minLayersCrossed = 4,
-    ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.ptMin,
-    originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originHalfLength,
-    originRadius = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.layerList.value()
+ #   ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.ptMin,
+ #   originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originHalfLength,
+ #   originRadius = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    useRegions = cms.double(1),
+    useRegionsTest = cms.double(0),
 )
 #
 tobTecStepSeeds = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.clone()

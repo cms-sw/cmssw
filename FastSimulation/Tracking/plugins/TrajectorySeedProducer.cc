@@ -58,9 +58,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 {  
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
-
-
-
     const edm::ParameterSet& simTrackSelectionConfig = conf.getParameter<edm::ParameterSet>("simTrackSelection");
     // The smallest pT,dxy,dz for a simtrack
     simTrack_pTMin = simTrackSelectionConfig.getParameter<double>("pTMin");
@@ -73,11 +70,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     {
         skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));
     }
-
-
     // The smallest number of hits for a track candidate
     minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
-
     edm::InputTag beamSpotTag = conf.getParameter<edm::InputTag>("beamSpot");
     if (beamSpotTag.label()!="")
     {
@@ -96,11 +90,9 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'beamSpot' or 'primaryVertex' compatiblity should be configured; not both");
     }
-    
-    // The name of the hit producer
+        // The name of the hit producer
     edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
     recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(recHitTag);
-
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
     for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it) 
@@ -121,17 +113,55 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         seedingLayers.push_back(std::move(trackingLayerList));
     }
 
-    originRadius = conf.getParameter<double>("originRadius");
-    originHalfLength = conf.getParameter<double>("originHalfLength");
-    ptMin = conf.getParameter<double>("ptMin");
-    nSigmaZ = conf.getParameter<double>("nSigmaZ");
+    //originRadius = conf.getParameter<double>("originRadius");
+    //originHalfLength = conf.getParameter<double>("originHalfLength");
+    //ptMin = conf.getParameter<double>("ptMin");
+    //nSigmaZ = conf.getParameter<double>("nSigmaZ");
+    
+    simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
+    simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
 
+    // lv
+    if(conf.exists("RegionFactoryPSet")){
+      edm::ParameterSet regfactoryPSet = 
+	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
+      if(conf.exists("useRegions")){
+	useregions = conf.getParameter<double>("useRegions");
+	std::cout <<"rg = "<< useregions<< std::endl;
+      }
+      if(conf.exists("useRegionsTest")){
+	useregionsTest = conf.getParameter<double>("useRegionsTest");
+	std::cout <<"rgt = "<< useregionsTest<< std::endl;
+      }  
+      edm::ParameterSet regPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
+      ptMin = regPSet.getParameter<double>("ptMin");
+      originRadius = regPSet.getParameter<double>("originRadius");
+      if(regPSet.exists("originHalfLength")){
+	originHalfLength = regPSet.getParameter<double>("originHalfLength");
+      }
+      if(regPSet.exists("nSigmaZ")){
+	nSigmaZ = regPSet.getParameter<double>("nSigmaZ");
+      }
+      //      if(regPSet.exists("fixedError")){
+	//nSigmaZ = regPSet.getParameter<double>("nSigmaZ")*100;
+      //	nSigmaZ = 3;
+      // }
+    }
+    //    std::cout<<"ohl = "<< originHalfLength<<"nsz = " << nSigmaZ<<"or = " << originRadius<<"pt = " << ptMin<<std::endl;
+    //if(originHalfLength>=0 && nSigmaZ>=0)
+    // {
+    //	std::cout<<"you are an idiot"<<std::endl;
+    //	throw cms::Exception("stupid this is");
+    // }
+     
     //make sure that only one cut is configured
     if (originHalfLength>=0 && nSigmaZ>=0)
-    {
+      {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'originHalfLength' or 'nSigmaZ' selection should be configured; not both. Deactivate one (or both) by setting it to <0.");
-    }
-
+      }
     //make sure that performance cuts are not interfering with selection on reconstruction
     if ((ptMin>=0 && simTrack_pTMin>=0) && (ptMin<simTrack_pTMin))
     {
@@ -144,20 +174,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     if ((originRadius>=0 && simTrack_maxD0>=0) && (originRadius>simTrack_maxD0))
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dxy is tighter than cut on dxy estimate from seed.");
-    }
-    simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
-    simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
-
-    // lv
-    if(conf.exists("RegionFactoryPSet")){
-      edm::ParameterSet regfactoryPSet = 
-	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
-      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
-    }
-
-
+    }            
 }
 
 void
@@ -247,13 +264,20 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const
 {
-
     const GlobalPoint& globalHitPos1 = hit1.globalPosition();
     const GlobalPoint& globalHitPos2 = hit2.globalPosition();
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
     if (theRegionProducer){
-      return testWithRegions(hit1,hit2);
+      if(useregions==1){
+	std::cout<<"useregions_method called"<<std::endl;
+	return testWithRegions(hit1,hit2);	
+      }
+      if(useregionsTest==1){
+	std::cout<<"useregionsTest_method called"<<std::endl;
+	return testWithRegionsTest(hit1,hit2);
+      }
+      
     }
     if (testBeamspotCompatibility)
       {
@@ -267,7 +291,6 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
       {
 	return true;
       }
- 
 }
 
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
@@ -310,8 +333,6 @@ const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
     }
     return nullptr;
 }
-
-
 std::vector<unsigned int> TrajectorySeedProducer::iterateHits(
         unsigned int start,
         const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
@@ -559,9 +580,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 // lv
 // inspired by RecoTracker/TkSeedGenerator/plugins/SeedGeneratorFromRegionHitsEDProducer.cc
 // and RecoTracker/TkHitPairs/src/RecHitsSortedInPhi.cc
+
 bool
-TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
-  
+TrajectorySeedProducer::testWithRegionsTest(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
+  std::cout<<"useregionsTest_method used"<<std::endl;
   const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
   typedef PixelRecoRange<float> Range;
@@ -585,6 +607,45 @@ TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & inner
   }
   return false;
 }
+//shubh
+//useRegions                                                                                                                         
+bool
+TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
+  std::cout<<"useregions_method used"<<std::endl;
+  const GlobalPoint& gpos1 = innerHit.globalPosition();
+  const GlobalPoint& gpos2 = outerHit.globalPosition();
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    TrackingRegion * region = *ir;
+    // parameter transformation: take region's center as (0,0,0)                                                                                                          
+    XYZTLorentzVector thePos1(gpos1.x() - region->origin().x(),gpos1.y() - region->origin().y(),gpos1.z() - region->origin().z(),0.);
+    XYZTLorentzVector thePos2(gpos2.x() - region->origin().x(),gpos2.y() - region->origin().y(),gpos2.z() - region->origin().z(),0.);
+    // create a particle with following properties                                                                                                                     
+    // - charge = +1                                                                                                                                                        
+    // - vertex at second rechit                                                                                                                                             
+    // - momentum direction: from first to second rechit                                                                                                                     
+    // - magnitude of momentum: nonsense (distance between 1st and 2nd rechit)                                                                                               
+    ParticlePropagator myPart(thePos2 - thePos1,thePos2,1.,magneticFieldMap);
+    /*                                                                                                                                                                       
+propagateToBeamCylinder does the following                                                                                                                                   
+- check there exists a track through the 2 hits and through a                                                                                                                
+cylinder with radius "originRadius" centered around the CMS axis                                                                                                             
+- if such tracks exists, pick the one with maximum pt                                                                                                                        
+- track vertex z coordinate is z coordinate of closest approach of                                                                                                           
+track to (x,y) = (0,0)                                                                                                                                                       
+- the particle gets the charge that allows the highest pt                                                                                                                    
+    */
+    bool intersect = myPart.propagateToBeamCylinder(thePos1,region->originRBound());
+    if ( !intersect ) continue;
+    // Check if the constraints are satisfied                                                                                                                                
+    // 1. pT at cylinder with radius originRadius                                                                                                                            
+    else if ( myPart.Pt() < region->ptMin() ) continue;
+    // 2. Z compatible with region center ?                                                                                                                                  
+    else if ( fabs(myPart.Z()) > region->originZBound() ) continue;
+    return true;
+  }
+  return true;
+}
+
 
 bool
 TrajectorySeedProducer::compatibleWithBeamSpot(
