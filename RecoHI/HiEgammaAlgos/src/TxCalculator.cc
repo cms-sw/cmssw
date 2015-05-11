@@ -24,17 +24,7 @@ using namespace ROOT::Math::VectorUtil;
 TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::Handle<reco::TrackCollection> trackLabel,std::string trackQuality)
 {
   recCollection = trackLabel;
-  edm::Service<edm::RandomNumberGenerator> rng;
-   trackQuality_=trackQuality;
-   if ( ! rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-         << "XXXXXXX requires the RandomNumberGeneratorService\n"
-         "which is not present in the configuration file.  You must add the service\n"
-         "in the configuration file or remove the modules that require it.";
-   }
-   CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
-   theDice = new CLHEP::RandFlat(engine, 0, 1);
-
+  trackQuality_=trackQuality;
 }
 
 
@@ -88,7 +78,7 @@ double TxCalculator::getMPT( double ptCut     ,   double etaCut  )
 }
 
 
-double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR, double effRatio)
+double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR)
 {
 
    using namespace edm;
@@ -103,10 +93,6 @@ double TxCalculator::getTx(const reco::Photon cluster, double x, double threshol
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
       {
-	 double diceNum = theDice->fire();
-	 if ( (effRatio < 1 ) &&  ( diceNum > effRatio))
-	    continue;
-
 	 double pt = recTrack->pt();
 	 double eta2 = recTrack->eta();
 	 double phi2 = recTrack->phi();
@@ -126,7 +112,7 @@ double TxCalculator::getTx(const reco::Photon cluster, double x, double threshol
 
 
 
-double TxCalculator::getCTx(const reco::Photon cluster, double x, double threshold, double innerDR,double effRatio)
+double TxCalculator::getCTx(const reco::Photon cluster, double x, double threshold, double innerDR)
 {
    using namespace edm;
    using namespace reco;
@@ -140,11 +126,6 @@ double TxCalculator::getCTx(const reco::Photon cluster, double x, double thresho
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
       {
-	 double diceNum = theDice->fire();
-         if ( (effRatio < 1 ) &&  ( diceNum > effRatio))
-            continue;
-
-
 	 double pt = recTrack->pt();
 	 double eta2 = recTrack->eta();
 	 double phi2 = recTrack->phi();
@@ -159,7 +140,7 @@ double TxCalculator::getCTx(const reco::Photon cluster, double x, double thresho
          TotalPt = TotalPt + pt;
    }
 
-   double Tx = getTx(cluster,x,threshold,innerDR,effRatio);
+   double Tx = getTx(cluster,x,threshold,innerDR);
    double CTx = Tx - TotalPt / 40.0 * x;
 
    return CTx;
