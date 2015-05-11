@@ -21,6 +21,7 @@ HiPFJetParameters = cms.PSet(
     puWidth = cms.double(0.8),
     nExclude = cms.uint32(2),
     dropZeros = cms.bool(True),
+    addNegative = cms.bool(True),
     addNegativesFromCone = cms.bool(False),
     infinitesimalPt = cms.double(0.005)    
 )

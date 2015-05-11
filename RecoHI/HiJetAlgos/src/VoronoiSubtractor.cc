@@ -15,6 +15,7 @@ VoronoiSubtractor::VoronoiSubtractor(const edm::ParameterSet& iConfig, edm::Cons
   srcCand_(iC.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("src"))),
   srcVor_(iC.consumes<edm::ValueMap<reco::VoronoiBackground> >(iConfig.getParameter<edm::InputTag>("bkg"))), 
   dropZeroTowers_(iConfig.getParameter<bool>("dropZeros")),
+  addNegative_(iConfig.getParameter<bool>("addNegative")),
   addNegativesFromCone_(iConfig.getParameter<bool>("addNegativesFromCone")),
   infinitesimalPt_(iConfig.getParameter<double>("infinitesimalPt")),
   rParam_(iConfig.getParameter<double>("rParam"))
@@ -68,8 +69,8 @@ void VoronoiSubtractor::offsetCorrectJets()
 	fastjet::PseudoJet candidate(ref->px(),ref->py(),ref->pz(),ref->energy());
 	double orpt = candidate.perp();
 	unsubtracted += candidate;
-	if(voronoi.pt() > 0){
-	  candidate.reset_PtYPhiM(voronoi.pt(),ref->rapidity(),ref->phi(),ref->mass());
+	if(addNegative_ || voronoi.pt() > 0){
+	  candidate.reset_PtYPhiM(addNegative_ ? voronoi.pt_subtracted() : voronoi.pt(),ref->rapidity(),ref->phi(),ref->mass());
 	  LogDebug("VoronoiSubtractor")<<"candidate "<<index
 				       <<" --- original pt : "<<orpt
 				       <<" ---  voronoi pt : "<<voronoi.pt()
