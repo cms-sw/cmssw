@@ -101,6 +101,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonRPCHits");
   produces<edm::PSimHitContainer>("MuonGEMHits");
+  produces<edm::PSimHitContainer>("MuonME0Hits");
   produces<edm::PCaloHitContainer>("CastorPL");
   produces<edm::PCaloHitContainer>("CastorFI");
   produces<edm::PCaloHitContainer>("CastorBU");
