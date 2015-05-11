@@ -55,4 +55,7 @@ multiTrackValidatorGenPs = cms.EDAnalyzer(
     ### output configuration
     dirName = cms.string('Tracking/Track/'),
     outputFile = cms.string(''),
+
+    ### Allow switching off particular histograms
+    dodEdxPlots = cms.untracked.bool(False),
 )

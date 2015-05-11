@@ -221,7 +221,7 @@ class GlobalRecHitsAnalyzer : public DQMEDAnalyzer
     projectHit( const PSimHit& hit,
 		const StripGeomDetUnit* stripDet,
 		const BoundPlane& plane);
-  TrackerHitAssociator trackerHitAssociator_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   // SiPxl
 

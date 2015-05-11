@@ -60,5 +60,8 @@ multiTrackValidator = cms.EDAnalyzer(
     outputFile = cms.string(''),
 
     ### for fake rate vs dR ###
-    trackCollectionForDrCalculation = cms.InputTag("generalTracks")
+    trackCollectionForDrCalculation = cms.InputTag("generalTracks"),
+
+    ### Allow switching off particular histograms
+    dodEdxPlots = cms.untracked.bool(False),
 )
