@@ -3,6 +3,13 @@ import FWCore.ParameterSet.Config as cms
 AODHIPhotonProducer = cms.EDProducer(
     "AODHIPhotonProducer",
     photonProducer = cms.InputTag("photons"),
-    barrelEcalHits = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
-    endcapEcalHits = cms.InputTag("ecalRecHit:EcalRecHitsEE")
+    ebRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
+    eeRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
+    hbhe = cms.InputTag("hbhereco"),
+    hf = cms.InputTag("hfreco"),
+    ho = cms.InputTag("horeco"),
+    basicClusterBarrel = cms.InputTag("islandBasicClusters:islandBarrelBasicClusters"),
+    basicClusterEndcap = cms.InputTag("islandBasicClusters:islandEndcapBasicClusters"),
+    trackCollection = cms.InputTag("hiGeneralTracks"),
+    trackQuality = cms.string("highPurity")
 )
