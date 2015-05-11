@@ -6,8 +6,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
 
-typedef VersionedSelector<edm::Ptr<reco::Muon> > VersionedRecoMuonSelector;
-typedef VersionedSelector<edm::Ptr<pat::Muon > > VersionedPatMuonSelector ;
+typedef VersionedSelector<edm::Ptr<reco::Muon> > VersionedMuonSelector;
 
 #endif
 

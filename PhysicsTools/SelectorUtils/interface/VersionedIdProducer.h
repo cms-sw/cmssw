@@ -1,3 +1,5 @@
+#ifndef PhysicsTools_SelectorUtils_VersionedIdProducer_h
+#define PhysicsTools_SelectorUtils_VersionedIdProducer_h
 // system include files
 #include <memory>
 
@@ -168,3 +170,4 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }   
 }
 
+#endif

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-recoMuonVIDs = cms.EDProducer("VersionedRecoMuonIdProducer",
+muonVIDs = cms.EDProducer("VersionedMuonIdProducer",
     physicsObjectSrc = cms.InputTag('muons'),
     physicsObjectIDs = cms.VPSet( )
 )
