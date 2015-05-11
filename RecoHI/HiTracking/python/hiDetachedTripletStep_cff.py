@@ -160,7 +160,7 @@ hiDetachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackP
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiDetachedTripletStepTracks',
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('HIMVASelectorIter7'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
