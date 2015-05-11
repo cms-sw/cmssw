@@ -8,6 +8,11 @@ cutBasedMuonId_MuonPOG_V0 = cms.PSet(
         cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
                   idName = cms.string("loose"),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
+                  needsAdditionalProducts = cms.bool(False),
+                  isIgnored = cms.bool(False) ),
+        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+                  idName = cms.string("medium"),
+                  vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(True),
                   isIgnored = cms.bool(False) ),
         cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
@@ -15,9 +20,19 @@ cutBasedMuonId_MuonPOG_V0 = cms.PSet(
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(True),
                   isIgnored = cms.bool(False) ),
+        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+                  idName = cms.string("soft"),
+                  vertexSrc = cms.InputTag("offlinePrimaryVertices"),
+                  needsAdditionalProducts = cms.bool(True),
+                  isIgnored = cms.bool(False) ),
+        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+                  idName = cms.string("highpt"),
+                  vertexSrc = cms.InputTag("offlinePrimaryVertices"),
+                  needsAdditionalProducts = cms.bool(True),
+                  isIgnored = cms.bool(False) ),
     )
 )
 
 central_id_registry.register(cutBasedMuonId_MuonPOG_V0,
-                             'f5fa5cfaaa0d4f8055abe71102f00661')
+                             '58127724f7f9d8a8879ea4a814aac5ee')
 
