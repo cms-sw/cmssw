@@ -23,5 +23,5 @@ DEFINE_FWK_MODULE(InterestingEcalDetIdProducer);
 
 // For the VID framework
 #include "PhysicsTools/SelectorUtils/interface/VersionedIdProducer.h"
-typedef VersionedIdProducer<reco::MuonPtr> VersionedRecoMuonIdProducer;
-DEFINE_FWK_MODULE(VersionedRecoMuonIdProducer);
+typedef VersionedIdProducer<reco::MuonPtr> VersionedMuonIdProducer;
+DEFINE_FWK_MODULE(VersionedMuonIdProducer);

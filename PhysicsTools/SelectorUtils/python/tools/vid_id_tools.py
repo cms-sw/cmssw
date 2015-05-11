@@ -142,11 +142,11 @@ def setupVIDPhotonSelection(process,cutflow,patProducer=None):
 
 #tuns on the VID muon ID producer
 def switchOnVIDMuonIdProducer(process):
-    process.load("RecoMuon.MuonIdentification.patMuonVIDs_cfi")
-    print "Added 'patMuonVIDs' to process definition!"
+    process.load("RecoMuon.MuonIdentification.muonVIDs_cfi")
+    print "Added 'muonVIDs' to process definition!"
 
 def setupVIDMuonSelection(process, cutflow, patProducer=None):
-    moduleName = "patMuonVIDs"
+    moduleName = "muonVIDs"
     if not hasattr(process, moduleName):
         raise Exception("VIDProducerNotAvailable", "%s producer not available in process!" % moduleName)
     setupVIDSelection(getattr(process, moduleName), cutflow)
