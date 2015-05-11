@@ -105,7 +105,7 @@ process.valHcalTriggerPrimitiveDigis.InputTagFEDRaw = cms.InputTag("rawDataColle
 # -------------------------------
 
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
-process.load("DQM.HcalMonitorModule.ZDCMonitorModule_cfi")
+#process.load("DQM.HcalMonitorModule.ZDCMonitorModule_cfi")
 
 process.load("DQM.HcalMonitorTasks.HcalMonitorTasks_cfi")
 # Set individual parameters for the tasks
@@ -118,7 +118,6 @@ if playbackHCAL==True:
 process.hcalBeamMonitor.hotrate=0.40
 
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
-process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
 #process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
 
 #-----------------------------
@@ -204,7 +203,7 @@ process.hcalClient.enabledClients = ["DeadCellMonitor",
                                      "TrigPrimMonitor",
                                      "NZSMonitor",
                                      "BeamMonitor",
-                                     "ZDCMonitor",
+#                                     "ZDCMonitor",
                                      #"DetDiagPedestalMonitor",
                                      #"DetDiagLaserMonitor",
                                      #"DetDiagLEDMonitor",
@@ -309,7 +308,7 @@ process.hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollec
 process.hcalNZSMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
 process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
 process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
+#process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -341,7 +340,7 @@ if (HEAVYION):
     process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
     process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
     process.hcalDigiMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
-    process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
+#    process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
 
 
 ### process customizations included here

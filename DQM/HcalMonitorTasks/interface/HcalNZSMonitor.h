@@ -35,6 +35,7 @@ class HcalNZSMonitor: public HcalBaseDQMonitor
   MonitorElement* meFEDsizeVsLumi_;
   
   MonitorElement* meFEDsizesNZS_;
+  MonitorElement* meUTCAFEDsizesNZS_;
   MonitorElement* meL1evtNumber_;
   MonitorElement* meIsUS_;
   MonitorElement* meBXtriggered_;
