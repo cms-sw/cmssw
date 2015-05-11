@@ -20,22 +20,9 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
     
-  dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
                                                                                                                                           
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
 
   gainConv_[1] = 1.;
   gainConv_[2] = 2.;
@@ -67,72 +54,69 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
 
   meEBnADCafterSwitch_ = 0;
  
-  Char_t histo[200];
- 
-  
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
-  
-    sprintf (histo, "EcalDigiTask Barrel occupancy" ) ;
-    meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-
-    sprintf (histo, "EcalDigiTask Barrel digis multiplicity" ) ;
-    meEBDigiMultiplicity_ = dbe_->book1D(histo, histo, 612, 0., 61200);
-  
-    sprintf (histo, "EcalDigiTask Barrel global pulse shape" ) ;
-    meEBDigiADCGlobal_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 10000, 0., 1000.) ;
-    
-    for (int i = 0; i < 10 ; i++ ) {
-
-      sprintf (histo, "EcalDigiTask Barrel analog pulse %02d", i+1) ;
-      meEBDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4000, 0., 400.);
-
-      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 0 - Saturated", i+1) ;
-      meEBDigiADCgS_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 1", i+1) ;
-      meEBDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 6", i+1) ;
-      meEBDigiADCg6_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 12", i+1) ;
-      meEBDigiADCg12_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Barrel gain pulse %02d", i+1) ;
-      meEBDigiGain_[i] = dbe_->book1D(histo, histo, 4, 0, 4);
-
-    }
-    
-    sprintf (histo, "EcalDigiTask Barrel pedestal for pre-sample" ) ;
-    meEBPedestal_ = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5) ;
-
-    sprintf (histo, "EcalDigiTask Barrel maximum position gt 100 ADC" ) ;
-    meEBMaximumgt100ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
-
-    sprintf (histo, "EcalDigiTask Barrel maximum position gt 10 ADC" ) ;
-    meEBMaximumgt10ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
-
-    sprintf (histo, "EcalDigiTask Barrel ADC counts after gain switch" ) ;
-    meEBnADCafterSwitch_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
-
-  }
- 
 }
 
 EcalBarrelDigisValidation::~EcalBarrelDigisValidation(){
  
 }
 
-void EcalBarrelDigisValidation::beginRun(Run const &, EventSetup const & c){
+void EcalBarrelDigisValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
+
+    Char_t histo[200];
+
+    ibooker.setCurrentFolder("EcalDigisV/EcalDigiTask");
+  
+    sprintf (histo, "EcalDigiTask Barrel occupancy" ) ;
+    meEBDigiOccupancy_ = ibooker.book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
+    sprintf (histo, "EcalDigiTask Barrel digis multiplicity" ) ;
+    meEBDigiMultiplicity_ = ibooker.book1D(histo, histo, 612, 0., 61200);
+  
+    sprintf (histo, "EcalDigiTask Barrel global pulse shape" ) ;
+    meEBDigiADCGlobal_ = ibooker.bookProfile(histo, histo, 10, 0, 10, 10000, 0., 1000.) ;
+    
+    for (int i = 0; i < 10 ; i++ ) {
+
+      sprintf (histo, "EcalDigiTask Barrel analog pulse %02d", i+1) ;
+      meEBDigiADCAnalog_[i] = ibooker.book1D(histo, histo, 4000, 0., 400.);
+
+      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 0 - Saturated", i+1) ;
+      meEBDigiADCgS_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 1", i+1) ;
+      meEBDigiADCg1_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 6", i+1) ;
+      meEBDigiADCg6_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 12", i+1) ;
+      meEBDigiADCg12_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Barrel gain pulse %02d", i+1) ;
+      meEBDigiGain_[i] = ibooker.book1D(histo, histo, 4, 0, 4);
+
+    }
+    
+    sprintf (histo, "EcalDigiTask Barrel pedestal for pre-sample" ) ;
+    meEBPedestal_ = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5) ;
+
+    sprintf (histo, "EcalDigiTask Barrel maximum position gt 100 ADC" ) ;
+    meEBMaximumgt100ADC_ = ibooker.book1D(histo, histo, 10, 0., 10.) ;
+
+    sprintf (histo, "EcalDigiTask Barrel maximum position gt 10 ADC" ) ;
+    meEBMaximumgt10ADC_ = ibooker.book1D(histo, histo, 10, 0., 10.) ;
+
+    sprintf (histo, "EcalDigiTask Barrel ADC counts after gain switch" ) ;
+    meEBnADCafterSwitch_ = ibooker.book1D(histo, histo, 10, 0., 10.) ;
+
+}
+
+void EcalBarrelDigisValidation::dqmBeginRun(edm::Run const&, edm::EventSetup const& c){
 
   checkCalibrations(c);
 
 }
 
-void EcalBarrelDigisValidation::endJob(){
-
-}
 
 void EcalBarrelDigisValidation::analyze(Event const & e, EventSetup const & c){
 

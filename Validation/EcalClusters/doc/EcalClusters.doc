@@ -19,9 +19,6 @@ SDPV Package for Validation of Ecal Clusters.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- EgammaBasicClusters
-- EgammaSuperClusters
-
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
