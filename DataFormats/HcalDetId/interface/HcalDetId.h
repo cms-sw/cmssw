@@ -15,7 +15,6 @@
  */
 class HcalDetId : public DetId {
 public:
-  static const int kHcalPhiOffset      = 0;
   static const int kHcalPhiMask1       = 0x7F;
   static const int kHcalPhiMask2       = 0x3FF;
   static const int kHcalEtaOffset1     = 7;
