@@ -8,6 +8,7 @@ quickTrackAssociatorByHits.useClusterTPAssociation = False
 #TrackAssociatorByHitsRecoDenom.ROUList = ['famosSimHitsTrackerHits']
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
+trackValidator.dodEdxPlots = False
 
 trackValidator.stableOnlyTP = True
 trackValidator.histoProducerAlgoBlock.generalTpSelector.stableOnly = True

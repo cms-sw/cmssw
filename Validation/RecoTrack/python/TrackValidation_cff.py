@@ -113,6 +113,7 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
+trackValidator.dodEdxPlots = True
 #trackValidator.minpT = cms.double(-1)
 #trackValidator.maxpT = cms.double(3)
 #trackValidator.nintpT = cms.int32(40)
