@@ -44,12 +44,10 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-
 #include <math.h>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
-  : trackerHitAssociator_(new TrackerHitAssociator(ps, consumesCollector()))
+  : trackerHitAssociatorConfig_(ps, consumesCollector())
   , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
 }
@@ -300,7 +298,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   es.get<TrackerDigiGeometryRecord>().get(geom); 
   const TrackerGeometry& theTracker(*geom);
   
-  trackerHitAssociator_->processEvent(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
   
   //iterate over detunits
   for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) 
@@ -324,7 +322,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	{
 	  matched.clear();
-	  matched = trackerHitAssociator_->associateHit(*pixeliter);
+	  matched = associate.associateHit(*pixeliter);
 	  
 	  if ( !matched.empty() ) 
 	    {

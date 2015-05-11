@@ -110,7 +110,7 @@ void SiPixelTrackingRecHitsValid::beginJob()
 }
 
 SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet& ps) :
-  trackerHitAssociator_(ps, consumesCollector()),
+  trackerHitAssociatorConfig_(ps, consumesCollector()),
   dbe_(0), tfile_(0), t_(0)
 {
   //Read config file
@@ -1094,7 +1094,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   float mindist = 999999.9;
 
   std::vector<PSimHit> matched;
-  trackerHitAssociator_.processEvent(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_); 
 
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -1269,7 +1269,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 		      //Association of the rechit to the simhit
 		      matched.clear();
-		      matched = trackerHitAssociator_.associateHit(*matchedhit);
+		      matched = associate.associateHit(*matchedhit);
 
 		      nsimhit = (int)matched.size();
 

@@ -1,5 +1,4 @@
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
 //needed for the geometry: 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -47,7 +46,7 @@ namespace helper {
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   conf_(ps),
-  trackerHitAssociator_(new TrackerHitAssociator(ps, consumesCollector())),
+  trackerHitAssociatorConfig_(ps, consumesCollector()),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
   // rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
@@ -231,8 +230,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   int totrechitstereo =0;
   int totrechitmatched =0;
    
-  TrackerHitAssociator& associate = *trackerHitAssociator_;
-  associate.processEvent(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
   
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);

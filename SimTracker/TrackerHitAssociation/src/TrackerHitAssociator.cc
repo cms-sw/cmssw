@@ -53,10 +53,29 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 }
 
 //
-// Constructor with configurables. Supports consumes interface
+// Constructor supporting consumes but not tokens (deprecated) 
 //
-
 TrackerHitAssociator::TrackerHitAssociator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
+  doPixel_( conf.getParameter<bool>("associatePixel") ),
+  doStrip_( conf.getParameter<bool>("associateStrip") ),
+  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
+  assocHitbySimTrack_( conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false) {
+
+  if(doStrip_) iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
+  if(doPixel_) iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  if(!doTrackAssoc_) {
+    vstring trackerContainers(conf.getParameter<vstring>("ROUList"));
+    for(auto const& trackerContainer : trackerContainers) {
+      iC.consumes<CrossingFrame<PSimHit> >(edm::InputTag("mix", trackerContainer));
+      iC.consumes<std::vector<PSimHit> >(edm::InputTag("g4SimHits", trackerContainer));
+    }
+  }
+ }
+
+//
+// Constructor for Config helper class
+//
+TrackerHitAssociator::Config::Config(const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
@@ -65,7 +84,7 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::ParameterSet& conf, edm::C
   if(doStrip_) stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
   if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
   if(!doTrackAssoc_) {
-    vstring trackerContainers(conf.getParameter<vstring>("ROUList"));
+    std::vector<std::string> trackerContainers(conf.getParameter<std::vector<std::string> >("ROUList"));
     cfTokens_.reserve(trackerContainers.size());
     simHitTokens_.reserve(trackerContainers.size());
     for(auto const& trackerContainer : trackerContainers) {
@@ -74,6 +93,23 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::ParameterSet& conf, edm::C
     }
   }
  }
+
+//
+// Constructor supporting consumes interface
+//
+TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const TrackerHitAssociator::Config& config) :
+  doPixel_(config.doPixel_),
+  doStrip_(config.doStrip_),
+  doTrackAssoc_(config.doTrackAssoc_),
+  assocHitbySimTrack_(config.assocHitbySimTrack_) {
+  //if track association there is no need to access the input collections
+  if(!doTrackAssoc_) {
+    makeMaps(e, config);
+  }
+
+  if(doStrip_) e.getByToken(config.stripToken_, stripdigisimlink);
+  if(doPixel_) e.getByToken(config.pixelToken_, pixeldigisimlink);
+}
 
 //
 // Constructor with configurables (deprecated)
@@ -94,26 +130,13 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
   if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
 }
 
-void TrackerHitAssociator::processEvent(const edm::Event& e) {
-  //if track association there is no need to access the input collections
-  if(!doTrackAssoc_) {
-    makeMaps(e);
-  }
-
-  if(doStrip_) e.getByToken(stripToken_, stripdigisimlink);
-  if(doPixel_) e.getByToken(pixelToken_, pixeldigisimlink);
-}
-
-void TrackerHitAssociator::makeMaps(const edm::Event& theEvent) {
+void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHitAssociator::Config& config) {
   // Step A: Get Inputs
   //  The collections are specified via ROUList in the configuration, and can
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof)
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
 
-  SimHitMap.clear();  // Start fresh after previous event.
-  SimHitCollMap.clear();
-
-  for(auto const& cfToken : cfTokens_) {
+  for(auto const& cfToken : config.cfTokens_) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     int Nhits = 0;
     if (theEvent.getByToken(cfToken, cf_simhit)) {
@@ -136,7 +159,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent) {
       // std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
     }
   }
-  for(auto const& simHitToken : simHitTokens_) {
+  for(auto const& simHitToken : config.simHitTokens_) {
     edm::Handle<std::vector<PSimHit> > simHits;
     int Nhits = 0;
     if(theEvent.getByToken(simHitToken, simHits)) {
@@ -166,9 +189,6 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const vstring& t
   //  The collections are specified via ROUList in the configuration, and can
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof) 
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
-
-  SimHitMap.clear();  // Start fresh after previous event.
-  SimHitCollMap.clear();
 
   for(auto const& trackerContainer : trackerContainers) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;

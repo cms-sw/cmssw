@@ -385,16 +385,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   nrecHit_vs_nsimHit_rec2sim.push_back( ibook.book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
 
-  // dE/dx stuff
-  // FIXME: it would be nice to have an array
-  h_dedx_estim1.push_back( ibook.book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx) );
-  h_dedx_estim2.push_back( ibook.book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx) );
-  h_dedx_nom1.push_back( ibook.book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit) );
-  h_dedx_nom2.push_back( ibook.book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit) );
-  h_dedx_sat1.push_back( ibook.book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
-  h_dedx_sat2.push_back( ibook.book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
-
-
   if(useLogPt){
     BinLogX(dzres_vs_pt.back()->getTH2F());
     BinLogX(dxyres_vs_pt.back()->getTH2F());
@@ -408,6 +398,22 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
     BinLogX(h_assoc2pT.back()->getTH1F());
     BinLogX(h_simulpT.back()->getTH1F());
   }
+}
+
+void MTVHistoProducerAlgoForTracker::bookRecodEdxHistos(DQMStore::IBooker& ibook) {
+  // dE/dx stuff
+  h_dedx_estim.emplace_back(std::initializer_list<MonitorElement*>{
+      ibook.book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx),
+      ibook.book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx)
+      });
+  h_dedx_nom.emplace_back(std::initializer_list<MonitorElement*>{
+      ibook.book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit),
+      ibook.book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit)
+      });
+  h_dedx_sat.emplace_back(std::initializer_list<MonitorElement*>{
+      ibook.book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit),
+      ibook.book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit)
+      });
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook){
@@ -601,26 +607,13 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 }
 
 // dE/dx
-void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx) {
-//void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx) {
-  double dedx;
-  int nom;
-  int sat;
-  edm::ValueMap<reco::DeDxData> dEdxTrack;
+void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx) {
   for (unsigned int i=0; i<v_dEdx.size(); i++) {
-    dEdxTrack = v_dEdx.at(i);
-    dedx = dEdxTrack[trackref].dEdx();
-    nom  = dEdxTrack[trackref].numberOfMeasurements();
-    sat  = dEdxTrack[trackref].numberOfSaturatedMeasurements();
-    if (i==0) {
-      h_dedx_estim1[count]->Fill(dedx);
-      h_dedx_nom1[count]->Fill(nom);
-      h_dedx_sat1[count]->Fill(sat);
-    } else if (i==1) {
-      h_dedx_estim2[count]->Fill(dedx);
-      h_dedx_nom2[count]->Fill(nom);
-      h_dedx_sat2[count]->Fill(sat);
-    }
+    const edm::ValueMap<reco::DeDxData>& dEdxTrack = *(v_dEdx[i]);
+    const reco::DeDxData& dedx = dEdxTrack[trackref];
+    h_dedx_estim[count][i]->Fill(dedx.dEdx());
+    h_dedx_nom[count][i]->Fill(dedx.numberOfMeasurements());
+    h_dedx_sat[count][i]->Fill(dedx.numberOfSaturatedMeasurements());
   }
 }
 
@@ -642,62 +635,56 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   int sharedHits = sharedFraction *  track.numberOfValidHits();
 
   //Compute fake rate vs eta
-  fillPlotNoFlow(h_recoeta[count],getEta(track.momentum().eta()));
+  const auto eta = getEta(track.momentum().eta());
+  const auto phi = track.momentum().phi();
+  const auto pt = getPt(sqrt(track.momentum().perp2()));
+  const auto dxy = track.dxy(bsPosition);
+  const auto dz = track.dz(bsPosition);
+  const auto nhits = track.found();
+  const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
+
+  fillPlotNoFlow(h_recoeta[count], eta);
+  fillPlotNoFlow(h_recophi[count], phi);
+  fillPlotNoFlow(h_recopT[count], pt);
+  fillPlotNoFlow(h_recodxy[count], dxy);
+  fillPlotNoFlow(h_recodz[count], dz);
+  fillPlotNoFlow(h_recohit[count], nhits);
+  fillPlotNoFlow(h_recopu[count],numVertices);
+  h_recodr[count]->Fill(deltar);
   if (isMatched) {
-    fillPlotNoFlow(h_assoc2eta[count],getEta(track.momentum().eta()));
-    if (!isChargeMatched) fillPlotNoFlow(h_misideta[count],getEta(track.momentum().eta()));
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_loopereta[count],getEta(track.momentum().eta()));
+    fillPlotNoFlow(h_assoc2eta[count], eta);
+    fillPlotNoFlow(h_assoc2phi[count], phi);
+    fillPlotNoFlow(h_assoc2pT[count], pt);
+    fillPlotNoFlow(h_assoc2dxy[count], dxy);
+    fillPlotNoFlow(h_assoc2dz[count], dz);
+    fillPlotNoFlow(h_assoc2hit[count], nhits);
+    fillPlotNoFlow(h_assoc2pu[count],numVertices);
+    h_assoc2dr[count]->Fill(deltar);
+
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
     h_assocSharedHit[count]->Fill( sharedHits);
+
+    if (!isChargeMatched) {
+      fillPlotNoFlow(h_misideta[count], eta);
+      fillPlotNoFlow(h_misidphi[count], phi);
+      fillPlotNoFlow(h_misidpT[count], pt);
+      fillPlotNoFlow(h_misiddxy[count], dxy);
+      fillPlotNoFlow(h_misiddz[count], dz);
+      fillPlotNoFlow(h_misidhit[count], nhits);
+      fillPlotNoFlow(h_misidpu[count], numVertices);
+    }
+
+    if (numAssocRecoTracks>1) {
+      fillPlotNoFlow(h_loopereta[count], eta);
+      fillPlotNoFlow(h_looperphi[count], phi);
+      fillPlotNoFlow(h_looperpT[count], pt);
+      fillPlotNoFlow(h_looperdxy[count], dxy);
+      fillPlotNoFlow(h_looperdz[count], dz);
+      fillPlotNoFlow(h_looperhit[count], nhits);
+      fillPlotNoFlow(h_looperpu[count], numVertices);
+    }
   }
-
-  fillPlotNoFlow(h_recophi[count],track.momentum().phi());
-  if (isMatched) {
-    fillPlotNoFlow(h_assoc2phi[count],track.momentum().phi());
-    if (!isChargeMatched) fillPlotNoFlow(h_misidphi[count],track.momentum().phi());
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperphi[count],track.momentum().phi());
-  }
-
-  fillPlotNoFlow(h_recopT[count],getPt(sqrt(track.momentum().perp2())));
-  if (isMatched) {
-    fillPlotNoFlow(h_assoc2pT[count],getPt(sqrt(track.momentum().perp2())));
-    if (!isChargeMatched) fillPlotNoFlow(h_misidpT[count],getPt(sqrt(track.momentum().perp2())));
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperpT[count],getPt(sqrt(track.momentum().perp2())));
-  }
-
-  fillPlotNoFlow(h_recodxy[count],track.dxy(bsPosition));
-  if (isMatched) {
-    fillPlotNoFlow(h_assoc2dxy[count],track.dxy(bsPosition));
-    if (!isChargeMatched) fillPlotNoFlow(h_misiddxy[count],track.dxy(bsPosition));
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperdxy[count],track.dxy(bsPosition));
-  }
-
-  fillPlotNoFlow(h_recodz[count],track.dz(bsPosition));
-  if (isMatched) {
-    fillPlotNoFlow(h_assoc2dz[count],track.dz(bsPosition));
-    if (!isChargeMatched) fillPlotNoFlow(h_misiddz[count],track.dz(bsPosition));
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperdz[count],track.dz(bsPosition));
-  }
-
-
-  fillPlotNoFlow(h_recohit[count],track.found());
-  if (isMatched) {
-    fillPlotNoFlow(h_assoc2hit[count],track.found());
-    if (!isChargeMatched) fillPlotNoFlow(h_misidhit[count],track.found());
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperhit[count],track.found());
-  }
-
-  fillPlotNoFlow(h_recopu[count],numVertices);
-  if (isMatched) {
-    fillPlotNoFlow(h_assoc2pu[count],numVertices);
-    if (!isChargeMatched) fillPlotNoFlow(h_misidpu[count],numVertices);
-    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperpu[count],numVertices);
-  }
-
-  //fakerate vs dR
-  h_recodr[count]->Fill(min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax()));
-  if (isMatched) h_assoc2dr[count]->Fill(min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax()));
 }
 
 
@@ -714,24 +701,25 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     h_nmisslayers_outer[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
     //chi2 and #hit vs eta: fill 2D histos
-    chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());
-    nhits_vs_eta[count]->Fill(getEta(track.eta()),track.numberOfValidHits());
-    nPXBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelBarrelHits());
-    nPXFhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelEndcapHits());
-    nTIBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIBHits());
-    nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIDHits());
-    nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTOBHits());
-    nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTECHits());
-    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement());
-    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement());
+    const auto eta = getEta(track.eta());
+    chi2_vs_eta[count]->Fill(eta, track.normalizedChi2());
+    nhits_vs_eta[count]->Fill(eta, track.numberOfValidHits());
+    nPXBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidPixelBarrelHits());
+    nPXFhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidPixelEndcapHits());
+    nTIBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTIBHits());
+    nTIDhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTIDHits());
+    nTOBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTOBHits());
+    nTEChits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTECHits());
+    nLayersWithMeas_vs_eta[count]->Fill(eta, track.hitPattern().trackerLayersWithMeasurement());
+    nPXLlayersWithMeas_vs_eta[count]->Fill(eta, track.hitPattern().pixelLayersWithMeasurement());
     int LayersAll = track.hitPattern().stripLayersWithMeasurement();
     int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
     int Layers1D = LayersAll - Layers2D;
-    nSTRIPlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),LayersAll);
-    nSTRIPlayersWith1dMeas_vs_eta[count]->Fill(getEta(track.eta()),Layers1D);
-    nSTRIPlayersWith2dMeas_vs_eta[count]->Fill(getEta(track.eta()),Layers2D);
+    nSTRIPlayersWithMeas_vs_eta[count]->Fill(eta, LayersAll);
+    nSTRIPlayersWith1dMeas_vs_eta[count]->Fill(eta, Layers1D);
+    nSTRIPlayersWith2dMeas_vs_eta[count]->Fill(eta, Layers2D);
 
-    nlosthits_vs_eta[count]->Fill(getEta(track.eta()),track.numberOfLostHits());
+    nlosthits_vs_eta[count]->Fill(eta, track.numberOfLostHits());
 }
 
 
@@ -804,12 +792,17 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double dxyRec    = track.dxy(bsPosition);
   double dzRec     = track.dz(bsPosition);
 
+  const auto phiRes = phiRec-phiSim;
+  const auto dxyRes = dxyRec-dxySim;
+  const auto dzRes = dzRec-dzSim;
+  const auto cotThetaRes = 1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim);
+
   // eta residue; pt, k, theta, phi, dxy, dz pulls
   double qoverpPull=(qoverpRec-qoverpSim)/qoverpErrorRec;
   double thetaPull=(lambdaRec-lambdaSim)/lambdaErrorRec;
-  double phiPull=(phiRec-phiSim)/phiErrorRec;
-  double dxyPull=(dxyRec-dxySim)/track.dxyError();
-  double dzPull=(dzRec-dzSim)/track.dzError();
+  double phiPull=phiRes/phiErrorRec;
+  double dxyPull=dxyRes/track.dxyError();
+  double dzPull=dzRes/track.dzError();
 
   double contrib_Qoverp = ((qoverpRec-qoverpSim)/qoverpErrorRec)*
     ((qoverpRec-qoverpSim)/qoverpErrorRec)/5;
@@ -846,32 +839,34 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   h_pullDxy[count]->Fill(dxyPull);
   h_pullDz[count]->Fill(dzPull);
 
+  const auto etaSim = getEta(momentumTP.eta());
+  const auto ptSim = getPt(sqrt(momentumTP.perp2()));
 
   h_pt[count]->Fill(ptres/ptError);
   h_eta[count]->Fill(etares);
   //etares_vs_eta[count]->Fill(getEta(track.eta()),etares);
-  etares_vs_eta[count]->Fill(getEta(momentumTP.eta()),etares);
+  etares_vs_eta[count]->Fill(etaSim, etares);
 
   //resolution of track params: fill 2D histos
-  dxyres_vs_eta[count]->Fill(getEta(momentumTP.eta()),dxyRec-dxySim);
-  ptres_vs_eta[count]->Fill(getEta(momentumTP.eta()),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  dzres_vs_eta[count]->Fill(getEta(momentumTP.eta()),dzRec-dzSim);
-  phires_vs_eta[count]->Fill(getEta(momentumTP.eta()),phiRec-phiSim);
-  cotThetares_vs_eta[count]->Fill(getEta(momentumTP.eta()),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
+  dxyres_vs_eta[count]->Fill(etaSim, dxyRes);
+  ptres_vs_eta[count]->Fill(etaSim, ptres/ptRec);
+  dzres_vs_eta[count]->Fill(etaSim, dzRes);
+  phires_vs_eta[count]->Fill(etaSim, phiRes);
+  cotThetares_vs_eta[count]->Fill(etaSim, cotThetaRes);
 
   //same as before but vs pT
-  dxyres_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),dxyRec-dxySim);
-  ptres_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  dzres_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),dzRec-dzSim);
-  phires_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),phiRec-phiSim);
-  cotThetares_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
+  dxyres_vs_pt[count]->Fill(ptSim, dxyRes);
+  ptres_vs_pt[count]->Fill(ptSim, ptres/ptRec);
+  dzres_vs_pt[count]->Fill(ptSim, dzRes);
+  phires_vs_pt[count]->Fill(ptSim, phiRes);
+  cotThetares_vs_pt[count]->Fill(ptSim, cotThetaRes);
 
   //pulls of track params vs eta: fill 2D histos
-  dxypull_vs_eta[count]->Fill(getEta(momentumTP.eta()),dxyPull);
-  ptpull_vs_eta[count]->Fill(getEta(momentumTP.eta()),ptres/ptError);
-  dzpull_vs_eta[count]->Fill(getEta(momentumTP.eta()),dzPull);
-  phipull_vs_eta[count]->Fill(getEta(momentumTP.eta()),phiPull);
-  thetapull_vs_eta[count]->Fill(getEta(momentumTP.eta()),thetaPull);
+  dxypull_vs_eta[count]->Fill(etaSim, dxyPull);
+  ptpull_vs_eta[count]->Fill(etaSim, ptres/ptError);
+  dzpull_vs_eta[count]->Fill(etaSim, dzPull);
+  phipull_vs_eta[count]->Fill(etaSim, phiPull);
+  thetapull_vs_eta[count]->Fill(etaSim, thetaPull);
 
   //plots vs phi
   nhits_vs_phi[count]->Fill(phiRec,track.numberOfValidHits());
@@ -879,11 +874,11 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   ptmean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),ptRec);
   phimean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),phiRec);
 
-  ptres_vs_phi[count]->Fill(momentumTP.phi(),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  phires_vs_phi[count]->Fill(momentumTP.phi(),phiRec-phiSim);
-  ptpull_vs_phi[count]->Fill(momentumTP.phi(),ptres/ptError);
-  phipull_vs_phi[count]->Fill(momentumTP.phi(),phiPull);
-  thetapull_vs_phi[count]->Fill(momentumTP.phi(),thetaPull);
+  ptres_vs_phi[count]->Fill(phiSim, ptres/ptRec);
+  phires_vs_phi[count]->Fill(phiSim, phiRes);
+  ptpull_vs_phi[count]->Fill(phiSim, ptres/ptError);
+  phipull_vs_phi[count]->Fill(phiSim, phiPull);
+  thetapull_vs_phi[count]->Fill(phiSim, thetaPull);
 
 
 }

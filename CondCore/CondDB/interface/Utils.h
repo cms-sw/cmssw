@@ -28,6 +28,24 @@ namespace cond {
       return ret;
     }
 
+    inline std::string currentCMSSWVersion(){
+      std::string version("");
+      const char* envVersion = ::getenv( "CMSSW_VERSION" );
+      if(envVersion){
+        version += envVersion;
+      }
+      return version;
+    }
+
+    inline std::string currentArchitecture(){
+      std::string arch("");
+      const char* archEnv = ::getenv( "SCRAM_ARCH" );
+      if(archEnv){
+        arch += archEnv;
+      }
+      return arch;
+    }
+
   }
 
   namespace persistency {

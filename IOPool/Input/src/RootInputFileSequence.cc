@@ -24,6 +24,8 @@
 #include "InputFile.h"
 #include "TSystem.h"
 
+#include <random>
+
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
                 ParameterSet const& pset,
@@ -80,24 +82,43 @@ namespace edm {
       enablePrefetching_ = pSLC->enablePrefetching();
     }
 
-    StorageFactory *factory = StorageFactory::get();
-    for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
-      factory->activateTimeout(fileIter_->fileName());
-      factory->stagein(fileIter_->fileName());
-      //NOTE: we do not want to stage in all secondary files since we can be given a list of
-      // thousands of files and prestaging all those files can cause a site to fail.
-      // So, we stage in the first secondary file only.
-      if(inputType_ != InputType::Primary) {
-        break;
-      }
-    }
-
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
 
-    for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
-      initFile(skipBadFiles_);
-      if(rootFile_) break;
+    StorageFactory *factory = StorageFactory::get();
+
+    if(inputType == InputType::SecondarySource) {
+      // For the secondary input source we do not stage in,
+      // and we randomly choose the first file to open.
+      // We cannot use the random number service yet.
+      unsigned int seed =  getpid();
+      seed = (seed << 16) + seed;
+      std::default_random_engine dre(seed);
+      size_t count = fileIterEnd_ - fileIterBegin_;
+      std::uniform_int_distribution<int> distribution(0, count - 1);
+      while(!rootFile_ && count != 0) {
+        --count;
+        int offset = distribution(dre);
+        fileIter_ = fileIterBegin_ + offset;
+        initFile(skipBadFiles_);
+      }
+    } else {
+      // Prestage the files
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
+        factory->activateTimeout(fileIter_->fileName());
+        factory->stagein(fileIter_->fileName());
+        //NOTE: we do not want to stage in all secondary files since we can be given a list of
+        // thousands of files and prestaging all those files can cause a site to fail.
+        // So, we stage in the first secondary file only.
+        if(inputType_ != InputType::Primary) {
+          break;
+        }
+      }
+      // Open the first file.
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
+        initFile(skipBadFiles_);
+        if(rootFile_) break;
+      }
     }
     if(rootFile_) {
       productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());

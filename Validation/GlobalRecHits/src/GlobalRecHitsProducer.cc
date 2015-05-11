@@ -12,7 +12,7 @@
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), trackerHitAssociator_(iPSet, consumesCollector()), count(0)
+  printProvenanceInfo(false), trackerHitAssociatorConfig_(iPSet, consumesCollector()), count(0)
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_GlobalRecHitsProducer";
 
@@ -892,8 +892,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     return;
   }  
 
-  TrackerHitAssociator& associate = trackerHitAssociator_;
-  associate.processEvent(iEvent);
+  TrackerHitAssociator associate(iEvent, trackerHitAssociatorConfig_);
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);

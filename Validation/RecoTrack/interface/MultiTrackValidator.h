@@ -31,13 +31,16 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
  protected:
   //these are used by MTVGenPs
-  edm::InputTag assMapInput;
-  edm::EDGetTokenT<reco::SimToRecoCollection> associatormapStR;
-  edm::EDGetTokenT<reco::RecoToSimCollection> associatormapRtS;
   bool UseAssociators;
+  const bool parametersDefinerIsCosmic_;
+  const bool dodEdxPlots_;
   MTVHistoProducerAlgo* histoProducerAlgo_;
 
  private:
+  std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associatorTokens;
+  std::vector<edm::EDGetTokenT<reco::SimToRecoCollection>> associatormapStRs;
+  std::vector<edm::EDGetTokenT<reco::RecoToSimCollection>> associatormapRtSs;
+
   std::string dirName_;
 
   bool useGsf;

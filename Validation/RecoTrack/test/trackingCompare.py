@@ -18,7 +18,7 @@ filesLabels = [
 outputDir = "plots"
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6','iter7','iter9','iter10']
+Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn']
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
 

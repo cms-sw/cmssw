@@ -15,7 +15,7 @@ using namespace std;
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), trackerHitAssociator_(iPSet, consumesCollector()), count(0)
+  printProvenanceInfo(false), trackerHitAssociatorConfig_(iPSet, consumesCollector()), count(0)
 {
   consumesMany<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit> > >();
   consumesMany<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit> > >();
@@ -913,8 +913,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
     validstrip = false;
   }  
   
-  TrackerHitAssociator& associate = trackerHitAssociator_;
-  associate.processEvent(iEvent);
+  TrackerHitAssociator associate(iEvent, trackerHitAssociatorConfig_);
   
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
