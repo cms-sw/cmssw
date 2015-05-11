@@ -276,12 +276,12 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v",
-            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v"
-            "HLT_PFMET120_PFMHT120_IDLoose_v",
-            "HLT_PFMET110_PFMHT110_IDLoose_v",
-            "HLT_PFMET100_PFMHT100_IDLoose_v",
-            "HLT_PFMET90_PFMHT90_IDLoose_v",
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV0p7_v",
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v"
+            "HLT_PFMET120_PFMHT120_IDTight_v",
+            "HLT_PFMET110_PFMHT110_IDTight_v",
+            "HLT_PFMET100_PFMHT100_IDTight_v",
+            "HLT_PFMET90_PFMHT90_IDTight_v",
             ),
         Jet_recCut   = cms.string("pt > 10 && abs(eta) < 2.6"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
@@ -307,7 +307,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     TTHbbej  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_Ele27_WP85_Gsf_v",
-            "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v"
+            "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v",
+            "HLT_Ele27_eta2p1_WPLoose_Gsf_v",
+            "HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v"
             ),
         recElecLabel   = cms.string("gedGsfElectrons"),
         #recJetLabel  = cms.string("ak4PFJetsCHS"),

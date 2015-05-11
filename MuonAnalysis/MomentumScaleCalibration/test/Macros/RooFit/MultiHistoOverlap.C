@@ -6,6 +6,7 @@
 //------------------------------------------//
 
 #include <iostream>
+#include <vector>
 #include "Gtypes.h"
 #include "TROOT.h"
 #include "TStyle.h"
@@ -69,10 +70,11 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  }  
  
 
- TString LegLabels[nOfFiles];    
+ std::vector<TString> LegLabels;
+ LegLabels.reserve(nOfFiles);    
  for(Int_t j=0; j < nOfFiles; j++) {       
    TObjString* legend = (TObjString*)LabelList->At(j);    
-   LegLabels[j] = legend->String();    
+   LegLabels.push_back(legend->String());
    std::cout<<"LegLabels["<<j<<"]"<<LegLabels[j]<<std::endl;  
  }
 

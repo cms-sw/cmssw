@@ -105,12 +105,18 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
 
   while (eventSize > 0) {
+    assert(eventSize>=sizeof(fedt_t));
     eventSize -= sizeof(fedt_t);
     const fedt_t* fedTrailer = (fedt_t*) (event + eventSize);
     const uint32_t fedSize = FED_EVSZ_EXTRACT(fedTrailer->eventsize) << 3; //trailer length counts in 8 bytes
-    eventSize -= (fedSize - sizeof(fedh_t));
+    assert(eventSize>=fedSize - sizeof(fedt_t));
+    eventSize -= (fedSize - sizeof(fedt_t));
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
+    if (fedId>FEDNumbering::MAXFEDID)
+    {
+      throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
+    }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
       foundTCDSFED=true;
       evf::evtn::TCDSRecord record((unsigned char *)(event + eventSize ));
