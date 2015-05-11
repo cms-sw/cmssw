@@ -29,6 +29,13 @@ hiLooseMTS = cms.PSet(
     max_d0 = cms.double(1000),
     nSigmaZ = cms.double(9999.),
 
+    #  Boolean indicating if HIon related cuts are to be applied
+    applyHIonCuts = cms.bool(False),
+    
+    #  parameters for HIon pT dependent chi2 cut
+    hIon_pTMinCut = cms.vdouble(0.0001,0.000,9999,1.0),
+    hIon_pTMaxCut = cms.vdouble(9998,9999,9999,1.0),
+
    # Cuts on numbers of layers with hits/3D hits/lost hits.
     minNumberLayers = cms.uint32(0),
     minNumber3DLayers = cms.uint32(0),

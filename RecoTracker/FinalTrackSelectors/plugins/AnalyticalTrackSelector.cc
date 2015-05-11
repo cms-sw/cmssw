@@ -88,6 +88,9 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     max_d0_.reserve(1);
     max_z0_.reserve(1);
     nSigmaZ_.reserve(1);
+    applyHIonCuts_.reserve(1);
+    hIon_pTMinCut_.reserve(1);
+    hIon_pTMaxCut_.reserve(1);
     min_layers_.reserve(1);
     min_3Dlayers_.reserve(1);
     max_lostLayers_.reserve(1);
@@ -139,6 +142,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     max_d0_.push_back(cfg.getParameter<double>("max_d0"));
     max_z0_.push_back(cfg.getParameter<double>("max_z0"));
     nSigmaZ_.push_back(cfg.getParameter<double>("nSigmaZ"));
+
+    // Heavy Ion Specific cuts for low-pT pixel tracking are not implemented
+    applyHIonCuts_.push_back(false);
+
     // Cuts on numbers of layers with hits/3D hits/lost hits.
     min_layers_.push_back(cfg.getParameter<uint32_t>("minNumberLayers") );
     min_3Dlayers_.push_back(cfg.getParameter<uint32_t>("minNumber3DLayers") );
