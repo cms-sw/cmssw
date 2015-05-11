@@ -89,7 +89,7 @@ public:
   THStack* addHists(const char *selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
 private : 
-  TList getTreeList();
+  TList* getTreeList();
   std::string treeBaseDir;
 
   bool useFit_;
