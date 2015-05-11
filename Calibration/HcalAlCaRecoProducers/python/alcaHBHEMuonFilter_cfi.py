@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 AlcaHBHEMuonFilter = cms.EDFilter("AlCaHBHEMuonFilter",
                                   ProcessName       = cms.string("HLT"),
-                                  TriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                   TriggerResultLabel= cms.InputTag("TriggerResults","","HLT"),
                                   MuonLabel         = cms.InputTag("muons"),
                                   MinimumMuonP      = cms.double(10.0),

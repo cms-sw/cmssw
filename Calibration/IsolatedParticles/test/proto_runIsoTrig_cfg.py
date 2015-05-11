@@ -3,13 +3,15 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 process = cms.Process("Demo")
 
-process.load('Configuration/Geometry/GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Calibration.IsolatedParticles.isoTrig_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'FT_R_53_V6::All' ## July15ReReco Run2012A & B
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run1_data']
+#process.GlobalTag.globaltag = 'FT_R_53_V6::All' ## July15ReReco Run2012A & B
 #process.GlobalTag.globaltag = 'FT_R_53_V10::All' ## Aug24ReReco Run2012C
 #process.GlobalTag.globaltag = 'GR_P_V41_AN2::All'  ##Prompt Reco 2012C v2
 
