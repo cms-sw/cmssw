@@ -16,7 +16,7 @@ public:
 
 private:
   enum CutType {
-    LOOSE, TIGHT, SOFT, HIGHPT,
+    LOOSE, MEDIUM, TIGHT, SOFT, HIGHPT,
     NONE
   } cutType_;
   edm::Handle<reco::VertexCollection> vtxs_;
@@ -31,6 +31,7 @@ RecoMuonBaseIDCut::RecoMuonBaseIDCut(const edm::ParameterSet& c):
   const auto cutTypeName = c.getParameter<std::string>("idName");
   if ( cutTypeName == "loose") cutType_ = LOOSE;
   else if ( cutTypeName == "tight") cutType_ = TIGHT;
+  else if ( cutTypeName == "medium") cutType_ = MEDIUM;
   else if ( cutTypeName == "soft" ) cutType_ = SOFT;
   else if ( cutTypeName == "hightpt" ) cutType_ = HIGHPT;
   else cutType_ = NONE;
@@ -54,6 +55,7 @@ CutApplicatorBase::result_type RecoMuonBaseIDCut::operator()(const reco::MuonPtr
 {
   if ( cutType_ == LOOSE ) return muon::isLooseMuon(*cand);
   else if ( cutType_ == TIGHT ) return muon::isTightMuon(*cand, vtxs_->at(0));
+  else if ( cutType_ == MEDIUM ) return muon::isMediumMuon(*cand);
   else if ( cutType_ == SOFT ) return muon::isSoftMuon(*cand, vtxs_->at(0));
   else if ( cutType_ == HIGHPT ) return muon::isHighPtMuon(*cand, vtxs_->at(0));
 
