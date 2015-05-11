@@ -74,7 +74,7 @@ hiRegitMuPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.Pi
 
 # fitting: feed new-names
 hiRegitMuPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
-    AlgorithmName = cms.string('iter5'),
+    AlgorithmName = cms.string('undefAlgorithm'),
     src                 = 'hiRegitMuPixelPairStepTrackCandidates',
     clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'),
 )

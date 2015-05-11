@@ -90,7 +90,7 @@ hiRegitMuTobTecStepTrackCandidates        =  RecoTracker.IterativeTracking.TobTe
 
 # fitting: feed new-names
 hiRegitMuTobTecStepTracks                 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks.clone(
-    AlgorithmName = cms.string('iter9'),
+    AlgorithmName = cms.string('undefAlgorithm'),
     src                 = 'hiRegitMuTobTecStepTrackCandidates'
 )
 
