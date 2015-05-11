@@ -230,7 +230,7 @@ TGraphAsymmErrors* getEfficiency(const TH1* histogram_numerator, const TH1* hist
     return 0;
   }
   
-  TAxis* xAxis = histogram_numerator->GetXaxis();
+  const TAxis* xAxis = histogram_numerator->GetXaxis();
 
   Int_t nBins = xAxis->GetNbins();
   TArrayF x(nBins);
