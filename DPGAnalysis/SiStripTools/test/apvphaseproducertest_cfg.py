@@ -11,7 +11,7 @@ process = cms.Process("apvphaseTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -317,24 +317,25 @@ process.TFileService = cms.Service('TFileService',
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 #-------------------------------------------------------------------------
-process.poolDBESSource = cms.ESSource("PoolDBESSource",
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-   DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(1),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
-    timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:apvphaseoffsets_forHLT.db'),
-    appendToDataLabel = cms.string("apvphaseoffsets"),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripConfObjectRcd'),
-        tag = cms.string('SiStripAPVPhaseOffsets_real_v1')
-    ))
-)
-process.es_prefer = cms.ESPrefer("PoolDBESSource","poolDBESSource")
+#process.poolDBESSource = cms.ESSource("PoolDBESSource",
+#   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#   DBParameters = cms.PSet(
+#        messageLevel = cms.untracked.int32(1),
+#        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#    ),
+#    timetype = cms.untracked.string('runnumber'),
+#    connect = cms.string('sqlite_file:apvphaseoffsets_forHLT.db'),
+#    appendToDataLabel = cms.string("apvphaseoffsets"),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('SiStripConfObjectRcd'),
+#        tag = cms.string('SiStripAPVPhaseOffsets_real_v1')
+#    ))
+#)
+#process.es_prefer = cms.ESPrefer("PoolDBESSource","poolDBESSource")
 #-------------------------------------------------------------------------
 
 
