@@ -1,4 +1,3 @@
-import collections
 from ROOT import TChain
 
 class Event(object):
@@ -34,7 +33,7 @@ class Event(object):
             if hasattr(value, '__getitem__'):
                 if (len(value)>0 and value[0].__class__ == value.__class__):
                     recursive = True
-            if isinstance( value, collections.Iterable ) and \
+            if hasattr(value, '__contains__') and \
                    not isinstance(value, (str,unicode)) and \
                    not isinstance(value, TChain) and \
                    not recursive :

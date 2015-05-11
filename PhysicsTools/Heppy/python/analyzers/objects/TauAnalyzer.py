@@ -107,6 +107,7 @@ class TauAnalyzer( Analyzer ):
         for lep in event.inclusiveTaus:
             gen = match[lep]
             lep.mcMatchId = 1 if gen else 0
+            lep.mcTau = gen
 
     def process(self, event):
         self.readCollections( event.input )
