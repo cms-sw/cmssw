@@ -32,8 +32,8 @@ process.out.fileName = 'patTuple_isoval.root'
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 
 process.out.outputCommands = [
-#    'keep *_muonPFNoPileUpIsolation_*_*',
-#    'keep *_muonPFPileUpIsolation_*_*',
+    'keep *_muonPFNoPileUpIsolation_*_*',
+    'keep *_muonPFPileUpIsolation_*_*',
 #    'keep *_muPFIsoValue*_*_*',
     'keep recoMuons_muons_*_*',
     'keep *_muonVIDs_*_*',
