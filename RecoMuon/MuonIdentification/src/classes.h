@@ -5,7 +5,6 @@
 namespace RecoMuon_MuonIdentification {
   struct dictionary {
     //for using the selectors in python
-    VersionedRecoMuonSelector vRecoMuonSelector;
-    VersionedPatMuonSelector  vPatMuonSelector ;
+    VersionedMuonSelector vMuonSelector;
   };
 }
