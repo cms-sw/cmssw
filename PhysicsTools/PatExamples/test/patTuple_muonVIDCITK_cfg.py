@@ -11,7 +11,11 @@ process.load("RecoMuon.MuonIdentification.Identification.cutBasedMuonId_MuonPOG_
 process.load("RecoMuon.MuonIsolation.muonPFIsolationCitk_cff")
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 switchOnVIDMuonIdProducer(process)
-setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0)
+setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_loose)
+setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_medium)
+setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_tight)
+setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_soft)
+setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_highpt)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -31,9 +35,18 @@ process.out.fileName = 'patTuple_isoval.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 
+process.muonVIDCITKAnalyzer = cms.EDAnalyzer("MuonVIDCITKAnalyzer",
+    muon = cms.InputTag("muons"),
+    vertex = cms.InputTag("offlinePrimaryVertices"),
+)
+
+process.p = cms.Path(
+    process.muonVIDCITKAnalyzer
+)
+
 process.out.outputCommands = [
-    'keep *_muonPFNoPileUpIsolation_*_*',
-    'keep *_muonPFPileUpIsolation_*_*',
+#    'keep *_muonPFNoPileUpIsolation_*_*',
+#    'keep *_muonPFPileUpIsolation_*_*',
 #    'keep *_muPFIsoValue*_*_*',
     'keep recoMuons_muons_*_*',
     'keep *_muonVIDs_*_*',
