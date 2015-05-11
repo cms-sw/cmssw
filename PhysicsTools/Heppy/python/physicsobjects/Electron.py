@@ -223,14 +223,11 @@ class Electron( Lepton ):
         if vertex is None:
             vertex = self.associatedVertex
         return self.gsfTrack().dxy( vertex.position() )
-<<<<<<< HEAD
 
     def edxy(self):
         '''returns the uncertainty on dxy (from gsf track)'''
         return self.gsfTrack().dxyError()
 
-=======
->>>>>>> my-cmssw/heppy_7_4_0_pre9
     def p4(self):
 	 return ROOT.reco.Candidate.p4(self.physObj)
 
