@@ -195,6 +195,8 @@ class SusyDQM : public DQMEDAnalyzer {
         MonitorElement* HT_singleLepton60; 
         MonitorElement* missingEt_singleLepton60; 
         MonitorElement* nJets_singleLepton60; 
+        MonitorElement* muonIsolation;
+        MonitorElement* eleIsolation;
 
         MonitorElement* muonEfficiencyVsPt_denominator;
         MonitorElement* muonEfficiencyVsPt_numerator;
@@ -356,6 +358,8 @@ void SusyDQM<Mu, Ele, Pho, Jet, Met>::bookHistograms(DQMStore::IBooker& booker, 
     HT_singleLepton60 = booker.book1D("HT_singleLepton60", "HT, single lepton with p_{T} > 60 (GeV); HT (GeV)", 50, 0., 2000);
     missingEt_singleLepton60 = booker.book1D("missingEt_singleLepton60", "MET, single lepton with p_{T} > 60 (GeV); MET (GeV)", 50, 0., 1000);
     nJets_singleLepton60 = booker.book1D("nJets_singleLepton60", "n_{jets} p_{T} > 40 GeV , single lepton with p_{T} > 60; n_{jets}", 16, 0, 16);
+    muonIsolation = booker.book1D("muonIsolation", "Muon isolation (GeV); isolation (GeV)", 30, 0., 200);
+    eleIsolation = booker.book1D("eleIsolation", "Electron isolation (GeV); isolation (GeV)", 30, 0., 200);
 
     muonEfficiencyVsPt_numerator = booker.book1D("muonEfficiencyVsPt_numerator", "Loose muon ID efficiency vs p_{T};gen muon p_{T}", 20, 10, 500); 
     muonEfficiencyVsPt_denominator = booker.book1D("muonEfficiencyVsPt_denominator", "Loose muon ID efficiency vs p_{T}; gen muon p_{T}", 20, 10, 500); 
@@ -436,7 +440,9 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodMuon(const Mu* mu) {
     
     //get muon isolation computed in a cone dR < 0.4, applying the deltaBeta correction
     //I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-0.5sumPUPt]/pt
-    double muRelIsolation = (mu->pfIsolationR04().sumChargedHadronPt + max(0., mu->pfIsolationR04().sumNeutralHadronEt + mu->pfIsolationR04().sumPhotonEt - 0.5*mu->pfIsolationR04().sumPUPt))/mu->pt();
+    double muIsolation = (mu->pfIsolationR04().sumChargedHadronPt + max(0., mu->pfIsolationR04().sumNeutralHadronEt + mu->pfIsolationR04().sumPhotonEt - 0.5*mu->pfIsolationR04().sumPUPt));
+    double muRelIsolation = muIsolation/mu->pt();
+    muonIsolation->Fill(muIsolation);
     if(muRelIsolation > muRelIsoCut) return false;
 
     return true;
@@ -510,8 +516,10 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
         }
         if(ooEmooP > eleOneOverEMinusOneOverPCutEndcap) return false;
         //relative isolation cut (compute isolation with delta beta method)
-        double eleRelIsolation = (ele->pfIsolationVariables().sumChargedHadronPt + max(0.,ele->pfIsolationVariables().sumNeutralHadronEt + ele->pfIsolationVariables().sumPhotonEt - 0.5*ele->pfIsolationVariables().sumPUPt)) / ele->pt();
-        if(eleRelIsolation > eleRelIsoCutEndcap) return false;
+        double ele_Isolation = (ele->pfIsolationVariables().sumChargedHadronPt + max(0.,ele->pfIsolationVariables().sumNeutralHadronEt + ele->pfIsolationVariables().sumPhotonEt - 0.5*ele->pfIsolationVariables().sumPUPt));
+        double ele_RelIsolation = ele_Isolation / ele->pt();
+        eleIsolation->Fill(ele_Isolation);
+        if(ele_RelIsolation > eleRelIsoCutEndcap) return false;
     }
     return true;
 }
