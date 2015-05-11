@@ -33,8 +33,12 @@ RecoMuonBaseIDCut::RecoMuonBaseIDCut(const edm::ParameterSet& c):
   else if ( cutTypeName == "tight") cutType_ = TIGHT;
   else if ( cutTypeName == "medium") cutType_ = MEDIUM;
   else if ( cutTypeName == "soft" ) cutType_ = SOFT;
-  else if ( cutTypeName == "hightpt" ) cutType_ = HIGHPT;
-  else cutType_ = NONE;
+  else if ( cutTypeName == "highpt" ) cutType_ = HIGHPT;
+  else
+  {
+    edm::LogError("RecoMuonBaseIDCut") << "Wrong cut id name, " << cutTypeName;
+    cutType_ = NONE;
+  }
 
   contentTags_.emplace("vertices", c.getParameter<edm::InputTag>("vertexSrc"));
 }
