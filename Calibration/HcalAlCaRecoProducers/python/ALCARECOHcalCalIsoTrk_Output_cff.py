@@ -11,10 +11,12 @@ OutALCARECOHcalCalIsoTrk_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring( 
         'keep *_IsoProd_*_*',
         'keep *_TkAlIsoProd_*_*',
-	'keep *_offlinePrimaryVertices_*_*',
+	'keep *_offlineBeamSpot_*_*',
 	'keep edmTriggerResults_*_*_*',
-	'keep triggerTriggerEvent_*_*_*'
-)
+	'keep triggerTriggerEvent_*_*_*',
+        'keep recoTracks_generalTracks_*_*',
+        'keep recoTrackExtras_generalTracks_*_*',
+        )
 )
 
 

@@ -18,6 +18,11 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   hoRecHitName        = cms.string('horeco'),
                                   rootHistFilename    = cms.string('PhotonPlusJet_tree.root'),
                                   pvCollName = cms.string('offlinePrimaryVertices'),
+                                  beamSpotName= cms.string('offlineBeamSpot'),
+                                  conversionsName= cms.string('allConversions'),
+                                  electronCollName= cms.string('gedGsfElectrons'),
+                                  photonIdTightName= cms.InputTag('PhotonIDProdGED','PhotonCutBasedIDTight'),
+                                  photonIdLooseName= cms.InputTag('PhotonIDProdGED','PhotonCutBasedIDLoose'),
                                   prodProcess = cms.untracked.string('reRECO'),
                                   allowNoPhoton       = cms.bool(False),
                                   photonJetDPhiMin    = cms.double(2.0),  # 0.75 pi= 2.356, 0.7 pi=2.2
@@ -31,5 +36,6 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   doPFJets            = cms.bool(True),
                                   doGenJets           = cms.bool(True),
                                   debug               = cms.untracked.int32(0),
+                                  debugHLTTrigNames   = cms.untracked.int32(2),
                                   workOnAOD           = cms.int32(0)
                                   )

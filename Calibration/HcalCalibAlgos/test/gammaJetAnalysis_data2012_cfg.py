@@ -7,19 +7,20 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run1_mc']
+process.GlobalTag.globaltag=autoCond['run1_data']
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.categories+=cms.untracked.vstring('GammaJetAnalysis')
 process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(1000)
 
-#load the gammaJet analyzer
+
+#load the analyzer
 process.load('Calibration.HcalCalibAlgos.gammaJetAnalysis_cfi')
-#  needed for nonCHS
+# load energy corrector
 process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
 
 # run over files
-process.GammaJetAnalysis.rootHistFilename = cms.string('PhoJet_tree_CHS.root')
+process.GammaJetAnalysis.rootHistFilename = cms.string('PhoJet_tree_CHS_data2012.root')
 process.GammaJetAnalysis.doPFJets = cms.bool(True)
 process.GammaJetAnalysis.doGenJets = cms.bool(False)
 
@@ -39,25 +40,21 @@ process.GammaJetAnalysis.photonTriggers += cms.vstring(
 # to disable photonTriggers assign an empty vstring
 #process.GammaJetAnalysis.photonTriggers = cms.vstring()
 
-# a clone without CHS
-process.GammaJetAnalysis_noCHS= process.GammaJetAnalysis.clone()
-process.GammaJetAnalysis_noCHS.rootHistFilename = cms.string('PhoJet_tree_nonCHS.root')
-# for 7XY use ak4* instead of ak5
-process.GammaJetAnalysis_noCHS.pfJetCollName = cms.string('ak4PFJets')
-process.GammaJetAnalysis_noCHS.pfJetCorrName = cms.string('ak4PFL2L3')
-
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-        'file:../../HcalAlCaRecoProducers/test/gjet.root'
-#    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/522CE329-7B81-E411-B6C3-0025905A6110.root',
-#    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/5279D224-7B81-E411-BCAA-002618943930.root'
-#    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/522CE329-7B81-E411-B6C3-0025905A6110.root'
-#    '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
+#        'file:../../HcalAlCaRecoProducers/test/gjet_data2012.root'
+        'file:/tmp/andriusj/gjet_Run2012A.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
+
+# adapt input collections for Run2012
+process.GammaJetAnalysis.photonCollName= cms.string("photons")
+process.GammaJetAnalysis.electronCollName= cms.string("gsfElectrons")
+process.GammaJetAnalysis.photonIdLooseName= cms.InputTag("PhotonIDProd","PhotonCutBasedIDLoose")
+process.GammaJetAnalysis.photonIdTightName= cms.InputTag("PhotonIDProd","PhotonCutBasedIDTight")
 
 # name of the process that used the GammaJetProd producer
 process.GammaJetAnalysis.prodProcess = cms.untracked.string('MYGAMMAJET')
