@@ -34,7 +34,7 @@ public:
 	virtual ~GroupedDAFHitCollector(){}
 
 	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, 
-							   const MeasurementTrackerEvent *theMT) const;
+							   const MeasurementTrackerEvent *theMT) const override;
 
 	const SiTrackerMultiRecHitUpdator* getUpdator() const {return theUpdator;}
 	const MeasurementEstimator* getEstimator() const {return theEstimator;}
