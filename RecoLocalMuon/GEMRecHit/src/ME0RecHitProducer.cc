@@ -92,7 +92,7 @@ void ME0RecHitProducer::produce(Event& event, const EventSetup& setup) {
     OwnVector<ME0RecHit> recHits =
       theAlgo->reconstruct(me0Id, range);
     
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(recHits.size() > 0)
       recHitCollection->put(me0Id, recHits.begin(), recHits.end());
   }
 
