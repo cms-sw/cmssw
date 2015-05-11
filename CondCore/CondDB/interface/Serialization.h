@@ -84,6 +84,18 @@ namespace cond {
     return *this;
   }
 
+  class StreamerInfo {
+  public:
+    static constexpr char const* TECH_LABEL = "technology";
+    static constexpr char const* TECH_VERSION_LABEL = "tech_version";
+    static constexpr char const* CMSSW_VERSION_LABEL = "CMSSW_version";
+    static constexpr char const* ARCH_LABEL = "architecture";
+    //
+    static constexpr char const* TECHNOLOGY = "boost/serialization" ;
+    static std::string techVersion();
+    static std::string jsonString();
+  };
+
   typedef cond::serialization::InputArchive  CondInputArchive;
   typedef cond::serialization::OutputArchive CondOutputArchive;
 
@@ -92,14 +104,19 @@ namespace cond {
   template <typename T> std::pair<Binary,Binary> serialize( const T& payload, bool packingOnly = false ){
     std::pair<Binary,Binary> ret;
     if( !packingOnly ){
-      // save data to buffers
-      std::ostringstream dataBuffer;
-      std::ostringstream streamerInfoBuffer;
-      CondOutputArchive oa( dataBuffer );
-      oa << payload;
-      //TODO: avoid (2!!) copies
-      ret.first.copy( dataBuffer.str() );
-      ret.second.copy( streamerInfoBuffer.str() );
+      std::string streamerInfo( StreamerInfo::jsonString() );
+      try{
+	// save data to buffers
+	std::ostringstream dataBuffer;
+	CondOutputArchive oa( dataBuffer );
+	oa << payload;
+	//TODO: avoid (2!!) copies
+	ret.first.copy( dataBuffer.str() );
+	ret.second.copy( streamerInfo );
+      } catch ( const std::exception& e ){
+	std::string em( e.what() );
+	throwException("Serialization failed: "+em+". Serialization info:"+streamerInfo,"serialize");
+      }
     } else {
       // ORA objects case: nothing to serialize, the object is kept in memory in the original layout - the bare pointer is exchanged
       ret.first = Binary( payload );
@@ -115,16 +132,30 @@ namespace cond {
 								  bool unpackingOnly ){
     boost::shared_ptr<T> payload;
     if( !unpackingOnly ){
-      std::stringbuf sdataBuf;
-      sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
       std::stringbuf sstreamerInfoBuf;
       sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
-
-      std::istream dataBuffer( &sdataBuf );
-      std::istream streamerInfoBuffer( &sstreamerInfoBuf );
-      CondInputArchive ia( dataBuffer );
-      payload.reset( createPayload<T>(payloadType) );
-      ia >> (*payload);
+      std::string streamerInfo = sstreamerInfoBuf.str();
+      try{
+	std::stringbuf sdataBuf;
+	sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+	std::istream dataBuffer( &sdataBuf );
+	CondInputArchive ia( dataBuffer );
+	payload.reset( createPayload<T>(payloadType) );
+	ia >> (*payload);
+      } catch ( const std::exception& e ){
+	std::string errorMsg("De-serialization failed: ");
+	std::string em( e.what() );
+	if( em == "unsupported version" )  {
+	  errorMsg += "the current boost version ("+StreamerInfo::techVersion()+
+	    ") is unable to read the payload. Data might have been serialized with an incompatible version.";
+	} else if( em == "input stream error" ) {
+	  errorMsg +="data size does not fit with the current class layout. The Class "+payloadType+" might have been changed with respect to the layout used in the upload.";
+	} else {
+	  errorMsg += em;
+	}
+	if( !streamerInfo.empty() ) errorMsg += " Payload serialization info: "+streamerInfo;
+	throwException( errorMsg, "default_deserialize" );
+      }
     } else {
       // ORA objects case: nothing to de-serialize, the object is already in memory in the final layout, ready to be casted
       payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
