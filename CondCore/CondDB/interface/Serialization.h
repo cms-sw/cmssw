@@ -24,8 +24,6 @@
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
-class RootStreamBuffer;
-
 namespace cond {
 
   // default payload factory
@@ -35,53 +33,6 @@ namespace cond {
       throwException(std::string("Type mismatch, user type: \""+userTypeName+"\", target type: \"")+payloadTypeName+"\"",
 		     "createPayload" );
     return new T;
-  }
-
-  // Archives for the streaming based on ROOT.
-
-  // output
-  class RootOutputArchive {
-  public:
-    RootOutputArchive( std::ostream& dataDest, std::ostream& streamerInfoDest );
-
-    template <typename T>
-    RootOutputArchive& operator<<( const T& instance );
-  private:
-    // type and ptr of the object to stream
-    void write( const std::type_info& sourceType, const void* sourceInstance);
-  private:
-    // here is where the write function will write on...
-    std::ostream& m_dataBuffer;
-    std::ostream& m_streamerInfoBuffer;
-  };
-
-  template <typename T> inline RootOutputArchive& RootOutputArchive::operator<<( const T& instance ){
-    write( typeid(T), &instance );
-    return *this;
-  }
-
-  // input
-  class RootInputArchive {
-  public:
-    RootInputArchive( std::istream& binaryData, std::istream& binaryStreamerInfo );
-
-    virtual ~RootInputArchive();
-
-    template <typename T>
-    RootInputArchive& operator>>( T& instance );
-  private:
-    // type and ptr of the object to restore
-    void read( const std::type_info& destinationType, void* destinationInstance);
-  private:
-    // copy of the input stream. is referenced by the TBufferFile.
-    std::string m_dataBuffer;
-    std::string m_streamerInfoBuffer;
-    RootStreamBuffer* m_streamer = nullptr;
-  };
-
-  template <typename T> inline RootInputArchive& RootInputArchive::operator>>( T& instance ){
-    read( typeid(T), &instance );
-    return *this;
   }
 
   class StreamerInfo {
