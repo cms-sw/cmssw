@@ -8,34 +8,13 @@
 #include "ME0RecHitProducer.h"
 
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
-
-#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/MuonDetId/interface/ME0DetId.h"
-#include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
-
-#include "RecoLocalMuon/GEMRecHit/interface/ME0RecHitBaseAlgo.h"
-#include "RecoLocalMuon/GEMRecHit/interface/ME0RecHitAlgoFactory.h"
-#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
-
-#include <string>
-
-
-using namespace edm;
-using namespace std;
-
-
 ME0RecHitProducer::ME0RecHitProducer(const ParameterSet& config){
 
   produces<ME0RecHitCollection>();
-  theME0DigiLabel = config.getParameter<InputTag>("me0DigiLabel");
-  
+ 
+  m_token = consumes<ME0DigiPreRecoCollection>( config.getParameter<edm::InputTag>("me0DigiLabel") ); 
+
+ 
   // Get the concrete reconstruction algo from the factory
 
   string theAlgoName = config.getParameter<string>("recAlgo");
@@ -58,13 +37,13 @@ void ME0RecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
 void ME0RecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Get the ME0 Geometry
-  ESHandle<ME0Geometry> me0Geom;
+  edm::ESHandle<ME0Geometry> me0Geom;
   setup.get<MuonGeometryRecord>().get(me0Geom);
 
   // Get the digis from the event
 
-  Handle<ME0DigiPreRecoCollection> digis; 
-  event.getByLabel(theME0DigiLabel,digis);
+  edm::Handle<ME0DigiPreRecoCollection> digis; 
+  event.getByToken(m_token,digis);
 
   // Pass the EventSetup to the algo
 

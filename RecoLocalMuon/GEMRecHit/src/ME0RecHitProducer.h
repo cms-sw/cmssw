@@ -21,8 +21,27 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 
+#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
+
+#include "RecoLocalMuon/GEMRecHit/interface/ME0RecHitBaseAlgo.h"
+#include "RecoLocalMuon/GEMRecHit/interface/ME0RecHitAlgoFactory.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
+
+#include <string>
+using namespace edm;
+using namespace std;
+
+//using namespace reco;
 
 namespace edm {
   class ParameterSet;
@@ -50,7 +69,8 @@ public:
 private:
 
   // The label to be used to retrieve ME0 digis from the event
-  edm::InputTag theME0DigiLabel;
+
+  edm::EDGetTokenT<ME0DigiPreRecoCollection> m_token;
 
   // The reconstruction algorithm
   ME0RecHitBaseAlgo *theAlgo;
