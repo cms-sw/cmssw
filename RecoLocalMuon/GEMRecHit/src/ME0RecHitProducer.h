@@ -18,7 +18,7 @@
 #include <bitset>
 #include <map>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -51,7 +51,7 @@ namespace edm {
 
 class ME0RecHitBaseAlgo;
 
-class ME0RecHitProducer : public edm::EDProducer {
+class ME0RecHitProducer : public edm::stream::EDProducer<> {
 
 public:
   /// Constructor
