@@ -364,7 +364,7 @@ void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker & iBooker, DQMStor
 
 void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IGetter & iGetter, string dir_name, vector<string>& me_names, bool isbarrel, bool isUpgrade)
 {
-	
+
 
   //cout<<"entering SiPixelActionExecutor::fillSummary..."<<endl;
   string currDir = iBooker.pwd();
@@ -466,12 +466,26 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 	}
 	if(prefix=="SUMDIG" && (*iv)=="adc"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-	  temp = iBooker.book1D(tag.c_str(), tag.c_str(),128, 0., 256.);
+      temp = 0;
+      string fullpathname = iBooker.pwd() + "/" + tag;
+      temp = iGetter.get(fullpathname);
+      if (temp) {
+        temp->Reset();
+      }else{
+	    temp = iBooker.book1D(tag.c_str(), tag.c_str(),128, 0., 256.);
+      }
 	  sum_mes.push_back(temp);
 	}
 	if(prefix=="SUMCLU" && (*iv)=="charge"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-	  temp = iBooker.book1D(tag.c_str(), tag.c_str(),100, 0., 200.); // To look to get the size automatically	  
+      temp = 0;
+      string fullpathname = iBooker.pwd() + "/" + tag;
+      temp = iGetter.get(fullpathname);
+      if (temp) {
+        temp->Reset();
+      }else{
+        temp = iBooker.book1D(tag.c_str(), tag.c_str(),100, 0., 200.); // To look to get the size automatically	  
+      }
 	  sum_mes.push_back(temp);
 	}
       }
@@ -1430,7 +1444,6 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore::IBooker & iBooker,
     if ((*it).find(me_name) == 0) {
       string fullpathname = iBooker.pwd() + "/" + (*it); 
       me = iGetter.get(fullpathname);
-			
       if (me) {
 	me->Reset();
 	return me;
