@@ -394,7 +394,7 @@ class ExpressionVariable : public CachingVariable {
     edm::Handle<edm::View<Object> > oH;
     iEvent.getByToken(src_,oH);
     if (index_>=oH->size()){
-      LogDebug(method())<<"fail to get object at index: "<<index_<<" in collection: "<<src_;
+      LogDebug(method())<<"fail to get object at index: "<<index_<<" in collection: "<<srcTag_;
       return std::make_pair(false,0);
     }
 
