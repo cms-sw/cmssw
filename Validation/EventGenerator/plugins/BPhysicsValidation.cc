@@ -8,9 +8,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"  
 
-#include "CLHEP/Units/defs.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 using namespace edm;
 
 BPhysicsValidation::BPhysicsValidation(const edm::ParameterSet& iPSet): 
@@ -32,8 +29,10 @@ BPhysicsValidation::~BPhysicsValidation(){}
 void BPhysicsValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
 void BPhysicsValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+  DQMHelper dqm(&i); i.setCurrentFolder("Generator/BPhysics");
+  Nobj   = dqm.book1dHisto("N"+name, "N"+name, 1, 0., 1,"bin","Number of "+name);
   particle.Configure(i);
-  for(unsigned int j=0;j<daughters.size();j++){std::cout << j << std::endl; daughters[j].Configure(i);}
+  for(unsigned int j=0;j<daughters.size();j++){ daughters[j].Configure(i);}
 }
 
 void BPhysicsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup){ 
@@ -41,6 +40,7 @@ void BPhysicsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   iEvent.getByToken(genparticleCollectionToken_, genParticles );
   for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
     if(abs(iter->pdgId())==abs(particle.PDGID())){
+      Nobj->Fill(0.5, 1.0);
       particle.Fill(&(*iter), 1.0);
       FillDaughters(&(*iter));
     }

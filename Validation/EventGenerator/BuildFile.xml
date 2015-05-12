@@ -1,7 +1,7 @@
 <use name="hepmc"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/Common"/>

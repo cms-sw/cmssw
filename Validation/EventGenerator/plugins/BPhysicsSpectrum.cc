@@ -8,9 +8,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"  
 
-#include "CLHEP/Units/defs.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 using namespace edm;
 
 BPhysicsSpectrum::BPhysicsSpectrum(const edm::ParameterSet& iPSet): 
@@ -30,6 +27,7 @@ void BPhysicsSpectrum::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) 
 
 void BPhysicsSpectrum::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
   DQMHelper dqm(&i); i.setCurrentFolder("Generator/BPhysics");
+  Nobj   = dqm.book1dHisto("NSpectrum"+name, "NSpectrum"+name, 1, 0., 1,"bin","Number of "+name);
   mass = dqm.book1dHisto(name+"Mass","Mass Spectrum", 100, mass_min, mass_max,"Mass (GeV)","Number of Events");
 }
 
@@ -39,6 +37,7 @@ void BPhysicsSpectrum::analyze(const edm::Event& iEvent,const edm::EventSetup& i
   for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
     for(unsigned int i=0;i<Particles.size();i++){
       if(abs(iter->pdgId())==abs(Particles[i])){
+	Nobj->Fill(0.5,1.0);
 	mass->Fill(iter->mass(),1.0);
       }
     }
