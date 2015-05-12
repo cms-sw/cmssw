@@ -313,7 +313,7 @@ steps['TTbarLepton_13']=gen2015('TTbarLepton_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ZEE_13']=gen2015('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_13']=gen2015('Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_13']=gen2015('Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
-steps['LM1_sfts_13']=gen2015('LM1_sfts_13TeV_cfi',Kby(9,100)) # to be removed, replaced by the following
+#steps['LM1_sfts_13']=gen2015('LM1_sfts_13TeV_cfi',Kby(9,100)) # to be removed, replaced by the following
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13']=gen2015('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,100))
 steps['QCD_FlatPt_15_3000_13']=gen2015('QCDForPF_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['QCD_FlatPt_15_3000HS_13']=gen2015('QCDForPF_13TeV_TuneCUETP8M1_cfi',Kby(50,100))
@@ -387,8 +387,8 @@ steps['TTbarLepton_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbarLepton_13/%
 steps['ZEE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['Wjet_Pt_80_120_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['Wjet_Pt_3000_3500_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['LM1_sfts_13INPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}# to be removed, replaced by the following
-# steps['SMS-T1tttt_mGl-1500_mLSP-100_13INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')} # this will need confirmation, once the actual datasets will exist
+#steps['LM1_sfts_13INPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}# to be removed, replaced by the following
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')} # this will need confirmation, once the actual datasets will exist
 steps['QCD_FlatPt_15_3000_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['QCD_FlatPt_15_3000HS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000HS_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['ZpMM_2250_13TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpMM_2250_13TeV/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -786,9 +786,9 @@ PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}  # temporary: one or a few releases as back-up
 PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}  # temporary: one or a few releases as back-up
 PUFSAVE35={'--pileup':'GEN_AVE_35_BX_25ns'}
-PUFSAVE10_DRMIX_ITO={'--pileup':'AVE_10_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_4_0_pre9_ROOT6-MCRUN2_74_V7_FastSim-v1/GEN-SIM-RECO','--customise':'FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}
-PUFSAVE35_DRMIX_ITO={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_4_0_pre9_ROOT6-MCRUN2_74_V7_FastSim-v1/GEN-SIM-RECO','--customise':'FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}
-PUFS25={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_4_0_pre9_ROOT6-MCRUN2_74_V7_FastSim-v1/GEN-SIM-RECO'}
+PUFSAVE10_DRMIX_ITO={'--pileup':'AVE_10_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_5_0_pre4-MCRUN2_75_V1_FastSim-v1/GEN-SIM-RECO','--customise':'FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}
+PUFSAVE35_DRMIX_ITO={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_5_0_pre4-MCRUN2_75_V1_FastSim-v1/GEN-SIM-RECO','--customise':'FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}
+PUFS25={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_5_0_pre4-MCRUN2_75_V1_FastSim-v1/GEN-SIM-RECO'}
 
 #
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
@@ -798,7 +798,8 @@ steps['FS_TTbar_13_PUAVE20']=merge([PUFSAVE20,Kby(100,500),steps['TTbarFS_13']] 
 steps['FS_TTbar_13_PUAVE35']=merge([PUFSAVE35,Kby(100,500),steps['TTbarFS_13']] )
 steps['FS_TTbar_13_PU25']=merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
 steps['FS_NuGun_UP15_PU25']=merge([PUFS25,Kby(100,500),steps['NuGunFS_UP15']] ) # needs the placeholder
-steps['FS_SMS-T1tttt_mGl-1500_mLSP-100_13_PU25']=merge([PUFS25,Kby(100,500),steps['SMS-T1tttt_mGl-1500_mLSP-100_13']] )
+#steps['FS_SMS-T1tttt_mGl-1500_mLSP-100_13_PU25']=merge([PUFS25,Kby(100,500),steps['SMS-T1tttt_mGl-1500_mLSP-100_13']] )
+steps['FS_SMS-T1tttt_mGl-1500_mLSP-100_13_PU25']=merge([PUFS25,Kby(100,500),steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13']] )
 
 steps['FS__PU25']=merge([PUFS25,Kby(100,500),steps['NuGunFS_UP15']] ) # needs the placeholder
 steps['FS_TTbar_13_PUAVE10_DRMIX_ITO']=merge([PUFSAVE10_DRMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
