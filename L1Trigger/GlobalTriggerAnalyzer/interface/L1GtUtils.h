@@ -102,6 +102,10 @@ public:
     /// destructor
     virtual ~L1GtUtils();
 
+    static void fillDescription(edm::ParameterSetDescription & desc) {
+      L1GtUtilsHelper::fillDescription(desc);
+    }
+
 public:
 
     enum TriggerCategory {
