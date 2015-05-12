@@ -102,10 +102,12 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     max_lostHitFraction_.reserve(1);
     min_eta_.reserve(1);
     max_eta_.reserve(1);
+    forest_.reserve(1);
+    mvaType_.reserve(1);
 
     produces<edm::ValueMap<float> >("MVAVals");
     useAnyMVA_ = false;
-    forest_ = nullptr;
+    forest_[0] = nullptr;
 
     src_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>( "src" ));
     hSrc_ = consumes<TrackingRecHitCollection>(cfg.getParameter<edm::InputTag>( "src" ));
@@ -271,7 +273,7 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
   if (copyTrajectories_) trackRefs_.resize(hSrcTrack->size());
 
   std::vector<float>  mvaVals_(hSrcTrack->size(),-99.f);
-  processMVA(evt,es,mvaVals_);
+  processMVA(evt,es,vertexBeamSpot,*(hVtx.product()),0,mvaVals_);
 
   // Loop over tracks
   size_t current = 0;
