@@ -320,8 +320,13 @@ public:
 
     ///Track algorithm
     void setAlgorithm(const TrackAlgorithm a, bool set = true);
+   
+    void setOriginalAlgorithm(const TrackAlgorithm a, bool set = true);
+
 
     TrackAlgorithm algo() const ;
+    TrackAlgorithm originalAlgo() const ;
+
 
     std::string algoName() const;
 
@@ -373,6 +378,10 @@ private:
     /// track algorithm
     uint8_t algorithm_;
 
+    /// track algorithm
+    uint8_t originalAlgorithm_;
+
+
     /// track quality
     uint8_t quality_;
 
@@ -422,15 +431,21 @@ inline TrackBase::index TrackBase::covIndex(index i, index j)
 
 inline TrackBase::TrackAlgorithm TrackBase::algo() const
 {
-    return (TrackAlgorithm) algorithm_;
+    return (TrackAlgorithm) (algorithm_);
 }
+inline TrackBase::TrackAlgorithm TrackBase::originalAlgo() const
+{
+    return (TrackAlgorithm) (originalAlgorithm_);
+}
+
+
 
 inline std::string TrackBase::algoName() const
 {
     // I'd like to do:
     // return TrackBase::algoName(algorithm_);
     // but I cannot define a const static function. Why???
-    switch (algorithm_) {
+    switch (algo()) {
     case undefAlgorithm:
       return "undefAlgorithm";
       break;
@@ -894,12 +909,16 @@ inline double TrackBase::validFraction() const
 //Track algorithm
 inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
 {
-    if (set) {
-        algorithm_ = a;
-    } else {
-        algorithm_ = TrackBase::undefAlgorithm;
-    }
+    algorithm_  = set ?  a : TrackBase::undefAlgorithm;
+    setOriginalAlgorithm(a,set);	
 }
+
+inline void TrackBase::setOriginalAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
+{
+    originalAlgorithm_  = set ?  a : TrackBase::undefAlgorithm;
+}
+
+
 
 inline int TrackBase::qualityMask() const
 {
