@@ -95,8 +95,8 @@ AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(const edm::ParameterSet& iConfig) :
   //saves the following collections
   produces<reco::BeamSpot>(labelBS_.label());
   produces<reco::VertexCollection>(labelVtx_.label());
-  produces<EcalRecHitCollection>("EcalRecHitsEB");
-  produces<EcalRecHitCollection>("EcalRecHitsEE");
+  produces<EcalRecHitCollection>(labelEB_.instance());
+  produces<EcalRecHitCollection>(labelEE_.instance());
   produces<HBHERecHitCollection>(labelHBHE_.label());
   produces<reco::MuonCollection>(labelMuon_.label());
 }
