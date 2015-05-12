@@ -1,6 +1,6 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_4_0_pre8_ROOT6_std2">
-<var name="TEST_REF" value="7_4_0_pre8_std">
+<var name="TEST_NEW" value="7_4_0_pre8_dev1">
+<var name="TEST_REF" value="7_4_0_pre7_std">
 
 <var name="TAG_STARTUP" value="MCRUN2_74_V7">
 <var name="DATA_VERSION" value="v1">
@@ -161,7 +161,7 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ElectronMcSignalValidationPt1000_cfg.py">
+      <target name="analyze" cmd="cmsRun ElectronMcSignalPt1000Validation_cfg.py">
       <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
       
       <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
@@ -282,7 +282,7 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ElectronMcSignalValidationPt1000_gedGsfElectrons_cfg.py">
+      <target name="analyze" cmd="cmsRun ElectronMcSignalPt1000Validation_gedGsfElectrons_cfg.py">
       <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
       
       <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
