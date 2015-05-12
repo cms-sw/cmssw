@@ -84,43 +84,43 @@ namespace reco {
 
     /// highest Pt of other pixel tracks in the cone around the candidate
     double maxPtPxl() const {return maxPtPxl_;}
-    void SetMaxPtPxl(double mptpxl) {maxPtPxl_=mptpxl;}
+    void   setMaxPtPxl(double mptpxl) {maxPtPxl_=mptpxl;}
 
     /// Pt sum of other pixel tracks in the cone around the candidate
     double sumPtPxl() const {return sumPtPxl_;}
-    void SetSumPtPxl(double sumptpxl) {sumPtPxl_=sumptpxl;}
+    void   setSumPtPxl(double sumptpxl) {sumPtPxl_=sumptpxl;}
           
     /// get reference to L1 tau jet
     virtual l1extra::L1JetParticleRef l1tau() const;
-    void setL1TauJet( const l1extra::L1JetParticleRef & tauRef ) { l1tauJet_ = tauRef; }
+    void    setL1TauJet( const l1extra::L1JetParticleRef & tauRef ) { l1tauJet_ = tauRef; }
           
     /// ECAL energy in the inner cone around tau jet
     double energyIn() const {return enIn_; }
-    void SetEnergyIn(double a) {enIn_=a;}
+    void   setEnergyIn(double a) {enIn_=a;}
           
     /// ECAL energy in the outer cone around tau jet
     double energyOut() const {return enOut_;}
-    void SetEnergyOut(double a) {enOut_=a;}
+    void   setEnergyOut(double a) {enOut_=a;}
           
     /// number of ECAL hits in the inner cone around tau jet
-    int nHitIn() const {return nhitIn_;}
-    void SetNHitIn(int a) {nhitIn_=a;}
+    int    nHitIn() const {return nhitIn_;}
+    void   setNHitIn(int a) {nhitIn_=a;}
           
     /// number of ECAL hits in the outer cone around tau jet
-    int nHitOut() const {return nhitOut_;}
-    void SetNHitOut(int a) {nhitOut_=a;}
+    int    nHitOut() const {return nhitOut_;}
+    void   setNHitOut(int a) {nhitOut_=a;}
           
     ///get index of tower which track is hitting
     std::pair<int,int> towerIndex() const;
 
     ///eta, phi at ECAL surface
-    void SetEtaPhiEcal(double eta, double phi) {
+    void setEtaPhiEcal(double eta, double phi) {
       etaEcal_=eta; phiEcal_=phi; etaPhiEcal_=true;
     }
-    std::pair<double,double> EtaPhiEcal() const {
+    std::pair<double,double> etaPhiEcal() const {
       return ((etaPhiEcal_) ? std::pair<double,double>(etaEcal_,phiEcal_) : std::pair<double,double>(0,0));
     }
-    bool etaPhiEcal() const {return etaPhiEcal_;}
+    bool etaPhiEcalValid() const {return etaPhiEcal_;}
 
   private:
     /// check overlap with another candidate
