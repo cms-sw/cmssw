@@ -60,7 +60,7 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelEfficiency_FPix3 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelChipEfficiency_FPix3 = cms.double(0.999)
-    process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(True)
+    process.mix.digitizers.pixel.AddPixelInefficiency = cms.bool(True)
 
     process=customise_pixelMixing_PU(process)
     return process
@@ -156,7 +156,7 @@ def add_detailed_pixel_dqm(process):
 
 def remove_pixel_ineff(process):
     if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False) 
+        process.mix.digitizers.pixel.AddPixelInefficiency = cms.bool(False) 
 
     return process
     

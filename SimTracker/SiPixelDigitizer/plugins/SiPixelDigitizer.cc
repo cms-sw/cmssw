@@ -260,7 +260,6 @@ namespace cms
     }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
-
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       
       if((*iu)->type().isTrackerPixel()) {

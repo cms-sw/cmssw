@@ -160,7 +160,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
-process.simSiPixelDigis.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
+process.simSiPixelDigis.digitizers.pixel.AddPixelInefficiency = cms.bool(False)
 
 # modify digitizer parameters
 #process.simSiPixelDigis.ThresholdInElectrons_BPix = 3500.0 

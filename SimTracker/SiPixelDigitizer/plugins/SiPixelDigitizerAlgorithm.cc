@@ -362,19 +362,20 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
   int NumberOfTotLayers = NumberOfBarrelLayers + NumberOfEndcapDisks;
   FPixIndex=NumberOfBarrelLayers;
   if (AddPixelInefficiency){
-    FromConfig = conf.exists("theInstLumiScaleFactor") &&
+    FromConfig = 
       conf.exists("thePixelColEfficiency_BPix1") && conf.exists("thePixelColEfficiency_BPix2") && conf.exists("thePixelColEfficiency_BPix3") &&
       conf.exists("thePixelColEfficiency_FPix1") && conf.exists("thePixelColEfficiency_FPix2") &&
       conf.exists("thePixelEfficiency_BPix1") && conf.exists("thePixelEfficiency_BPix2") && conf.exists("thePixelEfficiency_BPix3") &&
       conf.exists("thePixelEfficiency_FPix1") && conf.exists("thePixelEfficiency_FPix2") &&
       conf.exists("thePixelChipEfficiency_BPix1") && conf.exists("thePixelChipEfficiency_BPix2") && conf.exists("thePixelChipEfficiency_BPix3") &&
-      conf.exists("thePixelChipEfficiency_FPix1") && conf.exists("thePixelChipEfficiency_FPix2") &&
-      conf.exists("theLadderEfficiency_BPix1") && conf.exists("theLadderEfficiency_BPix2") && conf.exists("theLadderEfficiency_BPix3") &&
+      conf.exists("thePixelChipEfficiency_FPix1") && conf.exists("thePixelChipEfficiency_FPix2");
+    if (NumberOfBarrelLayers==3) FromConfig = FromConfig && conf.exists("theLadderEfficiency_BPix1") && conf.exists("theLadderEfficiency_BPix2") && conf.exists("theLadderEfficiency_BPix3") &&
       conf.exists("theModuleEfficiency_BPix1") && conf.exists("theModuleEfficiency_BPix2") && conf.exists("theModuleEfficiency_BPix3") &&
       conf.exists("thePUEfficiency_BPix1") && conf.exists("thePUEfficiency_BPix2") && conf.exists("thePUEfficiency_BPix3") &&
       conf.exists("theInnerEfficiency_FPix1") && conf.exists("theInnerEfficiency_FPix2") &&
       conf.exists("theOuterEfficiency_FPix1") && conf.exists("theOuterEfficiency_FPix2") &&
-      conf.exists("thePUEfficiency_FPix_Inner") && conf.exists("thePUEfficiency_FPix_Outer");
+      conf.exists("thePUEfficiency_FPix_Inner") && conf.exists("thePUEfficiency_FPix_Outer") &&
+      conf.exists("theInstLumiScaleFactor");
     if (NumberOfBarrelLayers>=4) FromConfig = FromConfig && conf.exists("thePixelColEfficiency_BPix4") &&
       conf.exists("thePixelEfficiency_BPix4") && conf.exists("thePixelChipEfficiency_BPix4");
     if (NumberOfEndcapDisks>=3) FromConfig = FromConfig && conf.exists("thePixelColEfficiency_FPix4") &&
@@ -400,28 +401,30 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
       thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix3");
       if (NumberOfBarrelLayers>=4){thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix4");}
       //
-      i=0;
-      theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix1");
-      theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix2");
-      theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix3");
-      if ( ((theLadderEfficiency_BPix[0].size()!=20) || (theLadderEfficiency_BPix[1].size()!=32) ||
-            (theLadderEfficiency_BPix[2].size()!=44)) && (NumberOfBarrelLayers==3) )  
-        throw cms::Exception("Configuration") << "Wrong ladder number in efficiency config!";
-      //		     
-      i=0;
-      theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix1");
-      theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix2");
-      theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
-      if ( ((theModuleEfficiency_BPix[0].size()!=4) || (theModuleEfficiency_BPix[1].size()!=4) ||
-            (theModuleEfficiency_BPix[2].size()!=4)) && (NumberOfBarrelLayers==3) )  
-        throw cms::Exception("Configuration") << "Wrong module number in efficiency config!";
-      //
-      thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1"));
-      thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2"));
-      thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3"));		    		    
-      if ( ((thePUEfficiency[0].size()==0) || (thePUEfficiency[1].size()==0) || 
-            (thePUEfficiency[2].size()==0)) && (NumberOfBarrelLayers==3) )
-        throw cms::Exception("Configuration") << "At least one PU efficiency (BPix) number is needed in efficiency config!";
+      if (NumberOfBarrelLayers==3){
+        i=0;
+        theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix1");
+        theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix2");
+        theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix3");
+        if ( ((theLadderEfficiency_BPix[0].size()!=20) || (theLadderEfficiency_BPix[1].size()!=32) ||
+              (theLadderEfficiency_BPix[2].size()!=44)) && (NumberOfBarrelLayers==3) )  
+          throw cms::Exception("Configuration") << "Wrong ladder number in efficiency config!";
+        //		     
+        i=0;
+        theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix1");
+        theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix2");
+        theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
+        if ( ((theModuleEfficiency_BPix[0].size()!=4) || (theModuleEfficiency_BPix[1].size()!=4) ||
+              (theModuleEfficiency_BPix[2].size()!=4)) && (NumberOfBarrelLayers==3) )  
+          throw cms::Exception("Configuration") << "Wrong module number in efficiency config!";
+        //
+        thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1"));
+        thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2"));
+        thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3"));		    		    
+        if ( ((thePUEfficiency[0].size()==0) || (thePUEfficiency[1].size()==0) || 
+              (thePUEfficiency[2].size()==0)) && (NumberOfBarrelLayers==3) )
+          throw cms::Exception("Configuration") << "At least one PU efficiency (BPix) number is needed in efficiency config!";
+      }
       // The next is needed for Phase2 Tracker studies
       if (NumberOfBarrelLayers>=5){
         if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -456,17 +459,19 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
         }
       }
       //FPix Dynamic Inefficiency
-      i=FPixIndex;
-      theInnerEfficiency_FPix[i++] = conf.getParameter<double>("theInnerEfficiency_FPix1");
-      theInnerEfficiency_FPix[i++] = conf.getParameter<double>("theInnerEfficiency_FPix2");
-      i=FPixIndex;
-      theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix1");
-      theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix2");
-      thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Inner"));
-      thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Outer"));
-      if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfEndcapDisks==2) )
-      throw cms::Exception("Configuration") << "At least one (FPix) PU efficiency number is needed in efficiency config!";
-      pu_scale.resize(thePUEfficiency.size());
+      if (NumberOfBarrelLayers==3){
+        i=FPixIndex;
+        theInnerEfficiency_FPix[i++] = conf.getParameter<double>("theInnerEfficiency_FPix1");
+        theInnerEfficiency_FPix[i++] = conf.getParameter<double>("theInnerEfficiency_FPix2");
+        i=FPixIndex;
+        theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix1");
+        theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix2");
+        thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Inner"));
+        thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Outer"));
+        if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfEndcapDisks==2) )
+          throw cms::Exception("Configuration") << "At least one (FPix) PU efficiency number is needed in efficiency config!";
+        pu_scale.resize(thePUEfficiency.size());
+      }
     }
     else LogInfo ("PixelDigitizer ") <<"The PixelDigitizer inefficiency configuration is read from the database.\n";
   }

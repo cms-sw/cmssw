@@ -52,5 +52,5 @@ theDigitizersMixPreMix.strip.PreMixingMode = cms.bool(True) #Special mode to sav
 theDigitizersMixPreMixValid.strip.PreMixingMode = cms.bool(True) #Special mode to save all hit strips 
 theDigitizersMixPreMix.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
 theDigitizersMixPreMixValid.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
-theDigitizersMixPreMix.pixel.AddPixelInefficiencyFromPython = cms.bool(False) # will be added in DataMixer    
-theDigitizersMixPreMixValid.pixel.AddPixelInefficiencyFromPython = cms.bool(False) # will be added in DataMixer
+theDigitizersMixPreMix.pixel.AddPixelInefficiency = cms.bool(False) # will be added in DataMixer    
+theDigitizersMixPreMixValid.pixel.AddPixelInefficiency = cms.bool(False) # will be added in DataMixer
