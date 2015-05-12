@@ -47,7 +47,6 @@
 //
 
 class HiSpikeCleaner : public edm::stream::EDProducer<> {
-//class HiSpikeCleaner : public edm::EDProducer {
 public:
   explicit HiSpikeCleaner(const edm::ParameterSet&);
   ~HiSpikeCleaner();
