@@ -73,7 +73,7 @@ SiPixelSimBlock = cms.PSet(
     TanLorentzAnglePerTesla_BPix = cms.double(0.106),
     AddNoisyPixels = cms.bool(True),
     Alpha2Order = cms.bool(True),
-    AddPixelInefficiencyFromPython = cms.bool(True),
+    AddPixelInefficiency = cms.bool(True),
     AddNoise = cms.bool(True),
     ChargeVCALSmearing = cms.bool(True),
     GainSmearing = cms.double(0.0),
@@ -85,8 +85,7 @@ SiPixelSimBlock = cms.PSet(
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
     theInstLumiScaleFactor = cms.double(221.95),
-    bunchScaleAt25 = cms.double(1.0), #for 25ns case
-    thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
+    #thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(1.0),
     thePixelColEfficiency_BPix3 = cms.double(1.0),
     thePixelColEfficiency_FPix1 = cms.double(0.999),
