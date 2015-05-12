@@ -38,7 +38,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+//for collections
 #include "HLTrigger/JetMET/interface/AlphaT.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "CommonTools/RecoAlgos/interface/TrackSelector.h"
+
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -95,6 +101,14 @@ class HLTWorkspace : public DQMEDAnalyzer {
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> aodTriggerToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
+
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> siPixelClusterToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClusterToken_;
+  edm::EDGetTokenT<TrackingRecHitCollection> trackingRecHitsToken_;  
+  edm::EDGetTokenT<reco::TrackExtraCollection> trackExtraToken_;  
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;  
+  //  edm::EDGetTokenT<reco::BeamSpot> trackToken_;  
+
   //  edm::EDGetTokenT<reco::JetTagCollection> csvTagToken_;
   
   //declare all MEs
@@ -150,6 +164,14 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", "TEST"));
   aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", "TEST"));
   lumiScalersToken_ = consumes<LumiScalersCollection>(edm::InputTag("hltScalersRawToDigi","",""));
+  siPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("hltSiPixelClusters","","TEST"));
+  siStripClusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(edm::InputTag("hltSiStripRawToClustersFacility","","TEST"));
+  trackingRecHitsToken_ = consumes<TrackingRecHitCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+  trackExtraToken_ = consumes<reco::TrackExtraCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+  trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+  
+  
+
   // use this csvTagToken_ = consumes<reco::JetTagCollection>(InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST")); 
   // prob not this csvTagToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST")); 
 
@@ -173,9 +195,8 @@ HLTWorkspace::~HLTWorkspace()
 void
 HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  double start = (double)time.tv_sec + (double)time.tv_usec * .000001;
   double start = get_wall_time();
-
+  
   using namespace edm;
   
    if (debugPrint) std::cout << "Inside analyze(). " << std::endl;
@@ -190,6 +211,28 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    if (!aodTriggerEvent.isValid()) return;
 
+   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> siPixelCluster;
+   iEvent.getByToken(siPixelClusterToken_, siPixelCluster);
+   if (!siPixelCluster.isValid()) return;
+
+   edm::Handle<edmNew::DetSetVector<SiStripCluster>> siStripCluster;
+   iEvent.getByToken(siStripClusterToken_, siStripCluster);
+   if (!siStripCluster.isValid()) return;
+
+   edm::Handle<TrackingRecHitCollection> trackingRecHits;
+   iEvent.getByToken(trackingRecHitsToken_, trackingRecHits);
+   if (!trackingRecHits.isValid()) return;
+
+   edm::Handle<reco::TrackExtraCollection> trackExtras;
+   iEvent.getByToken(trackExtraToken_, trackExtras);
+   if (!trackExtras.isValid()) return;
+
+   edm::Handle<reco::TrackCollection> tracks;
+   iEvent.getByToken(trackToken_, tracks);
+   if (!tracks.isValid()) return;
+
+   
+
    // edm::Handle<reco::JetTagCollection> jetTags;
    // iEvent.getByToken(csvTagToken_, jetTags);
    // if (!jetTags.isValid()) return;
@@ -201,11 +244,10 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   fillPlots(eventNumber, pathName, aodTriggerEvent);
 	 }
      }
-   
+
+   //   sleep(1); //sleep for 1s, used to calibrate timing 
    double end = get_wall_time();
-   //double end = (double)time.tv_sec + (double)time.tv_usec * .000001;
    double wallTime = end - start;
-   std::cout << wallTime << std::endl;
    wallTimePerEvent_->Fill(wallTime);
 }
 
@@ -300,7 +342,7 @@ void HLTWorkspace::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const& i
   ibooker.setCurrentFolder(mainShifterFolder);
 
   //wall time
-  TH1F * hist_wallTime = new TH1F("wallTime","wall time per event",1000,0,0.005);
+  TH1F * hist_wallTime = new TH1F("wallTime","wall time per event",1000,0,3);
   hist_wallTime->SetMinimum(0);
   wallTimePerEvent_ = ibooker.book1D("wallTime",hist_wallTime);
 
