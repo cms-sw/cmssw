@@ -83,7 +83,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
     int    nhitIn(0), nhitOut(0);
     double inEnergy(0), outEnergy(0);
     std::pair<double,double> etaPhi(isoPixTrackRefs[p]->track()->eta(), isoPixTrackRefs[p]->track()->phi());
-    if (isoPixTrackRefs[p]->etaPhiEcal()) etaPhi = isoPixTrackRefs[p]->EtaPhiEcal();
+    if (isoPixTrackRefs[p]->etaPhiEcalValid()) etaPhi = isoPixTrackRefs[p]->etaPhiEcal();
     double etaAbs = std::abs(etaPhi.first);
     double coneSize_ = (etaAbs > 1.5) ? coneSizeEta1_ : (coneSizeEta0_*(1.5-etaAbs)+coneSizeEta1_*etaAbs)/1.5;
 #ifdef DebugLog
@@ -126,10 +126,10 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
     std::cout << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut << " outEnergy:" << outEnergy << std::endl;
 #endif
     reco::IsolatedPixelTrackCandidate newca(*isoPixTrackRefs[p]);
-    newca.SetEnergyIn(inEnergy);
-    newca.SetEnergyOut(outEnergy);
-    newca.SetNHitIn(nhitIn);
-    newca.SetNHitOut(nhitOut);
+    newca.setEnergyIn(inEnergy);
+    newca.setEnergyOut(outEnergy);
+    newca.setNHitIn(nhitIn);
+    newca.setNHitOut(nhitOut);
     iptcCollection->push_back(newca);	
   }
 #ifdef DebugLog
