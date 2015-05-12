@@ -62,6 +62,7 @@
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace edm {
   class StreamID;
@@ -71,7 +72,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class EcalMixingModuleValidation: public edm::EDAnalyzer{
+class EcalMixingModuleValidation: public DQMEDAnalyzer{
 
     typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -83,19 +84,18 @@ EcalMixingModuleValidation(const edm::ParameterSet& ps);
 /// Destructor
 ~EcalMixingModuleValidation();
 
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+
 protected:
 
 /// Analyze
 void analyze(edm::Event const & e, edm::EventSetup const & c);
 
-// BeginRun
-void beginRun(edm::Run const &, edm::EventSetup const & c);
+void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 // EndRun
 void endRun(const edm::Run& r, const edm::EventSetup& c);
 
-// EndJob
-void endJob(void);
 
 private:
 
