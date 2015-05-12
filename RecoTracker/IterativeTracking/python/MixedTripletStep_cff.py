@@ -29,7 +29,7 @@ mixedTripletStepClusters = trackClusterRemover.clone(
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSeedLayers
 mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
-     layerList = detachedTripletStepSeedLayers.layerList,
+     layerList = cms.vstring('BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
 #    layerList = cms.vstring('BPix1+BPix2+BPix3', 
 #        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
 #        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
