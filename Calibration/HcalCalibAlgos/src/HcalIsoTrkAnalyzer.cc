@@ -60,6 +60,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
+//#define DebugLog
+
 class HcalIsoTrkAnalyzer : public edm::EDAnalyzer {
 
 public:
@@ -85,13 +87,13 @@ private:
   std::vector<std::string>   trigNames, HLTNames;
   std::vector<int>           trigKount, trigPass;
   spr::trackSelectionParameters selectionParameters;
-  std::string                theTrackQuality, processName;
-  std::string                l1Filter, l2Filter, l3Filter;
   double                     a_mipR, a_coneR, a_charIsoR;
   double                     pTrackMin_, eEcalMax_, eIsolation_;
   int                        nRun, nAll, nGood;
-  edm::InputTag              triggerEvent_, theTriggerResultsLabel, labelHBHE_;
-  edm::InputTag              labelGenTrack_, labelRecVtx_, labelEB_, labelEE_;
+  edm::InputTag              triggerEvent_, theTriggerResultsLabel;
+  std::string                labelGenTrack_, labelRecVtx_, labelEB_, labelEE_;
+  std::string                theTrackQuality, processName, labelHBHE_;
+  std::string                l1Filter, l2Filter, l3Filter;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
 
@@ -142,22 +144,46 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   eIsolation_                         = iConfig.getParameter<double>("IsolationEnergy");
   triggerEvent_                       = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   theTriggerResultsLabel              = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
-  labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
-  labelRecVtx_                        = iConfig.getParameter<edm::InputTag>("VertexLabel");
-  labelEB_                            = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
-  labelEE_                            = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
-  labelHBHE_                          = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
+  labelGenTrack_                      = iConfig.getParameter<std::string>("TrackLabel");
+  labelRecVtx_                        = iConfig.getParameter<std::string>("VertexLabel");
+  labelEB_                            = iConfig.getParameter<std::string>("EBRecHitLabel");
+  labelEE_                            = iConfig.getParameter<std::string>("EERecHitLabel");
+  labelHBHE_                          = iConfig.getParameter<std::string>("HBHERecHitLabel");
+  edm::InputTag labelBS               = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
+  std::string modnam                  = iConfig.getUntrackedParameter<std::string>("ModuleName","");
+  std::string prdnam                  = iConfig.getUntrackedParameter<std::string>("ProducerName","");
 
   // define tokens for access
   tok_trigEvt   = consumes<trigger::TriggerEvent>(triggerEvent_);
   tok_trigRes   = consumes<edm::TriggerResults>(theTriggerResultsLabel);
+  tok_bs_       = consumes<reco::BeamSpot>(labelBS);
   tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
-  tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
-  tok_bs_       = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("BeamSpotLabel"));
- 
-  tok_EB_       = consumes<EcalRecHitCollection>(labelEB_);
-  tok_EE_       = consumes<EcalRecHitCollection>(labelEE_);
-  tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
+  if (modnam == "") {
+    tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
+    tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEB_));
+    tok_EE_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEE_));
+    tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
+    edm::LogInfo("HcalIsoTrack") << "Labels used " << triggerEvent_ << " "
+				 << theTriggerResultsLabel << " "
+				 << labelBS << " " << labelRecVtx_ << " " 
+				 << labelGenTrack_ << " " 
+				 << edm::InputTag("ecalRecHit",labelEB_) << " " 
+				 << edm::InputTag("ecalRecHit",labelEE_) << " "
+				 << labelHBHE_;
+  } else {
+    tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag(modnam,labelRecVtx_,prdnam));
+    tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag(modnam,labelEB_,prdnam));
+    tok_EE_       = consumes<EcalRecHitCollection>(edm::InputTag(modnam,labelEE_,prdnam));
+    tok_hbhe_     = consumes<HBHERecHitCollection>(edm::InputTag(modnam,labelHBHE_,prdnam));
+    edm::LogInfo("HcalIsoTrack") << "Labels used "   << triggerEvent_ 
+				 << "\n            " << theTriggerResultsLabel 
+				 << "\n            " << labelBS 
+				 << "\n            " << edm::InputTag(modnam,labelRecVtx_,prdnam)
+				 << "\n            " << labelGenTrack_
+				 << "\n            " << edm::InputTag(modnam,labelEB_,prdnam)
+				 << "\n            " << edm::InputTag(modnam,labelEE_,prdnam)
+				 << "\n            " << edm::InputTag(modnam,labelHBHE_,prdnam);
+  }
 
   std::vector<int> dummy(trigNames.size(),0);
   trigKount = trigPass = dummy;
@@ -193,10 +219,11 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   t_Run   = iEvent.id().run();
   t_Event = iEvent.id().event();
   nAll++;
-  LogDebug("HcalIsoTrack") << "Run " << t_Run << " Event " << t_Event 
-			   << " Luminosity " << iEvent.luminosityBlock() 
-			   << " Bunch " << iEvent.bunchCrossing();
-
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "Run " << t_Run << " Event " << t_Event 
+			       << " Luminosity " << iEvent.luminosityBlock() 
+			       << " Bunch " << iEvent.bunchCrossing();
+#endif
   //Get magnetic field and ECAL channel status
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
@@ -226,15 +253,16 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<reco::BeamSpot> beamSpotH;
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+  if (recVtxs.isValid() && recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
     leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();
   }
-  LogDebug("HcalIsoTrack") << "Primary Vertex " << leadPV;
-  if (beamSpotH.isValid()) LogDebug("HcalIsoTrack") << "Beam Spot " 
-						    << beamSpotH->position();
-  
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "Primary Vertex " << leadPV;
+  if (beamSpotH.isValid()) edm::LogInfo("HcalIsoTrack") << "Beam Spot " 
+							<< beamSpotH->position();
+#endif  
   // RecHits
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
@@ -294,9 +322,11 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      ok = true;
 	      trigPass[i]++;
 	    }
-	    LogDebug("HcalIsoTrack") <<"This is the trigger we are looking for "
-				     << triggerNames_[iHLT] << " Flag " << hlt 
-				     << ":" << ok;
+#ifdef DebugLog
+	    edm::LogInfo("HcalIsoTrack") << "This trigger "
+					 << triggerNames_[iHLT] << " Flag " 
+					 << hlt << ":" << ok;
+#endif
           }
         }
 
@@ -313,7 +343,9 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    for (unsigned int imodule=0; imodule<moduleLabels.size(); 
 		 imodule++) {
 	      if (label.find(moduleLabels[imodule]) != std::string::npos) {
-		LogDebug("HcalIsoTrack") << "FilterName " << label;
+#ifdef DebugLog
+		edm::LogInfo("HcalIsoTrack") << "FilterName " << label;
+#endif
 		for (unsigned int ifiltrKey=0; ifiltrKey<triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
 		  Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
 		  const trigger::TriggerObject& TO(TOC[Keys[ifiltrKey]]);
@@ -326,13 +358,17 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 			     l1Filter == "") {
 		    vec[0].push_back(v4);
 		  }
-		  LogDebug("HcalIsoTrack") << "key " << ifiltrKey << " : pt " 
-					   << TO.pt() << " eta " << TO.eta() 
-					   << " phi " << TO.phi() << " mass " 
-					   << TO.mass() << " Id " << TO.id();
+#ifdef DebugLog
+		  edm::LogInfo("HcalIsoTrack") << "key " << ifiltrKey<<" : pt "
+					       << TO.pt() << " eta "<< TO.eta()
+					       << " phi " << TO.phi()<<" mass "
+					       << TO.mass() << " Id "<<TO.id();
+#endif
 		}
-		LogDebug("HcalIsoTrack") << "sizes " << vec[0].size() << ":" 
-					 << vec[1].size() <<":" <<vec[2].size();
+#ifdef DebugLog
+		edm::LogInfo("HcalIsoTrack") << "sizes " << vec[0].size() << ":"
+					     << vec[1].size() <<":" <<vec[2].size();
+#endif
 	      }
 	    }
 	  }
@@ -343,8 +379,10 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  for (int lvl=1; lvl<3; lvl++) {
 	    for (unsigned int i=0; i<vec[lvl].size(); i++) {
 	      dr   = dR(vec[0][0],vec[lvl][i]);
-	      LogDebug("HcalIsoTrack") << "lvl " <<lvl << " i " << i << " dR " 
-				       << dr;
+#ifdef DebugLog
+	      edm::LogInfo("HcalIsoTrack") << "lvl " << lvl << " i " << i 
+					   << " dR " << dr;
+#endif
 	      if (dr<mindR1) {
 		mindR1    = dr;
 		mindRvec1 = vec[lvl][i];
@@ -368,10 +406,12 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
             math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
 				       pTrack->pz(), pTrack->p());
-	    LogDebug("HcalIsoTrack") << "This track : " << nTracks 
-				     << " (pt|eta|phi|p) :" << pTrack->pt() 
-				     << "|" << pTrack->eta() << "|" 
-				     << pTrack->phi() << "|" << pTrack->p();
+#ifdef DebugLog
+	    edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
+					 << " (pt|eta|phi|p) :" << pTrack->pt()
+					 << "|" << pTrack->eta() << "|" 
+					 << pTrack->phi() << "|" <<pTrack->p();
+#endif
 	    math::XYZTLorentzVector mindRvec2;
 	    t_mindR2 = 999;
 
@@ -383,10 +423,11 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
 	    }
 	    t_mindR1 = dR(vec[0][0],v4);
-	    LogDebug("HcalIsoTrack") << "Closest L3 object at mindr :" 
-				     << t_mindR2 << " is " << mindRvec2 
-				     << " and from L1 " << t_mindR1;
-	    
+#ifdef DebugLog
+	    edm::LogInfo("HcalIsoTrack") << "Closest L3 object at mindr :" 
+					 << t_mindR2 << " is " << mindRvec2 
+					 << " and from L1 " << t_mindR1;
+#endif	    
 	    //Selection of good track
 	    t_selectTk = spr::goodTrack(pTrack,leadPV,selectionParameters,false);
 	    spr::trackSelectionParameters oneCutParameters = selectionParameters;
@@ -408,9 +449,11 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
 	      t_ieta = detId.ieta();
 	    }
-	    LogDebug("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag
-				     << "|" << trkDetItr->okECAL << "|" 
-				     << trkDetItr->okHCAL;
+#ifdef DebugLog
+	    edm::LogInfo("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " 
+					 << qltyFlag << "|" << trkDetItr->okECAL
+					 << "|" << trkDetItr->okHCAL;
+#endif
 	    t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
 	    t_p        = pTrack->p();
 	    if (t_qltyFlag) {
@@ -434,28 +477,32 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      t_hmaxNearP = spr::chargeIsolationCone(nTracks,trkCaloDirections,
 						     a_charIsoR, nNearTRKs, 
 						     false);
-	      LogDebug("HcalIsoTrack") << "This track : " << nTracks 
-				       << " (pt|eta|phi|p) :"  << pTrack->pt() 
-				       << "|" << pTrack->eta() << "|" 
-				       << pTrack->phi() << "|" << t_p;
-	      LogDebug("HcalIsoTrack") << "e_MIP " << t_eMipDR 
-				       << " Chg Isolation " << t_hmaxNearP 
-				       << " eHcal" << t_eHcal << " ieta " 
-				       << t_ieta << " Quality " 
-				       << t_qltyMissFlag << ":" 
-				       << t_qltyPVFlag << ":" << t_selectTk;
+#ifdef DebugLog
+	      edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
+					   << " (pt|eta|phi|p) :"  << pTrack->pt() 
+					   << "|" << pTrack->eta() << "|" 
+					   << pTrack->phi() << "|" << t_p;
+	      edm::LogInfo("HcalIsoTrack") << "e_MIP " << t_eMipDR 
+					   << " Chg Isolation " << t_hmaxNearP 
+					   << " eHcal" << t_eHcal << " ieta " 
+					   << t_ieta << " Quality " 
+					   << t_qltyMissFlag << ":" 
+					   << t_qltyPVFlag << ":" << t_selectTk;
 	      for (unsigned int lll=0;lll<t_DetIds->size();lll++) {
-		LogDebug("HcalIsoTrack") << "det id is = " <<t_DetIds->at(lll)
-					 << "   hit enery is  = "  
-					 << t_HitEnergies->at(lll) ;
+		edm::LogInfo("HcalIsoTrack") << "det id is = " <<t_DetIds->at(lll)
+					     << "   hit enery is  = "  
+					     << t_HitEnergies->at(lll) ;
 	      }
+#endif
 	      if (t_p>pTrackMin_ && t_eMipDR<eEcalMax_ && 
 		  t_hmaxNearP<eIsolation_) {
 		tree->Fill();
 		nGood++;
+#ifdef DebugLog
 		for (unsigned int k=0; k<t_trgbits->size(); k++) 
-		  LogDebug("HcalIsoTrack") << "trigger bit is  = " 
-					   << t_trgbits->at(k);
+		  edm::LogInfo("HcalIsoTrack") << "trigger bit is  = " 
+					       << t_trgbits->at(k);
+#endif
 	      }
 	    }
 	  }
@@ -464,17 +511,21 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       // check if trigger names in (new) config                       
       if (changed) {
 	changed = false;
-	LogDebug("HcalIsoTrack") << "New trigger menu found !!!";
+#ifdef DebugLog
+	edm::LogInfo("HcalIsoTrack") << "New trigger menu found !!!";
+#endif
 	const unsigned int n(hltConfig_.size());
 	for (unsigned itrig=0; itrig<triggerNames_.size(); itrig++) {
 	  unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[itrig]);
 	  if (triggerindx >= n)
-	    LogDebug("HcalIsoTrack") << triggerNames_[itrig] << " " 
-				     << triggerindx << " does not exist in "
-				     << "the current menu";
+	    edm::LogInfo("HcalIsoTrack") << triggerNames_[itrig] << " " 
+					 << triggerindx << " does not exist in "
+					 << "the current menu";
+#ifdef DebugLog
 	  else
-	    LogDebug("HcalIsoTrack") << triggerNames_[itrig] << " " 
-				     << triggerindx << " exists";
+	    edm::LogInfo("HcalIsoTrack") << triggerNames_[itrig] << " " 
+					 << triggerindx << " exists";
+#endif
 	}
       }
     }
