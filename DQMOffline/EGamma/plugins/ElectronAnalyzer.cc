@@ -498,7 +498,7 @@ float ElectronAnalyzer::computeInvMass
  {
   math::XYZTLorentzVector p12 = e1.p4()+e2.p4() ;
   float mee2 = p12.Dot(p12) ;
-  float invMass = sqrt(mee2) ;
+  float invMass = mee2 > 0. ? sqrt(mee2) : 0;
   return invMass ;
  }
 
