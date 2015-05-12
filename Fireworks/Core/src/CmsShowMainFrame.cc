@@ -686,13 +686,12 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
       }
 
       // special case is --live option where Space key is grabbed
-      if (event->fCode == kKey_Space) printf("GOT SPACE EVENT !!!!!!!!!!!!!!!\n");
-      if (event->fCode == kKey_Space && event->fState == 0 ) {
-          printf("HANDLE SPACE \n");
+      static UInt_t spacecode =  gVirtualX->KeysymToKeycode((int)kKey_Space);
+      if (event->fCode == spacecode && event->fState == 0 ) {
           if (playEventsAction()->isRunning() )
-              playEventsAction()->stopped_.emit();
+              playEventsAction()->switchMode();
           else if (playEventsBackwardsAction()->isRunning() )
-              playEventsBackwardsAction()->stopped_.emit();
+              playEventsBackwardsAction()->switchMode();
       }
    }
    return kFALSE;

@@ -791,11 +791,10 @@ CmsShowMain::notified(TSocket* iSocket)
 void
 CmsShowMain::checkKeyBindingsOnPLayEventsStateChanged()
 {
-    printf("trying to ggrab key %d LIVE %d \n", isPlaying(), m_live);
     if (m_live) {
-
-        printf("ggrab key playing = %d  \n", isPlaying());
-        gVirtualX->GrabKey(FWGUIManager::getGUIManager()->getMainFrame()->GetId(), kKey_Space, 0, isPlaying());
+        Int_t keycode = gVirtualX->KeysymToKeycode((int)kKey_Space);
+        Window_t id = FWGUIManager::getGUIManager()->getMainFrame()->GetId();
+        gVirtualX->GrabKey(id, keycode, 0, isPlaying());
     }
 }
 
