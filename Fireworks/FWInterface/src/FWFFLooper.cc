@@ -283,7 +283,7 @@ FWFFLooper::autoLoadNewEvent()
    else
    {
       m_autoReload = false;
-      setIsPlaying(false);
+      CmsShowMainBase::stopPlaying();
       guiManager()->enableActions();
       guiManager()->getMainFrame()->enableComplexNavigation(false);
    }
@@ -294,7 +294,7 @@ FWFFLooper::stopPlaying()
 {
    stopAutoLoadTimer();
    m_autoReload = false;
-   setIsPlaying(false);
+   CmsShowMainBase::stopPlaying();
    guiManager()->enableActions();
    guiManager()->getMainFrame()->enableComplexNavigation(false);
    checkPosition();

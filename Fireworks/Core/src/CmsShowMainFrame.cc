@@ -664,6 +664,8 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
 }
 
 Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
+    printf("CmsShowMainFrame::HandleKey \n");
+
    if (event->fType == kGKeyPress) {
       const std::vector<CSGAction*>& alist = getListOfActions();
       std::vector<CSGAction*>::const_iterator it_act;
@@ -681,6 +683,16 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
             //  return kTRUE;
             return false;
          }
+      }
+
+      // special case is --live option where Space key is grabbed
+      if (event->fCode == kKey_Space) printf("GOT SPACE EVENT !!!!!!!!!!!!!!!\n");
+      if (event->fCode == kKey_Space && event->fState == 0 ) {
+          printf("HANDLE SPACE \n");
+          if (playEventsAction()->isRunning() )
+              playEventsAction()->stopped_.emit();
+          else if (playEventsBackwardsAction()->isRunning() )
+              playEventsBackwardsAction()->stopped_.emit();
       }
    }
    return kFALSE;

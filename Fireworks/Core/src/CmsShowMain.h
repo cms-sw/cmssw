@@ -97,6 +97,7 @@ private:
    virtual void autoLoadNewEvent();
    virtual void checkPosition();
    virtual void stopPlaying();
+    virtual void checkKeyBindingsOnPLayEventsStateChanged();
 
    void reachedEnd();
    void reachedBeginning();

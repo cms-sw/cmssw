@@ -457,12 +457,22 @@ CmsShowMainBase::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
    m_eiManager->add(iItem);
 }
 
+
+void
+CmsShowMainBase::stopPlaying()
+{
+    m_isPlaying = false;
+    checkKeyBindingsOnPLayEventsStateChanged();
+}
+
 void
 CmsShowMainBase::playForward()
 {
+    printf("play forward \n");
    m_forward = true;
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
+   checkKeyBindingsOnPLayEventsStateChanged();
    startAutoLoadTimer();
 }
 
@@ -473,6 +483,7 @@ CmsShowMainBase::playBackward()
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
    startAutoLoadTimer();
+   checkKeyBindingsOnPLayEventsStateChanged();
 }
 
 void
