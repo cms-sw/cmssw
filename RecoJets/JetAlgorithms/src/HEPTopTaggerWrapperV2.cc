@@ -44,14 +44,16 @@ FASTJET_BEGIN_NAMESPACE
 // Input objects are packed pfCandidates with CHS
 double R_min_expected_function(double x){
 
-  if (x>1000)
-    x=1000;
+
+  if (x>700)
+    x=700;
     
-  double A = -4.02290e+00;
-  double B =  8.97577e-02;
-  double C =  2.10638e+03;
-  double D = -4.19572e+05;
-  double E =  3.20825e+07;
+  double A =      -9.42052;
+  double B =      0.202773;
+  double C =       4498.45;
+  double D =  -1.05737e+06;
+  double E =   9.95494e+07;
+
   return A+B*sqrt(x)+C/x+D/(x*x)+E/(x*x*x);
 }
 
@@ -193,13 +195,14 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   s->_fRec = tagger.f_rec();
   s->_mass_ratio_passed = tagger.is_masscut_passed();
 
-
-  s->_tau1Unfiltered = tagger.nsub_unfiltered(1);
-  s->_tau2Unfiltered = tagger.nsub_unfiltered(2);
-  s->_tau3Unfiltered = tagger.nsub_unfiltered(3);
-  s->_tau1Filtered = tagger.nsub_filtered(1);
-  s->_tau2Filtered = tagger.nsub_filtered(2);
-  s->_tau3Filtered = tagger.nsub_filtered(3);
+  if (DoOptimalR_){
+    s->_tau1Unfiltered = tagger.nsub_unfiltered(1);
+    s->_tau2Unfiltered = tagger.nsub_unfiltered(2);
+    s->_tau3Unfiltered = tagger.nsub_unfiltered(3);
+    s->_tau1Filtered = tagger.nsub_filtered(1);
+    s->_tau2Filtered = tagger.nsub_filtered(2);
+    s->_tau3Filtered = tagger.nsub_filtered(3);
+  }
 
   s->_Qweight = Qweight;
   s->_Qepsilon = Qepsilon;
