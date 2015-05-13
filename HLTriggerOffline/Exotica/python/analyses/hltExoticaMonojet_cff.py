@@ -11,11 +11,11 @@ MonojetPSet = cms.PSet(
         "HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v"
     ),
 
-    CaloJetLabel    = cms.InputTag("ak4CaloJets"),
-    PFJetLabel      = cms.InputTag("ak4PFJets"),
+    recCaloJetLabel    = cms.InputTag("ak4CaloJets"),
+    recPFJetLabel      = cms.InputTag("ak4PFJets"),
     #GenJetLabel     = cms.InputTag("ak4GenJets"),
-    PFMETLabel      = cms.InputTag("recoExoticaValidationMETNoMu"),
-    PFMHTLabel      = cms.InputTag("recoExoticaValidationMHTNoMu"),
+    recPFMETLabel      = cms.InputTag("recoExoticaValidationMETNoMu"),
+    recPFMHTLabel      = cms.InputTag("recoExoticaValidationMHTNoMu"),
     #PFMETLabel      = cms.InputTag("pfMet"),
     #PFMHTLabel      = cms.InputTag("recoExoticaValidationHT"),
 

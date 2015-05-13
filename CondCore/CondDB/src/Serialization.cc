@@ -1,7 +1,4 @@
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondCore/CondDB/interface/Exception.h"
-#include "CondCore/CondDB/interface/Utils.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 //
 #include <sstream>
 #include "boost/version.hpp"
