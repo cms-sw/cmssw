@@ -1,4 +1,5 @@
 #include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
+#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -7,11 +8,9 @@
 #include <TH1F.h>
 
 using namespace std;
+using namespace GEMDetLabel;
 GEMSimTrackMatch::GEMSimTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatch(ps)
 {
-  //minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
-  //minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
-  //maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
   std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel");
 
   simHitsToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(simInputLabel_,"MuonGEMHits"));
@@ -29,10 +28,7 @@ void GEMSimTrackMatch::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   const GEMGeometry& geom = *hGeom;
   setGeometry(geom);
 
-  const float PI=TMath::Pi(); 
-  const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-  const char* c_suffix[3] = {"_even","_odd","_all"};
+  const float PI=TMath::Pi();
 
   nstation = geom.regions()[0]->stations().size();  
   for( unsigned int j=0 ; j<nstation ; j++) {

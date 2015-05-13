@@ -43,7 +43,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMHits/plugins/MuonGEMHitsHarvestor.h"
+#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
+using namespace GEMDetLabel;
 using namespace std;
 MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& ps)
 {
@@ -103,9 +105,6 @@ void
 MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
 {
   ig.setCurrentFolder(dbe_path_.c_str());
-  string l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  string s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-  string c_suffix[3] = {"_even","_odd","_all"};
   TH1F* track_eta[3];
   TH1F* track_phi[3][3];
 

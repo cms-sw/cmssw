@@ -5,8 +5,10 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 #include <TH1F.h>
+#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
 using namespace std;
+using namespace GEMDetLabel;
 GEMDigiTrackMatch::GEMDigiTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatch(ps)
 {
   std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel");
@@ -28,9 +30,6 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   setGeometry(geom);
 
   const float PI=TMath::Pi();
-  const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-  const char* c_suffix[3] = {"_even","_odd","_all"};
 
   nstation = geom.regions()[0]->stations().size(); 
   for( unsigned int j=0 ; j<nstation ; j++) {

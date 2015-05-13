@@ -44,8 +44,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMDigis/plugins/MuonGEMDigisHarvestor.h"
+#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
-
+using namespace GEMDetLabel;
 MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
 {
   dbe_path_ = std::string("MuonGEMDigisV/GEMDigisTask/");
@@ -116,11 +117,6 @@ void
 MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
   ig.setCurrentFolder(dbe_path_.c_str());
- 
-  const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};   
-  const char* c_suffix[3] = {"_even","_odd","_all"};   
-
   TH1F* gem_trk_eta[3];
   TH1F* gem_trk_phi[3][2];  
 
