@@ -105,6 +105,7 @@ private:
   edm::InputTag              labelTriggerEvent_, labelTriggerResults_;
   edm::InputTag              labelGenTrack_, labelRecVtx_,  labelHltGT_;
   edm::InputTag              labelEB_, labelEE_, labelHBHE_, labelBS_;
+  std::string                labelIsoTk_;
   const MagneticField       *bField;
   const CaloGeometry        *geo;
   double                     ptL1, etaL1, phiL1;
@@ -156,6 +157,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   labelHltGT_                         = iConfig.getParameter<edm::InputTag>("L1GTSeedLabel");
   labelTriggerEvent_                  = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   labelTriggerResults_                = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  labelIsoTk_                         = iConfig.getParameter<std::string>("IsoTrackLabel");
 
   // define tokens for access
   tok_hltGT_    = consumes<trigger::TriggerFilterObjectWithRefs>(labelHltGT_);
@@ -196,8 +198,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   trigKount = trigPass = dummy;
 
   //create also IsolatedPixelTrackCandidateCollection which contains isolation info and reference to primary track
-  static const std::string labelIsoTk = "HcalIsolatedTrackCollection";
-  produces<reco::HcalIsolatedTrackCandidateCollection>(labelIsoTk);
+  produces<reco::HcalIsolatedTrackCandidateCollection>(labelIsoTk_);
   produces<reco::VertexCollection>(labelRecVtx_.label());
   produces<EcalRecHitCollection>(labelEB_.instance());
   produces<EcalRecHitCollection>(labelEE_.instance());
@@ -337,11 +338,11 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  outputHBHEColl->push_back(*hhit);
       }
 
-      iEvent.put(outputHcalIsoTrackColl, "HcalIsolatedTrackCollection");
-      iEvent.put(outputVColl,    labelRecVtx_.label());
-      iEvent.put(outputEBColl,   "EcalRecHitsEB");
-      iEvent.put(outputEEColl,   "EcalRecHitsEE");
-      iEvent.put(outputHBHEColl, labelHBHE_.label());
+      iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
+      iEvent.put(outputVColl,            labelRecVtx_.label());
+      iEvent.put(outputEBColl,           labelEB_.instance());
+      iEvent.put(outputEEColl,           labelEE_.instance());
+      iEvent.put(outputHBHEColl,         labelHBHE_.label());
     }
   }
 }

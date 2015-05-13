@@ -199,8 +199,8 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   iEvent.put(outputBeamSpot,       labelBS_.label());
   iEvent.put(outputVColl,          labelVtx_.label());
-  iEvent.put(outputEBColl,         "EcalRecHitsEB");
-  iEvent.put(outputEEColl,         "EcalRecHitsEE");
+  iEvent.put(outputEBColl,         labelEB_.instance());
+  iEvent.put(outputEEColl,         labelEE_.instance());
   iEvent.put(outputHBHEColl,       labelHBHE_.label());
   iEvent.put(outputMColl,          labelMuon_.label());
 }
