@@ -1,5 +1,6 @@
 import ConfigParser
 import os
+import re
 import copy
 import collections
 from TkAlExceptions import AllInOneError
@@ -31,6 +32,11 @@ class AdaptedDict(collections.OrderedDict):
         """
 
         if key != "__name__" and "__name__" in self and self["__name__"]=="validation":
+            if isinstance(value, (str, unicode)):
+                for index, item in enumerate(self.validationslist[:]):
+                    if item == (key, value.split("\n")):
+                        self.validationslist[index] = (key, value)
+                        return
             self.validationslist.append((key, value))
         else:
             dict_setitem(self, key, value)
@@ -50,6 +56,7 @@ class AdaptedDict(collections.OrderedDict):
 class BetterConfigParser(ConfigParser.ConfigParser):
     def __init__(self):
         ConfigParser.ConfigParser.__init__(self,dict_type=AdaptedDict)
+        self._optcre = self.OPTCRE_VALIDATION
 
     def optionxform(self, optionstr):
         return optionstr
@@ -177,11 +184,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             if raw or vars:
                 raise NotImplementedError("'raw' and 'vars' do not work for betterConfigParser.items()!")
             items = self._sections["validation"].items()
-            itemscopy = items[:]
-            for item in items:
-                if not isinstance(item[1], (str, unicode)):
-                    itemscopy.remove(item)
-            return itemscopy
+            return items
         else:
             return ConfigParser.ConfigParser.items(self, section, raw, vars)
 
@@ -192,7 +195,23 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             for (key, value) in self._sections[section].items():
                 if key == "__name__" or not isinstance(value, (str, unicode)):
                     continue
-                if (value is not None) or (self._optcre == self.OPTCRE):
+                if value is not None:
                     key = " = ".join((key, str(value).replace('\n', '\n\t')))
                 fp.write("%s\n" % (key))
             fp.write("\n")
+
+
+    #Preexisting validations in the validation section have syntax:
+    #  preexistingoffline myoffline
+    #with no = or :.  This regex takes care of that.
+    OPTCRE_VALIDATION = re.compile(
+        r'(?P<option>'
+        r'(?P<preexisting>preexisting)?'
+        r'[^:=\s][^:=]*)'                     # very permissive!
+        r'\s*(?(preexisting)|'                # IF preexisting does not exist:
+        r'(?P<vi>[:=])\s*'                    #   any number of space/tab,
+                                              #   followed by separator
+                                              #   (either : or =), followed
+                                              #   by any # space/tab
+        r'(?P<value>.*))$'                    #   everything up to eol
+        )
