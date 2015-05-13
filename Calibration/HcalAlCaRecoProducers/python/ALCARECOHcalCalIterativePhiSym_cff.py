@@ -14,5 +14,5 @@ hcalphisymHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalphisymHLT*IterativePhiSymProd)
+seqALCARECOHcalCalIterativePhiSym = cms.Sequence(hcalphisymHLT*IterativePhiSymProd)
 
