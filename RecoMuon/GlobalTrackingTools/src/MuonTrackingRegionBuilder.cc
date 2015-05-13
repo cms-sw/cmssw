@@ -140,6 +140,13 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   GlobalVector dirVector(mom.x(),mom.y(),mom.z());
   double pt = staTrack.pt();
 
+  // Fix for StandAlone tracks with low momentum
+  const math::XYZVector& innerMomentum = staTrack.innerMomentum();
+  GlobalVector forSmallMomentum(innerMomentum.x(),innerMomentum.y(),innerMomentum.z());
+  if ( staTrack.p() <= 1.5 ) {
+    pt = std::abs(forSmallMomentum.perp());
+  }
+
   // initial vertex position - in the following it is replaced with beamspot/vertexing
   GlobalPoint vertexPos(0.0,0.0,0.0);
   // standard 15.9, if useVertex than use error from  vertex
