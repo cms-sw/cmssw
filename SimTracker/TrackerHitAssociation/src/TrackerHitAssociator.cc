@@ -73,7 +73,42 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::ParameterSet& conf, edm::C
  }
 
 //
-// Constructor for Config helper class
+// Constructor for Config helper class, using default parameters
+//
+TrackerHitAssociator::Config::Config(edm::ConsumesCollector && iC) :
+  doPixel_(true),
+  doStrip_(true),
+  doTrackAssoc_(false),
+  assocHitbySimTrack_(false) {
+
+  if(doStrip_) stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
+  if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  if(!doTrackAssoc_) {
+    std::vector<std::string> trackerContainers;
+    trackerContainers.reserve(12);
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTIBLowTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTIBHighTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTIDLowTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTIDHighTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTOBLowTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTOBHighTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTECLowTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsTECHighTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsPixelBarrelLowTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsPixelBarrelHighTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsPixelEndcapLowTof");
+    trackerContainers.emplace_back("g4SimHitsTrackerHitsPixelEndcapHighTof");
+    cfTokens_.reserve(trackerContainers.size());
+    simHitTokens_.reserve(trackerContainers.size());
+    for(auto const& trackerContainer : trackerContainers) {
+      cfTokens_.push_back(iC.consumes<CrossingFrame<PSimHit> >(edm::InputTag("mix", trackerContainer)));
+      simHitTokens_.push_back(iC.consumes<std::vector<PSimHit> >(edm::InputTag("g4SimHits", trackerContainer)));
+    }
+  }
+}
+
+//
+// Constructor for Config helper class, using configured parameters
 //
 TrackerHitAssociator::Config::Config(const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
   doPixel_( conf.getParameter<bool>("associatePixel") ),

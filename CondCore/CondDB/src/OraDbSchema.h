@@ -135,6 +135,7 @@ namespace cond {
     public:
       explicit OraGTTable( DbSession& session ); 
       virtual ~OraGTTable(){}
+      void create(){}
       bool exists(){
 	return true;
       }
@@ -154,6 +155,7 @@ namespace cond {
     public:
       explicit OraGTMapTable( DbSession& session );
       virtual ~OraGTMapTable(){}
+      void create(){}
       bool exists(){
 	return true;
       }
@@ -169,6 +171,7 @@ namespace cond {
     public: 
       OraGTSchema( DbSession& session );
       virtual ~OraGTSchema(){}
+      void create();
       bool exists();
       IGTTable& gtTable();
       IGTMapTable& gtMapTable();
