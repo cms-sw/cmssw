@@ -350,7 +350,7 @@ public:
     ///Track quality
     bool quality(const TrackQuality) const;
 
-    void setQuality(const TrackQuality, bool set = true);
+    void setQuality(const TrackQuality);
 
     static std::string qualityName(TrackQuality);
 
@@ -456,128 +456,7 @@ inline TrackBase::TrackAlgorithm TrackBase::originalAlgo() const
 
 
 
-inline std::string TrackBase::algoName() const
-{
-    // I'd like to do:
-    // return TrackBase::algoName(algorithm_);
-    // but I cannot define a const static function. Why???
-    switch (algo()) {
-    case undefAlgorithm:
-      return "undefAlgorithm";
-      break;
-    case ctf:
-      return "ctf";
-      break;
-    case rs:
-      return "rs";
-      break;
-    case cosmics:
-      return "cosmics";
-      break;
-    case beamhalo:
-      return "beamhalo";
-      break;
-    case initialStep:
-      return "initialStep";
-      break;
-    case lowPtTripletStep:
-      return "lowPtTripletStep";
-      break;
-    case pixelPairStep:
-      return "pixelPairStep";
-      break;
-    case detachedTripletStep:
-      return "detachedTripletStep";
-      break;
-    case mixedTripletStep:
-      return "mixedTripletStep";
-      break;
-    case pixelLessStep:
-      return "pixelLessStep";
-      break;
-    case tobTecStep:
-      return "tobTecStep";
-      break;
-    case jetCoreRegionalStep:
-      return "jetCoreRegionalStep";
-      break;
-    case conversionStep:
-      return "conversionStep";
-      break;
-    case muonSeededStepInOut:
-      return "muonSeededStepInOut";
-      break;
-    case muonSeededStepOutIn:
-      return "muonSeededStepOutIn";
-      break;
-    case outInEcalSeededConv:
-      return "outInEcalSeededConv";
-      break;
-    case inOutEcalSeededConv:
-      return "inOutEcalSeededConv";
-      break;
-    case nuclInter:
-      return "nuclInter";
-      break;
-    case standAloneMuon:
-      return "standAloneMuon";
-      break;
-    case globalMuon:
-      return "globalMuon";
-      break;
-    case cosmicStandAloneMuon:
-      return "cosmicStandAloneMuon";
-      break;
-    case cosmicGlobalMuon:
-      return "cosmicGlobalMuon";
-      break;
-    case iter1LargeD0:
-      return "iter1LargeD0";
-      break;
-    case iter2LargeD0:
-      return "iter2LargeD0";
-      break;
-    case iter3LargeD0:
-      return "iter3LargeD0";
-      break;
-    case iter4LargeD0:
-      return "iter4LargeD0";
-      break;
-    case iter5LargeD0:
-      return "iter5LargeD0";
-      break;
-    case bTagGhostTracks:
-      return "bTagGhostTracks";
-      break;
-    case gsf:
-      return "gsf";
-      break;
-    case hltPixel :
-      return "hltPixel";
-      break;
-    case hltIter0 :
-      return "hltIter0";
-      break;
-    case hltIter1 :
-      return "hltIter1";
-      break;
-    case hltIter2 :
-      return "hltIter2";
-      break;
-    case hltIter3 :
-      return "hltIter3";
-      break;
-    case hltIter4 :
-      return "hltIter4";
-      break;
-    case hltIterX :
-      return "hltIterX";
-      break;
-    default:
-      return "undefAlgorithm";
-      break;
-    }
-}
+inline std::string TrackBase::algoName() const { return TrackBase::algoName(algo()); }
 
 inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
 {
@@ -592,18 +471,12 @@ inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
     return false;
 }
 
-inline void TrackBase::setQuality(const TrackBase::TrackQuality q, bool set)
+inline void TrackBase::setQuality(const TrackBase::TrackQuality q)
 {
     if (q == undefQuality) {
         quality_ = 0;
     } else {
-        //regular OR if setting value to true
-        if (set) {
-            quality_ |= (1 << q);
-        } else {
-            // doing "half-XOR" if unsetting value
-            quality_ &= (~(1 << q));
-        }
+        quality_ |= (1 << q);
     }
 }
 

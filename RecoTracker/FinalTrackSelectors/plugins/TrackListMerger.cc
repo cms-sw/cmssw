@@ -551,7 +551,7 @@ TrackListMerger::~TrackListMerger() { }
              trkUpdated[ii]=true;
        	     if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
              algoMask[ii] |= algoMask[jj];
-             algoMask[jj] = algoMask[ii];
+             algoMask[jj] = algoMask[ii];  // in case we keep discarded
          };
 
 	  if ( dupfound ) {
@@ -696,6 +696,7 @@ TrackListMerger::~TrackListMerger() { }
       if ( selected[i]==1 ) 
 	outputTrks->back().setQualityMask(trackQuals[i]);
       outputTrks->back().setOriginalAlgorithm(oriAlgo[i]);
+      outputTrks->back().setAlgoMask(algoMask[i]);
 
       // if ( beVerb ) std::cout << "selected " << outputTrks->back().pt() << " " << outputTrks->back().qualityMask() << " " << selected[i] << std::endl;
 
