@@ -523,7 +523,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     validations = []
     for validation in config.items("validation"):
-        alignmentList = validation[1].split(config.getSep())
+        alignmentList = [validation[1]]
         validationsToAdd = [(validation[0],alignment) \
                                 for alignment in alignmentList]
         validations.extend(validationsToAdd)
