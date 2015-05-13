@@ -12,7 +12,7 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 
 #for data in 720pre7
-process.GlobalTag.globaltag ='GR_R_74_V0A::All'
+process.GlobalTag.globaltag ='MCRUN2_74_V9::All'
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -21,28 +21,28 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       #for data
-      #'/store/relval/CMSSW_7_4_0_pre6/JetHT/RECO/GR_R_74_V0A_RelVal_jet2012D-v1/00000/000FEFFF-CCA8-E411-BB29-003048FF9AC6.root',
-       #for cosmics
-       #'/store/data/Commissioning2014/Cosmics/RECO/PromptReco-v4/000/228/734/00000/10C180A7-2866-E411-B6F9-02163E010F8C.root',
-       #for MC
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/22A79853-D85E-E411-BAA9-02163E00C055.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/28923A16-C95E-E411-871C-02163E00FFCE.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/307F76E6-E05E-E411-90AF-02163E00B036.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/4E03E1A5-CE5E-E411-AE0F-02163E008BE3.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/689DCC5B-D35E-E411-A720-02163E00D13A.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/CC3F6060-DA5E-E411-BA7C-02163E0105B8.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/D470466A-C55E-E411-A382-02163E00EB5D.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/E2A34427-E75E-E411-ABBA-02163E008DD3.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/FCE96BE5-F15E-E411-BD38-02163E00D13A.root' 
-       #for MINIAODtests 
-       '/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/MINIAODSIM/PU50ns_PRE_LS172_V16-v1/00000/9886ACB4-F45E-E411-9E5D-02163E00F01E.root' 
-       #for HI tests       
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/5C15CC80-0B5A-E411-AF4B-02163E00ECD2.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/FC51FED6-B559-E411-9131-02163E006D72.root'
-       #cosmics 
-       #'/store/relval/CMSSW_7_3_0_pre1/Cosmics/RECO/PRE_R_72_V10A_RelVal_cos2011A-v1/00000/06393A70-DB59-E411-865C-0025905A612C.root',
-       #'/store/relval/CMSSW_7_3_0_pre1/Cosmics/RECO/PRE_R_72_V10A_RelVal_cos2011A-v1/00000/2838CB6D-DB59-E411-8001-0025905A611E.root
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/2AE21D5C-6FF1-E411-B3AC-02163E00E60F.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/2C0E0382-68F1-E411-A8B2-02163E00E640.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/34FEEE59-70F1-E411-9554-02163E00F420.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/403D5922-84F1-E411-8F42-02163E00AD2E.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/42658BC2-69F1-E411-9D7E-02163E00F8B3.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/4E24BEC6-8FF1-E411-92A5-02163E010FCF.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/5CB03F23-5EF1-E411-9294-02163E013B50.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/6A08C46A-6DF1-E411-93A5-02163E00F298.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/6E82B231-7BF1-E411-BBD7-02163E013D2D.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/76E26B39-61F1-E411-BB03-02163E00E814.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/84E5227D-73F1-E411-B9F9-02163E010FD9.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/8C966E42-72F1-E411-95F8-02163E0130C3.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/9A1C1859-63F2-E411-8935-02163E00E913.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/A65D6BC7-64F1-E411-B8E9-02163E00F710.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/A6FF4CF5-6CF1-E411-9580-02163E00E61F.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/A8E1054B-EDF1-E411-864F-02163E00B782.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/CECD5CE1-66F1-E411-BD44-02163E0130F9.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/D27937E4-6AF1-E411-B9E8-02163E00C323.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/E6AD30C8-63F1-E411-9828-02163E00B999.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/F0A1C285-75F1-E411-9981-02163E00E96D.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/F4B1EF05-69F1-E411-BFEF-02163E00EBA7.root',
+       '/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/MCRUN2_74_V9_extended-v2/00000/FC2233E0-72F1-E411-82EA-02163E00E5B6.root'
        ] );
 
 
@@ -51,7 +51,7 @@ secFiles.extend( [
 
 #
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 1000)
+    input = cms.untracked.int32( -1 )
 )
 
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
@@ -77,10 +77,10 @@ process.dqmSaver.workflow = Workflow
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(                    #process.dump*
-                     process.jetMETDQMOfflineSourceMiniAOD*
+                     #process.jetMETDQMOfflineSourceMiniAOD*
                      #for cosmic data and MC
                      #process.jetMETDQMOfflineSourceCosmic*
                      #for Data and MC pp and HI
-                     #process.jetMETDQMOfflineSource*
+                     process.jetMETDQMOfflineSource*
                      process.dqmSaver
                      )

@@ -7,6 +7,8 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4CaloJets"),
+    METCollectionLabel     = cms.InputTag("caloMet"),
+    muonsrc = cms.InputTag("muons"),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
     filljetHighLevel =cms.bool(False),
     #
@@ -108,6 +110,7 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJets"),
+    METCollectionLabel     = cms.InputTag("pfMet"),
     #JetCorrections = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
     #jetsrc = cms.InputTag("ak4PFJetsCHS"),
     filljetHighLevel  = cms.bool(False),
@@ -126,13 +129,15 @@ jetDQMAnalyzerAk4PFCleaned=jetDQMAnalyzerAk4PFUncleaned.clone(
         ptThreshold = cms.double(20.),
         asymmetryThirdJetCut = cms.double(30),
         balanceThirdJetCut = cms.double(0.2),
-        )
+        ),
+    METCollectionLabel     = cms.InputTag("pfMet"),
 )
 
 jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     filljetHighLevel =cms.bool(True),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJetsCHS"),
+    METCollectionLabel     = cms.InputTag("pfMetT1"),
     #actually done only for PFJets at the moment
     InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","fullDiscriminant"),
     InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","cutbasedDiscriminant"),
@@ -148,6 +153,7 @@ jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
         ),
     JetType = cms.string('miniaod'),#pf, calo or jpt
     jetsrc = cms.InputTag("slimmedJets"),
+    METCollectionLabel     = cms.InputTag("slimmedMETs"),
 )
 
 jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(
