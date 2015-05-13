@@ -183,44 +183,34 @@ MonitorElement::MonitorElement(const std::string *path,
   scalar_.real = 0;
 }
 
-MonitorElement::MonitorElement(const MonitorElement &x)
+MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag)
   : data_(x.data_),
     scalar_(x.scalar_),
-    object_(x.object_),
+    object_(nullptr),
     reference_(x.reference_),
-    refvalue_(x.refvalue_),
+    refvalue_(nullptr),
     qreports_(x.qreports_)
 {
-  if (object_)
-    object_ = static_cast<TH1 *>(object_->Clone());
-
-  if (refvalue_)
-    refvalue_ = static_cast<TH1 *>(refvalue_->Clone());
 }
 
-MonitorElement &
-MonitorElement::operator=(const MonitorElement &x)
+MonitorElement::MonitorElement(const MonitorElement &x)
+  : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
 {
-  if (this != &x)
-  {
-    delete object_;
-    delete refvalue_;
+  if (x.object_)
+    object_ = static_cast<TH1 *>(x.object_->Clone());
 
-    data_ = x.data_;
-    scalar_ = x.scalar_;
-    object_ = x.object_;
-    reference_ = x.reference_;
-    refvalue_ = x.refvalue_;
-    qreports_ = x.qreports_;
+  if (x.refvalue_)
+    refvalue_ = static_cast<TH1 *>(x.refvalue_->Clone());
+}
 
-    if (object_)
-      object_ = static_cast<TH1 *>(object_->Clone());
+MonitorElement::MonitorElement(MonitorElement &&o)
+  : MonitorElement::MonitorElement(o, MonitorElementNoCloneTag())
+{
+  object_ = o.object_;
+  refvalue_ = o.refvalue_;
 
-    if (refvalue_)
-      refvalue_ = static_cast<TH1 *>(refvalue_->Clone());
-  }
-
-  return *this;
+  o.object_ = nullptr;
+  o.refvalue_ = nullptr;
 }
 
 MonitorElement::~MonitorElement(void)
