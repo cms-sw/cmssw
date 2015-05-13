@@ -26,13 +26,18 @@ namespace pat {
     private:
       struct OneMETShift {
           OneMETShift() {}
-          OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METUncertaintyLevel level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc) ;
+          OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METCorrectionType level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc, bool corShift_, bool uncShift_, bool isSmeared_=false) ;
           pat::MET::METUncertainty shift;
-          pat::MET::METUncertaintyLevel level;
+          pat::MET::METCorrectionType level;
           edm::EDGetTokenT<pat::METCollection> token;
+	  bool corShift;
+	  bool uncShift;
+	  bool isSmeared;
           void readAndSet(const edm::Event &ev, pat::MET &met) ;
       };
-      void maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METUncertaintyLevel level) ;
+      void maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METCorrectionType level) ;
+
+      std::map<pat::MET::METCorrectionType, std::vector<pat::MET::METUncertainty> > metShiftsPerLevel_;
 
       edm::EDGetTokenT<pat::METCollection> src_;
       std::vector<OneMETShift> shifts_;
@@ -43,46 +48,59 @@ namespace pat {
 pat::PATMETSlimmer::PATMETSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("src")))
 {
-    maybeReadShifts( iConfig, "rawUncertainties", pat::MET::Raw );
-    maybeReadShifts( iConfig, "type1Uncertainties", pat::MET::Type1 );
-    maybeReadShifts( iConfig, "type1p2Uncertainties", pat::MET::Type1p2 );
-    maybeReadShifts( iConfig, "caloMET", pat::MET::Calo );
+  maybeReadShifts( iConfig, "rawVariation", pat::MET::None );
+  maybeReadShifts( iConfig, "t1Uncertainties", pat::MET::T1 );
+  maybeReadShifts( iConfig, "t01Variation", pat::MET::T0 );
+  maybeReadShifts( iConfig, "tXYUncForRaw", pat::MET::TXYForRaw );
+  maybeReadShifts( iConfig, "tXYUncForT1", pat::MET::TXY );
+  maybeReadShifts( iConfig, "tXYUncForT01", pat::MET::TXYForT01 );
+  maybeReadShifts( iConfig, "tXYUncForT1Smear", pat::MET::TXYForT1Smear );
+  maybeReadShifts( iConfig, "tXYUncForT01Smear", pat::MET::TXYForT01Smear );
+  maybeReadShifts( iConfig, "t1SmearedVarsAndUncs", pat::MET::Smear );
+  maybeReadShifts( iConfig, "caloMET", pat::MET::Calo );
     produces<std::vector<pat::MET> >();
 }
 
-void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METUncertaintyLevel level) {
+void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METCorrectionType level) {
     if (basePSet.existsAs<edm::ParameterSet>(name)) {
         throw cms::Exception("Unsupported", "Reading PSets not supported, for now just use input tag");
     } else if (basePSet.existsAs<edm::InputTag>(name) ) {
         const edm::InputTag & baseTag = basePSet.getParameter<edm::InputTag>(name);
-        const std::string &encoded = baseTag.encode();
-	if( encoded.find("%s") != std::string::npos ) {
-	  shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::JetEnUp,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::JetResUp,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::MuonEnUp,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnUp,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::TauEnUp,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnUp,   level, baseTag, consumesCollector()));
-	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnDown, level, baseTag, consumesCollector()));
+	// const std::string &encoded = baseTag.encode();
+
+	if(level==pat::MET::T1) {
+	  shifts_.push_back(OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), true, false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::JetResUp,   level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::JetEnUp,   level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::MuonEnUp,   level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnUp,   level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::TauEnUp,   level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnUp,   level, baseTag, consumesCollector(), false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnDown, level, baseTag, consumesCollector(), false, true));
+	}
+	else if(level==pat::MET::Smear) {
+	  shifts_.push_back(OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), true, false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::JetResUp,   level, baseTag, consumesCollector(), false, true, true));
+	  shifts_.push_back(OneMETShift(pat::MET::JetResDown, level, baseTag, consumesCollector(), false, true, true));
 	}
 	else {
-	  shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
+	  shifts_.push_back(OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), true, false));
 	}
     }
     
 }
 
-pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METUncertaintyLevel level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc) :
+pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METCorrectionType level_, const edm::InputTag & baseTag,
+					     edm::ConsumesCollector && cc, bool corShift_, bool uncShift_, bool isSmeared) :
     shift(shift_), level(level_)
 {
     std::string baseTagStr = baseTag.encode();
-    bool isSmeared=baseTagStr.find("Smeared")!=(size_t)-1; //temporary 74X fix for handling the JER uncertainties
     char buff[1024];
     switch (shift) {
         case pat::MET::NoShift  : snprintf(buff, 1023, baseTagStr.c_str(), "");   break;
@@ -127,7 +145,9 @@ pat::PATMETSlimmer::OneMETShift::readAndSet(const edm::Event &ev, pat::MET &met)
     ev.getByToken(token, src);
     if (src->size() != 1) throw cms::Exception("CorruptData", "More than one MET in the shifted collection");
     const pat::MET &met2 = src->front();
-    met.setShift(met2.px(), met2.py(), met2.sumEt(), shift, level);
+    
+    if(uncShift) met.setUncShift(met2.px(), met2.py(), met2.sumEt(), shift, isSmeared);
+    if(corShift) met.setCorShift(met2.px(), met2.py(), met2.sumEt(), level);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
