@@ -66,7 +66,7 @@ process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
 import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi 
 process.APVPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi.APVPhases 
-process.APVPhases.wantHistos = cms.untracked.bool(True)
+process.load("DPGAnalysis.SiStripTools.l1TSDebugger_cfi")
 
 #------- Filter for isolated pairs
 process.retrigger = cms.EDFilter('EventWithHistoryEDFilter',
@@ -110,12 +110,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.p0 = cms.Path(process.consecutiveHEs
                       + process.APVPhases
+                      + process.l1TSDebugger
                       + process.apvcyclephasemonitor
                       + process.eventtimedistribution
                       + process.trackcount
                       )
 process.pretrigger = cms.Path(process.consecutiveHEs
                               + process.APVPhases
+                              + process.l1TSDebugger
                               + process.apvcyclephasemonitor
                               + process.retrigger
                               + process.eventtimeretrigger
@@ -123,6 +125,7 @@ process.pretrigger = cms.Path(process.consecutiveHEs
                               )
 process.pcloseretrigger = cms.Path(process.consecutiveHEs
                                    + process.APVPhases
+                                   + process.l1TSDebugger
                                    + process.apvcyclephasemonitor
                                    + process.closeretrigger
                                    + process.eventtimecloseretrigger

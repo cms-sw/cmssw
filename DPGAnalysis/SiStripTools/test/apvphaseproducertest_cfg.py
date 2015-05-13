@@ -96,12 +96,10 @@ process.APVPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi
 #import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2010_cfi 
 #process.APVPhases2010 = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2010_cfi.APVPhases 
 
-process.APVPhases.wantHistos = cms.untracked.bool(True)
-#process.APVPhases2011.wantHistos = cms.untracked.bool(True)
-#process.APVPhases2010.wantHistos = cms.untracked.bool(True)
-
 #process.APVPhasesEC02010 = process.APVPhases2010.clone(useEC0 = cms.untracked.bool(True),magicOffset = cms.untracked.int32(0))
 #process.APVPhasesEC02011 = process.APVPhases2011.clone(useEC0 = cms.untracked.bool(True),magicOffset = cms.untracked.int32(0))
+
+process.load("DPGAnalysis.SiStripTools.l1TSDebugger_cfi")
 
 #------- Filter for isolated pairs
 process.isoPairs5000 = cms.EDFilter('EventWithHistoryEDFilter',
@@ -343,12 +341,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.panydcs = cms.Path(process.consecutiveHEs
                            + process.APVPhases
+                           + process.l1TSDebugger
                            + process.ssqDCShistory
                            + process.eventtimedistranydcs
                            )
 
 process.p0 = cms.Path(process.consecutiveHEs
                       + process.APVPhases
+                      + process.l1TSDebugger
 #                      + process.APVPhasesEC02011 + process.APVPhasesEC02010 + process.APVPhases2011 + process.APVPhases2010
                       + process.dcsstatus
                       + process.apvcyclephasemonitor
@@ -368,6 +368,7 @@ process.p0 = cms.Path(process.consecutiveHEs
 
 process.ppeak = cms.Path(process.consecutiveHEs
                          + process.APVPhases
+                         + process.l1TSDebugger
                          + process.dcsstatus
                          + process.PeakEvents
                          + process.eventtimedistrpeak
@@ -377,6 +378,7 @@ process.ppeak = cms.Path(process.consecutiveHEs
 
 process.pdeco = cms.Path(process.consecutiveHEs
                          + process.APVPhases
+                         + process.l1TSDebugger
                          + process.dcsstatus
                          + process.DecoEvents
                          + process.eventtimedistrdeco
@@ -386,6 +388,7 @@ process.pdeco = cms.Path(process.consecutiveHEs
 
 process.pIsoPairs5000 = cms.Path(process.consecutiveHEs
                                  + process.APVPhases
+                                 + process.l1TSDebugger
                                  + process.dcsstatus
                                  + process.isoPairs5000
                                  + process.ssclustermultprod 
@@ -396,6 +399,7 @@ process.pIsoPairs5000 = cms.Path(process.consecutiveHEs
 
 process.pIsoTriplets5000 = cms.Path(process.consecutiveHEs
                                     + process.APVPhases
+                                    + process.l1TSDebugger
                                     + process.dcsstatus
                                     + process.isoTriplets5000
                                     + process.ssclustermultprod 
@@ -406,6 +410,7 @@ process.pIsoTriplets5000 = cms.Path(process.consecutiveHEs
 
 process.pnonoisybins = cms.Path(process.consecutiveHEs
                                 + process.APVPhases
+                                + process.l1TSDebugger
                                 + process.dcsstatus
                                 + process.seqNoNoisyBins
                                 + process.ssclustermultprod 
@@ -416,6 +421,7 @@ process.pnonoisybins = cms.Path(process.consecutiveHEs
 
 process.pnonoisybinspeak = cms.Path(process.consecutiveHEs
                                 + process.APVPhases
+                                + process.l1TSDebugger
                                 + process.dcsstatus
                                 + process.PeakEvents    
                                 + process.seqNoNoisyBins
@@ -427,6 +433,7 @@ process.pnonoisybinspeak = cms.Path(process.consecutiveHEs
 
 process.pnonoisybinsdeco = cms.Path(process.consecutiveHEs
                                 + process.APVPhases
+                                + process.l1TSDebugger
                                 + process.dcsstatus
                                 + process.DecoEvents    
                                 + process.seqNoNoisyBins
