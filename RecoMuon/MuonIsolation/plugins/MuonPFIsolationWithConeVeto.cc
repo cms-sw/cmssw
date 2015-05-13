@@ -40,20 +40,18 @@ class MuonPFIsolationWithConeVeto : public citk::IsolationConeDefinitionBase {
 public:
   MuonPFIsolationWithConeVeto(const edm::ParameterSet& c) :
     citk::IsolationConeDefinitionBase(c),
-    _vetoThreshold(std::pow(c.getParameter<double>("VetoThreshold"),2.0)),
+    _vetoThreshold(c.getParameter<double>("VetoThreshold")),
     _vetoConeSize(std::pow(c.getParameter<double>("VetoConeSize"),2.0)),
     _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes")),
     _isolateAgainst(c.getParameter<std::string>("isolateAgainst")) {
     char buf[50];
-    sprintf(buf,"ThresholdVeto%.2f-ConeVeto%.2f",
-	    std::sqrt(_vetoThreshold),
-	    std::sqrt(_vetoConeSize));
+    sprintf(buf,"ThresholdVeto%.2f-ConeVeto%.2f", _vetoThreshold, std::sqrt(_vetoConeSize));
     _additionalCode = std::string(buf);
     auto decimal = _additionalCode.find('.');
     while( decimal != std::string::npos ) {
       _additionalCode.erase(decimal,1);
       decimal = _additionalCode.find('.');
-    }    
+    }
   }
   MuonPFIsolationWithConeVeto(const MuonPFIsolationWithConeVeto&) = delete;
   MuonPFIsolationWithConeVeto& operator=(const MuonPFIsolationWithConeVeto&) =delete;
@@ -88,14 +86,14 @@ isInIsolationCone(const reco::CandidatePtr& physob,
   const double vetoConeSize2 =  _vetoConeSize;
   const double vetoThreshold =  _vetoThreshold;
   bool result = true;
-  if( aspacked.isNonnull() && aspacked.get() ) {    
+  if( aspacked.isNonnull() && aspacked.get() ) {
     if( aspacked->charge() != 0 ) {
       bool is_vertex_allowed = false;
       for( const unsigned vtxtype : _miniAODVertexCodes ) {
-	if( vtxtype == aspacked->fromPV() ) {
-	  is_vertex_allowed = true;
-	  break;
-	}
+        if( vtxtype == aspacked->fromPV() ) {
+          is_vertex_allowed = true;
+          break;
+        }
       }      
       result *= ( is_vertex_allowed );
     }
