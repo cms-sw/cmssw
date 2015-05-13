@@ -16,7 +16,7 @@ GEMBaseValidation::GEMBaseValidation( const edm::ParameterSet& ps)
 
   stationLabel.push_back("1");
   stationLabel.push_back("2s");
-  stationLabel.push_back("2l");
+  stationLabel.push_back("2");
 
   layerLabel.push_back("1");
   layerLabel.push_back("2");
