@@ -93,7 +93,7 @@ public:
   MonitorElement(const MonitorElement &);
   MonitorElement(MonitorElement &&);
   MonitorElement &operator=(const MonitorElement &) = delete;
-  MonitorElement &operator=(const MonitorElement &&) = delete;
+  MonitorElement &operator=(MonitorElement &&) = delete;
   ~MonitorElement(void);
 
   /// Compare monitor elements, for ordering in sets.
