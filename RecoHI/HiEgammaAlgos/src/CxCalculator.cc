@@ -188,7 +188,6 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, double x, doubl
    }
 
    double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
    double TotalEt = 0;
 
    TotalEt = - cluster->rawEnergy()/cosh(cluster->eta());
@@ -213,12 +212,7 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, double x, doubl
       const BasicCluster *clu = &(*iclu);
       math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
       double eta = ClusPoint.eta();
-      double phi = ClusPoint.phi();
-
       double dEta = fabs(eta-SClusterEta);
-      double dPhi = fabs(phi-SClusterPhi);
-      while (dPhi>2*PI) dPhi-=2*PI;
-      if (dPhi>PI) dPhi=2*PI-dPhi;
 
       if (dEta<x*0.1) {
          double et = clu->energy()/cosh(eta);
@@ -379,7 +373,6 @@ double CxCalculator::getCCxRemoveSC(const reco::SuperClusterRef cluster, double 
    }
 
    double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
    double TotalEt = 0;
 
    TotalEt = 0;
@@ -407,12 +400,7 @@ double CxCalculator::getCCxRemoveSC(const reco::SuperClusterRef cluster, double 
       const BasicCluster *clu = &(*iclu);
       math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
       double eta = ClusPoint.eta();
-      double phi = ClusPoint.phi();
-
       double dEta = fabs(eta-SClusterEta);
-      double dPhi = fabs(phi-SClusterPhi);
-      while (dPhi>2*PI) dPhi-=2*PI;
-      if (dPhi>PI) dPhi=2*PI-dPhi;
 
       // check if this basic cluster is used in the target supercluster
       bool inSuperCluster = checkUsed(cluster,clu);

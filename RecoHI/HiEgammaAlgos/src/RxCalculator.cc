@@ -204,7 +204,6 @@ double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, doubl
    }
 
    double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
    double TotalEt = 0;
 
    for(size_t index = 0; index < fHBHERecHits_->size(); index++) {
@@ -212,11 +211,7 @@ double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, doubl
       const DetId &detid = rechit.id();
       const GlobalPoint& hitpoint = geometry_->getPosition(detid);
       double eta = hitpoint.eta();
-      double phi = hitpoint.phi();
       double dEta = fabs(eta-SClusterEta);
-      double dPhi = fabs(phi-SClusterPhi);
-      while (dPhi>2*PI) dPhi-=2*PI;
-      if (dPhi>PI) dPhi=2*PI-dPhi;
 
       if (dEta<x*0.1) {
          double et = rechit.energy()/cosh(eta);
