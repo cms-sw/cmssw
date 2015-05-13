@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,16 +34,15 @@
 // class declaration
 //
 
-class ClusterCompatibilityProducer : public edm::EDProducer {
+class ClusterCompatibilityProducer : public edm::stream::EDProducer<> {
 
   public:
     explicit ClusterCompatibilityProducer(const edm::ParameterSet&);
     ~ClusterCompatibilityProducer();
 
-  private:
-    virtual void beginJob() override ;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+
+  private:
 
     edm::EDGetTokenT<SiPixelRecHitCollection> inputToken_;
     edm::InputTag       inputTag_;      // input tag identifying product containing pixel clusters
@@ -110,22 +109,20 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
-      if (1) {
-        const PixelTopology *pixTopo = &(pgdu->specificTopology());
-        std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
-        bool pixelOnEdge = false;
-        for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
-            pixel != pixels.end(); ++pixel) {
-          int pixelX = pixel->x;
-          int pixelY = pixel->y;
-          if(pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
-            pixelOnEdge = true;
-            break;
-          }
+      const PixelTopology *pixTopo = &(pgdu->specificTopology());
+      std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+      bool pixelOnEdge = false;
+      for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
+          pixel != pixels.end(); ++pixel) {
+        int pixelX = pixel->x;
+        int pixelY = pixel->y;
+        if(pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
+          pixelOnEdge = true;
+          break;
         }
-        if (pixelOnEdge)
-          continue;
       }
+      if (pixelOnEdge)
+        continue;
 
       LocalPoint lpos = LocalPoint(hit->localPosition().x(),
                                    hit->localPosition().y(),
@@ -161,8 +158,12 @@ ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getCon
   double chi = 0.;
 
   for(std::vector<VertexHit>::const_iterator hit = hits.begin(); hit!= hits.end(); hit++) {
-    double p = 2 * fabs(hit->z - z0)/hit->r + 0.5; // FIXME <- this comment from the HLT filter, need
-    if(fabs(p - hit->w) <= 1.) {                   //          to understand what it means
+    // the calculation of the predicted cluster width p was 
+    // marked 'FIXME' in the HLTPixelClusterShapeFilter. It should
+    // be revisited but is retained as it was for compatibility with the 
+    // older filter.
+    double p = 2 * fabs(hit->z - z0)/hit->r + 0.5; 
+    if(fabs(p - hit->w) <= 1.) {                   
       chi += fabs(p - hit->w);
       n++;
     }
@@ -173,19 +174,6 @@ ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getCon
   output.chi = chi;
   return output;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ClusterCompatibilityProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ClusterCompatibilityProducer::endJob()
-{
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ClusterCompatibilityProducer);
