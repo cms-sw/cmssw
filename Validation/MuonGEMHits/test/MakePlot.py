@@ -115,7 +115,7 @@ def draw_eff(target_dir, h, ext = ".png", opt = ""):
       xmin,xmax = getEtaRange(1)
     elif ( h.GetName().find("st2_short") != -1 ) :
       xmin,xmax = getEtaRange(2)
-    elif ( h.GetName().find("st2_long") != -1 ) :
+    elif ( h.GetName().find("st2") != -1 ) :
       xmin,xmax = getEtaRange(3)
     else :
       print "Use default setting."
