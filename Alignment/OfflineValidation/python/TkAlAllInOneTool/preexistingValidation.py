@@ -91,11 +91,12 @@ class PreexistingOfflineValidation(PreexistingValidation):
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
+        repMap["file"] = self.getCompareStrings("OfflineValidation", plain = True)
         if validationsSoFar == "":
-            validationsSoFar = ('PlotAlignmentValidation p("root://eoscms//eos/cms%(finalResultFile)s",'
+            validationsSoFar = ('PlotAlignmentValidation p("%(file)s",'
                                 '"%(title)s", %(color)s, %(style)s);\n')%repMap
         else:
-            validationsSoFar += ('  p.loadFileList("root://eoscms//eos/cms%(finalResultFile)s", "%(title)s",'
+            validationsSoFar += ('  p.loadFileList("%(file)s", "%(title)s",'
                                  '%(color)s, %(style)s);\n')%repMap
         return validationsSoFar
 
@@ -112,7 +113,7 @@ class PreexistingTrackSplittingValidation(PreexistingValidation):
         repMap = self.getRepMap()
         comparestring = self.getCompareStrings("TrackSplittingValidation")
         if validationsSoFar != "":
-            validationsSoFar += ','
+            validationsSoFar += ',"\n              "'
         validationsSoFar += comparestring
         return validationsSoFar
 
