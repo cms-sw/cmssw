@@ -162,7 +162,7 @@ namespace pat {
       enum METCorrectionType {
         None=0, T1=1, T0=2, TXY=3, TXYForRaw=4,
 	TXYForT01=5, TXYForT1Smear=6, TXYForT01Smear=7,
-	Smear=8, Calo=9, METCorrectionTypeSize=9
+	Smear=8, Calo=9, METCorrectionTypeSize=10
       };
 
       struct Vector2 { 
@@ -210,6 +210,14 @@ namespace pat {
       double caloMETPhi() const;
       double caloMETSumEt() const;
 
+      //Functions for backward compatibility with 74X samples.
+      // allow access to 74X samples, transparent and not used in 75
+      Vector2 shiftedP2_74x(METUncertainty shift, METCorrectionLevel level) const ;
+      Vector shiftedP3_74x(METUncertainty shift, METCorrectionLevel level) const ;
+      LorentzVector shiftedP4_74x(METUncertainty shift, METCorrectionLevel level) const ;
+      double shiftedSumEt_74x(METUncertainty shift, METCorrectionLevel level) const ;
+	
+
       /// this below should be private but Reflex doesn't like it
       class PackedMETUncertainty {
         // defined as C++ class so that I can change the packing without having to touch the code elsewhere
@@ -243,20 +251,22 @@ namespace pat {
       double metSig_;
       
       const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
-      std::vector<PackedMETUncertainty> uncertainties_;
-      std::vector<PackedMETUncertainty> corrections_;
-
+   
       std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> > corMap_;
       void initCorMap();
 
-      PackedMETUncertainty caloPackedMet_;
+    
 
     protected:
 
       // ---- non-public correction utilities ----
-      //std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
-
-      //PackedMETUncertainty caloPackedMet_;
+      //kept for 74X backward-compatibility, not initialized and used in 75X
+      std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
+      
+      std::vector<PackedMETUncertainty> uncertainties_;
+      std::vector<PackedMETUncertainty> corrections_;
+      
+      PackedMETUncertainty caloPackedMet_;
 
   };
 

@@ -178,7 +178,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
         corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
       else
         corrJetP4 = jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
-
+      
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;

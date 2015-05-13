@@ -42,6 +42,18 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
     userDataHelper_ = PATUserDataHelper<MET>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
 
+  // MET Significance
+  calculateMETSignificance_ = iConfig.getParameter<bool>("computeMETSignificance");
+  if(calculateMETSignificance_)
+    {
+      metSigAlgo_ = new metsig::METSignificance(iConfig);
+      jetToken_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
+      pfCandToken_ = mayConsume<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCands"));
+      std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
+      for(std::vector<edm::InputTag>::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+	lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
+      }
+    }  
 
   // produces vector of mets
   produces<std::vector<MET> >();

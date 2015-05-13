@@ -88,16 +88,17 @@ def addShiftedSingleParticleCollection(process, identifier,objectCollection,
 
         return (shiftedParticleCollections, collectionsToKeep)
 
+   
 
 
-def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
-                                        varyByNsigmas,sequence,postfix=""):
+def createEnergyScaleShiftedUpModule(process,identifier, objectCollection,
+                                     varyByNsigmas, jetUncInfos=None, postfix=""):
 
-    shiftedCollectionUp = None
+    shiftedModuleUp = None
 
-    if identifier == "electron":
+    if identifier == "Electron":
         shiftedModuleUp = cms.EDProducer("ShiftedPATElectronProducer",
-                src = cms.InputTag(objectCollection),
+                src = objectCollection,
                 binning = cms.VPSet(
                  cms.PSet(
                      binSelection = cms.string('isEB'),
@@ -111,9 +112,9 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
 
-    if identifier == "photon":
+    if identifier == "Photon":
         shiftedModuleUp = cms.EDProducer("ShiftedPATPhotonProducer",
-                src = cms.InputTag(objectCollection),
+                src = objectCollection,
                 binning = cms.VPSet(
                  cms.PSet(
                     binSelection = cms.string('isEB'),
@@ -127,9 +128,9 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
 
-    if identifier == "muon":
+    if identifier == "Muon":
         shiftedModuleUp = cms.EDProducer("ShiftedPATMuonProducer",
-                src = cms.InputTag(objectCollection),
+                src = objectCollection,
                 binning = cms.VPSet(
                  cms.PSet(
                     binSelection = cms.string('pt < 100'),
@@ -143,19 +144,39 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
 
-    if identifier == "tau":
+    if identifier == "Tau":
         shiftedModuleUp = cms.EDProducer("ShiftedPATTauProducer",
-                src = cms.InputTag(objectCollection),
+                src = objectCollection,
                 uncertainty = cms.double(0.03),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
 
-    shiftedCollectionUp = addModuleToSequence(process, shiftedModuleUp,
-                        [ "shifted", objectCollection, "EnUp" ],
-                        sequence, postfix)
+    if identifier == "Jet":
+        shiftedModuleUp = cms.EDProducer("ShiftedPATJetProducer",
+                                         src = objectCollection,
+                                         jetCorrInputFileName = cms.FileInPath(jetUncInfos["jecUncFile"] ), #jecUncertaintyFile),
+                                         jetCorrUncertaintyTag = cms.string(jetUncInfos["jecUncTag"] ), #jecUncertaintyTag),
+                                         addResidualJES = cms.bool(True),
+                                         jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
+                                         jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
+                                         shiftBy = cms.double(+1.*varyByNsigmas)
+                                         )
 
-    return shiftedCollectionUp
+    return shiftedModuleUp
 
+
+
+def createShiftedJetEnUpModule(process, identifier, objectCollection, isData, varyByNsigmas):
+
+    jetsEnShiftUp = cms.EDProducer("ShiftedPATJetProducer",
+                                   src = cms.InputTag(objectCollection),
+                                   jetCorrInputFileName = cms.FileInPath(jecUncertaintyFile),
+                                   jetCorrUncertaintyTag = cms.string(jecUncertaintyTag),
+                                   addResidualJES = cms.bool(True),
+                                   jetCorrLabelUpToL3 = cms.InputTag(jetCorrLabelUpToL3.value()),
+                                   jetCorrLabelUpToL3Res = cms.InputTag(jetCorrLabelUpToL3Res.value()),
+                                   shiftBy = cms.double(+1.*varyByNsigmas)
+                                   )
 
 
 

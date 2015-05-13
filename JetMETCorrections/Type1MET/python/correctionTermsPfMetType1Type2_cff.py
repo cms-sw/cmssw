@@ -33,9 +33,9 @@ pfCandsNotInJetsForMetCorr = cms.EDProducer("PFCandidateFromFwdPtrProducer",
 ##____________________________________________________________________________||
 corrPfMetType1 = cms.EDProducer(
     "PFJetMETcorrInputProducer",
-    src = cms.InputTag('ak4PFJetsCHS'),
-    offsetCorrLabel = cms.InputTag("ak4PFCHSL1FastjetCorrector"),
-    jetCorrLabel = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"), # NOTE: use "ak4PFL1FastL2L3Corrector" for MC / "ak4PFL1FastL2L3ResidualCorrector" for Data
+    src = cms.InputTag('ak4PFJets'),
+    offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector"),
+    jetCorrLabel = cms.InputTag("ak4PFL1FastL2L3Corrector"), # NOTE: use "ak4PFL1FastL2L3Corrector" for MC / "ak4PFL1FastL2L3ResidualCorrector" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(10.0),
     skipEM = cms.bool(True),

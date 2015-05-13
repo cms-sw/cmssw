@@ -136,7 +136,7 @@ def propagateERShiftedJets(process, shiftedParticleCollections, metProducers,
 
 def createPatMETModules(process, metType, metPatSequence, applyT1Cor=False, 
                         applyT2Cor=False, applyT0pcCor=False, applyXYShiftCor=False, 
-                        applyUncEnCalib=False,sysShiftCorrParameter=cms.VPSet(), postfix=""):
+                        applyUncEnCalib=False,sysShiftCorrParameter=cms.VPSet(),computeMETSig=False, postfix=""):
 
     ##FIXME: postfix is set to null as the whoelsequence receive it later
     postfix=""
@@ -160,8 +160,7 @@ def createPatMETModules(process, metType, metPatSequence, applyT1Cor=False,
   #  if applyUncEnCalib :
   #      metModNameT1 += "UEC"
   #      metModNameT1T2 += "UEC"
-
-
+        
     #plug the MET modules in to the sequence
     setattr(process, metModName,  getattr(process, metModName ) )
     if applyT1Cor :
@@ -177,6 +176,9 @@ def createPatMETModules(process, metType, metPatSequence, applyT1Cor=False,
 
     patMetCorrectionsCentralValue = []
 
+    #set the MET significance loading flag to true if asked, only for T1 MET
+    if computeMETSig and applyT1Cor:
+        getattr(process, metModNameT1+postfix).computeMETSignficance = cms.bool(True)
 
     #Type0 for pfT1 and pfT1T2 MET
     if metType == "PF":
@@ -217,8 +219,7 @@ def createPatMETModules(process, metType, metPatSequence, applyT1Cor=False,
                 cms.InputTag("patPFJetMETtype1p2Corr" + postfix, "type2")
                 )
             patPFMetT1T2.type2CorrFormula = cms.string("A")
-            patPFMetT1T2.type2CorrParameter = cms.PSet(A = cms.double(2.))
-
+            patPFMetT1T2.type2CorrParameter = cms.PSet(A = cms.double(2.))     
 
     collectionsToKeep = [ 'patPFMet' + postfix ]
     if applyT1Cor:
