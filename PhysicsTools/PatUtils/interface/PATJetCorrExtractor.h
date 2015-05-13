@@ -70,7 +70,7 @@ class PATJetCorrExtractor
     try {
       corrJetP4 = jet.correctedP4(jetCorrLabel);
       if(rawJetP4_specified != nullptr) {
-	//MM: compensate for potential removal of constituents (as muons)
+	//MM: compensate for potential removal of consistuents (as muons)
 	//similar effect in JetMETCorrection/Type1MET/interface/JetCorrExtractor.h
 	reco::Candidate::LorentzVector rawJetP4 = jet.correctedP4("Uncorrected");
 	double corrFactor = corrJetP4.pt()/rawJetP4.pt();
@@ -82,6 +82,8 @@ class PATJetCorrExtractor
 	<< "The JEC level " << jetCorrLabel << " does not exist !!\n"
 	<< "Available levels = " << format_vstring(jet.availableJECLevels()) << ".\n";
     }
+
+    
 
     return corrJetP4;
   }

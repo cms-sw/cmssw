@@ -36,15 +36,19 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
 	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'),
                           "Input PFCandidate collection", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'doApplyUnclEnergyCalibration', False,
-                          "Flag to enable/disable usage of 'unclustered energy' calibration", Type=bool)
-        self.addParameter(self._defaultParameters, 'jetCollectionUnskimmed', None,
-                          "Unskimmed jets for type1 and type2 computations", Type=cms.InputTag, acceptNoneValue=True)
+                          "Flag to enable/disable usage of 'unclustered energy' calibration", Type=bool),
+        self.addParameter(self._defaultParameters, 'computeUncertainties', True,
+                          "Flag to enable/disable the computation of uncertainties", Type=bool),
+        self.addParameter(self._defaultParameters, 'computeMETSig', False,
+                          "Flag to enable/disable the computation of the MET Significance for the central value", Type=bool),
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def _addCorrPFMEt(self, process, metUncertaintySequence,
-                      shiftedParticleCollections, pfCandCollection,jetCollectionUnskimmed,
+                      shiftedParticleCollections, pfCandCollection,jetCollection,
                       doApplyUnclEnergyCalibration,
+                      #computeUncertainties,
+                      #computeMETSig,
                       collectionsToKeep,
                       doSmearJets,
                       makeType1corrPFMEt,
@@ -61,7 +65,6 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         if not hasattr(process, 'producePatPFMETCorrectionsUnc'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
-       
         #
         #protections against inconsistent met correction scheme :
         #
@@ -79,7 +82,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
             createPatMETModules(process, "PF", getattr(process, "producePatPFMETCorrectionsUnc"),
                                 makeType1corrPFMEt, makeType1p2corrPFMEt, doApplyType0corr,
                                 doApplySysShiftCorr, doApplyUnclEnergyCalibration,
-                                sysShiftCorrParameter, "")
+                                sysShiftCorrParameter,True, "")
 
 
 
@@ -98,6 +101,12 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                 configtools.cloneProcessingSnippet(process, process.producePatPFMETCorrectionsUnc, postfix)
 
         metUncertaintySequence += getattr(process, "producePatPFMETCorrectionsUnc" + postfix)
+
+        #
+        # if no uncertainties are supposed to be computed, then quit
+        #
+        #if not computeUncertainties:
+         #   return
 
         #
         # prepare smeared jets variations if needed
@@ -385,6 +394,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                  jetSmearHistogram            = None,
                  pfCandCollection             = None,
                  doApplyUnclEnergyCalibration = None,
+                 computeUncertainties         = None,
+                 computeMETSig                = None,
                  jetCorrPayloadName           = None,
                  jetCorrLabelUpToL3           = None,
                  jetCorrLabelUpToL3Res        = None,

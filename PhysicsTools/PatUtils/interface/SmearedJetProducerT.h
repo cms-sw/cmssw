@@ -190,6 +190,8 @@ template <typename T, typename Textractor>
     shiftBy_ = ( cfg.exists("shiftBy") ) ? cfg.getParameter<double>("shiftBy") : 0.;
     //std::cout << "shiftBy = " << shiftBy_ << std::endl;
 
+    srcJetSmeared_ = ( cfg.exists("srcJetSmeared") ) ? cfg.getParameter<bool>("srcJetSmeared") : false;
+
     if ( cfg.exists("skipJetSelection") ) {
       std::string skipJetSelection_string = cfg.getParameter<std::string>("skipJetSelection");
       skipJetSelection_ = new StringCutObjectSelector<T>(skipJetSelection_string);
@@ -375,6 +377,8 @@ template <typename T, typename Textractor>
   double smearBy_; // option to "smear" jet energy by N standard-deviations, useful for template morphing
 
   double shiftBy_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing
+
+  double srcJetSmeared_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing
 
   StringCutObjectSelector<T>* skipJetSelection_; // jets passing this cut are **not** smeared
   double skipRawJetPtThreshold_;  // jets with transverse momenta below this value (either on "raw" or "corrected" level)
