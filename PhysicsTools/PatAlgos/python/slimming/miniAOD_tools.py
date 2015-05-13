@@ -89,9 +89,43 @@ def miniAOD_customizeCommon(process):
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
     # FIXME: are we 100% sure this should still be PF and not PFchs? 
-    from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
+    #from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
     process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
+
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
+    
+    #MET flavors
+    runMETCorrectionsAndUncertainties(process,
+                                      metType="PF",
+                                      correctionLevel=["T0","T1","T2","Smear","Txy"],
+                                      computeUncertainties=False,
+                                      produceIntermediateCorrections=True,
+                                      addToPatDefaultSequence=False,
+                                      postfix="",
+                                      )
+    
+    #MET T1 uncertainties
+    runMETCorrectionsAndUncertainties(process,
+                                      metType="PF",
+                                      correctionLevel=["T1","Smear"], #"T0","T1","T2"
+                                      computeUncertainties=True,
+                                      produceIntermediateCorrections=False,
+                                      addToPatDefaultSequence=False,
+                                      postfix="",
+                                      )
+    
+#MET T1 Smeared uncertainties
+    runMETCorrectionsAndUncertainties(process,
+                                      metType="PF",
+                                      correctionLevel=["T1"], #"T0","T1","T2"
+                                      computeUncertainties=True,
+                                      produceIntermediateCorrections=False,
+                                      addToPatDefaultSequence=False,
+                                      postfix="",
+                                      )
+    
+
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
                                jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
@@ -102,6 +136,8 @@ def miniAOD_customizeCommon(process):
                                makeType1p2corrPFMEt=True,
                                doSmearJets=False,
                                outputModule=None)
+    
+
 
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process,

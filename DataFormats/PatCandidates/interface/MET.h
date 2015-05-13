@@ -70,6 +70,13 @@ namespace pat {
       /// set the associated GenMET
       void setGenMET(const reco::GenMET & gm);
 
+      // ----- MET significance functions ----
+      // set the MET Significance
+      void setMETSignificance(const double& metSig);
+      // get the MET significance
+      double metSignificance() const;
+
+
       // ---- methods for uncorrected MET ----
       float uncorrectedPt() const;
       float uncorrectedPhi() const;
@@ -107,7 +114,7 @@ namespace pat {
       /// Returns the event electromagnetic energy extracted from HF
       double emEtInHF() const {return caloSpecific().EmEtInHF;}
       /// Returns the event MET Significance
-      double metSignificance() const {return caloSpecific().METSignificance;}
+      double caloMetSignificance() const {return caloSpecific().METSignificance;}
       /// Returns the event SET in HF+
       double CaloSETInpHF() const {return caloSpecific().CaloSETInpHF;}
       /// Returns the event SET in HF-
@@ -142,28 +149,57 @@ namespace pat {
 
       // ---- members for MET corrections ----
       enum METUncertainty {
-        JetEnUp=0, JetEnDown=1, JetResUp=2, JetResDown=3,
+	JetResUp=0, JetResDown=1, JetEnUp=2, JetEnDown=3,
         MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7, TauEnUp=8,TauEnDown=9,
-        UnclusteredEnUp=10,UnclusteredEnDown=11, NoShift=12, METUncertaintySize=13
+        UnclusteredEnUp=10,UnclusteredEnDown=11, NoShift=12, METUncertaintySize=13,
+	JetResUpSmear=14, JetResDownSmear=15, METFullUncertaintySize=16
       };
-      enum METUncertaintyLevel {
-        Raw=0, Type1=1, Type1p2=2, Calo=3
+      enum METCorrectionLevel {
+        Raw=0, Type1=1, Type01=2, TypeXY=3, Type1XY=4, Type01XY=5,
+	Type1Smear=6, Type01Smear=7, Type1SmearXY=8, 
+	Type01SmearXY=9, RawCalo=10, METCorrectionLevelSize=11
       };
+      enum METCorrectionType {
+        None=0, T1=1, T0=2, TXY=3, TXYForRaw=4,
+	TXYForT01=5, TXYForT1Smear=6, TXYForT01Smear=7,
+	Smear=8, Calo=9, METCorrectionTypeSize=9
+      };
+
       struct Vector2 { 
         double px, py; 
         double pt() const { return hypotf(px,py); }  
         double phi() const { return std::atan2(py,px); }
       };
-      Vector2 shiftedP2(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
-      Vector shiftedP3(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
-      LorentzVector shiftedP4(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
-      double shiftedPx(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).px; }
-      double shiftedPy(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).py; }
-      double shiftedPt(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).pt(); }
-      double shiftedPhi(METUncertainty shift, METUncertaintyLevel level=Type1) const { return shiftedP2(shift,level).phi(); }
-      double shiftedSumEt(METUncertainty shift, METUncertaintyLevel level=Type1) const ;
 
-      void setShift(double px, double py, double sumEt, METUncertainty shift, METUncertaintyLevel level=Type1) ;
+      Vector2 shiftedP2(METUncertainty shift, METCorrectionLevel level=Type1)  const ;
+      Vector shiftedP3(METUncertainty shift, METCorrectionLevel level=Type1)  const ;
+      LorentzVector shiftedP4(METUncertainty shift, METCorrectionLevel level=Type1)  const ;
+      double shiftedPx(METUncertainty shift, METCorrectionLevel level=Type1)  const { return shiftedP2(shift,level).px; };
+      double shiftedPy(METUncertainty shift, METCorrectionLevel level=Type1)  const { return shiftedP2(shift,level).py; };
+      double shiftedPt(METUncertainty shift, METCorrectionLevel level=Type1)  const { return shiftedP2(shift,level).pt(); };
+      double shiftedPhi(METUncertainty shift, METCorrectionLevel level=Type1) const { return shiftedP2(shift,level).phi(); };
+      double shiftedSumEt(METUncertainty shift, METCorrectionLevel level=Type1) const ;
+
+      Vector2 corP2(METCorrectionLevel level=Type1)  const ;
+      Vector corP3(METCorrectionLevel level=Type1)  const ;
+      LorentzVector corP4(METCorrectionLevel level=Type1)  const ;
+      double corPx(METCorrectionLevel level=Type1)  const { return corP2(level).px; };
+      double corPy(METCorrectionLevel level=Type1)  const { return corP2(level).py; };
+      double corPt(METCorrectionLevel level=Type1)  const { return corP2(level).pt(); };
+      double corPhi(METCorrectionLevel level=Type1) const { return corP2(level).phi(); };
+      double corSumEt(METCorrectionLevel level=Type1) const ;
+
+      Vector2 uncorP2() const;
+      Vector uncorP3()  const ;
+      LorentzVector uncorP4()  const ;
+      double uncorPx() const { return uncorP2().px; };
+      double uncorPy() const { return uncorP2().py; };
+      double uncorPt() const { return uncorP2().pt(); };
+      double uncorPhi() const { return uncorP2().phi(); };
+      double uncorSumEt() const;
+
+      void setUncShift(double px, double py, double sumEt, METUncertainty shift, bool isSmeared=false);
+      void setCorShift(double px, double py, double sumEt, METCorrectionType level);
 
       // specific method to fill and retrieve the caloMET quickly from miniAODs, 
       //should be used by JetMET experts only for the beginning
@@ -185,6 +221,7 @@ namespace pat {
             double dpy() const { if(!unpacked_) unpack(); return dpy_; }
             double dsumEt() const { if(!unpacked_) unpack(); return dsumEt_; }
             void set(float dpx, float dpy, float dsumEt) { dpx_ = dpx; dpy_ = dpy; dsumEt_ = dsumEt; pack(); unpack();}
+	    void add(float dpx, float dpy, float dsumEt) { dpx_ += dpx; dpy_ += dpy; dsumEt_ += dsumEt; }
             void  unpack() const ;
             void  pack();
 
@@ -202,12 +239,24 @@ namespace pat {
       // ---- holder for pfMET specific info ---
       std::vector<SpecificPFMETData> pfMET_;
 
+      // MET significance
+      double metSig_;
+      
+      const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
+      std::vector<PackedMETUncertainty> uncertainties_;
+      std::vector<PackedMETUncertainty> corrections_;
+
+      std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> > corMap_;
+      void initCorMap();
+
+      PackedMETUncertainty caloPackedMet_;
+
     protected:
 
       // ---- non-public correction utilities ----
-      std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
+      //std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
 
-      PackedMETUncertainty caloPackedMet_;
+      //PackedMETUncertainty caloPackedMet_;
 
   };
 
