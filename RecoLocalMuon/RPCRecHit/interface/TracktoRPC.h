@@ -62,7 +62,7 @@ class TracktoRPC {
 public:
 
 
-  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig,edm::InputTag& tracklabel);
+  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel);
 
   ~TracktoRPC();
   RPCRecHitCollection* thePoints(){return _ThePoints;}

@@ -148,7 +148,7 @@ bool TracktoRPC::ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::E
    } else return false;
 }
 
-TracktoRPC::TracktoRPC(edm::Handle<reco::TrackCollection> alltracks, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,const edm::ParameterSet& iConfig,edm::InputTag& tracklabel){ 
+TracktoRPC::TracktoRPC(edm::Handle<reco::TrackCollection> alltracks, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel){
 
  _ThePoints = new RPCRecHitCollection();
 // if(alltracks->empty()) return;
