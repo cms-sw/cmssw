@@ -350,6 +350,7 @@ TrackListMerger::~TrackListMerger() { }
     int trackQuals[rSize];
     float trackMVAs[rSize];
     reco::TrackBase::TrackAlgorithm oriAlgo[rSize];
+    std::vector<reco::TrackBase::AlgoMask> algoMask(rSize);
     for (unsigned int j=0; j<rSize;j++) {
       indexG[j]=-1; selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;trackMVAs[j] = -998.0;oriAlgo[j]=reco::TrackBase::undefAlgorithm;
     }
@@ -373,7 +374,8 @@ TrackListMerger::~TrackListMerger() { }
 	  trackCollNum[i]=j;
 	  trackQuals[i]=track->qualityMask();
           oriAlgo[i]=track->originalAlgo();
-
+          algoMask[i]=track->algoMask();
+ 
 	  reco::TrackRef trkRef=reco::TrackRef(trackHandles[j],iC);
 	  if ( copyMVA_ )
 	    if( (*trackMVAStore).contains(trkRef.id()) ) trackMVAs[i] = (*trackMVAStore)[trkRef];
@@ -548,6 +550,8 @@ TrackListMerger::~TrackListMerger() { }
              selected[ii]=10+newQualityMask; // add 10 to avoid the case where mask = 1
              trkUpdated[ii]=true;
        	     if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
+             algoMask[ii] |= algoMask[jj];
+             algoMask[jj] = algoMask[ii];
          };
 
 	  if ( dupfound ) {

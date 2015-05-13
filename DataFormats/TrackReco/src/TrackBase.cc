@@ -53,7 +53,8 @@ std::string const TrackBase::qualityNames[] = {
     "confirmed",
     "goodIterative",
     "looseSetWithPV",
-    "highPuritySetWithPV"
+    "highPuritySetWithPV",
+    "discarded"
 };
 
 TrackBase::TrackBase() :
@@ -67,6 +68,7 @@ TrackBase::TrackBase() :
     quality_(0),
     nLoops_(0)
 {
+    algoMask_.set(algorithm_);
     index idx = 0;
     for (index i = 0; i < dimension; ++i) {
         for (index j = 0; j <= i; ++j) {
@@ -88,6 +90,8 @@ TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector
     quality_(0),
     nLoops_(nloops)
 {
+    algoMask_.set(algorithm_);
+
     index idx = 0;
     for (index i = 0; i < dimension; ++i) {
         for (index j = 0; j <= i; ++j) {

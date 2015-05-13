@@ -76,7 +76,5 @@ void testTrack::checkAll() {
     t.setAlgorithm(reco::TrackBase::ctf);
     CPPUNIT_ASSERT(t.algo() == reco::TrackBase::ctf);
 
-    t.setAlgorithm(reco::TrackBase::ctf, false);
-    CPPUNIT_ASSERT(t.algo() == reco::TrackBase::undefAlgorithm);
 }
 

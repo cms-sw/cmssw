@@ -48,13 +48,14 @@
  *
  */
 
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include <bitset>
 
 namespace reco
 {
@@ -93,6 +94,7 @@ public:
     /// index type
     typedef unsigned int index;
 
+
     /// track algorithm
     enum TrackAlgorithm {
         undefAlgorithm = 0, ctf = 1, rs = 2, cosmics = 3,
@@ -127,6 +129,10 @@ public:
         algoSize = 37
     };
 
+    /// algo mask
+    typedef std::bitset<algoSize> AlgoMask;
+ 
+
     static const std::string algoNames[];
 
     /// track quality
@@ -135,11 +141,12 @@ public:
         loose = 0,
         tight = 1,
         highPurity = 2,
-        confirmed = 3,
-        goodIterative = 4,
+        confirmed = 3,  // means found by more than one iteration
+        goodIterative = 4,  // meaningless
         looseSetWithPV = 5,
         highPuritySetWithPV = 6,
-        qualitySize = 7
+        discarded = 7, // because a better track found. kept in the collection for reference....
+        qualitySize = 8
     };
 
     static const std::string qualityNames[];
@@ -319,9 +326,15 @@ public:
     void resetHitPattern();
 
     ///Track algorithm
-    void setAlgorithm(const TrackAlgorithm a, bool set = true);
+    void setAlgorithm(const TrackAlgorithm a);
    
-    void setOriginalAlgorithm(const TrackAlgorithm a, bool set = true);
+    void setOriginalAlgorithm(const TrackAlgorithm a);
+
+    void setAlgoMask(AlgoMask a) { algoMask_ = a;}
+
+    AlgoMask algoMask() const { return algoMask_;}
+    unsigned long long algoMaskUL() const { return algoMask().to_ullong();}
+    bool isAlgoInMask(TrackAlgorithm a) const {return algoMask()[a];}
 
 
     TrackAlgorithm algo() const ;
@@ -368,6 +381,9 @@ private:
 
     /// momentum vector at innermost point
     Vector momentum_;
+
+    /// algo mask, bit set for the algo where it was reconstructed + each algo a track was found overlapping by the listmerger
+    std::bitset<algoSize> algoMask_;
 
     /// number of degrees of freedom
     float ndof_;
@@ -567,10 +583,9 @@ inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
 {
     switch (q) {
     case undefQuality:
-        return (quality_ == 0);
+        return quality_ == 0;
     case goodIterative:
-        return (((quality_ & (1 << TrackBase::confirmed))  >> TrackBase::confirmed) ||
-                ((quality_ & (1 << TrackBase::highPurity)) >> TrackBase::highPurity));
+        return (quality_ & (1 << TrackBase::highPurity)) >> TrackBase::highPurity;
     default:
         return (quality_ & (1 << q)) >> q;
     }
@@ -907,15 +922,17 @@ inline double TrackBase::validFraction() const
 }
 
 //Track algorithm
-inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
+inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a)
 {
-    algorithm_  = set ?  a : TrackBase::undefAlgorithm;
-    setOriginalAlgorithm(a,set);	
+    algorithm_  = a;
+    algoMask_.reset();
+    setOriginalAlgorithm(a);
 }
 
-inline void TrackBase::setOriginalAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
+inline void TrackBase::setOriginalAlgorithm(const TrackBase::TrackAlgorithm a)
 {
-    originalAlgorithm_  = set ?  a : TrackBase::undefAlgorithm;
+   originalAlgorithm_  = a;
+   algoMask_.set(a);
 }
 
 
