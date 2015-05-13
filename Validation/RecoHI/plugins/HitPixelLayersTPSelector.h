@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /**
  Selector to select only tracking particles that leave hits in three pixel layers
@@ -53,7 +53,7 @@ class HitPixelLayersTPSelector
       selected_.clear();
       //Retrieve tracker topology from geometry
       edm::ESHandle<TrackerTopology> tTopoHand;
-      iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+      iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
       const TrackerTopology *tTopo=tTopoHand.product();
 
 
