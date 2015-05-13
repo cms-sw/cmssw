@@ -67,9 +67,6 @@ process.load("DQM.L1TMonitor.L1TFED_cfi")
 process.l1tfed.FEDDirName=cms.untracked.string("L1T/FEDIntegrity_SM")
 
 # Pixel DQM sequences
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 # Pixel RawToDigi conversion
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
