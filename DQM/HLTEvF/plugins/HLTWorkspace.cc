@@ -45,7 +45,6 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -54,6 +53,7 @@
 #include "TStyle.h"
 #include "TLorentzVector.h"
 
+#include <unordered_map>
 //
 // class declaration
 //
@@ -62,7 +62,7 @@
 using namespace trigger;
 using std::vector;
 using std::string;
-using std::map;
+using std::unordered_map;
 
 class HLTWorkspace : public DQMEDAnalyzer {
    public:
@@ -93,8 +93,8 @@ class HLTWorkspace : public DQMEDAnalyzer {
   string mainShifterFolder;
   string backupFolder;
 
-  map<string, unsigned int> lookupIndex;
-  map<string, string> lookupFilter;
+  unordered_map<string, unsigned int> lookupIndex;
+  unordered_map<string, string> lookupFilter;
   vector<string> quickCollectionPaths;
 
   //set Token(-s)
@@ -111,7 +111,32 @@ class HLTWorkspace : public DQMEDAnalyzer {
 
   //  edm::EDGetTokenT<reco::JetTagCollection> csvTagToken_;
   
+  //declare params
+  edm::ParameterSet alphaT_TH1;
+  edm::ParameterSet photonPt_TH1;
+  edm::ParameterSet photonEta_TH1;
+  edm::ParameterSet photonPhi_TH1;
+  edm::ParameterSet muonPt_TH1;
+  edm::ParameterSet muonEta_TH1;
+  edm::ParameterSet muonPhi_TH1;
+  edm::ParameterSet electronPt_TH1;
+  edm::ParameterSet electronEta_TH1;
+  edm::ParameterSet electronPhi_TH1;
+  edm::ParameterSet jetPt_TH1;
+  edm::ParameterSet tauPt_TH1;
+  edm::ParameterSet diMuonLowMass_TH1;
+  edm::ParameterSet caloMetPt_TH1;
+  edm::ParameterSet caloMetPhi_TH1;
+  edm::ParameterSet pfMetPt_TH1;
+  edm::ParameterSet pfMetPhi_TH1;
+  edm::ParameterSet caloHtPt_TH1;
+  edm::ParameterSet pfHtPt_TH1;
+  edm::ParameterSet bJetPhi_TH1;
+  edm::ParameterSet bJetEta_TH1;
+
+
   //declare all MEs
+  MonitorElement * alphaT_;
   MonitorElement * photonPt_;
   MonitorElement * photonEta_;
   MonitorElement * photonPhi_;
@@ -124,7 +149,6 @@ class HLTWorkspace : public DQMEDAnalyzer {
   MonitorElement * jetPt_;
   MonitorElement * tauPt_;
   MonitorElement * diMuonLowMass_;
-  MonitorElement * alphaT_;
   MonitorElement * caloMetPt_;
   MonitorElement * caloMetPhi_;
   MonitorElement * pfMetPt_;
@@ -158,6 +182,31 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
   topDirectoryName = "HLT/Workspaces";
   mainShifterFolder = topDirectoryName+"/MainShifter";
   backupFolder = topDirectoryName+"/Backup";
+
+
+  //parse params
+  alphaT_TH1 = iConfig.getParameter<edm::ParameterSet> ("alphaT");
+  photonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("photonPt");
+  photonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("photonEta");
+  photonPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("photonPhi");
+  muonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("muonPt");
+  muonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("muonEta");
+  muonPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("muonPhi");
+  electronPt_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPt");
+  electronEta_TH1 = iConfig.getParameter<edm::ParameterSet>("electronEta");
+  electronPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPhi");
+  jetPt_TH1 = iConfig.getParameter<edm::ParameterSet>("jetPt");
+  tauPt_TH1 = iConfig.getParameter<edm::ParameterSet>("tauPt");
+  diMuonLowMass_TH1 = iConfig.getParameter<edm::ParameterSet>("diMuonLowMass");
+  caloMetPt_TH1 = iConfig.getParameter<edm::ParameterSet>("caloMetPt");
+  caloMetPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("caloMetPhi");
+  pfMetPt_TH1 = iConfig.getParameter<edm::ParameterSet>("pfMetPt");
+  pfMetPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("pfMetPhi");
+  caloHtPt_TH1 = iConfig.getParameter<edm::ParameterSet>("caloHtPt");
+  pfHtPt_TH1 = iConfig.getParameter<edm::ParameterSet>("pfHtPt");
+  bJetPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetPhi");
+  bJetEta_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetEta");
+
 
   //set Token(s) 
   //will need to change 'TEST' to 'HLT' or something else before implementation
@@ -263,44 +312,50 @@ HLTWorkspace::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
     }
 
   //link all paths and filters needed
-  quickCollectionPaths.push_back("HLT_Photon30_R9Id90_HE10_IsoM");
-  lookupFilter["HLT_Photon30_R9Id90_HE10_IsoM"] = "hltEG30R9Id90HE10IsoMTrackIsoFilter";
   
-  quickCollectionPaths.push_back("HLT_IsoMu27");
-  lookupFilter["HLT_IsoMu27"] = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09";
+  //photon phi + eta have same path 
+  quickCollectionPaths.push_back(photonPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[photonPt_TH1.getParameter<string>("pathName")] = photonPt_TH1.getParameter<string>("moduleName");
+  
+  //muont phi + eta have same path
+  quickCollectionPaths.push_back(muonPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[muonPt_TH1.getParameter<string>("pathName")] = muonPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_Ele27_eta2p1_WP75_Gsf");
-  lookupFilter["HLT_Ele27_eta2p1_WP75_Gsf"] = "hltEle27WP75GsfTrackIsoFilter";
+  //electron phi + eta have same path
+  quickCollectionPaths.push_back(electronPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[electronPt_TH1.getParameter<string>("pathName")] = electronPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_DoubleMu4_3_Jpsi_Displaced");
-  lookupFilter["HLT_DoubleMu4_3_Jpsi_Displaced"] = "hltDisplacedmumuFilterDoubleMu43Jpsi";
+  quickCollectionPaths.push_back(diMuonLowMass_TH1.getParameter<string>("pathName"));
+  lookupFilter[diMuonLowMass_TH1.getParameter<string>("pathName")] = diMuonLowMass_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_PFHT200_DiPFJet90_PFAlphaT0p57");
-  lookupFilter["HLT_PFHT200_DiPFJet90_PFAlphaT0p57"] = "hltPFHT200PFAlphaT0p57";
+  quickCollectionPaths.push_back(alphaT_TH1.getParameter<string> ("pathName"));
+  lookupFilter[alphaT_TH1.getParameter<string>("pathName")] = alphaT_TH1.getParameter<string> ("moduleName");
 
-  quickCollectionPaths.push_back("HLT_PFJet200");
-  lookupFilter["HLT_PFJet200"] = "hltSinglePFJet200";
+  quickCollectionPaths.push_back(jetPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[jetPt_TH1.getParameter<string>("pathName")] = jetPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_MET75_IsoTrk50");
-  lookupFilter["HLT_MET75_IsoTrk50"] = "hltMETClean75";
+  //caloMet pt + phi have same path
+  quickCollectionPaths.push_back(caloMetPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[caloMetPt_TH1.getParameter<string>("pathName")] = caloMetPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_PFHT750_4Jet");
-  lookupFilter["HLT_PFHT750_4Jet"] = "hltPF4JetHT750";
+  quickCollectionPaths.push_back(pfHtPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[pfHtPt_TH1.getParameter<string>("pathName")] = pfHtPt_TH1.getParameter<string>("moduleName");
+  
+  quickCollectionPaths.push_back(tauPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[tauPt_TH1.getParameter<string>("pathName")] = tauPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg");
-  lookupFilter["HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"] = "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg";
+  //pfMet pt + phi have same path
+  quickCollectionPaths.push_back(pfMetPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[pfMetPt_TH1.getParameter<string>("pathName")] = pfMetPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_PFMET120_PFMHT120_IDTight");
-  lookupFilter["HLT_PFMET120_PFMHT120_IDTight"] = "hltPFMET120";
+  quickCollectionPaths.push_back(caloHtPt_TH1.getParameter<string>("pathName"));
+  lookupFilter[caloHtPt_TH1.getParameter<string>("pathName")] = caloHtPt_TH1.getParameter<string>("moduleName");
 
-  quickCollectionPaths.push_back("HLT_HT650_DisplacedDijet80_Inclusive");
-  lookupFilter["HLT_HT650_DisplacedDijet80_Inclusive"] = "hltHT650";
-
-  quickCollectionPaths.push_back("HLT_PFMET120_NoiseCleaned_BTagCSV07");
-  lookupFilter["HLT_PFMET120_NoiseCleaned_BTagCSV07"] = "hltPFMET120Filter";
-
-  quickCollectionPaths.push_back(" HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500");
-  lookupFilter[" HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"] = "hltCSVPF0p7";
+  //bjet eta +phi have same OR'd paths
+  quickCollectionPaths.push_back(bJetEta_TH1.getParameter<string>("pathName"));
+  lookupFilter[bJetEta_TH1.getParameter<string>("pathName")] = bJetEta_TH1.getParameter<string>("moduleName");
+  quickCollectionPaths.push_back(bJetEta_TH1.getParameter<string>("pathName_OR"));
+  lookupFilter[bJetEta_TH1.getParameter<string>("pathName_OR")] = bJetEta_TH1.getParameter<string>("moduleName_OR");
 
   // quickCollectionPaths.push_back("");
   // lookupFilter[""] = "";
@@ -342,62 +397,62 @@ void HLTWorkspace::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const& i
   ibooker.setCurrentFolder(mainShifterFolder);
 
   //wall time
-  TH1F * hist_wallTime = new TH1F("wallTime","wall time per event",1000,0,3);
+  TH1F * hist_wallTime = new TH1F("wallTime","wall time per event",1000,0,0.01);
   hist_wallTime->SetMinimum(0);
   wallTimePerEvent_ = ibooker.book1D("wallTime",hist_wallTime);
 
   //photon pt
-  TH1F * hist_photonPt = new TH1F("Photon_pT","Photon pT",100,0,200);
+  TH1F * hist_photonPt = new TH1F("Photon_pT","Photon pT",photonPt_TH1.getParameter<int>("NbinsX"),photonPt_TH1.getParameter<int>("Xmin"),photonPt_TH1.getParameter<int>("Xmax"));
   hist_photonPt->SetMinimum(0);
   photonPt_ = ibooker.book1D("Photon_pT",hist_photonPt);
 
   //muon pt
-  TH1F * hist_muonPt = new TH1F("Muon_pT","Muon pT",75,0,150);
+  TH1F * hist_muonPt = new TH1F("Muon_pT","Muon pT",muonPt_TH1.getParameter<int>("NbinsX"),muonPt_TH1.getParameter<int>("Xmin"),muonPt_TH1.getParameter<int>("Xmax"));
   hist_muonPt->SetMinimum(0);
   muonPt_ = ibooker.book1D("Muon_pT",hist_muonPt);
 
   //electron pt
-  TH1F * hist_electronPt = new TH1F("Electron_pT","Electron pT",75,0,150);
+  TH1F * hist_electronPt = new TH1F("Electron_pT","Electron pT",electronPt_TH1.getParameter<int>("NbinsX"),electronPt_TH1.getParameter<int>("Xmin"),electronPt_TH1.getParameter<int>("Xmax"));
   hist_electronPt->SetMinimum(0);
   electronPt_ = ibooker.book1D("Electron_pT",hist_electronPt);
 
   //jet pt
-  TH1F * hist_jetPt = new TH1F("Jet_pT","Jet pT",75,150,550);
+  TH1F * hist_jetPt = new TH1F("Jet_pT","Jet pT",jetPt_TH1.getParameter<int>("NbinsX"),jetPt_TH1.getParameter<int>("Xmin"),jetPt_TH1.getParameter<int>("Xmax"));
   hist_jetPt->SetMinimum(0);
   jetPt_ = ibooker.book1D("Jet_pT",hist_jetPt);
 
   //tau pt
-  TH1F * hist_tauPt = new TH1F("Tau_pT","Tau pT",75,30,350);
+  TH1F * hist_tauPt = new TH1F("Tau_pT","Tau pT",tauPt_TH1.getParameter<int>("NbinsX"),tauPt_TH1.getParameter<int>("Xmin"),tauPt_TH1.getParameter<int>("Xmax"));
   hist_tauPt->SetMinimum(0);
   tauPt_ = ibooker.book1D("Tau_pT",hist_tauPt);
 
   //dimuon low mass
-  TH1F * hist_dimuonLowMass = new TH1F("Dimuon_LowMass","Dimuon Low Mass",100,2.5,3.5);
+  TH1F * hist_dimuonLowMass = new TH1F("Dimuon_LowMass","Dimuon Low Mass",diMuonLowMass_TH1.getParameter<int>("NbinsX"),diMuonLowMass_TH1.getParameter<double>("Xmin"),diMuonLowMass_TH1.getParameter<double>("Xmax"));
   hist_dimuonLowMass->SetMinimum(0);
   diMuonLowMass_ = ibooker.book1D("Dimuon_LowMass",hist_dimuonLowMass);
 
   //alphaT
-  TH1F * hist_alphaT = new TH1F("alphaT","alphaT",30,0,5);
+  TH1F * hist_alphaT = new TH1F("alphaT","alphaT",alphaT_TH1.getParameter<int>("NbinsX"),alphaT_TH1.getParameter<int>("Xmin"),alphaT_TH1.getParameter<int>("Xmax"));
   hist_alphaT->SetMinimum(0);
   alphaT_ = ibooker.book1D("AlphaT",hist_alphaT);
 
   //caloMET pt
-  TH1F * hist_caloMetPt = new TH1F("CaloMET_pT","CaloMET pT",60,50,550);
+  TH1F * hist_caloMetPt = new TH1F("CaloMET_pT","CaloMET pT",caloMetPt_TH1.getParameter<int>("NbinsX"),caloMetPt_TH1.getParameter<int>("Xmin"),caloMetPt_TH1.getParameter<int>("Xmax"));
   hist_caloMetPt->SetMinimum(0);
   caloMetPt_ = ibooker.book1D("CaloMET_pT",hist_caloMetPt);
 
   //caloHT pt
-  TH1F * hist_caloHtPt = new TH1F("CaloHT_pT","CaloHT pT",200,0,2000);
+  TH1F * hist_caloHtPt = new TH1F("CaloHT_pT","CaloHT pT",caloHtPt_TH1.getParameter<int>("NbinsX"),caloHtPt_TH1.getParameter<int>("Xmin"),caloHtPt_TH1.getParameter<int>("Xmax"));
   hist_caloHtPt->SetMinimum(0);
   caloHtPt_ = ibooker.book1D("CaloHT_pT",hist_caloHtPt);
 
   //PFHT pt
-  TH1F * hist_pfHtPt = new TH1F("PFHT_pT","PFHT pT",200,0,2000);
+  TH1F * hist_pfHtPt = new TH1F("PFHT_pT","PFHT pT",pfHtPt_TH1.getParameter<int>("NbinsX"),pfHtPt_TH1.getParameter<int>("Xmin"),pfHtPt_TH1.getParameter<int>("Xmax"));
   hist_pfHtPt->SetMinimum(0);
   pfHtPt_ = ibooker.book1D("PFHT_pT",hist_pfHtPt);
 
   //PFMET pt
-  TH1F * hist_PFMetPt = new TH1F("PFMET_pT","PFMET pT",60,100,500);
+  TH1F * hist_PFMetPt = new TH1F("PFMET_pT","PFMET pT",pfMetPt_TH1.getParameter<int>("NbinsX"),pfMetPt_TH1.getParameter<int>("Xmin"),pfMetPt_TH1.getParameter<int>("Xmax"));
   hist_PFMetPt->SetMinimum(0);
   pfMetPt_ = ibooker.book1D("PFMET_pT",hist_PFMetPt);
 
@@ -410,48 +465,48 @@ void HLTWorkspace::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const& i
   ibooker.setCurrentFolder(backupFolder);
 
   //photon eta
-  TH1F * hist_photonEta = new TH1F("Photon_eta","Photon eta",50,0,3);
+  TH1F * hist_photonEta = new TH1F("Photon_eta","Photon eta",photonEta_TH1.getParameter<int>("NbinsX"),photonEta_TH1.getParameter<int>("Xmin"),photonEta_TH1.getParameter<int>("Xmax"));
   hist_photonEta->SetMinimum(0);
   photonEta_ = ibooker.book1D("Photon_eta",hist_photonEta);
   //photon phi
-  TH1F * hist_photonPhi = new TH1F("Photon_phi","Photon phi",50,-3.4,3.4);
+  TH1F * hist_photonPhi = new TH1F("Photon_phi","Photon phi",photonPhi_TH1.getParameter<int>("NbinsX"),photonPhi_TH1.getParameter<double>("Xmin"),photonPhi_TH1.getParameter<double>("Xmax"));
   hist_photonPhi->SetMinimum(0);
   photonPhi_ = ibooker.book1D("Photon_phi",hist_photonPhi);
 
   //muon eta
-  TH1F * hist_muonEta = new TH1F("Muon_eta","Muon eta",50,0,3);
+  TH1F * hist_muonEta = new TH1F("Muon_eta","Muon eta",muonEta_TH1.getParameter<int>("NbinsX"),muonEta_TH1.getParameter<int>("Xmin"),muonEta_TH1.getParameter<int>("Xmax"));
   hist_muonEta->SetMinimum(0);
   muonEta_ = ibooker.book1D("Muon_eta",hist_muonEta);
   //muon phi
-  TH1F * hist_muonPhi = new TH1F("Muon_phi","Muon phi",50,-3.4,3.4);
+  TH1F * hist_muonPhi = new TH1F("Muon_phi","Muon phi",muonPhi_TH1.getParameter<int>("NbinsX"),muonPhi_TH1.getParameter<double>("Xmin"),muonPhi_TH1.getParameter<double>("Xmax"));
   hist_muonPhi->SetMinimum(0);
   muonPhi_ = ibooker.book1D("Muon_phi",hist_muonPhi);
 
   //electron eta
-  TH1F * hist_electronEta = new TH1F("Electron_eta","Electron eta",50,0,3);
+  TH1F * hist_electronEta = new TH1F("Electron_eta","Electron eta",electronEta_TH1.getParameter<int>("NbinsX"),electronEta_TH1.getParameter<int>("Xmin"),electronEta_TH1.getParameter<int>("Xmax"));
   hist_electronEta->SetMinimum(0);
   electronEta_ = ibooker.book1D("Electron_eta",hist_electronEta);
   //electron phi
-  TH1F * hist_electronPhi = new TH1F("Electron_phi","Electron phi",50,-3.4,3.4);
+  TH1F * hist_electronPhi = new TH1F("Electron_phi","Electron phi",electronPhi_TH1.getParameter<int>("NbinsX"),electronPhi_TH1.getParameter<double>("Xmin"),electronPhi_TH1.getParameter<double>("Xmax"));
   hist_electronPhi->SetMinimum(0);
   electronPhi_ = ibooker.book1D("Electron_phi",hist_electronPhi);
 
   //caloMET phi
-  TH1F * hist_caloMetPhi = new TH1F("CaloMET_phi","CaloMET phi",50,-3.4,3.4);
+  TH1F * hist_caloMetPhi = new TH1F("CaloMET_phi","CaloMET phi",caloMetPhi_TH1.getParameter<int>("NbinsX"),caloMetPhi_TH1.getParameter<double>("Xmin"),caloMetPhi_TH1.getParameter<double>("Xmax"));
   hist_caloMetPhi->SetMinimum(0);
   caloMetPhi_ = ibooker.book1D("CaloMET_phi",hist_caloMetPhi);
 
   //PFMET phi
-  TH1F * hist_PFMetPhi = new TH1F("PFMET_phi","PFMET phi",50,-3.4,3.4);
+  TH1F * hist_PFMetPhi = new TH1F("PFMET_phi","PFMET phi",pfMetPhi_TH1.getParameter<int>("NbinsX"),pfMetPhi_TH1.getParameter<double>("Xmin"),pfMetPhi_TH1.getParameter<double>("Xmax"));
   hist_PFMetPhi->SetMinimum(0);
   pfMetPhi_ = ibooker.book1D("PFMET_phi",hist_PFMetPhi);
 
   //bJet phi
-  TH1F * hist_bJetPhi = new TH1F("bJet_phi","b-Jet phi",50,-3.4,3.4);
+  TH1F * hist_bJetPhi = new TH1F("bJet_phi","b-Jet phi",bJetPhi_TH1.getParameter<int>("NbinsX"),bJetPhi_TH1.getParameter<double>("Xmin"),bJetPhi_TH1.getParameter<double>("Xmax"));
   hist_bJetPhi->SetMinimum(0);
   bJetPhi_ = ibooker.book1D("bJet_phi",hist_bJetPhi);
   //bJet eta
-  TH1F * hist_bJetEta = new TH1F("bJet_eta","b-Jet eta",50,0,3);
+  TH1F * hist_bJetEta = new TH1F("bJet_eta","b-Jet eta",bJetEta_TH1.getParameter<int>("NbinsX"),bJetEta_TH1.getParameter<int>("Xmin"),bJetEta_TH1.getParameter<int>("Xmax"));
   hist_bJetEta->SetMinimum(0);
   bJetEta_ = ibooker.book1D("bJet_eta",hist_bJetEta);
 
@@ -474,7 +529,7 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
   ////////////////////////////////  
   
   //alphaT
-  if (pathName == "HLT_PFHT200_DiPFJet90_PFAlphaT0p57")
+  if (pathName == alphaT_TH1.getParameter<string>("pathName"))
     {
       std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> alphaT_jets;
       for (const auto & key : keys)
@@ -487,8 +542,8 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
       alphaT_->Fill(alphaT);
     }
 
-  //photon pt + eta
-  else if (pathName == "HLT_Photon30_R9Id90_HE10_IsoM")
+  //photon pt + eta + phi (all use same path)
+  else if (pathName == photonPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) 
 	{
@@ -498,8 +553,8 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
 	}
     }
   
-  //muon pt + eta
-  else if (pathName == "HLT_IsoMu27")
+  //muon pt + eta + phi (all use same path)
+  else if (pathName == muonPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) 
   	{
@@ -509,8 +564,8 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
       	}
     }
   
-  //electron pt + eta
-  else if (pathName == "HLT_Ele27_eta2p1_WP75_Gsf")
+  //electron pt + eta + phi (all use same path)
+  else if (pathName == electronPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) 
   	{
@@ -521,19 +576,19 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
     }
   
   //jet pt
-  else if (pathName == "HLT_PFJet200")
+  else if (pathName == jetPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) jetPt_->Fill(objects[key].pt());
     }
 
   //tau pt
-  else if (pathName == "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg")
+  else if (pathName == tauPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) tauPt_->Fill(objects[key].pt());
     }
 
-  //caloMET pt+phi
-  else if (pathName == "HLT_MET75_IsoTrk50")
+  //caloMET pt+phi (same path)
+  else if (pathName == caloMetPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys)
   	{
@@ -543,19 +598,19 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
     }
 
   //caloHT pt
-  else if (pathName == "HLT_HT650_DisplacedDijet80_Inclusive")
+  else if (pathName == caloHtPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) caloHtPt_->Fill(objects[key].pt());
     }
   
   //PFHT pt
-  else if (pathName == "HLT_PFHT750_4Jet")
+  else if (pathName == pfHtPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys) pfHtPt_->Fill(objects[key].pt());
     }
 
   //PFMET pt + phi
-  else if (pathName == "HLT_PFMET120_PFMHT120_IDTight")
+  else if (pathName == pfMetPt_TH1.getParameter<string>("pathName"))
     {
       for (const auto & key : keys)
   	{
@@ -565,7 +620,7 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
     }
 
   // bjet eta + phi
-  else if (pathName == "HLT_PFMET120_NoiseCleaned_BTagCSV07" || pathName == "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500")
+  else if (pathName == bJetEta_TH1.getParameter<string>("pathName") || pathName == bJetEta_TH1.getParameter<string>("pathName_OR"))
     {
        for (const auto & key : keys)
   	{
@@ -581,7 +636,7 @@ void HLTWorkspace::fillPlots(int evtNum, string pathName, edm::Handle<trigger::T
   // ////////////////////////////////
   
   //double muon low mass 
-  else if (pathName == "HLT_DoubleMu4_3_Jpsi_Displaced")
+  else if (pathName == diMuonLowMass_TH1.getParameter<string>("pathName"))
     {
       const double mu_mass(.105658);
       unsigned int kCnt0 = 0;  
