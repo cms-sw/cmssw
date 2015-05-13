@@ -55,6 +55,15 @@ uncertaintiesType1p2_(iOther.uncertaintiesType1p2_),
 caloPackedMet_(iOther.caloPackedMet_) {
 }
 
+/// constructor for corrected mets, keeping track of srcMET informations, 
+// old uncertainties discarded
+MET::MET(const reco::MET & corMET, const MET& srcMET ):
+PATObject<reco::MET>(corMET),
+genMET_(srcMET.genMET_),
+caloMET_(srcMET.caloMET_),
+pfMET_(srcMET.pfMET_) {
+}
+
 /// destructor
 MET::~MET() {
 

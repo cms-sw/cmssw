@@ -27,10 +27,11 @@ def propagateMEtUncertainties(process, particleCollection, particleType,
     
     # propagate effects of up/down shifts to MET
     moduleMETshiftUp = cms.EDProducer("CorrectedPATMETProducer",
-            applyType1Corrections = cms.bool(True),
-            applyType2Corrections = cms.bool(False),
+          #  applyType1Corrections = cms.bool(True),
+          #  applyType2Corrections = cms.bool(False),
             src = cms.InputTag(metProducer.label()),
-            srcType1Corrections = cms.VInputTag(cms.InputTag(moduleMETcorrShiftUpName))
+          #  srcType1Corrections = cms.VInputTag(cms.InputTag(moduleMETcorrShiftUpName))
+            srcCorrections = cms.VInputTag(cms.InputTag(moduleMETcorrShiftUpName))
     )
     metProducerLabel = metProducer.label()
     if postfix != "":
@@ -43,7 +44,8 @@ def propagateMEtUncertainties(process, particleCollection, particleType,
     setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
     sequence += moduleMETshiftUp
     moduleMETshiftDown = moduleMETshiftUp.clone(
-        srcType1Corrections = cms.VInputTag(
+        #srcType1Corrections = cms.VInputTag(
+        srcCorrections = cms.VInputTag(
             cms.InputTag(moduleMETcorrShiftDownName)
         )
     )
