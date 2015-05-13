@@ -162,8 +162,8 @@
   </class>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
  
-  <class name="reco::HTTTopJetTagInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="1184606281"/>
+  <class name="reco::HTTTopJetTagInfo" ClassVersion="12">
+   <version ClassVersion="12" checksum="3013029993"/>
   </class>
   <class name="reco::HTTTopJetTagInfoCollection"/>
   <class name="reco::HTTTopJetTagInfoRef"/>
