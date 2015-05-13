@@ -34,7 +34,6 @@ class MultShiftMETcorrInputProducer : public edm::EDProducer
 
   explicit MultShiftMETcorrInputProducer(const edm::ParameterSet&);
   ~MultShiftMETcorrInputProducer();
-  std::vector<edm::ParameterSet> cfgCorrParameters_;
     
  private:
 

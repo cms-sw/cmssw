@@ -35,8 +35,10 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
   etaMax_.clear();
   type_.clear(); 
   varType_.clear(); 
+
+  produces<CorrMETData>();
+
   for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v!=cfgCorrParameters_.end(); v++) {
-    produces<CorrMETData>(v->getParameter<std::string>("name"));
     TString corrPxFormula = v->getParameter<std::string>("fx");
     TString corrPyFormula = v->getParameter<std::string>("fy");
     std::vector<double> corrPxParams = v->getParameter<std::vector<double> >("px");
@@ -98,9 +100,13 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
       }
     } 
   }
+
+  //MM: loop over all constituent types and sum each correction
+  std::auto_ptr<CorrMETData> metCorr(new CorrMETData());
+  
   for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v!=cfgCorrParameters_.end(); v++) {
     unsigned j=v-cfgCorrParameters_.begin();
-    std::auto_ptr<CorrMETData> metCorr(new CorrMETData());
+ 
     double val(0.);
     if (varType_[j]==0) {
       val = counts_[j];
@@ -114,8 +120,11 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     metCorr->mex = -formula_x_[j]->Eval(val);
     metCorr->mey = -formula_y_[j]->Eval(val);  
 //    std::cout<<v->getParameter<std::string>("name")<<" counts: "<<counts_[j]<<" sumPt: "<<sumPt_[j]<<" ngoodVertices: "<<ngoodVertices<<" "<<-formula_x_[j]->Eval(val)<<" "<<-formula_y_[j]->Eval(val)<<std::endl;
-    evt.put(metCorr, v->getParameter<std::string>("name"));
+
   }
+
+  evt.put(metCorr, "");
+  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
