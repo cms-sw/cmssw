@@ -1,5 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
+#setup names for multiple plots that use the same paths+modules
+photon_pathName = "HLT_Photon30_R9Id90_HE10_IsoM"
+photon_moduleName ="hltEG30R9Id90HE10IsoMTrackIsoFilter"
+
+muon_pathName = "HLT_IsoMu27"
+muon_moduleName = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
+
+electron_pathName = "HLT_Ele27_eta2p1_WP75_Gsf"
+electron_moduleName = "hltEle27WP75GsfTrackIsoFilter"
+
+caloMet_pathName = "HLT_MET75_IsoTrk50"
+caloMet_moduleName = "hltMETClean75"
+
+pfMet_pathName = "HLT_PFMET120_PFMHT120_IDTight"
+pfMet_moduleName = "hltPFMET120"
+
+bJet_pathName = "HLT_PFMET120_NoiseCleaned_BTagCSV07"
+bJet_moduleName = "hltPFMET120Filter"
+bJet_pathNameOR = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
+bJet_moduleNameOR = "hltCSVPF0p7"
+
+#To avoid booking histogram, set pathName = cms.string("")
+
 hltWorkspace = cms.EDAnalyzer('HLTWorkspace',
     alphaT = cms.PSet(
         pathName = cms.string("HLT_PFHT200_DiPFJet90_PFAlphaT0p57"),
@@ -9,64 +32,64 @@ hltWorkspace = cms.EDAnalyzer('HLTWorkspace',
         Xmax = cms.int32(5)
         ),
     photonPt = cms.PSet(
-        pathName = cms.string("HLT_Photon30_R9Id90_HE10_IsoM"),
-        moduleName = cms.string("hltEG30R9Id90HE10IsoMTrackIsoFilter"),
+        pathName = cms.string(photon_pathName),
+        moduleName = cms.string(photon_moduleName),
         NbinsX = cms.int32(100),
         Xmin = cms.int32(0),
         Xmax = cms.int32(200)
         ),
     photonEta = cms.PSet(
-        pathName = cms.string("HLT_Photon30_R9Id90_HE10_IsoM"),
-        moduleName = cms.string("hltEG30R9Id90HE10IsoMTrackIsoFilter"),
+        pathName = cms.string(photon_pathName),
+        moduleName = cms.string(photon_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.int32(0),
         Xmax = cms.int32(3)
         ),
     photonPhi = cms.PSet(
-        pathName = cms.string("HLT_Photon30_R9Id90_HE10_IsoM"),
-        moduleName = cms.string("hltEG30R9Id90HE10IsoMTrackIsoFilter"),
+        pathName = cms.string(photon_pathName),
+        moduleName = cms.string(photon_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
         ),
     muonPt = cms.PSet(
-        pathName = cms.string("HLT_IsoMu27"),
-        moduleName = cms.string("hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"),
+        pathName = cms.string(muon_pathName),
+        moduleName = cms.string(muon_moduleName),
         NbinsX = cms.int32(75),
         Xmin = cms.int32(0),
         Xmax = cms.int32(150)
         ),
     muonEta = cms.PSet(
-        pathName = cms.string("HLT_IsoMu27"),
-        moduleName = cms.string("hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"),
+        pathName = cms.string(muon_pathName),
+        moduleName = cms.string(muon_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.int32(0),
         Xmax = cms.int32(3)
         ),
     muonPhi = cms.PSet(
-        pathName = cms.string("HLT_IsoMu27"),
-        moduleName = cms.string("hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"),
+        pathName = cms.string(muon_pathName),
+        moduleName = cms.string(muon_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
         ),
     electronPt = cms.PSet(
-        pathName = cms.string("HLT_Ele27_eta2p1_WP75_Gsf"),
-        moduleName = cms.string("hltEle27WP75GsfTrackIsoFilter"),
+        pathName = cms.string(electron_pathName),
+        moduleName = cms.string(electron_moduleName),
         NbinsX = cms.int32(75),
         Xmin = cms.int32(0),
         Xmax = cms.int32(150)
         ),
     electronEta = cms.PSet(
-        pathName = cms.string("HLT_Ele27_eta2p1_WP75_Gsf"),
-        moduleName = cms.string("hltEle27WP75GsfTrackIsoFilter"),
+        pathName = cms.string(electron_pathName),
+        moduleName = cms.string(electron_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.int32(0),
         Xmax = cms.int32(3)
         ),
     electronPhi = cms.PSet(
-        pathName = cms.string("HLT_Ele27_eta2p1_WP75_Gsf"),
-        moduleName = cms.string("hltEle27WP75GsfTrackIsoFilter"),
+        pathName = cms.string(electron_pathName),
+        moduleName = cms.string(electron_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
@@ -93,29 +116,29 @@ hltWorkspace = cms.EDAnalyzer('HLTWorkspace',
         Xmax = cms.double(3.5)
         ),
     caloMetPt = cms.PSet(
-        pathName = cms.string("HLT_MET75_IsoTrk50"),
-        moduleName = cms.string("hltMETClean75"),
+        pathName = cms.string(caloMet_pathName),
+        moduleName = cms.string(caloMet_moduleName),
         NbinsX = cms.int32(60),
         Xmin = cms.int32(50),
         Xmax = cms.int32(550)
         ),
     caloMetPhi = cms.PSet(
-        pathName = cms.string("HLT_MET75_IsoTrk50"),
-        moduleName = cms.string("hltMETClean75"),
+        pathName = cms.string(caloMet_pathName),
+        moduleName = cms.string(caloMet_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
         ),
     pfMetPt = cms.PSet(
-        pathName = cms.string("HLT_PFMET120_PFMHT120_IDTight"),
-        moduleName = cms.string("hltPFMET120"),
+        pathName = cms.string(pfMet_pathName),
+        moduleName = cms.string(pfMet_moduleName),
         NbinsX = cms.int32(60),
         Xmin = cms.int32(100),
         Xmax = cms.int32(500)
         ),
     pfMetPhi = cms.PSet(
-        pathName = cms.string("HLT_PFMET120_PFMHT120_IDTight"),
-        moduleName = cms.string("hltPFMET120"),
+        pathName = cms.string(pfMet_pathName),
+        moduleName = cms.string(pfMet_moduleName),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
@@ -135,19 +158,19 @@ hltWorkspace = cms.EDAnalyzer('HLTWorkspace',
         Xmax = cms.int32(2000)
         ),
     bJetEta = cms.PSet(
-        pathName = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV07"),
-        moduleName = cms.string("hltPFMET120Filter"),
-        pathName_OR = cms.string("HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"),
-        moduleName_OR = cms.string("hltCSVPF0p7"),
+        pathName = cms.string(bJet_pathName),
+        moduleName = cms.string(bJet_moduleName),
+        pathName_OR = cms.string(bJet_pathNameOR),
+        moduleName_OR = cms.string(bJet_moduleNameOR),
         NbinsX = cms.int32(50),
         Xmin = cms.int32(0),
         Xmax = cms.int32(3)
         ),
     bJetPhi = cms.PSet(
-        pathName = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV07"),
-        moduleName = cms.string("hltPFMET120Filter"),
-        pathName_OR = cms.string("HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"),
-        moduleName_OR = cms.string("hltCSVPF0p7"),
+        pathName = cms.string(bJet_pathName),
+        moduleName = cms.string(bJet_moduleName),
+        pathName_OR = cms.string(bJet_pathNameOR),
+        moduleName_OR = cms.string(bJet_moduleNameOR),
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
