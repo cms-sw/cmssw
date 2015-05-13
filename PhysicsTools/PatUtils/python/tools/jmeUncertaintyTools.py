@@ -33,7 +33,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                           "Input jet collection", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'jetCorrLabel', cms.InputTag("L3Absolute"),
                           "NOTE: use 'L3Absolute' for MC/'L2L3Residual' for Data", Type=cms.InputTag)
-	self.addParameter(self._defaultParameters, 'doSmearJets', True,
+	self.addParameter(self._defaultParameters, 'doSmearJets', False,
                           "Flag to enable/disable jet smearing to better match MC to Data", Type=bool)
 	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root',
                           "Name of ROOT file containing histogram with jet smearing factors", Type=str)
