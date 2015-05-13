@@ -19,9 +19,9 @@ class PreexistingValidation(GenericValidation):
         self.config = config
         self.filesToCompare = {}
 
-        defaults = {"title": self.name, "color": 1, "style": 1}
+        defaults = {"title": self.name}
         defaults.update(addDefaults)
-        mandatories = ["file"]
+        mandatories = ["file", "color", "style"]
         mandatories += addMandatories
 
         theUpdate = config.getResultingSection("preexisting"+valType+":"+self.name,
