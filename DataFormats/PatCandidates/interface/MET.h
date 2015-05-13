@@ -54,6 +54,8 @@ namespace pat {
       MET(const edm::Ptr<reco::MET> & aMETRef);
       /// copy constructor
       MET( MET const&);
+      /// cosntructor for corrected METs (keeping specific informations from src MET)
+      MET(const reco::MET & corMET, const MET& srcMET );
       /// destructor
       virtual ~MET();
 

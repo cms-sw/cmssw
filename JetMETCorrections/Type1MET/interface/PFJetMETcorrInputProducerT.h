@@ -153,13 +153,13 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       const T& jet = jets->at(jetIndex);
 
       const static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T, Textractor> checkInputType {};
-      checkInputType(rawJet);
+      checkInputType(jet);
 
       double emEnergyFraction = jet.chargedEmEnergyFraction() + jet.neutralEmEnergyFraction();
       if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) continue;
 
       const static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor {};
-      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
+      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(jet);
       if ( skipMuons_ ) {
 	const std::vector<reco::CandidatePtr> & cands = jet.daughterPtrVector();
 	for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin();
