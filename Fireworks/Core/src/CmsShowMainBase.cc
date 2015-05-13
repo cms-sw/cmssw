@@ -468,7 +468,6 @@ CmsShowMainBase::stopPlaying()
 void
 CmsShowMainBase::playForward()
 {
-    printf("play forward \n");
    m_forward = true;
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);

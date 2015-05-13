@@ -664,7 +664,6 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
 }
 
 Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
-    printf("CmsShowMainFrame::HandleKey \n");
 
    if (event->fType == kGKeyPress) {
       const std::vector<CSGAction*>& alist = getListOfActions();
