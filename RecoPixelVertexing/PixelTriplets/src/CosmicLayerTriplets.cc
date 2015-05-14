@@ -3,8 +3,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

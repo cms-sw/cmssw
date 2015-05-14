@@ -12,6 +12,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
@@ -153,7 +154,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
     es.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
     es.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
     es.get<MagneticFieldMapRecord>().get(magneticFieldMapHandle);
-    es.get<IdealGeometryRecord>().get(trackerTopologyHandle);
+    es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
     
     magneticField = &(*magneticFieldHandle);
     trackerGeometry = &(*trackerGeometryHandle);

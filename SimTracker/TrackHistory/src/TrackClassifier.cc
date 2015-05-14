@@ -68,7 +68,7 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHand;
-    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    setup.get<TrackerTopologyRcd>().get(tTopoHand);
     tTopo_=tTopoHand.product();
 }
 

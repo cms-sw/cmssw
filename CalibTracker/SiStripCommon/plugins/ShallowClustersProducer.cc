@@ -7,7 +7,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "boost/foreach.hpp"
 
 ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfig) 
@@ -58,7 +58,7 @@ void ShallowClustersProducer::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
  
   std::auto_ptr<std::vector<unsigned> >       number       ( new std::vector<unsigned>(7,0) );

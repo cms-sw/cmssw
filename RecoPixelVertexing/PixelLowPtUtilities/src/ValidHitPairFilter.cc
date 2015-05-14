@@ -24,7 +24,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
@@ -61,7 +61,7 @@ ValidHitPairFilter::~ValidHitPairFilter()
 void ValidHitPairFilter::update(const edm::Event& ev, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  es.get<TrackerTopologyRcd>().get(tTopo);
 
 
   // Get tracker
