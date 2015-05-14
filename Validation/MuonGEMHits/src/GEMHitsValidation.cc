@@ -120,8 +120,8 @@ void GEMHitsValidation::analyze(const edm::Event& e,
       std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
       continue;
     }
-    const LocalPoint p0(0., 0., 0.);
-    const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
+    //const LocalPoint p0(0., 0., 0.);
+    //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
     const LocalPoint hitLP(hits->localPosition());
     
     const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
@@ -130,7 +130,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
 
-    const LocalPoint hitEP(hits->entryPoint());
+    //const LocalPoint hitEP(hits->entryPoint());
 
 //move these here in order to use a GEMDetId - layers, station...
     Float_t energyLoss = hits->energyLoss();

@@ -102,7 +102,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(simVerticesToken_, sim_vertices);
   if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 
-  const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
+  //const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
 
   MySimTrack track_; 

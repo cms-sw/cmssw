@@ -15,10 +15,11 @@ public:
 private:
   MonitorElement* track_eta[3];
   MonitorElement* track_phi[3][3];
-  MonitorElement* gem_lx[3][2];
-  MonitorElement* gem_ly[3][2];
   MonitorElement* sh_eta[4][3];
   MonitorElement* sh_phi[4][3][3];
+  // Local X, Local Y plots are not ready
+  //MonitorElement* gem_lx[3][2];
+  //MonitorElement* gem_ly[3][2];
 };
 
 #endif

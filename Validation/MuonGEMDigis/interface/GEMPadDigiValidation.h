@@ -11,7 +11,7 @@ class GEMPadDigiValidation : public GEMBaseValidation
 public:
   explicit GEMPadDigiValidation( const edm::ParameterSet& );
   ~GEMPadDigiValidation();
-  void analyze(const edm::Event& e, const edm::EventSetup&);
+  void analyze(const edm::Event& e, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  private:
 

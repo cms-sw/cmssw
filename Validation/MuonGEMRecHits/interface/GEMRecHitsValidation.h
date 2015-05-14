@@ -24,7 +24,7 @@ private:
   MonitorElement* gem_pullX[2][3][2];
  
   edm::EDGetToken InputTagToken_RH;
-  Int_t npart;
+  //Int_t npart;
   
 
 };

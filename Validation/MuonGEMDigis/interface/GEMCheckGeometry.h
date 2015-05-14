@@ -24,20 +24,15 @@
 class GEMCheckGeometry : public DQMEDAnalyzer
 {
 public:
-  //  GEMCheckGeometry(DQMStore* dbe, const edm::ParameterSet& gc);
   explicit GEMCheckGeometry(const edm::ParameterSet& gc);
   ~GEMCheckGeometry();
-  //  void bookHisto(const GEMGeometry* geom) ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&);
+  virtual void analyze(const edm::Event& e, const edm::EventSetup&) override;
 
  private:
 
-  DQMStore* dbe_;
-
   std::map< UInt_t , MonitorElement* > theStdPlots;
   std::map< UInt_t , MonitorElement* > the_st_dphi;
-  const GEMGeometry* GEMGeometry_;
   double GE11PhiBegin_; 
   double GE11PhiStep_;
   double minPhi_;

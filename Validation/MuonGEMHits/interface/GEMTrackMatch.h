@@ -1,5 +1,5 @@
 #ifndef Validation_MuonGEMHits_GEMTrackMatch_H
-#define Validation_MuonGEMhits_GEMTrackMatch_H
+#define Validation_MuonGEMHits_GEMTrackMatch_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
