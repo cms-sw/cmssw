@@ -319,8 +319,6 @@ namespace l1t {
 	}
 
       }
-      //require that the "center" of the 2x2 be a local maxima inside the 3x3
-      //this is meant to guarantee no overlaps between 2x2 jets.
       if(regionET > neighborN_et &&
 	 regionET > neighborNW_et &&
 	 regionET > neighborW_et &&
@@ -329,35 +327,45 @@ namespace l1t {
 	 regionET >= neighborE_et &&
 	 regionET >= neighborSE_et &&
 	 regionET >= neighborS_et) {
+
+	// use the highest-pT 2x2 jet inside this 3x3
+	unsigned int jetET_NW;
+	unsigned int jetET_NE;
+	unsigned int jetET_SW;
+	unsigned int jetET_SE;
+
+	jetET_NW = regionET + neighborW_et + neighborNW_et + neighborN_et;
+	jetET_NE = regionET + neighborE_et + neighborNE_et + neighborN_et;
+	jetET_SW = regionET + neighborS_et + neighborSW_et + neighborW_et;
+	jetET_SE = regionET + neighborS_et + neighborSE_et + neighborE_et;
+
+	unsigned int jetET = std::max(jetET_NW, jetET_NE);
+	jetET = std::max(jetET, jetET_SW);
+	jetET = std::max(jetET, jetET_SE);
+
+	int jetPhi = region->hwPhi();
+	int jetEta = region->hwEta();
+
+	bool neighborCheck = (nNeighbors == 8);
+	// On the eta edge we only expect 5 neighbor
+	if (!neighborCheck && (jetEta == 0 || jetEta == 21) && nNeighbors == 5)
+	  neighborCheck = true;
+
+	if (!neighborCheck) {
+	  std::cout << "phi: " << jetPhi << " eta: " << jetEta << " n: " << nNeighbors << std::endl;
+	  assert(false);
+	}
+
+	//first iteration, eta cut defines forward
+	const bool forward = (jetEta < 4 || jetEta > 17);
+	int jetQual = 0;
+	if(forward)
+	  jetQual |= 0x2;
+
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
+	l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
+	uncalibjets->push_back(theJet);
       }
-      // only sum 4 regions
-      // center is always "NW" corner of jet
-      unsigned int jetET = regionET +
-	neighborS_et + neighborE_et + neighborSE_et;
-
-      int jetPhi = region->hwPhi();
-      int jetEta = region->hwEta();
-
-      bool neighborCheck = (nNeighbors == 8);
-      // On the eta edge we only expect 5 neighbor
-      if (!neighborCheck && (jetEta == 0 || jetEta == 21) && nNeighbors == 5)
-	neighborCheck = true;
-
-      if (!neighborCheck) {
-	std::cout << "phi: " << jetPhi << " eta: " << jetEta << " n: " << nNeighbors << std::endl;
-	assert(false);
-      }
-
-      //first iteration, eta cut defines forward
-      const bool forward = (jetEta < 4 || jetEta > 17);
-      int jetQual = 0;
-      if(forward)
-	jetQual |= 0x2;
-
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
-      l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
-      uncalibjets->push_back(theJet);
     }
-    //}
   }
 }
