@@ -1161,22 +1161,17 @@ void PandoraCMSPFCandProducer::preparemcParticle(edm::Event& iEvent){ // functio
         
     for(size_t j = 0; j < n; ++ j) {
       const Candidate * d = pa->daughter( j );
-      //if we want to keep it also in GenParticle uncomment here
-      const GenParticle * da = NULL;
-      //We need to check if this daughter has an integer charge
-      bool integercharge = ( ( (int) d->charge() ) - (d->charge()) ) == 0 ? true : false;
-      da = new GenParticle( d->charge(), d->p4() , d->vertex() , d->pdgId() , d->status() , integercharge);    
 
-      double RaVeDa = 10 * std::sqrt(da->vx()*da->vx()+da->vy()*da->vy()+da->vz()*da->vz());
+      double RaVeDa = 10 * std::sqrt(d->vx()*d->vx()+d->vy()*d->vy()+d->vz()*d->vz());
          
       if (i<2) {
          if (RminVtxDaughter[i]>RaVeDa)
             RminVtxDaughter[i] = RaVeDa;
-         if (ZminVtxDaughter[i]>da->vz())
-            ZminVtxDaughter[i] = da->vz();
+         if (ZminVtxDaughter[i]>d->vz())
+            ZminVtxDaughter[i] = d->vz();
       }
   
-      PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetMCParentDaughterRelationship(*m_pPandora, pa , da));  
+      PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetMCParentDaughterRelationship(*m_pPandora, pa , d));
     }
   }
     
