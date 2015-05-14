@@ -49,7 +49,7 @@ public:
    ///does not take ownership
    void add(const std::string& iName, FWConfigurable*);
 
-   void setIgnore() { m_ignore = false; }
+   void setIgnore() { m_ignore = true; }
    bool getIgnore() const { return m_ignore; }
 
 private:
