@@ -18,6 +18,7 @@ PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& 
 
    _applyCrackCorrections = conf.getParameter<bool>("applyCrackCorrections");
    _applyMVACorrections = conf.getParameter<bool>("applyMVACorrections");
+   _maxPtForMVAEvaluation = conf.getParameter<double>("maxPtForMVAEvaluation");
   
    
   if (_applyMVACorrections) {
@@ -184,6 +185,13 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     double e = cluster.energy();
     double pt = cluster.pt(); 
     
+    //limit raw energy value used to evaluate corrections
+    //to avoid bad extrapolation
+    double evale = e;
+    if (_maxPtForMVAEvaluation>0. && pt>_maxPtForMVAEvaluation) {
+      evale *= _maxPtForMVAEvaluation/pt; 
+    }
+    
     double invE = (e == 0.) ? 0. : 1./e; //guard against dividing by 0.
     
     int size = lazyTool.n5x5(cluster);
@@ -246,7 +254,7 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     }
     
     //fill array for forest evaluation
-    eval[0] = e;
+    eval[0] = evale;
     eval[1] = ietaix;
     eval[2] = iphiiy;
     if (!iseb) {

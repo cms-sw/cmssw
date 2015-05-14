@@ -1,4 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
-cutsRecoTracks = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
+import CommonTools.RecoAlgos.recoTrackRefSelector_cfi
+cutsRecoTracks = CommonTools.RecoAlgos.recoTrackRefSelector_cfi.recoTrackRefSelector.clone()

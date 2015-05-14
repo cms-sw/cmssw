@@ -15,6 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -45,14 +47,13 @@
 //#include "Geometry/Records/interface/PGeometricDetRcd.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream> 
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
-  m_params( cfg ), 	
   referenceTracker(0),
   dummyTracker(0),
   currentTracker(0),
@@ -230,7 +231,7 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 
         //Retrieve tracker topology from geometry
         edm::ESHandle<TrackerTopology> tTopoHandle;
-        iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+        iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 	//upload the ROOT geometries
@@ -276,7 +277,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 		
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+	iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 
 	//declare alignments
@@ -355,13 +356,15 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<IdealGeometryRecord>().get(cpv);
 	edm::ESHandle<GeometricDet> theGeometricDet;
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
+	edm::ESHandle<PTrackerParameters> ptp;
+	iSetup.get<PTrackerParametersRcd>().get( ptp );
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	
 	edm::ESHandle<Alignments> globalPositionRcd;
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params); 
+	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp ); 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -402,7 +405,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 		
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,m_params); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp ); 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),

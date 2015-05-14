@@ -449,6 +449,13 @@ namespace evf {
           edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "
                                             << errno <<":"<< strerror(errno) << std::endl;
 
+
+        if (stat(getEoLSFilePathOnFU(ls).c_str(),&buf)==0) {
+          edm::LogWarning("EvFDaqDirector") << "Detected local EoLS for lumisection "<< ls ; 
+          ls++;
+          return noFile;
+        }
+
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
@@ -633,6 +640,9 @@ namespace evf {
       if (fms_) fms_->accumulateFileSize(ls, previousFileSize_);
       previousFileSize_ = 0;
     }
+
+    //reached limit
+    if (maxLS>=0 && ls > (unsigned int)maxLS) return false; 
 
     struct stat buf;
     std::stringstream ss;

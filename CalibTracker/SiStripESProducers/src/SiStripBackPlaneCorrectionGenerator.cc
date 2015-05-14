@@ -3,8 +3,6 @@
 #include <boost/cstdint.hpp>
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -13,7 +11,7 @@
 #include<numeric>
 
 SiStripBackPlaneCorrectionGenerator::SiStripBackPlaneCorrectionGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
-  SiStripCondObjBuilderBase<SiStripBackPlaneCorrection>::SiStripCondObjBuilderBase(iConfig)
+SiStripDepCondObjBuilderBase<SiStripBackPlaneCorrection,TrackerTopology>::SiStripDepCondObjBuilderBase(iConfig)
 {
   edm::LogInfo("SiStripBackPlaneCorrectionGenerator") <<  "[SiStripBackPlaneCorrectionGenerator::SiStripBackPlaneCorrectionGenerator]";
 }
@@ -23,7 +21,7 @@ SiStripBackPlaneCorrectionGenerator::~SiStripBackPlaneCorrectionGenerator() {
   edm::LogInfo("SiStripBackPlaneCorrectionGenerator") <<  "[SiStripBackPlaneCorrectionGenerator::~SiStripBackPlaneCorrectionGenerator]";
 }
 
-SiStripBackPlaneCorrection*  SiStripBackPlaneCorrectionGenerator::createObject()
+SiStripBackPlaneCorrection*  SiStripBackPlaneCorrectionGenerator::createObject(const TrackerTopology* tTopo)
 {
   SiStripBackPlaneCorrection* obj = new SiStripBackPlaneCorrection();
 
@@ -33,8 +31,7 @@ SiStripBackPlaneCorrection*  SiStripBackPlaneCorrectionGenerator::createObject()
   SiStripDetInfoFileReader reader(fp_.fullPath());
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
-    SiStripDetId SSdetId(*detit);
-    unsigned int moduleGeometry = (SSdetId.moduleGeometry()-1);
+    unsigned int moduleGeometry = (tTopo->moduleGeometry(DetId(*detit))-1);
     if(moduleGeometry>valuePerModuleGeometry.size())edm::LogError("SiStripBackPlaneCorrectionGenerator")<<" BackPlaneCorrection_PerModuleGeometry only contains "<< valuePerModuleGeometry.size() << "elements and module is out of range"<<std::endl;
     float value =     valuePerModuleGeometry[moduleGeometry];
   

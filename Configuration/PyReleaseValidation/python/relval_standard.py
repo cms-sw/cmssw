@@ -193,7 +193,7 @@ workflows[45] = ['', ['ZpTT_1500_8TeV','DIGI','RECO','HARVEST']]
 workflows[1324] = ['', ['TTbarLepton_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 workflows[1335] = ['', ['Wjet_Pt_80_120_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 workflows[1336] = ['', ['Wjet_Pt_3000_3500_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
-workflows[1337.1] = ['', ['LM1_sfts_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']] # to be removed, replaced by the following
+#workflows[1337.1] = ['', ['LM1_sfts_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']] # to be removed, replaced by the following
 workflows[1337] = ['', ['SMS-T1tttt_mGl-1500_mLSP-100_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 workflows[1338] = ['', ['QCD_FlatPt_15_3000HS_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 

@@ -137,7 +137,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
 		for (auto & BtagJT: JetTag) {
 			//fill 1D btag plot for 'all'
-			H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(BtagJT.second);
+			H1_.at(ind)[JetTagCollection_Label[ind]] -> Fill(std::fmax(0.0,BtagJT.second));
 			if (MCOK) {
 				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
 				unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
@@ -173,7 +173,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		float btagL = 0.;
 		float btagU = 1.;
 		int   btagBins = 100;
-		dqmFolder = Form("HLT/BTag/Discrimanator/%s",hltPathNames_[ind].c_str());
+		dqmFolder = Form("HLT/BTag/Discriminator/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
 		ibooker.setCurrentFolder(dqmFolder);

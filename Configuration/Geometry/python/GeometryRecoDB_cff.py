@@ -5,7 +5,7 @@ from Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *

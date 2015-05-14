@@ -51,8 +51,6 @@
 	//needed for normalisation
 //Id
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //BoundPlane
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 #include <DataFormats/GeometrySurface/interface/BoundSurface.h>
@@ -116,7 +114,6 @@ class SiStripMonitorMuonHLT : public DQMEDAnalyzer {
       edm::ParameterSet parameters_;
 
       std::string monitorName_;
-      std::string outputFile_;
       int counterEvt_;      ///counter
       int nTrig_;           /// mutriggered events
       int prescaleEvt_;     ///every n events
