@@ -41,8 +41,8 @@ class DEcompare {
     deDigiColl_.clear();
     if(debug_)
       LogDebug("DEcompare") 
-	<< "DEcompare" 
-	<< ": creating instance of type: " << GetName(0)
+  	<< "DEcompare" 
+  	<< ": creating instance of type: " << GetName(0)
 	<< ", data size:" << data_->size() << " ncand:" << ncand_[0] 
 	<< ", emul size:" << emul_->size() << " ncand:" << ncand_[1] 
 	<< ".\n" << std::flush;
@@ -138,7 +138,8 @@ bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump) {
   int nemul = get_ncand(1);
   assert (ndata || nemul);
 
-  cand_vec data_good, emul_good, data_bad, emul_bad; 
+  cand_vec data_good, emul_good, data_bad, emul_bad;
+ 
   data_good.reserve(data_->size());
   emul_good.reserve(emul_->size());
   data_bad .reserve(data_->size());
@@ -166,7 +167,6 @@ bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump) {
     os << std::endl;
   }
   
-
   col_cit itd, itm; 
   int prtmode=0;
   col_sz ndt=0, nem=0, nde=0;
@@ -216,14 +216,14 @@ bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump) {
   }
   
   /// ---- treat AGREEING candidates ----
-
+  
   itd = data_good.begin();
   itm = emul_good.begin();
 
   assert(data_good.size()==emul_good.size());
   if(dump==-1)
     os << "   matched (" << data_good.size() << ")\n";
-
+  
   for(col_sz i=0; i<data_good.size(); i++) {
     assert(de_utils.de_equal(*itd,*itm));
     if(dump==-1)
@@ -234,8 +234,8 @@ bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump) {
   
   if(debug_)
     std::cout << "DEcompare<T>::CompareCollections end.\n"<< std::flush; 
-
-  return match; 
+  
+  return match;
 }
 
 
