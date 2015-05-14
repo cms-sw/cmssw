@@ -29,6 +29,11 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 //d|e record
 #include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
@@ -55,16 +60,19 @@ namespace dedefs {
   enum ColList {
     ECALtp, HCALtp, 
     RCTem, RCTrgn, 
-    GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
-    GCTethad, GCTetmiss, GCTettot, GCThtmiss, GCThfring, GCThfbit, GCTjetcnt, 
+    GCTem, GCTjet, GCTisolaem, GCTnoisoem,
+    GCTcenjets, GCTforjets, GCTtaujets,
+    GCTethad, GCTetmiss,
+    GCTettot, GCThtmiss,
+    GCThfring, GCThfbit,
+    GCTisotaujets,GCTjetcnt,
     DTtpPh, DTtpTh, DTtf, DTtftrk, 
     CSCtpa, CSCtpc, CSCtpl, CSCsta, CSCtf, CSCtftrk, CSCtftrc, CSCtfsta, 
-    MUrtf,     RPCcen, RPCfor, 
+    MUrtf,  RPCcen, RPCfor, 
     LTCi, 
     GMTmain, GMTcnd, GMTrdt, 
     GTdword
   };
-
 }
 
 typedef std::vector<L1MuDTChambPhDigi>    L1MuDTChambPhDigiCollection; 
@@ -132,7 +140,7 @@ struct DEtrait<L1GctEtHadCollection> {
 template<> 
 struct DEtrait<L1GctEtMissCollection> {
   typedef L1GctEtMissCollection coll_type;
-  typedef L1GctEtMiss cand_type;
+  typedef L1GctEtMiss           cand_type;
   static inline int de_type() {return dedefs::GCTetmiss;}
 };
 template<> 
@@ -165,7 +173,6 @@ struct DEtrait<L1GctJetCountsCollection> {
   typedef L1GctJetCounts           cand_type;
   static inline int de_type() {return dedefs::GCTjetcnt;}
 };
-
 template<> 
 struct DEtrait<L1MuDTChambPhDigiCollection> {
   typedef L1MuDTChambPhDigiCollection coll_type;
