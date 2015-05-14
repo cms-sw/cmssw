@@ -4,7 +4,6 @@
 # Date: 2013-10-15
 
 hiTrackQuality = "highPurity"              # iterative tracks
-#hiTrackQuality = "highPuritySetWithPV"    # calo-matched tracks
 
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
@@ -32,10 +31,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-    # "/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_17_1_Rxk.root"
-    #"/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_10_1_pdT.root"
-    #"/store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre6_MCHI2_74_V0_RECO/35189fe3832afd77f4f2029b245352e2/step3_RAW2DIGI_L1Reco_RECO_100_1_0f3.root"
-    "root://xrootd.unl.edu//store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre6_MCHI2_74_V0_RECO/35189fe3832afd77f4f2029b245352e2/step3_RAW2DIGI_L1Reco_RECO_17_1_mKD.root"
+        "root://xrootd.unl.edu//store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre8_MCHI1_74_V4_RECO/9a2b7e3cafbe3773a71b61e1e207e825/step3_RAW2DIGI_L1Reco_RECO_84_1_6OV.root"
     ))
 
 # Number of events we want to process, -1 = all events
@@ -145,8 +141,8 @@ process.pfcandAnalyzer.pfPtMin = 0
 #########################
 # Track Analyzer
 #########################
-process.anaTrack.qualityStrings = cms.untracked.vstring('highPurity','highPuritySetWithPV')
-process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity','highPuritySetWithPV')
+process.anaTrack.qualityStrings = cms.untracked.vstring('highPurity')
+process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity')
 process.hiTracks.cut = cms.string('quality("highPurity")')
 
 # set track collection to iterative tracking
@@ -208,7 +204,7 @@ process.ana_step = cms.Path(process.heavyIon*
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
                             #process.hiGenJetsCleaned*
-							process.quickTrackAssociatorByHits*
+                            process.quickTrackAssociatorByHits*
                             process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.hiSelectGenJets +
                             process.jetSequences +
