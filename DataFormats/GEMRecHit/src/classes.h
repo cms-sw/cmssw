@@ -1,5 +1,7 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
+#include "DataFormats/GEMRecHit/interface/GEMCSCSegmentCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace DataFormats_GEMRecHit {
@@ -13,6 +15,11 @@ namespace DataFormats_GEMRecHit {
     std::vector<GEMRecHit> vrh;
     GEMRecHitCollection c;
     edm::Wrapper<GEMRecHitCollection> w;
+
+    GEMCSCSegment gs;
+    GEMCSCSegmentCollection gseg;
+    edm::Wrapper<GEMCSCSegmentCollection> gdwc1;
+    GEMCSCSegmentRef gref;
   };
 }
 
