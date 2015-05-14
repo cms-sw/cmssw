@@ -113,7 +113,6 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) {
 	corrFactor_[detId] = cfac;
 	ndets++;
       }
-      nrec++;
     }
     infile.close();
     edm::LogInfo("AnalyzerMB") << "Reads " << nrec << " correction factors for "
