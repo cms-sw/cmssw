@@ -240,7 +240,7 @@ workflows[1354] = ['WpToENu_M-2000_13TeV', ['WpToENu_M-2000_13TeV','DIGIUP15','R
 
 ### HI test ###
 
-###  Run I
+###  Run I cond.
 workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI2011','RECOHI2011','HARVESTHI2011']]
 
 workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
@@ -251,7 +251,7 @@ workflows[140.4] = ['',['ZEEMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 # legacy: 141 => B0; 143 => B3 ; 144 => B5 
 #workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
 
-### Run II
+### Run II cond.
 workflows[145] = ['',['HydjetQ_MinBias_5020GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###
