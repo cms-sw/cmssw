@@ -178,6 +178,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
 
       phisto._th1f->SetEntries(NumberEntriesPerAPV);
       phisto._NEntries=(int)phisto._th1f->GetEntries();
+      phisto._NEmptyBins=0;
 
       LogTrace("SiStripHotStrip") << "Number of clusters in APV " << apv << ": " << NumberEntriesPerAPV << std::endl;
 
