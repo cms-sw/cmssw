@@ -11,6 +11,9 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
@@ -23,6 +26,10 @@ public:
   explicit TrackMVAClassifierBase( const edm::ParameterSet & cfg );
   ~TrackMVAClassifierBase();
 protected:
+
+  static void fill( edm::ParameterSetDescription& desc);
+ 
+  
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
 
@@ -62,6 +69,13 @@ public:
   explicit TrackMVAClassifier( const edm::ParameterSet & cfg ) :
     TrackMVAClassifierBase(cfg){}
 
+    static void  fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      fill(desc);
+      descriptions.add("TrackMVAClassifier", desc);
+    }
+
+  
 private:
     void computeMVA(reco::TrackCollection const & tracks,
 		    reco::BeamSpot const & beamSpot,

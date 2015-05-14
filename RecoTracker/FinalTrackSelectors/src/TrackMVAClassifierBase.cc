@@ -9,6 +9,17 @@
 
 #include<cassert>
 
+
+void TrackMVAClassifierBase::fill( edm::ParameterSetDescription& desc) {
+  desc.add<edm::InputTag>("src",edm::InputTag());
+  desc.add<edm::InputTag>("beamspot",edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("vertices",edm::InputTag("firstStepPrimaryVertices"));
+  desc.add<std::string>("GBRForestLabel",std::string());
+  desc.add<std::string>("GBRForestFileName",std::string());
+  desc.add<std::vector<double>>("qualityCuts",std::vector<double>(3,-1.));
+}
+
+
 TrackMVAClassifierBase::~TrackMVAClassifierBase(){}
 
 TrackMVAClassifierBase::TrackMVAClassifierBase( const edm::ParameterSet & cfg ) :
@@ -52,10 +63,9 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   }
 
   // products
-  std::unique_ptr<MVACollection> mvas;
-  (*mvas).resize(tracks.size(),-99.f);
-  std::unique_ptr<QualityMaskCollection> quals;
-  (*quals).resize(tracks.size(),0);
+  std::unique_ptr<MVACollection> mvas(new MVACollection(tracks.size(),-99.f));
+  std::unique_ptr<QualityMaskCollection> quals(new QualityMaskCollection(tracks.size(),0));
+  
   
   computeMVA(tracks,*hBsp,*hVtx,*forest,*mvas);
   assert((*mvas).size()==tracks.size());
