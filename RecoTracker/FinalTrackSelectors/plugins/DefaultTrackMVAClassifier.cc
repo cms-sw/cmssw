@@ -65,10 +65,16 @@ struct mva {
     
   }
 
+  static const char * name();
+  
 };
 
-using TrackMVAClassifierDetached = TrackMVAClassifier<mva<false>>;
-// typedef TrackMVAClassifier<mva<false>> TrackMVAClassifierDetached;
+  using TrackMVAClassifierDetached = TrackMVAClassifier<mva<false>>;
+  using TrackMVAClassifierPrompt = TrackMVAClassifier<mva<true>>;
+  template<>
+  const char * mva<false>::name() { return "TrackMVAClassifierDetached";}
+  template<>
+  const char * mva<true>::name() { return "TrackMVAClassifierPrompt";}
   
 }
 
@@ -76,6 +82,7 @@ using TrackMVAClassifierDetached = TrackMVAClassifier<mva<false>>;
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(TrackMVAClassifierDetached);
+DEFINE_FWK_MODULE(TrackMVAClassifierPrompt);
 
 
 #endif

@@ -69,10 +69,10 @@ public:
   explicit TrackMVAClassifier( const edm::ParameterSet & cfg ) :
     TrackMVAClassifierBase(cfg){}
 
-    static void  fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       fill(desc);
-      descriptions.add("TrackMVAClassifier", desc);
+      descriptions.add(MVA::name(), desc);
     }
 
   
