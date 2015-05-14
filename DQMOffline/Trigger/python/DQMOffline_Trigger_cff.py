@@ -49,6 +49,7 @@ from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 
 
 from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
 
 # TnP
 #from DQMOffline.Trigger.TnPEfficiency_cff import *
@@ -79,6 +80,7 @@ offlineHLTSource = cms.Sequence(
     #jetMETHLTOfflineSource *
     jetMETHLTOfflineAnalyzer *
     fsqHLTOfflineSourceSequence *
+    HILowLumiHLTOfflineSourceSequence *
     #TnPEfficiency *
     hltInclusiveVBFSource *
     trackingMonitorHLT *
