@@ -167,7 +167,7 @@ namespace l1t {
 
 
     genParticlesToken = consumes <reco::GenParticleCollection> (std::string("genParticles"));
-    genJetsToken      = consumes <reco::GenJetCollection> (std::string("ak5GenJets"));
+    genJetsToken      = consumes <reco::GenJetCollection> (std::string("ak4GenJets"));
     genMetToken       = consumes <reco::GenMETCollection> (std::string("genMetCalo"));   
 
 
