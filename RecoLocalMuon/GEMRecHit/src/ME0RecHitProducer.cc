@@ -8,7 +8,7 @@
 #include "ME0RecHitProducer.h"
 
 
-ME0RecHitProducer::ME0RecHitProducer(const ParameterSet& config){
+ME0RecHitProducer::ME0RecHitProducer(const edm::ParameterSet& config){
 
   produces<ME0RecHitCollection>();
  
@@ -17,9 +17,9 @@ ME0RecHitProducer::ME0RecHitProducer(const ParameterSet& config){
  
   // Get the concrete reconstruction algo from the factory
 
-  string theAlgoName = config.getParameter<string>("recAlgo");
+  std::string theAlgoName = config.getParameter<std::string>("recAlgo");
   theAlgo = ME0RecHitAlgoFactory::get()->create(theAlgoName,
-						config.getParameter<ParameterSet>("recAlgoConfig"));
+						config.getParameter<edm::ParameterSet>("recAlgoConfig"));
 }
 
 
@@ -34,7 +34,7 @@ void ME0RecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
 
 
 
-void ME0RecHitProducer::produce(Event& event, const EventSetup& setup) {
+void ME0RecHitProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
   // Get the ME0 Geometry
   edm::ESHandle<ME0Geometry> me0Geom;
@@ -51,7 +51,7 @@ void ME0RecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Create the pointer to the collection which will store the rechits
 
-  auto_ptr<ME0RecHitCollection> recHitCollection(new ME0RecHitCollection());
+  std::auto_ptr<ME0RecHitCollection> recHitCollection(new ME0RecHitCollection());
 
   // Iterate through all digi collections ordered by LayerId   
 
@@ -68,7 +68,7 @@ void ME0RecHitProducer::produce(Event& event, const EventSetup& setup) {
 
     // Call the reconstruction algorithm    
 
-    OwnVector<ME0RecHit> recHits =
+    edm::OwnVector<ME0RecHit> recHits =
       theAlgo->reconstruct(me0Id, range);
     
     if(recHits.size() > 0)

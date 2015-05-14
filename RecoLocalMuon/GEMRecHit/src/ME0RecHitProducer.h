@@ -38,16 +38,6 @@
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
 #include <string>
-using namespace edm;
-using namespace std;
-
-//using namespace reco;
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
 
 class ME0RecHitBaseAlgo;
 
