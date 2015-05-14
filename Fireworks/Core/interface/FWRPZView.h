@@ -94,7 +94,6 @@ private:
    FWBoolParameter m_showTrackerEndcap;
    FWBoolParameter m_showRpcEndcap;
    FWBoolParameter m_showGEM;
-   FWBoolParameter m_showME0;
 
    FWBoolParameter    m_shiftOrigin;
    FWDoubleParameter  m_fishEyeDistortion;

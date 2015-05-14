@@ -18,10 +18,8 @@ def customiseFor7966(process):
         for param in params:
             delattr(process.trackerTopology, param)
         setattr(process.trackerTopology, 'appendToDataLabel', cms.string(""))
-    if hasattr(process,'TrackerDigiGeometryESModule'):
-        if hasattr(process.TrackerDigiGeometryESModule,'trackerGeometryConstants'):
-            delattr(process.TrackerDigiGeometryESModule,'trackerGeometryConstants')
     return process
+
 
 # Removal of 'upgradeGeometry' from TrackerDigiGeometryESModule (PR #7794)
 def customiseFor7794(process):

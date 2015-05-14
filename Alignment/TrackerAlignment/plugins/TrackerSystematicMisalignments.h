@@ -69,6 +69,8 @@ private:
 
 	// flag for old z behaviour, version <= 1.5
 	bool oldMinusZconvention;
+
+  const edm::ParameterSet theParameterSet;
 };
 
 #endif

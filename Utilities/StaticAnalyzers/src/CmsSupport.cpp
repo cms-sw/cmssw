@@ -126,9 +126,7 @@ bool support::isSafeClassName(const std::string &cname) {
     "tbb::",
     "class tbb::",
     "edm::AtomicPtrCache",
-    "class edm::AtomicPtrCache",
-    "edm::InputTag",
-    "class edm::InputTag",
+    "class edm::AtomicPtrCache"
     "std::once_flag",
     "struct std::once_flag",
     "boost::<anonymous namespace>::extents",

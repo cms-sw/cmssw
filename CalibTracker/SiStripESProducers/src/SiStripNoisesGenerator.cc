@@ -2,12 +2,17 @@
 #include <boost/cstdint.hpp>
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
 SiStripNoisesGenerator::SiStripNoisesGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
-  SiStripDepCondObjBuilderBase<SiStripNoises,TrackerTopology>::SiStripDepCondObjBuilderBase(iConfig),
+  SiStripCondObjBuilderBase<SiStripNoises>::SiStripCondObjBuilderBase(iConfig),
   electronsPerADC_(0.),
    minimumPosValue_(0.),
    stripLengthMode_(true),
@@ -21,7 +26,7 @@ SiStripNoisesGenerator::~SiStripNoisesGenerator()
   edm::LogInfo("SiStripNoisesGenerator") <<  "[SiStripNoisesGenerator::~SiStripNoisesGenerator]";
 }
 
-SiStripNoises* SiStripNoisesGenerator::createObject(const TrackerTopology* tTopo)
+SiStripNoises* SiStripNoisesGenerator::createObject()
 {    
   SiStripNoises* obj = new SiStripNoises();
 
@@ -54,7 +59,7 @@ SiStripNoises* SiStripNoisesGenerator::createObject(const TrackerTopology* tTopo
     SiStripNoises::InputVector theSiStripVector;
     float noise = 0.;
     uint32_t detId = it->first;
-    std::pair<int, int> sl = subDetAndLayer(detId,tTopo);
+    std::pair<int, int> sl = subDetAndLayer(detId);
     unsigned short nApvs = it->second.nApvs;
 
 
@@ -89,26 +94,30 @@ SiStripNoises* SiStripNoisesGenerator::createObject(const TrackerTopology* tTopo
   return obj;
 }
 
-std::pair<int, int> SiStripNoisesGenerator::subDetAndLayer( const uint32_t detId, const TrackerTopology* tTopo ) const
+std::pair<int, int> SiStripNoisesGenerator::subDetAndLayer( const uint32_t detId ) const
 {
   int layerId = 0;
 
-  const DetId detectorId=DetId(detId);
-  const int subDet = detectorId.subdetId();
+  StripSubdetector subid(detId);
+  int subId = subid.subdetId();
 
-  if( subDet == int(StripSubdetector::TIB)) {
-    layerId = tTopo->tibLayer(detectorId) - 1;
+  if( subId == int(StripSubdetector::TIB)) {
+    TIBDetId theTIBDetId(detId);
+    layerId = theTIBDetId.layer() - 1;
   }
-  else if(subDet == int(StripSubdetector::TOB)) {
-    layerId = tTopo->tobLayer(detectorId) - 1;
+  else if(subId == int(StripSubdetector::TOB)) {
+    TOBDetId theTOBDetId(detId);
+    layerId = theTOBDetId.layer() - 1;
   }
-  else if(subDet == int(StripSubdetector::TID)) {
-    layerId = tTopo->tidRing(detectorId) - 1;
+  else if(subId == int(StripSubdetector::TID)) {
+    TIDDetId theTIDDetId(detId);
+    layerId = theTIDDetId.ring() - 1;
   }
-  if(subDet == int(StripSubdetector::TEC)) {
-    layerId = tTopo->tecRing(detectorId) - - 1;
+  if(subId == int(StripSubdetector::TEC)) {
+    TECDetId theTECDetId = TECDetId(detId); 
+    layerId = theTECDetId.ring() - 1;
   }
-  return std::make_pair(subDet, layerId);
+  return std::make_pair(subId, layerId);
 }
 
 void SiStripNoisesGenerator::fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const

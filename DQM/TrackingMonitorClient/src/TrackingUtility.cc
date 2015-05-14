@@ -2,6 +2,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 // Get a list of MEs in a folder
 //

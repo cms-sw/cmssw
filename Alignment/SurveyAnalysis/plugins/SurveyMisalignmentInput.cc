@@ -1,9 +1,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -17,7 +14,8 @@
 #include "Alignment/SurveyAnalysis/plugins/SurveyMisalignmentInput.h"
 
 SurveyMisalignmentInput::SurveyMisalignmentInput(const edm::ParameterSet& cfg):
-  textFileName( cfg.getParameter<std::string>("textFileName") )
+  textFileName( cfg.getParameter<std::string>("textFileName") ),
+  theParameterSet( cfg )
 {}
 
 void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& setup)
@@ -25,15 +23,12 @@ void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& 
   if (theFirstEvent) {
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    setup.get<IdealGeometryRecord>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     edm::ESHandle<GeometricDet> geom;
     setup.get<IdealGeometryRecord>().get(geom);	 
-
-    edm::ESHandle<PTrackerParameters> ptp;
-    setup.get<PTrackerParametersRcd>().get( ptp );
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp );
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
     
     addComponent(new AlignableTracker( tracker, tTopo ));
 

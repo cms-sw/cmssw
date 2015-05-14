@@ -57,8 +57,9 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
   builderName = pset.getParameter<std::string>("TTRHBuilder");
 
   for (auto const& associator: associators) {
-    associatorTokens.push_back(consumes<reco::TrackToTrackingParticleAssociator>(associator));
+    consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(associator));
   }
+
 }
 
 TrackerSeedValidator::~TrackerSeedValidator(){delete histoProducerAlgo_;}
@@ -82,7 +83,7 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
       //      if (dirName.find("Seeds")<dirName.length()){
       //    dirName.replace(dirName.find("Seeds"),6,"");
       //      }
-      string assoc= associators[ww].label();;
+      string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
     assoc.replace(assoc.find("Track"),5,"");
       }
@@ -116,6 +117,13 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
+
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+  for (auto const& associatorName: associators) {
+    event.getByLabel(associatorName,theAssociator);
+    associator.push_back( theAssociator.product() );
+  }
 
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
@@ -152,16 +160,12 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
-    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
-    event.getByToken(associatorTokens[ww], theAssociator);
-    const reco::TrackToTrackingParticleAssociator *associator = theAssociator.product();
-
     for (unsigned int www=0;www<label.size();www++){
       edm::LogVerbatim("TrackValidator") << "Analyzing "
 					 << label[www].process()<<":"
 					 << label[www].label()<<":"
 					 << label[www].instance()<<" with "
-					 << associators[ww] <<"\n";
+					 << associators[ww].c_str() <<"\n";
       //
       //get collections from the event
       //
@@ -174,11 +178,11 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
       //associate seeds
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
-      reco::RecoToSimCollectionSeed recSimColl=associator->associateRecoToSim(seedCollection,
-                                                                              TPCollectionHfake);
+      reco::RecoToSimCollectionSeed recSimColl=associator[ww]->associateRecoToSim(seedCollection,
+										  TPCollectionHfake);
       LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
-      reco::SimToRecoCollectionSeed simRecColl=associator->associateSimToReco(seedCollection,
-                                                                              TPCollectionHeff);
+      reco::SimToRecoCollectionSeed simRecColl=associator[ww]->associateSimToReco(seedCollection,
+										  TPCollectionHeff);
 
       //
       //fill simulation histograms

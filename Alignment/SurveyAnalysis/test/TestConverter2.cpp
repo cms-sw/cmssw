@@ -40,7 +40,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 //
 // class declaration
@@ -120,7 +120,7 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 

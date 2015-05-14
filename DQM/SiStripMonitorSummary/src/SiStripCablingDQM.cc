@@ -1,6 +1,5 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TCanvas.h"
 using namespace std;
 // -----
@@ -26,7 +25,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Get active and total detIds

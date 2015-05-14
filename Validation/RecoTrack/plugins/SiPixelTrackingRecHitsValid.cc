@@ -28,7 +28,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -110,7 +110,7 @@ void SiPixelTrackingRecHitsValid::beginJob()
 }
 
 SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet& ps) :
-  trackerHitAssociatorConfig_(ps, consumesCollector()),
+  trackerHitAssociator_(ps, consumesCollector()),
   dbe_(0), tfile_(0), t_(0)
 {
   //Read config file
@@ -1075,7 +1075,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  es.get<IdealGeometryRecord>().get(tTopo);
 
 
   run = e.id().run();
@@ -1094,7 +1094,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   float mindist = 999999.9;
 
   std::vector<PSimHit> matched;
-  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_); 
+  trackerHitAssociator_.processEvent(e);
 
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -1269,7 +1269,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 		      //Association of the rechit to the simhit
 		      matched.clear();
-		      matched = associate.associateHit(*matchedhit);
+		      matched = trackerHitAssociator_.associateHit(*matchedhit);
 
 		      nsimhit = (int)matched.size();
 

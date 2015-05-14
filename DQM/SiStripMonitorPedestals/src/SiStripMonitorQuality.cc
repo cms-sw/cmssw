@@ -33,7 +33,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorQuality.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // std
 #include <cstdlib>
@@ -71,7 +70,7 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker & ibooker , const e
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   m_cacheID_ = cacheID;       
@@ -137,7 +136,7 @@ void SiStripMonitorQuality::analyze(edm::Event const& iEvent, edm::EventSetup co
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   m_cacheID_ = cacheID;       

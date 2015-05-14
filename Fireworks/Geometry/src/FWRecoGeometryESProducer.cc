@@ -255,6 +255,7 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   try 
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+  
     for(auto roll : gemGeom->etaPartitions())
     { 
       if( roll )
@@ -278,19 +279,14 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
     }
 
     m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
-    try {
-      GEMDetId id(1, 1, 2, 1, 1, 1 );
-      m_geomRecord->slaveGeometry( detId );
-      m_fwGeometry->extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
-    }
-    catch (...) {}
-
   }
   catch( cms::Exception &exception )
   {
     edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
   }
 }
+
+
 
 void
 FWRecoGeometryESProducer::addME0Geometry( void )
@@ -303,6 +299,7 @@ FWRecoGeometryESProducer::addME0Geometry( void )
   try 
   {
     const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+  
     for(auto roll : me0Geom->etaPartitions())
     { 
       if( roll )
@@ -324,13 +321,14 @@ FWRecoGeometryESProducer::addME0Geometry( void )
 	m_fwGeometry->idToName[current].topology[5] = roll->npads();
       }
     }
-    m_fwGeometry->extraDet.Add(new TNamed("ME0", "ME0 muon detector"));
   }
   catch( cms::Exception &exception )
   {
     edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
   }
 }  
+  
+
 
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )

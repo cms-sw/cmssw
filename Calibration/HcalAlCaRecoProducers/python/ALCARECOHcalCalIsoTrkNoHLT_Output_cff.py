@@ -7,14 +7,9 @@ OutALCARECOHcalCalIsoTrkNoHLT_noDrop = cms.PSet(
     # use this in case of filter available
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkNoHLT')
-        ),
+    ),
     outputCommands = cms.untracked.vstring( 
-        'keep *_IsoProd_*_*',
-        'keep *_TkAlIsoProd_*_*',
-	'keep *_offlineBeamSpot_*_*',
-        'keep recoTracks_generalTracks_*_*',
-        'keep recoTrackExtras_generalTracks_*_*',
-        )
+        'keep *_IsoProd_*_*')
 )
 
 

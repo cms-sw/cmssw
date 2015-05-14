@@ -34,7 +34,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -44,10 +44,12 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
 #include <math.h>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
-  : trackerHitAssociatorConfig_(ps, consumesCollector())
+  : trackerHitAssociator_(new TrackerHitAssociator(ps, consumesCollector()))
   , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
 }
@@ -282,7 +284,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
+  es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
@@ -298,7 +300,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   es.get<TrackerDigiGeometryRecord>().get(geom); 
   const TrackerGeometry& theTracker(*geom);
   
-  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
+  trackerHitAssociator_->processEvent(e);
   
   //iterate over detunits
   for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) 
@@ -322,7 +324,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	{
 	  matched.clear();
-	  matched = associate.associateHit(*pixeliter);
+	  matched = trackerHitAssociator_->associateHit(*pixeliter);
 	  
 	  if ( !matched.empty() ) 
 	    {

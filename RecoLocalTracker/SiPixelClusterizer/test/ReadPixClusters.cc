@@ -70,7 +70,7 @@
 #define NEW_ID
 #ifdef NEW_ID
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #else 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
@@ -392,7 +392,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  es.get<IdealGeometryRecord>().get(tTopo);
 #endif
 
 

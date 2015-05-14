@@ -16,7 +16,6 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 //#include "FastSimulation/Tracking/interface/TrackerRecHitSplit.h"
@@ -135,7 +134,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
+  es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 

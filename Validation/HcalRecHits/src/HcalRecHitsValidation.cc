@@ -1598,11 +1598,11 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       int stwd    = j->flags();
       int auxstwd = j->aux();
       
-      int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+      int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalBarrel ){
-         hcalHBSevLvlVec.push_back(severityLevel);
+         hcalHBSevLvlVec.push_back(serivityLevel);
       }else if (cell.subdet()==HcalEndcap ){
-         hcalHESevLvlVec.push_back(severityLevel);
+         hcalHESevLvlVec.push_back(serivityLevel);
       } 
       
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
@@ -1646,9 +1646,9 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       int stwd     = j->flags();
       int auxstwd  = j->aux();
 
-      int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+      int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalForward ){
-         hcalHFSevLvlVec.push_back(severityLevel);
+         hcalHFSevLvlVec.push_back(serivityLevel);
       } 
 
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
@@ -1691,9 +1691,9 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       int stwd     = j->flags();
       int auxstwd  = j->aux();
 
-      int severityLevel = hcalSevLvl( (CaloRecHit*) &*j );
+      int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalOuter ){
-         hcalHOSevLvlVec.push_back(severityLevel);
+         hcalHOSevLvlVec.push_back(serivityLevel);
       } 
       
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 

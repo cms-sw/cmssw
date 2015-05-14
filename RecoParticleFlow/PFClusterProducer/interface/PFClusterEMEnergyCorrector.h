@@ -25,7 +25,6 @@ class PFClusterEMEnergyCorrector {
  private:    
   bool _applyCrackCorrections;
   bool _applyMVACorrections;
-  double _maxPtForMVAEvaluation;
    
   bool autoDetectBunchSpacing_;
   int bunchSpacingManual_;

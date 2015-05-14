@@ -193,4 +193,8 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ShowControlView = cms.bool(False),                                  
     CalculateStripOccupancy = cms.bool(False),                                  
     ResetMEsEachRun = cms.bool(False),
+    # by default do not write out any file with histograms
+    # can overwrite this in .cfg file with: replace SiStripMonitorDigi.OutputMEsInRootFile = true
+    OutputMEsInRootFile = cms.bool(False),
+    OutputFileName = cms.string('test_digi.root')
 )

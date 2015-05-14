@@ -20,7 +20,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //
 // Constructors
@@ -55,7 +54,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, const edm::EventS
 
   //isUpgrade = iConfig.getUntrackedParameter<bool>("isUpgrade");
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
     
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
@@ -322,7 +321,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm
 			    bool twoD, bool reducedSet, bool twoDimModOn, bool twoDimOnlyLayDisk,
 			    int &nDigisA, int &nDigisB, bool isUpgrade) {
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);

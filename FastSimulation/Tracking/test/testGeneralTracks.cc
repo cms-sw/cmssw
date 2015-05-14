@@ -9,6 +9,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
@@ -48,7 +50,6 @@ private:
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
   std::vector<edm::InputTag> allTracks;
-  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
   // Histograms

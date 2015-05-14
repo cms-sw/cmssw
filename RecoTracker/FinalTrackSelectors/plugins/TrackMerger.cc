@@ -4,7 +4,6 @@
 
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -33,7 +32,7 @@ void TrackMerger::init(const edm::EventSetup &iSetup)
     iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     iSetup.get<TransientRecHitRecord>().get(theBuilderName,theBuilder);
-    iSetup.get<TrackerTopologyRcd>().get(theTrkTopo);
+    iSetup.get<IdealGeometryRecord>().get(theTrkTopo);
 }
 
 TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &outer) const 

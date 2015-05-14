@@ -289,7 +289,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
  
   //Retrieve tracker topology from geometry (for det id)
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
 
   // Get input data
   int totalNumOfSimHits = 0;

@@ -27,7 +27,6 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 // DataFormats
@@ -201,7 +200,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim ("PixelDQM") << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;

@@ -69,7 +69,6 @@
   <use   name="Alignment/MuonAlignment"/>
   <use   name="CondFormats/AlignmentRecord"/>
   <use   name="CondFormats/Alignment"/>
-  <use   name="CondFormats/GeometryObjects"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 

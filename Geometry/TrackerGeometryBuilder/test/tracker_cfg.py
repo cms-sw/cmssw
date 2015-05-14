@@ -10,7 +10,6 @@ process.load("Geometry.TrackerRecoData.trackerRecoGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.source = cms.Source("EmptySource")

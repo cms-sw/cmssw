@@ -24,7 +24,6 @@ namespace cond {
 	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
-	void create();
 	bool select( const std::string& name);
 	bool select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime );
 	bool select( const std::string& name, cond::Time_t& validity, std::string& description, 
@@ -54,7 +53,6 @@ namespace cond {
 	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
-	void create();
 	bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags );
 	bool select( const std::string& gtName, const std::string& preFix, const std::string& postFix,
 		     std::vector<std::tuple<std::string,std::string,std::string> >& tags );
@@ -69,7 +67,6 @@ namespace cond {
       explicit GTSchema( coral::ISchema& schema );
       virtual ~GTSchema(){}
       bool exists();
-      void create();
       GLOBAL_TAG::Table& gtTable();
       GLOBAL_TAG_MAP::Table& gtMapTable();
     private:

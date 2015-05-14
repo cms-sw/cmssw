@@ -59,8 +59,7 @@ namespace cond {
       bool isTransactionActive( bool deep=true ) const;
 
       void openIovDb( FailureOnOpeningPolicy policy = THROW );
-      void openGTDb( FailureOnOpeningPolicy policy = THROW );
-      void openDb();
+      void openGTDb();
       IIOVSchema& iovSchema();
       IGTSchema& gtSchema();
       // only for the bridging...
