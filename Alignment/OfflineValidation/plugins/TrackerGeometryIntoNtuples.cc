@@ -46,14 +46,11 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h" 
 
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
@@ -84,6 +81,7 @@ private:
 	void addBranches();
 	
 	// ----------member data ---------------------------
+	const edm::ParameterSet theParameterSet; 
 	//std::vector<AlignTransform> m_align;
 	AlignableTracker* theCurrentTracker ;
 	
@@ -123,6 +121,7 @@ private:
 // constructors and destructor
 //
 TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
+  theParameterSet( iConfig ), 	
   theCurrentTracker(0),
   m_rawid(0),
   m_x(0.), m_y(0.), m_z(0.),
@@ -162,7 +161,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 {
         // retrieve tracker topology from geometry
         edm::ESHandle<TrackerTopology> tTopoHandle;
-        iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+        iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -171,11 +170,9 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	//accessing the initial geometry
 	edm::ESHandle<GeometricDet> theGeometricDet;
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
-	edm::ESHandle<PTrackerParameters> ptp;
-	iSetup.get<PTrackerParametersRcd>().get( ptp );
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp ); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,theParameterSet); 
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;

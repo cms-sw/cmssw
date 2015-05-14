@@ -3,6 +3,8 @@
 #include <boost/cstdint.hpp>
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -18,7 +20,7 @@ namespace {
 }
 
 SiStripLorentzAngleGenerator::SiStripLorentzAngleGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
-    SiStripDepCondObjBuilderBase<SiStripLorentzAngle,TrackerTopology>::SiStripDepCondObjBuilderBase(iConfig)
+  SiStripCondObjBuilderBase<SiStripLorentzAngle>::SiStripCondObjBuilderBase(iConfig)
 {
   edm::LogInfo("SiStripLorentzAngleGenerator") <<  "[SiStripLorentzAngleGenerator::SiStripLorentzAngleGenerator]";
 }
@@ -45,7 +47,7 @@ void SiStripLorentzAngleGenerator::setUniform(const std::vector<double> & estima
   }
 }
 
-SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject(const TrackerTopology* tTopo)
+SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject()
 {
   SiStripLorentzAngle* obj = new SiStripLorentzAngle();
 
@@ -91,27 +93,30 @@ SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject(const TrackerTop
 
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
-    const DetId detectorId=DetId(*detit);
-    const int subDet = detectorId.subdetId();
     
     hallMobility_ = 0;
 
+    StripSubdetector subid(*detit);
+
     int layerId = 0;
 
-    if(subDet == int (StripSubdetector::TIB)) {
-      layerId = tTopo->tibLayer(detectorId) -1;
+    if(subid.subdetId() == int (StripSubdetector::TIB)) {
+      TIBDetId theTIBDetId(*detit);
+      layerId = theTIBDetId.layer() - 1;
       setHallMobility( TIB_EstimatedValuesMin[layerId], TIB_EstimatedValuesMax[layerId], StdDevs_TIB[layerId], uniformTIB[layerId] );
     }
-    else if(subDet == int (StripSubdetector::TOB)) {
-      layerId = tTopo->tobLayer(detectorId) -1;
+    else if(subid.subdetId() == int (StripSubdetector::TOB)) {
+      TOBDetId theTOBDetId(*detit);
+      layerId = theTOBDetId.layer() - 1;
       setHallMobility( TOB_EstimatedValuesMin[layerId], TOB_EstimatedValuesMax[layerId], StdDevs_TOB[layerId], uniformTOB[layerId] );
     }
-    else if(subDet == int (StripSubdetector::TID)) {
+    else if(subid.subdetId() == int (StripSubdetector::TID)) {
       // ATTENTION: as of now the uniform generation for TID is decided by the setting for layer 0 of TIB
       setHallMobility( TIBmeanValueMin, TIBmeanValueMax, TIBmeanStdDev, uniformTIB[0] );
     }
-    if(subDet == int (StripSubdetector::TEC)){
-      if(tTopo->tecRing(detectorId)<5){
+    if(subid.subdetId() == int (StripSubdetector::TEC)){
+      TECDetId TECid = TECDetId(*detit); 
+      if(TECid.ringNumber()<5){
         // ATTENTION: as of now the uniform generation for TEC is decided by the setting for layer 0 of TIB
         setHallMobility( TIBmeanValueMin, TIBmeanValueMax, TIBmeanStdDev, uniformTIB[0] );
       }else{

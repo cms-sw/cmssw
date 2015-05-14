@@ -1,5 +1,4 @@
 #include "TSGFromL2Muon.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theService(0), theRegionBuilder(0), theTkSeedGenerator(0), theSeedCleaner(0)
@@ -67,7 +66,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
+  es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 

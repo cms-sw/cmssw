@@ -58,6 +58,7 @@ class CreateSurveyRcds:
 		std::string textFileName;
 		
 		edm::ESHandle<Alignments> alignments;
+	  const edm::ParameterSet theParameterSet;
 	};
 
 #endif

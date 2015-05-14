@@ -72,6 +72,7 @@ private:
 
 
 	//parameters
+	edm::ParameterSet m_params;
 	std::vector<align::StructureType> m_theLevels;
 	//std::vector<int> theSubDets;
 	

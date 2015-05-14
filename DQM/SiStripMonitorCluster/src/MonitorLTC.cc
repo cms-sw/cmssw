@@ -48,6 +48,10 @@ void MonitorLTC::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & ru
   LTCTriggerDecision_all->setBinLabel(5, "RPCTB");  
 }
 
+void MonitorLTC::beginJob(){
+
+}
+
 void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByToken(ltcDigiCollectionTagToken_, ltcdigis);
@@ -89,3 +93,12 @@ void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
 }
+
+void MonitorLTC::endJob(void){
+  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
+  if(outputMEsInRootFile){
+    dqmStore_->save(outputFileName);
+  }
+}
+

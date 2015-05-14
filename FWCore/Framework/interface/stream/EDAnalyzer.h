@@ -57,7 +57,8 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-
+      
+    protected:
       using EDAnalyzerBase::callWhenNewProductsRegistered;
       
     private:

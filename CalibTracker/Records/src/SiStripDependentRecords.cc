@@ -14,5 +14,4 @@ EVENTSETUP_RECORD_REG(SiStripDelayRcd);
 EVENTSETUP_RECORD_REG(SiStripLorentzAngleDepRcd);
 EVENTSETUP_RECORD_REG(SiStripBackPlaneCorrectionDepRcd);
 EVENTSETUP_RECORD_REG(SiStripHashedDetIdRcd);
-EVENTSETUP_RECORD_REG(SiStripNoisesDepRcd);
-EVENTSETUP_RECORD_REG(SiStripBadModuleDepRcd);
+

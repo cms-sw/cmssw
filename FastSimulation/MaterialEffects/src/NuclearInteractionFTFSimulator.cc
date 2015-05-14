@@ -1,6 +1,3 @@
-// system headers
-#include <mutex>
-
 // Framework Headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -64,9 +61,8 @@
 #include "G4PhysicsLogVector.hh"
 #include "G4SystemOfUnits.hh"
 
-static std::once_flag initializeOnce;
-[[cms::thread_guard("initializeOnce")]] const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {0};
-[[cms::thread_guard("initializeOnce")]] int NuclearInteractionFTFSimulator::theId[] = {0};
+const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {0};
+int NuclearInteractionFTFSimulator::theId[] = {0};
 
 const double fact = 1.0/CLHEP::GeV;
 
@@ -137,7 +133,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theBertiniCascade = new G4CascadeInterface();
 
   // Geant4 particles and cross sections
-  std::call_once(initializeOnce, [this] () {
+  if(!theG4Hadron[0]) {
     theG4Hadron[0] = G4Proton::Proton();
     theG4Hadron[1] = G4Neutron::Neutron();
     theG4Hadron[2] = G4PionPlus::PionPlus();
@@ -181,7 +177,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
     for(int i=0; i<numHadrons; ++i) {
       theId[i] = theG4Hadron[i]->GetPDGEncoding();
     }
-  }); 
+  }
 
   // local objects
   vect = new G4PhysicsLogVector(npoints-1,100*MeV,TeV);

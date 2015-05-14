@@ -1,6 +1,7 @@
 # SiStripMonitorDigi ####
 import DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi
 SiStripMonitorDigiHVOff = DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi.SiStripMonitorDigi.clone()
+SiStripMonitorDigiHVOff.OutputMEsInRootFile = False
 SiStripMonitorDigiHVOff.SelectAllDetectors  = True
 SiStripMonitorDigiHVOff.Mod_On              = False
 SiStripMonitorDigiHVOff.TkHistoMap_On       = False
@@ -28,6 +29,7 @@ SiStripMonitorDigiHVOff.TH1StripOccupancy.layerswitchon    = False
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterHVOff = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
+SiStripMonitorClusterHVOff.OutputMEsInRootFile = False
 SiStripMonitorClusterHVOff.SelectAllDetectors  = True
 SiStripMonitorClusterHVOff.Mod_On              = False
 SiStripMonitorClusterHVOff.TkHistoMap_On       = False

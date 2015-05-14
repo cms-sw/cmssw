@@ -1,6 +1,8 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
-     
+const TrackingLayer::eqfct TrackingLayer::_eqfct;
+const TrackingLayer::hashfct TrackingLayer::_hashfct;
+
 TrackingLayer::TrackingLayer():
     _subDet(Det::UNKNOWN),
     _side(Side::BARREL),

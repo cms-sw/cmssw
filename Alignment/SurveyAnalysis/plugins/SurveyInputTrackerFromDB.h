@@ -42,6 +42,8 @@ private:
   void addSurveyInfo(
 		     Alignable*
 		     );
+
+  const edm::ParameterSet theParameterSet;
 };
 
 #endif

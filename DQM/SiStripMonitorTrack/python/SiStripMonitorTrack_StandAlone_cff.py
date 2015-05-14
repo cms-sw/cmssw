@@ -4,6 +4,8 @@ from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'TrackRefitter'
 SiStripMonitorTrack.TrackLabel    = ''
 
+SiStripMonitorTrack.OutputMEsInRootFile = True
+SiStripMonitorTrack.OutputFileName = 'testReal.root'
 SiStripMonitorTrack.Cluster_src = 'siStripClusters'
 SiStripMonitorTrack.Mod_On        = True
 SiStripMonitorTrack.OffHisto_On   = True

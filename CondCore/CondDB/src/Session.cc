@@ -75,7 +75,7 @@ namespace cond {
     
     //
     void Session::createDatabase(){
-      m_session->openDb();
+      m_session->openIovDb( SessionImpl::CREATE );
     }
 
     IOVProxy Session::readIov( const std::string& tag, bool full ){
@@ -98,7 +98,7 @@ namespace cond {
 
     IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, 
 				  cond::SynchronizationType synchronizationType ){
-      m_session->openDb();
+      m_session->openIovDb( SessionImpl::CREATE );
       if( m_session->iovSchema().tagTable().select( tag ) ) 
 	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
       IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType );
@@ -110,7 +110,7 @@ namespace cond {
 				  cond::TimeType timeType,
 				  cond::SynchronizationType synchronizationType,
 				  const boost::posix_time::ptime& creationTime ){
-      m_session->openDb();
+      m_session->openIovDb( SessionImpl::CREATE );
       if( m_session->iovSchema().tagTable().select( tag ) ) 
 	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
       IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType, creationTime );
@@ -119,7 +119,7 @@ namespace cond {
 
     IOVEditor Session::createIovForPayload( const Hash& payloadHash, const std::string& tag, cond::TimeType timeType,
 					    cond::SynchronizationType synchronizationType ){
-      m_session->openDb();
+      m_session->openIovDb( SessionImpl::CREATE );
       if( m_session->iovSchema().tagTable().select( tag ) ) 
 	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIovForPayload");
       std::string payloadType("");
@@ -178,7 +178,7 @@ namespace cond {
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
 					  const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
 					  const boost::posix_time::ptime& creationTime ){
-      m_session->openDb();
+      m_session->openIovDb( SessionImpl::CREATE );
       return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadAndStreamerInfoData.first, 
 								payloadAndStreamerInfoData.second, creationTime );
     }

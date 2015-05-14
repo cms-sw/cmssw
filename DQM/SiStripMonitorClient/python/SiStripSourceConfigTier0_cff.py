@@ -94,6 +94,7 @@ SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
+MonitorTrackResiduals.OutputMEsInRootFile = False
 MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.andOr         = cms.bool( False )
 MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")

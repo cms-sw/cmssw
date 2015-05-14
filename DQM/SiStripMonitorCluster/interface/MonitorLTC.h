@@ -31,7 +31,9 @@ class MonitorLTC : public DQMEDAnalyzer {
       explicit MonitorLTC(const edm::ParameterSet&);
       ~MonitorLTC(){};
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+       virtual void beginJob() ;
+       virtual void endJob() ;
+       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
    private:
        DQMStore* dqmStore_;
        edm::ParameterSet conf_;

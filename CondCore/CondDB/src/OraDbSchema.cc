@@ -371,12 +371,6 @@ namespace cond {
       m_gtTable( session ),
       m_gtMapTable( session ){
     }
-
-
-    void OraGTSchema::create(){
-      throwException("GT Schema can't be create in ORA implementation.",
-                     "OraGTSchema::create");
-    }
       
     bool OraGTSchema::exists(){
       cond::TagCollectionRetriever gtRetriever( m_session, "", "" );

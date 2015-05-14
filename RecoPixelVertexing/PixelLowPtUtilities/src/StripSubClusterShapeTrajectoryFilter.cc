@@ -18,7 +18,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -293,7 +292,7 @@ void StripSubClusterShapeFilterBase::setEventBase
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",theFilter);
 
   //Retrieve tracker topology from geometry
-  es.get<TrackerTopologyRcd>().get(theTopology);
+  es.get<IdealGeometryRecord>().get(theTopology);
 
   es.get<SiStripNoisesRcd>().get(theNoise);
 

@@ -24,7 +24,7 @@ trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
     runStandalone = cms.bool(True),
     
     ### matching configuration ###
-    associators = cms.VInputTag("trackAssociatorByHits"),
+    associators = cms.vstring('trackAssociatorByHits'),    
 
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),

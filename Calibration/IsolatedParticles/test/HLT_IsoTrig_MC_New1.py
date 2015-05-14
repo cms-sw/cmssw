@@ -1,4 +1,3 @@
-import os
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLTNew1')
@@ -9,10 +8,9 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('HLTrigger.Configuration.HLT_GRun_cff')
@@ -23,27 +21,24 @@ process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Calibration.HcalAlCaRecoProducers.alcaisotrk_cfi')
-process.load('DQMOffline.Configuration.ALCARECOHcalCalDQM_cff')
-process.load('Calibration.HcalAlCaRecoProducers.alcastreamHcalIsotrkOutput_cff')
-process.load('Calibration.HcalAlCaRecoProducers.alcastreamHcalIsotrk_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(90)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        'file:/afs/cern.ch/user/g/gwalia/public/file_dqm.root'
-),
-               #                            skipEvents=cms.untracked.uint32(190)
+        #        'file:step2.root')
+        "file:/afs/cern.ch/work/r/ruchi/public/0048FA62-B924-E411-A09C-002590DB916E.root"),
+                            skipEvents=cms.untracked.uint32(190)
                             )
 
 process.options = cms.untracked.PSet(
+
 )
 
 # Production Info
@@ -53,15 +48,10 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-process.load('Calibration.HcalAlCaRecoProducers.alcastreamHcalIsotrkOutput_cff')
-process.isotkOutput = cms.OutputModule("PoolOutputModule",
-                                       outputCommands = process.alcastreamHcalIsotrkOutput.outputCommands,
-                                       fileName = cms.untracked.string('PoolOutput.root'),
-)
-
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('Try_HLTIsoTrig_MC_New1_2.root')
                                    )
+
 process.load('Calibration.IsolatedParticles.isoTrig_cfi')
 process.IsoTrigHB.Verbosity = 0
 process.IsoTrigHB.ProcessName = "HLTNew1"
@@ -82,11 +72,12 @@ process.IsoTrackCalibration.L1Filter  = "hltL1sL1SingleJet"
 process.IsoTrackCalibration.L2Filter  = "hltIsolPixelTrackL2Filter"
 process.IsoTrackCalibration.L3Filter  = "L3Filter"
 process.IsoTrackCalibration.Verbosity = 0
-process.analyze = cms.EndPath(process.IsoTrigHB + process.IsoTrigHE + process.IsoTrackCalibration)
-process.e = cms.EndPath(process.isotkOutput)
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_mc']
+process.analyze = cms.EndPath(process.IsoTrigHB + process.IsoTrigHE + process.IsoTrackCalibration)
+
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 
+                              'auto:run2_mc_GRun', '')
 
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 
@@ -107,7 +98,7 @@ process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence +
                                       process.hltIter0PFLowPixelSeedsFromPixelTracks +
                                       process.hltIter0PFlowCkfTrackCandidates +
                                       process.hltIter0PFlowCtfWithMaterialTracks +
-                                      process.hltHcalITIPTCorrectorHE + 
+                                      process.hltHITIPTCorrectorHE + 
                                       process.hltIsolPixelTrackL3FilterHE + 
                                       process.HLTEndSequence 
                                       )
@@ -129,7 +120,7 @@ process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence +
                                       process.hltIter0PFLowPixelSeedsFromPixelTracks +
                                       process.hltIter0PFlowCkfTrackCandidates +
                                       process.hltIter0PFlowCtfWithMaterialTracks +
-                                      process.hltHcalITIPTCorrectorHB + 
+                                      process.hltHITIPTCorrectorHB + 
                                       process.hltIsolPixelTrackL3FilterHB + 
                                       process.HLTEndSequence 
                                       )
@@ -198,23 +189,8 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("DQMNew1.root"),
                                      outputCommands = cms.untracked.vstring(["drop CastorDataFramesSorted_mix_*_HLTNew1"])
 )
-process.FastTimerOutput = cms.EndPath( process.dqmOutput)
+process.FastTimerOutput = cms.EndPath( process.dqmOutput )
 
-process.load('DQMServices.Core.DQMStore_cfg')
-process.load('DQMOffline.CalibCalo.MonitorHcalIsoTrackAlCaReco_cfi')
-process.load('DQMOffline.CalibCalo.PostProcessorHcalIsoTrack_cfi')
-
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-#process.DQM.collectorHost = ''
-process.load("Configuration.StandardSequences.EDMtoMEAtRunEnd_cff")
-process.dqmSaver.referenceHandling = cms.untracked.string('all')
-
-cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
-process.dqmSaver.workflow = '/Test/Cal/DQM'
-
-process.IsoProd.ProcessName = 'HLTNew1'
-
-process.p = cms.EndPath(process.EDMtoME*process.PostProcessorHcalIsoTrack*process.dqmSaver)
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
@@ -222,32 +198,24 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.reconstruction+process.IsoProd)
+process.reconstruction_step = cms.Path(process.reconstruction)
 process.eventinterpretaion_step = cms.Path(process.EIsequence)
 process.prevalidation_step = cms.Path(process.prevalidation)
-process.dqmoffline_step = cms.Path(process.DQMOffline+process.ALCARECOHcalCalIsoTrackDQM)
+process.dqmoffline_step = cms.Path(process.DQMOffline)
 process.validation_step = cms.EndPath(process.validation)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.eventinterpretaion_step])
-process.schedule.extend([process.dqmoffline_step])
-process.schedule.extend([process.e])
 process.schedule.extend([process.analyze])
-process.schedule.extend([process.p])
 process.schedule.extend([process.FastTimerOutput])
-
-
 # customisation of the process.
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
-process = customisePostLS1(process)
-
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
+#from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
 
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
-process = customizeHLTforMC(process)
+#process = customizeHLTforMC(process)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 #from SLHCUpgradeSimulations.Configuration.postLS1Customs import *

@@ -11,12 +11,11 @@
 class TrackerGeometry;
 class PixelGeomDetType;
 class StripGeomDetType;
-class PTrackerParameters;
 
 class TrackerGeomBuilderFromGeometricDet {
 public:
 
-  TrackerGeometry* build(const GeometricDet* gd, const PTrackerParameters & ptp );
+  TrackerGeometry* build(const GeometricDet* gd, const edm::ParameterSet& pSet );
 
 private:
 

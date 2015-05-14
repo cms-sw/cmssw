@@ -52,6 +52,7 @@ namespace edm {
       ModuleDescription const& moduleDescription() const {
         return *moduleDescriptionPtr_;
       }
+    protected:
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 

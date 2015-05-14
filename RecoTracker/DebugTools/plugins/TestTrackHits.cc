@@ -7,7 +7,7 @@
 #include <TDirectory.h>
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 typedef TrajectoryStateOnSurface TSOS;
@@ -250,7 +250,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
 
 
   LogDebug("TestTrackHits") << "new event" ;

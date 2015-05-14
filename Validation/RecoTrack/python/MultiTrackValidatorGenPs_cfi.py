@@ -32,7 +32,11 @@ multiTrackValidatorGenPs = cms.EDAnalyzer(
 
     
     ### matching configuration ###
-    associators = cms.untracked.VInputTag("TrackAssociatorByChi2"),
+    associatormap = cms.InputTag("trackingParticleRecoTrackAsssociation"),
+    #associatormap = cms.InputTag("assoc2secStepTk"),
+    #associatormap = cms.InputTag("assoc2thStepTk"),
+    #associatormap = cms.InputTag("assoc2GsfTracks"),
+    associators = cms.vstring('TrackAssociatorByChi2'),    
     UseAssociators = cms.bool(True), # if False, the TP-RecoTrack maps has to be specified 
 
     ### sim input configuration ###
@@ -55,7 +59,4 @@ multiTrackValidatorGenPs = cms.EDAnalyzer(
     ### output configuration
     dirName = cms.string('Tracking/Track/'),
     outputFile = cms.string(''),
-
-    ### Allow switching off particular histograms
-    dodEdxPlots = cms.untracked.bool(False),
 )

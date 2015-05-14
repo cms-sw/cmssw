@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
@@ -34,7 +33,7 @@ void SurveyInputDummy::analyze(const edm::Event&, const edm::EventSetup& setup)
   if (theFirstEvent) {
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    setup.get<IdealGeometryRecord>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     edm::ESHandle<TrackerGeometry> tracker;

@@ -45,12 +45,7 @@ namespace edm {
     EDAnalyzerBase::~EDAnalyzerBase()
     {
     }
-
-    void
-    EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
-      callWhenNewProductsRegistered_ = func;
-    }
-
+    
     bool
     EDAnalyzerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
                             ActivityRegistry* act,

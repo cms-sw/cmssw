@@ -34,7 +34,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void bookSimHistos(DQMStore::IBooker& ibook);
 
   void bookRecoHistos(DQMStore::IBooker& ibook);
-  void bookRecodEdxHistos(DQMStore::IBooker& ibook) override;
   void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook);
 
 
@@ -69,7 +68,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     double sharedFraction,
 				     double dR);
 
-  void fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx);
+  void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx);
+  //  void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
 
   void fill_simAssociated_recoTrack_histos(int count,
 					   const reco::Track& track);
@@ -172,9 +172,12 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   // dE/dx
   // in the future these might become an array
-  std::vector<std::vector<MonitorElement*>> h_dedx_estim;
-  std::vector<std::vector<MonitorElement*>> h_dedx_nom;
-  std::vector<std::vector<MonitorElement*>> h_dedx_sat;
+  std::vector<MonitorElement*> h_dedx_estim1;
+  std::vector<MonitorElement*> h_dedx_estim2;
+  std::vector<MonitorElement*> h_dedx_nom1;
+  std::vector<MonitorElement*> h_dedx_nom2;
+  std::vector<MonitorElement*> h_dedx_sat1;
+  std::vector<MonitorElement*> h_dedx_sat2;
 
   //2D
   std::vector<MonitorElement*> nrec_vs_nsim;

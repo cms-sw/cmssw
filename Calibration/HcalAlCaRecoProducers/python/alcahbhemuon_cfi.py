@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # producer for alcahbhemuon (HCAL with muons)
 HBHEMuonProd = cms.EDProducer("AlCaHBHEMuonProducer",
+                              TriggerResultLabel= cms.InputTag("TriggerResults","","HLT"),
                               BeamSpotLabel     = cms.InputTag("offlineBeamSpot"),
                               VertexLabel       = cms.InputTag("offlinePrimaryVertices"),
                               EBRecHitLabel     = cms.InputTag("ecalRecHit","EcalRecHitsEB"),

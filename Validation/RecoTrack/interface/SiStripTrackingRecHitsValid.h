@@ -421,7 +421,7 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
   
 
   edm::ParameterSet conf_;
-  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  TrackerHitAssociator trackerHitAssociator_;
   unsigned long long m_cacheID_;
   edm::ParameterSet Parameters;
 

@@ -41,13 +41,10 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
@@ -76,6 +73,7 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;
       edm::ParameterSet m_aliParamStoreCfg;
+  const edm::ParameterSet m_pSet;
 
       AlignableTracker *m_alignableTracker;
       AlignableMuon *m_alignableMuon;
@@ -100,7 +98,8 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 //
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
-   , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
+     , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
+     m_pSet(iConfig)
    , m_alignableTracker(NULL)
    , m_alignableMuon(NULL)
    , m_alignmentParameterStore(NULL)
@@ -135,7 +134,7 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 {
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
    const TrackerTopology* const tTopo = tTopoHandle.product();
 
    if (m_firstEvent) {
@@ -146,10 +145,8 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       
       edm::ESHandle<GeometricDet> theGeometricDet;
       iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
-      edm::ESHandle<PTrackerParameters> ptp;
-      iSetup.get<PTrackerParametersRcd>().get( ptp );
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp ));
+      boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), m_pSet ));
       
       edm::ESHandle<MuonDDDConstants> mdc;
       iSetup.get<MuonNumberingRecord>().get(mdc);

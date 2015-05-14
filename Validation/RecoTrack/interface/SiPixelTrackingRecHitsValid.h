@@ -85,7 +85,7 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
 
  private:
 
-  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  TrackerHitAssociator trackerHitAssociator_;
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;
   bool runStandalone;

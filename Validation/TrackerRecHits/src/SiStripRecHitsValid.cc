@@ -1,4 +1,5 @@
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
 //needed for the geometry: 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -11,7 +12,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 
 //--- for RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
@@ -46,7 +47,7 @@ namespace helper {
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   conf_(ps),
-  trackerHitAssociatorConfig_(ps, consumesCollector()),
+  trackerHitAssociator_(new TrackerHitAssociator(ps, consumesCollector())),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
   // rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
@@ -204,7 +205,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
     
   // Step A: Get Inputs 
@@ -230,7 +231,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   int totrechitstereo =0;
   int totrechitmatched =0;
    
-  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
+  TrackerHitAssociator& associate = *trackerHitAssociator_;
+  associate.processEvent(e);
   
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -616,7 +618,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on

@@ -3,28 +3,25 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondTools/SiStrip/interface/SiStripDepCondObjBuilderBase.h"
+#include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include <string>
 
-class SiStripBadModuleGenerator : public SiStripDepCondObjBuilderBase<SiStripBadStrip,TrackerTopology> {
+class SiStripBadModuleGenerator : public SiStripCondObjBuilderBase<SiStripBadStrip> {
  public:
 
   explicit SiStripBadModuleGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripBadModuleGenerator();
   
-  void getObj(SiStripBadStrip* & obj, const TrackerTopology* tTopo){obj=createObject(tTopo);}
+  void getObj(SiStripBadStrip* & obj){obj=createObject();}
 
  private:
   
-  SiStripBadStrip* createObject(const TrackerTopology* tTopo);
+  SiStripBadStrip* createObject();
 
-  void selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& , std::vector<uint32_t>& );
+  void selectDetectors(const std::vector<uint32_t>& , std::vector<uint32_t>& );
 
-  bool isTIBDetector(const TrackerTopology* tTopo,
-         const DetId & therawid,
+  bool isTIBDetector(const uint32_t & therawid,
 		     uint32_t requested_layer,
 		     uint32_t requested_bkw_frw,
 		     uint32_t requested_int_ext,
@@ -32,24 +29,21 @@ class SiStripBadModuleGenerator : public SiStripDepCondObjBuilderBase<SiStripBad
 		     uint32_t requested_ster,
 		     uint32_t requested_detid) const;
   
-  bool isTOBDetector(const TrackerTopology* tTopo,
-         const DetId & therawid,
+  bool isTOBDetector(const uint32_t & therawid,
 		     uint32_t requested_layer,
 		     uint32_t requested_bkw_frw,
 		     uint32_t requested_rod,
 		     uint32_t requested_ster,
 		     uint32_t requested_detid) const;
 
-  bool isTIDDetector(const TrackerTopology* tTopo,
-         const DetId & therawid,
+  bool isTIDDetector(const uint32_t & therawid,
 		     uint32_t requested_side,
 		     uint32_t requested_wheel,
 		     uint32_t requested_ring,
 		     uint32_t requested_ster,
 		     uint32_t requested_detid) const;
 
-  bool isTECDetector(const TrackerTopology* tTopo,
-         const DetId & therawid,
+  bool isTECDetector(const uint32_t & therawid,
 		     uint32_t requested_side,
 		     uint32_t requested_wheel,
 		     uint32_t requested_petal_bkw_frw,

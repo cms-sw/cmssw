@@ -22,7 +22,6 @@ from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
-from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import *
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
 # HCAL noise producer
@@ -39,7 +38,6 @@ globalRecoPbPb = cms.Sequence(hiTracking
                               * hiEgammaSequence
                               * hiParticleFlowReco
                               * hiCentrality
-                              * hiClusterCompatibility
                               * hiEvtPlane
                               * hcalnoise
                               )
@@ -53,7 +51,6 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiEgammaSequence
                                               * hiParticleFlowReco
                                               * hiCentrality
-                                              * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
                                               )
