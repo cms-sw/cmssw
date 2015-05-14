@@ -27,7 +27,7 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-     'root://cmsxrootd.fnal.gov//store/data/Run2012C/HcalNZS/RAW/v1/000/197/559/FA519929-93C0-E111-9C4A-BCAEC532971C.root',
+     'file:/tmp/sunanda/0000E8D3-F58A-E411-8537-001E67396DEC.root',
     )
 )
 
@@ -39,13 +39,10 @@ process.GlobalTag.globaltag=autoCond['run2_mc']
 ############################################################################
 #### Analysis
 
-process.minbiasana = cms.EDAnalyzer("SimAnalyzerMinbias",
-                                    HistOutFile = cms.untracked.string('simanalyzer.root'),
-                                    TimeCut = cms.untracked.double(100.0)
-                                    )
+process.load('Calibration.HcalCalibAlgos.simAnalyzerMinbias_cfi')
 
 process.schedule = cms.Path(    
-    process.minbiasana*
+    process.simAnalyzerMinbias*
     process.endOfProcess   
     )
 
