@@ -24,14 +24,11 @@ struct mva {
     float chi2n_no1Dmod = chi2n;
     
     int count1dhits = 0;
-    /*
-    auto ith = trk.extra()->firstRecHit();
-    auto  edh = ith + trk.recHitsSize();
-    for (; ith<edh; ++ith) {
-      const TrackingRecHit & hit = srcHits[ith];
+    for (auto ith =trk.recHitsBegin(); ith!=trk.recHitsEnd(); ++ith) {
+      const auto & hit = *(*ith);
       if (hit.dimension()==1) ++count1dhits;
     }
-    */
+    
     if (count1dhits > 0) {
       float chi2 = trk.chi2();
       float ndof = trk.ndof();
