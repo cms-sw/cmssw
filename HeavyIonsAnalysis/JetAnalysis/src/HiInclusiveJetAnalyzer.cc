@@ -111,26 +111,26 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
     bTagJetName_ = iConfig.getUntrackedParameter<string>("bTagJetName");
     ImpactParameterTagInfos_ = iConfig.getUntrackedParameter<string>("ImpactParameterTagInfos",(bTagJetName_+"ImpactParameterTagInfos"));
     TrackCountingHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("TrackCountingHighEffBJetTags",(bTagJetName_+"TrackCountingHighEffBJetTags"));
-    NegativeTrackCountingHighEffJetTags_ = iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighEffJetTags",bTagJetName_+("NegativeTrackCountingHighEffJetTags"));
+    NegativeTrackCountingHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighEffBJetTags",bTagJetName_+("NegativeTrackCountingHighEffBJetTags"));
     TrackCountingHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("TrackCountingHighPurBJetTags",(bTagJetName_+"TrackCountingHighPurBJetTags"));
-    NegativeTrackCountingHighPur_ = iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighPur",(bTagJetName_+"NegativeTrackCountingHighPur"));
+    NegativeTrackCountingHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighPurBJetTags",(bTagJetName_+"NegativeTrackCountingHighPurBJetTags"));
     JetProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("JetProbabilityBJetTags",(bTagJetName_+"JetProbabilityBJetTags"));
-    PositiveOnlyJetProbabilityJetTags_ = iConfig.getUntrackedParameter<string>("PositiveOnlyJetProbabilityJetTags",(bTagJetName_+"PositiveOnlyJetProbabilityJetTags"));
-    NegativeOnlyJetProbabilityJetTags_ = iConfig.getUntrackedParameter<string>("NegativeOnlyJetProbabilityJetTags",(bTagJetName_+"NegativeOnlyJetProbabilityJetTags"));
+    PositiveOnlyJetProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveOnlyJetProbabilityBJetTags",(bTagJetName_+"PositiveOnlyJetProbabilityBJetTags"));
+    NegativeOnlyJetProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeOnlyJetProbabilityBJetTags",(bTagJetName_+"NegativeOnlyJetProbabilityBJetTags"));
     JetBProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("JetBProbabilityBJetTags",(bTagJetName_+"JetBProbabilityBJetTags"));
-    NegativeOnlyJetBProbabilityJetTags_ = iConfig.getUntrackedParameter<string>("NegativeOnlyJetBProbabilityJetTags",(bTagJetName_+"NegativeOnlyJetBProbabilityJetTags"));
-    PositiveOnlyJetBProbabilityJetTags_ = iConfig.getUntrackedParameter<string>("PositiveOnlyJetBProbabilityJetTags",(bTagJetName_+"PositiveOnlyJetBProbabilityJetTags"));
+    NegativeOnlyJetBProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeOnlyJetBProbabilityBJetTags",(bTagJetName_+"NegativeOnlyJetBProbabilityBJetTags"));
+    PositiveOnlyJetBProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveOnlyJetBProbabilityBJetTags",(bTagJetName_+"PositiveOnlyJetBProbabilityBJetTags"));
     SecondaryVertexTagInfos_ = iConfig.getUntrackedParameter<string>("SecondaryVertexTagInfos",(bTagJetName_+"SecondaryVertexTagInfos"));
     SecondaryVertexNegativeTagInfos_ = iConfig.getUntrackedParameter<string>("SecondaryVertexNegativeTagInfos",(bTagJetName_+"SecondaryVertexNegativeTagInfos"));
     SimpleSecondaryVertexHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexHighEffBJetTags",(bTagJetName_+"SimpleSecondaryVertexHighEffBJetTags"));
-    SimpleSecondaryVertexNegativeHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexNegativeHighEffBJetTags",(bTagJetName_+"SimpleSecondaryVertexNegativeHighEffBJetTags"));
+    NegativeSimpleSecondaryVertexHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSimpleSecondaryVertexHighEffBJetTags",(bTagJetName_+"NegativeSimpleSecondaryVertexHighEffBJetTags"));
     SimpleSecondaryVertexHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexHighPurBJetTags",(bTagJetName_+"SimpleSecondaryVertexHighPurBJetTags"));
-    SimpleSecondaryVertexNegativeHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexNegativeHighPurBJetTags",(bTagJetName_+"SimpleSecondaryVertexNegativeHighPurBJetTags"));
+    NegativeSimpleSecondaryVertexHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSimpleSecondaryVertexHighPurBJetTags",(bTagJetName_+"NegativeSimpleSecondaryVertexHighPurBJetTags"));
     CombinedSecondaryVertexBJetTags_ = iConfig.getUntrackedParameter<string>("CombinedSecondaryVertexBJetTags",(bTagJetName_+"CombinedSecondaryVertexBJetTags"));
-    CombinedSecondaryVertexNegativeBJetTags_ = iConfig.getUntrackedParameter<string>("CombinedSecondaryVertexNegativeBJetTags",(bTagJetName_+"CombinedSecondaryVertexNegativeBJetTags"));
-    CombinedSecondaryVertexPositiveBJetTags_ = iConfig.getUntrackedParameter<string>("CombinedSecondaryVertexPositiveBJetTags",(bTagJetName_+"CombinedSecondaryVertexPositiveBJetTags"));
-    NegativeSoftMuonByPtBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSoftMuonByPtBJetTags",(bTagJetName_+"NegativeSoftMuonByPtBJetTags"));
-    PositiveSoftMuonByPtBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveSoftMuonByPtBJetTags",(bTagJetName_+"PositiveSoftMuonByPtBJetTags"));
+    NegativeCombinedSecondaryVertexBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeCombinedSecondaryVertexBJetTags",(bTagJetName_+"NegativeCombinedSecondaryVertexBJetTags"));
+    PositiveCombinedSecondaryVertexBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveCombinedSecondaryVertexBJetTags",(bTagJetName_+"PositiveCombinedSecondaryVertexBJetTags"));
+    NegativeSoftPFMuonByPtBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSoftPFMuonByPtBJetTags",(bTagJetName_+"NegativeSoftPFMuonByPtBJetTags"));
+    PositiveSoftPFMuonByPtBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveSoftPFMuonByPtBJetTags",(bTagJetName_+"PositiveSoftPFMuonByPtBJetTags"));
   }
 
   //  cout<<" jet collection : "<<jetTag_<<endl;
@@ -139,7 +139,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   if(isMC_){
     //     cout<<" genjet collection : "<<genjetTag_<<endl;
     genPtMin_ = iConfig.getUntrackedParameter<double>("genPtMin",10);
-    doSubEvent_ = iConfig.getUntrackedParameter<bool>("doSubEvent",1);
+    doSubEvent_ = iConfig.getUntrackedParameter<bool>("doSubEvent",0);
   }
 
 
@@ -516,26 +516,26 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   if(doLifeTimeTagging_){
     iEvent.getByLabel(ImpactParameterTagInfos_, tagInfo);
     iEvent.getByLabel(TrackCountingHighEffBJetTags_, jetTags_TCHighEff);
-    iEvent.getByLabel(NegativeTrackCountingHighEffJetTags_, jetTags_NegTCHighEff);
+    iEvent.getByLabel(NegativeTrackCountingHighEffBJetTags_, jetTags_NegTCHighEff);
     iEvent.getByLabel(TrackCountingHighPurBJetTags_, jetTags_TCHighPur);
-    iEvent.getByLabel(NegativeTrackCountingHighPur_, jetTags_NegTCHighPur);
+    iEvent.getByLabel(NegativeTrackCountingHighPurBJetTags_, jetTags_NegTCHighPur);
     iEvent.getByLabel(JetProbabilityBJetTags_, jetTags_JP);
-    iEvent.getByLabel(PositiveOnlyJetProbabilityJetTags_, jetTags_PosJP);
-    iEvent.getByLabel(NegativeOnlyJetProbabilityJetTags_, jetTags_NegJP);
+    iEvent.getByLabel(PositiveOnlyJetProbabilityBJetTags_, jetTags_PosJP);
+    iEvent.getByLabel(NegativeOnlyJetProbabilityBJetTags_, jetTags_NegJP);
     iEvent.getByLabel(JetBProbabilityBJetTags_, jetTags_JB);
-    iEvent.getByLabel(NegativeOnlyJetBProbabilityJetTags_, jetTags_NegJB);
-    iEvent.getByLabel(PositiveOnlyJetBProbabilityJetTags_, jetTags_PosJB);
+    iEvent.getByLabel(NegativeOnlyJetBProbabilityBJetTags_, jetTags_NegJB);
+    iEvent.getByLabel(PositiveOnlyJetBProbabilityBJetTags_, jetTags_PosJB);
     iEvent.getByLabel(SecondaryVertexTagInfos_, tagInfoSVx);
     iEvent.getByLabel(SecondaryVertexNegativeTagInfos_, tagInfoNegSVx);
     iEvent.getByLabel(SimpleSecondaryVertexHighEffBJetTags_, jetTags_SvtxHighEff);
-    iEvent.getByLabel(SimpleSecondaryVertexNegativeHighEffBJetTags_, jetTags_negSvtxHighEff);
+    iEvent.getByLabel(NegativeSimpleSecondaryVertexHighEffBJetTags_, jetTags_negSvtxHighEff);
     iEvent.getByLabel(SimpleSecondaryVertexHighPurBJetTags_, jetTags_SvtxHighPur);
-    iEvent.getByLabel(SimpleSecondaryVertexNegativeHighEffBJetTags_, jetTags_negSvtxHighPur);
+    iEvent.getByLabel(NegativeSimpleSecondaryVertexHighEffBJetTags_, jetTags_negSvtxHighPur);
     iEvent.getByLabel(CombinedSecondaryVertexBJetTags_, jetTags_CombinedSvtx);
-    iEvent.getByLabel(CombinedSecondaryVertexNegativeBJetTags_, jetTags_negCombinedSvtx);
-    iEvent.getByLabel(CombinedSecondaryVertexPositiveBJetTags_, jetTags_posCombinedSvtx);
-    iEvent.getByLabel(NegativeSoftMuonByPtBJetTags_, jetTags_softMuneg);
-    iEvent.getByLabel(PositiveSoftMuonByPtBJetTags_, jetTags_softMu);
+    iEvent.getByLabel(NegativeCombinedSecondaryVertexBJetTags_, jetTags_negCombinedSvtx);
+    iEvent.getByLabel(PositiveCombinedSecondaryVertexBJetTags_, jetTags_posCombinedSvtx);
+    iEvent.getByLabel(NegativeSoftPFMuonByPtBJetTags_, jetTags_softMuneg);
+    iEvent.getByLabel(PositiveSoftPFMuonByPtBJetTags_, jetTags_softMu);
   }
 
 
@@ -605,7 +605,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	  TrackRefVector selTracks=tagInfoIP.selectedTracks();
 
 	  GlobalPoint pv(tagInfoIP.primaryVertex()->position().x(),tagInfoIP.primaryVertex()->position().y(),tagInfoIP.primaryVertex()->position().z());
-
+	  
 	  for(int it=0;it<jets_.nselIPtrk[jets_.nref] ;it++)
 	  {
 	    jets_.ipJetIndex[jets_.nIP + it]= jets_.nref;
@@ -653,7 +653,6 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       ith_tagged    = this->TaggedJet(jet,jetTags_NegTCHighPur);
       if(ith_tagged >= 0) jets_.ndiscr_tcHighPur[jets_.nref]   = (*jetTags_NegTCHighPur)[ith_tagged].second;
 
-
       ith_tagged = this->TaggedJet(jet,jetTags_softMu);
       if(ith_tagged >= 0){
 	if ( (*jetTags_softMu)[ith_tagged].second     > -100000 )
@@ -667,6 +666,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	if ( SoftMN > 0 ) SoftMN = -SoftMN;
 	jets_.ndiscr_muByPt[jets_.nref] = SoftMN;
       }
+
       const PFCandidateCollection *pfCandidateColl = &(*pfCandidates);
       int pfMuonIndex = getPFJetMuon(jet, pfCandidateColl);
 
@@ -855,7 +855,6 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     // Jet ID for CaloJets
 
 
-
     if(doMatch_){
 
       // Alternative reconstruction matching (PF for calo, calo for PF)
@@ -880,7 +879,6 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 
     }
     //     if(etrk.quality(reco::TrackBase::qualityByName(qualityString_))) pev_.trkQual[pev_.nTrk]=1;
-
 
     if(doHiJetID_){
 
@@ -946,7 +944,6 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	azimuth_adapt = azimuth_adapt_new;
       }
     }
-
     jets_.jtpt[jets_.nref] = jet.pt();
     jets_.jteta[jets_.nref] = jet.eta();
     jets_.jtphi[jets_.nref] = jet.phi();
@@ -1036,9 +1033,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	jets_.refdphijt[jets_.nref] = -999.;
 	jets_.refdrjt[jets_.nref] = -999.;
       }
-
       jets_.refparton_flavorForB[jets_.nref] = (*patjets)[j].partonFlavour();
-
       // matched partons
       const reco::GenParticle & parton = *(*patjets)[j].genParton();
 

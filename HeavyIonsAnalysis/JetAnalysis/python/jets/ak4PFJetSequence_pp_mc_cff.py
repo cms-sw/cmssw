@@ -6,7 +6,8 @@ from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 
 ak4PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak4PFJets"),
-    matched = cms.InputTag("ak4HiGenJets")
+    matched = cms.InputTag("ak4HiGenJets"),
+    maxDeltaR = 0.4
     )
 
 ak4PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak4PFJets"),

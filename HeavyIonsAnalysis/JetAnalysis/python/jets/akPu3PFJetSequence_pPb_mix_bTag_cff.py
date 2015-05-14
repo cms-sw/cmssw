@@ -8,7 +8,8 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 akPu3PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akPu3PFJets"),
-    matched = cms.InputTag("ak3HiGenJets")
+    matched = cms.InputTag("ak3HiGenJets"),
+    maxDeltaR = 0.3
     )
 
 akPu3PFparton = patJetPartonMatch.clone(src = cms.InputTag("akPu3PFJets")
@@ -26,65 +27,68 @@ akPu3PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('a
 
 akPu3PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak3HiGenJets'))
 
-akPu3PFbTagger = bTaggers("akPu3PF")
+akPu3PFbTagger = bTaggers("akPu3PF",0.3)
 
 #create objects locally since they dont load properly otherwise
 akPu3PFmatch = akPu3PFbTagger.match
 akPu3PFparton = akPu3PFbTagger.parton
-akPu3PFPatJetFlavourAssociation = akPu3PFbTagger.PatJetFlavourAssociation
+akPu3PFPatJetFlavourAssociationLegacy = akPu3PFbTagger.PatJetFlavourAssociationLegacy
+akPu3PFPatJetPartons = akPu3PFbTagger.PatJetPartons
 akPu3PFJetTracksAssociatorAtVertex = akPu3PFbTagger.JetTracksAssociatorAtVertex
 akPu3PFSimpleSecondaryVertexHighEffBJetTags = akPu3PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 akPu3PFSimpleSecondaryVertexHighPurBJetTags = akPu3PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 akPu3PFCombinedSecondaryVertexBJetTags = akPu3PFbTagger.CombinedSecondaryVertexBJetTags
-akPu3PFCombinedSecondaryVertexMVABJetTags = akPu3PFbTagger.CombinedSecondaryVertexMVABJetTags
+akPu3PFCombinedSecondaryVertexV2BJetTags = akPu3PFbTagger.CombinedSecondaryVertexV2BJetTags
 akPu3PFJetBProbabilityBJetTags = akPu3PFbTagger.JetBProbabilityBJetTags
-akPu3PFSoftMuonByPtBJetTags = akPu3PFbTagger.SoftMuonByPtBJetTags
-akPu3PFSoftMuonByIP3dBJetTags = akPu3PFbTagger.SoftMuonByIP3dBJetTags
+akPu3PFSoftPFMuonByPtBJetTags = akPu3PFbTagger.SoftPFMuonByPtBJetTags
+akPu3PFSoftPFMuonByIP3dBJetTags = akPu3PFbTagger.SoftPFMuonByIP3dBJetTags
 akPu3PFTrackCountingHighEffBJetTags = akPu3PFbTagger.TrackCountingHighEffBJetTags
 akPu3PFTrackCountingHighPurBJetTags = akPu3PFbTagger.TrackCountingHighPurBJetTags
-akPu3PFPatJetPartonAssociation = akPu3PFbTagger.PatJetPartonAssociation
+akPu3PFPatJetPartonAssociationLegacy = akPu3PFbTagger.PatJetPartonAssociationLegacy
 
 akPu3PFImpactParameterTagInfos = akPu3PFbTagger.ImpactParameterTagInfos
 akPu3PFJetProbabilityBJetTags = akPu3PFbTagger.JetProbabilityBJetTags
-akPu3PFPositiveOnlyJetProbabilityJetTags = akPu3PFbTagger.PositiveOnlyJetProbabilityJetTags
-akPu3PFNegativeOnlyJetProbabilityJetTags = akPu3PFbTagger.NegativeOnlyJetProbabilityJetTags
-akPu3PFNegativeTrackCountingHighEffJetTags = akPu3PFbTagger.NegativeTrackCountingHighEffJetTags
-akPu3PFNegativeTrackCountingHighPur = akPu3PFbTagger.NegativeTrackCountingHighPur
-akPu3PFNegativeOnlyJetBProbabilityJetTags = akPu3PFbTagger.NegativeOnlyJetBProbabilityJetTags
-akPu3PFPositiveOnlyJetBProbabilityJetTags = akPu3PFbTagger.PositiveOnlyJetBProbabilityJetTags
+akPu3PFPositiveOnlyJetProbabilityBJetTags = akPu3PFbTagger.PositiveOnlyJetProbabilityBJetTags
+akPu3PFNegativeOnlyJetProbabilityBJetTags = akPu3PFbTagger.NegativeOnlyJetProbabilityBJetTags
+akPu3PFNegativeTrackCountingHighEffBJetTags = akPu3PFbTagger.NegativeTrackCountingHighEffBJetTags
+akPu3PFNegativeTrackCountingHighPurBJetTags = akPu3PFbTagger.NegativeTrackCountingHighPurBJetTags
+akPu3PFNegativeOnlyJetBProbabilityBJetTags = akPu3PFbTagger.NegativeOnlyJetBProbabilityBJetTags
+akPu3PFPositiveOnlyJetBProbabilityBJetTags = akPu3PFbTagger.PositiveOnlyJetBProbabilityBJetTags
 
 akPu3PFSecondaryVertexTagInfos = akPu3PFbTagger.SecondaryVertexTagInfos
 akPu3PFSimpleSecondaryVertexHighEffBJetTags = akPu3PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 akPu3PFSimpleSecondaryVertexHighPurBJetTags = akPu3PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 akPu3PFCombinedSecondaryVertexBJetTags = akPu3PFbTagger.CombinedSecondaryVertexBJetTags
-akPu3PFCombinedSecondaryVertexMVABJetTags = akPu3PFbTagger.CombinedSecondaryVertexMVABJetTags
+akPu3PFCombinedSecondaryVertexV2BJetTags = akPu3PFbTagger.CombinedSecondaryVertexV2BJetTags
 
 akPu3PFSecondaryVertexNegativeTagInfos = akPu3PFbTagger.SecondaryVertexNegativeTagInfos
-akPu3PFSimpleSecondaryVertexNegativeHighEffBJetTags = akPu3PFbTagger.SimpleSecondaryVertexNegativeHighEffBJetTags
-akPu3PFSimpleSecondaryVertexNegativeHighPurBJetTags = akPu3PFbTagger.SimpleSecondaryVertexNegativeHighPurBJetTags
-akPu3PFCombinedSecondaryVertexNegativeBJetTags = akPu3PFbTagger.CombinedSecondaryVertexNegativeBJetTags
-akPu3PFCombinedSecondaryVertexPositiveBJetTags = akPu3PFbTagger.CombinedSecondaryVertexPositiveBJetTags
+akPu3PFNegativeSimpleSecondaryVertexHighEffBJetTags = akPu3PFbTagger.NegativeSimpleSecondaryVertexHighEffBJetTags
+akPu3PFNegativeSimpleSecondaryVertexHighPurBJetTags = akPu3PFbTagger.NegativeSimpleSecondaryVertexHighPurBJetTags
+akPu3PFNegativeCombinedSecondaryVertexBJetTags = akPu3PFbTagger.NegativeCombinedSecondaryVertexBJetTags
+akPu3PFPositiveCombinedSecondaryVertexBJetTags = akPu3PFbTagger.PositiveCombinedSecondaryVertexBJetTags
 
-akPu3PFSoftMuonTagInfos = akPu3PFbTagger.SoftMuonTagInfos
-akPu3PFSoftMuonBJetTags = akPu3PFbTagger.SoftMuonBJetTags
-akPu3PFSoftMuonByIP3dBJetTags = akPu3PFbTagger.SoftMuonByIP3dBJetTags
-akPu3PFSoftMuonByPtBJetTags = akPu3PFbTagger.SoftMuonByPtBJetTags
-akPu3PFNegativeSoftMuonByPtBJetTags = akPu3PFbTagger.NegativeSoftMuonByPtBJetTags
-akPu3PFPositiveSoftMuonByPtBJetTags = akPu3PFbTagger.PositiveSoftMuonByPtBJetTags
-
-akPu3PFPatJetFlavourId = cms.Sequence(akPu3PFPatJetPartonAssociation*akPu3PFPatJetFlavourAssociation)
+akPu3PFSoftPFMuonsTagInfos = akPu3PFbTagger.SoftPFMuonsTagInfos
+akPu3PFSoftPFMuonBJetTags = akPu3PFbTagger.SoftPFMuonBJetTags
+akPu3PFSoftPFMuonByIP3dBJetTags = akPu3PFbTagger.SoftPFMuonByIP3dBJetTags
+akPu3PFSoftPFMuonByPtBJetTags = akPu3PFbTagger.SoftPFMuonByPtBJetTags
+akPu3PFNegativeSoftPFMuonByPtBJetTags = akPu3PFbTagger.NegativeSoftPFMuonByPtBJetTags
+akPu3PFPositiveSoftPFMuonByPtBJetTags = akPu3PFbTagger.PositiveSoftPFMuonByPtBJetTags
+akPu3PFPatJetFlavourIdLegacy = cms.Sequence(akPu3PFPatJetPartonAssociationLegacy*akPu3PFPatJetFlavourAssociationLegacy)
+#Not working with our PU sub, but keep it here for reference
+#akPu3PFPatJetFlavourAssociation = akPu3PFbTagger.PatJetFlavourAssociation
+#akPu3PFPatJetFlavourId = cms.Sequence(akPu3PFPatJetPartons*akPu3PFPatJetFlavourAssociation)
 
 akPu3PFJetBtaggingIP       = cms.Sequence(akPu3PFImpactParameterTagInfos *
             (akPu3PFTrackCountingHighEffBJetTags +
              akPu3PFTrackCountingHighPurBJetTags +
              akPu3PFJetProbabilityBJetTags +
              akPu3PFJetBProbabilityBJetTags +
-             akPu3PFPositiveOnlyJetProbabilityJetTags +
-             akPu3PFNegativeOnlyJetProbabilityJetTags +
-             akPu3PFNegativeTrackCountingHighEffJetTags +
-             akPu3PFNegativeTrackCountingHighPur +
-             akPu3PFNegativeOnlyJetBProbabilityJetTags +
-             akPu3PFPositiveOnlyJetBProbabilityJetTags
+             akPu3PFPositiveOnlyJetProbabilityBJetTags +
+             akPu3PFNegativeOnlyJetProbabilityBJetTags +
+             akPu3PFNegativeTrackCountingHighEffBJetTags +
+             akPu3PFNegativeTrackCountingHighPurBJetTags +
+             akPu3PFNegativeOnlyJetBProbabilityBJetTags +
+             akPu3PFPositiveOnlyJetBProbabilityBJetTags
             )
             )
 
@@ -97,32 +101,32 @@ akPu3PFJetBtaggingSV = cms.Sequence(akPu3PFImpactParameterTagInfos
                 +
                 akPu3PFCombinedSecondaryVertexBJetTags
                 +
-                akPu3PFCombinedSecondaryVertexMVABJetTags
+                akPu3PFCombinedSecondaryVertexV2BJetTags
               )
             )
 
 akPu3PFJetBtaggingNegSV = cms.Sequence(akPu3PFImpactParameterTagInfos
             *
             akPu3PFSecondaryVertexNegativeTagInfos
-            * (akPu3PFSimpleSecondaryVertexNegativeHighEffBJetTags
+            * (akPu3PFNegativeSimpleSecondaryVertexHighEffBJetTags
                 +
-                akPu3PFSimpleSecondaryVertexNegativeHighPurBJetTags
+                akPu3PFNegativeSimpleSecondaryVertexHighPurBJetTags
                 +
-                akPu3PFCombinedSecondaryVertexNegativeBJetTags
+                akPu3PFNegativeCombinedSecondaryVertexBJetTags
                 +
-                akPu3PFCombinedSecondaryVertexPositiveBJetTags
+                akPu3PFPositiveCombinedSecondaryVertexBJetTags
               )
             )
 
-akPu3PFJetBtaggingMu = cms.Sequence(akPu3PFSoftMuonTagInfos * (akPu3PFSoftMuonBJetTags
+akPu3PFJetBtaggingMu = cms.Sequence(akPu3PFSoftPFMuonsTagInfos * (akPu3PFSoftPFMuonBJetTags
                 +
-                akPu3PFSoftMuonByIP3dBJetTags
+                akPu3PFSoftPFMuonByIP3dBJetTags
                 +
-                akPu3PFSoftMuonByPtBJetTags
+                akPu3PFSoftPFMuonByPtBJetTags
                 +
-                akPu3PFNegativeSoftMuonByPtBJetTags
+                akPu3PFNegativeSoftPFMuonByPtBJetTags
                 +
-                akPu3PFPositiveSoftMuonByPtBJetTags
+                akPu3PFPositiveSoftPFMuonByPtBJetTags
               )
             )
 
@@ -136,16 +140,18 @@ akPu3PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu3PFJets
         genJetMatch          = cms.InputTag("akPu3PFmatch"),
         genPartonMatch       = cms.InputTag("akPu3PFparton"),
         jetCorrFactorsSource = cms.VInputTag(cms.InputTag("akPu3PFcorr")),
-        JetPartonMapSource   = cms.InputTag("akPu3PFPatJetFlavourAssociation"),
+        JetPartonMapSource   = cms.InputTag("akPu3PFPatJetFlavourAssociationLegacy"),
+	JetFlavourInfoSource   = cms.InputTag("akPu3PFPatJetFlavourAssociation"),
         trackAssociationSource = cms.InputTag("akPu3PFJetTracksAssociatorAtVertex"),
+	useLegacyJetMCFlavour = True,
         discriminatorSources = cms.VInputTag(cms.InputTag("akPu3PFSimpleSecondaryVertexHighEffBJetTags"),
             cms.InputTag("akPu3PFSimpleSecondaryVertexHighPurBJetTags"),
             cms.InputTag("akPu3PFCombinedSecondaryVertexBJetTags"),
-            cms.InputTag("akPu3PFCombinedSecondaryVertexMVABJetTags"),
+            cms.InputTag("akPu3PFCombinedSecondaryVertexV2BJetTags"),
             cms.InputTag("akPu3PFJetBProbabilityBJetTags"),
             cms.InputTag("akPu3PFJetProbabilityBJetTags"),
-            cms.InputTag("akPu3PFSoftMuonByPtBJetTags"),
-            cms.InputTag("akPu3PFSoftMuonByIP3dBJetTags"),
+            cms.InputTag("akPu3PFSoftPFMuonByPtBJetTags"),
+            cms.InputTag("akPu3PFSoftPFMuonByIP3dBJetTags"),
             cms.InputTag("akPu3PFTrackCountingHighEffBJetTags"),
             cms.InputTag("akPu3PFTrackCountingHighPurBJetTags"),
             ),
@@ -194,7 +200,9 @@ akPu3PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   akPu3PFJetID
                                                   *
-                                                  akPu3PFPatJetFlavourId
+                                                  akPu3PFPatJetFlavourIdLegacy
+                                                  #*
+			                          #akPu3PFPatJetFlavourId  # Use legacy algo till PU implemented
                                                   *
                                                   akPu3PFJetTracksAssociatorAtVertex
                                                   *
