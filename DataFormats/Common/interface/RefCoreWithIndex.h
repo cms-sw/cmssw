@@ -18,6 +18,10 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
 #include <algorithm>
 #include <typeinfo>
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
+
 namespace edm {  
   class RefCoreWithIndex {
   public:
@@ -27,16 +31,27 @@ namespace edm {
 
     RefCoreWithIndex(RefCore const& iCore, unsigned int);
     
+    RefCoreWithIndex( RefCoreWithIndex const&);
+    
+    RefCoreWithIndex& operator=(RefCoreWithIndex const&);
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    RefCoreWithIndex( RefCoreWithIndex&& ) = default;
+    RefCoreWithIndex& operator=(RefCoreWithIndex&&) = default;
+#endif
+
     ProductID id() const {ID_IMPL;}
 
     /**If productPtr is not 0 then productGetter will be 0 since only one is available at a time */
     void const* productPtr() const {PRODUCTPTR_IMPL;}
 
     void setProductPtr(void const* prodPtr) const { 
-      cachePtr_=prodPtr;
-      setCacheIsProductPtr();
+      setCacheIsProductPtr(prodPtr);
     }
 
+    bool tryToSetProductPtrForFirstTime(void const* prodPtr) const {
+      return refcoreimpl::tryToSetCacheItemForFirstTime(cachePtr_, prodPtr);
+    }
     
     unsigned int index() const { return elementIndex_;}
     
@@ -104,9 +119,8 @@ namespace edm {
       toUnConstRefCore().setId(iId);
     }
     void setTransient() {SETTRANSIENT_IMPL;}
-    void setCacheIsProductPtr() const {SETCACHEISPRODUCTPTR_IMPL;}
-    void setCacheIsProductGetter() const {SETCACHEISPRODUCTGETTER_IMPL;}
-    bool cacheIsProductPtr() const {CACHEISPRODUCTPTR_IMPL;}
+    void setCacheIsProductPtr(void const* iItem) const {SETCACHEISPRODUCTPTR_IMPL(iItem);}
+    void setCacheIsProductGetter(EDProductGetter const* iGetter) const {SETCACHEISPRODUCTGETTER_IMPL(iGetter);}
 
     //NOTE: the order MUST remain the same as a RefCore
     // since we play tricks to allow a pointer to a RefCoreWithIndex
@@ -115,7 +129,11 @@ namespace edm {
     //The low bit of the address is used to determine  if the cachePtr_
     // is storing the productPtr or the EDProductGetter. The bit is set if
     // the address refers to the EDProductGetter.
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    mutable std::atomic<void const*> cachePtr_; // transient
+#else
     mutable void const* cachePtr_;               // transient
+#endif
     //The following is what is stored in a ProductID
     // the high bit of processIndex is used to store info on
     // if this is transient.
@@ -130,7 +148,7 @@ namespace edm {
   RefCoreWithIndex::swap(RefCoreWithIndex & other) {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
-    std::swap(cachePtr_, other.cachePtr_);
+    other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));
     std::swap(elementIndex_,other.elementIndex_);
   }
 

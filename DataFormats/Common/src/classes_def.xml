@@ -13,10 +13,23 @@
   <version ClassVersion="11" checksum="3425324092"/>
    <field name="cachePtr_" transient = "true"/>
  </class>
+ <!-- The std::*atomic* dictionaries are only needed to work around a temporary bug in ROOT-->
+ <class name="std::atomic<const void*>"/>
+ <class name="std::__atomic_base<const void*>">
+  <field name="_M_p" transient = "true"/>
+ </class>
+ <class name="const void*"/>
+ <class name="std::atomic<std::vector<const void*>*>"/>
+ <class name="std::__atomic_base<std::vector<const void*>*>">
+   <field name="_M_p" transient = "true"/>
+ </class>
+ <class name="std::vector<const void*>*"/>
+ <!-- end fix -->
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="cachePtr_">
    <![CDATA[
-     edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
-     edm::refcoreimpl::setCacheIsProductGetter(cachePtr_);
+     edm::EDProductGetter const* getter;
+     edm::EDProductGetter::assignEDProductGetter(getter);
+     edm::refcoreimpl::setCacheIsProductGetter(cachePtr_, getter);
       ]]>
  </ioread>
   <class name="edm::RefCoreWithIndex" ClassVersion="11">
@@ -25,8 +38,9 @@
   </class>
   <ioread sourceClass = "edm::RefCoreWithIndex" version="[1-]" targetClass="edm::RefCoreWithIndex" source="" target="cachePtr_">
     <![CDATA[
-      edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
-      edm::refcoreimpl::setCacheIsProductGetter(cachePtr_);
+      edm::EDProductGetter const* getter;
+      edm::EDProductGetter::assignEDProductGetter(getter);
+      edm::refcoreimpl::setCacheIsProductGetter(cachePtr_, getter);
     ]]>
   </ioread>
  <class name="edm::ThinnedAssociation" ClassVersion="10">
@@ -85,7 +99,7 @@
  </class>
   <!-- -->
   <ioread sourceClass = "edm::PtrVectorBase" version="[1-]" targetClass="edm::PtrVectorBase" source = "" target="cachedItems_">
-    <![CDATA[cachedItems_.clear();
+    <![CDATA[delete cachedItems_.load(); cachedItems_=nullptr;
     ]]>
   </ioread>
    <!-- -->

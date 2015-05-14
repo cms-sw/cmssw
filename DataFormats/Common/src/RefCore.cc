@@ -32,7 +32,7 @@ void throwInvalidRefFromNoCache(const edm::TypeID& id, edm::ProductID const& pro
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      cachePtr_(prodPtr?prodPtr:prodGetter),
+      cachePtr_(prodPtr),
       processIndex_(theId.processIndex()),
       productIndex_(theId.productIndex())
       {
@@ -40,9 +40,21 @@ namespace edm {
           setTransient();
         }
         if(prodPtr==nullptr && prodGetter!=nullptr) {
-          setCacheIsProductGetter();
+          setCacheIsProductGetter(prodGetter);
         }
       }
+  
+  RefCore::RefCore( RefCore const& iOther) :
+      cachePtr_(iOther.cachePtr_.load()),
+      processIndex_(iOther.processIndex_),
+      productIndex_(iOther.productIndex_) {}
+  
+  RefCore& RefCore::operator=( RefCore const& iOther) {
+    cachePtr_ = iOther.cachePtr_.load();
+    processIndex_ = iOther.processIndex_;
+    productIndex_ = iOther.productIndex_;
+    return *this;
+  }
 
   WrapperBase const*
   RefCore::getProductPtr(std::type_info const& type) const {
@@ -159,8 +171,7 @@ namespace edm {
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-    cachePtr_ = prodGetter;
-    setCacheIsProductGetter();
+    setCacheIsProductGetter(prodGetter);
   }
   
   void 
@@ -211,10 +222,13 @@ namespace edm {
     //Since productPtr and productGetter actually share the same pointer internally,
     // we want to be sure that if the productPtr is set we use that one and only if
     // it isn't set do we set the productGetter if available
-    if (productPtr() == 0 && productToBeInserted.productPtr() != 0) {
+    if (productPtr() == nullptr && productToBeInserted.productPtr() != nullptr) {
       setProductPtr(productToBeInserted.productPtr());
-    } else if (productPtr() == 0 && productGetter() == 0 && productToBeInserted.productGetter() != 0) {
-      setProductGetter(productToBeInserted.productGetter());
+    } else {
+      auto getter = productToBeInserted.productGetter();
+      if (cachePtrIsInvalid() && getter != nullptr) {
+        setProductGetter(getter);
+      }
     }
   }
 
