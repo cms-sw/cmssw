@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // HepMCConverter.tcc is a part of ThePEG - Toolkit for HEP Event Generation
-// Copyright (C) 1999-2007 Leif Lonnblad
+// Copyright (C) 1999-2011 Leif Lonnblad
 //
 // ThePEG is licenced under version 2 of the GPL, see COPYING for details.
 // Please respect the MCnet academic guidelines, see GUIDELINES for details.
@@ -31,6 +31,8 @@
 #include <ThePEG/Handlers/EventHandler.h>
 #include <ThePEG/PDF/PartonExtractor.h>
 #include <ThePEG/PDF/PDF.h>
+#include <ThePEG/PDT/StandardMatchers.h>
+#include <ThePEG/Utilities/Throw.h>
 
 #include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
 
@@ -78,6 +80,7 @@ HepMCConverter(const Event & ev, GenEvent & gev, bool nocopies,
   : energyUnit(eunit), lengthUnit(lunit) {
 
   geneve = &gev;
+  Traits::resetEvent(geneve, ev.number(), ev.weight(), ev.optionalWeights());
 
   init(ev, nocopies);
 
@@ -92,42 +95,31 @@ struct ParticleOrderNumberCmp {
 template <typename HepMCEventT, typename Traits>
 void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
 
-  if ( Traits::hasUnits() ) {
-    if ( lengthUnit != millimeter && lengthUnit != centimeter )
-      throw HepMCConverterException()
-	<< "Length unit used for HepMC::GenEvent was not MM nor CM."
-	<< Exception::runerror;
-    if ( energyUnit != GeV && energyUnit != MeV )
-      throw HepMCConverterException()
-	<< "Momentum unit used for HepMC::GenEvent was not GEV nor MEV."
-	<< Exception::runerror;
-  } else {
-    if ( lengthUnit != millimeter )
-      throw HepMCConverterException()
-	<< "Length unit used for HepMC::GenEvent was not MM and the "
-	<< "HepMCTraits class claims that the used version of HepMC "
-	<< "cannot handle user-defined units."
-	<< Exception::runerror;
-    if ( energyUnit != GeV )
-      throw HepMCConverterException()
-	<< "Momentum unit used for HepMC::GenEvent was not GEV and the "
-	<< "HepMCTraits class claims that the used version of HepMC "
-	<< "cannot handle user-defined units."
-	<< Exception::runerror;
-  }
+  if ( lengthUnit != millimeter && lengthUnit != centimeter )
+    Throw<HepMCConverterException>()
+      << "Length unit used for HepMC::GenEvent was not MM nor CM."
+      << Exception::runerror;
+  if ( energyUnit != GeV && energyUnit != MeV )
+    Throw<HepMCConverterException>()
+      << "Momentum unit used for HepMC::GenEvent was not GEV nor MEV."
+      << Exception::runerror;
   Traits::setUnits(*geneve, energyUnit, lengthUnit);
 
+  tcEHPtr eh;
   if ( ev.primaryCollision() && ( eh =
        dynamic_ptr_cast<tcEHPtr>(ev.primaryCollision()->handler()) ) ) {
 
     // Get general event info if present.
+    Traits::setScaleAndAlphas(*geneve, eh->lastScale(),
+			      eh->SM().alphaS(eh->lastScale()),
+			      eh->SM().alphaEM(eh->lastScale()), energyUnit);
   }
 
   // Extract all particles and order them.
   tcPVector all;
   ev.select(back_inserter(all), SelectAll());
+  stable_sort(all.begin(), all.end(), ParticleOrderNumberCmp());
   vertices.reserve(all.size()*2);
-  sortTopologically(all);
 
   // Create GenParticle's and map them to the ThePEG particles.
   for ( int i = 0, N = all.size(); i < N; ++i ) {
@@ -140,11 +132,11 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
       // case the lines are mapped to an integer and set in the
       // GenParticle's Flow info.
       tcColinePtr l;
-      if ( l = p->colourLine() ) {
+      if ( (l = p->colourLine()) ) {
 	if ( !member(flowmap, l) ) flowmap[l] = flowmap.size() + 500;
 	Traits::setColourLine(*gp, 1, flowmap[l]);
       }
-      if ( l = p->antiColourLine() ) {
+      if ( (l = p->antiColourLine()) ) {
 	if ( !member(flowmap, l) ) flowmap[l] = flowmap.size() + 500;
 	Traits::setColourLine(*gp, 2, flowmap[l]);
       }
@@ -197,11 +189,6 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
     if ( !member(vmap, it->second) )
       vmap[it->second] = createVertex(it->second);
 
-  // Add the vertices.
-  for ( typename GenVertexMap::iterator it = vmap.begin();
-	it != vmap.end(); ++it )
-    Traits::addVertex(*geneve, it->second);
-
   // Now find the primary signal process vertex defined to be the
   // decay vertex of the first parton coming into the primary hard
   // sub-collision.
@@ -212,24 +199,38 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event & ev, bool nocopies) {
     vmap.erase(prim);
   }
   
+  // Then add the rest of the vertices.
+  for ( typename GenVertexMap::iterator it = vmap.begin();
+	it != vmap.end(); ++it )
+    Traits::addVertex(*geneve, it->second);
 
   // and the incoming beam particles
-  geneve->set_beam_particles(pmap[ev.incoming().first],
+  Traits::setBeamParticles(*geneve,pmap[ev.incoming().first],
 			   pmap[ev.incoming().second]);
 
   // and the PDF info
+  setPdfInfo(ev);
+
+  // and the cross section info
+  Traits::setCrossSection(*geneve,
+			  eh->integratedXSec()/picobarn,
+			  eh->integratedXSecErr()/picobarn);
+
 }
 
 template <typename HepMCEventT, typename Traits>
 typename HepMCConverter<HepMCEventT,Traits>::GenParticle *
 HepMCConverter<HepMCEventT,Traits>::createParticle(tcPPtr p) const {
   int status = 1;
-  if ( !p->children().empty() || p->next() ) {
-    tStepPtr step = p->birthStep();
-    if ((!step || (step && (!step->handler() || step->handler() == eh))) && p->id() != 82)
-      status = 3;
-    else
-      status = 2;
+  size_t nChildren = p->children().size();
+  if ( nChildren > 0 || p->next() ) status = 11;
+  if ( nChildren > 1 ) {
+    long id = p->data().id();
+    if ( BaryonMatcher::Check(id) || MesonMatcher::Check(id) ||
+	 id == ParticleID::muminus || id == ParticleID::muplus ||
+	 id == ParticleID::tauminus || id == ParticleID::tauplus )
+      if ( p->mass() <= p->data().massMax() &&
+	   p->mass() >= p->data().massMin() ) status = 2;
   }
   GenParticle * gp =
     Traits::newParticle(p->momentum(), p->id(), status, energyUnit);
@@ -316,34 +317,6 @@ void HepMCConverter<HepMCEventT,Traits>::setPdfInfo(const Event & e) {
 
   Traits::setPdfInfo(*geneve, id1, id2, x1, x2, sqrt(scale/GeV2), xf1, xf2);
 
-}
-
-template<typename HepMCEventT, typename Traits>
-void HepMCConverter<HepMCEventT, Traits>::sortTopologically(tcPVector &all)
-{
-  // order the particles topologically
-  std::set<tcPPtr> visited;
-  for(unsigned int head = 0; head < all.size(); head++) {
-    bool vetoed = true;
-    for(unsigned int cur = head; cur < all.size(); cur++) {
-      vetoed = false;
-      for(tParticleVector::const_iterator iter =
-        all[cur]->parents().begin();
-        iter != all[cur]->parents().end(); ++iter) {
-          if (visited.find(*iter) == visited.end()) {
-            vetoed = true;
-            break;
-          }
-        }
-      if (!vetoed) {
-        if (cur != head)
-          std::swap(all[head], all[cur]);
-        break;
-      }
-    }
-    visited.insert(all[head]);
-  }
-  visited.clear();
 }
 
 template class ThePEG::HepMCConverter<HepMC::GenEvent>;

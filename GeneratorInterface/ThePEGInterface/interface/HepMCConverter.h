@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // HepMCConverter.h is a part of ThePEG - Toolkit for HEP Event Generation
-// Copyright (C) 1999-2007 Leif Lonnblad
+// Copyright (C) 1999-2011 Leif Lonnblad
 //
 // ThePEG is licenced under version 2 of the GPL, see COPYING for details.
 // Please respect the MCnet academic guidelines, see GUIDELINES for details.
@@ -164,10 +164,6 @@ private:
    */
   void setPdfInfo(const Event & e);
 
-  /**
-   * Sort vertices topologically
-   */
-  void sortTopologically(tcPVector & allv);
 private:
 
   /**
@@ -217,10 +213,6 @@ private:
    */
   Length lengthUnit;
 
-  /**
-    * The primary event handler
-    */
-  tcEHPtr eh;
 };
 
 	template<> struct HepMCTraits<HepMC::GenEvent> :
@@ -228,7 +220,7 @@ private:
 			HepMC::GenEvent, HepMC::GenParticle,
 			HepMC::GenVertex, HepMC::Polarization,
 			HepMC::PdfInfo> {};
-}
 
+}
 
 #endif /* ThePEG_HepMCConverter_H */
