@@ -14,7 +14,7 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const & config,
         hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") ),
         beamSpotLabel_( config.getUntrackedParameter<edm::InputTag>("beamSpot") ),
         tracer_(config,std::move(collector)),
-        quality_(config)
+        quality_(config, collector)
 {
     collector.consumes<edm::HepMCProduct>(hepMCLabel_);
     collector.consumes<reco::BeamSpot>(beamSpotLabel_);
