@@ -111,14 +111,28 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
     trackSelectors= cms.VPSet(
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
         name = 'initialStepLoose',
+        useMVA = cms.bool(True),
+        minMVA = cms.double(-0.8),
+        useMVAonly = cms.bool(True),
+        mvaType = cms.string('Prompt'),
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
         ), #end of pset
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
         name = 'initialStepTight',
         preFilterName = 'initialStepLoose',
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+        mvaType = cms.string("Prompt"),
         ),
-    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
         name = 'initialStepV1',
-        preFilterName = 'initialStepTight',
+        preFilterName = 'initialStepLoose',
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+        mvaType = cms.string("Prompt"),
+        minMVA = cms.double(-0.4),
+        useMVA = cms.bool(True),
+        useMVAonly = cms.bool(True),
+        qualityBit = cms.string('highPurity'),
+        keepAllTracks = cms.bool(True),
         ),
 #    lowPtTripletStepSelector.trackSelectors[2].clone(
 #        name = 'initialStepV4',
