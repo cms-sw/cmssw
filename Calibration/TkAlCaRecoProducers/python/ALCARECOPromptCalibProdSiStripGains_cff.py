@@ -45,17 +45,15 @@ ALCARECOCalibrationTracks = AlignmentTrackSelector.clone(
 # FIXME: the beam-spot should be kept in the AlCaReco (if not already there) and dropped from here
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
-from RecoTracker.TrackProducer.TrackRefitter_cfi import *
-ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"))
-
-from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
-
+from RecoTracker.TrackProducer.TrackRefitters_cff import * 
+ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"),
+                                                     NavigationSchool = cms.string("")
+                                                     )
 
 # refit and BS can be dropped if done together with RECO.
 # track filter can be moved in acalreco if no otehr users
 ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
                                         offlineBeamSpot +
-                                        MeasurementTrackerEvent +
                                         ALCARECOCalibrationTracksRefit )
 
 
