@@ -8,10 +8,10 @@
 #include <vector>
 
 template<class Item> bool hcalEqualDetId(Item* cell, DetId fId) {
-  return ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
-	  (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
-	  (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)));
+  return hcalEqualDetId(cell->rawId(),fId);
 }
+
+bool hcalEqualDetId(uint32_t id, DetId fId);
 
 DetId hcalTransformedId(DetId aid);
 
