@@ -16,7 +16,9 @@ void TrackMVAClassifierBase::fill( edm::ParameterSetDescription& desc) {
   desc.add<edm::InputTag>("vertices",edm::InputTag("firstStepPrimaryVertices"));
   desc.add<std::string>("GBRForestLabel",std::string());
   desc.add<std::string>("GBRForestFileName",std::string());
-  desc.add<std::vector<double>>("qualityCuts",std::vector<double>(3,-1.));
+  // default cuts for "cut based classification"
+  std::vector<double> cuts = {-.7, 0.1, .7};
+  desc.add<std::vector<double>>("qualityCuts", cuts);
 }
 
 
@@ -28,7 +30,7 @@ TrackMVAClassifierBase::TrackMVAClassifierBase( const edm::ParameterSet & cfg ) 
   vertices_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ))),
   forestLabel_(cfg.getParameter<std::string>("GBRForestLabel")),
   dbFileName_(cfg.getParameter<std::string>("GBRForestFileName")),
-  useForestFromDB_(dbFileName_.empty()) {
+  useForestFromDB_( (!forestLabel_.empty()) & dbFileName_.empty()) {
 
   auto const & qv  = cfg.getParameter<std::vector<double>>("qualityCuts");
   assert(qv.size()==3);
@@ -67,7 +69,7 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   std::unique_ptr<QualityMaskCollection> quals(new QualityMaskCollection(tracks.size(),0));
   
   
-  computeMVA(tracks,*hBsp,*hVtx,*forest,*mvas);
+  computeMVA(tracks,*hBsp,*hVtx,forest,*mvas);
   assert((*mvas).size()==tracks.size());
 
   unsigned int k=0;
@@ -88,7 +90,7 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
 
 #include <TFile.h>
 void TrackMVAClassifierBase::beginStream(edm::StreamID) {
-  if(!useForestFromDB_){
+  if(!dbFileName_.empty()){
      TFile gbrfile(dbFileName_.c_str());
      forest_.reset((GBRForest*)gbrfile.Get(forestLabel_.c_str()));
   }

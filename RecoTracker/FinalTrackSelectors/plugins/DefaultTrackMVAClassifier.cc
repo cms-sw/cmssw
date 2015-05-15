@@ -1,6 +1,3 @@
-#ifndef RecoTracker_FinalTrackSelectors_mva_h
-#define RecoTracker_FinalTrackSelectors_mva_h
-
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMVAClassifier.h"
 
 
@@ -10,11 +7,13 @@ namespace {
   
 template<bool PROMPT>
 struct mva {
+  mva(const edm::ParameterSet &){}
   float operator()(reco::Track const & trk,
 		   reco::BeamSpot const & beamSpot,
 		   reco::VertexCollection const & vertices,
-		   GBRForest const & forest) const {
+		   GBRForest const * forestP) const {
 
+    auto const & forest = *forestP;
     auto tmva_ndof_ = trk.ndof();
     auto tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
     auto tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement()
@@ -63,6 +62,10 @@ struct mva {
   }
 
   static const char * name();
+
+  static void fillDescriptions(edm::ParameterSetDescription & desc) {
+  }
+  
   
 };
 
@@ -80,6 +83,3 @@ struct mva {
 
 DEFINE_FWK_MODULE(TrackMVAClassifierDetached);
 DEFINE_FWK_MODULE(TrackMVAClassifierPrompt);
-
-
-#endif

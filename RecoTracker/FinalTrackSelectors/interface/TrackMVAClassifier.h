@@ -36,7 +36,7 @@ protected:
   virtual void computeMVA(reco::TrackCollection const & tracks,
 			  reco::BeamSpot const & beamSpot,
 			  reco::VertexCollection const & vertices,
-			  GBRForest const & forest,
+			  GBRForest const * forestP,
 			  MVACollection & mvas) const = 0;
 
   
@@ -67,11 +67,15 @@ template<typename MVA>
 class TrackMVAClassifier : public TrackMVAClassifierBase {
 public:
   explicit TrackMVAClassifier( const edm::ParameterSet & cfg ) :
-    TrackMVAClassifierBase(cfg){}
+    TrackMVAClassifierBase(cfg),
+    mva(cfg.getParameter<edm::ParameterSet>("mva")){}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       fill(desc);
+      edm::ParameterSetDescription mvaDesc;
+      MVA::fillDescriptions(mvaDesc);
+      desc.add<edm::ParameterSetDescription>("mva",mvaDesc);
       descriptions.add(MVA::name(), desc);
     }
 
@@ -80,12 +84,12 @@ private:
     void computeMVA(reco::TrackCollection const & tracks,
 		    reco::BeamSpot const & beamSpot,
 		    reco::VertexCollection const & vertices,
-		    GBRForest const & forest,
+		    GBRForest const * forestP,
 		    MVACollection & mvas) const final {
 
       size_t current = 0;
       for (auto const & trk : tracks) {
-	mvas[current++]= mva(trk,beamSpot,vertices,forest);
+	mvas[current++]= mva(trk,beamSpot,vertices,forestP);
       }
     }
 
