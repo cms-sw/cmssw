@@ -13,18 +13,6 @@
   <version ClassVersion="11" checksum="3425324092"/>
    <field name="cachePtr_" transient = "true"/>
  </class>
- <!-- The std::*atomic* dictionaries are only needed to work around a temporary bug in ROOT-->
- <class name="std::atomic<const void*>"/>
- <class name="std::__atomic_base<const void*>">
-  <field name="_M_p" transient = "true"/>
- </class>
- <class name="const void*"/>
- <class name="std::atomic<std::vector<const void*>*>"/>
- <class name="std::__atomic_base<std::vector<const void*>*>">
-   <field name="_M_p" transient = "true"/>
- </class>
- <class name="std::vector<const void*>*"/>
- <!-- end fix -->
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="cachePtr_">
    <![CDATA[
      edm::EDProductGetter const* getter;
