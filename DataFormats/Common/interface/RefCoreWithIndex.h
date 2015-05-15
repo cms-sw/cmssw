@@ -143,6 +143,7 @@ namespace edm {
 
   };
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   inline 
   void
   RefCoreWithIndex::swap(RefCoreWithIndex & other) {
@@ -151,6 +152,7 @@ namespace edm {
     other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));
     std::swap(elementIndex_,other.elementIndex_);
   }
+#endif
 
   inline void swap(edm::RefCoreWithIndex & lhs, edm::RefCoreWithIndex & rhs) {
     lhs.swap(rhs);

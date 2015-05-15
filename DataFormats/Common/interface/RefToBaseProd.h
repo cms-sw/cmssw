@@ -133,6 +133,7 @@ namespace edm {
     return * operator->();
   }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   /// Member dereference operator
   template<typename T>
   inline
@@ -160,6 +161,7 @@ namespace edm {
     }
     return viewPtr();
   }
+#endif
 
   template<typename T>
   inline

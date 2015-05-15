@@ -177,7 +177,7 @@ namespace edm {
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<std::vector<void const*>*> cachedItems_; //! transient
 #else
-    mutable td::vector<void const*>* cachedItems_;               //!transient
+    mutable std::vector<void const*>* cachedItems_;               //!transient
 #endif
 
   };

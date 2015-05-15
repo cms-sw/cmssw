@@ -21,9 +21,9 @@
 //
 
 // system include files
+#ifndef __GCCXML__
 #include <limits>
 #include <cstdint>
-#ifndef __GCCXML__
 #include <atomic>
 #endif
 
@@ -33,18 +33,28 @@
 namespace edm {
   namespace refcoreimpl {
     const unsigned short kTransientBit = 0x8000;
+    const unsigned short kProcessIndexMask = 0x3FFF;
+#ifndef __GCCXML__
     const std::uintptr_t kCacheIsProductPtrBit = 0x1;
     const std::uintptr_t kCacheIsProductPtrMask = std::numeric_limits<std::uintptr_t>::max() ^ kCacheIsProductPtrBit;
-    const unsigned short kProcessIndexMask = 0x3FFF;
 
     inline bool cacheIsProductPtr( void const* iPtr) {
       return 0 == (reinterpret_cast<std::uintptr_t>(iPtr) & refcoreimpl::kCacheIsProductPtrBit);
     }
 
-#ifndef __GCCXML__
     inline void setCacheIsProductGetter( std::atomic<void const*> & ptr, EDProductGetter const* iGetter) {
-      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter); tmp |=refcoreimpl::kCacheIsProductPtrBit; ptr.store(reinterpret_cast<void const*>(tmp));
+      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter); 
+      tmp |=refcoreimpl::kCacheIsProductPtrBit; 
+      ptr.store(reinterpret_cast<void const*>(tmp));
     }
+
+    //Used by ROOT 5 I/O rule
+    inline void setCacheIsProductGetter(void const*& ptr, EDProductGetter const* iGetter) {
+      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter); 
+      tmp |=refcoreimpl::kCacheIsProductPtrBit;
+      ptr = reinterpret_cast<void const*>(tmp);
+    }
+
 
     inline void setCacheIsItem(std::atomic<void const*>& iCache, void const* iNewValue) {
       iCache = iNewValue;
@@ -58,6 +68,22 @@ namespace edm {
       return false;
     }
 
+    inline void const* productPtr(std::atomic<void const*> const& iCache) {
+      auto tmp = iCache.load(); 
+      return refcoreimpl::cacheIsProductPtr(tmp)?tmp:static_cast<void const*>(nullptr);
+    }
+
+    inline EDProductGetter const* productGetter(std::atomic<void const*> const& iCache) {
+      auto tmp = iCache.load(); 
+      return (!refcoreimpl::cacheIsProductPtr(tmp))? reinterpret_cast<EDProductGetter const*>(reinterpret_cast<std::uintptr_t>(tmp)&refcoreimpl::kCacheIsProductPtrMask):static_cast<EDProductGetter const*>(nullptr);
+    }
+#else
+    bool cacheIsProductPtr( void const* iPtr) ;
+    void setCacheIsItem(void const*&, void const*);
+    void setCacheIsProductGetter(void const*&, EDProductGetter const*);
+    void const* productPtr(void const*);
+    EDProductGetter const* productGetter(void const*);
+    bool tryToSetCacheItemForFirstTime(void const*& iCache, void const* iNewValue);
 #endif
 
   }
@@ -65,11 +91,11 @@ namespace edm {
 
 #define ID_IMPL return ProductID(processIndex_ & refcoreimpl::kProcessIndexMask,productIndex_)
 
-#define PRODUCTPTR_IMPL auto tmp = cachePtr_.load(); return refcoreimpl::cacheIsProductPtr(tmp)?tmp:static_cast<void const*>(nullptr)
+#define PRODUCTPTR_IMPL return refcoreimpl::productPtr(cachePtr_)
 
 #define ISNONNULL_IMPL return isTransient() ? productPtr() != nullptr : id().isValid()
 
-#define PRODUCTGETTER_IMPL auto tmp = cachePtr_.load(); return (!refcoreimpl::cacheIsProductPtr(tmp))? reinterpret_cast<EDProductGetter const*>(reinterpret_cast<std::uintptr_t>(tmp)&refcoreimpl::kCacheIsProductPtrMask):static_cast<EDProductGetter const*>(nullptr)
+#define PRODUCTGETTER_IMPL return refcoreimpl::productGetter(cachePtr_)
 
 #define ISTRANSIENT_IMPL return 0!=(processIndex_ & refcoreimpl::kTransientBit)
 

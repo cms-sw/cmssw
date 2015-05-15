@@ -201,7 +201,7 @@ namespace edm {
     T const* getItem_(C const* product, key_type iKey);
 
     void getData_(bool throwIfNotFound = true) const {
-      auto getter = productGetter();
+      EDProductGetter const* getter = productGetter();
       if(getter != nullptr) {
         WrapperBase const* prod = getter->getIt(core_.id());
         unsigned int iKey = key_;

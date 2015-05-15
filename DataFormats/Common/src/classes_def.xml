@@ -87,7 +87,7 @@
  </class>
   <!-- -->
   <ioread sourceClass = "edm::PtrVectorBase" version="[1-]" targetClass="edm::PtrVectorBase" source = "" target="cachedItems_">
-    <![CDATA[delete cachedItems_.load(); cachedItems_=nullptr;
+    <![CDATA[delete &(*cachedItems_); cachedItems_=nullptr;
     ]]>
   </ioread>
    <!-- -->

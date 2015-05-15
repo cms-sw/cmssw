@@ -142,6 +142,7 @@ namespace edm {
     return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
   }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   inline 
   void
   RefCore::swap(RefCore & other) {
@@ -153,6 +154,7 @@ namespace edm {
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
     lhs.swap(rhs);
   }
+#endif
 }
 
 #endif
