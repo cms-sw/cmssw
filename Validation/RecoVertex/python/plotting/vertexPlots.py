@@ -15,7 +15,7 @@ _recovsgen = PlotGroup("recovsgen", [
                        legendDy=-0.025
 )
 _pvtagging = PlotGroup("pvtagging", [
-    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=0.045, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3),
+    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=15, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3),
     Plot("TruePVLocationIndex", xtitle="Index of signal PV in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, ylog=True, ymin=1e-5),
     Plot("MisTagRate_vs_PU", xtitle="PU", ytitle="Mistag rate vs. PU", title="", xmax=_maxPU, ymax=_maxFake),
     Plot("MisTagRate_vs_sum-pt2", xtitle="#Sigmap_{T}^{2}", ytitle="Mistag rate vs. #Sigmap_{T}^{2}", title="", xlog=True, ymax=_maxFake),

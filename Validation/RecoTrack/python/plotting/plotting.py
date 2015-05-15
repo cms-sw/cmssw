@@ -228,6 +228,168 @@ class AggregateHistos:
 _plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
 _plotStylesMarker = [21, 20, 22, 34, 33]
 
+def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, suffix=""):
+    if xbinlabels is None:
+        frame = pad.DrawFrame(*bounds)
+    else:
+        # Special form needed if want to set x axis bin labels
+        nbins = len(xbinlabels)
+        frame = ROOT.TH1F("hframe"+suffix, "", nbins, bounds[0], bounds[2])
+        frame.SetBit(ROOT.TH1.kNoStats)
+        frame.SetBit(ROOT.kCanDelete)
+        frame.SetMinimum(bounds[1])
+        frame.SetMaximum(bounds[3])
+        frame.GetYaxis().SetLimits(bounds[1], bounds[3])
+        frame.Draw("")
+
+        xaxis = frame.GetXaxis()
+        for i in xrange(nbins):
+            xaxis.SetBinLabel(i+1, xbinlabels[i])
+        if xbinlabelsize is not None:
+            xaxis.SetLabelSize(xbinlabelsize)
+        if xbinlabeloption is not None:
+            frame.LabelsOption(xbinlabeloption)
+
+    return frame
+
+class Frame:
+    def __init__(self, pad, bounds, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None):
+        self._pad = pad
+        self._frame = _drawFrame(pad, bounds, xbinlabels, xbinlabelsize, xbinlabeloption)
+
+        yoffsetFactor = 1
+        xoffsetFactor = 1
+        if nrows == 2:
+            yoffsetFactor *= 2
+            xoffsetFactor *= 2
+        elif nrows == 3:
+            yoffsetFactor *= 4
+            xoffsetFactor *= 3
+
+        self._frame.GetYaxis().SetTitleOffset(self._frame.GetYaxis().GetTitleOffset()*yoffsetFactor)
+        self._frame.GetXaxis().SetTitleOffset(self._frame.GetXaxis().GetTitleOffset()*xoffsetFactor)
+
+
+    def setLogx(self, log):
+        self._pad.SetLogx(log)
+
+    def setLogy(self, log):
+        self._pad.SetLogy(log)
+
+    def setGridx(self, grid):
+        self._pad.SetGridx(grid)
+
+    def setGridy(self, grid):
+        self._pad.SetGridy(grid)
+
+    def setTitle(self, title):
+        self._frame.SetTitle(title)
+
+    def setXTitle(self, title):
+        self._frame.GetXaxis().SetTitle(title)
+
+    def setYTitle(self, title):
+        self._frame.GetYaxis().SetTitle(title)
+
+    def setYTitleSize(self, size):
+        self._frame.GetYaxis().SetTitleSize(size)
+
+    def setYTitleOffset(self, offset):
+        self._frame.GetYaxis().SetTitleSize(offset)
+
+    def redrawAxis(self):
+        self._pad.RedrawAxis()
+
+class FrameRatio:
+    def __init__(self, pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None):
+        self._parentPad = pad
+        self._pad = pad.cd(1)
+        if xbinlabels is not None:
+            self._frame = _drawFrame(self._pad, bounds, [""]*len(xbinlabels))
+        else:
+            self._frame = _drawFrame(self._pad, bounds)
+        self._padRatio = pad.cd(2)
+        self._frameRatio = _drawFrame(self._padRatio, ratioBounds, xbinlabels, xbinlabelsize, xbinlabeloption)
+
+        self._frame.GetXaxis().SetLabelSize(0)
+        self._frame.GetXaxis().SetTitleSize(0)
+
+        yoffsetFactor = ratioFactor
+        divisionPoint = 1-1/ratioFactor
+        xoffsetFactor = 1/divisionPoint #* 0.6
+
+        if nrows == 1:
+            xoffsetFactor *= 0.6
+        elif nrows == 2:
+            yoffsetFactor *= 2
+            xoffsetFactor *= 1.5
+        elif nrows == 3:
+            yoffsetFactor *= 4
+            xoffsetFactor *= 2
+
+        self._frame.GetYaxis().SetTitleOffset(self._frameRatio.GetYaxis().GetTitleOffset()*yoffsetFactor)
+        self._frameRatio.GetYaxis().SetLabelSize(int(self._frameRatio.GetYaxis().GetLabelSize()*0.8))
+        self._frameRatio.GetYaxis().SetTitleOffset(self._frameRatio.GetYaxis().GetTitleOffset()*yoffsetFactor)
+        self._frameRatio.GetXaxis().SetTitleOffset(self._frameRatio.GetXaxis().GetTitleOffset()*xoffsetFactor)
+
+        self._frameRatio.GetYaxis().SetNdivisions(4, 5, 0)
+
+        self._frameRatio.GetYaxis().SetTitle("Ratio")
+
+    def setLogx(self, log):
+        self._pad.SetLogx(log)
+        self._padRatio.SetLogx(log)
+
+    def setLogy(self, log):
+        self._pad.SetLogy(log)
+
+    def setGridx(self, grid):
+        self._pad.SetGridx(grid)
+        self._padRatio.SetGridx(grid)
+
+    def setGridy(self, grid):
+        self._pad.SetGridy(grid)
+        self._padRatio.SetGridy(grid)
+
+    def setTitle(self, title):
+        self._frame.SetTitle(title)
+
+    def setXTitle(self, title):
+        self._frameRatio.GetXaxis().SetTitle(title)
+
+    def setYTitle(self, title):
+        self._frame.GetYaxis().SetTitle(title)
+
+    def setYTitleRatio(self, title):
+        self._frameRatio.GetYaxis().SetTitle(title)
+
+    def setYTitleSize(self, size):
+        self._frame.GetYaxis().SetTitleSize(size)
+        self._frameRatio.GetYaxis().SetTitleSize(size)
+
+    def setYTitleOffset(self, offset):
+        self._frame.GetYaxis().SetTitleSize(offset)
+        self._frameRatio.GetYaxis().SetTitleSize(offset)
+
+    def redrawAxis(self):
+        self._padRatio.RedrawAxis()
+        self._pad.RedrawAxis()
+
+        self._parentPad.cd()
+
+        # pad to hide the lowest y axis label of the main pad
+        xmin=0.065
+        ymin=0.285
+        xmax=0.128
+        ymax=0.33
+        self._coverPad = ROOT.TPad("coverpad", "coverpad", xmin, ymin, xmax, ymax)
+        self._coverPad.SetBorderMode(0)
+        self._coverPad.Draw()
+
+        self._pad.cd()
+        self._pad.Pop() # Move the first pad on top
+
+
 class Plot:
     """Represents one plot, comparing one or more histograms."""
     def __init__(self, name, **kwargs):
@@ -269,6 +431,8 @@ class Plot:
         legendDy     -- Float for moving TLegend in y direction for separate=True (default None)
         legendDw     -- Float for changing TLegend width for separate=True (default None)
         legendDh     -- Float for changing TLegend height for separate=True (default None)
+        ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
+        ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
         """
         self._name = name
@@ -315,6 +479,9 @@ class Plot:
         _set("legendDy", None)
         _set("legendDw", None)
         _set("legendDh", None)
+
+        _set("ratioYmin", 0.9)
+        _set("ratioYmax", 1.1)
 
         _set("histogramModifier", None)
 
@@ -398,7 +565,7 @@ class Plot:
         def _doStats(h, col, dy):
             if h is None:
                 return
-            h.SetStats(1)
+            h.SetStats(True)
 
             if self._fit:
                 h.Fit("gaus", "Q")
@@ -439,7 +606,7 @@ class Plot:
                 continue
             h.Scale(1.0/i)
 
-    def draw(self, algo):
+    def draw(self, algo, pad, ratio, ratioFactor, nrows):
         """Draw the histograms using values for a given algorithm."""
         if self._normalizeToUnitArea:
             self._normalize()
@@ -476,12 +643,6 @@ class Plot:
             print "No histograms for plot {name}".format(name=self._name)
             return
 
-        # Set log and grid
-        ROOT.gPad.SetLogx(self._xlog)
-        ROOT.gPad.SetLogy(self._ylog)
-        ROOT.gPad.SetGridx(self._xgrid)
-        ROOT.gPad.SetGridy(self._ygrid)
-
         # Return value if number, or algo-specific value if AlgoOpt
         def _getVal(val):
             if hasattr(val, "value"):
@@ -494,6 +655,11 @@ class Plot:
 
         # Create bounds before stats in order to have the
         # SetRangeUser() calls made before the fit
+        #
+        # stats is better to be called before frame, otherwise get
+        # mess in the plot (that frame creation cleans up)
+        if ratio:
+            pad.cd(1)
         self._setStats(self._statx, self._staty)
 
         xbinlabels = self._xbinlabels
@@ -504,37 +670,31 @@ class Plot:
                     xbinlabels.append(histos[0].GetXaxis().GetBinLabel(i))
 
         # Create frame
-        if xbinlabels is None:
-            frame = ROOT.gPad.DrawFrame(*bounds)
+        if ratio:
+            ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
+            frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, self._xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
         else:
-            # Special form needed if want to set x axis bin labels
-            nbins = len(xbinlabels)
-            frame = ROOT.TH1F("hframe", "hframe", nbins, bounds[0], bounds[2])
-            frame.SetBit(ROOT.TH1.kNoStats)
-            frame.SetBit(ROOT.kCanDelete)
-            frame.SetMinimum(bounds[1])
-            frame.SetMaximum(bounds[3])
-            frame.GetYaxis().SetLimits(bounds[1], bounds[3])
-            frame.Draw("")
+            frame = Frame(pad, bounds, nrows, self._xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
 
-            xaxis = frame.GetXaxis()
-            for i in xrange(nbins):
-                xaxis.SetBinLabel(i+1, xbinlabels[i])
-            if self._xbinlabelsize is not None:
-                xaxis.SetLabelSize(self._xbinlabelsize)
-            if self._xbinlabeloption is not None:
-                frame.LabelsOption(self._xbinlabeloption)
+        # Set log and grid
+        frame.setLogx(self._xlog)
+        frame.setLogy(self._ylog)
+        frame.setGridx(self._xgrid)
+        frame.setGridy(self._ygrid)
 
         # Set properties of frame
-        frame.SetTitle(histos[0].GetTitle())
+        frame.setTitle(histos[0].GetTitle())
         if self._xtitle is not None:
-            frame.GetXaxis().SetTitle(self._xtitle)
+            frame.setXTitle(self._xtitle)
         if self._ytitle is not None:
-            frame.GetYaxis().SetTitle(self._ytitle)
+            frame.setYTitle(self._ytitle)
         if self._ytitlesize is not None:
-            frame.GetYaxis().SetTitleSize(self._ytitlesize)
+            frame.setYTitleSize(self._ytitlesize)
         if self._ytitleoffset is not None:
-            frame.GetYaxis().SetTitleOffset(self._ytitleoffset)
+            frame.setTitleOffset(self._ytitleoffset)
+
+        if ratio:
+            frame._pad.cd()
 
         # Draw histograms
         opt = "sames" # s for statbox or something?
@@ -545,10 +705,30 @@ class Plot:
             ds = self._drawCommand
         if len(ds) > 0:
             opt += " "+ds
+
+        if ratio:
+            frame._pad.cd()
+
         for h in histos:
             h.Draw(opt)
 
-        ROOT.gPad.RedrawAxis()
+        # Draw ratios
+        if ratio and len(histos) > 0:
+            frame._padRatio.cd()
+            self._ratios = self._calculateRatios(histos) # need to keep these in memory too ...
+#            self._ratios[0]._ratio.SetFillStyle(1001)
+#            self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
+#            self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
+#            self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
+#            self._ratios[0]._ratio.SetMarkerSize(0)
+#            self._ratios[0].draw("E2")
+            for r in self._ratios[1:]:
+                r.draw()
+
+            ref = histos[0]
+            refDraw = ref.Clone(ref.GetName()+"_reference")
+
+        frame.redrawAxis()
         self._frame = frame # keep the frame in memory for sure
 
     def addToLegend(self, legend, legendLabels):
@@ -562,6 +742,106 @@ class Plot:
             if h is None:
                 continue
             legend.AddEntry(h, label, "LP")
+
+    def _calculateRatios(self, histos):
+        def _divideOrZero(numerator, denominator):
+            if denominator == 0:
+                return 0
+            return numerator/denominator
+        class WrapTH1:
+            def __init__(self, th1):
+                self._th1 = th1
+                self._ratio = th1.Clone()
+            def draw(self, style="EP"):
+                self._ratio.Draw("same "+style)
+            def begin(self):
+                return 1
+            def end(self):
+                return self._th1.GetNbinsX()+1
+            def xvalues(self, bin):
+                xval = self._th1.GetBinCenter(bin)
+                xlow = xval-self._th1.GetXaxis().GetBinLowEdge(bin)
+                xhigh = self._th1.GetXaxis().GetBinUpEdge(bin)-xval
+                return (xval, xlow, xhigh)
+            def yvalues(self, bin):
+                yval = self._th1.GetBinContent(bin)
+                yerr = self._th1.GetBinError(bin)
+                return (yval, yerr, yerr)
+            def y(self, bin):
+                return self._th1.GetBinContent(bin)
+            def divide(self, bin, scale, xcenter):
+                self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
+                self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
+
+        class WrapTGraph:
+            def __init__(self, gr):
+                self._gr = gr
+                self._xvalues = []
+                self._xerrslow = []
+                self._xerrshigh = []
+                self._yvalues = []
+                self._yerrshigh = []
+                self._yerrslow = []
+                self._binOffset = 0
+            def draw(self, style="PZ"):
+                if len(self.xvalues) == 0:
+                    return
+                self._ratio = ROOT.TGraphAsymmErrors(len(self.xvalues), array.array("d", self.xvalues), array.array("d", self.yvalues),
+                                                     array.array("d", self.xerrslow), array.array("d", self.xerrshigh), 
+                                                     array.array("d", self.yerrslow), array.array("d", self.yerrshigh))
+                self._ratio.Draw("same "+style)
+            def begin(self):
+                return 0
+            def end(self):
+                return self._gr.GetN()
+            def xvalues(self, bin):
+                return (self._gr.GetX()[bin], self._gr.GetErrorXlow(bin), self._gr.GetErrorXhigh(bin))
+            def yvalues(self, bin):
+                return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
+            def y(self, bin):
+                return self._gr.GetY()[bin]
+            def divide(self, bin, scale, xcenter):
+                # Ignore bin if denominator is zero
+                if scale == 0:
+                    return
+                # No more items in the numerator
+                if bin >= self._gr.GetN():
+                    return
+                # denominator is missing an item
+                trueBin = bin + self.binOffset
+                xval = self._gr.GetX()[trueBin]
+                epsilon = 1e-3 * xval # to allow floating-point difference between TGraph and TH1
+                if xval+epsilon < xcenter:
+                    self.binOffset -= 1
+                    return
+                # numerator is missing an item
+                elif xval-epsilon > xcenter:
+                    self.binOffset += 1
+                    return
+
+                self.xvalues.append(xval)
+                self.xerrslow.append(self._gr.GetErrorXlow(trueBin))
+                self.xerrshigh.append(self._gr.GetErrorXhigh(trueBin))
+                self.yvalues.append(self._gr.GetY()[trueBin] / scale)
+                self.yerrslow.append(self._gr.GetErrorYlow(trueBin) / scale)
+                self.yerrshigh.append(self._gr.GetErrorYhigh(trueBin) / scale)
+
+        def wrap(o):
+            if isinstance(o, ROOT.TH1):
+                return WrapTH1(o)
+            elif isinstance(o, ROOT.TGrapgh):
+                return WrapTGraph(o)
+
+        wrappers = [wrap(h) for h in histos]
+        ref = wrappers[0]
+
+        for bin in xrange(ref.begin(), ref.end()):
+            (scale, ylow, yhigh) = ref.yvalues(bin)
+            (xval, xlow, xhigh) = ref.xvalues(bin)
+            for w in wrappers:
+                w.divide(bin, scale, xval)
+
+        return wrappers
 
 class PlotGroup:
     """Group of plots, results a TCanvas"""
@@ -592,12 +872,14 @@ class PlotGroup:
 
         _set("overrideLegendLabels", None)
 
+        self._ratioFactor = 1.25
+
     def create(self, tdirectories):
         """Create histograms from a list of TDirectories."""
         for plot in self._plots:
             plot.create(tdirectories)
 
-    def draw(self, algo, legendLabels, prefix=None, separate=False, saveFormat=".pdf"):
+    def draw(self, algo, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
@@ -606,36 +888,34 @@ class PlotGroup:
         prefix        -- Optional string for file name prefix (default None)
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
+        ratio        -- Add ratio to the plot (default False)
         """
 
         if self._overrideLegendLabels is not None:
             legendLabels = self._overrideLegendLabels
 
         if separate:
-            return self._drawSeparate(algo, legendLabels, prefix, saveFormat)
+            return self._drawSeparate(algo, legendLabels, prefix, saveFormat, ratio)
 
         cwidth = 1000
-        if len(self._plots) <= 2:
-            cheight = 500
-        elif len(self._plots) <= 4:
-            cheight = 1050
-        elif len(self._plots) <= 6:
-            cheight = 1400
-        elif len(self._plots) <= 8:
-            cheight = 1750
-        elif len(self._plots) <= 10:
-            cheight = 2100
-        else:
-            cheight = 2450
+        nrows = int((len(self._plots)+1)/2) # this should work also for odd n
+        cheight = 500 * nrows
+
+        if ratio:
+            cheight = int(cheight*self._ratioFactor)
 
         canvas = ROOT.TCanvas(self._name, self._name, cwidth, cheight)
 
-        canvas.Divide(2, int((len(self._plots)+1)/2)) # this should work also for odd n
+        canvas.Divide(2, nrows)
+        if ratio:
+            for i in xrange(0, len(self._plots)):
+                pad = canvas.cd(i+1)
+                self._modifyPadForRatio(pad)
 
         # Draw plots to canvas
         for i, plot in enumerate(self._plots):
-            canvas.cd(i+1)
-            plot.draw(algo)
+            pad = canvas.cd(i+1)
+            plot.draw(algo, pad, ratio, self._ratioFactor, nrows)
 
         # Setup legend
         canvas.cd()
@@ -664,14 +944,18 @@ class PlotGroup:
 
         return self._save(canvas, saveFormat, prefix=prefix)
 
-    def _drawSeparate(self, algo, legendLabels, prefix, saveFormat):
-        canvas = ROOT.TCanvas(self._name+"Single", self._name, 500, 500)
+    def _drawSeparate(self, algo, legendLabels, prefix, saveFormat, ratio):
+        width = 500
+        height = 500
+        if ratio:
+            height = int(height*self._ratioFactor)
+
+        canvas = ROOT.TCanvas(self._name+"Single", self._name, width, height)
         # from TDRStyle
         canvas.SetTopMargin(0.05)
         canvas.SetBottomMargin(0.13)
         canvas.SetLeftMargin(0.16)
         canvas.SetRightMargin(0.05)
-
 
         lx1def = 0.6
         lx2def = 0.95
@@ -681,9 +965,14 @@ class PlotGroup:
         ret = []
 
         for plot in self._plots:
+            if ratio:
+                canvas.cd()
+                self._modifyPadForRatio(canvas)
+
             # Draw plot to canvas
             canvas.cd()
-            plot.draw(algo)
+            plot.draw(algo, canvas, ratio, self._ratioFactor, 1)
+
 
             # Setup legend
             lx1 = lx1def
@@ -702,10 +991,40 @@ class PlotGroup:
             if plot._legendDh is not None:
                 ly1 -= plot._legendDh
 
+            canvas.cd()
             legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03)
 
-            ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName()))
+            ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
         return ret
+
+    def _modifyPadForRatio(self, pad):
+        pad.Divide(1, 2)
+
+        divisionPoint = 1-1/self._ratioFactor
+
+        topMargin = pad.GetTopMargin()
+        bottomMargin = pad.GetBottomMargin()
+        divisionPoint += (1-divisionPoint)*bottomMargin # correct for (almost-)zeroing bottom margin of pad1
+        divisionPointForPad1 = 1-( (1-divisionPoint) / (1-0.02) ) # then correct for the non-zero bottom margin, but for pad1 only
+
+        # Set the lower point of the upper pad to divisionPoint
+        pad1 = pad.cd(1)
+        yup = 1.0
+        ylow = divisionPointForPad1
+        xup = 1.0
+        xlow = 0.0
+        pad1.SetPad(xlow, ylow, xup, yup)
+        pad1.SetFillStyle(4000) # transparent
+        pad1.SetBottomMargin(0.02) # need some bottom margin here for eps/pdf output (at least in ROOT 5.34)
+
+        # Set the upper point of the lower pad to divisionPoint
+        pad2 = pad.cd(2)
+        yup = divisionPoint
+        ylow = 0.0
+        pad2.SetPad(xlow, ylow, xup, yup)
+        pad2.SetFillStyle(4000) # transparent
+        pad2.SetTopMargin(0.0)
+        pad2.SetBottomMargin(bottomMargin/(self._ratioFactor*divisionPoint))
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016):
         l = ROOT.TLegend(lx1, ly1, lx2, ly2)
@@ -720,7 +1039,7 @@ class PlotGroup:
         l.Draw()
         return l
 
-    def _save(self, canvas, saveFormat, prefix=None, postfix=None):
+    def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False):
         # Save the canvas to file and clear
         name = self._name
         if prefix is not None:
@@ -728,7 +1047,12 @@ class PlotGroup:
         if postfix is not None:
             name = name+postfix
         canvas.SaveAs(name+saveFormat)
-        canvas.Clear()
+        if single:
+            canvas.Clear()
+            canvas.SetLogx(False)
+            canvas.SetLogy(False)
+        else:
+            canvas.Clear("D") # keep subpads
 
         return [name+saveFormat]
 
@@ -747,16 +1071,30 @@ class Plotter:
         self._plotGroups = plotGroups
         self._saveFormat = saveFormat
 
+        _absoluteSize = True
+        if _absoluteSize:
+            font = 43
+            titleSize = 22
+            labelSize = 22
+            statSize = 14
+        else:
+            font = 42
+            titleSize = 0.05
+            labelSize = 0.05
+            statSize = 0.025
+
         ROOT.gROOT.SetStyle("Plain")
         ROOT.gStyle.SetPadRightMargin(0.07)
         ROOT.gStyle.SetPadLeftMargin(0.13)
-        ROOT.gStyle.SetTitleFont(42, "XYZ")
-        ROOT.gStyle.SetTitleSize(0.05, "XYZ")
+        ROOT.gStyle.SetTitleFont(font, "XYZ")
+        ROOT.gStyle.SetTitleSize(titleSize, "XYZ")
         ROOT.gStyle.SetTitleOffset(1.2, "Y")
         #ROOT.gStyle.SetTitleFontSize(0.05)
-        ROOT.gStyle.SetLabelFont(42, "XYZ")
-        ROOT.gStyle.SetLabelSize(0.05, "XYZ")
-        ROOT.gStyle.SetTextSize(0.05)
+        ROOT.gStyle.SetLabelFont(font, "XYZ")
+        ROOT.gStyle.SetLabelSize(labelSize, "XYZ")
+        ROOT.gStyle.SetTextSize(labelSize)
+        ROOT.gStyle.SetStatFont(font)
+        ROOT.gStyle.SetStatFontSize(statSize)
 
         ROOT.TH1.AddDirectory(False)
 
@@ -825,7 +1163,7 @@ class Plotter:
         for pg in self._plotGroups:
             pg.create(dirs)
 
-    def draw(self, algo, prefix=None, separate=False, saveFormat=None):
+    def draw(self, algo, prefix=None, separate=False, saveFormat=None, ratio=False):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
@@ -833,6 +1171,7 @@ class Plotter:
         prefix   -- Optional string for file name prefix (default None)
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat -- If given, overrides the saveFormat
+        ratio    -- Add ratio to the plot (default False)
         """
         ret = []
 
@@ -841,6 +1180,6 @@ class Plotter:
             sf = saveFormat
 
         for pg in self._plotGroups:
-            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=sf))
+            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=sf, ratio=ratio))
         return ret
 
