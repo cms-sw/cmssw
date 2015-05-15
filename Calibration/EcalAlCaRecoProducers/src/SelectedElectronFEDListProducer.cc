@@ -45,7 +45,7 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
   else throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron flag are given --> need at least one \n"; 
   
   if(isGsfElectronCollection_.size() != electronTags_.size() or isGsfElectronCollection_.size() != recoEcalCandidateTags_.size()) 
-    throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] electron flag , electron collection and reco ecal cand \n";
+    throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] electron flag , electron collection and reco ecal cand collection must have the same size ! \n";
   
   // take the beam spot Tag 
   if(iConfig.existsAs<edm::InputTag>("beamSpot"))
