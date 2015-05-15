@@ -30,7 +30,8 @@ photons.maxHoverEBarrel = cms.double(0.99)  #0.5
 photons.primaryVertexProducer = cms.InputTag('hiSelectedVertex') # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
 
-hiPhotonSequence = cms.Sequence(photonSequence)
+from RecoHI.HiEgammaAlgos.AODHIPhotonProducer_cfi import AODHIPhotonProducer
+hiPhotonSequence = cms.Sequence(photonSequence * AODHIPhotonProducer)
 
 
 # HI Ecal reconstruction
