@@ -64,20 +64,14 @@ caloParams = cms.ESProducer(
     tauPUSType                 = cms.string("None"),
     isoTauEtaMin                  = cms.int32(0),
     isoTauEtaMax                  = cms.int32(17),
-	tauIsoAreaNrTowersEta 		  = cms.uint32(2),
+    tauIsoAreaNrTowersEta 		  = cms.uint32(2),
     tauIsoAreaNrTowersPhi		  = cms.uint32(4),
     tauIsoVetoNrTowersPhi 		  = cms.uint32(2),
     tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUTetPU.txt"),
-    tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt"),
-    tauCalibrationLUTFileBarrelB  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelB.txt"),
-    tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelC.txt"),
-    tauCalibrationLUTFileEndcapsA = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsA.txt"),
-    tauCalibrationLUTFileEndcapsB = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsB.txt"),
-    tauCalibrationLUTFileEndcapsC = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsC.txt"),
     tauCalibrationLUTFileEta      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEta.txt"),
     tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT.txt"),
+    tauEtToHFRingEtLUTFile        = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauHwEtToHFRingScale_LUT.txt"),
     tauPUSParams                  = cms.vdouble(1,4,27),
-
 
     # jets
     jetLsb                = cms.double(0.5),

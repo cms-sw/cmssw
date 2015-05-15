@@ -2,7 +2,7 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-#include "CaloCollections.h"
+#include "L1TObjectCollections.h"
 
 namespace l1t {
    namespace stage2 {
@@ -29,12 +29,12 @@ namespace stage2 {
      int firstBX = -(ceil((double)nBX/2.)-1);
      int lastBX;
      if (nBX % 2 == 0) {
-       lastBX = ceil((double)nBX/2.)+1;
-     } else {
        lastBX = ceil((double)nBX/2.);
+     } else {
+       lastBX = ceil((double)nBX/2.)-1;
      }
 
-     auto res_ = static_cast<CaloCollections*>(coll)->getEGammas();
+     auto res_ = static_cast<L1TObjectCollections*>(coll)->getEGammas();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -43,7 +43,7 @@ namespace stage2 {
      int unsigned i = 0;
 
      // Loop over multiple BX and then number of EG cands filling collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
 
        for (unsigned nEG=0; nEG < 12 && nEG < block.header().getSize(); nEG++){
 

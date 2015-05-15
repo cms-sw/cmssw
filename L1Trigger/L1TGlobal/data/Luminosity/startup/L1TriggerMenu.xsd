@@ -10,9 +10,9 @@
 
 -->
 
-<xs:schema targetNamespace="http://www.cern.ch/l1t/0.6.0"
+<xs:schema targetNamespace="http://www.cern.ch/l1t/0.7.0"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:l1t="http://www.cern.ch/l1t/0.6.0"
+  xmlns:l1t="http://www.cern.ch/l1t/0.7.0"
   elementFormDefault="qualified" attributeFormDefault="unqualified">
 
   <!--
@@ -271,6 +271,24 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="EnergySumsObjectType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Type of energy sums object types.
+         * ett
+         * etm
+         * htt
+         * htm
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ett"/>
+      <xs:enumeration value="etm"/>
+      <xs:enumeration value="htt"/>
+      <xs:enumeration value="htm"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="EtThreshold">
     <xs:annotation>
       <xs:documentation xml:lang="en">
@@ -393,7 +411,6 @@
       <xs:element name="condCalorimeter" type="l1t:CalorimeterCondition"/>
       <xs:element name="condMuon" type="l1t:MuonCondition"/>
       <xs:element name="condEnergySums" type="l1t:EnergySumsCondition"/>
-      <xs:element name="condCorrelation" type="l1t:CorrelationCondition"/>
     </xs:choice>
   </xs:complexType>
 
@@ -437,6 +454,17 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="CalorimeterIsolationLUT">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Isolation lookup table with 16 flags.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="16" maxOccurs="16">
+      <xs:element name="isolation" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="CalorimeterObjectRequirement">
     <xs:annotation>
       <xs:documentation xml:lang="en">
@@ -449,6 +477,7 @@
       <xs:element name="etThreshold" type="l1t:EtThreshold"/>
       <xs:element name="phiWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
       <xs:element name="etaWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="isolationLut" type="l1t:CalorimeterIsolationLUT"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -503,7 +532,7 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="MuonObjectRequirementList">
+  <xs:complexType name="MuonObjectRequirements">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Container capable of storing up to 4 object parameter sets.
@@ -547,7 +576,7 @@
         <xs:sequence>
           <xs:element name="type" type="l1t:ConditionType"/>
           <xs:element name="comparison_operator" type="l1t:ComparisonOperator"/>
-          <xs:element name="objectRequirements" type="l1t:MuonObjectRequirementList"/>
+          <xs:element name="objectRequirements" type="l1t:MuonObjectRequirements"/>
           <xs:element name="requestedChargeCorr" type="l1t:MuonRequstedChargeCorr"/>
           <xs:element name="deltaRequirement" type="l1t:DeltaRequirement" minOccurs="0"/>
           <xs:element name="relativeBx" type="l1t:RelativeBx"/>
@@ -556,25 +585,35 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="EnergySumsObjectRequirement">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Universal object parameter set to be used for ett, etm, htt and htm objects.
+        Phi and eta ranges can occur up to two times (up to two windows) or can
+        be omitted (full range is used).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1" maxOccurs="1" >
+      <xs:element name="etThreshold" type="l1t:EtThreshold"/>
+      <xs:element name="phiWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="EnergySumsCondition">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Muon condition type.
+        Energy Sums condition type.
       </xs:documentation>
     </xs:annotation>
     <xs:complexContent>
-      <xs:extension base="l1t:Condition"/>
-    </xs:complexContent>
-  </xs:complexType>
-
-  <xs:complexType name="CorrelationCondition">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">
-        Correlation condition type.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:complexContent>
-      <xs:extension base="l1t:Condition"/>
+      <xs:extension base="l1t:Condition">
+        <xs:sequence>
+          <xs:element name="comparison_operator" type="l1t:ComparisonOperator"/>
+          <xs:element name="objectType" type="l1t:EnergySumsObjectType"/>
+          <xs:element name="objectRequirement" type="l1t:EnergySumsObjectRequirement"/>
+          <xs:element name="relativeBx" type="l1t:RelativeBx"/>
+        </xs:sequence>
+      </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
