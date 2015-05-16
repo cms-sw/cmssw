@@ -120,22 +120,24 @@ namespace cond {
       m_session = rhs.m_session;
       return *this;
     }
-    
+
     void IOVProxy::load( const std::string& tag, bool full ){
+      if( !m_data.get() ) return;
+
       // clear
       reset();
       
       checkTransaction( "IOVProxy::load" );
+
       std::string dummy;
       if(!m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->synchronizationType,
 						    m_data->endOfValidity, dummy, m_data->lastValidatedTime ) ){
 	throwException( "Tag \""+tag+"\" has not been found in the database.","IOVProxy::load");
       }
       m_data->tag = tag;
-      
+
       // now get the iov sequence when required
       if( full ) {
-	
 	// load the full iov sequence in this case!
 	m_session->iovSchema().iovTable().selectLatest( m_data->tag, m_data->iovSequence );
 	m_data->groupLowerIov = cond::time::MIN_VAL;
@@ -216,7 +218,7 @@ namespace cond {
 	  m_data->groupLowerIov = cond::time::MIN_VAL;
 	}
         if( higherGroup < cond::time::MAX_VAL ) {
-	  m_data->groupHigherIov = std::get<0>(m_data->iovSequence.back());
+	  m_data->groupHigherIov = higherGroup-1;
 	} else {
 	  m_data->groupHigherIov = cond::time::MAX_VAL;
 	}
@@ -257,42 +259,26 @@ namespace cond {
     
     IOVProxy::Iterator IOVProxy::find(cond::Time_t time) {
       checkTransaction( "IOVProxy::find" );
+      // organize iovs in pages...
       // first check the available iov cache:
-      // case 0 empty cache ( the first request )
-      
-      /** Pageing switched off temporarily 
-      if( m_data->groupLowerIov == cond::time::MAX_VAL ||
-	  // case 1 : target outside
-	  time < m_data->groupLowerIov || time >= m_data->groupHigherIov ){
+      if( m_data->groupLowerIov == cond::time::MAX_VAL ||                    // case 0 : empty cache ( the first request ) 
+	  time < m_data->groupLowerIov || time >= m_data->groupHigherIov ){  // case 1 : target outside  
 	
 	// a new query required!
 	// first determine the groups
 	auto iGLow = search( time, m_data->sinceGroups );
 	if( iGLow == m_data->sinceGroups.end() ){
-	  // so suitable group=no iov at all! exiting...
+	  // no suitable group=no iov at all! exiting...
 	  return end();
 	}
 	auto iGHigh = iGLow;
-	cond::Time_t lowG = 0;
-	// unless the low group is the first one available, move the previous one to fully cover the interval
-	if( iGLow != m_data->sinceGroups.begin() ){
-	  iGLow--;
-	  lowG = *iGLow;
-	}
-	// the upper group will be also extended to the next (covering in total up to three groups )
+	cond::Time_t lowG = *iGLow;
 	iGHigh++;
 	cond::Time_t highG = cond::time::MAX_VAL;
-	if( iGHigh != m_data->sinceGroups.end() ) {
-	  iGHigh++;
-	  if( iGHigh != m_data->sinceGroups.end() ) highG = *iGHigh;
-	}
+	if( iGHigh != m_data->sinceGroups.end() ) highG = *iGHigh;
+
 	// finally, get the iovs for the selected group interval!!
 	fetchSequence( lowG, highG );
-      }
-      **/
-      // only one page...
-      if( m_data->groupLowerIov == cond::time::MAX_VAL ){
-	fetchSequence( cond::time::MIN_VAL, cond::time::MAX_VAL );
       }
       
       // the current iov set is a good one...
