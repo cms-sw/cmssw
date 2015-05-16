@@ -147,7 +147,7 @@ namespace helper {
 
 
   template<>
-  struct StoreManagerTrait<reco::TrackCollection> {
+  struct StoreManagerTrait< reco::TrackCollection, edm::stream::EDFilter<> > {
     typedef TrackCollectionStoreManager type;
     typedef TrackSelectorBase base;
   };
