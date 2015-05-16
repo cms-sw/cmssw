@@ -442,6 +442,10 @@ namespace cond {
       m_coralQuery->addToOrderList( orderClause );
     }
 
+    void groupBy( const std::string& expression ){
+      m_coralQuery->groupBy( expression );
+    }
+
     void setForUpdate(){
       m_coralQuery->setForUpdate();
     }

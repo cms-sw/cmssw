@@ -32,7 +32,8 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 
-IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
+IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) :
+   trackerHitAssociatorConfig_(consumesCollector()) {
 
   //now do what ever initialization is needed
   doMC                   = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
@@ -455,8 +456,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (doMC) iEvent.getByToken(tok_caloHH_, pcalohh);
   
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate=0;
-  if (doMC) associate = new TrackerHitAssociator(iEvent);
+  std::unique_ptr<TrackerHitAssociator> associate;
+  if (doMC) associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
   //===================================================================================
   

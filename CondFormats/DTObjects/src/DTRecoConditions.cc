@@ -22,13 +22,16 @@ using std::endl;
 DTRecoConditions::DTRecoConditions() : 
   formula(nullptr),
   formulaType(0),  
-  expression("[0]")
+  expression("[0]"),
+  theVersion(0)
 {}
 
 DTRecoConditions::DTRecoConditions(const DTRecoConditions& iOther):
   formula(nullptr),
   formulaType(0),
-  expression(iOther.expression)
+  expression(iOther.expression),
+  payload(iOther.payload),
+  theVersion(iOther.theVersion)
 {}
 
 const DTRecoConditions& 
@@ -38,6 +41,8 @@ DTRecoConditions::operator=(const DTRecoConditions& iOther)
   formula=nullptr;
   formulaType =0;
   expression = iOther.expression;
+  payload = iOther.payload;
+  theVersion=iOther.theVersion;
   return *this;
 }
 

@@ -82,25 +82,20 @@ namespace cond {
       column( SINCE, cond::Time_t );
       column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
       column( INSERTION_TIME, boost::posix_time::ptime );
-      
-      struct MAX_SINCE {					 
-	typedef cond::Time_t type;				   
-	static constexpr size_t size = 0;
-	static std::string tableName(){ return SINCE::tableName(); }	
-	static std::string fullyQualifiedName(){ 
-	  return std::string("MAX(")+SINCE::fullyQualifiedName()+")";
-	} 
-      };
+
       struct SINCE_GROUP {					 
 	typedef cond::Time_t type;				   
 	static constexpr size_t size = 0;
 	static std::string tableName(){ return SINCE::tableName(); }	
 	static std::string fullyQualifiedName(){ 
-	  std::string sgroupSize = boost::lexical_cast<std::string>(cond::time::SINCE_GROUP_SIZE);
-	  return "("+SINCE::fullyQualifiedName()+"/"+sgroupSize+")*"+sgroupSize;	  
+	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
 	} 
+	static std::string group(){
+	  std::string sgroupSize = boost::lexical_cast<std::string>( cond::time::SINCE_GROUP_SIZE);
+	  return "CAST("+SINCE::fullyQualifiedName()+"/"+sgroupSize+" AS INT )*"+sgroupSize;
+	}
       };
-
+ 
       struct SEQUENCE_SIZE {
 	typedef unsigned int type;
 	static constexpr size_t size = 0;

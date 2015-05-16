@@ -114,7 +114,7 @@ namespace cond {
       buffer.addWhereCondition<NAME>( name );
       updateTable( m_schema, tname, buffer );
     }
-    
+
     IOV::Table::Table( coral::ISchema& schema ):
       m_schema( schema ){
     }
@@ -139,6 +139,7 @@ namespace cond {
     size_t IOV::Table::selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups ){
       Query< SINCE_GROUP > q( m_schema, true );
       q.addCondition<TAG_NAME>( tag );
+      q.groupBy(SINCE_GROUP::group());
       q.addOrderClause<SINCE_GROUP>();
       for( auto row : q ){
 	groups.push_back(std::get<0>(row));
@@ -150,6 +151,7 @@ namespace cond {
       Query< SINCE_GROUP > q( m_schema, true );
       q.addCondition<TAG_NAME>( tag );
       q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
+      q.groupBy(SINCE_GROUP::group());
       q.addOrderClause<SINCE_GROUP>();
       for( auto row : q ){
 	groups.push_back(std::get<0>(row));
