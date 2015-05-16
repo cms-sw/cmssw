@@ -76,7 +76,6 @@ void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, cons
         throw cms::Exception("Unsupported", "Reading PSets not supported, for now just use input tag");
     } else if (basePSet.existsAs<edm::InputTag>(name) ) {
         const edm::InputTag & baseTag = basePSet.getParameter<edm::InputTag>(name);
-	// const std::string &encoded = baseTag.encode();
 
 	if(level==pat::MET::T1) {
 	  shifts_.push_back(OneMETShift(pat::MET::NoShift, level, baseTag, consumesCollector(), readFromMiniAOD, true, false, false));
@@ -168,10 +167,8 @@ pat::PATMETSlimmer::OneMETShift::readAndSet(const edm::Event &ev, pat::MET &met)
 				   met2.shiftedSumEt(shift, pat::MET::Type01), shift, isSmeared);
       if(corShift) met.setCorShift(met2.corPx(pat::MET::Type01), met2.corPy(pat::MET::Type01), 
 				   met2.corSumEt(pat::MET::Type01), level);
-      //std::cout<<uncShift<<"    "<<corShift<<"    "<<level<<"    "<<shift<<"    "<<isSmeared<<" --> "<<met2.corPx(pat::MET::Type01)<<" / "<<met.px()<<std::endl;
     }
     else {
-      //std::cout<<uncShift<<"    "<<corShift<<"    "<<level<<"    "<<shift<<"    "<<isSmeared<<" --> "<<met2.px()<<" / "<<met.px()<<std::endl;
       if(uncShift) met.setUncShift(met2.px(), met2.py(), met2.sumEt(), shift, isSmeared);
       if(corShift) met.setCorShift(met2.px(), met2.py(), met2.sumEt(), level);
     }

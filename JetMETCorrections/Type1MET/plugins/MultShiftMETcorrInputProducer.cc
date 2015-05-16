@@ -84,13 +84,13 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
 
   for (unsigned i=0;i<counts_.size();i++) counts_[i]=0;
   for (unsigned i=0;i<sumPt_.size();i++) sumPt_[i]=0.;
-//  typedef std::vector<reco::PFCandidate>  pfCand;
+
   edm::Handle<edm::View<reco::Candidate> > particleFlow;
   evt.getByLabel(pflow_, particleFlow);
   for (unsigned i = 0; i < particleFlow->size(); ++i) {
     const reco::Candidate& c = particleFlow->at(i);
     for (unsigned j=0; j<type_.size(); j++) {
-//      if (c.particleId()==type_[j]) {
+
       if (abs(c.pdgId())== translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
         if ((c.eta()>etaMin_[j]) and (c.eta()<etaMax_[j])) {
           counts_[j]+=1;
@@ -119,8 +119,6 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     }
     metCorr->mex = -formula_x_[j]->Eval(val);
     metCorr->mey = -formula_y_[j]->Eval(val);  
-//    std::cout<<v->getParameter<std::string>("name")<<" counts: "<<counts_[j]<<" sumPt: "<<sumPt_[j]<<" ngoodVertices: "<<ngoodVertices<<" "<<-formula_x_[j]->Eval(val)<<" "<<-formula_y_[j]->Eval(val)<<std::endl;
-
   }
 
   evt.put(metCorr, "");

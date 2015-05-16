@@ -6,7 +6,7 @@
  * Compute MET correction to compensate systematic shift of MET in x/y-direction
  * (cf. https://indico.cern.ch/getFile.py/access?contribId=1&resId=0&materialId=slides&confId=174318 )
  *
- * \authors Christian Veelken, LLR
+ * \authors Robert Schoefbeck, Vienna
  *
  *
  *
