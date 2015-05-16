@@ -1135,9 +1135,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	    break;
 	  }
 	}
-      }
-
       jets_.ngen++;
+      }
     }
 
   }
