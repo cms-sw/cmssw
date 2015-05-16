@@ -11,14 +11,6 @@
 #include <DataFormats/RPCRecHit/interface/RPCRecHitCollection.h>
 #include <RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h>
 
-ObjectMapCSC* ObjectMapCSC::mapInstance = NULL;
-
-ObjectMapCSC* ObjectMapCSC::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new ObjectMapCSC(iSetup);
-  }
-  return mapInstance;
-}
 
 ObjectMapCSC::ObjectMapCSC(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -128,12 +120,12 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	  float dz=segmentDirection.z();
 
 	  if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	  ObjectMapCSC* TheObjectCSC = ObjectMapCSC::GetInstance(iSetup);
+	  ObjectMapCSC* TheObjectCSC = new ObjectMapCSC(iSetup);
 	  if(debug) std::cout<<"Creating the CSCIndex"<<std::endl;
 	  CSCStationIndex theindex(rpcRegion,rpcStation,rpcRing,rpcSegment);
 	  if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
 	
-	  std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetInstance(iSetup)->GetRolls(theindex);
+	  std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetRolls(theindex);
 		
 	   
 	  if(debug) std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
@@ -273,6 +265,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	      }
 	    }
 	  }
+      delete TheObjectCSC;
 	}
       }
     }

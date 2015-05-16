@@ -12,14 +12,7 @@
 #include <RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h>
 #include <ctime>
 
-ObjectMap* ObjectMap::mapInstance = NULL;
 
-ObjectMap* ObjectMap::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new ObjectMap(iSetup);
-  }
-  return mapInstance;
-}
 
 ObjectMap::ObjectMap(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -180,12 +173,12 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	float dz=segmentDirection.z();
       
 	if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	ObjectMap* TheObject = ObjectMap::GetInstance(iSetup);
+	ObjectMap* TheObject = new ObjectMap(iSetup);
 	if(debug) std::cout<<"Creating the DTIndex"<<std::endl;
 	DTStationIndex theindex(0,dtWheel,dtSector,dtStation);
 	if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
       
-	std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+	std::set<RPCDetId> rollsForThisDT = TheObject->GetRolls(theindex);
       
 	if(debug) std::cout<<"DT  \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
       
@@ -274,6 +267,7 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	    if(debug) std::cout<<"DT \t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
 	  }//D so big
 	}//loop over all the rolls asociated
+    delete TheObject;
       }
     }
   
@@ -371,12 +365,12 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 		    }
 		   
 		    if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-		    ObjectMap* TheObject = ObjectMap::GetInstance(iSetup);
+		    ObjectMap* TheObject = new ObjectMap(iSetup);
 		    if(debug) std::cout<<"Creating the DTIndex"<<std::endl;
 		    DTStationIndex theindex(0,dtWheel,dtSector,dtStation);
 		    if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
 
-		    std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+		    std::set<RPCDetId> rollsForThisDT = TheObject->GetRolls(theindex);
 
 		    if(debug) std::cout<<"MB4 \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
 		    
@@ -494,6 +488,7 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 			if(debug) std::cout<<"MB4 \t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
 		      }
 		    }//loop over all the rollsasociated
+            delete TheObject;
 		  }else{
 		    if(debug) std::cout<<"MB4 \t \t \t \t I found segments in MB4 and MB3 adjacent wheel and/or sector but not compatibles, Diferent Directions"<<std::endl;
 		  }

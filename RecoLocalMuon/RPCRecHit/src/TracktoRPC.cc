@@ -16,14 +16,6 @@
 #include <ctime>
 #include <TMath.h>
 
-ObjectMap2* ObjectMap2::mapInstance = NULL;
-
-ObjectMap2* ObjectMap2::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new ObjectMap2(iSetup);
-  }
-  return mapInstance;
-}
 
 ObjectMap2::ObjectMap2(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -70,14 +62,7 @@ int distwheel2(int wheel1,int wheel2){
   int distance = std::abs(wheel1 - wheel2);
   return distance;
 }
-ObjectMap2CSC* ObjectMap2CSC::mapInstance = NULL;
 
-ObjectMap2CSC* ObjectMap2CSC::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new ObjectMap2CSC(iSetup);
-  }
-  return mapInstance;
-}
 
 ObjectMap2CSC::ObjectMap2CSC(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -217,9 +202,9 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 DTChamberId dtid(geomDet->geographicalId().rawId());
                 int dtW=dtid.wheel(), dtS=dtid.sector(), dtT=dtid.station();
                 if(dtS==13) dtS=4; if(dtS==14) dtS=10;
-                ObjectMap2* TheObject = ObjectMap2::GetInstance(iSetup);
+                ObjectMap2* TheObject = new ObjectMap2(iSetup);
                 DTStationIndex2 theindex(0,dtW,dtS,dtT);
-                std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+                std::set<RPCDetId> rollsForThisDT = TheObject->GetRolls(theindex);
                 for(std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++)
                 {                                 
 	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -239,7 +224,8 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                         if(debug) std::cout << "1\t Barrel RPC roll" << rollasociated->id().rawId() << " "<< servId.name().c_str() <<std::endl;
                       }
                     }
-	      	}                                 
+	      	}
+            delete TheObject;
 	     }
 	  }
        }
@@ -264,13 +250,13 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 float dx = trajLP.x()-trackLP.x(), dy=trajLP.y()-trackLP.y();//, dz=trajLP.z()-trackLP.z();
                 if( dx>10. && dy>10.) continue;
 
-                ObjectMap2CSC* TheObjectCSC = ObjectMap2CSC::GetInstance(iSetup);
+                ObjectMap2CSC* TheObjectCSC = new ObjectMap2CSC(iSetup);
 	        int En = cscid.endcap(), St = cscid.station(), Ri = cscid.ring();
 	        int rpcSegment = cscid.chamber();
                 if(En==2) En= -1; if(Ri==4) Ri =1; 
 
                 CSCStationIndex2 theindex(En,St,Ri,rpcSegment);
-                std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetInstance(iSetup)->GetRolls(theindex);
+                std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetRolls(theindex);
                 for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++)
                 {
 	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -291,6 +277,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                       }
                     }
 	      	}
+                 delete TheObjectCSC;
              }
           }
        } else { if(debug) std::cout << "1\t The hit is not DT/CSC's.   " << std::endl;} 

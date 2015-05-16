@@ -54,13 +54,11 @@ private:
 
 class ObjectMapCSC{
 public:
-  static ObjectMapCSC* GetInstance(const edm::EventSetup& iSetup);
-  std::set<RPCDetId> GetRolls(CSCStationIndex cscstationindex){return mapInstance->rollstoreCSC[cscstationindex];}
+  ObjectMapCSC* GetInstance(const edm::EventSetup& iSetup);
+  std::set<RPCDetId> GetRolls(CSCStationIndex cscstationindex){return rollstoreCSC[cscstationindex];}
 //protected:
   std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
   ObjectMapCSC(const edm::EventSetup& iSetup);
-private:
-  static ObjectMapCSC* mapInstance;
-}; 
+};
 
 #endif

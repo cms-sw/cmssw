@@ -59,13 +59,11 @@ private:
 
 class ObjectMap{
 public:
-  static ObjectMap* GetInstance(const edm::EventSetup& iSetup);
-  std::set<RPCDetId> GetRolls(DTStationIndex dtstationindex){return mapInstance->rollstoreDT[dtstationindex];}
+  ObjectMap* GetInstance(const edm::EventSetup& iSetup);
+  std::set<RPCDetId> GetRolls(DTStationIndex dtstationindex){return rollstoreDT[dtstationindex];}
 //protected:
   std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
   ObjectMap(const edm::EventSetup& iSetup);
-private:
-  static ObjectMap* mapInstance;
-}; 
+};
 
 #endif
