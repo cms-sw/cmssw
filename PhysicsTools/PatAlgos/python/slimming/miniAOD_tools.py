@@ -227,31 +227,39 @@ def miniAOD_customizeCommon(process):
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
     ## puppi met
-    #process.load('RecoMET.METProducers.PFMET_cfi')
-    #process.pfMetPuppi = process.pfMet.clone()
-    #process.pfMetPuppi.src = cms.InputTag("puppi")
-    #process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-    ## type1 correction, from puppi jets
-    #process.corrPfMetType1Puppi = process.corrPfMetType1.clone(
-    #    src = 'ak4PFJetsPuppi',
-    #    jetCorrLabel = 'ak4PFCHSL2L3Corrector',
-    #)
-    #del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
-    #process.pfMetT1Puppi = process.pfMetT1.clone(
-    #    src = 'pfMetPuppi',
-    #    srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
-    #)
+    process.load('RecoMET.METProducers.PFMET_cfi')
+    process.pfMetPuppi = process.pfMet.clone()
+    process.pfMetPuppi.src = cms.InputTag("puppi")
+    process.pfMetPuppi.alias = cms.string('pfMetPuppi')
+    # type1 correction, from puppi jets
+    process.corrPfMetType1Puppi = process.corrPfMetType1.clone(
+        src = 'ak4PFJetsPuppi',
+        jetCorrLabel = 'ak4PFCHSL2L3Corrector',
+    )
+    del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
+    process.pfMetT1Puppi = process.pfMetT1.clone(
+        src = 'pfMetPuppi',
+        srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
+    )
 
     #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-    #addMETCollection(process, labelName='patMETPuppi',   metSource='pfMetT1Puppi') # T1
-    #addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi')   # RAW
+    addMETCollection(process, labelName='patMETPuppi',   metSource='pfMetT1Puppi') # T1
+    addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi')   # RAW
 
-    #process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
-    #process.slimmedMETsPuppi = process.slimmedMETs.clone()
-    #process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
-    #process.slimmedMETsPuppi.rawVariation   = cms.InputTag("patPFMetPuppi") # only central value
-   # process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1")    # only central value for now
-   # del process.slimmedMETsPuppi.type1p2Uncertainties # not available
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+    process.slimmedMETsPuppi = process.slimmedMETs.clone()
+    process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
+    process.slimmedMETsPuppi.rawVariation   = cms.InputTag("patPFMetPuppi") # only central value
+    # only central values for puppi met
+    del process.slimmedMETsPuppi.t01Variation
+    del process.slimmedMETsPuppi.t1SmearedVarsAndUncs
+    del process.slimmedMETsPuppi.tXYUncForRaw
+    del process.slimmedMETsPuppi.tXYUncForT1
+    del process.slimmedMETsPuppi.tXYUncForT01
+    del process.slimmedMETsPuppi.tXYUncForT1Smear
+    del process.slimmedMETsPuppi.tXYUncForT01Smear
+    del process.slimmedMETsPuppi.caloMET
+
 
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"
