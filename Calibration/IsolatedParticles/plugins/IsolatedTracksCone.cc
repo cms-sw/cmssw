@@ -34,7 +34,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) {
+IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) :
+   trackerHitAssociatorConfig_(consumesCollector()) {
 
   //now do what ever initialization is needed
   doMC            = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
@@ -289,8 +290,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   ////////////////////////////
   // Primary loop over tracks
   ////////////////////////////
-  TrackerHitAssociator* associate=0;
-  if (doMC) associate = new TrackerHitAssociator(iEvent);
+  std::unique_ptr<TrackerHitAssociator> associate;
+  if (doMC) associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
   
 
   nTRK      = 0;
@@ -916,8 +917,6 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   ntp->Fill();
   nEVT++;
   
-  
-  delete associate;
 }
   
 

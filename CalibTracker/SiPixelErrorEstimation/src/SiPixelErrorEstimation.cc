@@ -34,7 +34,8 @@ using namespace std;
 using namespace edm;
 
 SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), 
-									    ttree_track_hits_(0), ttree_track_hits_strip_(0) 
+									    ttree_track_hits_(0), ttree_track_hits_strip_(0),
+									    trackerHitAssociatorConfig_(consumesCollector())
 {
   //Read config file
   outputFile_ = ps.getUntrackedParameter<string>( "outputFile", "SiPixelErrorEstimation_Ntuple.root" );
@@ -391,7 +392,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   float mindist = 999999.9;
 
   std::vector<PSimHit> matched;
-  TrackerHitAssociator associate(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);

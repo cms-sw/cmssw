@@ -380,6 +380,7 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
 
   TTree * ttree_track_hits_strip_;
   
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 };
 
 #endif
