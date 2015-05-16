@@ -11,7 +11,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "CommonTools/Utils/interface/EtComparator.h"
 
-typedef ObjectSelector<
+typedef ObjectSelectorStream<
           SortCollectionSelector<
             reco::PFJetCollection, 
               GreaterByEt<reco::PFJet> 
