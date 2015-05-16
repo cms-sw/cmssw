@@ -198,8 +198,6 @@ MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) c
   		  corrections_[ itCor_->second[i] ].dpy(),
   		  corrections_[ itCor_->second[i] ].dsumEt() );
 
-    //std::cout<<cor<<"  "<<itCor_->second[i]<<"   "<<corrections_[ itCor_->second[i] ].dpx()<<"  "<<totShift.dpx()<<std::endl;
-
     if(itCor_->first>=MET::Type1Smear)
       isSmeared=true;
   }
@@ -213,7 +211,7 @@ MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) c
   totShift.add( uncertainties_[ shift ].dpx(),
   		uncertainties_[ shift ].dpy(),
   		uncertainties_[ shift ].dsumEt() );
-  //std::cout<<cor<<"  "<<totShift.dpx()<<std::endl;
+
   return totShift;
 }
 
@@ -235,7 +233,6 @@ MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METCorrectionLevel c
   }
   else {
     const MET::PackedMETUncertainty& v = findMETTotalShift(cor,shift);
-    //std::cout<<" --> "<<px()<<std::endl;
     Vector2 ret{ (px() + v.dpx()), (py() + v.dpy()) };
     //return ret;
     vo = ret;
@@ -362,7 +359,6 @@ void MET::setCorShift(double px, double py, double sumEt, MET::METCorrectionType
   }
   
   corrections_[level].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
-  //std::cout<<corrections_[9].dpx()<<std::endl;
 }
 
 
@@ -386,9 +382,9 @@ double MET::caloMETSumEt() const {
 MET::Vector2 MET::shiftedP2_74x(MET::METUncertainty shift, MET::METCorrectionLevel level)  const {
     if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples \n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ :  uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
     if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
         return Vector2{ (px() + v.front().dpx()), (py() + v.front().dpy()) };
     }
     Vector2 ret{ (px() + v[shift].dpx()), (py() + v[shift].dpy()) };
@@ -398,9 +394,9 @@ MET::Vector2 MET::shiftedP2_74x(MET::METUncertainty shift, MET::METCorrectionLev
 MET::Vector MET::shiftedP3_74x(MET::METUncertainty shift, MET::METCorrectionLevel level)  const {
     if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples \n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ :  uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
     if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
         return Vector(px() + v.front().dpx(), py() + v.front().dpy(), 0);
     }
     return Vector(px() + v[shift].dpx(), py() + v[shift].dpy(), 0);
@@ -409,9 +405,9 @@ MET::Vector MET::shiftedP3_74x(MET::METUncertainty shift, MET::METCorrectionLeve
 MET::LorentzVector MET::shiftedP4_74x(METUncertainty shift, MET::METCorrectionLevel level)  const {
     if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples\n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
     if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
         double x = px() + v.front().dpx(), y = py() + v.front().dpy();
         return LorentzVector(x, y, 0, std::hypot(x,y));
     }
@@ -422,9 +418,9 @@ MET::LorentzVector MET::shiftedP4_74x(METUncertainty shift, MET::METCorrectionLe
 double MET::shiftedSumEt_74x(MET::METUncertainty shift, MET::METCorrectionLevel level) const {
     if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples\n");
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
     if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)");
+        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
         return sumEt() + v.front().dsumEt();
     }
     return sumEt() + v[shift].dsumEt();

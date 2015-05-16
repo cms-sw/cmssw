@@ -8,7 +8,6 @@ corrPfMetXYMult = pfMEtMultShiftCorr.clone()
 
 ##____________________________________________________________________________||
 correctionTermsPfMetMult = cms.Sequence(
-#    selectedVerticesForMEtCorr *
     corrPfMetXYMult
     )
 

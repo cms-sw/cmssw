@@ -89,7 +89,6 @@ def miniAOD_customizeCommon(process):
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
     # FIXME: are we 100% sure this should still be PF and not PFchs? -> MM: Yes for <=75X
-    #from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
     process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
 
@@ -242,7 +241,7 @@ def miniAOD_customizeCommon(process):
         srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]
     )
 
-    #from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process, labelName='patMETPuppi',   metSource='pfMetT1Puppi') # T1
     addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi')   # RAW
 
