@@ -55,6 +55,22 @@ def customisePostLS1(process):
     return process
 
 
+def customisePostLS1_lowPU(process):
+
+    # deal with L1 Emulation separately
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_lowPU
+    process = customiseSimL1EmulatorForPostLS1_lowPU(process)
+
+    # common customisations
+    process = customisePostLS1_Common(process)
+
+    # 50ns specific customisation
+    if hasattr(process,'digitisation_step'):
+        process = customise_Digi_50ns(process)
+
+    return process
+
+
 def customisePostLS1_50ns(process):
 
     # deal with L1 Emulation separately
