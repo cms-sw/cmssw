@@ -1,5 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="CommonTools/Utils"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
@@ -8,6 +9,8 @@
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoBTau/JetTagComputer"/>
 <use name="rootmath"/>
+<use name="fastjet"/>
+<use name="fastjet-contrib"/>
 <export>
   <lib name="1"/>
 </export>
