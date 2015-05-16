@@ -133,7 +133,7 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
             name = 'pixelPairStep',
-            preFilterName = 'pixelPairStepLOose',
+            preFilterName = 'pixelPairStepLoose',
             mvaType = cms.string("Prompt"),
             qualityBit = cms.string('highPurity'),
             useMVA = cms.bool(True),
