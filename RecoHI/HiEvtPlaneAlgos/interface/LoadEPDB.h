@@ -1,5 +1,5 @@
-#ifndef __LoadEPDB__
-#define __LoadEPDB__
+#ifndef RecoHI_HiEvtPlaneAlgos_LoadEPDB_h
+#define RecoHI_HiEvtPlaneAlgos_LoadEPDB_h
 
 // system include files
 #include <memory>
@@ -23,11 +23,10 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include "TMath.h"
 #include <vector>
-using namespace hi;
 
 class LoadEPDB {
  public:
-  
+
   explicit LoadEPDB(edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten ** flat)
   {
     int Hbins;
@@ -39,7 +38,7 @@ class LoadEPDB {
     } else {
       Hbins = flat[0]->GetHBins();
       Obins = flat[0]->GetOBins();
-      
+
       for(int i = 0; i<flatTableSize; i++) {
 	const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
 	for(int j = 0; j<NumEPNames; j++) {
@@ -55,11 +54,11 @@ class LoadEPDB {
 	    } else if(i>=Hbins && i<Hbins+Obins) {
 	      flat[indx]->SetXoffDB(i - Hbins, thisBin->x[j]);
 	      flat[indx]->SetYoffDB(i - Hbins, thisBin->y[j]);
-	      
+
 	    } else if (i>=Hbins+Obins && i<Hbins+2*Obins) {
 	      flat[indx]->SetPtDB(i - Hbins- Obins, thisBin->x[j]);
 	      flat[indx]->SetPt2DB(i - Hbins- Obins, thisBin->y[j]);
-	    } 
+	    }
 	  }
 	}
       }
@@ -104,12 +103,12 @@ class LoadEPDB {
     
   }
   
-  bool genFlatPsi_;
   bool IsSuccess(){return genFlatPsi_;}
   
   ~LoadEPDB(){}
   
  private:
+  bool genFlatPsi_;
 
 };
 

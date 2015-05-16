@@ -10,7 +10,6 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
-// $Id: HiEvtPlaneFlatten.h,v 1.4 2011/11/06 23:17:27 ssanders Exp $
 //
 //
 
@@ -33,11 +32,11 @@
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
-#include "TMath.h"
+//#include "TMath.h"
 #include <vector>
 
-#define MAXCUT 10000
-#define MAXCUTOFF 1000
+//#define MAXCUT 10000
+//#define MAXCUTOFF 1000
 
 //
 // class declaration
@@ -48,13 +47,15 @@ public:
 
   explicit HiEvtPlaneFlatten()
   {
-    pi = TMath::Pi();
+//    pi = TMath::Pi();
     hbins = 1;
     hOrder = 9;
     vorder = 2;    //sets default order of event plane
     minvtx = -25;
     delvtx = 5;
     nvtxbins = 10;
+    soff_ = 0.;
+    coff_ = 0.;
   }
 
 
@@ -119,7 +120,7 @@ public:
     if(cut<0 || cut>hbins) return -1;
     return cut;
   }
-  
+
   void Fill(double psi, double vtx, int centbin)
   {
     if(fabs(psi)>4 ) return;
@@ -146,7 +147,6 @@ public:
   }
   void FillPt(double ptval, double vtx, int centbin)
   {
-  
     int indx = GetOffsetIndx(centbin,vtx);
     if(indx>=0) {
       pt[indx]+=ptval;
@@ -169,15 +169,14 @@ public:
     caloCentRefVal_ = 0;
     for(int i = refmin; i<=refmax; i++) {
       caloCentRefVal_+=GetPtDB(i);
-    }    
+    }
     caloCentRefVal_/=refmax-refmin+1.;
     if(caloCentRefVal_==0 || GetPtDB(indx)==0) return 1.;
     return caloCentRefVal_/GetPtDB(indx);
    }
 
-  double GetW(double pt, double vtx, int centbin)
+  double GetW(double pt, double vtx, int centbin) const
   {
-  
     int indx = GetOffsetIndx(centbin,vtx);
     if(indx>=0) {
       double scale = GetEtScale(vtx,centbin);
@@ -188,7 +187,7 @@ public:
     return 0.;
   }
 
-  double GetFlatPsi(double psi, double vtx, int centbin)
+  double GetFlatPsi(double psi, double vtx, int centbin) const
   {
     double correction = 0;
     for(int k = 0; k<hOrder; k++) {
@@ -200,7 +199,7 @@ public:
     psi=bounds2(psi);
     return psi;
   }
-  
+
   double GetOffsetPsi(double s, double c, double w, uint m,  double vtx, int centbin)
   {
     int indx = GetOffsetIndx(centbin,vtx);
@@ -217,33 +216,33 @@ public:
 
     return psi;
   }
-  
+
   ~HiEvtPlaneFlatten(){}
-  int GetHBins(){return hbins;}
-  int GetOBins(){return obins;}
-  int GetNvtx(){return nvtxbins;}
-  double GetVtxMin(){return minvtx;}
-  double GetVtxMax(){return minvtx+nvtxbins*delvtx;}
-  int GetNcent(){return hbins;}
+  int GetHBins() const {return hbins;}
+  int GetOBins() const {return obins;}
+  int GetNvtx() const {return nvtxbins;}
+  double GetVtxMin() const {return minvtx;}
+  double GetVtxMax() const {return minvtx+nvtxbins*delvtx;}
+  int GetNcent() const {return hbins;}
 
-  double GetX(int bin){return flatX[bin];}
-  double GetY(int bin){return flatY[bin];}
-  double GetXoff(int bin){return xoff[bin];}
-  double GetYoff(int bin){return yoff[bin];}
-  double GetXoffDB(int bin){return xoffDB[bin];}
-  double GetYoffDB(int bin){return yoffDB[bin];}
-  double GetXYoffcnt(int bin){return xyoffcnt[bin];}
-  double GetXYoffmult(int bin){return xyoffmult[bin];}
-  double GetPt(int bin){return pt[bin];}
-  double GetPt2(int bin){return pt2[bin];}
-  double GetPtDB(int bin){return ptDB[bin];}
-  double GetPt2DB(int bin){return pt2DB[bin];}
-  double GetPtcnt(int bin){return ptcnt[bin];}
-  double GetXDB(int bin) {return flatXDB[bin];}
-  double GetYDB(int bin) {return flatYDB[bin];}
+  double GetX(int bin) const {return flatX[bin];}
+  double GetY(int bin) const {return flatY[bin];}
+  double GetXoff(int bin) const {return xoff[bin];}
+  double GetYoff(int bin) const {return yoff[bin];}
+  double GetXoffDB(int bin) const {return xoffDB[bin];}
+  double GetYoffDB(int bin) const {return yoffDB[bin];}
+  double GetXYoffcnt(int bin) const {return xyoffcnt[bin];}
+  double GetXYoffmult(int bin) const {return xyoffmult[bin];}
+  double GetPt(int bin) const {return pt[bin];}
+  double GetPt2(int bin) const {return pt2[bin];}
+  double GetPtDB(int bin) const {return ptDB[bin];}
+  double GetPt2DB(int bin) const {return pt2DB[bin];}
+  double GetPtcnt(int bin) const {return ptcnt[bin];}
+  double GetXDB(int bin)  const {return flatXDB[bin];}
+  double GetYDB(int bin)  const {return flatYDB[bin];}
 
 
-  double GetCnt(int bin) {return flatCnt[bin];}
+  double GetCnt(int bin)  const {return flatCnt[bin];}
   void SetXDB(int indx, double val) {flatXDB[indx]=val;}
   void SetYDB(int indx, double val) {flatYDB[indx]=val;}
   void SetXoffDB(int indx, double val) {xoffDB[indx]=val;}
@@ -277,25 +276,27 @@ public:
   void SetCentRes30(int bin, double res, double err){ if(bin<3 && bin>=0) {centRes30[bin]=res; centResErr30[bin]=err;}}
   void SetCentRes40(int bin, double res, double err){ if(bin<2 && bin>=0) {centRes40[bin]=res; centResErr40[bin]=err;}}
 
-  double GetCentRes1(int bin){ if(bin<100 && bin>=0) {return centRes1[bin];} else {return 0.;}}
-  double GetCentRes2(int bin){ if(bin<50 && bin>=0)  {return centRes2[bin];} else {return 0.;}}
-  double GetCentRes5(int bin){ if(bin<20 && bin>=0)  {return centRes5[bin];} else {return 0.;}}
-  double GetCentRes10(int bin){ if(bin<10 && bin>=0) {return centRes10[bin];} else {return 0.;}}
-  double GetCentRes20(int bin){ if(bin<5 && bin>=0)  {return centRes20[bin];} else {return 0.;}}
-  double GetCentRes25(int bin){ if(bin<4 && bin>=0)  {return centRes25[bin];} else {return 0.;}}
-  double GetCentRes30(int bin){ if(bin<3 && bin>=0)  {return centRes30[bin];} else {return 0.;}}
-  double GetCentRes40(int bin){ if(bin<2 && bin>=0)  {return centRes40[bin];} else {return 0.;}}
+  double GetCentRes1(int bin) const { if(bin<100 && bin>=0) {return centRes1[bin];} else {return 0.;}}
+  double GetCentRes2(int bin) const { if(bin<50 && bin>=0)  {return centRes2[bin];} else {return 0.;}}
+  double GetCentRes5(int bin) const { if(bin<20 && bin>=0)  {return centRes5[bin];} else {return 0.;}}
+  double GetCentRes10(int bin) const { if(bin<10 && bin>=0) {return centRes10[bin];} else {return 0.;}}
+  double GetCentRes20(int bin) const { if(bin<5 && bin>=0)  {return centRes20[bin];} else {return 0.;}}
+  double GetCentRes25(int bin) const { if(bin<4 && bin>=0)  {return centRes25[bin];} else {return 0.;}}
+  double GetCentRes30(int bin) const { if(bin<3 && bin>=0)  {return centRes30[bin];} else {return 0.;}}
+  double GetCentRes40(int bin) const { if(bin<2 && bin>=0)  {return centRes40[bin];} else {return 0.;}}
 
-  double GetCentResErr1(int bin){ if(bin<100 && bin>=0) {return centResErr1[bin];} else {return 0.;}}
-  double GetCentResErr2(int bin){ if(bin<50 && bin>=0)  {return centResErr2[bin];} else {return 0.;}}
-  double GetCentResErr5(int bin){ if(bin<20 && bin>=0)  {return centResErr5[bin];} else {return 0.;}}
-  double GetCentResErr10(int bin){ if(bin<10 && bin>=0) {return centResErr10[bin];} else {return 0.;}}
-  double GetCentResErr20(int bin){ if(bin<5 && bin>=0)  {return centResErr20[bin];} else {return 0.;}}
-  double GetCentResErr25(int bin){ if(bin<4 && bin>=0)  {return centResErr25[bin];} else {return 0.;}}
-  double GetCentResErr30(int bin){ if(bin<3 && bin>=0)  {return centResErr30[bin];} else {return 0.;}}
-  double GetCentResErr40(int bin){ if(bin<2 && bin>=0)  {return centResErr40[bin];} else {return 0.;}}
+  double GetCentResErr1(int bin) const { if(bin<100 && bin>=0) {return centResErr1[bin];} else {return 0.;}}
+  double GetCentResErr2(int bin) const { if(bin<50 && bin>=0)  {return centResErr2[bin];} else {return 0.;}}
+  double GetCentResErr5(int bin) const { if(bin<20 && bin>=0)  {return centResErr5[bin];} else {return 0.;}}
+  double GetCentResErr10(int bin) const { if(bin<10 && bin>=0) {return centResErr10[bin];} else {return 0.;}}
+  double GetCentResErr20(int bin) const { if(bin<5 && bin>=0)  {return centResErr20[bin];} else {return 0.;}}
+  double GetCentResErr25(int bin) const { if(bin<4 && bin>=0)  {return centResErr25[bin];} else {return 0.;}}
+  double GetCentResErr30(int bin) const { if(bin<3 && bin>=0)  {return centResErr30[bin];} else {return 0.;}}
+  double GetCentResErr40(int bin) const { if(bin<2 && bin>=0)  {return centResErr40[bin];} else {return 0.;}}
 
 private:
+  static const MAXCUT = 10000;
+  static const MAXCUTOFF = 1000;
   double flatX[MAXCUT];
   double flatY[MAXCUT];
   double flatXDB[MAXCUT];
@@ -309,7 +310,7 @@ private:
   double xoffDB[MAXCUTOFF];
   double yoffDB[MAXCUTOFF];
   double xyoffcnt[MAXCUTOFF];
-  uint xyoffmult[MAXCUTOFF]; 
+  uint xyoffmult[MAXCUTOFF];
 
   double pt[MAXCUTOFF];
   double pt2[MAXCUTOFF];
@@ -350,7 +351,7 @@ private:
   int caloCentRefMinBin_; //min ref centrality bin for calo weight scale
   int caloCentRefMaxBin_; //max ref centrality bin for calo weight scale
   double caloCentRefVal_; //reference <pt> or <et>
-  double pi;
+  static const double pi = M_PI;
 
   int nvtxbins;
   double minvtx;
