@@ -2,12 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
 import PhysicsTools.PatAlgos.tools.helpers as configtools
-from PhysicsTools.PatUtils.tools.jmeUncertaintyTools import isValidInputTag
-from PhysicsTools.PatUtils.tools.objectsUncertaintyTools import createEnergyScaleShiftedUpModule
-
-#import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-from RecoMET.METProducers.PFMET_cfi import pfMet
+
+
+def isValidInputTag(input):
+    input_str = input
+    if isinstance(input, cms.InputTag):
+        input_str = input.value()
+    if input is None or input_str == '""':
+        return False
+    else:
+        return True
 
 
 class RunMETCorrectionsAndUncertainties(ConfigToolBase):
@@ -57,6 +62,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                   "Flag to enable/disable the jet reclustering", Type=bool)
         self.addParameter(self._defaultParameters, 'onMiniAOD', False,
                           "Switch on miniAOD configuration", Type=bool)
+        self.addParameter(self._defaultParameters, 'repro74X', False,
+                          "option for 74X miniAOD re-processing", Type=bool)          
         self.addParameter(self._defaultParameters, 'postfix', '',
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
         self._parameters = copy.deepcopy(self._defaultParameters)
@@ -86,14 +93,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  addToPatDefaultSequence =None,
                  reclusterJets           =None,
                  onMiniAOD               =None,
+                 repro74X                =None,
                  postfix                 =None):
-        electronCollection = self._initializeInputTag(electronCollection, 'electronCollection')
-        photonCollection = self._initializeInputTag(photonCollection, 'photonCollection')
-        muonCollection = self._initializeInputTag(muonCollection, 'muonCollection')
-        tauCollection = self._initializeInputTag(tauCollection, 'tauCollection')
-        jetCollection = self._initializeInputTag(jetCollection, 'jetCollection')
-        jetCollectionUnskimmed = self._initializeInputTag(jetCollectionUnskimmed, 'jetCollectionUnskimmed')
-        pfCandCollection = self._initializeInputTag(pfCandCollection, 'pfCandCollection')
+        electronCollection = self.initializeInputTag(electronCollection, 'electronCollection')
+        photonCollection = self.initializeInputTag(photonCollection, 'photonCollection')
+        muonCollection = self.initializeInputTag(muonCollection, 'muonCollection')
+        tauCollection = self.initializeInputTag(tauCollection, 'tauCollection')
+        jetCollection = self.initializeInputTag(jetCollection, 'jetCollection')
+        jetCollectionUnskimmed = self.initializeInputTag(jetCollectionUnskimmed, 'jetCollectionUnskimmed')
+        pfCandCollection = self.initializeInputTag(pfCandCollection, 'pfCandCollection')
         if metType is None :
             metType =  self._defaultParameters['metType'].value
         if correctionLevel is None :
@@ -133,6 +141,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             reclusterJets = self._defaultParameters['reclusterJets'].value
         if onMiniAOD is None :
             onMiniAOD = self._defaultParameters['onMiniAOD'].value
+        if repro74X is None :
+            repro74X = self._defaultParameters['repro74X'].value
         if postfix is None :
             postfix = self._defaultParameters['potsfix'].value
 
@@ -159,6 +169,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('addToPatDefaultSequence',addToPatDefaultSequence),
         self.setParameter('reclusterJets',reclusterJets),
         self.setParameter('onMiniAOD',onMiniAOD),
+        self.setParameter('repro74X',repro74X),
         self.setParameter('postfix',postfix),
         self.apply(process)
         
@@ -184,6 +195,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         addToPatDefaultSequence = self._parameters['addToPatDefaultSequence'].value
         reclusterJets           = self._parameters['reclusterJets'].value
         onMiniAOD               = self._parameters['onMiniAOD'].value
+        repro74X                = self._parameters['repro74X'].value
         postfix                 = self._parameters['postfix'].value
         
         #prepare jet configuration
@@ -203,6 +215,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.miniAODConfiguration(process, 
                                       pfCandCollection,
                                       patMetModuleSequence,
+                                      repro74X,
                                       postfix
                                       )
 
@@ -489,6 +502,81 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return metUncSequence
 
 #====================================================================================================
+    def createEnergyScaleShiftedUpModule(self, process,identifier, objectCollection,
+                                         varyByNsigmas, jetUncInfos=None, postfix=""):
+
+        shiftedModuleUp = None
+        
+        if identifier == "Electron":
+            shiftedModuleUp = cms.EDProducer("ShiftedPATElectronProducer",
+                                             src = objectCollection,
+                                             binning = cms.VPSet(
+                    cms.PSet(
+                        binSelection = cms.string('isEB'),
+                        binUncertainty = cms.double(0.006)
+                        ),
+                    cms.PSet(
+                        binSelection = cms.string('!isEB'),
+                        binUncertainty = cms.double(0.015)
+                        ),
+                    ),
+                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             )
+            
+        if identifier == "Photon":
+            shiftedModuleUp = cms.EDProducer("ShiftedPATPhotonProducer",
+                                             src = objectCollection,
+                                             binning = cms.VPSet(
+                    cms.PSet(
+                        binSelection = cms.string('isEB'),
+                        binUncertainty = cms.double(0.01)
+                        ),
+                    cms.PSet(
+                        binSelection = cms.string('!isEB'),
+                        binUncertainty = cms.double(0.025)
+                        ),
+                    ),
+                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             )
+
+        if identifier == "Muon":
+            shiftedModuleUp = cms.EDProducer("ShiftedPATMuonProducer",
+                                             src = objectCollection,
+                                             binning = cms.VPSet(
+                    cms.PSet(
+                        binSelection = cms.string('pt < 100'),
+                        binUncertainty = cms.double(0.002)
+                        ),
+                    cms.PSet(
+                        binSelection = cms.string('pt >= 100'),
+                        binUncertainty = cms.double(0.05)
+                        ),
+                    ),
+                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             )
+            
+        if identifier == "Tau":
+            shiftedModuleUp = cms.EDProducer("ShiftedPATTauProducer",
+                                             src = objectCollection,
+                                             uncertainty = cms.double(0.03),
+                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             )
+
+        if identifier == "Jet":
+            shiftedModuleUp = cms.EDProducer("ShiftedPATJetProducer",
+                                             src = objectCollection,
+                                             jetCorrInputFileName = cms.FileInPath(jetUncInfos["jecUncFile"] ), #jecUncertaintyFile),
+                                             jetCorrUncertaintyTag = cms.string(jetUncInfos["jecUncTag"] ), #jecUncertaintyTag),
+                                             addResidualJES = cms.bool(True),
+                                             jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
+                                             jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
+                                             shiftBy = cms.double(+1.*varyByNsigmas)
+                                             )
+
+        return shiftedModuleUp
+
+
+#====================================================================================================
     def removePostfix(self, name, postfix):
         
         if postfix=="":
@@ -550,7 +638,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                                    "Down", metUncSequence, postfix)
 
         else:
-            shiftedCollModules['Up'] = createEnergyScaleShiftedUpModule(process, identifier, objectCollection, varyByNsigmas, jetUncInfos, postfix)
+            shiftedCollModules['Up'] = self.createEnergyScaleShiftedUpModule(process, identifier, objectCollection, varyByNsigmas, jetUncInfos, postfix)
             shiftedCollModules['Down'] = shiftedCollModules['Up'].clone( shiftBy = cms.double(-1.*varyByNsigmas) )
 
         if identifier=="Jet" and varType=="Res":
@@ -694,7 +782,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
 ### Utilities ====================================================================
-    def _initializeInputTag(self, input, default):
+    def initializeInputTag(self, input, default):
         retVal = None
         if input is None:
             retVal = self._defaultParameters[default].value
@@ -703,6 +791,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         else:
             retVal = input
         return retVal
+
 
 
     def ak4JetReclustering(self,process, pfCandCollection, patMetModuleSequence, postfix):
@@ -732,19 +821,19 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return cms.InputTag("selectedPatJets")
         
 
-    def miniAODConfiguration(self, process, pfCandCollection, patMetModuleSequence, postfix ):
+    def miniAODConfiguration(self, process, pfCandCollection, patMetModuleSequence, repro74X, postfix ):
       
         if not hasattr(process, "pfMet"):
             process.load("RecoMET.METProducers.PFMET_cfi")
-            process.pfMet = pfMet.clone(src = pfCandCollection)
+            process.pfMet.src = pfCandCollection
             process.pfMet.calculateSignificance = False
 
             patMetModuleSequence += getattr(process, "pfMet")
 
-            getattr(process, "patPFMet").addGenMET  = cms.bool(False)
+            getattr(process, "patPFMet").addGenMET  = False
      
-        process.patPFMetTxyCorr.srcPFlow = pfCandCollection
-        process.patPFMetTxyCorr.vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
+            getattr(process, "patPFMetTxyCorr").srcPFlow = pfCandCollection
+            getattr(process, "patPFMetTxyCorr").vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
 
         if not hasattr(process, "slimmedMETs"):
             process.load("PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi")
@@ -759,52 +848,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             del process.slimmedMETs.tXYUncForT01Smear
             del process.slimmedMETs.caloMET
 
+            if repro74X:
+                del process.slimmedMETs.t01Variation
+
 #========================================================================================
 runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#====================================================================================================
-#    def getJERSVariations(self, process, jetCollection, metUncSequence, metModName, postfix):
-#       
-#        # remove the postfix to put it at the end
-#        baseName = removePostfix(metModName, postfix)
-
-
-#====================================================================================================
-#    def getUncEVariations(self, process, metUncSequence, metModName, postfix):
-      
-#        # remove the postfix to put it at the end
-#        baseName = removePostfix(metModName, postfix)
-
-#        #default shifted MET producers
-#        shiftedMetProducers = {'Up':None, 'Down':None}
-
-#        #create the shifted collection producers=========================================
-#        shiftedCollModules = {'Up':None, 'Down':None}
-#        shiftedCollModules['Up'] = createShiftedUnclusteredUpModule(process, identifier, objCollections[obj], varyByNsigmas)
-#        shiftedCollModules['Down'] = shiftedModules['Up'].clone( shiftBy = cms.double(-1.*varyByNsigmas) )
-
-#        shiftedMetProducers = createShiftedModules(process, shiftedCollModules, identifier, metModName, "En", postfix)
-
-#        return shiftedMetProducers
