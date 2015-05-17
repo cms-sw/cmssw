@@ -35,6 +35,9 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   // default discriminator value
   float value = -10.;
 
+  // MvaBoostedDoubleSecondaryVertexEstimator is not thread safe
+  std::lock_guard<std::mutex> lock(m_mutex);
+
   // default variable values
   float z_ratio = -1. , tau_dot = -1., SV_pt_0 = -1., SV_mass_0 = -1., SV_EnergyRatio_0 = -1., SV_EnergyRatio_1 = -1., tau21 = -1.;
   int contSV = 0, vertexNTracks = 0;
