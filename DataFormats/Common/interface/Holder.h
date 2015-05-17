@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
 
 namespace edm {
@@ -21,28 +22,28 @@ namespace edm {
       Holder& operator= (Holder const& rhs);
       void swap(Holder& other);
       virtual ~Holder();
-      virtual BaseHolder<T>* clone() const;
+      virtual BaseHolder<T>* clone() const GCC11_OVERRIDE;
 
-      virtual T const* getPtr() const;
-      virtual ProductID id() const;
-      virtual size_t key() const;
-      virtual bool isEqualTo(BaseHolder<T> const& rhs) const;
+      virtual T const* getPtr() const GCC11_OVERRIDE;
+      virtual ProductID id() const GCC11_OVERRIDE;
+      virtual size_t key() const GCC11_OVERRIDE;
+      virtual bool isEqualTo(BaseHolder<T> const& rhs) const GCC11_OVERRIDE;
       REF const& getRef() const;
 
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const;
+					  std::string& msg) const GCC11_OVERRIDE;
 
-      virtual std::auto_ptr<RefHolderBase> holder() const {
+      virtual std::auto_ptr<RefHolderBase> holder() const GCC11_OVERRIDE {
 	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
-      virtual EDProductGetter const* productGetter() const;
+      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const GCC11_OVERRIDE;
+      virtual EDProductGetter const* productGetter() const GCC11_OVERRIDE;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const { return ref_.isAvailable(); }
+      virtual bool isAvailable() const GCC11_OVERRIDE { return ref_.isAvailable(); }
 
-      virtual bool isTransient() const { return ref_.isTransient(); }
+      virtual bool isTransient() const GCC11_OVERRIDE { return ref_.isTransient(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
