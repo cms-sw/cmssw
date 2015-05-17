@@ -41,9 +41,11 @@
 
 //for collections
 #include "HLTrigger/JetMET/interface/AlphaT.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "CommonTools/RecoAlgos/interface/TrackSelector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/METReco/interface/MET.h"
+// #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+// #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+// #include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -102,12 +104,14 @@ class HLTWorkspace : public DQMEDAnalyzer {
   edm::EDGetTokenT<trigger::TriggerEvent> aodTriggerToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
 
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> siPixelClusterToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClusterToken_;
-  edm::EDGetTokenT<TrackingRecHitCollection> trackingRecHitsToken_;  
-  edm::EDGetTokenT<reco::TrackExtraCollection> trackExtraToken_;  
-  edm::EDGetTokenT<reco::TrackCollection> trackToken_;  
-  //  edm::EDGetTokenT<reco::BeamSpot> trackToken_;  
+  // edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> siPixelClusterToken_;
+  // edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClusterToken_;
+  // edm::EDGetTokenT<TrackingRecHitCollection> trackingRecHitsToken_;  
+  // edm::EDGetTokenT<reco::TrackExtraCollection> trackExtraToken_;  
+  // edm::EDGetTokenT<reco::TrackCollection> trackToken_;  
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;  
+  edm::EDGetTokenT<reco::MET> metToken_;  
+
 
   //  edm::EDGetTokenT<reco::JetTagCollection> csvTagToken_;
   
@@ -226,11 +230,14 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", "TEST"));
   aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", "TEST"));
   lumiScalersToken_ = consumes<LumiScalersCollection>(edm::InputTag("hltScalersRawToDigi","",""));
-  siPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("hltSiPixelClusters","","TEST"));
-  siStripClusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(edm::InputTag("hltSiStripRawToClustersFacility","","TEST"));
-  trackingRecHitsToken_ = consumes<TrackingRecHitCollection>(edm::InputTag("hltIter2Merged","","TEST"));
-  trackExtraToken_ = consumes<reco::TrackExtraCollection>(edm::InputTag("hltIter2Merged","","TEST"));
-  trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+  beamSpotToken_ = consumes<reco::BeamSpot>(edm::InputTag("hltOnlineBeamSpot","","TEST")); 
+  metToken_ = consumes<reco::MET>(edm::InputTag("hltPFMETProducer","","TEST"));  
+  //  siPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("hltSiPixelClusters","","TEST"));
+  // siStripClusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(edm::InputTag("hltSiStripRawToClustersFacility","","TEST"));
+  // trackingRecHitsToken_ = consumes<TrackingRecHitCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+  // trackExtraToken_ = consumes<reco::TrackExtraCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+  // trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("hltIter2Merged","","TEST"));
+
   // use this csvTagToken_ = consumes<reco::JetTagCollection>(InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST")); 
   // prob not this csvTagToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST")); 
 
@@ -270,25 +277,33 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    if (!aodTriggerEvent.isValid()) return;
 
-   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> siPixelCluster;
-   iEvent.getByToken(siPixelClusterToken_, siPixelCluster);
-   if (!siPixelCluster.isValid()) return;
+   edm::Handle<reco::BeamSpot> recoBeamSpot;
+   iEvent.getByToken(beamSpotToken_, recoBeamSpot);
+   if (!recoBeamSpot.isValid()) return;
 
-   edm::Handle<edmNew::DetSetVector<SiStripCluster>> siStripCluster;
-   iEvent.getByToken(siStripClusterToken_, siStripCluster);
-   if (!siStripCluster.isValid()) return;
+   edm::Handle<reco::MET> recoMet;
+   iEvent.getByToken(metToken_, recoMet);
+   if (!recoMet.isValid()) return;
 
-   edm::Handle<TrackingRecHitCollection> trackingRecHits;
-   iEvent.getByToken(trackingRecHitsToken_, trackingRecHits);
-   if (!trackingRecHits.isValid()) return;
+   // edm::Handle<edmNew::DetSetVector<SiPixelCluster>> siPixelCluster;
+   // iEvent.getByToken(siPixelClusterToken_, siPixelCluster);
+   // if (!siPixelCluster.isValid()) return;
 
-   edm::Handle<reco::TrackExtraCollection> trackExtras;
-   iEvent.getByToken(trackExtraToken_, trackExtras);
-   if (!trackExtras.isValid()) return;
+   // edm::Handle<edmNew::DetSetVector<SiStripCluster>> siStripCluster;
+   // iEvent.getByToken(siStripClusterToken_, siStripCluster);
+   // if (!siStripCluster.isValid()) return;
 
-   edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByToken(trackToken_, tracks);
-   if (!tracks.isValid()) return;
+   // edm::Handle<TrackingRecHitCollection> trackingRecHits;
+   // iEvent.getByToken(trackingRecHitsToken_, trackingRecHits);
+   // if (!trackingRecHits.isValid()) return;
+
+   // edm::Handle<reco::TrackExtraCollection> trackExtras;
+   // iEvent.getByToken(trackExtraToken_, trackExtras);
+   // if (!trackExtras.isValid()) return;
+
+   // edm::Handle<reco::TrackCollection> tracks;
+   // iEvent.getByToken(trackToken_, tracks);
+   // if (!tracks.isValid()) return;
 
    
 
