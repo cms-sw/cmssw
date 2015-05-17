@@ -11,6 +11,11 @@
 #include <string>
 #include <utility>
 
+#include <thread>
+#include <atomic>
+
+
+
 class TestRef: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestRef);
   CPPUNIT_TEST(default_ctor);
@@ -18,6 +23,7 @@ class TestRef: public CppUnit::TestFixture {
   CPPUNIT_TEST(nondefault_ctor);
   //CPPUNIT_TEST(nondefault_ctor_2);
   CPPUNIT_TEST(using_wrong_productid);
+  CPPUNIT_TEST(threading);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -38,6 +44,8 @@ class TestRef: public CppUnit::TestFixture {
   void nondefault_ctor();
   // void nondefault_ctor_2();
   void using_wrong_productid();
+  void threading();
+
 
  private:
 };
@@ -138,5 +146,52 @@ void TestRef::using_wrong_productid() {
   ref1_t ref(wrong_id, 0, &getter);
   CPPUNIT_ASSERT_THROW(*ref, edm::Exception);
   CPPUNIT_ASSERT_THROW(ref.operator->(), edm::Exception);
+}
+
+namespace  {
+  constexpr int kNThreads = 8;
+  std::atomic<int> s_threadsStarting{kNThreads};
+}
+void TestRef::threading()
+{
+  
+  SimpleEDProductGetter getter;
+  
+  edm::ProductID id(1, 1U);
+  CPPUNIT_ASSERT(id.isValid());
+  
+  std::unique_ptr<product1_t> prod(new product1_t);
+  prod->push_back(1);
+  prod->push_back(2);
+  getter.addProduct(id, std::move(prod));
+  
+  ref1_t ref0(id, 0, &getter);
+  ref1_t ref1(id, 1, &getter);
+
+  std::vector<std::thread> threads;
+  std::vector<std::exception_ptr> excepPtrs(kNThreads,std::exception_ptr{});
+  
+  for(unsigned int i=0; i< kNThreads; ++i) {
+    threads.emplace_back([&ref0,&ref1,i,&excepPtrs]() {
+      --s_threadsStarting;
+      while(0 != s_threadsStarting) {}
+      try{
+        CPPUNIT_ASSERT(*ref0 == 1);
+        CPPUNIT_ASSERT(*ref1 == 2);
+      } catch(...) {
+        excepPtrs[i]=std::current_exception();
+      }
+    });
+  }
+  for( auto& t: threads) {
+    t.join();
+  }
+  
+  for(auto& e: excepPtrs) {
+    if(e) {
+      std::rethrow_exception(e);
+    }
+  }
+  
 }
 

@@ -15,7 +15,9 @@
  </class>
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="cachePtr_">
    <![CDATA[
-     edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
+     edm::EDProductGetter const* getter;
+     edm::EDProductGetter::assignEDProductGetter(getter);
+     edm::refcoreimpl::setCacheIsProductGetter(cachePtr_, getter);
       ]]>
  </ioread>
   <class name="edm::RefCoreWithIndex" ClassVersion="11">
@@ -24,7 +26,9 @@
   </class>
   <ioread sourceClass = "edm::RefCoreWithIndex" version="[1-]" targetClass="edm::RefCoreWithIndex" source="" target="cachePtr_">
     <![CDATA[
-      edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
+      edm::EDProductGetter const* getter;
+      edm::EDProductGetter::assignEDProductGetter(getter);
+      edm::refcoreimpl::setCacheIsProductGetter(cachePtr_, getter);
     ]]>
   </ioread>
  <class name="edm::ThinnedAssociation" ClassVersion="10">
@@ -83,7 +87,7 @@
  </class>
   <!-- -->
   <ioread sourceClass = "edm::PtrVectorBase" version="[1-]" targetClass="edm::PtrVectorBase" source = "" target="cachedItems_">
-    <![CDATA[cachedItems_.clear();
+    <![CDATA[delete &(*cachedItems_); cachedItems_=nullptr;
     ]]>
   </ioread>
    <!-- -->

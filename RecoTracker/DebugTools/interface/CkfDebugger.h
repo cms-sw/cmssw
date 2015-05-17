@@ -42,7 +42,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
 
 class CkfDebugger {
  public:
-  CkfDebugger( edm::EventSetup const & es );
+  CkfDebugger( edm::EventSetup const & es, edm::ConsumesCollector&& iC );
 
   ~CkfDebugger();
   
@@ -101,6 +101,7 @@ class CkfDebugger {
   const GeometricSearchTracker*    theGeomSearchTracker;
   const MeasurementEstimator*  theChi2;
   const Propagator*                theForwardPropagator;
+  TrackerHitAssociator::Config     trackerHitAssociatorConfig_; 
   TrackerHitAssociator*      hitAssociator;
   const MeasurementTracker*        theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
