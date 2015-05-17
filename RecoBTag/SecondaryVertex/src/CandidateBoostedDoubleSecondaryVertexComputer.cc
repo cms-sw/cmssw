@@ -37,7 +37,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
 
   // default variable values
   float z_ratio = -1. , tau_dot = -1., SV_pt_0 = -1., SV_mass_0 = -1., SV_EnergyRatio_0 = -1., SV_EnergyRatio_1 = -1., tau21 = -1.;
-  int contSV = 0, nSV = 0, vertexNTracks = 0;
+  int contSV = 0, vertexNTracks = 0;
   int nSL = 0, nSM = 0, nSE = 0;
 
   // get the jet reference
@@ -79,7 +79,6 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     }
   }
 
-  nSV = contSV;
   int cont=0;
   GlobalVector flightDir_0, flightDir_1;
   reco::Candidate::LorentzVector SV_p4_0 , SV_p4_1;
@@ -142,7 +141,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   }
 
   // evaluate the MVA
-  value = mvaID->mvaValue(PFLepton_ptrel, z_ratio, tau_dot, SV_mass_0, SV_EnergyRatio_0, SV_EnergyRatio_1, PFLepton_IP2D, tau21, nSV, nSL);
+  value = mvaID->mvaValue(PFLepton_ptrel, z_ratio, tau_dot, SV_mass_0, SV_EnergyRatio_0, SV_EnergyRatio_1, PFLepton_IP2D, tau21, nSL, vertexNTracks);
 
   // return the final discriminator value
   return value;
