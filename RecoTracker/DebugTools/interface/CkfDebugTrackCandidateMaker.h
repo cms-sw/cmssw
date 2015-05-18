@@ -26,7 +26,7 @@ namespace cms {
       lastSeed(TrajectorySeedCollection& theSeedColl){return theSeedColl.begin()+1;}
 
     void initDebugger(edm::EventSetup const & es){
-      dbg = new CkfDebugger(es);
+      dbg = new CkfDebugger(es, consumesCollector());
       myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder.get());
       if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg);
       else throw cms::Exception("CkfDebugger") << "please use CkfDebugTrajectoryBuilder";

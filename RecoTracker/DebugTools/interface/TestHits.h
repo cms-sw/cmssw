@@ -59,8 +59,7 @@ private:
 
   std::pair<LocalPoint,LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
 
-  const edm::ParameterSet conf_;
-  TrackerHitAssociator * hitAssociator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   double mineta, maxeta;
 

@@ -15,6 +15,7 @@ process.Thing = cms.EDProducer("SecondaryProducer",
     sequential = cms.untracked.bool(True),
     lumiSpecified = cms.untracked.bool(True),
     input = cms.SecSource("PoolSource",
+        skipEvents = cms.untracked.uint32(3),
         fileNames = cms.untracked.vstring('file:SecondaryInputTest2.root')
     )
 )

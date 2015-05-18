@@ -125,6 +125,12 @@ namespace associationMapFilterValuesHelpers {
  */
 template <typename T_AssociationMap, typename T_RefVector>
 T_AssociationMap associationMapFilterValues(const T_AssociationMap& map, const T_RefVector& valueRefs) {
+  // If the input map is empty, just return it in order to avoid an
+  // exception from failing edm::helpers::checkRef() (in this case the
+  // refProd points to (0,0) that will fail the check).
+  if(map.empty())
+    return map;
+
   T_AssociationMap ret(map.refProd());
 
   // First copy the keys of values to a set for faster lookup of their existence in the map

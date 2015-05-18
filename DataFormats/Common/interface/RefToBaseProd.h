@@ -133,11 +133,14 @@ namespace edm {
     return * operator->();
   }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   /// Member dereference operator
   template<typename T>
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
-    if(product_.productPtr() == 0) {
+    //Another thread might change the value returned so just get it once
+    auto getter = product_.productGetter();
+    if(getter != nullptr) {
       if(product_.isNull()) {
         Exception::throwThis(errors::InvalidReference,
           "attempting get view from a null RefToBaseProd.\n");
@@ -145,16 +148,20 @@ namespace edm {
       ProductID tId = product_.id();
       std::vector<void const*> pointers;
       FillViewHelperVector helpers;
-      WrapperBase const* prod = product_.productGetter()->getIt(tId);
+      WrapperBase const* prod = getter->getIt(tId);
       if(prod == nullptr) {
         Exception::throwThis(errors::InvalidReference,
                              "attempting to get view from an unavailable RefToBaseProd.");
       }
       prod->fillView(tId, pointers, helpers);
-      product_.setProductPtr((new View<T>(pointers, helpers,product_.productGetter())));
+      std::unique_ptr<View<T>> tmp{ new View<T>(pointers, helpers, getter) };
+      if( product_.tryToSetProductPtrForFirstTime(tmp.get())) {
+        tmp.release();
+      }
     }
     return viewPtr();
   }
+#endif
 
   template<typename T>
   inline

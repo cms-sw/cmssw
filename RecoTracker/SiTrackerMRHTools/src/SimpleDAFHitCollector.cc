@@ -54,7 +54,9 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
       DetId id = itrajmeas->recHit()->geographicalId();
       MeasurementDetWithData measDet = theMTE->idToDet(id);
       tracking::TempMeasurements tmps;
+      
       std::vector<const TrackingRecHit*> hits;
+      std::vector<std::unique_ptr<const TrackingRecHit>> hitsOwner;
 
       TrajectoryStateOnSurface smoothtsos = itrajmeas->updatedState();
       //the error is scaled in order to take more "compatible" hits
@@ -88,9 +90,9 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
             TransientTrackingRecHit::RecHitPointer transient = 
 						   theUpdator->getBuilder()->build(tmps.hits[i]->hit());
             TrackingRecHit::ConstRecHitPointer preciseHit = theHitCloner.makeShared(transient,combtsos);
-	    TrackingRecHit * righthit = rightdimension(*preciseHit);	
-            hits.push_back(righthit);
-
+	    auto righthit = rightdimension(*preciseHit);
+            hitsOwner.push_back(std::move(righthit));
+            hits.push_back(hitsOwner.back().get());
           }
 
         }

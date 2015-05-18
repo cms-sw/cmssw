@@ -43,8 +43,6 @@ process.refittedTracks.src = cms.InputTag("generalTracks")
 process.refittedTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
-process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(18)  # check if they induce a difference
-process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(1023)  # check if they induce a difference
 
 #process.KFFittingSmootherWithOutliersRejectionAndRK.LogPixelProbabilityCut = cms.double(-16.0)
 

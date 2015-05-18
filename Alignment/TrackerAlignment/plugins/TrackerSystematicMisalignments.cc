@@ -1,6 +1,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -33,8 +36,7 @@
 // made some variables constant, removed obviously dead code and comments
 
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
-  : theAlignableTracker(0),
-    theParameterSet(cfg)
+  : theAlignableTracker(0)
 {
 	// use existing geometry
 	m_fromDBGeom = cfg.getUntrackedParameter< bool > ("fromDBGeom");
@@ -112,12 +114,14 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
+	edm::ESHandle<PTrackerParameters> ptp;
+	setup.get<PTrackerParametersRcd>().get( ptp );
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp );
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_fromDBGeom){

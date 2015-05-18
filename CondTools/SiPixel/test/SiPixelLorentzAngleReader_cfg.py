@@ -32,7 +32,10 @@ process.GlobalTag.globaltag = autoCond['run2_design']
 #In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'
 
-process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+print process.GlobalTag.globaltag
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+
+#process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 
 process.QualityReader = cms.ESSource("PoolDBESSource",
 #    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -44,7 +47,8 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
 		cms.PSet(
 			record = cms.string("SiPixelLorentzAngleRcd"),
 			#tag = cms.string("trivial_LorentzAngle")
-			tag = cms.string("SiPixelLorentzAngle_v1")
+			#tag = cms.string("SiPixelLorentzAngle_v1")
+			tag = cms.string("SiPixelLorentzAngle_2015_v2")
 		),
 #		cms.PSet(
 #			record = cms.string("SiPixelLorentzAngleSimRcd"),

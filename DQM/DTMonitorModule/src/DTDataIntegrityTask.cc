@@ -39,6 +39,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   neventsDDU = 0;
   neventsROS25 = 0;
 
+  FEDIDmin = FEDNumbering::MINDTFEDID;
+  FEDIDMax = FEDNumbering::MAXDTFEDID;
+
 //   If you want info VS time histos
 //   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
 //   Plot quantities about SC
@@ -66,7 +69,6 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 }
 
 
-
 DTDataIntegrityTask::~DTDataIntegrityTask() {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     <<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
@@ -90,8 +92,6 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask] Get DQMStore service" << endl;
 
   // Loop over the DT FEDs
-  int FEDIDmin = FEDNumbering::MINDTFEDID;
-  int FEDIDMax = FEDNumbering::MAXDTFEDID;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " FEDS: " << FEDIDmin  << " to " <<  FEDIDMax << " in the RO" << endl;
