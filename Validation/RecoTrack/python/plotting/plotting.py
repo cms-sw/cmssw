@@ -716,12 +716,13 @@ class Plot:
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
             self._ratios = self._calculateRatios(histos) # need to keep these in memory too ...
-#            self._ratios[0]._ratio.SetFillStyle(1001)
-#            self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
-#            self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
-#            self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
-#            self._ratios[0]._ratio.SetMarkerSize(0)
-#            self._ratios[0].draw("E2")
+            self._ratios[0]._ratio.SetFillStyle(1001)
+            self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
+            self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
+            self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
+            self._ratios[0]._ratio.SetMarkerSize(0)
+            self._ratios[0].draw("E2")
+            frame._padRatio.RedrawAxis("G") # redraw grid on top of the uncertainty of denominator
             for r in self._ratios[1:]:
                 r.draw()
 
