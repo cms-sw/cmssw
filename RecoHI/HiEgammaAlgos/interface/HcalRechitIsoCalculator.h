@@ -1,5 +1,5 @@
-#ifndef HiEgammaAlgos_RxCalculator_h
-#define HiEgammaAlgos_RxCalculator_h
+#ifndef HiEgammaAlgos_HcalRechitIsoCalculator_h
+#define HiEgammaAlgos_HcalRechitIsoCalculator_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,19 +16,19 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class RxCalculator
+class HcalRechitIsoCalculator
 {
 public:
 
-  RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup,
+  HcalRechitIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup,
 	       const edm::Handle<HBHERecHitCollection> hbhe,
 	       const edm::Handle<HFRecHitCollection> hfLabel,
 	       const edm::Handle<HORecHitCollection> hoLabel) ;
 
   /// Return the hcal rechit energy in a cone around the SC
-  double getRx (const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0);
+  double getHcalRechitIso (const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0);
   /// Return the background-subtracted hcal rechit energy in a cone around the SC
-  double getCRx(const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0);
+  double getBkgSubHcalRechitIso(const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0);
 
 private:
 

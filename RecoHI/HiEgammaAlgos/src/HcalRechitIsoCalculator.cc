@@ -1,4 +1,4 @@
-#include "RecoHI/HiEgammaAlgos/interface/RxCalculator.h"
+#include "RecoHI/HiEgammaAlgos/interface/HcalRechitIsoCalculator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -14,7 +14,7 @@
 using namespace edm;
 using namespace reco;
 
-RxCalculator::RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<HBHERecHitCollection> hbhe, const edm::Handle<HFRecHitCollection> hf, const edm::Handle<HORecHitCollection> ho)
+HcalRechitIsoCalculator::HcalRechitIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<HBHERecHitCollection> hbhe, const edm::Handle<HFRecHitCollection> hf, const edm::Handle<HORecHitCollection> ho)
 {
   if(hf.isValid())
     fHFRecHits_ = hf.product();
@@ -41,7 +41,7 @@ RxCalculator::RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSet
 }
 
 
-double RxCalculator::getRx(const reco::SuperClusterRef cluster, const double x, const double threshold, const double innerR )
+double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef cluster, const double x, const double threshold, const double innerR )
 {
    if(!fHBHERecHits_) {
      return -100;
@@ -69,7 +69,7 @@ double RxCalculator::getRx(const reco::SuperClusterRef cluster, const double x, 
    return TotalEt;
 }
 
-double RxCalculator::getCRx(const reco::SuperClusterRef cluster, const double x, const double threshold, const double innerR )
+double HcalRechitIsoCalculator::getBkgSubHcalRechitIso(const reco::SuperClusterRef cluster, const double x, const double threshold, const double innerR )
 {
    if(!fHBHERecHits_) {
       return -100;
@@ -92,7 +92,7 @@ double RxCalculator::getCRx(const reco::SuperClusterRef cluster, const double x,
       }
    }
 
-   double Rx = getRx(cluster,x,threshold,innerR);
+   double Rx = getHcalRechitIso(cluster,x,threshold,innerR);
    double CRx = (Rx - TotalEt * (0.01*x*x - innerR*innerR) / (2 * 2 * 0.1 * x))*(1/(1-x/40.)) ;
 
    return CRx;

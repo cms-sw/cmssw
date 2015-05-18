@@ -1,7 +1,7 @@
 // ROOT includes
 #include <Math/VectorUtil.h>
 
-#include "RecoHI/HiEgammaAlgos/interface/TxCalculator.h"
+#include "RecoHI/HiEgammaAlgos/interface/TrackIsoCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -16,13 +16,13 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::TrackCollection> trackLabel, const std::string trackQuality)
+TrackIsoCalculator::TrackIsoCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::TrackCollection> trackLabel, const std::string trackQuality)
 {
   recCollection = trackLabel;
   trackQuality_ = trackQuality;
 }
 
-double TxCalculator::getTx(const reco::Photon cluster, const double x, const double threshold, const double innerDR)
+double TrackIsoCalculator::getTrackIso(const reco::Photon cluster, const double x, const double threshold, const double innerDR)
 {
   double TotalPt = 0;
 
@@ -45,7 +45,7 @@ double TxCalculator::getTx(const reco::Photon cluster, const double x, const dou
   return TotalPt;
 }
 
-double TxCalculator::getCTx(const reco::Photon cluster, const double x, const double threshold, const double innerDR)
+double TrackIsoCalculator::getBkgSubTrackIso(const reco::Photon cluster, const double x, const double threshold, const double innerDR)
 {
   double SClusterEta = cluster.eta();
   double TotalPt = 0;
@@ -71,7 +71,7 @@ double TxCalculator::getCTx(const reco::Photon cluster, const double x, const do
       TotalPt = TotalPt + pt;
   }
 
-  double Tx = getTx(cluster,x,threshold,innerDR);
+  double Tx = getTrackIso(cluster,x,threshold,innerDR);
   double CTx = (Tx - TotalPt / 40.0 * x)*(1/(1-x/40.));
 
   return CTx;

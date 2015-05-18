@@ -1,5 +1,5 @@
-#ifndef HiEgammaAlgos_TxCalculator_h
-#define HiEgammaAlgos_TxCalculator_h
+#ifndef HiEgammaAlgos_TrackIsoCalculator_h
+#define HiEgammaAlgos_TrackIsoCalculator_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,16 +19,16 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class TxCalculator
+class TrackIsoCalculator
 {
 public:
 
-  TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::TrackCollection> trackLabel, const std::string trackQuality_) ;
+  TrackIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::TrackCollection> trackLabel, const std::string trackQuality_) ;
 
   /// Return the tracker energy in a cone around the photon
-  double getTx(const reco::Photon clus, const double i, const double threshold, const double innerDR=0);
+  double getTrackIso(const reco::Photon clus, const double i, const double threshold, const double innerDR=0);
   /// Return the background-subtracted tracker energy in a cone around the photon
-  double getCTx(const reco::Photon clus, const double i, const double threshold, const double innerDR=0);
+  double getBkgSubTrackIso(const reco::Photon clus, const double i, const double threshold, const double innerDR=0);
 
 private:
 
