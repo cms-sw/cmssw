@@ -65,6 +65,7 @@ private:
   template <class T> bool dumpCandidate(const T& dt, const T& em, std::ostream& s);
 
   int verbose() {return verbose_;}
+  bool m_stage1_layer2_;  
 
  private:
 
@@ -81,6 +82,7 @@ private:
   edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_cenJets_[2];
   edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_forJets_[2];
   edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_tauJets_[2];
+  edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_isoTauJets_[2];
   edm::EDGetTokenT<L1GctEtTotalCollection> tokenGctEtTotal_[2];
   edm::EDGetTokenT<L1GctEtHadCollection> tokenGctEtHad_[2];
   edm::EDGetTokenT<L1GctEtMissCollection> tokenGctEtMiss_[2];
