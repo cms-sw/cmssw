@@ -23,9 +23,12 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
+#include "JetMETCorrections/Objects/interface/METCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
 
 
 REGISTER_PLUGIN(JetCorrectionsRecord,JetCorrectorParametersCollection);
+REGISTER_PLUGIN(METCorrectionsRecord,METCorrectorParametersCollection);
 
 using namespace cms;
 using namespace reco;

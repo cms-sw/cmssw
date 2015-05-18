@@ -1,20 +1,17 @@
-// -*- C++ -*-
 
+#include <memory>
+#include <string>
+#include <fstream>
+#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
 
-#include <string>
-#include <fstream>
-#include <iostream>
-
-//____________________________________________________________________________||
 class  METCorrectorDBWriter : public edm::EDAnalyzer
 {
  public:
@@ -42,36 +39,55 @@ void METCorrectorDBWriter::beginJob()
 {
   std::string path("CondFormats/JetMETObjects/data/");
 
+  METCorrectorParametersCollection *payload = new METCorrectorParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
-
-  std::string append("_");
-  append += algo;
-  append += ".txt";
-  inputTxtFile = path + era + append;
-  std::cout << " inputTxtFile " << inputTxtFile << std::endl;
-  std::ifstream input( ("../../../"+inputTxtFile).c_str() );
-  edm::FileInPath fip(inputTxtFile);
-  std::string mSection = "";
-  METCorrectorParameters *payload = new METCorrectorParameters(fip.fullPath(),mSection);
-  payload->printScreen();
-  if ( input.good() ) {
-    edm::FileInPath fip(inputTxtFile);
-    std::cout << "Opened file " << inputTxtFile << std::endl;
+  for( int i(0); i< METCorrectorParametersCollection::N_LEVELS;++i)
+  {
+    std::string append("_");
+    std::string ilev = METCorrectorParametersCollection::findLabel( static_cast<METCorrectorParametersCollection::Level_t>(i) );
+    append += ilev;
+    append += "_";
+    append += algo;
+    append += ".txt";
+    inputTxtFile = path+era+append;
+    std::ifstream input( ("../../../"+inputTxtFile).c_str() );
+    if ( input.good() ) {
+      edm::FileInPath fip(inputTxtFile);
+      std::cout << "Opened file " << inputTxtFile << std::endl;
+      std::vector<std::string> sections;
+      METCorrectorParametersCollection::getSections("../../../"+inputTxtFile, sections );
+      if(sections.size() == 0){
+        payload->push_back(i, METCorrectorParameters(fip.fullPath(),"") );
+      }else{
+	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
+	      isect != isectend; ++isect ) {
+	  payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), ilev + "_" + *isect );	  
+	  std::cout << "Added " << ilev + "_" + *isect <<  " to record " << i << std::endl;
+	}
+      }
+      std::cout << "Added record " << i << std::endl;
+    }else{
+      std::cout<<"Have not found METC file: "<<inputTxtFile<<std::endl;
+    }
   }
+
   std::cout << "Opening PoolDBOutputService" << std::endl;
 
   edm::Service<cond::service::PoolDBOutputService> s;
-  if (s.isAvailable())
+  if (s.isAvailable()) 
+  {
+    std::cout << "Setting up payload tag " << payloadTag << std::endl;
+    if (s->isNewTagRequest(payloadTag))
     {
-      std::cout << "Setting up payload tag " << payloadTag << std::endl;
-      if (s->isNewTagRequest(payloadTag))
-        s->createNewIOV<METCorrectorParameters>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
-      else
-        s->appendSinceTime<METCorrectorParameters>(payload, 111, payloadTag);
+      std::cout<<"NewTagRequested"<<std::endl;
+      s->createNewIOV<METCorrectorParametersCollection>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
+    }else{
+      s->appendSinceTime<METCorrectorParametersCollection>(payload, 111, payloadTag);
     }
+  }
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
-
 }
 
-//____________________________________________________________________________||
+
 DEFINE_FWK_MODULE(METCorrectorDBWriter);
+
