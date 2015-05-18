@@ -60,14 +60,13 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # --- Photons
     Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
     Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && "+\
-                                       " ( abs(eta) < 1.479 && r9 < 0.50  || "+\
-                                       "   abs(eta) > 1.479 && r9 < 0.80 ) && "+\
-                                       " ( ( abs(eta) < 1.479 && r9 < 0.85  || "+\
-                                       "   abs(eta) > 1.479 && r9 < 0.90 ) || ("+\
-                                       " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
-                                       "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
-                                       " ecalRecHitSumEtConeDR03 < (6.0+0.012*et)  && trkSumPtSolidConeDR03 < (6.0 + 0.0002*et)"+\
-            " )"+")" ),
+                                   " ( ( abs(eta) < 1.479 && r9 > 0.85 ) || "+\
+                                   "   ( abs(eta) > 1.479 && r9 > 0.90 ) || "+\
+                                   "   ( abs(eta) < 1.479 && r9 > 0.50 && sigmaIetaIeta < 0.014 && "+\
+                                   "     ecalRecHitSumEtConeDR03 < (6.0+0.012*et) && trkSumPtSolidConeDR03 < (6.0 + 0.002*et) ) || "+\
+                                   "   ( abs(eta) > 1.479 && r9 > 0.80 && sigmaIetaIeta < 0.035 && "+\
+                                   "     ecalRecHitSumEtConeDR03 < (6.0+0.012*et) && trkSumPtSolidConeDR03 < (6.0 + 0.002*et) ) ) "
+                                   ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 
