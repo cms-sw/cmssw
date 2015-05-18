@@ -1,6 +1,4 @@
-## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
 process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
@@ -17,23 +15,12 @@ setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_tight)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_soft)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_highpt)
 
-## ------------------------------------------------------
-#  In addition you usually want to change the following
-#  parameters:
-## ------------------------------------------------------
-#
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
-#                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
-#                                         ##
-process.maxEvents.input = 2000
-#                                         ##
-#   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
-#                                         ##
+process.maxEvents.input = -1
 process.out.fileName = 'patTuple_isoval.root'
-#                                         ##
-#   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+process.options.wantSummary = False
 
 process.muonVIDCITKAnalyzer = cms.EDAnalyzer("MuonVIDCITKAnalyzer",
     muon = cms.InputTag("muons"),
@@ -44,12 +31,26 @@ process.p = cms.Path(
     process.muonVIDCITKAnalyzer
 )
 
+process.pfPileUpIso.PFCandidates = 'particleFlowPtrs'
+process.pfNoPileUpIso.bottomCollection = 'particleFlowPtrs'
 process.out.outputCommands = [
-#    'keep *_muonPFNoPileUpIsolation_*_*',
-#    'keep *_muonPFPileUpIsolation_*_*',
-#    'keep *_muPFIsoValue*_*_*',
+    'drop *',
     'keep recoMuons_muons_*_*',
-    'keep *_muonVIDs_*_*',
     'keep *_patMuons_*_*',
+    'keep *_muPFIsoValue*PAT_*_*',
+    'keep *_muonVIDs_*_*',
+    'keep *_muons_muPFSumDRIsoValue*04_*', # Standard IsoDeposit in RECO
+    'keep *_muonPFNoPileUpIsolation_*_*', # Isolation from CITK
+    'keep *_muonPFPileUpIsolation_*_*', # Isolation from CITK
 ]
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
+from PhysicsTools.PatAlgos.patEventContent_cff import patExtraAodEventContent
+process.out.outputCommands += patEventContentNoCleaning
+process.out.outputCommands += patExtraAodEventContent
+
+process.out.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
+process.TFileService = cms.Service("TFileService",
+  fileName = cms.string('TFileServiceOutput.root')
+)
 
