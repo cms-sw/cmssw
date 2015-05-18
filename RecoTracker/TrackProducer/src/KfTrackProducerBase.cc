@@ -166,6 +166,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   
   selTracks->shrink_to_fit();
   selTrackExtras->shrink_to_fit();
+  selHits->shrink_to_fit();
   rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
