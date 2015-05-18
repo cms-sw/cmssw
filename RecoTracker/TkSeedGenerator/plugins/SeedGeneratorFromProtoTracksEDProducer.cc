@@ -105,6 +105,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
     }
   } 
 
+  result->shrink_to_fit();
   ev.put(result);
 }
 

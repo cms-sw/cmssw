@@ -92,6 +92,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
   if (clustsOrZero){
     if (!theSilentOnClusterCheck)
 	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
+    triplets->shrink_to_fit();
     ev.put(triplets);
     return ;
   }
@@ -124,8 +125,12 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 
   // put to event
-  if ( theMerger_!=0)
+  if ( theMerger_!=0) {
+    quadruplets->shrink_to_fit();
     ev.put(quadruplets);
-  else
+  }
+  else {
+    triplets->shrink_to_fit();
     ev.put(triplets);
+  }
 }
