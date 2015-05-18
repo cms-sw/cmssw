@@ -35,7 +35,6 @@
 
 #include <unordered_set>
 
-// lv
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -116,19 +115,12 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
 
-    // lv
     if(conf.exists("RegionFactoryPSet")){
       edm::ParameterSet regfactoryPSet = 
 	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
       std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
       theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
-      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
-      if(conf.exists("useRegions")){
-	useregions = conf.getParameter<bool>("useRegions");
-      }
-      if(conf.exists("useRegionsTest")){
-	useregionsTest = conf.getParameter<bool>("useRegionsTest");
-      }  
+      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));    
       edm::ParameterSet regPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
       ptMin = regPSet.getParameter<double>("ptMin");
       originRadius = regPSet.getParameter<double>("originRadius");
@@ -252,13 +244,7 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
     if (theRegionProducer){
-      if(useregions){
-	return testWithRegions(hit1,hit2);	
-      }
-      if(useregionsTest){
-	return testWithRegionsTest(hit1,hit2);
-      }
-      
+      return testWithRegions(hit1,hit2);	                 
     }
     if (testBeamspotCompatibility)
       {
@@ -557,38 +543,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
     e.put(output);
 }
-
-// lv
-// inspired by RecoTracker/TkSeedGenerator/plugins/SeedGeneratorFromRegionHitsEDProducer.cc
-// and RecoTracker/TkHitPairs/src/RecHitsSortedInPhi.cc
-
-bool
-TrajectorySeedProducer::testWithRegionsTest(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
-  const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-  const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
-  typedef PixelRecoRange<float> Range;
-
-  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-    auto const & gs = outerHit.hit()->globalState();
-    auto loc = gs.position-(*ir)->origin().basicVector();
-    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
-		   loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
-    
-    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
-    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
-    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR; 
-    constexpr float nSigmaRZ = 3.46410161514f;
-    Range allowed = checkRZ->range(u);
-    float vErr = nSigmaRZ * dv;
-    Range hitRZ(v-vErr, v+vErr);
-    Range crossRange = allowed.intersection(hitRZ);
-    if( ! crossRange.empty())
-      return true;
-  }
-  return false;
-}
-//shubh
-//useRegions                                                                                                                         
+                                                                                                      
 bool
 TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
   const GlobalPoint& gpos1 = innerHit.globalPosition();
@@ -624,7 +579,6 @@ track to (x,y) = (0,0)
   }
   return true;
 }
-
 
 bool
 TrajectorySeedProducer::compatibleWithBeamSpot(

@@ -23,10 +23,7 @@
 	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-// lv
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-
-
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -36,7 +33,6 @@ class MagneticField;
 class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
-// lv
 class MeasurementTrackerEvent;
 
 class TrajectorySeedProducer:
@@ -191,8 +187,7 @@ class TrajectorySeedProducer:
 
     // lv
     bool testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
-    bool testWithRegionsTest(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
-
+    
     //! method inserts hit into the tree structure at an empty position. 
     /*!
     \param trackerRecHits list of all TrackerRecHits.
