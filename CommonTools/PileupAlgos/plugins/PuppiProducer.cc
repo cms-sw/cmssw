@@ -204,25 +204,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //////////////////////////////////////////////
   if (fPuppiDiagnostics){
-    const std::vector<double> lAlphas = fPuppiContainer->puppiAlphas();
-    const std::vector<double> lAlphasMed = fPuppiContainer->puppiAlphasMed();
-    const std::vector<double> lAlphasRms = fPuppiContainer->puppiAlphasRMS();
-    const std::vector<double> lRawAlphas = fPuppiContainer->puppiRawAlphas();
-    double lNAlgos = (double) fPuppiContainer->puppiNAlgos();
 
     // all the different alphas per particle
-    std::auto_ptr<std::vector<double> > alphas(new std::vector<double>);
-    for (unsigned int i = 0; i < lRawAlphas.size(); i++){
-      alphas->push_back( lRawAlphas[i] );
-    }
     // THE alpha per particle
-    std::auto_ptr<std::vector<double> > theAlphas(new std::vector<double>);
-    std::auto_ptr<std::vector<double> > theAlphasMed(new std::vector<double>);
-    std::auto_ptr<std::vector<double> > theAlphasRms(new std::vector<double>);
-    for (unsigned int i = 0; i < lAlphas.size(); i++){ theAlphas->push_back( lAlphas[i] ); }
-    for (unsigned int i = 0; i < lAlphasMed.size(); i++){ theAlphasMed->push_back( lAlphasMed[i] ); }
-    for (unsigned int i = 0; i < lAlphasRms.size(); i++){ theAlphasRms->push_back( lAlphasRms[i] ); }
-    std::auto_ptr<double> nalgos(new double(lNAlgos));
+    std::auto_ptr<std::vector<double> > theAlphas(new std::vector<double>(fPuppiContainer->puppiAlphas()));
+    std::auto_ptr<std::vector<double> > theAlphasMed(new std::vector<double>(fPuppiContainer->puppiAlphasMed()));
+    std::auto_ptr<std::vector<double> > theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
+    std::auto_ptr<std::vector<double> > alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
+    std::auto_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
+    
     iEvent.put(alphas,"PuppiRawAlphas");
     iEvent.put(nalgos,"PuppiNAlgos");
     iEvent.put(theAlphas,"PuppiAlphas");

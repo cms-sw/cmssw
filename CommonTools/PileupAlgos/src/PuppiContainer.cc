@@ -239,8 +239,8 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         //std::cout << "fRecoParticles[i0].pt = " <<  fRecoParticles[i0].pt << ", fRecoParticles[i0].charge = " << fRecoParticles[i0].charge << ", fRecoParticles[i0].id = " << fRecoParticles[i0].id << ", weight = " << pWeight << std::endl;
 
         fWeights .push_back(pWeight);
-        fAlphaMed.push_back(fPuppiAlgo[pPupId].fMedian[0]);
-        fAlphaRMS.push_back(fPuppiAlgo[pPupId].fRMS   [0]);        
+        fAlphaMed.push_back(fPuppiAlgo[pPupId].Median(0));
+        fAlphaRMS.push_back(fPuppiAlgo[pPupId].RMS(0));        
         //Now get rid of the thrown out weights for the particle collection
         if(std::abs(pWeight) < std::numeric_limits<double>::denorm_min() ) continue;
         //Produce
