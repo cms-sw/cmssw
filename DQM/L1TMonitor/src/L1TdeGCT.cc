@@ -600,8 +600,8 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       int cid = it->cid();
       ///(note see L1Trigger/HardwareValidation/interface/DEtrait.h)
 
-      //if(verbose()) 
-      std::cout << "[L1TdeStage1Layer2] processing digi "
+      if(verbose()) 
+        std::cout << "[L1TdeStage1Layer2] processing digi "
 	    	  << " sys:"  << sid
 		  << " type:" << cid
 		  << " \n\t"
