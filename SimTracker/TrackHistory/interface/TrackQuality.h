@@ -69,7 +69,7 @@ public:
 
        /param[in] pset with the configuration values
     */
-    TrackQuality(const edm::ParameterSet &);
+    TrackQuality(const edm::ParameterSet &, edm::ConsumesCollector& iC);
 
     //! Pre-process event information (for accessing reconstruction information)
     void newEvent(const edm::Event &, const edm::EventSetup &);
@@ -90,8 +90,8 @@ public:
     }
 
 private:
-    const edm::ParameterSet associatorPSet_;
-    std::auto_ptr<TrackerHitAssociator> associator_;
+    TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+    std::unique_ptr<TrackerHitAssociator> associator_;
 
     std::vector<Layer> layers_;
 };

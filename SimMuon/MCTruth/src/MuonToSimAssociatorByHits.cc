@@ -18,7 +18,8 @@ using namespace std;
 
 MuonToSimAssociatorByHits::MuonToSimAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
   helper_(conf),
-  conf_(conf)
+  conf_(conf),
+  trackerHitAssociatorConfig_(conf,std::move(iC))
 {
   TrackerMuonHitExtractor hitExtractor(conf_,std::move(iC)); 
 
@@ -26,14 +27,8 @@ MuonToSimAssociatorByHits::MuonToSimAssociatorByHits (const edm::ParameterSet& c
   RPCHitAssociator rpctruth(conf,std::move(iC));
   DTHitAssociator dttruth(conf,std::move(iC));
   CSCHitAssociator muonTruth(conf,std::move(iC));
-  TrackerHitAssociator trackertruth(conf,std::move(iC));
 }
 
-//compatibility constructor - argh
-MuonToSimAssociatorByHits::MuonToSimAssociatorByHits (const edm::ParameterSet& conf) :
-  helper_(conf),
-  conf_(conf)
-{}
 
 MuonToSimAssociatorByHits::~MuonToSimAssociatorByHits()
 {
@@ -133,7 +128,7 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, S
     
     
     // Tracker hit association  
-    TrackerHitAssociator trackertruth(*event, conf_);
+    TrackerHitAssociator trackertruth(*event, trackerHitAssociatorConfig_);
     // CSC hit association
     CSCHitAssociator csctruth(*event,*setup,conf_);
     // DT hit association

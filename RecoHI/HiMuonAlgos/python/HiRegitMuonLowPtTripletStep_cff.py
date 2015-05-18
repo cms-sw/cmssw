@@ -74,7 +74,7 @@ hiRegitMuLowPtTripletStepTrackCandidates        =  RecoTracker.IterativeTracking
 
 # fitting: feed new-names
 hiRegitMuLowPtTripletStepTracks                 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(
-    AlgorithmName = cms.string('iter4'),
+    AlgorithmName = cms.string('undefAlgorithm'),
     src                 = 'hiRegitMuLowPtTripletStepTrackCandidates'
 )
 

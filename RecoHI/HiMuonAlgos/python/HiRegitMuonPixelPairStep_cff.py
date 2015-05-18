@@ -20,10 +20,10 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuPixelPairStepClusters = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.clone(
-    oldClusterRemovalInfo = cms.InputTag("hiRegitMuLowPtTripletStepClusters"),
-    trajectories = cms.InputTag("hiRegitMuLowPtTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('hiRegitMuLowPtTripletStepSelector','hiRegitMuLowPtTripletStep'),
-    TrackQuality          = cms.string('tight')
+    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
+		overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+		oldClusterRemovalInfo = cms.InputTag(""),
+		TrackQuality          = cms.string('tight')
 )
 
 
@@ -74,7 +74,7 @@ hiRegitMuPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.Pi
 
 # fitting: feed new-names
 hiRegitMuPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
-    AlgorithmName = cms.string('iter5'),
+    AlgorithmName = cms.string('undefAlgorithm'),
     src                 = 'hiRegitMuPixelPairStepTrackCandidates',
     clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'),
 )
