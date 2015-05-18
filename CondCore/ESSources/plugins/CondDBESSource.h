@@ -94,12 +94,14 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
                                const std::string & prefix,
                                const std::string & postfix,
                                const std::string & roottag,
-                               std::set< cond::GTEntry_t > & tagcoll);
+                               std::set< cond::GTEntry_t > & tagcoll,
+			       cond::GTMetadata_t& gtMetadata);
 
   void fillTagCollectionFromDB( const std::vector<std::string> & connectionStringList,
                                 const std::vector<std::string> & prefixList,
                                 const std::vector<std::string> & postfixList,
                                 const std::vector<std::string> & roottagList,
-                                std::map<std::string,cond::GTEntry_t>& replacement);
+                                std::map<std::string,cond::GTEntry_t>& replacement,
+				cond::GTMetadata_t& gtMetadata);
 };
 #endif

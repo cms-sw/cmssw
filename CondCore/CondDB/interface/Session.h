@@ -86,10 +86,14 @@ namespace cond {
       void createDatabase();
       
       // read access to the iov sequence. 
-      // by default ( full=false ) the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
-      // full=true will load the entire sequence in memory. Mainly for test/debugging.
+      // the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
+      IOVProxy readIov( const std::string& tag, bool full=false );
+
+      // read access to the iov sequence. 
+      // the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
       IOVProxy readIov( const std::string& tag, 
-			bool full=false );//,const boost::posix_time::ptime& snapshottime )  
+			const boost::posix_time::ptime& snapshottime,
+			bool full=false );  
       
       // 
       bool existsIov( const std::string& tag );
