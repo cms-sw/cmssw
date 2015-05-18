@@ -69,7 +69,7 @@ hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.Pi
 
 # fitting: feed new-names
 hiRegitMuPixelLessStepTracks                 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTracks.clone(
-    AlgorithmName = cms.string('iter8'),
+    AlgorithmName = cms.string('undefAlgorithm'),
     src                 = 'hiRegitMuPixelLessStepTrackCandidates'
 )
 
