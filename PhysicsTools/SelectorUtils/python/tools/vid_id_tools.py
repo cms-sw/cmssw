@@ -49,7 +49,7 @@ class DataFormat:
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDElectronIdProducer(process, dataFormat):
+def switchOnVIDElectronIdProducer(process, dataFormat=DataFormat.AOD):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
     dataFormatString = "Undefined"
     if dataFormat == DataFormat.AOD:
