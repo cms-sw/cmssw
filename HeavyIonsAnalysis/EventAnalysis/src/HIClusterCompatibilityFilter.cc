@@ -10,7 +10,7 @@
 // Don't compile until CMSSW_7_5_0_pre5 or later
 #ifdef CMSSW_7_5_0_pre5_OR_LATER
 
-#include "Appeltel/HIRun2015Ana/interface/HIClusterCompatibilityFilter.h"
+#include "HeavyIonsAnalysis/EventAnalysis/interface/HIClusterCompatibilityFilter.h"
 
 HIClusterCompatibilityFilter::HIClusterCompatibilityFilter(const edm::ParameterSet& iConfig):
 cluscomSrc_(consumes<reco::ClusterCompatibility>(iConfig.getParameter<edm::InputTag>("cluscomSrc"))),
