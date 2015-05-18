@@ -30,7 +30,7 @@ public:
   { }
 
   /// ctor from name string
-  PixelBarrelName(std::string name);
+  PixelBarrelName(std::string name, bool phase=false);
 
   virtual ~PixelBarrelName() { }
 
