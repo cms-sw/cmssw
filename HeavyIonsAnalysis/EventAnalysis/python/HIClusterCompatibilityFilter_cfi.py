@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 clusterCompatibilityFilter  = cms.EDFilter('HIClusterCompatibilityFilter',
-   centSrc = cms.InputTag("hiCentrality"),
    cluscomSrc = cms.InputTag("hiClusterCompatibility"),
    minZ          = cms.double(-20.0),
    maxZ          = cms.double(20.05),
