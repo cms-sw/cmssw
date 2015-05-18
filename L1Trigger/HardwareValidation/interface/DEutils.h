@@ -1540,9 +1540,7 @@ inline bool de_rank<L1CaloEmCollection>::operator()
 template <> inline bool de_rank<L1CaloRegionCollection>::operator()(const cand_type& x, const cand_type& y) const { return x.et() < y.et(); }
 
 template <> inline bool de_rank<L1GctEmCandCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.rank()!=y.rank()){return x.rank() < y.rank();} else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() < x.etaIndex();}else{ return x.phiIndex() < y.phiIndex();}}}
-
-//template <> inline bool de_rank<L1GctJetCandCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.rank()!=y.rank()){return x.rank() < y.rank();} else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() < x.etaIndex();}else{ return x.phiIndex() < y.phiIndex();}}}
-
+template <> inline bool de_rank<L1GctJetCandCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.rank()!=y.rank()){return x.rank() < y.rank();} else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() < x.etaIndex();}else{ return x.phiIndex() < y.phiIndex();}}}
 //template <> inline bool de_rank<L1GctEtHadCollection>::operator()(const cand_type& x, const cand_type& y)const { }
 //template <> inline bool de_rank<L1GctEtMissCollection>::operator()(const cand_type& x, const cand_type& y)const { }
 //template <> inline bool de_rank<L1GctEtTotalCollection>::operator()(const cand_type& x, const cand_type& y)const { }
