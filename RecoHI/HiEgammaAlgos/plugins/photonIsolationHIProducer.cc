@@ -148,11 +148,20 @@ photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
 void
 photonIsolationHIProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  desc.add<edm::InputTag>("photonProducer",edm::InputTag("photons"));
+  desc.add<edm::InputTag>("ebRecHitCollection",edm::InputTag("ecalRecHit:EcalRecHitsEB"));
+  desc.add<edm::InputTag>("eeRecHitCollection",edm::InputTag("ecalRecHit:EcalRecHitsEE"));
+  desc.add<edm::InputTag>("hbhe",edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("hf",edm::InputTag("hfreco"));
+  desc.add<edm::InputTag>("ho",edm::InputTag("horeco"));
+  desc.add<edm::InputTag>("basicClusterBarrel",edm::InputTag("islandBasicClusters:islandBarrelBasicClusters"));
+  desc.add<edm::InputTag>("basicClusterEndcap",edm::InputTag("islandBasicClusters:islandEndcapBasicClusters"));
+  desc.add<edm::InputTag>("trackCollection",edm::InputTag("hiGeneralTracks"));
+  desc.add<std::string>("trackQuality","highPurity");
+
+  descriptions.add("photonIsolationHIProducer", desc);
 }
 
 DEFINE_FWK_MODULE(photonIsolationHIProducer);
