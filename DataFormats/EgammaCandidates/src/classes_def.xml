@@ -325,11 +325,13 @@
   <class name="edm::Ptr<reco::Photon>" />
   <class name="edm::PtrVector<reco::Photon>" />
 
-  <class name="aod::AODHIPhoton" ClassVersion="10">
-    <version ClassVersion="10" checksum="248033032"/>
+  <class name="reco::HIPhotonIsolation" ClassVersion="10">
+    <version ClassVersion="10" checksum="519702974"/>
   </class>
-  <class name="aod::AODHIPhotonCollection"/>
-  <class name="edm::Wrapper<aod::AODHIPhotonCollection>"/>
+  <class name="edm::Wrapper<reco::HIPhotonIsolation>"/>
+  <class name="edm::ValueMap<reco::HIPhotonIsolation>"/>
+  <class name="std::vector<reco::HIPhotonIsolation>" />
+  <class name="edm::Wrapper<std::vector<reco::HIPhotonIsolation> >" />
 
 
 </lcgdict>
