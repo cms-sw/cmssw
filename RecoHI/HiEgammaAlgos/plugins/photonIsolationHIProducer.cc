@@ -102,23 +102,23 @@ photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   {
     reco::HIPhotonIsolation iso;
     // HI-style isolation info
-    iso.cc1(CxC.getCCx(phoItr->superCluster(),1,0));
-    iso.cc2(CxC.getCCx(phoItr->superCluster(),2,0));
-    iso.cc3(CxC.getCCx(phoItr->superCluster(),3,0));
-    iso.cc4(CxC.getCCx(phoItr->superCluster(),4,0));
-    iso.cc5(CxC.getCCx(phoItr->superCluster(),5,0));
+    iso.ecalClusterIsoR1(CxC.getCCx(phoItr->superCluster(),1,0));
+    iso.ecalClusterIsoR2(CxC.getCCx(phoItr->superCluster(),2,0));
+    iso.ecalClusterIsoR3(CxC.getCCx(phoItr->superCluster(),3,0));
+    iso.ecalClusterIsoR4(CxC.getCCx(phoItr->superCluster(),4,0));
+    iso.ecalClusterIsoR5(CxC.getCCx(phoItr->superCluster(),5,0));
 
-    iso.cr1(RxC.getCRx(phoItr->superCluster(),1,0));
-    iso.cr2(RxC.getCRx(phoItr->superCluster(),2,0));
-    iso.cr3(RxC.getCRx(phoItr->superCluster(),3,0));
-    iso.cr4(RxC.getCRx(phoItr->superCluster(),4,0));
-    iso.cr5(RxC.getCRx(phoItr->superCluster(),5,0));
+    iso.hcalRechitIsoR1(RxC.getCRx(phoItr->superCluster(),1,0));
+    iso.hcalRechitIsoR2(RxC.getCRx(phoItr->superCluster(),2,0));
+    iso.hcalRechitIsoR3(RxC.getCRx(phoItr->superCluster(),3,0));
+    iso.hcalRechitIsoR4(RxC.getCRx(phoItr->superCluster(),4,0));
+    iso.hcalRechitIsoR5(RxC.getCRx(phoItr->superCluster(),5,0));
 
-    iso.ct1PtCut20(TxC.getCTx(*phoItr,1,2));
-    iso.ct2PtCut20(TxC.getCTx(*phoItr,2,2));
-    iso.ct3PtCut20(TxC.getCTx(*phoItr,3,2));
-    iso.ct4PtCut20(TxC.getCTx(*phoItr,4,2));
-    iso.ct5PtCut20(TxC.getCTx(*phoItr,5,2));
+    iso.trackIsoR1PtCut20(TxC.getCTx(*phoItr,1,2));
+    iso.trackIsoR2PtCut20(TxC.getCTx(*phoItr,2,2));
+    iso.trackIsoR3PtCut20(TxC.getCTx(*phoItr,3,2));
+    iso.trackIsoR4PtCut20(TxC.getCTx(*phoItr,4,2));
+    iso.trackIsoR5PtCut20(TxC.getCTx(*phoItr,5,2));
 
     // ecal spike rejection info (seed timing)
     const reco::CaloClusterPtr  seed = phoItr->superCluster()->seed();
