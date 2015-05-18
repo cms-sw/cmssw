@@ -57,9 +57,9 @@ cutBasedMuonId_MuonPOG_V0_highpt = cms.PSet(
     )
 )
 
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_loose , '2a4de3cc886b063d40c6977639306340')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_medium, 'de66b9fbcf9c88573caa37490b2283b4')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight , '221704865d26c6a39aa5117dc29d3655')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft  , '689863a0ce4b02b2332728e0ba25694e')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt, '6a6b4824cc4abadd3e02fd86999b3acb')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_loose.idName , '2a4de3cc886b063d40c6977639306340')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_medium.idName, 'de66b9fbcf9c88573caa37490b2283b4')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight.idName , '221704865d26c6a39aa5117dc29d3655')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft.idName  , '689863a0ce4b02b2332728e0ba25694e')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt.idName, '6a6b4824cc4abadd3e02fd86999b3acb')
 
