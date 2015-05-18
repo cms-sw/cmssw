@@ -104,7 +104,7 @@ namespace reco{
     /// Track-based isolation, pt>2.0GeV, R = 0.5
     void trackIsoR5PtCut20(float trackIsoR5PtCut20)  {trackIsoR5PtCut20_ = trackIsoR5PtCut20;}
 
-    /// Swiss-HcalRechitIsoRoss hcalRechitIsoRystal ratio
+    /// SwissCross ecal crystal ratio
     void swissCrx(float swissCrx)  {swissCrx_ = swissCrx;}
     /// Ecal rechit seed time
     void seedTime(float seedTime)  {seedTime_ = seedTime;}
