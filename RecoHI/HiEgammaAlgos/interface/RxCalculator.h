@@ -25,8 +25,10 @@ public:
 	       const edm::Handle<HFRecHitCollection> hfLabel,
 	       const edm::Handle<HORecHitCollection> hoLabel) ;
 
+  /// Return the hcal rechit energy in a cone around the SC
   double getRx (const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0);
-  double getCRx(const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0); // background subtracted Rx
+  /// Return the background-subtracted hcal rechit energy in a cone around the SC
+  double getCRx(const reco::SuperClusterRef clus, const double i, const double threshold, const double innerR=0.0);
 
 private:
 

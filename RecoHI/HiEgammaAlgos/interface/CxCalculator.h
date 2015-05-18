@@ -1,5 +1,5 @@
-#ifndef CxCalculator_h
-#define CxCalculator_h
+#ifndef HiEgammaAlgos_CxCalculator_h
+#define HiEgammaAlgos_CxCalculator_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +21,9 @@ public:
 
   CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::BasicClusterCollection> barrel, const edm::Handle<reco::BasicClusterCollection> endcap);
 
+  /// Return the ecal cluster energy in a cone around the SC
   double getCx(const reco::SuperClusterRef clus, const double i, const double threshold);
+  /// Return the background-subtracted ecal cluster energy in a cone around the SC
   double getCCx(const reco::SuperClusterRef clus, const double i, const double threshold); // background subtracted Cx
 
 private:
