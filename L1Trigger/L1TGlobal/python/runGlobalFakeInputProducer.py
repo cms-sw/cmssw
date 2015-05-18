@@ -70,31 +70,28 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    ### Neutrino Gun Sample - PU50
-    #fileNames = cms.untracked.vstring("file:/home/puigh/work/L1Upgrade/CMSSW_6_2_0/src/Neutrino_Pt2to20_gun_UpgradeL1TDR-PU50_POSTLS161_V12-v1_001D5CFF-2839-E211-9777-0030487FA483.root"),
-    ### RelValSingleElectronPt10
-    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root"),
-    ### RelValTTBar
-    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/1A20137C-E651-E311-A9C6-00304867BFAA.root"),
-    ### Local RelValTTBar
-    #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_PRE_LS171_V6-v1/00000/02ACFBFD-B0CB-E311-862A-002618FDA248.root"),
     fileNames = cms.untracked.vstring(
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/0EF13A80-F2FE-E311-9565-003048FFD7D4.root",
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/389E0C8A-EFFE-E311-86EA-0025905A6088.root",
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/52F1C37C-F1FE-E311-89EA-00261894394D.root",
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/545B93FA-F1FE-E311-8414-0025905A497A.root",
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/5C8B9784-EFFE-E311-A37A-0025905A60B0.root",
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/5E835FAA-F3FE-E311-8D88-0025905B8596.root",
-	"/store/relval/CMSSW_7_1_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V16-v1/00000/6C2B9503-F0FE-E311-858F-0025905A612A.root",
+	"root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/06801062-95EA-E411-BAA4-002618943832.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/069BD085-9BEA-E411-B063-002618943985.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/0EABD22E-97EA-E411-9187-0025905A6068.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/10E5C59E-9DEA-E411-B378-00261894385D.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/14C238D9-96EA-E411-B343-00261894387E.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/2634383A-94EA-E411-B274-002590596486.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/36F53C7D-99EA-E411-995F-0026189437EB.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/3EC53EC3-A1EA-E411-A30F-002618943826.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/42B2E0FF-95EA-E411-9743-0025905B860C.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/444664B9-95EA-E411-844B-00261894391B.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/48D2AF08-98EA-E411-B556-002618943869.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/4A5FFFC2-95EA-E411-B62F-0025905B858C.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/5419CE7B-9AEA-E411-AE7C-002618943923.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/583FA9B9-98EA-E411-B867-0025905A7786.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/60CD47B5-95EA-E411-9469-00261894382D.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/647E2B80-A0EA-E411-80CB-002618943950.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/78A02D9A-94EA-E411-8625-0025905A6082.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/88637A5A-A0EA-E411-916B-0025905A6094.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/8E93F5C6-A0EA-E411-A4ED-0025905A6126.root",
+        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/908AF505-96EA-E411-9C1D-003048FFD756.root",
 	),
-
-    #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_1_0_pre5/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_POSTLS171_V2-v2/00000/0E8CA3E5-94BC-E311-866D-02163E00EB85.root"),
-    #fileNames = cms.untracked.vstring(
-    #"/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root",
-    #"/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_1A20137C-E651-E311-A9C6-00304867BFAA.root",
-    #"/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_2EFD8C7A-E651-E311-8C92-002354EF3BE3.root",
-    #"file:/home/winer/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_7854097B-E651-E311-96D3-002618B27F8A.root",
-    #),
     skipEvents = cms.untracked.uint32(skip)
     )
 
