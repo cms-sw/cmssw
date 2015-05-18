@@ -137,25 +137,15 @@ namespace muonAssociatorByHitsDiagnostics {
 
 MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :  
   helper_(conf),
-  conf_(conf)
+  conf_(conf),
+  trackerHitAssociatorConfig_(conf, std::move(iC))
 {
   //hack for consumes
   RPCHitAssociator rpctruth(conf,std::move(iC));
   DTHitAssociator dttruth(conf,std::move(iC));
   CSCHitAssociator muonTruth(conf,std::move(iC));
-  TrackerHitAssociator trackertruth(conf,std::move(iC));
   if( conf.getUntrackedParameter<bool>("dumpInputCollections") ) {
     diagnostics_.reset( new InputDumper(conf, std::move(iC)) );
-  }
-}
-
-//compatibility constructor - argh
-MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf) :  
-  helper_(conf),
-  conf_(conf)
-{
-  if( conf.getUntrackedParameter<bool>("dumpInputCollections") ) {
-    diagnostics_.reset( new InputDumper(conf) );
   }
 }
 
@@ -183,7 +173,7 @@ MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track
 
 
   // Tracker hit association  
-  TrackerHitAssociator trackertruth(*e, conf_);
+  TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
   CSCHitAssociator csctruth(*e,*setup,conf_);
   // DT hit association
@@ -228,7 +218,7 @@ MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track
   const TrackerTopology *tTopo=tTopoHand.product();
 
   // Tracker hit association  
-  TrackerHitAssociator trackertruth(*e, conf_);
+  TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
   CSCHitAssociator csctruth(*e,*setup,conf_);
   // DT hit association
