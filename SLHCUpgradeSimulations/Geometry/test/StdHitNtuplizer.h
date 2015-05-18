@@ -29,6 +29,7 @@
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 class TTree;
 class TFile;
@@ -71,6 +72,7 @@ class StdHitNtuplizer : public edm::EDAnalyzer
 
  private:
   edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::InputTag src_;
   edm::InputTag rphiRecHits_;
   edm::InputTag stereoRecHits_;
