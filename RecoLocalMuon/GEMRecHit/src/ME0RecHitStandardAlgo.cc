@@ -38,18 +38,3 @@ bool ME0RecHitStandardAlgo::compute(const ME0DigiPreReco& digi,
   return true;
 }
 
-
-bool ME0RecHitStandardAlgo::compute(const ME0DigiPreReco& digi,
-				    const float& angle,
-				    const GlobalPoint& globPos, 
-				    LocalPoint& Point,
-				    LocalError& error)  const
-{
-
-  // Glob Pos and angle not used so far...
-  if (globPos.z()<0){ } // Fake use to avoid warnings
-  if (angle<0.){ }      // Fake use to avoid warnings
-  this->compute(digi,Point,error);
-  return true;
-}
-
