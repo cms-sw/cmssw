@@ -23,6 +23,12 @@ dedxDQMHarm2SO.UsePixel = cms.bool(False)
 dedxDQMHarm2PO = dedxDQMHarm2SP.clone()
 dedxDQMHarm2PO.UseStrip = cms.bool(False)
 
+
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHitInfo
+dedxDQMHitInfo = dedxHitInfo.clone()
+dedxDQMHitInfo.tracks                     = cms.InputTag("generalTracks")
+dedxDQMHitInfo.trajectoryTrackAssociation = cms.InputTag("generalTracks")
+
 #dEdxMonitor = cms.Sequence(
 #    RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO
 #    * dEdxAnalyzer
