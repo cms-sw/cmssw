@@ -21,7 +21,6 @@
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
-#include "TMath.h"
 #include <vector>
 
 class LoadEPDB {

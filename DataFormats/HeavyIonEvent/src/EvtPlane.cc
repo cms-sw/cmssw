@@ -12,16 +12,11 @@ EvtPlane::EvtPlane(int epindx, int level, double planeA,double sumSin, double su
    mult_(mult)
 {
 	for ( int i = 0; i < 4; ++i ) {
-		angle_[i] = sumSin_[i] = sumCos_[i] = 0;
+		angle_[i] = sumSin_[i] = sumCos_[i] = -10;
 	}
   angle_[level] = planeA;
   sumSin_[level] = sumSin;
   sumCos_[level] = sumCos;
-  if(level<2) {
-    angle_[2] = planeA;
-    sumSin_[2] = sumSin;
-    sumCos_[2] = sumCos;
-  }
   // default constructor
 }
 void EvtPlane::AddLevel(int level, double ang, double sumsin, double sumcos) {

@@ -200,7 +200,7 @@ public:
     return psi;
   }
 
-  double getOffsetPsi(double s, double c, double w, uint m,  double vtx, int centbin) const
+  double OffsetPsi(double s, double c, double w, uint m,  double vtx, int centbin)
   {
     int indx = getOffsetIndx(centbin,vtx);
     double snew = s-yoffDB_[indx];
