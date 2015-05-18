@@ -155,7 +155,7 @@ public:
     caloCentRefVal_ = 1.;
   }
 
-  double getEtScale(double vtx, int centbin) const {
+  double EtScale(double vtx, int centbin) {
     if(caloCentRefMinBin_<0) return 1.;
     int indx = getOffsetIndx(centbin,vtx);
     int refmin = getOffsetIndx(caloCentRefMinBin_,vtx);
@@ -169,11 +169,11 @@ public:
     return caloCentRefVal_/getPtDB(indx);
    }
 
-  double getW(double pt, double vtx, int centbin) const
+  double getW(double pt, double vtx, int centbin)
   {
     int indx = getOffsetIndx(centbin,vtx);
     if(indx>=0) {
-      double scale = getEtScale(vtx,centbin);
+      double scale = EtScale(vtx,centbin);
       double ptval = getPtDB(indx)*scale;
       double pt2val = getPt2DB(indx)*pow(scale,2);
       if(ptval>0) return pt*scale-pt2val/ptval;
@@ -256,7 +256,7 @@ public:
     return ang;
   }
   double bounds2(double ang) const {
-    double range = pi/(double) vorder_;
+    double range = M_PI/(double) vorder_;
     while(ang<-range) { ang+=2*range; }
     while(ang>range)  {ang-=2*range; }
     return ang;
@@ -267,7 +267,7 @@ public:
   void setCentRes10(int bin, double res, double err){ if(bin<10 && bin>=0) {centRes10_[bin]=res; centResErr10_[bin]=err;}}
   void setCentRes20(int bin, double res, double err){ if(bin<5 && bin>=0) {centRes20_[bin]=res; centResErr20_[bin]=err;}}
   void setCentRes25(int bin, double res, double err){ if(bin<4 && bin>=0) {centRes25_[bin]=res; centResErr25_[bin]=err;}}
-  void setCentRes30(int bin, double res, double err){ if(bin<3 && bin>=0) {centRes30_[bin]=res; centResErr30[bin]=err;}}
+  void setCentRes30(int bin, double res, double err){ if(bin<3 && bin>=0) {centRes30_[bin]=res; centResErr30_[bin]=err;}}
   void setCentRes40(int bin, double res, double err){ if(bin<2 && bin>=0) {centRes40_[bin]=res; centResErr40_[bin]=err;}}
 
   double getCentRes1(int bin) const { if(bin<100 && bin>=0) {return centRes1_[bin];} else {return 0.;}}
@@ -285,12 +285,12 @@ public:
   double getCentResErr10(int bin) const { if(bin<10 && bin>=0) {return centResErr10_[bin];} else {return 0.;}}
   double getCentResErr20(int bin) const { if(bin<5 && bin>=0)  {return centResErr20_[bin];} else {return 0.;}}
   double getCentResErr25(int bin) const { if(bin<4 && bin>=0)  {return centResErr25_[bin];} else {return 0.;}}
-  double getCentResErr30(int bin) const { if(bin<3 && bin>=0)  {return centResErr30[bin];} else {return 0.;}}
+  double getCentResErr30(int bin) const { if(bin<3 && bin>=0)  {return centResErr30_[bin];} else {return 0.;}}
   double getCentResErr40(int bin) const { if(bin<2 && bin>=0)  {return centResErr40_[bin];} else {return 0.;}}
 
 private:
-  static const MAXCUT = 10000;
-  static const MAXCUTOFF = 1000;
+  static const int MAXCUT = 10000;
+  static const int MAXCUTOFF = 1000;
   double flatX_[MAXCUT];
   double flatY_[MAXCUT];
   double flatXDB_[MAXCUT];

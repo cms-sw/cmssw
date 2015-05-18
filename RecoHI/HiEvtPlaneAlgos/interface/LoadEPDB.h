@@ -23,6 +23,8 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include <vector>
 
+using namespace hi;
+
 class LoadEPDB {
  public:
 

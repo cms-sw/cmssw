@@ -30,6 +30,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -79,15 +80,13 @@ using std::vector;
 // class declaration
 //
 
-class HiEvtPlaneFlatProducer : public edm::stream::EDProducer {
+class HiEvtPlaneFlatProducer : public edm::stream::EDProducer<> {
 public:
   explicit HiEvtPlaneFlatProducer(const edm::ParameterSet&);
   ~HiEvtPlaneFlatProducer();
 
 private:
-//  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-//  virtual void endJob() ;
 
   // ----------member data ---------------------------
 
@@ -97,28 +96,25 @@ private:
 
   edm::InputTag centralityBinTag_;
   edm::EDGetTokenT<int> centralityBinToken;
-  edm::Handle<int> cbin_;
 
   edm::InputTag centralityTag_;
   edm::EDGetTokenT<reco::Centrality> centralityToken;
-  edm::Handle<reco::Centrality> centrality_;
 
   edm::InputTag vertexTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken;
-  edm::Handle<std::vector<reco::Vertex>> vertex_;
 
   edm::InputTag inputPlanesTag_;
   edm::EDGetTokenT<reco::EvtPlaneCollection> inputPlanesToken;
-  edm::Handle<reco::EvtPlaneCollection> evtPlanes_;
 
   edm::InputTag trackTag_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken;
   edm::Handle<reco::TrackCollection> trackCollection_;
 
-  edm::ESWather<HeavyIonRcd> hiWatcher;
-  edm::ESWather<HeavyIonRPRcd> hirpWatcher;
+  edm::ESWatcher<HeavyIonRcd> hiWatcher;
+  edm::ESWatcher<HeavyIonRPRcd> hirpWatcher;
 
   int FlatOrder_;
+  int NumFlatBins_;
   double caloCentRef_;
   double caloCentRefWidth_;
   int CentBinCompression_;
@@ -147,19 +143,19 @@ typedef TrackingParticleRefVector::iterator               tp_iterator;
 //
 HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig):
   centralityVariable_ ( iConfig.getParameter<std::string>("centralityVariable")),
-  centralityBinTag_ ( iConfig.getParameter<edm::InputTag>("centralityBinTag_")),
-  centralityTag_ ( iConfig.getParameter<edm::InputTag>("centralityTag_")),
-  vertexTag_  ( iConfig.getParameter<edm::InputTag>("vertexTag_")),
-  trackTag_ ( iConfig.getParameter<edm::InputTag>("trackTag_")),
-  inputPlanesTag_ ( iConfig.getParameter<edm::InputTag>("inputPlanesTag_")),
-  FlatOrder_ ( iConfig.getUntrackedParameter<int>("FlatOrder_", 9)),
-  NumFlatBins_ ( iConfig.getUntrackedParameter<int>("NumFlatBins_",40)),
-  CentBinCompression_ ( iConfig.getUntrackedParameter<int>("CentBinCompression_",5)),
-  caloCentRef_ ( iConfig.getUntrackedParameter<double>("caloCentRef_",80.)),
-  caloCentRefWidth_ ( iConfig.getUntrackedParameter<double>("caloCentRefWidth_",5.)),
-  Noffmin_ ( iConfig.getUntrackedParameter<int>("Noffmin_", 0)),
-  Noffmax_ ( iConfig.getUntrackedParameter<int>("Noffmax_", 50000)),
-  useOffsetPsi_ ( iConfig.getUntrackedParameter<bool>("useOffsetPsi_",true)
+  centralityBinTag_ ( iConfig.getParameter<edm::InputTag>("centralityBinTag")),
+  centralityTag_ ( iConfig.getParameter<edm::InputTag>("centralityTag")),
+  vertexTag_  ( iConfig.getParameter<edm::InputTag>("vertexTag")),
+  inputPlanesTag_ ( iConfig.getParameter<edm::InputTag>("inputPlanesTag")),
+  trackTag_ ( iConfig.getParameter<edm::InputTag>("trackTag")),
+  FlatOrder_ ( iConfig.getParameter<int>("FlatOrder")),
+  NumFlatBins_ ( iConfig.getParameter<int>("NumFlatBins")),
+  caloCentRef_ ( iConfig.getParameter<double>("caloCentRef")),
+  caloCentRefWidth_ ( iConfig.getParameter<double>("caloCentRefWidth")),
+  CentBinCompression_ ( iConfig.getParameter<int>("CentBinCompression")),
+  Noffmin_ ( iConfig.getParameter<int>("Noffmin")),
+  Noffmax_ ( iConfig.getParameter<int>("Noffmax")),
+  useOffsetPsi_ ( iConfig.getParameter<bool>("useOffsetPsi"))
 {
 //  UseEtHF = kFALSE;
   nCentBins_ = 200.;
@@ -216,10 +212,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   //Get Flattening Parameters
   //
-  //if(FirstEvent || newrun) {
   if( hiWatcher.check(iSetup) ) {
-
-    newrun = false;
 
     //
     //Get Size of Centrality Table
@@ -252,14 +245,15 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
 
   int bin = 0;
+  edm::Handle<int> cbin_;
   iEvent.getByToken(centralityBinToken, cbin_);
   int cbin = *cbin_;
   bin = cbin/CentBinCompression_;
 
   if(Noffmin_>=0) {
+    edm::Handle<reco::Centrality> centrality_;
     iEvent.getByToken(centralityToken, centrality_);
     int Noff = centrality_->Ntracks();
-//    ntrkval = Noff;
     if ( (Noff < Noffmin_) or (Noff >= Noffmax_) ) {
       return;
     }
@@ -269,6 +263,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   int vs_sell;   // vertex collection size
   float vzr_sell;
+  edm::Handle<std::vector<reco::Vertex>> vertex_;
   iEvent.getByToken(vertexToken,vertex_);
   const reco::VertexCollection * vertices3 = vertex_.product();
   vs_sell = vertices3->size();
@@ -281,6 +276,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //Get Event Planes
   //
   
+  edm::Handle<reco::EvtPlaneCollection> evtPlanes_;
   iEvent.getByToken(inputPlanesToken,evtPlanes_);
   
   if(!evtPlanes_.isValid()){
@@ -303,7 +299,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	double psiOffset = angorig;
 
-	if(useOffsetPsi_) psiOffset = flat[indx]->getOffsetPsi(s,c,w,m,vzr_sell,bin);
+	if(useOffsetPsi_) psiOffset = flat[indx]->OffsetPsi(s,c,w,m,vzr_sell,bin);
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
 	ep[indx]= new EvtPlane(indx, 2, psiFlat, flat[indx]->sumSin(), flat[indx]->sumCos(),rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(),  rp->mult());
 	ep[indx]->AddLevel(0,rp->angle(), rp->sumSin(), rp->sumCos());

@@ -32,7 +32,7 @@ namespace reco { class EvtPlane {
     float	mult()    const { return mult_;}
     float	qy(int level=2) const { return sumSin(level); }
     float	qx(int level=2) const { return sumCos(level); }
-    float	q(int level=2)  const { return ((pow(Qx(level),2)+pow(Qy(level),2))>0)? sqrt(pow(Qx(level),2)+pow(Qy(level),2)): 0.;}
+    float	q(int level=2)  const { return ((pow(qx(level),2)+pow(qy(level),2))>0)? sqrt(pow(qx(level),2)+pow(qy(level),2)): 0.;}
     float	vn(int level=2) const{ return (q(level)>0 && fabs(sumw())>0)? q(level)/fabs(sumw()): 0.;}
 
   private:

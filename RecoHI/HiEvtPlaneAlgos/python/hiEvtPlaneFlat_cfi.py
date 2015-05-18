@@ -12,9 +12,8 @@ hiEvtPlaneFlat = cms.EDProducer('HiEvtPlaneFlatProducer',
                                 NumFlatBins = cms.int32(40),
                                 Noffmin = cms.int32 (-1),
                                 Noffmax = cms.int32 (10000),
-                                CentBinCompression = cms..int32(5),
+                                CentBinCompression = cms.int32(5),
                                 caloCentRef = cms.double(80.),
                                 caloCentRefWidth = cms.double(5.0),
-                                HFEtScale = cms.int32(3800),
                                 useOffsetPsi = cms.bool(True)
                                 )

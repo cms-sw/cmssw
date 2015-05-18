@@ -30,6 +30,7 @@ Implementation:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -72,12 +73,7 @@ using namespace hi;
 // class decleration
 //
 
-class EvtPlaneProducer : public edm::stream::EDProducer<> {
-public:
-  explicit EvtPlaneProducer(const edm::ParameterSet&);
-  ~EvtPlaneProducer();
-
-private:
+namespace hi {
   class GenPlane {
   public:
     GenPlane(string name,double etaminval1,double etamaxval1,double etaminval2,double etamaxval2,int orderval){
@@ -157,7 +153,14 @@ private:
     double sumPtOrEt2;
     double order;
   };
+}
 
+class EvtPlaneProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EvtPlaneProducer(const edm::ParameterSet&);
+  ~EvtPlaneProducer();
+
+private:
   GenPlane *rp[NumEPNames];
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -188,8 +191,8 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> trackToken;
   edm::Handle<reco::TrackCollection> trackCollection_;
 
-  edm::ESWather<HeavyIonRcd> hiWatcher;
-  edm::ESWather<HeavyIonRPRcd> hirpWatcher;
+  edm::ESWatcher<HeavyIonRcd> hiWatcher;
+  edm::ESWatcher<HeavyIonRPRcd> hirpWatcher;
 
   bool loadDB_;
   double minet_;
@@ -201,7 +204,6 @@ private:
   double dzerr_;
   double chi2_;
   int FlatOrder_;
-  uint runno_;
   int NumFlatBins_;
   double nCentBins_;
   double caloCentRef_;
@@ -214,23 +216,23 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
   centralityVariable_ ( iConfig.getParameter<std::string>("centralityVariable") ),
   centralityBinTag_ ( iConfig.getParameter<edm::InputTag>("centralityBinTag") ),
   vertexTag_  ( iConfig.getParameter<edm::InputTag>("vertexTag") ),
-  caloTag_ ( iConfig.getParameter<edm::InputTag>("caloTag_") ),
-  castorTag_ ( iConfig.getParameter<edm::InputTag>("castorTag_") ),
-  trackTag_ ( iConfig.getParameter<edm::InputTag>("trackTag_") ),
-  FlatOrder_ ( iConfig.getParameter<int>("FlatOrder_", 9) ),
-  NumFlatBins_ ( iConfig.getParameter<int>("NumFlatBins_",20) ),
-  CentBinCompression_ ( iConfig.getParameter<int>("CentBinCompression_",5) ),
-  caloCentRef_ ( iConfig.getParameter<double>("caloCentRef_",80.) ),
-  caloCentRefWidth_ ( iConfig.getParameter<double>("caloCentRefWidth_",5.) ),
-  loadDB_ ( iConfig.getParameter<bool>("loadDB_",true) ),
-  minet_ ( iConfig.getParameter<double>("minet_",-1.) ),
-  maxet_ ( iConfig.getParameter<double>("maxet_",-1.) ),
-  minpt_ ( iConfig.getParameter<double>("minpt_",0.3) ),
-  maxpt_ ( iConfig.getParameter<double>("maxpt_",3.0) ),
-  minvtx_ ( iConfig.getParameter<double>("minvtx_",-25.) ),
-  maxvtx_ ( iConfig.getParameter<double>("maxvtx_",25.) ),
-  dzerr_ ( iConfig.getParameter<double>("dzerr_",10.) ),
-  chi2_  ( iConfig.getParameter<double>("chi2_",40.) )
+  caloTag_ ( iConfig.getParameter<edm::InputTag>("caloTag") ),
+  castorTag_ ( iConfig.getParameter<edm::InputTag>("castorTag") ),
+  trackTag_ ( iConfig.getParameter<edm::InputTag>("trackTag") ),
+  loadDB_ ( iConfig.getParameter<bool>("loadDB") ),
+  minet_ ( iConfig.getParameter<double>("minet") ),
+  maxet_ ( iConfig.getParameter<double>("maxet") ),
+  minpt_ ( iConfig.getParameter<double>("minpt") ),
+  maxpt_ ( iConfig.getParameter<double>("maxpt") ),
+  minvtx_ ( iConfig.getParameter<double>("minvtx") ),
+  maxvtx_ ( iConfig.getParameter<double>("maxvtx") ),
+  dzerr_ ( iConfig.getParameter<double>("dzerr") ),
+  chi2_  ( iConfig.getParameter<double>("chi2") ),
+  FlatOrder_ ( iConfig.getParameter<int>("FlatOrder") ),
+  NumFlatBins_ ( iConfig.getParameter<int>("NumFlatBins") ),
+  caloCentRef_ ( iConfig.getParameter<double>("caloCentRef") ),
+  caloCentRefWidth_ ( iConfig.getParameter<double>("caloCentRefWidth") ),
+  CentBinCompression_ ( iConfig.getParameter<int>("CentBinCompression") )
 {
 
   nCentBins_ = 200.;
@@ -282,10 +284,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
   using namespace reco;
-
-  bool newrun = false;
-  if(runno_ != iEvent.id().run()) newrun = true;
-  runno_ = iEvent.id().run();
 
   if( (hiWatcher.check(iSetup) || hirpWatcher.check(iSetup)) && loadDB_ ) {
     //
@@ -368,7 +366,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(tower_energyet>maxet) continue;
 	  if(EPDet[i]==HF) {
 	    double w = tower_energyet;
-	    if(loadDB_) w = tower_energyet*flat[i]->getEtScale(vzr_sell,bin);
+	    if(loadDB_) w = tower_energyet*flat[i]->EtScale(vzr_sell,bin);
 	    if(EPOrder[i]==1 ) {
 	      if(MomConsWeight[i][0]=='y' && loadDB_ ) {
 		w = flat[i]->getW(tower_energyet, vzr_sell, bin);
@@ -486,7 +484,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
-    EvtPlane *ep[NumEPNames];
 
     double ang=-10;
     double sv = 0;
