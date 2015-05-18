@@ -48,13 +48,6 @@ class ME0RecHitBaseAlgo {
                              LocalPoint& Point,
                              LocalError& error) const = 0;
 
-  /// local recHit computation accounting for track direction and 
-  /// absolute position
-  virtual bool compute(const ME0DigiPreReco& digi,
-                       const float& angle,
-                       const GlobalPoint& globPos,
-                       LocalPoint& Point,
-                       LocalError& error) const = 0;
 };
 #endif
 
