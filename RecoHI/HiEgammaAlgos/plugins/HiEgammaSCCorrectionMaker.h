@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,12 +37,12 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 
-class HiEgammaSCCorrectionMaker : public edm::EDProducer {
+class HiEgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 	
    public:
      explicit HiEgammaSCCorrectionMaker(const edm::ParameterSet&);
      ~HiEgammaSCCorrectionMaker();
-     virtual void produce(edm::Event&, const edm::EventSetup&);
+     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 
