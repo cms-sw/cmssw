@@ -727,8 +727,8 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h2_scl_EoEtruePfVsEg = bookH2(iBooker, "EoEtruePfVsEg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4,"E/E_{gen} (e/g)","E/E_{gen} (pflow)") ;
 //  h1_scl_Etot = bookH1(iBooker, "Etot","Total basicclusters energy",50,0.2,1.2,"E_{tot}");
   h1_scl_Etot = bookH1withSumw2(iBooker, "Etot","Total basicclusters energy",50,0.2,1.2,"E/E_{gen}");
-  h1_scl_Etot_barrel = bookH1withSumw2(iBooker, "Etot","Total basicclusters energy , barrel",50,0.2,1.2,"E/E_{gen}");
-  h1_scl_Etot_endcaps = bookH1withSumw2(iBooker, "Etot","Total basicclusters energy , endcaps",50,0.2,1.2,"E/E_{gen}");
+  h1_scl_Etot_barrel = bookH1withSumw2(iBooker, "Etot_barrel","Total basicclusters energy , barrel",50,0.2,1.2,"E/E_{gen}");
+  h1_scl_Etot_endcaps = bookH1withSumw2(iBooker, "Etot_endcaps","Total basicclusters energy , endcaps",50,0.2,1.2,"E/E_{gen}");
 
   // matched electron, gsf tracks
   setBookPrefix("h_ele") ;
