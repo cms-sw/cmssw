@@ -14,80 +14,39 @@
 using namespace edm;
 using namespace reco;
 
-#define PI 3.141592653589793238462643383279502884197169399375105820974945
-
-
-// RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag hbheLabel, edm::InputTag hfLabel, edm::InputTag hoLabel)
-// {
-//    Handle<HFRecHitCollection> hfhandle;
-//    iEvent.getByLabel(hfLabel, hfhandle);
-//    if(hfhandle.isValid())
-//      fHFRecHits_ = hfhandle.product();
-//    else
-//      fHFRecHits_ = NULL;
-
-//    Handle<HORecHitCollection> hohandle;
-//    iEvent.getByLabel(hoLabel, hohandle);
-//    if(hohandle.isValid())
-//      fHORecHits_ = hohandle.product();
-//    else
-//      fHORecHits_ = NULL;
-
-//    Handle<HBHERecHitCollection> hehbhandle;
-//    iEvent.getByLabel(hbheLabel, hehbhandle);
-//    if(hehbhandle.isValid())
-//      fHBHERecHits_ = hehbhandle.product();
-//    else
-//      fHBHERecHits_ = NULL;
-
-//    ESHandle<CaloGeometry> geometryHandle;
-//    iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-//    if(geometryHandle.isValid())
-//      geometry_ = geometryHandle.product();
-//    else
-//      geometry_ = NULL;
-
-// }
-
-RxCalculator::RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::Handle<HBHERecHitCollection> hbhe, edm::Handle<HFRecHitCollection> hf, edm::Handle<HORecHitCollection> ho)
+RxCalculator::RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<HBHERecHitCollection> hbhe, const edm::Handle<HFRecHitCollection> hf, const edm::Handle<HORecHitCollection> ho)
 {
   if(hf.isValid())
     fHFRecHits_ = hf.product();
   else
-    fHFRecHits_ = NULL;
+    fHFRecHits_ = nullptr;
 
   if(ho.isValid())
     fHORecHits_ = ho.product();
   else
-    fHORecHits_ = NULL;
+    fHORecHits_ = nullptr;
 
   if(hbhe.isValid())
     fHBHERecHits_ = hbhe.product();
   else
-    fHBHERecHits_ = NULL;
+    fHBHERecHits_ = nullptr;
 
   ESHandle<CaloGeometry> geometryHandle;
   iSetup.get<CaloGeometryRecord>().get(geometryHandle);
   if(geometryHandle.isValid())
     geometry_ = geometryHandle.product();
   else
-    geometry_ = NULL;
+    geometry_ = nullptr;
 
 }
 
 
-double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double threshold, double innerR )
+double RxCalculator::getRx(const reco::SuperClusterRef cluster, const double x, const double threshold, const double innerR )
 {
-   using namespace edm;
-   using namespace reco;
-
    if(!fHBHERecHits_) {
-//      LogError("RxCalculator") << "Error! Can't get HBHERecHits for event.";
      return -100;
    }
 
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
    double TotalEt = 0;
 
    for(size_t index = 0; index < fHBHERecHits_->size(); index++) {
@@ -95,20 +54,13 @@ double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double
       const DetId &detid = rechit.id();
       const GlobalPoint& hitpoint = geometry_->getPosition(detid);
       double eta = hitpoint.eta();
-      double phi = hitpoint.phi();
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = fabs(phi-SClusterPhi);
-      while (dPhi>2*PI) dPhi-=2*PI;
-      if (dPhi>PI) dPhi=2*PI-dPhi;
 
-      if (dPhi>PI) dPhi=2*PI-dPhi;
-
-      double dR = sqrt(dEta * dEta + dPhi * dPhi);
+      double dR2 = reco::deltaR2(*cluster, hitpoint);
       // veto inner cone///////////////
-      if ( dR < innerR )  continue;
+      if ( dR2 < innerR*innerR )  continue;
       /////////////////////////////////
-      if (dR<x*0.1) {
-         double et = rechit.energy()/cosh(eta);
+      if (dR2< (x*x*0.01)) {
+	 double et = rechit.energy()/cosh(eta);
          if (et<threshold) et=0;
          TotalEt += et;
       }
@@ -117,89 +69,9 @@ double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double
    return TotalEt;
 }
 
-double RxCalculator::getROx(const reco::SuperClusterRef cluster, double x,double threshold)
+double RxCalculator::getCRx(const reco::SuperClusterRef cluster, const double x, const double threshold, const double innerR )
 {
-   using namespace edm;
-   using namespace reco;
-
-   if(!fHORecHits_) {
-//       LogError("RxCalculator") << "Error! Can't get HORecHits for event.";
-      return -100;
-   }
-
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
-   double TotalEt = 0;
-
-   for(size_t index = 0; index < fHORecHits_->size(); index++) {
-      const HORecHit &rechit = (*fHORecHits_)[index];
-      const DetId &detid = rechit.id();
-      const GlobalPoint& hitpoint = geometry_->getPosition(detid);
-      double eta = hitpoint.eta();
-      double phi = hitpoint.phi();
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = fabs(phi-SClusterPhi);
-      while (dPhi>2*PI) dPhi-=2*PI;
-      if (dPhi>PI) dPhi=2*PI-dPhi;
-
-      double dR = sqrt(dEta * dEta + dPhi * dPhi);
-      if (dR<x*0.1) {
-         double et = rechit.energy()/cosh(eta);
-         if (et<threshold) et=0;
-         TotalEt += et;
-      }
-   }
-   return TotalEt;
-}
-
-double RxCalculator::getRFx(const reco::SuperClusterRef cluster, double x, double threshold)
-{
-   using namespace edm;
-   using namespace reco;
-
-   if(!fHFRecHits_) {
-      LogError("RxCalculator") << "Error! Can't get HFRecHits for event.";
-      return -100;
-   }
-
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
-   double TotalEt = 0;
-
-   for(size_t index = 0; index < fHFRecHits_->size(); index++) {
-      const HFRecHit &rechit = (*fHFRecHits_)[index];
-      const DetId &detid = rechit.id();
-      const GlobalPoint& hitpoint = geometry_->getPosition(detid);
-      double eta = hitpoint.eta();
-      double phi = hitpoint.phi();
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = fabs(phi-SClusterPhi);
-      while (dPhi>2*PI) dPhi-=2*PI;
-      if (dPhi>PI) dPhi=2*PI-dPhi;
-
-
-      double dR = sqrt(dEta * dEta + dPhi * dPhi);
-      if (dR<x*0.1) {
-         double et = rechit.energy()/cosh(eta);
-         if (et<threshold) et=0;
-         TotalEt += et;
-      }
-   }
-
-
-
-   return TotalEt;
-}
-
-
-double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, double threshold, double innerR )
-{
-   using namespace edm;
-   using namespace reco;
-
-
    if(!fHBHERecHits_) {
-//       LogError("RxCalculator") << "Error! Can't get HBHERecHits for event.";
       return -100;
    }
 
@@ -221,7 +93,7 @@ double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, doubl
    }
 
    double Rx = getRx(cluster,x,threshold,innerR);
-   double CRx = Rx - TotalEt * (0.01*x*x - innerR*innerR) / (2 * 2 * 0.1 * x) ;
+   double CRx = (Rx - TotalEt * (0.01*x*x - innerR*innerR) / (2 * 2 * 0.1 * x))*(1/(1-x/40.)) ;
 
    return CRx;
 }
