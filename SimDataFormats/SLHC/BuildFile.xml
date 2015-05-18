@@ -2,6 +2,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="boost"/>

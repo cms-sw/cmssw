@@ -1,0 +1,906 @@
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:10:13 2014 CET (16:10:13 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_140_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+Your identity: /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pozzo/CN=680448/CN=Nicola Pozzobon
+Creating temporary proxy  Done
+Contacting  voms.cern.ch:15002 [/DC=ch/DC=cern/OU=computers/CN=voms.cern.ch] "cms" Done
+Creating proxy  Done
+Your proxy is valid until Tue May 13 18:10:35 2014
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_8h5tl0
+	Your task name is: pozzo_WorkingDir_8h5tl0 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_140_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:10:45 2014 CET (16:10:45 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_14_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_4wo21m
+	Your task name is: pozzo_WorkingDir_4wo21m 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_14_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:10:53 2014 CET (16:10:53 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_16_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host vocms83.cern.ch
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-01.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_1n74kg
+	Your task name is: pozzo_WorkingDir_1n74kg 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_16_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:02 2014 CET (16:11:02 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_18_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_4vb0r7
+	Your task name is: pozzo_WorkingDir_4vb0r7 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_18_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:07 2014 CET (16:11:07 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_20_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_8y71gb
+	Your task name is: pozzo_WorkingDir_8y71gb 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_20_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:12 2014 CET (16:11:12 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_25_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_t0m2z6
+	Your task name is: pozzo_WorkingDir_t0m2z6 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_25_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:17 2014 CET (16:11:17 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_30_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_538pxl
+	Your task name is: pozzo_WorkingDir_538pxl 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_30_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:23 2014 CET (16:11:23 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_35_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-01.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_yf794g
+	Your task name is: pozzo_WorkingDir_yf794g 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_35_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:28 2014 CET (16:11:28 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_40_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_2c5lu8
+	Your task name is: pozzo_WorkingDir_2c5lu8 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_40_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:33 2014 CET (16:11:33 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_45_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_zs219e
+	Your task name is: pozzo_WorkingDir_zs219e 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_45_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:38 2014 CET (16:11:38 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_4_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_3w49zv
+	Your task name is: pozzo_WorkingDir_3w49zv 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_4_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:43 2014 CET (16:11:43 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_50_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_dv12t8
+	Your task name is: pozzo_WorkingDir_dv12t8 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_50_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:48 2014 CET (16:11:48 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_5_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_0jxe53
+	Your task name is: pozzo_WorkingDir_0jxe53 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_5_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:11:53 2014 CET (16:11:53 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_60_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-6.t2.ucsd.edu
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  Establishing gsissh ControlPath. Wait 2 sec ...
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-01.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_1u8z2k
+	Your task name is: pozzo_WorkingDir_1u8z2k 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_60_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:02 2014 CET (16:12:02 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_6_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-04.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_v79yu4
+	Your task name is: pozzo_WorkingDir_v79yu4 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_6_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:07 2014 CET (16:12:07 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_70_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_8pb16a
+	Your task name is: pozzo_WorkingDir_8pb16a 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_70_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:12 2014 CET (16:12:12 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_7_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_18m2lg
+	Your task name is: pozzo_WorkingDir_18m2lg 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_7_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:17 2014 CET (16:12:17 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_80_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-01.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_km3j62
+	Your task name is: pozzo_WorkingDir_km3j62 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_80_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:22 2014 CET (16:12:22 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_8_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host vocms83.cern.ch
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_308pcq
+	Your task name is: pozzo_WorkingDir_308pcq 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_8_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:25 2014 CET (16:12:25 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_90_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-6.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-01.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_37s9fp
+	Your task name is: pozzo_WorkingDir_37s9fp 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_NegMuPt_90_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:30 2014 CET (16:12:30 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_100_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_m5s0c3
+	Your task name is: pozzo_WorkingDir_m5s0c3 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_100_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:36 2014 CET (16:12:36 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_10_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host vocms83.cern.ch
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_50vjk8
+	Your task name is: pozzo_WorkingDir_50vjk8 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_10_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:39 2014 CET (16:12:39 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_120_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-6.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_172cnz
+	Your task name is: pozzo_WorkingDir_172cnz 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_120_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:45 2014 CET (16:12:45 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_12_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-6.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_5w71tg
+	Your task name is: pozzo_WorkingDir_5w71tg 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_12_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:49 2014 CET (16:12:49 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_140_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_310wve
+	Your task name is: pozzo_WorkingDir_310wve 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_140_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:54 2014 CET (16:12:54 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_14_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-6.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_463lqb
+	Your task name is: pozzo_WorkingDir_463lqb 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_14_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:12:59 2014 CET (16:12:59 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_16_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-04.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_q845wv
+	Your task name is: pozzo_WorkingDir_q845wv 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_16_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:13:04 2014 CET (16:13:04 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_18_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_26jy5s
+	Your task name is: pozzo_WorkingDir_26jy5s 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_18_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:13:08 2014 CET (16:13:08 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_20_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-4.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-02.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_u982ir
+	Your task name is: pozzo_WorkingDir_u982ir 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_20_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:13:13 2014 CET (16:13:13 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_25_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-03.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_a196di
+	Your task name is: pozzo_WorkingDir_a196di 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_25_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:13:18 2014 CET (16:13:18 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_30_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host hcc-crabserver.unl.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-01.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_4gp5s3
+	Your task name is: pozzo_WorkingDir_4gp5s3 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_30_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:13:22 2014 CET (16:13:22 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_35_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host vocms83.cern.ch
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_21szo8
+	Your task name is: pozzo_WorkingDir_21szo8 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_35_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+crab:  Version 2.10.5_patch1 running on Mon May  5 18:13:25 2014 CET (16:13:25 UTC)
+
+crab. Working options:
+	scheduler           remoteGlidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_40_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/
+
+crab:  Checking the status of all jobs: please wait
+crab:  contacting remote host submit-6.t2.ucsd.edu
+crab:  
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Done              Terminated    0          0           t2-ce-06.lnl.infn.it
+
+crab:  ExitCodes Summary
+ >>>>>>>>> 1 Jobs with Wrapper Exit Code : 0 
+	 List of jobs: 1 
+	See https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes for Exit Code meaning
+
+crab:   1 Total Jobs 
+
+crab:  You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=pozzo_WorkingDir_7nfh31
+	Your task name is: pozzo_WorkingDir_7nfh31 
+
+Log file is /afs/cern.ch/work/p/pozzo/CMSSW_6_2_0_SLHC10/src/L1Trigger/DTTrackTriggerIntegration/test/CRAB_PosMuPt_40_Extended2023TTI_50000_AnalyzerDTTTIMatches/WorkingDir/log/crab.log
+

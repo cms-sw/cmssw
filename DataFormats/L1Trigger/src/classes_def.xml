@@ -8,6 +8,12 @@
   <class name="l1extra::L1MuonParticle" ClassVersion="10">
    <version ClassVersion="10" checksum="404862417"/>
   </class>
+  <class name="l1extra::L1MuonParticleExtended" ClassVersion="10">
+   <version ClassVersion="10" checksum="3441232593"/>
+  </class>
+  <class name="l1extra::L1MuonParticleExtended::StationData" ClassVersion="10">
+   <version ClassVersion="10" checksum="2917595494"/>
+  </class>
   <class name="l1extra::L1EtMissParticle" ClassVersion="10">
    <version ClassVersion="10" checksum="256436604"/>
   </class>
@@ -20,12 +26,14 @@
   <class name="std::vector<l1extra::L1EmParticle>"/>
   <class name="std::vector<l1extra::L1JetParticle>"/>
   <class name="std::vector<l1extra::L1MuonParticle>"/>
+  <class name="std::vector<l1extra::L1MuonParticleExtended>"/>
   <class name="std::vector<l1extra::L1EtMissParticle>"/>
   <class name="std::vector<l1extra::L1ParticleMap>"/>
   <class name="std::vector<l1extra::L1HFRings>"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1EmParticle> >"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1JetParticle> >"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1MuonParticle> >"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1MuonParticleExtended> >"/>
   <class name="edm::Wrapper<l1extra::L1EtMissParticle>"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1EtMissParticle> >"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1ParticleMap> >"/>
@@ -34,18 +42,21 @@
   <class name="edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1HFRings>,l1extra::L1HFRings,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1HFRings>,l1extra::L1HFRings> >"/>
 
   <class name="edm::RefVector<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
   <class name="edm::RefVector<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>
   <class name="edm::RefVector<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> >"/>
+  <class name="edm::RefVector<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended> >"/>
   <class name="edm::RefVector<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> >"/>
   <class name="edm::RefVector<std::vector<l1extra::L1HFRings>,l1extra::L1HFRings,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1HFRings>,l1extra::L1HFRings> >"/>
 
   <class name="std::vector<edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> > >"/>
   <class name="std::vector<edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> > >"/>
   <class name="std::vector<edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended> > >"/>
   <class name="std::vector<edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> > >"/>
   <class name="std::vector<edm::Ref<std::vector<l1extra::L1HFRings>,l1extra::L1HFRings,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1HFRings>,l1extra::L1HFRings> > >"/>
 
@@ -54,6 +65,8 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> > >" />
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> > >" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticleExtended>,l1extra::L1MuonParticleExtended> > >" />
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> > >" />
 
