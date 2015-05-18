@@ -276,9 +276,9 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   h1_scl_EoEtrue_barrel_new_phigap = 0 ;
   h1_scl_EoEtrue_ebeegap_new = 0 ;
   h1_scl_EoEtrue_endcaps_new_deegap = 0 ;
-  h2_scl_EoEtrueVsrecOfflineVertices = 0 ; // new 2015.15.05
-  h2_scl_EoEtrueVsrecOfflineVertices_barrel = 0 ; // new 2015.15.05
-  h2_scl_EoEtrueVsrecOfflineVertices_endcaps = 0 ; // new 2015.15.05
+  h2_EoEtrueVsrecOfflineVertices = 0 ; // new 2015.15.05
+  h2_EoEtrueVsrecOfflineVertices_barrel = 0 ; // new 2015.15.05
+  h2_EoEtrueVsrecOfflineVertices_endcaps = 0 ; // new 2015.15.05
   h1_scl_EoEtrue_endcaps_new_ringgap = 0 ;
   h1_scl_Et = 0 ;
   h2_scl_EtVsEta = 0 ;
@@ -550,9 +550,9 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_recTrackNum = bookH1(iBooker, "recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}");
   h1_recSeedNum = bookH1(iBooker, "recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}");
   h1_recOfflineVertices = bookH1(iBooker, "recOfflineVertices","# rec Offline Primary Vertices",61, -0.5,60.5,"N_{Vertices}"); 
-  h2_scl_EoEtrueVsrecOfflineVertices = bookH2(iBooker, "EoEtrueVsrecOfflineVertices", "E/Etrue vs number of primary vertices", 10, 0., 50., 50, 0., 2.5, "N_{primary vertices}", "E/E_{true}");
-  h2_scl_EoEtrueVsrecOfflineVertices_barrel = bookH2(iBooker, "EoEtrueVsrecOfflineVertices_barrel", "E/Etrue vs number of primary , barrel", 10, 0., 50., 50, 0., 2.5, "N_{primary vertices}", "E/E_{true}");
-  h2_scl_EoEtrueVsrecOfflineVertices_endcaps = bookH2(iBooker, "EoEtrueVsrecOfflineVertices_endcaps", "E/Etrue vs number of primary , endcaps", 10, 0., 50., 50, 0., 2.5, "N_{primary vertices}", "E/E_{true}");
+  h2_EoEtrueVsrecOfflineVertices = bookH2(iBooker, "EoEtrueVsrecOfflineVertices", "E/Etrue vs number of primary vertices", 10, 0., 50., 50, 0., 2.5, "N_{primary vertices}", "E/E_{true}");
+  h2_EoEtrueVsrecOfflineVertices_barrel = bookH2(iBooker, "EoEtrueVsrecOfflineVertices_barrel", "E/Etrue vs number of primary , barrel", 10, 0., 50., 50, 0., 2.5, "N_{primary vertices}", "E/E_{true}");
+  h2_EoEtrueVsrecOfflineVertices_endcaps = bookH2(iBooker, "EoEtrueVsrecOfflineVertices_endcaps", "E/Etrue vs number of primary , endcaps", 10, 0., 50., 50, 0., 2.5, "N_{primary vertices}", "E/E_{true}");
 
   // mc
   setBookPrefix("h_mc") ;
@@ -1307,9 +1307,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h2_ele_vertexPtVsPhi->Fill(  bestGsfElectron.phi(),bestGsfElectron.pt() );
     h1_ele_vertexEta->Fill( bestGsfElectron.eta() );
     
-    h2_scl_EoEtrueVsrecOfflineVertices->Fill( (*vertexCollectionHandle).size(), bestGsfElectron.ecalEnergy()/mcIter->p() );
-    if (bestGsfElectron.isEB())  h2_scl_EoEtrueVsrecOfflineVertices_barrel->Fill( (*vertexCollectionHandle).size(),bestGsfElectron.ecalEnergy()/mcIter->p() );
-    if (bestGsfElectron.isEE())  h2_scl_EoEtrueVsrecOfflineVertices_endcaps->Fill( (*vertexCollectionHandle).size(),bestGsfElectron.ecalEnergy()/mcIter->p() );
+    h2_EoEtrueVsrecOfflineVertices->Fill( (*vertexCollectionHandle).size(), bestGsfElectron.ecalEnergy()/mcIter->p() );
+    if (bestGsfElectron.isEB())  h2_EoEtrueVsrecOfflineVertices_barrel->Fill( (*vertexCollectionHandle).size(),bestGsfElectron.ecalEnergy()/mcIter->p() );
+    if (bestGsfElectron.isEE())  h2_EoEtrueVsrecOfflineVertices_endcaps->Fill( (*vertexCollectionHandle).size(),bestGsfElectron.ecalEnergy()/mcIter->p() );
     
     // generated distributions for matched electrons
     h1_mc_Pt_matched->Fill( mcIter->pt() );
