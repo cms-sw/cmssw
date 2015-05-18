@@ -43,6 +43,11 @@
 #include "HLTrigger/JetMET/interface/AlphaT.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+//#include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
+
+
 // #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 // #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 // #include "CommonTools/RecoAlgos/interface/TrackSelector.h"
@@ -103,14 +108,22 @@ class HLTWorkspace : public DQMEDAnalyzer {
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> aodTriggerToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;  
+  edm::EDGetTokenT<vector<reco::MET>> metToken_;  
+  edm::EDGetTokenT<vector<reco::RecoChargedCandidate>> chargedCandToken_;  
+  edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
+  edm::EDGetTokenT<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>> rHemisphereToken_;
+  
+
+// edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvCaloToken_;  
+  // edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvPfToken_;  
 
   // edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> siPixelClusterToken_;
   // edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClusterToken_;
   // edm::EDGetTokenT<TrackingRecHitCollection> trackingRecHitsToken_;  
   // edm::EDGetTokenT<reco::TrackExtraCollection> trackExtraToken_;  
   // edm::EDGetTokenT<reco::TrackCollection> trackToken_;  
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;  
-  edm::EDGetTokenT<reco::MET> metToken_;  
 
 
   //  edm::EDGetTokenT<reco::JetTagCollection> csvTagToken_;
@@ -231,7 +244,13 @@ HLTWorkspace::HLTWorkspace(const edm::ParameterSet& iConfig)
   aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", "TEST"));
   lumiScalersToken_ = consumes<LumiScalersCollection>(edm::InputTag("hltScalersRawToDigi","",""));
   beamSpotToken_ = consumes<reco::BeamSpot>(edm::InputTag("hltOnlineBeamSpot","","TEST")); 
-  metToken_ = consumes<reco::MET>(edm::InputTag("hltPFMETProducer","","TEST"));  
+  metToken_ = consumes<vector<reco::MET>>(edm::InputTag("hltPFMETProducer","","TEST"));  
+  chargedCandToken_ = consumes<vector<reco::RecoChargedCandidate>>(edm::InputTag("hltL3NoFiltersNoVtxMuonCandidates","","TEST"));  
+  csvCaloTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","","TEST"));
+  csvPfTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST"));
+  rHemisphereToken_ = consumes<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>>(edm::InputTag("hltRHemisphere","","TEST"));
+  // csvCaloTagsToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","","TEST"));  
+  // csvPfTagsToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST"));  
   //  siPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("hltSiPixelClusters","","TEST"));
   // siStripClusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(edm::InputTag("hltSiStripRawToClustersFacility","","TEST"));
   // trackingRecHitsToken_ = consumes<TrackingRecHitCollection>(edm::InputTag("hltIter2Merged","","TEST"));
@@ -281,9 +300,33 @@ HLTWorkspace::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(beamSpotToken_, recoBeamSpot);
    if (!recoBeamSpot.isValid()) return;
 
-   edm::Handle<reco::MET> recoMet;
+   edm::Handle<vector<reco::MET>> recoMet;
    iEvent.getByToken(metToken_, recoMet);
    if (!recoMet.isValid()) return;
+
+   edm::Handle<vector<reco::RecoChargedCandidate>> recoChargedCands;
+   iEvent.getByToken(chargedCandToken_, recoChargedCands);
+   if (!recoChargedCands.isValid()) return;
+
+   edm::Handle<reco::JetTagCollection> csvCaloTags;
+   iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
+   if (!csvCaloTags.isValid()) return;
+
+   edm::Handle<reco::JetTagCollection> csvPfTags;
+   iEvent.getByToken(csvPfTagsToken_, csvPfTags);
+   if (!csvPfTags.isValid()) return;
+
+   edm::Handle<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>> rHemisphere;
+   iEvent.getByToken(rHemisphereToken_, rHemisphere);
+   if (!rHemisphere.isValid()) return;
+
+   // edm::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvCaloTags;
+   // iEvent.getByToken(csvCaloToken_, csvCaloTags);
+   // if (!csvCaloTags.isValid()) return;
+
+   // edm::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvPfTags;
+   // iEvent.getByToken(csvPfToken_, csvPfTags);
+   // if (!csvPfTags.isValid()) return;
 
    // edm::Handle<edmNew::DetSetVector<SiPixelCluster>> siPixelCluster;
    // iEvent.getByToken(siPixelClusterToken_, siPixelCluster);
