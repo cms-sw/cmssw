@@ -64,6 +64,9 @@ from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
 
+#hotline 
+from DQMOffline.Trigger.hotlineDQM_cfi import *
+
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
@@ -85,7 +88,9 @@ offlineHLTSource = cms.Sequence(
     sistripMonitorHLTsequence *
     higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
-    topHLTriggerOfflineDQM)
+    topHLTriggerOfflineDQM *
+    hotlineDQMSequence
+    )
 
 #triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
