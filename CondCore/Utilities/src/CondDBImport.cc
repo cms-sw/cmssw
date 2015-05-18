@@ -148,6 +148,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( FileBlob )
       IMPORT_PAYLOAD_CASE( GBRForest )
       IMPORT_PAYLOAD_CASE( GBRForestD )
+      IMPORT_PAYLOAD_CASE( HBHENegativeEFilter )
       IMPORT_PAYLOAD_CASE( HcalChannelQuality )
       IMPORT_PAYLOAD_CASE( HcalCholeskyMatrices )
       IMPORT_PAYLOAD_CASE( HcalDcsValues )
