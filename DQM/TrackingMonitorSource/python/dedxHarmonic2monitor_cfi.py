@@ -15,11 +15,16 @@ dedxDQMHarm2SO.UsePixel = cms.bool(False)
 dedxDQMHarm2PO = dedxDQMHarm2SP.clone()
 dedxDQMHarm2PO.UseStrip = cms.bool(False)
 
+from RecoTracker.DeDx.dedxEstimators_cff import dedxHitInfo
+dedxDQMHitInfo = dedxHitInfo.clone()
+dedxDQMHitInfo.tracks                     = cms.InputTag("generalTracks")
+dedxDQMHitInfo.trajectoryTrackAssociation = cms.InputTag("generalTracks")
 
 dedxHarmonicSequence = cms.Sequence()
 dedxHarmonicSequence+=dedxDQMHarm2SP
 dedxHarmonicSequence+=dedxDQMHarm2SO
 dedxHarmonicSequence+=dedxDQMHarm2PO
+dedxHarmonicSequence+=dedxDQMHitInfo
 
 #dEdxMonitor = cms.Sequence(
 #    RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO
