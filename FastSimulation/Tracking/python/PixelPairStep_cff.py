@@ -30,8 +30,8 @@ pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
     layerList = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),
-    useRegionsTest = cms.double(0),
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
 )
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("firstStepPrimaryVerticesBeforeMixing")
 

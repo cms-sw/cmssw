@@ -32,8 +32,8 @@ mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
     layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),
-    useRegionsTest = cms.double(0),
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
 )
 
 ###
@@ -56,8 +56,8 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
     layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),
-    useRegionsTest = cms.double(0),
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
 )
 
 mixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone()

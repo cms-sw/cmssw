@@ -112,12 +112,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         _seedingTree.insert(trackingLayerList);
         seedingLayers.push_back(std::move(trackingLayerList));
     }
-
-    //originRadius = conf.getParameter<double>("originRadius");
-    //originHalfLength = conf.getParameter<double>("originHalfLength");
-    //ptMin = conf.getParameter<double>("ptMin");
-    //nSigmaZ = conf.getParameter<double>("nSigmaZ");
-    
+  
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
 
@@ -129,12 +124,10 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
       measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
       if(conf.exists("useRegions")){
-	useregions = conf.getParameter<double>("useRegions");
-	std::cout <<"rg = "<< useregions<< std::endl;
+	useregions = conf.getParameter<bool>("useRegions");
       }
       if(conf.exists("useRegionsTest")){
-	useregionsTest = conf.getParameter<double>("useRegionsTest");
-	std::cout <<"rgt = "<< useregionsTest<< std::endl;
+	useregionsTest = conf.getParameter<bool>("useRegionsTest");
       }  
       edm::ParameterSet regPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
       ptMin = regPSet.getParameter<double>("ptMin");
@@ -145,17 +138,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       if(regPSet.exists("nSigmaZ")){
 	nSigmaZ = regPSet.getParameter<double>("nSigmaZ");
       }
-      //      if(regPSet.exists("fixedError")){
-	//nSigmaZ = regPSet.getParameter<double>("nSigmaZ")*100;
-      //	nSigmaZ = 3;
-      // }
     }
-    //    std::cout<<"ohl = "<< originHalfLength<<"nsz = " << nSigmaZ<<"or = " << originRadius<<"pt = " << ptMin<<std::endl;
-    //if(originHalfLength>=0 && nSigmaZ>=0)
-    // {
-    //	std::cout<<"you are an idiot"<<std::endl;
-    //	throw cms::Exception("stupid this is");
-    // }
      
     //make sure that only one cut is configured
     if (originHalfLength>=0 && nSigmaZ>=0)
@@ -201,7 +184,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
 bool
 TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const
 {
-    //require min pT of the simtrack
+  //require min pT of the simtrack
     if ((simTrack_pTMin>0) && ( theSimTrack.momentum().Perp2() < simTrack_pTMin*simTrack_pTMin))
     {
         return false;
@@ -269,12 +252,10 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
     if (theRegionProducer){
-      if(useregions==1){
-	std::cout<<"useregions_method called"<<std::endl;
+      if(useregions){
 	return testWithRegions(hit1,hit2);	
       }
-      if(useregionsTest==1){
-	std::cout<<"useregionsTest_method called"<<std::endl;
+      if(useregionsTest){
 	return testWithRegionsTest(hit1,hit2);
       }
       
@@ -583,7 +564,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 bool
 TrajectorySeedProducer::testWithRegionsTest(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
-  std::cout<<"useregionsTest_method used"<<std::endl;
   const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
   typedef PixelRecoRange<float> Range;
@@ -611,7 +591,6 @@ TrajectorySeedProducer::testWithRegionsTest(const TrajectorySeedHitCandidate & i
 //useRegions                                                                                                                         
 bool
 TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
-  std::cout<<"useregions_method used"<<std::endl;
   const GlobalPoint& gpos1 = innerHit.globalPosition();
   const GlobalPoint& gpos2 = outerHit.globalPosition();
   for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){

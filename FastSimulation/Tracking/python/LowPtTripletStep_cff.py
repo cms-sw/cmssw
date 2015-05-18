@@ -30,8 +30,8 @@ lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traje
     layerList = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),
-    useRegionsTest = cms.double(0),
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
 )
 
 # track candidates

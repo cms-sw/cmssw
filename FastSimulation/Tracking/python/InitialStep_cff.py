@@ -18,8 +18,9 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
     layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),   
-    useRegionsTest = cms.double(0),
+    #useRegions = cms.double(1),   
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
     )
 
 # track candidates

@@ -27,8 +27,8 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
     layerList = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),
-    useRegionsTest = cms.double(0),
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
     )
 
 # track candidates

@@ -33,8 +33,8 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
     layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet,
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
-    useRegions = cms.double(1),
-    useRegionsTest = cms.double(0),
+    useRegions = cms.bool(True),
+    useRegionsTest = cms.bool(False),
 )
 
 # track candidates
