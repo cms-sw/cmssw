@@ -185,8 +185,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
       psTrack_NStubs.getParameter<double>("xmin"),
       psTrack_NStubs.getParameter<double>("xmax"));
-  Track_NStubs->setAxisTitle("# Level-1 Stubs", 1);
-  Track_NStubs->setAxisTitle("# Genuine Level-1 Tracks", 2);
+  Track_NStubs->setAxisTitle("# L1 Stubs", 1);
+  Track_NStubs->setAxisTitle("# Genuine L1 Tracks", 2);
   
   
   
@@ -201,7 +201,7 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_N.getParameter<int32_t>("Nbinsx"),
       psTrack_N.getParameter<double>("xmin"),
       psTrack_N.getParameter<double>("xmax"));
-  Track_LQ_N->setAxisTitle("# Genuine low-quality Level-1 Tracks", 1);
+  Track_LQ_N->setAxisTitle("# Genuine L1 Tracks", 1);
   Track_LQ_N->setAxisTitle("# Events", 2);
   
   // Pt
@@ -211,8 +211,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Pt.getParameter<int32_t>("Nbinsx"),
       psTrack_Pt.getParameter<double>("xmin"),
       psTrack_Pt.getParameter<double>("xmax"));
-  Track_LQ_Pt->setAxisTitle("Level-1 Track Pt", 1);
-  Track_LQ_Pt->setAxisTitle("# Level-1 Tracks", 2);
+  Track_LQ_Pt->setAxisTitle("p_{T} [GeV]", 1);
+  Track_LQ_Pt->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // Eta
   edm::ParameterSet psTrack_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_Eta");
@@ -221,8 +221,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Eta.getParameter<int32_t>("Nbinsx"),
       psTrack_Eta.getParameter<double>("xmin"),
       psTrack_Eta.getParameter<double>("xmax"));
-  Track_LQ_Eta->setAxisTitle("Level-1 Track Eta", 1);
-  Track_LQ_Eta->setAxisTitle("# Level-1 Tracks", 2);
+  Track_LQ_Eta->setAxisTitle("#eta", 1);
+  Track_LQ_Eta->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // Phi
   edm::ParameterSet psTrack_Phi =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_Phi");
@@ -231,8 +231,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Phi.getParameter<int32_t>("Nbinsx"),
       psTrack_Phi.getParameter<double>("xmin"),
       psTrack_Phi.getParameter<double>("xmax"));
-  Track_LQ_Phi->setAxisTitle("Level-1 Track Phi", 1);
-  Track_LQ_Phi->setAxisTitle("# Level-1 Tracks", 2);
+  Track_LQ_Phi->setAxisTitle("#phi", 1);
+  Track_LQ_Phi->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // VtxZ0
   edm::ParameterSet psTrack_VtxZ0 =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_VtxZ0");
@@ -241,8 +241,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_VtxZ0.getParameter<int32_t>("Nbinsx"),
       psTrack_VtxZ0.getParameter<double>("xmin"),
       psTrack_VtxZ0.getParameter<double>("xmax"));
-  Track_LQ_VtxZ0->setAxisTitle("Level-1 Track Vertex Position in z", 1);
-  Track_LQ_VtxZ0->setAxisTitle("# Level-1 Tracks", 2);
+  Track_LQ_VtxZ0->setAxisTitle("Vertex position z [cm]", 1);
+  Track_LQ_VtxZ0->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // TTTrack Chi2
   edm::ParameterSet psTrack_Chi2 =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_Chi2");
@@ -251,8 +251,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2.getParameter<double>("xmin"),
       psTrack_Chi2.getParameter<double>("xmax"));
-  Track_LQ_Chi2->setAxisTitle("Level-1 Track #chi^{2}", 1);
-  Track_LQ_Chi2->setAxisTitle("# Level-1 Tracks", 2);
+  Track_LQ_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
+  Track_LQ_Chi2->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // TTTrack Chi2/ndf
   edm::ParameterSet psTrack_Chi2Red =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_Chi2Red");
@@ -261,8 +261,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2Red.getParameter<double>("xmin"),
       psTrack_Chi2Red.getParameter<double>("xmax"));
-  Track_LQ_Chi2Red->setAxisTitle("Level-1 Track #chi^{2}/ndf", 1);
-  Track_LQ_Chi2Red->setAxisTitle("# Level-1 Tracks", 2);
+  Track_LQ_Chi2Red->setAxisTitle("L1 Track #chi^{2}/ndf", 1);
+  Track_LQ_Chi2Red->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // TTTrack Chi2 vs Nstubs
   edm::ParameterSet psTrack_Chi2_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Chi2");
@@ -274,8 +274,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsy"),
       psTrack_Chi2_NStubs.getParameter<double>("ymin"),
       psTrack_Chi2_NStubs.getParameter<double>("ymax"));
-  Track_LQ_Chi2_NStubs->setAxisTitle("# Level-1 Stubs", 1);
-  Track_LQ_Chi2_NStubs->setAxisTitle("Level-1 Track #chi^{2}", 2);
+  Track_LQ_Chi2_NStubs->setAxisTitle("# L1 Stubs", 1);
+  Track_LQ_Chi2_NStubs->setAxisTitle("Genuine L1 Track #chi^{2}", 2);
   
   // TTTrack Chi2/ndf vs Nstubs
   edm::ParameterSet psTrack_Chi2Red_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Chi2Red");
@@ -287,8 +287,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsy"),
       psTrack_Chi2Red_NStubs.getParameter<double>("ymin"),
       psTrack_Chi2Red_NStubs.getParameter<double>("ymax"));
-  Track_LQ_Chi2Red_NStubs->setAxisTitle("# Level-1 Stubs", 1);
-  Track_LQ_Chi2Red_NStubs->setAxisTitle("Level-1 Track #chi^{2}/ndf", 2);
+  Track_LQ_Chi2Red_NStubs->setAxisTitle("# L1 Stubs", 1);
+  Track_LQ_Chi2Red_NStubs->setAxisTitle("Genuine L1 Track #chi^{2}/ndf", 2);
   
   
   
@@ -302,7 +302,7 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_N.getParameter<int32_t>("Nbinsx"),
       psTrack_N.getParameter<double>("xmin"),
       psTrack_N.getParameter<double>("xmax"));
-  Track_HQ_N->setAxisTitle("# Genuine high-quality Level-1 Tracks", 1);
+  Track_HQ_N->setAxisTitle("# Genuine L1 Tracks", 1);
   Track_HQ_N->setAxisTitle("# Events", 2);
   
   // Pt
@@ -311,8 +311,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Pt.getParameter<int32_t>("Nbinsx"),
       psTrack_Pt.getParameter<double>("xmin"),
       psTrack_Pt.getParameter<double>("xmax"));
-  Track_HQ_Pt->setAxisTitle("Level-1 Track Pt", 1);
-  Track_HQ_Pt->setAxisTitle("# Level-1 Tracks", 2);
+  Track_HQ_Pt->setAxisTitle("p_{T} [GeV]", 1);
+  Track_HQ_Pt->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // Eta
   HistoName = "Track_HQ_Eta";
@@ -320,8 +320,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Eta.getParameter<int32_t>("Nbinsx"),
       psTrack_Eta.getParameter<double>("xmin"),
       psTrack_Eta.getParameter<double>("xmax"));
-  Track_HQ_Eta->setAxisTitle("Level-1 Track Eta", 1);
-  Track_HQ_Eta->setAxisTitle("# Level-1 Tracks", 2);
+  Track_HQ_Eta->setAxisTitle("#eta", 1);
+  Track_HQ_Eta->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // Phi
   HistoName = "Track_HQ_Phi";
@@ -329,8 +329,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Phi.getParameter<int32_t>("Nbinsx"),
       psTrack_Phi.getParameter<double>("xmin"),
       psTrack_Phi.getParameter<double>("xmax"));
-  Track_HQ_Phi->setAxisTitle("Level-1 Track Phi", 1);
-  Track_HQ_Phi->setAxisTitle("# Level-1 Tracks", 2);
+  Track_HQ_Phi->setAxisTitle("#phi", 1);
+  Track_HQ_Phi->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // VtxZ0
   HistoName = "Track_HQ_VtxZ0";
@@ -338,8 +338,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_VtxZ0.getParameter<int32_t>("Nbinsx"),
       psTrack_VtxZ0.getParameter<double>("xmin"),
       psTrack_VtxZ0.getParameter<double>("xmax"));
-  Track_HQ_VtxZ0->setAxisTitle("Level-1 Track Vertex Position in z", 1);
-  Track_HQ_VtxZ0->setAxisTitle("# Level-1 Tracks", 2);
+  Track_HQ_VtxZ0->setAxisTitle("Vertex position z [cm]", 1);
+  Track_HQ_VtxZ0->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // TTTrack Chi2
   HistoName = "Track_HQ_Chi2";
@@ -347,8 +347,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2.getParameter<double>("xmin"),
       psTrack_Chi2.getParameter<double>("xmax"));
-  Track_HQ_Chi2->setAxisTitle("Level-1 Track #chi^{2}", 1);
-  Track_HQ_Chi2->setAxisTitle("# Level-1 Tracks", 2);
+  Track_HQ_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
+  Track_HQ_Chi2->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // TTTrack Chi2/ndf
   HistoName = "Track_HQ_Chi2Red";
@@ -356,8 +356,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2Red.getParameter<double>("xmin"),
       psTrack_Chi2Red.getParameter<double>("xmax"));
-  Track_HQ_Chi2Red->setAxisTitle("Level-1 Track #chi^{2}/ndf", 1);
-  Track_HQ_Chi2Red->setAxisTitle("# Level-1 Tracks", 2);
+  Track_HQ_Chi2Red->setAxisTitle("L1 Track #chi^{2}/ndf", 1);
+  Track_HQ_Chi2Red->setAxisTitle("# Genuine L1 Tracks", 2);
   
   // TTTrack Chi2 vs Nstubs
   HistoName = "Track_HQ_Chi2_NStubs";
@@ -368,8 +368,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsy"),
       psTrack_Chi2_NStubs.getParameter<double>("ymin"),
       psTrack_Chi2_NStubs.getParameter<double>("ymax"));
-  Track_HQ_Chi2_NStubs->setAxisTitle("# Level-1 Stubs", 1);
-  Track_HQ_Chi2_NStubs->setAxisTitle("Level-1 Track #chi^{2}", 2);
+  Track_HQ_Chi2_NStubs->setAxisTitle("# L1 Stubs", 1);
+  Track_HQ_Chi2_NStubs->setAxisTitle("Genuine L1 Track #chi^{2}", 2);
   
   // TTTrack Chi2/ndf vs Nstubs
   HistoName = "Track_HQ_Chi2Red_NStubs";
@@ -380,8 +380,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsy"),
      	psTrack_Chi2Red_NStubs.getParameter<double>("ymin"),
       psTrack_Chi2Red_NStubs.getParameter<double>("ymax"));
-  Track_HQ_Chi2Red_NStubs->setAxisTitle("# Level-1 Stubs", 1);
-  Track_HQ_Chi2Red_NStubs->setAxisTitle("Level-1 Track #chi^{2}/ndf", 2);
+  Track_HQ_Chi2Red_NStubs->setAxisTitle("# L1 Stubs", 1);
+  Track_HQ_Chi2Red_NStubs->setAxisTitle(" Genuine L1 Track #chi^{2}/ndf", 2);
   
 }
 

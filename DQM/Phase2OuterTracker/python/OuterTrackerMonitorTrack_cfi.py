@@ -43,28 +43,28 @@ OuterTrackerMonitorTrack = cms.EDAnalyzer('OuterTrackerMonitorTrack',
 
 #Pt of the track
     TH1_Track_Pt = cms.PSet(
-        Nbinsx = cms.int32(100),
+        Nbinsx = cms.int32(50),
         xmax = cms.double(100),                      
         xmin = cms.double(0)
         ),
 
 #Phi of the track
     TH1_Track_Phi = cms.PSet(
-        Nbinsx = cms.int32(90),
+        Nbinsx = cms.int32(45),
         xmax = cms.double(3.1416),                      
         xmin = cms.double(-3.1416)
         ),
 
 #Eta of the track
     TH1_Track_Eta = cms.PSet(
-        Nbinsx = cms.int32(90),
-        xmax = cms.double(3.1416),                      
-        xmin = cms.double(-3.1416)
+        Nbinsx = cms.int32(45),
+        xmax = cms.double(3.0),                      
+        xmin = cms.double(-3.0)
         ),
 
 #VtxZ0 of the track
     TH1_Track_VtxZ0 = cms.PSet(
-        Nbinsx = cms.int32(150),
+        Nbinsx = cms.int32(51),
         xmax = cms.double(25),                      
         xmin = cms.double(-25)
         ),

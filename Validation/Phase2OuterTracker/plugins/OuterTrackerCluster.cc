@@ -194,7 +194,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterLayers.getParameter<double>("xmin"),
       psTTClusterLayers.getParameter<double>("xmax"));
   Cluster_Gen_Barrel->setAxisTitle("Barrel Layer", 1);
-  Cluster_Gen_Barrel->setAxisTitle("# Clusters", 2);
+  Cluster_Gen_Barrel->setAxisTitle("# Genuine L1 Clusters", 2);
   
   HistoName = "NClusters_Unkn_Barrel";
   Cluster_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
@@ -202,7 +202,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterLayers.getParameter<double>("xmin"),
       psTTClusterLayers.getParameter<double>("xmax"));
   Cluster_Unkn_Barrel->setAxisTitle("Barrel Layer", 1);
-  Cluster_Unkn_Barrel->setAxisTitle("# Clusters", 2);
+  Cluster_Unkn_Barrel->setAxisTitle("# Unknown L1 Clusters", 2);
   
   HistoName = "NClusters_Comb_Barrel";
   Cluster_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
@@ -210,7 +210,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterLayers.getParameter<double>("xmin"),
       psTTClusterLayers.getParameter<double>("xmax"));
   Cluster_Comb_Barrel->setAxisTitle("Barrel Layer", 1);
-  Cluster_Comb_Barrel->setAxisTitle("# Clusters", 2);
+  Cluster_Comb_Barrel->setAxisTitle("# Combinatorial L1 Clusters", 2);
   
   edm::ParameterSet psTTClusterDisks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Disks");
   HistoName = "NClusters_Gen_Endcap";
@@ -219,7 +219,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterDisks.getParameter<double>("xmin"),
       psTTClusterDisks.getParameter<double>("xmax"));
   Cluster_Gen_Endcap->setAxisTitle("Endcap Disc", 1);
-  Cluster_Gen_Endcap->setAxisTitle("# Clusters", 2);
+  Cluster_Gen_Endcap->setAxisTitle("# Genuine L1 Clusters", 2);
   
   HistoName = "NClusters_Unkn_Endcap";
   Cluster_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -227,7 +227,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterDisks.getParameter<double>("xmin"),
       psTTClusterDisks.getParameter<double>("xmax"));
   Cluster_Unkn_Endcap->setAxisTitle("Endcap Disc", 1);
-  Cluster_Unkn_Endcap->setAxisTitle("# Clusters", 2);
+  Cluster_Unkn_Endcap->setAxisTitle("# Unknown L1 Clusters", 2);
   
   HistoName = "NClusters_Comb_Endcap";
   Cluster_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -235,7 +235,33 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterDisks.getParameter<double>("xmin"),
       psTTClusterDisks.getParameter<double>("xmax"));
   Cluster_Comb_Endcap->setAxisTitle("Endcap Disc", 1);
-  Cluster_Comb_Endcap->setAxisTitle("# Clusters", 2);
+  Cluster_Comb_Endcap->setAxisTitle("# Combinatorial L1 Clusters", 2);
+  
+  
+  edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
+  HistoName = "Cluster_Gen_Eta";
+  Cluster_Gen_Eta = dqmStore_->book1D(HistoName, HistoName,
+      psTTClusterEta.getParameter<int32_t>("Nbinsx"),
+      psTTClusterEta.getParameter<double>("xmin"),
+      psTTClusterEta.getParameter<double>("xmax"));
+  Cluster_Gen_Eta->setAxisTitle("#eta", 1);
+  Cluster_Gen_Eta->setAxisTitle("# Genuine L1 Clusters", 2);
+  
+  HistoName = "Cluster_Unkn_Eta";
+  Cluster_Unkn_Eta = dqmStore_->book1D(HistoName, HistoName,
+      psTTClusterEta.getParameter<int32_t>("Nbinsx"),
+      psTTClusterEta.getParameter<double>("xmin"),
+      psTTClusterEta.getParameter<double>("xmax"));
+  Cluster_Unkn_Eta->setAxisTitle("#eta", 1);
+  Cluster_Unkn_Eta->setAxisTitle("# Unknown L1 Clusters", 2);
+  
+  HistoName = "Cluster_Comb_Eta";
+  Cluster_Comb_Eta = dqmStore_->book1D(HistoName, HistoName,
+      psTTClusterEta.getParameter<int32_t>("Nbinsx"),
+      psTTClusterEta.getParameter<double>("xmin"),
+      psTTClusterEta.getParameter<double>("xmax"));
+  Cluster_Comb_Eta->setAxisTitle("#eta", 1);
+  Cluster_Comb_Eta->setAxisTitle("# Combinatorial L1 Clusters", 2);
   
   
   
@@ -247,97 +273,71 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
     
     for(int i=0;i<5;i++){
       Char_t histo[200];
-      sprintf(histo, "NClusters_Gen_Disk+%d", i+1);     
+      sprintf(histo, "NClusters_Gen_Disc+%d", i+1);     
       Cluster_Gen_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
       Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
-      Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+      Cluster_Gen_EndcapRing_Fw[i]->setAxisTitle("# Genuine L1 Clusters", 2);
     }
 
     for(int i=0;i<5;i++){
       Char_t histo[200];
-      sprintf(histo, "NClusters_Gen_Disk-%d", i+1);     
+      sprintf(histo, "NClusters_Gen_Disc-%d", i+1);     
       Cluster_Gen_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
       Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
-      Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+      Cluster_Gen_EndcapRing_Bw[i]->setAxisTitle("# Genuine L1 Clusters", 2);
     }
 
     for(int i=0;i<5;i++){
       Char_t histo[200];
-      sprintf(histo, "NClusters_Unkn_Disk+%d", i+1);
+      sprintf(histo, "NClusters_Unkn_Disc+%d", i+1);
       Cluster_Unkn_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
       Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
-      Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+      Cluster_Unkn_EndcapRing_Fw[i]->setAxisTitle("# Unknown L1 Clusters", 2);
     }
 
     for(int i=0;i<5;i++){
       Char_t histo[200];
-      sprintf(histo, "NClusters_Unkn_Disk-%d", i+1);
+      sprintf(histo, "NClusters_Unkn_Disc-%d", i+1);
       Cluster_Unkn_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
       Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
-      Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+      Cluster_Unkn_EndcapRing_Bw[i]->setAxisTitle("# Unknown L1 Clusters", 2);
     }
 
     for(int i=0;i<5;i++){
         Char_t histo[200];
-        sprintf(histo, "NClusters_Comb_Disk+%d", i+1);
+        sprintf(histo, "NClusters_Comb_Disc+%d", i+1);
       Cluster_Comb_EndcapRing_Fw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
       Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("Endcap Ring", 1);
-      Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("# Clusters", 2);
+      Cluster_Comb_EndcapRing_Fw[i]->setAxisTitle("# Combinatorial L1 Clusters", 2);
     }
 
     for(int i=0;i<5;i++){
         Char_t histo[200];
-        sprintf(histo, "NClusters_Comb_Disk-%d", i+1);
+        sprintf(histo, "NClusters_Comb_Disc-%d", i+1);
       Cluster_Comb_EndcapRing_Bw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
       Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("Endcap Ring", 1);
-      Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("# Clusters", 2);
+      Cluster_Comb_EndcapRing_Bw[i]->setAxisTitle("# Combinatorial L1 Clusters", 2);
     }
   
   } /// End verbosePlots
-  
-  
-  edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
-  HistoName = "Cluster_Gen_Eta";
-  Cluster_Gen_Eta = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterEta.getParameter<int32_t>("Nbinsx"),
-      psTTClusterEta.getParameter<double>("xmin"),
-      psTTClusterEta.getParameter<double>("xmax"));
-  Cluster_Gen_Eta->setAxisTitle("Genuine TTCluster Eta", 1);
-  Cluster_Gen_Eta->setAxisTitle("# Clusters", 2);
-  
-  HistoName = "Cluster_Unkn_Eta";
-  Cluster_Unkn_Eta = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterEta.getParameter<int32_t>("Nbinsx"),
-      psTTClusterEta.getParameter<double>("xmin"),
-      psTTClusterEta.getParameter<double>("xmax"));
-  Cluster_Unkn_Eta->setAxisTitle("Unknown TTCluster Eta", 1);
-  Cluster_Unkn_Eta->setAxisTitle("# Clusters", 2);
-  
-  HistoName = "Cluster_Comb_Eta";
-  Cluster_Comb_Eta = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterEta.getParameter<int32_t>("Nbinsx"),
-      psTTClusterEta.getParameter<double>("xmin"),
-      psTTClusterEta.getParameter<double>("xmax"));
-  Cluster_Comb_Eta->setAxisTitle("Combinatorial TTCluster Eta", 1);
-  Cluster_Comb_Eta->setAxisTitle("# Clusters", 2);
   
 }//end of method
 

@@ -5,11 +5,17 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
     TopFolderName = cms.string('Phase2OuterTracker'),
     TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
 
-
 # Number of clusters per layer
-    TH1TTCluster_Stack = cms.PSet(
+    TH1TTCluster_Barrel = cms.PSet(
         Nbinsx = cms.int32(6),
         xmax = cms.double(6.5),                      
+        xmin = cms.double(0.5)
+        ),
+
+# Number of clusters per disc
+    TH1TTCluster_Endcap = cms.PSet(
+        Nbinsx = cms.int32(5),
+        xmax = cms.double(5.5),                      
         xmin = cms.double(0.5)
         ),
     

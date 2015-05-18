@@ -591,8 +591,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psSimVtx_XY.getParameter<int32_t>("Nbinsy"),
       psSimVtx_XY.getParameter<double>("ymin"),
       psSimVtx_XY.getParameter<double>("ymax"));
-  SimVtx_XY->setAxisTitle("SimVtx x", 1);
-  SimVtx_XY->setAxisTitle("SimVtx y", 2);
+  SimVtx_XY->setAxisTitle("SimVtx position x [cm]", 1);
+  SimVtx_XY->setAxisTitle("SimVtx position y [cm]", 2);
   
   edm::ParameterSet psSimVtx_RZ =  conf_.getParameter<edm::ParameterSet>("TH2SimVtx_RZ");
   HistoName = "SimVtx_RZ";
@@ -603,8 +603,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psSimVtx_RZ.getParameter<int32_t>("Nbinsy"),
       psSimVtx_RZ.getParameter<double>("ymin"),
       psSimVtx_RZ.getParameter<double>("ymax"));
-  SimVtx_RZ->setAxisTitle("SimVtx z", 1);
-  SimVtx_RZ->setAxisTitle("SimVtx #rho", 2);
+  SimVtx_RZ->setAxisTitle("SimVtx position z [cm]", 1);
+  SimVtx_RZ->setAxisTitle("SimVtx position #rho [cm]", 2);
   
   
   dqmStore_->setCurrentFolder(topFolderName_+"/MCTruth/Pt10");
@@ -615,7 +615,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Pt.getParameter<int32_t>("Nbinsx"),
       psTPart_Pt.getParameter<double>("xmin"),
       psTPart_Pt.getParameter<double>("xmax"));
-  TPart_Pt->setAxisTitle("TPart Pt", 1);
+  TPart_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
   TPart_Pt->setAxisTitle("# TParticles", 2);
   
   edm::ParameterSet psTPart_Angle_Pt10 =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Angle_Pt10");
@@ -624,7 +624,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
       psTPart_Angle_Pt10.getParameter<double>("xmin"),
       psTPart_Angle_Pt10.getParameter<double>("xmax"));
-  TPart_Eta_Pt10->setAxisTitle("TPart Eta (when Pt>10)", 1);
+  TPart_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
   TPart_Eta_Pt10->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Phi_Pt10";
@@ -632,7 +632,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
       psTPart_Angle_Pt10.getParameter<double>("xmin"),
       psTPart_Angle_Pt10.getParameter<double>("xmax"));
-  TPart_Phi_Pt10->setAxisTitle("TPart Phi (when Pt>10)", 1);
+  TPart_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
   TPart_Phi_Pt10->setAxisTitle("# TParticles", 2);
   
   
@@ -643,7 +643,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Pt.getParameter<int32_t>("Nbinsx"),
         psTPart_Pt.getParameter<double>("xmin"),
         psTPart_Pt.getParameter<double>("xmax"));
-    TPart_Cluster_Pt->setAxisTitle("TPart Pt", 1);
+    TPart_Cluster_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
     TPart_Cluster_Pt->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Cluster_Eta_Pt10";
@@ -651,7 +651,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Cluster_Eta_Pt10->setAxisTitle("TPart Eta (when Pt>10)", 1);
+    TPart_Cluster_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
     TPart_Cluster_Eta_Pt10->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Cluster_Phi_Pt10";
@@ -659,7 +659,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Cluster_Phi_Pt10->setAxisTitle("TPart Phi (when Pt>10)", 1);
+    TPart_Cluster_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
     TPart_Cluster_Phi_Pt10->setAxisTitle("# TParticles", 2);
     
     HistoName = "TPart_Stub_Pt";
@@ -667,7 +667,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Pt.getParameter<int32_t>("Nbinsx"),
         psTPart_Pt.getParameter<double>("xmin"),
         psTPart_Pt.getParameter<double>("xmax"));
-    TPart_Stub_Pt->setAxisTitle("TPart Pt", 1);
+    TPart_Stub_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
     TPart_Stub_Pt->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Stub_Eta_Pt10";
@@ -675,7 +675,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Stub_Eta_Pt10->setAxisTitle("TPart Eta (when Pt>10)", 1);
+    TPart_Stub_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
     TPart_Stub_Eta_Pt10->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Stub_Phi_Pt10";
@@ -683,7 +683,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Stub_Phi_Pt10->setAxisTitle("TPart Phi (when Pt>10)", 1);
+    TPart_Stub_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
     TPart_Stub_Phi_Pt10->setAxisTitle("# TParticles", 2);
     
     HistoName = "TPart_Track_LQ_Pt";
@@ -691,7 +691,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Pt.getParameter<int32_t>("Nbinsx"),
         psTPart_Pt.getParameter<double>("xmin"),
         psTPart_Pt.getParameter<double>("xmax"));
-    TPart_Track_LQ_Pt->setAxisTitle("TPart Pt", 1);
+    TPart_Track_LQ_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
     TPart_Track_LQ_Pt->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Track_LQ_Eta_Pt10";
@@ -699,7 +699,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_LQ_Eta_Pt10->setAxisTitle("TPart Eta (when Pt>10)", 1);
+    TPart_Track_LQ_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
     TPart_Track_LQ_Eta_Pt10->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Track_LQ_Phi_Pt10";
@@ -707,7 +707,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_LQ_Phi_Pt10->setAxisTitle("TPart Phi (when Pt>10)", 1);
+    TPart_Track_LQ_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
     TPart_Track_LQ_Phi_Pt10->setAxisTitle("# TParticles", 2);
     
     HistoName = "TPart_Track_HQ_Pt";
@@ -715,7 +715,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Pt.getParameter<int32_t>("Nbinsx"),
         psTPart_Pt.getParameter<double>("xmin"),
         psTPart_Pt.getParameter<double>("xmax"));
-    TPart_Track_HQ_Pt->setAxisTitle("TPart Pt", 1);
+    TPart_Track_HQ_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
     TPart_Track_HQ_Pt->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Track_HQ_Eta_Pt10";
@@ -723,7 +723,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_HQ_Eta_Pt10->setAxisTitle("TPart Eta (when Pt>10)", 1);
+    TPart_Track_HQ_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
     TPart_Track_HQ_Eta_Pt10->setAxisTitle("# TParticles", 2);
 
     HistoName = "TPart_Track_HQ_Phi_Pt10";
@@ -731,7 +731,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_HQ_Phi_Pt10->setAxisTitle("TPart Phi (when Pt>10)", 1);
+    TPart_Track_HQ_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
     TPart_Track_HQ_Phi_Pt10->setAxisTitle("# TParticles", 2);
   //} /// End verbosePlots
   
@@ -743,24 +743,24 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_PS2S.getParameter<double>("xmin"),
       psTPart_Eta_PS2S.getParameter<double>("xmax"));
-  TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("TPart_Eta_Pt10_Normalization", 1);
-  TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("Average nb. of Stubs", 2);
+  TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
+  TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("# Genuine L1 Stubs", 2);
   
   HistoName = "TPart_Stub_Eta_Pt10_NumPS";
   TPart_Stub_Eta_Pt10_NumPS = dqmStore_->book1D(HistoName, HistoName,
       psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_PS2S.getParameter<double>("xmin"),
       psTPart_Eta_PS2S.getParameter<double>("xmax"));
-  TPart_Stub_Eta_Pt10_NumPS->setAxisTitle("TPart_Eta_Pt10_NumPS", 1);
-  TPart_Stub_Eta_Pt10_NumPS->setAxisTitle("Average nb. of Stubs", 2);
+  TPart_Stub_Eta_Pt10_NumPS->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
+  TPart_Stub_Eta_Pt10_NumPS->setAxisTitle("# Genuine L1 Stubs (PS modules)", 2);
   
   HistoName = "TPart_Stub_Eta_Pt10_Num2S";
   TPart_Stub_Eta_Pt10_Num2S = dqmStore_->book1D(HistoName, HistoName,
       psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_PS2S.getParameter<double>("xmin"),
       psTPart_Eta_PS2S.getParameter<double>("xmax"));
-  TPart_Stub_Eta_Pt10_Num2S->setAxisTitle("TPart_Eta_Pt10_Num2S", 1);
-  TPart_Stub_Eta_Pt10_Num2S->setAxisTitle("Average nb. of Level-1 Stubs", 2);
+  TPart_Stub_Eta_Pt10_Num2S->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
+  TPart_Stub_Eta_Pt10_Num2S->setAxisTitle("# Genuine L1 Stubs (2S modules)", 2);
   
   
   
@@ -774,7 +774,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_CW.getParameter<double>("xmin"),
       psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_ICW_1->setAxisTitle("TPart_Eta_ICW_1", 1);
+  TPart_Eta_ICW_1->setAxisTitle("#eta", 1);
   TPart_Eta_ICW_1->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Eta_ICW_2";
@@ -782,7 +782,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_CW.getParameter<double>("xmin"),
       psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_ICW_2->setAxisTitle("TPart_Eta_ICW_2", 1);
+  TPart_Eta_ICW_2->setAxisTitle("#eta", 1);
   TPart_Eta_ICW_2->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Eta_ICW_3";
@@ -790,7 +790,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_CW.getParameter<double>("xmin"),
       psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_ICW_3->setAxisTitle("TPart_Eta_ICW_3", 1);
+  TPart_Eta_ICW_3->setAxisTitle("#eta", 1);
   TPart_Eta_ICW_3->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Eta_INormalization";
@@ -808,7 +808,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_CW.getParameter<double>("xmin"),
       psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_OCW_1->setAxisTitle("TPart_Eta_OCW_1", 1);
+  TPart_Eta_OCW_1->setAxisTitle("#eta", 1);
   TPart_Eta_OCW_1->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Eta_OCW_2";
@@ -816,7 +816,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_CW.getParameter<double>("xmin"),
       psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_OCW_2->setAxisTitle("TPart_Eta_OCW_2", 1);
+  TPart_Eta_OCW_2->setAxisTitle("#eta", 1);
   TPart_Eta_OCW_2->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Eta_OCW_3";
@@ -824,7 +824,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
       psTPart_Eta_CW.getParameter<double>("xmin"),
       psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_OCW_3->setAxisTitle("TPart_Eta_OCW_3", 1);
+  TPart_Eta_OCW_3->setAxisTitle("#eta", 1);
   TPart_Eta_OCW_3->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Eta_ONormalization";
@@ -846,7 +846,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psCluster_PID.getParameter<int32_t>("Nbinsy"),
       psCluster_PID.getParameter<double>("ymin"),
       psCluster_PID.getParameter<double>("ymax"));
-  Cluster_PID->setAxisTitle("Level-1 Cluster pdgID", 1);
+  Cluster_PID->setAxisTitle("L1 Cluster pdgID", 1);
   Cluster_PID->setAxisTitle("Stack Member", 2);
   
   edm::ParameterSet psStub_PID =  conf_.getParameter<edm::ParameterSet>("TH1Stub_PID");
@@ -855,8 +855,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psStub_PID.getParameter<int32_t>("Nbinsx"),
       psStub_PID.getParameter<double>("xmin"),
       psStub_PID.getParameter<double>("xmax"));
-  Stub_PID->setAxisTitle("Level-1 Stub pdgID", 1);
-  Stub_PID->setAxisTitle("# Level-1 Stubs", 2);
+  Stub_PID->setAxisTitle("L1 Stub pdgID", 1);
+  Stub_PID->setAxisTitle("# L1 Stubs", 2);
   
   
   // TTTrack Chi2 vs TPart Eta
@@ -869,8 +869,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsy"),
       psTrack_Chi2_TPart_Eta.getParameter<double>("ymin"),
       psTrack_Chi2_TPart_Eta.getParameter<double>("ymax"));
-  Track_LQ_Chi2_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_Chi2_TPart_Eta->setAxisTitle("Level-1 Track #chi^{2}", 2);
+  Track_LQ_Chi2_TPart_Eta->setAxisTitle("TPart #eta", 1);
+  Track_LQ_Chi2_TPart_Eta->setAxisTitle("L1 Track #chi^{2}", 2);
   
   HistoName = "Track_HQ_Chi2_TPart_Eta";
   Track_HQ_Chi2_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
@@ -880,8 +880,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsy"),
       psTrack_Chi2_TPart_Eta.getParameter<double>("ymin"),
       psTrack_Chi2_TPart_Eta.getParameter<double>("ymax"));
-  Track_HQ_Chi2_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_Chi2_TPart_Eta->setAxisTitle("Level-1 Track #chi^{2}", 2);
+  Track_HQ_Chi2_TPart_Eta->setAxisTitle("TPart #eta", 1);
+  Track_HQ_Chi2_TPart_Eta->setAxisTitle("L1 Track #chi^{2}", 2);
   
   // TTTrack Chi2/ndf vs Eta
   edm::ParameterSet psTrack_Chi2Red_TPart_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Track_Chi2Red");
@@ -893,8 +893,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsy"),
      	psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymin"),
       psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
-  Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("Level-1 Track #chi^{2}/ndf", 2);
+  Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
+  Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
   
   HistoName = "Track_HQ_Chi2Red_TPart_Eta";
   Track_HQ_Chi2Red_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
@@ -904,8 +904,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsy"),
      	psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymin"),
       psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
-  Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("TPart Eta", 1);
-  Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("Level-1 Track #chi^{2}/ndf", 2);
+  Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
+  Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
   
   /// Plots for debugging
   if ( verbosePlots_ )
@@ -923,8 +923,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_InvPt.getParameter<int32_t>("Nbinsy"),
         psStub_InvPt.getParameter<double>("ymin"),
         psStub_InvPt.getParameter<double>("ymax"));
-    Stub_InvPt_TPart_InvPt_AllLayers->setAxisTitle("TPart 1/p_{T}", 1);
-    Stub_InvPt_TPart_InvPt_AllLayers->setAxisTitle("Level-1 Stub 1/p_{T}", 2);
+    Stub_InvPt_TPart_InvPt_AllLayers->setAxisTitle("TPart 1/p_{T} [1/GeV]", 1);
+    Stub_InvPt_TPart_InvPt_AllLayers->setAxisTitle("L1 Stub 1/p_{T} [1/GeV]", 2);
 
     HistoName = "Stub_InvPt_TPart_InvPt_AllDisks";
     Stub_InvPt_TPart_InvPt_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -934,8 +934,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_InvPt.getParameter<int32_t>("Nbinsy"),
         psStub_InvPt.getParameter<double>("ymin"),
         psStub_InvPt.getParameter<double>("ymax"));
-    Stub_InvPt_TPart_InvPt_AllDisks->setAxisTitle("TPart 1/p_{T}", 1);
-    Stub_InvPt_TPart_InvPt_AllDisks->setAxisTitle("Level-1 Stub 1/p_{T}", 2);
+    Stub_InvPt_TPart_InvPt_AllDisks->setAxisTitle("TPart 1/p_{T} [1/GeV]", 1);
+    Stub_InvPt_TPart_InvPt_AllDisks->setAxisTitle("L1 Stub 1/p_{T} [1/GeV]", 2);
 
     // pT
     edm::ParameterSet psStub_Pt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_Pt");
@@ -947,8 +947,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_Pt.getParameter<int32_t>("Nbinsy"),
         psStub_Pt.getParameter<double>("ymin"),
         psStub_Pt.getParameter<double>("ymax"));
-    Stub_Pt_TPart_Pt_AllLayers->setAxisTitle("TPart p_{T}", 1);
-    Stub_Pt_TPart_Pt_AllLayers->setAxisTitle("Level-1 Stub p_{T}", 2);
+    Stub_Pt_TPart_Pt_AllLayers->setAxisTitle("TPart p_{T} [GeV]", 1);
+    Stub_Pt_TPart_Pt_AllLayers->setAxisTitle("L1 Stub p_{T} [GeV]", 2);
 
     HistoName = "Stub_Pt_TPart_Pt_AllDisks";
     Stub_Pt_TPart_Pt_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -958,8 +958,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_Pt.getParameter<int32_t>("Nbinsy"),
         psStub_Pt.getParameter<double>("ymin"),
         psStub_Pt.getParameter<double>("ymax"));
-    Stub_Pt_TPart_Pt_AllDisks->setAxisTitle("TPart p_{T}", 1);
-    Stub_Pt_TPart_Pt_AllDisks->setAxisTitle("Level-1 Stub p_{T}", 2);
+    Stub_Pt_TPart_Pt_AllDisks->setAxisTitle("TPart p_{T} [GeV]", 1);
+    Stub_Pt_TPart_Pt_AllDisks->setAxisTitle("L1 Stub p_{T} [GeV]", 2);
 
     // Eta
     edm::ParameterSet psStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Stub_Eta");
@@ -971,8 +971,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_Eta.getParameter<int32_t>("Nbinsy"),
         psStub_Eta.getParameter<double>("ymin"),
         psStub_Eta.getParameter<double>("ymax"));
-    Stub_Eta_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-    Stub_Eta_TPart_Eta_AllLayers->setAxisTitle("Level-1 Stub Eta", 2);
+    Stub_Eta_TPart_Eta_AllLayers->setAxisTitle("TPart #eta", 1);
+    Stub_Eta_TPart_Eta_AllLayers->setAxisTitle("L1 Stub #eta", 2);
 
     HistoName = "Stub_Eta_TPart_Eta_AllDisks";
     Stub_Eta_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -982,8 +982,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_Eta.getParameter<int32_t>("Nbinsy"),
         psStub_Eta.getParameter<double>("ymin"),
         psStub_Eta.getParameter<double>("ymax"));
-    Stub_Eta_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-    Stub_Eta_TPart_Eta_AllDisks->setAxisTitle("Level-1 Stub Eta", 2);
+    Stub_Eta_TPart_Eta_AllDisks->setAxisTitle("TPart #eta", 1);
+    Stub_Eta_TPart_Eta_AllDisks->setAxisTitle("L1 Stub #eta", 2);
 
     // Phi
     edm::ParameterSet psStub_Phi =  conf_.getParameter<edm::ParameterSet>("TH2Stub_Phi");
@@ -995,8 +995,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_Phi.getParameter<int32_t>("Nbinsy"),
         psStub_Phi.getParameter<double>("ymin"),
         psStub_Phi.getParameter<double>("ymax"));
-    Stub_Phi_TPart_Phi_AllLayers->setAxisTitle("TPart Phi", 1);
-    Stub_Phi_TPart_Phi_AllLayers->setAxisTitle("Level-1 Stub Phi", 2);
+    Stub_Phi_TPart_Phi_AllLayers->setAxisTitle("TPart #phi", 1);
+    Stub_Phi_TPart_Phi_AllLayers->setAxisTitle("L1 Stub #phi", 2);
 
     HistoName = "Stub_Phi_TPart_Phi_AllDisks";
     Stub_Phi_TPart_Phi_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1006,8 +1006,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_Phi.getParameter<int32_t>("Nbinsy"),
         psStub_Phi.getParameter<double>("ymin"),
         psStub_Phi.getParameter<double>("ymax"));
-    Stub_Phi_TPart_Phi_AllDisks->setAxisTitle("TPart Phi", 1);
-    Stub_Phi_TPart_Phi_AllDisks->setAxisTitle("Level-1 Stub Phi", 2);
+    Stub_Phi_TPart_Phi_AllDisks->setAxisTitle("TPart #phi", 1);
+    Stub_Phi_TPart_Phi_AllDisks->setAxisTitle("L1 Stub #phi", 2);
 
     //InvPtRes
     edm::ParameterSet psStub_InvPtRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_InvPtRes");
@@ -1019,8 +1019,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_InvPtRes.getParameter<int32_t>("Nbinsy"),
         psStub_InvPtRes.getParameter<double>("ymin"),
         psStub_InvPtRes.getParameter<double>("ymax"));
-    Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-    Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("Level-1 Stub 1/p_{T} - TPart 1/p_{T}", 2);  
+    Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("TPart #eta", 1);
+    Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("L1 Stub 1/p_{T} - TPart 1/p_{T} [1/GeV]", 2);  
 
     HistoName = "Stub_InvPtRes_TPart_Eta_AllDisks";
     Stub_InvPtRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1030,8 +1030,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_InvPtRes.getParameter<int32_t>("Nbinsy"),
         psStub_InvPtRes.getParameter<double>("ymin"),
         psStub_InvPtRes.getParameter<double>("ymax"));
-    Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-    Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("Level-1 Stub 1/p_{T} - TPart 1/p_{T}", 2); 
+    Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("TPart #eta", 1);
+    Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("L1 Stub 1/p_{T} - TPart 1/p_{T} [1/GeV]", 2); 
 
     //PtRes
     edm::ParameterSet psStub_PtRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_PtRes");
@@ -1043,8 +1043,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
          psStub_PtRes.getParameter<int32_t>("Nbinsy"),
          psStub_PtRes.getParameter<double>("ymin"),
          psStub_PtRes.getParameter<double>("ymax"));
-    Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-    Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("Level-1 Stub p_{T} - TPart p_{T}", 2);
+    Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("TPart #eta", 1);
+    Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("L1 Stub p_{T} - TPart p_{T} [GeV]", 2);
 
     HistoName = "Stub_PtRes_TPart_Eta_AllDisks";
     Stub_PtRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1054,8 +1054,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_PtRes.getParameter<int32_t>("Nbinsy"),
         psStub_PtRes.getParameter<double>("ymin"),
         psStub_PtRes.getParameter<double>("ymax"));
-    Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-    Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("Level-1 Stub p_{T} - TPart p_{T}", 2); 	
+    Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("TPart #eta", 1);
+    Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("L1 Stub p_{T} - TPart p_{T} [GeV]", 2); 	
 
     // EtaRes
     edm::ParameterSet psStub_EtaRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_EtaRes");
@@ -1067,8 +1067,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_EtaRes.getParameter<int32_t>("Nbinsy"),
         psStub_EtaRes.getParameter<double>("ymin"),
         psStub_EtaRes.getParameter<double>("ymax"));
-    Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-    Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("Level-1 Stub Eta - TPart Eta", 2);
+    Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("TPart #eta", 1);
+    Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("L1 Stub #eta - TPart #eta", 2);
 
     HistoName = "Stub_EtaRes_TPart_Eta_AllDisks";
     Stub_EtaRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1078,8 +1078,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_EtaRes.getParameter<int32_t>("Nbinsy"),
         psStub_EtaRes.getParameter<double>("ymin"),
         psStub_EtaRes.getParameter<double>("ymax"));
-    Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-    Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("Level-1 Stub Eta - TPart Eta", 2);
+    Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("TPart #eta", 1);
+    Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("L1 Stub #eta - TPart #eta", 2);
 
     // PhiRes
     edm::ParameterSet psStub_PhiRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_PhiRes");
@@ -1092,7 +1092,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_PhiRes.getParameter<double>("ymin"),
         psStub_PhiRes.getParameter<double>("ymax"));
     Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-    Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("Level-1 Stub Phi - TPart Phi", 2);
+    Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("L1 Stub #phi - TPart #phi", 2);
 
     HistoName = "Stub_PhiRes_TPart_Eta_AllDisks";
     Stub_PhiRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1102,8 +1102,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_PhiRes.getParameter<int32_t>("Nbinsy"),
         psStub_PhiRes.getParameter<double>("ymin"),
         psStub_PhiRes.getParameter<double>("ymax"));
-    Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-    Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("Level-1 Stub Phi - TPart Phi", 2);
+    Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("TPart #eta", 1);
+    Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("L1 Stub #phi - TPart #phi", 2);
 
     // Width vs. InvPt
     edm::ParameterSet psStub_W_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_W_InvPt");
@@ -1115,8 +1115,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_W_InvPt.getParameter<int32_t>("Nbinsy"),
         psStub_W_InvPt.getParameter<double>("ymin"),
         psStub_W_InvPt.getParameter<double>("ymax"));
-    Stub_W_TPart_InvPt_AllLayers->setAxisTitle("TPart 1/Pt", 1);
-    Stub_W_TPart_InvPt_AllLayers->setAxisTitle("Level-1 Stub Width", 2);
+    Stub_W_TPart_InvPt_AllLayers->setAxisTitle("TPart 1/p_{T} [1/GeV]", 1);
+    Stub_W_TPart_InvPt_AllLayers->setAxisTitle("L1 Stub Width", 2);
 
     HistoName = "Stub_W_TPart_InvPt_AllDisks";
     Stub_W_TPart_InvPt_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1126,8 +1126,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_W_InvPt.getParameter<int32_t>("Nbinsy"),
         psStub_W_InvPt.getParameter<double>("ymin"),
         psStub_W_InvPt.getParameter<double>("ymax"));
-    Stub_W_TPart_InvPt_AllDisks->setAxisTitle("TPart 1/Pt", 1);
-    Stub_W_TPart_InvPt_AllDisks->setAxisTitle("Level-1 Stub Width", 2);
+    Stub_W_TPart_InvPt_AllDisks->setAxisTitle("TPart 1/p_{T} [1/GeV]", 1);
+    Stub_W_TPart_InvPt_AllDisks->setAxisTitle("L1 Stub Width", 2);
 
     // Width vs. Pt
     edm::ParameterSet psStub_W_Pt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_W_Pt");
@@ -1139,8 +1139,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_W_Pt.getParameter<int32_t>("Nbinsy"),
         psStub_W_Pt.getParameter<double>("ymin"),
         psStub_W_Pt.getParameter<double>("ymax"));
-    Stub_W_TPart_Pt_AllLayers->setAxisTitle("TPart Pt", 1);
-    Stub_W_TPart_Pt_AllLayers->setAxisTitle("Level-1 Stub Width", 2);
+    Stub_W_TPart_Pt_AllLayers->setAxisTitle("TPart p_{T} [GeV]", 1);
+    Stub_W_TPart_Pt_AllLayers->setAxisTitle("L1 Stub Width", 2);
 
     HistoName = "Stub_W_TPart_Pt_AllDisks";
     Stub_W_TPart_Pt_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -1150,8 +1150,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_W_Pt.getParameter<int32_t>("Nbinsy"),
         psStub_W_Pt.getParameter<double>("ymin"),
         psStub_W_Pt.getParameter<double>("ymax"));
-    Stub_W_TPart_Pt_AllDisks->setAxisTitle("TPart Pt", 1);
-    Stub_W_TPart_Pt_AllDisks->setAxisTitle("Level-1 Stub Width", 2);
+    Stub_W_TPart_Pt_AllDisks->setAxisTitle("TPart p_{T} [GeV]", 1);
+    Stub_W_TPart_Pt_AllDisks->setAxisTitle("L1 Stub Width", 2);
     
     
     /// Track properties compared to TParticles
@@ -1167,8 +1167,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Pt.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Pt.getParameter<double>("ymin"),
         psTrack_Sim_Pt.getParameter<double>("ymax"));
-    Track_LQ_Pt_TPart_Pt->setAxisTitle("TPart Pt", 1);
-    Track_LQ_Pt_TPart_Pt->setAxisTitle("Level-1 Track Pt", 2);
+    Track_LQ_Pt_TPart_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
+    Track_LQ_Pt_TPart_Pt->setAxisTitle("L1 Track p_{T} [GeV]", 2);
 
     // PtRes
     edm::ParameterSet psTrack_Sim_PtRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_PtRes");
@@ -1180,8 +1180,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_PtRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_PtRes.getParameter<double>("ymin"),
         psTrack_Sim_PtRes.getParameter<double>("ymax"));
-    Track_LQ_PtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_LQ_PtRes_TPart_Eta->setAxisTitle("Level-1 Track Pt - TPart Pt", 2);
+    Track_LQ_PtRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_PtRes_TPart_Eta->setAxisTitle("L1 Track p_{T} - TPart p_{T} [GeV]", 2);
 
     // InvPt
     edm::ParameterSet psTrack_Sim_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_InvPt");
@@ -1193,8 +1193,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_InvPt.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_InvPt.getParameter<double>("ymin"),
         psTrack_Sim_InvPt.getParameter<double>("ymax"));
-    Track_LQ_InvPt_TPart_InvPt->setAxisTitle("TPart 1/Pt", 1);
-    Track_LQ_InvPt_TPart_InvPt->setAxisTitle("Level-1 Track 1/Pt", 2);
+    Track_LQ_InvPt_TPart_InvPt->setAxisTitle("TPart 1/p_{T} [1/GeV]", 1);
+    Track_LQ_InvPt_TPart_InvPt->setAxisTitle("L1 Track 1/p_{T} [1/GeV]", 2);
 
     // InvPtRes
     edm::ParameterSet psTrack_Sim_InvPtRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_InvPtRes");
@@ -1206,8 +1206,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_InvPtRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_InvPtRes.getParameter<double>("ymin"),
         psTrack_Sim_InvPtRes.getParameter<double>("ymax"));
-    Track_LQ_InvPtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_LQ_InvPtRes_TPart_Eta->setAxisTitle("Level-1 Track 1/Pt - TPart 1/Pt", 2);
+    Track_LQ_InvPtRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_InvPtRes_TPart_Eta->setAxisTitle("L1 Track 1/p_{T} - TPart 1/p_{T} [1/GeV]", 2);
 
     // Phi
     edm::ParameterSet psTrack_Sim_Phi =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Phi");
@@ -1219,8 +1219,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Phi.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Phi.getParameter<double>("ymin"),
         psTrack_Sim_Phi.getParameter<double>("ymax"));
-    Track_LQ_Phi_TPart_Phi->setAxisTitle("TPart Phi", 1);
-    Track_LQ_Phi_TPart_Phi->setAxisTitle("Level-1 Track Phi", 2);
+    Track_LQ_Phi_TPart_Phi->setAxisTitle("TPart #phi", 1);
+    Track_LQ_Phi_TPart_Phi->setAxisTitle("L1 Track #phi", 2);
 
     // PhiRes
     edm::ParameterSet psTrack_Sim_PhiRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_PhiRes");
@@ -1232,8 +1232,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_PhiRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_PhiRes.getParameter<double>("ymin"),
         psTrack_Sim_PhiRes.getParameter<double>("ymax"));
-    Track_LQ_PhiRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_LQ_PhiRes_TPart_Eta->setAxisTitle("Level-1 Track Phi - TPart Phi", 2);
+    Track_LQ_PhiRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_PhiRes_TPart_Eta->setAxisTitle("L1 Track #phi - TPart #phi", 2);
 
     // Eta
     edm::ParameterSet psTrack_Sim_Eta =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Eta");
@@ -1245,8 +1245,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Eta.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Eta.getParameter<double>("ymin"),
         psTrack_Sim_Eta.getParameter<double>("ymax"));
-    Track_LQ_Eta_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_LQ_Eta_TPart_Eta->setAxisTitle("Level-1 Track Eta", 2);
+    Track_LQ_Eta_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_Eta_TPart_Eta->setAxisTitle("L1 Track #eta", 2);
 
     // EtaRes
     edm::ParameterSet psTrack_Sim_EtaRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_EtaRes");
@@ -1258,8 +1258,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_EtaRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_EtaRes.getParameter<double>("ymin"),
         psTrack_Sim_EtaRes.getParameter<double>("ymax"));
-    Track_LQ_EtaRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_LQ_EtaRes_TPart_Eta->setAxisTitle("Level-1 Track Eta - TPart Eta", 2);
+    Track_LQ_EtaRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_EtaRes_TPart_Eta->setAxisTitle("L1 Track #eta - TPart #eta", 2);
 
     // Vertex position in z
     edm::ParameterSet psTrack_Sim_Vtx =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_Vtx");
@@ -1271,8 +1271,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Vtx.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Vtx.getParameter<double>("ymin"),
         psTrack_Sim_Vtx.getParameter<double>("ymax"));
-    Track_LQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex Position in z", 1);
-    Track_LQ_VtxZ0_TPart_VtxZ0->setAxisTitle("Level-1 Track Vertex Position in z", 2);
+    Track_LQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex z [cm]", 1);
+    Track_LQ_VtxZ0_TPart_VtxZ0->setAxisTitle("L1 Track Vertex z [cm]", 2);
 
     // Vertex position in z
     edm::ParameterSet psTrack_Sim_VtxRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_VtxRes");
@@ -1284,8 +1284,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_VtxRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_VtxRes.getParameter<double>("ymin"),
         psTrack_Sim_VtxRes.getParameter<double>("ymax"));
-    Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("Level-1 Track - TPart Vertex Position in z", 2);
+    Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("L1 Track Vertex z - TPart Vertex z [cm]", 2);
 
 
 
@@ -1300,8 +1300,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Pt.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Pt.getParameter<double>("ymin"),
         psTrack_Sim_Pt.getParameter<double>("ymax"));
-    Track_HQ_Pt_TPart_Pt->setAxisTitle("TPart Pt", 1);
-    Track_HQ_Pt_TPart_Pt->setAxisTitle("Level-1 Track Pt", 2);
+    Track_HQ_Pt_TPart_Pt->setAxisTitle("TPart p_{T} [GeV]", 1);
+    Track_HQ_Pt_TPart_Pt->setAxisTitle("L1 Track p_{T} [GeV]", 2);
 
     // PtRes
     HistoName = "Track_HQ_PtRes_TPart_Eta";
@@ -1312,8 +1312,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_PtRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_PtRes.getParameter<double>("ymin"),
         psTrack_Sim_PtRes.getParameter<double>("ymax"));
-    Track_HQ_PtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_HQ_PtRes_TPart_Eta->setAxisTitle("Level-1 Track Pt - TPart Pt", 2);
+    Track_HQ_PtRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_PtRes_TPart_Eta->setAxisTitle("L1 Track p_{T} - TPart p_{T} [GeV]", 2);
 
     // InvPt
     HistoName = "Track_HQ_InvPt_TPart_InvPt";
@@ -1324,8 +1324,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_InvPt.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_InvPt.getParameter<double>("ymin"),
         psTrack_Sim_InvPt.getParameter<double>("ymax"));
-    Track_HQ_InvPt_TPart_InvPt->setAxisTitle("TPart 1/Pt", 1);
-    Track_HQ_InvPt_TPart_InvPt->setAxisTitle("Level-1 Track 1/Pt", 2);
+    Track_HQ_InvPt_TPart_InvPt->setAxisTitle("TPart 1/p_{T} [1/GeV]", 1);
+    Track_HQ_InvPt_TPart_InvPt->setAxisTitle("L1 Track 1/p_{T} [1/GeV]", 2);
 
     // InvPtRes
     HistoName = "Track_HQ_InvPtRes_TPart_Eta";
@@ -1336,8 +1336,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_InvPtRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_InvPtRes.getParameter<double>("ymin"),
         psTrack_Sim_InvPtRes.getParameter<double>("ymax"));
-    Track_HQ_InvPtRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_HQ_InvPtRes_TPart_Eta->setAxisTitle("Level-1 Track 1/Pt - TPart 1/Pt", 2);
+    Track_HQ_InvPtRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_InvPtRes_TPart_Eta->setAxisTitle("L1 Track 1/p_{T} - TPart 1/p_{T} [1/GeV]", 2);
 
     // Phi
     HistoName = "Track_HQ_Phi_TPart_Phi";
@@ -1348,8 +1348,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Phi.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Phi.getParameter<double>("ymin"),
         psTrack_Sim_Phi.getParameter<double>("ymax"));
-    Track_HQ_Phi_TPart_Phi->setAxisTitle("TPart Phi", 1);
-    Track_HQ_Phi_TPart_Phi->setAxisTitle("Level-1 Track Phi", 2);
+    Track_HQ_Phi_TPart_Phi->setAxisTitle("TPart #phi", 1);
+    Track_HQ_Phi_TPart_Phi->setAxisTitle("L1 Track #phi", 2);
 
     // PhiRes
     HistoName = "Track_HQ_PhiRes_TPart_Eta";
@@ -1360,8 +1360,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_PhiRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_PhiRes.getParameter<double>("ymin"),
         psTrack_Sim_PhiRes.getParameter<double>("ymax"));
-    Track_HQ_PhiRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_HQ_PhiRes_TPart_Eta->setAxisTitle("Level-1 Track Phi - TPart Phi", 2);
+    Track_HQ_PhiRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_PhiRes_TPart_Eta->setAxisTitle("L1 Track #phi - TPart #phi", 2);
 
     // Eta
     HistoName = "Track_HQ_Eta_TPart_Eta";
@@ -1372,8 +1372,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Eta.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Eta.getParameter<double>("ymin"),
         psTrack_Sim_Eta.getParameter<double>("ymax"));
-    Track_HQ_Eta_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_HQ_Eta_TPart_Eta->setAxisTitle("Level-1 Track Eta", 2);
+    Track_HQ_Eta_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_Eta_TPart_Eta->setAxisTitle("L1 Track #eta", 2);
 
     // EtaRes
     HistoName = "Track_HQ_EtaRes_TPart_Eta";
@@ -1384,8 +1384,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_EtaRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_EtaRes.getParameter<double>("ymin"),
         psTrack_Sim_EtaRes.getParameter<double>("ymax"));
-    Track_HQ_EtaRes_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_HQ_EtaRes_TPart_Eta->setAxisTitle("Level-1 Track Eta - TPart Eta", 2);
+    Track_HQ_EtaRes_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_EtaRes_TPart_Eta->setAxisTitle("L1 Track #eta - TPart #eta", 2);
 
     // Vertex position in z
     HistoName = "Track_HQ_VtxZ0_TPart_VtxZ0";
@@ -1396,8 +1396,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_Vtx.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_Vtx.getParameter<double>("ymin"),
         psTrack_Sim_Vtx.getParameter<double>("ymax"));
-    Track_HQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex Position in z", 1);
-    Track_HQ_VtxZ0_TPart_VtxZ0->setAxisTitle("Level-1 Track Vertex Position in z", 2);
+    Track_HQ_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex z [cm]", 1);
+    Track_HQ_VtxZ0_TPart_VtxZ0->setAxisTitle("L1 Track Vertex z [cm]", 2);
 
     // Vertex position in z
     HistoName = "Track_HQ_VtxZ0Res_TPart_Eta";
@@ -1408,8 +1408,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_VtxRes.getParameter<int32_t>("Nbinsy"),
         psTrack_Sim_VtxRes.getParameter<double>("ymin"),
         psTrack_Sim_VtxRes.getParameter<double>("ymax"));
-    Track_HQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart Eta", 1);
-    Track_HQ_VtxZ0Res_TPart_Eta->setAxisTitle("Level-1 Track - TPart Vertex Position in z", 2);
+    Track_HQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_VtxZ0Res_TPart_Eta->setAxisTitle("L1 Track Vertex z - TPart Vertex z [cm]", 2);
     
   } /// End verbosePlots
   	
