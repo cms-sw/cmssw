@@ -19,12 +19,12 @@
 #include "RecoHI/HiEgammaAlgos/interface/RxCalculator.h"
 #include "RecoHI/HiEgammaAlgos/interface/TxCalculator.h"
 
-class AODHIPhotonProducer : public edm::stream::EDProducer<> {
+class photonIsolationHIProducer : public edm::stream::EDProducer<> {
 
  public:
 
-  explicit AODHIPhotonProducer (const edm::ParameterSet& ps);
-  ~AODHIPhotonProducer();
+  explicit photonIsolationHIProducer (const edm::ParameterSet& ps);
+  ~photonIsolationHIProducer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -46,7 +46,7 @@ class AODHIPhotonProducer : public edm::stream::EDProducer<> {
 
 };
 
-AODHIPhotonProducer::AODHIPhotonProducer(const edm::ParameterSet& config)
+photonIsolationHIProducer::photonIsolationHIProducer(const edm::ParameterSet& config)
   :
   photonProducer_   (
     consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photonProducer"))),
@@ -65,10 +65,10 @@ AODHIPhotonProducer::AODHIPhotonProducer(const edm::ParameterSet& config)
   produces< reco::HIPhotonIsolationMap >();
 }
 
-AODHIPhotonProducer::~AODHIPhotonProducer() {}
+photonIsolationHIProducer::~photonIsolationHIProducer() {}
 
 void
-AODHIPhotonProducer::produce(edm::Event& evt, const edm::EventSetup& es)
+photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   edm::Handle<reco::PhotonCollection> photons;
   evt.getByToken(photonProducer_, photons);
@@ -147,7 +147,7 @@ AODHIPhotonProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 }
 
 void
-AODHIPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+photonIsolationHIProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -155,4 +155,4 @@ AODHIPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(AODHIPhotonProducer);
+DEFINE_FWK_MODULE(photonIsolationHIProducer);

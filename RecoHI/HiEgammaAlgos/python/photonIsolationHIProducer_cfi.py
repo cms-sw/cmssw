@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-AODHIPhotonProducer = cms.EDProducer(
-    "AODHIPhotonProducer",
+photonIsolationHIProducer = cms.EDProducer(
+    "photonIsolationHIProducer",
     photonProducer = cms.InputTag("photons"),
     ebRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
     eeRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEE"),

@@ -9,48 +9,65 @@ namespace reco{
 
   public:
 
-    HIPhotonIsolation() {}
+  HIPhotonIsolation() : cc1_(0),
+      cc2_(0),
+      cc3_(0),
+      cc4_(0),
+      cc5_(0),
+      cr1_(0),
+      cr2_(0),
+      cr3_(0),
+      cr4_(0),
+      cr5_(0),
+      ct1PtCut20_(0),
+      ct2PtCut20_(0),
+      ct3PtCut20_(0),
+      ct4PtCut20_(0),
+      ct5PtCut20_(0),
+      swissCrx_(0),
+      seedTime_(0)
+      {}
     virtual ~HIPhotonIsolation() {}
 
     //getters
 
     /// Cluster-based isolation (ECAL) R = 0.1
-    float cc1() {return cc1_;}
+    float cc1() const {return cc1_;}
     /// Cluster-based isolation (ECAL) R = 0.2
-    float cc2() {return cc2_;}
+    float cc2() const {return cc2_;}
     /// Cluster-based isolation (ECAL) R = 0.3
-    float cc3() {return cc3_;}
+    float cc3() const {return cc3_;}
     /// Cluster-based isolation (ECAL) R = 0.4
-    float cc4() {return cc4_;}
+    float cc4() const {return cc4_;}
     /// Cluster-based isolation (ECAL) R = 0.5
-    float cc5() {return cc5_;}
+    float cc5() const {return cc5_;}
 
     /// Rechit-based isolation (HCAL) R = 0.1
-    float cr1() {return cr1_;}
+    float cr1() const {return cr1_;}
     /// Rechit-based isolation (HCAL) R = 0.2
-    float cr2() {return cr2_;}
+    float cr2() const {return cr2_;}
     /// Rechit-based isolation (HCAL) R = 0.3
-    float cr3() {return cr3_;}
+    float cr3() const {return cr3_;}
     /// Rechit-based isolation (HCAL) R = 0.4
-    float cr4() {return cr4_;}
+    float cr4() const {return cr4_;}
     /// Rechit-based isolation (HCAL) R = 0.5
-    float cr5() {return cr5_;}
+    float cr5() const {return cr5_;}
 
     /// Track-based isolation, pt>2.0GeV, R = 0.1
-    float ct1PtCut20() {return ct1PtCut20_;}
+    float ct1PtCut20() const {return ct1PtCut20_;}
     /// Track-based isolation, pt>2.0GeV, R = 0.2
-    float ct2PtCut20() {return ct2PtCut20_;}
+    float ct2PtCut20() const {return ct2PtCut20_;}
     /// Track-based isolation, pt>2.0GeV, R = 0.3
-    float ct3PtCut20() {return ct3PtCut20_;}
+    float ct3PtCut20() const {return ct3PtCut20_;}
     /// Track-based isolation, pt>2.0GeV, R = 0.4
-    float ct4PtCut20() {return ct4PtCut20_;}
+    float ct4PtCut20() const {return ct4PtCut20_;}
     /// Track-based isolation, pt>2.0GeV, R = 0.5
-    float ct5PtCut20() {return ct5PtCut20_;}
+    float ct5PtCut20() const {return ct5PtCut20_;}
 
     /// Swiss-Cross crystal ratio
-    float swissCrx() {return swissCrx_;}
+    float swissCrx() const {return swissCrx_;}
     /// Ecal rechit seed time
-    float seedTime() {return seedTime_;}
+    float seedTime() const {return seedTime_;}
 
     // setters
 

@@ -217,8 +217,8 @@ namespace DataFormats_EgammaCandidates {
   reco::HIPhotonIsolation hiIso;
   edm::Wrapper<reco::HIPhotonIsolation> w_hiIso;
 
-  reco::HIPhotonIsolationMap hiIsoMap;
-  edm::Wrapper<reco::HIPhotonIsolationMap> w_hiIsoMap;
+  edm::ValueMap<reco::HIPhotonIsolation> hiIsoMap;
+  edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> > w_hiIsoMap;
 
   std::vector<reco::HIPhotonIsolation> v_hiIso;
   edm::Wrapper<std::vector<reco::HIPhotonIsolation> > w_v_hiIso;
