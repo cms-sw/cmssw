@@ -32,11 +32,8 @@
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
-//#include "TMath.h"
 #include <vector>
-
-//#define MAXCUT 10000
-//#define MAXCUTOFF 1000
+#include <cmath>
 
 //
 // class declaration
@@ -47,7 +44,6 @@ public:
 
   explicit HiEvtPlaneFlatten()
   {
-//    pi = TMath::Pi();
     hbins_ = 1;
     hOrder_ = 9;
     vorder_ = 2;    //sets default order of event plane
@@ -77,7 +73,7 @@ public:
       flatXDB_[i]=0;
       flatYDB_[i]=0;
       flatCnt_[i]=0;
-    } 
+    }
     for(int i = 0; i<obins_; i++) {
       xoff_[i]=0;
       yoff_[i]=0;
@@ -97,8 +93,6 @@ public:
   {
     int cut;
     if(centbin < 0 ) return -1;
-    //int ietbin = hfetbins*log10( 9.*(et/scale)+1.);
-    //if(ietbin>hfetbins) ietbin=hfetbins-1;
     int ibin = centbin;
     int ivtx = (vtx-minvtx_)/delvtx_;
     if(vtx < minvtx_ || ivtx >= nvtxbins_) return -1;
@@ -257,8 +251,8 @@ public:
   double      qy()      const { return (w_>0)? soff_/w_:0.;};
   double      q()      const { return ((pow(qx(),2)+pow(qy(),2))>0)? sqrt(pow(qx(),2)+pow(qy(),2)): 0.;};
   double bounds(double ang) const {
-    if(ang<-PI) ang+=2.*PI;
-    if(ang>PI)  ang-=2.*PI;
+    if(ang<-M_PI) ang+=2.*M_PI;
+    if(ang>M_PI)  ang-=2.*M_PI;
     return ang;
   }
   double bounds2(double ang) const {
@@ -344,14 +338,12 @@ private:
 
 
   int hOrder_;    //flattening order
-//  double scale; ?? not used??
   int hbins_; //number of bins needed for flattening
   int obins_; //number of (x,y) offset bins
   int vorder_; //order of flattened event plane
   int caloCentRefMinBin_; //min ref centrality bin for calo weight scale
   int caloCentRefMaxBin_; //max ref centrality bin for calo weight scale
   double caloCentRefVal_; //reference <pt> or <et>
-  static const double PI = M_PI;
 
   int nvtxbins_;
   double minvtx_;

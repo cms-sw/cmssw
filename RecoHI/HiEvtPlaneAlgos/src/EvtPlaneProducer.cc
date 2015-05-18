@@ -24,7 +24,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -76,10 +76,10 @@ class EvtPlaneProducer : public edm::stream::EDProducer<> {
 public:
   explicit EvtPlaneProducer(const edm::ParameterSet&);
   ~EvtPlaneProducer();
-  
+
 private:
   class GenPlane {
-  public: 
+  public:
     GenPlane(string name,double etaminval1,double etamaxval1,double etaminval2,double etamaxval2,int orderval){
       epname=name;
       etamin1=etaminval1;
@@ -110,7 +110,7 @@ private:
 	++mult;
       }
     }
-    
+
     double getAngle(double &ang, double &sv, double &cv, double &svNoWgt, double &cvNoWgt,  double &w, double &w2, double &PtOrEt, double &PtOrEt2, uint &epmult){
       ang = -10;
       sv = 0;
@@ -157,18 +157,12 @@ private:
     double sumPtOrEt2;
     double order;
   };
-  
 
   GenPlane *rp[NumEPNames];
 
-//  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-//  virtual void endJob() ;
-  
+
   // ----------member data ---------------------------
-  // edm::InputTag vtxCollection_;
-  // edm::InputTag caloCollection_;
-  // edm::InputTag trackCollection_;
 
   std::string centralityVariable_;
   std::string centralityLabel_;
@@ -196,14 +190,10 @@ private:
 
   edm::ESWather<HeavyIonRcd> hiWatcher;
   edm::ESWather<HeavyIonRPRcd> hirpWatcher;
-//  bool foundCentTag_;
-//  bool useECAL_;
-//  bool useHCAL_;
-//  bool useTrack_;
+
   bool loadDB_;
   double minet_;
   double maxet_;
-//  double effm_;
   double minpt_;
   double maxpt_;
   double minvtx_;
@@ -211,13 +201,11 @@ private:
   double dzerr_;
   double chi2_;
   int FlatOrder_;
-  uint runno_; 
+  uint runno_;
   int NumFlatBins_;
   double nCentBins_;
   double caloCentRef_;
   double caloCentRefWidth_;
-//  int caloCentRefMinBin_;
-//  int caloCentRefMaxBin_;
   int CentBinCompression_;
   HiEvtPlaneFlatten * flat[NumEPNames];
 };
@@ -276,10 +264,10 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
 EvtPlaneProducer::~EvtPlaneProducer()
 {
-  
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  
+
 }
 
 
@@ -339,7 +327,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<int> cbin_;
     iEvent.getByToken(centralityBinToken, cbin_);
     int cbin = *cbin_;
-    bin = cbin/CentBinCompression_; 
+    bin = cbin/CentBinCompression_;
   }
   //
   //Get Vertex
@@ -356,16 +344,16 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //
   for(int i = 0; i<NumEPNames; i++) rp[i]->reset();
   if(vzr_sell>minvtx_ && vzr_sell<maxvtx_) {
-  
+
     //calorimetry part
-    
+
     double tower_eta, tower_phi;
     double tower_energyet, tower_energyet_e, tower_energyet_h;
- 
+
     iEvent.getByToken(caloToken,caloCollection_);
-    
+
     if(caloCollection_.isValid()){
-      for (CaloTowerCollection::const_iterator j = caloCollection_->begin();j !=caloCollection_->end(); j++) {   
+      for (CaloTowerCollection::const_iterator j = caloCollection_->begin();j !=caloCollection_->end(); j++) {
 	tower_eta        = j->eta();
 	tower_phi        = j->phi();
 	tower_energyet_e   = j->emEt();
@@ -390,18 +378,17 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    rp[i]->addParticle(w,tower_energyet,sin(EPOrder[i]*tower_phi),cos(EPOrder[i]*tower_phi),tower_eta);
 	  }
 	}
-      } 
+      }
     }
 
     //Castor part
-    
- 
+
+
     iEvent.getByToken(castorToken,castorCollection_);
-    
+
     if(castorCollection_.isValid()){
-      for (std::vector<reco::CastorTower>::const_iterator j = castorCollection_->begin();j !=castorCollection_->end(); j++) {   
+      for (std::vector<reco::CastorTower>::const_iterator j = castorCollection_->begin();j !=castorCollection_->end(); j++) {
        	tower_eta        = j->eta();
-//	double labang = j->theta();
        	tower_phi        = j->phi();
        	tower_energyet     = j->et();
 	double minet = minet_;
@@ -422,15 +409,15 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        	    rp[i]->addParticle(w,tower_energyet,sin(EPOrder[i]*tower_phi),cos(EPOrder[i]*tower_phi),tower_eta);
        	  }
        	}
-      } 
+      }
     }
 
     //Tracking part
-    
+
     double track_eta;
     double track_phi;
     double track_pt;
-   
+
     double vzErr2 =0.0, vxyErr=0.0;
     math::XYZPoint vtxPoint(0.0,0.0,0.0);
     if(vertex_->size()>0) {
@@ -441,26 +428,26 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     iEvent.getByToken(trackToken, trackCollection_);
     if(trackCollection_.isValid()){
-      for(reco::TrackCollection::const_iterator j = trackCollection_->begin(); j != trackCollection_->end(); j++){	
+      for(reco::TrackCollection::const_iterator j = trackCollection_->begin(); j != trackCollection_->end(); j++){
 	bool accepted = true;
 	bool isPixel = false;
 	// determine if the track is a pixel track
 	if ( j->numberOfValidHits() < 7 ) isPixel = true;
-	
+
 	// determine the vertex significance 
 	double d0=0.0, dz=0.0, d0sigma=0.0, dzsigma=0.0;
 	d0 = -1.*j->dxy(vtxPoint);
 	dz = j->dz(vtxPoint);
 	d0sigma = sqrt(j->d0Error()*j->d0Error()+vxyErr);
 	dzsigma = sqrt(j->dzError()*j->dzError()+vzErr2);
-	
+
 	// cuts for pixel tracks
 	if( isPixel ){
 	  // dz significance cut 
 	  if ( fabs(dz/dzsigma) > dzerr_ ) accepted = false;
 	  // chi2/ndof cut 
 	  if ( j->normalizedChi2() > chi2_ ) accepted = false;
-	}   
+	}
 	// cuts for full tracks
 	if ( ! isPixel) {
 	  // dz and d0 significance cuts 
@@ -494,13 +481,13 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      rp[i]->addParticle(w,track_pt,sin(EPOrder[i]*track_phi),cos(EPOrder[i]*track_phi),track_eta);
 	    }
 	  }
-	}  
+	}
       } //end for
     }
-    
+
     std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
     EvtPlane *ep[NumEPNames];
-    
+
     double ang=-10;
     double sv = 0;
     double cv = 0;
@@ -522,17 +509,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(evtplaneOutput, "recoLevel");
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-//void 
-//EvtPlaneProducer::beginJob()
-//{
-//}
-
-// ------------ method called once each job just after ending the event loop  ------------
-//void 
-//EvtPlaneProducer::endJob() {
-//}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EvtPlaneProducer);

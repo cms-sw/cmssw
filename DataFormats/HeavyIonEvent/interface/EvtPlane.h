@@ -22,43 +22,33 @@ namespace reco { class EvtPlane {
     virtual ~EvtPlane();
     void AddLevel(int level, double ang, double sumsin, double sumcos);
     int indx() const { return indx_ ;}
-    double      angle(int level=2)   const { return (level>=0||level<=2)? angle_[level]:angle_[2]; }
-    double      sumSin(int level=2)  const { return (level>=0||level<=2)? sumSin_[level]:sumSin_[2];}
-    double      sumCos(int level=2)  const { return (level>=0||level<=2)? sumCos_[level]:sumCos_[2];}
-    double      sumw() const { return sumw_;}
-    double      sumw2() const { return sumw2_;}
-    double      sumPtOrEt() const { return sumPtOrEt_;}
-    double      sumPtOrEt2() const { return sumPtOrEt2_;}
-    double      mult()    const { return mult_;}
-    double      Qy(int level=2) const { return sumSin(level); }
-    double      Qx(int level=2) const { return sumCos(level); }
-    double      Q(int level=2)  const { return ((pow(Qx(level),2)+pow(Qy(level),2))>0)? sqrt(pow(Qx(level),2)+pow(Qy(level),2)): 0.;}
-    double      qy(int level=2) const { return (mult_>0)? ((level>=0||level<=2)? sumSin_[level]/sqrt((double)mult_):sumSin_[2]/sqrt((double) mult_)):0.;}
-    double      qx(int level=2) const { return (mult_>0)? ((level>=0||level<=2)? sumCos_[level]/sqrt((double)mult_):sumCos_[2]/sqrt((double) mult_)):0.;}
-    double      q(int level=2)  const { return ((pow(qx(level),2)+pow(qy(level),2))>0)? sqrt(pow(qx(level),2)+pow(qy(level),2)): 0.;}
-    double      vn(int level=2) const{ return (Q(level)>0 && fabs(sumw())>0)? Q(level)/fabs(sumw()): 0.;}   
+    float	angle(int level=2)   const { return (level>=0||level<=2)? angle_[level]:angle_[2]; }
+    float	sumSin(int level=2)  const { return (level>=0||level<=2)? sumSin_[level]:sumSin_[2];}
+    float	sumCos(int level=2)  const { return (level>=0||level<=2)? sumCos_[level]:sumCos_[2];}
+    float	sumw() const { return sumw_;}
+    float	sumw2() const { return sumw2_;}
+    float	sumPtOrEt() const { return sumPtOrEt_;}
+    float	sumPtOrEt2() const { return sumPtOrEt2_;}
+    float	mult()    const { return mult_;}
+    float	qy(int level=2) const { return sumSin(level); }
+    float	qx(int level=2) const { return sumCos(level); }
+    float	q(int level=2)  const { return ((pow(Qx(level),2)+pow(Qy(level),2))>0)? sqrt(pow(Qx(level),2)+pow(Qy(level),2)): 0.;}
+    float	vn(int level=2) const{ return (q(level)>0 && fabs(sumw())>0)? q(level)/fabs(sumw()): 0.;}
 
   private:
-    int           indx_;
-    double        angle_[4];
-    double        sumSin_[4];
-    double        sumCos_[4];
-    double        sumw_;
-    double        sumw2_;
-    double        sumPtOrEt_;
-    double        sumPtOrEt2_;
-    uint          mult_;
-    
+    int		indx_;
+    float	angle_[4];
+    float	sumSin_[4];
+    float	sumCos_[4];
+    float	sumw_;
+    float	sumw2_;
+    float	sumPtOrEt_;
+    float	sumPtOrEt2_;
+    uint	mult_;
+
   };
-  
+
   typedef std::vector<EvtPlane> EvtPlaneCollection;
-  
 }
 
-#endif 
-
-
-
-
-
-
+#endif

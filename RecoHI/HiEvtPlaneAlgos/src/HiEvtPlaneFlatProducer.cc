@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -79,70 +79,61 @@ using std::vector;
 // class declaration
 //
 
-class HiEvtPlaneFlatProducer : public edm::EDProducer {
+class HiEvtPlaneFlatProducer : public edm::stream::EDProducer {
 public:
   explicit HiEvtPlaneFlatProducer(const edm::ParameterSet&);
   ~HiEvtPlaneFlatProducer();
-  
+
 private:
 //  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 //  virtual void endJob() ;
-  
+
   // ----------member data ---------------------------
-  
-  
+
   std::string centralityVariable_;
   std::string centralityLabel_;
   std::string centralityMC_;
-  
+
   edm::InputTag centralityBinTag_;
   edm::EDGetTokenT<int> centralityBinToken;
   edm::Handle<int> cbin_;
-  
+
   edm::InputTag centralityTag_;
   edm::EDGetTokenT<reco::Centrality> centralityToken;
   edm::Handle<reco::Centrality> centrality_;
-  
+
   edm::InputTag vertexTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken;
   edm::Handle<std::vector<reco::Vertex>> vertex_;
-  
-  
+
   edm::InputTag inputPlanesTag_;
   edm::EDGetTokenT<reco::EvtPlaneCollection> inputPlanesToken;
   edm::Handle<reco::EvtPlaneCollection> evtPlanes_;
-  
+
   edm::InputTag trackTag_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken;
   edm::Handle<reco::TrackCollection> trackCollection_;
 
   edm::ESWather<HeavyIonRcd> hiWatcher;
   edm::ESWather<HeavyIonRPRcd> hirpWatcher;
-  
+
   int FlatOrder_;
   double caloCentRef_;
   double caloCentRefWidth_;
-//  int caloCentRefMinBin_; // not used?
-//  int caloCentRefMaxBin_; // not used?
-//  int NumFlatBins_;
   int CentBinCompression_;
   int Noffmin_;
   int Noffmax_;
-//  double ntrkval; // not used?
   HiEvtPlaneFlatten * flat[NumEPNames];
-//  RPFlatParams * rpFlat; // not used?
-//  int nRP; // not used?
   bool useOffsetPsi_;
   int Hbins;
   int Obins;
-//  bool UseEtHF; not used??
   double nCentBins_;
-};  
+};
 //
 // constants, enums and typedefs
 //
-  
+
 typedef std::vector<TrackingParticle>                   TrackingParticleCollection;
 typedef TrackingParticleRefVector::iterator               tp_iterator;
 

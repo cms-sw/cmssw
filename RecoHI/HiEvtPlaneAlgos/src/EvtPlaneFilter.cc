@@ -22,9 +22,7 @@ public:
 	explicit EvtPlaneFilter(const edm::ParameterSet&);
 	~EvtPlaneFilter();
 private:
-//	virtual void beginJob();
 	virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-//	virtual void endJob() ;
 
 	const double vnlow_;
 	const double vnhigh_;
@@ -56,6 +54,5 @@ bool EvtPlaneFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 	if ( qn < vnlow_ || qn > vnhigh_ ) return false;
 	return true;
 }
-
 
 DEFINE_FWK_MODULE(EvtPlaneFilter);
