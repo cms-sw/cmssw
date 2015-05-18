@@ -58,7 +58,6 @@ process.p = cms.Path(
     process.pfMetT0rt +
     process.pfMetT0rtT1 +
     process.pfMetT0rtT1T2 +
-    process.pfMetT0rtT2 +
     process.pfMetT0pc +
     process.pfMetT0pcT1 +
     process.pfMetT1 +
@@ -66,7 +65,6 @@ process.p = cms.Path(
     process.pfMetT0rtTxy + 
     process.pfMetT0rtT1Txy + 
     process.pfMetT0rtT1T2Txy + 
-    process.pfMetT0rtT2Txy +
     process.pfMetT0pcTxy +
     process.pfMetT0pcT1Txy +
     process.pfMetT1Txy+ 
