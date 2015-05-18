@@ -1,5 +1,5 @@
-#ifndef HiEgammaAlgos_CxCalculator_h
-#define HiEgammaAlgos_CxCalculator_h
+#ifndef HiEgammaAlgos_EcalClusterIsoCalculator_h
+#define HiEgammaAlgos_EcalClusterIsoCalculator_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,16 +15,16 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
-class CxCalculator
+class EcalClusterIsoCalculator
 {
 public:
 
-  CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::BasicClusterCollection> barrel, const edm::Handle<reco::BasicClusterCollection> endcap);
+  EcalClusterIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::BasicClusterCollection> barrel, const edm::Handle<reco::BasicClusterCollection> endcap);
 
   /// Return the ecal cluster energy in a cone around the SC
-  double getCx(const reco::SuperClusterRef clus, const double i, const double threshold);
+  double getEcalClusterIso(const reco::SuperClusterRef clus, const double radius, const double threshold);
   /// Return the background-subtracted ecal cluster energy in a cone around the SC
-  double getCCx(const reco::SuperClusterRef clus, const double i, const double threshold); // background subtracted Cx
+  double getBkgSubEcalClusterIso(const reco::SuperClusterRef clus, const double radius, const double threshold);
 
 private:
 

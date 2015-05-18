@@ -15,7 +15,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
-#include "RecoHI/HiEgammaAlgos/interface/CxCalculator.h"
+#include "RecoHI/HiEgammaAlgos/interface/EcalClusterIsoCalculator.h"
 #include "RecoHI/HiEgammaAlgos/interface/RxCalculator.h"
 #include "RecoHI/HiEgammaAlgos/interface/TxCalculator.h"
 
@@ -93,7 +93,7 @@ photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::HIPhotonIsolationMap::Filler filler(*outputMap);
   std::vector<reco::HIPhotonIsolation> isoVector;
 
-  CxCalculator CxC(evt,es, barrelClusters, endcapClusters);
+  EcalClusterIsoCalculator CxC(evt,es, barrelClusters, endcapClusters);
   RxCalculator RxC(evt,es, hbhe, hf, ho);
   TxCalculator TxC(evt, es, trackCollection, trackQuality_);
   EcalClusterLazyTools lazyTool(evt, es, barrelEcalHits_, endcapEcalHits_);
@@ -102,11 +102,11 @@ photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   {
     reco::HIPhotonIsolation iso;
     // HI-style isolation info
-    iso.ecalClusterIsoR1(CxC.getCCx(phoItr->superCluster(),1,0));
-    iso.ecalClusterIsoR2(CxC.getCCx(phoItr->superCluster(),2,0));
-    iso.ecalClusterIsoR3(CxC.getCCx(phoItr->superCluster(),3,0));
-    iso.ecalClusterIsoR4(CxC.getCCx(phoItr->superCluster(),4,0));
-    iso.ecalClusterIsoR5(CxC.getCCx(phoItr->superCluster(),5,0));
+    iso.ecalClusterIsoR1(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(),1,0));
+    iso.ecalClusterIsoR2(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(),2,0));
+    iso.ecalClusterIsoR3(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(),3,0));
+    iso.ecalClusterIsoR4(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(),4,0));
+    iso.ecalClusterIsoR5(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(),5,0));
 
     iso.hcalRechitIsoR1(RxC.getCRx(phoItr->superCluster(),1,0));
     iso.hcalRechitIsoR2(RxC.getCRx(phoItr->superCluster(),2,0));

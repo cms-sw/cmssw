@@ -1,7 +1,7 @@
 // ROOT includes
 #include <Math/VectorUtil.h>
 
-#include "RecoHI/HiEgammaAlgos/interface/CxCalculator.h"
+#include "RecoHI/HiEgammaAlgos/interface/EcalClusterIsoCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -17,7 +17,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-CxCalculator::CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<BasicClusterCollection> pEBclusters, const edm::Handle<BasicClusterCollection> pEEclusters)
+EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<BasicClusterCollection> pEBclusters, const edm::Handle<BasicClusterCollection> pEEclusters)
 {
   if(pEBclusters.isValid())
      fEBclusters_ = pEBclusters.product();
@@ -37,7 +37,7 @@ CxCalculator::CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSet
      geometry_ = nullptr;
 }
 
-double CxCalculator::getCx(const reco::SuperClusterRef cluster, const double x, const double threshold)
+double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef cluster, const double x, const double threshold)
 {
    if(!fEBclusters_) {
       return -100;
@@ -90,7 +90,7 @@ double CxCalculator::getCx(const reco::SuperClusterRef cluster, const double x, 
    return TotalEt;
 }
 
-double CxCalculator::getCCx(const reco::SuperClusterRef cluster, const double x, double const threshold)
+double EcalClusterIsoCalculator::getBkgSubEcalClusterIso(const reco::SuperClusterRef cluster, const double x, double const threshold)
 {
    if(!fEBclusters_) {
       return -100;
@@ -134,7 +134,7 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, const double x,
       }
    }
 
-   double Cx = getCx(cluster,x,threshold);
+   double Cx = getEcalClusterIso(cluster,x,threshold);
    double CCx = (Cx - TotalEt / 40.0 * x) * (1/(1-x/40.));
 
    return CCx;
