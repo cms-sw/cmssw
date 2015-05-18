@@ -97,9 +97,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recTrackNum;
     MonitorElement *h1_recSeedNum;
     MonitorElement *h1_recOfflineVertices; 
-    MonitorElement *h2_EoEtrueVsrecOfflineVertices; // new 2015.15.05
-    MonitorElement *h2_EoEtrueVsrecOfflineVertices_barrel; // new 2015.15.05
-    MonitorElement *h2_EoEtrueVsrecOfflineVertices_endcaps; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps; // new 2015.15.05
 
     MonitorElement *h1_mc_Eta;
     MonitorElement *h1_mc_AbsEta;
@@ -239,6 +239,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_E5x5;
     MonitorElement *h1_scl_E5x5_barrel;
     MonitorElement *h1_scl_E5x5_endcaps;
+    MonitorElement *h1_scl_Etot; // new 2015.18.05
+    MonitorElement *h1_scl_Etot_barrel; // new 2015.18.05
+    MonitorElement *h1_scl_Etot_endcaps; // new 2015.18.05
 
     MonitorElement *h1_ele_ambiguousTracks;
     MonitorElement *h2_ele_ambiguousTracksVsEta;
