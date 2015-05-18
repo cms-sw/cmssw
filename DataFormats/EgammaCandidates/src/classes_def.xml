@@ -330,6 +330,7 @@
   </class>
   <class name="edm::Wrapper<reco::HIPhotonIsolation>"/>
   <class name="edm::ValueMap<reco::HIPhotonIsolation>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> >"/>
   <class name="std::vector<reco::HIPhotonIsolation>" />
   <class name="edm::Wrapper<std::vector<reco::HIPhotonIsolation> >" />
 
