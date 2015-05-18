@@ -47,6 +47,9 @@ void
    std::auto_ptr<reco::PFRecHitCollection> out(new reco::PFRecHitCollection );
    std::auto_ptr<reco::PFRecHitCollection> cleaned(new reco::PFRecHitCollection );
 
+   out->reserve( outputSizeGuess_.upper() );
+   cleaned->reserve( cleanedOutputSizeGuess_.upper() );
+
    navigator_->beginEvent(iSetup);
 
    for (unsigned int i=0;i<creators_.size();++i) {
@@ -74,6 +77,9 @@ void
        navigator_->associateNeighbours(outprod[i],out,refProd);
      }
    }
+
+   outputSizeGuess_.update( out->size() );
+   cleanedOutputSizeGuess_.update( cleaned->size() );
 
    iEvent.put(out,"");
    iEvent.put(cleaned,"Cleaned");
