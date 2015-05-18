@@ -78,6 +78,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     pReco.eta = itPF->eta();
     pReco.phi = itPF->phi();
     pReco.m   = itPF->mass();
+    pReco.rapidity = itPF->rapidity();
     pReco.charge = itPF->charge(); 
     const reco::Vertex *closestVtx = 0;
     double pDZ    = -9999; 

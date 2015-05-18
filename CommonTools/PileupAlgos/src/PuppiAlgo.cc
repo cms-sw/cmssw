@@ -154,49 +154,6 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
     // if(lAdjust > 0) fMedian[iAlgo] -= sqrt(ROOT::Math::chisquared_quantile(lAdjust,1.)*fRMS[iAlgo]);
 }
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-// void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
-//     if(iAlgo >= fNAlgos   ) return;
-//     if(fNCount[iAlgo] == 0) return;
-//     int lNBefore = 0;
-//     for(unsigned int i0 = 0; i0 < iAlgo; i0++) lNBefore += fNCount[i0];
-//     std::sort(fPups.begin()+lNBefore,fPups.begin()+lNBefore+fNCount[iAlgo]);
-//     double lCorr = 1.;
-//     //if(!fCharged[iAlgo] && fAdjust[iAlgo]) lCorr *= 1. - iPVFrac;
-//     if(fAdjust[iAlgo]) lCorr *= 1. - iPVFrac;
-//     int lNum0 = 0;
-//     for(int i0 = lNBefore; i0 < lNBefore+fNCount[iAlgo]; i0++) {
-//         if(fPups[i0] == 0) lNum0 = i0-lNBefore;
-//     }
-//     //lNum0 = 0;
-//     int lNHalfway = lNBefore + lNum0 + int( double( fNCount[iAlgo]-lNum0 )*0.50*lCorr);
-//     fMedian[iAlgo] = fPups[lNHalfway];
-//     double lMed = fMedian[iAlgo];  //Just to make the readability easier
-    
-//     int lNRMS = 0;
-//     for(int i0 = lNBefore; i0 < lNBefore+fNCount[iAlgo]; i0++) {
-//         fMean[iAlgo] += fPups[i0];
-//         if(fPups[i0] == 0) continue;
-//         if(!fCharged[iAlgo] && fAdjust[iAlgo] && fPups[i0] > lMed) continue;
-//         //if(fAdjust[iAlgo] && fPups[i0] > lMed) continue;
-//         lNRMS++;
-//         fRMS [iAlgo] += (fPups[i0]-lMed)*(fPups[i0]-lMed);
-//     }
-//     fMean[iAlgo]/=fNCount[iAlgo];
-//     if(lNRMS > 0) fRMS [iAlgo]/=lNRMS;
-//     if(fRMS[iAlgo] == 0) fRMS[iAlgo] = 1e-5;
-    
-//     fRMS [iAlgo] = sqrt(fRMS[iAlgo]);
-//     fRMS [iAlgo] *= fRMSScaleFactor[iAlgo];
-//     //if(!fCharged[iAlgo]) std::cout << " Process : " << iAlgo  << " Median : " << fMedian[iAlgo] << " +/- " << fRMS[iAlgo]  << " -- Begin : " << lNBefore << " -- Total :  " << fNCount[iAlgo] << " -- 50% " << lNHalfway  << " Fraction less than @ Median : " << std::endl;
-//     if(!fAdjust[iAlgo]) return;
-//     //Adjust the p-value to correspond to the median
-//     std::sort(fPupsPV.begin(),fPupsPV.end());
-//     int lNPV = 0; for(unsigned int i0 = 0; i0 < fPupsPV.size(); i0++) if(fPupsPV[i0] <= lMed ) lNPV++;
-//     double lAdjust = 1.5*double(lNPV)/double(fPupsPV.size()+fNCount[iAlgo]);
-//     if(lAdjust > 0) fMedian[iAlgo] -= sqrt(ROOT::Math::chisquared_quantile(lAdjust,1.)*fRMS[iAlgo]);
-// }
 
 //This code is probably a bit confusing
 double PuppiAlgo::compute(std::vector<double> const &iVals,double iChi2) const {

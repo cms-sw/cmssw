@@ -16,7 +16,7 @@ public:
   void   computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac);
   //Get the Weight
   double compute(std::vector<double> const &iVals,double iChi2) const;
-  std::vector<float> alphas(){ return fPups; }
+  const std::vector<float> alphas(){ return fPups; }
   //Helpers
   inline double ptMin() const { return fPtMin; }
   inline double etaMin() const { return fEtaMin; }
@@ -26,9 +26,9 @@ public:
   inline bool   isCharged  ( unsigned int iAlgo) const { return fCharged.at(iAlgo); }
   inline double coneSize  ( unsigned int iAlgo) const { return fConeSize.at(iAlgo); }
   inline double neutralPt  (int iNPV) const { return fNeutralPtMin + iNPV * fNeutralPtSlope; }
+
   std::vector<double> fRMS;
   std::vector<double> fMedian;
-
 
 private:  
   unsigned int   fNAlgos;
