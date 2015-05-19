@@ -28,6 +28,7 @@ RecoHiEgammaRECO = cms.PSet(
 
 RecoHiEgammaAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'keep floatedmValueMap_*_*_*'
+    'keep floatedmValueMap_*_*_*',
+    'keep recoGsfElectrons_gedGsfElectronsTmp_*_*'
     )
     )
