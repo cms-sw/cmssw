@@ -144,7 +144,6 @@ HLTMuonValidator::stepLabels(const vector<string>& modules) {
                 steps.push_back("TkHcalIso");
         }
         else if (modules[i].find("TkFiltered") != string::npos){
-            steps.push_back("TkL2");
             steps.push_back("Tk");
         }
         else if (modules[i].find("L3") != string::npos)
