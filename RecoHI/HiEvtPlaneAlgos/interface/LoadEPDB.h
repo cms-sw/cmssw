@@ -1,5 +1,5 @@
-#ifndef __LoadEPDB__
-#define __LoadEPDB__
+#ifndef RecoHI_HiEvtPlaneAlgos_LoadEPDB_h
+#define RecoHI_HiEvtPlaneAlgos_LoadEPDB_h
 
 // system include files
 #include <memory>
@@ -21,25 +21,25 @@
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
-#include "TMath.h"
 #include <vector>
+
 using namespace hi;
 
 class LoadEPDB {
  public:
-  
+
   explicit LoadEPDB(edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten ** flat)
   {
     int Hbins;
     int Obins;
     int flatTableSize = flatparmsDB_->m_table.size();
     genFlatPsi_ = kTRUE;
-    if(flatTableSize<flat[0]->GetHBins()+2*flat[0]->GetOBins()) {
+    if(flatTableSize<flat[0]->getHBins()+2*flat[0]->getOBins()) {
       genFlatPsi_ = kFALSE;
     } else {
-      Hbins = flat[0]->GetHBins();
-      Obins = flat[0]->GetOBins();
-      
+      Hbins = flat[0]->getHBins();
+      Obins = flat[0]->getOBins();
+
       for(int i = 0; i<flatTableSize; i++) {
 	const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
 	for(int j = 0; j<NumEPNames; j++) {
@@ -50,16 +50,16 @@ class LoadEPDB {
 	  }
 	  if(indx>=0) {
 	    if(i<Hbins) {
-	      flat[indx]->SetXDB(i, thisBin->x[j]);
-	      flat[indx]->SetYDB(i, thisBin->y[j]);
+	      flat[indx]->setXDB(i, thisBin->x[j]);
+	      flat[indx]->setYDB(i, thisBin->y[j]);
 	    } else if(i>=Hbins && i<Hbins+Obins) {
-	      flat[indx]->SetXoffDB(i - Hbins, thisBin->x[j]);
-	      flat[indx]->SetYoffDB(i - Hbins, thisBin->y[j]);
-	      
+	      flat[indx]->setXoffDB(i - Hbins, thisBin->x[j]);
+	      flat[indx]->setYoffDB(i - Hbins, thisBin->y[j]);
+
 	    } else if (i>=Hbins+Obins && i<Hbins+2*Obins) {
-	      flat[indx]->SetPtDB(i - Hbins- Obins, thisBin->x[j]);
-	      flat[indx]->SetPt2DB(i - Hbins- Obins, thisBin->y[j]);
-	    } 
+	      flat[indx]->setPtDB(i - Hbins- Obins, thisBin->x[j]);
+	      flat[indx]->setPt2DB(i - Hbins- Obins, thisBin->y[j]);
+	    }
 	  }
 	}
       }
@@ -72,44 +72,43 @@ class LoadEPDB {
 	for(int j = 0; j< ncentbins; j++) {
 	  const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[Hbins+2*Obins +cbins+j+1]);
 	  if(fabs(centbinning-1.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes1(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes1(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-2.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes2(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes2(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-5.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes5(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes5(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-10.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes10(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes10(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-20.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes20(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes20(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-25.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes25(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes25(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-30.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes30(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes30(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-40.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->SetCentRes40(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes40(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	}
 
-	cbins+=ncentbins+1;	
+	cbins+=ncentbins+1;
       }
-      
+
     }
-    
+
   }
-  
-  bool genFlatPsi_;
+
   bool IsSuccess(){return genFlatPsi_;}
-  
   ~LoadEPDB(){}
-  
+
  private:
+  bool genFlatPsi_;
 
 };
 

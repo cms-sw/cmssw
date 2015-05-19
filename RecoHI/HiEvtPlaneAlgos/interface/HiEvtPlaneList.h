@@ -34,7 +34,7 @@ Index     Name   Detector Order hmin1 hmax1 hmin2 hmax2 minpt maxpt nsub mcw    
    29 Castor1mc    Castor     1 -6.55 -5.10  0.00  0.00  0.01 50.00 3sub yes    HFp1mc trackp1mc
 */
 #include <string>
-using namespace std;
+
 namespace hi{
 
   enum EPNamesInd {

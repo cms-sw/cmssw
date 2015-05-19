@@ -8,7 +8,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,22 +17,17 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
-#include <iostream>
-
-class EvtPlaneFilter : public edm::EDFilter {
+class EvtPlaneFilter : public edm::stream::EDFilter<> {
 public:
 	explicit EvtPlaneFilter(const edm::ParameterSet&);
 	~EvtPlaneFilter();
 private:
-	virtual void beginJob();
-	virtual bool filter(edm::Event&, const edm::EventSetup&);
-	virtual void endJob() ;
+	virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
-	double vnlow_;
-	double vnhigh_;
-	int epidx_;
-	int eplvl_;
-	edm::Handle<reco::EvtPlaneCollection> ep_;
+	const double vnlow_;
+	const double vnhigh_;
+	const int epidx_;
+	const int eplvl_;
 	edm::EDGetTokenT<reco::EvtPlaneCollection> tag_;
 };
 
@@ -53,23 +48,11 @@ EvtPlaneFilter::~EvtPlaneFilter()
 
 bool EvtPlaneFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 {
+	edm::Handle<reco::EvtPlaneCollection> ep_;
 	evt.getByToken(tag_, ep_);
 	double qn = (*ep_)[epidx_].vn(eplvl_);
 	if ( qn < vnlow_ || qn > vnhigh_ ) return false;
 	return true;
-}
-
-
-
-void EvtPlaneFilter::beginJob()
-{
-	return;
-}
-
-
-void EvtPlaneFilter::endJob()
-{
-	return;
 }
 
 DEFINE_FWK_MODULE(EvtPlaneFilter);

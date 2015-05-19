@@ -1,31 +1,3 @@
-// //
-// // $Id: EvtPlane.cc,v 1.4 2009/09/08 12:33:12 edwenger Exp $
-// //
-// 
-// #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
-// 
-// using namespace reco;
-// 
-// EvtPlane::EvtPlane(double planeA, std::string label)
-//   : 
-//    angle_(planeA),
-//    label_(label)
-// {
-//   // default constructor
-// }
-// 
-// 
-// EvtPlane::~EvtPlane()
-// {
-// }
-// 
-// 
-
-
-//
-// $Id: EvtPlane.cc,v 1.4 2009/09/08 12:33:12 edwenger Exp $
-//
-
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
 using namespace reco;
@@ -39,14 +11,12 @@ EvtPlane::EvtPlane(int epindx, int level, double planeA,double sumSin, double su
    sumPtOrEt2_(sumPtOrEt2),
    mult_(mult)
 {
+	for ( int i = 0; i < 4; ++i ) {
+		angle_[i] = sumSin_[i] = sumCos_[i] = -10;
+	}
   angle_[level] = planeA;
   sumSin_[level] = sumSin;
   sumCos_[level] = sumCos;
-  if(level<2) {
-    angle_[2] = planeA;
-    sumSin_[2] = sumSin;
-    sumCos_[2] = sumCos;
-  }
   // default constructor
 }
 void EvtPlane::AddLevel(int level, double ang, double sumsin, double sumcos) {
