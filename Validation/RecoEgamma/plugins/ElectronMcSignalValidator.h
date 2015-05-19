@@ -239,9 +239,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_E5x5;
     MonitorElement *h1_scl_E5x5_barrel;
     MonitorElement *h1_scl_E5x5_endcaps;
-    MonitorElement *h1_scl_Etot; // new 2015.18.05
-    MonitorElement *h1_scl_Etot_barrel; // new 2015.18.05
-    MonitorElement *h1_scl_Etot_endcaps; // new 2015.18.05
+    MonitorElement *h1_scl_bcl_EtotoEtrue; // new 2015.18.05
+    MonitorElement *h1_scl_bcl_EtotoEtrue_barrel; // new 2015.18.05
+    MonitorElement *h1_scl_bcl_EtotoEtrue_endcaps; // new 2015.18.05
 
     MonitorElement *h1_ele_ambiguousTracks;
     MonitorElement *h2_ele_ambiguousTracksVsEta;
