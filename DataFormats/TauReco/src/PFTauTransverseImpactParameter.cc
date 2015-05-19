@@ -4,20 +4,28 @@
 #include "TVectorT.h"
 using namespace reco;
 
-PFTauTransverseImpactParameter::PFTauTransverseImpactParameter(const Point& pca, double thedxy, double thedxy_error, const VertexRef& PV)
+PFTauTransverseImpactParameter::PFTauTransverseImpactParameter(const Point& pca, double thedxy, double thedxy_error, 
+							       const Point& pca3d, double theip3d, double theip3d_error, const VertexRef& PV)
   : pca_(pca),
     dxy_(thedxy),
     dxy_error_(thedxy_error),
+    pca3d_(pca3d),
+    ip3d_(theip3d),
+    ip3d_error_(theip3d_error),
     PV_(PV),
     hasSV_(false),
     FlightLengthSig_(0.)
 {}
 
-PFTauTransverseImpactParameter::PFTauTransverseImpactParameter(const Point& pca, double thedxy, double thedxy_error, const VertexRef& PV,
+PFTauTransverseImpactParameter::PFTauTransverseImpactParameter(const Point& pca, double thedxy, double thedxy_error, 
+							       const Point& pca3d, double theip3d, double theip3d_error, const VertexRef& PV,
 							       const Point& theFlightLength, double theFlightLengthSig, const VertexRef& SV)
   : pca_(pca),
     dxy_(thedxy),
     dxy_error_(thedxy_error),
+    pca3d_(pca3d),
+    ip3d_(theip3d),
+    ip3d_error_(theip3d_error),
     PV_(PV),
     hasSV_(true),
     FlightLength_(theFlightLength),
