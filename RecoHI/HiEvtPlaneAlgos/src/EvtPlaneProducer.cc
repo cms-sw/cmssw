@@ -285,7 +285,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace reco;
 
-  if( (hiWatcher.check(iSetup) || hirpWatcher.check(iSetup)) && loadDB_ ) {
+  if( loadDB_ && (hiWatcher.check(iSetup) || hirpWatcher.check(iSetup)) ) {
     //
     //Get Size of Centrality Table
     //
