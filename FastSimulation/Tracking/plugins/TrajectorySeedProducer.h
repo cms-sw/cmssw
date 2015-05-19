@@ -23,6 +23,7 @@
 	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -32,6 +33,7 @@ class MagneticField;
 class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
+class MeasurementTrackerEvent;
 
 class TrajectorySeedProducer:
     public edm::stream::EDProducer<>
@@ -54,11 +56,12 @@ class TrajectorySeedProducer:
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;
 
-        double originRadius;
-        double ptMin;
-        double originHalfLength;
-        double nSigmaZ;
-        
+        double originRadius = -1;
+        double ptMin = -1;
+        double originHalfLength = -1;
+        double nSigmaZ = -1;
+        double useregions;
+	double useregionsTest;
         bool testBeamspotCompatibility;
         const reco::BeamSpot* beamSpot;
         bool testPrimaryVertexCompatibility;
@@ -182,6 +185,9 @@ class TrajectorySeedProducer:
             bool forward
     ) const;
 
+    // lv
+    bool testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
+    
     //! method inserts hit into the tree structure at an empty position. 
     /*!
     \param trackerRecHits list of all TrackerRecHits.
@@ -196,8 +202,14 @@ class TrajectorySeedProducer:
             const SeedingNode<TrackingLayer>* node, 
             unsigned int trackerHit
     ) const;
-
-
+    
+    // lv
+    typedef std::vector<TrackingRegion* > Regions;
+    Regions regions;
+    std::unique_ptr<TrackingRegionProducer> theRegionProducer;
+    edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken;
+    const MeasurementTrackerEvent * measurementTrackerEvent;
+    const edm::EventSetup * es_;
 };
 
 #endif

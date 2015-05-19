@@ -12,10 +12,9 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
         maxZ0 = -1,
         ),
     minLayersCrossed = 3,
-    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
-    ptMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value()
+    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
     )
 
 # track candidates
@@ -38,17 +37,6 @@ firstStepPrimaryVerticesBeforeMixing =  RecoTracker.IterativeTracking.InitialSte
 initialStepSelector = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone()
 initialStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStep.clone()
-"""
-import FastSimulation.Tracking.SimTrackIdProducer_cfi
-initialStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
-                                    TrackQuality = cms.string('highPurity'),
-                                    maxChi2 = cms.double(9.0),
-                                    trackCollection = cms.InputTag("initialStepTracks"),
-#                                    overrideTrkQuals = cms.InputTag(''),
-                                    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                    
-                                    )
-"""
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeeds
                            +initialStepTrackCandidates
@@ -56,6 +44,5 @@ InitialStep = cms.Sequence(initialStepSeeds
                            +firstStepPrimaryVerticesBeforeMixing
                            +initialStepSelector
                            +initialStep
-   #                        +initialStepSimTrackIds
                            )
 
