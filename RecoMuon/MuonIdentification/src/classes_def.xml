@@ -1,5 +1,5 @@
 <lcgdict>  
-  <class name="VersionedMuonSelector"/>
+  <class name="VersionedSelector<*>"/>
   <class pattern="MakeVersionedSelector<*>"/>
   <class pattern="PrintVIDToString<*>"/>
   <class pattern="MakePtrFromCollection<*>"/>

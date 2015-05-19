@@ -145,8 +145,13 @@ cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             '6f3169e50d62b99e2af34106a19e6321')
+                             '9f25ec6d5ddf7e695861cf52d104cd04')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             'ffc5f3a5144a8024e5b74a195bbcfe73')
+                             '131baefca9b0cefc35d6ffb703b3d7ef')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             'a2b9b998a751b1c721db67865f665af0')
+                             'f326baead97d851db741505c99357510')
+
+#for now until we have a database...
+cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight.isPOGApproved = cms.untracked.bool(True)
