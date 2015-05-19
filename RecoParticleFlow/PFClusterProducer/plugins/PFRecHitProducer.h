@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Utilities/interface/RunningAverage.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
@@ -30,6 +31,8 @@ class PFRecHitProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
       std::unique_ptr<PFRecHitNavigatorBase> navigator_;
+      edm::RunningAverage outputSizeGuess_; ///< Use this to try and accurately reserve space for the output
+      edm::RunningAverage cleanedOutputSizeGuess_; ///< Use this to try and accurately reserve space for the output
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
