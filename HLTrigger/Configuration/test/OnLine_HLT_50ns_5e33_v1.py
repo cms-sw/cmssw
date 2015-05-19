@@ -51213,7 +51213,6 @@ _customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "auto:run2_hlt_50ns_5e33_v1"
 _customInfo['inputFile' ]=  ['file:RelVal_Raw_50ns_5e33_v1_DATA.root']
 _customInfo['realData'  ]=  True
-_customInfo['fastSim'   ]=  False
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,_customInfo)
 
