@@ -47,7 +47,7 @@ public:
   virtual void endJob();
 
 private:
-  bool select (reco::PhotonCollection, reco::PFJetCollection);                                             
+  bool select(const reco::PhotonCollection&, const reco::PFJetCollection&);
 
   // ----------member data ---------------------------
   
@@ -104,9 +104,9 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig) : n
   tok_loosePhoton_ = consumes<edm::ValueMap<Bool_t> >(labelLoosePhot_);
   tok_tightPhoton_ = consumes<edm::ValueMap<Bool_t> >(labelTightPhot_);
   tok_GsfElec_ = consumes<reco::GsfElectronCollection>(labelGsfEle_);
-  tok_Rho_     = consumes<double>(labelRho_);
-  tok_Conv_    = consumes<reco::ConversionCollection>(labelConv_);
-  tok_BS_      = consumes<reco::BeamSpot>(labelBeamSpot_);
+  tok_Rho_ = consumes<double>(labelRho_);
+  tok_Conv_        = consumes<reco::ConversionCollection>(labelConv_);
+  tok_BS_          = consumes<reco::BeamSpot>(labelBeamSpot_);
 
   // register your products
   produces<reco::PhotonCollection>(labelPhoton_.encode());
@@ -135,13 +135,24 @@ void AlCaGammaJetProducer::endJob() {
   edm::LogInfo("AlcaGammaJet") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
 }
 
-bool AlCaGammaJetProducer::select (reco::PhotonCollection ph, reco::PFJetCollection jt) {
- 
-  if (jt.size()<1) return false;
-  if (ph.size()<1) return false;
-  if (((jt.at(0)).pt())<minPtJet_)    return false;
-  if (((ph.at(0)).pt())<minPtPhoton_) return false;
-  return true;
+bool AlCaGammaJetProducer::select (const reco::PhotonCollection &ph, const reco::PFJetCollection &jt) {
+
+  // Check the requirement for minimum pT
+  if (ph.size() == 0) return false;
+  bool ok(false);
+  for (reco::PFJetCollection::const_iterator itr=jt.begin();
+       itr!=jt.end(); ++itr) {
+    if (itr->pt() >= minPtJet_) {
+      ok = true;
+      break;
+    }
+  }
+  if (!ok) return ok;
+  for (reco::PhotonCollection::const_iterator itr=ph.begin();
+       itr!=ph.end(); ++itr) {
+    if (itr->pt() >= minPtPhoton_) return ok;
+  }
+  return false;
 }
 // ------------ method called to produce the data  ------------
 void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -275,6 +286,7 @@ void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   std::auto_ptr<std::vector<Bool_t> > miniLoosePhoton(new std::vector<Bool_t>());
   std::auto_ptr<std::vector<Bool_t> > miniTightPhoton(new std::vector<Bool_t>());
 
+
   // See if this event is useful
   bool accept = select(photon, pfjets);
   if (accept) {
@@ -354,24 +366,24 @@ void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	}
       }
     }
-
-    //Put them in the event
-    iEvent.put( miniPhotonCollection,      labelPhoton_.encode());
-    iEvent.put( miniPFjetCollection,       labelPFJet_.encode());
-    iEvent.put( miniHBHECollection,        labelHBHE_.encode());
-    iEvent.put( miniHFCollection,          labelHF_.encode());
-    iEvent.put( miniHOCollection,          labelHO_.encode());
-    iEvent.put( miniTriggerCollection,     labelTrigger_.encode());
-    iEvent.put( miniPFCandCollection,      labelPFCandidate_.encode());
-    iEvent.put( miniVtxCollection,         labelVertex_.encode());
-    iEvent.put( miniPFMETCollection,       labelPFMET_.encode());
-    iEvent.put( miniGSFeleCollection,      labelGsfEle_.encode());
-    iEvent.put( miniRhoCollection,         labelRho_.encode());
-    iEvent.put( miniConversionCollection,  labelConv_.encode());
-    iEvent.put( miniBeamSpotCollection,    labelBeamSpot_.encode());
-    iEvent.put( miniLoosePhoton,           labelLoosePhot_.encode());
-    iEvent.put( miniTightPhoton,           labelTightPhot_.encode());
   }
+
+  //Put them in the event
+  iEvent.put( miniPhotonCollection,      labelPhoton_.encode());
+  iEvent.put( miniPFjetCollection,       labelPFJet_.encode());
+  iEvent.put( miniHBHECollection,        labelHBHE_.encode());
+  iEvent.put( miniHFCollection,          labelHF_.encode());
+  iEvent.put( miniHOCollection,          labelHO_.encode());
+  iEvent.put( miniTriggerCollection,     labelTrigger_.encode());
+  iEvent.put( miniPFCandCollection,      labelPFCandidate_.encode());
+  iEvent.put( miniVtxCollection,         labelVertex_.encode());
+  iEvent.put( miniPFMETCollection,       labelPFMET_.encode());
+  iEvent.put( miniGSFeleCollection,      labelGsfEle_.encode());
+  iEvent.put( miniRhoCollection,         labelRho_.encode());
+  iEvent.put( miniConversionCollection,  labelConv_.encode());
+  iEvent.put( miniBeamSpotCollection,    labelBeamSpot_.encode());
+  iEvent.put( miniLoosePhoton,           labelLoosePhot_.encode());
+  iEvent.put( miniTightPhoton,           labelTightPhot_.encode());
 
   return;
 
