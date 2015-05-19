@@ -8,7 +8,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -23,7 +23,7 @@
 
 
 
-class VIDUsageExample : public edm::EDAnalyzer {
+class VIDUsageExample : public edm::stream::EDAnalyzer<> {
 
 private:
   //we want this to work on mini-aod and aod, this means we dont know if we are getting
@@ -42,9 +42,9 @@ public:
   explicit VIDUsageExample(const edm::ParameterSet& para);
   ~VIDUsageExample(){}
   
-  virtual void analyze(const edm::Event& event,const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event,const edm::EventSetup& setup) override;
  
-  void endJob(){std::cout <<"nrPass "<<nrPassID_<<" nrFail "<<nrFailID_<<" (note this is all \"electrons\" so is not the ID efficiency)"<<std::endl;}
+  void endJob() override {std::cout <<"nrPass "<<nrPassID_<<" nrFail "<<nrFailID_<<" (note this is all \"electrons\" so is not the ID efficiency)"<<std::endl;}
  
 };
 
