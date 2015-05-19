@@ -12,8 +12,9 @@ namespace {
 
 // Decodes the pixel name from the cmssw DetID, uses tracker topology
 PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bool phase)
-  : PixelModuleName(false), phase1(phase)
-{
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0), phase1(phase) {
+
 
   //PXFDetId cmssw_numbering(id);
   int side     = tt->pxfSide(id);
@@ -94,8 +95,9 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bo
 
 // Decodes the pixel name from the cmssw DetID, uses old pixel name classes
 PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
-  : PixelModuleName(false), phase1(phase)
-{
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0), phase1(phase) {
+
   PXFDetId cmssw_numbering(id);
   int side = cmssw_numbering.side();
   int tmpBlade = cmssw_numbering.blade();
