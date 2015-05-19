@@ -30,10 +30,6 @@ Monitoring source for general quantities related to track dEdx.
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
 
 
-
-
-
-class DQMStore;
 class GenericTriggerEventFlag;
 
 class dEdxHitAnalyzer : public DQMEDAnalyzer {
@@ -43,21 +39,13 @@ class dEdxHitAnalyzer : public DQMEDAnalyzer {
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
-  virtual void beginJob();
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void endJob() ;
-
   double harmonic2(const reco::DeDxHitInfo* dedxHits);
-  
-  //  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
   
  private:
   // ----------member data ---------------------------
-  DQMStore * dqmStore_;
   edm::ParameterSet fullconf_;
   edm::ParameterSet conf_;
   
@@ -91,5 +79,23 @@ class dEdxHitAnalyzer : public DQMEDAnalyzer {
   std::string histname;  //for naming the histograms according to algorithm used
   
   GenericTriggerEventFlag* genTriggerEventFlag_;
-  
+
+
+  std::string MEFolderName; 
+
+  int    dEdxNHitBin;
+  double dEdxNHitMin;
+  double dEdxNHitMax;
+
+  int    dEdxStripBin;
+  double dEdxStripMin;
+  double dEdxStripMax;
+
+  int    dEdxPixelBin;
+  double dEdxPixelMin;
+  double dEdxPixelMax;
+
+  int    dEdxHarm2Bin;
+  double dEdxHarm2Min;
+  double dEdxHarm2Max;
 };
