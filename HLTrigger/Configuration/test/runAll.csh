@@ -17,7 +17,7 @@ foreach gtag ( Data Mc )
   foreach table ( FULL GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
     set oldfile = OnLine_HLT_${table}.py
     set newfile = OnLine_HLT_${table}_${GTAG}.py
-    ln -s $oldfile $newfile
+#   ln -s $oldfile $newfile
   end
 end
 
