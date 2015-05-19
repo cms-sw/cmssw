@@ -129,5 +129,15 @@ hbheprereco = cms.EDProducer(
     ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
     ts345chi2             = cms.double(100.), #chi2 (not used)
     chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
-    fitTimes              = cms.int32(1)       # -1 means no constraint on number of fits per channel
+    fitTimes              = cms.int32(1),       # -1 means no constraint on number of fits per channel
+    # add some of the Method 3 parameters here
+    pedestalSubtractionType = cms.int32(1),
+    pedestalUpperLimit      = cms.double(2.7),
+    timeSlewParsType        = cms.int32(3), # 0: TestStand, 1:Data, 2:MC, 3:InputPars
+    timeSlewParHB0	    = cms.double(9.27638), # Parametrization function is par0 + par1*log(fC) 
+    timeSlewParHB1	    = cms.double(-2.05585), # Default value is par0 = 9.27638, par1 = -2.05585.
+    timeSlewParBE0          = cms.double(9.27638), 
+    timeSlewParBE1          = cms.double(-2.05585),
+    timeSlewParHE0          = cms.double(9.27638),
+    timeSlewParHE1          = cms.double(-2.05585)
     )

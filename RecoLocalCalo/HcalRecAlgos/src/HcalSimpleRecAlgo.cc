@@ -69,6 +69,12 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
 }
 
+void HcalSimpleRecAlgo::setMeth3Params(int iPedSubMethod, float iPedSubThreshold, int iTimeSlewParsType, double iTimeSlewParHB0, double iTimeSlewParHB1, double iTimeSlewParBE0, double iTimeSlewParBE1, double iTimeSlewParHE0, double iTimeSlewParHE1) {
+
+  pedSubFxn_->init(((PedestalSub::Method)iPedSubMethod), 0, iPedSubThreshold, 0.0);
+  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2, *pedSubFxn_, iTimeSlewParHB0, iTimeSlewParHB1, iTimeSlewParBE0, iTimeSlewParBE1, iTimeSlewParHE0, iTimeSlewParHE1);
+}
+
 void HcalSimpleRecAlgo::setForData (int runnum) { 
    runnum_ = runnum;
    if( puCorrMethod_ ==2 ){
@@ -352,7 +358,7 @@ namespace HcalSimpleRecAlgoImpl {
       time=time-calibs.timecorr(); // time calibration
     }
 
-// Note that uncorr_ampl is always set from outside of method 2!
+    // Note that uncorr_ampl is always set from outside of method 2!
     if( puCorrMethod == 2 ){
        std::vector<double> correctedOutput;
 
@@ -363,20 +369,16 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-      //if(cs[4]-calibs.pedestal(capidvec[4])+cs[5]-calibs.pedestal(capidvec[4]) > 5){
-        psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
-        if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
-          time = correctedOutput[1]; ampl = correctedOutput[0];
-        }
-     // } else {time = -999; ampl = 0;}
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
+      if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
+	time = correctedOutput[1]; ampl = correctedOutput[0];
+      }
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
     // Turn on HLT here with puCorrMethod = 3
     if ( puCorrMethod == 3){
       std::vector<double> hltCorrOutput;
-      hltPedSub->init(((PedestalSub::Method)1), 0, 2.7, 0.0);
-      hltOOTpuCorr->init((HcalTimeSlew::ParaSource)2, HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2, *hltPedSub);
       
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -385,12 +387,10 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-     // if(cs[4]-calibs.pedestal(capidvec[4])+cs[5]-calibs.pedestal(capidvec[4]) > 5){
-        hltOOTpuCorr->apply(cs, capidvec, calibs, hltCorrOutput);
-        if( hltCorrOutput.size() > 1 ){
-          time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
-        }
-      //} else {time = -999; ampl = 0;}
+      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, hltCorrOutput);
+      if( hltCorrOutput.size() > 1 ){
+	time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
+      }
     }
 
     // Temporary hack to apply energy-dependent corrections to some HB- cells

@@ -270,6 +270,20 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
                           conf.getParameter<int>   ("fitTimes")
 			  );
   }
+  if(puCorrMethod_ == 3) {
+    reco_.setMeth3Params(
+              conf.getParameter<int>     ("pedestalSubtractionType"),
+              conf.getParameter<double>  ("pedestalUpperLimit"),
+              conf.getParameter<int>     ("timeSlewParsType"),
+              conf.getParameter<double>  ("timeSlewParHB0"),
+              conf.getParameter<double>  ("timeSlewParHB1"),
+              conf.getParameter<double>  ("timeSlewParBE0"),
+              conf.getParameter<double>  ("timeSlewParBE1"),
+              conf.getParameter<double>  ("timeSlewParHE0"),
+              conf.getParameter<double>  ("timeSlewParHE1")
+              );
+  }
+
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {

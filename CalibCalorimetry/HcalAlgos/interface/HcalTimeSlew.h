@@ -17,14 +17,14 @@
   */
 class HcalTimeSlew {
  public:
-  enum ParaSource { TestStand=0, Data=1, MC=2, MCShift=3 };
+  enum ParaSource { TestStand=0, Data=1, MC=2, InputPars=3 };
   enum BiasSetting { Slow=0, Medium=1, Fast=2 };
   
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
   static double delay(double fC, BiasSetting bias=Medium);
-  static double delay(double fC, ParaSource source=TestStand, BiasSetting bias=Medium);
+  static double delay(double fC, ParaSource source=TestStand, BiasSetting bias=Medium, double par0=9.27638, double par1=-2.05585);
 };
 
 #endif

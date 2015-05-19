@@ -7,10 +7,18 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HODataFrame.h"
+#include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
+#include "TMath.h"
 
 
 class HcalDeterministicFit {
@@ -19,25 +27,20 @@ class HcalDeterministicFit {
   HcalDeterministicFit();
   ~HcalDeterministicFit();
 
-  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_);
+  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_, double parhb0, double parhb1, double parbe0, double parbe1, double parhe0, double parhe1);
 
   // This is the CMSSW Implementation of the apply function
-  void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & HLTOutput) const;
-  // This is the edited implementation for our standalone test code
-  void applyXM(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, std::vector<double> & HLTOutput) const;
-  //void apply(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, std::vector<double> & HLTOutput) const;
+  template<class Digi>
+  void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, std::vector<double> & HLTOutput) const;
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
-
-  //void SolveEquations(double *TS, double *par, double *fit) const;
-  double det2(double *b, double *c) const;
-  double det3(double *a, double *b, double *c) const;
-  void pulseFraction(const double fC, double *TS46) const;
 
  private:
   HcalTimeSlew::ParaSource fTimeSlew;
   HcalTimeSlew::BiasSetting fTimeSlewBias;
   NegStrategy fNegStrat;
   PedestalSub fPedestalSubFxn_;
+
+  double fparhb0, fparhb1, fparbe0, fparbe1, fparhe0, fparhe1;
   
   static constexpr float landauFrac[] {0, 7.6377e-05, 0.000418655, 0.00153692, 0.00436844, 0.0102076, 
   0.0204177, 0.0360559, 0.057596, 0.0848493, 0.117069, 0.153152, 0.191858, 0.23198, 0.272461, 0.312438, 
@@ -61,5 +64,110 @@ class HcalDeterministicFit {
   static constexpr double TS6par[] = {0.06391, 0.002737, 8.396e-05, 1.475e-06};// pol3 parameters for the TS6 fraction   
   
 };
+
+template<class Digi>
+void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, std::vector<double> & HLTOutput) const {
+  std::vector<double> corrCharge;
+  std::vector<double> inputCharge;
+  std::vector<double> inputPedestal;
+  const unsigned int cssize = cs.size();
+  double gainCorr = 0;
+  for(unsigned int ip=0; ip<cssize; ++ip){
+    if( ip >= (unsigned) 10 ) continue; // Too many samples than what we wanna fit (10 is enough...) -> skip them
+    const int capid = capidvec[ip];
+    double charge = cs[ip];
+    double ped = calibs.pedestal(capid);
+    double gain = calibs.respcorrgain(capid);
+    gainCorr = gain;
+    inputCharge.push_back(charge);
+    inputPedestal.push_back(ped);
+  }
+
+  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, corrCharge);
+
+  const HcalDetId& cell = digi.id();
+  double fpar0, fpar1;
+  if(TMath::Abs(cell.ieta())<16){
+    fpar0 = fparhb0;
+    fpar1 = fparhb1;
+  }else if(TMath::Abs(cell.ieta())==16||TMath::Abs(cell.ieta())==17){
+    fpar0 = fparbe0;
+    fpar1 = fparbe1;
+  }else{
+    fpar0 = fparhe0;
+    fpar1 = fparhe1;
+  }
+
+  float tsShift3=HcalTimeSlew::delay(inputCharge[3],fTimeSlew,fTimeSlewBias, fpar0, fpar1);
+  float tsShift4=HcalTimeSlew::delay(inputCharge[4],fTimeSlew,fTimeSlewBias, fpar0, fpar1);
+  float tsShift5=HcalTimeSlew::delay(inputCharge[5],fTimeSlew,fTimeSlewBias, fpar0, fpar1);
+
+  float i3=0;
+  getLandauFrac(-tsShift3,-tsShift3+25,i3);
+  float n3=0;
+  getLandauFrac(-tsShift3+25,-tsShift3+50,n3);
+  float nn3=0;
+  getLandauFrac(-tsShift3+50,-tsShift3+75,nn3);
+
+  float i4=0;
+  getLandauFrac(-tsShift4,-tsShift4+25,i4);
+  float n4=0;
+  getLandauFrac(-tsShift4+25,-tsShift4+50,n4);
+
+  float i5=0;
+  getLandauFrac(-tsShift5,-tsShift5+25,i5);
+  float n5=0;
+  getLandauFrac(-tsShift5+25,-tsShift5+50,n5);
+
+  float ch3=corrCharge[3]/i3;
+  float ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
+  float ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+
+  if (ch3<-3 && fNegStrat==HcalDeterministicFit::ReqPos) {
+    ch3=-3;
+    ch4=corrCharge[4]/i4;
+    ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+  }
+
+  if (ch5<-3 && fNegStrat==HcalDeterministicFit::ReqPos) {
+    ch4=ch4+(ch5+3);
+    ch5=-3;
+  }
+
+  if (fNegStrat==HcalDeterministicFit::FromGreg) {
+    if (ch3<-3) {
+      ch3=-3;
+      ch4=corrCharge[4]/i4;
+      ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+    }
+    if (ch5<-3 && ch4>15) {
+      double ratio = (corrCharge[4]-ch3*i3)/(corrCharge[5]+3*i5);
+      if (ratio < 5 && ratio > 0.5) {
+        double invG = -13.11+11.29*TMath::Sqrt(2*TMath::Log(5.133/ratio));
+        float iG=0;
+        getLandauFrac(-invG,-invG+25,iG);
+        ch4=(corrCharge[4]-ch3*n3)/(iG);
+        ch5=-3;
+        tsShift4=invG;
+      }
+    }
+  }
+
+  if (ch3<1) {// && (fNegStrat==HcalDeterministicFit::ReqPos || fNegStrat==HcalDeterministicFit::FromGreg)) {
+    ch3=0;
+  }
+  if (ch4<1) {// && (fNegStrat==HcalDeterministicFit::ReqPos || fNegStrat==HcalDeterministicFit::FromGreg)) {
+    ch4=0;
+  }
+  if (ch5<1) {// && (fNegStrat==HcalDeterministicFit::ReqPos || fNegStrat==HcalDeterministicFit::FromGreg)) {
+    ch5=0;
+  }
+  HLTOutput.clear();
+  HLTOutput.push_back(ch4*gainCorr);// amplitude 
+  HLTOutput.push_back(tsShift4); // time shift of in-time pulse
+  HLTOutput.push_back(ch5); // whatever
+
+}
+
 
 #endif // HLTAnalyzer_h
