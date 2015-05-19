@@ -1,5 +1,6 @@
 import sys
 import math
+import array
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -389,6 +390,17 @@ class FrameRatio:
         self._pad.cd()
         self._pad.Pop() # Move the first pad on top
 
+def _copyStyle(src, dst):
+    properties = []
+    if hasattr(src, "GetLineColor") and hasattr(dst, "SetLineColor"):
+        properties.extend(["LineColor", "LineStyle", "LineWidth"])
+    if hasattr(src, "GetFillColor") and hasattr(dst, "SetFillColor"):
+        properties.extend(["FillColor", "FillStyle"])
+    if hasattr(src, "GetMarkerColor") and hasattr(dst, "SetMarkerColor"):
+        properties.extend(["MarkerColor", "MarkerSize", "MarkerStyle"])
+
+    for prop in properties:
+        getattr(dst, "Set"+prop)(getattr(src, "Get"+prop)())
 
 class Plot:
     """Represents one plot, comparing one or more histograms."""
@@ -433,6 +445,7 @@ class Plot:
         legendDh     -- Float for changing TLegend height for separate=True (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
         ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
+        ratioUncertainty -- Plot uncertainties on ratio? (default True)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
         """
         self._name = name
@@ -482,6 +495,7 @@ class Plot:
 
         _set("ratioYmin", 0.9)
         _set("ratioYmax", 1.1)
+        _set("ratioUncertainty", True)
 
         _set("histogramModifier", None)
 
@@ -608,6 +622,10 @@ class Plot:
 
     def draw(self, algo, pad, ratio, ratioFactor, nrows):
         """Draw the histograms using values for a given algorithm."""
+#        if len(self._histograms) == 0:
+#            print "No histograms for plot {name}".format(name=self._name)
+#            return
+
         if self._normalizeToUnitArea:
             self._normalize()
 
@@ -628,7 +646,7 @@ class Plot:
         if self._drawStyle is not None:
             if "hist" in self._drawStyle.lower():
                 style = _styleHist
-            if isinstance(self._histograms[0], ROOT.TGraph):
+            if len(self._histograms) > 0 and isinstance(self._histograms[0], ROOT.TGraph):
                 if "l" in self._drawStyle.lower():
                     style = _styleHist
 
@@ -716,18 +734,16 @@ class Plot:
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
             self._ratios = self._calculateRatios(histos) # need to keep these in memory too ...
-            self._ratios[0]._ratio.SetFillStyle(1001)
-            self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
-            self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
-            self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
-            self._ratios[0]._ratio.SetMarkerSize(0)
-            self._ratios[0].draw("E2")
-            frame._padRatio.RedrawAxis("G") # redraw grid on top of the uncertainty of denominator
+            if self._ratioUncertainty:
+                self._ratios[0]._ratio.SetFillStyle(1001)
+                self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
+                self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
+                self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
+                self._ratios[0]._ratio.SetMarkerSize(0)
+                self._ratios[0].draw("E2")
+                frame._padRatio.RedrawAxis("G") # redraw grid on top of the uncertainty of denominator
             for r in self._ratios[1:]:
                 r.draw()
-
-            ref = histos[0]
-            refDraw = ref.Clone(ref.GetName()+"_reference")
 
         frame.redrawAxis()
         self._frame = frame # keep the frame in memory for sure
@@ -750,11 +766,30 @@ class Plot:
                 return 0
             return numerator/denominator
         class WrapTH1:
-            def __init__(self, th1):
+            def __init__(self, th1, uncertainty):
                 self._th1 = th1
-                self._ratio = th1.Clone()
-            def draw(self, style="EP"):
-                self._ratio.Draw("same "+style)
+                self._uncertainty = uncertainty
+
+                xaxis = th1.GetXaxis()
+                xaxis_arr = xaxis.GetXbins()
+                if xaxis_arr.GetSize() > 0: # unequal binning
+                    lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
+                    arr = array.array("d", lst)
+                    self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
+                else:
+                    self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
+                _copyStyle(th1, self._ratio)
+                self._ratio.SetStats(0)
+                self._ratio.SetLineColor(ROOT.kBlack)
+                self._ratio.SetLineWidth(1)
+            def draw(self, style=None):
+                st = style
+                if st is None:
+                    if self._uncertainty:
+                        st = "EP"
+                    else:
+                        st = "HIST P"
+                self._ratio.Draw("same "+st)
             def begin(self):
                 return 1
             def end(self):
@@ -775,8 +810,9 @@ class Plot:
                 self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
 
         class WrapTGraph:
-            def __init__(self, gr):
+            def __init__(self, gr, uncertainty):
                 self._gr = gr
+                self._uncertainty
                 self._xvalues = []
                 self._xerrslow = []
                 self._xerrshigh = []
@@ -784,13 +820,19 @@ class Plot:
                 self._yerrshigh = []
                 self._yerrslow = []
                 self._binOffset = 0
-            def draw(self, style="PZ"):
+            def draw(self, style=None):
                 if len(self.xvalues) == 0:
                     return
+                st = style
+                if st is None:
+                    if self._uncertainty:
+                        st = "PZ"
+                    else:
+                        st = "PX"
                 self._ratio = ROOT.TGraphAsymmErrors(len(self.xvalues), array.array("d", self.xvalues), array.array("d", self.yvalues),
                                                      array.array("d", self.xerrslow), array.array("d", self.xerrshigh), 
                                                      array.array("d", self.yerrslow), array.array("d", self.yerrshigh))
-                self._ratio.Draw("same "+style)
+                self._ratio.Draw("same "+st)
             def begin(self):
                 return 0
             def end(self):
@@ -824,14 +866,18 @@ class Plot:
                 self.xerrslow.append(self._gr.GetErrorXlow(trueBin))
                 self.xerrshigh.append(self._gr.GetErrorXhigh(trueBin))
                 self.yvalues.append(self._gr.GetY()[trueBin] / scale)
-                self.yerrslow.append(self._gr.GetErrorYlow(trueBin) / scale)
-                self.yerrshigh.append(self._gr.GetErrorYhigh(trueBin) / scale)
+                if self._uncertainty:
+                    self.yerrslow.append(self._gr.GetErrorYlow(trueBin) / scale)
+                    self.yerrshigh.append(self._gr.GetErrorYhigh(trueBin) / scale)
+                else:
+                    self.yerrslow.append(0)
+                    self.yerrshigh.append(0)
 
         def wrap(o):
             if isinstance(o, ROOT.TH1):
-                return WrapTH1(o)
+                return WrapTH1(o, self._ratioUncertainty)
             elif isinstance(o, ROOT.TGrapgh):
-                return WrapTGraph(o)
+                return WrapTGraph(o, self._ratioUncertainty)
 
         wrappers = [wrap(h) for h in histos]
         ref = wrappers[0]
