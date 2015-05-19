@@ -1090,7 +1090,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     patmet=&(patmetcoll->front());
   }
   
-  LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
+  LogTrace("METAnalyzer")<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
   // TCMET
