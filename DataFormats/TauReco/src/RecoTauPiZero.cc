@@ -1,4 +1,5 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 namespace reco {
@@ -55,31 +56,30 @@ bool RecoTauPiZero::algoIs(RecoTauPiZero::PiZeroAlgorithm algo) const {
   return (algoName_ == algo);
 }
 
-namespace {
-std::ostream& operator<<(std::ostream& out, const reco::Candidate::LorentzVector& p4)
+namespace
 {
-  out << "(mass/pt/eta/phi) ("  << std::setiosflags(std::ios::fixed) << std::setprecision(2)
-      << p4.mass() << "/" << std::setprecision(1) << p4.pt() << "/" << std::setprecision(2) << p4.eta()
-      << "/" << std::setprecision(2) << p4.phi() << ")";
-  return out;
-}
-}
-
-void RecoTauPiZero::print(std::ostream& out) const {
-  if (!out) return;
-
-  out << "RecoTauPiZero: " << this->p4() <<
-      " nDaughters: " << this->numberOfDaughters() <<
-      " (gamma/e) (" << this->numberOfGammas() << "/" << this->numberOfElectrons() << ")" <<
-      " maxDeltaPhi: " << std::setprecision(3) << maxDeltaPhi() <<
-      " maxDeltaEta: "  << std::setprecision(3) << maxDeltaEta() <<
-      " algo: " << algo() <<
-      std::endl;
-
-  for(size_t i = 0; i < this->numberOfDaughters(); ++i)
+  std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
   {
-    out << "--- daughter " << i << ": " << daughterPtr(i)->p4() <<
-        " key: " << daughterPtr(i).key() << std::endl;
+    if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
+    else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
+    else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
+    else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
+    else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
+    else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
+    else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
+    else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
+    else assert(0);
+  }
+}
+
+void RecoTauPiZero::print(std::ostream& stream) const 
+{
+  std::cout << "Pt = " << this->pt() << ", eta = " << this->eta() << ", phi = " << this->phi() << std::endl;
+  size_t numDaughters = this->numberOfDaughters();
+  for ( size_t iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
+    const reco::PFCandidate* daughter = dynamic_cast<const reco::PFCandidate*>(this->daughterPtr(iDaughter).get());
+    std::cout << " daughter #" << iDaughter << " (" << getPFCandidateType(daughter->particleId()) << "):"
+	      << " Pt = " << daughter->pt() << ", eta = " << daughter->eta() << ", phi = " << daughter->phi() << std::endl;
   }
 }
 

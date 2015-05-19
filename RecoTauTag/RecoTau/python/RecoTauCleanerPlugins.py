@@ -60,6 +60,11 @@ pt = cms.PSet(
     tolerance = cms.double(1.e-2) # CV: consider candidates with almost equal pT to be of the same rank (to avoid sensitivity to rounding errors)
 )
 
+chargedHadronMultiplicity = cms.PSet(
+    name = cms.string("ChargedHadronMultiplicity"),
+    plugin = cms.string("RecoTauChargedHadronMultiplicityCleanerPlugin")
+)
+
 stripMultiplicity = cms.PSet(
     name = cms.string("StripMultiplicity"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),

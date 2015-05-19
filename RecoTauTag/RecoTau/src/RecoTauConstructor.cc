@@ -3,6 +3,8 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
 #include <boost/foreach.hpp>
@@ -10,8 +12,17 @@
 
 namespace reco { namespace tau {
 
-RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, bool copyGammasFromPiZeros)
-  : pfCands_(pfCands) 
+RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, 
+				       bool copyGammasFromPiZeros,
+				       const StringObjectFunction<reco::PFTau>* signalConeSize,
+				       double minAbsPhotonSumPt_insideSignalCone, double minRelPhotonSumPt_insideSignalCone,
+				       double minAbsPhotonSumPt_outsideSignalCone, double minRelPhotonSumPt_outsideSignalCone)
+  : signalConeSize_(signalConeSize),
+    minAbsPhotonSumPt_insideSignalCone_(minAbsPhotonSumPt_insideSignalCone),
+    minRelPhotonSumPt_insideSignalCone_(minRelPhotonSumPt_insideSignalCone),
+    minAbsPhotonSumPt_outsideSignalCone_(minAbsPhotonSumPt_outsideSignalCone),
+    minRelPhotonSumPt_outsideSignalCone_(minRelPhotonSumPt_outsideSignalCone),
+    pfCands_(pfCands)
 {
   // Initialize tau
   tau_.reset(new PFTau());
@@ -296,6 +307,50 @@ void RecoTauConstructor::sortAndCopyIntoTau() {
   }
 }
 
+namespace
+{
+  PFTau::hadronicDecayMode calculateDecayMode(const reco::PFTau& tau, double dRsignalCone, 
+					      double minAbsPhotonSumPt_insideSignalCone, double minRelPhotonSumPt_insideSignalCone,
+					      double minAbsPhotonSumPt_outsideSignalCone, double minRelPhotonSumPt_outsideSignalCone) 
+  {
+    unsigned int nCharged = tau.signalTauChargedHadronCandidates().size();
+    // If no tracks exist, this is definitely not a tau!
+    if ( !nCharged ) return PFTau::kNull;
+
+    unsigned int nPiZeros = 0;
+    const std::vector<RecoTauPiZero>& piZeros = tau.signalPiZeroCandidates();
+    for ( std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin();
+	  piZero != piZeros.end(); ++piZero ) {
+      double photonSumPt_insideSignalCone = 0.;
+      double photonSumPt_outsideSignalCone = 0.;
+      int numPhotons = piZero->numberOfDaughters();
+      for ( int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton ) {
+	const reco::Candidate* photon = piZero->daughter(idxPhoton);
+	double dR = deltaR(photon->p4(), tau.p4());
+	if ( dR < dRsignalCone ) {
+	  photonSumPt_insideSignalCone += photon->pt();
+	} else {
+	  photonSumPt_outsideSignalCone += photon->pt();
+	}
+      }
+      if ( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*tau.pt())  ||
+	   photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*tau.pt()) ) ++nPiZeros;
+    }
+    
+    // Find the maximum number of PiZeros our parameterization can hold
+    const unsigned int maxPiZeros = PFTau::kOneProngNPiZero;
+    
+    // Determine our track index
+    unsigned int trackIndex = (nCharged - 1)*(maxPiZeros + 1);
+    
+    // Check if we handle the given number of tracks
+    if ( trackIndex >= PFTau::kRareDecayMode ) return PFTau::kRareDecayMode;
+    
+    if ( nPiZeros > maxPiZeros ) nPiZeros = maxPiZeros;
+    return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
+  }
+}
+
 std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) 
 {
   LogDebug("TauConstructorGet") << "Start getting" ;
@@ -334,14 +389,14 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
 
   // Set P4
   tau_->setP4(p4_);
-//  tau_->setP4(
-//      sumPFCandP4(
-//        getCollection(kSignal, kAll)->begin(),
-//        getCollection(kSignal, kAll)->end()
-//        )
-//      );
+
   // Set Decay Mode
-  PFTau::hadronicDecayMode dm = tau_->calculateDecayMode();
+  double dRsignalCone = ( signalConeSize_ ) ? (*signalConeSize_)(*tau_) : 0.5;
+  tau_->setSignalConeSize(dRsignalCone);
+  PFTau::hadronicDecayMode dm = calculateDecayMode(
+      *tau_, 
+      dRsignalCone, 
+      minAbsPhotonSumPt_insideSignalCone_, minRelPhotonSumPt_insideSignalCone_, minAbsPhotonSumPt_outsideSignalCone_, minRelPhotonSumPt_outsideSignalCone_);
   tau_->setDecayMode(dm);
 
   LogDebug("TauConstructorGet") << "Pt = " << tau_->pt() << ", eta = " << tau_->eta() << ", phi = " << tau_->phi() << ", mass = " << tau_->mass() << ", dm = " << tau_->decayMode() ;
