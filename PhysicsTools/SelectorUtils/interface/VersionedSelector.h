@@ -44,7 +44,7 @@ class VersionedSelector : public Selector<T> {
     if ( tracked != untracked ) {
       throw cms::Exception("InvalidConfiguration")
 	<< "VersionedSelector does not allow untracked parameters"
-	<< " in the configuration ParameterSet!";
+	<< " in the cutflow ParameterSet!";
     }
     // now setup the md5 and cute accessor functions
     MD5((unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
@@ -200,7 +200,6 @@ initialize( const edm::ParameterSet& conf ) {
   initialized_ = true;
 }
 
-//#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 template<class T>
 void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
@@ -212,6 +211,5 @@ void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
     }
   }
 }
-//#endif
 
 #endif

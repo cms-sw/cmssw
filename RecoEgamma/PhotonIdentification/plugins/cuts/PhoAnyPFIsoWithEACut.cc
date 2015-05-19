@@ -82,7 +82,7 @@ operator()(const reco::PhotonPtr& cand) const{
 
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
-  double absEta = std::abs(cand->superCluster()->position().eta());
+  double absEta = std::abs(cand->superCluster()->eta());
   const float anyPFIsoWithEACutValue = 
     ( absEta < _barrelCutOff ? 
       _C1_EB + cand->pt() * _C2_EB

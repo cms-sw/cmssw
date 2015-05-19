@@ -28,7 +28,7 @@ CutApplicatorBase::result_type
 PhoHadronicOverEMCut::
 operator()(const reco::PhotonPtr& cand) const { 
   const float hadronicOverEMCutValue = 
-    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+    ( std::abs(cand->superCluster()->eta()) < _barrelCutOff ? 
       _hadronicOverEMCutValueEB : _hadronicOverEMCutValueEE );
 
   return cand->hadronicOverEm() < hadronicOverEMCutValue;

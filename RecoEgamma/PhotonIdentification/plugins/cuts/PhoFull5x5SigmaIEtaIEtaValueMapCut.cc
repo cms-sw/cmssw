@@ -55,7 +55,7 @@ operator()(const reco::PhotonPtr& cand) const{
 
   // Figure out the cut value
   const float cutValue = 
-    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+    ( std::abs(cand->superCluster()->eta()) < _barrelCutOff ? 
       _cutValueEB : _cutValueEE );
   
   // Retrieve the variable value for this particle

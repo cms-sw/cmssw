@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
-ebCutOff = 1.479
-
 globalMuonPromptTight_V0 = cms.PSet(
     idName = cms.string("globalMuonPromptTight-V0"),
     cutFlow = cms.VPSet(
