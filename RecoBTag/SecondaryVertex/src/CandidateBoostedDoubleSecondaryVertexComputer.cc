@@ -70,7 +70,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   reco::TrackKinematics vtxKinematics;
   math::XYZVector jetDir = jet->momentum().Unit();
 
-  std::map<double, size_t> VTXpt;
+  std::map<double, size_t> VTXmass;
   for (size_t vtx = 0; vtx < svTagInfo.nVertices(); ++vtx)
   {
     vertexNTracks += (svTagInfo.secondaryVertex(vtx)).numberOfSourceCandidatePtrs();
@@ -78,14 +78,14 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     if (reco::deltaR2(flightDir, jetDir)<(maxSVDeltaRToJet_*maxSVDeltaRToJet_))
     {
       ++contSV;
-      VTXpt[svTagInfo.secondaryVertex(vtx).p4().mass()]=vtx;
+      VTXmass[svTagInfo.secondaryVertex(vtx).p4().mass()]=vtx;
     }
   }
 
   int cont=0;
   GlobalVector flightDir_0, flightDir_1;
   reco::Candidate::LorentzVector SV_p4_0 , SV_p4_1;
-  for ( std::map<double, size_t>::reverse_iterator iVtx=VTXpt.rbegin(); iVtx!=VTXpt.rend(); ++iVtx)
+  for ( std::map<double, size_t>::reverse_iterator iVtx=VTXmass.rbegin(); iVtx!=VTXmass.rend(); ++iVtx)
   {
     ++cont;
     const reco::VertexCompositePtrCandidate &vertex = svTagInfo.secondaryVertex(iVtx->second);
