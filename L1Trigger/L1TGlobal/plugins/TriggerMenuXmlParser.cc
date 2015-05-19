@@ -1953,6 +1953,25 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
       if( cnt<nrObj ) objParameter[cnt].phiRange = dst;
 
 
+      int cntIso=0;
+      int isolationLUT = 0;
+      for( l1t::CalorimeterIsolationLUT::isolation_const_iterator iIsoFlag = objPar->isolationLut().isolation().begin();
+	   iIsoFlag != objPar->isolationLut().isolation().end(); ++iIsoFlag ){
+	
+	bool flag = (*iIsoFlag);
+
+	isolationLUT |= (flag << cntIso);
+
+	LogDebug("l1t|Global")
+	  << "\n isolation flag " << cntIso << " = " << flag
+	  << "\n isolationLUT = " << isolationLUT 
+	  << std::endl;
+
+	cntIso++;
+      }
+
+      objParameter[cnt].isolationLUT = isolationLUT;
+
 
       int cntEta=0;
       unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;
