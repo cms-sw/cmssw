@@ -64,7 +64,7 @@ namespace reco{
     /// Track-based isolation, pt>2.0GeV, R = 0.5
     float trackIsoR5PtCut20() const {return trackIsoR5PtCut20_;}
 
-    /// Swiss-HcalRechitIsoRoss hcalRechitIsoRystal ratio
+    /// SwissCross crystal ratio
     float swissCrx() const {return swissCrx_;}
     /// Ecal rechit seed time
     float seedTime() const {return seedTime_;}
