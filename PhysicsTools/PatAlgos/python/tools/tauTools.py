@@ -107,7 +107,7 @@ hpsTauIDSources = [
     ("byMediumCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),
     ("byTightCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),
     ("byCombinedIsolationDeltaBetaCorrRaw3Hits", "DiscriminationByRawCombinedIsolationDBSumPtCorr3Hits"),
-    ("byLoosePileupWeightedIsolation3Hits", "DiscriminationByLoosePileupWeightedIsolationDBSum3Hits"),
+    ("byLoosePileupWeightedIsolation3Hits", "DiscriminationByLoosePileupWeightedIsolation3Hits"),
     ("byMediumPileupWeightedIsolation3Hits", "DiscriminationByMediumPileupWeightedIsolation3Hits"),
     ("byTightPileupWeightedIsolationHits", "DiscriminationByTightPileupWeightedIsolation3Hits"),
     ("byPhotonPtSumOutsideSignalCone", "DiscriminationByPhotonPtSumOutsideSignalCone"),
