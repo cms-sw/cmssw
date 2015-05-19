@@ -67,7 +67,6 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     if (track_PVweight>0.) { allKinematics.add(ptrack, track_PVweight); }
   }
 
-  reco::TrackKinematics vtxKinematics;
   math::XYZVector jetDir = jet->momentum().Unit();
 
   std::map<double, size_t> VTXmass;
@@ -89,6 +88,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   {
     ++cont;
     const reco::VertexCompositePtrCandidate &vertex = svTagInfo.secondaryVertex(iVtx->second);
+    reco::TrackKinematics vtxKinematics;
     vertexKinematics(vertex, vtxKinematics);
     math::XYZTLorentzVector allSum = allKinematics.weightedVectorSum();
     math::XYZTLorentzVector vertexSum = vtxKinematics.weightedVectorSum();
