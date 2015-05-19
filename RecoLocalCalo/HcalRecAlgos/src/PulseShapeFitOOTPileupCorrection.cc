@@ -308,6 +308,9 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
      fitParsVec.clear();
      fitParsVec.push_back(0.);
      fitParsVec.push_back(0.);
+     fitParsVec.push_back(0.);
+     fitParsVec.push_back(999.);
+     fitParsVec.push_back(false);
    }
    correctedOutput.swap(fitParsVec); correctedOutput.push_back(psfPtr_->getcntNANinfit());
 }
@@ -350,6 +353,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    float pedvalfit   = 0;
    float chi2        = 999; //cannot be zero
    bool  fitStatus   = false;
+   bool useTriple = false;
 
    int BX[3] = {4,5,3};
    if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -358,6 +362,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
 // Only do three-pulse fit when tstrig < ts4Max_, otherwise one-pulse fit is used (above)
    if(chi2 > ts4Chi2_ && !unConstrainedFit_ && tstrig < ts4Max_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+     useTriple=true;
    }
    if(unConstrainedFit_ && nAboveThreshold > 5) { //For the old method 2 do double pulse fit if values above a threshold
      fit(2,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX); 
@@ -376,6 +381,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    fitParsVec.push_back(timevalfit);
    fitParsVec.push_back(pedvalfit);
    fitParsVec.push_back(chi2);
+   fitParsVec.push_back(useTriple);
    return outfitStatus;
 }
 
