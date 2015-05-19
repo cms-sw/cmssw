@@ -9,6 +9,7 @@ def getSequence(process, collection,
                 usePixelQualityFlag = True,
                 openMassWindow = False,
                 cosmicsDecoMode = False,
+                cosmicsZeroTesla = True,
                 momentumConstraint = None):
     """This function returns a cms.Sequence containing as last element the
     module 'FinalTrackRefitter', which can be used as cms.InputTag for
@@ -28,6 +29,7 @@ def getSequence(process, collection,
     - `usePixelQualityFlag`: Option used for the TrackHitFilter module.
     - `openMassWindow`: Used to configure the TwoBodyDecaySelector for ZMuMu.
     - `cosmicsDecoMode`: If set to 'True' a lower Signal/Noise cut is used.
+    - `cosmicsZeroTesla`: If set to 'True' a 0T-specific selection is used.
     - `momentumConstraint`: If you want to apply a momentum constraint for the
                             track refitting, e.g. for CRUZET data, you need
                             to provide here the name of the constraint module.
@@ -77,9 +79,10 @@ def getSequence(process, collection,
         "rejectLowAngleHits": True,
         "usePixelQualityFlag": usePixelQualityFlag,
         "StoNcommands": cms.vstring("ALL 12.0"),
-        "TrackAngleCut": 0.087
+        "TrackAngleCut": 0.17
         }
     options["TrackFitter"]["HitFilteredTracks"] = {
+        "NavigationSchool": "",
         "TTRHBuilder": TTRHBuilder
         }
 
@@ -99,6 +102,14 @@ def getSequence(process, collection,
         if not cosmicsDecoMode:
             options["TrackHitFilter"]["Tracker"].update({
                     "StoNcommands": cms.vstring("ALL 18.0")
+                    })
+        if cosmicsZeroTesla:
+            options["TrackHitFilter"]["Tracker"].update({
+                    "TrackAngleCut": 0.087 # Run-I: 0.087 for 0T
+                    })
+        else:
+            options["TrackHitFilter"]["Tracker"].update({
+                    "TrackAngleCut": 0.087 # Run-I: 0.35 for 3.8T
                     })
         options["TrackSelector"]["Alignment"].update({
                 "pMin": 4.0,
