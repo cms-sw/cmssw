@@ -34,6 +34,7 @@
 
 namespace DataFormats_TrackReco {
   struct dictionary {
+    std::bitset<reco::TrackBase::algoSize> ba;
     reco::TrackExtraCollection v3;
     edm::Wrapper<reco::TrackExtraCollection> c3;
     edm::Ref<reco::TrackExtraCollection> r3;
