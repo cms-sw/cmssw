@@ -20,8 +20,7 @@
 #include "TMath.h"
 
 dEdxHitAnalyzer::dEdxHitAnalyzer(const edm::ParameterSet& iConfig) 
-  : dqmStore_( edm::Service<DQMStore>().operator->() )
-  , fullconf_( iConfig )
+  : fullconf_( iConfig )
   , conf_    (fullconf_.getParameter<edm::ParameterSet>("dEdxParameters") )
   , doAllPlots_  ( conf_.getParameter<bool>("doAllPlots") )
   , doDeDxPlots_ ( conf_.getParameter<bool>("doDeDxPlots") )    
@@ -35,6 +34,25 @@ dEdxHitAnalyzer::dEdxHitAnalyzer(const edm::ParameterSet& iConfig)
   for (auto const& tag : dEdxInputList_) {
     dEdxTokenList_.push_back(consumes<reco::DeDxHitInfoAss>(edm::InputTag(tag) ) );
   }
+
+  // parameters from the configuration
+  MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
+
+  dEdxNHitBin     = conf_.getParameter<int>(   "dEdxNHitBin");
+  dEdxNHitMin     = conf_.getParameter<double>("dEdxNHitMin");
+  dEdxNHitMax     = conf_.getParameter<double>("dEdxNHitMax");
+
+  dEdxStripBin    = conf_.getParameter<int>(   "dEdxStripBin");
+  dEdxStripMin    = conf_.getParameter<double>("dEdxStripMin");
+  dEdxStripMax    = conf_.getParameter<double>("dEdxStripMax");
+
+  dEdxPixelBin    = conf_.getParameter<int>(   "dEdxPixelBin");
+  dEdxPixelMin    = conf_.getParameter<double>("dEdxPixelMin");
+  dEdxPixelMax    = conf_.getParameter<double>("dEdxPixelMax");
+
+  dEdxHarm2Bin    = conf_.getParameter<int>(   "dEdxHarm2Bin");
+  dEdxHarm2Min    = conf_.getParameter<double>("dEdxHarm2Min");
+  dEdxHarm2Max    = conf_.getParameter<double>("dEdxHarm2Max");
 }
 
 dEdxHitAnalyzer::~dEdxHitAnalyzer() 
@@ -43,57 +61,19 @@ dEdxHitAnalyzer::~dEdxHitAnalyzer()
   if (genTriggerEventFlag_)      delete genTriggerEventFlag_;
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-dEdxHitAnalyzer::endJob() 
-{
-    bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
-    std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-    if(outputMEsInRootFile)
-    {
-      dqmStore_->showDirStructure();
-      dqmStore_->save(outputFileName);
-    }
-}
-
-/*
 // -- BeginRun
 //---------------------------------------------------------------------------------//
-void dEdxHitAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void dEdxHitAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
- 
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
-*/
+
 
 void dEdxHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				  edm::Run const & iRun,
 				  edm::EventSetup const & iSetup ) 
 {
-
-  // Initialize the GenericTriggerEventFlag
-  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
-  
-
-    // parameters from the configuration
-    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
-
-    int    dEdxNHitBin     = conf_.getParameter<int>(   "dEdxNHitBin");
-    double dEdxNHitMin     = conf_.getParameter<double>("dEdxNHitMin");
-    double dEdxNHitMax     = conf_.getParameter<double>("dEdxNHitMax");
-
-    int    dEdxStripBin    = conf_.getParameter<int>(   "dEdxStripBin");
-    double dEdxStripMin    = conf_.getParameter<double>("dEdxStripMin");
-    double dEdxStripMax    = conf_.getParameter<double>("dEdxStripMax");
-
-    int    dEdxPixelBin    = conf_.getParameter<int>(   "dEdxPixelBin");
-    double dEdxPixelMin    = conf_.getParameter<double>("dEdxPixelMin");
-    double dEdxPixelMax    = conf_.getParameter<double>("dEdxPixelMax");
-
-    int    dEdxHarm2Bin    = conf_.getParameter<int>(   "dEdxHarm2Bin");
-    double dEdxHarm2Min    = conf_.getParameter<double>("dEdxHarm2Min");
-    double dEdxHarm2Max    = conf_.getParameter<double>("dEdxHarm2Max");
 
     ibooker.setCurrentFolder(MEFolderName);
 
@@ -127,11 +107,6 @@ void dEdxHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
        }
     }
 }
-
-void dEdxHitAnalyzer::beginJob()
-{
-}
-
 
 double dEdxHitAnalyzer::harmonic2(const reco::DeDxHitInfo* dedxHits){
      if(!dedxHits)return -1;
@@ -199,16 +174,6 @@ void dEdxHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
  
 
-void 
-dEdxHitAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-dEdxHitAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
