@@ -83,6 +83,7 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
 
     if( idMD5 != calculated_md5 ) {
       edm::LogError("IdConfigurationNotValidated")
+        << "ID: " << ids_.back()->name() << "\n"
 	<< "The expected md5: " << idMD5 << " does not match the md5\n"
 	<< "calculated by the ID: " << calculated_md5 << " please\n"
 	<< "update your python configuration or determine the source\n"
@@ -104,10 +105,13 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
 	    << "at the next relevant POG meeting." << std::endl;
     }
 
-    edm::LogWarning("IdInformation")
-      << idmsg.str();
-
-    
+    if( !isPOGApproved ) {
+      edm::LogWarning("IdInformation")
+        << idmsg.str();
+    } else {
+      edm::LogInfo("IdInformation")
+        << idmsg.str();
+    }    
 
     produces<std::string>(idname);
     produces<edm::ValueMap<bool> >(idname);

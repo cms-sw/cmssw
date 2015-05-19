@@ -163,10 +163,17 @@ cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight = configureVIDCutBasedEle
 
 
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_veto.idName,
-                             '8faa425ca2bd76daab6d4783d652a5b2')
+                             '845f6b06a607cf0ab02a136909de6fdc')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             'd2a26b2c40038007a1e75f0c75a2e9e5')
+                             '0ccc07e6287048b3fccdc4d37d2ceb95')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             '086215fddf6fc439fb5ece5243eeea09')
+                             '7c5b51d5072d760cf19ca4f3ac5c65f3')
 central_id_registry.register(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             'fe2b8fcecc77ef073c822f97b339f5d3')
+                             '367f3260b6ff2a60ef76b2dc6f1ebd16')
+
+
+# for now until we have a database...
+cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_veto.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight.isPOGApproved = cms.untracked.bool(True)
