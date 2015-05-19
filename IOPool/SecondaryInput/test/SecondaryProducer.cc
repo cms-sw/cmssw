@@ -50,7 +50,7 @@ namespace edm {
         lumiSpecified_(pset.getUntrackedParameter<bool>("lumiSpecified", false)),
         firstEvent_(true),
         firstLoop_(true),
-        expectedEventNumber_(1) {
+        expectedEventNumber_(sequential_ ? pset.getParameterSet("input").getUntrackedParameter<unsigned int>("skipEvents", 0) + 1 : 1) {
     ParameterSet emptyPSet;
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());

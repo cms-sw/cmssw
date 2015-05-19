@@ -53,6 +53,7 @@ namespace edm {
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
+    void skipEntries(unsigned int offset);
     bool skipEvents(int offset);
     bool goToEvent(EventID const& eventID);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
