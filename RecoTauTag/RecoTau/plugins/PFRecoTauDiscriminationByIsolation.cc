@@ -73,12 +73,11 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     }
     
     // sanity check2 - can't use weighted and unweighted iso at the same time
-    if(includeGammas_ && calculateWeights_)
-      {
-	throw cms::Exception("BasIsoConfig")
-	  << "Both 'ApplyDiscriminationByECALIsolation' and 'ApplyDiscriminationByWeightedECALIsolation' "
-	  << "have been set to true. These options are mutually exclusive.";
-      }
+    if ( includeGammas_ && calculateWeights_ ) {
+      throw cms::Exception("BasIsoConfig")
+	<< "Both 'ApplyDiscriminationByECALIsolation' and 'ApplyDiscriminationByWeightedECALIsolation' "
+	<< "have been set to true. These options are mutually exclusive.";
+    }
     
     // Can only store one type
     int numStoreOptions = 0;
@@ -104,7 +103,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     maxRelPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxRelPhotonSumPt_outsideSignalCone");
 
     applyFootprintCorrection_ = pset.getParameter<bool>("applyFootprintCorrection");
-    if ( applyFootprintCorrection_ ) {
+    if ( applyFootprintCorrection_ || storeRawFootprintCorrection_ ) {
       edm::VParameterSet cfgFootprintCorrections = pset.getParameter<edm::VParameterSet>("footprintCorrections");
       for ( edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
 	    cfgFootprintCorrection != cfgFootprintCorrections.end(); ++cfgFootprintCorrection ) {
@@ -153,9 +152,9 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
         puFactorizedIsoQCuts.second));
 
       pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
-      pfCand_token=consumes<reco::PFCandidateCollection>(pfCandSrc_);
+      pfCand_token = consumes<reco::PFCandidateCollection>(pfCandSrc_);
       vertexSrc_ = pset.getParameter<edm::InputTag>("vertexSrc");
-      vertex_token=consumes<reco::VertexCollection>(vertexSrc_);
+      vertex_token = consumes<reco::VertexCollection>(vertexSrc_);
       deltaBetaCollectionCone_ = pset.getParameter<double>(
         "isoConeSizeForDeltaBeta");
       std::string deltaBetaFactorFormula =
@@ -508,9 +507,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   double puPt = 0.;
 //--- Sum PT requirement
   if ( applySumPtCut_ || applyRelativeSumPtCut_ || storeRawSumPt_ || storeRawPUsumPt_ ) {
-    double chargedPt = 0.0;
-    double neutralPt = 0.0;
-    double weightedNeutralPt = 0.0;
+    double chargedPt = 0.;
+    double neutralPt = 0.;
+    double weightedNeutralPt = 0.;
     for ( auto const & isoObject : isoCharged_ ) {
       chargedPt += isoObject->pt();
     }
