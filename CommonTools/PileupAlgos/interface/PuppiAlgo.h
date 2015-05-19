@@ -27,8 +27,8 @@ public:
   inline double coneSize  ( unsigned int iAlgo) const { return fConeSize.at(iAlgo); }
   inline double neutralPt  (int iNPV) const { return fNeutralPtMin + iNPV * fNeutralPtSlope; }
 
-  inline double RMS( unsigned int i ) const {return fRMS[i];}
-  inline double Median( unsigned int i ) const {return fMedian[i];}
+  inline double rms( unsigned int i ) const {return fRMS[i];}
+  inline double median( unsigned int i ) const {return fMedian[i];}
 
 private:  
   unsigned int   fNAlgos;
