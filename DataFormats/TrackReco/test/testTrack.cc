@@ -68,15 +68,46 @@ void testTrack::checkAll() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(t.covariance(3, 4), cov(3, 4), 1e-6);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(t.covariance(4, 4), cov(4, 4), 1e-6);
 
+    auto qual = reco::TrackBase::qualityByName("highPurity");
+    CPPUNIT_ASSERT(qual==reco::TrackBase::highPurity);
     t.setQuality(reco::TrackBase::loose);
     CPPUNIT_ASSERT(t.quality(reco::TrackBase::loose) == true);
-    t.setQuality(reco::TrackBase::loose, false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::highPurity) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::confirmed) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::goodIterative) == false);
+    t.setQuality(reco::TrackBase::highPurity);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::loose) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::highPurity) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::confirmed) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::goodIterative) == true);
+    t.setQuality(reco::TrackBase::confirmed);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::loose) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::highPurity) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::confirmed) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::goodIterative) == true);
+    t.setQuality(reco::TrackBase::undefQuality);
     CPPUNIT_ASSERT(t.quality(reco::TrackBase::loose) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::highPurity) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::confirmed) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::goodIterative) == false);
+    t.setQuality(reco::TrackBase::loose);
+    t.setQuality(reco::TrackBase::confirmed);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::loose) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::highPurity) == false);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::confirmed) == true);
+    CPPUNIT_ASSERT(t.quality(reco::TrackBase::goodIterative) == false);
 
+
+    reco::TrackBase::AlgoMask am;
     t.setAlgorithm(reco::TrackBase::ctf);
+    am.set(reco::TrackBase::ctf);
     CPPUNIT_ASSERT(t.algo() == reco::TrackBase::ctf);
-
-    t.setAlgorithm(reco::TrackBase::ctf, false);
-    CPPUNIT_ASSERT(t.algo() == reco::TrackBase::undefAlgorithm);
+    CPPUNIT_ASSERT(t.algoMask()==am);
+    am.set(reco::TrackBase::rs);
+    t.setOriginalAlgorithm(reco::TrackBase::rs);
+    CPPUNIT_ASSERT(t.algo() == reco::TrackBase::ctf);
+    CPPUNIT_ASSERT(t.originalAlgo() == reco::TrackBase::rs);
+    CPPUNIT_ASSERT(t.algoMask()==am);
+    
 }
 
