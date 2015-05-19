@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V56 (CMSSW_7_4_2)
+# /dev/CMSSW_7_4_0/HIon/V60 (CMSSW_7_4_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V56')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V60')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -395,20 +395,20 @@ process.HLTSeedFromProtoTracks = cms.PSet(
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
   'InitialPDForHI' ) )
 process.datasets = cms.PSet( 
-  InitialPD = cms.vstring( 'HLT_Physics_v1' ),
-  InitialPDForHI = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v1',
-    'HLT_HIL2DoubleMu0_NHitQ_v1',
-    'HLT_HIL2DoubleMu0_v1',
-    'HLT_HIL2DoubleMu3_v1',
-    'HLT_HIL2Mu15_v1',
-    'HLT_HIL2Mu3_NHitQ_v1',
-    'HLT_HIL2Mu3_v1',
-    'HLT_HIL2Mu7_v1',
-    'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v1',
-    'HLT_HIL3DoubleMuOpen_OS_v1',
-    'HLT_HIL3DoubleMuOpen_SS_v1',
-    'HLT_HIL3DoubleMuOpen_v1',
-    'HLT_HIL3Mu3_v1' )
+  InitialPD = cms.vstring( 'HLT_Physics_v2' ),
+  InitialPDForHI = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
+    'HLT_HIL2DoubleMu0_NHitQ_v2',
+    'HLT_HIL2DoubleMu0_v2',
+    'HLT_HIL2DoubleMu3_v2',
+    'HLT_HIL2Mu15_v2',
+    'HLT_HIL2Mu3_NHitQ_v2',
+    'HLT_HIL2Mu3_v2',
+    'HLT_HIL2Mu7_v2',
+    'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2',
+    'HLT_HIL3DoubleMuOpen_OS_v2',
+    'HLT_HIL3DoubleMuOpen_SS_v2',
+    'HLT_HIL3DoubleMuOpen_v2',
+    'HLT_HIL3Mu3_v2' )
 )
 
 process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
@@ -549,11 +549,9 @@ process.hltESPDisplacedDijethltTrackCounting2D2ndLong = cms.ESProducer( "TrackCo
 process.hltESPAK8CaloCorrection = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPAK8CaloFastJetCorrectionESProducer',
     'hltESPAK8CaloRelativeCorrectionESProducer',
-    'hltESPAK8CaloAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+    'hltESPAK8CaloAbsoluteCorrectionESProducer' )
 )
 process.hltESPAK8CaloFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
   algorithm = cms.string( "AK8CaloHLT" ),
   level = cms.string( "L1FastJet" )
@@ -571,11 +569,9 @@ process.hltESPAK8CaloAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrect
 process.hltESPAK8PFCorrection = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPAK8PFFastJetCorrectionESProducer',
     'hltESPAK8PFRelativeCorrectionESProducer',
-    'hltESPAK8PFAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+    'hltESPAK8PFAbsoluteCorrectionESProducer' )
 )
 process.hltESPAK8PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
   algorithm = cms.string( "AK8PFHLT" ),
   level = cms.string( "L1FastJet" )
@@ -626,23 +622,19 @@ process.hltDisplacedDijethltESPPromptTrackCountingESProducer = cms.ESProducer( "
 process.hltESPAK4CaloCorrection = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPAK4CaloFastJetCorrectionESProducer',
     'hltESPAK4CaloRelativeCorrectionESProducer',
-    'hltESPAK4CaloAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+    'hltESPAK4CaloAbsoluteCorrectionESProducer' )
 )
 process.hltESPAK4PFCorrection = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPAK4PFFastJetCorrectionESProducer',
     'hltESPAK4PFRelativeCorrectionESProducer',
-    'hltESPAK4PFAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+    'hltESPAK4PFAbsoluteCorrectionESProducer' )
 )
 process.hltESPAK4CaloFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
   algorithm = cms.string( "AK4CaloHLT" ),
   level = cms.string( "L1FastJet" )
 )
 process.hltESPAK4PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
   algorithm = cms.string( "AK4PFHLT" ),
   level = cms.string( "L1FastJet" )
@@ -3905,20 +3897,20 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v1',
-  'HLT_HIL2DoubleMu0_NHitQ_v1',
-  'HLT_HIL2DoubleMu0_v1',
-  'HLT_HIL2DoubleMu3_v1',
-  'HLT_HIL2Mu15_v1',
-  'HLT_HIL2Mu3_NHitQ_v1',
-  'HLT_HIL2Mu3_v1',
-  'HLT_HIL2Mu7_v1',
-  'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v1',
-  'HLT_HIL3DoubleMuOpen_OS_v1',
-  'HLT_HIL3DoubleMuOpen_SS_v1',
-  'HLT_HIL3DoubleMuOpen_v1',
-  'HLT_HIL3Mu3_v1',
-  'HLT_Physics_v1' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
+  'HLT_HIL2DoubleMu0_NHitQ_v2',
+  'HLT_HIL2DoubleMu0_v2',
+  'HLT_HIL2DoubleMu3_v2',
+  'HLT_HIL2Mu15_v2',
+  'HLT_HIL2Mu3_NHitQ_v2',
+  'HLT_HIL2Mu3_v2',
+  'HLT_HIL2Mu7_v2',
+  'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2',
+  'HLT_HIL3DoubleMuOpen_OS_v2',
+  'HLT_HIL3DoubleMuOpen_SS_v2',
+  'HLT_HIL3DoubleMuOpen_v2',
+  'HLT_HIL3Mu3_v2',
+  'HLT_Physics_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -3940,20 +3932,20 @@ process.HLTHIL3muonrecoNocandSequence = cms.Sequence( process.HLTHIL3muonTkCandi
 process.HLTHIL3muonrecoSequence = cms.Sequence( process.HLTHIL3muonrecoNocandSequence + process.hltHIL3MuonCandidates )
 
 process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltBoolFalse )
-process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
-process.HLT_HIL1DoubleMu0_HighQ_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL1DoubleMu0HighQ + process.hltL1fL1DoubleMu0HQL1Filtered0 + process.HLTEndSequence )
-process.HLT_HIL2Mu3_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu3 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu3L2Filtered + process.HLTEndSequence )
-process.HLT_HIL2Mu7_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu7 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu7L2Filtered + process.HLTEndSequence )
-process.HLT_HIL2Mu15_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu15 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu15L2Filtered + process.HLTEndSequence )
-process.HLT_HIL2Mu3_NHitQ_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu3NHitQ + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu3N1HitQL2Filtered + process.HLTEndSequence )
-process.HLT_HIL2DoubleMu0_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL2DoubleMu0 + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIL2DoubleMu0L2Filtered + process.HLTEndSequence )
-process.HLT_HIL2DoubleMu0_NHitQ_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL2DoubleMu0NHitQ + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIL2DoubleMu0L2N1HitsFiltered + process.HLTEndSequence )
-process.HLT_HIL2DoubleMu3_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL2DoubleMu3 + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIL2DoubleMu3L2Filtered + process.HLTEndSequence )
-process.HLT_HIL3Mu3_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL3Mu3 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu3L2Filtered + process.HLTHIL3muonrecoSequence + process.hltHISingleMu3L3Filtered + process.HLTEndSequence )
-process.HLT_HIL3DoubleMuOpen_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpen + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpen + process.HLTEndSequence )
-process.HLT_HIL3DoubleMuOpen_SS_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenSS + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenSS + process.HLTEndSequence )
-process.HLT_HIL3DoubleMuOpen_OS_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenOS + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenOS + process.HLTEndSequence )
-process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenOSNoCowboy + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenOSNoCowboy + process.HLTEndSequence )
+process.HLT_Physics_v2 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
+process.HLT_HIL1DoubleMu0_HighQ_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL1DoubleMu0HighQ + process.hltL1fL1DoubleMu0HQL1Filtered0 + process.HLTEndSequence )
+process.HLT_HIL2Mu3_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu3 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu3L2Filtered + process.HLTEndSequence )
+process.HLT_HIL2Mu7_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu7 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu7L2Filtered + process.HLTEndSequence )
+process.HLT_HIL2Mu15_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu15 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu15L2Filtered + process.HLTEndSequence )
+process.HLT_HIL2Mu3_NHitQ_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL2Mu3NHitQ + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu3N1HitQL2Filtered + process.HLTEndSequence )
+process.HLT_HIL2DoubleMu0_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL2DoubleMu0 + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIL2DoubleMu0L2Filtered + process.HLTEndSequence )
+process.HLT_HIL2DoubleMu0_NHitQ_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL2DoubleMu0NHitQ + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIL2DoubleMu0L2N1HitsFiltered + process.HLTEndSequence )
+process.HLT_HIL2DoubleMu3_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL2DoubleMu3 + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIL2DoubleMu3L2Filtered + process.HLTEndSequence )
+process.HLT_HIL3Mu3_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3BptxAND + process.hltPreHIL3Mu3 + process.hltHIL1SingleMu3Filtered + process.HLTL2muonrecoSequence + process.hltHIL2Mu3L2Filtered + process.HLTHIL3muonrecoSequence + process.hltHISingleMu3L3Filtered + process.HLTEndSequence )
+process.HLT_HIL3DoubleMuOpen_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpen + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpen + process.HLTEndSequence )
+process.HLT_HIL3DoubleMuOpen_SS_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenSS + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenSS + process.HLTEndSequence )
+process.HLT_HIL3DoubleMuOpen_OS_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenOS + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenOS + process.HLTEndSequence )
+process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenOSNoCowboy + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenOSNoCowboy + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
 
@@ -3970,7 +3962,7 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v1, process.HLT_HIL1DoubleMu0_HighQ_v1, process.HLT_HIL2Mu3_v1, process.HLT_HIL2Mu7_v1, process.HLT_HIL2Mu15_v1, process.HLT_HIL2Mu3_NHitQ_v1, process.HLT_HIL2DoubleMu0_v1, process.HLT_HIL2DoubleMu0_NHitQ_v1, process.HLT_HIL2DoubleMu3_v1, process.HLT_HIL3Mu3_v1, process.HLT_HIL3DoubleMuOpen_v1, process.HLT_HIL3DoubleMuOpen_SS_v1, process.HLT_HIL3DoubleMuOpen_OS_v1, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v1, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput, process.HLTAnalyzerEndpath ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v2, process.HLT_HIL1DoubleMu0_HighQ_v2, process.HLT_HIL2Mu3_v2, process.HLT_HIL2Mu7_v2, process.HLT_HIL2Mu15_v2, process.HLT_HIL2Mu3_NHitQ_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL2DoubleMu0_NHitQ_v2, process.HLT_HIL2DoubleMu3_v2, process.HLT_HIL3Mu3_v2, process.HLT_HIL3DoubleMuOpen_v2, process.HLT_HIL3DoubleMuOpen_SS_v2, process.HLT_HIL3DoubleMuOpen_OS_v2, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput, process.HLTAnalyzerEndpath ))
 
 
 process.source = cms.Source( "PoolSource",
