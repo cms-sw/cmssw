@@ -14,11 +14,16 @@ def setupVIDSelection(vidproducer,cutflow):
     if not hasattr(cutflow,'cutFlow'):
         raise Exception('InvalidVIDCutFlow', 'The cutflow configuration provided is malformed and does not have a specific cutflow!')
     cutflow_md5 = central_id_registry.getMD5FromName(cutflow.idName)
+    isPOGApproved = cms.untracked.bool(False)
+    if hasattr(cutflow,'isPOGApproved'):
+        isPOGApproved = cutflow.isPOGApproved
+        del cutflow.isPOGApproved
     vidproducer.physicsObjectIDs.append(
         cms.PSet( idDefinition = cutflow,
+                  isPOGApproved = isPOGApproved,
                   idMD5 = cms.string(cutflow_md5) )
-    )
-    print >> sys.stderr,'Added ID \'%s\' to %s'%(cutflow.idName.value(),vidproducer.label())
+    )    
+    sys.stderr.write('Added ID \'%s\' to %s\n'%(cutflow.idName.value(),vidproducer.label()))
 
 def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     patProducerIDs = None
@@ -28,7 +33,7 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     if patProducerIDs is None:
         raise Exception('StrangePatModule','%s does not have ID sources!'%patProducer.label())
     setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))
-    print >> sys.stderr,'\t--- %s:%s added to %s'%(idProducer,idName,patProducer.label())
+    sys.stderr.write('\t--- %s:%s added to %s\n'%(idProducer,idName,patProducer.label()))
 
 def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None):
 #    idmod = importlib.import_module(id_module_name)
@@ -63,7 +68,7 @@ def switchOnVIDElectronIdProducer(process, dataFormat):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    print >> sys.stderr,'Added \'egmGsfElectronIDs\' to process definition (%s format)!' % dataFormatString
+    sys.stderr.write('Added \'egmGsfElectronIDs\' to process definition (%s format)!\n' % dataFormatString)
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmGsfElectronIDs'):
@@ -84,7 +89,7 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
 # for PAT and/or MINIAOD
 def switchOnVIDMuonIdProducer(process):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
-    print >> sys.stderr,'Added \'muoMuonIDs\' to process definition!'
+    sys.stderr.write('Added \'muoMuonIDs\' to process definition!\n')
 
 def setupVIDMuonSelection(process, cutflow, patProducer=None):
     moduleName = "muonVIDs"
@@ -118,11 +123,11 @@ def switchOnVIDPhotonIdProducer(process, dataFormat):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    print >> sys.stderr,'Added \'egmPhotonIDs\' to process definition (%s format)!' % dataFormatString
+    sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
 
 def setupVIDPhotonSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmPhotonIDs'):
-        raise Exception('VIDProducerNotAvailable','egmPhotonIDs producer not available in process!')
+        raise Exception('VIDProducerNotAvailable','egmPhotonIDs producer not available in process!\n')
     setupVIDSelection(process.egmPhotonIDs,cutflow)
     #add to PAT photon producer if available or specified
     if hasattr(process,'patPhotons') or patProducer is not None:
