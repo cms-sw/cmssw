@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
@@ -31,7 +31,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # -- (NBins, minVal, maxValue) for the Eta,Phi and nInterations efficiency plots
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
-    parametersPu       = cms.vdouble(10, 0, 20),
+    parametersPu       = cms.vdouble(10, 0, 50),
     parametersHt       = cms.untracked.vdouble(100, 0, 1000),
 
     # TO BE DEPRECATED --------------------------------------------
@@ -150,13 +150,20 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Diphoton30_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_PixelSeed_Mass70_v",
             "HLT_Diphoton44_28_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P1_R9Id50b80e_v",
             "HLT_Diphoton30_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Mass95_v",
             "HLT_Diphoton28_14_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Mass50_Eta_1p5_v",
             "HLT_Diphoton30_18_R9Id85_AND_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_Solid_Mass30_v",
             "HLT_Diphoton30_18_R9Id85_AND_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_PV_v",
             "HLT_Diphoton30_18_R9Id85_AND_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_DoublePV_v"
+        ),
+        recPhotonLabel  = cms.string("photons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
+    HggControlPaths = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_Diphoton30_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P0_R9Id50b80e_PixelSeed_Mass70_v"
         ),
         recPhotonLabel  = cms.string("photons"),
         # -- Analysis specific cuts

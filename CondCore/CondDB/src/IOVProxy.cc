@@ -16,6 +16,7 @@ namespace cond {
       
       // tag data
       std::string tag;
+      boost::posix_time::ptime snapshotTime;
       cond::TimeType timeType;
       std::string payloadType;
       cond::SynchronizationType synchronizationType = cond::OFFLINE;
@@ -121,7 +122,15 @@ namespace cond {
       return *this;
     }
 
-    void IOVProxy::load( const std::string& tag, bool full ){
+    void IOVProxy::load( const std::string& tag,
+                         bool full ){
+      boost::posix_time::ptime notime;
+      load( tag, notime, full );
+    }
+    
+    void IOVProxy::load( const std::string& tag, 
+			 const boost::posix_time::ptime& snapshotTime,
+			 bool full ){
       if( !m_data.get() ) return;
 
       // clear
@@ -139,16 +148,25 @@ namespace cond {
       // now get the iov sequence when required
       if( full ) {
 	// load the full iov sequence in this case!
-	m_session->iovSchema().iovTable().selectLatest( m_data->tag, m_data->iovSequence );
+        if( snapshotTime.is_not_a_date_time() ){
+          m_session->iovSchema().iovTable().selectLatest( m_data->tag, m_data->iovSequence );
+        } else {
+          m_session->iovSchema().iovTable().selectSnapshot( m_data->tag, snapshotTime, m_data->iovSequence );
+        }
 	m_data->groupLowerIov = cond::time::MIN_VAL;
 	m_data->groupHigherIov = cond::time::MAX_VAL;
       } else {
-	m_session->iovSchema().iovTable().selectGroups( m_data->tag, m_data->sinceGroups );
+        if( snapshotTime.is_not_a_date_time() ){
+          m_session->iovSchema().iovTable().selectGroups( m_data->tag, m_data->sinceGroups );
+        } else {
+          m_session->iovSchema().iovTable().selectSnapshotGroups( m_data->tag, snapshotTime, m_data->sinceGroups );
+        }
       }
+      m_data->snapshotTime = snapshotTime;
     }
     
     void IOVProxy::reload(){
-      if(m_data.get() && !m_data->tag.empty()) load( m_data->tag );
+      if(m_data.get() && !m_data->tag.empty()) load( m_data->tag, m_data->snapshotTime );
     }
     
     void IOVProxy::reset(){
@@ -206,7 +224,11 @@ namespace cond {
     
     void IOVProxy::fetchSequence( cond::Time_t lowerGroup, cond::Time_t higherGroup ){
       m_data->iovSequence.clear();
-      m_session->iovSchema().iovTable().selectLatestByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence );
+      if( m_data->snapshotTime.is_not_a_date_time() ){
+	m_session->iovSchema().iovTable().selectLatestByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence );
+      } else {
+	m_session->iovSchema().iovTable().selectSnapshotByGroup( m_data->tag, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence );
+      }
       
       if( m_data->iovSequence.empty() ){
 	m_data->groupLowerIov = cond::time::MAX_VAL;
@@ -297,9 +319,13 @@ namespace cond {
     cond::Iov_t IOVProxy::getLast(){
       checkTransaction( "IOVProxy::getLast" );
       cond::Iov_t ret;
-      if( m_session->iovSchema().iovTable().getLastIov( m_data->tag, ret.since, ret.payloadId ) ){
-	ret.till = cond::time::MAX_VAL;
+      bool ok = false;
+      if( m_data->snapshotTime.is_not_a_date_time() ){
+	ok = m_session->iovSchema().iovTable().getLastIov( m_data->tag, ret.since, ret.payloadId );
+      } else {
+	ok = m_session->iovSchema().iovTable().getSnapshotLastIov( m_data->tag, m_data->snapshotTime, ret.since, ret.payloadId );
       }
+      if(ok) ret.till = cond::time::MAX_VAL;
       return ret;
     }
     
@@ -310,7 +336,11 @@ namespace cond {
     int IOVProxy::sequenceSize() const {
       checkTransaction( "IOVProxy::sequenceSize" );
       size_t ret = 0;
-      m_session->iovSchema().iovTable().getSize( m_data->tag, ret );
+      if( m_data->snapshotTime.is_not_a_date_time() ){
+	m_session->iovSchema().iovTable().getSize( m_data->tag, ret );
+      } else {
+	m_session->iovSchema().iovTable().getSnapshotSize( m_data->tag, m_data->snapshotTime, ret );
+      }
       return ret;
     }
 

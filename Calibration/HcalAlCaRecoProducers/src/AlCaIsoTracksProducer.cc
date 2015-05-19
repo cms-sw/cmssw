@@ -104,7 +104,8 @@ private:
   int                        nRun, nAll, nGood;
   edm::InputTag              labelTriggerEvent_, labelTriggerResults_;
   edm::InputTag              labelGenTrack_, labelRecVtx_,  labelHltGT_;
-  edm::InputTag              labelEB_, labelEE_, labelHBHE_;
+  edm::InputTag              labelEB_, labelEE_, labelHBHE_, labelBS_;
+  std::string                labelIsoTk_;
   const MagneticField       *bField;
   const CaloGeometry        *geo;
   double                     ptL1, etaL1, phiL1;
@@ -149,12 +150,14 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   eIsolation_                         = iConfig.getParameter<double>("IsolationEnergy");
   labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
   labelRecVtx_                        = iConfig.getParameter<edm::InputTag>("VertexLabel");
+  labelBS_                            = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
   labelEB_                            = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
   labelEE_                            = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
   labelHBHE_                          = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
   labelHltGT_                         = iConfig.getParameter<edm::InputTag>("L1GTSeedLabel");
   labelTriggerEvent_                  = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   labelTriggerResults_                = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  labelIsoTk_                         = iConfig.getParameter<std::string>("IsoTrackLabel");
 
   // define tokens for access
   tok_hltGT_    = consumes<trigger::TriggerFilterObjectWithRefs>(labelHltGT_);
@@ -162,7 +165,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   tok_trigRes_  = consumes<edm::TriggerResults>(labelTriggerResults_);
   tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
   tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
-  tok_bs_       = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  tok_bs_       = consumes<reco::BeamSpot>(labelBS_);
   tok_EB_       = consumes<EcalRecHitCollection>(labelEB_);
   tok_EE_       = consumes<EcalRecHitCollection>(labelEE_);
   tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
@@ -195,10 +198,10 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   trigKount = trigPass = dummy;
 
   //create also IsolatedPixelTrackCandidateCollection which contains isolation info and reference to primary track
-  produces<reco::HcalIsolatedTrackCandidateCollection>("HcalIsolatedTrackCollection");
+  produces<reco::HcalIsolatedTrackCandidateCollection>(labelIsoTk_);
   produces<reco::VertexCollection>(labelRecVtx_.label());
-  produces<EcalRecHitCollection>("EcalRecHitsEB");
-  produces<EcalRecHitCollection>("EcalRecHitsEE");
+  produces<EcalRecHitCollection>(labelEB_.instance());
+  produces<EcalRecHitCollection>(labelEE_.instance());
   produces<HBHERecHitCollection>(labelHBHE_.label());
 
   edm::LogInfo("HcalIsoTrack") << " Expected to produce the collections:\n"
@@ -335,11 +338,11 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  outputHBHEColl->push_back(*hhit);
       }
 
-      iEvent.put(outputHcalIsoTrackColl, "HcalIsolatedTrackCollection");
-      iEvent.put(outputVColl,    labelRecVtx_.label());
-      iEvent.put(outputEBColl,   "EcalRecHitsEB");
-      iEvent.put(outputEEColl,   "EcalRecHitsEE");
-      iEvent.put(outputHBHEColl, labelHBHE_.label());
+      iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
+      iEvent.put(outputVColl,            labelRecVtx_.label());
+      iEvent.put(outputEBColl,           labelEB_.instance());
+      iEvent.put(outputEEColl,           labelEE_.instance());
+      iEvent.put(outputHBHEColl,         labelHBHE_.label());
     }
   }
 }

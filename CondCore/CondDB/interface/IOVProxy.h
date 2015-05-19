@@ -75,6 +75,9 @@ namespace cond {
       // full=true load the full iovSequence 
       void load( const std::string& tag, bool full=false );
       
+      // loads in memory the tag information and the iov groups
+      void load( const std::string& tag, const boost::posix_time::ptime& snapshottime, bool full=false );
+
       // reset the data in memory and execute again the queries for the current tag 
       void reload();
       

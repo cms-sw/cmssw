@@ -84,7 +84,7 @@ namespace cond {
     inline std::string convertoToOracleConnection(const std::string & input){
 
       // leave the connection string unmodified for sqlite
-      if( input.find("sqlite") == 0 ) return input;
+      if( input.find("sqlite") == 0 || input.find("oracle") == 0) return input;
 
       //static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
       static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");

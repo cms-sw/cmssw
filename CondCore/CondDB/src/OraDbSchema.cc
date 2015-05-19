@@ -210,12 +210,24 @@ namespace cond {
       return ret;      
     }
 
-    bool OraIOVTable::getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ){
+    size_t OraIOVTable::selectSnapshot( const std::string& tag, const boost::posix_time::ptime&, 
+					std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
+      // no (easy) way to do it...                                                                                                                                  
+      return selectLatest( tag, iovs );
+    }
+
+     bool OraIOVTable::getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ){
       if(!m_cache.load( tag ) || m_cache.iovSequence().size()==0 ) return false;
       cond::IOVElementProxy last = *(--m_cache.iovSequence().end());
       since = last.since();
       hash = last.token();
       return true;
+    }
+
+    bool OraIOVTable::getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime&, 
+				  cond::Time_t& since, cond::Hash& hash ){
+      // no (easy) way to do it...                                                                                                                                  
+      return getLastIov( tag, since, hash );
     }
 
     bool OraIOVTable::getSize( const std::string& tag, size_t& size ){
