@@ -115,6 +115,7 @@ hpsTauIDSources = [
     ("chargedIsoPtSum", "ChargedIsoPtSum"),
     ("neutralIsoPtSum", "NeutralIsoPtSum"),
     ("puCorrPtSum", "PUcorrPtSum"),
+    ("neutralIsoPtSumWeight", "NeutralIsoPtSumWeight"),
     ("footprintCorrection", "FootprintCorrection"),
     ("photonPtSumOutsideSignalCone", "PhotonPtSumOutsideSignalCone"),
     ##("byIsolationMVA3oldDMwoLTraw", "DiscriminationByIsolationMVA3oldDMwoLTraw"),
