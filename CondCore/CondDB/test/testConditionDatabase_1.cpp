@@ -121,7 +121,7 @@ int main (int argc, char** argv)
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::string connectionString0("sqlite_file:cms_conditions.db");
+  std::string connectionString0("sqlite_file:cms_conditions_1.db");
   ret = run( connectionString0 );
   return ret;
 }
