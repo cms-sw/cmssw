@@ -36,9 +36,9 @@ strips = cms.PSet(
     plugin = cms.string("RecoTauPiZeroStripPlugin"),
     qualityCuts = PFTauQualityCuts,
     # Clusterize photons and electrons (PF numbering)
-    stripCandidatesParticleIds   = cms.vint32(2, 4),
-    stripEtaAssociationDistance  = cms.double(0.05),
-    stripPhiAssociationDistance  = cms.double(0.2),
+    stripCandidatesParticleIds  = cms.vint32(2, 4),
+    stripEtaAssociationDistance = cms.double(0.05),
+    stripPhiAssociationDistance = cms.double(0.2),
     makeCombinatoricStrips = cms.bool(False)
 )
 
@@ -47,9 +47,9 @@ comboStrips = cms.PSet(
     plugin = cms.string("RecoTauPiZeroStripPlugin"),
     qualityCuts = PFTauQualityCuts,
     # Clusterize photons and electrons (PF numbering)
-    stripCandidatesParticleIds   = cms.vint32(2, 4),
-    stripEtaAssociationDistance  = cms.double(0.05),
-    stripPhiAssociationDistance  = cms.double(0.2),
+    stripCandidatesParticleIds  = cms.vint32(2, 4),
+    stripEtaAssociationDistance = cms.double(0.05),
+    stripPhiAssociationDistance = cms.double(0.2),
     makeCombinatoricStrips = cms.bool(True),
     maxInputStrips = cms.int32(5),
     stripMassWhenCombining = cms.double(0.0), # assume photon like
@@ -67,3 +67,27 @@ modStrips = strips.clone(
     maxStripBuildIterations = cms.int32(-1)
 )
 
+# Produce a "strips" of photons
+# with no track quality cuts applied to PFElectrons
+# and eta x phi size of strip increasing for low pT photons
+modStrips2 = strips.clone(
+    plugin = cms.string('RecoTauPiZeroStripPlugin3'),
+    applyElecTrackQcuts = cms.bool(False),
+    minGammaEtStripSeed = cms.double(0.5),
+    minGammaEtStripAdd = cms.double(0.),
+    minStripEt = cms.double(0.5),
+    # CV: parametrization of strip size in eta and phi determined by Yuta Takahashi,
+    #     chosen to contain 95% of photons from tau decays
+    stripEtaAssociationDistance = cms.PSet(
+        function = cms.string("TMath::Max(0.05, [0]*TMath::Power(pT, -[1]))"),
+        par0 = cms.double(2.15974e-01),
+        par1 = cms.double(5.14575e-01)
+    ),
+    stripPhiAssociationDistance = cms.PSet(
+        function = cms.string("TMath::Max(0.05, [0]*TMath::Power(pT, -[1]))"),
+        par0 = cms.double(3.74961e-01),
+        par1 = cms.double(5.99882e-01)
+    ),
+    updateStripAfterEachDaughter = cms.bool(False),
+    maxStripBuildIterations = cms.int32(-1)
+)

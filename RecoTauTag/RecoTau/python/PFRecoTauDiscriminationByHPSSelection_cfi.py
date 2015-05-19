@@ -66,7 +66,6 @@ hpsSelectionDiscriminator = cms.EDProducer(
     Prediscriminants = noPrediscriminants,
     matchingCone = PFRecoTauPFJetInputs.jetConeSize,
     minTauPt = cms.double(0.0),
-    coneSizeFormula = cms.string("max(min(0.1, 3.0/pt()), 0.05)"),
     decayModes = cms.VPSet(
         decayMode_1Prong0Pi0,
         decayMode_1Prong1Pi0,
