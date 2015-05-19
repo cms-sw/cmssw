@@ -82,7 +82,7 @@ public:
     XrdCl::FileSystem fs(url);
 
     XrdCl::StatInfo *stat;
-    if (!(fs.Stat(fullpath, stat)).IsOK() || (stat == nullptr))
+    if (!(fs.Stat(url.GetPath(), stat)).IsOK() || (stat == nullptr))
     {
         return false;
     }
