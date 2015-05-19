@@ -480,11 +480,11 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 }
 
 // Read DynIneff Scale factors from DB
-void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es, const unsigned int bunchspace){
+void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace){
   if (AddPixelInefficiency&&!pixelEfficiencies_.FromConfig) {
     if (bunchspace == 50) es.get<SiPixelDynamicInefficiencyRcd>().get("50ns",SiPixelDynamicInefficiency_);
     else if (bunchspace == 25) es.get<SiPixelDynamicInefficiencyRcd>().get(SiPixelDynamicInefficiency_);
-    else throw cms::Exception("Database")<<"SiPixelDigitizerAlgorithm encountered unkown bunchspacing configuration: bunchspace = "<<bunchspace;
+    else throw cms::Exception("Database")<<"SiPixelDigitizerAlgorithm encountered unknown bunchspacing configuration: bunchspace = "<<bunchspace;
     pixelEfficiencies_.init_from_db(geom_, SiPixelDynamicInefficiency_);
   }
 }

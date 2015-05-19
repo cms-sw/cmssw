@@ -77,7 +77,8 @@ namespace cms {
 			     edm::EventSetup const& c);
     CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
-    bool first;
+    bool firstInitializeEvent_;
+    bool firstFinalizeEvent_;
     std::unique_ptr<SiPixelDigitizerAlgorithm>  _pixeldigialgo;
     /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
 *

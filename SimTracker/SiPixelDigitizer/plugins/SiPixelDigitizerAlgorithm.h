@@ -68,7 +68,7 @@ class SiPixelDigitizerAlgorithm  {
 		const TrackerTopology *tTopo,
                 CLHEP::HepRandomEngine*);
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
-  void init_DynIneffDB(const edm::EventSetup&, const unsigned int);
+  void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
 
  private:
   

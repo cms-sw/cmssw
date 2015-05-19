@@ -92,7 +92,8 @@ namespace CLHEP {
 namespace cms
 {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC):
-    first(true),
+    firstInitializeEvent_(true),
+    firstFinalizeEvent_(true),
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
@@ -165,7 +166,10 @@ namespace cms
   
   void
   SiPixelDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-    if(first) _pixeldigialgo->init(iSetup);
+    if(firstInitializeEvent_){
+      _pixeldigialgo->init(iSetup);
+      firstInitializeEvent_ = false;
+    }
 
     // Make sure that the first crossing processed starts indexing the sim hits from zero.
     // This variable is used so that the sim hits from all crossing frames have sequential
@@ -254,11 +258,13 @@ namespace cms
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
  
     PileupInfo_ = getEventPileupInfo();
-    if (first) {
-      _pixeldigialgo->init_DynIneffDB(iSetup, PileupInfo_->getMix_bunchSpacing());
-      first = false;
-    }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
+    
+    if (firstFinalizeEvent_) {
+      const unsigned int bunchspace = PileupInfo_->getMix_bunchSpacing();
+      _pixeldigialgo->init_DynIneffDB(iSetup, bunchspace);
+      firstFinalizeEvent_ = false;
+    }
 
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       
