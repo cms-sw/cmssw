@@ -240,7 +240,7 @@ JetAnalyzer::~JetAnalyzer() {
 
   delete DCSFilterForDCSMonitoring_;
   delete DCSFilterForJetMonitoring_;
-  LogTrace(metname)<<"[JetAnalyzer] Saving the histos";
+  LogTrace("JetAnalyzer")<<"[JetAnalyzer] Saving the histos";
 }
 
 // ***********************************************************
