@@ -821,7 +821,6 @@ namespace edm {
     if(fileNameHash == 0U)  {
       fileNameHash = lfnHash_;
     }
-    std::cerr << "Sequential event: " << cache.id() << std::endl;
   }
 
   void

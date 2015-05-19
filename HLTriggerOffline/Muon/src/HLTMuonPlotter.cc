@@ -224,7 +224,8 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     
     for (size_t step = 0; step < nSteps; step++) {
       
-      const size_t hltStep = (step >= 2) ? step - 2 : 0;
+      size_t hltStep = (step >= 2) ? step - 2 : 0;
+      if (nSteps == 6) hltStep=hltStep-1; // case of the tracker muon (it has no L2)
       size_t level = 0;
       if ((stepLabels_[step].find("L3TkIso") != string::npos)||(stepLabels_[step].find("TkTkIso") != string::npos)) level = 6;
       else if ((stepLabels_[step].find("L3HcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 5;
