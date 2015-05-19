@@ -368,6 +368,22 @@ namespace edm {
     }
   }
 
+  bool
+  RootTree::skipEntries(unsigned int& offset) {
+    entryNumber_ += offset;
+    bool retval = (entryNumber_ < entries_);
+    if(retval) {
+      offset = 0;
+    } else {
+      // Not enough entries in the file to skip.
+      // The +1 is needed because entryNumber_ is -1 at the initialization of the tree, not 0.
+      long long overshoot = entryNumber_ + 1 - entries_;
+      entryNumber_ = entries_;
+      offset = overshoot;
+    }
+    return retval;
+  }
+
   void
   RootTree::startTraining() {
     if (cacheSize_ == 0) {

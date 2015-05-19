@@ -703,19 +703,17 @@ namespace edm {
 
   void
   RootInputFileSequence::skipEntries(unsigned int offset) {
-    while(offset > 0) {
-      while(offset > 0 && rootFile_->nextEventEntry()) {
-        --offset;
+    // offset is decremented by the number of events actually skipped.
+    bool completed = rootFile_->skipEntries(offset);
+    while(!completed) {
+      ++fileIter_;
+      if(fileIter_ == fileIterEnd_) {
+        fileIter_ = fileIterBegin_;
       }
-      if(offset > 0) {
-        ++fileIter_;
-        if(fileIter_ == fileIterEnd_) {
-          fileIter_ = fileIterBegin_;
-        }
-        initFile(false);
-        assert(rootFile_);
-        rootFile_->setAtEventEntry(IndexIntoFile::invalidEntry);
-      }
+      initFile(false);
+      assert(rootFile_);
+      rootFile_->setAtEventEntry(IndexIntoFile::invalidEntry);
+      completed = rootFile_->skipEntries(offset);
     }
   }
 
