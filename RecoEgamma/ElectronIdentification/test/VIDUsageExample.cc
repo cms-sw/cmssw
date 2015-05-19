@@ -44,7 +44,7 @@ public:
   
   virtual void analyze(const edm::Event& event,const edm::EventSetup& setup) override;
  
-  void endJob() override {std::cout <<"nrPass "<<nrPassID_<<" nrFail "<<nrFailID_<<" (note this is all \"electrons\" so is not the ID efficiency)"<<std::endl;}
+  void endStream() override {std::cout <<"nrPass "<<nrPassID_<<" nrFail "<<nrFailID_<<" (note this is all \"electrons\" so is not the ID efficiency)"<<std::endl;}
  
 };
 
