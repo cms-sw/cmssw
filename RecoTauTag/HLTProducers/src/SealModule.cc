@@ -15,7 +15,7 @@
 #include "TauRegionalPixelSeedGenerator.h" 	 
 #include "TrackingRegionsFromBeamSpotAndL2Tau.h"
 #include "CandidateSeededTrackingRegionsProducer.h"
-#include "RecoTauTag/HLTProducers/src/PointSeededTrackingRegionsProducer.h"
+//#include "RecoTauTag/HLTProducers/src/PointSeededTrackingRegionsProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationSelector.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauRelaxingIsolationSelector.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationProducer.h"
@@ -33,7 +33,7 @@
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator");      
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CandidateSeededTrackingRegionsProducer, "CandidateSeededTrackingRegionsProducer");
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, PointSeededTrackingRegionsProducer, "PointSeededTrackingRegionsProducer");
+//DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, PointSeededTrackingRegionsProducer, "PointSeededTrackingRegionsProducer");
 //
 DEFINE_FWK_MODULE(IsolatedTauJetsSelector);
 DEFINE_FWK_MODULE(EMIsolatedTauJetsSelector);
