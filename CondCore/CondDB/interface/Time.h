@@ -19,6 +19,8 @@ namespace cond {
     const Time_t MAX_VAL(std::numeric_limits<Time_t>::max());
 
     const Time_t MIN_VAL(0);
+
+    static constexpr const char* const MAX_TIMESTAMP = "9999-12-31 23:59:59.000";
   
     typedef cond::UnpackedTime UnpackedTime;
 

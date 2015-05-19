@@ -132,6 +132,11 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   } else if( iConfig.exists("connect") ) // default connection string
     m_connectionString= iConfig.getParameter<std::string>("connect");
 
+  // snapshot
+  boost::posix_time::ptime snapshotTime;
+  if( iConfig.exists( "snapshotTime" ) ) 
+    snapshotTime = boost::posix_time::time_from_string( iConfig.getParameter<std::string>("snapshotTime" ) );
+
   // connection configuration
   if( iConfig.exists("DBParameters") ) {
     edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>( "DBParameters" );
@@ -170,11 +175,14 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     fillList(pfnPostfix, pfnPostfixList, globaltagList.size(), "pfnPostfix");
   }
 
+  cond::GTMetadata_t gtMetadata;
   fillTagCollectionFromDB(connectList,
 			  pfnPrefixList,
 			  pfnPostfixList,
 			  globaltagList,
-			  replacements);
+			  replacements,
+			  gtMetadata);
+  if(snapshotTime.is_not_a_date_time()) snapshotTime = gtMetadata.snapshotTime;
   
   TagCollection::iterator it;
   TagCollection::iterator itBeg = m_tagCollection.begin();
@@ -227,7 +235,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
    //  instert in the map
     m_proxies.insert(std::make_pair(it->second.recordName(), proxy));
     // initialize
-    proxy->lateInit(nsess, tag, it->second.recordLabel(), connStr);
+    proxy->lateInit(nsess, tag, snapshotTime, it->second.recordLabel(), connStr);
   }
 
   // one loaded expose all other tags to the Proxy! 
@@ -380,11 +388,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     cond::Time_t abtime = cond::time::fromIOVSyncValue( iTime, timetype );
     userTime = ( 0 == abtime );
     
-    //std::cout<<"abtime "<<abtime<<std::endl;
-
     if (userTime) return; //  oInterval invalid to avoid that make is called...
-
-
     
     if( doRefresh ) {
 
@@ -542,7 +546,8 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
                                               const std::string & prefix,
                                               const std::string & postfix,
                                               const std::string & roottag,
-                                              std::set< cond::GTEntry_t > & tagcoll )
+                                              std::set< cond::GTEntry_t > & tagcoll,
+					      cond::GTMetadata_t& gtMetadata )
 {
   if ( !roottag.empty() ) {
     if ( connectionString.empty() )
@@ -555,7 +560,8 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
     }
     cond::persistency::Session session = m_connection.createSession( connectionString );
     session.transaction().start( true );
-    cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix ); 
+    cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix );
+    gtMetadata.snapshotTime = gtp.snapshotTime(); 
     for( const auto& gte : gtp ){
       tagcoll.insert( gte );
     }
@@ -569,7 +575,8 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
                                               const std::vector<std::string> & prefixList,
                                               const std::vector<std::string> & postfixList,
                                               const std::vector<std::string> & roottagList,
-                                              std::map<std::string,cond::GTEntry_t>& replacement )
+                                              std::map<std::string,cond::GTEntry_t>& replacement,
+					      cond::GTMetadata_t& gtMetadata )
 {
   std::set< cond::GTEntry_t > tagcoll;
  
@@ -577,7 +584,7 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
   auto prefix = prefixList.begin();
   auto postfix = postfixList.begin();
   for( auto roottag = roottagList.begin(); roottag != roottagList.end(); ++roottag, ++connectionString, ++prefix, ++postfix) {
-    fillTagCollectionFromGT(*connectionString, *prefix, *postfix, *roottag, tagcoll);
+    fillTagCollectionFromGT(*connectionString, *prefix, *postfix, *roottag, tagcoll, gtMetadata);
   }
 
   std::set<cond::GTEntry_t>::iterator tagCollIter;
@@ -605,11 +612,6 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
   std::map<std::string,cond::GTEntry_t>::iterator replacementBegin = replacement.begin();
   std::map<std::string,cond::GTEntry_t>::iterator replacementEnd = replacement.end();
   for( replacementIter = replacementBegin; replacementIter != replacementEnd; ++replacementIter ){
-    // std::cout<<"appending"<<std::endl;
-    // std::cout<<"pfn "<<replacementIter->second.pfn<<std::endl;
-    // std::cout<<"objectname "<<replacementIter->second.objectname<<std::endl;
-    // std::cout<<"tag "<<replacementIter->second.tag<<std::endl;
-    // std::cout<<"recordname "<<replacementIter->second.recordname<<std::endl;
     m_tagCollection.insert( *replacementIter );
   }
 }

@@ -85,6 +85,15 @@ namespace cond {
       return proxy;
     }
 
+    IOVProxy  Session::readIov( const std::string& tag,
+                                const boost::posix_time::ptime& snapshottime,
+                                bool full ){
+      m_session->openIovDb();
+      IOVProxy proxy( m_session );
+      proxy.load( tag, snapshottime, full );
+      return proxy;
+    }
+
     bool Session::existsIov( const std::string& tag ){
       m_session->openIovDb();
       return m_session->iovSchema().tagTable().select( tag );

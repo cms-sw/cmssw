@@ -100,7 +100,9 @@ namespace cond {
 				    const boost::posix_time::ptime& snapshotTime, 
 				    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
       size_t selectLatest( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+      size_t selectSnapshot( const std::string& tag, const boost::posix_time::ptime& snapshotTime, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
       bool getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash );
+      bool getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash );
       bool getSize( const std::string& tag, size_t& size );
       bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
       void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, 

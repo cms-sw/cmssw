@@ -126,7 +126,7 @@ int main (int argc, char** argv)
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::string connectionString0("sqlite_file:cms_conditions.db");
+  std::string connectionString0("sqlite_file:cms_conditions_0.db");
   std::cout <<"## Running with CondDBV2 format..."<<std::endl;
   ret = run( connectionString0 );
   if( ret<0 ) return ret;
