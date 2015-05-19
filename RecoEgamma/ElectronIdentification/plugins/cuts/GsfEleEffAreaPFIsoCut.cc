@@ -70,9 +70,9 @@ GsfEleEffAreaPFIsoCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
 
   // Establish the cut value
-  double absEta = std::abs(cand->superCluster()->position().eta());
+  double absEta = std::abs(cand->superCluster()->eta());
   const float isoCut =
-    ( cand->p4().pt() < _ptCutOff ?
+    ( cand->pt() < _ptCutOff ?
       ( absEta < _barrelCutOff ? _isoCutEBLowPt : _isoCutEELowPt ) 
       :
       ( absEta < _barrelCutOff ? _isoCutEBHighPt : _isoCutEEHighPt ) );

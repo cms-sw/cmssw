@@ -89,7 +89,7 @@ operator()(const reco::PhotonPtr& cand) const{
   // In this version of the isolation cut we apply
   // exponential pt scaling to the barrel isolation cut,
   // and linear pt scaling to the endcap isolation cut.
-  double absEta = std::abs(cand->superCluster()->position().eta());
+  double absEta = std::abs(cand->superCluster()->eta());
   const float isolationCutValue = 
     ( absEta < _barrelCutOff ? 
       _C1_EB + exp( pt*_C2_EB + _C3_EB)

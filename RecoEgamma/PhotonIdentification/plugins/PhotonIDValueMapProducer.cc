@@ -329,9 +329,9 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 
       // Check if this candidate is within the isolation cone
-      float dR = deltaR(photon_directionWrtVtx.Eta(),photon_directionWrtVtx.Phi(), 
+      float dR2 = deltaR2(photon_directionWrtVtx.Eta(),photon_directionWrtVtx.Phi(), 
 			iCand->eta(), iCand->phi());
-      if( dR > coneSizeDR ) continue;
+      if( dR2 > coneSizeDR*coneSizeDR ) continue;
 
       // Check if this candidate is not in the footprint
       bool inFootprint = false;
@@ -475,9 +475,9 @@ float PhotonIDValueMapProducer
       float dz = theTrack->dz(vtx->position());
       if ( fabs(dz) > dzMax) continue;
       
-      float dR = deltaR(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
+      float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
 			iCand->momentum().Eta(),      iCand->momentum().Phi());
-      if(dR > dRmax || dR < dRveto) continue;
+      if(dR2 > dRmax*dRmax || dR2 < dRveto*dRveto) continue;
       
       sum += iCand->pt();
     }
