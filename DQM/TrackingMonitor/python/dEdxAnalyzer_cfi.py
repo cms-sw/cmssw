@@ -53,9 +53,8 @@ dEdxHitAnalyzer = cms.EDAnalyzer("dEdxHitAnalyzer",
        OutputFileName      = cms.string('MonitorTrack.root'),
        
        #input collections
-#       TracksForDeDx       = cms.string('RefitterForDedxDQMDeDx'),
        TracksForDeDx       = cms.string('generalTracks'),
-       deDxHitProducers       = cms.vstring('dedxDQMHitInfo'),
+       deDxHitProducers       = cms.vstring('dedxHitInfo'),
 
        #histograms definition
        dEdxNHitBin         = cms.int32(30),
