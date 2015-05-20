@@ -22,6 +22,7 @@ Description: Provide access to the collected elements contained by any WrapperBa
 #include "boost/iterator/indirect_iterator.hpp"
 
 #include <vector>
+#include <memory>
 
 namespace edm {
 
@@ -37,13 +38,17 @@ namespace edm {
   class ViewBase {
   public:
     virtual ~ViewBase();
-    ViewBase* clone() const;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    std::unique_ptr<ViewBase> clone() const;
+#endif
 
   protected:
     ViewBase();
     ViewBase(ViewBase const&);
     ViewBase& operator=(ViewBase const&);
-    virtual ViewBase* doClone() const = 0;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    virtual std::unique_ptr<ViewBase> doClone() const = 0;
+#endif
     void swap(ViewBase&) {} // Nothing to swap
   };
 
@@ -135,7 +140,9 @@ namespace edm {
   private:
     seq_t items_;
     std::vector<Ptr<value_type> > vPtrs_;
-    ViewBase* doClone() const;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    std::unique_ptr<ViewBase> doClone() const override;
+#endif
   };
 
   // Associated free functions (same as for std::vector)
@@ -329,12 +336,14 @@ namespace edm {
       output.items_[i] = first;
   }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename T>
-  ViewBase*
+  std::unique_ptr<ViewBase>
   View<T>::doClone() const {
-    return new View(*this);
+    return std::unique_ptr<ViewBase>{new View(*this)};
   }
-
+#endif
+  
   template<typename T>
   inline
   View<T>&
