@@ -12,7 +12,7 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 
 #for data in 720pre7
-process.GlobalTag.globaltag ='MCRUN2_74_V9::All'
+process.GlobalTag.globaltag ='MCRUN2_74_V9'
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
