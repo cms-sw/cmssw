@@ -80,6 +80,7 @@ struct EVTColContainer {
     const std::vector<reco::PFJet>               * pfJets;
     const std::vector<reco::CaloJet>             * caloJets;
     const edm::TriggerResults                    * triggerResults ;
+    const reco::BeamSpot                         * bs;
 
     EVTColContainer():
         nOfCollections(6),
@@ -98,7 +99,8 @@ struct EVTColContainer {
         pfTaus(0),
         pfJets(0),
         caloJets(0),
-        triggerResults(0)
+        triggerResults(0),
+        bs(0)
     {
     }
     ///
@@ -131,6 +133,7 @@ struct EVTColContainer {
         pfJets = 0;
         caloJets = 0;
         triggerResults = 0;
+        bs = 0;
     }
 
     /// Setter: multiple overloaded function

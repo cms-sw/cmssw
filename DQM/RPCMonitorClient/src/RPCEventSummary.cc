@@ -62,7 +62,8 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
     
     int defaultValue = 1;
-    
+    isIn_ = true;
+
     if(0 != setup.find( recordKey ) ) {
       defaultValue = -1;
       //get fed summary information
@@ -70,18 +71,17 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
       setup.get<RunInfoRcd>().get(sumFED);    
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
       unsigned int f = 0;
-      bool flag = false;
-      while(!flag && f < FedsInIds.size()) {
+      isIn_ = false;
+      while(!isIn_ && f < FedsInIds.size()) {
 	int fedID=FedsInIds[f];
 	//make sure fed id is in allowed range  
 	if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
 	  defaultValue = 1;
-	  flag = true;
+	  isIn_ = true;
 	} 
       f++;
       }   
     }   
-    
     
     MonitorElement* me;
     ibooker.setCurrentFolder(eventInfoPath_);
@@ -165,8 +165,9 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     init_ = true;
   }
 
-
-  if(!offlineDQM_  && lumiCounter_%prescaleFactor_ == 0 ){
+  
+  
+  if(isIn_ && !offlineDQM_  && lumiCounter_%prescaleFactor_ == 0 ){
     this->clientOperation(igetter);
   }
 
@@ -178,7 +179,7 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
 
 void RPCEventSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){ 
   
-  this->clientOperation(igetter);
+  if(isIn_) { this->clientOperation(igetter);}
 }
 
 void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){

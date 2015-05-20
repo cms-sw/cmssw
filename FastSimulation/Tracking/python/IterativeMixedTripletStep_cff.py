@@ -54,6 +54,7 @@ mixedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSelector,mixedTripletStep
+mixedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # sequence
 MixedTripletStep = cms.Sequence(iterativeMixedTripletStepSeeds+

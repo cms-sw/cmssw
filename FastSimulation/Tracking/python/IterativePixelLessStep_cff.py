@@ -60,6 +60,7 @@ pixelLessStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # track selection
 from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSelector,pixelLessStep
+pixelLessStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # sequence
 PixelLessStep = cms.Sequence(iterativePixelLessSeeds+

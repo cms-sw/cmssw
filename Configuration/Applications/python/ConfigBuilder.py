@@ -220,10 +220,6 @@ class ConfigBuilder(object):
 		
         #print "map of steps is:",self.stepMap
 
-	if 'FASTSIM' in self.stepMap:
-		#overriding the --fast option to True
-		self._options.fast=True
-		
         self.with_output = with_output
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
@@ -968,7 +964,6 @@ class ConfigBuilder(object):
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
-        self.FASTSIMDefaultSeq='all'
         self.VALIDATIONDefaultSeq=''
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
@@ -1087,12 +1082,29 @@ class ConfigBuilder(object):
 
         # if fastsim switch event content
 	if self._options.fast:
-		self.SIMDefaultCFF = 'FastSimulation.Configuration.FamosSequences_cff'
-		self.SIMDefaultSeq='simulationWithFamos'
-		self.RECODefaultCFF= 'FastSimulation.Configuration.FamosSequences_cff'
-		self.RECODefaultSeq= 'reconstructionWithFamos'
+		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
+		self.SIMDefaultSeq = 'psim'
+		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
+		self.RECODefaultSeq= 'reconstruction'
                 self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
+		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
+		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
+		self.DIGIDefaultCFF = 'FastSimulation.Configuration.Digi_cff'
+		if self._options.datamix == 'PreMix':
+			self.DIGIDefaultCFF="FastSimulation.Configuration.DigiDMPreMix_cff"
+		if "DIGIPREMIX" in self.stepMap.keys():
+			self.DIGIDefaultCFF="FastSimulation.Configuration.Digi_PreMix_cff"
+		if "DATAMIX" in self.stepMap.keys():
+			self.DATAMIXDefaultCFF="FastSimulation.Configuration.DataMixer"+self._options.datamix+"_cff"
+
+		self.DIGIDefaultSeq = 'pdigi'
+		self.L1EMDefaultCFF='FastSimulation.Configuration.SimL1Emulator_cff'
+		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
+		self.DIGI2RAWDefaultCFF = 'FastSimulation.Configuration.DigiToRaw_cff'
+		self.DIGI2RAWDefaultSeq = 'DigiToRaw'
+		self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
+		self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
 		
 
@@ -1435,7 +1447,7 @@ class ConfigBuilder(object):
 
     def prepare_DIGIPREMIX_S2(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
 
@@ -1541,7 +1553,8 @@ class ConfigBuilder(object):
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
                 if self._options.fast:
-                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
+			print "WARNING: using a temporary cfg for FastSim HLT"
+			self.loadAndRemember('FastSimulation.Configuration.HLT_%s_Famos_cff'  % sequence )
                 else:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
@@ -1557,15 +1570,11 @@ class ConfigBuilder(object):
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-        if (self._options.fast and 'HLT' in self.stepMap and 'FASTSIM' in self.stepMap):
-                self.finalizeFastSimHLT()
 
 	#this is a fake, to be removed with fastim migration and HLT menu dump
-	if self._options.fast and not 'FASTSIM' in self.stepMap:
+	if self._options.fast:
 		if not hasattr(self.process,'HLTEndSequence'):
 			self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
-		if not hasattr(self.process,'simulation'):
-			self.executeAndRemember("process.simulation = cms.Sequence( process.dummyModule )")
 		
 
     def prepare_RAW2RECO(self, sequence = None):
@@ -1641,6 +1650,15 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
+        return
+
+    def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
+        ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
+        if not self._options.fast:
+                print "ERROR: this step is only implemented for FastSim"
+                sys.exit()
+        self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
+        self.scheduleSequence(sequence.split('.')[-1],'reconstruction_befmix_step')
         return
 
     def prepare_PAT(self, sequence = "miniAOD"):
@@ -1998,78 +2016,6 @@ class ConfigBuilder(object):
     def finalizeFastSimHLT(self):
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
             self.schedule.append(self.process.reconstruction)
-
-    def prepare_FASTSIM(self, sequence = "all"):
-        """Enrich the schedule with fastsim"""
-        self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-
-        if sequence in ('all','allWithHLTFiltering',''):
-            if not 'HLT' in self.stepMap.keys():
-                    self.prepare_HLT(sequence=None)
-
-            self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-            self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-
-            self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
-            self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
-
-            # since we have HLT here, the process should be called HLT
-            self._options.name = "HLT"
-
-            # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
-            if sequence == 'all' and not 'HLT' in self.stepMap.keys(): #(a)
-                self.finalizeFastSimHLT()
-	elif sequence == 'sim':
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		
-		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithFamos") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'reco':
-		self.executeAndRemember("process.mix.playback = True")
-		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionWithFamos)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionWithFamos") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'simExtended':
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		
-		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithSomeReconstruction)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithSomeReconstruction") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'recoHighLevel':
-		self.executeAndRemember("process.mix.playback = True")
-		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionHighLevel)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionHighLevel") )
-		self.schedule.append(self.process.fastsim_step)
-        elif sequence == 'famosWithEverything':
-            self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
-            self.schedule.append(self.process.fastsim_step)
-
-            # now the additional commands we need to make the config work
-            self.executeAndRemember("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
-        else:
-             print "FastSim setting", sequence, "unknown."
-             raise ValueError
-
-        if 'Flat' in self._options.beamspot:
-                beamspotType = 'Flat'
-        elif 'Gauss' in self._options.beamspot:
-                beamspotType = 'Gaussian'
-        else:
-                beamspotType = 'BetaFunc'
-        self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
-        beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
-        self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
-        self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-	if hasattr(self.process,'famosPileUp'):
-		self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
-
 
 
     def build_production_info(self, evt_type, evtnumber):
