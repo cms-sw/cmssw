@@ -62,6 +62,8 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 # HCAL noise
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
+#HCAL calibration iterative PhiSym
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_cff import *
 
 ###############################################################
 # Muon alignment
@@ -103,9 +105,6 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_cff imp
 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 
-
-
-
 # NOTE: the ALCARECO DQM modules can not be placed together in a single path 
 # because the non-DQM sequences act as filters.
 # They are therefore inserted per ALCARECO path.
@@ -135,6 +134,7 @@ pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
+pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalPhisymDQM)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
@@ -324,6 +324,14 @@ ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
+    responsible = 'Natalia Lychkovskaya',
+    name = 'ALCARECOHcalCalIterativePhiSym',
+    paths  = (pathALCARECOHcalCalIterativePhiSym),
+    content = OutALCARECOHcalCalIterativePhiSym.outputCommands,
+    selectEvents = OutALCARECOHcalCalIterativePhiSym.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+    )
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',
