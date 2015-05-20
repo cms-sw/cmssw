@@ -316,11 +316,6 @@ void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, cons
 
 }
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginJob(){
-}
-
-
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es ){
 
   if ( show_mechanical_structure_view ){
@@ -861,16 +856,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 }//end of method analyze
-//--------------------------------------------------------------------------------------------
-
-void SiStripMonitorDigi::endJob(void){
-  bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-
-  // save histograms in a file
-  if(outputMEsInRootFile)     dqmStore_->save(outputFileName);
-  
-}//end of method
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(idet);
