@@ -38,7 +38,6 @@ from DQM.SiStripMonitorDigi.SiStripBaselineValidator_cfi import *
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
