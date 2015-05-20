@@ -58,18 +58,20 @@ process.maxEvents = cms.untracked.PSet(
 
 process.ecalLaserLedUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
-    alphaEB = cms.double(1.138),
-    alphaEE = cms.double(1.89),
     EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
+    EBhitCollection = cms.string('EcalUncalibRecHitsEB'),
     EEhitCollection = cms.string('EcalUncalibRecHitsEE'),
-    AlphaBetaFilename = cms.untracked.string('NOFILE'),
-    betaEB = cms.double(1.655),
-    MinAmplEndcap = cms.double(16.0),
-    MinAmplBarrel = cms.double(12.0),
     algo = cms.string('EcalUncalibRecHitWorkerFixedAlphaBetaFit'),
-    betaEE = cms.double(1.4),
-    UseDynamicPedestal = cms.bool(True),
-    EBhitCollection = cms.string('EcalUncalibRecHitsEB')
+    algoPSet = cms.PSet(
+    	alphaEB = cms.double(1.138),
+    	alphaEE = cms.double(1.89),
+        AlphaBetaFilename = cms.untracked.string('NOFILE'),
+    	betaEB = cms.double(1.655),
+        betaEE = cms.double(1.4),
+    	MinAmplEndcap = cms.double(16.0),
+    	MinAmplBarrel = cms.double(12.0),
+    	UseDynamicPedestal = cms.bool(True)
+    )
 )
 
 process.ecalLaserLedFilter = cms.EDFilter("EcalMonitorPrescaler",
