@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" // future obsolete
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"    // obsolete
 
@@ -36,10 +35,8 @@ class FamosProducer : public edm::stream::EDProducer <>
   // labels
   edm::InputTag sourceLabel; // FUTURE OBSOLETE
   edm::InputTag genParticleLabel;
-  edm::InputTag beamSpotLabel;
-
+  
   // tokens
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
   // FUTURE OBSOLETE CODE
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;

@@ -33,6 +33,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace edm {
 
@@ -103,8 +104,10 @@ namespace edm {
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
+	    InputTag mvatag(tag.label(),"MVAVals");
+            branchesActivate(TypeID(typeid(edm::ValueMap<float>)).friendlyClassName(),std::string(""),mvatag,label);
 	    // note: no crossing frame is foreseen to be used for this object type
-
+	    
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	    //std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 

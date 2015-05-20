@@ -52,6 +52,7 @@ lowPtTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStepSelector
+lowPtTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 LowPtTripletStep = cms.Sequence(iterativeLowPtTripletSeeds+
                                 lowPtTripletStepTrackCandidates+
