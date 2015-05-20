@@ -53,8 +53,6 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)
     )
 
-
-
 dump = False
 if dump:
     psetFile = open("RunVisualizationProcessingCfg.py", "w")
