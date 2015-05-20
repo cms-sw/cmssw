@@ -44,6 +44,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_PixelTracks_Multiplicity90_v*",
       "HLT_Beam*_v*",
       #"HLT_L1Tech_*_v*",
+      "HLT_HI*",
       "HLT_GlobalRunHPDNoise_v*",
       "HLT_L1TrackerCosmics_v*",
       "HLT_HcalUTCA_v*",
