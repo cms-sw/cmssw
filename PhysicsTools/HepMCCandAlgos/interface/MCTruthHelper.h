@@ -447,7 +447,7 @@ namespace MCTruthHelper {
       //look for FSR
       for (unsigned int idau = 0; idau<ndau; ++idau) {
         const P *dau = daughter(*pcopy,idau);
-        if (pdgId(*dau)==21 || pdgId(*dau)==22) {
+        if (dau && (pdgId(*dau)==21 || pdgId(*dau)==22)) {
           //has fsr (or else decayed and is the last copy by construction)
           return pcopy;
         }        
@@ -455,7 +455,7 @@ namespace MCTruthHelper {
       //look for daughter copy
       for (unsigned int idau = 0; idau<ndau; ++idau) {
         const P *dau = daughter(*pcopy,idau);
-        if (pdgId(*dau)==pdgId(p)) {
+        if (dau && (pdgId(*dau)==pdgId(p))) {
           pcopy = dau;
           hasDaughterCopy = true;
           break;
@@ -477,7 +477,7 @@ namespace MCTruthHelper {
       //look for FSR
       for (unsigned int idau = 0; idau<ndau; ++idau) {
         const P *dau = daughter(*pcopy,idau);
-        if (pdgId(*dau)==21 || pdgId(*dau)==22) {
+        if (dau && (pdgId(*dau)==21 || pdgId(*dau)==22)) {
           //has fsr (or else decayed and is the last copy by construction)
           return pcopy;
         }        
@@ -485,7 +485,7 @@ namespace MCTruthHelper {
       //look for daughter copy
       for (unsigned int idau = 0; idau<ndau; ++idau) {
         const P *dau = daughter(*pcopy,idau);
-        if (pdgId(*dau)==pdgId(p)) {
+        if (dau && pdgId(*dau)==pdgId(p)) {
           pcopy = dau;
           hasDaughterCopy = true;
           break;
@@ -517,7 +517,7 @@ namespace MCTruthHelper {
     const unsigned int nmoth = numberOfMothers(p);
     for (unsigned int imoth = 0; imoth<nmoth; ++imoth) {
       const P *moth = mother(p,imoth);
-      if (pdgId(*moth)==pdgId(p)) {
+      if (moth && (pdgId(*moth)==pdgId(p))) {
         return moth;
       }
     }
@@ -532,7 +532,7 @@ namespace MCTruthHelper {
     const unsigned int ndau = numberOfDaughters(p);
     for (unsigned int idau = 0; idau<ndau; ++idau) {
       const P *dau = daughter(p,idau);
-      if (pdgId(*dau)==pdgId(p)) {
+      if (dau && (pdgId(*dau)==pdgId(p))) {
         return dau;
       }
     }
@@ -597,9 +597,15 @@ namespace MCTruthHelper {
   
   /////////////////////////////////////////////////////////////////////////////
   const HepMC::GenParticle *mother(const HepMC::GenParticle &p, unsigned int imoth) {
-    return p.production_vertex() && p.production_vertex()->particles_in_size() ? *(p.production_vertex()->particles_in_const_begin() + imoth) : 0;
+    if (p.production_vertex() && p.production_vertex()->particles_in_size()){
+         HepMC::GenParticle *mother_cand=*(p.production_vertex()->particles_in_const_begin() + imoth);
+         //Sherpa Fix to prevent circular relations between mother and daughter
+         if (mother_cand && (p.status()==1 || (mother_cand->end_vertex()->id()< p.end_vertex()->id()))){
+            return mother_cand;
+         } 
+    }
+    return 0;
   }
-  
   /////////////////////////////////////////////////////////////////////////////
   unsigned int numberOfDaughters(const reco::GenParticle &p) {
     return p.numberOfDaughters();
@@ -615,9 +621,13 @@ namespace MCTruthHelper {
     return static_cast<const reco::GenParticle*>(p.daughter(idau));
   }
   
-  /////////////////////////////////////////////////////////////////////////////
   const HepMC::GenParticle *daughter(const HepMC::GenParticle &p, unsigned int idau) {
-    return *(p.end_vertex()->particles_out_const_begin() + idau);
+    HepMC::GenParticle *daughter_cand = *(p.end_vertex()->particles_out_const_begin() + idau);
+    //Sherpa Fix to prevent circular relations between mother and daughter
+    if (daughter_cand->status()==1 || (daughter_cand->end_vertex()->id() > p.end_vertex()->id()))
+      return daughter_cand;
+    else 
+      return 0;
   }
   
   /////////////////////////////////////////////////////////////////////////////
