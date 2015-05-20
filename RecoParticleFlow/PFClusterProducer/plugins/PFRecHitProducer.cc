@@ -81,6 +81,9 @@ void
    outputSizeGuess_.update( out->size() );
    cleanedOutputSizeGuess_.update( cleaned->size() );
 
+   out->shrink_to_fit();
+   cleaned->shrink_to_fit();
+
    iEvent.put(out,"");
    iEvent.put(cleaned,"Cleaned");
    hitmap.clear();
