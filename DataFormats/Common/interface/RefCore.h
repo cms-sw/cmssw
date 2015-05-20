@@ -43,10 +43,18 @@ namespace edm {
     /**If productPtr is not 0 then productGetter will be 0 since only one is available at a time */
     void const* productPtr() const {PRODUCTPTR_IMPL;}
 
+    /**This function is 'const' even though it changes an internal value becuase it is meant to be
+     used as a way to store in a thread-safe way a cache of a value. This allows classes which use
+     the RefCore to not have to declare it 'mutable'
+     */
     void setProductPtr(void const* prodPtr) const { 
       setCacheIsProductPtr(prodPtr);
     }
 
+    /**This function is 'const' even though it changes an internal value becuase it is meant to be
+     used as a way to store in a thread-safe way a cache of a value. This allows classes which use
+     the RefCore to not have to declare it 'mutable'
+     */
     bool tryToSetProductPtrForFirstTime(void const* prodPtr) const {
       return refcoreimpl::tryToSetCacheItemForFirstTime(cachePtr_, prodPtr);
     }
