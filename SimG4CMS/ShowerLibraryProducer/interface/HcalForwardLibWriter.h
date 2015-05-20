@@ -1,76 +1,61 @@
 #ifndef SimG4CMS_ShowerLibraryProducer_HcalForwardLibWriter_h
 #define SimG4CMS_ShowerLibraryProducer_HcalForwardLibWriter_h
 
-// -*- C++ -*-
-//
-// Package:    HcalForwardLibWriter
-// Class:      HcalForwardLibWriter
-// 
-/**\class HcalForwardLibWriter HcalForwardLibWriter.h SimG4CMS/ShowerLibraryProducer/interface/HcalForwardLibWriter.h
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Taylan Yetkin,510 1-004,+41227672815,
-//         Created:  Thu Feb  9 13:02:38 CET 2012
-//
-//
-
-
-// system include files
 #include <memory>
 #include <string>
 #include <fstream>
 #include <utility>
 #include <vector>
 
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TFile.h"
 #include "TTree.h"
 
-//
-// class declaration
-//
+using namespace edm;
 
-class HcalForwardLibWriter : public edm::EDProducer {
-   public:
-      
-      struct FileHandle{
-          std::string name;
-          std::string id;
-          int momentum;
-      };
-      
-      explicit HcalForwardLibWriter(const edm::ParameterSet&);
-      ~HcalForwardLibWriter();
+class HcalForwardLibWriter : public edm::EDAnalyzer {
+public:
+  struct FileHandle{
+    std::string name;
+    std::string id;
+    int momentum;
+  };
+  explicit HcalForwardLibWriter(const edm::ParameterSet&);
+  ~HcalForwardLibWriter();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+private:
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  int readUserData();
+  int nbins;
+  int nshowers;
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      
-      void readUserData();
+  TFile* theFile;
+  TTree* theTree;
+  TFile* LibFile;
+  TTree* LibTree;
 
-      // ----------member data ---------------------------
-      std::string fDataFile;
-      std::vector<FileHandle> fFileHandle;
-      TFile* fFile;
-      TTree* fTree;
+  edm::Service<TFileService> fs;
+  std::string theDataFile;
+  std::vector<FileHandle> theFileHandle;
+
+  HFShowerLibraryEventInfo evtInfo;
+  HFShowerPhotonCollection emColl;
+  HFShowerPhotonCollection hadColl;
+
 };
 #endif
