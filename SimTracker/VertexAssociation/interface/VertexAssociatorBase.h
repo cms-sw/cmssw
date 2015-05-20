@@ -14,13 +14,12 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Associations/interface/VertexAssociation.h"
 
 
 namespace reco
 {
     typedef edm::RefToBase<reco::Vertex> VertexBaseRef;
-    typedef edm::AssociationMap<edm::OneToManyWithQuality <TrackingVertexCollection, edm::View<reco::Vertex>, double> > VertexSimToRecoCollection;
-    typedef edm::AssociationMap<edm::OneToManyWithQuality <edm::View<reco::Vertex>, TrackingVertexCollection, double> > VertexRecoToSimCollection;
 }
 
 class VertexAssociatorBase
