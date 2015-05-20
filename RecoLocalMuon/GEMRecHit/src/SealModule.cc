@@ -1,16 +1,19 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitAlgoFactory.h"
+#include "RecoLocalMuon/GEMRecHit/interface/ME0RecHitAlgoFactory.h"
 
 #include "RecoLocalMuon/GEMRecHit/src/GEMRecHitProducer.h"
-// #include "RecoLocalMuon/GEMRecHit/interface/GEMPointProducer.h"
-// #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitAli.h"
-
-#include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitAlgoFactory.h"
-#include "RecoLocalMuon/GEMRecHit/src/GEMRecHitStandardAlgo.h"
-
-
 DEFINE_FWK_MODULE(GEMRecHitProducer);
-// DEFINE_FWK_MODULE(GEMPointProducer);
-// DEFINE_FWK_MODULE(GEMRecHitAli);
+
+#include "RecoLocalMuon/GEMRecHit/src/GEMRecHitStandardAlgo.h"
 DEFINE_EDM_PLUGIN (GEMRecHitAlgoFactory, GEMRecHitStandardAlgo, "GEMRecHitStandardAlgo");
+
+
+#include "RecoLocalMuon/GEMRecHit/src/ME0RecHitProducer.h"
+DEFINE_FWK_MODULE(ME0RecHitProducer);
+
+#include "RecoLocalMuon/GEMRecHit/src/ME0RecHitStandardAlgo.h"
+DEFINE_EDM_PLUGIN (ME0RecHitAlgoFactory, ME0RecHitStandardAlgo, "ME0RecHitStandardAlgo");
+
