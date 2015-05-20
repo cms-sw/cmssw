@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 evtplaneFilter = cms.EDFilter("EvtPlaneFilter",
-                              EPlabel = cms.InputTag("hiEvtPlane"),
+                              EPlabel = cms.InputTag("hiEvtPlane", "recoLevel"),
                               Vnlow = cms.double(0.0),
                               Vnhigh = cms.double(1.),
                               EPlvl = cms.int32(0),
