@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
+
 	herwigppUESettings = cms.vstring(
 		'+pdfMRST2008LOss',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',

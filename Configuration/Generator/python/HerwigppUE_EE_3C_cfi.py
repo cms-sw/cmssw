@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
+
 	herwigppUE_EE_3C_Base = cms.vstring(
 		'+pdfCTEQ6L1',
 
@@ -30,6 +31,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 1.55',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 3.1',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 1.81*GeV',
+		'cd /',
 	),
 
 	herwigppUE_EE_3C_1800GeV = cms.vstring(
@@ -37,6 +39,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 1800.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.26',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 4.52',
+		'cd /',
 	),
 
 	herwigppUE_EE_3C_2760GeV = cms.vstring(
@@ -44,6 +47,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 2760.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.33',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 4.66',
+		'cd /',
 	),
 
 	herwigppUE_EE_3C_7000GeV = cms.vstring(
@@ -52,6 +56,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.752',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 5.504',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.34*GeV',
+		'cd /',
 	),
 
 	herwigppUE_EE_3C_8000GeV = cms.vstring(
@@ -59,6 +64,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.85',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 5.7',
+		'cd /',
 	),
 
 	herwigppUE_EE_3C_14000GeV = cms.vstring(
@@ -66,5 +72,6 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.53',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 7.06',
+		'cd /',
 	),
 )

@@ -24,6 +24,7 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 		'set QCDCuts:X1Min 0.01',
 		'set QCDCuts:X2Min 0.01',
 		'set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE 0',
+		'cd /',
 	),
 
 	crossSection = cms.untracked.double(101.9e+09),

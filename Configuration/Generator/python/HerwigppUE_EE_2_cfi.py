@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
+
 	herwigppUE_EE_2_Base = cms.vstring(
 		'+pdfMRST2008LOss',
 		# Energy-independent MPI parameters
@@ -24,6 +25,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 900.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.34',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 4.68',
+		'cd /',
 	),
 
 	herwigppUE_EE_2_1800GeV = cms.vstring(
@@ -31,6 +33,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 1800.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.09',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.18',
+		'cd /',
 	),
 
 	herwigppUE_EE_2_2760GeV = cms.vstring(
@@ -38,6 +41,7 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 2760.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.31',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.62',
+		'cd /',
 	),
 
 	herwigppUE_EE_2_7000GeV = cms.vstring(
@@ -45,5 +49,6 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 4.02',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 8.04',
+		'cd /',
 	),
 )

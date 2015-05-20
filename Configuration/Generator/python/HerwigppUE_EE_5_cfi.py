@@ -10,6 +10,7 @@ herwigppUESettingsBlock = cms.PSet(
         'set /Herwig/UnderlyingEvent/MPIHandler:ReferenceScale 7000.*GeV',
         'set /Herwig/UnderlyingEvent/MPIHandler:Power 0.314',
         'set /Herwig/UnderlyingEvent/MPIHandler:pTmin0 4.620*GeV',
+	'cd /',
         ),
 
       EE5 =  cms.vstring(
@@ -25,5 +26,6 @@ herwigppUESettingsBlock = cms.PSet(
         'set /Herwig/UnderlyingEvent/MPIHandler:softInt Yes',
         'set /Herwig/UnderlyingEvent/MPIHandler:twoComp Yes',
         'set /Herwig/UnderlyingEvent/MPIHandler:DLmode 2',
+	'cd /',
         ),
 )
