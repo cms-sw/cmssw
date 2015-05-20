@@ -1,6 +1,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/DetId"/>
-<use   name="boost"/>
+
 <export>
   <lib   name="1"/>
 </export>
