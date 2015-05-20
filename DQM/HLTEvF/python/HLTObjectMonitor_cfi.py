@@ -16,6 +16,9 @@ caloMet_moduleName = "hltMETClean75"
 pfMet_pathName = "HLT_PFMET120_PFMHT120_IDTight"
 pfMet_moduleName = "hltPFMET120"
 
+jetAk8_pathName = "HLT_AK8PFJet360TrimMod_Mass30"
+jetAk8_moduleName = "hltAK8SinglePFJet360TrimModMass30"
+
 bJet_pathName = "HLT_PFMET120_NoiseCleaned_BTagCSV07"
 bJet_moduleName = "hltPFMET120Filter"
 bJet_pathNameOR = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
@@ -101,6 +104,20 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         Xmin = cms.int32(150),
         Xmax = cms.int32(550)
         ),
+    jetAK8Pt = cms.PSet(
+        pathName = cms.string(jetAk8_pathName),
+        moduleName = cms.string(jetAk8_moduleName),
+        NbinsX = cms.int32(75),
+        Xmin = cms.int32(150),
+        Xmax = cms.int32(550)
+        ),
+    jetAK8Mass = cms.PSet(
+        pathName = cms.string(jetAk8_pathName),
+        moduleName = cms.string(jetAk8_moduleName),
+        NbinsX = cms.int32(100),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(200)
+        ),   
     tauPt = cms.PSet(
         pathName = cms.string("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"),
         moduleName = cms.string("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),

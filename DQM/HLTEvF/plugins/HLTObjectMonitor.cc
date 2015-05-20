@@ -137,6 +137,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet electronEta_TH1;
   edm::ParameterSet electronPhi_TH1;
   edm::ParameterSet jetPt_TH1;
+  edm::ParameterSet jetAK8Pt_TH1;
+  edm::ParameterSet jetAK8Mass_TH1;
   edm::ParameterSet tauPt_TH1;
   edm::ParameterSet diMuonLowMass_TH1;
   edm::ParameterSet caloMetPt_TH1;
@@ -162,6 +164,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   string pfHtPt_pathName;
   string bJetPlots_pathName;
   string bJetPlots_pathNameOR;
+  string jetAK8Plots_pathName;
+
 
   //declare all MEs
   MonitorElement * alphaT_;
@@ -175,6 +179,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   MonitorElement * electronEta_;
   MonitorElement * electronPhi_;
   MonitorElement * jetPt_;
+  MonitorElement * jetAK8Pt_;
+  MonitorElement * jetAK8Mass_;
   MonitorElement * tauPt_;
   MonitorElement * diMuonLowMass_;
   MonitorElement * caloMetPt_;
@@ -224,6 +230,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   electronEta_TH1 = iConfig.getParameter<edm::ParameterSet>("electronEta");
   electronPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPhi");
   jetPt_TH1 = iConfig.getParameter<edm::ParameterSet>("jetPt");
+  jetAK8Pt_TH1 = iConfig.getParameter<edm::ParameterSet>("jetAK8Pt");
+  jetAK8Mass_TH1 = iConfig.getParameter<edm::ParameterSet>("jetAK8Mass");
   tauPt_TH1 = iConfig.getParameter<edm::ParameterSet>("tauPt");
   diMuonLowMass_TH1 = iConfig.getParameter<edm::ParameterSet>("diMuonLowMass");
   caloMetPt_TH1 = iConfig.getParameter<edm::ParameterSet>("caloMetPt");
@@ -392,6 +400,7 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   muonPlots_pathName = muonPt_TH1.getParameter<string>("pathName");
   electronPlots_pathName = electronPt_TH1.getParameter<string>("pathName");
   jetPt_pathName = jetPt_TH1.getParameter<string>("pathName");
+  jetAK8Plots_pathName = jetAK8Pt_TH1.getParameter<string>("pathName");
   tauPt_pathName = tauPt_TH1.getParameter<string>("pathName");
   diMuonLowMass_pathName = diMuonLowMass_TH1.getParameter<string>("pathName");
   caloMetPlots_pathName = caloMetPt_TH1.getParameter<string>("pathName");
@@ -432,6 +441,11 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
     {
       quickCollectionPaths.push_back(jetPt_pathName);
       lookupFilter[jetPt_pathName] = jetPt_TH1.getParameter<string>("moduleName");
+    }
+  if (lookupIndex.count(jetAK8Plots_pathName) > 0)
+    {
+      quickCollectionPaths.push_back(jetAK8Plots_pathName);
+      lookupFilter[jetAK8Plots_pathName] = jetAK8Pt_TH1.getParameter<string>("moduleName");      
     }
   if (lookupIndex.count(caloMetPlots_pathName) >0)
     {
@@ -522,6 +536,18 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       TH1F * hist_jetPt = new TH1F("Jet_pT","Jet pT",jetPt_TH1.getParameter<int>("NbinsX"),jetPt_TH1.getParameter<int>("Xmin"),jetPt_TH1.getParameter<int>("Xmax"));
       hist_jetPt->SetMinimum(0);
       jetPt_ = ibooker.book1D("Jet_pT",hist_jetPt);
+    }
+  //jetAK8 pt + mass
+  if (lookupIndex.count(jetAK8Plots_pathName) > 0)
+    {
+      //ak8 jet pt
+      TH1F * hist_jetAK8Pt = new TH1F("JetAK8_pT","JetAK8 pT",jetAK8Pt_TH1.getParameter<int>("NbinsX"),jetAK8Pt_TH1.getParameter<int>("Xmin"),jetAK8Pt_TH1.getParameter<int>("Xmax"));
+      hist_jetAK8Pt->SetMinimum(0);
+      jetAK8Pt_ = ibooker.book1D("JetAK8_pT",hist_jetAK8Pt);
+      //ak8 jet mass
+      TH1F * hist_jetAK8Mass = new TH1F("JetAK8_mass","JetAK8 mass",jetAK8Mass_TH1.getParameter<int>("NbinsX"),jetAK8Mass_TH1.getParameter<int>("Xmin"),jetAK8Mass_TH1.getParameter<int>("Xmax"));
+      hist_jetAK8Mass->SetMinimum(0);
+      jetAK8Mass_ = ibooker.book1D("JetAK8_mass",hist_jetAK8Mass);
     }
   //tau pt
   if (lookupIndex.count(tauPt_pathName) > 0)
@@ -633,7 +659,7 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       TH1F * hist_bJetPhi = new TH1F("bJet_phi","b-Jet phi",bJetPhi_TH1.getParameter<int>("NbinsX"),bJetPhi_TH1.getParameter<double>("Xmin"),bJetPhi_TH1.getParameter<double>("Xmax"));
       hist_bJetPhi->SetMinimum(0);
       bJetPhi_ = ibooker.book1D("bJet_phi",hist_bJetPhi);
-  //bJet eta
+      //bJet eta
       TH1F * hist_bJetEta = new TH1F("bJet_eta","b-Jet eta",bJetEta_TH1.getParameter<int>("NbinsX"),bJetEta_TH1.getParameter<int>("Xmin"),bJetEta_TH1.getParameter<int>("Xmax"));
       hist_bJetEta->SetMinimum(0);
       bJetEta_ = ibooker.book1D("bJet_eta",hist_bJetEta);
@@ -735,6 +761,16 @@ void HLTObjectMonitor::fillPlots(int evtNum, string pathName, edm::Handle<trigge
   else if (pathName == caloHtPt_pathName)
     {
       for (const auto & key : keys) caloHtPt_->Fill(objects[key].pt());
+    }
+
+  //jetAK8 pt + mass
+  else if (pathName == jetAK8Plots_pathName)
+    {
+      for (const auto & key : keys)
+	{
+	  jetAK8Pt_->Fill(objects[key].pt());
+	  jetAK8Mass_->Fill(objects[key].mass());
+	}
     }
   
   //PFMET pt + phi
