@@ -7,11 +7,11 @@ from Configuration.Generator.HerwigppUE_V24_cfi import *
 
 herwigDefaultsBlock = cms.PSet(
 	dataLocation = cms.string('${HERWIGPATH}'),
-
 	repository = cms.string('HerwigDefaults.rpo'),
+
+
 	eventHandlers = cms.string('/Herwig/EventHandlers'),
 	generatorModule = cms.string('/Herwig/Generators/LHCGenerator'),
-
 	run = cms.string('LHC'),
 
 	cmsDefaults = cms.vstring(

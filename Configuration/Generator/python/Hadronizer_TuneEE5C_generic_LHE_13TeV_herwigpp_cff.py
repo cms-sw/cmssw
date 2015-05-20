@@ -16,6 +16,7 @@ generator = cms.EDFilter("ThePEGHadronizerFilter",
 		'cm13TeV',
 	),
 
-	crossSection = cms.untracked.double(-1.),
-	filterEfficiency = cms.untracked.double(1.0),
+        crossSection = cms.untracked.double(-1.),
+        filterEfficiency = cms.untracked.double(1.0),
 )
+ProductionFilterSequence = cms.Sequence(generator)
