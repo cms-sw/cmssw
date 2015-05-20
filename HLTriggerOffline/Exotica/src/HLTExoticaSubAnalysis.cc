@@ -34,9 +34,11 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
     _genParticleLabel(pset.getParameter<std::string>("genParticleLabel")),
     _trigResultsLabel("TriggerResults", "", _hltProcessName),
+    _beamSpotLabel(pset.getParameter<std::string>("beamSpotLabel")),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
+    _parametersDxy(pset.getParameter<std::vector<double> >("parametersDxy")),
     _recMuonSelector(0),
     _recMuonTrkSelector(0),
     _recTrackSelector(0),
@@ -73,6 +75,10 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     if (anpset.exists("parametersPhi")) {
         _parametersPhi = anpset.getParameter<std::vector<double> >("parametersPhi");
         _pset.insert(true, "parametersPhi", anpset.retrieve("parametersPhi"));
+    }
+    if (anpset.exists("parametersDxy")) {
+        _parametersDxy = anpset.getParameter<std::vector<double> >("parametersDxy");
+        _pset.insert(true, "parametersDxy", anpset.retrieve("parametersDxy"));
     }
 
     // Get names of objects that we may want to get from the event.
@@ -206,8 +212,16 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
             } else {
               bookHist(iBooker, source, objStr, "MaxPt1");
               bookHist(iBooker, source, objStr, "MaxPt2");
+              bookHist(iBooker, source, objStr, "MaxPt3");
               bookHist(iBooker, source, objStr, "Eta");
               bookHist(iBooker, source, objStr, "Phi");
+
+              // If the target is electron or muon,
+              // we will add Dxy plots.
+              if ( it->first == EVTColContainer::ELEC ||
+                   it->first == EVTColContainer::MUON    ) { 
+                 bookHist(iBooker, source, objStr, "Dxy");
+              }
             }
           } else { // reco
             if ( TString(objStr).Contains("MET") ||
@@ -217,8 +231,16 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
             } else {
               bookHist(iBooker, source, objStr, "MaxPt1");
               bookHist(iBooker, source, objStr, "MaxPt2");
+              bookHist(iBooker, source, objStr, "MaxPt3");
               bookHist(iBooker, source, objStr, "Eta");
               bookHist(iBooker, source, objStr, "Phi");
+
+              // If the target is electron or muon,
+              // we will add Dxy plots.
+              if ( it->first == EVTColContainer::ELEC ||
+                   it->first == EVTColContainer::MUON    ) { 
+                 bookHist(iBooker, source, objStr, "Dxy");
+              }
             }
           }
 
@@ -365,6 +387,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     std::vector<reco::LeafCandidate> matchesGen; matchesGen.clear();
     std::vector<reco::LeafCandidate> matchesReco; matchesReco.clear();
     std::map<int , double> theSumEt; // map< pdgId ; SumEt > in order to keep track of the MET type
+    std::map<int, std::vector<const reco::Track*> > trkObjs;
 
     // --- deal with GEN objects first.
     // Make each good GEN object into the base cand for a MatchStruct
@@ -426,7 +449,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
       // before or not) ### Thiago ---> Then why don't we put it in the beginRun???
       this->initSelector(it->first);
       // -- Storing the matchesReco
-      this->insertCandidates(it->first, cols, &matchesReco, theSumEt);
+      this->insertCandidates(it->first, cols, &matchesReco, theSumEt, trkObjs);
       if(verbose>0) std::cout << "--- " << EVTColContainer::getTypeString(it->first) 
 			      << " sumEt=" << theSumEt[it->first] << std::endl;
     }
@@ -471,8 +494,9 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
       }
     
       int counttotal = 0;
-      //int totalobjectssize2 = 2 * countobjects->size();
-      int totalobjectssize2 = 2 * countobjects.size();
+
+      // 3 : pt1, pt2, pt3
+      int totalobjectssize3 = 3 * countobjects.size();
 
 
       bool isPassedLeadingCut = true;
@@ -487,6 +511,8 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
           break;
         }
       }
+ 
+      std::vector<float> dxys; dxys.clear();
 
       for (size_t j = 0; ( j != matchesGen.size() ) && isPassedLeadingCut; ++j) {
 	const unsigned int objType = matchesGen[j].pdgId();
@@ -505,9 +531,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	  ++(countobjects[objType]);
 	  ++counttotal;
 	} 
+	else if (countobjects[objType] == 2) {
+	  this->fillHist("gen", objTypeStr, "MaxPt3", pt);
+	  ++(countobjects[objType]);
+	  ++counttotal;
+	} 
 	else {
-	  // Already the minimum two objects has been filled, get out...
-	  if (counttotal == totalobjectssize2) {
+	  // Already the minimum three objects has been filled, get out...
+	  if (counttotal == totalobjectssize3) {
 	    size_t max_size = matchesGen.size();
 	    for ( size_t jj = j; jj < max_size; jj++ ) {
 	      matchesGen.erase(matchesGen.end());
@@ -522,6 +553,17 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	this->fillHist("gen", objTypeStr, "Eta", eta);
 	this->fillHist("gen", objTypeStr, "Phi", phi);
 
+        // If the target is electron or muon,
+        // we will add Dxy plots.
+        if ( objType == EVTColContainer::MUON ||
+             objType == EVTColContainer::ELEC   ) {
+          const math::XYZPoint & vtx = matchesGen[j].vertex();
+          float momphi = matchesGen[j].momentum().phi();
+          float dxyGen = (-(vtx.x()-cols->bs->x0())*sin(momphi)+(vtx.y()-cols->bs->y0())*cos(momphi));
+          dxys.push_back(dxyGen);
+          this->fillHist("gen", objTypeStr, "Dxy", dxyGen);
+        }
+
       } // Closes loop in gen
 	
       // Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
@@ -530,7 +572,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	const std::string hltPath = _shortpath2long[an->gethltpath()];
 	const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 	LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
-	an->analyze(ispassTrigger, "gen", matchesGen, theSumEt);
+        an->analyze(ispassTrigger, "gen", matchesGen, theSumEt, dxys);
 	LogDebug("ExoticaValidation") << "                        called the plotter";
       }
     } /// Close GEN case
@@ -561,12 +603,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	}
     
 	int counttotal = 0;
-	//int totalobjectssize2 = 2 * countobjects->size();
-	int totalobjectssize2 = 2 * countobjects.size();
+
+        // 3 : pt1, pt2, pt3
+	int totalobjectssize3 = 3 * countobjects.size();
     
 	/// Debugging.
 	//std::cout << "Our RECO vector has matchesReco.size() = " << matchesReco.size() << std::endl;
 
+        std::vector<float> dxys; dxys.clear();
 
         bool isPassedLeadingCut = true;
         // We will proceed only when cuts for the pt-leading are satisified.
@@ -600,9 +644,16 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	      ++(countobjects[objType]);
 	      ++counttotal;
 	    } 
+	    else if (countobjects[objType] == 2) {
+	      if( ! ( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
+		this->fillHist("rec", objTypeStr, "MaxPt3", pt);
+	      } 
+	      ++(countobjects[objType]);
+	      ++counttotal;
+	    } 
 	    else {
-	      // Already the minimum two objects has been filled, get out...
-	      if (counttotal == totalobjectssize2) {
+	      // Already the minimum three objects has been filled, get out...
+	      if (counttotal == totalobjectssize3) {
 		size_t max_size = matchesReco.size();
 		for ( size_t jj = j; jj < max_size; jj++ ) {
 		  matchesReco.erase(matchesReco.end());
@@ -621,6 +672,12 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    else {
 	      this->fillHist("rec", objTypeStr, "SumEt", theSumEt[objType]);
 	    }
+          
+            if (trkObjs[objType].size()>=j+1) {
+              float dxyRec = trkObjs[objType].at(j)->dxy(cols->bs->position());
+              this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
+              dxys.push_back(dxyRec);
+            }
 
 	} // Closes loop in reco
 
@@ -633,7 +690,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    const std::string hltPath = _shortpath2long[an->gethltpath()];
 	    const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
-	    an->analyze(ispassTrigger, "rec", matchesReco, theSumEt);
+            an->analyze(ispassTrigger, "rec", matchesReco, theSumEt, dxys);
 	    LogDebug("ExoticaValidation") << "                        called the plotter";
 	}
     } /// Close RECO case
@@ -763,6 +820,10 @@ void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector & iC)
    
     // Register that we are getting the trigger results
     _trigResultsToken = iC.consumes<edm::TriggerResults>(_trigResultsLabel);
+
+    // Register beamspot 
+    _bsToken = iC.consumes<reco::BeamSpot>(_beamSpotLabel);
+
     // Loop over _recLabels, see what we need, and register.
     // Then save the registered token in _tokens.
     // Remember: _recLabels is a map<uint, edm::InputTag>
@@ -868,6 +929,13 @@ void HLTExoticaSubAnalysis::getHandlesToObjects(const edm::Event & iEvent, EVTCo
         if (genPart.isValid()) {
             col->genParticles = genPart.product();
 	    LogDebug("ExoticaValidation") << "Added handle to genParticles";
+        }
+
+        // BeamSpot for dxy 
+        edm::Handle<reco::BeamSpot> bsHandle;
+        iEvent.getByToken(_bsToken, bsHandle);
+        if (bsHandle.isValid()) {
+            col->bs = bsHandle.product();
         }
     }
 
@@ -975,6 +1043,14 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker & iBooker,
       delete[] edges;
     }
 
+    else if (variable.find("Dxy") != std::string::npos) {
+      std::string title = "Dxy " + sourceUpper + " " + objType;
+      int    nBins = _parametersDxy[0];
+      double min   = _parametersDxy[1];
+      double max   = _parametersDxy[2];
+      h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+    }
+
     else if (variable.find("MaxPt") != std::string::npos) {
       std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
       std::string title = "pT of " + desc + " " + sourceUpper + " " + objType;
@@ -1062,7 +1138,8 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 }
 
 // Insert the HLT candidates
-void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const EVTColContainer * cols, std::vector<reco::LeafCandidate> * matches, std::map<int,double> & theSumEt)
+void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const EVTColContainer * cols, std::vector<reco::LeafCandidate> * matches, 
+                                             std::map<int,double> & theSumEt, std::map<int,std::vector<const reco::Track*> > & trkObjs )
 {
     
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::insertCandidates()"; 
@@ -1075,6 +1152,9 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
 	    if (_recMuonSelector->operator()(cols->muons->at(i))) {
 		reco::LeafCandidate m(0, cols->muons->at(i).p4(), cols->muons->at(i).vertex(), objType, 0, true);
 		matches->push_back(m);
+        
+                // for making dxy plots
+                trkObjs[objType].push_back(cols->muons->at(i).bestTrack());
 	    }
         }
     } else if (objType == EVTColContainer::MUTRK) {
@@ -1105,6 +1185,9 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
             if (_recElecSelector->operator()(cols->electrons->at(i))) {
 		reco::LeafCandidate m(0, cols->electrons->at(i).p4(), cols->electrons->at(i).vertex(), objType, 0, true);
 		matches->push_back(m);
+
+                // for making dxy plots
+                trkObjs[objType].push_back(cols->electrons->at(i).bestTrack());
 	    }
         }
     } else if (objType == EVTColContainer::PHOTON) {

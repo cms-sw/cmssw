@@ -30,6 +30,10 @@ def efficiency_string(objtype,plot_type,triggerpath):
         xAxis = "p_{T} of Next-to-Leading Generated %s (GeV/c)" % (objtype)
         input_type = "gen%sMaxPt2" % (objtype)
     if plot_type == "TurnOn3":
+        title = "Next-to-next-to-Leading pT Turn-On"
+        xAxis = "p_{T} of Next-to-next-to-Leading Generated %s (GeV/c)" % (objtype)
+        input_type = "gen%sMaxPt3" % (objtype)
+    if plot_type == "TurnOn4":
         title = "SumEt Turn-On"
         xAxis = "SumEt of Leading Generated %s (GeV/c)" % (objtype)
         input_type = "gen%sSumEt" % (objtype)
@@ -41,6 +45,10 @@ def efficiency_string(objtype,plot_type,triggerpath):
         title = "#phi Efficiency"
         xAxis = "#phi of Generated %s " % (objtype)
         input_type = "gen%sPhi" % (objtype)
+    if plot_type == "EffDxy":
+        title = "Dxy Efficiency"
+        xAxis = "Dxy of Generated %s " % (objtype)
+        input_type = "gen%sDxy" % (objtype)
 
     yAxis = "%s / %s" % (numer_description, denom_description)
     all_titles = "%s for trigger %s; %s; %s" % (title, triggerpath,
@@ -59,7 +67,7 @@ def add_reco_strings(strings):
     strings.extend(reco_strings)
 
 
-plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "EffEta", "EffPhi"]
+plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4", "EffEta", "EffPhi", "EffDxy"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
 obj_types  = ["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet"
