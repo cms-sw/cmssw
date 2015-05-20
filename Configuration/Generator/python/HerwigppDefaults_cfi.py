@@ -1,11 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# Import UE tune for CTEQ6L
-from Configuration.Generator.HerwigppUE_EE_5C_cfi import *
-from Configuration.Generator.HerwigppUE_V23_cfi import *
-from Configuration.Generator.HerwigppUE_V24_cfi import *
-
 herwigDefaultsBlock = cms.PSet(
+
 	dataLocation = cms.string('${HERWIGPATH}'),
 	repository = cms.string('HerwigDefaults.rpo'),
 
@@ -227,6 +223,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set GGtoHHardGenerator:ShowerAlpha AlphaQCD',
 		'insert PowhegEvolver:HardGenerator 0 GGtoHHardGenerator',
 		'cd /',
-	)
+	),
 )
 
