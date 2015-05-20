@@ -8,6 +8,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -30,8 +31,7 @@ using namespace edm;
 
 
 testVertexAssociator::testVertexAssociator(edm::ParameterSet const& conf) :
-  associatorByChi2Token(consumes<reco::TrackToTrackingParticleAssociator>(conf.getUntrackedParameter<edm::InputTag>("associatorByChi2"))),
-  associatorByHitsToken(consumes<reco::TrackToTrackingParticleAssociator>(conf.getUntrackedParameter<edm::InputTag>("associatorByHits")))
+  associatorByTracksToken(consumes<reco::VertexToTrackingVertexAssociator>(conf.getUntrackedParameter<edm::InputTag>("vertexAssociation")))
 {
 
   vertexCollection_ = conf.getUntrackedParameter<edm::InputTag>( "vertexCollection" );
@@ -110,30 +110,13 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   edm::ESHandle<MagneticField> theMF;
   setup.get<IdealMagneticFieldRecord>().get(theMF);
 
-  edm::Handle<reco::TrackToTrackingParticleAssociator> theChiAssociator;
-  event.getByToken(associatorByChi2Token, theChiAssociator);
-  associatorByChi2 = theChiAssociator.product();
-
-  edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
-  event.getByToken(associatorByHitsToken, theHitsAssociator);
-  associatorByHits = theHitsAssociator.product();
-
-  edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
-  setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
-  associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
+  edm::Handle<VertexToTrackingVertexAssociator> theTracksAssociator;
+  event.getByToken(associatorByTracksToken, theTracksAssociator);
+  associatorByTracks = theTracksAssociator.product();
 
   ++n_event_;
 
   std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event_ << std::endl << std::endl;
-
-
-  Handle<edm::View<reco::Track> > trackCollection;
-  event.getByLabel("generalTracks",trackCollection);
-  const  edm::View<reco::Track>   tC = *(trackCollection.product());
-
-  edm::Handle<TrackingParticleCollection>  TPCollection ;
-  event.getByLabel("mix","MergedTrackTruth",TPCollection);
-  const TrackingParticleCollection tPC   = *(TPCollection.product());
 
   edm::Handle<TrackingVertexCollection>  TVCollection;
   event.getByLabel("mix","MergedTrackTruth",TVCollection);
@@ -147,8 +130,6 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   cout << endl;
   cout << "                      ****************** Before Assocs ****************** " << endl << endl;  
 
-  cout << "trackCollection.size()  = " << tC.size() << endl;
-  cout << "TPCollection.size()     = " << tPC.size() << endl;
   cout << "vertexCollection.size() = " << vC.size() << endl;
   cout << "TVCollection.size()     = " << tVC.size() << endl;
   
@@ -156,17 +137,11 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   cout << "                      ****************** Reco To Sim ****************** " << endl << endl;
 
   //cout << "-- Associator by hits --" << endl;
-  reco::RecoToSimCollection r2sTracks = associatorByHits->associateRecoToSim (trackCollection,TPCollection);
+  reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection,TVCollection);
 
-  reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollection,TPCollection);
-  //associatorByChi2->associateRecoToSim (trackCollection,TPCollection,&event );
-
-  reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection,TVCollection,event,r2sTracks);
-
-  reco::VertexSimToRecoCollection s2rVertices = associatorByTracks->associateSimToReco(vertexCollection,TVCollection,event,s2rTracks);
+  reco::VertexSimToRecoCollection s2rVertices = associatorByTracks->associateSimToReco(vertexCollection,TVCollection);
 
   cout << endl;
-  cout << "associateRecoToSim tracks size = " <<  r2sTracks.size() << " ; associateSimToReco tracks size = " << s2rTracks.size() << endl;
   cout << "VertexRecoToSim size           = " <<  r2sVertices.size() << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << endl;
  
  
