@@ -27,20 +27,21 @@ class RPCDqmClient:public  DQMEDHarvester {
  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
   void makeClientMap(const edm::ParameterSet& parameters_);
-  void getMonitorElements(DQMStore::IGetter &, const edm::EventSetup& );
+  void getMonitorElements( DQMStore::IGetter & );
+  void getRPCdetId( const edm::EventSetup& );
 
  private:
 
   bool offlineDQM_;
   int prescaleGlobalFactor_, minimumEvents_, numLumBlock_;
  
-  bool useRollInfo_,enableDQMClients_ , init_; 
+  bool useRollInfo_,enableDQMClients_ ; 
   std::string  prefixDir_;
   std::string  globalFolder_;
   std::vector<std::string>  clientList_;
   int lumiCounter_;
   MonitorElement * RPCEvents_; 
-
+  std::vector<RPCDetId>  myDetIds_;
   std::vector<std::string> clientNames_,clientHisto_; 
   std::vector<RPCClient*> clientModules_;
 

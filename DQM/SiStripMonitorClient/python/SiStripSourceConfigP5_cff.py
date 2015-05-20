@@ -38,7 +38,6 @@ from DQM.SiStripMonitorDigi.SiStripBaselineValidator_cfi import *
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
@@ -94,7 +93,6 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_cosmicTk.Tracks              = 'cosmictrackfinderP5'
 #MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
-#MonitorTrackResiduals_cosmicTk.OutputMEsInRootFile = False
 #MonitorTrackResiduals_cosmicTk.Mod_On              = False
 
 # Clone for CKF Tracks
@@ -102,7 +100,6 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_ckf.Tracks                   = 'ctfWithMaterialTracksP5'
 #MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
-#MonitorTrackResiduals_ckf.OutputMEsInRootFile      = False
 #MonitorTrackResiduals_ckf.Mod_On                   = False
 
 # Clone for Road Search  Tracks
@@ -110,7 +107,6 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_rs.Tracks                    = 'rsWithMaterialTracksP5'
 #MonitorTrackResiduals_rs.trajectoryInput           = 'rsWithMaterialTracksP5'
-#MonitorTrackResiduals_rs.OutputMEsInRootFile       = False
 #MonitorTrackResiduals_rs.Mod_On                    = False
 
 # Clone for General Track (for Collision data)
@@ -118,7 +114,6 @@ import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResiduals_gentk.Tracks                 = 'generalTracks'
 MonitorTrackResiduals_gentk.trajectoryInput        = 'generalTracks'
-MonitorTrackResiduals_gentk.OutputMEsInRootFile    = False
 MonitorTrackResiduals_gentk.Mod_On                 = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
@@ -126,7 +121,6 @@ MonitorTrackResiduals_gentk.Mod_On                 = False
 #MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_hi.Tracks                 = 'hiGeneralTracks'
 #MonitorTrackResiduals_hi.trajectoryInput        = 'hiGeneralTracks'
-#MonitorTrackResiduals_hi.OutputMEsInRootFile    = False
 #MonitorTrackResiduals_hi.Mod_On                 = False
 
 # Services needed for TkHistoMap

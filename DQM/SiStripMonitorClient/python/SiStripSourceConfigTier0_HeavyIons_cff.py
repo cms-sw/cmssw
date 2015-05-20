@@ -14,7 +14,6 @@ import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResiduals_hi.Tracks              = 'hiGeneralTracks'
 MonitorTrackResiduals_hi.trajectoryInput     = "hiGeneralTracks"
-MonitorTrackResiduals_hi.OutputMEsInRootFile = False
 MonitorTrackResiduals_hi.Mod_On              = False
 
 SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs *
