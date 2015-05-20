@@ -8,8 +8,6 @@ SiStripMonitorTrack.RawDigiLabel    = 'VirginRaw'
 #
 SiStripMonitorTrack.TrackProducer = 'TrackRefitter'
 SiStripMonitorTrack.TrackLabel    = ''
-SiStripMonitorTrack.OutputMEsInRootFile = True
-SiStripMonitorTrack.OutputFileName = '/tmp/sistripmonitortrack_prova.root'
 SiStripMonitorTrack.Cluster_src = 'siStripClusters'
 SiStripMonitorTrack.Mod_On        = False
 SiStripMonitorTrack.OffHisto_On   = False

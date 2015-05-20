@@ -17,8 +17,10 @@ bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
 ########## MC ############
 #Matching
-from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
-AK4byRef.jets = cms.InputTag("ak4PFJetsCHS")
+from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
+from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
+myak4JetFlavourInfos = ak4JetFlavourInfos.clone(jets = cms.InputTag("ak4PFJetsCHS"))
+
 #Get gen jet collection for real jets
 ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
                                  src = cms.InputTag("ak4GenJets"),
@@ -36,7 +38,7 @@ newpatJetGenJetMatch = patJetGenJetMatch.clone(
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
-bTagValidation.jetMCSrc = 'AK4byValAlgo'
+bTagValidation.jetMCSrc = 'myak4JetFlavourInfos'
 bTagValidation.ptRanges = cms.vdouble(0.0)
 bTagValidation.etaRanges = cms.vdouble(0.0)
 bTagValidation.doJetID = True
@@ -44,7 +46,7 @@ bTagValidation.doJEC = True
 bTagValidation.JECsource = cms.string("ak4PFCHSL1FastL2L3")
 bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
-prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*myPartons*AK4Flavour)
+prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selectedHadronsAndPartons*myak4JetFlavourInfos)
 bTagPlotsMC = cms.Sequence(bTagValidation)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
