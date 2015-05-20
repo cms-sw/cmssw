@@ -3,6 +3,7 @@
   <class name="heppy::RochCor"/>
   <class name="heppy::RochCor2012"/>
   <class name="heppy::FSRWeightAlgo"/>
+  <class name="heppy::PdfWeightProducerTool" transient="true" />
   <class name="heppy::Davismt2" transient="true" />
   <class name="heppy::Hemisphere"/>
   <class name="heppy::mt2w_bisect::mt2w"  transient="true" />
@@ -12,6 +13,7 @@
   <class name="heppy::EGammaMvaEleEstimatorFWLite" transient="true" />
   <class name="heppy::AlphaT" transient="true" />
   <class name="heppy::Apc" transient="true" />
+  <class name="heppy::Megajet" transient="true" />
   <class name="heppy::ReclusterJets"  transient="true"/>
   <class name="heppy::IsolationComputer"  transient="true"/>
 
