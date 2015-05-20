@@ -43,6 +43,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 // L1Extra objects
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
@@ -157,6 +159,7 @@ protected:
     void analyzeL1ExtraCenJet(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraForJet(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraTauJet(const edm::Event&, const edm::EventSetup&);
+    void analyzeL1ExtraIsoTauJet(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraETT(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraETM(const edm::Event&, const edm::EventSetup&);
     void analyzeL1ExtraHTT(const edm::Event&, const edm::EventSetup&);
@@ -175,9 +178,10 @@ private:
     /// input parameters
 
     L1RetrieveL1Extra m_retrieveL1Extra;
-
+    edm::InputTag L1ExtraIsoTauJetSource;
     /// directory name for L1Extra plots
     std::string m_dirName;
+    bool m_stage1_layer2_;
 
     /// number of bunch crosses in event to be monitored
     int m_nrBxInEventGmt;
@@ -195,10 +199,11 @@ private:
 
 private:
 
-    /// pointers to L1ExtraMonElement for each sub-analysis
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraIsoTauJetTok;
 
+    /// pointers to L1ExtraMonElement for each sub-analysis
     std::vector<L1ExtraMonElement<l1extra::L1MuonParticleCollection>*>
-            m_meAnalysisL1ExtraMuon;
+      m_meAnalysisL1ExtraMuon;
 
     std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*>
             m_meAnalysisL1ExtraIsoEG;
@@ -211,6 +216,8 @@ private:
             m_meAnalysisL1ExtraForJet;
     std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>
             m_meAnalysisL1ExtraTauJet;
+    std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>
+            m_meAnalysisL1ExtraIsoTauJet;
 
     std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>
             m_meAnalysisL1ExtraETT;
@@ -232,435 +239,5 @@ private:
 
 };
 
-// constructor L1ExtraMonElement
-template<class CollectionType>
-L1ExtraDQM::L1ExtraMonElement<CollectionType>::L1ExtraMonElement(const edm::EventSetup& evSetup, const int nrElements) :
-    m_indexNrObjects(-1),
-    m_indexPt(-1),
-    m_indexEt(-1),
-    m_indexPhi(-1),
-    m_indexEta(-1),
-    m_indexEtTotal(-1),
-    m_indexCharge(-1),
-    m_indexHfBitCounts(-1),
-    m_indexHfRingEtSums(-1) {
-
-    m_monElement.reserve(nrElements);
-
-}
-
-// destructor L1ExtraMonElement
-template<class CollectionType>
-L1ExtraDQM::L1ExtraMonElement<CollectionType>::~L1ExtraMonElement() {
-
-    //empty
-
-}
-
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(
-        const edm::EventSetup& evSetup, DQMStore::IBooker &ibooker,
-        const std::string& l1ExtraObject,
-        const std::vector<L1GtObject>& l1GtObj, const bool bookPhi,
-        const bool bookEta) {
-
-    // FIXME
-    L1GtObject gtObj = l1GtObj.at(0);
-
-    //
-    std::string histName;
-    std::string histTitle;
-    std::string xAxisTitle;
-    std::string yAxisTitle;
-
-    std::string quantity = "";
-
-    int indexHistogram = -1;
-
-    if (gtObj == HfBitCounts) {
-
-        L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
-
-        const int histNrBins = histLimits.nrBins;
-        const double histMinValue = histLimits.lowerBinValue;
-        const double histMaxValue = histLimits.upperBinValue;
-
-        indexHistogram++;
-        m_indexHfBitCounts = indexHistogram;
-
-        for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
-
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<std::string>(iCount);
-            xAxisTitle = l1ExtraObject;
-            yAxisTitle = "Entries";
-
-            m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBins, histMinValue, histMaxValue));
-            m_monElement[m_indexHfBitCounts + iCount]->setAxisTitle(xAxisTitle, 1);
-            m_monElement[m_indexHfBitCounts + iCount]->setAxisTitle(yAxisTitle, 2);
-
-        }
-
-        return;
-
-    }
-
-    // number of objects per event
-    if ((gtObj == Mu) || (gtObj == IsoEG) || (gtObj == NoIsoEG) || (gtObj == CenJet) || (gtObj == ForJet) || (gtObj == TauJet)) {
-
-        quantity = "NrObjects";
-
-        L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
-
-        const int histNrBins = histLimits.nrBins;
-        const double histMinValue = histLimits.lowerBinValue;
-        const double histMaxValue = histLimits.upperBinValue;
-
-        histName = l1ExtraObject + "_NrObjectsPerEvent";
-        histTitle = l1ExtraObject + ": number of objects per event";
-        xAxisTitle = "Nr_" + l1ExtraObject;
-        yAxisTitle = "Entries";
-
-        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBins, histMinValue, histMaxValue));
-        indexHistogram++;
-
-        m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
-        m_monElement[indexHistogram]->setAxisTitle(yAxisTitle, 2);
-        m_indexNrObjects = indexHistogram;
-
-    }
-
-    // transverse momentum (energy)  PT (ET) [GeV]
-
-
-    quantity = "ET";
-    std::string quantityLongName = " transverse energy ";
-
-    if (gtObj == Mu) {
-        quantity = "PT";
-        quantityLongName = " transverse momentum ";
-    }
-
-    L1GetHistLimits l1GetHistLimits(evSetup);
-    const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
-
-    const int histNrBinsET = histLimits.nrBins;
-    const double histMinValueET = histLimits.lowerBinValue;
-    const double histMaxValueET = histLimits.upperBinValue;
-    const std::vector<float>& binThresholdsET = histLimits.binThresholds;
-
-    float* binThresholdsETf;
-    size_t sizeBinThresholdsET = binThresholdsET.size();
-    binThresholdsETf = new float[sizeBinThresholdsET];
-    copy(binThresholdsET.begin(), binThresholdsET.end(), binThresholdsETf);
-
-    LogDebug("L1ExtraDQM") << "\n PT/ET histogram for " << l1ExtraObject
-            << "\n histNrBinsET = " << histNrBinsET << "\n histMinValueET = "
-            << histMinValueET << "\n histMaxValueET = " << histMaxValueET
-            << "\n Last bin value represents the upper limit of the histogram"
-            << std::endl;
-    for (size_t iBin = 0; iBin < sizeBinThresholdsET; ++iBin) {
-        LogTrace("L1ExtraDQM") << "Bin " << iBin << ": " << quantity << " = "
-                << binThresholdsETf[iBin] << " GeV" << std::endl;
-
-    }
-
-    histName = l1ExtraObject + "_" + quantity;
-    histTitle = l1ExtraObject + ":" + quantityLongName + quantity + " [GeV]";
-    xAxisTitle = l1ExtraObject + "_" + quantity + " [GeV]";
-    yAxisTitle = "Entries";
-
-    if (gtObj == HfRingEtSums) {
-
-        indexHistogram++;
-        m_indexHfRingEtSums = indexHistogram;
-
-        for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
-
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<
-                    std::string>(iCount);
-            xAxisTitle = l1ExtraObject;
-            yAxisTitle = "Entries";
-
-            m_monElement.push_back(ibooker.book1D(histName, histTitle,
-                    histNrBinsET, binThresholdsETf));
-
-            m_monElement[m_indexHfRingEtSums + iCount]->setAxisTitle(xAxisTitle,
-                    1);
-            m_monElement[m_indexHfRingEtSums + iCount]->setAxisTitle(yAxisTitle,
-                    2);
-
-        }
-
-    } else {
-
-        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBinsET, binThresholdsETf));
-        indexHistogram++;
-
-        m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
-        m_monElement[indexHistogram]->setAxisTitle(yAxisTitle, 2);
-        m_indexPt = indexHistogram;
-        m_indexEt = indexHistogram;
-        m_indexEtTotal = indexHistogram;
-    }
-
-
-    delete[] binThresholdsETf;
-
-    //
-
-    if (bookPhi) {
-
-        quantity = "phi";
-
-        // get limits and binning from L1Extra
-        L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
-
-        const int histNrBinsPhi = histLimits.nrBins;
-        const double histMinValuePhi = histLimits.lowerBinValue;
-        const double histMaxValuePhi = histLimits.upperBinValue;
-        const std::vector<float>& binThresholdsPhi = histLimits.binThresholds;
-
-        float* binThresholdsPhif;
-        size_t sizeBinThresholdsPhi = binThresholdsPhi.size();
-        binThresholdsPhif = new float[sizeBinThresholdsPhi];
-        copy(binThresholdsPhi.begin(), binThresholdsPhi.end(), binThresholdsPhif);
-
-        LogDebug("L1ExtraDQM") << "\n phi histogram for " << l1ExtraObject
-                << "\n histNrBinsPhi = " << histNrBinsPhi
-                << "\n histMinValuePhi = " << histMinValuePhi
-                << "\n histMaxValuePhi = " << histMaxValuePhi
-                << "\n Last bin value represents the upper limit of the histogram"
-                << std::endl;
-        for (size_t iBin = 0; iBin < sizeBinThresholdsPhi; ++iBin) {
-            LogTrace("L1ExtraDQM") << "Bin " << iBin << ": phi = " << binThresholdsPhif[iBin] << " deg" << std::endl;
-
-        }
-
-        histName = l1ExtraObject + "_phi";
-        histTitle = l1ExtraObject + ": phi distribution ";
-        xAxisTitle = l1ExtraObject + "_phi [deg]";
-        yAxisTitle = "Entries";
-
-        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBinsPhi, histMinValuePhi, histMaxValuePhi));
-        indexHistogram++;
-
-        m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
-        m_monElement[indexHistogram]->setAxisTitle(yAxisTitle, 2);
-        m_indexPhi = indexHistogram;
-
-        delete[] binThresholdsPhif;
-    }
-
-    //
-
-
-    if (bookEta) {
-
-        quantity = "eta";
-
-        // get limits and binning from L1Extra
-        L1GetHistLimits l1GetHistLimits(evSetup);
-        const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
-
-        const int histNrBinsEta = histLimits.nrBins;
-        const double histMinValueEta = histLimits.lowerBinValue;
-        const double histMaxValueEta = histLimits.upperBinValue;
-        const std::vector<float>& binThresholdsEta = histLimits.binThresholds;
-
-        //
-        float* binThresholdsEtaf;
-        size_t sizeBinThresholdsEta = binThresholdsEta.size();
-        binThresholdsEtaf = new float[sizeBinThresholdsEta];
-        copy(binThresholdsEta.begin(), binThresholdsEta.end(), binThresholdsEtaf);
-
-        LogDebug("L1ExtraDQM") << "\n eta histogram for " << l1ExtraObject
-                << "\n histNrBinsEta = " << histNrBinsEta
-                << "\n histMinValueEta = " << histMinValueEta
-                << "\n histMaxValueEta = " << histMaxValueEta
-                << "\n Last bin value represents the upper limit of the histogram"
-                << std::endl;
-        for (size_t iBin = 0; iBin < sizeBinThresholdsEta; ++iBin) {
-            LogTrace("L1ExtraDQM") << "Bin " << iBin << ": eta = " << binThresholdsEtaf[iBin] << std::endl;
-
-        }
-
-        histName = l1ExtraObject + "_eta";
-        histTitle = l1ExtraObject + ": eta distribution ";
-        xAxisTitle = l1ExtraObject + "_eta";
-        yAxisTitle = "Entries";
-
-        m_monElement.push_back(ibooker.book1D(histName, histTitle, histNrBinsEta, binThresholdsEtaf));
-        indexHistogram++;
-
-        m_monElement[indexHistogram]->setAxisTitle(xAxisTitle, 1);
-        m_monElement[indexHistogram]->setAxisTitle(yAxisTitle, 2);
-        m_indexEta = indexHistogram;
-
-        delete[] binThresholdsEtaf;
-
-    }
-
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillNrObjects(
-        const CollectionType* collType, const bool validColl,
-        const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl && isL1Coll) {
-        size_t collSize = 0;
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (iterColl->bx() == bxInEvent) {
-                collSize++;
-            }
-        }
-        m_monElement[m_indexNrObjects]->Fill(collSize);
-    } else {
-        size_t collSize = collType->size();
-        m_monElement[m_indexNrObjects]->Fill(collSize);
-    }
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillPtPhiEta(
-        const CollectionType* collType, const bool validColl,
-        const bool bookPhi, const bool bookEta, const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl) {
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (isL1Coll && (iterColl->bx() != bxInEvent)) {
-                continue;
-            }
-
-            m_monElement[m_indexPt]->Fill(iterColl->pt());
-
-            if (bookPhi) {
-                // add a very small quantity to get off the bin edge
-                m_monElement[m_indexPhi]->Fill(rad2deg(iterColl->phi()) + 1.e-6);
-            }
-
-            if (bookEta) {
-                m_monElement[m_indexEta]->Fill(iterColl->eta());
-            }
-
-        }
-    }
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillEtPhiEta(
-        const CollectionType* collType, const bool validColl,
-        const bool bookPhi, const bool bookEta, const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl) {
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (isL1Coll && (iterColl->bx() != bxInEvent)) {
-                continue;
-            }
-
-            m_monElement[m_indexEt]->Fill(iterColl->et());
-
-            if (bookPhi) {
-                // add a very small quantity to get off the bin edge
-                m_monElement[m_indexPhi]->Fill(rad2deg(iterColl->phi()) + 1.e-6);
-            }
-
-            if (bookEta) {
-                m_monElement[m_indexEta]->Fill(iterColl->eta());
-            }
-
-        }
-    }
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillEtTotal(
-        const CollectionType* collType, const bool validColl, const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl) {
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (isL1Coll && (iterColl->bx() != bxInEvent)) {
-                continue;
-            }
-
-            m_monElement[m_indexEtTotal]->Fill(iterColl->etTotal());
-        }
-    }
-
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillCharge(
-        const CollectionType* collType, const bool validColl, const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl) {
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (isL1Coll && (iterColl->bx() != bxInEvent)) {
-                continue;
-            }
-
-            m_monElement[m_indexCharge]->Fill(iterColl->charge());
-        }
-    }
-
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillHfBitCounts(
-        const CollectionType* collType, const bool validColl,
-        const int countIndex, const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl) {
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (isL1Coll && (iterColl->bx() != bxInEvent)) {
-                continue;
-            }
-
-            m_monElement[m_indexHfBitCounts + countIndex]->Fill(
-                    iterColl->hfBitCount(
-                            (l1extra::L1HFRings::HFRingLabels) countIndex));
-        }
-    }
-
-}
-
-template<class CollectionType>
-void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillHfRingEtSums(
-        const CollectionType* collType, const bool validColl,
-        const int countIndex, const bool isL1Coll, const int bxInEvent) {
-
-    if (validColl) {
-        for (CIterColl iterColl = collType->begin(); iterColl
-                != collType->end(); ++iterColl) {
-
-            if (isL1Coll && (iterColl->bx() != bxInEvent)) {
-                continue;
-            }
-
-            m_monElement[m_indexHfRingEtSums + countIndex]->Fill(
-                    iterColl->hfEtSum(
-                            (l1extra::L1HFRings::HFRingLabels) countIndex));
-        }
-    }
-
-}
 
 #endif

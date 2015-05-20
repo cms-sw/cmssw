@@ -30,7 +30,8 @@ L1TGCTClient::L1TGCTClient(const edm::ParameterSet& ps):
   m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
   m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
   m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
-  m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false))
+  m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false)),
+  m_stage1_layer2_(ps.getUntrackedParameter<bool>("stage1_layer2_"))
 
 {
 }
@@ -54,6 +55,11 @@ void L1TGCTClient::book(DQMStore::IBooker &ibooker)
   l1GctForJetsOccPhi_ = ibooker.book1D("ForJetsOccPhi","FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
   l1GctTauJetsOccEta_ = ibooker.book1D("TauJetsOccEta","TAU JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
   l1GctTauJetsOccPhi_ = ibooker.book1D("TauJetsOccPhi","TAU JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  if (m_stage1_layer2_ == true){
+    l1GctIsoTauJetsOccEta_ = ibooker.book1D("IsoTauJetsOccEta", "TAU JET #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctIsoTauJetsOccPhi_ = ibooker.book1D("IsoTauJetsOccPhi", "TAU JET #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  }
+    
 }
 
 void L1TGCTClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) 
@@ -79,42 +85,55 @@ void L1TGCTClient::processHistograms(DQMStore::IGetter &igetter) {
 
     MonitorElement* Input;
 
-    Input = igetter.get("L1T/L1TGCT/IsoEmOccEtaPhi");
+    if(m_stage1_layer2_ ==false){
+      InputDir = "L1T/L1TGCT/";
+    } else{
+      InputDir = "L1T/stage1layer2/";
+    }
+
+    Input = igetter.get(InputDir + "IsoEmOccEtaPhi");
     if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
       makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
     }
 
-    Input = igetter.get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
+    Input = igetter.get(InputDir + "NonIsoEmOccEtaPhi");
     if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
       makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
     }
 
-    Input = igetter.get("L1T/L1TGCT/AllJetsOccEtaPhi");
+    Input = igetter.get(InputDir + "AllJetsOccEtaPhi");
     if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
     }
 
-    Input = igetter.get("L1T/L1TGCT/CenJetsOccEtaPhi");
+    Input = igetter.get(InputDir + "CenJetsOccEtaPhi");
     if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
     }
 
-    Input = igetter.get("L1T/L1TGCT/ForJetsOccEtaPhi");
+    Input = igetter.get(InputDir + "ForJetsOccEtaPhi");
     if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
     }
 
-    Input = igetter.get("L1T/L1TGCT/TauJetsOccEtaPhi");
+    Input = igetter.get(InputDir + "TauJetsOccEtaPhi");
     if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
     }
 
+    if (m_stage1_layer2_ == true){
+      Input = igetter.get(InputDir + "IsoTauJetsOccEtaPhi");
+      if (Input!=NULL){
+        makeXProjection(Input->getTH2F(),l1GctIsoTauJetsOccEta_);
+        makeYProjection(Input->getTH2F(),l1GctIsoTauJetsOccPhi_);
+      }      
+    }
 }
 
 

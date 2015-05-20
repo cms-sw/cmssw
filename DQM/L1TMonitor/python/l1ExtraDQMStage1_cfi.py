@@ -4,22 +4,20 @@ import FWCore.ParameterSet.Config as cms
 #     
 # V.M. Ghete 2010-02-27
 
-from DQM.L1TMonitor.L1ExtraInputTagSet_cff import *
+from DQM.L1TMonitor.L1ExtraInputTagSetStage1_cff import *
 
 
-l1ExtraDQM = cms.EDAnalyzer("L1ExtraDQM",
+l1ExtraDQMStage1 = cms.EDAnalyzer("L1ExtraDQM",
                             
     # L1Extra input tags
-    L1ExtraInputTagSet,
+    L1ExtraInputTagSetStage1,
+    L1ExtraIsoTauJetSource_ = cms.InputTag("dqmL1ExtraParticlesStage1", "IsoTau"),
     #
-    L1ExtraIsoTauJetSource_ = cms.InputTag("fake"),
     DQMStore = cms.untracked.bool(True),
-    #DirName=cms.untracked.string("L1T/L1Extra"),
-    DirName=cms.string("L1T/L1Extra"),
+    DirName=cms.string("L1T/L1ExtraStage1"),
     disableROOToutput = cms.untracked.bool(True),
     verbose = cms.untracked.bool(False),
-    #stage1_layer2_ = cms.untracked.bool(False),
-    stage1_layer2_ = cms.bool(False),
+    stage1_layer2_ = cms.bool(True),
     #
     #
     # number of BxInEvent for GCT and GMT  

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.l1ExtraDQM_cfi import *
-
+from DQM.L1TMonitor.l1ExtraDQMStage1_cfi import *
 
 # for DQM, unpack all BxInEvent available for GCT, GMT & GT (common unpacker for GMT and GT)
 # use clones dqmGctDigis and dqmGtDigis, to not interfere with RawToDigi from standard sequences
@@ -41,6 +41,26 @@ dqmL1ExtraParticles.hfRingEtSumsSource = 'dqmGctDigis'
 dqmL1ExtraParticles.hfRingBitCountsSource = 'dqmGctDigis'
 #
 dqmL1ExtraParticles.centralBxOnly = cms.bool(False)
+
+# get stage1 digis
+import L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi
+dqmL1ExtraParticlesStage1 = L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi.l1extraParticles.clone()
+#
+dqmL1ExtraParticlesStage1.muonSource = 'dqmGtDigis'
+dqmL1ExtraParticlesStage1.etTotalSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.nonIsolatedEmSource = 'caloStage1LegacyFormatDigis:nonIsoEm'
+dqmL1ExtraParticlesStage1.etMissSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.htMissSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.forwardJetSource = 'caloStage1LegacyFormatDigis:forJets'
+dqmL1ExtraParticlesStage1.centralJetSource = 'caloStage1LegacyFormatDigis:cenJets'
+dqmL1ExtraParticlesStage1.tauJetSource = 'caloStage1LegacyFormatDigis:tauJets'
+dqmL1ExtraParticlesStage1.isoTauJetSource = 'caloStage1LegacyFormatDigis:isoTauJets'
+dqmL1ExtraParticlesStage1.isolatedEmSource = 'caloStage1LegacyFormatDigis:isoEm'
+dqmL1ExtraParticlesStage1.etHadSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.hfRingEtSumsSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.hfRingBitCountsSource = 'caloStage1LegacyFormatDigis'
+#
+dqmL1ExtraParticlesStage1.centralBxOnly = cms.bool(False)
 
 #
 # Modify for running with the Stage 1 trigger. Note that these changes are already
