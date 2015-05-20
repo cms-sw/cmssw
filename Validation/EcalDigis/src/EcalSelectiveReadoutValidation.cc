@@ -1583,8 +1583,9 @@ void EcalSelectiveReadoutValidation::anaDigiInit(){
 }
 
 double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) const{
-  static bool firstCall = true;
-  if(firstCall){
+  static std::atomic<bool> firstCall {true};
+  bool expected = true;
+  if( firstCall.compare_exchange_strong(expected, false) ) {
     stringstream buf;
     buf << "Weights:";
     for(unsigned i=0; i<weights_.size();++i){
