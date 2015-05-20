@@ -20,11 +20,11 @@ namespace reco { class EvtPlane {
   public:
     EvtPlane(int epindx=0, int level = 2, double planeA=0,double sumSin=0, double sumCos=0, double sumw = 0, double sumw2 = 0, double pe = 0, double pe2 = 0, uint mult = 0);
     virtual ~EvtPlane();
-    void AddLevel(int level, double ang, double sumsin, double sumcos);
+    void addLevel(int level, double ang, double sumsin, double sumcos);
     int indx() const { return indx_ ;}
-    float	angle(int level=2)   const { return (level>=0||level<=2)? angle_[level]:angle_[2]; }
-    float	sumSin(int level=2)  const { return (level>=0||level<=2)? sumSin_[level]:sumSin_[2];}
-    float	sumCos(int level=2)  const { return (level>=0||level<=2)? sumCos_[level]:sumCos_[2];}
+    float	angle(int level=2)   const { return (level>=0&&level<4)? angle_[level]:angle_[2]; }
+    float	sumSin(int level=2)  const { return (level>=0&&level<4)? sumSin_[level]:sumSin_[2];}
+    float	sumCos(int level=2)  const { return (level>=0&&level<4)? sumCos_[level]:sumCos_[2];}
     float	sumw() const { return sumw_;}
     float	sumw2() const { return sumw2_;}
     float	sumPtOrEt() const { return sumPtOrEt_;}

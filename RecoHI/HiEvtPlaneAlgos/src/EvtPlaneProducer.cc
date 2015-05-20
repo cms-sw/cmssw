@@ -252,7 +252,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
   trackToken = consumes<reco::TrackCollection>(trackTag_);
 
-  produces<reco::EvtPlaneCollection>("recoLevel");
+  produces<reco::EvtPlaneCollection>();
   for(int i = 0; i<NumEPNames; i++ ) {
     rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
   }
@@ -269,6 +269,9 @@ EvtPlaneProducer::~EvtPlaneProducer()
 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  for(int i = 0; i<NumEPNames; i++) {
+    delete flat[i];
+  }
 
 }
 
@@ -366,7 +369,8 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(tower_energyet>maxet) continue;
 	  if(EPDet[i]==HF) {
 	    double w = tower_energyet;
-	    if(loadDB_) w = tower_energyet*flat[i]->EtScale(vzr_sell,bin);
+            flat[i]->updateEt(vzr_sell, bin);
+	    if(loadDB_) w = tower_energyet*flat[i]->getEtScale(vzr_sell,bin);
 	    if(EPOrder[i]==1 ) {
 	      if(MomConsWeight[i][0]=='y' && loadDB_ ) {
 		w = flat[i]->getW(tower_energyet, vzr_sell, bin);
@@ -400,6 +404,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        	    double w = tower_energyet;
        	    if(EPOrder[i]==1 ) {
        	      if(MomConsWeight[i][0]=='y' && loadDB_ ) {
+                flat[i]->updateEt(vzr_sell, bin);
        		w = flat[i]->getW(tower_energyet, vzr_sell, bin);
        	      }
        	      if(tower_eta<0 ) w=-w;
@@ -472,6 +477,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if(w>2.5) w=2.0;   //v2 starts decreasing above ~2.5 GeV/c
 	      if(EPOrder[i]==1) {
 		if(MomConsWeight[i][0]=='y' && loadDB_) {
+                  flat[i]->updateEt(vzr_sell, bin);
 		  w = flat[i]->getW(track_pt, vzr_sell, bin);
 		}
 		if(track_eta<0) w=-w;
@@ -500,10 +506,10 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(int i = 0; i<NumEPNames; i++) {
       rp[i]->getAngle(ang,sv,cv,svNoWgt, cvNoWgt, wv,wv2,pe,pe2,epmult);
       evtplaneOutput->push_back( EvtPlane(i,0,ang,sv,cv,wv,wv2,pe,pe2,epmult) );
-      evtplaneOutput->back().AddLevel(3, 0., svNoWgt, cvNoWgt);
+      evtplaneOutput->back().addLevel(3, 0., svNoWgt, cvNoWgt);
     }
 
-    iEvent.put(evtplaneOutput, "recoLevel");
+    iEvent.put(evtplaneOutput);
   }
 }
 

@@ -1,24 +1,4 @@
-// -*- C++ -*-
-//
-// Package:    HiEvtPlaneFlatProducer
-// Class:      HiEvtPlaneFlatProducer
-// 
-/**\class HiEvtPlaneFlatProducer HiEvtPlaneFlatProducer.cc HiEvtPlaneFlatten/HiEvtPlaneFlatProducer/src/HiEvtPlaneFlatProducer.cc
-
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Stephen Sanders
-//         Created:  Sat Jun 26 16:04:04 EDT 2010
-//
-// system include files
 #include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -113,7 +93,7 @@ private:
   edm::ESWatcher<HeavyIonRcd> hiWatcher;
   edm::ESWatcher<HeavyIonRPRcd> hirpWatcher;
 
-  int FlatOrder_;
+  const int FlatOrder_;
   int NumFlatBins_;
   double caloCentRef_;
   double caloCentRefWidth_;
@@ -122,8 +102,6 @@ private:
   int Noffmax_;
   HiEvtPlaneFlatten * flat[NumEPNames];
   bool useOffsetPsi_;
-  int Hbins;
-  int Obins;
   double nCentBins_;
 };
 //
@@ -182,8 +160,6 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
     flat[i] = new HiEvtPlaneFlatten();
     flat[i]->init(FlatOrder_,NumFlatBins_,EPNames[i],EPOrder[i]);
   }
-  Hbins = flat[0]->getHBins();
-  Obins = flat[0]->getOBins();
 
 }
 
@@ -193,6 +169,9 @@ HiEvtPlaneFlatProducer::~HiEvtPlaneFlatProducer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  for(int i = 0; i<NumEPNames; i++) {
+    delete flat[i];
+  }
 
 }
 
@@ -291,29 +270,29 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   int indx = 0;
   for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin();rp !=evtPlanes_->end(); rp++) {
-	double angorig = rp->angle();
+	double psiOffset = rp->angle();
 	double s = rp->sumSin();
 	double c = rp->sumCos();
 	double w = rp->sumw();
 	uint m = rp->mult();
 
-	double psiOffset = angorig;
+	flat[indx]->updateEP(s,c,w,m,vzr_sell,bin, useOffsetPsi_);
 
-	if(useOffsetPsi_) psiOffset = flat[indx]->OffsetPsi(s,c,w,m,vzr_sell,bin);
+	if(useOffsetPsi_) psiOffset = flat[indx]->getOffsetPsi();
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
 	ep[indx]= new EvtPlane(indx, 2, psiFlat, flat[indx]->sumSin(), flat[indx]->sumCos(),rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(),  rp->mult());
-	ep[indx]->AddLevel(0,rp->angle(), rp->sumSin(), rp->sumCos());
-	ep[indx]->AddLevel(3,0., rp->sumSin(3), rp->sumCos(3));
-	if(useOffsetPsi_) ep[indx]->AddLevel(1, psiOffset, s, c);
+	ep[indx]->addLevel(0,rp->angle(), rp->sumSin(), rp->sumCos());
+	ep[indx]->addLevel(3,0., rp->sumSin(3), rp->sumCos(3));
+	if(useOffsetPsi_) ep[indx]->addLevel(1, psiOffset, s, c);
 	++indx;
-    
-  }
+    }
   
   for(int i = 0; i< NumEPNames; i++) {
     if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
     
   }
   iEvent.put(evtplaneOutput);
+  for(int i = 0; i<indx; i++) delete ep[i];
 }
 
 // ------------ method called once each job just before starting event loop  ------------

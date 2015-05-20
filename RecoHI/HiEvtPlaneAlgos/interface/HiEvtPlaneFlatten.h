@@ -1,24 +1,9 @@
 #ifndef __HiEvtPlaneFlatten__
 #define __HiEvtPlaneFlatten__
-// -*- C++ -*-
-//
-// Package:    HiEvtPlaneFlatten
-// Class:      HiEvtPlaneFlatten
-// 
-
-//
-//
-// Original Author:  Stephen Sanders
-//         Created:  Mon Jun  7 14:40:12 EDT 2010
-//
-//
-
-// system include files
 #include <memory>
 #include <iostream>
 #include <string>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -155,9 +140,7 @@ public:
     caloCentRefVal_ = 1.;
   }
 
-  double EtScale(double vtx, int centbin) {
-    if(caloCentRefMinBin_<0) return 1.;
-    int indx = getOffsetIndx(centbin,vtx);
+  void updateEt(double vtx, int centbin) {
     int refmin = getOffsetIndx(caloCentRefMinBin_,vtx);
     int refmax = getOffsetIndx(caloCentRefMaxBin_,vtx);
     caloCentRefVal_ = 0;
@@ -165,15 +148,20 @@ public:
       caloCentRefVal_+=getPtDB(i);
     }
     caloCentRefVal_/=refmax-refmin+1.;
+  }
+
+  double getEtScale(double vtx, int centbin) const {
+    if(caloCentRefMinBin_<0) return 1.;
+    int indx = getOffsetIndx(centbin,vtx);
     if(caloCentRefVal_==0 || getPtDB(indx)==0) return 1.;
     return caloCentRefVal_/getPtDB(indx);
    }
 
-  double getW(double pt, double vtx, int centbin)
+  double getW(double pt, double vtx, int centbin) const
   {
     int indx = getOffsetIndx(centbin,vtx);
     if(indx>=0) {
-      double scale = EtScale(vtx,centbin);
+      double scale = getEtScale(vtx,centbin);
       double ptval = getPtDB(indx)*scale;
       double pt2val = getPt2DB(indx)*pow(scale,2);
       if(ptval>0) return pt*scale-pt2val/ptval;
@@ -194,20 +182,27 @@ public:
     return psi;
   }
 
-  double OffsetPsi(double s, double c, double w, uint m,  double vtx, int centbin)
+  void updateEP(double s, double c, double w, uint m,  double vtx, int centbin, bool offset)
   {
-    int indx = getOffsetIndx(centbin,vtx);
-    double snew = s-yoffDB_[indx];
-    double cnew = c-xoffDB_[indx];
-    double psi = atan2(snew,cnew)/vorder_;
-    if((fabs(snew)<1e-4) && (fabs(cnew)<1e-4)) psi = 0.;
-    psi=bounds(psi);
-    psi=bounds2(psi);
-    soff_ = snew;
-    coff_ = cnew;
+    if ( offset ) {
+        int indx = getOffsetIndx(centbin,vtx);
+        soff_ = s-yoffDB_[indx];
+        coff_ = c-xoffDB_[indx];
+    } else {
+        soff_ = s;
+        coff_ = c;
+    }
     w_ = w;
     mult_ = m;
+    return;
+  }
 
+  double getOffsetPsi() const
+  {
+    double psi = atan2(soff_,coff_)/vorder_;
+    if((fabs(soff_)<1e-4) && (fabs(coff_)<1e-4)) psi = 0.;
+    psi=bounds(psi);
+    psi=bounds2(psi);
     return psi;
   }
 
@@ -354,7 +349,5 @@ private:
   uint mult_ ;
 
 };
-
-
 
 #endif

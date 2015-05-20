@@ -23,12 +23,12 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include <vector>
 
-using namespace hi;
+//using namespace hi;
 
 class LoadEPDB {
  public:
 
-  explicit LoadEPDB(edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten ** flat)
+  explicit LoadEPDB(const edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten ** flat)
   {
     int Hbins;
     int Obins;
@@ -42,9 +42,9 @@ class LoadEPDB {
 
       for(int i = 0; i<flatTableSize; i++) {
 	const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
-	for(int j = 0; j<NumEPNames; j++) {
+	for(int j = 0; j<hi::NumEPNames; j++) {
 	  int indx = thisBin->RPNameIndx[j];
-	  if(indx<0||indx>=NumEPNames) {
+	  if(indx<0||indx>=hi::NumEPNames) {
 	    genFlatPsi_ = kFALSE;
 	    break;
 	  }
@@ -72,28 +72,28 @@ class LoadEPDB {
 	for(int j = 0; j< ncentbins; j++) {
 	  const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[Hbins+2*Obins +cbins+j+1]);
 	  if(fabs(centbinning-1.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes1(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes1(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-2.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes2(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes2(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-5.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes5(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes5(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-10.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes10(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes10(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-20.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes20(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes20(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-25.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes25(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes25(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-30.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes30(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes30(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	  if(fabs(centbinning-40.)<0.01) {
-	    for(int i = 0; i<NumEPNames; i++) flat[i]->setCentRes40(j,thisBin->x[i],thisBin->y[i]);
+	    for(int i = 0; i<hi::NumEPNames; i++) flat[i]->setCentRes40(j,thisBin->x[i],thisBin->y[i]);
 	  }
 	}
 
