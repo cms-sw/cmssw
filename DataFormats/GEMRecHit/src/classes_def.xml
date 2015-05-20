@@ -1,8 +1,8 @@
 <lcgdict>
 <selection>
   <class name="GEMRecHit" splitLevel="0" ClassVersion="11">
-   <version ClassVersion="11" checksum="3146992425"/>
-   <version ClassVersion="10" checksum="3680872192"/>
+  <version ClassVersion="11" checksum="3146992425"/>
+  <version ClassVersion="10" checksum="3680872192"/>
   </class>
   <class name="std::vector<GEMRecHit>" splitLevel="0"/>
   <class name="std::vector<GEMRecHit*>" splitLevel="0"/>
@@ -11,10 +11,31 @@
   <class name="edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"/>
   <class name="edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> > >" splitLevel="0"/>
+
+  <class name="ME0RecHit" splitLevel="0" ClassVersion="11">
+   <version ClassVersion="11" checksum="3948270793"/>
+   <version ClassVersion="10" checksum="2817146898"/>
+  </class>
+  <class name="std::vector<ME0RecHit>" splitLevel="0"/>
+  <class name="std::vector<ME0RecHit*>" splitLevel="0"/>
+  <class name="std::map<ME0DetId, std::pair<unsigned int, unsigned int> >" splitLevel="0"/>
+  <class name="std::map<ME0DetId, std::pair<unsigned long, unsigned long> >" splitLevel="0"/>
+  <class name="edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >" splitLevel="0"/>
+  <class name="edm::RangeMap<ME0DetId, edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >, edm::ClonePolicy<ME0RecHit> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<ME0DetId, edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >, edm::ClonePolicy<ME0RecHit> > >" splitLevel="0"/>
+
 </selection>
+
+
 <exclusion>
   <class name="edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >">
     <method name="sort" splitLevel="0"/>
   </class>
+
+  <class name="edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >">
+    <method name="sort" splitLevel="0"/>
+  </class>
+
+
 </exclusion>
 </lcgdict>
