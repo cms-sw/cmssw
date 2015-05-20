@@ -70,10 +70,10 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
 }
 
-void HcalSimpleRecAlgo::setMeth3Params(int iPedSubMethod, float iPedSubThreshold, int iTimeSlewParsType, double iTimeSlewParHB0, double iTimeSlewParHB1, double iTimeSlewParBE0, double iTimeSlewParBE1, double iTimeSlewParHE0, double iTimeSlewParHE1) {
+void HcalSimpleRecAlgo::setMeth3Params(int iPedSubMethod, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars) {
 
   pedSubFxn_->init(((PedestalSub::Method)iPedSubMethod), 0, iPedSubThreshold, 0.0);
-  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2, *pedSubFxn_, iTimeSlewParHB0, iTimeSlewParHB1, iTimeSlewParBE0, iTimeSlewParBE1, iTimeSlewParHE0, iTimeSlewParHE1);
+  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2, *pedSubFxn_, iTimeSlewPars);
 }
 
 void HcalSimpleRecAlgo::setForData (int runnum) { 
