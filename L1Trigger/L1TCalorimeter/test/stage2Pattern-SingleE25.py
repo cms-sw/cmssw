@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(32)
+    input = cms.untracked.int32(22)
 )
 
 # Input source
@@ -69,8 +69,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(25.01),
-        MinPt = cms.double(24.99),
+        MaxPt = cms.double(100.),
+        MinPt = cms.double(20.),
         PartID = cms.vint32(11),
         MaxEta = cms.double(2.5),
         MaxPhi = cms.double(3.14159265359),
@@ -110,7 +110,7 @@ process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveD
 process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2InputPatternWriter_cfi')
-process.l1tStage2InputPatternWriter.filename = cms.untracked.string("pattern-SingleE25-32evt.txt")
+process.l1tStage2InputPatternWriter.filename = cms.untracked.string("pattern-SingleE25.txt")
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -125,7 +125,3 @@ process.output_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.endjob_step,process.output_step)
-# filter all path with the production filter sequence
-for path in process.paths:
-	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
-
