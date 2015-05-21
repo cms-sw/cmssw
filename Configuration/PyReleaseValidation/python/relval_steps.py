@@ -875,11 +875,11 @@ premixProd50ns = merge([{'-s':'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@frozen50ns
 steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd25ns,digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50ns])
 
-
-dataReco={'--conditions':'auto:run1_data',
-          '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+Hotline,DQM',
-          '--datatier':'RECO,DQMIO',
-          '--eventcontent':'RECO,DQM',
+dataReco={'--runUnscheduled':'',
+          '--conditions':'auto:run1_data',
+          '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM:@standardDQM+@miniAODDQM',
+          '--datatier':'RECO,MINIAOD,DQMIO',
+          '--eventcontent':'RECO,MINIAOD,DQM',
           '--data':'',
           '--process':'reRECO',
           '--scenario':'pp',
