@@ -4,6 +4,7 @@
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="DataFormats/EgammaTrackReco"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
