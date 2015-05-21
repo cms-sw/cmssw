@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Read in a LHE file from MadGraph5_aMC@NLO
 
-herwigLHEFileSettingsBlock = cms.PSet(
+herwigppLHEFileSettingsBlock = cms.PSet(
 
 	LHEFileMadGraph = cms.vstring(
 		'cd /Herwig/Cuts',

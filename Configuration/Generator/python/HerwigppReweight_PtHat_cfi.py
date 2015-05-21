@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Reweight using pTHat
 
-herwigReweightSettingsBlock = cms.PSet(
+herwigppReweightSettingsBlock = cms.PSet(
 
 	reweightPthat = cms.vstring(
 		'mkdir /Herwig/Weights',

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Read in a LHE file from Powheg
 
-herwigLHEFileSettingsBlock = cms.PSet(
+herwigppLHEFileSettingsBlock = cms.PSet(
 
 	LHEFilePowheg = cms.vstring(
 		'# Need to use an NLO PDF',

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Center-of-mass energy 8 TeV
 
-herwigEnergySettingsBlock = cms.PSet(
+herwigppEnergySettingsBlock = cms.PSet(
 
 	cm8TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',

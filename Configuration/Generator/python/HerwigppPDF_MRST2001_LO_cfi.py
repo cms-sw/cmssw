@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Default pdf for Herwig++ 2.3
 
-herwigPDFSettingsBlock = cms.PSet(
+herwigppPDFSettingsBlock = cms.PSet(
 
 	pdfMRST2001 = cms.vstring(
 		'cd /Herwig/Partons',

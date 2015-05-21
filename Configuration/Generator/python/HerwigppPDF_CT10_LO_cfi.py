@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # CT10 PDF
 
-herwigPDFSettingsBlock = cms.PSet(
+herwigppPDFSettingsBlock = cms.PSet(
 
         pdfCT10 = cms.vstring(
                 'cd /Herwig/Partons',
