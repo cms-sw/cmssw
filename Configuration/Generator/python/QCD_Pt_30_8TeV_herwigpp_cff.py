@@ -20,13 +20,12 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 	),
 
 	Summer09QCDParameters = cms.vstring(
-		'cd /Herwig/MatrixElements/',
-		'insert SimpleQCD:MatrixElements[0] MEQCD2to2',
 
-		'set /Herwig/Cuts/JetKtCut:MinKT 30*GeV',
-		'set /Herwig/Cuts/QCDCuts:MHatMin 0.0*GeV',
-		'set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE 0',
-		'cd /',
+                'insert /Herwig/MatrixElements/SimpleQCD:MatrixElements[0] /Herwig/MatrixElements/MEQCD2to2',
+
+                'set /Herwig/Cuts/JetKtCut:MinKT 30*GeV',
+                'set /Herwig/Cuts/QCDCuts:MHatMin 0.0*GeV',
+                'set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE 0',
 	),
 
 	crossSection = cms.untracked.double(6.22927e+07),
