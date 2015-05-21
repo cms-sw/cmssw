@@ -11,7 +11,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
