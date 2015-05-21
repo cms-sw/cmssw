@@ -49,6 +49,7 @@ namespace l1t {
    MP7Payload::getHeader()
    {
       LogTrace("L1T") << "Getting header from " << std::hex << *data_;
+
       return BlockHeader(data_++);
    }
 
