@@ -238,8 +238,10 @@ PixelHitMatcher::compatibleSeeds
      } // end loop on first seed hit
    } // end loop on seeds
 
-  mapTsos_.clear() ;
-  mapTsos2_.clear() ;
+  decltype(mapTsos_) temp1; // Using ".clear()" wasn't freeing the memory, which is quite a lot at high pileup
+  mapTsos_.swap(temp1);
+  decltype(mapTsos2_) temp2;
+  mapTsos2_.swap(temp2);
 
   return result ;
  }
