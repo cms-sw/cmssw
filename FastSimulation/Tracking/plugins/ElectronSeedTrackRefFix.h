@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
-class ElectronSeedTrackRefFix : public edm::EDProducer {
+class ElectronSeedTrackRefFix : public edm::stream::EDProducer {
 public:
   explicit ElectronSeedTrackRefFix(const edm::ParameterSet&);
   ~ElectronSeedTrackRefFix();
