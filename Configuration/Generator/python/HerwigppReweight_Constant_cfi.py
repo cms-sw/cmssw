@@ -6,9 +6,7 @@ herwigppReweightSettingsBlock = cms.PSet(
 
 	hwpp_reweight_Constant = cms.vstring(
 		'mkdir /Herwig/Weights',
-		'cd /Herwig/Weights',
-		'create ThePEG::ReweightConstant reweightConstant ReweightConstant.so',
-		'cd /',
+		'create ThePEG::ReweightConstant /Herwig/Weights/reweightConstant ReweightConstant.so',
 		'set /Herwig/Weights/reweightConstant:C 1',
 		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightConstant',
 	),
