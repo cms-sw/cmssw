@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
 
-	herwigppUE_EE_3M_Base = cms.vstring(
-		'+pdfMRST2008LOss',
+	hwpp_ue_EE_3M_Base = cms.vstring(
+		'+hwpp_pdf_MRST2008LOss',
 
 		'cd /Herwig',
 		'create Herwig::O2AlphaS O2AlphaS',
@@ -25,32 +25,32 @@ herwigppUESettingsBlock = cms.PSet(
 		'cd /',
 	),
 
-	herwigppUE_EE_3M_900GeV = cms.vstring(
-		'+herwigppUE_EE_3M_Base',
+	hwpp_ue_EE_3M_900GeV = cms.vstring(
+		'+herwigpp_ue_EE_3M_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 900.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 1.86',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 3.72',
 		'cd /',
 	),
 
-	herwigppUE_EE_3M_1800GeV = cms.vstring(
-		'+herwigppUE_EE_3M_Base',
+	hwpp_ue_EE_3M_1800GeV = cms.vstring(
+		'+herwigpp_ue_EE_3M_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 1800.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.55',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 5.1',
 		'cd /',
 	),
 
-	herwigppUE_EE_3M_2760GeV = cms.vstring(
-		'+herwigppUE_EE_3M_Base',
+	hwpp_ue_EE_3M_2760GeV = cms.vstring(
+		'+herwigpp_ue_EE_3M_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 2760.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.62',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 5.24',
 		'cd /',
 	),
 
-	herwigppUE_EE_3M_7000GeV = cms.vstring(
-		'+herwigppUE_EE_3M_Base',
+	hwpp_ue_EE_3M_7000GeV = cms.vstring(
+		'+herwigpp_ue_EE_3M_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.06',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.12',
@@ -58,16 +58,16 @@ herwigppUESettingsBlock = cms.PSet(
 		'cd /',
 	),
 
-	herwigppUE_EE_3M_8000GeV = cms.vstring(
-		'+herwigppUE_EE_3M_Base',
+	hwpp_ue_EE_3M_8000GeV = cms.vstring(
+		'+hwpp_ue_EE_3M_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.21',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.42',
 		'cd /',
 	),
 
-	herwigppUE_EE_3M_14000GeV = cms.vstring(
-		'+herwigppUE_EE_3M_Base',
+	hwpp_ue_EE_3M_14000GeV = cms.vstring(
+		'+hwpp_ue_EE_3M_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.53',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 7.06',

@@ -8,11 +8,10 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
-		'cm7TeV',
-		'pdfMRST2001',
+		'hwpp_cm_7TeV',
+		'hwpp_pdf_MRST2001',
 		'Summer09QCDParameters',
-		'basicSetup',
-		'setParticlesStableForDetector',
+		'hwpp_cmsDefaults',
 	),
 
 	Summer09QCDParameters = cms.vstring(

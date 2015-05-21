@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppLHEFileSettingsBlock = cms.PSet(
 
-	LHEFileMadGraph = cms.vstring(
+	hwpp_LHE_MadGraph = cms.vstring(
 		'cd /Herwig/Cuts',
 		'create ThePEG::Cuts NoCuts',
 		'cd /Herwig/EventHandlers',

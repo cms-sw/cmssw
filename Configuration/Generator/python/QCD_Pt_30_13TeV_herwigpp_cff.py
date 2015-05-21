@@ -9,9 +9,9 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 
         configFiles = cms.vstring(),
         parameterSets = cms.vstring(
-                'cmsDefaults',
-                'cm13TeV',
-                'EE5C',
+                'hwpp_cmsDefaults',
+                'hwpp_cm_13TeV',
+                'hwpp_ue_EE5C',
                 'processParameters',
         ),
 

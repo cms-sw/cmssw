@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppPDFSettingsBlock = cms.PSet(
 
-        pdfCT10 = cms.vstring(
+        hwpp_pdf_CT10 = cms.vstring(
                 'cd /Herwig/Partons',
                 'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
                 'set cmsPDFSet:PDFName CT10.LHgrid',

@@ -10,12 +10,12 @@ herwigDefaultsBlock = cms.PSet(
 	generatorModule = cms.string('/Herwig/Generators/LHCGenerator'),
 	run = cms.string('LHC'),
 
-	cmsDefaults = cms.vstring(
-		'+basicSetup',
-		'+setParticlesStableForDetector',
+	hwpp_cmsDefaults = cms.vstring(
+		'+hwpp_basicSetup',
+		'+hwpp_setParticlesStableForDetector',
 	),
 
-	basicSetup = cms.vstring(
+	hwpp_basicSetup = cms.vstring(
 		'cd /Herwig/Generators',
 		'create ThePEG::RandomEngineGlue /Herwig/RandomGlue',
 		'set LHCGenerator:RandomNumberGenerator /Herwig/RandomGlue',
@@ -28,7 +28,7 @@ herwigDefaultsBlock = cms.PSet(
 	),
 
 	# Disable decays of particles with ctau > 10mm
-	setParticlesStableForDetector = cms.vstring(
+	hwpp_setParticlesStableForDetector = cms.vstring(
 		'cd /Herwig/Particles',
 		'set mu-:Stable Stable',
 		'set mu+:Stable Stable',

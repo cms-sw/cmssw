@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
 
-	herwigppUE_EE_2_Base = cms.vstring(
-		'+pdfMRST2008LOss',
+	hwpp_ue_EE_2_Base = cms.vstring(
+		'+hwpp_pdf_MRST2008LOss',
 		# Energy-independent MPI parameters
 		#   Colour reconnection settings
 		'set /Herwig/Hadronization/ColourReconnector:ColourReconnection Yes',
@@ -20,32 +20,32 @@ herwigppUESettingsBlock = cms.PSet(
 		'cd /',
 	),
 
-	herwigppUE_EE_2_900GeV = cms.vstring(
-		'+herwigppUE_EE_2_Base',
+	hwpp_ue_EE_2_900GeV = cms.vstring(
+		'+herwigpp_ue_EE_2_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 900.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 2.34',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 4.68',
 		'cd /',
 	),
 
-	herwigppUE_EE_2_1800GeV = cms.vstring(
-		'+herwigppUE_EE_2_Base',
+	hwpp_ue_EE_2_1800GeV = cms.vstring(
+		'+herwigpp_ue_EE_2_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 1800.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.09',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.18',
 		'cd /',
 	),
 
-	herwigppUE_EE_2_2760GeV = cms.vstring(
-		'+herwigppUE_EE_2_Base',
+	hwpp_ue_EE_2_2760GeV = cms.vstring(
+		'+herwigpp_ue_EE_2_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 2760.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.31',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.62',
 		'cd /',
 	),
 
-	herwigppUE_EE_2_7000GeV = cms.vstring(
-		'+herwigppUE_EE_2_Base',
+	hwpp_ue_EE_2_7000GeV = cms.vstring(
+		'+herwigpp_ue_EE_2_Base',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
 		'set /Herwig/UnderlyingEvent/KtCut:MinKT 4.02',
 		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 8.04',

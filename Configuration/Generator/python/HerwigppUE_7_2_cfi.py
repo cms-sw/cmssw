@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
 
-	herwigppUESettings = cms.vstring(
-		'+pdfMRST2008LOss',
+	hwpp_ue_7_2 = cms.vstring(
+		'+hwpp_pdf_MRST2008LOss',
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 		# Colour reconnection settings

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppEnergySettingsBlock = cms.PSet(
 
-	cm8TeV = cms.vstring(
+	hwpp_cm_8TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
 	),

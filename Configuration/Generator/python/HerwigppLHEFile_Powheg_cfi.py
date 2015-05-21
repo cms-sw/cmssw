@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppLHEFileSettingsBlock = cms.PSet(
 
-	LHEFilePowheg = cms.vstring(
+	hwpp_LHE_Powheg = cms.vstring(
 		'# Need to use an NLO PDF',
 		'set /Herwig/Particles/p+:PDF    /Herwig/Partons/MRST-NLO',
 		'set /Herwig/Particles/pbar-:PDF /Herwig/Partons/MRST-NLO',

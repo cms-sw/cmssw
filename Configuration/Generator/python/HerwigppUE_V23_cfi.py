@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
 
-     ue_2_3 =  cms.vstring(
+     hwpp_ue_V23 =  cms.vstring(
 	'cd /Herwig/UnderlyingEvent',
 	'set KtCut:MinKT 4.0',
 	'set UECuts:MHatMin 8.0',

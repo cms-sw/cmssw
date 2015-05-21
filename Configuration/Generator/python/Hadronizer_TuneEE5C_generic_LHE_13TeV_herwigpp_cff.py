@@ -14,10 +14,10 @@ generator = cms.EDFilter("ThePEGHadronizerFilter",
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
-		'cmsDefaults',
-		'EE5C',
-		'pdfCTEQ6L1',
-		'cm13TeV',
+		'hwpp_cmsDefaults',
+		'hwpp_ue_EE5C',
+		'hwpp_pdf_CTEQ6L1',
+		'hwpp_cm_13TeV',
 	),
 
         crossSection = cms.untracked.double(-1.),

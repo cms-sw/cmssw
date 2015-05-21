@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppUESettingsBlock = cms.PSet(
 
-     EE5EnergyExtrapol =  cms.vstring(
+     hwpp_ue_EE5EnergyExtrapol =  cms.vstring(
         'set /Herwig/UnderlyingEvent/MPIHandler:EnergyExtrapolation Power',
         'set /Herwig/UnderlyingEvent/MPIHandler:ReferenceScale 7000.*GeV',
         'set /Herwig/UnderlyingEvent/MPIHandler:Power 0.314',
@@ -13,8 +13,8 @@ herwigppUESettingsBlock = cms.PSet(
 	'cd /',
         ),
 
-      EE5 =  cms.vstring(
-        '+EE5EnergyExtrapol',
+     hwpp_ue_EE5 =  cms.vstring(
+        '+hwpp_ue_EE5EnergyExtrapol',
         # Colour reconnection settings
         'set /Herwig/Hadronization/ColourReconnector:ColourReconnection Yes',
         'set /Herwig/Hadronization/ColourReconnector:ReconnectionProbability 0.420',

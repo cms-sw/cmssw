@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 herwigppReweightSettingsBlock = cms.PSet(
 
-	reweightPthat = cms.vstring(
+	hwpp_reweight_Pthat = cms.vstring(
 		'mkdir /Herwig/Weights',
 		'cd /Herwig/Weights',
 		'create ThePEG::ReweightMinPT reweightMinPT ReweightMinPT.so',
