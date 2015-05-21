@@ -9,14 +9,14 @@ from Configuration.Generator.HerwigppEnergy_13TeV_cfi import *
 generator = cms.EDFilter("ThePEGHadronizerFilter",
 	herwigDefaultsBlock,
 	herwigppUESettingsBlock,
-#	herwigppPDFSettingsBlock,
+	herwigppPDFSettingsBlock,
 	herwigppEnergySettingsBlock,
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
 		'cmsDefaults',
 		'EE5C',
-#		'CTEQ6L1',
+		'pdfCTEQ6L1',
 		'cm13TeV',
 	),
 
