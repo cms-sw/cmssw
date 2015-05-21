@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "boost/cstdint.hpp"
+#include "boost/shared_ptr.hpp"
 #include <set>
 #include <map>
 #include <memory>
