@@ -153,12 +153,6 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
 )#end of clone
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 initialStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    #TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks')),
-    #hasSelector=cms.vint32(1),
-    #shareFrac = cms.double(0.99),
-    #indivShareFrac=cms.vdouble(1.0),
-    #selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStepV1")),
-    #setsToMerge = cms.VPSet(cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) )),
     TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks'),
                                    cms.InputTag('initialStepTracks'),
                                    cms.InputTag('initialStepTracks'),
