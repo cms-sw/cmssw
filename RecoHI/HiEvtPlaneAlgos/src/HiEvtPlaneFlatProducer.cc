@@ -273,17 +273,20 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	double psiOffset = rp->angle(0);
 	double s = rp->sumSin(0);
 	double c = rp->sumCos(0);
-	double w = rp->sumw();
 	uint m = rp->mult();
 
-//	flat[indx]->updateEP(s,c,w,m,vzr_sell,bin, useOffsetPsi_);
-
-	if(useOffsetPsi_) psiOffset = flat[indx]->getOffsetPsi(s, c, vzr_sell, bin);
+	double soff = s;
+	double coff = c;
+	if(useOffsetPsi_) {
+		soff = flat[indx]->getSoffset(s, vzr_sell, bin);
+		coff = flat[indx]->getCoffset(c, vzr_sell, bin);
+		psiOffset = flat[indx]->getOffsetPsi(s, c);
+	}
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
-	ep[indx]= new EvtPlane(indx, 2, psiFlat, flat[indx]->sumSin(), flat[indx]->sumCos(),rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
+	ep[indx]= new EvtPlane(indx, 2, psiFlat, soff, coff,rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
 	ep[indx]->addLevel(0, rp->angle(0), s, c);
 	ep[indx]->addLevel(3,0., rp->sumSin(3), rp->sumCos(3));
-	if(useOffsetPsi_) ep[indx]->addLevel(1, psiOffset, flat[indx]->sumSin(), flat[indx]->sumCos());
+	if(useOffsetPsi_) ep[indx]->addLevel(1, psiOffset, soff, coff);
 	++indx;
     }
   
