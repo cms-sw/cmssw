@@ -244,6 +244,11 @@ void FastjetJetProducer::produce( edm::Event & iEvent, const edm::EventSetup & i
   
   }
 
+  // fjClusterSeq_ retains quite a lot of memory - about 1 to 7Mb at 200 pileup
+  // depending on the exact configuration; and there are 24 FastjetJetProducers in the
+  // sequence so this adds up to about 60 Mb. It's allocated every time runAlgorithm
+  // is called, so safe to delete here.
+  fjClusterSeq_.reset();
 }
 
 
