@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+# Import UE tune for CTEQ6L
+from Configuration.Generator.HerwigppUE_EE_5C_cfi import *
+from Configuration.Generator.HerwigppUE_V23_cfi import *
+from Configuration.Generator.HerwigppUE_V24_cfi import *
+
 herwigDefaultsBlock = cms.PSet(
 	dataLocation = cms.string('${HERWIGPATH}'),
 
@@ -20,14 +25,10 @@ herwigDefaultsBlock = cms.PSet(
 		'set LHCGenerator:RandomNumberGenerator /Herwig/RandomGlue',
 		'set LHCGenerator:NumberOfEvents 10000000',
 		'set LHCGenerator:DebugLevel 1',
-		'set LHCGenerator:LogNonDefault 1',
                 'set LHCGenerator:UseStdout 0',		
 		'set LHCGenerator:PrintEvent 0',
 		'set LHCGenerator:MaxErrors 10000',
-#		'cd /Herwig/Particles',
-#		'set K0:Width 1e300*GeV',
-#		'set Kbar0:Width 1e300*GeV',
-#		'cd /',
+		'cd /',
 	),
 
 	# PDF presets
@@ -40,46 +41,60 @@ herwigDefaultsBlock = cms.PSet(
 		'setup MRST2001 ${HERWIGPATH}/PDF/mrst/2001/lo2002.dat',
 		'set MRST2001:RemnantHandler HadronRemnants',
 		'cd /',
-		'cp /Herwig/Partons/MRST2001 /cmsPDFSet',
+		'cp /Herwig/Partons/MRST2001 cmsPDFSet',
                 'cd /Herwig/Particles',
-                'set p+:PDF /cmsPDFSet',
-                'set pbar-:PDF /cmsPDFSet',
-		'+ue_2_3',
+                'set p+:PDF cmsPDFSet',
+                'set pbar-:PDF cmsPDFSet',
+		'+ue_2_3', # Default tune from 2.3
+		'cd /',
 	),
 	# Default pdf for Herwig++ 2.4
 	pdfMRST2008LOss = cms.vstring(
-		'cp /Herwig/Partons/MRST /cmsPDFSet',
+		'cp /Herwig/Partons/MRST cmsPDFSet',
                 'cd /Herwig/Particles',
-                'set p+:PDF /cmsPDFSet',
-                'set pbar-:PDF /cmsPDFSet',
-		'+ue_2_4',
+                'set p+:PDF cmsPDFSet',
+                'set pbar-:PDF cmsPDFSet',
+		'+ue_2_4', # Default tune from 2.4
+		'cd /',
 	),
 	pdfCTEQ6LL = cms.vstring(
                 'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF /cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName cteq6ll.LHpdf',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF /cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF /cmsPDFSet',
-                 'cd /'
+                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
+                 'set cmsPDFSet:PDFName cteq6ll.LHpdf',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
+                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+                 '+EE5C', # Tune for CTEQ6L1 from 2.7
+                 'cd /',
         ),
         pdfCTEQ6L1 = cms.vstring(
                 'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF /cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName cteq6ll.LHpdf',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF /cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF /cmsPDFSet',
-                 'cd /'
+                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
+                 'set cmsPDFSet:PDFName cteq6ll.LHpdf',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
+                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+                 '+EE5C', # Tune for CTEQ6L1 from 2.7                 
+                 'cd /',
         ),        
         pdfCT10 = cms.vstring(
                 'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF /cmsPDFSet ThePEGLHAPDF.so',
-                 'set /cmsPDFSet:PDFName CT10.LHgrid',
-                 'set /cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF /cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF /cmsPDFSet',
-                 'cd /'
+                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
+                 'set cmsPDFSet:PDFName CT10.LHgrid',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
+                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+                 'cd /',
+        ),
+        
+        pdfNNPDF30NLO = cms.vstring(
+                'cd /Herwig/Partons',
+                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
+                 'set cmsPDFSet:PDFName NNPDF30_nlo_as_0118.LHgrid',
+                 'set cmsPDFSet:RemnantHandler HadronRemnants',
+                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
+                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+                 'cd /',
         ),
 
 	# CME presets
@@ -106,25 +121,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 	),
 
-	# UE tunes
-	##############################
-
-	# UE Tune from Herwig++ 2.3 (MRST2001)
-	ue_2_3 = cms.vstring(
-		'cd /Herwig/UnderlyingEvent',
-		'set KtCut:MinKT 4.0',
-		'set UECuts:MHatMin 8.0',
-		'set MPIHandler:InvRadius 1.5',
-		'cd /'
-	),
-	# UE Tune from Herwig++ 2.4 (MRST2008LO**)
-	ue_2_4 = cms.vstring(
-		'cd /Herwig/UnderlyingEvent',
-		'set KtCut:MinKT 4.3',
-		'set UECuts:MHatMin 8.6',
-		'set MPIHandler:InvRadius 1.2',
-		'cd /'
-	),
 
 	# reweight presets
 	##############################
@@ -183,7 +179,7 @@ herwigDefaultsBlock = cms.PSet(
 		'create ThePEG::LesHouchesEventHandler LHEHandler',
                 'set LHEReader:MomentumTreatment RescaleEnergy',
                 'set LHEReader:WeightWarnings 0',
-#                'set LHEReader:InitPDFs 1',
+#                'set LHEReader:InitPDFs 1', # Do not try to derive PDFs from the LHE file
 		'set LHEHandler:WeightOption VarNegWeight',
 		'set LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor',
 		'set LHEHandler:CascadeHandler /Herwig/Shower/ShowerHandler',
@@ -199,8 +195,8 @@ herwigDefaultsBlock = cms.PSet(
                 'set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General',
                 'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost',
                 'cd /Herwig/EventHandlers',
-                'set LHEReader:PDFA /cmsPDFSet',
-                'set LHEReader:PDFB /cmsPDFSet',
+                'set LHEReader:PDFA /Herwig/Partons/cmsPDFSet',
+                'set LHEReader:PDFB /Herwig/Partons/cmsPDFSet',
                 'cd /',                 
 	),
 
@@ -230,5 +226,6 @@ herwigDefaultsBlock = cms.PSet(
 		'create Herwig::GGtoHHardGenerator GGtoHHardGenerator',
 		'set GGtoHHardGenerator:ShowerAlpha AlphaQCD',
 		'insert PowhegEvolver:HardGenerator 0 GGtoHHardGenerator',
+		'cd /',
 	)
 )
