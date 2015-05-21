@@ -53,7 +53,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")i")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
