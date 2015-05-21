@@ -402,6 +402,13 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   output( iEvent, iSetup );
   LogDebug("VirtualJetProducer") << "Wrote jets\n";
   
+  // Clear the work vectors so that memory is free for other modules.
+  // Use the trick of swapping with an empty vector so that the memory
+  // is actually given back rather than silently kept.
+  decltype(fjInputs_)().swap(fjInputs_);
+  decltype(fjJets_)().swap(fjJets_);
+  decltype(inputs_)().swap(inputs_);  
+
   return;
 }
 
