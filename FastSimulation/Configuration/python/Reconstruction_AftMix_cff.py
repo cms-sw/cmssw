@@ -20,6 +20,7 @@ _mod2del = []
 # offlineBeamSpot is reconstructed before mixing
 ########################################## 
 _mod2del.append(_reco.offlineBeamSpot)
+_reco.globalreco.remove(_reco.offlineBeamSpot) # temporary removing this by hand, cause the usual removal (see end of this file) doesn't seem work
 
 ###########################################
 # no castor / zdc in FastSim
