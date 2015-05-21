@@ -1,11 +1,11 @@
-# /frozen/2015/25ns14e33/v2.0/HLT/V1 (CMSSW_7_4_2_HLT3)
+# /frozen/2015/25ns14e33/v2.0/HLT/V2 (CMSSW_7_4_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT25ns14e33v2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2015/25ns14e33/v2.0/HLT/V1')
+  tableName = cms.string('/frozen/2015/25ns14e33/v2.0/HLT/V2')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -44085,7 +44085,7 @@ process.hltEle15VVVLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
 )
 process.hltEgammaEcalPFClusterIsoR02 = cms.EDProducer( "EgammaHLTEcalPFClusterIsolationProducer",
     energyEndcap = cms.double( 0.0 ),
-    effectiveAreaBarrel = cms.double( 0.066 ),
+    effectiveAreaBarrel = cms.double( 0.07353 ),
     etaStripBarrel = cms.double( 0.0 ),
     rhoProducer = cms.InputTag( "hltFixedGridRhoFastjetAllCaloForMuons" ),
     pfClusterProducer = cms.InputTag( "hltParticleFlowClusterECALL1Seeded" ),
@@ -44094,7 +44094,7 @@ process.hltEgammaEcalPFClusterIsoR02 = cms.EDProducer( "EgammaHLTEcalPFClusterIs
     drMax = cms.double( 0.2 ),
     doRhoCorrection = cms.bool( True ),
     energyBarrel = cms.double( 0.0 ),
-    effectiveAreaEndcap = cms.double( 0.043 ),
+    effectiveAreaEndcap = cms.double( 0.05872 ),
     drVetoEndcap = cms.double( 0.0 ),
     recoEcalCandidateProducer = cms.InputTag( "hltEgammaCandidates" ),
     rhoMax = cms.double( 9.9999999E7 ),
@@ -44130,9 +44130,9 @@ process.hltEgammaHcalPFClusterIsoR02 = cms.EDProducer( "EgammaHLTHcalPFClusterIs
     drVetoBarrel = cms.double( 0.0 ),
     pfClusterProducerHCAL = cms.InputTag( "hltParticleFlowClusterHCALForEgamma" ),
     drMax = cms.double( 0.2 ),
-    effectiveAreaBarrel = cms.double( 0.027 ),
+    effectiveAreaBarrel = cms.double( 0.02647 ),
     energyBarrel = cms.double( 0.0 ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.058 ),
     drVetoEndcap = cms.double( 0.0 ),
     recoEcalCandidateProducer = cms.InputTag( "hltEgammaCandidates" ),
     rhoMax = cms.double( 9.9999999E7 ),
