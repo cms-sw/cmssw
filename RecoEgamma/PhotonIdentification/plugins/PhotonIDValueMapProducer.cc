@@ -476,7 +476,7 @@ float PhotonIDValueMapProducer
       if ( fabs(dz) > dzMax) continue;
       
       float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
-			iCand->momentum().Eta(),      iCand->momentum().Phi());
+                          iCand->eta(),      iCand->phi());
       if(dR2 > dRmax*dRmax || dR2 < dRveto*dRveto) continue;
       
       sum += iCand->pt();
