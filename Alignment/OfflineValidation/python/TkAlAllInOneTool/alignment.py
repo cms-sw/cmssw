@@ -8,8 +8,9 @@ class Alignment:
         self.condShorts = {
             "TrackerAlignmentErrorExtendedRcd":
                 {"zeroAPE":{"connectString": ("frontier://FrontierProd"
-                                              "/CMS_COND_31X_FROM21X"),
-                            "tagName": "TrackerIdealGeometryErrors210_mc",
+                                              "/CMS_CONDITIONS"),
+                            "tagName": "TrackerAlignmentExtendedErr_2009_v2_express_IOVs",
+
                             "labelName": ""}}}
         section = "alignment:%s"%name
         if not config.has_section( section ):
