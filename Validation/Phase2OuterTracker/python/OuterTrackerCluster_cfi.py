@@ -5,7 +5,7 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
     TopFolderName = cms.string('Phase2OuterTrackerV'),
     TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
     TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"),    
-    verbosePlots   = cms.untracked.bool(True),
+    verbosePlots   = cms.untracked.bool(False),
 
 
 # Cluster Barrel Layers    

@@ -185,7 +185,7 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
       psTrack_NStubs.getParameter<double>("xmin"),
       psTrack_NStubs.getParameter<double>("xmax"));
-  Track_NStubs->setAxisTitle("# L1 Stubs", 1);
+  Track_NStubs->setAxisTitle("# L1 Stubs per L1 Track", 1);
   Track_NStubs->setAxisTitle("# Genuine L1 Tracks", 2);
   
   

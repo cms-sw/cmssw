@@ -10,7 +10,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
     TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
     TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),    
     HQDelim        = cms.int32(4),
-    verbosePlots   = cms.untracked.bool(True),
+    verbosePlots   = cms.untracked.bool(False),
 
 
 # TPart Pt
@@ -29,11 +29,11 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 
 # Sim Vertex XY
     TH2SimVtx_XY = cms.PSet(
-        Nbinsx = cms.int32(30),
-        xmax = cms.double(0.01),                      
+        Nbinsx = cms.int32(24),
+        xmax = cms.double(0.006),                      
         xmin = cms.double(-0.006),
-        Nbinsy = cms.int32(30),
-        ymax = cms.double(0.01),                      
+        Nbinsy = cms.int32(24),
+        ymax = cms.double(0.006),                      
         ymin = cms.double(-0.006)
         ),
 

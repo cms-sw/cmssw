@@ -171,15 +171,15 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       if ( theseClusters.size() > 0 )
       {
-        //if ( verbosePlots_ )
-        //{
+        if ( verbosePlots_ )
+        {
           TPart_Cluster_Pt->Fill (tempTPPtr->p4().pt() );
           if ( tempTPPtr->p4().pt() > 10.0 )
           {
             TPart_Cluster_Phi_Pt10->Fill( tempTPPtr->momentum().phi() );
             TPart_Cluster_Eta_Pt10->Fill( tempTPPtr->momentum().eta() );
           }
-        //} /// End verbosePlots
+        } /// End verbosePlots
         
         bool normIClu = false;
         bool normOClu = false;
@@ -197,7 +197,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           
           if ( stackMember == 0 )
           {
-            if ( normIClu == false )
+            if ( verbosePlots_ && normIClu == false )
             {
               TPart_Eta_INormalization->Fill( tempTPPtr->momentum().eta() );
               normIClu = true;
@@ -218,7 +218,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           }
           if ( stackMember == 1 )
           {
-            if ( normOClu == false )
+            if ( verbosePlots_ && normOClu == false )
             {
               TPart_Eta_ONormalization->Fill( tempTPPtr->momentum().eta() );
               normOClu = true;
@@ -247,15 +247,15 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       if ( theseStubs.size() > 0 )
       {
-        //if ( verbosePlots_ )
-        //{
+        if ( verbosePlots_ )
+        {
           TPart_Stub_Pt->Fill( tempTPPtr->p4().pt() );
           if ( tempTPPtr->p4().pt() > 10.0 )
           {
             TPart_Stub_Phi_Pt10->Fill( tempTPPtr->momentum().phi() );
             TPart_Stub_Eta_Pt10->Fill( tempTPPtr->momentum().eta() );
           }
-        //} /// End verbosePlots
+        } /// End verbosePlots
         
         if ( tempTPPtr->p4().pt() <= 10 )
         continue;
@@ -270,7 +270,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if ( !genuineStub )
             continue;
           
-          if ( normStub == false )
+          if ( verbosePlots_ && normStub == false )
           {
             TPart_Stub_Eta_Pt10_Normalization->Fill( tempTPPtr->momentum().eta() );
             normStub = true;
@@ -301,8 +301,8 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       
       
-      //if ( verbosePlots_ )
-      //{
+      if ( verbosePlots_ )
+      {
         /// Check if the TP produced any tracks
         std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > theseTracks =  MCTruthTTTrackHandle->findTTTrackPtrs( tempTPPtr );
 
@@ -350,7 +350,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             }
           }
         }
-      //} /// End verbosePlots
+      } /// End verbosePlots
       
     }	/// End TrackingParticles
   } /// End if there are TrackingParticles
@@ -624,20 +624,20 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
       psTPart_Angle_Pt10.getParameter<double>("xmin"),
       psTPart_Angle_Pt10.getParameter<double>("xmax"));
-  TPart_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
-  TPart_Eta_Pt10->setAxisTitle("# TParticles", 2);
+  TPart_Eta_Pt10->setAxisTitle("TPart #eta", 1);
+  TPart_Eta_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
   
   HistoName = "TPart_Phi_Pt10";
   TPart_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
       psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
       psTPart_Angle_Pt10.getParameter<double>("xmin"),
       psTPart_Angle_Pt10.getParameter<double>("xmax"));
-  TPart_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
-  TPart_Phi_Pt10->setAxisTitle("# TParticles", 2);
+  TPart_Phi_Pt10->setAxisTitle("TPart #phi", 1);
+  TPart_Phi_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
   
   
-  //if ( verbosePlots_ )
-  //{
+  if ( verbosePlots_ )
+  {
     HistoName = "TPart_Cluster_Pt";
     TPart_Cluster_Pt = dqmStore_->book1D(HistoName, HistoName,
         psTPart_Pt.getParameter<int32_t>("Nbinsx"),
@@ -651,16 +651,16 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Cluster_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
-    TPart_Cluster_Eta_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Cluster_Eta_Pt10->setAxisTitle("TPart #eta", 1);
+    TPart_Cluster_Eta_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
 
     HistoName = "TPart_Cluster_Phi_Pt10";
     TPart_Cluster_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Cluster_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
-    TPart_Cluster_Phi_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Cluster_Phi_Pt10->setAxisTitle("TPart #phi", 1);
+    TPart_Cluster_Phi_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
     
     HistoName = "TPart_Stub_Pt";
     TPart_Stub_Pt = dqmStore_->book1D(HistoName, HistoName,
@@ -675,16 +675,16 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Stub_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
-    TPart_Stub_Eta_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Stub_Eta_Pt10->setAxisTitle("TPart #eta", 1);
+    TPart_Stub_Eta_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
 
     HistoName = "TPart_Stub_Phi_Pt10";
     TPart_Stub_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Stub_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
-    TPart_Stub_Phi_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Stub_Phi_Pt10->setAxisTitle("TPart #phi", 1);
+    TPart_Stub_Phi_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
     
     HistoName = "TPart_Track_LQ_Pt";
     TPart_Track_LQ_Pt = dqmStore_->book1D(HistoName, HistoName,
@@ -699,16 +699,16 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_LQ_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
-    TPart_Track_LQ_Eta_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Track_LQ_Eta_Pt10->setAxisTitle("TPart #eta", 1);
+    TPart_Track_LQ_Eta_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
 
     HistoName = "TPart_Track_LQ_Phi_Pt10";
     TPart_Track_LQ_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_LQ_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
-    TPart_Track_LQ_Phi_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Track_LQ_Phi_Pt10->setAxisTitle("TPart #phi", 1);
+    TPart_Track_LQ_Phi_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
     
     HistoName = "TPart_Track_HQ_Pt";
     TPart_Track_HQ_Pt = dqmStore_->book1D(HistoName, HistoName,
@@ -723,28 +723,31 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_HQ_Eta_Pt10->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
-    TPart_Track_HQ_Eta_Pt10->setAxisTitle("# TParticles", 2);
+    TPart_Track_HQ_Eta_Pt10->setAxisTitle("TPart #eta", 1);
+    TPart_Track_HQ_Eta_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
 
     HistoName = "TPart_Track_HQ_Phi_Pt10";
     TPart_Track_HQ_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
         psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
         psTPart_Angle_Pt10.getParameter<double>("xmin"),
         psTPart_Angle_Pt10.getParameter<double>("xmax"));
-    TPart_Track_HQ_Phi_Pt10->setAxisTitle("TPart #phi (when p_{T}>10 GeV)", 1);
-    TPart_Track_HQ_Phi_Pt10->setAxisTitle("# TParticles", 2);
-  //} /// End verbosePlots
+    TPart_Track_HQ_Phi_Pt10->setAxisTitle("TPart #phi", 1);
+    TPart_Track_HQ_Phi_Pt10->setAxisTitle("# TParticles (with p_{T}>10 GeV)", 2);
+  } /// End verbosePlots
   
   
   /// Eta distribution of Tracking Particles (Stubs in PS/2S modules)
   edm::ParameterSet psTPart_Eta_PS2S =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Eta_PS2S");
-  HistoName = "TPart_Stub_Eta_Pt10_Normalization";
-  TPart_Stub_Eta_Pt10_Normalization = dqmStore_->book1D(HistoName, HistoName,
-      psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
-      psTPart_Eta_PS2S.getParameter<double>("xmin"),
-      psTPart_Eta_PS2S.getParameter<double>("xmax"));
-  TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
-  TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("# Genuine L1 Stubs", 2);
+  if ( verbosePlots_ )
+  {
+    HistoName = "TPart_Stub_Eta_Pt10_Normalization";
+    TPart_Stub_Eta_Pt10_Normalization = dqmStore_->book1D(HistoName, HistoName,
+        psTPart_Eta_PS2S.getParameter<int32_t>("Nbinsx"),
+        psTPart_Eta_PS2S.getParameter<double>("xmin"),
+        psTPart_Eta_PS2S.getParameter<double>("xmax"));
+    TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("TPart #eta (when p_{T}>10 GeV)", 1);
+    TPart_Stub_Eta_Pt10_Normalization->setAxisTitle("# Genuine L1 Stubs", 2);
+  }
   
   HistoName = "TPart_Stub_Eta_Pt10_NumPS";
   TPart_Stub_Eta_Pt10_NumPS = dqmStore_->book1D(HistoName, HistoName,
@@ -793,14 +796,6 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
   TPart_Eta_ICW_3->setAxisTitle("#eta", 1);
   TPart_Eta_ICW_3->setAxisTitle("# TParticles", 2);
   
-  HistoName = "TPart_Eta_INormalization";
-  TPart_Eta_INormalization = dqmStore_->book1D(HistoName, HistoName,
-      psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-      psTPart_Eta_CW.getParameter<double>("xmin"),
-      psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_INormalization->setAxisTitle("TPart_Eta_INormalization", 1);
-  TPart_Eta_INormalization->setAxisTitle("# TParticles", 2);
-  
   
   // Outer
   HistoName = "TPart_Eta_OCW_1";
@@ -827,13 +822,25 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
   TPart_Eta_OCW_3->setAxisTitle("#eta", 1);
   TPart_Eta_OCW_3->setAxisTitle("# TParticles", 2);
   
-  HistoName = "TPart_Eta_ONormalization";
-  TPart_Eta_ONormalization = dqmStore_->book1D(HistoName, HistoName,
-      psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-      psTPart_Eta_CW.getParameter<double>("xmin"),
-      psTPart_Eta_CW.getParameter<double>("xmax"));
-  TPart_Eta_ONormalization->setAxisTitle("TPart_Eta_ONormalization", 1);
-  TPart_Eta_ONormalization->setAxisTitle("# TParticles", 2);
+  // Normalization
+  if ( verbosePlots_ )
+  {
+    HistoName = "TPart_Eta_INormalization";
+    TPart_Eta_INormalization = dqmStore_->book1D(HistoName, HistoName,
+        psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+        psTPart_Eta_CW.getParameter<double>("xmin"),
+        psTPart_Eta_CW.getParameter<double>("xmax"));
+    TPart_Eta_INormalization->setAxisTitle("TPart_Eta_INormalization", 1);
+    TPart_Eta_INormalization->setAxisTitle("# TParticles", 2);
+
+    HistoName = "TPart_Eta_ONormalization";
+    TPart_Eta_ONormalization = dqmStore_->book1D(HistoName, HistoName,
+        psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+        psTPart_Eta_CW.getParameter<double>("xmin"),
+        psTPart_Eta_CW.getParameter<double>("xmax"));
+    TPart_Eta_ONormalization->setAxisTitle("TPart_Eta_ONormalization", 1);
+    TPart_Eta_ONormalization->setAxisTitle("# TParticles", 2);
+  }
   
   
   /// PID
