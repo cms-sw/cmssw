@@ -7,8 +7,8 @@ class Alignment:
     def __init__(self, name, config, runGeomComp = "1"):
         self.condShorts = {
             "TrackerAlignmentErrorExtendedRcd":
-                {"zeroAPE":{"connectString": ("frontier://PromptProd"
-                                              "/CMS_COND_ALIGN_000"),
+                {"zeroAPE":{"connectString": ("frontier://FrontierProd"
+                                              "/CMS_CONDITIONS"),
                             "tagName": "TrackerAlignmentExtendedErr_2009_v2_express_IOVs",
 
                             "labelName": ""}}}
