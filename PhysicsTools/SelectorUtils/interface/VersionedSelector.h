@@ -11,7 +11,21 @@
   \author Lindsey Gray
 */
 
+#if ( !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__) ) || defined(__ROOTCLING__)
 
+#define REGULAR_CPLUSPLUS 1
+#define CINT_GUARD(CODE) CODE
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <memory>
+#define SHARED_PTR(T) std::shared_ptr<T>
+
+#else
+
+#define CINT_GUARD(CODE)
+#include <boost/shared_ptr.hpp>
+#define SHARED_PTR(T) boost::shared_ptr<T>
+
+#endif
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,12 +33,8 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
 // because we need to be able to validate the ID
 #include <openssl/md5.h>
-
-#include <memory>
 
 namespace candf = candidate_functions;
 
@@ -57,7 +67,7 @@ class VersionedSelector : public Selector<T> {
     this->retInternal_  = this->getBitTemplate();
   }
   
-  virtual bool operator()( const T& ref, pat::strbitset& ret ) override final {
+  virtual bool operator()( const T& ref, pat::strbitset& ret ) CINT_GUARD(override final) {
     howfar_ = 0;
     bitmap_ = 0;
     bool failed = false;
@@ -80,7 +90,7 @@ class VersionedSelector : public Selector<T> {
     return (bool)ret;
   }
   
-  virtual bool operator()(const T& ref, edm::EventBase const& e, pat::strbitset& ret) override final {
+  virtual bool operator()(const T& ref, edm::EventBase const& e, pat::strbitset& ret) CINT_GUARD(override final) {
     // setup isolation needs
     for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
       if( needs_event_content_[i] ) {
@@ -95,14 +105,14 @@ class VersionedSelector : public Selector<T> {
   //repeat the other operator() we left out here
   //in the base class here so they are exposed to ROOT
   
-  virtual bool operator()( T const & t ) override final {
+  virtual bool operator()( T const & t ) CINT_GUARD(override final) {
     this->retInternal_.set(false);
     this->operator()(t, this->retInternal_);
     this->setIgnored(this->retInternal_);
     return (bool)this->retInternal_;
   }
   
-  virtual bool operator()( T const & t, edm::EventBase const & e) override final {
+  virtual bool operator()( T const & t, edm::EventBase const & e) CINT_GUARD(override final) {
     this->retInternal_.set(false);
     this->operator()(t, e, this->retInternal_);
     this->setIgnored(this->retInternal_);
@@ -126,11 +136,11 @@ class VersionedSelector : public Selector<T> {
 
   void initialize(const edm::ParameterSet&);
 
-  void setConsumes(edm::ConsumesCollector);
+  CINT_GUARD(void setConsumes(edm::ConsumesCollector));
 
  protected:
   bool initialized_;
-  std::vector<std::shared_ptr<candf::CandidateCut> > cuts_;
+  std::vector<SHARED_PTR(candf::CandidateCut) > cuts_;
   std::vector<bool> needs_event_content_;
   std::vector<typename Selector<T>::index_type> cut_indices_;
   unsigned howfar_, bitmap_;
@@ -169,10 +179,10 @@ initialize( const edm::ParameterSet& conf ) {
     const bool needsContent = 
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
-    candf::CandidateCut* plugin = 
-      CutApplicatorFactory::get()->create(name,*icut);
+    candf::CandidateCut* plugin = nullptr;
+    CINT_GUARD(CutApplicatorFactory::get()->create(name,*icut));
     if( plugin != nullptr ) {
-      cuts_.push_back(std::shared_ptr<candf::CandidateCut>(plugin));
+      cuts_.push_back(SHARED_PTR(candf::CandidateCut)(plugin));
     } else {
       throw cms::Exception("BadPluginName")
 	<< "The requested cut: " << name << " is not available!";
@@ -200,6 +210,7 @@ initialize( const edm::ParameterSet& conf ) {
   initialized_ = true;
 }
 
+#ifdef REGULAR_CPLUSPLUS
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 template<class T>
 void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
@@ -219,5 +230,6 @@ void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
     }
   }
 }
+#endif
 
 #endif
