@@ -17,11 +17,6 @@
 #include "SimDataFormats/Associations/interface/VertexAssociation.h"
 
 
-namespace reco
-{
-    typedef edm::RefToBase<reco::Vertex> VertexBaseRef;
-}
-
 class VertexAssociatorBase
 {
 
