@@ -1,4 +1,4 @@
-#include "Calibration/EcalAlCaRecoProducers/interface/SelectedElectronFEDListProducer.h"
+#include "Calibration/EcalAlCaRecoProducers/plugins/SelectedElectronFEDListProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
