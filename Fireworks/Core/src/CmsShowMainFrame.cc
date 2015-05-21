@@ -91,6 +91,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *loadConfig   = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
+
+
+   CSGAction *loadPartialConfig   = new CSGAction(this, cmsshow::sLoadPartialConfig.c_str());
+   CSGAction *savePartialConfig   = new CSGAction(this, cmsshow::sSavePartialConfig.c_str());
+   CSGAction *savePartialConfigAs = new CSGAction(this, cmsshow::sSavePartialConfigAs.c_str());
+
+
    CSGAction *exportImage  = new CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *exportImages = new CSGAction(this, cmsshow::sExportAllImages.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
@@ -159,6 +166,11 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
+
+   loadPartialConfig->createMenuEntry(fileMenu);
+   savePartialConfig->createMenuEntry(fileMenu);
+   savePartialConfigAs->createMenuEntry(fileMenu);
+   fileMenu->AddSeparator();
     
    exportImage->createMenuEntry(fileMenu);
    exportImages->createMenuEntry(fileMenu);
@@ -168,6 +180,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    openData->createShortcut(kKey_O, "CTRL", GetId());
    loadConfig->createShortcut(kKey_L, "CTRL", GetId());
+   loadPartialConfig->createShortcut(kKey_W, "CTRL", GetId());
    saveConfig->createShortcut(kKey_S, "CTRL", GetId());
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
    exportImage->createShortcut(kKey_P, "CTRL", GetId());

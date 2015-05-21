@@ -81,6 +81,7 @@ public:
    void writeToConfigFile(const std::string &config);
    void writeToCurrentConfigFile();
    void reloadConfiguration(const std::string &config);
+   void partialLoadConfiguration(const std::string &config);
    void setupConfiguration();
    
    void registerPhysicsObject(const FWPhysicsObjectDesc&iItem);

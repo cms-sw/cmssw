@@ -44,7 +44,7 @@
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
-
+#include "Fireworks/Core/interface/FWPartialconfig.h"
 
 CmsShowMainBase::CmsShowMainBase()
    : 
@@ -247,6 +247,8 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
 
    m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration,
                                                                 this, _1));
+   m_guiManager->loadPartialFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialLoadConfiguration,
+                                                                this, _1));
    std::string macPath(gSystem->Getenv("CMSSW_BASE"));
    macPath += "/src/Fireworks/Core/macros";
    const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
@@ -319,6 +321,14 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
    }
 
    m_guiManager->updateStatus("");
+}
+
+
+void
+CmsShowMainBase::partialLoadConfiguration(const std::string &name)
+{
+    printf("LOAD PARTAL \n");
+    new FWPartialLoadGUI(name.c_str(), m_eiManager.get(), m_configurationManager.get());
 }
 
 void

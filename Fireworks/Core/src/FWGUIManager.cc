@@ -77,8 +77,8 @@
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
-
 #include "FWCore/Common/interface/EventBase.h"
+
 
 
 // constants, enums and typedefs
@@ -163,6 +163,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
+      getAction(cmsshow::sLoadPartialConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
@@ -818,6 +819,20 @@ FWGUIManager::promptForLoadConfigurationFile()
    
    loadFromConfigurationFile_(name);
 }
+
+
+void
+FWGUIManager::promptForPartialLoadConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDOpen))
+      return;
+  
+   
+   loadPartialFromConfigurationFile_(name);
+   //
+}
+
 
 /** Emits the signal which requests to save the current configuration in the 
     file picked up in the dialog.
