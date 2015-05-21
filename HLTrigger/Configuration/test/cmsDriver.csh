@@ -218,7 +218,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun
-      set Custom1 = $CustomRun22pp50ns
+      set Custom1 = $CustomRun2pp50ns
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
     else
