@@ -15,6 +15,12 @@ from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 
+### add for electron                                                                                                                                                                
+from DQMOffline.EGamma.electronOfflineClientSequence_cff import *
+from Validation.RecoEgamma.electronValidationSequence_cff import *
+from Validation.RecoEgamma.electronPostValidationSequence_cff import *
+#######  
+
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                           ecal_dqm_source_offline *
@@ -40,7 +46,7 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
 triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
 
-egammaDQMOffline.remove(electronAnalyzerSequence)
+#egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
 egammaDQMOffline.remove(zmumugammaOldAnalysis)
 egammaDQMOffline.remove(photonAnalysis)
@@ -62,6 +68,23 @@ globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+
+# add electron collection                                                                                                                                                           
+dqmElectronGeneralAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronGeneralAnalysis.TrackCollection = cms.InputTag("hiGeneralTracks")
+dqmElectronGeneralAnalysis.VertexCollection = cms.InputTag("hiSelectedVertex")
+dqmElectronAnalysisAllElectrons.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronAnalysisSelectionEt.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronAnalysisSelectionEtIso.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronTagProbeAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+
+electronMcSignalValidator.electronCollection = cms.InputTag("gedGsfElectronsTmp")
+electronMcSignalValidator.electronSeedCollection = cms.InputTag("ecalDrivenElectronSeeds")
+electronMcSignalValidator.electronTrackCollection = cms.InputTag("electronGsfTracks")
+electronMcSignalValidator.offlinePrimaryVertices = cms.InputTag("hiSelectedVertex")
+electronMcFakeValidator.electronCollection = cms.InputTag("gedGsfElectronsTmp")
+electronMcFakeValidator.electronSeedCollection = cms.InputTag("ecalDrivenElectronSeeds")
+electronMcFakeValidator.offlinePrimaryVertices = cms.InputTag("hiSelectedVertex")
 
 
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors 
