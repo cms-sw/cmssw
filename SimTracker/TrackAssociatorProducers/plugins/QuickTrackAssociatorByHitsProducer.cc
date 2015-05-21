@@ -160,17 +160,14 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
 {
    using namespace edm;
 
-   std::shared_ptr<ClusterTPAssociationList> clusterAssoc;
-   std::shared_ptr<TrackerHitAssociator> trackAssoc;
+   const ClusterTPAssociationList *clusterAssoc = nullptr;
+   std::unique_ptr<TrackerHitAssociator> trackAssoc;
    if(useClusterTPAssociation_)  {
      edm::Handle<ClusterTPAssociationList> clusterAssocHandle;
      iEvent.getByToken(cluster2TPToken_,clusterAssocHandle);
 
      if(clusterAssocHandle.isValid()) {
-       clusterAssoc = std::make_shared<ClusterTPAssociationList>(*clusterAssocHandle);
-
-       //make sure it is properly sorted
-       std::sort(clusterAssoc->begin(),clusterAssoc->end(),clusterTPAssociationListGreater);
+       clusterAssoc = clusterAssocHandle.product();
      } else {
        edm::LogInfo( "TrackAssociator" ) << "ClusterTPAssociationList not found. Using DigiSimLink based associator";
      }
@@ -178,21 +175,20 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
    if(not clusterAssoc) {
      // If control got this far then either useClusterTPAssociation_ was false or getting the cluster
      // to TrackingParticle association from the event failed. Either way I need to create a hit associator.
-     trackAssoc = std::make_shared<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
+     trackAssoc = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
    }
 
-   std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl(
-                         new QuickTrackAssociatorByHitsImpl(iEvent.productGetter(),
-                                                            std::move(trackAssoc),
-                                                            std::move(clusterAssoc),
-                                                            absoluteNumberOfHits_,
-                                                            qualitySimToReco_,
-                                                            puritySimToReco_,
-                                                            cutRecoToSim_,
-                                                            threeHitTracksAreSpecial_,
-                                                            simToRecoDenominator_));
+   auto impl = std::make_unique<QuickTrackAssociatorByHitsImpl>(iEvent.productGetter(),
+                                                                std::move(trackAssoc),
+                                                                clusterAssoc,
+                                                                absoluteNumberOfHits_,
+                                                                qualitySimToReco_,
+                                                                puritySimToReco_,
+                                                                cutRecoToSim_,
+                                                                threeHitTracksAreSpecial_,
+                                                                simToRecoDenominator_);
 
-   std::unique_ptr<reco::TrackToTrackingParticleAssociator> toPut( new reco::TrackToTrackingParticleAssociator(std::move(impl)));
+   auto toPut = std::make_unique<reco::TrackToTrackingParticleAssociator>(std::move(impl));
    iEvent.put(std::move(toPut));
 }
 

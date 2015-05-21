@@ -86,8 +86,8 @@ namespace
 } // end of the unnamed namespace
 
 QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
-                                                               std::shared_ptr<const TrackerHitAssociator> hitAssoc,
-                                                               std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap,
+                                                               std::unique_ptr<const TrackerHitAssociator> hitAssoc,
+                                                               const ClusterTPAssociationList *clusterToTPMap,
 
                                                                bool absoluteNumberOfHits,
                                                                double qualitySimToReco,
@@ -97,7 +97,7 @@ QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGet
                                                                SimToRecoDenomType simToRecoDenominator):
   productGetter_(&productGetter),
   hitAssociator_(std::move(hitAssoc)),
-  clusterToTPMap_(std::move(clusterToTPMap)),
+  clusterToTPMap_(clusterToTPMap),
   qualitySimToReco_(qualitySimToReco),
   puritySimToReco_(puritySimToReco),
   cutRecoToSim_(cutRecoToSim),
@@ -304,7 +304,7 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 	{
 
 		std::pair < OmniClusterRef, TrackingParticleRef > clusterTPpairWithDummyTP( *it, TrackingParticleRef() ); //TP is dummy: for clusterTPAssociationListGreater sorting only the cluster is needed
-		auto range=std::equal_range( clusterToTPMap.begin(), clusterToTPMap.end(), clusterTPpairWithDummyTP, clusterTPAssociationListGreater );
+		auto range=std::equal_range( clusterToTPMap.begin(), clusterToTPMap.end(), clusterTPpairWithDummyTP, ClusterTPAssociationProducer::clusterTPAssociationListGreater );
 		if( range.first != range.second )
 		{
 			for( auto ip=range.first; ip != range.second; ++ip )
@@ -497,7 +497,7 @@ template<typename iter> int QuickTrackAssociatorByHitsImpl::getDoubleCount( cons
 		for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
 		{
 			std::pair<OmniClusterRef,TrackingParticleRef> clusterTPpairWithDummyTP( *it, TrackingParticleRef() ); //TP is dummy: for clusterTPAssociationListGreater sorting only the cluster is needed
-			auto range=std::equal_range( clusterToTPList.begin(), clusterToTPList.end(), clusterTPpairWithDummyTP, clusterTPAssociationListGreater );
+			auto range=std::equal_range( clusterToTPList.begin(), clusterToTPList.end(), clusterTPpairWithDummyTP, ClusterTPAssociationProducer::clusterTPAssociationListGreater );
 			if( range.first != range.second )
 			{
 				for( auto ip=range.first; ip != range.second; ++ip )

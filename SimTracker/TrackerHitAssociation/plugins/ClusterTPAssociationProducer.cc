@@ -42,7 +42,7 @@ ClusterTPAssociationProducer::~ClusterTPAssociationProducer() {
 }
 		
 void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSetup& es) {
-  std::auto_ptr<ClusterTPAssociationList> clusterTPList(new ClusterTPAssociationList);
+  auto clusterTPList = std::make_unique<ClusterTPAssociationList>();
  
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
@@ -152,7 +152,8 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
     }
   }
 
-  iEvent.put(clusterTPList);
+  std::sort(clusterTPList->begin(), clusterTPList->end(), clusterTPAssociationListGreater);
+  iEvent.put(std::move(clusterTPList));
 }
 
 template <typename T>

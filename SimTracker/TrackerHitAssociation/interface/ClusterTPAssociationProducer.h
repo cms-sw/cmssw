@@ -31,6 +31,11 @@ public:
   explicit ClusterTPAssociationProducer(const edm::ParameterSet&);
   ~ClusterTPAssociationProducer();
 
+
+  static bool clusterTPAssociationListGreater(std::pair<OmniClusterRef, TrackingParticleRef> i,std::pair<OmniClusterRef, TrackingParticleRef> j) {
+    return i.first.rawIndex() > j.first.rawIndex();
+  }
+
 private:
   virtual void beginJob() {}
   virtual void produce(edm::Event&, const edm::EventSetup&);
