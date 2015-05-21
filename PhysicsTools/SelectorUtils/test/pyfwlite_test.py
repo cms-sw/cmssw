@@ -39,12 +39,8 @@ print selectMuon
 #events = Events("root://eoscms//eos/cms/store/cmst3/user/gpetrucc/miniAOD/74X/miniAOD-new_ZTT.root")
 events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
 
-
 muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
 electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
-
-
-test = ROOT.edm.Handle(ROOT.pat.Electron)()
 
 for iev,event in enumerate(events):
     
