@@ -3601,3 +3601,21 @@ bool PFEGammaAlgo::AddElectronCandidate(unsigned int gsf_index,
   }
   return false;
 }
+
+void PFEGammaAlgo::cleanUpMemory() {
+  typedef std::vector<bool> vbool;
+  typedef std::vector< std::pair <unsigned int, unsigned int> > uint_map;
+  typedef std::vector<int> vint;
+  typedef std::vector<unsigned int> vuint;
+  typedef std::vector< reco::PFCandidate > vpfcand;
+  typedef std::vector<reco::PFCandidateEGammaExtra> vpfextra;
+  vbool().swap(lockExtraKf_);
+  vbool().swap(GsfTrackSingleEcal_);
+  uint_map().swap(fifthStepKfTrack_);
+  uint_map().swap(convGsfTrack_);
+  vint().swap(match_ind);
+  vpfcand().swap(permElectronCandidates_);
+  vuint().swap(AddFromElectron_);
+  vpfcand().swap(egCandidate_);
+  vpfextra().swap(egExtra_);
+}

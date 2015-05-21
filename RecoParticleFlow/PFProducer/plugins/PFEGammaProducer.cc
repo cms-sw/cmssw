@@ -558,6 +558,8 @@ PFEGammaProducer::produce(Event& iEvent,
 //   // Write in the event
    iEvent.put(pOutputCandidateCollection);
  
+   pfeg_->cleanUpMemory();
+   
 }
 
 //PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 
