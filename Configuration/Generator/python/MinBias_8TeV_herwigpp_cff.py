@@ -1,10 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.HerwigppDefaults_cfi import *
-
+from Configuration.Generator.HerwigppUE_V23_cfi import *
+from Configuration.Generator.HerwigppPDF_MRST2001_LO_cfi import *
+from Configuration.Generator.HerwigppEnergy_8TeV_cfi import *
 
 generator = cms.EDFilter("ThePEGGeneratorFilter",
 	herwigDefaultsBlock,
+	herwigppUESettingsBlock,
+	herwigppPDFSettingsBlock,
+	herwigppEnergySettingsBlock,
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
