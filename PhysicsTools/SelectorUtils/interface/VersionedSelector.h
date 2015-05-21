@@ -180,7 +180,7 @@ initialize( const edm::ParameterSet& conf ) {
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
     candf::CandidateCut* plugin = nullptr;
-    CINT_GUARD(CutApplicatorFactory::get()->create(name,*icut));
+    CINT_GUARD(plugin = CutApplicatorFactory::get()->create(name,*icut));
     if( plugin != nullptr ) {
       cuts_.push_back(SHARED_PTR(candf::CandidateCut)(plugin));
     } else {
