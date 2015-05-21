@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace {
   bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit*>& a, const std::pair<unsigned int, const PSimHit*>& b) {
@@ -32,7 +32,7 @@ std::tuple<std::unique_ptr<edm::ValueMap<unsigned int>>,
 TrackingParticleNumberOfLayers::calculate(const edm::Handle<TrackingParticleCollection>& htps, const edm::EventSetup& iSetup) const {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology& tTopo = *tTopoHandle;
 
   const TrackingParticleCollection& tps = *htps;
