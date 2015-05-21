@@ -8,4 +8,15 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/RecoCandidate"/>
+# for FED list selector
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibCalorimetry/HcalAlgos"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="TrackingTools/TrackAssociator"/>
 <flags   EDM_PLUGIN="1"/>
