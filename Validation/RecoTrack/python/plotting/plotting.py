@@ -508,6 +508,9 @@ class Plot:
     def getName(self):
         return str(self._name)
 
+    def drawRatioUncertainty(self):
+        return self._ratioUncertainty
+
     def _createOne(self, tdir):
         """Create one histogram from a TDirectory."""
         if tdir == None:
@@ -748,17 +751,26 @@ class Plot:
         frame.redrawAxis()
         self._frame = frame # keep the frame in memory for sure
 
-    def addToLegend(self, legend, legendLabels):
+    def addToLegend(self, legend, legendLabels, denomUncertainty):
         """Add histograms to a legend.
 
         Arguments:
         legend       -- TLegend
         legendLabels -- List of strings for the legend labels
         """
+        first = denomUncertainty
         for h, label in zip(self._histograms, legendLabels):
             if h is None:
+                first = False
                 continue
-            legend.AddEntry(h, label, "LP")
+            if first:
+                self._forLegend = h.Clone()
+                self._forLegend.SetFillStyle(1001)
+                self._forLegend.SetFillColor(ROOT.kGray)
+                entry = legend.AddEntry(self._forLegend, label, "lpf")
+                first = False
+            else:
+                legend.AddEntry(h, label, "LP")
 
     def _calculateRatios(self, histos):
         def _divideOrZero(numerator, denominator):
@@ -987,7 +999,9 @@ class PlotGroup:
         if self._legendDh is not None:
             ly1 -= self._legendDh
         plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
-        legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2)
+        denomUnc = sum([p.drawRatioUncertainty() for p in self._plots]) > 0
+        legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
+                                    denomUncertainty=(ratio and denomUnc))
 
         return self._save(canvas, saveFormat, prefix=prefix)
 
@@ -1039,7 +1053,8 @@ class PlotGroup:
                 ly1 -= plot._legendDh
 
             canvas.cd()
-            legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03)
+            legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
+                                        denomUncertainty=(ratio and plot.drawRatioUncertainty))
 
             ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
         return ret
@@ -1073,7 +1088,7 @@ class PlotGroup:
         pad2.SetTopMargin(0.0)
         pad2.SetBottomMargin(bottomMargin/(self._ratioFactor*divisionPoint))
 
-    def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016):
+    def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016, denomUncertainty=True):
         l = ROOT.TLegend(lx1, ly1, lx2, ly2)
         l.SetTextSize(textSize)
         l.SetLineColor(1)
@@ -1082,7 +1097,7 @@ class PlotGroup:
         l.SetFillColor(0)
         l.SetMargin(0.07)
 
-        plot.addToLegend(l, legendLabels)
+        plot.addToLegend(l, legendLabels, denomUncertainty)
         l.Draw()
         return l
 
