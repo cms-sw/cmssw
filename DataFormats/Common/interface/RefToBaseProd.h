@@ -97,9 +97,8 @@ namespace edm {
     View<T> const* viewPtr() const {
       return reinterpret_cast<const View<T>*>(product_.productPtr());
     }
-    //needs to be mutable so we can modify the 'productPtr' it holds
-    // so that 'productPtr' can hold our View
-    mutable RefCore product_;
+
+    RefCore product_;
   };
 
   template<typename T>
