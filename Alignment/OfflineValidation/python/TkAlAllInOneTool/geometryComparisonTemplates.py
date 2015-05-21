@@ -9,9 +9,14 @@ process = cms.Process("ValidationIntoNTuples")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
-process.load("Configuration.Geometry.GeometryDB_cff")
+#process.load('Configuration.Geometry.GeometryExtended2015_cff')
+#process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometryDB_cfi")
 
 #process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
@@ -50,11 +55,15 @@ process = cms.Process("validation")
 # global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
-process.load("Configuration.Geometry.GeometryDB_cff")
 
+#process.load('Configuration.Geometry.GeometryExtended2015_cff')
+#process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometryDB_cfi")
 
 #process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 # the input .GlobalPosition_Frontier_cff is providing the frontier://FrontierProd/CMS_COND_31X_ALIGNMENT in the release which does not provide the ideal geometry
@@ -113,7 +122,7 @@ process.p = cms.Path(process.TrackerGeometryCompare)
 dbOutputTemplate= """
 //_________________________ db Output ____________________________
         # setup for writing out to DB
-        include "CondCore/DBCommon/data/CondDBSetup.cfi"
+        include "CondCore/DBCommon/CondDBSetup.cfi"
 #       include "CondCore/DBCommon/data/CondDBCommon.cfi"
 
     service = PoolDBOutputService {
