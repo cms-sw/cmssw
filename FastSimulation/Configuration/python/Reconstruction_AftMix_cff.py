@@ -113,6 +113,14 @@ _reco.electronGsfTracks.TTRHBuilder = "WithoutRefit"
 # so we feed it with the 'before mixing' track colletion
 _reco.generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
 
+# then we need to fix the track references, so that they point to the final track collection, after mixing
+import FastSimulation.Tracking.ConversionTrackRefFix_cfi
+_conversionTrackRefFix = FastSimulation.Tracking.ConversionTrackRefFix_cfi.fixedConversionTracks.clone(
+    src = cms.InputTag("generalConversionTrackProducerTmp"))
+_reco.conversionTrackSequenceNoEcalSeeded.replace(_reco.generalConversionTrackProducer,_reco.generalConversionTrackProducer+_conversionTrackRefFix)
+_reco.generalConversionTrackProducerTmp = _reco.generalConversionTrackProducer
+_reco.generalConversionTrackProducer = _conversionTrackRefFix
+
 # this might be historical: not sure why we do this
 _reco.egammaGlobalReco.replace(_reco.conversionTrackSequence,_reco.conversionTrackSequenceNoEcalSeeded)
 _reco.allConversions.src = 'gsfGeneralConversionTrackMerger'
