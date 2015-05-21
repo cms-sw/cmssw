@@ -485,6 +485,11 @@ JetFlavourClustering::insertGhosts(const edm::Handle<reco::GenParticleRefVector>
    // insert "ghost" particles in the vector of jet constituents
    for(reco::GenParticleRefVector::const_iterator it = particles->begin(); it != particles->end(); ++it)
    {
+     if((*it)->pt() == 0)
+     {
+       edm::LogInfo("NullTransverseMomentum") << "dropping input ghost candidate with pt=0";
+       continue;
+     }
      fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
      p*=ghostRescaling; // rescale particle momentum
      p.set_user_info(new GhostInfo(isHadron, isbHadron, isParton, isLepton, *it));
