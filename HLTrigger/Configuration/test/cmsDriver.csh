@@ -50,6 +50,7 @@ set XL1THI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTri
 #set XL1THI = "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
 set XL1TPI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
 #set XL1TPI =  "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db" 
+set XL1TLOWPU  = "" # ""
 
 # specific workflows, first varying the globaltags, then the hlt tables
 
@@ -84,7 +85,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+  foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
 
     set name = ${table}_${gtag}  
 
@@ -206,6 +207,18 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
       set Custom1 = $CustomRun2
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == LowPU ) then
+      set XL1T = $XL1TLOWPU
+      set XHLT = HLT:LowPU
+      set GTAG = ${BASE2}_LowPU
+      set RTAG = ${BASE2RD}_LowPU
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Custom1 = $CustomRun22pp50ns
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
     else
