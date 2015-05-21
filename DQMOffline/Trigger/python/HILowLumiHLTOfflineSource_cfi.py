@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import math
 
 def getHILowLumiTriggers():
     ret=cms.VPSet()
