@@ -432,6 +432,7 @@ class Plot:
         normalizeToUnitArea -- Normalize histograms to unit area? (default False)
         profileX     -- Take histograms via ProfileX()? (default False)
         fitSlicesY   -- Take histograms via FitSlicesY() (default False)
+        rebinX       -- rebin x axis (default None)
         scale        -- Scale histograms by a number (default None)
         xbinlabels   -- List of x axis bin labels (if given, default None)
         xbinlabelsize -- Size of x axis bin labels (default None)
@@ -479,6 +480,8 @@ class Plot:
         _set("normalizeToUnitArea", False)
         _set("profileX", False)
         _set("fitSlicesY", False)
+        _set("rebinX", None)
+
         _set("scale", None)
         _set("xbinlabels", None)
         _set("xbinlabelsize", None)
@@ -631,6 +634,10 @@ class Plot:
 
         if self._normalizeToUnitArea:
             self._normalize()
+
+        if self._rebinX is not None:
+            for h in self._histograms:
+                h.Rebin(self._rebinX)
 
         def _styleMarker(h, msty, col):
             h.SetMarkerStyle(msty)
