@@ -1,11 +1,11 @@
-# /frozen/2015/50ns_5e33/v2.0/HLT/V2 (CMSSW_7_4_2_HLT3)
+# /frozen/2015/50ns_5e33/v2.0/HLT/V3 (CMSSW_7_4_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2015/50ns_5e33/v2.0/HLT/V2')
+  tableName = cms.string('/frozen/2015/50ns_5e33/v2.0/HLT/V3')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2106,7 +2106,7 @@ fragment.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     samplesToAdd = cms.int32( 4 ),
     mcOOTCorrectionCategory = cms.string( "MC" ),
     dataOOTCorrectionName = cms.string( "" ),
-    puCorrMethod = cms.int32( 3 ),
+    puCorrMethod = cms.int32( 0 ),
     correctionPhaseNS = cms.double( 13.0 ),
     HFInWindowStat = cms.PSet(  ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
