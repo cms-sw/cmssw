@@ -431,7 +431,7 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
-HLT_L1SingleEG5_OR_EG10_OR_EG20_v*				# JIRA: CMSHLT-290
+#HLT_L1SingleEG5_OR_EG10_OR_EG20_v*				# JIRA: CMSHLT-290 (only for beam splashes)
 HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276

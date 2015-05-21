@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V3 (CMSSW_7_4_2_HLT3)
+# /dev/CMSSW_7_4_0/LowPU/V4 (CMSSW_7_4_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTLowPU" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V3')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V4')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -398,19 +398,13 @@ process.streams = cms.PSet(
     'InitialPD',
     'InitialPDForHI' ),
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
-  RPCMON = cms.vstring( 'RPCMonitor' )
+  EcalCalibration = cms.vstring( 'EcalLaser' )
 )
 process.datasets = cms.PSet( 
   AlCaLumiPixels = cms.vstring( 'AlCa_LumiPixels_Random_v1',
     'AlCa_LumiPixels_ZeroBias_v1' ),
-  AlCaP0 = cms.vstring( 'AlCa_EcalEtaEBonly_v1',
-    'AlCa_EcalEtaEEonly_v1',
-    'AlCa_EcalPi0EBonly_v1',
-    'AlCa_EcalPi0EEonly_v1' ),
   AlCaPhiSym = cms.vstring( 'AlCa_EcalPhiSym_v1' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
   HCalNZS = cms.vstring( 'HLT_HcalNZS_v1',
@@ -465,7 +459,6 @@ process.datasets = cms.PSet(
     'HLT_L1RomanPots_SinglePixelTrack02_v2',
     'HLT_L1RomanPots_SinglePixelTrack04_v2',
     'HLT_L1RomanPots_v1',
-    'HLT_L1SingleEG5_OR_EG10_OR_EG20_v1',
     'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1TOTEM0_RomanPotsAND_v1',
@@ -500,9 +493,6 @@ process.datasets = cms.PSet(
     'HLT_HIL2DoubleMu0_v2',
     'HLT_HIL2Mu3_v2',
     'HLT_HIL3Mu3_v2' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits_v1',
-    'AlCa_RPCMuonNoTriggers_v1',
-    'AlCa_RPCMuonNormalisation_v1' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_EcalCalibration_v1',
     'HLT_HcalCalibration_v1' )
 )
@@ -11444,22 +11434,6 @@ process.hltHighPtFullTrack50 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxPt = cms.double( 9999.0 ),
     MinSep = cms.double( 0.4 )
 )
-process.hltL1SingleEG5orEG10orEG20 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG10 OR L1_SingleEG20" ),
-    saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
-process.hltPreL1SingleEG5OREG10OREG20 = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
 process.hltPreActivityEcalSC7 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -11502,429 +11476,6 @@ process.hltEcalPhiSymFilter = cms.EDFilter( "HLTEcalPhiSymFilter",
     endcapUncalibHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
     endcapDigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
     barrelHitCollection = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' )
-)
-process.hltPreAlCaEcalPi0EBonly = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltL1sAlCaEcalPi0Eta = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_HTT125 OR L1_SingleJet128 OR L1_TripleJet_92_76_64 OR L1_QuadJetC40 OR L1_DoubleJetC84 OR L1_SingleIsoEG22er OR L1_DoubleEG_15_10 OR L1_SingleEG25" ),
-    saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
-process.hltSimple3x3Clusters = cms.EDProducer( "EgammaHLTNxNClusterProducer",
-    statusLevelRecHitsToUse = cms.int32( 1 ),
-    barrelClusterCollection = cms.string( "Simple3x3ClustersBarrel" ),
-    flagLevelRecHitsToUse = cms.int32( 1 ),
-    maxNumberofClusters = cms.int32( 99999 ),
-    clusPhiSize = cms.int32( 3 ),
-    posCalcParameters = cms.PSet( 
-      T0_barl = cms.double( 7.4 ),
-      LogWeighted = cms.bool( True ),
-      T0_endc = cms.double( 3.1 ),
-      T0_endcPresh = cms.double( 1.2 ),
-      W0 = cms.double( 4.2 ),
-      X0 = cms.double( 0.89 )
-    ),
-    clusEtaSize = cms.int32( 3 ),
-    useRecoFlag = cms.bool( False ),
-    endcapHitProducer = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-    maxNumberofSeeds = cms.int32( 99999 ),
-    useDBStatus = cms.bool( True ),
-    debugLevel = cms.int32( 0 ),
-    barrelHitProducer = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    clusSeedThrEndCap = cms.double( 1.0 ),
-    clusSeedThr = cms.double( 0.5 ),
-    doEndcaps = cms.bool( True ),
-    endcapClusterCollection = cms.string( "Simple3x3ClustersEndcap" ),
-    doBarrel = cms.bool( True )
-)
-process.hltAlCaPi0RecHitsFilterEBonlyRegional = cms.EDFilter( "HLTRegionalEcalResonanceFilter",
-    barrelSelection = cms.PSet( 
-      seleS4S9GammaBarrel_region1 = cms.double( 0.88 ),
-      massLowPi0Cand = cms.double( 0.104 ),
-      seleIsoBarrel_region2 = cms.double( 0.5 ),
-      seleMinvMaxBarrel = cms.double( 0.22 ),
-      seleIsoBarrel_region1 = cms.double( 0.5 ),
-      seleMinvMinBarrel = cms.double( 0.06 ),
-      selePtPairBarrel_region2 = cms.double( 1.75 ),
-      seleS9S25Gamma = cms.double( 0.0 ),
-      selePtPairBarrel_region1 = cms.double( 2.0 ),
-      region1_Barrel = cms.double( 1.0 ),
-      seleS4S9GammaBarrel_region2 = cms.double( 0.9 ),
-      massHighPi0Cand = cms.double( 0.163 ),
-      ptMinForIsolation = cms.double( 1.0 ),
-      store5x5RecHitEB = cms.bool( False ),
-      selePtGammaBarrel_region1 = cms.double( 0.65 ),
-      seleBeltDeta = cms.double( 0.05 ),
-      removePi0CandidatesForEta = cms.bool( False ),
-      barrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
-      selePtGammaBarrel_region2 = cms.double( 0.65 ),
-      seleBeltDR = cms.double( 0.2 )
-    ),
-    statusLevelRecHitsToUse = cms.int32( 1 ),
-    endcapHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-    doSelBarrel = cms.bool( True ),
-    flagLevelRecHitsToUse = cms.int32( 1 ),
-    preshRecHitProducer = cms.InputTag( 'hltEcalPreshowerRecHit','EcalRecHitsES' ),
-    doSelEndcap = cms.bool( False ),
-    storeRecHitES = cms.bool( False ),
-    endcapClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersEndcap' ),
-    barrelHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    useRecoFlag = cms.bool( False ),
-    barrelClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersBarrel' ),
-    debugLevel = cms.int32( 0 ),
-    endcapSelection = cms.PSet( 
-      seleS9S25GammaEndCap = cms.double( 0.0 ),
-      seleBeltDREndCap = cms.double( 0.2 ),
-      region1_EndCap = cms.double( 1.8 ),
-      seleMinvMinEndCap = cms.double( 0.05 ),
-      store5x5RecHitEE = cms.bool( False ),
-      seleMinvMaxEndCap = cms.double( 0.3 ),
-      selePtPairEndCap_region1 = cms.double( 1.5 ),
-      selePtPairEndCap_region3 = cms.double( 99.0 ),
-      selePtPairEndCap_region2 = cms.double( 1.5 ),
-      selePtGammaEndCap_region3 = cms.double( 0.5 ),
-      seleBeltDetaEndCap = cms.double( 0.05 ),
-      seleIsoEndCap_region1 = cms.double( 0.5 ),
-      region2_EndCap = cms.double( 2.0 ),
-      seleS4S9GammaEndCap_region1 = cms.double( 0.65 ),
-      seleS4S9GammaEndCap_region2 = cms.double( 0.65 ),
-      seleS4S9GammaEndCap_region3 = cms.double( 0.65 ),
-      selePtPairMaxEndCap_region3 = cms.double( 2.5 ),
-      seleIsoEndCap_region2 = cms.double( 0.5 ),
-      ptMinForIsolationEndCap = cms.double( 0.5 ),
-      selePtGammaEndCap_region1 = cms.double( 0.5 ),
-      seleIsoEndCap_region3 = cms.double( 0.5 ),
-      selePtGammaEndCap_region2 = cms.double( 0.5 ),
-      endcapHitCollection = cms.string( "pi0EcalRecHitsEE" )
-    ),
-    preshowerSelection = cms.PSet( 
-      preshCalibGamma = cms.double( 0.024 ),
-      preshStripEnergyCut = cms.double( 0.0 ),
-      debugLevelES = cms.string( "" ),
-      preshCalibPlaneY = cms.double( 0.7 ),
-      preshCalibPlaneX = cms.double( 1.0 ),
-      preshCalibMIP = cms.double( 9.0E-5 ),
-      preshNclust = cms.int32( 4 ),
-      ESCollection = cms.string( "pi0EcalRecHitsES" ),
-      preshClusterEnergyCut = cms.double( 0.0 ),
-      preshSeededNstrip = cms.int32( 15 )
-    ),
-    useDBStatus = cms.bool( True )
-)
-process.hltAlCaPi0EBUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
-    doEnergyScale = cms.bool( False ),
-    doLaserCorrectionsInverse = cms.bool( False ),
-    EERecHitCollection = cms.InputTag( 'hltAlCaPi0RecHitsFilterEBonlyRegional','pi0EcalRecHitsEB' ),
-    doEnergyScaleInverse = cms.bool( False ),
-    EBRecHitCollection = cms.InputTag( 'hltAlCaPi0RecHitsFilterEBonlyRegional','pi0EcalRecHitsEB' ),
-    doIntercalibInverse = cms.bool( False ),
-    doLaserCorrections = cms.bool( False ),
-    EBRecalibRecHitCollection = cms.string( "pi0EcalRecHitsEB" ),
-    doIntercalib = cms.bool( False ),
-    EERecalibRecHitCollection = cms.string( "pi0EcalRecHitsEE" )
-)
-process.hltAlCaPi0EBRechitsToDigis = cms.EDProducer( "HLTRechitsToDigis",
-    digisIn = cms.InputTag( 'hltEcalDigis','ebDigis' ),
-    recHits = cms.InputTag( 'hltAlCaPi0EBUncalibrator','pi0EcalRecHitsEB' ),
-    digisOut = cms.string( "pi0EBDigis" ),
-    region = cms.string( "barrel" )
-)
-process.hltPreAlCaEcalPi0EEonly = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltAlCaPi0RecHitsFilterEEonlyRegional = cms.EDFilter( "HLTRegionalEcalResonanceFilter",
-    barrelSelection = cms.PSet( 
-      seleS4S9GammaBarrel_region1 = cms.double( 0.65 ),
-      massLowPi0Cand = cms.double( 0.104 ),
-      seleIsoBarrel_region2 = cms.double( 0.5 ),
-      seleMinvMaxBarrel = cms.double( 0.22 ),
-      seleIsoBarrel_region1 = cms.double( 0.5 ),
-      seleMinvMinBarrel = cms.double( 0.06 ),
-      selePtPairBarrel_region2 = cms.double( 1.5 ),
-      seleS9S25Gamma = cms.double( 0.0 ),
-      selePtPairBarrel_region1 = cms.double( 1.5 ),
-      region1_Barrel = cms.double( 1.0 ),
-      seleS4S9GammaBarrel_region2 = cms.double( 0.65 ),
-      massHighPi0Cand = cms.double( 0.163 ),
-      ptMinForIsolation = cms.double( 1.0 ),
-      store5x5RecHitEB = cms.bool( False ),
-      selePtGammaBarrel_region1 = cms.double( 0.5 ),
-      seleBeltDeta = cms.double( 0.05 ),
-      removePi0CandidatesForEta = cms.bool( False ),
-      barrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
-      selePtGammaBarrel_region2 = cms.double( 0.5 ),
-      seleBeltDR = cms.double( 0.2 )
-    ),
-    statusLevelRecHitsToUse = cms.int32( 1 ),
-    endcapHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-    doSelBarrel = cms.bool( False ),
-    flagLevelRecHitsToUse = cms.int32( 1 ),
-    preshRecHitProducer = cms.InputTag( 'hltEcalPreshowerRecHit','EcalRecHitsES' ),
-    doSelEndcap = cms.bool( True ),
-    storeRecHitES = cms.bool( True ),
-    endcapClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersEndcap' ),
-    barrelHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    useRecoFlag = cms.bool( False ),
-    barrelClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersBarrel' ),
-    debugLevel = cms.int32( 0 ),
-    endcapSelection = cms.PSet( 
-      seleS9S25GammaEndCap = cms.double( 0.0 ),
-      seleBeltDREndCap = cms.double( 0.2 ),
-      region1_EndCap = cms.double( 1.8 ),
-      seleMinvMinEndCap = cms.double( 0.05 ),
-      store5x5RecHitEE = cms.bool( False ),
-      seleMinvMaxEndCap = cms.double( 0.3 ),
-      selePtPairEndCap_region1 = cms.double( 3.75 ),
-      selePtPairEndCap_region3 = cms.double( 2.0 ),
-      selePtPairEndCap_region2 = cms.double( 2.0 ),
-      selePtGammaEndCap_region3 = cms.double( 0.95 ),
-      seleBeltDetaEndCap = cms.double( 0.05 ),
-      seleIsoEndCap_region1 = cms.double( 0.5 ),
-      region2_EndCap = cms.double( 2.0 ),
-      seleS4S9GammaEndCap_region1 = cms.double( 0.85 ),
-      seleS4S9GammaEndCap_region2 = cms.double( 0.92 ),
-      seleS4S9GammaEndCap_region3 = cms.double( 0.92 ),
-      selePtPairMaxEndCap_region3 = cms.double( 999.0 ),
-      seleIsoEndCap_region2 = cms.double( 0.5 ),
-      ptMinForIsolationEndCap = cms.double( 0.5 ),
-      selePtGammaEndCap_region1 = cms.double( 1.1 ),
-      seleIsoEndCap_region3 = cms.double( 0.5 ),
-      selePtGammaEndCap_region2 = cms.double( 0.95 ),
-      endcapHitCollection = cms.string( "pi0EcalRecHitsEE" )
-    ),
-    preshowerSelection = cms.PSet( 
-      preshCalibGamma = cms.double( 0.024 ),
-      preshStripEnergyCut = cms.double( 0.0 ),
-      debugLevelES = cms.string( "" ),
-      preshCalibPlaneY = cms.double( 0.7 ),
-      preshCalibPlaneX = cms.double( 1.0 ),
-      preshCalibMIP = cms.double( 9.0E-5 ),
-      preshNclust = cms.int32( 4 ),
-      ESCollection = cms.string( "pi0EcalRecHitsES" ),
-      preshClusterEnergyCut = cms.double( 0.0 ),
-      preshSeededNstrip = cms.int32( 15 )
-    ),
-    useDBStatus = cms.bool( True )
-)
-process.hltAlCaPi0EEUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
-    doEnergyScale = cms.bool( False ),
-    doLaserCorrectionsInverse = cms.bool( False ),
-    EERecHitCollection = cms.InputTag( 'hltAlCaPi0RecHitsFilterEEonlyRegional','pi0EcalRecHitsEE' ),
-    doEnergyScaleInverse = cms.bool( False ),
-    EBRecHitCollection = cms.InputTag( 'hltAlCaPi0RecHitsFilterEEonlyRegional','pi0EcalRecHitsEE' ),
-    doIntercalibInverse = cms.bool( False ),
-    doLaserCorrections = cms.bool( False ),
-    EBRecalibRecHitCollection = cms.string( "pi0EcalRecHitsEB" ),
-    doIntercalib = cms.bool( False ),
-    EERecalibRecHitCollection = cms.string( "pi0EcalRecHitsEE" )
-)
-process.hltAlCaPi0EERechitsToDigis = cms.EDProducer( "HLTRechitsToDigis",
-    digisIn = cms.InputTag( 'hltEcalDigis','eeDigis' ),
-    recHits = cms.InputTag( 'hltAlCaPi0EEUncalibrator','pi0EcalRecHitsEE' ),
-    digisOut = cms.string( "pi0EEDigis" ),
-    region = cms.string( "endcap" )
-)
-process.hltPreAlCaEcalEtaEBonly = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltAlCaEtaRecHitsFilterEBonlyRegional = cms.EDFilter( "HLTRegionalEcalResonanceFilter",
-    barrelSelection = cms.PSet( 
-      seleS4S9GammaBarrel_region1 = cms.double( 0.87 ),
-      massLowPi0Cand = cms.double( 0.084 ),
-      seleIsoBarrel_region2 = cms.double( 0.5 ),
-      seleMinvMaxBarrel = cms.double( 0.8 ),
-      seleIsoBarrel_region1 = cms.double( 0.5 ),
-      seleMinvMinBarrel = cms.double( 0.3 ),
-      selePtPairBarrel_region2 = cms.double( 4.0 ),
-      seleS9S25Gamma = cms.double( 0.8 ),
-      selePtPairBarrel_region1 = cms.double( 4.0 ),
-      region1_Barrel = cms.double( 1.0 ),
-      seleS4S9GammaBarrel_region2 = cms.double( 0.87 ),
-      massHighPi0Cand = cms.double( 0.156 ),
-      ptMinForIsolation = cms.double( 1.0 ),
-      store5x5RecHitEB = cms.bool( True ),
-      selePtGammaBarrel_region1 = cms.double( 1.2 ),
-      seleBeltDeta = cms.double( 0.1 ),
-      removePi0CandidatesForEta = cms.bool( True ),
-      barrelHitCollection = cms.string( "etaEcalRecHitsEB" ),
-      selePtGammaBarrel_region2 = cms.double( 1.2 ),
-      seleBeltDR = cms.double( 0.3 )
-    ),
-    statusLevelRecHitsToUse = cms.int32( 1 ),
-    endcapHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-    doSelBarrel = cms.bool( True ),
-    flagLevelRecHitsToUse = cms.int32( 1 ),
-    preshRecHitProducer = cms.InputTag( 'hltEcalPreshowerRecHit','EcalRecHitsES' ),
-    doSelEndcap = cms.bool( False ),
-    storeRecHitES = cms.bool( False ),
-    endcapClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersEndcap' ),
-    barrelHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    useRecoFlag = cms.bool( False ),
-    barrelClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersBarrel' ),
-    debugLevel = cms.int32( 0 ),
-    endcapSelection = cms.PSet( 
-      seleS9S25GammaEndCap = cms.double( 0.0 ),
-      seleBeltDREndCap = cms.double( 0.2 ),
-      region1_EndCap = cms.double( 1.8 ),
-      seleMinvMinEndCap = cms.double( 0.05 ),
-      store5x5RecHitEE = cms.bool( False ),
-      seleMinvMaxEndCap = cms.double( 0.3 ),
-      selePtPairEndCap_region1 = cms.double( 1.5 ),
-      selePtPairEndCap_region3 = cms.double( 99.0 ),
-      selePtPairEndCap_region2 = cms.double( 1.5 ),
-      selePtGammaEndCap_region3 = cms.double( 0.5 ),
-      seleBeltDetaEndCap = cms.double( 0.05 ),
-      seleIsoEndCap_region1 = cms.double( 0.5 ),
-      region2_EndCap = cms.double( 2.0 ),
-      seleS4S9GammaEndCap_region1 = cms.double( 0.65 ),
-      seleS4S9GammaEndCap_region2 = cms.double( 0.65 ),
-      seleS4S9GammaEndCap_region3 = cms.double( 0.65 ),
-      selePtPairMaxEndCap_region3 = cms.double( 2.5 ),
-      seleIsoEndCap_region2 = cms.double( 0.5 ),
-      ptMinForIsolationEndCap = cms.double( 0.5 ),
-      selePtGammaEndCap_region1 = cms.double( 0.5 ),
-      seleIsoEndCap_region3 = cms.double( 0.5 ),
-      selePtGammaEndCap_region2 = cms.double( 0.5 ),
-      endcapHitCollection = cms.string( "etaEcalRecHitsEE" )
-    ),
-    preshowerSelection = cms.PSet( 
-      preshCalibGamma = cms.double( 0.024 ),
-      preshStripEnergyCut = cms.double( 0.0 ),
-      debugLevelES = cms.string( "" ),
-      preshCalibPlaneY = cms.double( 0.7 ),
-      preshCalibPlaneX = cms.double( 1.0 ),
-      preshCalibMIP = cms.double( 9.0E-5 ),
-      preshNclust = cms.int32( 4 ),
-      ESCollection = cms.string( "etaEcalRecHitsES" ),
-      preshClusterEnergyCut = cms.double( 0.0 ),
-      preshSeededNstrip = cms.int32( 15 )
-    ),
-    useDBStatus = cms.bool( True )
-)
-process.hltAlCaEtaEBUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
-    doEnergyScale = cms.bool( False ),
-    doLaserCorrectionsInverse = cms.bool( False ),
-    EERecHitCollection = cms.InputTag( 'hltAlCaEtaRecHitsFilterEBonlyRegional','etaEcalRecHitsEB' ),
-    doEnergyScaleInverse = cms.bool( False ),
-    EBRecHitCollection = cms.InputTag( 'hltAlCaEtaRecHitsFilterEBonlyRegional','etaEcalRecHitsEB' ),
-    doIntercalibInverse = cms.bool( False ),
-    doLaserCorrections = cms.bool( False ),
-    EBRecalibRecHitCollection = cms.string( "etaEcalRecHitsEB" ),
-    doIntercalib = cms.bool( False ),
-    EERecalibRecHitCollection = cms.string( "etaEcalRecHitsEE" )
-)
-process.hltAlCaEtaEBRechitsToDigis = cms.EDProducer( "HLTRechitsToDigis",
-    digisIn = cms.InputTag( 'hltEcalDigis','ebDigis' ),
-    recHits = cms.InputTag( 'hltAlCaEtaEBUncalibrator','etaEcalRecHitsEB' ),
-    digisOut = cms.string( "etaEBDigis" ),
-    region = cms.string( "barrel" )
-)
-process.hltPreAlCaEcalEtaEEonly = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltAlCaEtaRecHitsFilterEEonlyRegional = cms.EDFilter( "HLTRegionalEcalResonanceFilter",
-    barrelSelection = cms.PSet( 
-      seleS4S9GammaBarrel_region1 = cms.double( 0.65 ),
-      massLowPi0Cand = cms.double( 0.104 ),
-      seleIsoBarrel_region2 = cms.double( 0.5 ),
-      seleMinvMaxBarrel = cms.double( 0.8 ),
-      seleIsoBarrel_region1 = cms.double( 0.5 ),
-      seleMinvMinBarrel = cms.double( 0.3 ),
-      selePtPairBarrel_region2 = cms.double( 1.5 ),
-      seleS9S25Gamma = cms.double( 0.0 ),
-      selePtPairBarrel_region1 = cms.double( 1.5 ),
-      region1_Barrel = cms.double( 1.0 ),
-      seleS4S9GammaBarrel_region2 = cms.double( 0.65 ),
-      massHighPi0Cand = cms.double( 0.163 ),
-      ptMinForIsolation = cms.double( 1.0 ),
-      store5x5RecHitEB = cms.bool( False ),
-      selePtGammaBarrel_region1 = cms.double( 1.0 ),
-      seleBeltDeta = cms.double( 0.05 ),
-      removePi0CandidatesForEta = cms.bool( False ),
-      barrelHitCollection = cms.string( "etaEcalRecHitsEB" ),
-      selePtGammaBarrel_region2 = cms.double( 0.5 ),
-      seleBeltDR = cms.double( 0.2 )
-    ),
-    statusLevelRecHitsToUse = cms.int32( 1 ),
-    endcapHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-    doSelBarrel = cms.bool( False ),
-    flagLevelRecHitsToUse = cms.int32( 1 ),
-    preshRecHitProducer = cms.InputTag( 'hltEcalPreshowerRecHit','EcalRecHitsES' ),
-    doSelEndcap = cms.bool( True ),
-    storeRecHitES = cms.bool( True ),
-    endcapClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersEndcap' ),
-    barrelHits = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    useRecoFlag = cms.bool( False ),
-    barrelClusters = cms.InputTag( 'hltSimple3x3Clusters','Simple3x3ClustersBarrel' ),
-    debugLevel = cms.int32( 0 ),
-    endcapSelection = cms.PSet( 
-      seleS9S25GammaEndCap = cms.double( 0.85 ),
-      seleBeltDREndCap = cms.double( 0.3 ),
-      region1_EndCap = cms.double( 1.8 ),
-      seleMinvMinEndCap = cms.double( 0.3 ),
-      store5x5RecHitEE = cms.bool( True ),
-      seleMinvMaxEndCap = cms.double( 0.8 ),
-      selePtPairEndCap_region1 = cms.double( 3.0 ),
-      selePtPairEndCap_region3 = cms.double( 3.0 ),
-      selePtPairEndCap_region2 = cms.double( 3.0 ),
-      selePtGammaEndCap_region3 = cms.double( 1.0 ),
-      seleBeltDetaEndCap = cms.double( 0.1 ),
-      seleIsoEndCap_region1 = cms.double( 0.5 ),
-      region2_EndCap = cms.double( 2.0 ),
-      seleS4S9GammaEndCap_region1 = cms.double( 0.9 ),
-      seleS4S9GammaEndCap_region2 = cms.double( 0.9 ),
-      seleS4S9GammaEndCap_region3 = cms.double( 0.9 ),
-      selePtPairMaxEndCap_region3 = cms.double( 999.0 ),
-      seleIsoEndCap_region2 = cms.double( 0.5 ),
-      ptMinForIsolationEndCap = cms.double( 0.5 ),
-      selePtGammaEndCap_region1 = cms.double( 1.0 ),
-      seleIsoEndCap_region3 = cms.double( 0.5 ),
-      selePtGammaEndCap_region2 = cms.double( 1.0 ),
-      endcapHitCollection = cms.string( "etaEcalRecHitsEE" )
-    ),
-    preshowerSelection = cms.PSet( 
-      preshCalibGamma = cms.double( 0.024 ),
-      preshStripEnergyCut = cms.double( 0.0 ),
-      debugLevelES = cms.string( "" ),
-      preshCalibPlaneY = cms.double( 0.7 ),
-      preshCalibPlaneX = cms.double( 1.0 ),
-      preshCalibMIP = cms.double( 9.0E-5 ),
-      preshNclust = cms.int32( 4 ),
-      ESCollection = cms.string( "etaEcalRecHitsES" ),
-      preshClusterEnergyCut = cms.double( 0.0 ),
-      preshSeededNstrip = cms.int32( 15 )
-    ),
-    useDBStatus = cms.bool( True )
-)
-process.hltAlCaEtaEEUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
-    doEnergyScale = cms.bool( False ),
-    doLaserCorrectionsInverse = cms.bool( False ),
-    EERecHitCollection = cms.InputTag( 'hltAlCaEtaRecHitsFilterEEonlyRegional','etaEcalRecHitsEE' ),
-    doEnergyScaleInverse = cms.bool( False ),
-    EBRecHitCollection = cms.InputTag( 'hltAlCaEtaRecHitsFilterEEonlyRegional','etaEcalRecHitsEE' ),
-    doIntercalibInverse = cms.bool( False ),
-    doLaserCorrections = cms.bool( False ),
-    EBRecalibRecHitCollection = cms.string( "etaEcalRecHitsEB" ),
-    doIntercalib = cms.bool( False ),
-    EERecalibRecHitCollection = cms.string( "etaEcalRecHitsEE" )
-)
-process.hltAlCaEtaEERechitsToDigis = cms.EDProducer( "HLTRechitsToDigis",
-    digisIn = cms.InputTag( 'hltEcalDigis','eeDigis' ),
-    recHits = cms.InputTag( 'hltAlCaEtaEEUncalibrator','etaEcalRecHitsEE' ),
-    digisOut = cms.string( "etaEEDigis" ),
-    region = cms.string( "endcap" )
 )
 process.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -12295,74 +11846,6 @@ process.hltPreHcalUTCA = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltL1sAlCaRPC = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu14er OR L1_SingleMu16er OR L1_SingleMu20er" ),
-    saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
-process.hltPreAlCaRPCMuonNoTriggers = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltRPCMuonNoTriggersL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
-    saveTags = cms.bool( True ),
-    CSCTFtag = cms.InputTag( "unused" ),
-    PreviousCandTag = cms.InputTag( "hltL1sAlCaRPC" ),
-    MinPt = cms.double( 0.0 ),
-    MinN = cms.int32( 1 ),
-    MaxEta = cms.double( 1.6 ),
-    SelectQualities = cms.vint32( 6 ),
-    CandTag = cms.InputTag( "hltL1extraParticles" ),
-    ExcludeSingleSegmentCSC = cms.bool( False )
-)
-process.hltPreAlCaRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
-    cscSegments = cms.InputTag( "hltCscSegments" ),
-    rangestripsRB4 = cms.untracked.double( 4.0 ),
-    TrackTransformer = cms.PSet(  ),
-    tracks = cms.InputTag( "NotUsed" ),
-    rangestrips = cms.untracked.double( 4.0 ),
-    incltrack = cms.untracked.bool( False ),
-    MinCosAng = cms.untracked.double( 0.95 ),
-    MaxDrb4 = cms.untracked.double( 150.0 ),
-    inclcsc = cms.untracked.bool( True ),
-    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
-    ExtrapolatedRegion = cms.untracked.double( 0.5 ),
-    incldt = cms.untracked.bool( True ),
-    debug = cms.untracked.bool( False ),
-    MaxD = cms.untracked.double( 80.0 )
-)
-process.hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
-    rangestrips = cms.untracked.double( 1.0 ),
-    rpcDTPoints = cms.InputTag( 'hltRPCPointProducer','RPCDTExtrapolatedPoints' ),
-    rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
-    rpcCSCPoints = cms.InputTag( 'hltRPCPointProducer','RPCCSCExtrapolatedPoints' )
-)
-process.hltPreAlCaRPCMuonNormalisation = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltRPCMuonNormaL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
-    saveTags = cms.bool( True ),
-    CSCTFtag = cms.InputTag( "unused" ),
-    PreviousCandTag = cms.InputTag( "hltL1sAlCaRPC" ),
-    MinPt = cms.double( 0.0 ),
-    MinN = cms.int32( 1 ),
-    MaxEta = cms.double( 1.6 ),
-    SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( "hltL1extraParticles" ),
-    ExcludeSingleSegmentCSC = cms.bool( False )
-)
 process.hltPreAlCaLumiPixelsRandom = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -12637,7 +12120,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L1RomanPots_SinglePixelTrack02_v2',
   'HLT_L1RomanPots_SinglePixelTrack04_v2',
   'HLT_L1RomanPots_v1',
-  'HLT_L1SingleEG5_OR_EG10_OR_EG20_v1',
   'HLT_L1SingleMuOpen_DT_v1',
   'HLT_L1SingleMuOpen_v1',
   'HLT_L1TOTEM0_RomanPotsAND_v1',
@@ -12673,30 +12155,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputRPCMON.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_RPCMuonNoHits_v1',
-  'AlCa_RPCMuonNoTriggers_v1',
-  'AlCa_RPCMuonNormalisation_v1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltCscSegments_*_*',
-      'keep *_hltDt4DSegments_*_*',
-      'keep *_hltMuonCSCDigis_MuonCSCStripDigi_*',
-      'keep *_hltMuonCSCDigis_MuonCSCWireDigi_*',
-      'keep *_hltMuonDTDigis_*_*',
-      'keep *_hltMuonRPCDigis_*_*',
-      'keep *_hltRpcRecHits_*_*',
-      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-      'keep L1MuGMTCands_hltGtDigis_*_*',
-      'keep L1MuGMTReadoutCollection_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -12759,27 +12217,6 @@ process.hltOutputALCALUMIPIXELS = cms.OutputModule( "PoolOutputModule",
   'AlCa_LumiPixels_ZeroBias_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltFEDSelectorLumiPixels_*_*',
-      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-      'keep edmTriggerResults_*_*_*' )
-)
-process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputALCAP0.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalEtaEBonly_v1',
-  'AlCa_EcalEtaEEonly_v1',
-  'AlCa_EcalPi0EBonly_v1',
-  'AlCa_EcalPi0EEonly_v1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltAlCaEtaEBUncalibrator_*_*',
-      'keep *_hltAlCaEtaEEUncalibrator_*_*',
-      'keep *_hltAlCaEtaRecHitsFilterEEonly_etaEcalRecHitsES_*',
-      'keep *_hltAlCaPi0EBUncalibrator_*_*',
-      'keep *_hltAlCaPi0EEUncalibrator_*_*',
-      'keep *_hltAlCaPi0RecHitsFilterEEonly_pi0EcalRecHitsES_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
@@ -12921,14 +12358,9 @@ process.HLT_FullTrack12_v2 = cms.Path( process.HLTBeginSequence + process.hltL1s
 process.HLT_FullTrack20_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPreFullTrack20 + process.HLTRecoJetSequenceAK6PrePFForHighPt + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighPtSequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForHighPt + process.hltHighPtGoodFullTracks + process.hltHighPtFullCands + process.hltHighPtFullTrack20 + process.HLTEndSequence )
 process.HLT_FullTrack30_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPreFullTrack30 + process.HLTRecoJetSequenceAK6PrePFForHighPt + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighPtSequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForHighPt + process.hltHighPtGoodFullTracks + process.hltHighPtFullCands + process.hltHighPtFullTrack30 + process.HLTEndSequence )
 process.HLT_FullTrack50_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPreFullTrack50 + process.HLTRecoJetSequenceAK6PrePFForHighPt + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighPtSequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForHighPt + process.hltHighPtGoodFullTracks + process.hltHighPtFullCands + process.hltHighPtFullTrack50 + process.HLTEndSequence )
-process.HLT_L1SingleEG5_OR_EG10_OR_EG20_v1 = cms.Path( process.HLTBeginSequence + process.hltL1SingleEG5orEG10orEG20 + process.hltPreL1SingleEG5OREG10OREG20 + process.HLTEndSequence )
 process.HLT_Activity_Ecal_SC7_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreActivityEcalSC7 + process.HLTEcalActivitySequence + process.HLTEndSequence )
 process.HLT_EcalCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
 process.AlCa_EcalPhiSym_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreAlCaEcalPhiSym + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltEcalPhiSymFilter + process.HLTEndSequence )
-process.AlCa_EcalPi0EBonly_v1 = cms.Path( process.HLTBeginSequence + process.hltPreAlCaEcalPi0EBonly + process.hltL1sAlCaEcalPi0Eta + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaPi0RecHitsFilterEBonlyRegional + process.hltAlCaPi0EBUncalibrator + process.hltAlCaPi0EBRechitsToDigis + process.HLTEndSequence )
-process.AlCa_EcalPi0EEonly_v1 = cms.Path( process.HLTBeginSequence + process.hltPreAlCaEcalPi0EEonly + process.hltL1sAlCaEcalPi0Eta + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaPi0RecHitsFilterEEonlyRegional + process.hltAlCaPi0EEUncalibrator + process.hltAlCaPi0EERechitsToDigis + process.HLTEndSequence )
-process.AlCa_EcalEtaEBonly_v1 = cms.Path( process.HLTBeginSequence + process.hltPreAlCaEcalEtaEBonly + process.hltL1sAlCaEcalPi0Eta + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaEtaRecHitsFilterEBonlyRegional + process.hltAlCaEtaEBUncalibrator + process.hltAlCaEtaEBRechitsToDigis + process.HLTEndSequence )
-process.AlCa_EcalEtaEEonly_v1 = cms.Path( process.HLTBeginSequence + process.hltPreAlCaEcalEtaEEonly + process.hltL1sAlCaEcalPi0Eta + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltSimple3x3Clusters + process.hltAlCaEtaRecHitsFilterEEonlyRegional + process.hltAlCaEtaEEUncalibrator + process.hltAlCaEtaEERechitsToDigis + process.HLTEndSequence )
 process.HLT_HcalCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.hltHcalCalibrationRaw + process.HLTEndSequence )
 process.HLT_GlobalRunHPDNoise_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet20CentralNoBPTXNoHalo + process.hltPreGlobalRunHPDNoise + process.HLTEndSequence )
 process.HLT_L1Tech_HBHEHO_totalOR_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTechTrigHCALNoise + process.hltPreL1TechHBHEHOtotalOR + process.HLTEndSequence )
@@ -12953,9 +12385,6 @@ process.HLT_L1MinimumBiasHF2AND_v1 = cms.Path( process.HLTBeginSequence + proces
 process.HLT_HcalNZS_v1 = cms.Path( process.HLTBeginSequenceNZS + process.hltL1sHcalNZS + process.hltPreHcalNZS + process.HLTEndSequence )
 process.HLT_HcalPhiSym_v1 = cms.Path( process.HLTBeginSequenceNZS + process.hltL1sHcalPhiSym + process.hltPreHcalPhiSym + process.HLTEndSequence )
 process.HLT_HcalUTCA_v1 = cms.Path( process.HLTBeginSequenceUTCA + process.hltPreHcalUTCA + process.HLTEndSequence )
-process.AlCa_RPCMuonNoTriggers_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaRPC + process.hltPreAlCaRPCMuonNoTriggers + process.hltRPCMuonNoTriggersL1Filtered0 + process.HLTMuonLocalRecoSequence + process.HLTEndSequence )
-process.AlCa_RPCMuonNoHits_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaRPC + process.hltPreAlCaRPCMuonNoHits + process.HLTMuonLocalRecoSequence + process.hltRPCPointProducer + process.hltRPCFilter + process.HLTEndSequence )
-process.AlCa_RPCMuonNormalisation_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sAlCaRPC + process.hltPreAlCaRPCMuonNormalisation + process.hltRPCMuonNormaL1Filtered0 + process.HLTMuonLocalRecoSequence + process.HLTEndSequence )
 process.AlCa_LumiPixels_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreAlCaLumiPixelsRandom + process.hltFEDSelectorLumiPixels + process.HLTEndSequence )
 process.AlCa_LumiPixels_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreAlCaLumiPixelsZeroBias + process.hltFEDSelectorLumiPixels + process.HLTEndSequence )
 process.HLT_IsoTrackHE_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHE + process.HLTDoLocalPixelSequence + process.hltPixelLayerTriplets + process.hltPixelTracks + process.hltPixelVertices + process.hltTrimmedPixelVertices + process.hltIsolPixelTrackProdHE + process.hltIsolPixelTrackL2FilterHE + process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHE + process.hltEcalIsolPixelTrackL2FilterHE + process.HLTDoLocalStripSequence + process.hltIter0PFLowPixelSeedsFromPixelTracks + process.hltIter0PFlowCkfTrackCandidates + process.hltIter0PFlowCtfWithMaterialTracks + process.hltHcalITIPTCorrectorHE + process.hltIsolPixelTrackL3FilterHE + process.HLTEndSequence )
@@ -12974,15 +12403,15 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput + process.hltOutputRPCMON )
+process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )
 process.EcalCalibrationOutput = cms.EndPath( process.hltOutputEcalCalibration + process.hltOutputCalibration )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
-process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output + process.hltOutputALCAP0 )
+process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output )
 process.ExpressOutput = cms.EndPath( process.hltPreExpressOutput )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_L1SingleMuOpen_v1, process.HLT_L1SingleMuOpen_DT_v1, process.HLT_L1Tech_DT_GlobalOR_v1, process.HLT_L1Tech62_CASTORJet_v1, process.HLT_L1Tech62_CASTORJet_PFJet15_v1, process.HLT_L1Tech63_CASTORHaloMuon_v2, process.HLT_L1RomanPots_v1, process.HLT_L1RomanPots_SinglePixelTrack04_v2, process.HLT_PFJet15_NoCaloMatched_v2, process.HLT_PFJet20_NoCaloMatched_v2, process.HLT_DiPFJetAve30_HFJEC_v2, process.HLT_PixelTracks_Multiplicity60_v2, process.HLT_PixelTracks_Multiplicity85_v2, process.HLT_PixelTracks_Multiplicity110_v2, process.HLT_PixelTracks_Multiplicity135_v2, process.HLT_PixelTracks_Multiplicity160_v2, process.HLT_Ele5_SC5_JPsi_Mass2to4p5_v2, process.HLT_DiPFJet15_NoCaloMatched_v2, process.HLT_DiPFJet15_FBEta2_NoCaloMatched_v2, process.HLT_DiPFJet15_FBEta3_NoCaloMatched_v2, process.HLT_PFJet15_FwdEta2_NoCaloMatched_v2, process.HLT_PFJet15_FwdEta3_NoCaloMatched_v2, process.HLT_PFJet25_NoCaloMatched_v2, process.HLT_PFJet25_FwdEta2_NoCaloMatched_v2, process.HLT_PFJet25_FwdEta3_NoCaloMatched_v2, process.HLT_PFJet40_NoCaloMatched_v2, process.HLT_PFJet40_FwdEta2_NoCaloMatched_v2, process.HLT_PFJet40_FwdEta3_NoCaloMatched_v2, process.HLT_DiPFJetAve15_HFJEC_v2, process.HLT_DiPFJetAve25_HFJEC_v2, process.HLT_DiPFJetAve35_HFJEC_v2, process.HLT_DiPFJetAve15_Central_v2, process.HLT_DiPFJetAve25_Central_v2, process.HLT_DiPFJetAve35_Central_v2, process.HLT_L1RomanPots_SinglePixelTrack02_v2, process.HLT_Physics_v1, process.HLT_Random_v1, process.HLT_ZeroBias_v1, process.HLT_AK4CaloJet30_v2, process.HLT_AK4CaloJet40_v2, process.HLT_AK4CaloJet50_v2, process.HLT_AK4CaloJet80_v2, process.HLT_AK4CaloJet100_v2, process.HLT_AK4PFJet30_v2, process.HLT_AK4PFJet50_v2, process.HLT_AK4PFJet80_v2, process.HLT_AK4PFJet100_v2, process.HLT_HISinglePhoton10_v2, process.HLT_HISinglePhoton15_v2, process.HLT_HISinglePhoton20_v2, process.HLT_HISinglePhoton40_v2, process.HLT_HISinglePhoton60_v2, process.HLT_HIL1DoubleMu0_v1, process.HLT_HIL2Mu3_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL3Mu3_v2, process.HLT_FullTrack12_v2, process.HLT_FullTrack20_v2, process.HLT_FullTrack30_v2, process.HLT_FullTrack50_v2, process.HLT_L1SingleEG5_OR_EG10_OR_EG20_v1, process.HLT_Activity_Ecal_SC7_v1, process.HLT_EcalCalibration_v1, process.AlCa_EcalPhiSym_v1, process.AlCa_EcalPi0EBonly_v1, process.AlCa_EcalPi0EEonly_v1, process.AlCa_EcalEtaEBonly_v1, process.AlCa_EcalEtaEEonly_v1, process.HLT_HcalCalibration_v1, process.HLT_GlobalRunHPDNoise_v1, process.HLT_L1Tech_HBHEHO_totalOR_v1, process.HLT_L1Tech_HCAL_HF_single_channel_v1, process.HLT_L1Tech6_BPTX_MinusOnly_v1, process.HLT_L1Tech5_BPTX_PlusOnly_v1, process.HLT_L1Tech7_NoBPTX_v1, process.HLT_L1CastorHighJet_v1, process.HLT_L1CastorMediumJet_v1, process.HLT_L1CastorMuon_v1, process.HLT_L1DoubleJet20_v1, process.HLT_L1DoubleJet28_v1, process.HLT_L1DoubleJet32_v1, process.HLT_L1DoubleMuOpen_v1, process.HLT_L1TOTEM0_RomanPotsAND_v1, process.HLT_L1TOTEM1_MinBias_v1, process.HLT_L1TOTEM3_ZeroBias_v1, process.HLT_L1MinimumBiasHF1OR_v1, process.HLT_L1MinimumBiasHF2OR_v1, process.HLT_L1MinimumBiasHF1AND_v1, process.HLT_L1MinimumBiasHF2AND_v1, process.HLT_HcalNZS_v1, process.HLT_HcalPhiSym_v1, process.HLT_HcalUTCA_v1, process.AlCa_RPCMuonNoTriggers_v1, process.AlCa_RPCMuonNoHits_v1, process.AlCa_RPCMuonNormalisation_v1, process.AlCa_LumiPixels_Random_v1, process.AlCa_LumiPixels_ZeroBias_v1, process.HLT_IsoTrackHE_v1, process.HLT_IsoTrackHB_v1, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput, process.HLTAnalyzerEndpath, process.RPCMONOutput, process.EcalCalibrationOutput, process.ALCAPHISYMOutput, process.ALCALUMIPIXELSOutput, process.ALCAP0Output, process.ExpressOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_L1SingleMuOpen_v1, process.HLT_L1SingleMuOpen_DT_v1, process.HLT_L1Tech_DT_GlobalOR_v1, process.HLT_L1Tech62_CASTORJet_v1, process.HLT_L1Tech62_CASTORJet_PFJet15_v1, process.HLT_L1Tech63_CASTORHaloMuon_v2, process.HLT_L1RomanPots_v1, process.HLT_L1RomanPots_SinglePixelTrack04_v2, process.HLT_PFJet15_NoCaloMatched_v2, process.HLT_PFJet20_NoCaloMatched_v2, process.HLT_DiPFJetAve30_HFJEC_v2, process.HLT_PixelTracks_Multiplicity60_v2, process.HLT_PixelTracks_Multiplicity85_v2, process.HLT_PixelTracks_Multiplicity110_v2, process.HLT_PixelTracks_Multiplicity135_v2, process.HLT_PixelTracks_Multiplicity160_v2, process.HLT_Ele5_SC5_JPsi_Mass2to4p5_v2, process.HLT_DiPFJet15_NoCaloMatched_v2, process.HLT_DiPFJet15_FBEta2_NoCaloMatched_v2, process.HLT_DiPFJet15_FBEta3_NoCaloMatched_v2, process.HLT_PFJet15_FwdEta2_NoCaloMatched_v2, process.HLT_PFJet15_FwdEta3_NoCaloMatched_v2, process.HLT_PFJet25_NoCaloMatched_v2, process.HLT_PFJet25_FwdEta2_NoCaloMatched_v2, process.HLT_PFJet25_FwdEta3_NoCaloMatched_v2, process.HLT_PFJet40_NoCaloMatched_v2, process.HLT_PFJet40_FwdEta2_NoCaloMatched_v2, process.HLT_PFJet40_FwdEta3_NoCaloMatched_v2, process.HLT_DiPFJetAve15_HFJEC_v2, process.HLT_DiPFJetAve25_HFJEC_v2, process.HLT_DiPFJetAve35_HFJEC_v2, process.HLT_DiPFJetAve15_Central_v2, process.HLT_DiPFJetAve25_Central_v2, process.HLT_DiPFJetAve35_Central_v2, process.HLT_L1RomanPots_SinglePixelTrack02_v2, process.HLT_Physics_v1, process.HLT_Random_v1, process.HLT_ZeroBias_v1, process.HLT_AK4CaloJet30_v2, process.HLT_AK4CaloJet40_v2, process.HLT_AK4CaloJet50_v2, process.HLT_AK4CaloJet80_v2, process.HLT_AK4CaloJet100_v2, process.HLT_AK4PFJet30_v2, process.HLT_AK4PFJet50_v2, process.HLT_AK4PFJet80_v2, process.HLT_AK4PFJet100_v2, process.HLT_HISinglePhoton10_v2, process.HLT_HISinglePhoton15_v2, process.HLT_HISinglePhoton20_v2, process.HLT_HISinglePhoton40_v2, process.HLT_HISinglePhoton60_v2, process.HLT_HIL1DoubleMu0_v1, process.HLT_HIL2Mu3_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL3Mu3_v2, process.HLT_FullTrack12_v2, process.HLT_FullTrack20_v2, process.HLT_FullTrack30_v2, process.HLT_FullTrack50_v2, process.HLT_Activity_Ecal_SC7_v1, process.HLT_EcalCalibration_v1, process.AlCa_EcalPhiSym_v1, process.HLT_HcalCalibration_v1, process.HLT_GlobalRunHPDNoise_v1, process.HLT_L1Tech_HBHEHO_totalOR_v1, process.HLT_L1Tech_HCAL_HF_single_channel_v1, process.HLT_L1Tech6_BPTX_MinusOnly_v1, process.HLT_L1Tech5_BPTX_PlusOnly_v1, process.HLT_L1Tech7_NoBPTX_v1, process.HLT_L1CastorHighJet_v1, process.HLT_L1CastorMediumJet_v1, process.HLT_L1CastorMuon_v1, process.HLT_L1DoubleJet20_v1, process.HLT_L1DoubleJet28_v1, process.HLT_L1DoubleJet32_v1, process.HLT_L1DoubleMuOpen_v1, process.HLT_L1TOTEM0_RomanPotsAND_v1, process.HLT_L1TOTEM1_MinBias_v1, process.HLT_L1TOTEM3_ZeroBias_v1, process.HLT_L1MinimumBiasHF1OR_v1, process.HLT_L1MinimumBiasHF2OR_v1, process.HLT_L1MinimumBiasHF1AND_v1, process.HLT_L1MinimumBiasHF2AND_v1, process.HLT_HcalNZS_v1, process.HLT_HcalPhiSym_v1, process.HLT_HcalUTCA_v1, process.AlCa_LumiPixels_Random_v1, process.AlCa_LumiPixels_ZeroBias_v1, process.HLT_IsoTrackHE_v1, process.HLT_IsoTrackHB_v1, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput, process.HLTAnalyzerEndpath, process.RPCMONOutput, process.EcalCalibrationOutput, process.ALCAPHISYMOutput, process.ALCALUMIPIXELSOutput, process.ALCAP0Output, process.ExpressOutput ))
 
 
 process.source = cms.Source( "PoolSource",

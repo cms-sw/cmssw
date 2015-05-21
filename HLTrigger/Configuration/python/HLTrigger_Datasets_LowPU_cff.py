@@ -71,7 +71,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK4CaloJe
     'HLT_L1RomanPots_SinglePixelTrack02_v2', 
     'HLT_L1RomanPots_SinglePixelTrack04_v2', 
     'HLT_L1RomanPots_v1', 
-    'HLT_L1SingleEG5_OR_EG10_OR_EG20_v1', 
     'HLT_L1SingleMuOpen_DT_v1', 
     'HLT_L1SingleMuOpen_v1', 
     'HLT_L1TOTEM0_RomanPotsAND_v1', 
