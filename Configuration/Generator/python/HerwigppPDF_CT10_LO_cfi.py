@@ -8,7 +8,7 @@ herwigppPDFSettingsBlock = cms.PSet(
         hwpp_pdf_CT10 = cms.vstring(
                 'create ThePEG::LHAPDF /Herwig/Partons/cmsPDFSet ThePEGLHAPDF.so',			# cmsPDFSet Default name for shower PDF
                 'set /Herwig/Partons/cmsPDFSet:PDFName CT10.LHgrid',
-                'set /Herwig/Partons/cmsPDFSet:RemnantHandler HadronRemnants',
+                'set /Herwig/Partons/cmsPDFSet:RemnantHandler /Herwig/Partons/HadronRemnants',
                 'set /Herwig/Particles/p+:PDF /Herwig/Partons/cmsPDFSet',				# Use PDF in shower
                 'set /Herwig/Particles/pbar-:PDF /Herwig/Partons/cmsPDFSet',
         ),
