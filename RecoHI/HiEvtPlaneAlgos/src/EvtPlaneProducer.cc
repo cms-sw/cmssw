@@ -20,7 +20,7 @@ Implementation:
 #include <memory>
 #include <iostream>
 #include <time.h>
-#include "cmath"
+#include <cmath>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -369,7 +369,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(tower_energyet>maxet) continue;
 	  if(EPDet[i]==HF) {
 	    double w = tower_energyet;
-            flat[i]->updateEt(vzr_sell, bin);
 	    if(loadDB_) w = tower_energyet*flat[i]->getEtScale(vzr_sell,bin);
 	    if(EPOrder[i]==1 ) {
 	      if(MomConsWeight[i][0]=='y' && loadDB_ ) {
@@ -404,7 +403,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        	    double w = tower_energyet;
        	    if(EPOrder[i]==1 ) {
        	      if(MomConsWeight[i][0]=='y' && loadDB_ ) {
-                flat[i]->updateEt(vzr_sell, bin);
        		w = flat[i]->getW(tower_energyet, vzr_sell, bin);
        	      }
        	      if(tower_eta<0 ) w=-w;
@@ -477,7 +475,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if(w>2.5) w=2.0;   //v2 starts decreasing above ~2.5 GeV/c
 	      if(EPOrder[i]==1) {
 		if(MomConsWeight[i][0]=='y' && loadDB_) {
-                  flat[i]->updateEt(vzr_sell, bin);
 		  w = flat[i]->getW(track_pt, vzr_sell, bin);
 		}
 		if(track_eta<0) w=-w;

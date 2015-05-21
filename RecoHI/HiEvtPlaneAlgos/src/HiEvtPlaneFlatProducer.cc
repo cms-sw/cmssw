@@ -276,9 +276,9 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	double w = rp->sumw();
 	uint m = rp->mult();
 
-	flat[indx]->updateEP(s,c,w,m,vzr_sell,bin, useOffsetPsi_);
+//	flat[indx]->updateEP(s,c,w,m,vzr_sell,bin, useOffsetPsi_);
 
-	if(useOffsetPsi_) psiOffset = flat[indx]->getOffsetPsi();
+	if(useOffsetPsi_) psiOffset = flat[indx]->getOffsetPsi(s, c, vzr_sell, bin);
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
 	ep[indx]= new EvtPlane(indx, 2, psiFlat, flat[indx]->sumSin(), flat[indx]->sumCos(),rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
 	ep[indx]->addLevel(0, rp->angle(0), s, c);
@@ -295,16 +295,6 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   for(int i = 0; i<indx; i++) delete ep[i];
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-//void 
-//HiEvtPlaneFlatProducer::beginJob()
-//{
-//}
-
-// ------------ method called once each job just after ending the event loop  ------------
-//void 
-//HiEvtPlaneFlatProducer::endJob() {
-//}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HiEvtPlaneFlatProducer);

@@ -35,8 +35,8 @@ public:
     minvtx_ = -25;
     delvtx_ = 5;
     nvtxbins_ = 10;
-    soff_ = 0.;
-    coff_ = 0.;
+//    soff_ = 0.;
+//    coff_ = 0.;
   }
 
 
@@ -137,20 +137,16 @@ public:
   void setCaloCentRefBins(const int caloCentRefMinBin, const int caloCentRefMaxBin) {
     caloCentRefMinBin_ = caloCentRefMinBin;
     caloCentRefMaxBin_ = caloCentRefMaxBin;
-    caloCentRefVal_ = 1.;
   }
 
-  void updateEt(double vtx, int centbin) {
+  double getEtScale(double vtx, int centbin) const {
     int refmin = getOffsetIndx(caloCentRefMinBin_,vtx);
     int refmax = getOffsetIndx(caloCentRefMaxBin_,vtx);
-    caloCentRefVal_ = 0;
+    double caloCentRefVal_ = 0;
     for(int i = refmin; i<=refmax; i++) {
       caloCentRefVal_+=getPtDB(i);
     }
     caloCentRefVal_/=refmax-refmin+1.;
-  }
-
-  double getEtScale(double vtx, int centbin) const {
     if(caloCentRefMinBin_<0) return 1.;
     int indx = getOffsetIndx(centbin,vtx);
     if(caloCentRefVal_==0 || getPtDB(indx)==0) return 1.;
@@ -182,24 +178,36 @@ public:
     return psi;
   }
 
-  void updateEP(double s, double c, double w, uint m,  double vtx, int centbin, bool offset)
+//  void updateEP(double s, double c, double w, uint m,  double vtx, int centbin, bool offset)
+//  {
+//    if ( offset ) {
+//        int indx = getOffsetIndx(centbin,vtx);
+//        soff_ = s-yoffDB_[indx];
+//        coff_ = c-xoffDB_[indx];
+//    } else {
+//        soff_ = s;
+//        coff_ = c;
+//    }
+////    w_ = w;
+////    mult_ = m;
+//    return;
+//  }
+
+  double getSoffset(double s, double vtx, int centbin) const
   {
-    if ( offset ) {
         int indx = getOffsetIndx(centbin,vtx);
-        soff_ = s-yoffDB_[indx];
-        coff_ = c-xoffDB_[indx];
-    } else {
-        soff_ = s;
-        coff_ = c;
-    }
-    w_ = w;
-    mult_ = m;
-    return;
+        return s-yoffDB_[indx];
   }
 
-  double getOffsetPsi() const
+  double getCoffset(double c, double vtx, int centbin) const
   {
-    double psi = atan2(soff_,coff_)/vorder_;
+        int indx = getOffsetIndx(centbin,vtx);
+        return c-xoffDB_[indx];
+  }
+
+  double getOffsetPsi(double s, double c, double vtx, int centbin) const
+  {
+    double psi = atan2(getSoffset(s,vtx, centbin), getCoffset(c, vtx, centbin))/vorder_;
     if((fabs(soff_)<1e-4) && (fabs(coff_)<1e-4)) psi = 0.;
     psi=bounds(psi);
     psi=bounds2(psi);
@@ -238,12 +246,12 @@ public:
   void setYoffDB(int indx, double val) {yoffDB_[indx]=val;}
   void setPtDB(int indx, double val) {ptDB_[indx]=val;}
   void setPt2DB(int indx, double val) {pt2DB_[indx]=val;}
-  double sumSin() const { return soff_; }
-  double sumCos() const { return coff_; }
-  double sumw()  const { return w_; }
-  uint mult()  const {return mult_;}
-  double      qx()      const { return (w_>0)? coff_/w_:0.;};
-  double      qy()      const { return (w_>0)? soff_/w_:0.;};
+//  double sumSin() const { return soff_; }
+//  double sumCos() const { return coff_; }
+//  double sumw()  const { return w_; }
+//  uint mult()  const {return mult_;}
+//  double      qx()      const { return (w_>0)? coff_/w_:0.;};
+//  double      qy()      const { return (w_>0)? soff_/w_:0.;};
   double      q()      const { return ((pow(qx(),2)+pow(qy(),2))>0)? sqrt(pow(qx(),2)+pow(qy(),2)): 0.;};
   double bounds(double ang) const {
     if(ang<-M_PI) ang+=2.*M_PI;
@@ -338,15 +346,15 @@ private:
   int vorder_; //order of flattened event plane
   int caloCentRefMinBin_; //min ref centrality bin for calo weight scale
   int caloCentRefMaxBin_; //max ref centrality bin for calo weight scale
-  double caloCentRefVal_; //reference <pt> or <et>
+//  double caloCentRefVal_; //reference <pt> or <et>
 
   int nvtxbins_;
   double minvtx_;
   double delvtx_;
-  double soff_ ;
-  double coff_ ;
-  double w_ ;
-  uint mult_ ;
+//  double soff_ ;
+//  double coff_ ;
+//  double w_ ;
+//  uint mult_ ;
 
 };
 
