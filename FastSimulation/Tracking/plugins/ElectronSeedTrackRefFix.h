@@ -23,9 +23,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
     
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::TrackCollection > newTracksToken;
