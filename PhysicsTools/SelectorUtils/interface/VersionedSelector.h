@@ -162,7 +162,7 @@ initialize( const edm::ParameterSet& conf ) {
   std::vector<edm::ParameterSet>::const_iterator icut = cbegin;
   std::map<std::string,unsigned> cut_counter;
   for( ; icut != cend; ++icut ) {  
-    std::stringstream realname;
+    std::stringstream realname;    
     const std::string& name = icut->getParameter<std::string>("cutName");
     if( !cut_counter.count(name) ) cut_counter[name] = 0;      
     realname << name << "_" << cut_counter[name];
@@ -206,8 +206,16 @@ void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
   for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
     if( needs_event_content_[i] ) {
       CutApplicatorWithEventContentBase* needsEvent = 
-	static_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
-      needsEvent->setConsumes(cc);
+	dynamic_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
+      if( nullptr != needsEvent ) {
+        needsEvent->setConsumes(cc);
+      } else {
+        throw cms::Exception("InvalidCutConfiguration")
+          << "Cut: " << ((CutApplicatorBase*)cuts_[i].get())->name() 
+          << " configured to consume event products but does not "
+          << " inherit from CutApplicatorWithEventContenBase "
+          << " please correct either your python or C++!";
+      }
     }
   }
 }
