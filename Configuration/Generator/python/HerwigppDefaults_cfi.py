@@ -28,73 +28,11 @@ herwigDefaultsBlock = cms.PSet(
 	),
 
 	# PDF presets
-	##############################
+	# Can be found under HerwigppPDF_
+	
 
-	# Default pdf for Herwig++ 2.3
-	pdfMRST2001 = cms.vstring(
-		'cd /Herwig/Partons',
-		'create Herwig::MRST MRST2001 HwMRST.so',
-		'setup MRST2001 ${HERWIGPATH}/PDF/mrst/2001/lo2002.dat',
-		'set MRST2001:RemnantHandler HadronRemnants',
-		'cd /',
-		'cp /Herwig/Partons/MRST2001 cmsPDFSet',
-                'cd /Herwig/Particles',
-                'set p+:PDF cmsPDFSet',
-                'set pbar-:PDF cmsPDFSet',
-		'+ue_2_3', # Default tune from 2.3
-		'cd /',
-	),
-	# Default pdf for Herwig++ 2.4
-	pdfMRST2008LOss = cms.vstring(
-		'cp /Herwig/Partons/MRST cmsPDFSet',
-                'cd /Herwig/Particles',
-                'set p+:PDF cmsPDFSet',
-                'set pbar-:PDF cmsPDFSet',
-		'+ue_2_4', # Default tune from 2.4
-		'cd /',
-	),
-	pdfCTEQ6LL = cms.vstring(
-                'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set cmsPDFSet:PDFName cteq6ll.LHpdf',
-                 'set cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 '+EE5C', # Tune for CTEQ6L1 from 2.7
-                 'cd /',
-        ),
-        pdfCTEQ6L1 = cms.vstring(
-                'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set cmsPDFSet:PDFName cteq6ll.LHpdf',
-                 'set cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 '+EE5C', # Tune for CTEQ6L1 from 2.7                 
-                 'cd /',
-        ),        
-        pdfCT10 = cms.vstring(
-                'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set cmsPDFSet:PDFName CT10.LHgrid',
-                 'set cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 'cd /',
-        ),
-        
-        pdfNNPDF30NLO = cms.vstring(
-                'cd /Herwig/Partons',
-                'create ThePEG::LHAPDF cmsPDFSet ThePEGLHAPDF.so',
-                 'set cmsPDFSet:PDFName NNPDF30_nlo_as_0118.LHgrid',
-                 'set cmsPDFSet:RemnantHandler HadronRemnants',
-                 'set /Herwig/Particles/p+:PDF cmsPDFSet',
-                 'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
-                 'cd /',
-        ),
-
-	# CME presets
-	##############################
+	# Center-of-mass energy presets
+	# Can be found under HerwigppEnergy_
 
 	cm7TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
