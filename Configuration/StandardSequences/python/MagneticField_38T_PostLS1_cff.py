@@ -1,5 +1,7 @@
-# Run 2 default field map configuration. This cff is DEPRECATED, please use MagneticField_AutoFromDBCurrent_cff.py
+### THIS CFF IS DEPRECATED!!!! ###
+# please use MagneticField_cff.py instead
 
+# Run 2 field map configuration for 3.8T, version 120812.
 import FWCore.ParameterSet.Config as cms
 from MagneticField.Engine.volumeBasedMagneticField_120812_largeYE4_cfi import *
 
