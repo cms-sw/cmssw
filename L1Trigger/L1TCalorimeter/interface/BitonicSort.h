@@ -61,7 +61,7 @@ void BitonicMerge( sort_direction aDir,
     typename std::vector<T>::iterator lSecond( lMidpoint );
     
     for( ; lSecond != aDataEnd ; ++lFirst , ++lSecond ){
-      if( ( *lFirst > *lSecond ) == (aDir == up) ) {
+      if( ( (*lFirst) > (*lSecond) ) == (aDir == up) ) {
 	std::swap( *lFirst , *lSecond );
       }
     }

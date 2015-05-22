@@ -24,7 +24,7 @@ unsigned Stage1TauIsolationLUT::lutAddress(unsigned int tauPt, unsigned int jetP
   if ( (nbitsJet != 8) ||  (nbitsTau != 8) ) return 0;
 
   double jetLsb=params_->jetLsb();
-  if (abs(jetLsb-0.5) > 0.0001){
+  if (std::abs(jetLsb-0.5) > 0.0001){
     std::cout << "%Stage1TauIsolationLUT-E-Unexpected jetLsb " << jetLsb << " IsoTau calculation will be broken"<< std::endl;
     return 0;
   }
@@ -67,9 +67,9 @@ int Stage1TauIsolationLUT::lutPayload(unsigned int address) const
   //std::cout << "jetet: " << jet_pt << "\ttauet: " << tau_pt << std::endl;
 
   int isol=0;
-  if (maxTau == itauet){
+  if (maxTau == (unsigned) itauet){
     isol=1;
-  } else if (maxJet == ijetet){
+  } else if (maxJet == (unsigned) ijetet){
     isol=1;
   } else {
     double relativeJetIsolationTau = (jet_pt / tau_pt) -1;

@@ -9,12 +9,12 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxJetAlgoFirmware.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
+
 
 #include <vector>
 #include <algorithm>
 
-inline bool operator > ( l1t::Jet& a, l1t::Jet& b )
+inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
 {
   if ( a.hwPt() > b.hwPt() ){ 
     return true;
@@ -22,6 +22,8 @@ inline bool operator > ( l1t::Jet& a, l1t::Jet& b )
     return false;
   }
 }
+
+#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
 l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParams* params) :
   params_(params)
