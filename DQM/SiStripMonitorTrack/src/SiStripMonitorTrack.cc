@@ -26,7 +26,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   conf_(conf),
   tracksCollection_in_EventTree(true),
   firstEvent(-1),
-  genTriggerEventFlag_(new GenericTriggerEventFlag(conf, consumesCollector()))
+  genTriggerEventFlag_(new GenericTriggerEventFlag(conf, consumesCollector(), *this))
 {
   Cluster_src_   = conf.getParameter<edm::InputTag>("Cluster_src");
   Mod_On_        = conf.getParameter<bool>("Mod_On");

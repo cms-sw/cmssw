@@ -84,11 +84,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-
-
 #include <map>
 #include <string>
 
@@ -141,10 +136,6 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::ParameterSet parameters;
   // Switch for verbosity
   int verbose_;
-
-
-  L1GtUtils m_l1GtUtils;
-
 
   std::string MetType_;
   std::string FolderName_;

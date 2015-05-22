@@ -30,11 +30,18 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include <memory>
+
+namespace edm {
+    class ConsumesCollector;
+    class ParameterSet;
+}
+
 class TriggerHelper {
 
     // Utility classes
     edm::ESWatcher< AlCaRecoTriggerBitsRcd > * watchDB_;
-    L1GtUtils                                  l1Gt_;
+    std::unique_ptr<L1GtUtils>                 l1Gt_;
     HLTConfigProvider                          hltConfig_;
     bool                                       hltConfigInit_;
     // Configuration parameters
@@ -68,8 +75,13 @@ class TriggerHelper {
 
   public:
 
-    // Constructors and destructor
-    TriggerHelper( const edm::ParameterSet & config ); // To be called from the ED module's c'tor
+    // Constructors must be called from the ED module's c'tor
+    template <typename T>
+    TriggerHelper( const edm::ParameterSet & config, edm::ConsumesCollector && iC, T& module );
+
+    template <typename T>
+    TriggerHelper( const edm::ParameterSet & config, edm::ConsumesCollector & iC, T& module );
+
     ~TriggerHelper();
 
     // Public methods
@@ -81,6 +93,8 @@ class TriggerHelper {
   private:
 
     // Private methods
+
+    TriggerHelper( const edm::ParameterSet & config );
 
     // DCS
     bool acceptDcs( const edm::Event & event );
@@ -104,5 +118,15 @@ class TriggerHelper {
 
 };
 
+template <typename T>
+TriggerHelper::TriggerHelper( const edm::ParameterSet & config, edm::ConsumesCollector && iC, T& module ) :
+  TriggerHelper(config, iC, module) {
+}
+
+template <typename T>
+TriggerHelper::TriggerHelper( const edm::ParameterSet & config, edm::ConsumesCollector & iC, T& module ) :
+  TriggerHelper(config) {
+    l1Gt_.reset(new L1GtUtils(config, iC, false, module));
+}
 
 #endif
