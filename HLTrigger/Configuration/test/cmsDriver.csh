@@ -38,8 +38,9 @@ set NNHIRD = 25
 
 set CustomRun1 = " "
 set CustomRun2 = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"
-set CustomRun2pp50ns = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns"
-set CustomRun2HI     = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI"
+set CustomRun2pp50ns  = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns"
+set CustomRun2ppLowPU = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_lowPU"
+set CustomRun2HI      = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI"
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -218,7 +219,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun
-      set Custom1 = $CustomRun2pp50ns
+      set Custom1 = $CustomRun2ppLowPU
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
     else
