@@ -1,0 +1,16 @@
+#mvaTTH:     LepGood_mvaTTH:    2000,-1,1; Title="TTH MVA", LineColor=28
+mvaNew:     LepGood_mvaNew:    2000,-1,1; Title="Susy MVA", LineColor=209
+#mvaNewId:   LepGood_mvaNewId:  2000,-1,1; Title="Susy MVA+Id", LineColor=62
+#mvaNewSV:   LepGood_mvaNewSV:  2000,-1,1; Title="Susy MVA+Id+SV", LineColor=1
+relIso: LepGood_relIso03: 1000,0,1; LineColor=100, Title="PF Rel Iso"
+sip3D:  LepGood_sip3d: 1000,0,100; LineColor=222, Title="SIP_{3D} cut"
+
+#CWPmu: LepGood_tightId>0.0 && LepGood_relIso03 < 0.1 && abs(LepGood_dxy) < 0.0050 && abs(LepGood_dz) < 0.1 : 2,-0.5,1.5; MarkerColor=206, MarkerSize=1.5, Title="Cut based", MarkerStyle=20
+CWPe: LepGood_eleCutIdCSA14_50ns_v1 >= 3 && LepGood_relIso03 < 0.09 && (abs(LepGood_eta) <1.4442 || abs(LepGood_eta) > 1.566) &&  abs(LepGood_dxy) < 0.0100 && abs(LepGood_dz) < 0.1: 2,-0.5,1.5; MarkerColor=206, MarkerSize=1.5, Title="Cut based", MarkerStyle=20 
+### ID-only parts
+# tightId: LepGood_tightId: 2,-0.5,1.5; MarkerColor=206, MarkerSize=1.5, Title="TightID", MarkerStyle=20
+# nStations:   LepGood_nStations:  [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; MarkerColor=223, MarkerSize=1.2, Title="N(stations)", MarkerStyle=20, Discrete=True
+# segmentCompatibility : LepGood_segmentCompatibility: 200,-0.1,1.1; Title="Segm comp.", LineColor=222
+# mvaIdBPH:   LepGood_muonMVAIdBPH:  200,0,1; Title="MVA (BPH)", LineColor=217
+# mvaIdBPHCalo:   LepGood_muonMVAIdBPHCalo:  20,0,1; Title="MVA (BPH+Calo)", LineColor=202
+# mvaIdFull:   LepGood_muonMVAIdFull:  200,0,1; Title="MVA (Full)", LineColor=62

@@ -1,0 +1,13 @@
+QCD+     : QCDMuPt15         :   134680 ; FillColor=ROOT.kOrange+10
+QCD+     : QCDEMElPt20To30   :  2.886E8*0.0101
+QCD+     : QCDEMElPt30To80   :  7.433E7*0.0621
+QCD+     : QCDEMElPt80To170  :  1191000.0*0.1539
+QCD+     : QCDElPt20To30     :  2.886E8*5.8E-4
+QCD+     : QCDElPt30To80     :  7.424E7*0.00225
+QCD+     : QCDElPt80To170    :  1191000.0*0.0109
+TT 	 : TTJets    :   246.6  ; FillColor=ROOT.kGray, Label="t\#bar{t}"
+DY       : DYJetsM50 : 3503.7   ;  FillColor=ROOT.kCyan, Label="Z+jets"
+DY       : DYJetsM10 : 877      ;  FillColor=ROOT.kCyan, Label="Z+jets"
+WJets    : WJets      : 37509.0   ;  FillColor=ROOT.kCyan+2, Label="W+jets"
+data     : DoubleMuD
+data     : DoubleElectronD

@@ -1,0 +1,26 @@
+lep2Pt:  LepGood2_pt       : 30,10,90; XTitle="Trailing lepton p_{T} [GeV]"
+lep2Eta: abs(LepGood2_eta) : 24,0,2.5; XTitle="Trailing lepton |#eta|",MoreY=1.4
+drl2j: mindr_lep2_jet  : 24,0,4; XTitle="min #DeltaR(l_{2}\,j)"
+mtW1: MT_met_lep1 : 30,0,200; XTitle="M_{T}(l_{1}\,E_{T}^{miss}) [GeV]",NXDiv=505
+htJet25: htJet25 : 30,0,1200; XTitle='H_{T} [GeV]',XNDiv=505
+mhtJet25: mhtJet25: 24,0,250 ; XTitle="H_{T}^{miss}  [GeV]"
+MVA_2LSS_4j_6var:  MVA_2LSS_4j_6var  : 12,-0.8,0.8 ; XTitle="BDT output", Legend='TL',MoreY=1.6
+#MVA_2LSS_4j_6var:  MVA_2LSS_4j_6var  : 12,-0.8,0.8 ; XTitle="BDT output", Legend='TL',MoreY=1.6, LegendCutoff=0.0001
+#nJet25 : nJet25 : [2.5,3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet\, p_{T} > 25)', XNDiv=505
+#nJet25 : nJet25 : [2.5,3.5,4.5,5.5,6.5] ; XTitle='N(jet\, p_{T} > 25)', XNDiv=505
+#nJet25 : nJet25 : [3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet)', XNDiv=505, LegendCutoff=0.0001
+nJet25 : nJet25 : [3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet)', XNDiv=505
+#nJet25 : nJet25 : [3.5,4.5,5.5,6.5] ; XTitle='N(jet)', XNDiv=505, LegendCutoff=0.0001
+#nJet25 : nJet25 : [3.5,4.5,5.5,6.5] ; XTitle='N(jet)', XNDiv=505
+#Qcat: LepGood1_charge: [-3,-2,0,2] ; XTitle='q(l_{1})',XNDiv=505
+#MVA_2LSS_2:  finalMVA_2LSS_2  : 12,0,1.0 ; XTitle="MVA 2", Legend='TL',MoreY=1.6, LegendCutoff=0.02
+#MVA_2LSS_3j_6var:  MVA_2LSS_23j_6var  : 12,-0.8,0.8 ; XTitle="BDT (#leq3j\, 6 vars)", Legend='TL',MoreY=1.6, LegendCutoff=0.02
+#MVA_2LSS_4j_6var_2bins:  MVA_2LSS_4j_6var  : [-0.8,0.1,0.8] ; XTitle="BDT output", Legend='TL',MoreY=1.6, LegendCutoff=0.02
+#MVA_2LSS:  MVA_2LSS_4j_6var  : 12,-0.8,0.8 ; XTitle="BDT output", Legend='TL',MoreY=1.6
+#MVA_2LSS_10b:  MVA_2LSS_4j_6var  : 10,-0.8,0.8 ; XTitle="BDT output", Legend='TL',MoreY=1.6
+
+#maxLepEta: max(abs(LepGood1_eta),abs(LepGood2_eta)): 10,0,2.5; XTitle="max |#eta| (l1\, l2)"
+#minLepEta: min(abs(LepGood1_eta),abs(LepGood2_eta)): 10,0,2.5; XTitle="min |#eta| (l1\, l2)"
+#htll : LepGood1_pt+LepGood2_pt: 15,0,300; XTitle="p_{T}(ll) [GeV]"
+#nJet25_1F : nJet25+min(nJet25Fwd,1) : [3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet\,1f)', XNDiv=505, LegendCutoff=0.0001
+#MVA_MVA: min(max(MVA_2LSS_4j_6var,-0.79),0.79)\:min(max(min(LepGood1_mva,LepGood2_mva),-0.99),0.99) : 6,-1,1,12,-0.8,0.8; XTitle="Lepton MVA", YTitle="Kinematic BDT", UnbinnedData2D=True

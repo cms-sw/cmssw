@@ -1,0 +1,17 @@
+== 2 good leptons: nLepGood == 2 || LepGood3_mva < 0.7
+cleanup: minMllAFAS > 12
+el mu:  abs(LepGood1_pdgId) != abs(LepGood2_pdgId)
+pt2010: LepGood1_pt>20 && LepGood2_pt>10
+pt2020_htllv100 : LepGood2_pt > 20 && LepGood1_pt+LepGood2_pt+met > 100
+electron MVA: if3(abs(LepGood1_pdgId)==11, LepGood1_mva, LepGood2_mva) > 0.7
+#muon MVA: if3(abs(LepGood1_pdgId)==11, LepGood2_mva, LepGood1_mva) < 0.7
+tight-charge: LepGood1_tightCharge > (abs(LepGood1_pdgId) == 11) && LepGood2_tightCharge > (abs(LepGood2_pdgId) == 11)
+conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0))
+#same-sign: LepGood1_charge*LepGood2_charge > 0
+oppo-sign: LepGood1_charge*LepGood2_charge < 0
+met LD > 0.3: met*0.00397 + mhtJet25*0.00265 > 0.2
+jet veto: nJet25 <= 0 && nJet25Fwd == 0
+b veto: nBJetLoose25 <= 0
+mtW > 40: if3(abs(LepGood1_pdgId)==11, mt_2(LepGood1_pt,LepGood1_phi,met,met_phi), mt_2(LepGood2_pt,LepGood2_phi,met,met_phi) ) > 40
+dphi < 2.5: abs(deltaPhi(LepGood1_phi,LepGood2_phi)) < 2.5
+ptll < 60: pt_2(LepGood1_pt,LepGood1_phi,LepGood2_pt,LepGood2_phi) < 60

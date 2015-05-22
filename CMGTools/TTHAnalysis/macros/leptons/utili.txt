@@ -1,0 +1,1 @@
+for D in SingleMu{AB,C,D} {DoubleMu,MuEG,DoubleElectron}{AB,C,D,Rec,BadSIP} QCD{MuPt15,ElPt30To80,ElPt80To170}  WJets DYJetsM{10,50} DY{1,2}JetsM50 W{1,2,3}Jets TTJets; do root.exe -b -l -q "fillFRSimple.cxx+(\"$D\",0,0)"; done

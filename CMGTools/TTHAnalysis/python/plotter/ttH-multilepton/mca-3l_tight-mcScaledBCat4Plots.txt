@@ -1,0 +1,55 @@
+# --- ttH split by decay mode (with proper sigma*BR for 125.7)
+#ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+#ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+# --- ttH inclusive
+ttH+     : TTH : 5.15/4.4* 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 5.15/4.4* 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 5.15/4.4* 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+TTW 	 : TTWJets:           11.24/9.26* 0.208    ;  FillColor=ROOT.kGreen-5,  NormSystematic=0.2, Label="ttW"
+TTZ 	 : TTZJets:           9.18/7.94*0.206    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2, Label="ttZ/\#gamma*"
+TTZ	 : FastSim_TTGStarMM: 9.18/7.94*1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarEE: 9.18/7.94*1.5*0.02724*0.104;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarTT: 9.18/7.94*1.5*0.00133*0.038;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*", NormSystematic=0.5
+
+# --- TT gamma
+TTG      : TTG:       2.88/2.94* 1.444*1.8    ;  FillColor=ROOT.kTeal-5, Label="tt\#gamma"    
+
+# --- Multiboson
+WZ 	 : WZJets:  4.25/4.18*   1.057  *  1.1 ;  FillColor=ROOT.kViolet-4, NormSystematic=0.2 
+
+# --- Rare backgrounds
+RARE 	 : TTWWJets:   1.64/1.55 * 0.002037 ;  FillColor=ROOT.kBlue-9,   NormSystematic=0.2, Label="Others"
+RARE     : TBZToLL :   1.64/1.55 * 0.0114; 
+RARE 	 : WWWJets:    1.64/1.55 * 0.08217  ;  FillColor=ROOT.kViolet
+RARE 	 : WWZJets:    1.64/1.55 * 0.0633   ;  FillColor=ROOT.kViolet
+RARE	 : ZZ2e2mu:    1.64/1.55 * 0.1767  * 1.21;  FillColor=ROOT.kAzure-9, NormSystematic=0.2
+RARE 	 : ZZ2e2tau:   1.64/1.55 * 0.1767  * 1.21;  FillColor=ROOT.kAzure-9, NormSystematic=0.2
+RARE 	 : ZZ2mu2tau:  1.64/1.55 * 0.1767  * 1.21;  FillColor=ROOT.kAzure-9, NormSystematic=0.2
+RARE	 : ZZTo4mu:    1.64/1.55 * 0.07691 * 1.21;  FillColor=ROOT.kAzure-9, NormSystematic=0.2   
+RARE     : ZZTo4e:     1.64/1.55 * 0.07691 * 1.21;  FillColor=ROOT.kAzure-9, NormSystematic=0.2
+RARE     : ZZTo4tau:   1.64/1.55 * 0.07691 * 1.21;  FillColor=ROOT.kAzure-9, NormSystematic=0.2
+
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+# -- Reducible background: fakes from MC
+Fakes_MC: TTJetsLep:  31.61/12.48 * 25.77: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312) ;  FillColor=ROOT.kGray, NormSystematic=0.2, Label="Fakes"
+Fakes_MC: TTJetsSem:  31.61/12.48 * 107.53: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312);  FillColor=ROOT.kGray, NormSystematic=0.2, Label="Fakes"
+Fakes_MC: TtW:        31.61/12.48 * 11.73   ;  FillColor=ROOT.kGray, NormSystematic=0.2, Label="Fakes"
+Fakes_MC: TbartW:     31.61/12.48 * 11.73   ;  FillColor=ROOT.kGray, NormSystematic=0.2, Label="Fakes"
+Fakes_MC: DYJetsM10 : 31.61/12.48 * 915     ;  FillColor=ROOT.kGray, Label="Fakes"
+Fakes_MC: DY1JetsM50: 31.61/12.48 * 666.3  ;  FillColor=ROOT.kGray, Label="Fakes"
+Fakes_MC: DY2JetsM50: 31.61/12.48 * 215.0  ;  FillColor=ROOT.kGray, Label="Fakes"
+Fakes_MC: DY3JetsM50: 31.61/12.48 *  60.7  ;  FillColor=ROOT.kGray, Label="Fakes"
+Fakes_MC: DY4JetsM50: 31.61/12.48 *  27.4  ;  FillColor=ROOT.kGray, Label="Fakes"
+

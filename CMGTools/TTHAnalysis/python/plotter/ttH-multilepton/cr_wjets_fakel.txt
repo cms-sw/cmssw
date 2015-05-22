@@ -1,0 +1,15 @@
+2L: nLepGood == 2 &&  LepGood2_pdgId*LepGood1_pdgId > 0
+#muon: abs(LepGood1_pdgId) == 13
+pt25: LepGood1_pt > 25
+lep MVA1: LepGood1_mva > 0.7
+conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0))
+tight-charge: LepGood1_tightCharge > (abs(LepGood1_pdgId) == 11) && LepGood2_tightCharge > (abs(LepGood2_pdgId) == 11)
+njet: nJet25 <= 1
+bveto: nBJetMedium25 == 0
+#met LD > 0.20: met*0.00397 + mhtJet25*0.00265 > 0.20
+Zveto: abs(mZ1SFSS-91.2) > 15
+met > 35: met > 35
+mtW 50-120: mt_2(LepGood1_pt,LepGood1_phi,met,met_phi) > 50 && mt_2(LepGood1_pt,LepGood1_phi,met,met_phi) < 120
+#mtW40: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass,mZ1,met,met_phi) < 40
+#l2pt : LepGood2_pt < 
+#l2mva : LepGood2_mva < 0.7

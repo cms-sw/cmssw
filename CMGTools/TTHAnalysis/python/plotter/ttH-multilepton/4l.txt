@@ -1,0 +1,10 @@
+>= 4 good leptons: nLepGood >= 4
+pt2010: LepGood1_pt>20 && LepGood2_pt>10
+cleanup: minMllAFAS > 12
+lep12 MVA: min(LepGood1_mva,LepGood2_mva) > -0.3
+lep34 MVA: min(LepGood3_mva,LepGood4_mva) > -0.3
+qtot0: LepGood1_charge+LepGood2_charge+LepGood3_charge+LepGood4_charge == 0
+Z veto: abs(mZ1-91.2) > 10
+2j: nJet25 >= 2
+2b loose: nBJetLoose25 >= 2 || nBJetMedium25 >= 1
+2B tight: nBJetMedium25 >= 2

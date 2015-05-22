@@ -1,0 +1,12 @@
+MVA1:   nBJetMedium40:         1000,0,20; Discrete=True, LineColor=209, Title="NBjets40"
+MVA2:   nBJetMedium25:         1000,0,20; Discrete=True, LineColor=215, Title="NBjets25"
+MVA3:   nBJetMedium25+nSV25_loose:         1000,0,20; Discrete=True, LineColor=64,Title="NBjets25+LIVF"
+MVA4:   nBJetMedium25+nSV25_medium:         1000,0,20; Discrete=True, LineColor=7, Title="NBjets25+MIVF"
+MVA5:   nBJetMedium25+nSV25_tight:         1000,0,20; Discrete=True, LineColor=80, Title="NBjets25+TIVF"
+MVA6:   nBJetMedium25+nSV25_stight:         1000,0,20; Discrete=True, LineColor=213, Title="NBjets25+sTIVF"
+
+
+#MVA3:   nSV25_loose:         1000,0,20; Discrete=True, LineColor=64,Title="LIVF"
+#MVA4:   nSV25_medium:         1000,0,20; Discrete=True, LineColor=7, Title="MIVF"
+#MVA5:   nSV25_tight:         1000,0,20; Discrete=True, LineColor=80, Title="TIVF"
+#MVA6:   nSV25_stight:         1000,0,20; Discrete=True, LineColor=213, Title="sTIVF"

@@ -1,0 +1,55 @@
+#ttHWW+   : TTH : 0.1271 : GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+#ttHtt+   : TTH : 0.1271 : GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttHZZ+   : TTH : 0.1271 : GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+#TTW 	 : TTWJets:    0.232    ;  FillColor=ROOT.kGreen-5
+#TTZ 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2
+TTV 	 : TTWJets:    0.232    ;  FillColor=ROOT.kGreen-5
+#TTV 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2
+#TTWW 	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9
+VVV 	 : WWWJets:    0.08217  ;  FillColor=ROOT.kViolet
+VVV 	 : WWZJets:    0.0633   ;  FillColor=ROOT.kViolet
+WW 	 : WWJets:     5.995    ;  FillColor=ROOT.kBlue-9
+WZ 	 : WZJets:     1.057    ;  FillColor=ROOT.kViolet-4
+ZZ	 : ZZ2e2mu:    0.1767   ;  FillColor=ROOT.kAzure-9
+ZZ 	 : ZZ2e2tau:   0.1767   ;  FillColor=ROOT.kAzure-9
+ZZ 	 : ZZ2mu2tau:  0.1767   ;  FillColor=ROOT.kAzure-9
+ZZ	 : ZZTo4mu:    0.07691  ;  FillColor=ROOT.kAzure-9   
+ZZ       : ZZTo4e:     0.07691  ;  FillColor=ROOT.kAzure-9
+ZZ       : ZZTo4tau:   0.07691  ;  FillColor=ROOT.kAzure-9
+#ZZ       : ZZJets4L:   0.157    ;  FillColor=ROOT.kAzure-9
+#TT 	 : TTLep:      23.64    ;  FillColor=ROOT.kGray
+TT 	 : TTJetsLep:     25.77: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, NormSystematic=0.2, Label="top"
+TT 	 : TTJetsSem:	  107.53: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)     ; 
+TT 	 : TTJetsHad:     112.16: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ; 
+TW 	 : TtW:        11.73    ;  FillColor=ROOT.kGray+2
+TW 	 : TbartW:     11.73    ;  FillColor=ROOT.kGray+2
+DYjets   : DYJetsM10 : 915      : LepGood3_mcMatchAny <= 1;  FillColor=ROOT.kCyan, Label="Z + j\#rightarrowl"
+DYbb     : DYJetsM10 : 915      : LepGood3_mcMatchAny > 1;   FillColor=75, Label="Z + b\#rightarrowl"
+DYjets   : DYJetsM50 : 3503.7   : LepGood3_mcMatchAny <= 1;  FillColor=ROOT.kCyan, Label="Z + j\#rightarrowl"
+DYbb     : DYJetsM50 : 3503.7   : LepGood3_mcMatchAny > 1;   FillColor=75, Label="Z + b\#rightarrowl"
+#DYjets      : DY1JetsM50 : 666.3   : LepGood3_mcMatchAny <= 1;  FillColor=ROOT.kCyan, Label="Z + j\#rightarrowl"
+#DYjets      : DY2JetsM50 : 215.0   : LepGood3_mcMatchAny <= 1;  FillColor=ROOT.kCyan, Label="Z + j\#rightarrowl"
+#DYjets      : DY3JetsM50 :  60.7   : LepGood3_mcMatchAny <= 1;  FillColor=ROOT.kCyan, Label="Z + j\#rightarrowl"
+#DYjets      : DY4JetsM50 :  27.4   : LepGood3_mcMatchAny <= 1;  FillColor=ROOT.kCyan, Label="Z + j\#rightarrowl"
+#DYbb      : DY1JetsM50 : 666.3  : LepGood3_mcMatchAny > 1;   FillColor=75, Label="Z + b\#rightarrowl" 
+#DYbb      : DY2JetsM50 : 215.0  : LepGood3_mcMatchAny > 1;   FillColor=75, Label="Z + b\#rightarrowl" 
+#DYbb      : DY3JetsM50 :  60.7   : LepGood3_mcMatchAny > 1;   FillColor=75, Label="Z + b\#rightarrowl"
+#DYbb      : DY4JetsM50 :  27.4   : LepGood3_mcMatchAny > 1;   FillColor=75, Label="Z + b\#rightarrowl"
+#WGs 	 : WGs2MU:     1.914    ;  FillColor=ROOT.kAzure-9
+#WGs 	 : WGs2E:      5.873    ;  FillColor=ROOT.kAzure-9
+#WGs 	 : WGs2Tau:    0.336    ;  FillColor=ROOT.kAzure-9
+WJets   : WJets    : 37509.0   ;  FillColor=ROOT.kCyan+2
+#WJets    : W1Jets    : 6642.0   ;  FillColor=ROOT.kCyan+2
+#WJets    : W2Jets    : 2152.0   ;  FillColor=ROOT.kCyan+2
+#WJets    : W3Jets    : 638.4    ;  FillColor=ROOT.kCyan+2
+#WJets    : W4Jets    : 263.2    ;  FillColor=ROOT.kCyan+2
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD

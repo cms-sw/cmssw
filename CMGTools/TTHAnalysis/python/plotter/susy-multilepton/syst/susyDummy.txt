@@ -1,0 +1,4 @@
+TTV   : TT[WZ]       : .* : 1.2
+ttH   : ttH          : .* : 1.2
+WZ    : WZ           : .* : 1.2
+Fakes : TT$|WJets|DY : .* : 1.50

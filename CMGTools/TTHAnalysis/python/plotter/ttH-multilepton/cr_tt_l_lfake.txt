@@ -1,0 +1,9 @@
+2L OF/OS: nLepGood10 == 2 && abs(LepGood1_pdgId+LepGood2_pdgId)==24
+pt2020: LepGood1_pt>20 && LepGood2_pt>20
+pass MVA: max(LepGood1_mvaTTH,LepGood2_mvaTTH)>0.7
+fail MVA: min(LepGood1_mvaTTH,LepGood2_mvaTTH)<0.7
+mll > 12: minMllAFAS > 12
+met LD: nJet25 >= 4 || met_pt*0.00397 + mhtJet25*0.00265 > 0.2 + 0.1*(mZ1 > 0)
+2j: nJet25>=2
+2b loose: nBJetLoose25 >= 2 || nBJetMedium25 >= 1
+2B tight: nBJetMedium25 >= 2

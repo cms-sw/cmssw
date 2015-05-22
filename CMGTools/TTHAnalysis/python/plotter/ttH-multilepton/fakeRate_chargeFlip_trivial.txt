@@ -1,0 +1,4 @@
+## Flip the charge of the second lepton 
+change: LepGood2_charge : (-LepGood2_charge)
+## define the FR weight
+weight: (LepGood1_charge*LepGood2_charge<0)*(met*0.00397 + mhtJet25*0.00265 > 0.3 && abs(m2l-91.2) > 10)

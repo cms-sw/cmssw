@@ -1,0 +1,8 @@
+relIso03_01: LepGood_relIso03<0.1:  2,-0.5,1.5;   Title="I_{03}<0.1", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+AND_relIso03_01_SIP4: LepGood_relIso03<0.1 && LepGood_sip3d < 4:  2,-0.5,1.5;   Title="I_{03}<0.1\, S_{ip3D} < 4", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+mvaTTH_08: LepGood_mvaTTH > 0.8:  2,-0.5,1.5;   Title="MVA {ttH} > 0.8", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+mvaTTH_08i: LepGood_mvaTTH > 0.8:  2,-0.5,1.5;   Title="MVA {ttH} > 0.8 + Id", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+mvaTTH_07: LepGood_mvaTTH > 0.7:  2,-0.5,1.5;   Title="MVA {ttH} > 0.7", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+mvaTTH_06: LepGood_mvaTTH > 0.6:  2,-0.5,1.5;   Title="MVA {ttH} > 0.6", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+mvaTTH_06i: LepGood_mvaTTH > 0.6 && LepGood_mediumMuonId > 0:  2,-0.5,1.5;   Title="MVA {ttH} > 0.6 + Id", MarkerColor=1,  MarkerStyle=21, MarkerSize=1.3
+miniRelIso_005: LepGood_miniRelIso<0.05: 2,-0.5,1.5;   Title="MiniIso<0.05", MarkerColor=ROOT.kViolet+10, MarkerStyle=21, MarkerSize=1.3

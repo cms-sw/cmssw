@@ -1,0 +1,50 @@
+#################################################
+##############   MUONS   ########################
+#################################################
+only muons for now: LepGood_pdgId[0] * LepGood_pdgId[1] == -13*13
+within eta 2.4: (abs(LepGood_eta[0]) < 2.4 && abs(LepGood_eta[1]) < 2.4)
+exclude 1.4 - 1.6 in |eta|: !(abs(LepGood_eta[0]) > 1.4 && abs(LepGood_eta[0]) < 1.6) && !(abs(LepGood_eta[1]) > 1.4 && abs(LepGood_eta[1]) < 1.6)
+#lep1 and lep2 pass tight ID+iso (muons): LepGood_tightId[0] == 1 && LepGood_relIso03[0] < 0.15 && LepGood_tightId[1] == 1 && LepGood_relIso03[1] < 0.15
+lep1 and lep2 pass tight ID (muons): LepGood_tightId[0] == 1 && LepGood_tightId[1] == 1
+lep1_pt25: LepGood_pt[0] > 25 
+lep2_pt20: LepGood_pt[1] > 20 
+separated 0.3 in dR:  l1l2_DR > 0.3
+isolation of both < 0.15:  LepGood_relIso03[0] < 0.15 && LepGood_relIso03[1] < 0.15
+#################################################
+############## ELECTRONS ########################
+#################################################
+## only electrons for now: LepGood_pdgId[0] * LepGood_pdgId[1] == -11*11
+## within eta 2.4: (abs(LepGood_eta[0]) < 2.4 && abs(LepGood_eta[1]) < 2.4)
+## lep1_pt25: LepGood_pt[0] > 25 
+## lep2_pt20: LepGood_pt[1] > 20 
+## lep1 and lep2 pass loose ID (electrons): LepGood_tightId[0] >=1 && LepGood_tightId[1] >= 1
+## # lep1 and lep2 pass loose ID (electrons): LepGood_eleCutIdCSA14_25ns_v1[0] >=1 && LepGood_eleCutIdCSA14_25ns_v1[1] >= 1
+## exclude 1.4 - 1.6 in |eta|: (abs(LepGood_eta[0]) < 1.4 || abs(LepGood_eta[0]) > 1.6) && (abs(LepGood_eta[1]) < 1.4 || abs(LepGood_eta[1]) > 1.6)
+## opposite-sign: LepGood_charge[0]*LepGood_charge[1] < 0
+## separated 0.3 in dR:  l1l2_DR > 0.3
+## isolation of both < 0.15:  LepGood_relIso03[0] < 0.15 && LepGood_relIso03[1] < 0.15
+#################################################
+##############   ELMU/OF  #######################
+#################################################
+## only muons for now: LepGood_pdgId[0] * LepGood_pdgId[1] == -13*11
+## within eta 2.4: (abs(LepGood_eta[0]) < 2.4 && abs(LepGood_eta[1]) < 2.4)
+## lep1_pt25: LepGood_pt[0] > 25 
+## lep2_pt20: LepGood_pt[1] > 20 
+## lep1 and lep2 pass ID (elmu): LepGood_tightId[0] >= 1 && LepGood_tightId[1] >= 1
+## exclude 1.4 - 1.6 in |eta|: (abs(LepGood_eta[0]) < 1.4 || abs(LepGood_eta[0]) > 1.6) && (abs(LepGood_eta[1]) < 1.4 || abs(LepGood_eta[1]) > 1.6)
+## opposite-sign: LepGood_charge[0]*LepGood_charge[1] < 0
+## separated 0.3 in dR:  l1l2_DR > 0.3
+## #same using other code:  l1l2_DR > 0.3
+## isolation of both < 0.15:  LepGood_relIso03[0] < 0.15 && LepGood_relIso03[1] < 0.15
+#################################################
+##############     SF     #######################
+#################################################
+## only muons for now: (LepGood_pdgId[0] * LepGood_pdgId[1] == -11*11) || (LepGood_pdgId[0] * LepGood_pdgId[1] == -13*13)
+## within eta 2.4: (abs(LepGood_eta[0]) < 2.4 && abs(LepGood_eta[1]) < 2.4)
+## lep1_pt25: LepGood_pt[0] > 25 
+## lep2_pt20: LepGood_pt[1] > 20 
+## lep1 and lep2 pass ID (sf): LepGood_tightId[0] >= 1 && LepGood_tightId[1] >= 1
+## exclude 1.4 - 1.6 in |eta|: (abs(LepGood_eta[0]) < 1.4 || abs(LepGood_eta[0]) > 1.6) && (abs(LepGood_eta[1]) < 1.4 || abs(LepGood_eta[1]) > 1.6)
+## opposite-sign: LepGood_charge[0]*LepGood_charge[1] < 0
+## separated 0.3 in dR:  l1l2_DR > 0.3
+## isolation of both < 0.15:  LepGood_relIso03[0] < 0.15 && LepGood_relIso03[1] < 0.15

@@ -1,0 +1,18 @@
+nJet25 : nJet25 : [3.5,4.5,5.5,6.5,7.5] ; XTitle='N(jet)'
+nBJetLoose25 : nBJetLoose25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505, Legend='TL'
+nBJetMedium25 : nBJetMedium25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505, Legend='TL'
+nBJetTight25 : (Jet1_btagCSV > 0.898)+(Jet2_btagCSV > 0.898)+(Jet3_btagCSV > 0.898)+(Jet4_btagCSV > 0.898) : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Tight)',XNDiv=505, Legend='TL'
+met: met: 16,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+metLD: met*0.00397 + mhtJet25*0.00265 : 18,-0.1,1.4 ; XTitle="E_{T}^{miss} LD"
+#mZ1_wide: mZ1: 60,0,180 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR',Logy
+#mZ1: mZ1: 60,60,120 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+mZ1: mZ1: 24,81.2,100.2 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+minmll: minMllAFAS: 14,0,140; XTitle="min m(ll)  [GeV]", Legend='TR'
+worseIso: max(LepGood1_relIso,max(LepGood2_relIso,LepGood3_relIso)): 10,0,.4; XTitle="Worse rel. iso (l_{1}\,l_{2}\,l_{3})"
+lepMVA2: min(LepGood1_mva,LepGood2_mva) : 20,0,1; XTitle="Lepton MVA(l_{1}\,l_{2})",Legend='TL'
+lepMVA3: min(LepGood1_mva,min(LepGood2_mva,LepGood3_mva)) : 10,0,1; XTitle="Lepton MVA(l_{1}\,l_{2}\,l_{3})",Legend='TL'
+l1Pt:  LepGood1_pt: 20,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+l2Pt:  LepGood2_pt: 12,0,120; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+l3Pt:  LepGood3_pt: 20,0,100; XTitle="Trailing lepton p_{T}  [GeV]", Legend='TR'
+bestMWjj: bestMWjj: 18, 0, 200; XTitle="best m(W#rightarrowjj) [GeV]"
+bestMTopHad: bestMTopHad: 30, 100, 350; XTitle="best m(t#rightarrowjjb) [GeV]"

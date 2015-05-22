@@ -1,0 +1,17 @@
+>= 2 good leptons: nLepGood10 >= 2
+minMllAS8:  minMllAFAS > 8
+minMllOS12: minMllAFOS <= 0 || minMllAFOS > 12
+zveto3l:    mZ1 < 76 || mZ1 > 106
+exclusive:  nLepGood10 == 2
+anyll: abs(LepGood1_pdgId) > 0 && abs(LepGood2_pdgId) > 0
+same-sign: LepGood1_charge*LepGood2_charge > 0
+lep1_pt25: LepGood1_pt > 25 
+lep2_pt25: LepGood2_pt > 25 
+lep iso: max(LepGood1_relIso03,LepGood2_relIso03) < 0.1
+lep id:  LepGood1_tightId > (abs(LepGood1_pdgId) == 11) && LepGood2_tightId > (abs(LepGood2_pdgId) == 11) 
+lep dxy: max(LepGood1_sip3d,LepGood2_sip3d) < 4
+ele cuts: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto && LepGood1_lostHits == 0 && LepGood1_tightCharge > 1)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto && LepGood2_lostHits == 0 && LepGood2_tightCharge > 1)) 
+ht: htJet40j > 80
+met: met_pt > 30 || htJet40j > 500
+njet: nJet40 >=2
+nBjet: nBJetMedium25 >= 0

@@ -1,0 +1,7 @@
+QCD+     : QCDMuPt15 :   134680 ; FillColor=ROOT.kOrange+10, FreeFloat=True
+EWK      : DYJetsM50 : 3503.7   ;  FillColor=ROOT.kCyan+2, Label="EWK", FreeFloat=True
+EWK      : DYJetsM10 : 877      ;  FillColor=ROOT.kCyan+2, Label="EWK", FreeFloat=True
+EWK      : WJets      : 37509.0   ;  FillColor=ROOT.kCyan+2, Label="EWK", FreeFloat=True
+EWK 	 : TTJets    :   246.6  ; FillColor=ROOT.kCyan+2, Label="EWK", FreeFloat=True
+
+data     : DoubleMuD

@@ -1,0 +1,2 @@
+LepGood1_(\w+) : LepGood_\1[iL1]; AlsoData
+LepGood2_(\w+) : LepGood_\1[iL2]; AlsoData

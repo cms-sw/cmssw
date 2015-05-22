@@ -1,0 +1,24 @@
+nJet25 : nJet25 : 6,1.5,7.5 ; XTitle='N(jet\, p_{T} > 25)'
+nBJetLoose25 : nBJetLoose25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505, Legend='TL'
+nBJetMedium25 : nBJetMedium25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505, Legend='TL'
+met: met: 15,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+metLD: met*0.00397 + mhtJet25*0.00265 : 15,0,1.5 ; XTitle="E_{T}^{miss} LD"
+#minmllAFAS: minMllAFAS: 14,0,140; XTitle="min m(ll)  [GeV]", Legend='TR'
+#minmllSFOS: minMllSFOS: 28,0,140; XTitle="min m(ll) SFOS  [GeV]", Legend='TR'
+#minmllSFOS_d: minMllSFOS: [0.001,1,3,5,9,12,15,20,30,40,60,70,75,80,85,90,95,100,110,120,140]; XTitle="min m(ll) SFOS  [GeV]", Legend='TR', Density=True, YTitle="Events/GeV"
+#minmllSFOS_zoom: minMllSFOS: 10,0,25; XTitle="min m(ll) SFOS  [GeV]", Legend='TR', Blinded='x>15'
+#minmllSFOS_d_zoom: minMllSFOS: [0,1,3,5,9,12,15,20,25]; XTitle="min m(ll) SFOS  [GeV]", Legend='TR', Density=True, YTitle="Events/GeV"
+minmllSFOS_zoom: minMllSFOS: 5,0,15; XTitle="min m(#mu^{+}#mu^{-})  [GeV]", Legend='TR', Blinded='x>15'
+minmllSFOS_d_zoom: minMllSFOS: [0,1,3,5,9,12,15]; XTitle="min m(ll) SFOS  [GeV]", Legend='TR', Density=True, YTitle="Events/GeV"
+lepMVA1: LepGood1_mva : 10,0.5,1; XTitle="Lepton MVA(l_{1})",Legend='TL'
+lepMVA23: min(LepGood3_mva,LepGood2_mva) : 10,-1,1; XTitle="Lepton MVA(l_{2}\,l_{3})",Legend='TL'
+l1Pt:  LepGood1_pt: 20,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+l2Pt:  LepGood2_pt: 12,0,120; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+l3Pt:  LepGood3_pt: 20,0,100; XTitle="Third lepton p_{T}  [GeV]", Legend='TR'
+mll23  : mass_2(LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass, LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass): 15,0,300; XTitle="m(23) [GeV]"
+ptll23 : pt_2(LepGood3_pt,LepGood3_phi, LepGood2_pt,LepGood2_phi): 12,0,240; XTitle="p_{T}(23) [GeV]", XNDiv=505
+htll23 : LepGood3_pt+LepGood2_pt: 15,0,300; XTitle="p_{T}(23) [GeV]"
+drll23 : deltaR(LepGood3_eta,LepGood3_phi, LepGood2_eta,LepGood2_phi): 8,0,4; XTitle="#DeltaR(23)", MoreY=1.3, Legend='TR'
+dphill23 : abs(deltaPhi(LepGood3_phi, LepGood2_phi)): 6,0,3.1416; XTitle="#Delta#phi(23)", MoreY=1.5, Legend='TR'
+mtW1:    mt_2(LepGood1_pt,LepGood1_phi,met,met_phi) : 12,0,180; XTitle="M_{T}(l_{1}\,E_{T}^{miss}) [GeV]"
+mjj23: mass_2(Jet3_pt,Jet3_eta,Jet3_phi,Jet3_mass,Jet2_pt,Jet2_eta,Jet2_phi,Jet2_mass) : 15,25,250; XTitle="m(j_{2}\,j_{3})  [GeV]"

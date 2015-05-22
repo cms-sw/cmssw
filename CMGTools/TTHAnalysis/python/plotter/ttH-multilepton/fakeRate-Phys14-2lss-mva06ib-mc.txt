@@ -1,0 +1,9 @@
+### MVA, WP 06
+change: LepGood_pt(\[\w+\]): LepGood_pt\1*if3(LepGood_mvaTTH\1>0.6, 1.0, 0.85/LepGood_jetPtRatio\1)
+cut-change: LepGood_mvaTTH(\[\w+\]): (LepGood_relIso03\1 < 0.4 && LepGood_sip3d\1 < 6 && LepGood_jetBTagCSV\1 < 0.814)
+cut-change: LepGood_mediumMuonId(\[\w+\]): 1
+weight: fakeRateWeight_2lss(LepGood_pt[iL1p_Old]*if3(LepGood_mvaTTH[iL1p_Old]>0.6, 1.0, 0.85/LepGood_jetPtRatio[iL1p_Old]),LepGood_eta[iL1p_Old],LepGood_pdgId[iL1p_Old],LepGood_mvaTTH[iL1p_Old],LepGood_pt[iL2p_Old]*if3(LepGood_mvaTTH[iL2p_Old]>0.6, 1.0, 0.85/LepGood_jetPtRatio[iL2p_Old]),LepGood_eta[iL2p_Old],LepGood_pdgId[iL2p_Old],LepGood_mvaTTH[iL2p_Old], 0.6)
+#load-histo: FR_mu : $DATA/fakerate/FR_mc_ttH_mva.root : FR_wp06i_mu_QCDMu_a_ptJI_mvaTTH06_coarse
+#load-histo: FR_el : $DATA/fakerate/FR_mc_ttH_mva.root : FR_wp06_el_QCDEl_a_ptJI_mvaTTH06_coarse
+load-histo: FR_mu : $DATA/fakerate/FR_mc_ttH_mva.root : FR_wp06ib_mu_TT_a_ptJI_mvaTTH06_coarse
+load-histo: FR_el : $DATA/fakerate/FR_mc_ttH_mva.root : FR_wp06ib_el_TT_a_ptJI_mvaTTH06_coarse

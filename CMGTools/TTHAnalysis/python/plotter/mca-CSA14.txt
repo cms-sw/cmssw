@@ -1,0 +1,98 @@
+
+# --- 50 ns ---------------
+
+# --- ttH inclusive
+#ttH_hww+   : TTHnlo_S14 : 1 : GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10, Label="ttH WW"
+#ttH_hzz+   : TTHnlo_S14 : 1 : GenHiggsDecayMode == 23 ; FillColor=ROOT.kPink+9, Label="ttH ZZ"
+#ttH_htt+   : TTHnlo_S14 : 1 : GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+4, Label="ttH \#tau\#tau"
+TTH     : TTHnlo_S14 : 0.5085 ; FillColor=ROOT.kOrange+1, Label="ttH", NormSystematic=0.2
+
+# cross sections are from 13 TeV MG5_aMC@NLO v2.2.1, NNPDF 2.3nlo, fixed scale = mtop + 0.5*mv
+TTW : TTWJets_S14 : 0.6647 ; FillColor=ROOT.kGreen-5, Label="ttW", NormSystematic=0.2 
+TTZ : TTZJets_S14 : 0.8565 ; FillColor=ROOT.kSpring+2, Label="ttZ", NormSystematic=0.2
+#TTV : TTWJets_S14 : 0.6647 ; FillColor=ROOT.kGreen-5, Label="ttW", NormSystematic=0.2 
+#TTV : TTZJets_S14 : 0.8565 ; FillColor=ROOT.kSpring+2, Label="ttZ", NormSystematic=0.2
+
+# -- Backgrounds
+TT 	 : TTJets : 809.1 ; FillColor=ROOT.kGray+1, Label="tt", NormSystematic=0.5
+
+#TT_wHT 	 : TTJets_MSDecaysCKM_central_PU_S14_POSTLS170 : 809.1 * pow(min(htJet40j/1000,1.0), 2.6) ; FillColor=ROOT.kBlack, Label="TT w(H_{T})"
+
+# cross section from StandardModelCrossSectionsat13TeV (NLO MCFM) times BR=(3*0.108)*(3*0.0337)
+WZ 	 : WZJetsTo3LNu_S14:     2.29    ;  Label="WZ", FillColor=ROOT.kViolet-4,  NormSystematic=0.3
+
+# inclusive (cross section from FEWZ)
+#DY       : DYJetsM50_PU40bx50_v2_priv            : 2008*3         ; Label="Z+jets", FillColor=ROOT.kCyan
+# HT bins: cross sections for DYJets taken from McM LO times inclusive k-factor from FEWZ(2008 pb x3)/McM(4746)
+DY       : DYJetsM50_HT100to200_PU_S14_POSTLS170 :  194.3   * 1.27; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DY       : DYJetsM50_HT200to400_PU_S14_POSTLS170 :   52.24  * 1.27; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DY       : DYJetsM50_HT400to600_PU_S14_POSTLS170 :    6.546 * 1.27; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DY       : DYJetsM50_HT600toInf_PU_S14_POSTLS170 :    2.179 * 1.27; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+
+# cross sections for WJets taken from McM LO times inclusive k-factor from FEWZ(20508.9 pb x3)/McM(50100.0) 
+WJets    : WJetsToLNu_HT100to200_PU_S14_POSTLS170 :  1817.0  * 1.23; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+WJets    : WJetsToLNu_HT200to400_PU_S14_POSTLS170 :   471.6  * 1.23; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+WJets    : WJetsToLNu_HT400to600_PU_S14_POSTLS170 :    55.61 * 1.23; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+WJets    : WJetsToLNu_HT600toInf_PU_S14_POSTLS170 :    18.81 * 1.23; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+
+# -- SUSY
+T1tttt_HL+: SMS_T1tttt_2J_mGl1500_mLSP100 : 0.0141903 ; FillColor=ROOT.kAzure+8,   Label="T1t^{4} 1.5/0.1" 
+T1tttt_HM+: SMS_T1tttt_2J_mGl1200_mLSP800 : 0.0856418 ; FillColor=ROOT.kAzure+0,   Label="T1t^{4} 1.2/0.8" 
+T5Full_HM+: T5Full_1200_1000_800        : 0.0856418 ; FillColor=ROOT.kViolet+6,  Label="T5W^{2} 1.2/0.8"
+T5Full_HL+: T5Full_1500_800_100         : 0.0141903 ; FillColor=ROOT.kViolet+0,  Label="T5W^{2} 1.5/1.1"
+
+
+#GEN_T5tttt_HLDx: GEN_T1tttt_2J_mGo1300_mStop300_mCh285_mChi280_py8 : 0.0460525 ; FillColor=ROOT.kAzure+8,   Label="G5t^{4} 1.3/.3/\#chi", TreeName="treeProducerSusyGenLevelOnly"
+#GEN_T5tttt_HLD4: GEN_T1tttt_2J_mGo1300_mStop300_mChi280_py8        : 0.0460525 ; FillColor=ROOT.kRed-9,     Label="G5t^{4} 1.3/.3/4",     TreeName="treeProducerSusyGenLevelOnly"
+#GEN_T5tttt_LLDx: GEN_T1tttt_2J_mGo800_mStop300_mCh285_mChi280_py8  : 1.4891 ; FillColor=ROOT.kAzure+8,   Label="G5t^{4} 0.8/.3/\#chi", TreeName="treeProducerSusyGenLevelOnly"
+#GEN_T5tttt_LLD4: GEN_T1tttt_2J_mGo800_mStop300_mChi280_py8         : 1.4891 ; FillColor=ROOT.kRed-9,     Label="G5t^{4} 0.8/.3/4",     TreeName="treeProducerSusyGenLevelOnly"
+T5tttt_HLDx+: T1tttt_2J_mGo1300_mStop300_mCh285_mChi280_pythia8_S14: 0.0460525 ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.3/.3/\#chi"
+T5tttt_HLD4+: T1tttt_2J_mGo1300_mStop300_mChi280_pythia8_S14       : 0.0460525 ; FillColor=ROOT.kRed+0, Label="T5t^{4} 1.3/.3/4"
+T5tttt_LLDx+: T1tttt_2J_mGo800_mStop300_mCh285_mChi280_pythia8_S14 : 1.4891 ; FillColor=ROOT.kMagenta-9,    Label="T5t^{4} 0.8/.3/\#chi"
+T5tttt_LLD4+: T1tttt_2J_mGo800_mStop300_mChi280_pythia8_S14        : 1.4891 ; FillColor=ROOT.kMagenta+2, Label="T5t^{4} 0.8/.3/4"
+
+## dilepton-enriched samples made with the multi-hadronizer. the cross section must be multiplied by the boost to the matching efficiency and by (sum weights)/(events),
+## since in mcAnalysis we then divide by the sum of weights.
+T5tttt_dil_HLDx+: T1tttt_2J_mGo1300_mStop300_mCh285_mChi280_dilep_pythia8_S14: 0.0460525*(48.03625/22.0665)*(6699.05/89779) ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.3/.3/\#chi"
+T5tttt_dil_MLDx+: T1tttt_2J_mGo1000_mStop300_mCh285_mChi280_dilep_pythia8_S14:  0.325388*(40.3244/20.9656)*(3596.7/28378) ; FillColor=ROOT.kRed-4,    Label="T5t^{4} 1.0/.3/\#chi"
+
+T6ttWW_HM+: T6ttWW_mSbot600_mCh425_mChi50_S14 : 0.174599; FillColor=ROOT.kRed+1,  Label="T6ttWW M"
+T6ttWW_HL+: T6ttWW_mSbot650_mCh150_mChi50_S14 : 0.107045; FillColor=ROOT.kPink-6,  Label="T6ttWW L"
+
+#T2tt : T2tt_S14 : 1.31169 ; FillColor=ROOT.kPink-5, Label="t^{2} 0.4/0.3" 
+
+data: SingleMu
+
+# --- 25 ns ---------------
+
+
+# --- ttH inclusive
+##ttH_hww+   : TTHnlo_PU20bx25 : 1: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10, Label="ttH WW"
+##ttH_hzz+   : TTHnlo_PU20bx25 : 1: GenHiggsDecayMode == 23 ; FillColor=ROOT.kPink+9, Label="ttH ZZ"
+##ttH_htt+   : TTHnlo_PU20bx25 : 1: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+4, Label="ttH \#tau\#tau"
+#ttH+     : TTHnlo_PU20bx25 : 0.5085 : GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttH+     : TTHnlo_PU20bx25 : 0.5085 : GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+#ttH+     : TTHnlo_PU20bx25 : 0.5085 : GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+
+# -- Backgrounds
+#TT 	 : TTJets_PU20bx25 : 809.1 ; FillColor=ROOT.kGray
+#DY       : DYJetsM50_HT200to400_PU20bx25 : 1 ; FillColor=ROOT.kViolet-4
+#WJets    : WJets_PU20bx25 : 1 ; FillColor=ROOT.kCyan+2
+
+# -- SUSY
+#T1tttt_HM : T1tttt_PU20bx25 :  0.0856418 ; FillColor=ROOT.kAzure+1,   Label="t^{4} 1.2/0.8" 
+#T2tt : T2tt_PU20bx25 : 1.31169 ; FillColor=ROOT.kAzure-1, Label="T2tt 0.4/0.3" 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,2 @@
+ttHWWdata    : SNT : 1./0.0315 ; FillColor=ROOT.kOrange+10 , Label="SNT"
+ref_ttHWWdata+ : ETHCERN : 1./1.124 ; FillColor=ROOT.kAzure+2, Label="ETHCERN"

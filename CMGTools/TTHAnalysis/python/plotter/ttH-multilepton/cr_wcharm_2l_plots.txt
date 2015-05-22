@@ -1,0 +1,19 @@
+nJet25 : nJet25 : 8,-0.5,7.5 ; XTitle='N(jet\, p_{T} > 25)'
+#nBJetLoose25 : nBJetLoose25 : 3,-0.5,2.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+#nBJetMedium25 : nBJetMedium25 : 3,-0.5,2.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+met: met: 24,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+metLD: met*0.00397 + mhtJet25*0.00265 : 24,-0.1,1.4 ; XTitle="E_{T}^{miss} LD"
+mtW: if3(abs(LepGood1_pdgId)==11, mt_2(LepGood1_pt,LepGood1_phi,met,met_phi), mt_2(LepGood2_pt,LepGood2_phi,met,met_phi) ) : 36,0,180 ; XTitle="M_{T}(W#rightarrowev)"
+dphi: abs(deltaPhi(LepGood1_phi,LepGood2_phi)) : 24,0,3.1416 ; XTitle="#Delta#phi (l^{+}\,l^{-}')  [rad]", Legend='TL'
+ptll: pt_2(LepGood1_pt,LepGood1_phi,LepGood2_pt,LepGood2_phi):  24,0,120; XTitle="Dilepton lepton p_{T}  [GeV]", Legend='TR'
+mu_MVA:  (abs(LepGood1_pdgId)==13) * LepGood1_mva + (abs(LepGood2_pdgId)==13) * LepGood2_mva: 24,-1,1; XTitle="Muon MVA",Legend='TL'
+mu_pt:      (abs(LepGood1_pdgId)==13) * LepGood1_pt + (abs(LepGood2_pdgId)==13) * LepGood2_pt:  24,0,100; XTitle="Muon p_{T}  [GeV]", Legend='TR'
+mu_eta:     (abs(LepGood1_pdgId)==13) * LepGood1_eta + (abs(LepGood2_pdgId)==13) * LepGood2_eta: 24,-2.5,2.5; XTitle="Muon #eta ", Legend='TR'
+mu_chIso:   (abs(LepGood1_pdgId)==13) * (LepGood1_chargedRelIso)  + (abs(LepGood2_pdgId)==13) * (LepGood2_chargedRelIso): 24,0,0.4; XTitle="leading lepton Iso/p_{T} (Ch Had)", Legend='TR',Logy
+mu_neIso:   (abs(LepGood1_pdgId)==13) * (LepGood1_relIso - LepGood1_chargedRelIso)  + (abs(LepGood2_pdgId)==13) * (LepGood2_relIso - LepGood2_chargedRelIso): 24,0,0.4; XTitle="leading lepton Iso/p_{T} (Ne Had)", Legend='TR',Logy
+mu_jetDR:   (abs(LepGood1_pdgId)==13) * LepGood1_jetDR  + (abs(LepGood2_pdgId)==13) * LepGood2_jetDR: 24,0,0.5; XTitle="Muon #DeltaR(l\,jet)", Legend='TR'
+mu_jetBTag: (abs(LepGood1_pdgId)==13) * max(LepGood1_jetBTagCSV,0)  + (abs(LepGood2_pdgId)==13) * max(LepGood2_jetBTagCSV,0) :   24,0,1;  XTitle="Muon's jet b-tag disc.", Legend='TR'
+mu_jetPtF:  (abs(LepGood1_pdgId)==13) * min(LepGood1_jetPtRatio,1.5)  + (abs(LepGood2_pdgId)==13) * min(LepGood2_jetPtRatio,1.5): 24,0,1.5; XTitle="Muon p_{T}(l)/p_{T}(jet)", Legend='TR'
+mu_sip3d:   (abs(LepGood1_pdgId)==13) * LepGood1_sip3d  + (abs(LepGood2_pdgId)==13) * LepGood2_sip3d: 24,0,10 ; XTitle="Muon SIP_{3D}", Legend='TR'
+mu_ldxy:    (abs(LepGood1_pdgId)==13) * log(abs(LepGood1_dxy))  + (abs(LepGood2_pdgId)==13) * log(abs(LepGood2_dxy)): 24,-15,0; XTitle="Muon log(|dx|/1cm)", Legend='TR'
+mu_ldz:     (abs(LepGood1_pdgId)==13) * log(abs(LepGood1_dz)) + (abs(LepGood2_pdgId)==13) * log(abs(LepGood2_dz)):  24,-15,0; XTitle="Muon log(|dz|/1cm)", Legend='TR'

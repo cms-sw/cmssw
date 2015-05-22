@@ -1,0 +1,45 @@
+# luminosity
+
+# lepton efficiencies
+CMS_lepEff  : ttH.*|TT[WZ] : .*2lss.* : 1.10
+CMS_lepEff  : ttH.*|TT[WZ] : .*3l* : 1.15
+CMS_lepEffL : ttH.*|TT[WZ] : .*4l* : 1.10
+
+# common theoretical uncertainties (fully correlated everywhere)
+# note: pdf_gg is entered as 1/kappa since it has to be anti-correlated with Hgg
+QCDscale_ttH   : ttH.* : .* : 1.06
+QCDscale_ttW   : TTW   : .* : 1.10
+QCDscale_ttZ   : TTZ   : .* : 1.11
+pdf_gg         : ttH.* : .* : 0.926
+pdf_gg         : TTZ   : .* : 0.919
+pdf_qqbar      : TTW   : .* : 1.072
+#
+# shape theoretical uncertainties (private to this channel)
+#CMS_ttHl_pdf_shape_ttH  : ttH.* : .* : 1.03: shapeOnly
+#CMS_ttHl_thu_shape_ttH  : ttH.* : .* : 1.10: shapeOnly
+#CMS_ttHl_pdf_shape_ttW  : TTW : .* : 1.05: shapeOnly
+#CMS_ttHl_pdf_shape_ttZ  : TTZ : .* : 1.03: shapeOnly
+#CMS_ttHl_thu_shape_ttW  : TTW : .* : 1.10: shapeOnly
+#CMS_ttHl_thu_shape_ttZ  : TTZ : .* : 1.10: shapeOnly
+#
+## acceptance uncertainties (assume the same for ttW/ttZ)
+#CMS_ttHl_thu_acc_ttW   : TTW   : .* : 1.10
+#CMS_ttHl_thu_acc_ttZ   : TTZ   : .* : 1.10
+
+# Fake rate uncertainties (private to this channel)
+# 1) overall normalizations
+CMS_FRe_norm : TT$ : .*2lss_ee.* : 1.5
+CMS_FRe_norm : TT$ : .*2lss_em.* : 1.4
+CMS_FRe_norm : TT$ : .*3l.*      : 1.3
+CMS_FRm_norm : TT$ : .*2lss_mu.* : 1.5
+CMS_FRm_norm : TT$ : .*2lss_em.* : 1.2
+CMS_FRm_norm : TT$ : .*3l.*      : 1.25
+
+# 3) shape
+#CMS_FRe_shape2l : TT : .*2lss_ee.* : 1.25 : shapeOnly
+#CMS_FRe_shape2l : TT : .*2lss_em.* : 1.15 : shapeOnly
+#CMS_FRe_shape3l : TT : .*3l.*      : 1.15 : shapeOnly
+#CMS_FRm_shape2l : TT : .*2lss_mu.* : 1.12 : shapeOnly
+#CMS_FRm_shape2l : TT : .*2lss_em.* : 1.06 : shapeOnly
+#CMS_FRm_shape3l : TT : .*3l.*      : 1.06 : shapeOnly
+

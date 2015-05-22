@@ -1,0 +1,10 @@
+2L SF/OS: nLepGood >= 2 && abs(LepGood1_pdgId + LepGood2_pdgId) == 2 && LepGood3_pt < 10
+pt2020: LepGood1_pt > 20 && LepGood2_pt > 20
+met LD > 0.3: met*0.00397 + mhtJet25*0.00265 > 0.3
+jets: nJet25 >= 2 && (nBJetLoose25 >= 2 || nBJetMedium25 >= 1)
+cleanup: minMllAFAS > 20  
+pt(ll) > 30:  TMath\:\:Hypot(LepGood1_pt*sin(LepGood1_phi)+LepGood2_pt*sin(LepGood2_phi),LepGood1_pt*cos(LepGood1_phi)+LepGood2_pt*cos(LepGood2_phi)) > 30
+tight-charge: LepGood1_tightCharge > (abs(LepGood1_pdgId) == 11) && LepGood2_tightCharge > (abs(LepGood2_pdgId) == 11)
+conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0))
+tight electron: abs(LepGood1_pdgId) == 11 && LepGood1_mva > 0.7 ||  abs(LepGood2_pdgId) == 11 && LepGood2_mva > 0.7 
+tight muon: abs(LepGood1_pdgId) == 13 && LepGood1_mva > 0.7 ||  abs(LepGood2_pdgId) == 13 && LepGood2_mva > 0.7 

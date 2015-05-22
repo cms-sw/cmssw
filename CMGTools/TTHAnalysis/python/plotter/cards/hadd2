@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use File::stat;
+my $force = 0;
+if ($ARGV[0] eq "-f") { $force = 1; shift(@ARGV); }
+my $out = shift(@ARGV);
+if ((-f $out) and not $force) { die "File $out exist, but option -f not specified\n"; }
+
+sub merge($@) {
+    my $out = shift(@_);
+    return (system("hadd -f '$out' ". join(" ", map("'$_'", @_))) == 0);
+}
+
+my @files = ();
+foreach my $glob (@ARGV) {
+    foreach my $file (glob($glob)) {
+        my $st = stat($file) or die "No $file: $!";
+        if ($st->size > 1000) {  push @files, $file; }
+    }
+}
+if (scalar(@files) > 200) {
+    my @final = ();
+    my @work  = ();
+    my $job   = 0;
+    foreach (@files) {
+        push @work, $_;
+        if (scalar(@work) >= 200) {
+            $job++;
+            my $tmpfile = $out; $tmpfile =~ s/\.root/\.hadd2_$job.root/;
+            merge($tmpfile, @work) and push @final, $tmpfile;
+            @work = ();
+        }
+    }
+    if (@work) {
+        $job++;
+        my $tmpfile = $out; $tmpfile =~ s/\.root/\.hadd2_$job.root/;
+        merge($tmpfile, @work) and push @final, $tmpfile;
+        @work = ();
+    }
+    merge($out,@final);
+    unlink(@final);
+} else {
+    merge($out,@files);
+}

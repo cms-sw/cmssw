@@ -1,0 +1,124 @@
+#bestMTopHad: bestMTopHad: 20, 50, 350; XTitle="best m(t#rightarrowbjj) [GeV]" 
+mc_mt_Wlv:  mc_mt_Wlv:  20, 0, 200; XTitle="mc m_{T}(W#rightarrowlv) [GeV]"
+mc_mt_Wlv_wrong:  mc_mt_Wlv_wrong:  20, 0, 200; XTitle="mc m_{T}(lv) for wrong l [GeV]"
+mc_m_Wjj:   mc_m_Wjj:   40, 0, 200; XTitle="mc m(W#rightarrowjj) [GeV]"
+mc_pt_Wjj:  mc_pt_Wjj:  20, 0, 400; XTitle="mc p_{T}(W#rightarrowjj) [GeV]"
+mc_m_tlvb:  mc_m_tlvb:  20, 50, 350; XTitle="mc m(t#rightarrowlvb) [GeV]" 
+#mc_m_tlvb_good_v_pz:  mc_m_tlvb_good_v_pz:  20, 50, 350; XTitle="mc m(t#rightarrowlvb) [GeV]" 
+mc_mt_tlvb: mc_mt_tlvb: 20, 50, 350; XTitle="mc m_{T}(t#rightarrowlvb) [GeV]" 
+mc_pt_tlvb: mc_pt_tlvb: 20,  0, 350; XTitle="mc p_{T}(t#rightarrowlvb) [GeV]" 
+mc_m_tjjb:  mc_m_tjjb:  20, 50, 350; XTitle="mc m(t#rightarrowbjj) [GeV]" 
+#mc_m_tjjb_l:  mc_has_tjjlb*mc_m_tjjb:  20, 50, 350; XTitle="mc m(t#rightarrowbjj\, l) [GeV]" 
+#mc_m_tjjb_j:  mc_has_tjjb *mc_m_tjjb:  20, 50, 350; XTitle="mc m(t#rightarrowbjj\, j) [GeV]" 
+mc_toptop_dphi: abs(deltaPhi(mc_RecTT2LSS1_phi,mc_RecTT2LSS2_phi)): 20, 0, 3.14; XTitle="#Delta#phi(t\,t)", Legend="TL"
+mc_toptop_ptb:  (mc_RecTT2LSS1_pt-mc_RecTT2LSS2_pt)/(mc_RecTT2LSS1_pt+mc_RecTT2LSS2_pt): 20, -1, 1; XTitle="( p_{T}(t_{l}) - p_{T}(t_{h}) ) / ( p_{T}(t_{l}) + p_{T}(t_{h}) )"
+mc_toptop_pt:  pt_2(mc_RecTT2LSS1_pt,mc_RecTT2LSS1_phi,mc_RecTT2LSS2_pt,mc_RecTT2LSS2_phi): 20, 0, 250; XTitle="p_{T}(tt) [GeV]"
+mc_toptop_ht:  mc_RecTT2LSS1_pt + mc_RecTT2LSS2_pt: 20, 0, 400; XTitle="p_{T}(t_{l}) + p_{T}(t_{h}) [GeV]", Legend="TL"
+mc_toptop_m:   mass_2(mc_RecTT2LSS1_pt,mc_RecTT2LSS1_eta,mc_RecTT2LSS1_phi,mc_RecTT2LSS1_mass,mc_RecTT2LSS2_pt,mc_RecTT2LSS2_eta,mc_RecTT2LSS2_phi,mc_RecTT2LSS2_mass): 20, 0, 1000; XTitle="m(tt) [GeV]", XNDiv=505
+
+
+
+reco_mt_Wlv:  mt_Wlv:  20, 0, 200; XTitle="m_{T}(W#rightarrowlv) [GeV]"
+reco_m_Wjj:   m_Wjj:   40, 0, 200; XTitle="m(W#rightarrowjj) [GeV]"
+reco_pt_Wjj:  pt_Wjj:  20, 0, 400; XTitle="p_{T}(W#rightarrowjj) [GeV]"
+reco_m_tlvb:  m_tlvb:  20, 50, 350; XTitle="m(t#rightarrowlvb) [GeV]" 
+reco_mt_tlvb: mt_tlvb: 20, 50, 350; XTitle="m_{T}(t#rightarrowlvb) [GeV]" 
+reco_pt_tlvb: pt_tlvb: 20,  0, 350; XTitle="p_{T}(t#rightarrowlvb) [GeV]" 
+reco_m_tjjb:  m_tjjb:  20, 50, 350; XTitle="m(t#rightarrowbjj) [GeV]" 
+reco_mt_Wlv_byLL:  mt_Wlv_byLL:  20, 0, 200; XTitle="m_{T}(W#rightarrowlv) [GeV]"
+reco_m_Wjj_byLL:   m_Wjj_byLL:   40, 0, 200; XTitle="m(W#rightarrowjj) [GeV]"
+reco_pt_Wjj_byLL:  pt_Wjj_byLL:  20, 0, 400; XTitle="p_{T}(W#rightarrowjj) [GeV]"
+reco_m_tlvb_byLL:  m_tlvb_byLL:  20, 50, 350; XTitle="m(t#rightarrowlvb) [GeV]" 
+reco_mt_tlvb_byLL: mt_tlvb_byLL: 20, 50, 350; XTitle="m_{T}(t#rightarrowlvb) [GeV]" 
+reco_pt_tlvb_byLL: pt_tlvb_byLL: 20,  0, 350; XTitle="p_{T}(t#rightarrowlvb) [GeV]" 
+reco_m_tjjb_byLL:  m_tjjb_byLL:  20, 50, 350; XTitle="m(t#rightarrowbjj) [GeV]" 
+
+
+
+#reco_n_cands: n_cands:  100, 0, 100; XTitle="N(solutions)" 
+
+## balance
+reco_toptop_dphi: abs(deltaPhi(RecTT2LSS1_phi,RecTT2LSS2_phi)): 20, 0, 3.14; XTitle="#Delta#phi(t\,t)", Legend="TL"
+reco_toptop_ptb:  (RecTT2LSS1_pt-RecTT2LSS2_pt)/(RecTT2LSS1_pt+RecTT2LSS2_pt): 20, -1, 1; XTitle="( p_{T}(t_{l}) - p_{T}(t_{h}) ) / ( p_{T}(t_{l}) + p_{T}(t_{h}) )"
+reco_toptop_pt:  pt_2(RecTT2LSS1_pt,RecTT2LSS1_phi,RecTT2LSS2_pt,RecTT2LSS2_phi): 20, 0, 250; XTitle="p_{T}(tt) [GeV]"
+reco_toptop_ht:  RecTT2LSS1_pt + RecTT2LSS2_pt: 20, 0, 400; XTitle="p_{T}(t_{l}) + p_{T}(t_{h}) [GeV]", Legend="TL"
+reco_toptop_m:   mass_2(RecTT2LSS1_pt,RecTT2LSS1_eta,RecTT2LSS1_phi,RecTT2LSS1_mass,RecTT2LSS2_pt,RecTT2LSS2_eta,RecTT2LSS2_phi,RecTT2LSS2_mass): 20, 0, 1000; XTitle="m(tt) [GeV]", XNDiv=505
+
+#### LEPTONS
+#lep1Pt:  LepGood1_pt       : 9,20,200; XTitle="Leading lepton p_{T} [GeV]"
+#lep1Eta: abs(LepGood1_eta) : 6,0,2.5; XTitle="Leading lepton |#eta|"
+#lep2Pt:  LepGood2_pt       : 20,0,100; XTitle="Trailing lepton p_{T} [GeV]"
+#lep2Eta: abs(LepGood2_eta) : 6,0,2.5; XTitle="Trailing lepton |#eta|"
+#muPt:  if3(abs(LepGood1_pdgId)==13,LepGood1_pt,LepGood2_pt)*(abs(LepGood1_pdgId)!=abs(LepGood2_pdgId))             : 11,10,120; XTitle="Muon p_{T} [GeV]"
+#muEta: if3(abs(LepGood1_pdgId)==13,abs(LepGood1_eta),abs(LepGood2_eta))*(abs(LepGood1_pdgId)!=abs(LepGood2_pdgId)) : 6,0,2.5; XTitle="Muon |#eta|"
+#elPt:  if3(abs(LepGood1_pdgId)==11,LepGood1_pt,LepGood2_pt)*(abs(LepGood1_pdgId)!=abs(LepGood2_pdgId))             : 11,10,120; XTitle="Electron p_{T} [GeV]"
+#elEta: if3(abs(LepGood1_pdgId)==11,abs(LepGood1_eta),abs(LepGood2_eta))*(abs(LepGood1_pdgId)!=abs(LepGood2_pdgId)) : 6,0,2.5; XTitle="Electron |#eta|"
+##minmva: min(LepGood1_mva,LepGood2_mva): 20,-1,1; XTitle="min MVA"
+##maxmva: max(LepGood1_mva,LepGood2_mva): 20,-1,1; XTitle="max MVA"
+#nTightMu: LepGood1_tightId + LepGood2_tightId: [-0.5,0.5,1.5,2.5] ; XTitle="Number of tight muons", XNDiv=505
+#minTrkHits: min(LepGood1_lostHits,LepGood2_lostHits) : 15,0,30; XTitle="Number of hits on track", XNDiv=505
+#
+#### DILEPTONS
+#mll  : mass_2(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass, LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass): 15,0,300; XTitle="m(ll) [GeV]"
+#ptll : pt_2(LepGood1_pt,LepGood1_phi, LepGood2_pt,LepGood2_phi): 12,0,240; XTitle="p_{T}(ll) [GeV]", XNDiv=505
+#htll : LepGood1_pt+LepGood2_pt: 15,0,300; XTitle="p_{T}(ll) [GeV]"
+#drll : deltaR(LepGood1_eta,LepGood1_phi, LepGood2_eta,LepGood2_phi): 8,0,4; XTitle="#DeltaR(ll)", MoreY=1.3, Legend='TL'
+#dphill : abs(deltaPhi(LepGood1_phi, LepGood2_phi)): 6,0,3.1416; XTitle="#Delta#phi(ll)", MoreY=1.5, Legend='TL'
+#q2l: (LepGood1_charge + LepGood2_charge) : [-2.5,-1.5,1.5,2.5,6]; XTitle="q(l_{1}\,l_{2})",XNDiv=505
+##mZ1OS  : mZ1:     15,0,300; XTitle="mZ1 [GeV]"
+##mZ1SS  : mZ1SFSS: 15,0,300; XTitle="mZ1 SS [GeV]"
+#
+#### Extra leptons
+#nLepGood: nLepGood: [1.5,2.5,3.5,4.5] ; XTitle="Number of leptons before MVA"
+#minMllAFAS: minMllAFAS: 15,0,300 ; XTitle="min m(ll) before MVA"
+#
+#
+#### JETS
+#nJet25 : nJet25 : [1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5] ; XTitle='N(jet\, p_{T} > 25)'
+#nJet25Fwd : nJet25Fwd : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5] ; XTitle='N(jet\, p_{T} > 25\, |#eta| > 2.4)'
+#nBJetLoose25 : nBJetLoose25 : [0.5,1.5,2.5,3.5,4.5] ; XTitle='N(jet\, p_{T} > 25\, CSV Loose)', XNDdiv=505
+#nBJetMedium25 : nBJetMedium25 : [-0.5,0.5,1.5,2.5,3.5,4.5] ; XTitle='N(jet\, p_{T} > 25\, CSV Medium)', XNDdiv=505
+#nBJetTight25 : (Jet1_btagCSV > 0.898)+(Jet2_btagCSV > 0.898)+(Jet3_btagCSV > 0.898) : [-0.5,0.5,1.5,2.5,3.5] ; XTitle='N(jet\, p_{T} > 25\, CSV Tight)', XNDdiv=505
+#maxBTag: min(max(Jet1_btagCSV,0),.99999) : 15,0,1.5; XTitle="First b-jet btag", Legend='TR'
+#minBTag: min(max(Jet2_btagCSV,0),.99999) : 15,0,1.5; XTitle="Second b-jet btag", Legend='TR'
+#maxBJetPt: max(Jet1_pt,Jet2_pt) : 15,25,250; XTitle="First b-jet p_{T} [GeV]"
+#minBJetPt: min(Jet1_pt,Jet2_pt) : 15,25,200; XTitle="Second b-jet p_{T} [GeV]"
+#mjj12: mass_2(Jet1_pt,Jet1_eta,Jet1_phi,Jet1_mass,Jet2_pt,Jet2_eta,Jet2_phi,Jet2_mass) : 15,25,350; XTitle="m(b_{1}\,b_{2})  [GeV]"
+#mjj23: mass_2(Jet3_pt,Jet3_eta,Jet3_phi,Jet3_mass,Jet2_pt,Jet2_eta,Jet2_phi,Jet2_mass) : 15,25,250; XTitle="m(j_{2}\,j_{3})  [GeV]"
+#
+##minMbbLoose: minMbbLoose: 12,0,200; XTitle="min m(bb\, CSV loose) [GeV]"
+##minDrbbLoose: minDrbbLoose: 12,0,5; XTitle="min #DeltaR(bb\, CSV loose) [GeV]"
+##minMbbMedium: minMbbMedium: 12,0,200; XTitle="min m(bb\, CSV medium) [GeV]"
+##minDrbbMedium: minDrbbMedium: 12,0,5; XTitle="min #DeltaR(bb\, CSV medium) [GeV]"
+#
+#### MET
+#met: met: 15,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+#mhtJet25: mhtJet25: 15,0,300    ; XTitle="H_{T}^{miss}  [GeV]"
+#metLD: met*0.00397 + mhtJet25*0.00265 : 15,0.0,1.5 ; XTitle="E_{T}^{miss} LD"
+#
+#### LEP + MET
+#mtW1:    mt_2(LepGood1_pt,LepGood1_phi,met,met_phi) : 12,0,180; XTitle="M_{T}(l_{1}\,E_{T}^{miss}) [GeV]"
+#mtllv:  mt_llv(LepGood1_pt,LepGood1_phi,LepGood2_pt,LepGood2_phi,met,met_phi) : 15,0,300; XTitle="M_{T}(llE_{T}^{miss}) [GeV]"
+##mtwMostIso: if3(LepGood1_relIso<LepGood2_relIso, mt_2(LepGood1_pt,LepGood1_phi,met,met_phi), mt_2(LepGood2_pt,LepGood3_phi,met,met_phi)) : 12,0,180;  XTitle="M_{T}(best l\,E_{T}^{miss})"
+#mtwBestMVA: if3(LepGood1_mva>LepGood2_mva, mt_2(LepGood1_pt,LepGood1_phi,met,met_phi), mt_2(LepGood2_pt,LepGood3_phi,met,met_phi)) : 12,0,180;  XTitle="M_{T}(best l\,E_{T}^{miss})"
+#htllv:  LepGood1_pt+LepGood2_pt+met : 20,0,200; XTitle="p_{T}(l_{1})+p_{T}(l_{2}) + E_{T}^{miss} [GeV]"
+##htllN:  LepGood1_pt+LepGood2_pt+mhtJet25 : 20,0,200; XTitle="p_{T}(l_{1})+p_{T}(l_{2}) + H_{T}^{miss} [GeV]"
+#
+#### M(top)
+#bestMTopHad: bestMTopHad: 20, 50, 350; XTitle="best m(t#rightarrowbjj) [GeV]" 
+#
+#### ID Vars
+#bestMVA:  max(LepGood1_mva,LepGood2_mva): 24,0.7,1.0 ; XTitle="Best lepMVA", Legend="TL"
+#worstMVA: min(LepGood1_mva,LepGood2_mva): 24,0.7,1.0 ; XTitle="Worst lepMVA", Legend="TL"
+#bestRelIso:  min(LepGood1_relIso,LepGood2_relIso): 24,0.0,0.4 ; XTitle="Best lepRelIso", Legend="TR"
+#worstRelIso: max(LepGood1_relIso,LepGood2_relIso): 24,0.0,0.4 ; XTitle="Worst lepRelIso", Legend="TR"
+#bestSIP:  min(LepGood1_sip3d,LepGood2_sip3d): 24,0.0,10. ; XTitle="Best lep S_{IP3D}", Legend="TR"
+#worstSIP: max(LepGood1_sip3d,LepGood2_sip3d): 24,0.0,10. ; XTitle="Worst lep S_{IP3D}", Legend="TR"
+#bestBTag:  max(0,min(LepGood1_jetBTagCSV,LepGood2_jetBTagCSV)): 24,0.0,1. ; XTitle="Best lep b-tag", Legend="TR"
+#worstBTag: max(0,max(LepGood1_jetBTagCSV,LepGood2_jetBTagCSV)): 24,0.0,1. ; XTitle="Worst lep b-tag", Legend="TR"
+#bestJetPtF:  max(0,min(LepGood1_jetPtRatio,LepGood2_jetPtRatio)): 24,0.0,1.6 ; XTitle="Best lep p_{T}(l)/p_{T}(jet)", Legend="TR"
+#worstJetPtF: max(0,max(LepGood1_jetPtRatio,LepGood2_jetPtRatio)): 24,0.0,1.6 ; XTitle="Worst lep p_{T}(l)/p_{T}(jet)", Legend="TR"
+#bestJetDR:  max(0,min(LepGood1_jetDR,LepGood2_jetDR)): 24,0.0,0.3 ; XTitle="Best #DeltaR(l\,jet)", Legend="TR"
+#worstJetDR: max(0,max(LepGood1_jetDR,LepGood2_jetDR)): 24,0.0,0.3 ; XTitle="Worst #DeltaR(l\,jet)", Legend="TR"
+#nvtx: nVert: 24,0.5,40.5 ; XTitle="N(vertices)", Legend='TR'
+#bestMWjj: bestMWjj: 24, 40, 240; XTitle="best m(Wjj) [GeV]"

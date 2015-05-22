@@ -1,0 +1,10 @@
+mZ1: mZ1: 24,0,120 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR'
+lepMVA2: min(LepGood1_mva,LepGood2_mva) : 20,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2})",Legend='TL'
+phoPt:  Photon1_pt: 25,0,50; XTitle="Photon p_{T}  [GeV]", Legend='TR'
+phoEta:  Photon1_eta: 10,-3,3; XTitle="Photon p_{T}  [GeV]", Legend='TR'
+phoRelIso:  Photon1_relIso: 20,0,1; XTitle="Photon p_{T}  [GeV]", Legend='TR'
+phodr:  min(deltaR(Photon1_eta,Photon1_phi,LepGood1_eta,LepGood1_phi),deltaR(Photon1_eta,Photon1_phi,LepGood2_eta,LepGood2_phi)): 40,0,5; XTitle="min #DeltaR(l\,#gamma)", Legend='TR'
+mllg:   mass_3(Photon1_pt,Photon1_eta,Photon1_phi,0,LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass): 20,70,110; XTitle="m(ll+#gamma)   [GeV]", Legend='TR'
+mimmlg:   min(mass_2(Photon1_pt,Photon1_eta,Photon1_phi,0,LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass),mass_2(Photon1_pt,Photon1_eta,Photon1_phi,0,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass)): 75,0,150; XTitle="min m(l+#gamma)   [GeV]", Legend='TR'
+mtW: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass,mZ1,met,met_phi) : 5,0,40 ; XTitle="M_{T}(W#rightarrowlv)"
+metLD: met*0.00397 + mhtJet25*0.00265 : 10,0.0,0.5 ; XTitle="E_{T}^{miss} LD"

@@ -1,0 +1,9 @@
+tightIdEff_pt:    LepGood_tightId>0.5\:LepGood_pt:                                                      40,0,80; XTitle="lepton p_{T}  [GeV]", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+mediumIdEff_pt:    LepGood_mediumMuonId>0.5\:LepGood_pt:                                                      40,0,80; XTitle="lepton p_{T}  [GeV]", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+#mvaEff_Medium_pt: LepGood_muonMVAIdT2NC_R>(0.40+0.35*(LepGood_pt>20)+0.02*(LepGood_pt<10))\:LepGood_pt: 40,0,80; XTitle="lepton p_{T}  [GeV]", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+#mediumIdEff_pt:    (LepGood_innerTrackValidHitFraction >= 0.80 &&  LepGood_segmentCompatibility>0.303 + (0.451-0.303)*(!(LepGood_chi2LocalPosition < 12 && LepGood_globalTrackChi2 > 0 && LepGood_globalTrackChi2 < 3 && LepGood_trkKink < 20)))\:LepGood_pt:                                                      40,0,80; XTitle="lepton p_{T}  [GeV]", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+
+tightIdEff_eta:    LepGood_tightId>0.5\:LepGood_eta:                                                      40,-2.4,2.4; XTitle="lepton #eta", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+mediumIdEff_eta:    LepGood_mediumMuonId>0.5\:LepGood_eta:                                                      40,-2.4,2.4; XTitle="lepton #eta", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+#mvaEff_Medium_eta: LepGood_muonMVAIdT2NC_R>(0.40+0.35*(LepGood_pt>20)+0.02*(LepGood_pt<10))\:LepGood_eta: 40,-2.4,2.4; XTitle="lepton #eta", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005
+#mediumIdEff_eta:  (LepGood_innerTrackValidHitFraction >= 0.80 &&  LepGood_segmentCompatibility>0.303 + (0.451-0.303)*(!(LepGood_chi2LocalPosition < 12 && LepGood_globalTrackChi2 > 0 && LepGood_globalTrackChi2 < 3 && LepGood_trkKink < 20)))\:LepGood_eta: 40,-2.4,2.4; XTitle="lepton #eta", Legend='BR', Profile1D=True, YMin=0.89, YMax=1.005

@@ -1,0 +1,78 @@
+# --- ttH split by decay mode (with proper sigma*BR for 125.7)
+#ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+#ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+#ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10, Label="ttH WW"
+#ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kPink+9, Label="ttH ZZ"
+#ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+4, Label="ttH \#tau\#tau"
+# --- ttH inclusive
+ttH+     : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10,  NormSystematic=0.2
+ttH+     : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10,  NormSystematic=0.2
+ttH+     : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10,  NormSystematic=0.2
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+TTW 	 : TTWJets:    0.208    ;  FillColor=ROOT.kGreen-5,  NormSystematic=0.2, Label="ttW"
+TTZ 	 : TTZJets:    0.206    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2, Label="ttZ/\#gamma*"
+# 
+# or also lumped together
+#TTV 	 : TTWJets:    0.208    ;  FillColor=ROOT.kGreen-5, NormSystematic=0.2
+#TTV 	 : TTZJets:    0.206    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2
+#TTV	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9, NormSystematic=0.2
+# --- TT gamma*
+TTZ	 : FastSim_TTGStarMM: 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarEE: 1.5*0.02724*0.104;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarTT: 1.5*0.00133*0.038;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*", NormSystematic=0.5
+#TTGStarMM	 : FastSim_TTGStarMM: 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma* \#mu\#mu"
+#TTGStarEE	 : FastSim_TTGStarEE: 1.5*0.02724*0.104;  FillColor=ROOT.kSpring+8, Label="TT\#gamma* ee"
+#TTGStarTT	 : FastSim_TTGStarTT: 1.5*0.00133*0.038;  FillColor=ROOT.kMagenta-10, Label="TT\#gamma* \#tau\#tau"
+
+# --- TT gamma
+TTG      : TTG:        1.444*1.8    ;  FillColor=ROOT.kTeal-5, NormSystematic=0.3, Label="tt\#gamma"    
+# --- Multiboson
+WZ 	 : WZJets:     1.057*1.10   ;  FillColor=ROOT.kViolet-4, NormSystematic=0.4
+
+
+RARE: WWWJets:    0.08217   ;  FillColor=ROOT.kBlue-9,   NormSystematic=0.3, Label="Others"
+RARE: WWZJets:    0.0633    ;  
+RARE: ZZJets4L:   0.157*1.21;  
+RARE: TTWWJets:   0.002037 ;
+RARE: TBZToLL : 0.0114;
+RARE: WpWpqq  : 0.2482;
+RARE: WmWmqq  : 0.0889;
+RARE: WWDPI   : 0.5879;
+
+# -- TTbar and single top
+#
+# leptonic and inclusive decays (NNLO+NNLL cross sections)
+Fakes : TTJetsLep:     25.77: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, NormSystematic=0.6, FreeFloat=True
+Fakes : TTJetsSem:	  107.53: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)     ;  FillColor=ROOT.kGray, NormSystematic=0.6, FreeFloat=True
+Fakes : TTJetsHad:     112.16: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, NormSystematic=0.6, FreeFloat=True
+Fakes : TtW:        11.73    ;  FillColor=ROOT.kGray+2, NormSystematic=0.2, FreeFloat=True
+Fakes : TbartW:     11.73    ;  FillColor=ROOT.kGray+2, NormSystematic=0.2, FreeFloat=True
+Fakes : Ttch:       56.4     ;  FillColor=28, NormSystematic=0.6, FreeFloat=True
+Fakes : Tbartch:    30.7     ;  FillColor=28, NormSystematic=0.6, FreeFloat=True
+Fakes : DYJetsM10 : 915      ;  FillColor=ROOT.kCyan, NormSystematic=0.6, FreeFloat=True
+Fakes : DY1JetsM50 : 666.3   ;  FillColor=ROOT.kCyan, NormSystematic=0.6, FreeFloat=True
+Fakes : DY2JetsM50 : 215.0   ;  FillColor=ROOT.kCyan, NormSystematic=0.6, FreeFloat=True
+Fakes : DY3JetsM50 :  60.7   ;  FillColor=ROOT.kCyan, NormSystematic=0.6, FreeFloat=True
+Fakes : DY4JetsM50 :  27.4   ;  FillColor=ROOT.kCyan, NormSystematic=0.6, FreeFloat=True
+Fakes : W1Jets    : 6642.0   ;  FillColor=ROOT.kCyan+2, NormSystematic=0.6, FreeFloat=True
+Fakes : W2Jets    : 2152.0   ;  FillColor=ROOT.kCyan+2, NormSystematic=0.6, FreeFloat=True
+Fakes : W3Jets    : 638.4    ;  FillColor=ROOT.kCyan+2, NormSystematic=0.6, FreeFloat=True
+Fakes : W4Jets    : 263.2    ;  FillColor=ROOT.kCyan+2, NormSystematic=0.6, FreeFloat=True
+Fakes: WWJets:     5.995    ;  FillColor=ROOT.kBlue-9, NormSystematic=0.6, FreeFloat=True
+
+# --- Zgamma and Wgamma: already included in ZJets/WJets
+#ZG: ZG      : 165.7      ;  FillColor=ROOT.kViolet-3
+#WG: WGToLNuG :  553.92  ; FillColor=ROOT.kCyan+4	 
+
+# --- DATA
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD

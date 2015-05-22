@@ -1,0 +1,89 @@
+TT_true+:  TTJets: 1: LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="prompt (tt)"
+H4l_true+:  GGHZZ4L: 1: LepGood_mcMatchId != 0 ; FillColor=63, Label="Prompt H"
+TT_red:  TTJets: 1: LepGood_mcMatchId == 0 ; FillColor=ROOT.kGray+2, Label="non-pr (tt)"
+TT_bjets: TTJets: xsec: LepGood_mcMatchAny == 5 ; FillColor=ROOT.kBlue-2, Label="b-jets (tt)"
+TT_cjets: TTJets: xsec: LepGood_mcMatchAny == 5 ; FillColor=ROOT.kGray+2, Label="c-jets (tt)"
+TT_ljets: TTJets: xsec: LepGood_mcMatchId == 0 && LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4 ; FillColor=ROOT.kTeal+2, Label="l-jets (tt)"
+TT_fake: TTJets: 1: LepGood_mcMatchAny == 0 ; FillColor=ROOT.kGray+3, Label="fakes (tt)"
+DY_fake    : DYJetsM50_HT400to600: 1 : LepGood_mcMatchAny == 0; FillColor=ROOT.kCyan, Label="Fake DY"
+WJets_fake : WJetsToLNu_HT400to600: 1 : LepGood_mcMatchAny == 0; FillColor=ROOT.kCyan+2, Label="Fake Wj"
+fake: TTJets_MSDecaysCKM_central_PU_S14_POSTLS170: 1: LepGood_mcMatchAny == 0 ; FillColor=ROOT.kCyan+2, Label="Fake"
+fake    : DYJetsM50_HT200to400_PU_S14_POSTLS170  : 1 : LepGood_mcMatchAny == 0; FillColor=ROOT.kCyan+2, Label="Fake"
+fake : WJetsToLNu_HT400to600_PU_S14_POSTLS170 : 1 : LepGood_mcMatchAny == 0; FillColor=ROOT.kCyan+2, Label="Fake"
+
+TT_true_MT:  TTJets: 1: (LepGood_mcMatchId != 0) && (LepGood_mediumMuonId >  0) && (LepGood_tightId >  0) ; FillColor=ROOT.kAzure+2, Label="Both"
+TT_true_MF:  TTJets: 1: (LepGood_mcMatchId != 0) && (LepGood_mediumMuonId >  0) && (LepGood_tightId == 0) ; FillColor=ROOT.kGreen+1, Label="Medium"
+TT_true_TF:  TTJets: 1: (LepGood_mcMatchId != 0) && (LepGood_mediumMuonId == 0) && (LepGood_tightId >  0) ; FillColor=ROOT.kGray+2,  Label="Tight"
+TT_true_FF:  TTJets: 1: (LepGood_mcMatchId != 0) && (LepGood_mediumMuonId == 0) && (LepGood_tightId == 0) ; FillColor=ROOT.kPink+10, Label="None"
+
+T1tttt_HL_true+: SMS_T1tttt_2J_mGl1500_mLSP100: LepGood_mcMatchId != 0 ; FillColor=ROOT.kAzure+8,   Label="T1t^{4} 1.5/0.1" 
+T1tttt_HM_true+: SMS_T1tttt_2J_mGl1200_mLSP800: LepGood_mcMatchId != 0 ; FillColor=ROOT.kAzure+0,   Label="T1t^{4} 1.2/0.8"
+T5qqqqWWD_true+: T5qqqqWWDeg_mGo1000_mCh315_mChi300_dilep : LepGood_mcMatchId != 0  ; FillColor=ROOT.kAzure+2,  Label="T5W^{2} 1.0/0.3/15"
+T5tttt_HLDx_true+: T5ttttDeg_mGo1300_mStop300_mCh285_mChi280  : LepGood_mcMatchId != 0 ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.3/.3/\#chi"
+#T5tttt_MLDx_true+: T5ttttDeg_mGo1000_mStop300_mCh285_mChi280  : LepGood_mcMatchId != 0 ; FillColor=ROOT.kRed+2,    Label="T5t^{4} 1.0/.3/\#chi"
+T5tttt_MLDx_true+: T5ttttDeg_mGo1000_mStop300_mCh285_mChi280_dil  : LepGood_mcMatchId != 0 ; FillColor=ROOT.kViolet-5,    Label="T5t^{4} 1.0/.3/\#chi"
+
+
+TT_fake_MT:  TTJets: 1: (LepGood_mcMatchAny == 0) && (LepGood_mediumMuonId >  0) && (LepGood_tightId >  0) ; FillColor=ROOT.kAzure+2, Label="Both"
+TT_fake_MF:  TTJets: 1: (LepGood_mcMatchAny == 0) && (LepGood_mediumMuonId >  0) && (LepGood_tightId ==  0) ; FillColor=ROOT.kGreen+1, Label="Medium"
+TT_fake_TF:  TTJets: 1: (LepGood_mcMatchAny == 0) && (LepGood_mediumMuonId == 0) && (LepGood_tightId >  0) ; FillColor=ROOT.kGray+2,  Label="Tight"
+TT_fake_FF:  TTJets: 1: (LepGood_mcMatchAny == 0) && (LepGood_mediumMuonId == 0) && (LepGood_tightId == 0) ; FillColor=ROOT.kPink+10, Label="None"
+
+
+# extra 1.2 factor added in the Mu5 QCD in order to get the samples match
+QCDMu_red  : QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)"
+QCDMu_red  : QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)"
+QCDMu_red  : QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)"
+QCDMu_red  : QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)"
+QCDMu_bjets: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)"
+QCDMu_bjets: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)"
+QCDMu_bjets: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)"
+QCDMu_bjets: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)"
+QCDMu_cjets: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)"
+QCDMu_cjets: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)"
+QCDMu_cjets: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)"
+QCDMu_cjets: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)"
+QCDMu_ljets: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)"
+QCDMu_ljets: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)"
+QCDMu_ljets: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)"
+QCDMu_ljets: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)"
+
+QCD_red:   QCD_HT_100To250 : xsec :  (LepGood_mcMatchId != 0); FillColor=ROOT.kAzure-2, Label="Non-prompt QCD"
+QCD_bjets: QCD_HT_100To250 : xsec :  LepGood_mcMatchAny == 5;  FillColor=ROOT.kAzure-2, Label="b-jets (QCD)"
+QCD_red:   QCD_HT_250To500 : xsec*(0.66/2.66) :  (LepGood_mcMatchId != 0); FillColor=ROOT.kAzure-2, Label="Non-prompt QCD"
+QCD_bjets: QCD_HT_250To500 : xsec*(0.66/2.66) :  LepGood_mcMatchAny == 5;  FillColor=ROOT.kAzure-2, Label="b-jets (QCD)"
+QCD_red:   QCD_HT_250To500_ext1 : xsec*(2.00/2.66) :  (LepGood_mcMatchId != 0); FillColor=ROOT.kAzure-2, Label="Non-prompt QCD"
+QCD_bjets: QCD_HT_250To500_ext1 : xsec*(2.00/2.66) :  LepGood_mcMatchAny == 5;  FillColor=ROOT.kAzure-2, Label="b-jets (QCD)"
+
+QCDEl_red: QCD_Pt20to30_EMEnriched : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)"
+QCDEl_red: QCD_Pt20to30_bcToE : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)"
+QCDEl_red: QCD_Pt30to80_EMEnriched : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)"
+QCDEl_red: QCD_Pt30to80_bcToE : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)"
+QCDEl_red: QCD_Pt80to170_EMEnriched : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)"
+QCDEl_red: QCD_Pt80to170_bcToE : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)"
+QCDEl_red: QCD_Pt170toInf_bcToE   : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)"
+QCDEl_bjets: QCD_Pt20to30_bcToE   : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)"
+QCDEl_bjets: QCD_Pt30to80_bcToE   : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)"
+QCDEl_bjets: QCD_Pt80to170_bcToE  : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)"
+QCDEl_bjets: QCD_Pt170toInf_bcToE : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)"
+
+
+TT_light    :  TTJets                   : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (tt)",  FillColor=ROOT.kOrange+4, NormSystematic=0.5
+VJets_light : DYJetsToLL_M50_HT100to200 : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : DYJetsToLL_M50_HT200to400 : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : DYJetsToLL_M50_HT400to600 : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : DYJetsToLL_M50_HT600toInf : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : WJetsToLNu_HT100to200     : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : WJetsToLNu_HT200to400     : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : WJetsToLNu_HT400to600     : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_light : WJetsToLNu_HT600toInf     : xsec : (LepGood_mcMatchId == 0)&&(LepGood_mcMatchAny < 5); Label="light jets (w/z)", FillColor=ROOT.kCyan, NormSystematic=0.5
+
+#VJets_red : DYJetsToLL_M50_HT100to200 : xsec : (LepGood_mcMatchId == 0); Label="non-pro (v+j)", FillColor=ROOT.kCyan, NormSystematic=0.5
+#VJets_red : DYJetsToLL_M50_HT200to400 : xsec : (LepGood_mcMatchId == 0); Label="non-pro (v+j)", FillColor=ROOT.kCyan, NormSystematic=0.5
+#VJets_red : DYJetsToLL_M50_HT400to600 : xsec : (LepGood_mcMatchId == 0); Label="non-pro (v+j)", FillColor=ROOT.kCyan, NormSystematic=0.5
+#VJets_red : DYJetsToLL_M50_HT600toInf : xsec : (LepGood_mcMatchId == 0); Label="non-pro (v+j)", FillColor=ROOT.kCyan, NormSystematic=0.5
+VJets_red : WJetsToLNu_HT100to200     : xsec : (LepGood_mcMatchId == 0); Label="non-pr (v+j)", FillColor=ROOT.kOrange+4, NormSystematic=0.5
+VJets_red : WJetsToLNu_HT200to400     : xsec : (LepGood_mcMatchId == 0); Label="non-pr (v+j)", FillColor=ROOT.kOrange+4, NormSystematic=0.5
+VJets_red : WJetsToLNu_HT400to600     : xsec : (LepGood_mcMatchId == 0); Label="non-pr (v+j)", FillColor=ROOT.kOrange+4, NormSystematic=0.5
+VJets_red : WJetsToLNu_HT600toInf     : xsec : (LepGood_mcMatchId == 0); Label="non-pr (v+j)", FillColor=ROOT.kOrange+4, NormSystematic=0.5
+

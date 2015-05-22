@@ -1,0 +1,2 @@
+ttH    : TTH : 1 ; FillColor=ROOT.kOrange+10
+ref_ttH+ : Reference_TTH : 1 ; FillColor=ROOT.kAzure+2, Label="Ref."

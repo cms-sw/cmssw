@@ -1,0 +1,12 @@
+#nvtx: nVert: 40,0.5,40.5 ; XTitle="N(vertices)", Legend='TR'
+nJet25 : nJet25 : 8,-0.5,7.5 ; XTitle='N(jet\, p_{T} > 25)'
+nBJetMedium25 : nBJetMedium25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+met: met: 60,0,200    ; XTitle="E_{T}^{miss}  [GeV]"
+met_log: met: 60,0,200    ; XTitle="E_{T}^{miss}  [GeV]",Logy
+metLD: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.2 ; XTitle="E_{T}^{miss} LD"
+metLD_log: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.2 ; XTitle="E_{T}^{miss} LD",Logy
+mll: minMllAFOS: 60,0,120 ; XTitle="min m(l^{+}l^{-}')  [GeV]", Legend='TR'
+dphi: acos(cos(abs(LepGood1_phi-LepGood2_phi))) : 30,0,3.1416 ; XTitle="#Delta#phi (l^{+}\,l^{-}')  [rad]", Legend='TL'
+ptll:   TMath\:\:Hypot(LepGood1_pt*sin(LepGood1_phi)+LepGood2_pt*sin(LepGood2_phi),LepGood1_pt*cos(LepGood1_phi)+LepGood2_pt*cos(LepGood2_phi)):  80,0,160; XTitle="Dilepton lepton p_{T}  [GeV]", Legend='TR'
+bestMVA: max(LepGood1_mva,LepGood2_mva) : 25,-1,1; XTitle="best lepton MVA", Legend='TL'
+worstMVA: min(LepGood1_mva,LepGood2_mva) : 25,-1,1; XTitle="worst lepton MVA", Legend='TL'

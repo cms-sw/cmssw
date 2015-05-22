@@ -1,0 +1,13 @@
+pt : SV_pt : 30,0,60; XTitle="SV p_{T}"
+mass : SV_mass : 30,0,6; XTitle="SV mass [GeV]"
+eta : abs(SV_eta) : 25,0,2.5; XTitle="SV |eta|"
+ntracks : SV_ntracks : [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]; XTitle="N(trk)"
+c2n: SV_chi2/SV_ndof : 25,0,5; XTitle="SV chi^2/ndf"
+sip2d: abs(SV_dxy/SV_edxy) : 25,0,40; XTitle="S_{IP2D}"
+sip3d: SV_sip3d : 25,0,40; XTitle="S_{IP3D}"
+ip3d: SV_ip3d : 25,0,10; XTitle="IP_{3D} [cm]"
+ip3d_log: SV_ip3d : 25,0,10; XTitle="IP_{3D} [cm]", Logy
+ip2d: abs(SV_dxy) : 25,0,10; XTitle="IP_{2D} [cm]"
+ip2d_log: abs(SV_dxy) : 25,0,10; XTitle="IP_{2D} [cm]", Logy
+theta: acos(SV_cosTheta): 25,0,0.25; XTitle="p-r angle [rad]"
+mva: SV_mva: 20, 0, 1; XTitle="SV mva"

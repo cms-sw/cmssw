@@ -1,0 +1,16 @@
+3l: nLepGood == 3 
+#3mu: abs(LepGood1_pdgId)==13 && abs(LepGood2_pdgId)==13 && abs(LepGood3_pdgId)==13 
+#llmu: abs(LepGood1_pdgId + LepGood2_pdgId + LepGood3_pdgId)==13
+lle: abs(LepGood1_pdgId + LepGood2_pdgId + LepGood3_pdgId)==11
+mva loose:  min(min(LepGood1_mva,LepGood2_mva),LepGood3_mva) > 0.35
+mva tight: min(min(LepGood1_mva,LepGood2_mva),LepGood3_mva) > 0.7
+pt > 10: LepGood3_pt > 10 
+mZ1 < 81.2: mZ1 > 0 && mZ1 < 81.2
+m3l 70-110: m3l > 70 && m3l < 110
+met LD < 0.3: met*0.00397 + mhtJet25*0.00265 < 0.3 
+mtW: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass,mZ1,met,met_phi) < 40
+mll > 12: minMllAFAS > 12
+conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0)) && (abs(LepGood3_pdgId) == 13 || (LepGood3_convVeto > 0 && LepGood3_lostHits == 0))
+#Z peak: abs(mZ1-91.2) < 10
+#gamma: Photon1_pt > 20
+#dr > 0.5: min(deltaR(Photon1_eta,Photon1_phi,LepGood1_eta,LepGood1_phi),deltaR(Photon1_eta,Photon1_phi,LepGood2_eta,LepGood2_phi)) > 0.7

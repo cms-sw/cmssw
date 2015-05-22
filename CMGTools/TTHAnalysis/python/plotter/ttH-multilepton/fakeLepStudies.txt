@@ -1,0 +1,22 @@
+#### Cuts for old trees
+# oneLep: nLepFRLoose == 1
+# pt20: Probe_pt > 20
+# Mu17: Trig_Event_Mu17
+# jet: nJet >= 1 && Jet1_pt > 40
+# met: met_t1 < 20
+# mtw: mtw_probe_t1 < 20
+# tight: Probe_tightFakeId
+
+### Cuts for new trees
+oneLep: 1
+pt20: Probe_pt > 20
+Ele: abs(Probe_pdgId) == 11
+Muon: abs(Probe_pdgId) == 13
+Fix: abs(Probe_pdgId) == 13 || (Probe_tightCharge > 1 && Probe_lostHits == 0)
+Trigger: (abs(Probe_pdgId) == 13 && HLT_Mu17) || (abs(Probe_pdgId) == 11 && HLT_Ele17T_Jet30)
+jet: nJet >= 1 && Jet1_pt > 40
+met: metT1_pt < 20
+#met: met_pt < 20
+mtw: mtwT1 < 20
+#mtw: mtw < 20
+tight: Probe_tightFakeId

@@ -1,0 +1,16 @@
+probeBTag: min(max((abs(LepGood1_charge) != +1)*Jet1_btagCSV + (abs(LepGood1_charge) == +1)*Jet2_btagCSV, 0), .99999): 60,0,1.5; XTitle="Probe jet btag", Legend='TR'
+probePt: (abs(LepGood1_charge) != +1)*Jet1_pt + (abs(LepGood1_charge) == +1)*Jet2_pt: 30,0,180; XTitle="Probe jet p_{T} [GeV]", Legend='TR'
+probeEta: (abs(LepGood1_charge) != +1)*abs(Jet1_eta) + (abs(LepGood1_charge) == +1)*abs(Jet2_eta): 30,0,3.0; XTitle="Probe jet |#eta|", Legend='TR'
+tagBTag: min(max((abs(LepGood1_charge) != -1)*Jet1_btagCSV + (abs(LepGood1_charge) == -1)*Jet2_btagCSV, 0), .99999): 60,0,1.5; XTitle="Tag jet btag", Legend='TR'
+tagPt: (abs(LepGood1_charge) != -1)*Jet1_pt + (abs(LepGood1_charge) == -1)*Jet2_pt: 30,0,180; XTitle="Tag jet p_{T} [GeV]", Legend='TR'
+tagEta: (abs(LepGood1_charge) != -1)*abs(Jet1_eta) + (abs(LepGood1_charge) == -1)*abs(Jet2_eta): 30,0,3.0; XTitle="Tag jet |#eta|", Legend='TR'
+#HT1:Jet1_pt+Jet2_pt+LepGood2_pt+LepGood1_pt+met: 30,100,700; XTitle="H_{T}\, including E_{T}^{miss}  [GeV]"
+#HT2:Jet1_pt+Jet2_pt+LepGood2_pt+LepGood1_pt:     30,100,700: XTitle="H_{T}\, not E_{T}^{miss}  [GeV]"
+#met: met: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+#met_log: met: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]",Logy
+metLD: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD"
+#metLD_log: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD",Logy
+mll: minMllAFOS: 60,0,300 ; XTitle="min m(l^{+}l^{-}')  [GeV]", Legend='TR'
+#isoSum: LepGood1_relIso+LepGood2_relIso: 20,0,.8
+#worseSip3D: max(LepGood1_sip3d,LepGood2_sip3d): 20,0,10
+lepMVA2: min(LepGood1_mvaNew,LepGood2_mvaNew) : 50,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2})",Legend='TL'

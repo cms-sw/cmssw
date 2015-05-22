@@ -1,0 +1,7 @@
+## Let the first and second lepton always pass the relIso cuts (set the value to 0)
+cut-change: (LepGood[12])_relIso: 0
+## define the FR weight
+weight: fakeRateWeight_2lssCB(LepGood1_pt,LepGood1_eta,LepGood1_pdgId,LepGood1_relIso,LepGood2_pt,LepGood2_eta,LepGood2_pdgId,LepGood2_relIso, 0.10)
+## load histograms 
+load-histo: FR_mu : $DATA/fakerate/FR_merged_data_sus13.root : FR_tight_mu
+load-histo: FR_el : $DATA/fakerate/FR_merged_data_sus13.root : FR_tight_el

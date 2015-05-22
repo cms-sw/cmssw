@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<MethodSetup Method="LD::LD">
+  <GeneralInfo>
+    <Info name="TMVA Release" value="4.1.0 [262400]"/>
+    <Info name="ROOT Release" value="5.28/00 [334848]"/>
+    <Info name="Creator" value="botta"/>
+    <Info name="Date" value="Mon Sep 22 13:37:49 2014"/>
+    <Info name="Host" value="Linux lxbuild148.cern.ch 2.6.18-194.26.1.el5 #1 SMP Wed Nov 10 09:45:46 CET 2010 x86_64 x86_64 x86_64 GNU/Linux"/>
+    <Info name="Dir" value="/afs/cern.ch/user/b/botta/CMGToolsGit/newRecipe70/CMSSW_7_0_6_patch1/src/CMGTools/TTHAnalysis/python/plotter/object-studies"/>
+    <Info name="Training events" value="87300"/>
+    <Info name="TrainingTime" value="0.200119"/>
+    <Info name="AnalysisType" value="Classification"/>
+  </GeneralInfo>
+  <Options>
+    <Option name="V" modified="Yes">False</Option>
+    <Option name="VerbosityLevel" modified="No">Default</Option>
+    <Option name="VarTransform" modified="Yes">None</Option>
+    <Option name="H" modified="Yes">False</Option>
+    <Option name="CreateMVAPdfs" modified="No">False</Option>
+    <Option name="IgnoreNegWeightsInTraining" modified="No">False</Option>
+  </Options>
+  <Variables NVar="8">
+    <Variable VarIndex="0" Expression="SV_ntracks" Label="SV_ntracks" Title="SV_ntracks" Unit="" Internal="SV_ntracks" Type="D" Min="1" Max="10"/>
+    <Variable VarIndex="1" Expression="SV_mass" Label="SV_mass" Title="SV_mass" Unit="" Internal="SV_mass" Type="D" Min="0.13957" Max="5.23282"/>
+    <Variable VarIndex="2" Expression="abs(SV_dxy)" Label="SV_ip2d" Title="SV_ip2d" Unit="" Internal="SV_ip2d" Type="D" Min="0.00117092" Max="2.99415"/>
+    <Variable VarIndex="3" Expression="abs(SV_dxy/SV_edxy)" Label="SV_sip2d" Title="SV_sip2d" Unit="" Internal="SV_sip2d" Type="D" Min="0.025004" Max="372.678"/>
+    <Variable VarIndex="4" Expression="SV_ip3d" Label="SV_ip3d" Title="SV_ip3d" Unit="" Internal="SV_ip3d" Type="D" Min="0.0104989" Max="15.8419"/>
+    <Variable VarIndex="5" Expression="SV_sip3d" Label="SV_sip3d" Title="SV_sip3d" Unit="" Internal="SV_sip3d" Type="D" Min="0.0485366" Max="375.707"/>
+    <Variable VarIndex="6" Expression="min(SV_chi2/max(1,SV_ndof),10)" Label="SV_chi2n" Title="SV_chi2n" Unit="" Internal="SV_chi2n" Type="D" Min="3.54226e-10" Max="9.09851"/>
+    <Variable VarIndex="7" Expression="max(SV_cosTheta,0.98)" Label="SV_cosTheta" Title="SV_cosTheta" Unit="" Internal="SV_cosTheta" Type="F" Min="0.980122" Max="1"/>
+  </Variables>
+  <Spectators NSpec="0"/>
+  <Transformations NTransformations="0"/>
+  <MVAPdfs/>
+  <Weights NOut="1" NCoeff="9">
+    <Coefficient IndexOut="0" IndexCoeff="0" Value="-4.9062611100823741e+00"/>
+    <Coefficient IndexOut="0" IndexCoeff="1" Value="1.2574651809330817e-02"/>
+    <Coefficient IndexOut="0" IndexCoeff="2" Value="-1.4549319676149253e-05"/>
+    <Coefficient IndexOut="0" IndexCoeff="3" Value="7.9951718178321585e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="4" Value="-1.6081727048344874e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="5" Value="-9.0149706112185868e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="6" Value="2.7777683829270927e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="7" Value="-5.6180526472715542e-04"/>
+    <Coefficient IndexOut="0" IndexCoeff="8" Value="9.7713353869039565e+00"/>
+  </Weights>
+</MethodSetup>

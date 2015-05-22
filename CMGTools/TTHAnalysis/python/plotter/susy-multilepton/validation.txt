@@ -1,0 +1,2 @@
+>= 2 good leptons: nLepGood10 >= 2
+pt2011: LepGood1_pt>20 && LepGood2_pt>10

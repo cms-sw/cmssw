@@ -1,0 +1,51 @@
+nLep: nLepGood: [1.5,2.5,3.5,4.5,5.5]; XTitle="N(lep)"
+nLep10: nLepGood10: [1.5,2.5,3.5,4.5,5.5]; XTitle="N(lep)"
+nLep20: nLepGood20: [1.5,2.5,3.5,4.5,5.5]; XTitle="N(lep)"
+met:   met_pt: 16,0,800    ; XTitle="E_{T}^{miss}  [GeV]"
+met_phi:   met_phi: 8,-3.15,3.15    ; XTitle="phi of E_{T}^{miss}"
+lep1pt:  LepGood1_pt: 15,0,250; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+lep2pt:  LepGood2_pt: 15,0,100; XTitle="Second lepton p_{T}  [GeV]", Legend='TR'
+lep3pt:  LepGood3_pt: 10,0,50; XTitle="Third lepton p_{T}  [GeV]", Legend='TR'
+lep4pt:  LepGood4_pt: 10,0,50; XTitle="Fourth lepton p_{T}  [GeV]", Legend='TR'
+lep1relIso03:  LepGood1_relIso03: 15,0,.5;  Legend='TR'
+lep2relIso03:  LepGood2_relIso03: 15,0,.5;  Legend='TR'
+lep1miniRelIso:  LepGood1_miniRelIso: 15,0,.5;  Legend='TR'
+lep2miniRelIso:  LepGood2_miniRelIso: 15,0,.5;  Legend='TR'
+lep1jetPtRel:  LepGood1_jetPtRel: 15,0,25;  Legend='TR'
+lep2jetPtRel:  LepGood2_jetPtRel: 15,0,25;  Legend='TR'
+lep1sip3d:  LepGood1_sip3d: 15,0,5;  Legend='TR'
+lep2sip3d:  LepGood2_sip3d: 15,0,5;  Legend='TR'
+lep1tightId:  LepGood1_tightId: [-0.5,0.5,1.5];  Legend='TL'
+lep2tightId:  LepGood2_tightId: [-0.5,0.5,1.5];  Legend='TL'
+lep1mvaSusy:  LepGood1_mvaSusy: 20,-1,1;  Legend='TL'
+lep2mvaSusy:  LepGood2_mvaSusy: 20,-1,1;  Legend='TL'
+lep1mcMatchId:  abs(LepGood1_mcMatchId): 28,-1.5,26.5;  Legend='TR'
+lep2mcMatchId:  abs(LepGood2_mcMatchId): 28,-1.5,26.5;  Legend='TR'
+lep1mcMatchAny:  LepGood1_mcMatchAny: [-1.5,-0.5,0.5,1.5,2.5,3.5];  Legend='TR'
+lep2mcMatchAny:  LepGood2_mcMatchAny: [-1.5,-0.5,0.5,1.5,2.5,3.5];  Legend='TR'
+nJet25 : nJet25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(jet\, p_{T} > 25)'
+nJet40 : nJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(jet\, p_{T} > 40)'
+nJet40NoTau : nJet40NoTau : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(jet\, p_{T} > 40\, #tau veto)'
+jet1pt:  Jet1_pt: 15,0,400; XTitle="Leading jet p_{T}  [GeV]", Legend='TR'
+jet2pt:  Jet2_pt: 15,0,200; XTitle="Second jet p_{T}  [GeV]", Legend='TR'
+jet3pt:  Jet3_pt: 10,0,150; XTitle="Third jet p_{T}  [GeV]", Legend='TR'
+jet4pt:  Jet4_pt: 10,0,100; XTitle="Fourth jet p_{T}  [GeV]", Legend='TR'
+jet1rawPt:  Jet1_rawPt: 15,0,400;  Legend='TR'
+jet2rawPt:  Jet2_rawPt: 15,0,200;  Legend='TR'
+jet1btagCSV:  Jet1_btagCSV: 12,0.0,1.5;  Legend='TR'
+jet2btagCSV:  Jet2_btagCSV: 12,0.0,1.5;  Legend='TR'
+jet1mcPt:  Jet1_mcPt: 15,0,400;  Legend='TR'
+jet2mcPt:  Jet2_mcPt: 15,0,200;  Legend='TR'
+jet1mcFlavour:  Jet1_mcFlavour: 29,-6.5,22.5;  Legend='TR'
+jet2mcFlavour:  Jet2_mcFlavour: 29,-6.5,22.5;  Legend='TR'
+jet1mcMatchId:  abs(Jet1_mcMatchId): 28,-1.5,26.5;  Legend='TR'
+jet2mcMatchId:  abs(Jet2_mcMatchId): 28,-1.5,26.5;  Legend='TR'
+htJet25:   htJet25: 15,0,2000    ; XTitle="H_{T}(lep + jet p_{T} > 25)  [GeV]"
+htJet40:   htJet40: 15,0,2000    ; XTitle="H_{T}(lep + jet p_{T} > 40)  [GeV]"
+htJet40j:   htJet40j: 15,0,2000    ; XTitle="H_{T}(jet p_{T} > 40)  [GeV]"
+mhtJet25:   mhtJet25: 15,0,800    ; XTitle="H_{T}^{miss}(lep + jet p_{T} > 25)  [GeV]"
+mhtJet40:   mhtJet40: 15,0,800    ; XTitle="H_{T}^{miss}(lep + jet p_{T} > 40)  [GeV]"
+nBJet25 : nBJetMedium25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 25\, CSVM)'
+nBJet40 : nBJetMedium40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 40\, CSVM)'
+minMllAFAS: minMllAFAS: 20,0,200; XTitle="min m(ll')  [GeV]"
+mZ1: mZ1: 20,0,200; XTitle="best mZ4  [GeV]"

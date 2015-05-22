@@ -1,0 +1,20 @@
+nJet25 : nJet25 : 8,-0.5,7.5 ; XTitle='N(jet\, p_{T} > 25)'
+nBJetLoose25 : nBJetLoose25 : 3,-0.5,2.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+nBJetMedium25 : nBJetMedium25 : 3,-0.5,2.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+met: met: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+met_log: met: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]",Logy
+metLD: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD"
+metLD_log: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD",Logy
+mZ1_wide: mZ1: 60,0,180 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR',Logy
+mZ1: mZ1: 60,60,120 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+minmll: minMllAFAS: 70,0,140; XTitle="min m(ll)  [GeV]", Legend='TR'
+worseIso: max(LepGood1_relIso,max(LepGood2_relIso,LepGood3_relIso)): 20,0,.4; XTitle="Worse rel. iso (l_{1}\,l_{2}\,l_{3})"
+worseSip3D: max(LepGood1_sip3d,max(LepGood2_sip3d,LepGood3_sip3d)): 20,0,10; XTitle="Worse SIP_{3D} (l_{1}\,l_{2}\,l_{3})"
+lepMVA2: min(LepGood1_mva,LepGood2_mva) : 50,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2})",Legend='TL'
+lepMVA3: min(LepGood1_mva,min(LepGood2_mva,LepGood3_mva)) : 50,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2}\,l_{3})",Legend='TL'
+l1Pt:  LepGood1_pt: 40,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+l2Pt:  LepGood2_pt: 24,0,120; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+l3Pt:  LepGood3_pt: 20,0,100; XTitle="Third lepton p_{T}  [GeV]", Legend='TR'
+mtW: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass,mZ1,met,met_phi) : 36,0,180 ; XTitle="M_{T}(W#rightarrowlv)"
+mtW_w: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass,mZ1,met,met_phi) : 20,0,300 ; XTitle="M_{T}(W#rightarrowlv) [GeV]"
+#mtW: (abs(mZ1-mass_2(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass)) < 0.01)*mt_2(LepGood3_pt,LepGood3_phi,met,met_phi) + (abs(mZ1-mass_2(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass)) < 0.01)*mt_2(LepGood2_pt,LepGood2_phi,met,met_phi) + (abs(mZ1-mass_2(LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,LepGood3_pt,LepGood3_eta,LepGood3_phi,LepGood3_mass)) < 0.01)*mt_2(LepGood1_pt,LepGood1_phi,met,met_phi) : 36,0,180 ; XTitle="M_{T}(W#rightarrowlv)"

@@ -1,0 +1,8 @@
+>=3 good leptons: nLepGood >= 3
+lep MVA 2: min(LepGood1_mva,LepGood2_mva) >  0.7
+minMll > 12: minMllAFAS > 12
+Z peak: abs(mZ1-91.2) < 10
+met LD > 0.3: met*0.00397 + mhtJet25*0.00265 > 0.3
+lep MVA 3: min(LepGood1_mva,min(LepGood2_mva,LepGood3_mva)) > 0.7
+#conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0)) && (abs(LepGood3_pdgId) == 13 || (LepGood3_convVeto > 0 && LepGood3_lostHits == 0))
+b veto: nBJetMedium25 == 0

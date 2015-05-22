@@ -1,0 +1,5 @@
+### NUM: MVA WP 06; DEN: relIso03 < 0.4, SIP < 6
+change: LepGood_pt(\[\w+\]): LepGood_pt\1*if3(LepGood_mvaTTH\1>0.6, 1.0, 0.85/LepGood_jetPtRatio\1)
+cut-change: LepGood_mvaTTH(\[\w+\]): (LepGood_relIso03\1 < 0.4 && LepGood_sip3d\1 < 6 && LepGood_jetBTagCSV\1 < 0.814)
+cut-change: LepGood_mediumMuonId(\[\w+\]): 1
+weight: 1

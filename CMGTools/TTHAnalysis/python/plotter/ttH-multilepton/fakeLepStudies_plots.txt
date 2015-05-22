@@ -1,0 +1,24 @@
+lpt : Probe_pt : [10,15,20,25,30,35,45,50 ] ; XTitle="Lepton p_{T} (GeV)"
+leta : abs(Probe_eta) : [ 0, 0.5, 1.0, 1.5, 2.0, 2.5 ]; XTitle="Lepton |#eta|", MoreY=1.4
+#lpt : Probe_pt : [15,20,25,30,35,45,50,60,75,90 ] ; XTitle="Lepton p_{T} (GeV)", Density=True
+#lpt : Probe_pt : 50,0,100  ; XTitle="Lepton p_{T} (GeV)"
+#leta : abs(Probe_eta) : 20,0,2.5; XTitle="Lepton |#eta|", MoreY=1.4
+pteta2d : abs(Probe_eta)\:TMath\:\:Min(Probe_pt,49) : [10,15,20,25,30,35,45,50]*[0,0.5,1.0,1.5,2.0,2.5]; XTitle="Lepton p_{T} (GeV)", YTitle="Lepton |#eta|"
+lpt_met : metT1_pt\:Probe_pt : [10,15,20,25,30,35,45,50]*[0,10,15,20,25,30,40,50,60,80,100] ; XTitle="Lepton p_{T} (GeV)", YTitle="E_{T}^{miss} (GeV)"
+l2d_met : metT1_pt\:fakeRateBin_Muons(Probe_pt,Probe_eta) : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50]*[0,10,15,20,25,30,40,50,60,80,100] ; XTitle="Lepton p_{T}\, #eta bin", YTitle="E_{T}^{miss} (GeV)"
+l2d : fakeRateBin_Muons(Probe_pt,Probe_eta) : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50] ; XTitle="Lepton p_{T}\, #eta bin"
+nvtx : nVert  : [ 0,5,10,15,20,25,30,35]; XTitle="N(PV)"
+nvtx_fine : nVert  : 20,0,40; XTitle="N(PV)"
+met : metT1_pt :  20,0,100; XTitle="E_{T}^{miss} (GeV)"
+met_log : metT1_pt :  20,0,100; XTitle="E_{T}^{miss} (GeV)", Logy=True
+jetpt : Jet1_pt : 15,0,150; XTitle="Away jet p_{T} (GeV)"
+jetcsv : Jet1_btagCSV : 5,0,1; XTitle="Away jet b-tag disc."
+liso: Probe_relIso03 : 20,0,1; XTitle="Lepton rel iso. (R03)"
+mtw : mtwT1 : 20,0,200; XTitle="M_{T}(l\, E_{T}^{miss}) (GeV)"
+mtw_log : mtwT1 : 20,0,200; XTitle="M_{T}(l\, E_{T}^{miss}) (GeV)", Logy=True
+#ldxy: abs(Probe_dxy) : 20,0,0.05; XTitle="Lepton |dxy|/1cm", Legend='TR', XNDiv=505
+#lsip3d: Probe_sip3d : 20,0,40; XTitle="Lepton SIP_{3D}", Legend='TR'
+ljetPtF: Probe_jetPtRatio : 20,0,1; XTitle="Lepton p_{T}(l)/p_{T}(jet)", Legend='TR'
+#ljetDR: Probe_jetDR : 20,0,0.5; XTitle="Lepton #DeltaR(l\,jet)", Legend='TR'
+#ltight: Probe_tightFakeId: [-0.5,0.5,1.5]; XTitle="Lepton passes tight?", Legend='TL', XNDiv=505, Logy=True
+#ljetPt: Probe_pt/Probe_jetPtRatio : [20,27.5,35,42.5,50,57.5,65,72.5,80,87.5,95,110,125,140]; XTitle="Lepton p_{T}(jet)", Legend='TR', Density=True

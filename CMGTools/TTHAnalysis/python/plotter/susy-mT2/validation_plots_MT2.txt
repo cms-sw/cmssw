@@ -1,0 +1,242 @@
+######### SUMS
+
+met:   met_pt: 16,0,800    ; XTitle="E_{T}^{miss}  [GeV]"
+met_phi:   met_phi: 8,-3.15,3.15    ; XTitle="phi of E_{T}^{miss}"
+
+genmet:   met_genPt: 16,0,800    ; XTitle="E_{T}^{miss}  [GeV]"
+genmet_phi:   met_genPhi: 8,-3.15,3.15    ; XTitle="phi of E_{T}^{miss}"
+
+rawmet: met_rawPt: 16,0,800    ; XTitle="E_{T}^{miss}  [GeV]" 
+rawmet_phi: met_rawPhi: 8,-3.15,3.15    ; XTitle="phi of E_{T}^{miss}"
+
+mht:   mht_pt: 16,0,800    ; XTitle="H_{T}^{miss}  [GeV]"
+mht_phi:   mht_phi: 8,-3.15,3.15    ; XTitle="phi of H_{T}^{miss}"
+
+deltaPhiMin: deltaPhiMin: 70,0,3.15    ; XTitle="dphi_{min}(jet\,E_{T}^{miss})"
+diffMetMht: diffMetMht: 100,0,500    ; XTitle="|MET-MHT|"
+
+ht: ht:  16,0,800    ; XTitle="H_{T}  [GeV]"
+
+rho: rho: 10,0,1  ; XTitle="rho"
+nTrueInt: nTrueInt: 100,0,100  ; XTitle="nTrueInt"
+nVert: nVert: 100,0,100  ; XTitle="nVert"
+
+######### COUNTER
+
+count_nMuons10 : nMuons10 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="N(#mu\, p_{T} > 10)"
+count_nElectrons10 : nElectrons10 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="N(ele\, p_{T} > 10)"
+count_nTaus20 : nTaus20 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="N(#tau\, p_{T} > 20)"
+count_nGammas20 : nGammas20 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="N(#gamma\, p_{T} > 20)"
+
+count_nJet40 : nJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5] ; XTitle='N(jet\, p_{T} > 40)'
+count_nBJet40 : nBJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 40\, CSVM)'
+count_nBJet25 : nBJet25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 35\, CSVM)'
+
+##count_ngenParticles: ngenPart : 500,0,500  ; XTitle="nGenParticles"
+
+##### TRIGGERS
+
+HLT_ht350met120: HLT_ht350met120: [-0.5,0.5,1.5]; XTitle="HLT"
+HLT_MET170     : HLT_MET170     : [-0.5,0.5,1.5]; XTitle="HLT" 
+HLT_HT900      : HLT_HT900      : [-0.5,0.5,1.5]; XTitle="HLT"
+HLT_SingleMu   : HLT_SingleMu   : [-0.5,0.5,1.5]; XTitle="HLT"
+HLT_DoubleMu   : HLT_DoubleMu   : [-0.5,0.5,1.5]; XTitle="HLT"
+HLT_DoubleEl   : HLT_DoubleEl   : [-0.5,0.5,1.5]; XTitle="HLT"
+HLT_MuEG       : HLT_MuEG       : [-0.5,0.5,1.5]; XTitle="HLT"
+HLT_Photons    : HLT_Photons    : [-0.5,0.5,1.5]; XTitle="HLT"
+###HLT_htXprescale: HLT_htXprescale: [-0.5,0.5,1.5]; XTitle="HLT"
+
+Flag_EcalDeadCellTriggerPrimitiveFilter : Flag_EcalDeadCellTriggerPrimitiveFilter: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_trkPOG_manystripclus53X : Flag_trkPOG_manystripclus53X: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_ecalLaserCorrFilter : Flag_ecalLaserCorrFilter: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_trkPOG_toomanystripclus53X : Flag_trkPOG_toomanystripclus53X : [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_hcalLaserEventFilter : Flag_hcalLaserEventFilter : [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_trkPOG_logErrorTooManyClusters : Flag_trkPOG_logErrorTooManyClusters : [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_trkPOGFilters : Flag_trkPOGFilters : [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_trackingFailureFilter : Flag_trackingFailureFilter: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_CSCTightHaloFilter : Flag_CSCTightHaloFilter: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_HBHENoiseFilter : Flag_HBHENoiseFilter : [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_goodVertices : Flag_goodVertices: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_eeBadScFilter : Flag_eeBadScFilter: [-0.5,0.5,1.5]; XTitle="metFilter"
+Flag_METFilters : Flag_METFilters: [-0.5,0.5,1.5]; XTitle="metFilter"
+
+##### MT2
+
+mt2:   mt2: 16,0,800    ; XTitle="MT2  [GeV]"
+
+mt2_gen:   mt2_gen: 16,0,800    ; XTitle="MT2 gen  [GeV]"
+
+pseudoJet1_pt: pseudoJet1_pt: 16,0,800    ; XTitle="PseJet1  p_{T}  [GeV]", Legend='TR'
+pseudoJet1_phi: pseudoJet1_phi: 8,-3.15,3.15    ; XTitle="PseJet1 phi"
+pseudoJet1_eta: pseudoJet1_eta: 10,-5.,5.    ; XTitle="PseJet1 eta"
+pseudoJet1_mass: pseudoJet1_mass: 20,0,400.    ; XTitle="PseJet1 mass [GeV]"
+
+pseudoJet2_pt: pseudoJet2_pt: 16,0,800    ; XTitle="PseJet12 p_{T}  [GeV]"
+pseudoJet2_phi: pseudoJet2_phi: 8,-3.15,3.15    ; XTitle="PseJet2 phi"
+pseudoJet2_eta: pseudoJet2_eta: 10,-5.,5.    ; XTitle="PseJet2 eta"
+pseudoJet2_mass: pseudoJet2_mass: 20,0,400.    ; XTitle="PseJet2 mass [GeV]"
+
+nPFLep5LowMT:  nPFLep5LowMT: [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5] ; XTitle='N(PFLep\, p_{T} > 5\, M_{T} < 100)'
+nPFHad10LowMT: nPFHad10LowMT: [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5] ; XTitle='N(PFHad\, p_{T} > 10\, M_{T} < 100)'
+nLepLowMT:  nLepLowMT: [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5] ; XTitle='N(Lep(POG+isoTrack)\, M_{T} < 100)'
+
+minMTBMet:     minMTBMet: 16,0,800    ; XTitle="min M_{T}(B\,met)"
+
+##### JET 
+
+jet_njet : njet : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,13.5,14.5,15.5,16.5,17.5,18.5,19.5,20.5,21.5,22.5,23.5,24.5,25.5,26.5,27.5,28.5,29.5,30.5] ; XTitle='N(jet\, p_{T} > 10\, |#eta| < 5.2 )'
+jet_pt: jet_pt: 200, 0, 200    ; XTitle="jet p_{T}  [GeV]"
+jet_phi: jet_phi: 8,-3.15,3.15    ; XTitle="jet phi"
+jet_eta: jet_eta: 24,-6.0,6.0    ; XTitle="jet eta"
+jet_mass: jet_mass: 20,0,400.    ; XTitle="jet mass [GeV]"
+jet_csv: jet_btagCSV: 100,-11.,2.    ; XTitle="jet csv"
+
+jet_rawPt: jet_rawPt: 200, 0, 200     ; XTitle="jet raw pt"
+jet_mcPt: jet_mcPt: 200, 0, 200     ; XTitle="jet mc pt"
+
+jet_mcFlavour: jet_mcFlavour: 100, 0,100 ; XTitle="jet mc flavour"
+jet_area: jet_area: 100, 0,100 ; XTitle="jet mc area"
+
+jet_id: jet_id: [-0.5,0.5,1.5,2.5,3.5] ; XTitle="jet id"
+jet_puId: jet_puId: [-0.5,0.5,1.5] ; XTitle="jet PU id"
+jet_qgl: jet_qgl: 60,-0.5,1.0 ; XTitle="jet qgl"
+
+jet1_pt: jet1_pt: 16,0,800    ; XTitle="jet1  p_{T}  [GeV]", Legend='TR'
+jet2_pt: jet2_pt: 16,0,800    ; XTitle="jet2  p_{T}  [GeV]", Legend='TR'
+
+
+##### ISO TRACK 
+
+isoTrack_nisoTrack : nisoTrack : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(isotrack)'
+isoTrack_pt: isoTrack_pt: 16,0,800    ; XTitle="isotrack p_{T}  [GeV]"
+isoTrack_phi: isoTrack_phi: 8,-3.15,3.15    ; XTitle="isotrack phi"
+isoTrack_eta: isoTrack_eta: 10,-5.,5.    ; XTitle="isotrack eta"
+isoTrack_mass: isoTrack_mass: 20,0,400.    ; XTitle="isotrack mass [GeV]"
+
+isoTrack_pdgId : isoTrack_pdgId : 300, -150,150 ; XTitle='PDG_ID'
+
+isoTrack_dz: isoTrack_dz: 100,0,0.5    ; XTitle="isotrack dz  [cm]"
+
+isoTrack_absIso:  isoTrack_absIso: 10,0,.50;  Legend='TR'
+
+isoTrack_mcMatchId:  isoTrack_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+
+##### TAU
+
+tau_ntau : ntau : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(tau\, p_{T} > 10\, |#eta| < 2.4 )'
+tau_pt: tau_pt: 16,0,800    ; XTitle="tau p_{T}  [GeV]"
+tau_phi: tau_phi: 8,-3.15,3.15    ; XTitle="tau phi"
+tau_eta: tau_eta: 10,-5.,5.    ; XTitle="tau eta"
+tau_mass: tau_mass: 20,0,400.    ; XTitle="tau mass"
+
+tau_Charge:  tau_charge: [-1.5,-0.5,0.5,1.5];  Legend='TL'
+tau_mcMatchId:  tau_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+
+tau_dxy: tau_dxy: 100,0,0.5    ; XTitle="tau dxy  [cm]"
+tau_dz: tau_dz: 100,0,0.5    ; XTitle="tau dz  [cm]"
+
+tau_isoCI3hit: tau_isoCI3hit: 100,0,0.5    ; XTitle="tau ISO  [GeV]"   
+tau_idCI3hit: tau_idCI3hit: 10,0,10.    ; XTitle="tau ID "
+
+##### genCounting
+
+ngenLep : ngenLep : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(ngenLep)'
+genLep_pdgId : genLep_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genLep'
+
+ngenLepFromTau : ngenLepFromTau : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(genLepFromTau)'
+genLepFromTau_pdgId : genLepFromTau_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genLepFromTau'
+
+ngenTau : ngenTau : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(ngenTau)'
+genTau_pdgId : genTau_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genTau'
+
+
+##### PHOTONS
+
+gamma_ngamma : ngamma : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(gamma\, p_{T} > 10\, |#eta| < 2.4 )'
+gamma_pt: gamma_pt: 16,0,800    ; XTitle="gamma p_{T}  [GeV]"
+gamma_phi: gamma_phi: 8,-3.15,3.15    ; XTitle="gamma phi"
+gamma_eta: gamma_eta: 10,-5.,5.    ; XTitle="gamma eta"
+gamma_mass: gamma_mass: 20,0,400.    ; XTitle="gamma mass"
+
+gamma_chHadIso: gamma_chHadIso: 100,0,0.5    ; XTitle="ch gamma ISO  [GeV]"   
+gamma_neuHadIso: gamma_neuHadIso: 100,0,0.5    ; XTitle="neu gamma ISO  [GeV]"   
+gamma_phIso: gamma_phIso: 100,0,0.5    ; XTitle="ph gamma ISO  [GeV]"   
+
+gamma_sigmaIetaIeta: gamma_sigmaIetaIeta: 100,0,0.1    ; XTitle="gamma sigmaIetaIeta"
+gamma_r9: gamma_r9: 100,0,1.    ; XTitle="gamma r9"
+gamma_hOverE: gamma_hOverE: 100,0,0.1    ; XTitle="gamma hOverE"
+gamma_idCutBased: gamma_idCutBased: 10,0,10.    ; XTitle="gamma ID Cut based"
+gamma_mcMatchId:  gamma_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+
+gamma_genIso: gamma_genIso: 100,0,0.5    ; XTitle="ph gamma ISO  [GeV]"
+
+##### GAMMA control variables
+
+cr_gamma_mt2:   gamma_mt2: 16,0,800    ; XTitle="MT2  [GeV]"
+
+cr_gamma_met:   gamma_met_pt: 16,0,800    ; XTitle="E_{T}^{miss}  [GeV]"
+cr_gamma_met_phi:   gamma_met_phi: 8,-3.15,3.15    ; XTitle="phi of E_{T}^{miss}"
+
+cr_gamma_mht:   gamma_mht_pt: 16,0,800    ; XTitle="H_{T}^{miss}  [GeV]"
+cr_gamma_mht_phi:   gamma_mht_phi: 8,-3.15,3.15    ; XTitle="phi of H_{T}^{miss}"
+
+cr_gamma_deltaPhiMin: gamma_deltaPhiMin: 70,0,3.15    ; XTitle="dphi_{min}(jet\,E_{T}^{miss})"
+cr_gamma_diffMetMht: gamma_diffMetMht: 100,0,500    ; XTitle="|MET-MHT|"
+
+cr_gamma_ht: gamma_ht:  16,0,800    ; XTitle="H_{T}  [GeV]" 
+
+cr_gamma_nJet40 : gamma_nJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5] ; XTitle='N(jet\, p_{T} > 40)'
+cr_gamma_nBJet40 : gamma_nBJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 40\, CSVM)'
+cr_gamma_nBJet25 : gamma_nBJet25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 25\, CSVM)'
+cr_gamma_minMTBMet : gamma_minMTBMet: 16,0,800    ; XTitle="min M_{T}(B\,met)"
+
+cr_gamma_jet1_pt: gamma_jet1_pt: 16,0,800    ; XTitle="gamma jet1  p_{T}  [GeV]", Legend='TR'
+cr_gamma_jet2_pt: gamma_jet2_pt: 16,0,800    ; XTitle="gamma jet2  p_{T}  [GeV]", Legend='TR'
+
+##### ZLL control variables
+
+cr_zll_mt2:   zll_mt2: 16,0,800    ; XTitle="MT2  [GeV]"
+
+cr_zll_met:   zll_met_pt: 16,0,800    ; XTitle="E_{T}^{miss}  [GeV]"
+cr_zll_met_phi:   zll_met_phi: 8,-3.15,3.15    ; XTitle="phi of E_{T}^{miss}"
+
+cr_zll_ht: zll_ht:  16,0,800    ; XTitle="H_{T}  [GeV]" 
+
+cr_zll_mht:   zll_mht_pt: 16,0,800    ; XTitle="H_{T}^{miss}  [GeV]"
+cr_zll_mht_phi:   zll_mht_phi: 8,-3.15,3.15    ; XTitle="phi of H_{T}^{miss}"
+
+cr_zll_deltaPhiMin: zll_deltaPhiMin: 70,0,3.15    ; XTitle="dphi_{min}(jet\,E_{T}^{miss})"
+cr_zll_diffMetMht: zll_diffMetMht: 100,0,500    ; XTitle="|MET-MHT|"
+
+cr_zll_pt: zll_pt: 16,0,600    ; XTitle="Z p_{T}  [GeV]"
+cr_zll_phi: zll_phi: 8,-3.15,3.15    ; XTitle="Z phi"
+cr_zll_eta: zll_eta: 10,-5.,5.    ; XTitle="Z eta"
+cr_zll_mass: zll_mass: 20,0,400.    ; XTitle="Z mass [GeV]"
+
+cr_zll_minMTBMet: zll_minMTBMet: 16,0,800    ; XTitle="min M_{T}(B\,met)"
+
+##### LEPTON
+
+lep_nlep : nlep : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(lep\, p_{T} > 10\, |#eta| < 2.4 )'
+lep_pt: lep_pt: 16,0,800    ; XTitle="lep p_{T}  [GeV]"
+lep_phi: lep_phi: 8,-3.15,3.15    ; XTitle="lep phi"
+lep_eta: lep_eta: 10,-5.,5.    ; XTitle="lep eta"
+lep_mass: lep_mass: 20,0,400.    ; XTitle="lep mass [GeV]"
+
+lep_pdgId : lep_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID'
+
+lep_dxy: lep_dxy: 100,0,0.5    ; XTitle="lep dxy  [cm]"
+lep_dz: lep_dz: 100,0,0.5    ; XTitle="lep dz  [cm]"
+
+lep_relIso03:  lep_relIso03: 15,0,.5;  Legend='TR'
+lep_relIso04:  lep_relIso04: 15,0,.5;  Legend='TR'
+lep_miniRelIso: lep_miniRelIso: 15,0,.5;  Legend='TR'
+lep_mcMatchId:  lep_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+lep_tightId:  lep_tightId: [-0.5,0.5,1.5,2.5,3.5];  Legend='TL'
+
+lep_lostHits:  lep_lostHits: [-0.5,0.5,1.5,2.5,3.5,4.5,5.5];  Legend='TL'
+lep_convVeto:  lep_convVeto: 10,0.,5.;  Legend='TL'
+lep_tightCharge:  lep_tightCharge: [-1.5,-0.5,0.5,1.5];  Legend='TL'
+
+
+

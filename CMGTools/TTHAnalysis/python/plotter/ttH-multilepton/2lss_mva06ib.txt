@@ -1,0 +1,17 @@
+#>= 2 good leptons: nLepGood10_Old >= 2
+minMllAS8:  minMllAFAS_Old > 8
+minMllOS12: minMllAFOS_Old <= 0 || minMllAFOS_Old > 12
+same-sign: LepGood_charge[iL1p_Old]*LepGood_charge[iL2p_Old] > 0
+lep1_pt20: LepGood_pt[iL1p_Old] > 20
+lep2_pt20: LepGood_pt[iL2p_Old] > 20 
+lep2_pt10: LepGood_pt[iL2p_Old] > 10 
+anyll: abs(LepGood_pdgId[iL2p_Old]) > 0 && abs(LepGood_pdgId[iL2p_Old]) > 0
+presel: max(LepGood_relIso03[iL1p_Old],LepGood_relIso03[iL2p_Old]) < 0.4 && max(LepGood_sip3d[iL1p_Old],LepGood_sip3d[iL2p_Old]) < 6 && max(LepGood_jetBTagCSV[iL1p_Old],LepGood_jetBTagCSV[iL2p_Old]) < 0.814
+ele cuts: (abs(LepGood_pdgId[iL1p_Old]) == 13 || (LepGood_convVeto[iL1p_Old] && LepGood_lostHits[iL1p_Old] == 0 && LepGood_tightCharge[iL1p_Old] > 1)) && (abs(LepGood_pdgId[iL2p_Old]) == 13 || (LepGood_convVeto[iL2p_Old] && LepGood_lostHits[iL2p_Old] == 0 && LepGood_tightCharge[iL2p_Old] > 1)) 
+mu cuts:  ( LepGood_mediumMuonId[iL1p_Old] > 0 || abs(LepGood_pdgId[iL1p_Old]) == 11) && (LepGood_mediumMuonId[iL2p_Old] > 0 || abs(LepGood_pdgId[iL2p_Old]) == 11) 
+lep MVA: min(LepGood_mvaTTH[iL1p_Old],LepGood_mvaTTH[iL2p_Old]) > 0.6
+4jet: nJet25_Old >= 4
+hlt: HLT_DoubleMu || HLT_DoubleEl || HLT_SingleMu || HLT_SingleEl
+#ht: htJet40j_Old >= 300
+2b loose: nBJetLoose25_Old >= 2 || nBJetMedium25_Old >= 1
+2B tight: nBJetMedium25_Old >= 2

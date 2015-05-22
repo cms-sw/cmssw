@@ -1,0 +1,15 @@
+==3 good leptons: nLepGood == 3
+cleanup: minMllAFAS > 12
+pt2010: LepGood1_pt>20 && LepGood2_pt>10
+pt201010: LepGood3_pt>10
+lep MVA: max(LepGood1_relIso,max(LepGood2_relIso,LepGood3_relIso)) < 0.1
+conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0)) && (abs(LepGood3_pdgId) == 13 || (LepGood3_convVeto > 0 && LepGood3_lostHits == 0))
+tight-id: (abs(LepGood1_pdgId) == 11 || LepGood1_tightId) && (abs(LepGood2_pdgId) == 11 || LepGood1_pdgId)
+tight eleID: (abs(LepGood1_pdgId) == 13 || passEgammaTightMVA(LepGood1_pt, LepGood1_eta, LepGood1_tightId)) && (abs(LepGood2_pdgId) == 13 || passEgammaTightMVA(LepGood2_pt, LepGood2_eta, LepGood2_tightId) && (abs(LepGood3_pdgId) == 13 || passEgammaTightMVA(LepGood3_pt, LepGood3_eta, LepGood3_tightId)))
+ele fiducial: (abs(LepGood1_pdgId) == 13 || abs(LepGood1_eta) < 1.4442 || abs(LepGood1_eta) > 1.566) && (abs(LepGood2_pdgId) == 13 || abs(LepGood2_eta) < 1.4442 || abs(LepGood2_eta) > 1.566) && (abs(LepGood3_pdgId) == 13 || abs(LepGood3_eta) < 1.4442 || abs(LepGood3_eta) > 1.566) 
+dxy dz: abs(LepGood1_dxy) < 0.0050*(1+(abs(LepGood1_pdgId) == 11)) && abs(LepGood2_dxy) < 0.0050*(1+(abs(LepGood2_pdgId) == 11)) && abs(LepGood3_dxy) < 0.0050*(1+(abs(LepGood3_pdgId) == 11)) &&  abs(LepGood1_dz) < 0.1 && abs(LepGood2_dz) < 0.1 && abs(LepGood3_dz) < 0.1
+Z veto: abs(mZ1-91.2) > 10
+met LD: nJet25 >= 4 || met*0.00397 + mhtJet25*0.00265 > 0.2 + 0.1*(mZ1 > 0)
+2j: nJet25>=2
+2b loose: nBJetLoose25 >= 2 || nBJetMedium25 >= 1
+2B tight: nBJetMedium25 >= 2

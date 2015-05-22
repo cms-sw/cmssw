@@ -1,0 +1,37 @@
+MVA12:  min(LepGood1_mva,LepGood2_mva): 10,0,1; XTitle="Lepton MVA 12", Legend='TL'
+MVA34:  min(LepGood3_mva,LepGood4_mva): 10,-1,1; XTitle="Lepton MVA 34", Legend='TL'
+MVA3:  LepGood3_mva: 10,-1,1; XTitle="Lepton MVA 3", Legend='TL'
+MVA4:  LepGood4_mva: 10,-1,1; XTitle="Lepton MVA 4", Legend='TL'
+minMllAFAS: minMllAFAS: [0,4,8,12,15,20,30,40,60]; XTitle="min m(ll')  [GeV]", Density=True
+minMllAFOS: minMllAFOS: [0,4,8,12,15,20,30,40,60]; XTitle="min m(l^{+}l^{-}')  [GeV]", Density=True
+mZ2: mZ2: [-50,0.001,4,8,12,15,20,30,40,60]; XTitle="m(Z_{2})  [GeV]", Density=True
+
+metLD: met*0.00397 + mhtJet25*0.00265 : 15,-0.1,1.4 ; XTitle="E_{T}^{miss} LD",  Legend='TR'
+metLD_log: met*0.00397 + mhtJet25*0.00265 : 15,-0.1,1.4 ; XTitle="E_{T}^{miss} LD",Logy, LegendCutoff=1e-3,  Legend='TR'
+met: met: 15,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+
+m4l: m4l : 20,0,600; XTitle="m(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]"
+m4l_logX: m4l : 20,50,600; XTitle="m(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]",Logx
+ht4l: ht4l : 20,0,600; XTitle="pT(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]"
+pt4l: pt4l : 20,0,400; XTitle="pT(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]"
+
+lep1Pt:  LepGood1_pt: 10,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+lep2Pt:  LepGood2_pt: 10,0,100; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+lep3Pt:  LepGood3_pt: 10,0,50; XTitle="Third lepton p_{T}  [GeV]", Legend='TR'
+lep4Pt:  LepGood4_pt: 10,0,50; XTitle="Fourth lepton p_{T}  [GeV]", Legend='TR'
+lep1Eta:  abs(LepGood1_eta): 5,0,2.5; XTitle="Leading lepton |#eta|", Legend='TR'
+lep2Eta:  abs(LepGood2_eta): 5,0,2.5; XTitle="Subleading lepton |#eta|", Legend='TR'
+lep3Eta:  abs(LepGood3_eta): 5,0,2.5; XTitle="Third lepton |#eta|", Legend='TR'
+lep4Eta:  abs(LepGood4_eta): 5,0,2.5; XTitle="Fourth lepton |#eta|", Legend='TR'
+lep2Code:  (abs(LepGood2_pdgId) - 11) + (abs(LepGood2_eta)>1.5): [-0.5,0.5,1.5,2.5,3.5]; XTitle="Subleading lepton type: eB/eE/#muB/#muE", Legend='TR',NXDiv=404
+lep3Code:  (abs(LepGood3_pdgId) - 11) + (abs(LepGood3_eta)>1.5): [-0.5,0.5,1.5,2.5,3.5]; XTitle="Third lepton type: eB/eE/#muB/#muE", Legend='TR',NXDiv=404
+lep4Code:  (abs(LepGood4_pdgId) - 11) + (abs(LepGood4_eta)>1.5): [-0.5,0.5,1.5,2.5,3.5]; XTitle="Fourth lepton type: eB/eE/#muB/#muE", Legend='TR',NXDiv=404
+
+nJet25 : nJet25 : 8,-0.5,7.5 ; XTitle='N(jet\, p_{T} > 25)'
+nBJetLoose25 : nBJetLoose25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+nBJetMedium25 : nBJetMedium25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+
+maxBTag: min(max(Jet1_btagCSV,0),.99999) : 15,0,1.5; XTitle="First b-jet btag", Legend='TR'
+minBTag: min(max(Jet2_btagCSV,0),.99999) : 15,0,1.5; XTitle="Second b-jet btag", Legend='TR'
+maxBJetPt: max(Jet1_pt,Jet2_pt) : 20, 0,400; XTitle="First b-jet p_{T} [GeV]"
+minBJetPt: min(Jet1_pt,Jet2_pt) : 20, 0,200; XTitle="Second b-jet p_{T} [GeV]"

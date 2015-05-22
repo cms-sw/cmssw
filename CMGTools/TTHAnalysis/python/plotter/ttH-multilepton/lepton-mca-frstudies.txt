@@ -1,0 +1,173 @@
+TT_true+:  TTJets: 1: LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="prompt (tt)"
+
+TT_red:   TTJets: xsec: LepGood_mcMatchId  == 0 ; FillColor=ROOT.kGray+2, Label="non-pr (tt)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_bjets: TTJets: xsec: LepGood_mcMatchAny == 5 ; FillColor=ROOT.kBlue-2, Label="b-jets (tt)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_cjets: TTJets: xsec: LepGood_mcMatchAny == 4 ; FillColor=ROOT.kGray+2, Label="c-jets (tt)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_ljets: TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4 ; FillColor=ROOT.kTeal+2, Label="l-jets (tt)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_fake:  TTJets: xsec: LepGood_mcMatchAny == 0 ; FillColor=ROOT.kGray+3, Label="fakes (tt)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+
+TT_SS_red:   TTJets: xsec: LepGood_mcMatchId  == 0 ; FillColor=ROOT.kGreen+2, Label="(tt ss)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT-sameSign.txt"
+TT_SSbl_red: TTJets: xsec: LepGood_mcMatchId  == 0 && nBJetMedium40 <= 1; FillColor=ROOT.kAzure+1, Label="(tt ss bl)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT-sameSign.txt"
+TT_SSbt_red: TTJets: xsec: LepGood_mcMatchId  == 0 && nBJetMedium40 >= 2; FillColor=ROOT.kRed-3, Label="(tt ss bt)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT-sameSign.txt"
+TT_fw1_red: TTJets: xsec: (LepGood_mcMatchId  == 0 && LepGood_mcMatchAny != 4)*(1-0.5*(LepGood_mcMatchAny != 5)); FillColor=ROOT.kOrange+7, Label="(tt fw1)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_fw2_red: TTJets: xsec: (LepGood_mcMatchId  == 0 && LepGood_mcMatchAny != 4)*(1+2.5*(LepGood_mcMatchAny != 5)); FillColor=ROOT.kViolet-2, Label="(tt fw2)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_fwe1_red: TTJets: xsec: (LepGood_mcMatchId  == 0 && LepGood_mcMatchAny != 4)*(1.1*(LepGood_mcMatchAny == 5)+0.8*(LepGood_mcMatchAny != 5)); FillColor=ROOT.kOrange+7, Label="(tt fw e1)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_fwe2_red: TTJets: xsec: (LepGood_mcMatchId  == 0 && LepGood_mcMatchAny != 4)*(0.7*(LepGood_mcMatchAny == 5)+1.6*(LepGood_mcMatchAny != 5)); FillColor=ROOT.kViolet-2, Label="(tt fw e2)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+
+TT_pt8_red:  TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_pt >  8; FillColor=ROOT.kBlue+2,  Label="(tt p_{T} 8)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_pt17_red: TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_pt > 17; FillColor=ROOT.kGreen+2, Label="(tt p_{T} 17)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_pt24_red: TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_pt > 24; FillColor=ROOT.kRed-3,   Label="(tt p_{T} 24)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+
+TT_pt12_red: TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_pt > 12; FillColor=ROOT.kBlue+2,  Label="(tt p_{T} 12)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_pt23_red: TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_pt > 23; FillColor=ROOT.kGreen+2, Label="(tt p_{T} 23)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+TT_pt32_red: TTJets: xsec: LepGood_mcMatchId  == 0 && LepGood_pt > 32; FillColor=ROOT.kRed-3,   Label="(tt p_{T} 32)", FakeRate="ttH-multilepton/lepton-mca-frstudies-noJetCutOnTT.txt"
+
+
+# extra 1.2 factor added in the Mu5 QCD in order to get the samples match
+QCDMu_red  : QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red  : QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red  : QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red  : QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : 1; FillColor=ROOT.kPink-2, Label="all (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_bjets: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_bjets: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_bjets: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_bjets: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 5; FillColor=ROOT.kPink+5, Label="b-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_cjets: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_cjets: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_cjets: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_cjets: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny == 4; FillColor=ROOT.kRed-3, Label="c-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_ljets: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_ljets: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_ljets: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_ljets: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4; FillColor=ROOT.kOrange-3, Label="l-jets (QCD\#mu)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_aj25: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_pt > 25; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj25: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 25; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj25: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 25; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj25: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 25; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_aj30: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_pt > 30; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj30: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 30; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj30: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 30; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj30: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 30; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_aj50: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_pt > 50; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj50: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 50; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj50: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 50; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj50: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 50; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_aj60: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_pt > 60; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj60: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 60; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj60: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 60; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj60: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 60; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_aj40: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_pt > 40; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj40: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 40; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj40: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 40; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_aj40: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_pt > 40; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_ajbv: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_btagCSV < 0.423; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbv: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV < 0.423; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbv: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV < 0.423; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbv: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV < 0.423; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_ajbl: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_btagCSV > 0.423; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbl: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV > 0.423; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbl: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV > 0.423; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbl: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV > 0.423; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_ajbt: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_btagCSV > 0.941; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbt: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV > 0.941; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbt: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV > 0.941; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajbt: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV > 0.941; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDMu_red_ajba: QCD_Mu15          : xsec*1.0*(LepGood_pt>15) : LepGood_awayJet_btagCSV < 9e9; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajba: QCD_Pt30to50_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV < 9e9; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajba: QCD_Pt50to80_Mu5  : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV < 9e9; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDMu_red_ajba: QCD_Pt80to120_Mu5 : xsec*1.2*(LepGood_pt<15) : LepGood_awayJet_btagCSV < 9e9; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+
+QCDEl_red: QCD_Pt20to30_EMEnriched : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red: QCD_Pt20to30_bcToE : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red: QCD_Pt30to80_EMEnriched : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red: QCD_Pt30to80_bcToE : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red: QCD_Pt80to170_EMEnriched : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red: QCD_Pt80to170_bcToE : xsec : 1 ; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red: QCD_Pt170toInf_bcToE : xsec : 1; FillColor=ROOT.kPink-2, Label="all (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_bjets: QCD_Pt20to30_bcToE   : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_bjets: QCD_Pt30to80_bcToE   : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_bjets: QCD_Pt80to170_bcToE  : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_bjets: QCD_Pt170toInf_bcToE : xsec : LepGood_mcMatchAny == 5 ; FillColor=ROOT.kPink+5, Label="b-jets (QCDe)", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+
+QCDEl_red_aj25: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj25: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj25: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj25: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj25: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj25: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj25: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_pt > 25 ; FillColor=ROOT.kOrange-3, Label="p_{T}(aj) > 25", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_aj30: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj30: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj30: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj30: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj30: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj30: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj30: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_pt > 30 ; FillColor=ROOT.kRed-4, Label="p_{T}(aj) > 30", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_aj50: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj50: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj50: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj50: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj50: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj50: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj50: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_pt > 50 ; FillColor=ROOT.kAzure+1, Label="p_{T}(aj) > 50", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_aj60: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj60: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj60: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj60: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj60: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj60: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj60: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_pt > 60 ; FillColor=ROOT.kGreen+1, Label="p_{T}(aj) > 60", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_aj40: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj40: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj40: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj40: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj40: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj40: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_aj40: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_pt > 40 ; FillColor=ROOT.kViolet+6, Label="p_{T}(aj) > 40", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_ajbv: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbv: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbv: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbv: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbv: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbv: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbv: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_btagCSV < 0.423 ; FillColor=ROOT.kOrange-3, Label="CSV(aj) < 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_ajbl: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbl: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbl: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbl: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbl: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbl: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbl: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_btagCSV > 0.423 ; FillColor=ROOT.kMagenta-3, Label="CSV(aj) > 0.423", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_ajbt: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbt: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbt: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbt: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbt: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbt: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajbt: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_btagCSV > 0.941 ; FillColor=ROOT.kViolet+1, Label="CSV(aj) > 0.941", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+
+QCDEl_red_ajba: QCD_Pt20to30_EMEnriched : xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajba: QCD_Pt20to30_bcToE :      xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajba: QCD_Pt30to80_EMEnriched : xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajba: QCD_Pt30to80_bcToE :      xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajba: QCD_Pt80to170_EMEnriched: xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajba: QCD_Pt80to170_bcToE:      xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]
+QCDEl_red_ajba: QCD_Pt170toInf_bcToE:     xsec : LepGood_awayJet_btagCSV < 9e9 ; FillColor=ROOT.kGreen+1, Label="CSV(aj) any", Friends=[('sf/t'\,'{P}/1_leptonFakeRateQCDVars_v0/evVarFriend_{cname}.root')]

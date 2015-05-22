@@ -1,0 +1,17 @@
+nJet25 : nJet25 : 8,2.5,10.5 ; XTitle='N(jet\, p_{T} > 25)',Logy
+nBJetLoose25 : nBJetLoose25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+nBJetMedium25 : nBJetMedium25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+met: met: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+met_log: met: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]",Logy
+metLD: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD"
+metLD_log: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD",Logy
+lepMVA: LepGood1_mva: 50,0,1; XTitle="Lepton MVA",Legend='TL'
+lepPt:  LepGood1_pt: 80,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+maxBTag: min(max(Jet1_btagCSV,0),.99999) : 15,0,1.5; XTitle="First b-jet btag", Legend='TR'
+minBTag: min(max(Jet2_btagCSV,0),.99999) : 15,0,1.5; XTitle="Second b-jet btag", Legend='TR'
+maxBJetPt: max(Jet1_pt,Jet2_pt) : 20, 0,400; XTitle="First b-jet p_{T} [GeV]"
+minBJetPt: min(Jet1_pt,Jet2_pt) : 20, 0,200; XTitle="Second b-jet p_{T} [GeV]"
+mtW: mt_2(LepGood1_pt,LepGood1_phi,met,met_phi) : 20,0,200; XTitle="M_{T}(l\,E_{T}^{miss}) [GeV]"
+mWjj:  bestMWjj: 40,0,200; XTitle="best M(jj) [GeV]"
+ptWjj:  bestMWjjPt: 20,0,200; XTitle="p_{T} of best W#rightarrowjj [GeV]"
+mtjjb:  bestMTopHad: 40,100,300; XTitle="best M(jjb) [GeV]"

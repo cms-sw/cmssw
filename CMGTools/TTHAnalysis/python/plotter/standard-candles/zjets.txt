@@ -1,0 +1,4 @@
+2L SF/OS: nLepGood >= 2 && LepGood1_pdgId == -LepGood2_pdgId
+m(ll) > 12: mZ1 > 12
+lep MVA: min(LepGood1_mva,LepGood2_mva) >= 0.7
+# conv veto: (abs(LepGood1_pdgId) == 13 || (LepGood1_convVeto > 0 && LepGood1_lostHits == 0)) && (abs(LepGood2_pdgId) == 13 || (LepGood2_convVeto > 0 && LepGood2_lostHits == 0)) 

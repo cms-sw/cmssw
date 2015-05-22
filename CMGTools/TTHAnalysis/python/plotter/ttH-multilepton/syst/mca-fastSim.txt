@@ -1,0 +1,33 @@
+#NOMINAL
+TTH+      : TTH : 0.1271 : GenHiggsDecayMode > 0   ; FillColor=1, Label="FullSim", LineWidth=4, LineStyle=7
+TTW+ 	 : TTWJets:    0.232    ;  FillColor=1,  Label="Madgraph"
+TTZ+ 	 : TTZJets:    0.208    ;  FillColor=1, Label="ttZ"
+## MC@NLO samples 
+TTW_nlo       : TTWnlo:    0.232    ;  FillColor=222,  Label="aMC@NLO"
+TTW_powhel    : FastSim_TTWp_Powhel:    (0.232/0.203)*0.1426*0.0495  ;  FillColor=209,  Label="Powhel"
+TTW_powhel    : FastSim_TTWm_Powhel:    (0.232/0.203)*0.0605*0.0510  ;  FillColor=209,  Label="Powhel"
+TTW_madgraph   : FastSim_TTWJets           : 0.232  * 0.0501  ; FillColor=1, Label="Madgraph"
+
+# FastSim samples, including gen-filter efficiency
+TTH_nominal   : FastSim_TTHJets           : 0.1271 * 0.0219 : GenHiggsDecayMode > 0  ; FillColor=209, Label="ttH/0"
+TTH_scaleDown : FastSim_TTHJets_scaleDown : 0.1271 * 0.0223 : GenHiggsDecayMode > 0  ; FillColor=61, Label="ttH/-"
+TTH_scaleUp   : FastSim_TTHJets_scaleUp   : 0.1271 * 0.0211 : GenHiggsDecayMode > 0  ; FillColor=2,  Label="ttH/+"
+
+TTW_nominal   : FastSim_TTWJets           : 0.232  * 0.0501  ; FillColor=209, Label="ttW/0"
+TTW_scaleDown : FastSim_TTWJets_scaleDown : 0.232  * 0.0491  ; FillColor=61, Label="ttW/-"
+TTW_scaleUp   : FastSim_TTWJets_scaleUp   : 0.232  * 0.0507  ; FillColor=97,  Label="ttW/+"
+TTW_xqtDown   : FastSim_TTWJets_xqtDown   : 0.232  * 0.0491  ; FillColor=9, Label="ttW/m"
+TTW_xqtUp     : FastSim_TTWJets_xqtUp     : 0.232  * 0.0499  ; FillColor=205,  Label="ttW/M"
+
+TTZ_nominal   : FastSim_TTZJets           : 0.208  * 0.0354  ; FillColor=209, Label="ttZ/0"
+TTZ_scaleDown : FastSim_TTZJets_scaleDown : 0.208  * 0.0353  ; FillColor=61, Label="ttZ/-"
+TTZ_scaleUp   : FastSim_TTZJets_scaleUp   : 0.208  * 0.0356  ; FillColor=97,  Label="ttZ/+"
+TTZ_xqtDown   : FastSim_TTZJets_xqtDown   : 0.208  * 0.0353  ; FillColor=9, Label="ttZ/m"
+TTZ_xqtUp     : FastSim_TTZJets_xqtUp     : 0.208  * 0.0350  ; FillColor=205,  Label="ttZ/M"
+
+## For TTH in pythia, also take into account that we have switched off H->qq 
+TTH_tuneD6T    : FastSim_TTHJets_tuneD6T    : 0.1271 * 0.394 * 0.0875 : GenHiggsDecayMode > 0  ; FillColor=100, Label="D6T"
+TTH_tuneP11    : FastSim_TTHJets_tuneP11    : 0.1271 * 0.394 * 0.0872 : GenHiggsDecayMode > 0  ; FillColor=209, Label="P11"
+TTH_tuneProQ20 : FastSim_TTHJets_tuneProQ20 : 0.1271 * 0.394 * 0.0873 : GenHiggsDecayMode > 0  ; FillColor=222, Label="ProQ20"
+TTH_tuneZ2     : FastSim_TTHJets_tuneZ2     : 0.1271 * 0.394 * 0.0877 : GenHiggsDecayMode > 0  ; FillColor=60,  Label="Z2"
+TTH_tuneZ2Star : FastSim_TTHJets_tuneZ2Star : 0.1271 * 0.394 * 0.0872 : GenHiggsDecayMode > 0  ; FillColor=214,   Label="Z2Star"

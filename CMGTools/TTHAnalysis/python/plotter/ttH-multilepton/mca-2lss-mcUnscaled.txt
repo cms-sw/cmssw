@@ -1,0 +1,121 @@
+# --- ttH split by decay mode (with proper sigma*BR for 125.7)
+ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+# --- ttH inclusive
+#ttH+     : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttH+     : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+#ttH+     : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+TTW 	 : TTWJets:    0.208    ;  FillColor=ROOT.kGreen-5
+TTZ 	 : TTZJets:    0.206    ;  FillColor=ROOT.kSpring+2
+TTWW 	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9
+# 
+# or also lumped together
+#TTV 	 : TTWJets:    0.232    ;  FillColor=ROOT.kGreen-5, NormSystematic=0.2
+#TTV 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2
+#TTV	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9, NormSystematic=0.2
+
+# --- TT gamma*
+TTGStar	 : FastSim_TTGStarMM: 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+TTGStar	 : FastSim_TTGStarEE: 1.5*0.02724*0.104;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+TTGStar	 : FastSim_TTGStarTT: 1.5*0.00133*0.038;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+#TTGStarMM	 : FastSim_TTGStarMM: 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma* \#mu\#mu"
+#TTGStarEE	 : FastSim_TTGStarEE: 1.5*0.02724*0.104;  FillColor=ROOT.kSpring+8, Label="TT\#gamma* ee"
+#TTGStarTT	 : FastSim_TTGStarTT: 1.5*0.00133*0.038;  FillColor=ROOT.kMagenta-10, Label="TT\#gamma* \#tau\#tau"
+#TTGStar	 : FastSim_TTGStar: 2.5*0.00195*0.3852;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+
+# --- Multiboson
+VVV 	 : WWWJets:    0.08217  ;  FillColor=ROOT.kViolet
+VVV 	 : WWZJets:    0.0633   ;  FillColor=ROOT.kViolet
+WZ 	 : WZJets:     1.057*1.10    ;  FillColor=ROOT.kViolet-4
+#ZZ       : ZZJets4L:   0.157    ;  FillColor=ROOT.kAzure-9
+# --- Powheg ZZ (for mll < 12, but less accurate in N(Jet))
+ZZ	 : ZZ2e2mu:    0.1767  *1.21;  FillColor=ROOT.kAzure-9
+ZZ 	 : ZZ2e2tau:   0.1767  *1.21;  FillColor=ROOT.kAzure-9
+ZZ 	 : ZZ2mu2tau:  0.1767  *1.21;  FillColor=ROOT.kAzure-9
+ZZ	 : ZZTo4mu:    0.07691 *1.21;  FillColor=ROOT.kAzure-9   
+ZZ       : ZZTo4e:     0.07691*1.21 ;  FillColor=ROOT.kAzure-9
+ZZ       : ZZTo4tau:   0.07691*1.21 ;  FillColor=ROOT.kAzure-9
+#ZZ   : FastSim_ZGStar4L : 28.76*0.0188*1.28 ;  FillColor=ROOT.kAzure-9
+
+# --- Rare backgrounds
+TBZ:   TBZToLL : 0.0114
+WWqq:  WpWpqq  : 0.2482
+WWqq:  WmWmqq  : 0.0889
+WWDPI: WWDPI   : 0.5879
+
+# TT+gamma (take k-factor as for ttbar)
+TTG      : TTG:        1.444*1.8    ;  FillColor=ROOT.kGray+3    
+
+
+# -- Reducible background: charge-flip
+QFlip   : TTJetsLep:      25.77*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)) : LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0;  FillColor=ROOT.kGray, NormSystematic=0.2
+QFlip   : TtW:        11.73   : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kGray+2, NormSystematic=0.2
+QFlip   : TbartW:     11.73   : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kGray+2, NormSystematic=0.2
+QFlip   : DYJetsM10 : 915     : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kCyan
+QFlip   : DY1JetsM50 : 666.3  : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kViolet-4
+QFlip   : DY2JetsM50 : 215.0  : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kViolet-4
+QFlip   : DY3JetsM50 :  60.7  : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kViolet-4
+QFlip   : DY4JetsM50 :  27.4  : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kViolet-4
+QFlip   : WWJets:     5.995   : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  ;  FillColor=ROOT.kBlue-9
+
+
+# -- Reducible background: fakes
+Fakes   : TTJetsLep:      25.77*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)) : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0);  FillColor=ROOT.kGray, NormSystematic=0.2
+Fakes   : TTJetsSem:	  107.53*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312));  FillColor=ROOT.kGray, NormSystematic=0.2
+Fakes   : TTJetsHad:     112.16*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312));  FillColor=ROOT.kGray, NormSystematic=0.2
+Fakes   : TtW:        11.73   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kGray+2, NormSystematic=0.2
+Fakes   : TbartW:     11.73   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kGray+2, NormSystematic=0.2
+Fakes   : Ttch:       56.4     ;  FillColor=28
+Fakes	: Tbartch:    30.7     ;  FillColor=28
+Fakes   : DYJetsM10 : 915     : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kCyan
+Fakes   : DY1JetsM50 : 666.3  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kViolet-4
+Fakes   : DY2JetsM50 : 215.0  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kViolet-4
+Fakes   : DY3JetsM50 :  60.7  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kViolet-4
+Fakes   : DY4JetsM50 :  27.4  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0) ;  FillColor=ROOT.kViolet-4
+Fakes   : W1Jets    : 6642.0   ;  FillColor=ROOT.kCyan+2
+Fakes   : W2Jets    : 2152.0   ;  FillColor=ROOT.kCyan+2
+Fakes   : W3Jets    : 638.4    ;  FillColor=ROOT.kCyan+2
+Fakes   : W4Jets    : 263.2    ;  FillColor=ROOT.kCyan+2
+Fakes   : WWJets:     5.995   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  ;  FillColor=ROOT.kBlue-9
+
+# --- DATA
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+# ---- These below are only for systematics and datacards, and won't be included in the plots ----
+ttH_htt_JES_Up   : TTH_JES_Up  : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15; FillColor=206,  Label="ttH JES Up", SkipMe=True 
+ttH_hzz_JES_Up   : TTH_JES_Up  : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23; FillColor=206,  Label="ttH JES Up", SkipMe=True 
+ttH_hww_JES_Up   : TTH_JES_Up  : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24; FillColor=206,  Label="ttH JES Up", SkipMe=True 
+ttH_htt_JES_Dn   : TTH_JES_Down: 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15; FillColor=206,  Label="ttH JES Dn", SkipMe=True 
+ttH_hzz_JES_Dn   : TTH_JES_Down: 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23; FillColor=206,  Label="ttH JES Dn", SkipMe=True 
+ttH_hww_JES_Dn   : TTH_JES_Down: 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24; FillColor=206,  Label="ttH JES Dn", SkipMe=True 
+#ttH_JER_Up : TTH_JER_Up   : 0.1271 : GenHiggsDecayMode > 0  ; FillColor=222,  Label="ttH JER Up", SkipMe=True
+#ttH_JER_Dn : TTH_JER_Down : 0.1271 : GenHiggsDecayMode > 0  ; FillColor=209,  Label="ttH JER Dn", SkipMe=True
+
+TTW_JES_Up : TTWJets_JES_Up   : 0.232  ; FillColor=206,  Label="TTW JES Up", SkipMe=True
+TTW_JES_Dn : TTWJets_JES_Down : 0.232  ; FillColor=61,   Label="TTW JES Dn", SkipMe=True
+#TTW_JER_Up : TTWJets_JER_Up   : 0.232  ; FillColor=222,  Label="TTW JER Up", SkipMe=True
+#TTW_JER_Dn : TTWJets_JER_Down : 0.232  ; FillColor=209,  Label="TTW JER Dn", SkipMe=True
+
+TTZ_JES_Up : TTZJets_JES_Up   : 0.208  ; FillColor=206,  Label="TTZ JES Up", SkipMe=True
+TTZ_JES_Dn : TTZJets_JES_Down : 0.208  ; FillColor=61,   Label="TTZ JES Dn", SkipMe=True
+#TTZ_JER_Up : TTZJets_JER_Up   : 0.208  ; FillColor=222,  Label="TTZ JER Up", SkipMe=True
+#TTZ_JER_Dn : TTZJets_JER_Down : 0.208  ; FillColor=209,  Label="TTZ JER Dn", SkipMe=True
+
+
+WZ_JES_Up: WZJets_skim2j_JES_Up:       1.057*1.12    ;  FillColor=ROOT.kViolet-4, SkipMe=True
+WZ_JES_Dn: WZJets_skim2j_JES_Down:     1.057*1.09    ;  FillColor=ROOT.kViolet-4, SkipMe=True
+#ZZ_JES_Up: ZZJets4L_skim3l1j_JES_Up:   0.157    ;  FillColor=ROOT.kAzure-9,  SkipMe=True
+#ZZ_JES_Dn: ZZJets4L_skim3l1j_JES_Down: 0.157    ;  FillColor=ROOT.kAzure-9,  SkipMe=True
+
+

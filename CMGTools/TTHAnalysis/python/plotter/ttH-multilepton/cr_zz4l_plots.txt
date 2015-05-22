@@ -1,0 +1,27 @@
+nJet25 : nJet25 : 6,-0.5,5.5 ; XTitle='N(jet\, p_{T} > 25)'
+nJet25_log : nJet25 : 6,-0.5,5.5 ; XTitle='N(jet\, p_{T} > 25)',Logy
+#nBJetLoose25 : nBJetLoose25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505, Legend='TR',Logy
+#nBJetMedium25 : nBJetMedium25 : 4,-0.5,3.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505, Legend='TR',Logy
+met: met: [0,5,10,15,20,25,30,35,40,50,60,80,100]  ; XTitle="E_{T}^{miss}  [GeV]", YTitle="Events/GeV", Density=True
+metLD: met*0.00397 + mhtJet25*0.00265 : [0,0.05,0.10,0.15,0.20,0.25,0.30,0.40] ; XTitle="E_{T}^{miss} LD", YTitle="Events/1", Density=True
+mZ1_narrow: mZ1: 30,72,102 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+mZ1_wide: mZ1: 35,40,110 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+mZ2_wide: mZ2: 35,0,140 ; XTitle="second best m(l^{+}l^{-})  [GeV]", Legend='TL'
+minMllAFAS: minMllAFAS: [0,4,8,12,15,20,30,40,60,80,100,140]; XTitle="min m(ll')  [GeV]", YTitle="Events/GeV", Density=True
+minMllAFOS: minMllAFOS: [0,4,8,12,15,20,30,40,60,80,100,140]; XTitle="min m(l^{+}l^{-}')  [GeV]", YTitle="Events/GeV", Density=True
+lepMVA12: min(LepGood1_mva,LepGood2_mva) : 20,0,1; XTitle="Lepton MVA(l_{1}\,l_{2})",Legend='TL'
+lepMVA34: min(LepGood4_mva,LepGood3_mva) : 20,-1,1; XTitle="Lepton MVA(l_{3}\,l_{4}",Legend='TL'
+l1Pt:  LepGood1_pt: 20,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+l2Pt:  LepGood2_pt: 12,0,120; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+l3Pt:  LepGood3_pt: 20,0,100; XTitle="Third lepton p_{T}  [GeV]", Legend='TR'
+l4Pt:  LepGood4_pt: 20,0,100; XTitle="Fourth lepton p_{T}  [GeV]", Legend='TR'
+l4Pt_d:  LepGood4_pt: [5,7,8.5,10,12.5,15,20] ; XTitle="Fourth lepton p_{T}  [GeV]", Legend='TR', YTitle="Events/GeV", Density=True
+lep1Eta:  abs(LepGood1_eta): 5,0,2.5; XTitle="Leading lepton |#eta|", Legend='TR'
+lep2Eta:  abs(LepGood2_eta): 5,0,2.5; XTitle="Subleading lepton |#eta|", Legend='TR'
+lep3Eta:  abs(LepGood3_eta): 5,0,2.5; XTitle="Third lepton |#eta|", Legend='TR'
+lep4Eta:  abs(LepGood4_eta): 5,0,2.5; XTitle="Fourth lepton |#eta|", Legend='TR'
+m4l: m4l : [70,80,85,90,95,100,110,120,125,130,135,140,150,160,170,175,180,185,190,195,200,210,220,230,240,260,280,300,350,400,500]; XTitle="m(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]", Density=True, YTitle="Events/GeV"
+m4l_z4l: m4l : 13,80,106; XTitle="m(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]"
+m4l_logX: m4l : 50,50,600; XTitle="m(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]",Logx
+ht4l: ht4l : 20,0,600; XTitle="sum p_{T} l_{1}\,l_{2}\,l_{3}\,l_{4} [GeV]"
+pt4l: pt4l : 20,0,400; XTitle="pT(l_{1}\,l_{2}\,l_{3}\,l_{4}) [GeV]",Logy

@@ -1,0 +1,11 @@
+#mZ1: mZ1: 120,81.2,101.2 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR'
+#mZ1: mZ1: 30,71.2,101.2 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR'
+mZ1: mZ1: 24,0,120 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR'
+#mll: mZ1: 100,0,200; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR'
+m3l: m3l: 20,70,110; XTitle="m(lll)  [GeV]", Legend='TR'
+#m3l: m3l: [70,75,78,81,83,85,87,89,91,93,96,100,105,110]; XTitle="m(lll)  [GeV]", Legend='TR', Density=True, YTitle='Events / (1 GeV)'
+minmll: minMllAFAS: 40,0,80; XTitle="min m(ll) [GeV]"
+mva3l: min(min(LepGood1_mva,LepGood2_mva),LepGood3_mva): 20,-1,1; XTitle="mva3l"
+mtW: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,Photon1_pt,Photon1_eta,Photon1_phi,Photon1_mass,mZ1,met,met_phi) : 5,0,40 ; XTitle="M_{T}(W#rightarrowlv)"
+#mtW_full: mtw_wz3l(LepGood1_pt,LepGood1_eta,LepGood1_phi,LepGood1_mass,LepGood2_pt,LepGood2_eta,LepGood2_phi,LepGood2_mass,Photon1_pt,Photon1_eta,Photon1_phi,Photon1_mass,mZ1,met,met_phi) : 18,0,180 ; XTitle="M_{T}(W#rightarrowlv)"
+metLD: met*0.00397 + mhtJet25*0.00265 : 10,0.0,0.5 ; XTitle="E_{T}^{miss} LD"

@@ -1,0 +1,7 @@
+nJet25 : nJet25 : [1.5,2.5,3.5] ; XTitle='N(jet)', XNDiv=305
+met: met: 4,0,200    ; XTitle="E_{T}^{miss}  [GeV]"
+q4l: (LepGood1_charge + LepGood2_charge + LepGood3_charge + LepGood4_charge) : [-2.5,-1.5,-0.5,0.5,1.5,2.5,4]; XTitle="q_{tot}(4l)",XNDiv=505
+ht4l: ht4l : 4,0,400; XTitle="H_{T}(4l) [GeV]"
+htll34: LepGood3_pt+LepGood4_pt : 4,0,100; XTitle="p_{T}(l_{3}) + p_{T}(l_{4})  [GeV]"
+minMllAFOS: minMllAFOS: [0,12,20,40,80] ; XTitle="min m(l^{+}l^{-}')  [GeV]"
+minMllAFAS: minMllAFAS: [0,12,20,40,80] ; XTitle="min m(ll')  [GeV]"

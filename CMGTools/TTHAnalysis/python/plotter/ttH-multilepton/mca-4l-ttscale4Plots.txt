@@ -1,0 +1,66 @@
+# --- ttH split by decay mode (with proper sigma*BR for 125.7)
+#ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+#ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+# --- ttH inclusive
+#ttH+     : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttH+     : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+#ttH+     : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+# --- more statistics
+ttH+     : TTH    : 0.34 * 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH    : 0.34 * 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH    : 0.34 * 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH122 : 0.33 * 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH122 : 0.33 * 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH122 : 0.33 * 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH127 : 0.33 * 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH127 : 0.33 * 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH127 : 0.33 * 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+TTZ 	 : TTZJets:    0.206    ;  FillColor=ROOT.kSpring+2, Label="ttZ/\#gamma*"
+
+# --- Multiboson
+ZZ       : ZZJets4L:   0.157*1.21   ;  FillColor=ROOT.kAzure-9
+#ZZ       : ZZJets4L:   0.157*1.21   ;  FillColor=ROOT.kAzure-9, Label="Z\#rightarrow4l"
+
+# -- TTbar and single top
+#
+# leptonic and inclusive decays (NNLO+NNLL cross sections)
+TT 	 : TTJetsLep:    7*0.5*25.77: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, NormSystematic=0.5,Label="Fakes"
+TT 	 : TTLep:        7*0.5*25.77: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, NormSystematic=0.5,Label="Fakes"
+
+RARE 	 : WWZJets:    0.0633   ;  FillColor=ROOT.kBlue-9,   NormSystematic=0.2, Label="Others"
+RARE 	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9
+
+# --- DATA
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+# ---- These below are only for systematics and datacards, and won't be included in the plots ----
+ttH_htt_JES_Up   : TTH_JES_Up  : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15; FillColor=206,  Label="ttH JES Up", SkipMe=True 
+ttH_hzz_JES_Up   : TTH_JES_Up  : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23; FillColor=206,  Label="ttH JES Up", SkipMe=True 
+ttH_hww_JES_Up   : TTH_JES_Up  : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24; FillColor=206,  Label="ttH JES Up", SkipMe=True 
+ttH_htt_JES_Dn   : TTH_JES_Down: 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15; FillColor=206,  Label="ttH JES Dn", SkipMe=True 
+ttH_hzz_JES_Dn   : TTH_JES_Down: 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23; FillColor=206,  Label="ttH JES Dn", SkipMe=True 
+ttH_hww_JES_Dn   : TTH_JES_Down: 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24; FillColor=206,  Label="ttH JES Dn", SkipMe=True 
+#ttH_JER_Up : TTH_JER_Up   : 0.1271 : GenHiggsDecayMode > 0  ; FillColor=222,  Label="ttH JER Up", SkipMe=True
+#ttH_JER_Dn : TTH_JER_Down : 0.1271 : GenHiggsDecayMode > 0  ; FillColor=209,  Label="ttH JER Dn", SkipMe=True
+
+TTZ_JES_Up : TTZJets_JES_Up   : 0.208  ; FillColor=206,  Label="TTZ JES Up", SkipMe=True
+TTZ_JES_Dn : TTZJets_JES_Down : 0.208  ; FillColor=61,   Label="TTZ JES Dn", SkipMe=True
+#TTZ_JER_Up : TTZJets_JER_Up   : 0.208  ; FillColor=222,  Label="TTZ JER Up", SkipMe=True
+#TTZ_JER_Dn : TTZJets_JER_Down : 0.208  ; FillColor=209,  Label="TTZ JER Dn", SkipMe=True
+
+ZZ_JES_Up: ZZJets4L_skim3l1j_JES_Up:   0.157*1.19    ;  FillColor=ROOT.kAzure-9,  SkipMe=True
+ZZ_JES_Dn: ZZJets4L_skim3l1j_JES_Down: 0.157*1.22    ;  FillColor=ROOT.kAzure-9,  SkipMe=True
+
+
+

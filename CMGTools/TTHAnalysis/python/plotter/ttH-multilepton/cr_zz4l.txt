@@ -1,0 +1,8 @@
+>= 4 good leptons: nLepGood >= 4
+pt2010: LepGood1_pt>20 && LepGood2_pt>10
+softCleanup: minMllAFAS > 12
+lep12 MVA: min(LepGood1_mva,LepGood2_mva) > -0.3
+lep34 MVA: min(LepGood3_mva,LepGood4_mva) > -0.3
+#Z : abs(mZ1-91.2) > 10
+b veto: nBJetLoose25 == 0
+#m4l : m4l < 106

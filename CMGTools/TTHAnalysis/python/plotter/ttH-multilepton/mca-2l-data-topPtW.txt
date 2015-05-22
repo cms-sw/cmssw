@@ -1,0 +1,77 @@
+# --- ttH split by decay mode
+#ttHWW+   : TTH : 0.1271 : GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+#ttHtt+   : TTH : 0.1271 : GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttHZZ+   : TTH : 0.1271 : GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+# --- ttH inclusive
+#ttH+     : TTH : 0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+#TTW 	 : TTWJets:    0.232    ;  FillColor=ROOT.kGreen-5
+#TTZ 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2
+#TTWW 	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9
+# 
+# or also lumped together
+TTV 	 : TTWJets:    0.232    ;  FillColor=ROOT.kGreen-5, Label="ttV"
+TTV 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2
+#TTV	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9
+TTV	 : FastSim_TTGStarMM: 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+TTV	 : FastSim_TTGStarEE: 1.5*0.02724*0.104;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+TTV	 : FastSim_TTGStarTT: 1.5*0.00133*0.038;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+
+# --- Multiboson
+#VVV 	 : WWWJets:    0.08217  ;  FillColor=ROOT.kViolet
+#VVV 	 : WWZJets:    0.0633   ;  FillColor=ROOT.kViolet
+VV 	 : WWJets:     5.995    ;  FillColor=ROOT.kBlue-9, Label="Diboson"
+VV 	 : WZJets:     1.057    ;  FillColor=ROOT.kViolet-4, Label="Diboson"
+VV	 : ZZ2e2mu:    0.1767   ;  FillColor=ROOT.kAzure-9, Label="Diboson"
+VV 	 : ZZ2e2tau:   0.1767   ;  FillColor=ROOT.kAzure-9, Label="Diboson"
+VV 	 : ZZ2mu2tau:  0.1767   ;  FillColor=ROOT.kAzure-9, Label="Diboson"
+VV	 : ZZTo4mu:    0.07691  ;  FillColor=ROOT.kAzure-9, Label="Diboson"
+VV       : ZZTo4e:     0.07691  ;  FillColor=ROOT.kAzure-9, Label="Diboson"
+VV       : ZZTo4tau:   0.07691  ;  FillColor=ROOT.kAzure-9, Label="Diboson"
+
+
+# -- TTbar and single top
+#
+# leptonic and inclusive decays (use only one!)
+#TT 	 : TTJetsLep:     23.64    ;  FillColor=ROOT.kGray
+#TT 	 : TTJetsSem:	  98.65     ;  FillColor=ROOT.kGray
+#TT 	 : TTJetsHad:     102.9    ;  FillColor=ROOT.kGray
+# --- older samples
+#TT 	 : TTLep:      23.64    ;  FillColor=ROOT.kGray
+TT+ : TTJetsLep:   25.77: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, Label="tt"
+TT+ : TTJetsSem:  107.53: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, Label="tt"
+TT+ : TTJetsHad:  112.16: 1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)    ;  FillColor=ROOT.kGray, Label="tt"
+
+# Top+W associated prod.
+TW+ 	 : TtW:        11.73    ;  FillColor=ROOT.kGray+2, Label="tW"
+TW+ 	 : TbartW:     11.73    ;  FillColor=ROOT.kGray+2, Label="tW"
+#
+# TT+gamma
+#TTG      : TTG:        1.444    ;  FillColor=ROOT.kGray+3    
+
+# -- DY, usually to be used in jet bins
+DY       : DYJetsM10 : 915      ;  FillColor=ROOT.kCyan
+DY       : DYJetsM50 : 3503.7   ;  FillColor=ROOT.kCyan
+
+
+
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+FR_data  : DoubleMuAB;            FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : DoubleMuC;             FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : DoubleMuD;             FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : DoubleElectronAB;      FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : DoubleElectronC;       FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : DoubleElectronD;       FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : MuEGAB;                FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : MuEGC;                 FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'
+FR_data  : MuEGD;                 FillColor=ROOT.kCyan+2, FakeRate='fakeRate_2lss.txt', Label='Fakes'

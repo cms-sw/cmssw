@@ -1,0 +1,78 @@
+TTH+ : TTH : xsec ; FillColor=ROOT.kOrange+1, Label="ttH", NormSystematic=0.2
+
+# --- Backgrounds with prompt leptons
+TTV : TTWJets: xsec ; FillColor=ROOT.kGreen-5,  Label="ttV", NormSystematic=0.2 
+TTV : TTZJets: xsec ; FillColor=ROOT.kSpring+2, Label="ttV", NormSystematic=0.2
+WZ  : WZJetsTo3LNu:     2.165    ;  Label="WZ", FillColor=ROOT.kViolet-4,  NormSystematic=0.3
+ZZ  : ZZTo4L:           0.1081   ;  Label="ZZ", FillColor=ROOT.kAzure-9,  NormSystematic=0.3
+
+# -- TTbar & related Backgrounds
+Fakes_TT : TTJets:             xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_TT : T_tWch:             xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_TT : TBar_tWch:          xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_TT : TToLeptons_tch:     xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_TT : TBarToLeptons_tch:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_TT : TToLeptons_sch:     xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_TT : TBarToLeptons_sch:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+
+Fakes_b_TT : TTJets: xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 5  || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 5 ) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_c_TT : TTJets: xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 4  || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 4 ) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_l_TT : TTJets: xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && (LepGood_mcMatchAny[iL1p_Old] <= 3 || LepGood_mcMatchAny[iL1p_Old] == 21 )  || LepGood_mcMatchId[iL2p_Old] == 0 && ( LepGood_mcMatchAny[iL2p_Old] <= 3  || LepGood_mcMatchAny[iL2p_Old] == 21 ) ) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+Fakes_f_TT : TTJets: xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 0 ) ; FillColor=ROOT.kGray+1, Label="top", NormSystematic=0.3
+
+# -- V+jets & related backgrounds
+Fakes_VJets : DYJetsToLL_M50_HT100to200 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : DYJetsToLL_M50_HT200to400 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : DYJetsToLL_M50_HT400to600 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : DYJetsToLL_M50_HT600toInf :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : WJetsToLNu_HT100to200     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : WJetsToLNu_HT200to400     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : WJetsToLNu_HT400to600     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+Fakes_VJets : WJetsToLNu_HT600toInf     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0); Label="V+jets", FillColor=ROOT.kCyan+1, NormSystematic=0.5
+
+
+# -- TTbar & related Backgrounds
+FRmc_TT    : TTJets:                      xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_TT    : T_tWch:                      xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_TT    : TBar_tWch:                   xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_TT    : TToLeptons_tch:              xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_TT    : TBarToLeptons_tch:           xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_TT    : TToLeptons_sch:              xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_TT    : TBarToLeptons_sch:           xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_VJets : DYJetsToLL_M50_HT100to200 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : DYJetsToLL_M50_HT200to400 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : DYJetsToLL_M50_HT400to600 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : DYJetsToLL_M50_HT600toInf :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : WJetsToLNu_HT100to200     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : WJetsToLNu_HT200to400     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : WJetsToLNu_HT400to600     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FRmc_VJets : WJetsToLNu_HT600toInf     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+
+FRmc_b_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 5 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 5) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_c_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 4 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 4) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_l_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 &&(LepGood_mcMatchAny[iL1p_Old] <= 3 || LepGood_mcMatchAny[iL1p_Old] == 21) || LepGood_mcMatchId[iL2p_Old] == 0 && (LepGood_mcMatchAny[iL2p_Old] <= 3 || LepGood_mcMatchAny[iL2p_Old] == 21)) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FRmc_f_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-mc.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+
+# -- TTbar & related Backgrounds
+FR1_TT    : TTJets:                      xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_TT    : T_tWch:                      xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_TT    : TBar_tWch:                   xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_TT    : TToLeptons_tch:              xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_TT    : TBarToLeptons_tch:           xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_TT    : TToLeptons_sch:              xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_TT    : TBarToLeptons_sch:           xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_VJets : DYJetsToLL_M50_HT100to200 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : DYJetsToLL_M50_HT200to400 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : DYJetsToLL_M50_HT400to600 :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : DYJetsToLL_M50_HT600toInf :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : WJetsToLNu_HT100to200     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : WJetsToLNu_HT200to400     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : WJetsToLNu_HT400to600     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+FR1_VJets : WJetsToLNu_HT600toInf     :  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR V+jets",  FillColor=ROOT.kViolet+1, NormSystematic=0.5
+
+FR1_b_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 5 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 5) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_c_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 4 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 4) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_l_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 &&(LepGood_mcMatchAny[iL1p_Old] <= 3 || LepGood_mcMatchAny[iL1p_Old] == 21) || LepGood_mcMatchId[iL2p_Old] == 0 && (LepGood_mcMatchAny[iL2p_Old] <= 3 || LepGood_mcMatchAny[iL2p_Old] == 21)) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+FR1_f_TT : TTJets:  xsec : (LepGood_mcMatchId[iL1p_Old] == 0 && LepGood_mcMatchAny[iL1p_Old] == 0 || LepGood_mcMatchId[iL2p_Old] == 0 && LepGood_mcMatchAny[iL2p_Old] == 0) ; FakeRate='ttH-multilepton/fakeRate-Phys14-2lss-mva06i-unit.txt', Label="FR top", FillColor=ROOT.kOrange+2, NormSystematic=0.3
+
+

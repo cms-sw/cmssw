@@ -1,0 +1,27 @@
+== 2 good leptons: nLepGood == 2 || LepGood3_mva < 0.7
+cleanup: minMllAFAS > 12
+pt2010: LepGood1_pt>20 && LepGood2_pt>10
+pt2020_htllv100 : LepGood2_pt > 20 && LepGood1_pt+LepGood2_pt+met > 100
+lep MVA: max(LepGood1_mva,LepGood2_mva) > 0.3
+mu mu:  abs(LepGood1_pdgId) == 13 && abs(LepGood2_pdgId) == 13
+same-sign: LepGood1_charge*LepGood2_charge > 0
+tight-charge: LepGood1_tightCharge && LepGood2_tightCharge
+4j: nJet25>=4
+2b loose: nBJetMedium25 >= 1 || nBJetLoose25 >= 2
+2B tight: nBJetMedium25 >= 2
+#base: mc_has_b  && 
+#Wlv: mc_has_Wlv
+#fake: mc_has_lfake
+#bfake: mc_has_lb
+#acc Wjj: mc_has_Wjj_gen
+#Wjj: mc_has_Wjj
+#tjjb: mc_has_tjjb
+#tjjlb: mc_has_tjjlb
+#tlvb: mc_has_tlvb
+#tlvlb: mc_has_tlvlb
+#twosol: abs(mc_v_pz1 - mc_v_pz2) > 10 
+#minok: abs(mc_v_pz_gen - if3(abs(mc_v_pz1)<abs(mc_v_pz2),mc_v_pz1,mc_v_pz2)) < abs(mc_v_pz_gen - if3(abs(mc_v_pz1)<abs(mc_v_pz2),mc_v_pz2,mc_v_pz1))
+#minok: abs(mc_v_pz_gen - if3(abs(mc_W_pz1)<abs(mc_W_pz2),mc_v_pz1,mc_v_pz2)) < abs(mc_v_pz_gen - if3(abs(mc_W_pz1)<abs(mc_W_pz2),mc_v_pz2,mc_v_pz1))
+#minok: abs(mc_v_pz_gen - if3(abs(mc_t_pz1)<abs(mc_t_pz2),mc_v_pz1,mc_v_pz2)) < abs(mc_v_pz_gen - if3(abs(mc_t_pz1)<abs(mc_t_pz2),mc_v_pz2,mc_v_pz1))
+#minok: abs(mc_v_pz_gen - if3(abs(mc_m_tlvb1-172.5)<abs(mc_m_tlvb2-172.5),mc_v_pz1,mc_v_pz2)) < abs(mc_v_pz_gen - if3(abs(mc_m_tlvb1-172.5)<abs(mc_m_tlvb2-172.5),mc_v_pz2,mc_v_pz1))
+#inok: abs(mc_m_tlvb_good_v_pz - if3(abs(mc_v_pz1)<abs(mc_v_pz2),mc_m_tlvb1,mc_m_tlvb2)) < abs(mc_m_tlvb_good_v_pz  - if3(abs(mc_v_pz1)<abs(mc_v_pz2),mc_m_tlvb1,mc_m_tlvb2))

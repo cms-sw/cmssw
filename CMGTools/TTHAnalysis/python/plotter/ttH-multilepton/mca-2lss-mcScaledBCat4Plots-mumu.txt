@@ -1,0 +1,86 @@
+# --- ttH split by decay mode (with proper sigma*BR for 125.7)
+#ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10, Label="ttH WW"
+#ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kPink+9, Label="ttH ZZ"
+#ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+4, Label="ttH \#tau\#tau"
+# --- ttH inclusive
+ttH+     : TTH : 3.14/2.67 * 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 3.14/2.67 * 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 3.14/2.67 * 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+# --- more statistics including also 122 and 127 GeV
+#ttH+     : TTH : 0.334*0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+#ttH+     : TTH122 : 0.333*0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+#ttH+     : TTH127 : 0.333*0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+TTW 	 : TTWJets:  10.55/8.18*  0.208    ;  FillColor=ROOT.kGreen-5,  NormSystematic=0.2, Label="ttW"
+TTZ 	 : TTZJets:  2.96/2.48 *  0.206    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2, Label="ttZ/\#gamma*"
+# 
+# or also lumped together
+#TTV 	 : TTWJets:    0.208    ;  FillColor=ROOT.kGreen-5, NormSystematic=0.2
+#TTV 	 : TTZJets:    0.206    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2
+#TTV	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9, NormSystematic=0.2
+# --- TT gamma*
+TTZ	 : FastSim_TTGStarMM:2.96/2.48 *  1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="tt\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarEE:2.96/2.48 *  1.5*0.02724*0.104;  FillColor=ROOT.kCyan-3, Label="tt\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarTT:2.96/2.48 *  1.5*0.00133*0.038;  FillColor=ROOT.kCyan-3, Label="tt\#gamma*", NormSystematic=0.5
+#TTGStarMM	 : FastSim_TTGStarMM: 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="TT\#gamma* \#mu\#mu"
+#TTGStarEE	 : FastSim_TTGStarEE: 1.5*0.02724*0.104;  FillColor=ROOT.kSpring+8, Label="TT\#gamma* ee"
+#TTGStarTT	 : FastSim_TTGStarTT: 1.5*0.00133*0.038;  FillColor=ROOT.kMagenta-10, Label="TT\#gamma* \#tau\#tau"
+# older samples with pt > 10 on both leptons
+#TTGStar	 : FastSim_TTGStar: 0.00195*0.3852;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+#TTGStar	 : FastSim_TTGStar: 2.5*0.00195*0.3852;  FillColor=ROOT.kCyan-3, Label="TT\#gamma*"
+
+# --- TT gamma
+#TTG      : TTG:        1.444*1.8    ;  FillColor=ROOT.kTeal-5, Label="tt\#gamma"    
+
+WZ 	 : WZJets:    1.02/0.81* 1.057*1.10   ;  FillColor=ROOT.kViolet-4, NormSystematic=0.2
+
+# --- Multiboson
+RARE 	 : WWWJets:  1.50/1.44*  0.08217  ;  FillColor=ROOT.kBlue-9,   NormSystematic=0.2, Label="Others"
+RARE 	 : WWZJets:  1.50/1.44*    0.0633   ;  
+# WW 	 : WWJets:     5.995    ;  FillColor=ROOT.kBlue-9 ## NO, this is from FR
+RARE     : ZZJets4L:  1.50/1.44*   0.157*1.21   ;  
+RARE 	 : TTWWJets:  1.50/1.44*   0.002037 ;
+# --- Powheg ZZ (for mll < 12, but less accurate in N(Jet))
+#ZZ	 : ZZ2e2mu:    0.1767   ;  FillColor=ROOT.kAzure-9
+#ZZ 	 : ZZ2e2tau:   0.1767   ;  FillColor=ROOT.kAzure-9
+#ZZ 	 : ZZ2mu2tau:  0.1767   ;  FillColor=ROOT.kAzure-9
+#ZZ	 : ZZTo4mu:    0.07691  ;  FillColor=ROOT.kAzure-9   
+#ZZ      : ZZTo4e:     0.07691  ;  FillColor=ROOT.kAzure-9
+
+# --- Rare backgrounds
+RARE: TBZToLL : 1.50/1.44*  0.0114;
+RARE: WpWpqq  : 1.50/1.44*  0.2482;
+RARE: WmWmqq  : 1.50/1.44*  0.0889;
+RARE: WWDPI   : 1.50/1.44*  0.5879;
+
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+
+# -- Reducible background: fakes
+Fakes_MC  : TTJetsLep:    3.32*  25.77*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)) : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0);  FillColor=ROOT.kGray, NormSystematic=0.4, Label="Fakes"
+Fakes_MC  : TTJetsSem:	3.32*  107.53*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312))
+Fakes_MC  : TTJetsHad: 3.32*    112.16*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312))
+Fakes_MC  : TtW:       3.32* 11.73   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : TbartW:    3.32* 11.73   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : Ttch:      3.32* 56.4     
+Fakes_MC  : Tbartch:   3.32* 30.7     
+Fakes_MC  : DYJetsM10 :3.32* 915     : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY1JetsM50 :3.32* 666.3  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY2JetsM50 :3.32* 215.0  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY3JetsM50 :3.32*  60.7  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY4JetsM50 :3.32*  27.4  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0) 
+Fakes_MC  : W1Jets    :3.32* 6642.0   
+Fakes_MC  : W2Jets    :3.32* 2152.0   
+Fakes_MC  : W3Jets    :3.32* 638.4    
+Fakes_MC  : W4Jets    : 3.32* 263.2    
+Fakes_MC  : WWJets:    3.32*  5.995   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+

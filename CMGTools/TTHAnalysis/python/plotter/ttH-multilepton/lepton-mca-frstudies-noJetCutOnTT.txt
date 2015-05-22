@@ -1,0 +1,2 @@
+change: LepGood_awayJet_\w+\s*(>|<|>=|<=)\s*\w+ : 1
+weight: 1

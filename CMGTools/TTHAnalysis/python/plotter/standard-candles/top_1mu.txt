@@ -1,0 +1,7 @@
+one mu: nLepGood == 1 && abs(LepGood1_pdgId) == 13 && LepGood1_pt > 25 && abs(LepGood1_eta) < 2.1 
+tight mva: LepGood1_mva >= +0.7
+four jets: nJet25 >= 4
+central jets: (abs(Jet1_eta) < 2.5) + (abs(Jet2_eta) < 2.5) + (abs(Jet3_eta) < 2.5) + (abs(Jet4_eta) < 2.5) == 4
+met LD > 0.30: met*0.00397 + mhtJet25*0.00265 > 0.30
+one b-jet: nBJetMedium25 >= 1
+#two b-jets: nBJetMedium25 >= 2

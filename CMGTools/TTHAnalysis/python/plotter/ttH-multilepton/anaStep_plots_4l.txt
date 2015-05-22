@@ -1,0 +1,6 @@
+nBJetLoose25 : nBJetLoose25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+nBJetMedium25 : nBJetMedium25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+mZ1_wide_log: mZ1: 60,0,180 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TR',Logy,LegendCutoff=1e-2
+mZ1: mZ1: 60,60,120 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+lepMVA3: min(min(LepGood1_mvaNew,LepGood2_mvaNew),LepGood3_mvaNew) : 50,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2}\,l_{3})",Legend='TL'
+lepMVA3_log: min(min(LepGood1_mvaNew,LepGood2_mvaNew),LepGood3_mvaNew): 50,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2}\,l_{3})",Legend='TL',Logy, LegendCutoff=1e-2

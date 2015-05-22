@@ -1,0 +1,10 @@
+## Let the first and second lepton always pass the MVA cuts (set the value to 1)
+cut-change: (LepGood[12])_mva: -0.65
+## define the FR weight
+weight: fakeRateWeight_2lssBCatX(LepGood1_pt,LepGood1_eta,LepGood1_pdgId,LepGood1_mva,LepGood2_pt,LepGood2_eta,LepGood2_pdgId,LepGood2_mva, -0.7, 0.7, nBJetMedium25)
+
+## load histograms 
+load-histo: FR_mu  : $DATA/fakerate/FR_merged_data_mu_mvacutsX.root : FR_tightMVAm07X_mu
+load-histo: FR_el  : $DATA/fakerate/FR_merged_data.root : FR_tight_el
+load-histo: FR2_mu : $DATA/fakerate/FR_merged_data_mu_mvacutsX.root : FR_tightMVAm072X_mu
+load-histo: FR2_el : $DATA/fakerate/FR_merged_data.root : FR_tight2_el

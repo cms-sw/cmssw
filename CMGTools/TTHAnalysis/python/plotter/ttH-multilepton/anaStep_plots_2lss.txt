@@ -1,0 +1,13 @@
+nBJetLoose25 : nBJetLoose25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+nBJetMedium25 : nBJetMedium25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+metLD: met*0.00397 + mhtJet25*0.00265 : 50,-0.1,1.4 ; XTitle="E_{T}^{miss} LD",  Legend='TR'
+lepMVA2: min(LepGood1_mvaNew,LepGood2_mvaNew) : 50,-1,1; XTitle="Lepton MVA(l_{1}\,l_{2})",Legend='TL'
+met: met: 50,0,200    ; XTitle="E_{T}^{miss}  [GeV]",Logy
+#met_zoom: met: 50,0,50    ; XTitle="E_{T}^{miss}  [GeV]",Logy
+#metNoPU_zoom: metNoPU: 50,0,50    ; XTitle="NoPU E_{T}^{miss} [GeV]",Logy
+metLD: met*0.00397 + mhtJet25*0.00265: 32,0,1.6    ; XTitle="E_{T}^{miss} LD"
+mll: minMllAFAS: 20,0,400 ; XTitle="m(ll)  [GeV]", Legend='TR'
+#l1pt:  LepGood1_pt: 20,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+#l2pt:  LepGood2_pt: 15,0,150; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+#l1eta:  LepGood1_eta: 10,-2.5,2.5;    XTitle="Leading lepton #eta", Legend='TR'
+#l2eta:  LepGood2_eta: 10,-2.5,2.5; XTitle="Subleading lepton #eta", Legend='TR'

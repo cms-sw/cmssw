@@ -1,0 +1,71 @@
+# --- ttH split by decay mode (with proper sigma*BR for 125.7)
+#ttH_hww+   : TTH : 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10, Label="ttH WW"
+#ttH_hzz+   : TTH : 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kPink+9, Label="ttH ZZ"
+#ttH_htt+   : TTH : 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+4, Label="ttH \#tau\#tau"
+# --- ttH inclusive
+ttH+     : TTH : 4.33/3.71* 0.1271 * 0.0620/0.0722: GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 4.33/3.71* 0.1271 * 0.0281/0.0276: GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+ttH+     : TTH : 4.33/3.71* 0.1271 * 0.2262/0.2171: GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+TTW 	 : TTWJets:            16.51/13.0 * 0.208    ;  FillColor=ROOT.kGreen-5,  NormSystematic=0.2, Label="ttW"
+TTZ 	 : TTZJets:            4.92/4.23 * 0.206    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2, Label="ttZ/\#gamma*"
+TTZ	 : FastSim_TTGStarMM:  4.92/4.23 * 1.5*0.01233*0.141;  FillColor=ROOT.kCyan-3, Label="tt\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarEE:  4.92/4.23 * 1.5*0.02724*0.104;  FillColor=ROOT.kCyan-3, Label="tt\#gamma*", NormSystematic=0.5
+TTZ	 : FastSim_TTGStarTT:  4.92/4.23 * 1.5*0.00133*0.038;  FillColor=ROOT.kCyan-3, Label="tt\#gamma*", NormSystematic=0.5
+
+TTG      : TTG:     1.94/1.92*   1.444*1.8    ;  FillColor=ROOT.kTeal-5, Label="tt\#gamma"    
+
+WZ 	 : WZJets:  1.55/1.24*  1.057*1.10   ;  FillColor=ROOT.kViolet-4, NormSystematic=0.2
+
+# --- Multiboson
+RARE: WWWJets:  2.05/1.96*  0.08217  ;  FillColor=ROOT.kBlue-9,   NormSystematic=0.2, Label="Others"
+RARE: WWZJets:  2.05/1.96*    0.0633   ;  
+RARE: ZZJets4L: 2.05/1.96*   0.157*1.21   ;  
+RARE: TTWWJets: 2.05/1.96*   0.002037 ;
+RARE: TBZToLL : 2.05/1.96* 0.0114;
+RARE: WpWpqq  : 2.05/1.96* 0.2482;
+RARE: WmWmqq  : 2.05/1.96* 0.0889;
+RARE: WWDPI   : 2.05/1.96* 0.5879;
+
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+
+# -- Reducible background: fakes
+Fakes_MC  : TTJetsLep:  19.30/10.16 *   25.77*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)) : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0);  FillColor=ROOT.kGray, NormSystematic=0.23, Label="Fakes"
+Fakes_MC  : TTJetsSem:	19.30/10.16 * 107.53*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312))
+Fakes_MC  : TTJetsHad:  19.30/10.16 *  112.16*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312))
+Fakes_MC  : TtW:        19.30/10.16 *  11.73   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : TbartW:     19.30/10.16 *  11.73   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : Ttch:       19.30/10.16 *  56.4     
+Fakes_MC  : Tbartch:    19.30/10.16 *  30.7     
+Fakes_MC  : DYJetsM10 : 19.30/10.16 *  915     : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY1JetsM50 :19.30/10.16 * 666.3  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY2JetsM50 :19.30/10.16 * 215.0  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY3JetsM50 :19.30/10.16 *  60.7  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+Fakes_MC  : DY4JetsM50 :19.30/10.16 *  27.4  : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0) 
+Fakes_MC  : W1Jets    : 19.30/10.16 * 6642.0   
+Fakes_MC  : W2Jets    : 19.30/10.16 * 2152.0   
+Fakes_MC  : W3Jets    : 19.30/10.16 * 638.4    
+Fakes_MC  : W4Jets    : 19.30/10.16 * 263.2    
+Fakes_MC  : WWJets:     19.30/10.16 * 5.995   : (LepGood1_mcMatchId == 0 || LepGood2_mcMatchId == 0)  
+
+# -- Reducible background: fakes
+QF_MC  : TTJetsLep:      25.77*(1.18246 + 0.00000210061*GenTop1_pt*(GenTop1_pt - 2*463.312)) : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0);  FillColor=ROOT.kGray+1, NormSystematic=0.14, Label="Q Flip"
+QF_MC  : TtW:           11.73   : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  
+QF_MC  : TbartW:        11.73   : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  
+QF_MC  : DYJetsM10 :    915   : (LepGood1_mcMatchId > 0 &&  LepGood2_mcMatchId > 0)  
+QF_MC  : DY1JetsM50 :  666.3  : (LepGood1_mcMatchId > 0 &&  LepGood2_mcMatchId > 0)  
+QF_MC  : DY2JetsM50 :  215.0  : (LepGood1_mcMatchId > 0 &&  LepGood2_mcMatchId > 0)  
+QF_MC  : DY3JetsM50 :   60.7  : (LepGood1_mcMatchId > 0 &&  LepGood2_mcMatchId > 0)  
+QF_MC  : DY4JetsM50 :   27.4  : (LepGood1_mcMatchId > 0 &&  LepGood2_mcMatchId > 0) 
+QF_MC  : WWJets:       5.995   : (LepGood1_mcMatchId > 0 && LepGood2_mcMatchId > 0)  
+

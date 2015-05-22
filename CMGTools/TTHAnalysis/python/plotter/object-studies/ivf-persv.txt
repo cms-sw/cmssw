@@ -1,0 +1,7 @@
+no cut : 1
+presel: abs(SV_dxy) < 3 && SV_cosTheta > 0.98
+pt: SV_pt >5
+#pt1020: SV_pt > 10 && SV_pt < 20 && abs(SV_eta) < 1
+#nt3 : SV_ntracks >= 3
+#true : SV_mcMatchFraction > 0.66
+#mvacut : SV_mva >= 0 && SV_mva <= 0.1

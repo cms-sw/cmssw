@@ -1,0 +1,18 @@
+nLep: nLepGood: [1.5,2.5,3.5,4.5,5.5]; XTitle="N(lep)", Logy=True
+met:   met_pt: 32,0,800    ; XTitle="E_{T}^{miss}  [GeV]"
+lep1Pt:  LepGood1_pt: 25,0,250; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+lep2Pt:  LepGood2_pt: 20,0,100; XTitle="Second lepton p_{T}  [GeV]", Legend='TR'
+lep3Pt:  LepGood3_pt: 10,0,50; XTitle="Third lepton p_{T}  [GeV]", Legend='TR'
+lep4Pt:  LepGood4_pt: 10,0,50; XTitle="Fourth lepton p_{T}  [GeV]", Legend='TR'
+nJet25 : nJet25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(jet\, p_{T} > 25)'
+nJet40 : nJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(jet\, p_{T} > 40)'
+htJet25:   htJet25: 20,0,2000    ; XTitle="H_{T}(lep + jet p_{T} > 25)  [GeV]"
+htJet40:   htJet40: 20,0,2000    ; XTitle="H_{T}(lep + jet p_{T} > 40)  [GeV]"
+htJet40j:   htJet40j: 20,0,2000    ; XTitle="H_{T}(jet p_{T} > 40)  [GeV]"
+mhtJet25:   mhtJet25: 32,0,800    ; XTitle="H_{T}^{miss}(lep + jet p_{T} > 25)  [GeV]"
+mhtJet40:   mhtJet40: 32,0,800    ; XTitle="H_{T}^{miss}(lep + jet p_{T} > 40)  [GeV]"
+nBJet25 : nBJetMedium25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 25\, CSVM)'
+nBJet40 : nBJetMedium40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 40\, CSVM)'
+minMllAFAS: minMllAFAS: [0,4,8,12,15,20,30,40,60]; XTitle="min m(ll')  [GeV]", Density=True
+minMllAFOS: minMllAFOS: [0,4,8,12,15,20,30,40,60]; XTitle="min m(l^{+}l^{-}')  [GeV]", Density=True
+minMllSFOS: minMllSFOS: [0,4,8,12,15,20,30,40,60]; XTitle="min m(l^{+}l^{-}')  [GeV]", Density=True

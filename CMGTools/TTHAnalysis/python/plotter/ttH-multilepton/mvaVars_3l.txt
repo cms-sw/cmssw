@@ -1,0 +1,19 @@
+nJet25 : nJet25 : [1.5,2.5,3.5,4.5,5.5] ; XTitle='N(jet)', XNDiv=505
+#, LegendCutoff=0.0001
+jet1pT: Jet1_pt : 40,20,300; XTitle="p_{T}(b_{1}) [GeV]"
+htJet25: htJet25 : 40,0,1000; XTitle='H_{T} [GeV]',XNDiv=505
+htJet25ratio1224Lep: (LepGood1_pt*(abs(LepGood1_eta)<1.2) + LepGood2_pt*(abs(LepGood2_eta)<1.2) + \
+                      Jet1_pt*(abs(Jet1_eta) < 1.2) + Jet2_pt*(abs(Jet2_eta) < 1.2) + Jet3_pt*(abs(Jet3_eta) < 1.2) + Jet4_pt*(abs(Jet4_eta) < 1.2) + \
+                      Jet5_pt*(abs(Jet5_eta) < 1.2) + Jet6_pt*(abs(Jet6_eta) < 1.2) + Jet7_pt*(abs(Jet7_eta) < 1.2) + Jet8_pt*(abs(Jet8_eta) < 1.2))/ \
+                     (LepGood1_pt + LepGood2_pt + \
+                      Jet1_pt*(abs(Jet1_eta) < 2.4) + Jet2_pt*(abs(Jet2_eta) < 2.4) + Jet3_pt*(abs(Jet3_eta) < 2.4) + Jet4_pt*(abs(Jet4_eta) < 2.4) + \
+                      Jet5_pt*(abs(Jet5_eta) < 2.4) + Jet6_pt*(abs(Jet6_eta) < 2.4) + Jet7_pt*(abs(Jet7_eta) < 2.4) + Jet8_pt*(abs(Jet8_eta) < 2.4))  \
+                    : 40, 0, 1; XTitle='H_{T}(|#eta| < 1.2)/H_{T}(|#eta| < 2.4) all',XNDiv=505,Legend='TL'
+lepEta3: max(max(abs(LepGood1_eta),abs(LepGood2_eta)),abs(LepGood3_eta)) : 24,0,2.5; XTitle="Max lepton |#eta|",Legend='TL'
+minDrllAFOS: minDrllAFOS: 32,0,5 ; XTitle="min #DeltaR(l^{+}l^{-}')"
+#minDrllAFOS: minDrllAFOS: 32,0,4 ; XTitle="min #DeltaR(l^{+}l^{-}')"
+bestMTopHad: bestMTopHad: 40, 50, 350; XTitle="best m(jjb) [GeV]"
+bestMTopHad_noBin0: bestMTopHad: 40, 50, 350; XTitle="best m(jjb) [GeV]", IncludeOverflows=False
+finalMVA: FinalMVA_3L_BDTG : 24,-1.0,0.6; XTitle="BDT output"
+#, LegendCutoff=0.0001
+#Qcat: LepGood1_charge+LepGood2_charge+LepGood3_charge: [-3,-2,0,2] ; XTitle='q(l_{1}+l_{2}+l_{3})',XNDiv=505

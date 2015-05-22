@@ -1,0 +1,56 @@
+pt:  LepGood_pt: 20,0,100; XTitle="lepton p_{T}  [GeV]", Legend='TR'
+#pt_coarse:  LepGood_pt: [15,20,25,30,35,45,50,60,75,90 ] ; XTitle="lepton p_{T} (GeV)", Density=True
+eta:  abs(LepGood_eta): 50,0,2.5; XTitle="lepton |#eta|", Legend='TR', Logy
+# Iso
+#relIso03:  LepGood_relIso03: 20,0,0.4; XTitle="lepton Iso/p_{T} (R 0.3)", Legend='TR'
+#relIso04:  LepGood_relIso04: 20,0,0.8; XTitle="lepton Iso/p_{T} (R 0.4)", Legend='TR'
+#chHadRIso04:  LepGood_chargedHadRelIso04: 20,0,0.8; XTitle="lepton Iso/p_{T} (R 0.4\, ch had)", Legend='TR'
+#chHadRIso03:  LepGood_chargedHadRelIso03: 20,0,0.4; XTitle="lepton Iso/p_{T} (R 0.3\, ch had)", Legend='TR'
+#neutRIso03:  LepGood_relIso03 - LepGood_chargedHadRelIso03: 20,0,0.4; XTitle="lepton Iso/p_{T} (R 0.3\, neutral)", Legend='TR',Logy, LegendCutoff=0.003
+#neutRIso04:  LepGood_relIso04 - LepGood_chargedHadRelIso04: 20,0,1.0; XTitle="lepton Iso/p_{T} (R 0.4\, neutral)", Legend='TR',Logy, LegendCutoff=0.003
+# Jet
+#jetDR:  LepGood_jetDR: 20,0,0.3; XTitle="lepton #DeltaR(l\,jet)", Legend='TR'
+#jetBTag:  max(LepGood_jetBTagCSV,0):   20,0,1;  XTitle="lepton's jet b-tag disc.", Legend='TL', MoreY=1.25
+#jetPtF:   min(LepGood_jetPtRatio,1.5): 24,0,1.2; XTitle="lepton p_{T}(l)/p_{T}(jet)", Legend='TL'
+# IP
+sip3d:   LepGood_sip3d: 20,0,40; XTitle="lepton SIP_{3D}", Legend='TR', Logy
+dxy:  abs(LepGood_dxy): 20,0,0.05; XTitle="lepton |dxy|/1cm", Legend='TR', XNDiv=505, Logy
+dz:   abs(LepGood_dz):  20,0,0.2; XTitle="lepton |dz|/1cm", Legend='TR', XNDiv=505, Logy
+edxy:  abs(LepGood_edxy)*1e4: 20,0,100; XTitle="lepton #sigma(dxy)/#mum", Legend='TR', XNDiv=505
+edz:   abs(LepGood_edz)*1e4:  20,0,250; XTitle="lepton #sigma(dz)/#mum", Legend='TR', XNDiv=505
+# Common id
+tightId: LepGood_tightId: [-0.5,0.5,1.5]; XTitle="Lepton passes tight?", Legend='TL', XNDiv=505
+trackerLayers:   LepGood_trackerLayers: 19,-0.5,18.5; XTitle="Tracker layers", Legend='TL'
+pixelLayers:   LepGood_pixelLayers:  [-0.5,0.5,1.5,2.5,3.5,4.5]; XTitle="Pixel layers", Legend='TL'
+lostHits:   LepGood_lostHits:   [-0.5,0.5,1.5,2.5,3.5]; XTitle="Lost inner hits", Legend='TR'
+#mvaTTH:   LepGood_mvaTTH:  20,-1,1; XTitle="TTH MVA Id", Legend='TR'
+# Muon vars
+nStations:   LepGood_nStations:  [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="Matched stations", Legend='TR', Logy
+trkKink:   LepGood_trkKink:  20,0,30; XTitle="Kink finder #chi^{2}", Legend='TR'
+globalTrackChi2:   LepGood_globalTrackChi2:  20,0,4; XTitle="Global track #chi^{2}/ndf", Legend='TR'
+innerTrackChi2:   LepGood_innerTrackChi2:  20,0,4; XTitle="Inner track #chi^{2}/ndf", Legend='TR'
+caloCompatibility:   LepGood_caloCompatibility:  20,0,1; XTitle="Calo compatibility", Legend='TL'
+segmentCompatibility : LepGood_segmentCompatibility: 20,0,1; XTitle="Segment compatibility", Legend='TL'
+chi2LocalPosition : LepGood_chi2LocalPosition: 20,0,20; XTitle="", Legend='TL'
+chi2LocalMomentum : LepGood_chi2LocalMomentum: 20,0,40; XTitle="", Legend='TL'
+innerTrackValidHitFraction : LepGood_innerTrackValidHitFraction: 20,0,1; XTitle="Valid hit fraction on trk", Legend='TL'
+lostOuterHits : LepGood_lostOuterHits:   [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="Lost outer hits", Legend='TR'
+glbTrackProbability : log(LepGood_glbTrackProbability): 20,-5,5; XTitle="Global track pseudo-probability", Legend='TL'
+trackerHits : LepGood_trackerHits: 20,0,40; XTitle="Tracker hits", Legend='TL'
+#caloEMEnergy : min(LepGood_caloEMEnergy,20): 20,0,1.5; XTitle="Calo EM energy", Legend='TL'
+#caloHadEnergy : min(LepGood_caloHadEnergy,30): 20,0,10; XTitle="Calo Had energy", Legend='TL'
+#
+#mvaIdBPH:   LepGood_muonMVAIdBPH:  20,0,1; XTitle="MVA Id (BPH)", Legend='TL'
+#mvaIdBPHCalo:   LepGood_muonMVAIdBPHCalo:  20,0,1; XTitle="MVA Id (BPH+Calo)", Legend='TL'
+#mvaIdFull:   LepGood_muonMVAIdFull:  20,0,1; XTitle="MVA Id (Full)", Legend='TL'
+
+# Electron vars
+#mvaId:   LepGood_mvaId:  20,-1,1; XTitle="Non-trig Ele MVA Id", Legend='TL'
+#mvaIdTrig:   LepGood_mvaIdTrig:  20,-1,1; XTitle="Trig Ele MVA Id", Legend='TL'
+#eleCutId:   LepGood_eleCutIdCSA14_50ns_v1:   [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="Ele CB Id: fail/V/L/M/T", Legend='TL'
+#jetPt: LepGood_pt/LepGood_jetPtRatio,LepGood2_pt/LepGood2_jetPtRatio) : [20,27.5,35,42.5,50,57.5,65,72.5,80,87.5,95,110,125,140]; XTitle="Lepton p_{T}(jet)", Legend='TR', Density=True
+#profile: LepGood_pt,LepGood2_pt)\:LepGood_pt/LepGood_jetPtRatio,LepGood2_pt/LepGood2_jetPtRatio) : [20,27.5,35,42.5,50,57.5,65,72.5,80,87.5,95,110,125,140]; XTitle="Lepton p_{T}(jet)", YTitle="Lepton p_{T}", Legend='TL', Profile1D=True
+
+#mvaNew:     LepGood_mvaNew:    20,-1,1; XTitle="Susy MVA", Legend='TL'
+#mvaNewId:   LepGood_mvaNewId:  20,-1,1; XTitle="Susy MVA+Id", Legend='TL'
+#mvaNewSV:   LepGood_mvaNewSV:  20,-1,1; XTitle="Susy MVA+Id+SV", Legend='TL'

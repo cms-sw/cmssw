@@ -1,0 +1,11 @@
+## Let the leptons always pass the MVA cuts (set the value to 1)
+cut-change: (LepGood[1234])_mva : 1
+## define the FR weight
+# first  working point is applied to the two leading  leptons, and uses FR_el and FR_mu histograms
+# second working point is applied to the two trailing leptons, and uses FR2_mu, FR2_el histograms 
+weight:fakeRateWeight_4l_2wp_nf(2, LepGood1_pt,LepGood1_eta,LepGood1_pdgId,LepGood1_mva,LepGood2_pt,LepGood2_eta,LepGood2_pdgId,LepGood2_mva,LepGood3_pt,LepGood3_eta,LepGood3_pdgId,LepGood3_mva,LepGood4_pt,LepGood4_eta,LepGood4_pdgId,LepGood4_mva, -0.3, -0.3)
+## load histograms 
+load-histo: FR_mu : $DATA/fakerate/FR_merged_data.root : FR_loose_mu
+load-histo: FR_el : $DATA/fakerate/FR_merged_data.root : FR_loose_el
+load-histo: FR2_mu : $DATA/fakerate/FR_merged_data.root : FR_loose_mu
+load-histo: FR2_el : $DATA/fakerate/FR_merged_data.root : FR_loose_el

@@ -1,0 +1,7 @@
+2L SF/OS: nLepGood >= 2 && LepGood1_pdgId+LepGood2_pdgId==0
+lep MVA: min(LepGood1_mvaNew,LepGood2_mvaNew) >= -0.2
+mll > 12: minMllAFAS > 12
+Z peak: abs(mZ1-91.2) < 10
+gamma: Photon1_pt > 20
+dr > 0.5: min(deltaR(Photon1_eta,Photon1_phi,LepGood1_eta,LepGood1_phi),deltaR(Photon1_eta,Photon1_phi,LepGood2_eta,LepGood2_phi)) > 0.7
+met LD < 0.3: met*0.00397 + mhtJet25*0.00265 < 0.3 

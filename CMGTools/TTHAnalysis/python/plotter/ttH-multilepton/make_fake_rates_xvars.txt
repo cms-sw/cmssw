@@ -1,0 +1,19 @@
+#pt_vfine:     LepGood_pt: [ 10,11,12,13,14,15,16,18,20,22,25 ] ; XTitle="lepton p_{T} (GeV)", Density=True, Logy
+#pt_vfine:     LepGood_pt: [ 0,5,6,7,8,9,10,11,12,13,15,17,20,22,25,30,35,40,45,50,60,75,90,120 ] ; XTitle="lepton p_{T} (GeV)", Density=True
+#eta_fine:     abs(LepGood_eta): 12,0,2.4 ; XTitle="lepton |#eta|"
+#pt_fine:     LepGood_pt: [ 0,10,13,15,20,25,30,35,45,60,90,120 ] ; XTitle="lepton p_{T} (GeV)", Density=True
+#pt_fine:     LepGood_pt: [ 0,10,13,16,20,25,30,35,45,60,90,120 ] ; XTitle="lepton p_{T} (GeV)", Density=True
+pt_coarse:     LepGood_pt: [ 0,10,15,20,25,30,45,70,100 ] ; XTitle="lepton p_{T} (GeV)", Density=True
+#ptGZ_fine:   LepGood_pt*(1+max(LepGood_relIso03-0.1,0)): [ 0,10,13,16,20,25,30,35,45,60,90,120 ] ; XTitle="lepton p_{T} + iso (GeV)", Density=True
+ptGZ_coarse:   LepGood_pt*if3(LepGood_relIso03<0.1, 1.0, 1+LepGood_relIso03-0.1): [ 0,10,15,20,25,30,45,70,100 ] ; XTitle="lepton p_{T} + iso (GeV)", Density=True
+#ptJI_fine:   LepGood_pt*if3(LepGood_relIso03<0.1, 1.0, 0.75/LepGood_jetPtRatio): [ 0,10,13,16,20,25,30,35,45,60,90,120 ]; XTitle="lepton p_{T} w/ jet 0.75 (GeV)", Density=True
+#ptJI_coarse:   LepGood_pt*if3(LepGood_relIso03<0.1, 1.0, 0.75/LepGood_jetPtRatio): [ 0,10,15,20,30,45,70,100 ]; XTitle="lepton p_{T} w/ jet 0.75 (GeV)", Density=True
+ptJI_mvaTTH08_coarse:   LepGood_pt*if3(LepGood_mvaTTH>0.8, 1.0, 0.85/LepGood_jetPtRatio): [ 0,10,15,20,25,30,45,70,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True
+ptJI_mvaTTH07_coarse:   LepGood_pt*if3(LepGood_mvaTTH>0.7, 1.0, 0.75/LepGood_jetPtRatio): [ 0,10,15,20,25,30,45,70,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True
+ptJI_mvaTTH06_coarse:   LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, 0.85/LepGood_jetPtRatio): [ 0,10,15,20,25,30,45,70,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True
+ptJI_mvaTTH06_mid:      LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, 0.85/LepGood_jetPtRatio): [ 0,10,12.5,15,17.5,20,22.5,25,30,35,40,50,70,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True
+ptJI_mvaTTH06_unity:   LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, 0.85/LepGood_jetPtRatio): [ 0,10,15,20,25,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True
+#ptJIX1_mvaTTH06_mid:      LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, (0.5+0.5*0.85/LepGood_jetPtRatio)): [ 0,10,12.5,15,17.5,20,22.5,25,30,35,40,50,70,100 ]; XTitle="lepton p_{T} w/ half jet 0.85 (GeV)", Density=True
+ptJIX2_mvaTTH06_mid:      LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, (0.25+0.75*0.85/LepGood_jetPtRatio)): [ 0,10,12.5,15,17.5,20,22.5,25,30,35,40,50,70,100 ]; XTitle="lepton p_{T} w/ half jet 0.85 (GeV)", Density=True
+#ptJIX1_mvaTTH06_coarse:   LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, (0.5+0.5*0.85/LepGood_jetPtRatio)): [ 0,10,15,20,25,30,45,70,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True
+ptJIX2_mvaTTH06_coarse:   LepGood_pt*if3(LepGood_mvaTTH>0.6&&LepGood_mediumMuonId>0, 1.0, (0.25+0.75*0.85/LepGood_jetPtRatio)): [ 0,10,15,20,25,30,45,70,100 ]; XTitle="lepton p_{T} w/ jet 0.85 (GeV)", Density=True

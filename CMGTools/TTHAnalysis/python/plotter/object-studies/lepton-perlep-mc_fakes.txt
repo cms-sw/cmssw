@@ -1,0 +1,13 @@
+tightIdFake_pt:    LepGood_tightId>0.5\:LepGood_pt:                                                      [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,35,40,45,50,60,70,80]; XTitle="lepton p_{T}  [GeV]", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+mediumIdFake_pt:    LepGood_mediumMuonId>0.5\:LepGood_pt:                                                      [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,35,40,45,50,60,70,80]; XTitle="lepton p_{T}  [GeV]", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+#mvaFake_Medium_pt: LepGood_muonMVAIdT2NC_R>(0.40+0.35*(LepGood_pt>20)+0.02*(LepGood_pt<10))\:LepGood_pt: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,35,40,45,50,60,70,80]; XTitle="lepton p_{T}  [GeV]", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+#mediumIdFake_pt:  (LepGood_innerTrackValidHitFraction >= 0.80 &&  LepGood_segmentCompatibility>0.303 + (0.451-0.303)*(!(LepGood_chi2LocalPosition < 12 && LepGood_globalTrackChi2 > 0 && LepGood_globalTrackChi2 < 3 && LepGood_trkKink < 20)))\:LepGood_pt: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,35,40,45,50,60,70,80]; XTitle="lepton p_{T}  [GeV]", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+
+tightIdFake_eta:    LepGood_tightId>0.5\:LepGood_eta:                                                      15,-2.4,2.4; XTitle="lepton #eta", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+mediumIdFake_eta:    LepGood_mediumMuonId>0.5\:LepGood_eta:                                                      15,-2.4,2.4; XTitle="lepton #eta", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+#mvaFake_Medium_eta: LepGood_muonMVAIdT2NC_R>(0.40+0.35*(LepGood_pt>20)+0.02*(LepGood_pt<10))\:LepGood_eta: 40,-2.4,2.4; XTitle="lepton #eta", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+#mediumIdFake_eta:  (LepGood_innerTrackValidHitFraction >= 0.80 &&  LepGood_segmentCompatibility>0.303 + (0.451-0.303)*(!(LepGood_chi2LocalPosition < 12 && LepGood_globalTrackChi2 > 0 && LepGood_globalTrackChi2 < 3 && LepGood_trkKink < 20)))\:LepGood_eta: 15,-2.4,2.4; XTitle="lepton #eta", Legend='TR', Profile1D=True, YMin=0.0, YMax=1.005
+
+tightIsoFake_pt: LepGood_relIso03<0.1\:min(LepGood_pt,89.9) : [5,7,10,15,20,25,30,35,45,60,90]; XTitle="lepton p_{T}", Legend='TL', Logx, Profile1D=True
+tightIsoFake_eta: LepGood_relIso03<0.1\:abs(LepGood_eta) : [0,0.6,1.2,1.8,2.1,2.5]; XTitle="lepton |#eta|", Legend='TL', Profile1D=True
+tightIsoFake_pt_eta: LepGood_relIso03<0.1\:abs(LepGood_eta)\:min(LepGood_pt,59.9) : [5,7,10,15,20,25,30,35,45,60]*[0,1.2,2.5]; YTitle="lepton p_{T}", XTitle="lepton |#eta|", Logx, Profile2D=True

@@ -1,0 +1,26 @@
+met:   met: 15,0,300    ; XTitle="E_{T}^{miss}  [GeV]"
+metLD: met*0.00397 + mhtJet25*0.00265 : 15,-0.1,1.4 ; XTitle="E_{T}^{miss} LD"
+minmll:   minMllAFAS: 20,0,200 ; XTitle="min m(ll)  [GeV]", Legend='TR'
+minmllOS:   minMllAFOS: 20,0,200 ; XTitle="min m(ll)  [GeV]", Legend='TR'
+#minmll_zoom:   minMllAFAS: 25,0,50 ; XTitle="min m(ll)  [GeV]", Legend='TR'
+#minmllOS_zoom:   minMllAFOS: 25,0,50 ; XTitle="min m(ll)  [GeV]", Legend='TR'
+m3l: m3l : 15,0,400; XTitle="m(l_{1}\,l_{2}\,l_{3}) [GeV]"
+ht3l: ht3l : 20,0,400; XTitle="p_{T}(l_{1})+p_{T}(l_{2})+p_{T}(l_{3}) [GeV]"
+lep1Pt:  LepGood1_pt: 10,0,200; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+lep2Pt:  LepGood2_pt: 10,0,100; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+lep3Pt:  LepGood3_pt: 10,0,50; XTitle="Trailing lepton p_{T}  [GeV]", Legend='TR'
+lep1Eta:  abs(LepGood1_eta): 10,0,2.5; XTitle="Leading lepton |#eta|", Legend='TR'
+lep2Eta:  abs(LepGood2_eta): 10,0,2.5; XTitle="Subleading lepton |#eta|", Legend='TR'
+lep2Code:  (abs(LepGood2_pdgId) - 11) + (abs(LepGood2_eta)>1.5): [-0.5,0.5,1.5,2.5,3.5]; XTitle="Subleading lepton type: eB/eE/#muB/#muE", Legend='TR',NXDiv=404
+lep3Eta:  abs(LepGood3_eta): 10,0,2.5; XTitle="Trailing lepton |#eta|", Legend='TR'
+lep3Code:  (abs(LepGood3_pdgId) - 11) + (abs(LepGood3_eta)>1.5): [-0.5,0.5,1.5,2.5,3.5]; XTitle="Trailing lepton type: eB/eE/#muB/#muE", Legend='TR',NXDiv=404
+nJet25 : nJet25 : 8,-0.5,7.5 ; XTitle='N(jet\, p_{T} > 25)'
+nBJetLoose25 : nBJetLoose25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Loose)',XNDiv=505
+nBJetMedium25 : nBJetMedium25 : 5,-0.5,4.5 ; XTitle='N(jet\, p_{T} > 25\, CVS Medium)',XNDiv=505
+nvtx: nVert: 30,0.5,40.5 ; XTitle="N(vertices)", Legend='TR'
+max_muon_sip: max( max((abs(LepGood1_pdgId)==13)*LepGood1_sip3d,(abs(LepGood2_pdgId)==13)*LepGood2_sip3d ), \
+                 (abs(LepGood3_pdgId)==13)*LepGood3_sip3d ) :  24,0.0,10. ; XTitle="Worst muon S_{IP3D}", Legend="TR"
+max_muon_dxy: max( max((abs(LepGood1_pdgId)==13)*abs(LepGood1_dxy),(abs(LepGood2_pdgId)==13)*abs(LepGood2_dxy) ), \
+                 (abs(LepGood3_pdgId)==13)*abs(LepGood3_dxy) )*10000: 24,0.0,100. ; XTitle="Worst muon d_{xy} [#mum]", Legend="TR"
+max_muon_dz: max( max((abs(LepGood1_pdgId)==13)*abs(LepGood1_dz),(abs(LepGood2_pdgId)==13)*abs(LepGood2_dz) ), \
+                 (abs(LepGood3_pdgId)==13)*abs(LepGood3_dz) )*10000:  24,0.0,600. ; XTitle="Worst muon d_{z} [#mum]", Legend="TR"

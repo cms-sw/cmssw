@@ -1,0 +1,9 @@
+#>= 2 good leptons: nLepGood10_Old >= 2
+>= 2 good leptons: nLepSel_Old >= 2
+minMllAS8:  minMllAFASTL_Old > 8
+minMllOS12: minMllAFOSTL_Old <= 0 || minMllAFOSTL_Old > 12
+same-sign: LepGood_charge[iL1p_Old]*LepGood_charge[iL2p_Old] > 0
+#lep1_pt20: LepGood_pt[iL1p_Old]*min(1,0.5/LepGood_jetPtRatio[iL1p_Old]) > 20
+#lep2_pt10: LepGood_pt[iL2p_Old]*min(1,0.5/LepGood_jetPtRatio[iL1p_Old]) > 10 
+presel: max(LepGood_relIso03[iL1p_Old],LepGood2_relIso03[iL1p_Old]) < 0.5
+njet: nJet25_Old >=2

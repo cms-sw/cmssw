@@ -1,0 +1,5 @@
+LepGood1_(\w+) : LepGood_\1[iL1T]; AlsoData
+LepGood2_(\w+) : LepGood_\1[iL2T]; AlsoData
+\bmZ1\b: mZ1cut10TL; AlsoData
+minMllAFOS\b: minMllAFOSTL; AlsoData
+minMllAFAS\b: minMllAFASTL; AlsoData

@@ -1,0 +1,5 @@
+## Pass all b-tags
+cut-change: nBJetMedium25 : 2
+cut-change: nBJetLoose25 : 2
+## define the FR weight
+weight: (nBJetLoose25<=1)*(nBJetMedium25==0)

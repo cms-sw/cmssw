@@ -1,0 +1,9 @@
+== 2 good leptons: nLepGood == 2 || LepGood3_mva < 0.35
+lep MVA: min(LepGood1_mva,LepGood2_mva) >= 0.7
+#lep MVA: min(LepGood1_mva,LepGood2_mva) >= 0.35
+el el:  abs(LepGood1_pdgId) == 11 && abs(LepGood2_pdgId) == 11
+same-sign: LepGood1_charge*LepGood2_charge > 0
+tight-charge: LepGood1_tightCharge > 1 && LepGood2_tightCharge > 1
+conv rejection: LepGood1_lostHits == 0 && LepGood2_lostHits == 0
+conv veto:LepGood1_convVeto>0 && LepGood2_convVeto>0
+tight-mass: min(abs(mZ1SFSS-91.2),abs(mZ1-91.2)) < 10

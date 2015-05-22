@@ -1,0 +1,105 @@
+# luminosity
+lumi_8TeV      : ttH.*|TT[WZ] : .* : 1.026
+
+# lepton efficiencies
+CMS_ttHl_lepEff  : ttH.*|TT[WZ] : .*2lss.* : 1.10
+CMS_ttHl_lepEff  : ttH.*|TT[WZ] : .*3l* : 1.15
+CMS_ttHl_lepEffL : ttH.*|TT[WZ] : .*4l* : 1.10
+
+# common theoretical uncertainties (fully correlated everywhere)
+# note: pdf_gg is entered as 1/kappa since it has to be anti-correlated with Hgg
+QCDscale_ttH   : ttH.* : .* : 1.06
+QCDscale_ttW   : TTW   : .* : 1.10
+QCDscale_ttZ   : TTZ   : .* : 1.11
+pdf_gg         : ttH.* : .* : 0.926
+pdf_gg         : TTZ   : .* : 0.919
+pdf_qqbar      : TTW   : .* : 1.072
+#
+# shape theoretical uncertainties (private to this channel)
+CMS_ttHl_pdf_shape_ttH  : ttH.* : .* : 1.03: shapeOnly
+CMS_ttHl_thu_shape_ttH  : ttH.* : .* : 1.10: shapeOnly
+CMS_ttHl_pdf_shape_ttW  : TTW : .* : 1.05: shapeOnly
+CMS_ttHl_pdf_shape_ttZ  : TTZ : .* : 1.03: shapeOnly
+CMS_ttHl_thu_shape_ttW  : TTW : .* : 1.10: shapeOnly
+CMS_ttHl_thu_shape_ttZ  : TTZ : .* : 1.10: shapeOnly
+#
+## acceptance uncertainties (assume the same for ttW/ttZ)
+#CMS_ttHl_thu_acc_ttW   : TTW   : .* : 1.10
+#CMS_ttHl_thu_acc_ttZ   : TTZ   : .* : 1.10
+
+#
+# charge asymmetry uncertainties
+CMS_ttHl_pdf_qasym_ttW  : TTW : .*2lss.*pos.* : 1.021
+CMS_ttHl_pdf_qasym_ttW  : TTW : .*2lss.*neg.* : 0.950
+CMS_ttHl_pdf_qasym_ttW  : TTW : .*3l.*pos.* : 1.023
+CMS_ttHl_pdf_qasym_ttW  : TTW : .*3l.*neg.* : 0.952
+
+# TTG and TTGstar
+CMS_ttHl_ttgstar : TTGStar : .* : 1.5
+CMS_ttHl_ttg     : TTG     : .* : 1.3
+
+# Diboson backgrounds except for b-tag and JES
+CMS_ttHl_WZ : WZ : [34]l.* : 1.16 
+CMS_ttHl_ZZ : ZZ : [34]l.* : 1.18 
+CMS_ttHl_WZ_4j : WZ : 2lss.* : 2.0 
+CMS_ttHl_ZZ_4j : ZZ : 2lss.*.* : 2.0 
+
+
+# Fake rate uncertainties (private to this channel)
+# 1) overall normalizations
+CMS_ttHl_FRe_norm : FR_.*  : .*2lss_ee.* : 1.6
+CMS_ttHl_FRe_norm : FR_.*  : .*2lss_em.* : 1.4
+CMS_ttHl_FRe_norm : FR_.*  : .*3l.*      : 1.3
+CMS_ttHl_FRm_norm : FR_.*  : .*2lss_mu.* : 1.5
+CMS_ttHl_FRm_norm : FR_.*  : .*2lss_em.* : 1.20
+CMS_ttHl_FRm_norm : FR_.*  : .*3l.*      : 1.25
+# 2) 3l normalization wrt 2l
+CMS_ttHl_FRe_n3l  : FR_.*  : .*3l.*      : 1.11
+CMS_ttHl_FRm_n3l  : FR_.*  : .*3l.*      : 1.11
+# 1) 3j normalizations
+CMS_ttHl_FRe_n3j : FR_.*  : .*2lss_ee.*3j.* : 1.2
+CMS_ttHl_FRe_n3j : FR_.*  : .*2lss_em.*3j.* : 1.1
+CMS_ttHl_FRm_n3j : FR_.*  : .*2lss_mu.*3j.* : 1.2
+CMS_ttHl_FRm_n3j : FR_.*  : .*2lss_em.*3j.* : 1.1
+# 3) b-tight normalization (for now, just dup the other, and set the other to zero)
+#CMS_ttHl_FRe_nbt : FR_.*  : .*2lss_ee.*bt : 1.4
+#CMS_ttHl_FRe_nbt : FR_.*  : .*2lss_em.*bt : 1.25
+#CMS_ttHl_FRe_nbt : FR_.*  : .*3l.*bt      : 1.25
+#CMS_ttHl_FRm_nbt : FR_.*  : .*2lss_mu.*bt : 1.4
+#CMS_ttHl_FRm_nbt : FR_.*  : .*2lss_em.*bt : 1.2
+#CMS_ttHl_FRm_nbt : FR_.*  : .*3l.*bt      : 1.2
+#CMS_ttHl_FRe_nbtFRMC : FR_.*  : .*2lss_ee.*btFRMC : 2.0: envelop
+#CMS_ttHl_FRe_nbtFRMC : FR_.*  : .*2lss_em.*btFRMC : 1.5: envelop
+#CMS_ttHl_FRe_nbtFRMC : FR_.*  : .*3l.*btFRMC      : 1.5: envelop
+#CMS_ttHl_FRm_nbtFRMC : FR_.*  : .*2lss_mu.*btFRMC : 2.0: envelop
+#CMS_ttHl_FRm_nbtFRMC : FR_.*  : .*2lss_em.*btFRMC : 1.5: envelop
+#CMS_ttHl_FRm_nbtFRMC : FR_.*  : .*3l.*btFRMC      : 1.5: envelop
+#CMS_ttHl_FRe_norm : FR_.*  : .*2lss_ee.*bt : 1.0
+#CMS_ttHl_FRe_norm : FR_.*  : .*2lss_em.*bt : 1.0
+#CMS_ttHl_FRe_norm : FR_.*  : .*3l.*bt      : 1.0
+#CMS_ttHl_FRm_norm : FR_.*  : .*2lss_mu.*bt : 1.0
+#CMS_ttHl_FRm_norm : FR_.*  : .*2lss_em.*bt : 1.0
+#CMS_ttHl_FRm_norm : FR_.*  : .*3l.*bt      : 1.0
+# 3) shape
+CMS_ttHl_FRe_shape2l : FR_.*  : .*2lss_ee.* : 1.25 : shapeOnly
+CMS_ttHl_FRe_shape2l : FR_.*  : .*2lss_em.* : 1.15 : shapeOnly
+CMS_ttHl_FRe_shape3l : FR_.*  : .*3l.*      : 1.15 : shapeOnly
+CMS_ttHl_FRm_shape2l : FR_.*  : .*2lss_mu.* : 1.12 : shapeOnly
+CMS_ttHl_FRm_shape2l : FR_.*  : .*2lss_em.* : 1.06 : shapeOnly
+CMS_ttHl_FRm_shape3l : FR_.*  : .*3l.*      : 1.06 : shapeOnly
+
+# 4) 4l final state
+CMS_ttHl_FR_4l : TT  : .*4l.*      : 1.5 : envelop
+# 5) charge flip
+CMS_ttHl_QF     : QF_.*  : .* : 1.3 : envelop
+
+# shape systematic from closure on MC
+CMS_ttHl_FR_shapeMC_mm: FR_.*: .*2lss_mu.* : Fakes_MC: alternateShapeOnly
+CMS_ttHl_FR_shapeMC_em: FR_.*: .*2lss_em.* : Fakes_MC: alternateShapeOnly
+CMS_ttHl_FR_shapeMC_ee: FR_.*: .*2lss_ee.* : Fakes_MC: alternateShapeOnly
+CMS_ttHl_FR_shapeMC_3l: FR_.*: .*3l.* : Fakes_MC: alternateShapeOnly
+
+
+# Jet energy scale uncertainties
+CMS_ttH_JES : ttH.*|WZ|TT[WZ]$ :  .*      : JES : templates
+CMS_ttH_JES : ZZ               : [34]l_.* : JES : templates

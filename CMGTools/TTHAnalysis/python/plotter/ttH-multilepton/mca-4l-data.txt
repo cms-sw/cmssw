@@ -1,0 +1,65 @@
+# --- ttH split by decay mode
+#ttHWW+   : TTH : 0.1271 : GenHiggsDecayMode == 24 ; FillColor=ROOT.kOrange+10
+#ttHtt+   : TTH : 0.1271 : GenHiggsDecayMode == 15 ; FillColor=ROOT.kOrange+10
+#ttHZZ+   : TTH : 0.1271 : GenHiggsDecayMode == 23 ; FillColor=ROOT.kOrange+10
+# --- ttH inclusive
+#ttH+     : TTH : 0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+# --- more statistics including also 122 and 127 GeV
+ttH+     : TTH : 0.334*0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+ttH+     : TTH122 : 0.333*0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+ttH+     : TTH127 : 0.333*0.1271 : GenHiggsDecayMode > 0   ; FillColor=ROOT.kOrange+10
+
+# --- TT+W/Z/WW (TTWW usually quite negligible)
+#TTW 	 : TTWJets:    0.232    ;  FillColor=ROOT.kGreen-5  ## NO, no 4l so from FR
+TTZ 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2
+TTWW 	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9
+# 
+# or also lumped together
+#TTV 	 : TTZJets:    0.208    ;  FillColor=ROOT.kSpring+2, NormSystematic=0.2
+#TTV	 : TTWWJets:   0.002037 ;  FillColor=ROOT.kBlue-9, NormSystematic=0.2
+
+# --- Multiboson
+#VVV 	 : WWWJets:    0.08217  ;  FillColor=ROOT.kViolet   ## NO, it doesn't have 4l so it's from FR 
+VVV 	 : WWZJets:    0.0633   ;  FillColor=ROOT.kViolet
+# WW 	 : WWJets:     5.995    ;  FillColor=ROOT.kBlue-9   ## NO, this is from FR (no 4l)
+# WZ 	 : WZJets:     1.057    ;  FillColor=ROOT.kViolet-4 ## NO, doesn't have 4l, so it comes from FR
+ZZ       : ZZJets4L:   0.157    ;  FillColor=ROOT.kAzure-9
+# --- Powheg ZZ (for mll < 12, but less accurate in N(Jet))
+#ZZ	 : ZZ2e2mu:    0.1767   ;  FillColor=ROOT.kAzure-9
+#ZZ 	 : ZZ2e2tau:   0.1767   ;  FillColor=ROOT.kAzure-9
+#ZZ 	 : ZZ2mu2tau:  0.1767   ;  FillColor=ROOT.kAzure-9
+#ZZ	 : ZZTo4mu:    0.07691  ;  FillColor=ROOT.kAzure-9   
+#ZZ      : ZZTo4e:     0.07691  ;  FillColor=ROOT.kAzure-9
+
+
+data     : DoubleMuAB
+data     : DoubleMuC
+data     : DoubleMuD
+data     : DoubleElectronAB
+data     : DoubleElectronC
+data     : DoubleElectronD
+data     : MuEGAB
+data     : MuEGC
+data     : MuEGD
+
+FR_data  : DoubleMuAB;            FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : DoubleMuC;             FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : DoubleMuD;             FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : DoubleElectronAB;      FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : DoubleElectronC;       FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : DoubleElectronD;       FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : MuEGAB;                FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : MuEGC;                 FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+FR_data  : MuEGD;                 FillColor=ROOT.kGray, FakeRate='fakeRate_4l.txt', Label='Fakes', NormSystematic=0.4
+
+# ---- These below are only for systematics and datacards, and won't be included in the plots ----
+ttH_JES_Up : TTH_JES_Up   : 0.1271 : GenHiggsDecayMode > 0  ; FillColor=206,  Label="ttH JES Up", SkipMe=True
+ttH_JES_Dn : TTH_JES_Down : 0.1271 : GenHiggsDecayMode > 0  ; FillColor=61,   Label="ttH JES Dn", SkipMe=True
+
+TTZ_JES_Up : TTZJets_JES_Up   : 0.208  ; FillColor=206,  Label="TTZ JES Up", SkipMe=True
+TTZ_JES_Dn : TTZJets_JES_Down : 0.208  ; FillColor=61,   Label="TTZ JES Dn", SkipMe=True
+#TTZ_JER_Up : TTZJets_JER_Up   : 0.208  ; FillColor=222,  Label="TTZ JER Up", SkipMe=True
+#TTZ_JER_Dn : TTZJets_JER_Down : 0.208  ; FillColor=209,  Label="TTZ JER Dn", SkipMe=True
+
+ZZ_JES_Up: ZZJets4L_skim3l1j_JES_Up:   0.157    ;  FillColor=ROOT.kAzure-9,  SkipMe=True
+ZZ_JES_Dn: ZZJets4L_skim3l1j_JES_Down: 0.157    ;  FillColor=ROOT.kAzure-9,  SkipMe=True

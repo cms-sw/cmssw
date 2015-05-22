@@ -1,0 +1,19 @@
+MVA:   SV_mva:         1000,-1,1; LineColor=209, Title="SV MVA"
+
+MVAL1: SV_mva  >=  0.3: 2,-0.5,1.5; MarkerColor=215, MarkerSize=1.5, Title="MVA #geq 0.3 WP" 
+MVAL2: SV_mva >=  0.7: 2,-0.5,1.5; MarkerColor=64, MarkerSize=1.5, Title="MVA #geq 0.7 WP" 
+MVAL3: SV_mva >=  0.9: 2,-0.5,1.5; MarkerColor=7, MarkerSize=1.5, Title="MVA #geq 0.9 WP" 
+MVAL4: SV_mva >=  0.96: 2,-0.5,1.5; MarkerColor=80, MarkerSize=1.5, Title="MVA #geq 0.96 WP" 
+
+#relIso: max(LepGood1_relIso03,LepGood2_relIso03): 1000,0,0.4; LineColor=100, Title="PF Rel Iso cut"
+#sip3D:  max(LepGood1_sip3d,LepGood2_sip3d): 1000,0,10; LineColor=222, Title="SIP_{3D} cut"
+
+
+WP: abs(SV_dxy) < 2.5 && abs(SV_dxy/SV_edxy) > 3.0 && SV_mass < 6.5 && abs(SV_mass - 0.497648) > 0.05: 2,-0.5,1.5; MarkerColor=206, MarkerSize=1.5, Title="CB", MarkerStyle=20
+WPtrack: SV_ntracks>3 && abs(SV_dxy) < 2.5 && abs(SV_dxy/SV_edxy) > 3.0 && SV_mass < 6.5 && abs(SV_mass - 0.497648) > 0.05: 2,-0.5,1.5; MarkerColor=206, MarkerSize=1.4, Title="CB + nTracks", MarkerStyle=21
+
+
+
+
+
+

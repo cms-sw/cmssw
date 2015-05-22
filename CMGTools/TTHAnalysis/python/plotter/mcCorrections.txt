@@ -1,0 +1,6 @@
+(LepGood.)_sip3d\b : scaleSip3dMC(\1_sip3d, \1_pdgId, \1_pt, \1_eta, \1_mcMatchId, \1_mcMatchAny)
+(LepGood.)_sip3ds  : scaleSip3dMC(\1_sip3ds, \1_pdgId, \1_pt, \1_eta, \1_mcMatchId, \1_mcMatchAny)
+(LepGood.)_dxy : scaleDxyMC(\1_dxy, \1_pdgId, \1_pt, \1_eta, \1_mcMatchId, \1_mcMatchAny)
+(LepGood.)_dz : scaleDzMC(\1_dz, \1_pdgId, \1_pt, \1_eta, \1_mcMatchId, \1_mcMatchAny)
+(LepGood.)_jetDR : correctJetDRMC(\1_jetDR, \1_pdgId, \1_pt, \1_eta, \1_mcMatchId, \1_mcMatchAny)
+(LepGood.)_jetPtRatio : correctJetPtRatioMC(\1_jetPtRatio, \1_pdgId, \1_pt, \1_eta, \1_mcMatchId, \1_mcMatchAny)

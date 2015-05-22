@@ -1,0 +1,87 @@
+# --- ttH inclusive
+TTH     : TTH : xsec ; FillColor=ROOT.kOrange+1, Label="ttH", NormSystematic=0.2
+
+TTW : TTWJets: xsec ; FillColor=ROOT.kGreen-5, Label="ttW", NormSystematic=0.2 
+TTZ : TTZJets: xsec ; FillColor=ROOT.kSpring+2, Label="ttZ", NormSystematic=0.2
+#TTV : TTWJets: xsec ; FillColor=ROOT.kGreen-5, Label="ttW", NormSystematic=0.2 
+#TTV : TTZJets: xsec ; FillColor=ROOT.kSpring+2, Label="ttZ", NormSystematic=0.2
+
+# -- TTbar Backgrounds
+TT 	 : TTJets: xsec ; FillColor=ROOT.kGray+1, Label="tt", NormSystematic=0.5
+
+# Single Top and Top+W associated prod.
+TW 	 : T_tWch:     xsec;  FillColor=ROOT.kGray+2, Label="tW", NormSystematic=0.2
+TW 	 : TBar_tWch:  xsec;  FillColor=ROOT.kGray+2, Label="tW", NormSystematic=0.2
+T        : TToLeptons_tch:     xsec ;  FillColor=ROOT.kGray+2, Label="top", NormSystematic=0.2
+T  	 : TBarToLeptons_tch:  xsec ;  FillColor=ROOT.kGray+2, Label="top", NormSystematic=0.2
+T        : TToLeptons_sch:     xsec ;  FillColor=ROOT.kGray+2, Label="top", NormSystematic=0.2
+T  	 : TBarToLeptons_sch:  xsec ;  FillColor=ROOT.kGray+2, Label="top", NormSystematic=0.2
+
+
+# cross section from StandardModelCrossSectionsat13TeV (NLO MCFM) times BR=(3*0.108)*(3*0.0337); FIXED HERE, was wrong in production
+WZ 	 : WZJetsTo3LNu:     2.165    ;  Label="WZ", FillColor=ROOT.kViolet-4,  NormSystematic=0.3
+# cross section from StandardModelCrossSectionsat13TeV (NLO MCFM, mll > 12) times (3*0.0337)**2; FIXED HERE, as BR was wrong in production
+ZZ 	 : ZZTo4L:           0.1081   ;  Label="ZZ", FillColor=ROOT.kAzure-9,  NormSystematic=0.3
+
+# inclusive (cross section from FEWZ)
+#DY       : DYJetsToLL_M50: xsec       ; Label="Z+jets", FillColor=ROOT.kCyan
+# HT bins: cross sections for DYJets taken from McM LO times inclusive k-factor from FEWZ(2008 pb x3)/McM(4746)
+DY       : DYJetsToLL_M50_HT100to200 :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DY       : DYJetsToLL_M50_HT200to400 :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DY       : DYJetsToLL_M50_HT400to600 :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DY       : DYJetsToLL_M50_HT600toInf :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+
+# cross sections for WJets taken from McM LO times inclusive k-factor from FEWZ(20508.9 pb x3)/McM(50100.0) 
+WJets    : WJetsToLNu_HT100to200 :  xsec; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+WJets    : WJetsToLNu_HT200to400 :  xsec; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+WJets    : WJetsToLNu_HT400to600 :  xsec; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+WJets    : WJetsToLNu_HT600toInf :  xsec; Label="W+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+
+# -- SUSY
+T1tttt_HL+: SMS_T1tttt_2J_mGl1500_mLSP100: xsec ; FillColor=ROOT.kAzure+8,   Label="T1t^{4} 1.5/0.1" 
+T1tttt_HL_mc+: SMS_T1tttt_2J_mGl1500_mLSP100: xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0; FillColor=ROOT.kAzure+8,   Label="T1t^{4} 1.5/0.1 MC", LineStyle=2, HideInLegend 
+T1tttt_HM+: SMS_T1tttt_2J_mGl1200_mLSP800: xsec ; FillColor=ROOT.kAzure+0,   Label="T1t^{4} 1.2/0.8"
+T1tttt_HM_mc+: SMS_T1tttt_2J_mGl1200_mLSP800: xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 ; FillColor=ROOT.kAzure+0,   Label="T1t^{4} 1.2/0.8 MC", LineStyle=2, HideInLegend
+T5qqqqWW_HL+: T5qqqqWW_mGo1500_mCh800_mChi100  : xsec ; FillColor=ROOT.kAzure-6,  Label="T5W^{2} 1.5/0.1"
+T5qqqqWW_HL_mc+: T5qqqqWW_mGo1500_mCh800_mChi100  : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 ; FillColor=ROOT.kAzure-6,  Label="T5W^{2} 1.5/0.1 MC", LineStyle=2, HideInLegend
+T5qqqqWW_HM+: T5qqqqWW_mGo1200_mCh1000_mChi800_dilep : xsec ; FillColor=ROOT.kBlue+0,  Label="T5W^{2} 1.2/0.8"
+T5qqqqWW_HM_mc+: T5qqqqWW_mGo1200_mCh1000_mChi800_dilep : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 ; FillColor=ROOT.kBlue+0,  Label="T5W^{2} 1.2/0.8 MC", LineStyle=2, HideInLegend
+#T5qqqqWWDD+  : T5qqqqWWDeg_mGo1000_mCh310_mChi300_dilep : 0.325388*(0.333*0.333) ; FillColor=ROOT.kViolet+6,  Label="T5W^{2} 1.0/0.3/10" # hopeless
+#T5qqqqWWD+  : T5qqqqWW_mGo1400_mCh315_mChi300        :  	0.325388 ; FillColor=ROOT.kViolet+6,  Label="T5W^{2} 1.0/0.3/15"
+T5qqqqWWD+  : T5qqqqWWDeg_mGo1000_mCh315_mChi300_dilep : 0.325388*(0.333*0.333) ; FillColor=ROOT.kAzure+2,  Label="T5W^{2} 1.0/0.3/15"
+T5qqqqWWD_mc+  : T5qqqqWWDeg_mGo1000_mCh315_mChi300_dilep : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 : 0.325388*(0.333*0.333) ; FillColor=ROOT.kAzure+2,  Label="T5W^{2} 1.0/0.3/15 MC", LineStyle=2, HideInLegend
+T5qqqqWWD25+  : T5qqqqWWDeg_mGo1000_mCh325_mChi300_dilep : 0.325388*(0.333*0.333) ; FillColor=ROOT.kViolet+6,  Label="T5W^{2} 1.0/0.3/25" 
+T5qqqqWWD25_mc+  : T5qqqqWWDeg_mGo1000_mCh325_mChi300_dilep : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 : 0.325388*(0.333*0.333) ; FillColor=ROOT.kViolet+6,  Label="T5W^{2} 1.0/0.3/25 MC", LineStyle=2, HideInLegend 
+
+
+T5tttt_HLDx+: T5ttttDeg_mGo1300_mStop300_mCh285_mChi280  : xsec ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.3/.3/\#chi"
+T5tttt_MLDx+: T5ttttDeg_mGo1000_mStop300_mCh285_mChi280  : xsec ; FillColor=ROOT.kRed+2,    Label="T5t^{4} 1.0/.3/\#chi"
+T5tttt_MLDx_mc+: T5ttttDeg_mGo1000_mStop300_mCh285_mChi280  : xsec : LepGood1_mcMatchId!=0 && LepGood2_mcMatchId!=0 ; FillColor=ROOT.kRed+2,    Label="T5t^{4} 1.0/.3/\#chi MC", LineStyle=2, HideInLegend
+T5tttt_HLD4+: T5ttttDeg_mGo1300_mStop300_mChi280  : xsec ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.3/.3/4"
+T5tttt_MLD4+: T5ttttDeg_mGo1000_mStop300_mChi280  : xsec ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.0/.3/4"
+## dilepton-enriched samples made with the multi-hadronizer. the cross section must be multiplied by the boost to the matching efficiency and by (sum weights)/(events),
+## since in mcAnalysis we then divide by the sum of weights.
+#T5tttt_dil_HLDx+: T1tttt_2J_mGo1300_mStop300_mCh285_mChi280_dil: 0.0460525*(48.03625/22.0665)*(6699.05/89779) ; FillColor=ROOT.kRed-9,    Label="T5t^{4} 1.3/.3/\#chi"
+#T5tttt_dil_MLDx+: T5ttttDeg_mGo1000_mStop300_mCh285_mChi280_dil: 0.325388*(40.3244/20.9656)*(3596.7/28378); FillColor=ROOT.kRed-4,    Label="T5t^{4} 1.0/.3/\#chi"
+
+
+T1ttbbWW_MM10+: T1ttbbWW_mGo1000_mCh725_mChi715 : xsec ; FillColor=ROOT.kPink+10,    Label="tbW^{2} 1.0/.7/10"
+T1ttbbWW_MM5+ : T1ttbbWW_mGo1000_mCh725_mChi720 : xsec ; FillColor=ROOT.kRed-9,    Label="tbW^{2} 1.0/.7/5"
+T1ttbbWW_HL10+: T1ttbbWW_mGo1300_mCh300_mChi290 : xsec ; FillColor=ROOT.kPink+10,    Label="tbW^{2} 1.3/.3/10"
+T1ttbbWW_HL5+ : T1ttbbWW_mGo1300_mCh300_mChi295 : xsec ; FillColor=ROOT.kRed-9,    Label="tbW^{2} 1.3/.3/5"
+
+T6ttWW_HM+: T6ttWW_mSbot600_mCh425_mChi50 : xsec; FillColor=ROOT.kViolet+3,  Label="T6tW^{2} 600/C"
+T6ttWW_HL+: T6ttWW_mSbot650_mCh150_mChi50 : xsec; FillColor=ROOT.kViolet+2,  Label="T6tW^{2} 650/U"
+
+#data: SingleMu
+
+
+# --- OTHERS NOT USED NORMALLY
+#HZZ      : GGHZZ4L : xsec ;  FillColor=ROOT.kOrange+1, Label="HZZ"
+
+
+#For LepMVA Rocs
+#T5tttt_dil_MLDx+: T5ttttDeg_mGo1000_mStop300_mCh285_mChi280_dil: 0.325388*(40.3244/20.9656)*(3596.7/28378): LepGood1_mcMatchId != 0 && LepGood2_mcMatchId != 0  ; FillColor=ROOT.kRed-4,    Label="T5t^{4} 1.0/.3/\#chi"
+#T1tttt_HL+: SMS_T1tttt_2J_mGl1500_mLSP100: xsec: LepGood1_mcMatchId != 0 && LepGood2_mcMatchId != 0  ; FillColor=ROOT.kAzure+8,   Label="T1t^{4} 1.5/0.1" 
+#T1tttt_HM+: SMS_T1tttt_2J_mGl1200_mLSP800: xsec: LepGood1_mcMatchId != 0 && LepGood2_mcMatchId != 0 ; FillColor=ROOT.kAzure+0,   Label="T1t^{4} 1.2/0.8"
+#TTH : TTH : xsec: LepGood1_mcMatchId != 0 && LepGood2_mcMatchId != 0; FillColor=ROOT.kOrange+1, Label="ttH", NormSystematic=0.2

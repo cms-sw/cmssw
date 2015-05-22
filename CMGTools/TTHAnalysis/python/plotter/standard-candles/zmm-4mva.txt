@@ -1,0 +1,5 @@
+2L SF/OS: nLepGood10 == 2 && LepGood1_pdgId == -LepGood2_pdgId
+muon: abs(LepGood1_pdgId) == 13
+metVeto: met_pt < 30
+tightTag: LepGood1_pt > 25 && LepGood1_relIso03 < 0.2 
+m(ll): minMllAFAS > 60 && mZ1>0 && mZ1 < 120

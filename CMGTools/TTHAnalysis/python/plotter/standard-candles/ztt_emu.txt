@@ -1,0 +1,5 @@
+2L SF/OS: nLepGood >= 2 && abs(LepGood1_pdgId + LepGood2_pdgId) == 2 && LepGood3_pt < 10
+lep MVA: min(LepGood1_mva,LepGood2_mva) >= -0.3
+jet veto: nJet25 <= 1 && nBJetLoose25 == 0
+20 < m(ll): minMllAFAS > 20  
+pt(ll) < 20:  TMath\:\:Hypot(LepGood1_pt*sin(LepGood1_phi)+LepGood2_pt*sin(LepGood2_phi),LepGood1_pt*cos(LepGood1_phi)+LepGood2_pt*cos(LepGood2_phi)) < 20

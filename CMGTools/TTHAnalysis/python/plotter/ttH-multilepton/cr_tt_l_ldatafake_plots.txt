@@ -1,0 +1,35 @@
+pt:  if3(LepGood1_mvaTTH<0.7,LepGood1_pt,LepGood2_pt): 20,0,100; XTitle="Fake lepton p_{T}  [GeV]", Legend='TR'
+pt_coarse:  if3(LepGood1_mvaTTH<0.7,LepGood1_pt,LepGood2_pt): [15,20,25,30,35,45,50,60,75,90 ] ; XTitle="Fake lepton p_{T} (GeV)", Density=True
+eta:  abs(if3(LepGood1_mvaTTH<0.7,LepGood1_eta,LepGood2_eta)): 20,0,2.5; XTitle="Fake lepton |#eta|", Legend='TR'
+# Iso
+relIso03:  if3(LepGood1_mvaTTH<0.7,LepGood1_relIso03,LepGood2_relIso03): 20,0,0.4; XTitle="Fake lepton Iso/p_{T} (R 0.3)", Legend='TL'
+relIso04:  if3(LepGood1_mvaTTH<0.7,LepGood1_relIso04,LepGood2_relIso04): 20,0,0.8; XTitle="Fake lepton Iso/p_{T} (R 0.4)", Legend='TL'
+chHadRIso04:  if3(LepGood1_mvaTTH<0.7,LepGood1_chargedHadRelIso04,LepGood2_chargedHadRelIso04): 20,0,0.8; XTitle="Fake lepton Iso/p_{T} (R 0.4\, ch had)", Legend='TR'
+chHadRIso03:  if3(LepGood1_mvaTTH<0.7,LepGood1_chargedHadRelIso03,LepGood2_chargedHadRelIso03): 20,0,0.4; XTitle="Fake lepton Iso/p_{T} (R 0.3\, ch had)", Legend='TR'
+neutRIso03:  if3(LepGood1_mvaTTH<0.7,LepGood1_relIso03,LepGood2_relIso03) - if3(LepGood1_mvaTTH<0.7,LepGood1_chargedHadRelIso03,LepGood2_chargedHadRelIso03): 20,0,0.4; XTitle="Fake lepton Iso/p_{T} (R 0.3\, neutral)", Legend='TR',Logy, LegendCutoff=0.003
+neutRIso04:  if3(LepGood1_mvaTTH<0.7,LepGood1_relIso04,LepGood2_relIso04) - if3(LepGood1_mvaTTH<0.7,LepGood1_chargedHadRelIso04,LepGood2_chargedHadRelIso04): 20,0,1.0; XTitle="Fake lepton Iso/p_{T} (R 0.4\, neutral)", Legend='TR',Logy, LegendCutoff=0.003
+# Jet
+jetDR:  if3(LepGood1_mvaTTH<0.7,LepGood1_jetDR,LepGood2_jetDR): 20,0,0.3; XTitle="Fake lepton #DeltaR(l\,jet)", Legend='TR'
+jetBTag:  max(if3(LepGood1_mvaTTH<0.7,LepGood1_jetBTagCSV,LepGood2_jetBTagCSV),0):   20,0,1;  XTitle="Fake lepton's jet b-tag disc.", Legend='TL', MoreY=1.25
+jetPtF:   min(if3(LepGood1_mvaTTH<0.7,LepGood1_jetPtRatio,LepGood2_jetPtRatio),1.5): 24,0,1.2; XTitle="Fake lepton p_{T}(l)/p_{T}(jet)", Legend='TL'
+# IP
+sip3d:   if3(LepGood1_mvaTTH<0.7,LepGood1_sip3d,LepGood2_sip3d): 20,0,40; XTitle="Fake lepton SIP_{3D}", Legend='TR'
+dxy:  abs(if3(LepGood1_mvaTTH<0.7,LepGood1_dxy,LepGood2_dxy)): 20,0,0.05; XTitle="Fake lepton |dxy|/1cm", Legend='TR', XNDiv=505
+dz:   abs(if3(LepGood1_mvaTTH<0.7,LepGood1_dz,LepGood2_dz)):  20,0,0.2; XTitle="Fake lepton |dz|/1cm", Legend='TR', XNDiv=505
+# Common id
+tightId: if3(LepGood1_mvaTTH<0.7,LepGood1_tightId,LepGood2_tightId): [-0.5,0.5,1.5]; XTitle="Lepton passes tight?", Legend='TL', XNDiv=505, Logy=True
+trackerLayers:   if3(LepGood1_mvaTTH<0.7,LepGood1_trackerLayers,LepGood2_trackerLayers): 19,-0.5,18.5; XTitle="Tracker layers", Legend='TL'
+pixelLayers:   if3(LepGood1_mvaTTH<0.7,LepGood1_pixelLayers,LepGood2_pixelLayers):  [-0.5,0.5,1.5,2.5,3.5,4.5]; XTitle="Pixel layers", Legend='TL'
+lostHits:   if3(LepGood1_mvaTTH<0.7,LepGood1_lostHits,LepGood2_lostHits):   [-0.5,0.5,1.5,2.5,3.5]; XTitle="Lost inner hits", Legend='TR'
+mvaTTH:   if3(LepGood1_mvaTTH<0.7,LepGood1_mvaTTH,LepGood2_mvaTTH):  20,-1,1; XTitle="TTH MVA Id", Legend='TR'
+# Muon vars
+nStations:   if3(LepGood1_mvaTTH<0.7,LepGood1_nStations,LepGood2_nStations):  [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="Matched stations", Legend='TL'
+trkKink:   if3(LepGood1_mvaTTH<0.7,LepGood1_trkKink,LepGood2_trkKink):  20,0,30; XTitle="Kink finder #chi^{2}", Legend='TR'
+globalTrackChi2:   if3(LepGood1_mvaTTH<0.7,LepGood1_globalTrackChi2,LepGood2_globalTrackChi2):  20,0,4; XTitle="Global track #chi^{2}/ndf", Legend='TR'
+caloCompatibility:   if3(LepGood1_mvaTTH<0.7,LepGood1_caloCompatibility,LepGood2_caloCompatibility):  20,0,1; XTitle="Calo compatibility", Legend='TL'
+# Electron vars
+mvaId:   if3(LepGood1_mvaTTH<0.7,LepGood1_mvaId,LepGood2_mvaId):  20,-1,1; XTitle="Non-trig Ele MVA Id", Legend='TL'
+mvaIdTrig:   if3(LepGood1_mvaTTH<0.7,LepGood1_mvaIdTrig,LepGood2_mvaIdTrig):  20,-1,1; XTitle="Trig Ele MVA Id", Legend='TL'
+eleCutId:   if3(LepGood1_mvaTTH<0.7,LepGood1_eleCutId,LepGood2_eleCutId):   [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="Ele CB Id: fail/V/L/M/T", Legend='TL'
+#jetPt: if3(LepGood1_mvaTTH<0.7,LepGood1_pt/LepGood1_jetPtRatio,LepGood2_pt/LepGood2_jetPtRatio) : [20,27.5,35,42.5,50,57.5,65,72.5,80,87.5,95,110,125,140]; XTitle="Lepton p_{T}(jet)", Legend='TR', Density=True
+#profile: if3(LepGood1_mvaTTH<0.7,LepGood1_pt,LepGood2_pt)\:if3(LepGood1_mvaTTH<0.7,LepGood1_pt/LepGood1_jetPtRatio,LepGood2_pt/LepGood2_jetPtRatio) : [20,27.5,35,42.5,50,57.5,65,72.5,80,87.5,95,110,125,140]; XTitle="Lepton p_{T}(jet)", YTitle="Lepton p_{T}", Legend='TL', Profile1D=True

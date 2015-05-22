@@ -1,0 +1,13 @@
+== 2 good leptons: nLepGood == 2 || LepGood3_relIso > 0.1
+cleanup: minMllAFAS > 12
+pt2010: LepGood1_pt>20 && LepGood2_pt>10
+pt2020_htllv100 : LepGood2_pt > 20 && LepGood1_pt+LepGood2_pt+met > 100
+lep relIso: max(LepGood1_relIso,LepGood2_relIso)< 0.10
+mu mu:  abs(LepGood1_pdgId) == 13 && abs(LepGood2_pdgId) == 13
+same-sign: LepGood1_charge*LepGood2_charge > 0
+tight-charge: LepGood1_tightCharge && LepGood2_tightCharge
+tight-id: LepGood1_tightId && LepGood2_tightId
+dxz dy: abs(LepGood1_dxy) < 0.0050 && abs(LepGood1_dz) < 0.1 && abs(LepGood2_dxy) < 0.0050 && abs(LepGood2_dz) < 0.1
+4j: nJet25>=4
+2b loose: nBJetLoose25 >= 2 || nBJetMedium25 >= 1
+2B tight: nBJetMedium25 >= 2
