@@ -1,0 +1,60 @@
+Basic Workflow
+##############
+
+In case of problems, please contact Colin.
+
+
+Data discovery
+--------------
+
+# find all samples containing the string PAT_CMG_V2_3_0
+listSamples.py -u cmgtools TTJets.*PAT_CMG_V2_3_0
+
+# we're interested in: 
+# /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0 
+
+# listing the dataset:
+dataset.py -u cmgtools /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0
+
+Running a process to create a new dataset
+-----------------------------------------
+
+# everything looks fine, running a cfg interactively
+
+cp /data/c/cbern/ProductionSoftware/Nov14/CMSSW_4_2_8/src/CMGTools/Common/test/testCMGTools_cfg.py ./
+
+# edit testCMGTools_cfg.py and put replace the dataset argument of the datasetToSource function by /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0
+# run interactively (ctrl-C after a few 100 events): 
+cmsRun testCMGTools_cfg.py 
+
+# errors like that are harmless:
+%MSG
+%MSG-e HLTConfigData:  TriggerObjectPOProducer:cmgTriggerObject  16-Nov-2011 16:04:56 CET Run: 1 Event: 2710479
+ Error in determining HLT prescale set index from L1 data using L1GtUtils:  Tech/Phys error = 210110/210110 Tech/Phys psfsi = -1/-1
+
+# now run on the batch (in fact, on the processors of your local machine).
+# the number 5 means that the 10 input files in the cfg will be grouped by 5 in 2 jobs. 
+# if you have 8 processors or more, you can use 2 instead of 5.  
+cmsBatch.py 5 testCMGTools_cfg.py -b 'nohup ./batchScript.sh&' -r `castorBaseDir.py $USER`/TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0/MyTest -o Out
+
+# control your jobs with: 
+
+ps 
+cat Out/Job_0/nohup.out
+
+# when the jobs are done: 
+
+eos ls `castorBaseDir.py $USER`/TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0/MyTest
+
+# print the new dataset: 
+
+dataset.py /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0/MyTest
+
+# run the integrity check: 
+
+edmIntegrityCheck.py -p -w 'tree*.root' /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0/MyTest
+
+# and write to savannah: 
+
+writeSavannah.py  /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM/V2/PAT_CMG_V2_3_0/MyTest
+

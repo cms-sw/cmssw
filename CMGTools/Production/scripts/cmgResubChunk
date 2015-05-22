@@ -1,0 +1,22 @@
+#!/bin/bash
+if [[ "$1" == "" || "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "Usage: $0 [ -q <queue> ] <Component_ChunkXYZ> [ <JobName> ] "
+    echo " will resubmit the chunk <Component_ChunkXYZ> to the queue <queue> (default: 2nd)  "
+    echo " if no jobname is specified, the job name in LSF will be the chunk name."
+    echo " you can also run this command from within the Component_ChunkXYZ directory, in that case you can omit the chunk name"
+    exit 1;
+fi
+
+Q=2nd
+if [[ "$1" == "-q" ]]; then
+    Q=$2; shift; shift;
+fi;
+if [[ "$1" != "" ]] && test -d $1 && test -f $1/batchScript.sh; then
+    cd $1; shift;
+elif test \! -f batchScript.sh; then
+    echo "You did not specify a valid chunk to resubmit and you're not in a chunk directory.";
+    exit 1;
+fi
+LAB="$(basename $PWD)"; if [[ "$1" != "" ]]; then LAB=$1; fi;
+rename LSFJ OLD_LSFJ *; 
+bsub -q $Q -J $LAB < batchScript.sh

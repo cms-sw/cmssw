@@ -1,0 +1,53 @@
+#!/bin/bash
+if [[ "$1" == "" || "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "Usage: $0 [ -q <queue> ] [ directory ] "
+    echo "Will look in the specified directory (or in the current one if none is specified),  "
+    echo "list failed jobs and print the cmgResubChunk commands to resubmit them."
+    echo "The default queue is 8nh" 
+    exit 1;
+fi
+
+F=JSONAnalyzer/JSON.pck
+if [[ "$1" == "-t" ]]; then
+    F=$2; shift; shift;
+    echo "# Will test for the presence of file $F "
+fi;
+
+Q=8nh
+if [[ "$1" == "-q" ]]; then
+    Q=$2; shift; shift;
+fi;
+
+Z=0
+if [[ "$1" == "-z" ]]; then
+    if echo $F | grep -q "\.root$"; then
+        echo "# Will also check if rootfiles $F are zombies or not"
+        Z=1; shift;
+    else
+        echo "# Error: can't test for zombies (-z) if the specified file to test is not a rootfile (-t $F)";
+        exit 1;
+    fi;
+fi;
+
+
+BASE="";
+if [[ "$1" != "" && "$1" != "." ]]; then
+    test -d $1 && cd $1 && BASE="$PWD/";
+fi
+
+echo "# Will print out the commands to resubmit the chunks that failed "
+for D in *_Chunk[0-9]*; do
+    if test \! -s $D/$F; then
+         echo "cmgResubChunk -q $Q ${BASE}${D} "; 
+         continue;
+    fi;
+done;
+if [[ "$Z" != "0" ]]; then
+    echo "# Testing for zombies";
+    for Z in $(cmgListZombies  "*_Chunk[0-9]*/$F"); do
+        if test -s $Z; then # empty files have already been found
+            D=${Z%%/*};
+            echo "cmgResubChunk -q $Q ${BASE}${D}    # zombie";
+        fi;
+    done
+fi;
