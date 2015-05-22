@@ -405,7 +405,10 @@ namespace edm {
     rawTreeCache_->StopLearningPhase();
     treeCache_->StartLearningPhase();
     treeCache_->SetEntryRange(switchOverEntry_, tree_->GetEntries());
-    treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
+    // Make sure that 'branchListIndexes' branch exist in input file
+    if (filePtr_->Get(poolNames::branchListIndexesBranchName().c_str()) != nullptr) {
+      treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
+    }
     treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
     trainedSet_.clear();
     triggerSet_.clear();
