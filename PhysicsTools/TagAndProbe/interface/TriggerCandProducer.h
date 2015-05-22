@@ -44,9 +44,14 @@ class TriggerCandProducer : public edm::EDProducer
   std::vector<edm::InputTag> hltTags_;
   edm::InputTag theRightHLTTag_;
   double delRMatchingCut_;
+  double objEtMin_;
+  double objEtaMax_;
   std::string filterName_;
   bool storeRefCollection_;
+  bool antiSelect_;
+  bool isTriggerOR_;
   bool isFilter_;
+  bool noHltFiring_;
   bool printIndex_;
   bool changed_;
   HLTConfigProvider hltConfig_;
