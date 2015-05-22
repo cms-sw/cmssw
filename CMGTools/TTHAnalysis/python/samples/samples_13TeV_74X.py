@@ -24,59 +24,6 @@ RelVals740 = [ TT_NoPU, TT_bx25, TT_bx50, TTLep_NoPU, ZEE_bx50, ZEE_bx25, ZMM_bx
 
 mcSamples = RelVals740
 
-#-----------DATA---------------
-
-dataDir = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data"
-#lumi: 12.21+7.27+0.134 = 19.62 /fb @ 8TeV
-
-json=dataDir+'/json/Cert_Run2012ABCD_22Jan2013ReReco.json'
-
-SingleMu = cfg.DataComponent(
-    name = 'SingleMu',
-    files = kreator.getFiles('/SingleMu/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_sm2012D-v10/MINIAOD', 'CMS', '.*root'),
-    intLumi = 1, triggers = [], json = json
-    )
-SingleMuZ = cfg.DataComponent(
-    name = 'SingleMuZ',
-    files = kreator.getFiles('/SingleMu/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_zMu2012D-v2/MINIAOD', 'CMS', '.*root'),
-    intLumi = 1, triggers = [], json = json
-    )
-DoubleMu = cfg.DataComponent(
-    name = 'DoubleMu',
-    files = kreator.getFiles('/DoubleMuParked/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_dm2012D-v2/MINIAOD', 'CMS', '.*root'),
-    intLumi = 1, triggers = [], json = json
-    )
-DoubleElectronZ = cfg.DataComponent(
-    name = 'DoubleElectronZ',
-    files = kreator.getFiles('/DoubleElectron/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_zEl2012D-v1/MINIAOD', 'CMS', '.*root'),
-    intLumi = 1, triggers = [], json = json
-    )
-MuEG = cfg.DataComponent(
-      name = 'MuEG',
-      files = kreator.getFiles('/MuEG/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_meg2012D-v5/MINIAOD', 'CMS', '.*root'),
-      intLumi = 1, triggers = [], json = json
-      )
-JetHT = cfg.DataComponent(
-        name = 'JetHT',
-        files = kreator.getFiles('/JetHT/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_jht2012D-v1/MINIAOD', 'CMS', '.*root'),
-        intLumi = 1, triggers = [], json = json
-        )
-ZeroBias = cfg.DataComponent(
-          name = 'ZeroBias',
-          files = kreator.getFiles('/ZeroBias/CMSSW_7_4_0_pre9_ROOT6-GR_R_74_V8_1Apr_RelVal_zb2012C-v5/MINIAOD', 'CMS', '.*root'),
-          intLumi = 1, triggers = [], json = json
-          )
-
-
-dataSamplesMu=[DoubleMu]
-dataSamplesE=[DoubleElectronZ]
-dataSamplesMuE=[MuEG]
-dataSamples1Mu=[SingleMu,SingleMuZ]
-dataSamplesJet=[JetHT]
-dataSamplesOther=[ZeroBias]
-dataSamplesAll = dataSamplesMu+dataSamplesE+dataSamplesMuE+dataSamples1Mu+dataSamplesJet+dataSamplesOther
-dataSamples740p9 = dataSamplesAll
-
 from CMGTools.TTHAnalysis.setup.Efficiencies import *
 
 
@@ -88,11 +35,6 @@ for comp in mcSamples:
     comp.puFileMC=dataDir+"/puProfile_Summer12_53X.root"
     comp.puFileData=dataDir+"/puProfile_Data12.root"
     comp.efficiency = eff2012
-
-for comp in dataSamplesAll:
-    comp.splitFactor = 1000
-    comp.isMC = False
-    comp.isData = True
 
 if __name__ == "__main__":
    import sys

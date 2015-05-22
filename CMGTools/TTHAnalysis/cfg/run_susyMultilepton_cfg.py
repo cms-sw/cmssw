@@ -250,13 +250,14 @@ elif test == '74X-MC':
             comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
 elif test == '74X-Data':
     from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+    from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
     what = getHeppyOption("sample")
     if what == "SingleMu":
-        selectedComponents = [ SingleMu ]
+        selectedComponents = [ SingleMu_740p9 ]
     elif what == "Z":
-        selectedComponents = [ SingleMuZ, DoubleElectronZ ]
+        selectedComponents = [ SingleMuZ_740p9, DoubleElectronZ_740p9 ]
     elif what == "MuEG":
-        selectedComponents = [ MuEG ]
+        selectedComponents = [ MuEG_740p9 ]
     else:
         selectedComponents = dataSamples740p9
     if not getHeppyOption("all"):
