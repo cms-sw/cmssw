@@ -12,7 +12,7 @@
 
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 #include "SimTracker/TrackHistory/interface/Utils.h"
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/VertexAssociation.h"
 
 //! This class traces the simulated and generated history of a given track.
 class VertexHistory : public HistoryBase

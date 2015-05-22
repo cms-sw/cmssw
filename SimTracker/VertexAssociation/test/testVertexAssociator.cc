@@ -4,13 +4,11 @@
 
 #include "SimTracker/VertexAssociation/test/testVertexAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/Records/interface/VertexAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 
