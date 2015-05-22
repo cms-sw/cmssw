@@ -434,6 +434,13 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       output.push_back(cluster);
     }
   }
+
+  //clean up memory
+  std::vector<unsigned>().swap(_usable_tracks);
+  std::unordered_map<unsigned,unsigned>().swap(_rechits_to_clusters);
+  std::vector<KDNode>().swap(_cluster_nodes);
+  std::vector<KDNode>().swap(_hit_nodes);
+  std::vector<KDNode>().swap(_found);
 }
 
 void HGCClusterizer::update(const edm::EventSetup& es) {
@@ -474,7 +481,7 @@ void HGCClusterizer::update(const edm::EventSetup& es) {
 void HGCClusterizer::updateEvent(const edm::Event& ev) {
   _usable_tracks.clear();
   ev.getByToken(_tracksToken,_tracks);
-  const reco::TrackCollection tracks = *_tracks;  
+  const reco::TrackCollection& tracks = *_tracks;  
   _usable_tracks.reserve(tracks.size());
   for( unsigned i = 0; i < tracks.size(); ++i ) {
     const reco::Track& tk = tracks[i];
