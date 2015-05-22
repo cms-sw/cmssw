@@ -180,8 +180,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   edm::ParameterSet highptjetparms = pSet.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = pSet.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
   
-  highPtJetEventFlag_ = new GenericTriggerEventFlag( highptjetparms, consumesCollector() );
-  lowPtJetEventFlag_  = new GenericTriggerEventFlag( lowptjetparms , consumesCollector() );
+  highPtJetEventFlag_ = new GenericTriggerEventFlag( highptjetparms, consumesCollector(), *this );
+  lowPtJetEventFlag_  = new GenericTriggerEventFlag( lowptjetparms , consumesCollector(), *this );
   
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");

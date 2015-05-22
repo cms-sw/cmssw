@@ -152,8 +152,11 @@ void
 ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nextEvent();
-  if (!partonLevel)
-    return;
+  if (!partonLevel) {
+    throw cms::Exception("ExternalLHEProducer") << "No lhe event found in ExternalLHEProducer::produce().  "
+    << "The likely cause is that the lhe file contains fewer events than were requested, which is possible "
+    << "in case of phase space integration or uneweighting efficiency problems.";
+  }
 
   std::auto_ptr<LHEEventProduct> product(
 	       new LHEEventProduct(*partonLevel->getHEPEUP(),
@@ -289,6 +292,13 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
     std::auto_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
     run.put(product);
   }
+  
+  nextEvent();
+  if (partonLevel) {
+    throw cms::Exception("ExternalLHEProducer") << "Error in ExternalLHEProducer::endRunProduce().  "
+    << "Event loop is over, but there are still lhe events to process."
+    << "This could happen if lhe file contains more events than requested.  This is never expected to happen.";
+  }  
   
   reader_.reset();  
   

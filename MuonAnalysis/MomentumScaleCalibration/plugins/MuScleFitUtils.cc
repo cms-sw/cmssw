@@ -1938,7 +1938,7 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
     if (cont>cont_min) {
       histoY->Fit ("fitFcn", "0", "", 70, 110);
       double *par = fitFcn->GetParameters();
-      double *err = fitFcn->GetParErrors();
+      const double *err = fitFcn->GetParErrors();
 
       Ftop.push_back(par[0]);
       Fwidth.push_back(par[1]);
@@ -2047,7 +2047,7 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
     if (cont>cont_min) {
       histoY->Fit ("fitFunc", "0", "", -0.2, 0.2);
       double *par = fitFcn->GetParameters();
-      double *err = fitFcn->GetParErrors();
+      const double *err = fitFcn->GetParErrors();
 
       maxs.push_back (par[0]);
       means.push_back (par[1]);
