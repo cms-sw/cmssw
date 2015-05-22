@@ -213,18 +213,32 @@ photonAna = cfg.Analyzer(
 ## Tau Analyzer (generic)
 tauAna = cfg.Analyzer(
     TauAnalyzer, name="tauAnalyzer",
-    ptMin = 20,
-    etaMax = 9999,
-    dxyMax = 1000.,
-    dzMax = 0.2,
-    vetoLeptons = True,
-    leptonVetoDR = 0.4,
-    decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
-    tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
-    vetoLeptonsPOG = False, # If True, the following two IDs are required
-    tauAntiMuonID = "againstMuonLoose3",
-    tauAntiElectronID = "againstElectronLooseMVA5",
-    tauLooseID = "decayModeFinding",
+    # inclusive very loose hadronic tau selection
+    inclusive_ptMin = 18,
+    inclusive_etaMax = 9999,
+    inclusive_dxyMax = 1000.,
+    inclusive_dzMax = 0.4,
+    inclusive_vetoLeptons = False,
+    inclusive_leptonVetoDR = 0.4,
+    inclusive_decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
+    inclusive_tauID = "decayModeFindingNewDMs",
+    inclusive_vetoLeptonsPOG = False, # If True, the following two IDs are required
+    inclusive_tauAntiMuonID = "",
+    inclusive_tauAntiElectronID = "",
+    # loose hadronic tau selection
+    loose_ptMin = 18,
+    loose_etaMax = 9999,
+    loose_dxyMax = 1000.,
+    loose_dzMax = 0.2,
+    loose_vetoLeptons = True,
+    loose_leptonVetoDR = 0.4,
+    loose_decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
+    loose_tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+    loose_vetoLeptonsPOG = False, # If True, the following two IDs are required
+    loose_tauAntiMuonID = "againstMuonLoose3",
+    loose_tauAntiElectronID = "againstElectronLooseMVA5",
+    loose_tauLooseID = "decayModeFindingNewDMs"
+
 )
 
 ##------------------------------------------
