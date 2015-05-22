@@ -5,7 +5,6 @@ l1demonstage1 = cms.EDAnalyzer("L1TDEMON",
     HistFile = cms.untracked.string('l1demon.root'),
     disableROOToutput = cms.untracked.bool(True),
     DataEmulCompareSource = cms.InputTag("l1compareforstage1"),
-    DQMStore = cms.untracked.bool(True),
     VerboseFlag = cms.untracked.int32(0),
     RunInFilterFarm = cms.untracked.bool(False),
     COMPARE_COLLS = cms.untracked.vuint32(
