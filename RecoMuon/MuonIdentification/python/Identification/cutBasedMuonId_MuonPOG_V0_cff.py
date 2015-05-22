@@ -5,7 +5,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 cutBasedMuonId_MuonPOG_V0_loose = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-loose"),
     cutFlow = cms.VPSet(
-        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+        cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("loose"),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(False),
@@ -16,7 +16,7 @@ cutBasedMuonId_MuonPOG_V0_loose = cms.PSet(
 cutBasedMuonId_MuonPOG_V0_medium = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-medium"),
     cutFlow = cms.VPSet(
-        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+        cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("medium"),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(False),
@@ -27,7 +27,7 @@ cutBasedMuonId_MuonPOG_V0_medium = cms.PSet(
 cutBasedMuonId_MuonPOG_V0_tight = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-tight"),
     cutFlow = cms.VPSet(
-        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+        cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("tight"),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(True),
@@ -38,7 +38,7 @@ cutBasedMuonId_MuonPOG_V0_tight = cms.PSet(
 cutBasedMuonId_MuonPOG_V0_soft = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-soft"),
     cutFlow = cms.VPSet(
-        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+        cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("soft"),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(True),
@@ -49,7 +49,7 @@ cutBasedMuonId_MuonPOG_V0_soft = cms.PSet(
 cutBasedMuonId_MuonPOG_V0_highpt = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-highpt"),
     cutFlow = cms.VPSet(
-        cms.PSet( cutName = cms.string("RecoMuonBaseIDCut"),
+        cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("highpt"),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
                   needsAdditionalProducts = cms.bool(True),
@@ -57,9 +57,9 @@ cutBasedMuonId_MuonPOG_V0_highpt = cms.PSet(
     )
 )
 
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_loose.idName , '2a4de3cc886b063d40c6977639306340')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_medium.idName, 'de66b9fbcf9c88573caa37490b2283b4')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight.idName , '221704865d26c6a39aa5117dc29d3655')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft.idName  , '689863a0ce4b02b2332728e0ba25694e')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt.idName, '6a6b4824cc4abadd3e02fd86999b3acb')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_loose.idName , '2e3bc4052d5d56c437b9285185f42ed9')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_medium.idName, 'd32c5dcaba417ed7ea85c5e2bd7dacb4')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight.idName , '0437a4837f36ede6837c68e2369820b1')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft.idName  , 'b32cfe957062d29291b325ad34841caf')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt.idName, '0cab98049677819d3e7ddf54ed3922f7')
 

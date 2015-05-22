@@ -91,8 +91,8 @@ def switchOnVIDMuonIdProducer(process):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
     sys.stderr.write('Added \'muoMuonIDs\' to process definition!\n')
 
-def setupVIDMuonSelection(process, cutflow, patProducer=None):
-    moduleName = "muonVIDs"
+def setupVIDMuonSelection(process,cutflow,patProducer=None):
+    moduleName = "muoMuonIDs"
     if not hasattr(process, moduleName):
         raise Exception("VIDProducerNotAvailable", "%s producer not available in process!" % moduleName)
     setupVIDSelection(getattr(process, moduleName), cutflow)

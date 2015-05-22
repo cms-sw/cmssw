@@ -67,7 +67,7 @@ MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
   muonToken_ = consumes<edm::View<reco::Candidate> >(edm::InputTag("muons"));
   vertexToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
 
-  string vidPrefix = "muonVIDs:cutBasedMuonId-MuonPOG-V0-";
+  string vidPrefix = "muoMuonIDs:cutBasedMuonId-MuonPOG-V0-";
   muonLooseVIDToken_  = consumes<VIDMap>(edm::InputTag(vidPrefix+"loose" ));
   muonMediumVIDToken_ = consumes<VIDMap>(edm::InputTag(vidPrefix+"medium"));
   muonTightVIDToken_  = consumes<VIDMap>(edm::InputTag(vidPrefix+"tight" ));
@@ -164,7 +164,7 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
     if ( vidSoft   != isSoft   ) { sout << " isSoft  " << vidSoft   << ' ' << isSoft   << endl; }
     if ( vidHighPt != isHighPt ) { sout << " isHighPt" << vidHighPt << ' ' << isHighPt << endl; }
 
-    if ( !mu.isPFMuon() ) continue;
+    if ( !mu.isPFMuon() || !isTight ) continue;
 
     // Check standard IsoDeposit vs CITK
     const double citkChIso = (*muonChIsoCITKHandle)[muRef];
