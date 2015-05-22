@@ -27,10 +27,12 @@ herwigppLHEFileSettingsBlock = cms.PSet(
 
         'set /Herwig/Shower/Evolver:MaxTry 100',									# Try to shower an event maximum 100 times
         'set /Herwig/Shower/Evolver:HardVetoScaleSource Read', 								# Read event to define hard veto scale
-        'set /Herwig/Shower/Evolver:MECorrMode No', 									# Switch off ME corrections
 
         'set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General', 
         'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost', 
+
+        '+hwpp_MECorr_Common', 												# Switch off ME corrections
+															# Or at least require that the user chooses a MECorrection option
     ),
 
     # Showering MadGraph5_aMC@NLO LHE files: The same PDF for the hard subprocess and the shower must be used
