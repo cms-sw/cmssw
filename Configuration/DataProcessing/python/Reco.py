@@ -38,7 +38,20 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+',DQM'+dqmStep+',ENDJOB'
+
+        miniAODStep=''
+
+# if miniAOD is asked for - then retrieve the miniaod config 
+        if 'outputs' in args:
+            for a in args['outputs']:
+                if a['dataTier'] == 'MINIAOD':
+                    miniAODStep=',PAT' 
+                    options.runUnscheduled=True
+                    
+
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+miniAODStep+',DQM'+dqmStep+',ENDJOB'
+
+
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
