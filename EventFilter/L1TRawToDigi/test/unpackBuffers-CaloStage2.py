@@ -59,8 +59,6 @@ options.register('dump',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
-<<<<<<< HEAD
-=======
 options.register('debug',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -86,7 +84,6 @@ options.register('nMP',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of MPs")
->>>>>>> cms-l1t-offline/l1t-devel-CMSSW_7_5_0_pre1
                  
 options.parseArguments()
 
@@ -160,14 +157,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
 mpOffsets = cms.untracked.vint32()
-<<<<<<< HEAD
-for i in range (0,11):
-    mpOffsets.append(options.mpOffset)
 
-mpLatencies = cms.untracked.vint32()
-for i in range (0,11):
-    mpLatencies.append(options.mpLatency)
-=======
 for i in range (0,options.nMP):
     offset = options.mpOffset + (options.skipEvents / options.nMP)
     if (i < options.skipEvents % options.nMP):
@@ -191,15 +181,9 @@ if (options.doMP):
     print "mpBoardOffset = ", boardOffset
     print "mpOffset      = ", mpOffsets
     print " "
->>>>>>> cms-l1t-offline/l1t-devel-CMSSW_7_5_0_pre1
 
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
-<<<<<<< HEAD
-process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
-process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
-=======
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
 #process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.rxFile = cms.untracked.string("merge/rx_summary.txt")
@@ -211,7 +195,6 @@ if (options.doDemux):
     print "dmOffset      = ", dmOffset
     print "dmLatency     = ", options.dmLatency
     print " "
->>>>>>> cms-l1t-offline/l1t-devel-CMSSW_7_5_0_pre1
 
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
