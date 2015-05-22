@@ -168,6 +168,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
     delete checkRZ;
   }
   LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
+  result.shrink_to_fit();
   return result;
 }
 

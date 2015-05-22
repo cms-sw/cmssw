@@ -80,6 +80,7 @@ void PhotonConversionTrajectorySeedProducerFromSingleLeg::produce(edm::Event& ev
 
   
   //edm::LogInfo("debugTrajSeedFromSingleLeg") << " TrajectorySeedCollection size " << result->size();
+  result->shrink_to_fit();
   ev.put(result, _newSeedCandidates);  
 
   //FIXME 
