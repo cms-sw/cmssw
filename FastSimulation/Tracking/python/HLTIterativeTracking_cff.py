@@ -7,28 +7,6 @@ import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
 
-hltIter4Merged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2Merged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter4HighPtMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2HighPtMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter4Tau3MuMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter4MergedReg = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2MergedForElectrons = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2MergedForPhotons = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2L3MuonMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2L3MuonMergedReg = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2MergedForBTag = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2MergedForTau = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter4MergedForTau = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2GlbTrkMuonMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2HighPtTkMuMerged  = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2HighPtTkMuIsoMerged  = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2DisplacedJpsiMerged     = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2DisplacedPsiPrimeMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter2DisplacedNRMuMuMerged   = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter0PFlowTrackSelectionHighPurityForBTag = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-hltIter4MergedWithIter012DisplacedJets = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
-
 HLTIterativeTrackingIter04 = cms.Sequence()
 HLTIterativeTrackingIter02 = cms.Sequence()
 HLTIterativeTracking = cms.Sequence()

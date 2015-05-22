@@ -43,5 +43,27 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsig
     item.setTime(item.time() + timeOffset);
   }
 }
+
+void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset) {
+
+  EncodedEventId id(bcr,evtNr);
+  for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
+    {
+      SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<SiTrackerGSMatchedRecHit2D*>(&(*it));
+      if(rechit){
+	rechit->setEeId(id.rawId());
+	continue;
+      }
+    }
+    {
+      SiTrackerGSRecHit2D * rechit = dynamic_cast<SiTrackerGSRecHit2D*>(&(*it));
+      if(rechit){
+	rechit->setEeId(id.rawId());
+	continue;
+      }
+    }
+  }
 }
-}
+
+} // end namespace detail
+} // end namespace edm                   
