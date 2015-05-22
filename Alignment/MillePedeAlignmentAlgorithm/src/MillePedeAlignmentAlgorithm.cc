@@ -274,8 +274,10 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
-{
+void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
+  terminate();
+}
+void MillePedeAlignmentAlgorithm::terminate() {
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
 
