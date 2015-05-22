@@ -8,7 +8,6 @@ def customizeHLTforAll(process, _customInfo = None):
         _globalTag = _customInfo['globalTag']
         _inputFile = _customInfo['inputFile']
         _realData  = _customInfo['realData']
-        _fastSim   = _customInfo['fastSim']
         
         import FWCore.ParameterSet.VarParsing as VarParsing
         cmsRunOptions = VarParsing.VarParsing('python')
@@ -17,7 +16,6 @@ def customizeHLTforAll(process, _customInfo = None):
         cmsRunOptions.register('globalTag',_globalTag,cmsRunOptions.multiplicity.singleton,cmsRunOptions.varType.string,"GlobalTag")
         cmsRunOptions.inputFiles = _inputFile
         cmsRunOptions.register('realData',_realData,cmsRunOptions.multiplicity.singleton,cmsRunOptions.varType.bool,"Real Data?")
-        cmsRunOptions.register('fastSim' ,_fastSim ,cmsRunOptions.multiplicity.singleton,cmsRunOptions.varType.bool,"Fast Sim ?")
 
         cmsRunOptions.parseArguments()
 
@@ -28,7 +26,6 @@ def customizeHLTforAll(process, _customInfo = None):
         _globalTag = cmsRunOptions.globalTag
         _inputFile = cmsRunOptions.inputFiles
         _realData  = cmsRunOptions.realData
-        _fastSim   = cmsRunOptions.fastSim
 
 # maxEvents
         if _maxEvents != -2:
@@ -56,7 +53,7 @@ def customizeHLTforAll(process, _customInfo = None):
 # MC customisation
         if not _realData:
             from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-            process = customizeHLTforMC(process,_fastSim)
+            process = customizeHLTforMC(process)
             if _customInfo['menuType'] == "HIon":
                 from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
                 process = MassReplaceInputTag(process,"rawDataRepacker","rawDataCollector")
