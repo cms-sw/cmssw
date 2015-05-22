@@ -84,7 +84,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 Fake )
+  foreach table ( GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
 
     set name = ${table}_${gtag}  
 
@@ -136,6 +136,18 @@ foreach gtag ( MC DATA )
       set Custom1 = $CustomRun2
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == 25ns14e33_v2 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:25ns14e33_v2
+      set GTAG = ${BASE2}_25ns14e33_v2
+      set RTAG = ${BASE2RD}_25ns14e33_v2
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Custom1 = $CustomRun2
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == 50nsGRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:50nsGRun
@@ -153,6 +165,18 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:50ns_5e33_v1
       set GTAG = ${BASE2}_50ns_5e33_v1
       set RTAG = ${BASE2RD}_50ns_5e33_v1
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Custom1 = $CustomRun2pp50ns
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == 50ns_5e33_v2 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:50ns_5e33_v2
+      set GTAG = ${BASE2}_50ns_5e33_v2
+      set RTAG = ${BASE2RD}_50ns_5e33_v2
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
