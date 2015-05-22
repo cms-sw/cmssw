@@ -10,7 +10,7 @@
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
 
-//
+
 
 // system include files
 #include <boost/bind.hpp>
@@ -91,6 +91,8 @@ FWGUIManager* FWGUIManager::m_guiManager = 0;
 //
 // constructors and destructor
 //
+
+
 FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                            const FWViewManagerManager* iVMMgr,
                            FWNavigatorBase* navigator):
