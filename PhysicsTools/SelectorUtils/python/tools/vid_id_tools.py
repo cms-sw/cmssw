@@ -89,11 +89,10 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
 # for PAT and/or MINIAOD
 def switchOnVIDMuonIdProducer(process):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
-    #process.load("RecoMuon.MuonIdentification.muonVIDs_cfi")
     sys.stderr.write('Added \'muoMuonIDs\' to process definition!\n')
 
 def setupVIDMuonSelection(process,cutflow,patProducer=None):
-    moduleName = "muonVIDs"
+    moduleName = "muoMuonIDs"
     if not hasattr(process, moduleName):
         raise Exception("VIDProducerNotAvailable", "%s producer not available in process!" % moduleName)
     setupVIDSelection(getattr(process, moduleName), cutflow)

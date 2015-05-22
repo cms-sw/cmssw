@@ -38,7 +38,7 @@ process.out.outputCommands = [
     'keep recoMuons_muons_*_*',
     'keep *_patMuons_*_*',
     'keep *_muPFIsoValue*PAT_*_*',
-    'keep *_muonVIDs_*_*',
+    'keep *_muoMuonIDs_*_*',
     'keep *_muons_muPFSumDRIsoValue*04_*', # Standard IsoDeposit in RECO
     'keep *_muonPFNoPileUpIsolation_*_*', # Isolation from CITK
     'keep *_muonPFPileUpIsolation_*_*', # Isolation from CITK
