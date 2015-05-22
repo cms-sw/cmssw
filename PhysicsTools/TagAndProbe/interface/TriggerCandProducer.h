@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "PhysicsTools/TagAndProbe/interface/TriggerCandProducer.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -49,7 +49,7 @@ class TriggerCandProducer : public edm::EDProducer
   bool isFilter_;
   bool printIndex_;
   bool changed_;
-  HLTConfigProvider hltConfig_;
+  HLTPrescaleProvider hltPrescaleProvider_;
   bool skipEvent_;
   bool matchUnprescaledTriggerOnly_;
 };

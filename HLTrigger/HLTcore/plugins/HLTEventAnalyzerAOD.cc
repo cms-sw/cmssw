@@ -9,9 +9,11 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"
+
 #include <cassert>
 
 //
@@ -23,7 +25,8 @@ HLTEventAnalyzerAOD::HLTEventAnalyzerAOD(const edm::ParameterSet& ps) :
   triggerResultsTag_(ps.getParameter<edm::InputTag>("triggerResults")),
   triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
   triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent")),
-  triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_))
+  triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_)),
+  hltPrescaleProvider_(ps, consumesCollector(), *this)
 {
   using namespace std;
   using namespace edm;
@@ -63,27 +66,30 @@ HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSet
   using namespace edm;
 
   bool changed(true);
-  if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
+  if (hltPrescaleProvider_.init(iRun,iSetup,processName_,changed)) {
+
+    HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
     if (changed) {
       // check if trigger name in (new) config
       if (triggerName_!="@") { // "@" means: analyze all triggers in config
-	const unsigned int n(hltConfig_.size());
-	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
+	const unsigned int n(hltConfig.size());
+	const unsigned int triggerIndex(hltConfig.triggerIndex(triggerName_));
 	if (triggerIndex>=n) {
 	  LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze:"
 	       << " TriggerName " << triggerName_ 
 	       << " not available in (new) config!" << endl;
 	  LogVerbatim("HLTEventAnalyzerAOD") << "Available TriggerNames are: " << endl;
-	  hltConfig_.dump("Triggers");
+	  hltConfig.dump("Triggers");
 	}
       }
-      hltConfig_.dump("ProcessName");
-      hltConfig_.dump("GlobalTag");
-      hltConfig_.dump("TableName");
-      hltConfig_.dump("Streams");
-      hltConfig_.dump("Datasets");
-      hltConfig_.dump("PrescaleTable");
-      hltConfig_.dump("ProcessPSet");
+      hltConfig.dump("ProcessName");
+      hltConfig.dump("GlobalTag");
+      hltConfig.dump("TableName");
+      hltConfig.dump("Streams");
+      hltConfig.dump("Datasets");
+      hltConfig.dump("PrescaleTable");
+      hltConfig.dump("ProcessPSet");
     }
   } else {
     LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze:"
@@ -112,14 +118,17 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerEvent product from Event!" << endl;
     return;
   }
+
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
   // sanity check
-  assert(triggerResultsHandle_->size()==hltConfig_.size());
+  assert(triggerResultsHandle_->size()==hltConfig.size());
   
   // analyze this event for the triggers requested
   if (triggerName_=="@") {
-    const unsigned int n(hltConfig_.size());
+    const unsigned int n(hltConfig.size());
     for (unsigned int i=0; i!=n; ++i) {
-      analyzeTrigger(iEvent,iSetup,hltConfig_.triggerName(i));
+      analyzeTrigger(iEvent,iSetup,hltConfig.triggerName(i));
     }
   } else {
     analyzeTrigger(iEvent,iSetup,triggerName_);
@@ -138,8 +147,10 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
 
   LogVerbatim("HLTEventAnalyzerAOD") << endl;
 
-  const unsigned int n(hltConfig_.size());
-  const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName));
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
+
+  const unsigned int n(hltConfig.size());
+  const unsigned int triggerIndex(hltConfig.triggerIndex(triggerName));
   assert(triggerIndex==iEvent.triggerNames(*triggerResultsHandle_).triggerIndex(triggerName));
 
   // abort on invalid trigger name
@@ -149,12 +160,12 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
     return;
   }
   
-  const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerName));
+  const std::pair<int,int> prescales(hltPrescaleProvider_.prescaleValues(iEvent,iSetup,triggerName));
   LogVerbatim("HLTEventAnalyzerAOD") << "HLTEventAnalyzerAOD::analyzeTrigger: path "
        << triggerName << " [" << triggerIndex << "] "
        << "prescales L1T,HLT: " << prescales.first << "," << prescales.second
        << endl;
-  const std::pair<std::vector<std::pair<std::string,int> >,int> prescalesInDetail(hltConfig_.prescaleValuesInDetail(iEvent,iSetup,triggerName));
+  const std::pair<std::vector<std::pair<std::string,int> >,int> prescalesInDetail(hltPrescaleProvider_.prescaleValuesInDetail(iEvent,iSetup,triggerName));
   std::ostringstream message;
   for (unsigned int i=0; i<prescalesInDetail.first.size(); ++i) {
     message << " " << i << ":" << prescalesInDetail.first[i].first << "/" << prescalesInDetail.first[i].second;
@@ -168,8 +179,8 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
        << endl;
 
   // modules on this trigger path
-  const unsigned int m(hltConfig_.size(triggerIndex));
-  const vector<string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
+  const unsigned int m(hltConfig.size(triggerIndex));
+  const vector<string>& moduleLabels(hltConfig.moduleLabels(triggerIndex));
 
   // Results from TriggerResults product
   LogVerbatim("HLTEventAnalyzerAOD") << " Trigger path status:"
@@ -179,7 +190,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
        << endl;
   const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
   LogVerbatim("HLTEventAnalyzerAOD") << " Last active module - label/type: "
-       << moduleLabels[moduleIndex] << "/" << hltConfig_.moduleType(moduleLabels[moduleIndex])
+       << moduleLabels[moduleIndex] << "/" << hltConfig.moduleType(moduleLabels[moduleIndex])
        << " [" << moduleIndex << " out of 0-" << (m-1) << " on this path]"
        << endl;
   assert (moduleIndex<m);
@@ -188,7 +199,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   // modules actually run in this path for this event!
   for (unsigned int j=0; j<=moduleIndex; ++j) {
     const string& moduleLabel(moduleLabels[j]);
-    const string  moduleType(hltConfig_.moduleType(moduleLabel));
+    const string  moduleType(hltConfig.moduleType(moduleLabel));
     // check whether the module is packed up in TriggerEvent product
     const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(moduleLabel,"",processName_)));
     if (filterIndex<triggerEventHandle_->sizeFilters()) {

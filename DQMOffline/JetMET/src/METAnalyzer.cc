@@ -136,7 +136,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
   for (edm::VParameterSet::const_iterator it = triggerSelectedSubFolders_.begin(); it!= triggerSelectedSubFolders_.end(); it++) {
-    triggerFolderEventFlag_.push_back(new GenericTriggerEventFlag( *it, consumesCollector() ));
+    triggerFolderEventFlag_.push_back(new GenericTriggerEventFlag( *it, consumesCollector(), *this ));
     triggerFolderExpr_.push_back(it->getParameter<std::vector<std::string> >("hltPaths"));
     triggerFolderLabels_.push_back(it->getParameter<std::string>("label"));
   }
