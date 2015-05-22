@@ -1,0 +1,10 @@
+<lcgdict>
+  <class name="PileupJetIdentifier"/>
+  <class name="PileupJetIdAlgo"/>
+  <class name="PileupJetIdentifierSubstructure"/>
+  <class name="PileupJetIdAlgoSubstructure"/>
+  <class name="StoredPileupJetIdentifierSubstructure"/>
+  <class name="edm::ValueMap<StoredPileupJetIdentifierSubstructure>"/>
+  <class name="edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifierSubstructure> >"/>
+  <class name="std::vector<StoredPileupJetIdentifierSubstructure>"/>
+</lcgdict>
