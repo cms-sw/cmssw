@@ -12,7 +12,7 @@
 
 namespace HWWFunctions {
 
-  void doCutFlow(HWW&, int, EventMonitor::hypo_monitor&, EGammaMvaEleEstimator*, MuonMVAEstimator*);
+  void doCutFlow(HWW&, int, EventMonitor&, EGammaMvaEleEstimator*, MuonMVAEstimator*);
   bool passFirstCuts(HWW&, int);
   bool passCharge(HWW&, int);
   bool passBaseline(HWW&, int, EGammaMvaEleEstimator*, MuonMVAEstimator*);
