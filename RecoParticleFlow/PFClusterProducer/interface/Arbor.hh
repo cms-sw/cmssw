@@ -27,6 +27,8 @@ namespace arbor {
   void MakingCMSCluster();
   
   branchcoll Arbor( std::vector<std::pair<TVector3,float> >, const float CellSize, const float LayerThickness, const float distSeedForMerge, const bool allowSameLayerSeedMerge );
+
+  void ArborFreeMem();
 }
 
 #endif

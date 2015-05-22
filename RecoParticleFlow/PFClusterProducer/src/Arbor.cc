@@ -903,4 +903,18 @@ std::vector< std::vector<int> > Arbor(std::vector<std::pair<TVector3,float> > in
 	return Trees;
 
 }
+
+void ArborFreeMem() {
+  HitLinkMap().swap(BackLinksMap);
+  linkcoll().swap(Links);
+  linkcoll().swap(InitLinks);
+  HitLinkMap().swap(alliterBackLinksMap);
+  linkcoll().swap(alliterlinks);
+  linkcoll().swap(links_debug); 
+  linkcoll().swap(IterLinks); 
+  HitLinkMap().swap(IterBackLinks);
+  branchcoll().swap(LengthSortBranchCollection);
+  branchcoll().swap(Trees); 
+}
+
 }

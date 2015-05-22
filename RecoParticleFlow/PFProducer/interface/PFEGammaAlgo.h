@@ -115,7 +115,10 @@ class PFEGammaAlgo {
   
   //get electron PFCandidate
   
-  
+  //clean up all of our work areas
+  void cleanUpMemory();
+
+
 private: 
   typedef  std::map< unsigned int, std::vector<unsigned int> >  AssMap;
 
