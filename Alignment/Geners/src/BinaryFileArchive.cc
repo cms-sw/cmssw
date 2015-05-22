@@ -7,7 +7,7 @@
 #include "Alignment/Geners/interface/WriteOnlyCatalog.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/streamposIO.hh"
-
+// Hello world :)
 namespace gs {
     BinaryFileArchive::BinaryFileArchive(const char* basename,
                                          const char* mode, const char* ann,
