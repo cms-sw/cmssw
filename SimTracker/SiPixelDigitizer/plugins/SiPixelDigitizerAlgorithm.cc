@@ -632,7 +632,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 //============================================================================
 void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puInfo){
   //Instlumi scalefactor calculating for dynamic inefficiency
-  
+
   if (puInfo) {
     const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
     const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
