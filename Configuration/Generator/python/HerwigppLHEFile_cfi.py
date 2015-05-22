@@ -47,6 +47,23 @@ herwigppLHEFileSettingsBlock = cms.PSet(
         'set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/cmsPDFSet', 						
     ),
 
+
+    # Showering LO MadGraph5_aMC@NLO LHE files with a different PDF for the hard subprocess 
+    ############ WARNING ######
+    # This option should only be used with LO MadGraph5_aMC@NLO LHE files.
+    # In case of NLO, MC@NLO matched LHE files this results most likely in a mismatch of phase space
+    ############ WARNING ######
+    # The shower pdf is the standard PDF which one can get including a predefined PDF using HerwigppPDF_
+    # The additional pdf of the hard subprocess is also predefined in HerwigppPDF_. However it has the additional suffix _Hard
+    # E.g. hwpp_pdf_NNPDF30NLO shower pdf, hwpp_pdf_NNPDF30NLO_Hard hard subprocess pdf
+    hwpp_LHE_MadGraph_DifferentPDFs = cms.vstring(
+
+    	'+hwpp_LHE_Common',      
+	'set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/cmsHardPDFSet', 					# Hard subprocess PDF defined by HerwigppPDF_
+        'set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/cmsHardPDFSet', 						
+    ),
+
+
     # Additional common block for Powheg
     hwpp_LHE_Powheg_Common = cms.vstring(
 
