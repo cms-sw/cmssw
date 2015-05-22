@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ipython -i $CMSSW_BASE/src/CMGTools/RootTools/python/PyRoot.py "$@"

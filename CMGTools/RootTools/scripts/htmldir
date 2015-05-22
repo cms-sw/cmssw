@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ipython $CMSSW_BASE/src/CMGTools/RootTools/python/html/DirectoryTree.py "$@"

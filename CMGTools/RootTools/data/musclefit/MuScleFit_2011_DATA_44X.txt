@@ -1,0 +1,57 @@
+Fitting with resolution, scale, bgr function # 45 50 0 - Iteration 0
+ Scale fit parameters:
+  Results of the fit: parameter 13 has value -0.00122 +-0 + 0 - 0
+  Results of the fit: parameter 14 has value 0.000796366+-8.0572e-07 + 0 - 0
+  Results of the fit: parameter 15 has value 1.33254+-0.00294476 + 0 - 0
+  Results of the fit: parameter 16 has value -0.00013107+-1.61439e-06 + 0 - 0
+  Results of the fit: parameter 17 has value -2.1+-0 + 0 - 0
+  Results of the fit: parameter 18 has value 8.60885e-05+-3.75396e-07 + 0 - 0
+  Results of the fit: parameter 19 has value 1.17708+-0.00313977 + 0 - 0
+  Results of the fit: parameter 20 has value -0.00023812+-1.04166e-06 + 0 - 0
+  Results of the fit: parameter 21 has value -1.5+-0 + 0 - 0
+  Results of the fit: parameter 22 has value 0.000148037+-4.32716e-07 + 0 - 0
+  Results of the fit: parameter 23 has value -1.30574+-0.00278739 + 0 - 0
+  Results of the fit: parameter 24 has value 2.71175e-05+-8.07707e-07 + 0 - 0
+  Results of the fit: parameter 25 has value 1.5+-0 + 0 - 0
+  Results of the fit: parameter 26 has value 1.47914e-05+-1.59998e-07 + 0 - 0
+  Results of the fit: parameter 27 has value 0.898848+-0.00325509 + 0 - 0
+  Results of the fit: parameter 28 has value -0.000176111+-1.05471e-06 + 0 - 0
+  Results of the fit: parameter 29 has value 2.1+-0 + 0 - 0
+  Results of the fit: parameter 30 has value 0.000581355+-7.86631e-07 + 0 - 0
+  Results of the fit: parameter 31 has value 1.85334+-0.00268579 + 0 - 0
+  Results of the fit: parameter 32 has value -0.000199021+-1.60628e-06 + 0 - 0
+  Results of the fit: parameter 33 has value 3.98673e-05+-1.5631e-07 + 0 - 0
+  Results of the fit: parameter 34 has value 0.000412401+-7.21899e-07 + 0 - 0
+  Results of the fit: parameter 35 has value 2+-0 + 0 - 0
+  Results of the fit: parameter 36 has value 1.79848+-0.00276325 + 0 - 0
+  Results of the fit: parameter 37 has value 0.000279874+-6.30164e-07 + 0 - 0
+  Results of the fit: parameter 38 has value 2+-0 + 0 - 0
+  Results of the fit: parameter 39 has value -0.84138+-0.00325509 + 0 - 0
+ Resolution fit parameters (data):
+  Results of the fit: parameter 0 has value 0.00016176+-1.67057e-05 + 0 - 0
+  Results of the fit: parameter 1 has value 0.0315795+-0.000624639 + 0 - 0
+  Results of the fit: parameter 2 has value 0.0196003+-0.000719863 + 0 - 0
+  Results of the fit: parameter 3 has value 0.0147708+-0.000652368 + 0 - 0
+  Results of the fit: parameter 4 has value 0.01543+-0.000697026 + 0 - 0
+  Results of the fit: parameter 5 has value 0.0109402+-0.000821419 + 0 - 0
+  Results of the fit: parameter 6 has value 0.00520876+-0.00102173 + 0 - 0
+  Results of the fit: parameter 7 has value 0.00529862+-0.00100776 + 0 - 0
+  Results of the fit: parameter 8 has value 0.0116398+-0.000799917 + 0 - 0
+  Results of the fit: parameter 9 has value 0.0155051+-0.000614602 + 0 - 0
+  Results of the fit: parameter 10 has value 0.0145014+-0.000879967 + 0 - 0
+  Results of the fit: parameter 11 has value 0.0191763+-0.000726336 + 0 - 0
+  Results of the fit: parameter 12 has value 0.0316608+-0.00060957 + 0 - 0
+ Resolution fit parameters (MC):
+  Results of the fit: parameter 0 has value 0.000168495+-1.162e-05 + 0 - 0
+  Results of the fit: parameter 1 has value 0.0270604+-0.00044527 + 0 - 0
+  Results of the fit: parameter 2 has value 0.0164232+-0.000566717 + 0 - 0
+  Results of the fit: parameter 3 has value 0.012493+-0.000709223 + 0 - 0
+  Results of the fit: parameter 4 has value 0.0122052+-0.000559199 + 0 - 0
+  Results of the fit: parameter 5 has value 0.00944763+-0.000636449 + 0 - 0
+  Results of the fit: parameter 6 has value 0.00512727+-0.00070077 + 0 - 0
+  Results of the fit: parameter 7 has value 0.00505215+-0.000564698 + 0 - 0
+  Results of the fit: parameter 8 has value 0.00967904+-0.000623831 + 0 - 0
+  Results of the fit: parameter 9 has value 0.0122927+-0.000556192 + 0 - 0
+  Results of the fit: parameter 10 has value 0.0119034+-0.000534502 + 0 - 0
+  Results of the fit: parameter 11 has value 0.0166305+-0.000493142 + 0 - 0
+  Results of the fit: parameter 12 has value 0.0282159+-0.00043758 + 0 - 0

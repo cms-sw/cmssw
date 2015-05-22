@@ -1,0 +1,7 @@
+
+<export></export>
+
+<library name="CMGToolsRootToolsPlugins" file="*.cc">
+  <use name="CMGTools/RootTools"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

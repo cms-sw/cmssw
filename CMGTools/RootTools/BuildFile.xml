@@ -1,0 +1,20 @@
+<use   name="root"/>
+<use   name="rootcore"/>
+<use   name="rootinteractive"/>
+<use   name="rootrflx"/>
+<use   name="clhepheader"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Sources"/>
+<use   name="PhysicsTools/Utilities"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="CommonTools/Utils"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="fastjet"/>
+<use   name="ktjet"/>
+<use   name="EgammaAnalysis/ElectronTools"/>
+<use   name="boost"/>
+<export>
+   <lib name="1"/>
+</export>
