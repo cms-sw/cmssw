@@ -28,7 +28,7 @@ herwigppPDFSettingsBlock = cms.PSet(
 	# CMS CUETHS1 tune based on EE5C
         hwpp_pdf_CTEQ6L1_CUETHS1 = cms.vstring(
 		'+hwpp_pdf_CTEQ6L1_Common',
-                '+hwpp_ue_CUETHS1', 							# Tune for CTEQ6L1 from CMS based on EE_5C see HerwigppUE_EE_5C_CUETHS1
+                '+hwpp_ue_CUETHS1', 							# Tune for CTEQ6L1 from CMS based on EE_5C see HerwigppUE_CUETHS1
         ),
 
 	hwpp_pdf_CTEQ6LL_CUETHS1 = cms.vstring(
@@ -58,7 +58,7 @@ herwigppPDFSettingsBlock = cms.PSet(
 	# CMS CUETHS1 tune based on EE5C
         hwpp_pdf_CTEQ6L1_Hard_CUETHS1 = cms.vstring(
 		'+hwpp_pdf_CTEQ6L1_Hard_Common',
-                '+hwpp_ue_CUETHS1', 							# Tune for CTEQ6L1 from CMS based on EE_5C see HerwigppUE_EE_5C_CUETHS1 
+                '+hwpp_ue_CUETHS1', 							# Tune for CTEQ6L1 from CMS based on EE_5C see HerwigppUE_CUETHS1 
         ),
 
 	hwpp_pdf_CTEQ6LL_Hard_CUETHS1 = cms.vstring(
