@@ -7,8 +7,7 @@ herwigppLHEFileSettingsBlock = cms.PSet(
     hwpp_LHE_Common = cms.vstring(
 
         'create ThePEG::Cuts /Herwig/Cuts/NoCuts', 									# Use no cuts in shower step, just shower
-
-        'cd /Herwig/EventHandlers', 
+ 
         'create ThePEG::LesHouchesInterface /Herwig/EventHandlers/LHEReader', 
         'set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts', 						# No cuts while read in of LHE file
         'set /Herwig/EventHandlers/LHEReader:MomentumTreatment RescaleEnergy', 	
@@ -24,19 +23,14 @@ herwigppLHEFileSettingsBlock = cms.PSet(
         'set /Herwig/EventHandlers/LHEHandler:DecayHandler /Herwig/Decays/DecayHandler', 				# Switch Decay on
         'insert /Herwig/EventHandlers/LHEHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler', 		# Needed in 2.7, must be removed in 3.0
 
-        'cd /Herwig/Generators', 
         'set /Herwig/Generators/LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler', 				# Activate LHEHandler
 
-        'cd /Herwig/Shower', 
         'set /Herwig/Shower/Evolver:MaxTry 100',									# Try to shower an event maximum 100 times
         'set /Herwig/Shower/Evolver:HardVetoScaleSource Read', 								# Read event to define hard veto scale
         'set /Herwig/Shower/Evolver:MECorrMode No', 									# Switch off ME corrections
 
-        'cd /', 
         'set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General', 
         'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost', 
-
-        'cd /',
     ),
 
     # Showering MadGraph5_aMC@NLO LHE files: The same PDF for the hard subprocess and the shower must be used
@@ -68,10 +62,8 @@ herwigppLHEFileSettingsBlock = cms.PSet(
     hwpp_LHE_Powheg_Common = cms.vstring(
 
     	'+hwpp_LHE_Common',
-	'cd /Herwig/Shower', 
         'set /Herwig/Shower/Evolver:HardVetoMode Yes',									# Treat hardest emission differently
         'set /Herwig/Shower/Evolver:HardVetoReadOption PrimaryCollision',			
-        'cd /', 
     ),
 
     # Showering Powheg LHE files with the same PDF for the hard subprocess and the shower  
