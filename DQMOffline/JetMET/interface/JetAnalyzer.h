@@ -46,6 +46,15 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
@@ -110,6 +119,12 @@ class JetAnalyzer : public DQMEDAnalyzer {
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
+
+  edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
+  edm::EDGetTokenT<pat::METCollection>           patMetToken_; 
+
+  edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
   edm::EDGetTokenT<pat::JetCollection>         patJetsToken_;
   edm::EDGetTokenT< edm::ValueMap<float> > mvaFullPUDiscriminantToken_;
   edm::EDGetTokenT< edm::ValueMap<float> >cutBasedPUDiscriminantToken_ ;
@@ -643,6 +658,57 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mePtForwardPlus_BXm1Filled;
   MonitorElement* meEta_BXm1Filled;
 
+  //now ZJets plots
+  MonitorElement*  mDPhiZJet;
+  MonitorElement*  mZMass;
+  MonitorElement*  mZJetAsymmetry;
+  MonitorElement*  mJetZBalance_lowZPt_J_Barrel;
+  MonitorElement*  mJetZBalance_mediumZPt_J_Barrel;
+  MonitorElement*  mJetZBalance_highZPt_J_Barrel;
+  MonitorElement*  mJetZBalance_lowZPt_J_EndCap;
+  MonitorElement*  mJetZBalance_mediumZPt_J_EndCap;
+  MonitorElement*  mJetZBalance_highZPt_J_EndCap;
+  MonitorElement*  mJetZBalance_lowZPt_J_Forward;
+  MonitorElement*  mJetZBalance_mediumZPt_J_Forward;
+  MonitorElement*  mJetZBalance_highZPt_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_J_Forward;
+  MonitorElement*  mMPF_J_Barrel;
+  MonitorElement*  mMPF_J_EndCap;
+  MonitorElement*  mMPF_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_Forward;
+  MonitorElement*  mMPF_lowZPt_J_Barrel;
+  MonitorElement*  mMPF_mediumZPt_J_Barrel;
+  MonitorElement*  mMPF_highZPt_J_Barrel;
+  MonitorElement*  mMPF_lowZPt_J_EndCap;
+  MonitorElement*  mMPF_mediumZPt_J_EndCap;
+  MonitorElement*  mMPF_highZPt_J_EndCap;
+  MonitorElement*  mMPF_lowZPt_J_Forward;
+  MonitorElement*  mMPF_mediumZPt_J_Forward;
+  MonitorElement*  mMPF_highZPt_J_Forward;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_75_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_75_150_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_150_290_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_290_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_75_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_75_150_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_150_290_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_290_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_Forward;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_100_J_Forward;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_100_J_Forward;
+  
   std::map< std::string,MonitorElement* >map_of_MEs;
 
   bool isCaloJet_;
