@@ -298,13 +298,13 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
          tstrig += charge - ped;
       }
    }
-   if( tsTOTen < 0. ) tsTOTen = pedSig_;
+   //if( tsTOTen < 0. ) tsTOTen = pedSig_;
    std::vector<double> fitParsVec;
-   if( tstrig >= ts4Min_ ) { //Two sigma from 0 
+   if( tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
 //     double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
    }
-   else if( tstrig < ts4Min_ && ts4Min_==0 ){
+   else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
      fitParsVec.clear();
      fitParsVec.push_back(0.);
      fitParsVec.push_back(0.);
