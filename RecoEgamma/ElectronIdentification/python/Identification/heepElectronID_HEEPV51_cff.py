@@ -45,7 +45,8 @@ WP_HEEP51_EB = HEEP_WorkingPoint_V1(
     effAreaForEHIso=0.28,        
     # other cuts
     dxyCut=0.02,
-    maxMissingHitsCut=1          
+    maxMissingHitsCut=1,
+    ecalDrivenCut=1
     )
 
 WP_HEEP51_EE = HEEP_WorkingPoint_V1(
@@ -78,7 +79,8 @@ WP_HEEP51_EE = HEEP_WorkingPoint_V1(
     effAreaForEHIso=0.28,        
     # other cuts
     dxyCut=0.05,
-    maxMissingHitsCut=1
+    maxMissingHitsCut=1,
+    ecalDrivenCut=1
   
     )
 
@@ -95,6 +97,6 @@ heepElectronID_HEEPV51  = configureHEEPElectronID_V51 ( WP_HEEP51_EB, WP_HEEP51_
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register(heepElectronID_HEEPV51.idName,"d930c34a554f86e6d4e8c247c4737140")
+central_id_registry.register(heepElectronID_HEEPV51.idName,"b0e84f87acbc411de145ab2b8187ef1c")
 
 heepElectronID_HEEPV51.isPOGApproved = cms.untracked.bool(True)
