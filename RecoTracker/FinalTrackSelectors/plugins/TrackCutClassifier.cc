@@ -20,6 +20,7 @@ namespace {
     std::copy(std::begin(v),std::end(v),x);
   }
 
+  // fake mva value to return for loose,tight,hp
   constexpr float mvaVal[3] = {-.5,.5,1.};
 
   template<typename T,typename Comp>
@@ -42,7 +43,6 @@ namespace {
   
   
   struct Cuts {
-    // fake mva value to return for loose,tight,hp
     
     Cuts(const edm::ParameterSet & cfg) {
       fillArrayF(maxChi2,cfg,"maxChi2");
