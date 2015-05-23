@@ -30,6 +30,9 @@ class CondMetaData(object):
    def logDbFileName( self ):
       return self.md.get('logDbFileName')
 
+   def synchronizeTo( self ):
+      return self.md.get('synchronizeTo')
+
    def records( self ):
       return self.md.get('records')
 
@@ -39,7 +42,7 @@ class CondMetaData(object):
       tags = {}
       tagInfo = {}
       tagInfo['dependencies'] = {}
-      tagInfo['synchronizeTo'] = 'offline'
+      tagInfo['synchronizeTo'] = self.synchronizeTo()
       tags[ desttag ] = tagInfo
       print tags
       uploadMd['destinationTags'] = tags
@@ -84,7 +87,9 @@ def upload_to_dropbox( backend ):
        except Exception:
           print 'Netrc entry "DropBox" not found.'
           return
+       print 'signing in...'
        dropBox.signIn(username, password)
+       print 'signed in'
        for k,v in  md.records().items():
           destTag = v.get("destinationTag")
           inputTag = v.get("sqliteTag")
@@ -94,6 +99,6 @@ def upload_to_dropbox( backend ):
           md.dumpMetadataForUpload( inputTag, destTag, comment )
           dropBox.uploadFile(dbFileForDropBox, backend, upload_popcon.defaultTemporaryFile)
        dropBox.signOut()
-    except HTTPError as e:
+    except upload_popcon.HTTPError as e:
        print e
 
