@@ -33,7 +33,7 @@ namespace edm {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
-    using InputSource::processHistoryRegistryUpdate;
+    using InputSource::processHistoryRegistryForUpdate;
     using InputSource::productRegistryUpdate;
 
     static void fillDescriptions(ConfigurationDescriptions & descriptions);

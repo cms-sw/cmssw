@@ -171,9 +171,6 @@ namespace edm {
     /// Const accessor for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const {return *processHistoryRegistry_;}
 
-    /// Non-const accessor for process history registry.
-    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
-
     /// Accessor for branchIDListHelper
     std::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return branchIDListHelper_;}
 
@@ -349,7 +346,7 @@ namespace edm {
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
     ProductRegistry& productRegistryUpdate() const {return *productRegistry_;}
-    ProcessHistoryRegistry& processHistoryRegistryUpdate() const {return *processHistoryRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistryForUpdate() const {return *processHistoryRegistry_;}
     ItemType state() const{return state_;}
     void setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
