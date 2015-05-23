@@ -61,7 +61,7 @@ HLTEcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                                    9.,9.,9.,9.,9.});
   desc.add<std::string>("phiSymBarrelDigiCollection","phiSymEcalDigisEB");
   desc.add<std::string>("phiSymEndcapDigiCollection","phiSymEcalDigisEE");
-  descriptions.add("AlCaPhiSymStream",desc);
+  descriptions.add("hltEcalPhiSymFilter",desc);
 }
 
 
