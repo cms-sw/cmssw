@@ -333,7 +333,9 @@ public:
     void setAlgoMask(AlgoMask a) { algoMask_ = a;}
 
     AlgoMask algoMask() const { return algoMask_;}
+#if ( !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__) ) || defined(__ROOTCLING__)
     unsigned long long algoMaskUL() const { return algoMask().to_ullong();}
+#endif
     bool isAlgoInMask(TrackAlgorithm a) const {return algoMask()[a];}
 
 
