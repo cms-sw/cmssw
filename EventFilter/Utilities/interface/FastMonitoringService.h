@@ -140,6 +140,7 @@ namespace evf{
       void preStreamEarlyTermination(edm::StreamContext const&, edm::TerminationOrigin);
       void preGlobalEarlyTermination(edm::GlobalContext const&, edm::TerminationOrigin);
       void preSourceEarlyTermination(edm::TerminationOrigin);
+      void setExceptionDetected(unsigned int ls);
 
       //this is still needed for use in special functions like DQM which are in turn framework services
       void setMicroState(MicroStateService::Microstate);

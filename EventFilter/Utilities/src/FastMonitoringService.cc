@@ -246,6 +246,11 @@ namespace evf{
     exception_detected_=true; 
   }
 
+  void FastMonitoringService::setExceptionDetected(unsigned int ls) {
+    if (!ls) exception_detected_=true;
+    else exceptionInLS_.push_back(ls);
+  }
+
   void FastMonitoringService::jobFailure()
   {
     macrostate_ = FastMonitoringThread::sError;

@@ -545,6 +545,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     uint32_t crc=0;
     crc = crc32c(crc,(const unsigned char*)event_->payload(),event_->eventSize());
     if ( crc != event_->crc32c() ) {
+      if (fms_) fms_->setExceptionDetected(currentLumiSection_);
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
         "Found a wrong crc32c checksum: expected 0x" << std::hex << event_->crc32c() <<
         " but calculated 0x" << crc;
@@ -556,6 +557,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     adler = adler32(adler,(Bytef*)event_->payload(),event_->eventSize());
 
     if ( adler != event_->adler32() ) {
+      if (fms_) fms_->setExceptionDetected(currentLumiSection_);
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
         "Found a wrong Adler32 checksum: expected 0x" << std::hex << event_->adler32() <<
         " but calculated 0x" << adler;
