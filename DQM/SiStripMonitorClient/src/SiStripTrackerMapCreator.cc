@@ -425,7 +425,7 @@ void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint3
    topNmodVec->resize(numTopModules);
    
    edm::LogVerbatim("TopModules") << topModLabel;
-   edm::LogVerbatim("TopModules") << "-----------------------------------------";
+   edm::LogVerbatim("TopModules") << "------------------------------------------------------";
    
    for (std::vector<std::pair<float, uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); itNmod++){
        std::pair<float, uint32_t> aPair=(*itNmod);
@@ -433,14 +433,20 @@ void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint3
        std::ostringstream comment;
        std::string subdetector;
        SiStripDetId ssdetid(aPair.second);
-       if(ssdetid.subDetector()==SiStripDetId::TIB) subdetector = "TIB ";
-       if(ssdetid.subDetector()==SiStripDetId::TID) subdetector = "TID ";
-       if(ssdetid.subDetector()==SiStripDetId::TOB) subdetector = "TOB ";
-       if(ssdetid.subDetector()==SiStripDetId::TEC) subdetector = "TEC ";
+       if(ssdetid.subDetector()==SiStripDetId::TIB) subdetector = "TIB       ";
+       if(ssdetid.subDetector()==SiStripDetId::TID){
+	  if(tTopo->tidSide(ssdetid)==1) subdetector = "TID/MINUS ";
+          if(tTopo->tidSide(ssdetid)==2) subdetector = "TID/PLUS  ";
+       }
+       if(ssdetid.subDetector()==SiStripDetId::TOB) subdetector = "TOB       ";
+       if(ssdetid.subDetector()==SiStripDetId::TEC){
+	  if(tTopo->tecSide(ssdetid)==1) subdetector = "TEC/MINUS ";
+	  if(tTopo->tecSide(ssdetid)==2) subdetector = "TEC/PLUS  ";
+       }
        uint16_t flag = getDetectorFlagAndComment(0, det_id, tTopo, comment);
        if (flag == 0) edm::LogVerbatim("TopModules") << subdetector << comment.str() << " value: "<< aPair.first;
    }
-   edm::LogVerbatim("TopModules") << "-----------------------------------------";
+   edm::LogVerbatim("TopModules") << "------------------------------------------------------";
 }
 
 
