@@ -121,7 +121,6 @@ HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventS
     float ampCut = 0.;
     if(hitDetId.ieta()<0) ampCut = ampCut_barlM_[iRing];
     else if(hitDetId.ieta()>0) ampCut = ampCut_barlP_[iRing-N_RING_BARREL/2];
-    std::cout << "EB = " << ampCut << std::endl;
     float amplitude = hit.amplitude();
     if( statusCode <=statusThreshold_ && amplitude > ampCut){
         phiSymEBDigiCollection->push_back((*EBDigis->find(hit.id())).id(),(*EBDigis->find(hit.id())).begin());
@@ -140,7 +139,6 @@ HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventS
     float ampCut = 0.;
     if(hitDetId.zside()<0) ampCut = ampCut_endcM_[iRing-N_RING_BARREL];
     else if(hitDetId.zside()>0) ampCut = ampCut_endcP_[iRing-N_RING_BARREL-N_RING_ENDCAP/2];
-    std::cout << "EE = " << ampCut << std::endl;
     float amplitude = hit.amplitude();
     if( statusCode <=statusThreshold_ && amplitude > ampCut){
         phiSymEEDigiCollection->push_back((*EEDigis->find(hit.id())).id(),(*EEDigis->find(hit.id())).begin());
