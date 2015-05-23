@@ -17,6 +17,3 @@ siStripGainESProducerforSimulation.APVGain = siStripGainESProducer.APVGain = cms
     Record = cms.string('fakeAPVGain'),
     Label = cms.untracked.string('')
 )
-
-#print siStripGainESProducerforSimulation.APVGain
-#print siStripGainESProducer.APVGain
