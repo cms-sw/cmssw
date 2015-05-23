@@ -25,16 +25,10 @@ class ClusterTPAssociationProducer : public edm::stream::EDProducer<>
 {
 public:
   //typedef std::pair<uint32_t, EncodedEventId> SimTrackIdentifier;
-  typedef std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > ClusterTPAssociationList;
   typedef std::vector<OmniClusterRef> OmniClusterCollection;
 
   explicit ClusterTPAssociationProducer(const edm::ParameterSet&);
   ~ClusterTPAssociationProducer();
-
-
-  static bool clusterTPAssociationListGreater(std::pair<OmniClusterRef, TrackingParticleRef> i,std::pair<OmniClusterRef, TrackingParticleRef> j) {
-    return i.first.rawIndex() > j.first.rawIndex();
-  }
 
 private:
   virtual void beginJob() {}

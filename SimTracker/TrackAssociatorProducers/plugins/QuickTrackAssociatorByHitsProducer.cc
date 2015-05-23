@@ -40,9 +40,6 @@
 namespace {
 }
 
-
-using ClusterTPAssociationList = QuickTrackAssociatorByHitsImpl::ClusterTPAssociationList;
-
 class QuickTrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
    public:
       explicit QuickTrackAssociatorByHitsProducer(const edm::ParameterSet&);

@@ -19,6 +19,7 @@
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationProducer.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
 
 ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg) 
   : _verbose(cfg.getParameter<bool>("verbose")),

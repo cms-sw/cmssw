@@ -5,7 +5,7 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationProducer.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
 
 // Forward declarations
 class TrackerHitAssociator;
@@ -64,7 +64,6 @@ namespace edm {
 class QuickTrackAssociatorByHitsImpl : public reco::TrackToTrackingParticleAssociatorBaseImpl
 {
 public:
-  typedef ClusterTPAssociationProducer::ClusterTPAssociationList ClusterTPAssociationList;
   enum SimToRecoDenomType {denomnone,denomsim,denomreco};
 
   QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
