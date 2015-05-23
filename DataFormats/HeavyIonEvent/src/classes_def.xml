@@ -1,6 +1,6 @@
 <lcgdict>
-<class name="reco::EvtPlane" ClassVersion="10">
- <version ClassVersion="10" checksum="3204318766"/>
+<class name="reco::EvtPlane" ClassVersion="11">
+ <version ClassVersion="11" checksum="393681411"/>
 </class>
 <class name="edm::Wrapper<reco::EvtPlane>"/>
 <class name="reco::Centrality" ClassVersion="10">
