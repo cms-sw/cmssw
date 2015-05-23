@@ -27,15 +27,17 @@ namespace stage2 {
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
-     res1_->setBXRange(0,1);
-     res2_->setBXRange(0,1);
+     res1_->setBXRange(0,0);
+     res2_->setBXRange(0,0);
 
-     // Initialise index
-     int unsigned i = 0;
+     // Initialise frame indices for each data type
+     int unsigned fet = 0;
+     int unsigned fht = 12;
+     int unsigned fjet = 37;
 
      // ET / MET(x) / MET (y)
 
-     uint32_t raw_data = block.payload()[i++];
+     uint32_t raw_data = block.payload()[fet];
 
      l1t::EtSum et = l1t::EtSum();
     
@@ -46,12 +48,10 @@ namespace stage2 {
 
      res2_->push_back(0,et);
 
-     // Skip 9 empty frames
-     for (int j=0; j<11; j++) raw_data=block.payload()[i++];
 
      // HT / MHT(x)/ MHT (y)
 
-     raw_data = block.payload()[i++];
+     raw_data = block.payload()[fht];
 
      l1t::EtSum ht = l1t::EtSum();
     
@@ -62,12 +62,10 @@ namespace stage2 {
 
      res2_->push_back(0,ht);
 
-     // Skip 26 empty frames                                                                                                                                             
-     for (int j=0; j<25; j++) raw_data=block.payload()[i++];
-
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
-       raw_data = block.payload()[i++];
+
+       raw_data = block.payload()[fjet+nJet];
 
        if (raw_data == 0)
             continue;
@@ -81,7 +79,7 @@ namespace stage2 {
          etasign = -1;
        }
 
-       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << block.header().getSize();
+       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
 
        jet.setHwEta(etasign*(raw_data & 0x3F));
        jet.setHwPhi((raw_data >> 6) & 0x7F);

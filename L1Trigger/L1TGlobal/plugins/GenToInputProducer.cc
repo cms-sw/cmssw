@@ -167,7 +167,7 @@ namespace l1t {
 
 
     genParticlesToken = consumes <reco::GenParticleCollection> (std::string("genParticles"));
-    genJetsToken      = consumes <reco::GenJetCollection> (std::string("ak5GenJets"));
+    genJetsToken      = consumes <reco::GenJetCollection> (std::string("ak4GenJets"));
     genMetToken       = consumes <reco::GenMETCollection> (std::string("genMetCalo"));   
 
 
@@ -281,7 +281,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int eta  = convertEtaToHW( mcParticle.eta(), -MaxMuonEta_, MaxMuonEta_, EtaStepMuon_);
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepMuon_ );
     int qual = gRandom->Integer(16);//4;
-    int iso  = gRandom->Integer(4);//1;
+    int iso  = gRandom->Integer(4)%2;//1;
     int charge = ( mcParticle.charge()<0 ) ? 1 : 0;
     int chargeValid = 1;
     int mip = 1;
@@ -314,7 +314,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ );
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepCalo_ );
     int qual = 1;
-    int iso  = 1;
+    int iso  = gRandom->Integer(4)%2;
 
     // Eta outside of acceptance
     if( eta>=9999 ) continue;
@@ -344,7 +344,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int eta  = convertEtaToHW( mcParticle.eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_);
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepCalo_ );
     int qual = 1;
-    int iso  = 1;
+    int iso  = gRandom->Integer(4)%2;
 
     // Eta outside of acceptance
     if( eta>=9999 ) continue;
@@ -408,7 +408,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	int EGphi  = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
 
 	int EGqual = 1;
-	int EGiso  = 1;
+	int EGiso  = gRandom->Integer(4)%2;
 
 	l1t::EGamma eg(*p4, EGpt, EGeta, EGphi, EGqual, EGiso);
 	egammaVec.push_back(eg);
@@ -421,7 +421,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	int Taueta  = convertEtaToHW( genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_ );
 	int Tauphi  = convertPhiToHW( genJet->phi(), PhiStepCalo_ );
 	int Tauqual = 1;
-	int Tauiso  = 1;
+	int Tauiso  = gRandom->Integer(4)%2;
 
 	l1t::Tau tau(*p4, Taupt, Taueta, Tauphi, Tauqual, Tauiso);
 	tauVec.push_back(tau);

@@ -17,3 +17,5 @@ eras.stage1L1Trigger.toModify( l1tDigiToRaw, TauInputLabel = cms.InputTag("simCa
 eras.stage1L1Trigger.toModify( l1tDigiToRaw, IsoTauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "isoTaus") )
 eras.stage1L1Trigger.toModify( l1tDigiToRaw, HFBitCountsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFBitCounts") )
 eras.stage1L1Trigger.toModify( l1tDigiToRaw, HFRingSumsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFRingSums") )
+eras.stage1L1Trigger.toModify( l1tDigiToRaw, RegionInputLabel = cms.InputTag("simRctDigis", "") )
+eras.stage1L1Trigger.toModify( l1tDigiToRaw, EMCandInputLabel = cms.InputTag("simRctDigis", "") )
