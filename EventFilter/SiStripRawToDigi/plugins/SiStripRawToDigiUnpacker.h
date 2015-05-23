@@ -167,15 +167,7 @@ sistrip::FedBufferFormat sistrip::RawToDigiUnpacker::fedBufferFormat( const uint
 
 sistrip::FedReadoutMode sistrip::RawToDigiUnpacker::fedReadoutMode( const uint16_t& register_value ) 
 {
-  if ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::FED_SCOPE_MODE; }
-  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::FED_VIRGIN_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::FED_PROC_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::FED_ZERO_SUPPR; }
-  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
-  //else if ( ((register_value>>1)&0x7) == 0x2 ) { return sistrip::FED_ZERO_SUPPR_CMO; }
-  else if ( ((register_value>>1)&0x7) == 0x4 ) { return sistrip::FED_ZERO_SUPPR_LITE_CMO; }
-  else if ( ((register_value>>1)&0x7) == 0x7 ) { return sistrip::FED_PREMIX_RAW; } //new mode
-  else { return sistrip::UNKNOWN_FED_READOUT_MODE; }
+  return static_cast<sistrip::FedReadoutMode>(register_value&0xF);
 }
 
 void sistrip::RawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
