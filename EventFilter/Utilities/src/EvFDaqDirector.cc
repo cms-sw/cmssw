@@ -787,7 +787,7 @@ namespace evf {
 
   void EvFDaqDirector::lockFULocal() {
     //fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_flk);
-    flock(fulocal_rwlock_fd_,LOCK_EX);
+    flock(fulocal_rwlock_fd_,LOCK_SH);
   }
 
   void EvFDaqDirector::unlockFULocal() {
