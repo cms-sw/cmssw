@@ -417,7 +417,7 @@ namespace sistrip {
     return READOUT_MODE_INVALID;
   }
   
-  FEDDataType fedDataTypeFromString(const std::string& dataTypeString)
+  /*FEDDataType fedDataTypeFromString(const std::string& dataTypeString)
   {
     if ( (dataTypeString == "REAL") ||
          (dataTypeString == "DATA_TYPE_REAL") ||
@@ -433,7 +433,7 @@ namespace sistrip {
     std::ostringstream ss;
     ss << "Trying to convert to a FEDDataType from an invalid string: " << dataTypeString;
     throw cms::Exception("FEDDataType") << ss.str();
-  }
+  }*/
   
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString)
   {
@@ -720,14 +720,14 @@ namespace sistrip {
     }   
   }
 
-  FEDDataType TrackerSpecialHeader::dataType() const
+  /*FEDDataType TrackerSpecialHeader::dataType() const
   {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     //if it is scope mode then it is always real
     if (eventTypeNibble == READOUT_MODE_SCOPE) return DATA_TYPE_REAL;
     //in other modes it is the lowest order bit of event type nibble
     else return FEDDataType(eventTypeNibble & 0x1);
-  }
+  }*/
   
   TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat)
   {
@@ -781,18 +781,23 @@ namespace sistrip {
     case READOUT_MODE_SCOPE:
       //scope mode is always real
       setReadoutModeBits(readoutMode);
-      setDataTypeBit(true);
     case READOUT_MODE_VIRGIN_RAW:
     case READOUT_MODE_PROC_RAW:
+    case READOUT_MODE_SPY:
     case READOUT_MODE_ZERO_SUPPRESSED:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
-    case READOUT_MODE_SPY:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
       setReadoutModeBits(readoutMode);
       break;
     case READOUT_MODE_PREMIX_RAW:
       //special mode for simulation
       setReadoutModeBits(readoutMode);
-      setDataTypeBit(true);
       break;
     default:
       std::ostringstream ss;
@@ -803,7 +808,7 @@ namespace sistrip {
     return *this;
   }
   
-  TrackerSpecialHeader& TrackerSpecialHeader::setDataType(const FEDDataType dataType)
+  /*TrackerSpecialHeader& TrackerSpecialHeader::setDataType(const FEDDataType dataType)
   {
     //if mode is scope then this bit can't be changed
     if (readoutMode() == READOUT_MODE_SCOPE) return *this;
@@ -818,7 +823,7 @@ namespace sistrip {
       printHex(&dataType,1,ss);
       throw cms::Exception("FEDBuffer") << ss.str();
     }
-  }
+  }*/
   
   TrackerSpecialHeader& TrackerSpecialHeader::setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error)
   {
@@ -845,7 +850,7 @@ namespace sistrip {
   }
   
   TrackerSpecialHeader::TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode,
-                                             const FEDHeaderType headerType, const FEDDataType dataType,
+                                             const FEDHeaderType headerType, /*const FEDDataType dataType,*/
                                              const uint8_t address, const uint8_t addressErrorRegister,
                                              const uint8_t feEnableRegister, const uint8_t feOverflowRegister,
                                              const FEDStatusRegister fedStatusRegister)
@@ -857,7 +862,7 @@ namespace sistrip {
     setBufferFormatByte(bufferFormat);
     setReadoutMode(readoutMode);
     setHeaderType(headerType);
-    setDataType(dataType);
+    //setDataType(dataType);
     setAPVEAddress(address);
     setAPVEAddressErrorRegister(addressErrorRegister);
     setFEEnableRegister(feEnableRegister);
@@ -1349,7 +1354,7 @@ namespace sistrip {
     os << "Source ID: " << daqSourceID() << std::endl;
     os << "Header type: " << headerType() << std::endl;
     os << "Readout mode: " << readoutMode() << std::endl;
-    os << "Data type: " << dataType() << std::endl;
+    //os << "Data type: " << dataType() << std::endl;
     os << "DAQ event type: " << daqEventType() << std::endl;
     os << "TTS state: " << daqTTSState() << std::endl;
     os << "L1 ID: " << daqLvl1ID() << std::endl;

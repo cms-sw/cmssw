@@ -135,7 +135,7 @@ namespace sistrip {
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
   FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString);
-  FEDDataType fedDataTypeFromString(const std::string& dataTypeString);
+  //FEDDataType fedDataTypeFromString(const std::string& dataTypeString);
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString);
 
   //
@@ -278,7 +278,7 @@ namespace sistrip {
       FEDHeaderType headerType() const;
       uint8_t trackerEventTypeNibble() const;
       FEDReadoutMode readoutMode() const;
-      FEDDataType dataType() const;
+      //FEDDataType dataType() const;
       uint8_t apveAddress() const;
       uint8_t apvAddressErrorRegister() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
@@ -296,7 +296,7 @@ namespace sistrip {
       TrackerSpecialHeader& setBufferFormat(const FEDBufferFormat newBufferFormat);
       TrackerSpecialHeader& setHeaderType(const FEDHeaderType headerType);
       TrackerSpecialHeader& setReadoutMode(const FEDReadoutMode readoutMode);
-      TrackerSpecialHeader& setDataType(const FEDDataType dataType);
+      //TrackerSpecialHeader& setDataType(const FEDDataType dataType);
       TrackerSpecialHeader& setAPVEAddress(const uint8_t address);
       TrackerSpecialHeader& setAPVEAddressErrorRegister(const uint8_t addressErrorRegister);
       TrackerSpecialHeader& setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error);
@@ -306,7 +306,7 @@ namespace sistrip {
       TrackerSpecialHeader& setFEOverflowForFEUnit(const uint8_t internalFEUnitNum, const bool overflow);
       TrackerSpecialHeader& setFEDStatusRegister(const FEDStatusRegister fedStatusRegister);
       TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode,
-                           const FEDHeaderType headerType, const FEDDataType dataType,
+                           const FEDHeaderType headerType, /*const FEDDataType dataType,*/
                            const uint8_t address = 0x00, const uint8_t addressErrorRegister = 0x00,
                            const uint8_t feEnableRegister = 0xFF, const uint8_t feOverflowRegister = 0x00,
                            const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
@@ -314,7 +314,7 @@ namespace sistrip {
       void setBufferFormatByte(const FEDBufferFormat newBufferFormat);
       void setHeaderTypeNibble(const uint8_t value);
       void setReadoutModeBits(const uint8_t value);
-      void setDataTypeBit(const bool value);
+      //void setDataTypeBit(const bool value);
       enum byteIndicies { FEDSTATUS=0, FEOVERFLOW=2, FEENABLE=3, ADDRESSERROR=4, APVEADDRESS=5, BUFFERTYPE=6, BUFFERFORMAT=7 };
       //copy of header, 32 bit word swapped if needed
       uint8_t specialHeader_[8];
@@ -577,7 +577,7 @@ namespace sistrip {
       FEDBufferFormat bufferFormat() const;
       FEDHeaderType headerType() const;
       FEDReadoutMode readoutMode() const;
-      FEDDataType dataType() const;
+      //FEDDataType dataType() const;
       uint8_t apveAddress() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
       bool feEnabled(const uint8_t internalFEUnitNum) const;
@@ -751,13 +751,13 @@ namespace sistrip {
   
   inline void TrackerSpecialHeader::setReadoutModeBits(const uint8_t value)
     {
-      specialHeader_[BUFFERTYPE] = ( (specialHeader_[BUFFERTYPE] & (~0x0E)) | (value & 0x0E) );
+      specialHeader_[BUFFERTYPE] = ( (specialHeader_[BUFFERTYPE] & (~0x0F)) | (value & 0x0F) );
     }
       
-  inline void TrackerSpecialHeader::setDataTypeBit(const bool value)
+  /*inline void TrackerSpecialHeader::setDataTypeBit(const bool value)
     {
       specialHeader_[BUFFERTYPE] = ( (specialHeader_[BUFFERTYPE] & (~0x01)) | (value ? 0x01 : 0x00) );
-    }
+    }*/
   
   inline TrackerSpecialHeader& TrackerSpecialHeader::setAPVEAddress(const uint8_t address)
     {
@@ -1438,10 +1438,10 @@ namespace sistrip {
       return specialHeader_.readoutMode();
     }
   
-  inline FEDDataType FEDBufferBase::dataType() const
+  /*inline FEDDataType FEDBufferBase::dataType() const
     {
       return specialHeader_.dataType();
-    }
+    }*/
   
   inline uint8_t FEDBufferBase::apveAddress() const
     {

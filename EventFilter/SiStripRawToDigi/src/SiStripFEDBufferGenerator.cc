@@ -333,10 +333,10 @@ namespace sistrip {
   FEDBufferGenerator::FEDBufferGenerator(const uint32_t l1ID, const uint16_t bxID,
                                          const std::vector<bool>& feUnitsEnabled, const std::vector<bool>& channelsEnabled,
                                          const FEDReadoutMode readoutMode, const FEDHeaderType headerType, const FEDBufferFormat bufferFormat,
-                                         const FEDDAQEventType evtType, const FEDDataType dataType)
+                                         const FEDDAQEventType evtType/*, const FEDDataType dataType*/)
     : defaultDAQHeader_(l1ID,bxID,0,evtType),
       defaultDAQTrailer_(0,0),
-      defaultTrackerSpecialHeader_(bufferFormat,readoutMode,headerType,dataType),
+      defaultTrackerSpecialHeader_(bufferFormat,readoutMode,headerType/*,dataType*/),
       defaultFEHeader_(FEDFEHeader::newFEHeader(headerType)),
       feUnitsEnabled_(feUnitsEnabled),
       channelsEnabled_(channelsEnabled)
