@@ -21,9 +21,12 @@ mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
             cms.InputTag("lowPtTripletStepSimTrackIds"),
             cms.InputTag("pixelPairStepSimTrackIds"),
             cms.InputTag("mixedTripletStepSimTrackIds")],
-        pTMin = 0.15,
-        maxD0 = 10.0,
-        maxZ0 = 30
+#        pTMin = 0.15,
+ #       maxD0 = 10.0,
+  #      maxZ0 = 30
+        pTMin = 0,
+        maxD0 = -1,
+        maxZ0 = -1,
         ),
     minLayersCrossed = 3,
     layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value(),
@@ -40,9 +43,12 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
             cms.InputTag("lowPtTripletStepSimTrackIds"),
             cms.InputTag("pixelPairStepSimTrackIds"),
             cms.InputTag("mixedTripletStepSimTrackIds")],
-        pTMin = 0.15,
-        maxD0 = 10.0,
-        maxZ0 = 30
+#        pTMin = 0.15,
+ #       maxD0 = 10.0,
+  #      maxZ0 = 30
+        pTMin = 0,
+        maxD0 = -1,
+        maxZ0 = -1,
         ),
     minLayersCrossed = 3,
     layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value(),

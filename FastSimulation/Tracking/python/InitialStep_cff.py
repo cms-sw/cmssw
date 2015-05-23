@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.InitialStep_cff
 
@@ -7,8 +6,11 @@ import RecoTracker.IterativeTracking.InitialStep_cff
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0.4,
-        maxD0 = 1.0,
+        #pTMin = 0.4,
+        #maxD0 = 1.0,
+        #maxZ0 = -1,
+        pTMin = 0,
+        maxD0 = -1,
         maxZ0 = -1,
         ),
     minLayersCrossed = 3,

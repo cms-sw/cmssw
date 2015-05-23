@@ -24,9 +24,12 @@ tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
             cms.InputTag("mixedTripletStepSimTrackIds"),
             cms.InputTag("pixelLessStepSimTrackIds"),
             cms.InputTag("tobTecStepSimTrackIds")],
-        pTMin = 0.3,
+#        pTMin = 0.3,
+ #       maxD0 = -1,
+  #      maxZ0 = -1
+        pTMin = 0,
         maxD0 = -1,
-        maxZ0 = -1
+        maxZ0 = -1,
     ),
     minLayersCrossed = 4,
     layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.layerList.value(),
@@ -44,9 +47,12 @@ tobTecStepSeedsPair = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traject
             cms.InputTag("mixedTripletStepSimTrackIds"),
             cms.InputTag("pixelLessStepSimTrackIds"),
             cms.InputTag("tobTecStepSimTrackIds")],
-        pTMin = 0.3,
-        maxD0 = 99.0,
-        maxZ0 = 99
+  #      pTMin = 0.3,
+ #       maxD0 = 99.0,
+#        maxZ0 = 99
+        pTMin = 0,
+        maxD0 = -1,
+        maxZ0 = -1,
     ),
     minLayersCrossed = 4,
     layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.layerList.value(),

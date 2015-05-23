@@ -54,18 +54,7 @@ class TrajectorySeedProducer:
         
         unsigned int minLayersCrossed;
 
-        std::vector<std::vector<TrackingLayer>> seedingLayers;
-
-        double originRadius = -1;
-        double ptMin = -1;
-        double originHalfLength = -1;
-        double nSigmaZ = -1;
-        double useregions;
-	double useregionsTest;
-        bool testBeamspotCompatibility;
-        const reco::BeamSpot* beamSpot;
-        bool testPrimaryVertexCompatibility;
-        const reco::VertexCollection* primaryVertices;
+        std::vector<std::vector<TrackingLayer>> seedingLayers;    
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
         edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;

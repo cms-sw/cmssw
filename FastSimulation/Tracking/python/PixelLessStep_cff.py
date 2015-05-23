@@ -22,9 +22,12 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
             cms.InputTag("pixelPairStepSimTrackIds"),
             cms.InputTag("mixedTripletStepSimTrackIds"),
             cms.InputTag("pixelLessStepSimTrackIds")],
-        pTMin = 0.3,
+#        pTMin = 0.3,
+ #       maxD0 = -1,
+  #      maxZ0 = -1
+        pTMin = 0,
         maxD0 = -1,
-        maxZ0 = -1
+        maxZ0 = -1,
         ),
     minLayersCrossed = 3,
     layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
