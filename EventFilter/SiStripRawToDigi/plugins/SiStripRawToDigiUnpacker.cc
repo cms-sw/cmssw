@@ -272,7 +272,7 @@ namespace sistrip {
 	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
       
 
-	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE) { 
+	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED /*|| mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE*/) { 
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
@@ -322,13 +322,17 @@ namespace sistrip {
 	  
 	}
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE) { 
+	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE ||
+                 mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
+                 mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
+                 mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE
+                ) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
 	  try {
             /// create unpacker
-	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
+	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), mode);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}

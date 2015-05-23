@@ -34,14 +34,20 @@ namespace sistrip {
 
     
     switch(mode_) {
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE: rawdigi_ = false; break;
-    case READOUT_MODE_ZERO_SUPPRESSED:      rawdigi_ = false; break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE: rawdigi_ = false; break;
-    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:      rawdigi_ = false; break;
-    case READOUT_MODE_PREMIX_RAW:      rawdigi_ = false; break; 
-    case READOUT_MODE_VIRGIN_RAW:      rawdigi_ = true; break;
-    case READOUT_MODE_PROC_RAW:        rawdigi_ = true; break;
-    case READOUT_MODE_SCOPE:           rawdigi_ = true; break;
+    case READOUT_MODE_ZERO_SUPPRESSED:                         rawdigi_ = false; break;
+    //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:              rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE:                    rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:         rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:                   rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:        rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:            rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE: rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:            rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE: rawdigi_ = false; break;
+    case READOUT_MODE_PREMIX_RAW:                              rawdigi_ = false; break; 
+    case READOUT_MODE_VIRGIN_RAW:                              rawdigi_ = true; break;
+    case READOUT_MODE_PROC_RAW:                                rawdigi_ = true; break;
+    case READOUT_MODE_SCOPE:                                   rawdigi_ = true; break;
     case READOUT_MODE_INVALID: {
       if( edm::isDebugEnabled()) {
 	edm::LogWarning("DigiToRawModule") 

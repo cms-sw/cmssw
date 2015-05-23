@@ -18,4 +18,5 @@ siStripGainESProducerforSimulation.APVGain = siStripGainESProducer.APVGain = cms
     Label = cms.untracked.string('')
 )
 
-
+#print siStripGainESProducerforSimulation.APVGain
+#print siStripGainESProducer.APVGain

@@ -32,7 +32,7 @@ namespace sistrip {
         //get the 10bit value to be used for raw modes
         uint16_t getSample(const uint16_t sampleNumber) const;
         //get the 8 bit value to be used for ZS modes, converting it as the FED does if specified in constructor
-        uint8_t get8BitSample(const uint16_t sampleNumber) const;
+        uint8_t get8BitSample(const uint16_t sampleNumber, const FEDReadoutMode mode) const;
         uint16_t get10BitSample(const uint16_t sampleNumber) const;
         void setSample(const uint16_t sampleNumber, const uint16_t adcValue);
         //setting value directly is equivalent to get and set Sample but without length check
@@ -93,10 +93,10 @@ namespace sistrip {
                                 const FEDStripData::ChannelData& data, const bool channelEnabled, const bool reorderData) const;
       //fill the vector with channel data for zero suppressed modes
       void fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
-      void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
-       void fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
+      void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled, const FEDReadoutMode mode) const;
+      void fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
      //add the ZS cluster data for the channel to the end of the vector
-      void fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
+      void fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const;
       void fillClusterDataPreMixMode(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
       std::vector<bool> feUnitsEnabled_;
       std::vector<bool> channelsEnabled_;
@@ -234,11 +234,29 @@ namespace sistrip {
     return data_[sampleNumber];
   }
   
-  inline uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber) const
+  inline uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber, const FEDReadoutMode mode) const
   {
-    if (dataIs8Bit_) return (0xFF & getSample(sampleNumber));
+    uint16_t sample = getSample(sampleNumber);
+    // one start shifting the word
+    switch (mode) {
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        sample = (sample>>1);
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        sample = (sample>>2);
+        break;
+      default:
+        throw cms::Exception("FEDBufferGenerator") << "Invalid readout mode requested for 8-bit sample retrieval";
+    }
+    if (dataIs8Bit_) {
+      return (0xFF & sample);
+    }
     else {
-      const uint16_t sample = getSample(sampleNumber);
       if (sample < 0xFE) return sample;
       else if (sample == 0x3FF) return 0xFF;
       else return 0xFE;

@@ -151,11 +151,29 @@ namespace sistrip {
     case READOUT_MODE_SPY:
       os << "Spy channel";
       break;
-    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+    /*case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
       os << "Zero suppressed CM Override";
-      break;
+      break;*/
     case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
       os << "Zero suppressed lite CM Override";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      os << "Zero suppressed lite (8 bit, top-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, top-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      os << "Zero suppressed lite (8 bit, bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      os << "Zero suppressed lite (8 bit, top/bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, top/bottom-stripped)";
       break;
     case READOUT_MODE_PREMIX_RAW:
       os << "PreMix raw";
@@ -686,8 +704,14 @@ namespace sistrip {
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_ZERO_SUPPRESSED:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE:
-      case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
       case READOUT_MODE_SPY:
 	return FEDReadoutMode(mode);
       default:

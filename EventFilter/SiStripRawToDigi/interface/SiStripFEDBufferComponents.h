@@ -40,19 +40,28 @@ namespace sistrip {
   enum FEDReadoutMode { READOUT_MODE_INVALID=INVALID,
                         READOUT_MODE_SCOPE=0x1,
                         READOUT_MODE_VIRGIN_RAW=0x2,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE=0x3,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE=0x4,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT=0x5,
                         READOUT_MODE_PROC_RAW=0x6,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE=0x7,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE=0x8,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT=0x9,
                         READOUT_MODE_ZERO_SUPPRESSED=0xA,
-                        READOUT_MODE_ZERO_SUPPRESSED_LITE=0xC,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE=0xB,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8=0xC,
                         READOUT_MODE_SPY=0xE,
-			READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE=0x4,
-			READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE=0x8,
-			READOUT_MODE_PREMIX_RAW=0xF
+                        READOUT_MODE_PREMIX_RAW=0xF
                       };
 
   static const uint8_t PACKET_CODE_SCOPE = 0xE5;
   static const uint8_t PACKET_CODE_VIRGIN_RAW = 0xE6;
   static const uint8_t PACKET_CODE_PROC_RAW = 0xF2;
   static const uint8_t PACKET_CODE_ZERO_SUPPRESSED = 0xEA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE = 0x8A;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8 = 0xEA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT = 0xCA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT = 0xAA;
 
   //enum values are values which appear in buffer. DO NOT CHANGE!
   enum FEDDataType { DATA_TYPE_REAL=0,

@@ -124,16 +124,18 @@ namespace sistrip {
       fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,false);
       break;
     case READOUT_MODE_ZERO_SUPPRESSED:
+    //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
       fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
       break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
-      fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled);
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-      fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
-      break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE:
-      fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled);
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      fillZeroSuppressedLiteChannelBuffer(channelBuffer,data,channelEnabled,mode);
       break;
     case READOUT_MODE_PREMIX_RAW:
       fillPreMixRawChannelBuffer(channelBuffer,data,channelEnabled);
@@ -188,7 +190,8 @@ namespace sistrip {
     }
     //if channel is not empty
     //add space for channel length
-    channelBuffer->push_back(0xFF); channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
     //packet code
     channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
     //add medians
@@ -198,7 +201,7 @@ namespace sistrip {
     channelBuffer->push_back(medians.second & 0xFF);
     channelBuffer->push_back((medians.second & 0x300) >> 8);
     //clusters
-    fillClusterData(channelBuffer,data);
+    fillClusterData(channelBuffer,data,READOUT_MODE_ZERO_SUPPRESSED);
     //set length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
@@ -207,7 +210,8 @@ namespace sistrip {
   
   void FEDBufferPayloadCreator::fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer,
                                                                    const FEDStripData::ChannelData& data,
-                                                                   const bool channelEnabled) const
+                                                                   const bool channelEnabled,
+                                                                   const FEDReadoutMode mode) const
   {
     channelBuffer->reserve(50);
     //if channel is disabled then create empty channel header and return
@@ -219,10 +223,11 @@ namespace sistrip {
     }
     //if channel is not empty
     //add space for channel length
-    channelBuffer->push_back(0xFF); channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
+    channelBuffer->push_back(0xFF);
     //clusters
-    fillClusterData(channelBuffer,data);
-    //set length
+    fillClusterData(channelBuffer,data,mode);
+    //set fibre length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
@@ -263,12 +268,12 @@ namespace sistrip {
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
   
-  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
+  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
   {
     uint16_t clusterSize = 0;
     const uint16_t nSamples = data.size();
     for( uint16_t strip = 0; strip < nSamples; ++strip) {
-      const uint8_t adc = data.get8BitSample(strip);
+      const uint8_t adc = data.get8BitSample(strip,mode);
 
       if(adc) {
 	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
