@@ -45,7 +45,8 @@ class HEEP_WorkingPoint_V1:
                  effAreaForEHIso, 
                  # other cuts:
                  dxyCut,
-                 maxMissingHitsCut
+                 maxMissingHitsCut,
+                 ecalDrivenCut
                  ):
         # assign values taken from all the arguments above
         self.idName                  = idName
@@ -66,7 +67,7 @@ class HEEP_WorkingPoint_V1:
         self.effAreaForEHIso         = effAreaForEHIso
         self.dxyCut                  = dxyCut                 
         self.maxMissingHitsCut       = maxMissingHitsCut      
-
+        self.ecalDrivenCut           = ecalDrivenCut
 # ==============================================================
 # Define individual cut configurations used by complete cut sets
 # ==============================================================
@@ -215,6 +216,15 @@ def psetGsfEleMissingHitsCut(wpEB, wpEE):
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
+def psetGsfEleEcalDrivenCut(wpEB, wpEE):
+    return cms.PSet(
+        cutName = cms.string('GsfEleEcalDrivenCut'),
+        ecalDrivenEB = cms.int32( wpEB.ecalDrivenCut ),
+        ecalDrivenEE = cms.int32( wpEE.ecalDrivenCut ),
+        barrelCutOff = cms.double(ebCutOff),
+        needsAdditionalProducts = cms.bool(False),
+        isIgnored = cms.bool(False)
+        ) 
 
 # ==============================================================
 # Define the complete cut sets
@@ -239,7 +249,8 @@ def configureHEEPElectronID_V51(wpEB, wpEE):
             psetGsfEleTrkPtIsoCut(wpEB,wpEE),             #7
             psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
             psetGsfEleDxyCut(wpEB,wpEE),                  #9
-            psetGsfEleMissingHitsCut(wpEB,wpEE)           #10
+            psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
+            psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
             )
         )
     return parameterSet
