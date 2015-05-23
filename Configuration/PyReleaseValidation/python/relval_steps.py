@@ -678,7 +678,7 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
          "--pileup_input" : "file:/afs/cern.ch/user/l/lveldere/FastSimDev_May/wf74x/CMSSW_7_4_X_2015-05-22-1100/src/250399.0_FS_PREMIXUP15_PU25+FS_PREMIXUP15_PU25/step1.root", # NEEDS CHANGE
          "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
          },
-        step1FastUpg2015Defaults])
+        Kby(100,500),step1FastUpg2015Defaults])
 
 ### FastSim: list of processes used in FastSim validation
 fs_proclist = ["ZEE_13",'TTbar_13','H130GGgluonfusion_13','ZTT_13','ZMM_13','NuGun_UP15','QCD_FlatPt_15_3000HS_13','SMS-T1tttt_mGl-1500_mLSP-100_13']
