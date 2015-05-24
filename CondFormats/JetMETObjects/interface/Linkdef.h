@@ -9,4 +9,5 @@
 #pragma link C++ class JetCorrectorParameters::Record+;
 #pragma link C++ class SimpleJetCorrector+;
 #pragma link C++ class FactorizedJetCorrector+;
+#pragma link C++ class METCorrectorParameters+;
 #endif // __CINT__
