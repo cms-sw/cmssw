@@ -74,8 +74,8 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      std::back_inserter(*lambdaCandidates) );
 
    // Write the collections to the Event
-   iEvent.put( kShortCandidates, std::string("Kshort") );
-   iEvent.put( lambdaCandidates, std::string("Lambda") );
+   kShortCandidates->shrink_to_fit(); iEvent.put( kShortCandidates, std::string("Kshort") );
+   lambdaCandidates->shrink_to_fit(); iEvent.put( lambdaCandidates, std::string("Lambda") );
 
 }
 
