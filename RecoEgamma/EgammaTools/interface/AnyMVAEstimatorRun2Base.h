@@ -16,7 +16,7 @@ class AnyMVAEstimatorRun2Base {
 
   virtual float mvaValue( const edm::Ptr<reco::Candidate>& particle) = 0;
  
-  virtual int findCategory(  edm::Ptr<reco::Candidate>& particle) = 0;
+  virtual int findCategory( const edm::Ptr<reco::Candidate>& particle) = 0;
  
 };
 
