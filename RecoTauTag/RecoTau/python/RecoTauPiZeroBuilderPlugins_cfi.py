@@ -70,24 +70,24 @@ modStrips = strips.clone(
 # Produce a "strips" of photons
 # with no track quality cuts applied to PFElectrons
 # and eta x phi size of strip increasing for low pT photons
-modStrips2 = strips.clone(
-    plugin = cms.string('RecoTauPiZeroStripPlugin3'),
-    applyElecTrackQcuts = cms.bool(False),
-    minGammaEtStripSeed = cms.double(0.5),
-    minGammaEtStripAdd = cms.double(0.),
-    minStripEt = cms.double(0.5),
-    # CV: parametrization of strip size in eta and phi determined by Yuta Takahashi,
-    #     chosen to contain 95% of photons from tau decays
-    stripEtaAssociationDistance = cms.PSet(
-        function = cms.string("TMath::Max(0.05, [0]*TMath::Power(pT, -[1]))"),
-        par0 = cms.double(2.15974e-01),
-        par1 = cms.double(5.14575e-01)
-    ),
-    stripPhiAssociationDistance = cms.PSet(
-        function = cms.string("TMath::Max(0.05, [0]*TMath::Power(pT, -[1]))"),
-        par0 = cms.double(3.74961e-01),
-        par1 = cms.double(5.99882e-01)
-    ),
-    updateStripAfterEachDaughter = cms.bool(False),
-    maxStripBuildIterations = cms.int32(-1)
+modStrips2 = strips.clone(                                                                                                                           
+    plugin = cms.string('RecoTauPiZeroStripPlugin3'),                                                                                                
+    applyElecTrackQcuts = cms.bool(False),                                                                                                           
+    minGammaEtStripSeed = cms.double(0.5),                                                                                                           
+    minGammaEtStripAdd = cms.double(0.),                                                                                                             
+    minStripEt = cms.double(0.5),                                                                                                                    
+    # CV: parametrization of strip size in eta and phi determined by Yuta Takahashi,                                                                 
+    #     chosen to contain 95% of photons from tau decays                                                                                           
+    stripEtaAssociationDistance = cms.PSet(                                                                                                          
+        function = cms.string("TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))"),                                                     
+        par0 = cms.double(1.97077e-01),                                                                                                              
+        par1 = cms.double(6.58701e-01)                                                                                                               
+    ),                                                                                                                                               
+    stripPhiAssociationDistance = cms.PSet(                                                                                                          
+        function = cms.string("TMath::Min(0.3, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))"),                                                      
+        par0 = cms.double(3.52476e-01),                                                                                                              
+        par1 = cms.double(7.07716e-01)                                                                                                               
+   ),                                                                                                                                                
+    updateStripAfterEachDaughter = cms.bool(False),                                                                                                  
+    maxStripBuildIterations = cms.int32(-1)                                                                                                          
 )
