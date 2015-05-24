@@ -71,10 +71,12 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   // Utility functions
   TMVA::Reader *createSingleReader(int iCategory, std::string filename);
   bool isEndcapCategory( int category );
-  // Function that should work on both pat and reco electrons
+  // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  void fillMVAVariables(const reco::GsfElectron & particle);
-  int findCategory( const reco::GsfElectron & particle);
+  void fillMVAVariables(const edm::Ptr<reco::Candidate>& particle);
+  int findCategory( const edm::Ptr<reco::Candidate>& particle);
+  // The function below ensures that the variables passed to MVA are within reasonable bounds
+  void constrainMVAVariables();
   
  private:
   // Data members
