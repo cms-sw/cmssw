@@ -1,7 +1,9 @@
-#ifndef ElectronMVAEstimatorRun2Phys14NonTrig_H
-#define ElectronMVAEstimatorRun2Phys14NonTrig_H
+#ifndef RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Phys14NonTrig_H
+#define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Phys14NonTrig_H
 
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include <vector>
 #include <string>
@@ -64,14 +66,15 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   ~ElectronMVAEstimatorRun2Phys14NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue( edm::Ptr<reco::Candidate>& particle);
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle);
  
   // Utility functions
   TMVA::Reader *createSingleReader(int iCategory, std::string filename);
   bool isEndcapCategory( int category );
-  // Function that should work on both pat and reco objects
-  template <typename T> void fillMVAVariables(const T& particle);
-  template <typename T> int findCategory( const T& particle);
+  // Function that should work on both pat and reco electrons
+  // (use the fact that pat::Electron inherits from reco::GsfElectron)
+  void fillMVAVariables(const reco::GsfElectron & particle);
+  int findCategory( const reco::GsfElectron & particle);
   
  private:
   // Data members
