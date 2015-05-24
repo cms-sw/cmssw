@@ -1,8 +1,5 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Phys14NonTrig.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -33,40 +30,30 @@ ElectronMVAEstimatorRun2Phys14NonTrig::
 }
 
 float ElectronMVAEstimatorRun2Phys14NonTrig::
-mvaValue( edm::Ptr<reco::Candidate>& particle){
+mvaValue( const edm::Ptr<reco::Candidate>& particle){
 
   //
-  // Try to cast the particle into a pat (first) or reco particle
-  edm::Ptr<pat::Electron> elePat = ( edm::Ptr<pat::Electron> )particle;
-  edm::Ptr<reco::GsfElectron> eleReco = ( edm::Ptr<reco::GsfElectron> )particle;
-  
-  int iCategory = UNDEFINED;
-
-  if( !elePat.isNull() ){
-    // cast is successful
-    iCategory = findCategory( elePat );
-    fillMVAVariables( elePat );
-  }else if ( ! eleReco.isNull() ){
-    // Normally a pat particle can be cast into reco particle too,
-    // that's why reco goes second
-    iCategory = findCategory( eleReco );
-    fillMVAVariables( eleReco );
-  }else
+  // Try to cast the particle into a reco particle.
+  // This should work for both reco and pat.
+  const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
+  if( eleRecoPtr.isNull() )
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
   
+  int iCategory = UNDEFINED;
+  const reco::GsfElectron &eleReco = *eleRecoPtr;
+  iCategory = findCategory( eleReco );
+  fillMVAVariables( eleReco );
+  
   float result = _tmvaReaders.at(iCategory)->EvaluateMVA(_MethodName);
-
   return result;
 }
 
-template <typename T> 
-int ElectronMVAEstimatorRun2Phys14NonTrig::
-findCategory( const T& particle){
+int ElectronMVAEstimatorRun2Phys14NonTrig::findCategory( const reco::GsfElectron & particle){
   
-  float pt = particle->pt();
-  float eta = particle->superCluster()->eta();
+  float pt = particle.pt();
+  float eta = particle.superCluster()->eta();
 
   //
   // Determine the category
@@ -166,40 +153,39 @@ createSingleReader(int iCategory, std::string filename){
 }
 
 // A function that should work on both pat and reco objects
-template <typename T> void ElectronMVAEstimatorRun2Phys14NonTrig::
-fillMVAVariables(const T& particle){
+void ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const reco::GsfElectron & particle){
 
   // Both pat and reco particles have exactly the same accessors.
-  auto superCluster = particle->superCluster();
+  auto superCluster = particle.superCluster();
   bool validKF= false; 
-  reco::TrackRef myTrackRef = particle->closestCtfTrackRef();
+  reco::TrackRef myTrackRef = particle.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable() && (myTrackRef.isNonnull()) );  
 	     
   _allMVAVars.kfhits         = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
   // Pure ECAL -> shower shapes
-  _allMVAVars.see            = particle->full5x5_sigmaIEtaIEta();;
-  _allMVAVars.spp            = particle->full5x5_sigmaIPhiIPhi();
-  _allMVAVars.OneMinusE1x5E5x5 = 1. - particle->full5x5_e1x5() / particle->full5x5_e5x5();
-  _allMVAVars.R9             = particle->full5x5_r9();
+  _allMVAVars.see            = particle.full5x5_sigmaIetaIeta();
+  _allMVAVars.spp            = particle.full5x5_sigmaIphiIphi();
+  _allMVAVars.OneMinusE1x5E5x5 = 1. - particle.full5x5_e1x5() / particle.full5x5_e5x5();
+  _allMVAVars.R9             = particle.full5x5_r9();
   _allMVAVars.etawidth       = superCluster->etaWidth();
   _allMVAVars.phiwidth       = superCluster->phiWidth();
-  _allMVAVars.HoE            = particle->hadronicOverEm();
+  _allMVAVars.HoE            = particle.hadronicOverEm();
   // Endcap only variables
   _allMVAVars.PreShowerOverRaw  = superCluster->preshowerEnergy() / superCluster->rawEnergy();
   //Pure tracking variables
   _allMVAVars.kfchi2          = (validKF) ? myTrackRef->normalizedChi2() : 0;
-  _allMVAVars.gsfchi2         = particle->gsfTrack()->normalizedChi2();
+  _allMVAVars.gsfchi2         = particle.gsfTrack()->normalizedChi2();
   // Energy matching
-  _allMVAVars.fbrem           = particle->fbrem();
-  _allMVAVars.EoP             = particle->eSuperClusterOverP();
-  _allMVAVars.eleEoPout       = particle->eEleClusterOverPout();
-  _allMVAVars.IoEmIoP         = (1.0/particle->ecalEnergy()) - (1.0 / particle->p());
+  _allMVAVars.fbrem           = particle.fbrem();
+  _allMVAVars.EoP             = particle.eSuperClusterOverP();
+  _allMVAVars.eleEoPout       = particle.eEleClusterOverPout();
+  _allMVAVars.IoEmIoP         = (1.0/particle.ecalEnergy()) - (1.0 / particle.p());
   // Geometrical matchings
-  _allMVAVars.deta            = particle->deltaEtaSuperClusterTrackAtVtx();
-  _allMVAVars.dphi            = particle->deltaPhiSuperClusterTrackAtVtx();
-  _allMVAVars.detacalo        = particle->deltaEtaSeedClusterTrackAtCalo();
+  _allMVAVars.deta            = particle.deltaEtaSuperClusterTrackAtVtx();
+  _allMVAVars.dphi            = particle.deltaPhiSuperClusterTrackAtVtx();
+  _allMVAVars.detacalo        = particle.deltaEtaSeedClusterTrackAtCalo();
   // Spectator variables  
-  _allMVAVars.pt              = particle->pt();
+  _allMVAVars.pt              = particle.pt();
   float scEta = superCluster->eta();
   _allMVAVars.isBarrel        = ( fabs(scEta) < 1.479 );
   _allMVAVars.isEndcap        = ( fabs(scEta) >= 1.479);
