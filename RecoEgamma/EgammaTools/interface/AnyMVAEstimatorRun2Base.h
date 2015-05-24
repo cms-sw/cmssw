@@ -1,5 +1,5 @@
-#ifndef AnyMVAEstimatorRun2Base_H
-#define AnyMVAEstimatorRun2Base_H
+#ifndef RecoEgamma_EgammaTools_AnyMVAEstimatorRun2Base_H
+#define RecoEgamma_EgammaTools_AnyMVAEstimatorRun2Base_H
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -14,7 +14,7 @@ class AnyMVAEstimatorRun2Base {
   // These function should work on electrons or photons
   // of the reco or pat type
 
-  virtual float mvaValue( edm::Ptr<reco::Candidate>& particle) = 0;
+  virtual float mvaValue( const edm::Ptr<reco::Candidate>& particle) = 0;
  
   virtual int findCategory(  edm::Ptr<reco::Candidate>& particle) = 0;
  
