@@ -160,6 +160,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( OOTPileupCorrectionBuffer )
       FETCH_PAYLOAD_CASE( StorableDoubleMap<AbsOOTPileupCorrection> )
       FETCH_PAYLOAD_CASE( JetCorrectorParametersCollection )
+      FETCH_PAYLOAD_CASE( METCorrectorParametersCollection )
       FETCH_PAYLOAD_CASE( L1CaloEcalScale )
       FETCH_PAYLOAD_CASE( L1CaloEtScale )
       FETCH_PAYLOAD_CASE( L1CaloGeometry )
