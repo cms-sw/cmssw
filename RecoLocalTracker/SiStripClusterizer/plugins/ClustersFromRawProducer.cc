@@ -215,8 +215,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
     
     if(onDemand) assert(output->onDemand());
 
-    output->reserve(15000,6*10000);
-
+    output->reserve(15000,12*10000);
 
 
     if (!onDemand) {
@@ -287,7 +286,7 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl,
 }
 
 void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & record) {
-
+try {
   incReady();
 
   auto idet= record.id();
@@ -444,7 +443,9 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
   if(!record.empty()) incNoZ();
 
   // COUT << "filled " << record.size() << std::endl;
-  
+} catch (edmNew::CapacityExaustedException) {
+  edm::LogError(sistrip::mlRawToCluster_) << "too many Sistrip Clusters to fit space allocated for OnDemand";
+}  
 
 }
 
