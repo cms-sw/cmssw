@@ -1,11 +1,6 @@
-# Load the field map corresponding to the current stored in the runInfo,
-# with the geometry and configuration specified in the GT
+# This cff is obsolete and will eventually be deprecated.
+# Please replace it with 
+# Configuration.StandardSequences.MagneticField_cff.py
+# in your setup.
 
-import FWCore.ParameterSet.Config as cms
-from MagneticField.Engine.volumeBasedMagneticFieldFromDB_cfi import *
-
-# Parabolic parametrized magnetic field used for track building (scaled to nominal map closest to current from runInfo)
-from MagneticField.ParametrizedEngine.autoParabolicParametrizedField_cfi import ParametrizedMagneticFieldProducer as ParabolicParametrizedMagneticFieldProducer
-ParabolicParametrizedMagneticFieldProducer.label = "ParabolicMf"
-
-
+from Configuration.StandardSequences.MagneticField_cff import *
