@@ -28,9 +28,9 @@ namespace evf{
         uint32_t recordLumiSection = record->getHeader().getData().header.lumiSection;
 
         if (recordLumiSection != lumiSection) 
-          edm::LogError("AuxiliaryMakers") << "Lumisection mismatch, external : "<<lumiSection << ", record : " << recordLumiSection; 
+          edm::LogWarning("AuxiliaryMakers") << "Lumisection mismatch, external : "<<lumiSection << ", record : " << recordLumiSection; 
         if ((orbitnr >> 18) + 1 != recordLumiSection)
-          edm::LogError("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
+          edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
 
 	return edm::EventAuxiliary(eventId,
 				   processGUID,
