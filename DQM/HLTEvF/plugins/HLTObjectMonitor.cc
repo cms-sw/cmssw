@@ -303,55 +303,42 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    edm::Handle<reco::BeamSpot> recoBeamSpot;
    iEvent.getByToken(beamSpotToken_, recoBeamSpot);
-   if (!recoBeamSpot.isValid()) return;
 
    edm::Handle<vector<reco::MET>> recoMet;
    iEvent.getByToken(metToken_, recoMet);
-   if (!recoMet.isValid()) return;
 
    edm::Handle<vector<reco::RecoChargedCandidate>> recoChargedCands;
    iEvent.getByToken(chargedCandToken_, recoChargedCands);
-   if (!recoChargedCands.isValid()) return;
 
    edm::Handle<reco::JetTagCollection> csvCaloTags;
    iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
-   if (!csvCaloTags.isValid()) return;
 
    edm::Handle<reco::JetTagCollection> csvPfTags;
    iEvent.getByToken(csvPfTagsToken_, csvPfTags);
-   if (!csvPfTags.isValid()) return;
 
    edm::Handle<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>> rHemisphere;
    iEvent.getByToken(rHemisphereToken_, rHemisphere);
-   if (!rHemisphere.isValid()) return;
 
    // edm::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvCaloTags;
    // iEvent.getByToken(csvCaloToken_, csvCaloTags);
-   // if (!csvCaloTags.isValid()) return;
 
    // edm::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvPfTags;
    // iEvent.getByToken(csvPfToken_, csvPfTags);
-   // if (!csvPfTags.isValid()) return;
 
    // edm::Handle<edmNew::DetSetVector<SiPixelCluster>> siPixelCluster;
    // iEvent.getByToken(siPixelClusterToken_, siPixelCluster);
-   // if (!siPixelCluster.isValid()) return;
 
    // edm::Handle<edmNew::DetSetVector<SiStripCluster>> siStripCluster;
    // iEvent.getByToken(siStripClusterToken_, siStripCluster);
-   // if (!siStripCluster.isValid()) return;
 
    // edm::Handle<TrackingRecHitCollection> trackingRecHits;
    // iEvent.getByToken(trackingRecHitsToken_, trackingRecHits);
-   // if (!trackingRecHits.isValid()) return;
 
    // edm::Handle<reco::TrackExtraCollection> trackExtras;
    // iEvent.getByToken(trackExtraToken_, trackExtras);
-   // if (!trackExtras.isValid()) return;
 
    // edm::Handle<reco::TrackCollection> tracks;
    // iEvent.getByToken(trackToken_, tracks);
-   // if (!tracks.isValid()) return;
 
    for (string & pathName : quickCollectionPaths) //loop over paths
      {
