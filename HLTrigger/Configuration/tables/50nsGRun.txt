@@ -439,6 +439,10 @@ HLT_PFMET400_NoiseCleaned_v*                                    # JIRA: CMSHLT-3
 HLT_HT2000_v*                                                   # JIRA: CMSHLT-312 (express stream)
 HLT_HT2500_v*                                                   # JIRA: CMSHLT-312 (express stream)
 
+#HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343 (waiting for DQM)
+
+#HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-369 (waiting for DQM)
+
 #HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for low PU runs)
 #HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
 #HLT_FullTrack30_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
@@ -573,6 +577,7 @@ HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 AOutput
 DQMOutput							# online DQMFileSaver
 EcalCalibrationOutput
+TrackerCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output

@@ -100,10 +100,10 @@ HLT_HcalPhiSym_v*						# JIRA: CMSHLT-306
 HLT_HcalUTCA_v*							# JIRA: CMSHLT-306
 HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
 
-#AlCa_EcalPi0EBonly_v*						# JIRA: CMSHLT-321 (L1 seeds not in the LowPU L1 menu)
-#AlCa_EcalPi0EEonly_v*						# JIRA: CMSHLT-321 (L1 seeds not in the LowPU L1 menu)
-#AlCa_EcalEtaEBonly_v*						# JIRA: CMSHLT-321 (L1 seeds not in the LowPU L1 menu)
-#AlCa_EcalEtaEEonly_v*						# JIRA: CMSHLT-321 (L1 seeds not in the LowPU L1 menu)
+AlCa_EcalPi0EBonly_LowPU_v*					# JIRA: CMSHLT-380
+AlCa_EcalPi0EEonly_LowPU_v*					# JIRA: CMSHLT-380
+AlCa_EcalEtaEBonly_LowPU_v*					# JIRA: CMSHLT-380
+AlCa_EcalEtaEEonly_LowPU_v*					# JIRA: CMSHLT-380
 
 #AlCa_RPCMuonNoTriggers_v*					# JIRA: CMSHLT-231 (L1 seeds not in the LowPU L1 menu)
 #AlCa_RPCMuonNoHits_v*						# JIRA: CMSHLT-231 (L1 seeds not in the LowPU L1 menu)
@@ -126,6 +126,7 @@ HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 AOutput
 DQMOutput							# online DQMFileSaver
 EcalCalibrationOutput
+TrackerCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output

@@ -5,14 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table as Stream A Datasets
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHCalNZS_selector
-streamA_datasetHCalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHCalNZS_selector.l1tResults = cms.InputTag('')
-streamA_datasetHCalNZS_selector.throw      = cms.bool(False)
-streamA_datasetHCalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v1', 
-    'HLT_HcalPhiSym_v1', 
-    'HLT_HcalUTCA_v1')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
@@ -20,6 +12,14 @@ streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
 streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_GlobalRunHPDNoise_v1', 
     'HLT_L1Tech_HBHEHO_totalOR_v1', 
     'HLT_L1Tech_HCAL_HF_single_channel_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
+streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
+streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v1', 
+    'HLT_HcalPhiSym_v1', 
+    'HLT_HcalUTCA_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetInitialPD_selector
 streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -110,4 +110,11 @@ streamA_datasetInitialPDForHI_selector.triggerConditions = cms.vstring('HLT_HIL1
     'HLT_HIL2DoubleMu0_v2', 
     'HLT_HIL2Mu3_v2', 
     'HLT_HIL3Mu3_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
+streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
+streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v1', 
+    'HLT_ZeroBias_v1')
 
