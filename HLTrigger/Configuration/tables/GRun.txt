@@ -211,7 +211,6 @@ HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSH
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
 HLT_MET90_IsoTrk50_v*						# JIRA: CMSHLT-130
 
-HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133
 HLT_DiPFJetAve60_HFJEC_v*					# JIRA: CMSHLT-133
 HLT_DiPFJetAve80_HFJEC_v*					# JIRA: CMSHLT-133
 HLT_DiPFJetAve100_HFJEC_v*					# JIRA: CMSHLT-133
@@ -432,7 +431,6 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
-HLT_L1SingleEG5_OR_EG10_OR_EG20_v*				# JIRA: CMSHLT-290
 HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276

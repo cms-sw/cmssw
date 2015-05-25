@@ -13,9 +13,11 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+  set tables = ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
 else if ( ($2 == dev) || ($2 == DEV) ) then
-  set tables = ( GRun 50nsGRun HIon PIon )
+  set tables = ( GRun 50nsGRun HIon PIon LowPU )
+else if ( ($2 == lowpu) || ($2 == LOWPU) || ($2 == LowPU) ) then
+  set tables = ( LowPU )
 else if ( ($2 == full) || ($2 == FULL) ) then
   set tables = ( FULL )
 else if ( ($2 == fake) || ($2 == FAKE) ) then
