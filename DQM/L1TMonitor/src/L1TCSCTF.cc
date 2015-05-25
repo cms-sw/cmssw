@@ -929,6 +929,15 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
                 if(endcap == 0) { csc_strip_MEplus22  -> Fill(realID,strip); csc_wire_MEplus22  -> Fill(realID,keyWire); }
                 if(endcap == 1) { csc_strip_MEminus22 -> Fill(realID,strip); csc_wire_MEminus22 -> Fill(realID,keyWire); }
               }
+
+                //ME3/1
+              if (station == 2 && ring == 1){
+                int realID = cscId+3*sector+2;
+                if(realID>18) realID -= 18;
+                if(endcap == 0) { csc_strip_MEplus31  -> Fill(realID,strip); csc_wire_MEplus31  -> Fill(realID,keyWire); }
+                if(endcap == 1) { csc_strip_MEminus31 -> Fill(realID,strip); csc_wire_MEminus31 -> Fill(realID,keyWire); }
+              }
+
                 //ME3/2
               if (station == 2 && ring == 2){
                 int realID = (cscId-3)+6*sector+3;
