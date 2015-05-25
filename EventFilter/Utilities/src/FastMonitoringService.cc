@@ -312,6 +312,7 @@ namespace evf{
 		  avgLeadTime_.erase(oldLumi);
 		  filesProcessedDuringLumi_.erase(oldLumi);
 		  accuSize_.erase(oldLumi);
+		  avgLockWaitDuringLumi_.erase(oldLumi);
 		  processedEventsPerLumi_.erase(oldLumi);
 	  }
 	  lastGlobalLumi_= newLumi;
@@ -588,6 +589,13 @@ namespace evf{
 	  }
   }
 
+  void FastMonitoringService::reportLockWaitAvg(unsigned int ls, double waitTime)
+  {
+          std::lock_guard<std::mutex> lock(fmt_.monlock_);
+	  avgLockWaitDuringLumi_[ls]=waitTime;
+
+  }
+
   //for the output module
   unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -620,6 +628,12 @@ namespace evf{
       if (iti != filesProcessedDuringLumi_.end())
 	fmt_.m_data.fastFilesProcessedJ_ = iti->second;
       else fmt_.m_data.fastFilesProcessedJ_=0;
+
+      auto itrd = avgLockWaitDuringLumi_.find(ls);
+      if (itrd != avgLockWaitDuringLumi_.end())
+	fmt_.m_data.fastAvgLockWaitJ_ = itrd->second;
+      else fmt_.m_data.fastAvgLockWaitJ_=0.;
+ 
     }
     else return;
 

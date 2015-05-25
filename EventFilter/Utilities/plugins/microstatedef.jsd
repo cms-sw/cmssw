@@ -27,6 +27,10 @@
       {
       	 "name" : "FilesProcessed",
          "operation" : "sum"
+      },
+      {
+         "name" : "AverageLockWaitTime",
+         "operation" : "avg"
       }
    ]
 }

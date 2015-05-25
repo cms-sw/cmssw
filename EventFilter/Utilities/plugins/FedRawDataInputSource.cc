@@ -897,6 +897,10 @@ void FedRawDataInputSource::readSupervisor()
     uint32_t ls;
     uint32_t fileSize;
 
+    uint32_t monLS=1;
+    uint32_t lockCount=0;
+    uint64_t sumLockWaitTimeUs=0.;
+
     if (fms_) fms_->startedLookingForFile();
 
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
@@ -906,14 +910,27 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      
-      status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+     
+      uint64_t thisLockWaitTimeUs=0.;
+      status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+
+      //monitoring of lock wait time
+      if (thisLockWaitTimeUs>0.)
+        sumLockWaitTimeUs+=thisLockWaitTimeUs;
+      lockCount++;
+      if (ls>monLS) {
+          monLS=ls;
+          if (lockCount)
+            if (fms_) fms_->reportLockWaitAvg(monLS,double(sumLockWaitTimeUs)/(lockCount*1000000));
+          lockCount=0;
+          sumLockWaitTimeUs=0;
+      }
 
       //check again for any remaining index/EoLS files after EoR file is seen
       if ( status == evf::EvFDaqDirector::runEnded) {
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
       }
 
       if ( status == evf::EvFDaqDirector::runEnded) {
