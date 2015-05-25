@@ -1,6 +1,3 @@
-#ifndef RecoTracker_FinalTrackSelectors_ClassifierMerger_h
-#define RecoTracker_FinalTrackSelectors_ClassifierMerger_h
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
@@ -78,5 +75,3 @@ namespace {
 
 DEFINE_FWK_MODULE(ClassifierMerger);
 
-
-#endif
