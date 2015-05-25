@@ -868,7 +868,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     std::string* pPassID = &passID;
     processHistoryTree->SetBranchAddress(kProcessConfigurationPassID,&pPassID);
 
-    edm::ProcessHistoryRegistry& phr = processHistoryRegistryUpdate();
+    edm::ProcessHistoryRegistry& phr = processHistoryRegistryForUpdate();
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
     m_historyIDs.clear();
