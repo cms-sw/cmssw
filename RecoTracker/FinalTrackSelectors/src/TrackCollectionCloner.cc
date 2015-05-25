@@ -32,20 +32,24 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
   
   typedef reco::TrackRef::key_type TrackRefKey;
   std::map<TrackRefKey, reco::TrackRef  > goodTracks;
-  TrackRefKey current = 0;
   
   auto const & tracksIn = *hSrcTrack;
   for (auto k : selected) {
     auto const & trk = tracksIn[k];
     selTracks_->push_back( reco::Track( trk ) ); // clone and store
+    if (copyTrajectories_) {
+      goodTracks[k] = reco::TrackRef(rTracks, selTracks_->size() - 1);
+    }
+
     if (!copyExtras_) continue;
     
     // TrackExtras
-    selTrackExtras_->push_back( reco::TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
-					    trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
-					    trk.outerStateCovariance(), trk.outerDetId(),
-					    trk.innerStateCovariance(), trk.innerDetId(),
-					    trk.seedDirection() ) );
+    selTrackExtras_->emplace_back( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
+				   trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
+				   trk.outerStateCovariance(), trk.outerDetId(),
+				   trk.innerStateCovariance(), trk.innerDetId(),
+				   trk.seedDirection()
+				   );
     selTracks_->back().setExtra( reco::TrackExtraRef( rTrackExtras, selTrackExtras_->size() - 1) );
     auto & tx = selTrackExtras_->back();
     // TrackingRecHits
@@ -53,10 +57,6 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
       selHits_->push_back( (*hit)->clone() );
       tx.add( TrackingRecHitRef( rHits, selHits_->size() - 1) );
     }
-    if (copyTrajectories_) {
-      goodTracks[current] = reco::TrackRef(rTracks, selTracks_->size() - 1);
-    }
-    ++current;
   }
   if ( copyTrajectories_ ) {
     edm::Handle< std::vector<Trajectory> > hTraj;
@@ -66,18 +66,18 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     edm::RefProd< std::vector<Trajectory> > TrajRefProd = evt.template getRefBeforePut< std::vector<Trajectory> >();
     for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
       edm::Ref< std::vector<Trajectory> > trajRef(hTraj, i);
-              TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
-              if (match != hTTAss->end()) {
-		const edm::Ref<reco::TrackCollection> &trkRef = match->val;
-		TrackRefKey oldKey = trkRef.key();
-		std::map<TrackRefKey, reco::TrackRef>::iterator getref = goodTracks.find(oldKey);
-		if (getref != goodTracks.end()) {
-		  // do the clone
-		  selTrajs_->push_back( Trajectory(*trajRef) );
-		  selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(TrajRefProd, selTrajs_->size() - 1),
-				      getref->second );
-		}
-              }
+      TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
+      if (match != hTTAss->end()) {
+	const edm::Ref<reco::TrackCollection> &trkRef = match->val;
+	auto oldKey = trkRef.key();
+	auto getref = goodTracks.find(oldKey);
+	if (getref != goodTracks.end()) {
+	  // do the clone
+	  selTrajs_->push_back( Trajectory(*trajRef) );
+	  selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(TrajRefProd, selTrajs_->size() - 1),
+			      getref->second );
+	}
+      }
     }
   }
 }

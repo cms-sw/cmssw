@@ -67,10 +67,11 @@ namespace {
     TrackCollectionCloner collectionCloner;
     std::vector<TrackCollectionCloner::Tokens> srcColls;
 
-        using MVACollection = std::vector<float>;
+    using MVACollection = std::vector<float>;
     using QualityMaskCollection = std::vector<unsigned char>;
     
- 
+    using IHit = std::pair<unsigned int, TrackingRecHit const *>;
+    using IHitV = std::vector<IHit>;
     
     std::vector<edm::EDGetTokenT<MVACollection>> srcMVAs;
     std::vector<edm::EDGetTokenT<QualityMaskCollection>> srcQuals;
@@ -85,8 +86,9 @@ namespace {
     
     virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
     
-    
-    
+
+    bool areDuplicate(IHitV const& rh1, IHitV const& rh2) const;
+      
 
   };
 
@@ -121,7 +123,7 @@ namespace {
     initDynArray(unsigned int,collsSize,nGoods,0);
     declareDynArray(float,rSize, mvas);
     declareDynArray(unsigned char,rSize, quals);
-    declareDynArray(unsigned int,rSize, tkInd);
+    declareDynArray(unsigned int,rSize, tkInds);
     auto k=0U;
     for (auto i=0U; i< collsSize; ++i) {
       auto const & tkColl = *trackColls[i];
@@ -135,17 +137,72 @@ namespace {
 	if (! (qualMask&(* hqual)[j]) ) continue;
 	mvas[k]=(*hmva)[j];
 	quals[k] = (*hqual)[j];
-	tkInd[k]=j;
+	tkInds[k]=j;
 	++k;
 	++nGoods[i];
        }
     }
 
-    // auto ntotTk=k;
-    // load hits...
+    auto ntotTk=k;
+    // load hits and score
+    declareDynArray(float,ntotTk,score);
+    declareDynArray(IHitV, ntotTk, rh1);
+
+    k=0U;
+    for (auto i=0U; i< collsSize; ++i) {
+      auto const & tkColl = *trackColls[i];
+      for (auto j=0U; j< nGoods[i]; ++i) {
+	auto const track = tkColl[tkInds[j]];
+	auto validHits=track.numberOfValidHits();
+	auto validPixelHits=track.hitPattern().numberOfValidPixelHits();
+	auto lostHits=track.numberOfLostHits();
+	score[k] = m_foundHitBonus*validPixelHits+m_foundHitBonus*validHits - m_lostHitPenalty*lostHits - track.chi2();
+
+	auto & rhv =  rh1[k];
+	rhv.reserve(validHits) ;
+	auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
+	for (auto it = track.recHitsBegin();  it != track.recHitsEnd(); ++it) {
+	const auto * hit = (*it);
+	auto id = hit->rawId() ;
+	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
+	if likely(hit->isValid()) { rhv.emplace_back(id,hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
+      }
+      std::sort_heap(rhv.begin(),rhv.end(),compById);
+ 
+
+      ++k;
+      }
+    }
+    assert(ntotTk==k);
+
+    std::vector<bool> selected(ntotTk,true);
+    auto iStart2=0U;
+    for (auto i=0U; i<collsSize-1; ++i) {
+      auto iStart1=iStart2;
+      iStart2=iStart1+nGoods[i];
+      for (auto t1=iStart1; t1<iStart2; ++t1) {
+	if (!selected[t1]) continue;
+	auto score1 = score[t1];
+	for (auto t2=iStart2; t2 <ntotTk; ++t2) {
+	  if (!selected[t1]) break;
+	  if (!selected[t2]) continue;
+	  if (!areDuplicate(rh1[t1],rh1[t2])) continue;
+	  auto score2 = score[t2];
+	  constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
+	  if ( score1 - score2 > almostSame ) {
+	    selected[t2]=false;
+	  } else if ( score2 - score1 > almostSame ) {
+	    selected[t1]=false;
+	  } else {
+	    selected[t2]=false;
+	  }
+	  
+	  
+	}
+      }
+    }
     
 
-    
     
     // products
     std::unique_ptr<MVACollection> pmvas(new MVACollection());
@@ -156,6 +213,58 @@ namespace {
     evt.put(std::move(pquals),"QualityMasks");
 
     
+  }
+
+
+
+  bool TrackCollectionMerger::areDuplicate(IHitV const& rh1, IHitV const& rh2) const {
+    auto nh1=rh1.size();
+    auto nh2=rh2.size();
+
+
+    auto share = // use_sharesInput_ ?
+      [](const TrackingRecHit*  it,const TrackingRecHit*  jt)->bool { return it->sharesInput(jt,TrackingRecHit::some); };
+    //:
+    // [](const TrackingRecHit*  it,const TrackingRecHit*  jt)->bool {
+    //   float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() );
+    //  return (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
+    //	  };
+
+
+    //loop over rechits
+    int noverlap=0;
+    int firstoverlap=0;
+    // check first hit  (should use REAL first hit?)
+    if unlikely(m_allowFirstHitShare && rh1[0].first==rh2[0].first ) {
+	if (share( rh1[0].second, rh2[0].second)) firstoverlap=1;
+      }
+
+    // exploit sorting
+    unsigned int jh=0;
+    unsigned int ih=0;
+    while (ih!=nh1 && jh!=nh2) {
+      // break if not enough to go...
+      // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
+      // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
+      auto const id1 = rh1[ih].first;
+      auto const id2 = rh2[jh].first;
+      if (id1<id2) ++ih;
+      else if (id2<id1) ++jh;
+      else {
+	// in case of split-hit do full conbinatorics
+	auto li=ih; while( (++li)!=nh1 && id1 == rh1[li].first);
+	auto lj=jh; while( (++lj)!=nh2 && id2 == rh2[lj].first);
+	for (auto ii=ih; ii!=li; ++ii)
+	  for (auto jj=jh; jj!=lj; ++jj) {
+	    if (share( rh1[ii].second, rh2[jj].second)) noverlap++;
+	  }
+	jh=lj; ih=li;
+      } // equal ids
+      
+    } //loop over ih & jh
+    
+    return (noverlap-firstoverlap) > (std::min(nh1,nh2)-firstoverlap)*m_shareFrac;
+
   }
 
   
