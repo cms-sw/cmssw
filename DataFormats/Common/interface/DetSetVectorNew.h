@@ -11,6 +11,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
 #include <memory>
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
@@ -23,7 +24,7 @@ namespace edm { namespace refhelper { template<typename T> struct FindForNewDetS
 namespace edmNew {
   typedef uint32_t det_id_type;
 
-  struct CapacityExaustedException {};
+  struct CapacityExaustedException : public cms::Exception {  CapacityExaustedException(): cms::Exception("Capacity exausted in DetSetVectorNew"){} };
 
   namespace dslv {
     template< typename T> class LazyGetter;
