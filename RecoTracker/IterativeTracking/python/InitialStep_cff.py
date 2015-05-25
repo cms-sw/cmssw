@@ -107,7 +107,7 @@ from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStepS
 initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='initialStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+    GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v1'),
     trackSelectors= cms.VPSet(
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
         name = 'initialStepLoose',
@@ -115,18 +115,18 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
         minMVA = cms.double(-0.9),
         useMVAonly = cms.bool(True),
         mvaType = cms.string('Prompt'),
-        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v1'),
         ), #end of pset
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
         name = 'initialStepTight',
         preFilterName = 'initialStepLoose',
-        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v1'),
         mvaType = cms.string("Prompt"),
         ),
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
         name = 'initialStepV1',
         preFilterName = 'initialStepLoose',
-        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
+        GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v1'),
         mvaType = cms.string("Prompt"),
         minMVA = cms.double(-0.7),
         useMVA = cms.bool(True),
