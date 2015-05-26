@@ -885,6 +885,9 @@ dataReco={'--conditions':'auto:run1_data',
           '--scenario':'pp',
           }
 
+dataRecoAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,DQM'}, dataReco])
+
+
 hltKey='fake'
 from Configuration.HLT.autoHLT import autoHLT
 menu = autoHLT[hltKey]
@@ -897,6 +900,8 @@ steps['HLTD']=merge([{'--process':'reHLT',
 steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
+steps['RECODAlCaEle']=merge([{'--scenario':'pp',},dataRecoAlCaEle])
+
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },steps['RECOD']])
@@ -985,6 +990,7 @@ steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
+steps['RECODreHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
