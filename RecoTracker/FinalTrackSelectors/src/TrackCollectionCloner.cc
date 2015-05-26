@@ -34,8 +34,10 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
 
 
   edm::Handle< std::vector<Trajectory> > hTraj;
+  edm::RefProd< std::vector<Trajectory> > TrajRefProd;
   if ( copyTrajectories_ ) {
     evt.getByToken(tokens.hTrajToken_, hTraj);
+    TrajRefProd = evt.template getRefBeforePut< std::vector<Trajectory> >();
   }
   
   auto const & tracksIn = *hSrcTrack;
