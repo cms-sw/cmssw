@@ -18,6 +18,7 @@ OutALCARECOEcalUncalElectron.outputCommands += cms.untracked.vstring(
     'drop recoSuperClusters_*_*_*',
     'drop recoPreshowerCluster*_*_*_*',
     'drop *EcalRecHit*_reducedEcalRecHitsES*_*_*',
+    'drop *EcalRecHit*_*_*_*',
     'keep reco*Clusters_pfElectronTranslator_*_*'
     )
 

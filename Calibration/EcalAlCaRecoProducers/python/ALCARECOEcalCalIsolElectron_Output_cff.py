@@ -7,13 +7,19 @@ OutALCARECOEcalCalElectron_specific = cms.untracked.vstring(
     'drop *EcalRecHit*_ecalRecHit_*_*',
     'drop *EcalrecHit*_*ecalPreshowerRecHit*_*EcalRecHitsES*_*',
     'drop *EcalRecHit*_reducedEcalRecHitsE*_*_*',
+    'drop *_*Cleaned_*_*',
+    'drop *_*cleaned*_*_*',
     'drop *_*Unclean*_*_*',
     'drop *_*unclean*_*_*',
     'drop *_*_*Unclean*_*',
     'drop *_*_*unclean*_*',
+    'keep recoSuperClusters_*_uncleanOnly_*',  # kept for safety
+    'drop *_*_multi5x5Barrel*Clusters_*',
     'drop *CaloCluster*_*particleFlowEGamma*_*EBEEClusters*_*',
     'drop *CaloCluster*_*particleFlowEGamma*_*ESClusters*_*',
-    'keep *CaloCluster*_*alCaIsolatedElectrons*_*alcaCaloCluster*_*'
+    'drop *_dqmL1ExtraParticles_*_*',
+    'drop recoSuperClusters_mergedSuperClusters_*_*',
+    'keep *CaloCluster*_*alCaIsolatedElectrons*_*alcaCaloCluster*_*'    
 )
 
 OutALCARECOEcalCalElectron_noDrop = cms.PSet(
@@ -33,9 +39,9 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep *_generator_*_*',
     'keep *_addPileupInfo_*_*',
     'keep *_genParticles_*_*',
-    'keep recoGsfElectron*_gsfElectron*_*_*',
-    'keep recoGsfElectron*_gedGsfElectron*_*_*',
-    'keep recoPhoton*_gedPhoton_*_*',
+    'keep recoGsfElectron*_gsfElectrons*_*_*',
+    'keep recoGsfElectron*_gedGsfElectrons_*_*',
+    'keep recoPhoton*_gedPhotons_*_*',
     'keep recoCaloClusters_*_*_*',
     'keep recoSuperClusters_*_*_*',
     'keep recoPreshowerCluster*_*_*_*',
@@ -45,7 +51,8 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     #'keep reco*Track*Extra*_generalTracks_*_*',
     'keep *_alcaElectronTracksReducer_*_*',
     # for the trigger matching
-    'keep *_l1extraParticles_*_*',
+    #'keep *_l1extraParticles_*_*',
+    'keep l1extraL1EmParticles_*_*_*',
     'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
     'keep *_l1L1GtObjectMap_*_*',
     'keep edmConditionsInEventBlock_conditionsInEdm_*_*',
