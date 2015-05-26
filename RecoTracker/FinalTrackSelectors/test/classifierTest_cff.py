@@ -18,3 +18,6 @@ testTrackMerger = TrackCollectionMerger.clone()
 testTrackMerger.trackProducers = ['initialStepTracks']
 testTrackMerger.inputClassifiers =['testMergedClassifier']
 testTrackMerger.minQuality = 'tight'
+
+
+testTrackCloning = cms.Sequence(testTrackClassifier1*testTrackClassifier2*testMergedClassifier*testTrackMerger)
