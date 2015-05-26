@@ -518,7 +518,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
     LogDebug("SelectVertex") << " select vertex with z position " << it->z() << " " 
 			     << it->chi2() << " " << it->ndof() << " " << TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()));
-    Vertex vtx = *it;
+    const Vertex& vtx = *it;
     bool pass = vertexCut_[tsNum]( vtx );
     if( pass ) { 
       points.push_back(it->position()); 
