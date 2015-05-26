@@ -50,7 +50,7 @@ namespace {
       
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<std::vector<edm::InputTag> >("trackProducers");
+      desc.add<std::vector<edm::InputTag> >("trackProducers",std::vector<edm::InputTag>());
       desc.add<std::vector<std::string> >("inputClassifiers",std::vector<std::string>());
       desc.add<double>("ShareFrac",.19);
       desc.add<double>("foundHitBonus",10.);
@@ -144,70 +144,105 @@ namespace {
     }
 
     auto ntotTk=k;
-    // load hits and score
-    declareDynArray(float,ntotTk,score);
-    declareDynArray(IHitV, ntotTk, rh1);
-
-    k=0U;
-    for (auto i=0U; i< collsSize; ++i) {
-      auto const & tkColl = *trackColls[i];
-      for (auto j=0U; j< nGoods[i]; ++i) {
-	auto const track = tkColl[tkInds[j]];
-	auto validHits=track.numberOfValidHits();
-	auto validPixelHits=track.hitPattern().numberOfValidPixelHits();
-	auto lostHits=track.numberOfLostHits();
-	score[k] = m_foundHitBonus*validPixelHits+m_foundHitBonus*validHits - m_lostHitPenalty*lostHits - track.chi2();
-
-	auto & rhv =  rh1[k];
-	rhv.reserve(validHits) ;
-	auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
-	for (auto it = track.recHitsBegin();  it != track.recHitsEnd(); ++it) {
-	const auto * hit = (*it);
-	auto id = hit->rawId() ;
-	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
-	if likely(hit->isValid()) { rhv.emplace_back(id,hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
-      }
-      std::sort_heap(rhv.begin(),rhv.end(),compById);
- 
-
-      ++k;
-      }
-    }
-    assert(ntotTk==k);
-
     std::vector<bool> selected(ntotTk,true);
-    auto iStart2=0U;
-    for (auto i=0U; i<collsSize-1; ++i) {
-      auto iStart1=iStart2;
-      iStart2=iStart1+nGoods[i];
-      for (auto t1=iStart1; t1<iStart2; ++t1) {
-	if (!selected[t1]) continue;
-	auto score1 = score[t1];
-	for (auto t2=iStart2; t2 <ntotTk; ++t2) {
-	  if (!selected[t1]) break;
-	  if (!selected[t2]) continue;
-	  if (!areDuplicate(rh1[t1],rh1[t2])) continue;
-	  auto score2 = score[t2];
-	  constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
-	  if ( score1 - score2 > almostSame ) {
-	    selected[t2]=false;
-	  } else if ( score2 - score1 > almostSame ) {
-	    selected[t1]=false;
-	  } else {
-	    selected[t2]=false;
+
+
+    // merge (if more than one collection...)
+
+    auto merger = [&]()->void {
+    
+      // load hits and score
+      declareDynArray(float,ntotTk,score);
+      declareDynArray(IHitV, ntotTk, rh1);
+      
+      k=0U;
+      for (auto i=0U; i< collsSize; ++i) {
+	auto const & tkColl = *trackColls[i];
+	for (auto j=0U; j< nGoods[i]; ++i) {
+	  auto const track = tkColl[tkInds[k]];
+	  auto validHits=track.numberOfValidHits();
+	  auto validPixelHits=track.hitPattern().numberOfValidPixelHits();
+	  auto lostHits=track.numberOfLostHits();
+	  score[k] = m_foundHitBonus*validPixelHits+m_foundHitBonus*validHits - m_lostHitPenalty*lostHits - track.chi2();
+	  
+	  auto & rhv =  rh1[k];
+	  rhv.reserve(validHits) ;
+	  auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
+	  for (auto it = track.recHitsBegin();  it != track.recHitsEnd(); ++it) {
+	    const auto * hit = (*it);
+	    auto id = hit->rawId() ;
+	    if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
+	    if likely(hit->isValid()) { rhv.emplace_back(id,hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
 	  }
+	  std::sort_heap(rhv.begin(),rhv.end(),compById);
 	  
 	  
+	  ++k;
 	}
       }
-    }
-    
+      assert(ntotTk==k);
+      
+      auto iStart2=0U;
+      for (auto i=0U; i<collsSize-1; ++i) {
+	auto iStart1=iStart2;
+	iStart2=iStart1+nGoods[i];
+	for (auto t1=iStart1; t1<iStart2; ++t1) {
+	  if (!selected[t1]) continue;
+	  auto score1 = score[t1];
+	  for (auto t2=iStart2; t2 <ntotTk; ++t2) {
+	    if (!selected[t1]) break;
+	    if (!selected[t2]) continue;
+	    if (!areDuplicate(rh1[t1],rh1[t2])) continue;
+	    auto score2 = score[t2];
+	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
+	    if ( score1 - score2 > almostSame ) {
+	      selected[t2]=false;
+	    } else if ( score2 - score1 > almostSame ) {
+	      selected[t1]=false;
+	    } else {
+	      selected[t2]=false;
+	    }
+	    
+	    
+	  }
+	}
+      }
+    }; // end merger;
 
+
+    if (collsSize>1) merger();
     
     // products
     std::unique_ptr<MVACollection> pmvas(new MVACollection());
     std::unique_ptr<QualityMaskCollection> pquals(new QualityMaskCollection());
+				    
+    // clone selected tracks...
+    auto nsel=0U;
+    auto iStart2=0U;
+    auto isel=0U;
+    for (auto i=0U; i<collsSize; ++i) {
+      std::vector<unsigned int> selId;
+      auto iStart1=iStart2;
+      iStart2=iStart1+nGoods[i];
+      assert(producer.selTracks_->size()==isel);
+      for (auto t1=iStart1; t1<iStart2; ++t1) {
+	if (!selected[t1]) continue;
+	++nsel;
+	selId.push_back(tkInds[t1]);
+	pmvas->push_back(mvas[t1]);
+	pquals->push_back(quals[t1]);
+      }
+      producer(srcColls[i],selId);
+      assert(producer.selTracks_->size()==nsel);
+      for (;isel<nsel;++isel) {
+	auto & otk = (*producer.selTracks_)[isel];
+	otk.setQualityMask((*pquals)[isel]);
+	// otk.setOriginalAlgorithm(oriAlgo[i]);
+	//otk.setAlgoMask(algoMask[i]);
+      }
+    }
 
+    assert(producer.selTracks_->size()==pmvas->size());
 
     evt.put(std::move(pmvas),"MVAValues");
     evt.put(std::move(pquals),"QualityMasks");

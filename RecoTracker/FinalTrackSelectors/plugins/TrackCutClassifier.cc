@@ -41,11 +41,15 @@ namespace {
       tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   }
   
-  
+  inline int nPixelHits(reco::Track const & tk) {
+    return tk.hitPattern().numberOfValidPixelHits();
+  }
+      
   struct Cuts {
     
     Cuts(const edm::ParameterSet & cfg) {
       fillArrayF(maxChi2,cfg,"maxChi2");
+      fillArrayI(minPixelHits,cfg,"minPixelHits");
       fillArrayI(min3DLayers,cfg,"min3DLayers");
       fillArrayI(maxLostLayers,cfg,"maxLostLayers");
 		
@@ -65,6 +69,8 @@ namespace {
       if (ret==-1.f) return ret;
       ret = std::min(ret,cut(n3DLayers(trk),min3DLayers,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
+      ret = std::min(ret,cut(nPixelHits(trk),minPixelHits,std::greater_equal<int>()));
+      if (ret==-1.f) return ret;
       ret = std::min(ret,cut(lostLayers(trk),maxLostLayers,std::less_equal<int>()));
 
       return ret;
@@ -76,14 +82,16 @@ namespace {
     static const char * name() { return "TrackCutClassifier";}
 
     static void fillDescriptions(edm::ParameterSetDescription & desc) {
+      desc.add<std::vector<int>>("minPixelHits",{0,0,1});
       desc.add<std::vector<int>>("min3DLayers",{1,2,3});
       desc.add<std::vector<int>>("maxLostLayers",{99,3,3});
       desc.add<std::vector<double>>("maxChi2",{9999.,25.,16.});
-  }
+    }
 
 
     float maxChi2[3];
     int min3DLayers[3];
+    int minPixelHits[3];
     int maxLostLayers[3];
 
   };

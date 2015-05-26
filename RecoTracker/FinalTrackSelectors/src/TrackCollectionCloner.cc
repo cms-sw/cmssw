@@ -48,16 +48,19 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
 				   trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 				   trk.outerStateCovariance(), trk.outerDetId(),
 				   trk.innerStateCovariance(), trk.innerDetId(),
-				   trk.seedDirection()
+				   trk.seedDirection(), trk.seedRef()
 				   );
     selTracks_->back().setExtra( reco::TrackExtraRef( rTrackExtras, selTrackExtras_->size() - 1) );
     auto & tx = selTrackExtras_->back();
+    tx.setResiduals(trk.residuals());
+    unsigned nh1=trk.recHitsSize();
+    tx.setHits(rHits,selHits_->size(),nh1);
     // TrackingRecHits
     for( auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
       selHits_->push_back( (*hit)->clone() );
-      tx.add( TrackingRecHitRef( rHits, selHits_->size() - 1) );
     }
   }
+
   if ( copyTrajectories_ ) {
     edm::Handle< std::vector<Trajectory> > hTraj;
     edm::Handle< TrajTrackAssociationCollection > hTTAss;
