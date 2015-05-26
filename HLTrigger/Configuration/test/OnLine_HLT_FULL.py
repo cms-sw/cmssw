@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V188 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/HLT/V189 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V188')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V189')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -55480,28 +55480,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_L1Tech_BPTXplus_OR_BPTXminus_v1 / 100',
-      'HLT_L1SingleMuOpen_v6',
-      'HLT_L1SingleMuOpen_DT_v6',
-      'HLT_L1SingleMuBeamHalo_v1',
-      'HLT_L1Tech_DT_GlobalOR_v3 / 10',
-      'HLT_L1SingleEG5_v1 / 10',
-      'HLT_L1SingleEG20_v1 / 10',
-      'HLT_L1SingleJet16_v1 / 10',
-      'HLT_L1SingleJet68_v1 / 10',
-      'HLT_L1SingleJet200_v1 / 10',
-      'HLT_Physics_v4 / 10',
-      'HLT_Random_v2 / 10',
-      'HLT_GlobalRunHPDNoise_v7 / 10',
-      'HLT_L1Tech_HBHEHO_totalOR_v5 / 10',
-      'HLT_L1Tech_HCAL_HF_single_channel_v3 / 10',
-      'HLT_HcalNZS_v9 / 10',
-      'HLT_HcalPhiSym_v10 / 10',
-      'HLT_HcalUTCA_v1 / 10',
-      'HLT_JetE30_NoBPTX_v1 / 10',
-      'HLT_JetE30_NoBPTX3BX_NoHalo_v1 / 10',
-      'HLT_JetE50_NoBPTX3BX_NoHalo_v1 / 10',
-      'HLT_JetE70_NoBPTX3BX_NoHalo_v1 / 10' ),
+    triggerConditions = cms.vstring(  ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
@@ -55518,8 +55497,7 @@ process.hltPreDQMEventDisplayOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_L1SingleEG20_v1 / 10',
-      'HLT_L1SingleJet200_v1 / 10' ),
+    triggerConditions = cms.vstring(  ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
@@ -55596,28 +55574,7 @@ process.hltPreLookAreaOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_L1Tech_BPTXplus_OR_BPTXminus_v1 / 100',
-      'HLT_L1SingleMuOpen_v6',
-      'HLT_L1SingleMuOpen_DT_v6',
-      'HLT_L1SingleMuBeamHalo_v1',
-      'HLT_L1Tech_DT_GlobalOR_v3 / 10',
-      'HLT_L1SingleEG5_v1 / 10',
-      'HLT_L1SingleEG20_v1 / 10',
-      'HLT_L1SingleJet16_v1 / 10',
-      'HLT_L1SingleJet68_v1 / 10',
-      'HLT_L1SingleJet200_v1 / 10',
-      'HLT_Physics_v4 / 10',
-      'HLT_Random_v2 / 10',
-      'HLT_GlobalRunHPDNoise_v7 / 10',
-      'HLT_L1Tech_HBHEHO_totalOR_v5 / 10',
-      'HLT_L1Tech_HCAL_HF_single_channel_v3 / 10',
-      'HLT_HcalNZS_v9 / 10',
-      'HLT_HcalPhiSym_v10 / 10',
-      'HLT_HcalUTCA_v1 / 10',
-      'HLT_JetE30_NoBPTX_v1 / 10',
-      'HLT_JetE30_NoBPTX3BX_NoHalo_v1 / 10',
-      'HLT_JetE50_NoBPTX3BX_NoHalo_v1 / 10',
-      'HLT_JetE70_NoBPTX3BX_NoHalo_v1 / 10' ),
+    triggerConditions = cms.vstring(  ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
