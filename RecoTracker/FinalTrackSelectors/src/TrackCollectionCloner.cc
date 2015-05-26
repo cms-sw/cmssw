@@ -31,14 +31,23 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
   }
   
   typedef reco::TrackRef::key_type TrackRefKey;
-  std::map<TrackRefKey, reco::TrackRef  > goodTracks;
+
+
+  edm::Handle< std::vector<Trajectory> > hTraj;
+  if ( copyTrajectories_ ) {
+    evt.getByToken(tokens.hTrajToken_, hTraj);
+  }
   
   auto const & tracksIn = *hSrcTrack;
   for (auto k : selected) {
     auto const & trk = tracksIn[k];
-    selTracks_->push_back( reco::Track( trk ) ); // clone and store
+    selTracks_->emplace_back( trk ); // clone and store
     if (copyTrajectories_) {
-      goodTracks[k] = reco::TrackRef(rTracks, selTracks_->size() - 1);
+      // we assume tracks and trajectories are one-to-one and the assocMap is useless 
+      selTrajs_->emplace_back((*hTraj)[k]);
+      selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(TrajRefProd, selTrajs_->size() - 1),
+			  reco::TrackRef(rTracks, selTracks_->size() - 1)
+			  );
     }
 
     if (!copyExtras_) continue;
@@ -60,29 +69,6 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
       selHits_->push_back( (*hit)->clone() );
     }
   }
-
-  if ( copyTrajectories_ ) {
-    edm::Handle< std::vector<Trajectory> > hTraj;
-    edm::Handle< TrajTrackAssociationCollection > hTTAss;
-    evt.getByToken(tokens.hTTAssToken_, hTTAss);
-    evt.getByToken(tokens.hTrajToken_, hTraj);
-    edm::RefProd< std::vector<Trajectory> > TrajRefProd = evt.template getRefBeforePut< std::vector<Trajectory> >();
-    for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
-      edm::Ref< std::vector<Trajectory> > trajRef(hTraj, i);
-      TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
-      if (match != hTTAss->end()) {
-	const edm::Ref<reco::TrackCollection> &trkRef = match->val;
-	auto oldKey = trkRef.key();
-	auto getref = goodTracks.find(oldKey);
-	if (getref != goodTracks.end()) {
-	  // do the clone
-	  selTrajs_->push_back( Trajectory(*trajRef) );
-	  selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(TrajRefProd, selTrajs_->size() - 1),
-			      getref->second );
-	}
-      }
-    }
-  }
 }
 
 TrackCollectionCloner::Producer::~Producer() {
@@ -98,6 +84,7 @@ TrackCollectionCloner::Producer::~Producer() {
     if ( copyTrajectories_ ) {
       selTrajs_->shrink_to_fit();
       assert(selTrajs_->size()==tsize);
+      assert(selTTAss_->size()==tsize);
       evt.put(std::move(selTrajs_));
       evt.put(std::move(selTTAss_));
     }
