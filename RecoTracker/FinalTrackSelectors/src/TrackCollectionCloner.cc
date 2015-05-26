@@ -9,8 +9,8 @@ TrackCollectionCloner::Producer::Producer(edm::Event& ievt, TrackCollectionClone
     selHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
   }
   if ( copyTrajectories_ ) {
-    selTrajs_ = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
-    selTTAss_ = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+    selTrajs_ = std::unique_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
+    selTTAss_ = std::unique_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
   }
   
 }

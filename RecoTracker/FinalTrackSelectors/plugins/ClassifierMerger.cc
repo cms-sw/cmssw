@@ -15,11 +15,11 @@ namespace {
    public:
     explicit ClassifierMerger(const edm::ParameterSet& conf) {
       for (auto const & it : conf.getParameter<std::vector<std::string> >("inputClassifiers")) {
-	srcMVAs.push_back(consumes<MVACollection>(edm::InputTag(it,"MVAVals")));
+	srcMVAs.push_back(consumes<MVACollection>(edm::InputTag(it,"MVAValues")));
 	srcQuals.push_back(consumes<QualityMaskCollection>(edm::InputTag(it,"QualityMasks")));
       }
 
-      produces<MVACollection>("MVAVals");
+      produces<MVACollection>("MVAValues");
       produces<QualityMaskCollection>("QualityMasks");
 
     }

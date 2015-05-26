@@ -36,14 +36,14 @@ namespace {
       for (auto const & it : conf.getParameter<std::vector<edm::InputTag> >("trackProducers") )
 	srcColls.emplace_back(it,consumesCollector());
       for (auto const & it : conf.getParameter<std::vector<std::string> >("inputClassifiers")) {
-	srcMVAs.push_back(consumes<MVACollection>(edm::InputTag(it,"MVAVals")));
+	srcMVAs.push_back(consumes<MVACollection>(edm::InputTag(it,"MVAValues")));
 	srcQuals.push_back(consumes<QualityMaskCollection>(edm::InputTag(it,"QualityMasks")));
       }
 
       assert(srcColls.size()==srcQuals.size());
       
 
-      produces<MVACollection>("MVAVals");
+      produces<MVACollection>("MVAValues");
       produces<QualityMaskCollection>("QualityMasks");
 
     }
@@ -52,7 +52,7 @@ namespace {
       edm::ParameterSetDescription desc;
       desc.add<std::vector<edm::InputTag> >("trackProducers",std::vector<edm::InputTag>());
       desc.add<std::vector<std::string> >("inputClassifiers",std::vector<std::string>());
-      desc.add<double>("ShareFrac",.19);
+      desc.add<double>("shareFrac",.19);
       desc.add<double>("foundHitBonus",10.);
       desc.add<double>("lostHitPenalty",5.);
       desc.add<unsigned int>("minShareHits",2);

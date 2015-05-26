@@ -36,7 +36,7 @@ TrackMVAClassifierBase::TrackMVAClassifierBase( const edm::ParameterSet & cfg ) 
   assert(qv.size()==3);
   std::copy(std::begin(qv),std::end(qv),std::begin(qualityCuts));
   
-  produces<MVACollection>("MVAVals");
+  produces<MVACollection>("MVAValues");
   produces<QualityMaskCollection>("QualityMasks");
 
 }
