@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V62 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/GRun/V63 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V62')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V63')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -911,7 +911,7 @@ process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V39" ),
+    globaltag = cms.string( "GR_H_V58" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
@@ -48726,20 +48726,6 @@ process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltDQMSaver = cms.EDAnalyzer( "DQMFileSaver",
-    runIsComplete = cms.untracked.bool( False ),
-    referenceHandling = cms.untracked.string( "all" ),
-    producer = cms.untracked.string( "DQM" ),
-    forceRunNumber = cms.untracked.int32( -1 ),
-    saveByRun = cms.untracked.int32( 1 ),
-    saveAtJobEnd = cms.untracked.bool( False ),
-    saveByLumiSection = cms.untracked.int32( 1 ),
-    version = cms.untracked.int32( 1 ),
-    referenceRequireStatus = cms.untracked.int32( 100 ),
-    convention = cms.untracked.string( "FilterUnit" ),
-    dirName = cms.untracked.string( "." ),
-    fileFormat = cms.untracked.string( "PB" )
-)
 process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -50002,7 +49988,7 @@ process.DQMStore.enableMultiThread = True
 process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
-process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltDQMSaver + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
+process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
 process.RPCMONOutput = cms.EndPath( process.hltGtDigis + process.hltPreRPCMONOutput + process.hltOutputRPCMON )
 process.EcalCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
 process.TrackerCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreTrackerCalibrationOutput )

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V62 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/HIon/V63 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V62')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V63')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -524,7 +524,7 @@ process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V39" ),
+    globaltag = cms.string( "GR_H_V58" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
@@ -3980,20 +3980,6 @@ process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltDQMSaver = cms.EDAnalyzer( "DQMFileSaver",
-    runIsComplete = cms.untracked.bool( False ),
-    referenceHandling = cms.untracked.string( "all" ),
-    producer = cms.untracked.string( "DQM" ),
-    forceRunNumber = cms.untracked.int32( -1 ),
-    saveByRun = cms.untracked.int32( 1 ),
-    saveAtJobEnd = cms.untracked.bool( False ),
-    saveByLumiSection = cms.untracked.int32( 1 ),
-    version = cms.untracked.int32( 1 ),
-    referenceRequireStatus = cms.untracked.int32( 100 ),
-    convention = cms.untracked.string( "FilterUnit" ),
-    dirName = cms.untracked.string( "." ),
-    fileFormat = cms.untracked.string( "PB" )
-)
 process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -4097,7 +4083,7 @@ process.DQMStore.enableMultiThread = True
 process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
-process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltDQMSaver + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
+process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
 
 
 process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v2, process.HLT_HIL1DoubleMu0_HighQ_v2, process.HLT_HIL2Mu3_v2, process.HLT_HIL2Mu7_v2, process.HLT_HIL2Mu15_v2, process.HLT_HIL2Mu3_NHitQ_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL2DoubleMu0_NHitQ_v2, process.HLT_HIL2DoubleMu3_v2, process.HLT_HIL3Mu3_v2, process.HLT_HIL3DoubleMuOpen_v2, process.HLT_HIL3DoubleMuOpen_SS_v2, process.HLT_HIL3DoubleMuOpen_OS_v2, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput ))
