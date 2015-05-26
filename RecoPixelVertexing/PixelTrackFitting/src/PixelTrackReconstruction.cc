@@ -24,6 +24,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
 
@@ -104,7 +105,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<IdealGeometryRecord>().get(tTopoHand);
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   if (theFilter) theFilter->update(ev, es);

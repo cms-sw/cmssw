@@ -140,7 +140,7 @@ namespace cms
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
        edm::ESHandle<TrackerTopology> tTopoHand;
-       iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+       iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
        const TrackerTopology *tTopo=tTopoHand.product();
        for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
          unsigned int detId = (*it).detUnitId();
@@ -179,7 +179,7 @@ namespace cms
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
@@ -249,7 +249,7 @@ namespace cms
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;

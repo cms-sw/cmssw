@@ -13,11 +13,10 @@ const HcalCalibrations& HcalCalibrationsSet::getCalibrations(const DetId fId) co
   std::vector<Item>::const_iterator cell;
   if (sorted_) {
     cell = std::lower_bound (mItems.begin(), mItems.end(), target);
-  }
-  else {
+  } else {
     cell = std::find(mItems.begin(),mItems.end(), target);
   }
-  if (cell == mItems.end() || cell->id != fId) 
+  if ((cell == mItems.end()) || (!hcalEqualDetId(cell->id.rawId(),fId)))
     throw cms::Exception ("Conditions not found") << "Unavailable HcalCalibrations for cell " << HcalGenericDetId(fId);
   return cell->calib;
 }
@@ -25,20 +24,21 @@ const HcalCalibrations& HcalCalibrationsSet::getCalibrations(const DetId fId) co
 void HcalCalibrationsSet::setCalibrations(DetId fId, const HcalCalibrations& ca) {
   sorted_=false;
   std::vector<Item>::iterator cell=std::find(mItems.begin(),mItems.end(),Item(fId)); //slow, but guaranteed
-  if (cell==mItems.end()) 
-    {
-      mItems.push_back(Item(fId));
-      mItems.at(mItems.size()-1).calib=ca;
-      return;
-    }
+  if (cell==mItems.end()) {
+    mItems.push_back(Item(fId));
+    mItems.at(mItems.size()-1).calib=ca;
+    return;
+  }
   cell->calib=ca;
 }
+
 void HcalCalibrationsSet::sort () {
   if (!sorted_) {
     std::sort (mItems.begin(), mItems.end());
     sorted_ = true;
   }
 }
+
 void HcalCalibrationsSet::clear() {
   mItems.clear();
 }

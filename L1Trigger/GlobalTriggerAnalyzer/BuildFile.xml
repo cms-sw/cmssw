@@ -1,9 +1,11 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="DataFormats/L1GlobalCaloTrigger"/>
+<use   name="DataFormats/Provenance"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>

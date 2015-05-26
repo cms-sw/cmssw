@@ -63,10 +63,14 @@ namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
-    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), desc.allocations_->numberOfStreams(),
+    catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
+      pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+    secondaryCatalog_(pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames", std::vector<std::string>()),
+      pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog_, desc.allocations_->numberOfStreams(),
                                                    primary() ? InputType::Primary : InputType::SecondarySource)),
-    secondaryFileSequence_(catalog(1).empty() ? nullptr :
-                           new RootInputFileSequence(pset, *this, catalog(1), desc.allocations_->numberOfStreams(),
+    secondaryFileSequence_(secondaryCatalog_.empty() ? nullptr :
+                           new RootInputFileSequence(pset, *this, secondaryCatalog_, desc.allocations_->numberOfStreams(),
                            InputType::SecondaryFile)),
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
@@ -76,6 +80,9 @@ namespace edm {
                                         new SharedResourcesAcquirer{SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()}:
                                         static_cast<SharedResourcesAcquirer*>(nullptr))
   {
+    if (secondaryCatalog_.empty() && pset.getUntrackedParameter<bool>("needSecondaryFileNames", false)) {
+      throw Exception(errors::Configuration, "PoolSource") << "'secondaryFileNames' must be specified\n";
+    }
     if(secondaryFileSequence_) {
       unsigned int nStreams = desc.allocations_->numberOfStreams();
       assert(primary());
@@ -327,7 +334,15 @@ namespace edm {
 
     ParameterSetDescription desc;
 
+    std::vector<std::string> defaultStrings;
     desc.setComment("Reads EDM/Root files.");
+    desc.addUntracked<std::vector<std::string> >("fileNames")
+        ->setComment("Names of files to be processed.");
+    desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings)
+        ->setComment("Names of secondary files to be processed.");
+    desc.addUntracked<bool>("needSecondaryFileNames", false)
+        ->setComment("If True, 'secondaryFileNames' must be specified and be non-empty.");
+    desc.addUntracked<std::string>("overrideCatalog", std::string());
     VectorInputSource::fillDescription(desc);
     RootInputFileSequence::fillDescription(desc);
 

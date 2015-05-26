@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -24,7 +24,7 @@
 //
 
 
-class IslandClusterProducer : public edm::EDProducer 
+class IslandClusterProducer : public edm::stream::EDProducer<> 
 {
   public:
 
@@ -32,7 +32,7 @@ class IslandClusterProducer : public edm::EDProducer
 
       ~IslandClusterProducer();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 

@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
 
 namespace edm {
@@ -25,18 +26,18 @@ namespace edm {
       virtual ~IndirectVectorHolder();
       IndirectVectorHolder& operator= (IndirectVectorHolder const& rhs);
       void swap(IndirectVectorHolder& other);
-      virtual BaseVectorHolder<T>* clone() const;
-      virtual BaseVectorHolder<T>* cloneEmpty() const;
-      virtual ProductID id() const;
-      virtual EDProductGetter const* productGetter() const;
-      virtual bool empty() const;
-      virtual size_type size() const;
-      virtual void clear();
-      virtual base_ref_type const at(size_type idx) const;
-      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const {
+      virtual BaseVectorHolder<T>* clone() const GCC11_OVERRIDE;
+      virtual BaseVectorHolder<T>* cloneEmpty() const GCC11_OVERRIDE;
+      virtual ProductID id() const GCC11_OVERRIDE;
+      virtual EDProductGetter const* productGetter() const GCC11_OVERRIDE;
+      virtual bool empty() const GCC11_OVERRIDE;
+      virtual size_type size() const GCC11_OVERRIDE;
+      virtual void clear() GCC11_OVERRIDE;
+      virtual base_ref_type const at(size_type idx) const GCC11_OVERRIDE;
+      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const GCC11_OVERRIDE {
 	return std::auto_ptr<reftobase::RefVectorHolderBase>( helper_->clone() );
       }
-      virtual void push_back( const BaseHolder<T> * r ) {
+      virtual void push_back( const BaseHolder<T> * r ) GCC11_OVERRIDE {
 	typedef IndirectHolder<T> holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
 	if( h == 0 )
@@ -47,7 +48,7 @@ namespace edm {
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const { return helper_->isAvailable(); }
+      virtual bool isAvailable() const GCC11_OVERRIDE { return helper_->isAvailable(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)

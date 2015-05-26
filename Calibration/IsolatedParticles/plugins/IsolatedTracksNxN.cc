@@ -32,7 +32,12 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 
-IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
+static const bool useL1EventSetup(true);
+static const bool useL1GtTriggerMenuLite(true);
+
+IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) :
+  m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this),
+  trackerHitAssociatorConfig_(consumesCollector()) {
 
   //now do what ever initialization is needed
   doMC                   = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
@@ -136,9 +141,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //===================== save L1 Trigger information =======================
   if( L1TriggerAlgoInfo_ ) {
-
-    bool useL1EventSetup = true;
-    bool useL1GtTriggerMenuLite = true;
 
     m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
@@ -455,8 +457,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (doMC) iEvent.getByToken(tok_caloHH_, pcalohh);
   
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate=0;
-  if (doMC) associate = new TrackerHitAssociator(iEvent);
+  std::unique_ptr<TrackerHitAssociator> associate;
+  if (doMC) associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
   //===================================================================================
   

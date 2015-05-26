@@ -1,4 +1,5 @@
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "DataFormats/HeavyIonEvent/interface/ClusterCompatibility.h"
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "DataFormats/HeavyIonEvent/interface/HeavyIon.h"
 #include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
@@ -19,6 +20,9 @@ namespace DataFormats_HeavyIonEvent {
 
      reco::EvtPlaneCollection evcol;
      edm::Wrapper<reco::EvtPlaneCollection> wevcol;
+
+     reco::ClusterCompatibility clus_compat;
+     edm::Wrapper<reco::ClusterCompatibility> w_clus_compat;
 
      reco::VoronoiBackground vor;
      edm::Wrapper<reco::VoronoiBackground> wvor;

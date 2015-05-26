@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoMuon/GlobalMuonProducer/src/TevMuonProducer.h"
 
@@ -102,7 +103,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  eventSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  eventSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 

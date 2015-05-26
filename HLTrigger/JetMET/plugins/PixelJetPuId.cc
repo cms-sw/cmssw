@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,7 +51,7 @@
 // class declaration
 //
 
-class PixelJetPuId : public edm::EDProducer {
+class PixelJetPuId : public edm::global::EDProducer <>{
    public:
       PixelJetPuId(const edm::ParameterSet&);
       virtual ~PixelJetPuId();
@@ -59,7 +59,7 @@ class PixelJetPuId : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
       
 
       // ----------member data ---------------------------
@@ -139,7 +139,7 @@ PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called on each new Event  ------------
-void PixelJetPuId::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
   std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );

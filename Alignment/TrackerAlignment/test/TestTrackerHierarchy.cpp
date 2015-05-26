@@ -64,7 +64,7 @@ TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::LogInfo("TrackerHierarchy") << "Starting!";

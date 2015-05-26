@@ -11,6 +11,57 @@ def customiseFor8679(process):
        setattr(process.hltBSoftMuonMu5L3,'vertexTag', cms.InputTag(''))
     return process
 
+
+# Updating the config (PR #8356)
+def customiseFor8356(process):
+    MTRBPSet = cms.PSet(
+        Rescale_eta = cms.double( 3.0 ),
+        Rescale_phi = cms.double( 3.0 ),
+        Rescale_Dz = cms.double( 3.0 ),
+        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
+        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),
+        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),
+        PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
+        UseVertex = cms.bool( False ),
+        Pt_fixed = cms.bool( False ),
+        Z_fixed = cms.bool( True ),
+        Phi_fixed = cms.bool( False ),
+        Eta_fixed = cms.bool( False ),
+        Pt_min = cms.double( 1.5 ),
+        Phi_min = cms.double( 0.1 ),
+        Eta_min = cms.double( 0.1 ),
+        DeltaZ = cms.double( 15.9 ),
+        DeltaR = cms.double( 0.2 ),
+        DeltaEta = cms.double( 0.2 ),
+        DeltaPhi = cms.double( 0.2 ),
+        maxRegions = cms.int32( 2 ),
+        precise = cms.bool( True ),
+        OnDemand = cms.int32( -1 ),
+        MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTracker" ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        vertexCollection = cms.InputTag( "pixelVertices" ),
+        input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
+    )
+
+    def producers_by_type(process, type):
+    	return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
+
+    for l3MPModule in producers_by_type(process, 'L3MuonProducer'):
+	if hasattr(l3MPModule, 'GlbRefitterParameters'):
+            l3MPModule.GlbRefitterParameters.RefitFlag = cms.bool(True)
+        if hasattr(l3MPModule, 'L3TrajBuilderParameters'):
+            if hasattr(l3MPModule.L3TrajBuilderParameters, 'MuonTrackingRegionBuilder'):
+                l3MPModule.L3TrajBuilderParameters.MuonTrackingRegionBuilder = MTRBPSet
+
+    listL3seedingModule = ['hltL3TrajSeedIOHit','hltL3NoFiltersNoVtxTrajSeedIOHit','hltHIL3TrajSeedIOHit']
+    for l3IOTrajModule in listL3seedingModule:
+	if hasattr(process, l3IOTrajModule):
+	    if hasattr(getattr(process, l3IOTrajModule), 'MuonTrackingRegionBuilder'):
+                setattr(getattr(process, l3IOTrajModule), 'MuonTrackingRegionBuilder', MTRBPSet)
+
+    return process
+
+
 # Simplified TrackerTopologyEP config (PR #7966)
 def customiseFor7966(process):
     if hasattr(process, 'trackerTopology'):
@@ -18,8 +69,10 @@ def customiseFor7966(process):
         for param in params:
             delattr(process.trackerTopology, param)
         setattr(process.trackerTopology, 'appendToDataLabel', cms.string(""))
+    if hasattr(process,'TrackerDigiGeometryESModule'):
+        if hasattr(process.TrackerDigiGeometryESModule,'trackerGeometryConstants'):
+            delattr(process.TrackerDigiGeometryESModule,'trackerGeometryConstants')
     return process
-
 
 # Removal of 'upgradeGeometry' from TrackerDigiGeometryESModule (PR #7794)
 def customiseFor7794(process):
@@ -37,6 +90,7 @@ def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
 
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor8679(process)
+        process = customiseFor8356(process)
         process = customiseFor7966(process)
         process = customiseFor7794(process)
 

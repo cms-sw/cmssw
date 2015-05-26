@@ -166,7 +166,7 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
   // L1
   if ( onL1_ ) {
     // build vector of algo names
-    l1Gt_.getL1GtRunCache( run, setup, true, false );
+    l1Gt_->getL1GtRunCache( run, setup, useL1EventSetup, useL1GtTriggerMenuLite );
     edm::ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
     setup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
 //     L1GtTriggerMenu l1GtTriggerMenu( *handleL1GtTriggerMenu );
@@ -403,7 +403,7 @@ bool GenericTriggerEventFlag::acceptL1( const edm::Event & event, const edm::Eve
   if ( ! onL1_ || l1LogicalExpressions_.empty() ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
 
   // Getting the L1 event setup
-  l1Gt_.getL1GtRunCache( event, setup, useL1EventSetup, useL1GtTriggerMenuLite ); // FIXME This can possibly go to initRun()
+  l1Gt_->getL1GtRunCache( event, setup, useL1EventSetup, useL1GtTriggerMenuLite ); // FIXME This can possibly go to initRun()
 
   // Determine decision of L1 logical expression combination and return
   if ( andOrL1_ ) { // OR combination
@@ -443,7 +443,7 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression( const edm::Event & even
   for ( size_t iAlgorithm = 0; iAlgorithm < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgorithm ) {
     const std::string l1AlgoName( l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenName );
     int error( -1 );
-    const bool decision( l1BeforeMask_ ? l1Gt_.decisionBeforeMask( event, l1AlgoName, error ) : l1Gt_.decisionAfterMask( event, l1AlgoName, error ) );
+    const bool decision( l1BeforeMask_ ? l1Gt_->decisionBeforeMask( event, l1AlgoName, error ) : l1Gt_->decisionAfterMask( event, l1AlgoName, error ) );
     // Error checks
     if ( error != 0 ) {
       if ( verbose_ > 1 ) {

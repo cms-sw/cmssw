@@ -13,6 +13,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -20,7 +23,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include<cmath>
 
@@ -110,7 +112,7 @@ LowPtClusterShapeSeedComparitor::LowPtClusterShapeSeedComparitor(const edm::Para
 /*****************************************************************************/
 void LowPtClusterShapeSeedComparitor::init(const edm::Event& e, const edm::EventSetup& es) {
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theShapeFilter);
-  es.get<IdealGeometryRecord>().get(theTTopo);
+  es.get<TrackerTopologyRcd>().get(theTTopo);
 
   e.getByToken(thePixelClusterShapeCacheToken, thePixelClusterShapeCache);
 }

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -17,7 +17,7 @@
 //
 
 
-class HiSuperClusterProducer : public edm::EDProducer 
+class HiSuperClusterProducer : public edm::stream::EDProducer<> 
 {
   
   public:
@@ -26,7 +26,7 @@ class HiSuperClusterProducer : public edm::EDProducer
 
       ~HiSuperClusterProducer();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
 
    private:

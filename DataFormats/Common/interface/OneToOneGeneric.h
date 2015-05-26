@@ -52,11 +52,13 @@ namespace edm {
           Exception::throwThis(errors::InvalidReference,
 	    "can't insert transient references in uninitialized AssociationMap");
         }
-        if(ref.key.productGetter() == nullptr) {
+        //another thread might change the value of productGetter()
+        auto getter =ref.key.productGetter();
+        if(getter == nullptr) {
           Exception::throwThis(errors::LogicError,
 	    "can't insert into AssociationMap unless it was initialized with a getter or RefProd(s) or RefToBaseProd(s)");
         }
-        ref.key = KeyRefProd(k.id(), ref.key.productGetter());
+        ref.key = KeyRefProd(k.id(), getter);
         ref.val = ValRefProd(v.id(), ref.val.productGetter());
       }
       helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, v);

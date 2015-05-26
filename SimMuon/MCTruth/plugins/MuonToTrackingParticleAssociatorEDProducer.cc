@@ -32,7 +32,7 @@
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MuonToTrackingParticleAssociatorByHitsImpl.h"
 
 //
@@ -178,6 +178,7 @@ private:
   // ----------member data ---------------------------
   edm::ParameterSet const config_;
   MuonAssociatorByHitsHelper helper_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   TrackerMuonHitExtractor hitExtractor_;
 
   std::unique_ptr<RPCHitAssociator> rpctruth_;
@@ -185,7 +186,6 @@ private:
   std::unique_ptr<CSCHitAssociator> csctruth_;
   std::unique_ptr<TrackerHitAssociator> trackertruth_;
   std::unique_ptr<InputDumper> diagnostics_;
-
 };
 
 //
@@ -203,6 +203,7 @@ private:
 MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDProducer(const edm::ParameterSet& iConfig):
   config_(iConfig),
   helper_(iConfig),
+  trackerHitAssociatorConfig_(iConfig,consumesCollector()),
   hitExtractor_(iConfig,consumesCollector())
 {
    //register your products
@@ -212,7 +213,6 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
    RPCHitAssociator rpctruth(iConfig,consumesCollector());
    DTHitAssociator dttruth(iConfig,consumesCollector());
    CSCHitAssociator cscruth(iConfig,consumesCollector());
-   TrackerHitAssociator trackertruth(iConfig,consumesCollector());
 
   if( iConfig.getUntrackedParameter<bool>("dumpInputCollections") ) {
     diagnostics_.reset( new InputDumper(iConfig, consumesCollector()) );
@@ -243,7 +243,7 @@ MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event& iEvent, const ed
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
    const TrackerTopology *tTopo=tTopoHand.product();
    
    bool printRtS = true;
@@ -253,12 +253,12 @@ MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event& iEvent, const ed
    // the memory.
 
    // Tracker hit association  
-   trackertruth_.reset( new TrackerHitAssociator(iEvent, config_));
+   trackertruth_.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
    // CSC hit association
-   csctruth_.reset(new CSCHitAssociator(iEvent,iSetup,config_));;
+   csctruth_.reset(new CSCHitAssociator(iEvent,iSetup,config_));
    // DT hit association
    printRtS = false;
-   dttruth_.reset( new DTHitAssociator(iEvent,iSetup,config_,printRtS) );  
+   dttruth_.reset(new DTHitAssociator(iEvent,iSetup,config_,printRtS));
    // RPC hit association
    rpctruth_.reset( new RPCHitAssociator(iEvent,iSetup,config_) );
    

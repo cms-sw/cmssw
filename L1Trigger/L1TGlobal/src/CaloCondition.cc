@@ -529,6 +529,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
       << "\n\t etThreshold = " << objPar.etThreshold
       << "\n\t etaRange    = " << objPar.etaRange
       << "\n\t phiRange    = " << objPar.phiRange
+      << "\n\t isolationLUT= " << objPar.isolationLUT
       << std::endl;
 
     LogDebug("l1t|Global")
@@ -561,6 +562,17 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
       return false;
     }
 
+    // check isolation ( bit check ) with isolation LUT
+    // sanity check on candidate isolation
+    if( cand.hwIso()>4 ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate has out of range hwIso = " << cand.hwIso() << std::endl;
+      return false;
+    }
+    bool passIsoLUT = ( (objPar.isolationLUT >> cand.hwIso()) & 1 );
+    if( !passIsoLUT ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
+      return false;
+    }
 //     if (!checkBit(objPar.phiRange, cand.hwPhi())) {
 //         return false;
 //     }

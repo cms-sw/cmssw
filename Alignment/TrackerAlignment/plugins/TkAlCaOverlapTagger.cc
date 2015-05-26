@@ -10,7 +10,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -59,7 +59,7 @@ TkAlCaOverlapTagger::~TkAlCaOverlapTagger(){}
 void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::Handle<TrajTrackAssociationCollection> assoMap;

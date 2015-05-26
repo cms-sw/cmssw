@@ -57,6 +57,7 @@ class TrackerHitAssociator {
  public:
   struct Config {
     Config(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+    Config(edm::ConsumesCollector && iC);
     bool doPixel_, doStrip_, doTrackAssoc_, assocHitbySimTrack_;
     edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > stripToken_;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > pixelToken_;
@@ -66,10 +67,6 @@ class TrackerHitAssociator {
 
   // The constructor supporting the consumes interface and tokens
   TrackerHitAssociator(const edm::Event& e, const Config& config);
-
-  TrackerHitAssociator(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC); // deprecated ctor supports consumes but not tokens
-  TrackerHitAssociator(const edm::Event& e); // deprecated simple ctor
-  TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf); // deprecated ctor with config
 
   // Destructor
   virtual ~TrackerHitAssociator(){}
@@ -111,8 +108,6 @@ class TrackerHitAssociator {
   typedef std::vector<std::string> vstring;
 
   void makeMaps(const edm::Event& theEvent, const Config& config);
-  void makeMaps(const edm::Event& theEvent, const vstring& trackerContainers); // deprecated
-
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   bool doPixel_, doStrip_, doTrackAssoc_, assocHitbySimTrack_;

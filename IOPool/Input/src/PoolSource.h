@@ -8,6 +8,7 @@ PoolSource: This is an InputSource
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
@@ -32,7 +33,7 @@ namespace edm {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
-    using InputSource::processHistoryRegistryUpdate;
+    using InputSource::processHistoryRegistryForUpdate;
     using InputSource::productRegistryUpdate;
 
     static void fillDescriptions(ConfigurationDescriptions & descriptions);
@@ -66,6 +67,8 @@ namespace edm {
 
     
     RootServiceChecker rootServiceChecker_;
+    InputFileCatalog catalog_;
+    InputFileCatalog secondaryCatalog_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
     std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
     std::shared_ptr<RunPrincipal> secondaryRunPrincipal_;

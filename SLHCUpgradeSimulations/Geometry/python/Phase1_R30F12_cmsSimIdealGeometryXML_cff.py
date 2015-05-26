@@ -4,11 +4,9 @@ import FWCore.ParameterSet.Config as cms
 from SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi import *
 #from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 #from Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi import *
-from Geometry.CommonDetUnit.globalTrackingSLHCGeometry_cfi import *
-#from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
-#es_prefer_TrackerEP = cms.ESPrefer("TrackerGeometricDetESModule", "trackerNumberingSLHCGeometry")
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 es_prefer_TrackerEP = cms.ESPrefer("TrackerGeometricDetESModule", "trackerNumberingGeometry")
-es_prefer_Trackerdigi = cms.ESPrefer("TrackerDigiGeometryESModule","trackerSLHCGeometry")
+es_prefer_Trackerdigi = cms.ESPrefer("TrackerDigiGeometryESModule","trackerGeometry")
 
 #hardwire these here
 #trackerGeometry.trackerGeometryConstants = cms.PSet(
@@ -28,7 +26,7 @@ from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 trackerNumberingGeometry.fromDDD = cms.bool(True)
 trackerNumberingGeometry.layerNumberPXB = cms.uint32(18)
 trackerNumberingGeometry.totalBlade = cms.uint32(56)
-trackerSLHCGeometry.applyAlignment = cms.bool(False)
+trackerGeometry.applyAlignment = cms.bool(False)
 
 #Muon
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *

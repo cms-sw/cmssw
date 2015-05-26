@@ -6,7 +6,7 @@ VectorInputSource: Abstract interface for vector input sources.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
-#include "FWCore/Sources/interface/EDInputSource.h"
+#include "FWCore/Framework/interface/InputSource.h"
 
 #include <memory>
 #include <string>
@@ -21,7 +21,7 @@ namespace edm {
   struct InputSourceDescription;
   class LuminosityBlockID;
   class ParameterSet;
-  class VectorInputSource : public EDInputSource {
+  class VectorInputSource : public InputSource {
   public:
     explicit VectorInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~VectorInputSource();

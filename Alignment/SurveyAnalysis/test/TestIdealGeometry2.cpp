@@ -34,7 +34,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 //
@@ -111,7 +111,7 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::LogInfo("TrackerAlignment") << "Starting!";

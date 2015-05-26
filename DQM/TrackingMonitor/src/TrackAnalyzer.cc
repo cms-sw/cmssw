@@ -806,8 +806,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         GlobalVector dir(track.px(), track.py(), track.pz());
         std::pair<bool, Measurement1D> ip3d = IPTools::signedImpactParameter3D(transTrack, dir, pv);
         std::pair<bool, Measurement1D> ip2d = IPTools::signedTransverseImpactParameter(transTrack, dir, pv);
-        sip3dToPV->Fill(ip3d.second.value() / ip3d.second.error());
-        sip2dToPV->Fill(ip2d.second.value() / ip2d.second.error());
+        if(ip3d.first) sip3dToPV->Fill(ip3d.second.value() / ip3d.second.error());
+        if(ip2d.first) sip2dToPV->Fill(ip2d.second.value() / ip2d.second.error());
         sipDxyToPV->Fill(track.dxy(pv.position())/track.dxyError());
         sipDzToPV->Fill(track.dz(pv.position())/track.dzError());
       }

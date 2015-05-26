@@ -24,6 +24,8 @@ process.GlobalTag.globaltag = 'MC_61_V11::All' # take your favourite
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerTopology_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 # Misalignment example scenario producer
 process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")

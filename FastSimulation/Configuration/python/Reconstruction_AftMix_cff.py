@@ -20,6 +20,7 @@ _mod2del = []
 # offlineBeamSpot is reconstructed before mixing
 ########################################## 
 _mod2del.append(_reco.offlineBeamSpot)
+_reco.globalreco.remove(_reco.offlineBeamSpot) # temporary removing this by hand, cause the usual removal (see end of this file) doesn't seem work
 
 ###########################################
 # no castor / zdc in FastSim
@@ -108,6 +109,14 @@ _reco.electronGsfTracks.TTRHBuilder = "WithoutRefit"
 # the conversion producer depends on trajectories
 # so we feed it with the 'before mixing' track colletion
 _reco.generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
+
+# then we need to fix the track references, so that they point to the final track collection, after mixing
+import FastSimulation.Tracking.ConversionTrackRefFix_cfi
+_conversionTrackRefFix = FastSimulation.Tracking.ConversionTrackRefFix_cfi.fixedConversionTracks.clone(
+    src = cms.InputTag("generalConversionTrackProducerTmp"))
+_reco.conversionTrackSequenceNoEcalSeeded.replace(_reco.generalConversionTrackProducer,_reco.generalConversionTrackProducer+_conversionTrackRefFix)
+_reco.generalConversionTrackProducerTmp = _reco.generalConversionTrackProducer
+_reco.generalConversionTrackProducer = _conversionTrackRefFix
 
 # this might be historical: not sure why we do this
 _reco.egammaGlobalReco.replace(_reco.conversionTrackSequence,_reco.conversionTrackSequenceNoEcalSeeded)

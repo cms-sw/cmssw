@@ -11,7 +11,6 @@
 
 #include "HLTrigger/special/interface/HLTTrackerHaloFilter.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 typedef edmNew::DetSetVector<SiStripCluster>::Getter Getter;
 //
@@ -58,7 +57,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
 /*
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // All HLT filters must create and fill an HLT filter object,

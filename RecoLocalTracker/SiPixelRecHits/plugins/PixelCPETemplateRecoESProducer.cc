@@ -4,6 +4,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,7 +45,7 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
   edm::ESHandle<TrackerTopology> hTT;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<IdealGeometryRecord>().get(hTT);
+  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<TrackerTopologyRcd>().get(hTT);
 
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
   const SiPixelLorentzAngle * lorentzAngleProduct = 0;

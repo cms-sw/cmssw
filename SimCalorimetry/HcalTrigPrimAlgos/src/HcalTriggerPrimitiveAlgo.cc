@@ -126,7 +126,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
       addSignal(zero_samples);
 
       // Mask off depths: fgid is the same for both depths
-      uint32_t fgid = (frame.id().rawId() | 0x1c000) ;
+      uint32_t fgid = (frame.id().maskDepth());
 
       if ( theTowerMapFGSum.find(ids[0]) == theTowerMapFGSum.end() ) {
          SumFGContainer sumFG;
