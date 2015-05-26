@@ -167,7 +167,6 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   // ----------member data ---------------------------
   bool verbose_;
   bool use_only_charged_tracks_;
-  bool use_TP_associator_;
   double sigma_z_match_;
   double abs_z_match_;
   std::string root_folder_;
@@ -175,10 +174,6 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
   const reco::RecoToSimCollection *r2s_;
   const reco::SimToRecoCollection *s2r_;
-
-  // TODO(rovere) possibly reuse an object from the event and do not
-  // re-run the associator(s)
-  const reco::TrackToTrackingParticleAssociator * associatorByHits_;
 
   edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
   std::vector<edm::EDGetTokenT<reco::VertexCollection> > reco_vertex_collection_tokens_;
