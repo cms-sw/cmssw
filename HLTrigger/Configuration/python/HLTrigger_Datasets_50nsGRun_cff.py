@@ -99,6 +99,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Ele15_IsoVVVL_PFHT600_v2', 
     'HLT_Ele15_PFHT300_v2', 
     'HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v2', 
+    'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v2', 
     'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2', 
     'HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30_v2', 

@@ -441,7 +441,7 @@ HLT_HT2500_v*                                                   # JIRA: CMSHLT-3
 
 #HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343 (waiting for DQM)
 
-#HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-369 (waiting for DQM)
+HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-369 (waiting for DQM)
 
 #HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for low PU runs)
 #HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
