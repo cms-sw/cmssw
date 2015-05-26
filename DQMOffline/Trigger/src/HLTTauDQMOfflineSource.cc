@@ -5,6 +5,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 using namespace std;
 using namespace edm;
@@ -50,7 +51,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
     VPSet matchObjects = matching.getUntrackedParameter<VPSet>("matchFilters");
     for(const edm::ParameterSet& pset: matchObjects) {
       refObjects_.push_back(RefObject{pset.getUntrackedParameter<int>("matchObjectID"),
-            consumes<LVColl>(pset.getUntrackedParameter<edm::InputTag>("FilterName"))});
+//            consumes<LVColl>(pset.getUntrackedParameter<edm::InputTag>("FilterName"))});
+                               pset.getUntrackedParameter<edm::InputTag>("FilterName")});
     }
   }
 }
@@ -136,26 +138,30 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         HLTTauDQMOfflineObjects refC;
         if (doRefAnalysis_) {
           for(RefObject& refObj: refObjects_) {
-            edm::Handle<LVColl> collHandle;
-            iEvent.getByToken(refObj.token, collHandle);
-            if(!collHandle.isValid())
-              continue;
-            if(refObj.objID == 11) {
-              refC.electrons.insert(refC.electrons.end(), collHandle->begin(), collHandle->end());
-            }
-            else if(refObj.objID == 13) {
-              refC.muons.insert(refC.muons.end(), collHandle->begin(), collHandle->end());
-            }
-            else if(refObj.objID == 15) {
-              refC.taus.insert(refC.taus.end(), collHandle->begin(), collHandle->end());
-            }
+	    if(refObj.objID == 0) { // MET
+              edm::Handle<reco::CaloMETCollection> collHandle;
+              iEvent.getByLabel(refObj.inputTag,collHandle);
+              reco::CaloMET met = collHandle.product()->front();
+              LV p4;
+              p4.SetPxPyPzE(met.px(),met.py(),0,0);
+              refC.met.push_back(p4);
+	    }else{
+              edm::Handle<LVColl> collHandle;
+	      iEvent.getByLabel(refObj.inputTag,collHandle);
+//              iEvent.getByToken(refObj.token, collHandle);
+              if(!collHandle.isValid())
+                continue;
+              if(refObj.objID == 11) {
+                refC.electrons.insert(refC.electrons.end(), collHandle->begin(), collHandle->end());
+              }
+              else if(refObj.objID == 13) {
+                refC.muons.insert(refC.muons.end(), collHandle->begin(), collHandle->end());
+              }
+              else if(refObj.objID == 15) {
+                refC.taus.insert(refC.taus.end(), collHandle->begin(), collHandle->end());
+              }
+	    }
           }
-	  edm::Handle<reco::CaloMETCollection> metHandle;
-	  iEvent.getByLabel("caloMet",metHandle);
-	  reco::CaloMET met = metHandle.product()->front();
-	  LV p4;
-	  p4.SetPxPyPzE(met.px(),met.py(),0,0);
-	  refC.met.push_back(p4);
         }
 
         //Path Plotters
