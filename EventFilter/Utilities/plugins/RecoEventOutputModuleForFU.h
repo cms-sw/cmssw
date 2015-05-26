@@ -252,8 +252,8 @@ namespace evf {
         edm::LogInfo("RecoEventOutputModuleForFU") << "output suppressed";
         return;
     }
-
-    if(processed_.value()!=0){
+    
+    if(processed_.value()!=0) {
 
       //lock
       FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
@@ -316,16 +316,18 @@ namespace evf {
                                                            << openDatFilePath_.string() <<" in LS " << ls.luminosityBlock() << std::endl;
       }
 
+    } else {
+      //return if not in empty lumisectio mode
+      if (!edm::Service<evf::EvFDaqDirector>()->emptyLumiSectionMode())
+        return;
+      filelist_ = "";
+      fileAdler32_.value()=-1;
     }
+
     //remove file
     remove(openDatFilePath_.string().c_str());
     filesize_=filesize;
 
-    // output jsn file
-    if(processed_.value()==0)  {
-      filelist_ = "";
-      fileAdler32_.value()=-1;
-    }
     jsonMonitor_->snap(ls.luminosityBlock());
     const std::string outputJsonNameStream =
       edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);

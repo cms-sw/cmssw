@@ -119,6 +119,7 @@ namespace evf{
       }
       void checkTransferSystemPSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
+      bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
 
 
     private:
@@ -144,6 +145,7 @@ namespace evf{
       std::string selectedTransferMode_;
       std::string hltSourceDirectory_;
       unsigned int fuLockPollInterval_;
+      bool emptyLumisectionMode_;
 
       std::string hostname_;
       std::string run_string_;

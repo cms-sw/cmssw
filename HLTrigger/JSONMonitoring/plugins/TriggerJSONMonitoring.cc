@@ -535,22 +535,20 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 void
 TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
 {
-<<<<<<< HEAD
 
   unsigned int iLs  = iLumi.luminosityBlock();
   unsigned int iRun = iLumi.run();
 
-  bool abortFlag=false;
-  bool writeDataFiles=true;
+  bool writeFiles=true;
   if (edm::Service<evf::MicroStateService>().isAvailable()) {
     evf::FastMonitoringService * fms = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     if (fms) {
-      writeDataFiles = fms->getEventsProcessedForLumi(iLs)>0;
-      abortFlag = fms_->getAbortFlagForLumi(iLumi.luminosityBlock());
+      //writeFiles = !fms->getAbortFlagForLumi(iLumi.luminosityBlock()) && (fms->getEventsProcessedForLumi(iLs)>0 || fms->emptyLumiMode());
+      writeFiles = !fms->shouldWriteFiles(iLumi.luminosityBlock());
     }
   }
 
-  if (!abortFlag) {
+  if (writeFiles) {
     Json::StyledWriter writer;
 
     char hostname[33];
@@ -587,15 +585,21 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     ssHltJsnData <<  "run" << std::setfill('0') << std::setw(6) << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
     ssHltJsnData << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
 
-    std::ofstream outHltJsnData( monPath + ssHltJsnData.str() );
-    outHltJsnData<<result;
-    outHltJsnData.close();
+    if (iSummary->processed->value().at(0)!=0) {
+      std::ofstream outHltJsnData( monPath + ssHltJsnData.str() );
+      outHltJsnData<<result;
+      outHltJsnData.close();
+    }
 
     //HLT jsn entries
     StringJ hltJsnFilelist;
-    hltJsnFilelist.update(ssHltJsnData.str());
-    IntJ hltJsnFilesize    = result.size();
-    IntJ hltJsnFileAdler32 = cms::Adler32(result.c_str(),result.size());
+    IntJ hltJsnFilesize    = 0;
+    IntJ hltJsnFileAdler32 = -1;
+    if (iSummary->processed->value().at(0)!=0) {
+      hltJsnFilelist.update(ssHltJsnData.str());
+      hltJsnFilesize    = result.size();
+      hltJsnFileAdler32 = cms::Adler32(result.c_str(),result.size());
+    }
     StringJ hltJsnInputFiles;
     hltJsnInputFiles.update("");
 
@@ -620,17 +624,25 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     ssL1JsnData << "run" << std::setfill('0') << std::setw(6) << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
     ssL1JsnData << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
 
-    std::ofstream outL1JsnData( monPath + "/" + ssL1JsnData.str() );
-    outL1JsnData<<result;
-    outL1JsnData.close();
+    if (iSummary->processed->value().at(0)!=0) {
+      std::ofstream outL1JsnData( monPath + "/" + ssL1JsnData.str() );
+      outL1JsnData<<result;
+      outL1JsnData.close();
+    }
 
+    //L1 jsn entries
     StringJ l1JsnFilelist;
-    l1JsnFilelist.update(ssL1JsnData.str());
-    IntJ l1JsnFilesize    = result.size();
-    IntJ l1JsnFileAdler32 = cms::Adler32(result.c_str(), result.size());
-    StringJ l1JsnInputFiles;               
+    IntJ l1JsnFilesize    = 0;
+    IntJ l1JsnFileAdler32 = -1;
+    if (iSummary->processed->value().at(0)!=0) {
+      l1JsnFilelist.update(ssHltJsnData.str());
+      l1JsnFilesize    = result.size();
+      l1JsnFileAdler32 = cms::Adler32(result.c_str(),result.size());
+    }
+    StringJ l1JsnInputFiles;
     l1JsnInputFiles.update("");
- 
+
+
     //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
     //Only three variables are different between the files: 
     //the file list, the file size and the Adler32 value
@@ -664,7 +676,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outHltDaqJsn<<result;
     outHltDaqJsn.close();
 
-    //write out HLT metadata jsn
+    //write out L1 metadata jsn
     Json::Value l1DaqJsn;
     l1DaqJsn[DataPoint::SOURCE] = sourceHost;
     l1DaqJsn[DataPoint::DEFINITION] = sOutDef.str();
