@@ -600,12 +600,15 @@ namespace MCTruthHelper {
     if (p.production_vertex() && p.production_vertex()->particles_in_size()){
          HepMC::GenParticle *mother_cand=*(p.production_vertex()->particles_in_const_begin() + imoth);
          //Sherpa Fix to prevent circular relations between mother and daughter
-         if (mother_cand && (p.status()==1 || (mother_cand->end_vertex()->id()< p.end_vertex()->id()))){
+         if (mother_cand && (p.status()!=1 && (mother_cand->end_vertex()->id()> p.end_vertex()->id()))){
+            return 0;
+         } else {
             return mother_cand;
          } 
     }
     return 0;
   }
+  
   /////////////////////////////////////////////////////////////////////////////
   unsigned int numberOfDaughters(const reco::GenParticle &p) {
     return p.numberOfDaughters();
@@ -624,10 +627,10 @@ namespace MCTruthHelper {
   const HepMC::GenParticle *daughter(const HepMC::GenParticle &p, unsigned int idau) {
     HepMC::GenParticle *daughter_cand = *(p.end_vertex()->particles_out_const_begin() + idau);
     //Sherpa Fix to prevent circular relations between mother and daughter
-    if (daughter_cand->status()==1 || (daughter_cand->end_vertex()->id() > p.end_vertex()->id()))
-      return daughter_cand;
-    else 
+    if (daughter_cand->status()!=1 && (daughter_cand->end_vertex()->id() < p.end_vertex()->id()))
       return 0;
+    else
+      return daughter_cand;
   }
   
   /////////////////////////////////////////////////////////////////////////////
