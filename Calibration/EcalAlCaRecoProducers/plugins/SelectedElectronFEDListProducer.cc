@@ -1,7 +1,70 @@
 #include "Calibration/EcalAlCaRecoProducers/plugins/SelectedElectronFEDListProducer.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include <fstream>
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+
+// common 
+//#include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+// raw data
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+//#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+// Geometry
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+// strip geometry
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
+
+// egamma objects
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
+// Hcal objects
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
+// Strip and pixel
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+
+// detector id
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+// Hcal rec hit
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+// Geometry
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+// strip geometry
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+// Message logger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// Strip and pixel
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+
+// Hcal objects
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
+
+using namespace std;
 
 /// Producer constructor
 template< typename TEle, typename TCand>
@@ -207,6 +270,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 
   // Build FED strip map --> just one time
   // Retrieve FED ids from cabling map and iterate through 
+  SiStripRegionCabling::Cabling cabling_ ;
 
   if(eventCounter_ ==0 ){
     

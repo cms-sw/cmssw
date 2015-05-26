@@ -1,98 +1,37 @@
 #ifndef SelectedElectronFEDListProducer_h
 #define SelectedFEDListProducer_h
 
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <algorithm>
-#include <fstream>
-#include "TLorentzVector.h"
-#include "TVector3.h"
-#include <ostream>
-#include <memory>
-#include <stdint.h>
-
-// common 
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 // egamma objects
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-// raw data
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-// detector id
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
+
 // Math
 #include "DataFormats/Math/interface/normalizedPhi.h"
-// Hcal rec hit
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-// Geometry
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-// strip geometry
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
-// FW core
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/Event.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 // Message logger
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-// Strip and pixel
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
-#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
-#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 
-// Hcal objects
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+class InputTag;
 
-using namespace std;
+class FEDRawDataCollection;
+
+class SiPixelFedCablingMap;
+class SiPixelFedCablingTree;
+class SiStripFedCabling;
+class SiStripRegionCabling;
+
+class CaloGeometry;
+class CaloSubdetectorGeometry;
+class EcalElectronicsMapping;
+class HcalElectronicsMap;
+
+// Hcal rec hit: this is a Fwd file defining typedefs
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 
 // Pixel region class
 class PixelRegion {  
@@ -224,7 +163,6 @@ class SelectedElectronFEDListProducer : public edm::EDProducer {
 
   // get strip geometry and electronic map
   const SiStripRegionCabling*   StripRegionCabling_;
-  SiStripRegionCabling::Cabling cabling_ ;
   std::pair<double,double>      regionDimension_ ;
 
   // get hcal geometry and electronic map

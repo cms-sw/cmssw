@@ -10,13 +10,11 @@
 <use   name="DataFormats/RecoCandidate"/>
 # for FED list selector
 <use   name="DataFormats/EgammaCandidates"/>
-<use   name="CalibFormats/SiStripObjects"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/HcalObjects"/>
 <use   name="CondFormats/SiPixelObjects"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="Geometry/EcalMapping"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="TrackingTools/TrackAssociator"/>
+<use   name="CalibTracker/Records"/>
 <flags   EDM_PLUGIN="1"/>
