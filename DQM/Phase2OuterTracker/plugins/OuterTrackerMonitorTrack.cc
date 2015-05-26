@@ -89,27 +89,14 @@ void OuterTrackerMonitorTrack::analyze(const edm::Event& iEvent, const edm::Even
       
       unsigned int nStubs = tempTrackPtr->getStubRefs().size();
       
-      /// Delete from main branch
-      unsigned int seedSector = tempTrackPtr->getSector();
-      unsigned int seedWedge = tempTrackPtr->getWedge();
-      //std::cout << "Sector = " << seedSector << " - Wedge = " << seedWedge << std::endl; 
-      /// -----------------------
-      
       double trackPt = tempTrackPtr->getMomentum().perp();
       double trackPhi = tempTrackPtr->getMomentum().phi();
       double trackEta = tempTrackPtr->getMomentum().eta();
-      //double trackTheta = tempTrackPtr->getMomentum().theta();
       double trackVtxZ0 = tempTrackPtr->getPOCA().z();
       double trackChi2 = tempTrackPtr->getChi2();
       double trackChi2R = tempTrackPtr->getChi2Red();
       
       Track_NStubs->Fill(nStubs);
-      /// Delete from main branch
-      Track_NStubs_PhiSector->Fill(seedSector,nStubs); 
-      Track_NStubs_EtaWedge->Fill(seedWedge,nStubs);
-      Track_PhiSector_Track_Phi->Fill( trackPhi, seedSector );
-      Track_EtaWedge_Track_Eta->Fill( trackEta, seedWedge ); 
-      /// -----------------------
       
       if ( nStubs >= HQDelim_ )
       {
@@ -180,56 +167,6 @@ OuterTrackerMonitorTrack::beginRun(const edm::Run& run, const edm::EventSetup& e
       psTrack_NStubs.getParameter<double>("xmax"));
   Track_NStubs->setAxisTitle("# L1 Stubs per L1 Track", 1);
   Track_NStubs->setAxisTitle("# L1 Tracks", 2);
-  
-  /// Delete from main branch
-  //Phisector vs nb of stubs
-  edm::ParameterSet psTrack_NStubs_PhiSectorOrEtaWedge =  conf_.getParameter<edm::ParameterSet>("TH2_NStubs_PhiSectorOrEtaWedge");
-  HistoName = "Track_NStubs_PhiSector";
-  Track_NStubs_PhiSector = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<int32_t>("Nbinsx"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("xmin"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("xmax"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<int32_t>("Nbinsy"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymin"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymax"));
-  Track_NStubs_PhiSector->setAxisTitle("#phi sector of the L1 Track", 1);
-  Track_NStubs_PhiSector->setAxisTitle("# L1 Stubs", 2);
-  
-  //EtaWedge vs nb of stubs
-  HistoName = "Track_NStubs_EtaWedge";
-  Track_NStubs_EtaWedge = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<int32_t>("Nbinsx"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("xmin"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("xmax"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<int32_t>("Nbinsy"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymin"),
-      psTrack_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymax"));
-  Track_NStubs_EtaWedge->setAxisTitle("#eta wedge of the L1 Track", 1);
-  Track_NStubs_EtaWedge->setAxisTitle("# L1 Stubs", 2);;
-  
-  edm::ParameterSet psPhiSectorOrEtaWedge_PhiOrEta =  conf_.getParameter<edm::ParameterSet>("TH2_PhiSectorOrEtaWedge_PhiOrEta");
-  HistoName = "Track_PhiSector_Track_Phi";
-  Track_PhiSector_Track_Phi = dqmStore_->book2D(HistoName, HistoName,
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<int32_t>("Nbinsx"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("xmin"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("xmax"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<int32_t>("Nbinsy"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("ymin"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("ymax"));
-  Track_PhiSector_Track_Phi->setAxisTitle("#phi sector of the L1 Track", 2);
-  Track_PhiSector_Track_Phi->setAxisTitle("L1 Track #phi", 1);
-  
-  HistoName = "Track_EtaWedge_Track_Eta";
-  Track_EtaWedge_Track_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<int32_t>("Nbinsx"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("xmin"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("xmax"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<int32_t>("Nbinsy"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("ymin"),
-      psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("ymax"));
-  Track_EtaWedge_Track_Eta->setAxisTitle("#eta wedge of the L1 Track", 2);
-  Track_EtaWedge_Track_Eta->setAxisTitle("L1 Track #eta", 1);
-  /// --------------------
   
   
   /// Low-quality tracks

@@ -108,11 +108,9 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       
       unsigned int nStubs     = tempTrackPtr->getStubRefs().size();
       
-      //double trackRInv  = tempTrackPtr->getRInv();
       double trackPt    = tempTrackPtr->getMomentum().perp();
       double trackPhi   = tempTrackPtr->getMomentum().phi();
       double trackEta   = tempTrackPtr->getMomentum().eta();
-//      double trackTheta = tempTrackPtr->getMomentum().theta();
       double trackVtxZ0 = tempTrackPtr->getPOCA().z();
       double trackChi2  = tempTrackPtr->getChi2();
       double trackChi2R = tempTrackPtr->getChi2Red();

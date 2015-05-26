@@ -27,10 +27,6 @@ public:
   
   MonitorElement* Track_N = 0;
   MonitorElement* Track_NStubs = 0;
-  MonitorElement* Track_NStubs_PhiSector = 0;
-  MonitorElement* Track_NStubs_EtaWedge = 0;
-  MonitorElement* Track_PhiSector_Track_Phi = 0;
-  MonitorElement* Track_EtaWedge_Track_Eta = 0;
   
   /// Low-quality TTTracks (made from less than X TTStubs)
   MonitorElement* Track_LQ_N = 0;

@@ -21,26 +21,6 @@ OuterTrackerMonitorTrack = cms.EDAnalyzer('OuterTrackerMonitorTrack',
         xmin = cms.double(-0.5)
         ),
 
-# Nb of stubs vs phi sector or eta wedge
-    TH2_NStubs_PhiSectorOrEtaWedge = cms.PSet(
-        Nbinsx = cms.int32(35),
-        xmax = cms.double(34.5),                      
-        xmin = cms.double(-0.5),
-        Nbinsy = cms.int32(20), 
-        ymax = cms.double(19.5),
-        ymin = cms.double(-0.5)
-        ),
-	
-# Sector or wedge vs resp Phi or eta track
-    TH2_PhiSectorOrEtaWedge_PhiOrEta = cms.PSet(
-        Nbinsx = cms.int32(200),
-        xmax = cms.double(4),                      
-        xmin = cms.double(-4),
-        Nbinsy = cms.int32(35), 
-        ymax = cms.double(34.5),
-        ymin = cms.double(-0.5)
-        ),
-
 #Pt of the track
     TH1_Track_Pt = cms.PSet(
         Nbinsx = cms.int32(50),

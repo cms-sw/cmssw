@@ -4,9 +4,7 @@ from Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi import *
 from DQM.Phase2OuterTracker.OuterTrackerMonitorCluster_cfi import *
 from DQM.Phase2OuterTracker.OuterTrackerMonitorStub_cfi import *
 from DQM.Phase2OuterTracker.OuterTrackerMonitorTrack_cfi import *
-from DQM.Phase2OuterTracker.OuterTrackerMonitorPixelDigiMaps_cfi import *
 
 OuterTrackerSource = cms.Sequence(OuterTrackerMonitorCluster * 
 				  OuterTrackerMonitorStub *
-				  OuterTrackerMonitorTrack *
-				  OuterTrackerMonitorPixelDigiMaps )
+				  OuterTrackerMonitorTrack )
