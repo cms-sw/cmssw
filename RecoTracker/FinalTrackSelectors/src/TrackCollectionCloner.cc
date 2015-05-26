@@ -87,15 +87,18 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
 
 TrackCollectionCloner::Producer::~Producer() {
   selTracks_->shrink_to_fit();
+  auto tsize = selTracks_->size();
   evt.put(std::move(selTracks_));
   if (copyExtras_) {
     selTrackExtras_->shrink_to_fit();
+    assert(selTrackExtras_->size()==tsize);
     selHits_->shrink_to_fit();
     evt.put(std::move(selTrackExtras_));
     evt.put(std::move(selHits_));
     if ( copyTrajectories_ ) {
-      evt.put(std::move(selTrajs_));
       selTrajs_->shrink_to_fit();
+      assert(selTrajs_->size()==tsize);
+      evt.put(std::move(selTrajs_));
       evt.put(std::move(selTTAss_));
     }
   }
