@@ -113,7 +113,7 @@ lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.6),
             mvaType = cms.string("Prompt"),
@@ -123,13 +123,13 @@ lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'lowPtTripletStepTight',
             preFilterName = 'lowPtTripletStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
             mvaType = cms.string("Prompt"),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStep',
             preFilterName = 'lowPtTripletStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.0),
             mvaType = cms.string("Prompt"),

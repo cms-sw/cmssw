@@ -267,7 +267,7 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'tobTecStepLoose',
             chi2n_par = 9999,
-            GBRForestLabel = cms.string('MVASelectorIter6_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter6_13TeV'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.6),
             #chi2n_par = 0.4,
@@ -283,7 +283,7 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'tobTecStepTight',
             preFilterName = 'tobTecStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter6_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter6_13TeV'),
             chi2n_par = 0.3,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -298,7 +298,7 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
             name = 'tobTecStep',
             preFilterName = 'tobTecStepLoose',
             chi2n_par = cms.double(9999),
-            GBRForestLabel = cms.string('MVASelectorIter6_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter6_13TeV'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.6),
             qualityBit = cms.string('highPurity'),

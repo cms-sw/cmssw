@@ -117,7 +117,7 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     useAnyMVA = cms.bool(True),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter2_13TeV'),
             name = 'pixelPairStepLoose',
             useMVA = cms.bool(True),
             useMVAonly = cms.bool(True),
@@ -125,13 +125,13 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             mvaType = cms.string("Prompt"),
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter2_13TeV'),
             mvaType = cms.string("Prompt"),
             name = 'pixelPairStepTight',
             preFilterName = 'pixelPairStepLoose',
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v1'),
+            GBRForestLabel = cms.string('MVASelectorIter2_13TeV'),
             name = 'pixelPairStep',
             preFilterName = 'pixelPairStepLoose',
             mvaType = cms.string("Prompt"),
