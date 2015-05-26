@@ -7,6 +7,7 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("SimGeneral.TrackingAnalysis.Playback_cfi")
 process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("SimTracker.VertexAssociation.VertexAssociatorByTracks_cfi")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
 
@@ -60,14 +61,28 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string("testVertexAssociator_PrimVtx_2210_2210.root")
 )
 
+process.trackingParticleRecoTrackAsssociationByHits = process.trackingParticleRecoTrackAsssociation.clone(
+    associator = 'trackAssociatorByHits'
+)
+process.trackingParticleRecoTrackAsssociationByChi2 = process.trackingParticleRecoTrackAsssociation.clone(
+    associator = 'trackAssociatorByChi2'
+)
+
+process.vertexAssociatorByTracksByHits = process.VertexAssociatorByTracks.clone(
+    trackAssociation = "trackingParticleRecoTrackAsssociationByHits"
+)
 
 process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
     vertexCollection = cms.untracked.InputTag('offlinePrimaryVertices'),
-    associatorByChi2 = cms.untracked.InputTag('trackAssociatorByChi2'),
-    associatorByHits = cms.untracked.InputTag('trackAssociatorByHits'),
+    vertexAssociator = cms.untracked.InputTag('vertexAssociatorByTracksByHits'),
 )
 
-process.p = cms.Path( process.mix * process.trackingParticles * process.trackAssociatorByChi2 * process.trackAssociatorByHits * process.testanalyzer )
+
+process.p = cms.Path( process.mix * process.trackingParticles *
+                      process.trackAssociatorByChi2  * process.trackAssociatorByHits *
+                      process.trackingParticleRecoTrackAsssociationByChi2 * process.trackingParticleRecoTrackAsssociationByHits *
+                      process.vertexAssociatorByTracksByHits *
+                      process.testanalyzer )
 
 
 
