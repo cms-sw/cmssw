@@ -112,9 +112,8 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
       bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
       bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
-      //bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
-      //int partClu         = 999999999;
-      if ( genuineClu ) edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr(tempCluRef);  //partClu = thisTP->pdgId();
+      
+      if ( genuineClu ) edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr(tempCluRef);
       
       GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
       
@@ -171,8 +170,8 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if ( genuineClu ) Cluster_Gen_Eta->Fill( posClu.eta() );
       else if ( combinClu ) Cluster_Comb_Eta->Fill( posClu.eta() );
       else Cluster_Unkn_Eta->Fill( posClu.eta() );      
-    }	// end loop contentIter
-  }	// end loop inputIter
+    } // end loop contentIter
+  } // end loop inputIter
   
 }
 
@@ -188,7 +187,6 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   std::string HistoName;
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
-  
   
   edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Gen_Eta";
@@ -342,8 +340,8 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
     }
 
     for(int i=0;i<5;i++){
-        Char_t histo[200];
-        sprintf(histo, "NClusters_Comb_Disc+%d", i+1);
+      Char_t histo[200];
+      sprintf(histo, "NClusters_Comb_Disc+%d", i+1);
       Cluster_Comb_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
@@ -353,8 +351,8 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
     }
 
     for(int i=0;i<5;i++){
-        Char_t histo[200];
-        sprintf(histo, "NClusters_Comb_Disc-%d", i+1);
+      Char_t histo[200];
+      sprintf(histo, "NClusters_Comb_Disc-%d", i+1);
       Cluster_Comb_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
@@ -365,7 +363,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   
   } /// End verbosePlots
   
-}//end of method
+} //end of method
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

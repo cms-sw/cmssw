@@ -165,7 +165,6 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       
       
-      
       /// Check if this TP produced any clusters
       std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > > theseClusters = MCTruthTTClusterHandle->findTTClusterRefs( tempTPPtr );
       
@@ -239,7 +238,6 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           }
         }
       }
-      
       
       
       /// Check if the TP produced any stubs
@@ -352,7 +350,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       } /// End verbosePlots
       
-    }	/// End TrackingParticles
+    } /// End TrackingParticles
   } /// End if there are TrackingParticles
   
   
@@ -373,8 +371,6 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       //StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
       unsigned int memberClu = tempCluRef->getStackMember();
       bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
-      //bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
-      //bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
       int partClu         = 999999999;
       if ( genuineClu )
       {
@@ -500,7 +496,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       double trackPt    = tempTrackPtr->getMomentum().perp();
       double trackPhi   = tempTrackPtr->getMomentum().phi();
       double trackEta   = tempTrackPtr->getMomentum().eta();
-//      double trackTheta = tempTrackPtr->getMomentum().theta();
+      //double trackTheta = tempTrackPtr->getMomentum().theta();
       double trackVtxZ0 = tempTrackPtr->getPOCA().z();
       double trackChi2  = tempTrackPtr->getChi2();
       double trackChi2R = tempTrackPtr->getChi2Red();
@@ -545,7 +541,6 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       else
       {
-        
         Track_LQ_Chi2_TPart_Eta->Fill( tpEta, trackChi2 );
         Track_LQ_Chi2Red_TPart_Eta->Fill( tpEta, trackChi2R ); 
         
@@ -913,6 +908,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
   Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
   Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
+  
   
   /// Plots for debugging
   if ( verbosePlots_ )
@@ -1293,12 +1289,11 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psTrack_Sim_VtxRes.getParameter<double>("ymax"));
     Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("TPart #eta", 1);
     Track_LQ_VtxZ0Res_TPart_Eta->setAxisTitle("L1 Track Vertex z - TPart Vertex z [cm]", 2);
-
-
-
+    
+    
     dqmStore_->setCurrentFolder(topFolderName_+"/TTTrackVSTPart/HQ");
-
-	  // Pt
+    
+    // Pt
     HistoName = "Track_HQ_Pt_TPart_Pt";
     Track_HQ_Pt_TPart_Pt = dqmStore_->book2D(HistoName, HistoName,
         psTrack_Sim_Pt.getParameter<int32_t>("Nbinsx"),

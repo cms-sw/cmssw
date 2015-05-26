@@ -21,7 +21,6 @@ public:
   explicit OuterTrackerMCTruth(const edm::ParameterSet&);
   ~OuterTrackerMCTruth();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
@@ -70,9 +69,9 @@ public:
   
   // Track Chi2(Red)
   MonitorElement* Track_LQ_Chi2_TPart_Eta = 0;
-	MonitorElement* Track_LQ_Chi2Red_TPart_Eta = 0;
+  MonitorElement* Track_LQ_Chi2Red_TPart_Eta = 0;
   MonitorElement* Track_HQ_Chi2_TPart_Eta = 0;
-	MonitorElement* Track_HQ_Chi2Red_TPart_Eta = 0;
+  MonitorElement* Track_HQ_Chi2Red_TPart_Eta = 0;
   
   
   // Stubs vs. TrackingParticles
@@ -104,28 +103,28 @@ public:
   
   
   // Tracks vs. TrackingParticles
-	MonitorElement* Track_LQ_Pt_TPart_Pt = 0;
-	MonitorElement* Track_LQ_PtRes_TPart_Eta = 0;
-	MonitorElement* Track_LQ_InvPt_TPart_InvPt = 0;
-	MonitorElement* Track_LQ_InvPtRes_TPart_Eta = 0;
-	MonitorElement* Track_LQ_Phi_TPart_Phi = 0;
-	MonitorElement* Track_LQ_PhiRes_TPart_Eta = 0;
-	MonitorElement* Track_LQ_Eta_TPart_Eta = 0;
-	MonitorElement* Track_LQ_EtaRes_TPart_Eta = 0;
-	MonitorElement* Track_LQ_VtxZ0_TPart_VtxZ0 = 0;
-	MonitorElement* Track_LQ_VtxZ0Res_TPart_Eta = 0;
+  MonitorElement* Track_LQ_Pt_TPart_Pt = 0;
+  MonitorElement* Track_LQ_PtRes_TPart_Eta = 0;
+  MonitorElement* Track_LQ_InvPt_TPart_InvPt = 0;
+  MonitorElement* Track_LQ_InvPtRes_TPart_Eta = 0;
+  MonitorElement* Track_LQ_Phi_TPart_Phi = 0;
+  MonitorElement* Track_LQ_PhiRes_TPart_Eta = 0;
+  MonitorElement* Track_LQ_Eta_TPart_Eta = 0;
+  MonitorElement* Track_LQ_EtaRes_TPart_Eta = 0;
+  MonitorElement* Track_LQ_VtxZ0_TPart_VtxZ0 = 0;
+  MonitorElement* Track_LQ_VtxZ0Res_TPart_Eta = 0;
   
   MonitorElement* Track_HQ_Pt_TPart_Pt = 0;
-	MonitorElement* Track_HQ_PtRes_TPart_Eta = 0;
-	MonitorElement* Track_HQ_InvPt_TPart_InvPt = 0;
-	MonitorElement* Track_HQ_InvPtRes_TPart_Eta = 0;
-	MonitorElement* Track_HQ_Phi_TPart_Phi = 0;
-	MonitorElement* Track_HQ_PhiRes_TPart_Eta = 0;
-	MonitorElement* Track_HQ_Eta_TPart_Eta = 0;
-	MonitorElement* Track_HQ_EtaRes_TPart_Eta = 0;
-	MonitorElement* Track_HQ_VtxZ0_TPart_VtxZ0 = 0;
-	MonitorElement* Track_HQ_VtxZ0Res_TPart_Eta = 0;
-
+  MonitorElement* Track_HQ_PtRes_TPart_Eta = 0;
+  MonitorElement* Track_HQ_InvPt_TPart_InvPt = 0;
+  MonitorElement* Track_HQ_InvPtRes_TPart_Eta = 0;
+  MonitorElement* Track_HQ_Phi_TPart_Phi = 0;
+  MonitorElement* Track_HQ_PhiRes_TPart_Eta = 0;
+  MonitorElement* Track_HQ_Eta_TPart_Eta = 0;
+  MonitorElement* Track_HQ_EtaRes_TPart_Eta = 0;
+  MonitorElement* Track_HQ_VtxZ0_TPart_VtxZ0 = 0;
+  MonitorElement* Track_HQ_VtxZ0Res_TPart_Eta = 0;
+  
   
  private:
   DQMStore* dqmStore_;

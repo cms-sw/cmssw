@@ -22,34 +22,32 @@ public:
   explicit OuterTrackerTrack(const edm::ParameterSet&);
   ~OuterTrackerTrack();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void beginJob() ;
-  //virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   
   
-	MonitorElement* Track_NStubs = 0;
+  MonitorElement* Track_NStubs = 0;
   
   /// Low-quality TTTracks (made from less than X TTStubs)
-	MonitorElement* Track_LQ_N = 0;
-	MonitorElement* Track_LQ_Pt = 0;
-	MonitorElement* Track_LQ_Eta = 0;
-	MonitorElement* Track_LQ_Phi = 0;
+  MonitorElement* Track_LQ_N = 0;
+  MonitorElement* Track_LQ_Pt = 0;
+  MonitorElement* Track_LQ_Eta = 0;
+  MonitorElement* Track_LQ_Phi = 0;
   MonitorElement* Track_LQ_VtxZ0 = 0;
   MonitorElement* Track_LQ_Chi2 = 0;
   MonitorElement* Track_LQ_Chi2Red = 0;
   MonitorElement* Track_LQ_Chi2_NStubs = 0;
-	MonitorElement* Track_LQ_Chi2Red_NStubs = 0;
+  MonitorElement* Track_LQ_Chi2Red_NStubs = 0;
   
   /// High-quality TTTracks (made from at least X TTStubs)
-	MonitorElement* Track_HQ_N = 0;
-	MonitorElement* Track_HQ_Pt = 0;
-	MonitorElement* Track_HQ_Eta = 0;
-	MonitorElement* Track_HQ_Phi = 0;
+  MonitorElement* Track_HQ_N = 0;
+  MonitorElement* Track_HQ_Pt = 0;
+  MonitorElement* Track_HQ_Eta = 0;
+  MonitorElement* Track_HQ_Phi = 0;
   MonitorElement* Track_HQ_VtxZ0 = 0;
   MonitorElement* Track_HQ_Chi2 = 0;
   MonitorElement* Track_HQ_Chi2Red = 0;
   MonitorElement* Track_HQ_Chi2_NStubs = 0;
-	MonitorElement* Track_HQ_Chi2Red_NStubs = 0;
+  MonitorElement* Track_HQ_Chi2Red_NStubs = 0;
   
   
  private:

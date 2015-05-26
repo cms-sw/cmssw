@@ -90,13 +90,6 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
 	
 	
-  /// TrackingParticles
-  //edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
-  //iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
-  //edm::Handle< std::vector< TrackingVertex > > TrackingVertexHandle;
-  //iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingVertexHandle );
-  
-  
   unsigned int numHQTracks = 0;
   unsigned int numLQTracks = 0;
   
@@ -187,8 +180,6 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_NStubs.getParameter<double>("xmax"));
   Track_NStubs->setAxisTitle("# L1 Stubs per L1 Track", 1);
   Track_NStubs->setAxisTitle("# Genuine L1 Tracks", 2);
-  
-  
   
   
   /// Plots where all TTTracks are made from up to X TTStubs
@@ -291,8 +282,6 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   Track_LQ_Chi2Red_NStubs->setAxisTitle("Genuine L1 Track #chi^{2}/ndf", 2);
   
   
-  
-  
   /// Plots where all TTTracks are made from at least 3 TTStubs
   dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/HQ/");
   
@@ -378,36 +367,12 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Chi2Red_NStubs.getParameter<double>("xmin"),
       psTrack_Chi2Red_NStubs.getParameter<double>("xmax"),
       psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsy"),
-     	psTrack_Chi2Red_NStubs.getParameter<double>("ymin"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("ymin"),
       psTrack_Chi2Red_NStubs.getParameter<double>("ymax"));
   Track_HQ_Chi2Red_NStubs->setAxisTitle("# L1 Stubs", 1);
   Track_HQ_Chi2Red_NStubs->setAxisTitle(" Genuine L1 Track #chi^{2}/ndf", 2);
   
 }
-
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-OuterTrackerTrack::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-// ------------ method called once each job just before starting event loop  ------------
-/*
-void 
-OuterTrackerTrack::beginJob()
-{
-}
-*/
-
-// ------------ method called once each job just after ending the event loop  ------------
-/*
-void 
-OuterTrackerTrack::endJob() 
-{
-}
-*/
 
 
 //define this as a plug-in

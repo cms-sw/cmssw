@@ -75,53 +75,53 @@ void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::Ev
   theStackedGeometry = StackedGeometryHandle.product();
   
   /// Loop over the input Clusters
-	typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
-	typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
-	for ( inputIter = PixelDigiTTClusterHandle->begin();
-			 inputIter != PixelDigiTTClusterHandle->end();
-			 ++inputIter )
-	{
-		for(contentIter = inputIter->begin(); contentIter != inputIter->end(); ++contentIter)
-		{
-			edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
-			StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
-			unsigned int memberClu = tempCluRef->getStackMember();
-			unsigned int widClu = tempCluRef->findWidth();
+  typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
+  for ( inputIter = PixelDigiTTClusterHandle->begin();
+       inputIter != PixelDigiTTClusterHandle->end();
+       ++inputIter )
+  {
+    for(contentIter = inputIter->begin(); contentIter != inputIter->end(); ++contentIter)
+    {
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+      StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
+      unsigned int memberClu = tempCluRef->getStackMember();
+      unsigned int widClu = tempCluRef->findWidth();
       
       GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
-  
+      
       double eta = posClu.eta();
       
-			Cluster_W->Fill(widClu, memberClu);
+      Cluster_W->Fill(widClu, memberClu);
       Cluster_Eta->Fill(eta);
-			
-			Cluster_RZ->Fill( posClu.z(), posClu.perp() );
-
-			if ( detIdClu.isBarrel() )
-			{
-				
-				if (memberClu == 0) Cluster_IMem_Barrel->Fill(detIdClu.iLayer());
-				else Cluster_OMem_Barrel->Fill(detIdClu.iLayer());
-				
-				Cluster_Barrel_XY->Fill( posClu.x(), posClu.y() );
+      
+      Cluster_RZ->Fill( posClu.z(), posClu.perp() );
+      
+      if ( detIdClu.isBarrel() )
+      {
+        
+        if (memberClu == 0) Cluster_IMem_Barrel->Fill(detIdClu.iLayer());
+        else Cluster_OMem_Barrel->Fill(detIdClu.iLayer());
+        
+        Cluster_Barrel_XY->Fill( posClu.x(), posClu.y() );
         Cluster_Barrel_XY_Zoom->Fill( posClu.x(), posClu.y() );
-			
-			}	// end if isBarrel()
-			else if (detIdClu.isEndcap())
-			{
-				
-				if (memberClu == 0)
+        
+      }	// end if isBarrel()
+      else if (detIdClu.isEndcap())
+      {
+        
+        if (memberClu == 0)
         {
           Cluster_IMem_Endcap_Disc->Fill(detIdClu.iDisk());
           Cluster_IMem_Endcap_Ring->Fill(detIdClu.iRing());
         }
-				else
+        else
         {
           Cluster_OMem_Endcap_Disc->Fill(detIdClu.iDisk());
           Cluster_OMem_Endcap_Ring->Fill(detIdClu.iRing());
-				}
+        }
         
-				if ( posClu.z() > 0 )
+        if ( posClu.z() > 0 )
         {
           Cluster_Endcap_Fw_XY->Fill( posClu.x(), posClu.y() );
           Cluster_Endcap_Fw_RZ_Zoom->Fill( posClu.z(), posClu.perp() );
@@ -135,10 +135,10 @@ void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::Ev
           if (memberClu == 0) Cluster_IMem_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill(detIdClu.iRing());
           else Cluster_OMem_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill(detIdClu.iRing());
         }
-			
-			}	// end if isEndcap()
-		}	// end loop contentIter
-	}	// end loop inputIter
+        
+      } // end if isEndcap()
+    } // end loop contentIter
+  } // end loop inputIter
 } // end of method
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -146,30 +146,29 @@ void
 OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
   SiStripFolderOrganizer folder_organizer;
-	folder_organizer.setSiStripFolderName(topFolderName_);
-	folder_organizer.setSiStripFolder();	
-	std::string HistoName;
+  folder_organizer.setSiStripFolderName(topFolderName_);
+  folder_organizer.setSiStripFolder();	
+  std::string HistoName;
   
-	dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClusters");
-	
+  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClusters");
   
-	// NClusters
-	edm::ParameterSet psTTCluster_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Barrel");
-	HistoName = "NClusters_IMem_Barrel";
-	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-	    psTTCluster_Barrel.getParameter<int32_t>("Nbinsx"),
-	    psTTCluster_Barrel.getParameter<double>("xmin"),
-	    psTTCluster_Barrel.getParameter<double>("xmax"));
-	Cluster_IMem_Barrel->setAxisTitle("Barrel Layer", 1);
-	Cluster_IMem_Barrel->setAxisTitle("# L1 Clusters", 2);
-	
-	HistoName = "NClusters_OMem_Barrel";
-	Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-	    psTTCluster_Barrel.getParameter<int32_t>("Nbinsx"),
-	    psTTCluster_Barrel.getParameter<double>("xmin"),
-	    psTTCluster_Barrel.getParameter<double>("xmax"));
-	Cluster_OMem_Barrel->setAxisTitle("Barrel Layer", 1);
-	Cluster_OMem_Barrel->setAxisTitle("# L1 Clusters", 2);
+  // NClusters
+  edm::ParameterSet psTTCluster_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Barrel");
+  HistoName = "NClusters_IMem_Barrel";
+  Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
+      psTTCluster_Barrel.getParameter<int32_t>("Nbinsx"),
+      psTTCluster_Barrel.getParameter<double>("xmin"),
+      psTTCluster_Barrel.getParameter<double>("xmax"));
+  Cluster_IMem_Barrel->setAxisTitle("Barrel Layer", 1);
+  Cluster_IMem_Barrel->setAxisTitle("# L1 Clusters", 2);
+  
+  HistoName = "NClusters_OMem_Barrel";
+  Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
+      psTTCluster_Barrel.getParameter<int32_t>("Nbinsx"),
+      psTTCluster_Barrel.getParameter<double>("xmin"),
+      psTTCluster_Barrel.getParameter<double>("xmax"));
+  Cluster_OMem_Barrel->setAxisTitle("Barrel Layer", 1);
+  Cluster_OMem_Barrel->setAxisTitle("# L1 Clusters", 2);
   
   edm::ParameterSet psTTCluster_ECDisc =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_ECDiscs");
   HistoName = "NClusters_IMem_Endcap_Disc";
@@ -179,32 +178,31 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_ECDisc.getParameter<double>("xmax"));
   Cluster_IMem_Endcap_Disc->setAxisTitle("Endcap Disc", 1);
   Cluster_IMem_Endcap_Disc->setAxisTitle("# L1 Clusters", 2);
-	
-	HistoName = "NClusters_OMem_Endcap_Disc";
-	Cluster_OMem_Endcap_Disc = dqmStore_->book1D(HistoName, HistoName,
-	    psTTCluster_ECDisc.getParameter<int32_t>("Nbinsx"),
-	    psTTCluster_ECDisc.getParameter<double>("xmin"),
-	    psTTCluster_ECDisc.getParameter<double>("xmax"));
-	Cluster_OMem_Endcap_Disc->setAxisTitle("Endcap Disc", 1);
-	Cluster_OMem_Endcap_Disc->setAxisTitle("# L1 Clusters", 2);
   
-  edm::ParameterSet psTTCluster_ECRing =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_ECRings");
+  HistoName = "NClusters_OMem_Endcap_Disc";
+  Cluster_OMem_Endcap_Disc = dqmStore_->book1D(HistoName, HistoName,
+      psTTCluster_ECDisc.getParameter<int32_t>("Nbinsx"),
+      psTTCluster_ECDisc.getParameter<double>("xmin"),
+      psTTCluster_ECDisc.getParameter<double>("xmax"));
+  Cluster_OMem_Endcap_Disc->setAxisTitle("Endcap Disc", 1);
+  Cluster_OMem_Endcap_Disc->setAxisTitle("# L1 Clusters", 2);
   
+  edm::ParameterSet psTTCluster_ECRing =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_ECRings");  
   HistoName = "NClusters_IMem_Endcap_Ring";
-	Cluster_IMem_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
-	    psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
-	    psTTCluster_ECRing.getParameter<double>("xmin"),
-	    psTTCluster_ECRing.getParameter<double>("xmax"));
-	Cluster_IMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
-	Cluster_IMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
+  Cluster_IMem_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
+      psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
+      psTTCluster_ECRing.getParameter<double>("xmin"),
+      psTTCluster_ECRing.getParameter<double>("xmax"));
+  Cluster_IMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
+  Cluster_IMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
   
   HistoName = "NClusters_OMem_Endcap_Ring";
-	Cluster_OMem_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
-	    psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
-	    psTTCluster_ECRing.getParameter<double>("xmin"),
-	    psTTCluster_ECRing.getParameter<double>("xmax"));
-	Cluster_OMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
-	Cluster_OMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
+  Cluster_OMem_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
+      psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
+      psTTCluster_ECRing.getParameter<double>("xmin"),
+      psTTCluster_ECRing.getParameter<double>("xmax"));
+  Cluster_OMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
+  Cluster_OMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
   
   for(int i=0;i<5;i++){
     Char_t histo[200];
@@ -277,11 +275,10 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
   Cluster_Eta->setAxisTitle("# L1 Clusters", 2);
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/Position");
-	
-	//Position plots
-	edm::ParameterSet psTTCluster_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Position");
+  
+  //Position plots
+  edm::ParameterSet psTTCluster_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Position");
   HistoName = "Cluster_Barrel_XY";
-  //book the histogram
   Cluster_Barrel_XY = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_Barrel_XY.getParameter<int32_t>("Nbinsx"),
       psTTCluster_Barrel_XY.getParameter<double>("xmin"),
@@ -289,13 +286,11 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_Barrel_XY.getParameter<int32_t>("Nbinsy"),
       psTTCluster_Barrel_XY.getParameter<double>("ymin"),
       psTTCluster_Barrel_XY.getParameter<double>("ymax"));
-  //set titles
   Cluster_Barrel_XY->setAxisTitle("L1 Cluster Barrel position x [cm]", 1);
   Cluster_Barrel_XY->setAxisTitle("L1 Cluster Barrel position y [cm]", 2);
   
   edm::ParameterSet psTTCluster_Barrel_XY_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Barrel_XY_Zoom");
   HistoName = "Cluster_Barrel_XY_Zoom";
-  //book the histogram
   Cluster_Barrel_XY_Zoom = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_Barrel_XY_Zoom.getParameter<int32_t>("Nbinsx"),
       psTTCluster_Barrel_XY_Zoom.getParameter<double>("xmin"),
@@ -303,14 +298,11 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_Barrel_XY_Zoom.getParameter<int32_t>("Nbinsy"),
       psTTCluster_Barrel_XY_Zoom.getParameter<double>("ymin"),
       psTTCluster_Barrel_XY_Zoom.getParameter<double>("ymax"));
-  //set titles
   Cluster_Barrel_XY_Zoom->setAxisTitle("L1 Cluster Barrel position x [cm]", 1);
   Cluster_Barrel_XY_Zoom->setAxisTitle("L1 Cluster Barrel position y [cm]", 2);
   
-  
   edm::ParameterSet psTTCluster_Endcap_Fw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Position");
   HistoName = "Cluster_Endcap_Fw_XY";
-  //book the histogram
   Cluster_Endcap_Fw_XY = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_Endcap_Fw_XY.getParameter<int32_t>("Nbinsx"),
       psTTCluster_Endcap_Fw_XY.getParameter<double>("xmin"),
@@ -318,14 +310,11 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_Endcap_Fw_XY.getParameter<int32_t>("Nbinsy"),
       psTTCluster_Endcap_Fw_XY.getParameter<double>("ymin"),
       psTTCluster_Endcap_Fw_XY.getParameter<double>("ymax"));
-  //set titles
   Cluster_Endcap_Fw_XY->setAxisTitle("L1 Cluster Forward Endcap position x [cm]", 1);
   Cluster_Endcap_Fw_XY->setAxisTitle("L1 Cluster Forward Endcap position y [cm]", 2);
   
-  
   edm::ParameterSet psTTCluster_Endcap_Bw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Position");
   HistoName = "Cluster_Endcap_Bw_XY";
-  //book the histogram
   Cluster_Endcap_Bw_XY = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_Endcap_Bw_XY.getParameter<int32_t>("Nbinsx"),
       psTTCluster_Endcap_Bw_XY.getParameter<double>("xmin"),
@@ -333,14 +322,12 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_Endcap_Bw_XY.getParameter<int32_t>("Nbinsy"),
       psTTCluster_Endcap_Bw_XY.getParameter<double>("ymin"),
       psTTCluster_Endcap_Bw_XY.getParameter<double>("ymax"));
-  //set titles
   Cluster_Endcap_Bw_XY->setAxisTitle("L1 Cluster Backward Endcap position x [cm]", 1);
   Cluster_Endcap_Bw_XY->setAxisTitle("L1 Cluster Backward Endcap position y [cm]", 2);
   
   //TTCluster #rho vs. z
   edm::ParameterSet psTTCluster_RZ =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_RZ");
   HistoName = "Cluster_RZ";
-  //book the histogram
   Cluster_RZ = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_RZ.getParameter<int32_t>("Nbinsx"),
       psTTCluster_RZ.getParameter<double>("xmin"),
@@ -348,14 +335,12 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_RZ.getParameter<int32_t>("Nbinsy"),
       psTTCluster_RZ.getParameter<double>("ymin"),
       psTTCluster_RZ.getParameter<double>("ymax"));
-  //set titles
   Cluster_RZ->setAxisTitle("L1 Cluster position z [cm]", 1);
   Cluster_RZ->setAxisTitle("L1 Cluster position #rho [cm]", 2);
   
   //TTCluster Forward Endcap #rho vs. z
   edm::ParameterSet psTTCluster_Endcap_Fw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Endcap_Fw_RZ_Zoom");
   HistoName = "Cluster_Endcap_Fw_RZ_Zoom";
-  //book the histogram
   Cluster_Endcap_Fw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_Endcap_Fw_RZ_Zoom.getParameter<int32_t>("Nbinsx"),
       psTTCluster_Endcap_Fw_RZ_Zoom.getParameter<double>("xmin"),
@@ -363,14 +348,12 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_Endcap_Fw_RZ_Zoom.getParameter<int32_t>("Nbinsy"),
       psTTCluster_Endcap_Fw_RZ_Zoom.getParameter<double>("ymin"),
       psTTCluster_Endcap_Fw_RZ_Zoom.getParameter<double>("ymax"));
-  //set titles
   Cluster_Endcap_Fw_RZ_Zoom->setAxisTitle("L1 Cluster Forward Endcap position z [cm]", 1);
   Cluster_Endcap_Fw_RZ_Zoom->setAxisTitle("L1 Cluster Forward Endcap position #rho [cm]", 2);
   
   //TTCluster Backward Endcap #rho vs. z
   edm::ParameterSet psTTCluster_Endcap_Bw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Endcap_Bw_RZ_Zoom");
   HistoName = "Cluster_Endcap_Bw_RZ_Zoom";
-  //book the histogram
   Cluster_Endcap_Bw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
       psTTCluster_Endcap_Bw_RZ_Zoom.getParameter<int32_t>("Nbinsx"),
       psTTCluster_Endcap_Bw_RZ_Zoom.getParameter<double>("xmin"),
@@ -378,7 +361,6 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
       psTTCluster_Endcap_Bw_RZ_Zoom.getParameter<int32_t>("Nbinsy"),
       psTTCluster_Endcap_Bw_RZ_Zoom.getParameter<double>("ymin"),
       psTTCluster_Endcap_Bw_RZ_Zoom.getParameter<double>("ymax"));
-  //set titles
   Cluster_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Cluster Backward Endcap position z [cm]", 1);
   Cluster_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Cluster Backward Endcap position #rho [cm]", 2);
                                   

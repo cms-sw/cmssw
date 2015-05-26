@@ -24,21 +24,21 @@ public:
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-	// TTCluster stacks
-	MonitorElement* Cluster_IMem_Barrel = 0;
-	MonitorElement* Cluster_IMem_Endcap_Disc = 0;
+  // TTCluster stacks
+  MonitorElement* Cluster_IMem_Barrel = 0;
+  MonitorElement* Cluster_IMem_Endcap_Disc = 0;
   MonitorElement* Cluster_IMem_Endcap_Ring = 0;
   MonitorElement* Cluster_IMem_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
   MonitorElement* Cluster_IMem_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
-	MonitorElement* Cluster_OMem_Barrel = 0;
-	MonitorElement* Cluster_OMem_Endcap_Disc = 0;
+  MonitorElement* Cluster_OMem_Barrel = 0;
+  MonitorElement* Cluster_OMem_Endcap_Disc = 0;
   MonitorElement* Cluster_OMem_Endcap_Ring = 0;
   MonitorElement* Cluster_OMem_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
   MonitorElement* Cluster_OMem_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
-	MonitorElement* Cluster_W = 0;
+  MonitorElement* Cluster_W = 0;
   MonitorElement* Cluster_Eta = 0;
-	
-	MonitorElement* Cluster_Barrel_XY = 0;
+  
+  MonitorElement* Cluster_Barrel_XY = 0;
   MonitorElement* Cluster_Barrel_XY_Zoom = 0;
   MonitorElement* Cluster_Endcap_Fw_XY = 0;
   MonitorElement* Cluster_Endcap_Bw_XY = 0;

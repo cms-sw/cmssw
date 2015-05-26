@@ -112,14 +112,6 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
       bool combinStub     = MCTruthTTStubHandle->isCombinatoric( tempStubRef );
-      //bool unknownStub    = MCTruthTTStubHandle->isUnknown( tempStubRef );
-      /* //Necessary for StubPID histo. Here or in MCTruth analyzer?
-      int partStub         = 999999999;
-      if ( genuineStub )
-      {
-        edm::Ptr< TrackingParticle > thisTP = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubRef );
-        partStub = thisTP->pdgId();
-      }*/
       
       GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );
       
@@ -193,7 +185,6 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
   std::string HistoName;
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/");
-  
   
   edm::ParameterSet psTTStubEta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Gen_Eta";

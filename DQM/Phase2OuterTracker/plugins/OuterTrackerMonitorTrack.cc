@@ -86,14 +86,15 @@ void OuterTrackerMonitorTrack::analyze(const edm::Event& iEvent, const edm::Even
       /// Make the pointer
       edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
       numTracks++;
-
+      
       unsigned int nStubs = tempTrackPtr->getStubRefs().size();
-
+      
+      /// Delete from main branch
       unsigned int seedSector = tempTrackPtr->getSector();
       unsigned int seedWedge = tempTrackPtr->getWedge();
       //std::cout << "Sector = " << seedSector << " - Wedge = " << seedWedge << std::endl; 
-
-
+      /// -----------------------
+      
       double trackPt = tempTrackPtr->getMomentum().perp();
       double trackPhi = tempTrackPtr->getMomentum().phi();
       double trackEta = tempTrackPtr->getMomentum().eta();
@@ -101,45 +102,46 @@ void OuterTrackerMonitorTrack::analyze(const edm::Event& iEvent, const edm::Even
       double trackVtxZ0 = tempTrackPtr->getPOCA().z();
       double trackChi2 = tempTrackPtr->getChi2();
       double trackChi2R = tempTrackPtr->getChi2Red();
-
+      
       Track_NStubs->Fill(nStubs);
+      /// Delete from main branch
       Track_NStubs_PhiSector->Fill(seedSector,nStubs); 
       Track_NStubs_EtaWedge->Fill(seedWedge,nStubs);
       Track_PhiSector_Track_Phi->Fill( trackPhi, seedSector );
       Track_EtaWedge_Track_Eta->Fill( trackEta, seedWedge ); 
-
-
+      /// -----------------------
+      
       if ( nStubs >= HQDelim_ )
       {
         numHQTracks++;
-
-	      Track_HQ_Pt->Fill( trackPt );
-	      Track_HQ_Eta->Fill( trackEta );
-	      Track_HQ_Phi->Fill( trackPhi );
-	      Track_HQ_VtxZ0->Fill( trackVtxZ0 );
-	      Track_HQ_Chi2->Fill( trackChi2 );
-	      Track_HQ_Chi2Red->Fill( trackChi2R );
         
-	      Track_HQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
-	      Track_HQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );
+        Track_HQ_Pt->Fill( trackPt );
+        Track_HQ_Eta->Fill( trackEta );
+        Track_HQ_Phi->Fill( trackPhi );
+        Track_HQ_VtxZ0->Fill( trackVtxZ0 );
+        Track_HQ_Chi2->Fill( trackChi2 );
+        Track_HQ_Chi2Red->Fill( trackChi2R );
+        
+        Track_HQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
+        Track_HQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );
       }
       else
       {
         numLQTracks++;
-
-	      Track_LQ_Pt->Fill( trackPt );
-	      Track_LQ_Eta->Fill( trackEta );
-	      Track_LQ_Phi->Fill( trackPhi );
-	      Track_LQ_VtxZ0->Fill( trackVtxZ0 );
-	      Track_LQ_Chi2->Fill( trackChi2 );
-	      Track_LQ_Chi2Red->Fill( trackChi2R );
         
-	      Track_LQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
-	      Track_LQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );
+        Track_LQ_Pt->Fill( trackPt );
+        Track_LQ_Eta->Fill( trackEta );
+        Track_LQ_Phi->Fill( trackPhi );
+        Track_LQ_VtxZ0->Fill( trackVtxZ0 );
+        Track_LQ_Chi2->Fill( trackChi2 );
+        Track_LQ_Chi2Red->Fill( trackChi2R );
+        
+        Track_LQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
+        Track_LQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );
       }
-    } /// End of loop over TTTracks
+    } // End of loop over TTTracks
     
-  } /// end TTTracks from pixeldigis 
+  } // End TTTracks from pixeldigis 
 
   Track_N->Fill(numTracks); 
   Track_HQ_N->Fill( numHQTracks );
@@ -179,6 +181,7 @@ OuterTrackerMonitorTrack::beginRun(const edm::Run& run, const edm::EventSetup& e
   Track_NStubs->setAxisTitle("# L1 Stubs per L1 Track", 1);
   Track_NStubs->setAxisTitle("# L1 Tracks", 2);
   
+  /// Delete from main branch
   //Phisector vs nb of stubs
   edm::ParameterSet psTrack_NStubs_PhiSectorOrEtaWedge =  conf_.getParameter<edm::ParameterSet>("TH2_NStubs_PhiSectorOrEtaWedge");
   HistoName = "Track_NStubs_PhiSector";
@@ -226,11 +229,10 @@ OuterTrackerMonitorTrack::beginRun(const edm::Run& run, const edm::EventSetup& e
       psPhiSectorOrEtaWedge_PhiOrEta.getParameter<double>("ymax"));
   Track_EtaWedge_Track_Eta->setAxisTitle("#eta wedge of the L1 Track", 2);
   Track_EtaWedge_Track_Eta->setAxisTitle("L1 Track #eta", 1);
+  /// --------------------
   
   
-  
-  //start all low-quality tracks
-  
+  /// Low-quality tracks
   dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/LQ");
   
   // Nb of L1Tracks
@@ -327,8 +329,7 @@ OuterTrackerMonitorTrack::beginRun(const edm::Run& run, const edm::EventSetup& e
   Track_LQ_Chi2Red_NStubs->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
   
   
-  
-  //all high-quality tracks
+  /// High-quality tracks
   dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/HQ");
   
   // Nb of L1Tracks
@@ -416,13 +417,6 @@ OuterTrackerMonitorTrack::beginRun(const edm::Run& run, const edm::EventSetup& e
   Track_HQ_Chi2Red_NStubs->setAxisTitle("# L1 Stubs", 1);
   Track_HQ_Chi2Red_NStubs->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
   
-  
-  
-  
-  
-  
-	
-                                  
 }//end of method
 
 // ------------ method called once each job just after ending the event loop  ------------
