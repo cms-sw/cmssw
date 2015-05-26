@@ -921,7 +921,7 @@ void FedRawDataInputSource::readSupervisor()
       if (ls>monLS) {
           monLS=ls;
           if (lockCount)
-            if (fms_) fms_->reportLockWaitAvg(monLS,double(sumLockWaitTimeUs)/(lockCount*1000000));
+            if (fms_) fms_->reportLockWait(monLS,sumLockWaitTimeUs,lockCount);
           lockCount=0;
           sumLockWaitTimeUs=0;
       }

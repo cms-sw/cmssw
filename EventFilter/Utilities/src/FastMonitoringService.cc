@@ -312,7 +312,7 @@ namespace evf{
 		  avgLeadTime_.erase(oldLumi);
 		  filesProcessedDuringLumi_.erase(oldLumi);
 		  accuSize_.erase(oldLumi);
-		  avgLockWaitDuringLumi_.erase(oldLumi);
+		  lockStatsDuringLumi_.erase(oldLumi);
 		  processedEventsPerLumi_.erase(oldLumi);
 	  }
 	  lastGlobalLumi_= newLumi;
@@ -589,10 +589,10 @@ namespace evf{
 	  }
   }
 
-  void FastMonitoringService::reportLockWaitAvg(unsigned int ls, double waitTime)
+  void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
   {
           std::lock_guard<std::mutex> lock(fmt_.monlock_);
-	  avgLockWaitDuringLumi_[ls]=waitTime;
+	  lockStatsDuringLumi_[ls]=std::pair<double,unsigned int>(waitTime,lockCount);
 
   }
 
@@ -629,10 +629,15 @@ namespace evf{
 	fmt_.m_data.fastFilesProcessedJ_ = iti->second;
       else fmt_.m_data.fastFilesProcessedJ_=0;
 
-      auto itrd = avgLockWaitDuringLumi_.find(ls);
-      if (itrd != avgLockWaitDuringLumi_.end())
-	fmt_.m_data.fastAvgLockWaitJ_ = itrd->second;
-      else fmt_.m_data.fastAvgLockWaitJ_=0.;
+      auto itrd = lockStatsDuringLumi_.find(ls);
+      if (itrd != lockStatsDuringLumi_.end()) {
+	fmt_.m_data.fastLockWaitJ_ = itrd->second.first;
+	fmt_.m_data.fastLockCountJ_ = itrd->second.second;
+      }
+      else {
+       fmt_.m_data.fastLockWaitJ_=0.;
+       fmt_.m_data.fastLockCountJ_=0.;
+      }
  
     }
     else return;
