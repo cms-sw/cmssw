@@ -21,23 +21,23 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
   edm::Handle<reco::TrackCollection> hSrcTrack;
   evt.getByToken( tokens.hSrcTrackToken_, hSrcTrack );
   
-  auto rTracks = evt.template getRefBeforePut<reco::TrackCollection>();
+  auto rTracks = evt.getRefBeforePut<reco::TrackCollection>();
   
   TrackingRecHitRefProd rHits;
   reco::TrackExtraRefProd rTrackExtras;
   if (copyExtras_) {
-    rHits = evt.template getRefBeforePut<TrackingRecHitCollection>();
-    rTrackExtras = evt.template getRefBeforePut<reco::TrackExtraCollection>();
+    rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
+    rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
   }
   
   typedef reco::TrackRef::key_type TrackRefKey;
 
 
   edm::Handle< std::vector<Trajectory> > hTraj;
-  edm::RefProd< std::vector<Trajectory> > TrajRefProd;
+  edm::RefProd< std::vector<Trajectory> > trajRefProd;
   if ( copyTrajectories_ ) {
     evt.getByToken(tokens.hTrajToken_, hTraj);
-    TrajRefProd = evt.template getRefBeforePut< std::vector<Trajectory> >();
+    trajRefProd = evt.getRefBeforePut< std::vector<Trajectory> >();
   }
   
   auto const & tracksIn = *hSrcTrack;
@@ -47,11 +47,11 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     if (copyTrajectories_) {
       // we assume tracks and trajectories are one-to-one and the assocMap is useless 
       selTrajs_->emplace_back((*hTraj)[k]);
-      selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(TrajRefProd, selTrajs_->size() - 1),
+      selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(trajRefProd, selTrajs_->size() - 1),
 			  reco::TrackRef(rTracks, selTracks_->size() - 1)
 			  );
     }
-
+    
     if (!copyExtras_) continue;
     
     // TrackExtras
@@ -71,6 +71,7 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
       selHits_->push_back( (*hit)->clone() );
     }
   }
+
 }
 
 TrackCollectionCloner::Producer::~Producer() {
@@ -83,12 +84,13 @@ TrackCollectionCloner::Producer::~Producer() {
     selHits_->shrink_to_fit();
     evt.put(std::move(selTrackExtras_));
     evt.put(std::move(selHits_));
-    if ( copyTrajectories_ ) {
-      selTrajs_->shrink_to_fit();
-      assert(selTrajs_->size()==tsize);
-      assert(selTTAss_->size()==tsize);
-      evt.put(std::move(selTrajs_));
-      evt.put(std::move(selTTAss_));
-    }
+  }
+  if ( copyTrajectories_ ) {
+    selTrajs_->shrink_to_fit();
+    assert(selTrajs_->size()==tsize);
+    assert(selTTAss_->size()==tsize);
+    evt.put(std::move(selTrajs_));
+    evt.put(std::move(selTTAss_));
+    
   }
 }

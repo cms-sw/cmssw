@@ -61,10 +61,10 @@ public:
     if (copyExtras_) {
       producer.template produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
       producer.template produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits" );
-      if (copyTrajectories_) {
-	producer.template produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories" );
-	producer.template produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations" );
-      }
+    }
+    if (copyTrajectories_) {
+      producer.template produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories" );
+      producer.template produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations" );
     }
   }
 
