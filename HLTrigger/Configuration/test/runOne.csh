@@ -45,9 +45,7 @@ foreach gtag ( $1 )
     set base = ( $base OnLine_HLT RelVal_HLT RelVal_HLT2 )
 
     if ( $gtag == MC ) then
-      if ( ( $table != HIon ) && ( $table != PIon) ) then
-        set base = ( $base FastSim_GenToHLT )
-      endif
+      set base = ( $base FastSim_GenToHLT )
     endif
 
     foreach task ( $base )

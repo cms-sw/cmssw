@@ -248,13 +248,9 @@ foreach gtag ( MC DATA )
     echo "Creating DigiL1RawHLT $name"
     cmsDriver.py RelVal                 --step=DIGI:pdigi_valid,L1,DIGI2RAW,$XHLT   --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'  --eventcontent=FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
 
-    if ( ($table != HIon) && ($table != PIon) ) then
-
     echo
     echo "Creating FastSim $name"
-    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                               --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.FASTSIM --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
-
-    endif
+    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                               --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
 
     endif
 
