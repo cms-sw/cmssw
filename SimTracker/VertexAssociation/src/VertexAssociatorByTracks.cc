@@ -46,7 +46,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
     const edm::Handle<TrackingVertexCollection> & trackingVertexes
 ) const
 {
-    reco::VertexRecoToSimCollection  outputCollection;
+    reco::VertexRecoToSimCollection  outputCollection(productGetter_);
 
     std::map<TrackingVertexRef,std::pair<double, std::size_t> > matches;
 
@@ -156,7 +156,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
     const edm::Handle<TrackingVertexCollection> & trackingVertexes
 ) const
 {
-    reco::VertexSimToRecoCollection  outputCollection;
+    reco::VertexSimToRecoCollection  outputCollection(productGetter_);
 
     // Loop over TrackingVertexes
     std::map<std::size_t,std::pair<double, std::size_t> > matches;
