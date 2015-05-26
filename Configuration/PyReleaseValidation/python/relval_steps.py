@@ -958,6 +958,7 @@ step3Defaults = {
                   '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM'
                   }
+step3DefaultsAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,VALIDATION,DQM'}, step3Defaults])
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
@@ -971,6 +972,9 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                  }
 step3Up2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015Defaults])
+
+step3Up2015DefaultsAlCaEle = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,VALIDATION,DQM'},step3Up2015Defaults])
+step3Up2015DefaultsAlCaEle50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015DefaultsAlCaEle])
 
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions'   :'auto:run2_mc', 
@@ -987,12 +991,15 @@ step3DefaultsUnsch = merge([unSchOverrides,step3Defaults])
 
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
+steps['RECOUP15AlCaEle']=merge([step3Up2015DefaultsAlCaEle]) # todo: remove UP from label
+
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODreHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
+steps['RECOAlCaEle']=merge([step3DefaultsAlCaEle])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
@@ -1078,14 +1085,14 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
 
 # step4
 step4Defaults = { 
-                  '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalZElectron+EcalCalWElectron+HcalCalIsoTrk+MuAlOverlaps',
+                  '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+HcalCalIsoTrk+MuAlOverlaps',
                   '-n'            : 1000,
                   '--conditions'  : 'auto:run1_mc',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
                   }
 step4Up2015Defaults = { 
-                        '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalZElectron+EcalCalWElectron+HcalCalIsoTrk+MuAlOverlaps',
+                        '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+HcalCalIsoTrk+MuAlOverlaps',
                         '-n'            : 1000,
                         '--conditions'  : 'auto:run2_mc',
                         '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
@@ -1100,7 +1107,6 @@ steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},s
 steps['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
 steps['ALCAHAL']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},step4Up2015Defaults])
-steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron','--filein':'file:step3.root'},stCond,step4Defaults])
 
 steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
                     '--conditions':'auto:run1_data',
