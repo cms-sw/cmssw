@@ -191,5 +191,21 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
+        ),
+    diMuonMass = cms.PSet(
+        pathName = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"),
+        moduleName = cms.string("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2"),
+        pathName_OR = cms.string("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"),
+        moduleName_OR = cms.string("hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2"),
+        NbinsX = cms.int32(50),
+        Xmin = cms.int32(60),
+        Xmax = cms.int32(160)
+        ),
+    diElecMass = cms.PSet(
+        pathName = cms.string("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"),
+        moduleName = cms.string("hltEle23Ele12CaloIdLTrackIdLIsoVLDZFilter"),
+        NbinsX = cms.int32(50),
+        Xmin = cms.int32(60),
+        Xmax = cms.int32(160)
         )
 )
