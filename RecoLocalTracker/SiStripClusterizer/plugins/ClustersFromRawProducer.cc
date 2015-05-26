@@ -345,7 +345,9 @@ try {
 	    unpacker++;
             }
 	  */
-	} catch (const cms::Exception& e) {
+	} catch (edmNew::CapacityExaustedException) {
+          throw;
+        } catch (const cms::Exception& e) {
 	  if (edm::isDebugEnabled()) {
 	    std::ostringstream ss;
 	    ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
@@ -368,7 +370,9 @@ try {
 	    unpacker++;
 	    }
 	  */
-	} catch (const cms::Exception& e) {
+	} catch (edmNew::CapacityExaustedException) {
+           throw;
+        }catch (const cms::Exception& e) {
 	  if (edm::isDebugEnabled()) {
 	    std::ostringstream ss;
 	    ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
@@ -445,6 +449,7 @@ try {
   // COUT << "filled " << record.size() << std::endl;
 } catch (edmNew::CapacityExaustedException) {
   edm::LogError(sistrip::mlRawToCluster_) << "too many Sistrip Clusters to fit space allocated for OnDemand";
+  clusterizer.cleanState();
 }  
 
 }
