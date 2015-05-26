@@ -110,18 +110,30 @@ void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::Ev
 			else if (detIdClu.isEndcap())
 			{
 				
-				if (memberClu == 0) Cluster_IMem_Endcap->Fill(detIdClu.iDisk());
-				else Cluster_OMem_Endcap->Fill(detIdClu.iDisk());
-				
+				if (memberClu == 0)
+        {
+          Cluster_IMem_Endcap_Disc->Fill(detIdClu.iDisk());
+          Cluster_IMem_Endcap_Ring->Fill(detIdClu.iRing());
+        }
+				else
+        {
+          Cluster_OMem_Endcap_Disc->Fill(detIdClu.iDisk());
+          Cluster_OMem_Endcap_Ring->Fill(detIdClu.iRing());
+				}
+        
 				if ( posClu.z() > 0 )
         {
           Cluster_Endcap_Fw_XY->Fill( posClu.x(), posClu.y() );
           Cluster_Endcap_Fw_RZ_Zoom->Fill( posClu.z(), posClu.perp() );
+          if (memberClu == 0) Cluster_IMem_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill(detIdClu.iRing());
+          else Cluster_OMem_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill(detIdClu.iRing());
         }
         else
         {
           Cluster_Endcap_Bw_XY->Fill( posClu.x(), posClu.y() );
           Cluster_Endcap_Bw_RZ_Zoom->Fill( posClu.z(), posClu.perp() );
+          if (memberClu == 0) Cluster_IMem_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill(detIdClu.iRing());
+          else Cluster_OMem_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill(detIdClu.iRing());
         }
 			
 			}	// end if isEndcap()
@@ -136,43 +148,108 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
   SiStripFolderOrganizer folder_organizer;
 	folder_organizer.setSiStripFolderName(topFolderName_);
 	folder_organizer.setSiStripFolder();	
-	
+	std::string HistoName;
+  
 	dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClusters");
 	
+  
 	// NClusters
-	edm::ParameterSet psTTClusterStacksB =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Barrel");
-	std::string HistoName = "NClusters_IMem_Barrel";
+	edm::ParameterSet psTTCluster_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Barrel");
+	HistoName = "NClusters_IMem_Barrel";
 	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-	    psTTClusterStacksB.getParameter<int32_t>("Nbinsx"),
-	    psTTClusterStacksB.getParameter<double>("xmin"),
-	    psTTClusterStacksB.getParameter<double>("xmax"));
+	    psTTCluster_Barrel.getParameter<int32_t>("Nbinsx"),
+	    psTTCluster_Barrel.getParameter<double>("xmin"),
+	    psTTCluster_Barrel.getParameter<double>("xmax"));
 	Cluster_IMem_Barrel->setAxisTitle("Barrel Layer", 1);
 	Cluster_IMem_Barrel->setAxisTitle("# L1 Clusters", 2);
 	
 	HistoName = "NClusters_OMem_Barrel";
 	Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-	    psTTClusterStacksB.getParameter<int32_t>("Nbinsx"),
-	    psTTClusterStacksB.getParameter<double>("xmin"),
-	    psTTClusterStacksB.getParameter<double>("xmax"));
+	    psTTCluster_Barrel.getParameter<int32_t>("Nbinsx"),
+	    psTTCluster_Barrel.getParameter<double>("xmin"),
+	    psTTCluster_Barrel.getParameter<double>("xmax"));
 	Cluster_OMem_Barrel->setAxisTitle("Barrel Layer", 1);
 	Cluster_OMem_Barrel->setAxisTitle("# L1 Clusters", 2);
   
-  edm::ParameterSet psTTClusterStacksEC =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Endcap");
-  HistoName = "NClusters_IMem_Endcap";
-  Cluster_IMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
-      psTTClusterStacksEC.getParameter<int32_t>("Nbinsx"),
-      psTTClusterStacksEC.getParameter<double>("xmin"),
-      psTTClusterStacksEC.getParameter<double>("xmax"));
-  Cluster_IMem_Endcap->setAxisTitle("Endcap Disc", 1);
-  Cluster_IMem_Endcap->setAxisTitle("# L1 Clusters", 2);
+  edm::ParameterSet psTTCluster_ECDisc =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_ECDiscs");
+  HistoName = "NClusters_IMem_Endcap_Disc";
+  Cluster_IMem_Endcap_Disc = dqmStore_->book1D(HistoName, HistoName,
+      psTTCluster_ECDisc.getParameter<int32_t>("Nbinsx"),
+      psTTCluster_ECDisc.getParameter<double>("xmin"),
+      psTTCluster_ECDisc.getParameter<double>("xmax"));
+  Cluster_IMem_Endcap_Disc->setAxisTitle("Endcap Disc", 1);
+  Cluster_IMem_Endcap_Disc->setAxisTitle("# L1 Clusters", 2);
 	
-	HistoName = "NClusters_OMem_Endcap";
-	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
-	    psTTClusterStacksEC.getParameter<int32_t>("Nbinsx"),
-	    psTTClusterStacksEC.getParameter<double>("xmin"),
-	    psTTClusterStacksEC.getParameter<double>("xmax"));
-	Cluster_OMem_Endcap->setAxisTitle("Endcap Disc", 1);
-	Cluster_OMem_Endcap->setAxisTitle("# L1 Clusters", 2);
+	HistoName = "NClusters_OMem_Endcap_Disc";
+	Cluster_OMem_Endcap_Disc = dqmStore_->book1D(HistoName, HistoName,
+	    psTTCluster_ECDisc.getParameter<int32_t>("Nbinsx"),
+	    psTTCluster_ECDisc.getParameter<double>("xmin"),
+	    psTTCluster_ECDisc.getParameter<double>("xmax"));
+	Cluster_OMem_Endcap_Disc->setAxisTitle("Endcap Disc", 1);
+	Cluster_OMem_Endcap_Disc->setAxisTitle("# L1 Clusters", 2);
+  
+  edm::ParameterSet psTTCluster_ECRing =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_ECRings");
+  
+  HistoName = "NClusters_IMem_Endcap_Ring";
+	Cluster_IMem_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
+	    psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
+	    psTTCluster_ECRing.getParameter<double>("xmin"),
+	    psTTCluster_ECRing.getParameter<double>("xmax"));
+	Cluster_IMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
+	Cluster_IMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
+  
+  HistoName = "NClusters_OMem_Endcap_Ring";
+	Cluster_OMem_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
+	    psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
+	    psTTCluster_ECRing.getParameter<double>("xmin"),
+	    psTTCluster_ECRing.getParameter<double>("xmax"));
+	Cluster_OMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
+	Cluster_OMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_IMem_Disc+%d", i+1);  
+    Cluster_IMem_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(histo, histo, 
+        psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
+        psTTCluster_ECRing.getParameter<double>("xmin"), 
+        psTTCluster_ECRing.getParameter<double>("xmax")); 
+    Cluster_IMem_Endcap_Ring_Fw[i]->setAxisTitle("Endcap Ring",1); 
+    Cluster_IMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_IMem_Disc-%d", i+1);  
+    Cluster_IMem_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(histo, histo, 
+        psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
+        psTTCluster_ECRing.getParameter<double>("xmin"), 
+        psTTCluster_ECRing.getParameter<double>("xmax")); 
+    Cluster_IMem_Endcap_Ring_Bw[i]->setAxisTitle("Endcap Ring",1); 
+    Cluster_IMem_Endcap_Ring_Bw[i]->setAxisTitle("# L1 Clusters ",2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_OMem_Disc+%d", i+1);  
+    Cluster_OMem_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(histo, histo, 
+        psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
+        psTTCluster_ECRing.getParameter<double>("xmin"), 
+        psTTCluster_ECRing.getParameter<double>("xmax")); 
+    Cluster_OMem_Endcap_Ring_Fw[i]->setAxisTitle("Endcap Ring",1); 
+    Cluster_OMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
+  }
+  
+  for(int i=0;i<5;i++){
+    Char_t histo[200];
+    sprintf(histo, "NClusters_OMem_Disc-%d", i+1);  
+    Cluster_OMem_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(histo, histo, 
+        psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
+        psTTCluster_ECRing.getParameter<double>("xmin"), 
+        psTTCluster_ECRing.getParameter<double>("xmax")); 
+    Cluster_OMem_Endcap_Ring_Bw[i]->setAxisTitle("Endcap Ring",1); 
+    Cluster_OMem_Endcap_Ring_Bw[i]->setAxisTitle("# L1 Clusters ",2);
+  }
+  
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters");
         

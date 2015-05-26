@@ -26,9 +26,15 @@ public:
  
 	// TTCluster stacks
 	MonitorElement* Cluster_IMem_Barrel = 0;
-	MonitorElement* Cluster_IMem_Endcap = 0;
+	MonitorElement* Cluster_IMem_Endcap_Disc = 0;
+  MonitorElement* Cluster_IMem_Endcap_Ring = 0;
+  MonitorElement* Cluster_IMem_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_IMem_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
 	MonitorElement* Cluster_OMem_Barrel = 0;
-	MonitorElement* Cluster_OMem_Endcap = 0;
+	MonitorElement* Cluster_OMem_Endcap_Disc = 0;
+  MonitorElement* Cluster_OMem_Endcap_Ring = 0;
+  MonitorElement* Cluster_OMem_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Cluster_OMem_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
 	MonitorElement* Cluster_W = 0;
   MonitorElement* Cluster_Eta = 0;
 	

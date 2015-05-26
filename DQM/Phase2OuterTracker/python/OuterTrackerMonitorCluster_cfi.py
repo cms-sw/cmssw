@@ -13,12 +13,19 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
         ),
 
 # Number of clusters per disc
-    TH1TTCluster_Endcap = cms.PSet(
+    TH1TTCluster_ECDiscs = cms.PSet(
         Nbinsx = cms.int32(5),
         xmax = cms.double(5.5),                      
         xmin = cms.double(0.5)
         ),
-    
+
+# Number of clusters per EC ring
+    TH1TTCluster_ECRings = cms.PSet(
+        Nbinsx = cms.int32(16), 
+        xmin = cms.double(0.5), 
+        xmax = cms.double(16.5)
+        ),
+
 # Cluster eta distribution
     TH1TTCluster_Eta = cms.PSet(
         Nbinsx = cms.int32(45),
