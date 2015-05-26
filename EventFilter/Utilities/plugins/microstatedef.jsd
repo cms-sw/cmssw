@@ -29,8 +29,13 @@
          "operation" : "sum"
       },
       {
-         "name" : "AverageLockWaitTime",
-         "operation" : "avg"
+         "name" : "LockWaitUs",
+         "operation" : "sum"
+      },
+      {
+         "name" : "LockCount",
+         "operation" : "sum"
       }
+
    ]
 }

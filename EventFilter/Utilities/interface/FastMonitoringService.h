@@ -150,7 +150,7 @@ namespace evf{
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
-      void reportLockWaitAvg(unsigned int ls, double waitTime);
+      void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
       unsigned int getEventsProcessedForLumi(unsigned int lumi);
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 
@@ -228,7 +228,7 @@ namespace evf{
       //helpers for source statistics:
       std::map<unsigned int, unsigned long> accuSize_;
       std::vector<double> leadTimes_;
-      std::map<unsigned int, double> avgLockWaitDuringLumi_;
+      std::map<unsigned int, std::pair<double,unsigned int>> lockStatsDuringLumi_;
 
       //for output module
       std::map<unsigned int, unsigned int> processedEventsPerLumi_;
