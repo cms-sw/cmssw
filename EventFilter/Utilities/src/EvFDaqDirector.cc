@@ -57,6 +57,7 @@ namespace evf {
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
+    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",false),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -117,6 +118,12 @@ namespace evf {
       catch (...) {edm::LogWarning("Unable to parse environment string: ") << std::string(fuLockPollIntervalPtr);}
     }
 
+    char * emptyLumiModePtr = getenv("FFF_EMPTYLSMODE");
+    if (emptyLumiModePtr) {
+        emptyLumisectionMode_ = true
+        edm::LogInfo("Setting empty lumisection mode");
+    }
+ 
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {

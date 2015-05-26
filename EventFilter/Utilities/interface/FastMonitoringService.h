@@ -153,6 +153,12 @@ namespace evf{
       void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
       unsigned int getEventsProcessedForLumi(unsigned int lumi, bool * abortFlag=nullptr);
       bool getAbortFlagForLumi(unsigned int lumi);
+      bool shouldWriteFiles(unsigned int lumi, unsigned int& proc=nullptr) const 
+      {
+        unsigned int processed = (getEventsProcessedForLumi(unsigned int lumi);
+        if (proc) proc = processed;
+        return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_));
+      }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 
     private:
@@ -258,6 +264,7 @@ namespace evf{
       std::atomic<bool> monInit_;
       bool exception_detected_ = false;
       std::vector<unsigned int> exceptionInLS_;
+      bool emptyLumisectionMode_ = false;
     };
 
 }
