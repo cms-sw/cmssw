@@ -5,6 +5,8 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
+
 // Forward declarations
 class TrackerHitAssociator;
 
@@ -59,18 +61,14 @@ namespace edm {
  * Functionality to associate using pre calculated cluster to TrackingParticle maps added by Subir Sarker sometime in 2013.
  * Overhauled to remove mutables to make it thread safe by Mark Grimes 01/May/2014.
  */
-
-  inline bool clusterTPAssociationListGreater(std::pair<OmniClusterRef, TrackingParticleRef> i,std::pair<OmniClusterRef, TrackingParticleRef> j) { return (i.first.rawIndex()>j.first.rawIndex()); }
-
 class QuickTrackAssociatorByHitsImpl : public reco::TrackToTrackingParticleAssociatorBaseImpl
 {
 public:
-  typedef std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > ClusterTPAssociationList;
   enum SimToRecoDenomType {denomnone,denomsim,denomreco};
 
   QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
-                                 std::shared_ptr<const TrackerHitAssociator> hitAssoc,
-                                 std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap,
+                                 std::unique_ptr<const TrackerHitAssociator> hitAssoc,
+                                 const ClusterTPAssociationList *clusterToTPMap,
                                  bool absoluteNumberOfHits,
                                  double qualitySimToReco,
                                  double puritySimToReco,
@@ -190,8 +188,8 @@ public:
   //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociationList>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
 
   edm::EDProductGetter const* productGetter_;
-  std::shared_ptr<const TrackerHitAssociator> hitAssociator_;
-  std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap_;
+  std::unique_ptr<const TrackerHitAssociator> hitAssociator_;
+  const ClusterTPAssociationList *clusterToTPMap_;
   
   double qualitySimToReco_;
   double puritySimToReco_;
