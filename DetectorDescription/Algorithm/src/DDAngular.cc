@@ -84,7 +84,6 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
   }
 
   m_idNameSpace = DDCurrentNamespace::ns();
-//   m_childName   = sArgs["ChildName"]; 
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
     m_childNmNs.second = DDCurrentNamespace::ns();
