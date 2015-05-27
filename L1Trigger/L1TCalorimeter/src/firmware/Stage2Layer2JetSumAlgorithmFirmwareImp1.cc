@@ -64,7 +64,8 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 	
 	if (thisJet.hwPt()>etSumEtThresholdHwMet_ && thisJet.hwEta()>=etSumEtaMinMet_ && thisJet.hwEta()<=etSumEtaMaxMet_) {
 	  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * cos ( 2 * M_PI * (72 - iphi) / 72.0 ) )) >> 10;
-	  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * iphi / 72.0 ) )) >> 10;
+	  //ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * iphi / 72.0 ) )) >> 10;
+      ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * (72 - iphi) / 72.0 ) )) >> 10;
 	}
 	
 	if (thisJet.hwPt()>etSumEtThresholdHwEt_ && thisJet.hwEta()>=etSumEtaMinEt_ && thisJet.hwEta()<=etSumEtaMaxEt_) {
