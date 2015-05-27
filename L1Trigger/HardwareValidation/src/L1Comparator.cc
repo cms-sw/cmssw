@@ -6,6 +6,7 @@ using namespace dedefs;
 L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
   verbose_ = iConfig.getUntrackedParameter<int>("VerboseFlag",0);
+  m_stage1_layer2_ = iConfig.getParameter<bool>("stage1_layer2_");
 
   if(verbose())
     std::cout << "\nL1COMPARATOR constructor...\n" << std::flush;
@@ -91,23 +92,46 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
     tags[0] = iConfig.getParameter<edm::InputTag>("GCTsourceData");
     tags[1] = iConfig.getParameter<edm::InputTag>("GCTsourceEmul");
 
-    for (int i = 0; i < 2 ; ++i) { 
-      edm::InputTag const& tag = tags[i];
-      std::string const label = tag.label();
-      tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
-      tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
-      tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
-      tokenGctJetCand_forJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "forJets"));
-      tokenGctJetCand_tauJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "tauJets"));
-      tokenGctEtTotal_[i] = consumes<L1GctEtTotalCollection>(tag);
-      tokenGctEtHad_[i] = consumes<L1GctEtHadCollection>(tag);
-      tokenGctEtMiss_[i] = consumes<L1GctEtMissCollection>(tag);
-      tokenGctHFRingEtSums_[i] = consumes<L1GctHFRingEtSumsCollection>(tag);
-      tokenGctHFBitCounts_[i] = consumes<L1GctHFBitCountsCollection>(tag);
-      tokenGctHtMiss_[i] = consumes<L1GctHtMissCollection>(tag);
-      tokenGctJetCounts_[i] = consumes<L1GctJetCountsCollection>(tag);
+    if(m_stage1_layer2_ == false) {
+      
+      for (int i = 0; i < 2 ; ++i) { 
+        edm::InputTag const& tag = tags[i];
+        std::string const label = tag.label();
+        tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
+        tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
+        tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
+        tokenGctJetCand_forJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "forJets"));
+        tokenGctJetCand_tauJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "tauJets"));
+        tokenGctEtTotal_[i] = consumes<L1GctEtTotalCollection>(tag);
+        tokenGctEtHad_[i] = consumes<L1GctEtHadCollection>(tag);
+        tokenGctEtMiss_[i] = consumes<L1GctEtMissCollection>(tag);
+        tokenGctHFRingEtSums_[i] = consumes<L1GctHFRingEtSumsCollection>(tag);
+        tokenGctHFBitCounts_[i] = consumes<L1GctHFBitCountsCollection>(tag);
+        tokenGctHtMiss_[i] = consumes<L1GctHtMissCollection>(tag);
+        tokenGctJetCounts_[i] = consumes<L1GctJetCountsCollection>(tag);
+      }
+    }
+    if(m_stage1_layer2_ == true) {
+      for (int i = 0; i < 2 ; ++i) { 
+        edm::InputTag const& tag = tags[i];
+        std::string const label = tag.label();
+        tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
+        tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
+        tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
+        tokenGctJetCand_forJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "forJets"));
+        tokenGctJetCand_tauJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "tauJets"));
+	tokenGctJetCand_isoTauJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "isoTauJets"));
+        tokenGctEtTotal_[i] = consumes<L1GctEtTotalCollection>(tag);
+        tokenGctEtHad_[i] = consumes<L1GctEtHadCollection>(tag);
+        tokenGctEtMiss_[i] = consumes<L1GctEtMissCollection>(tag);
+        tokenGctHFRingEtSums_[i] = consumes<L1GctHFRingEtSumsCollection>(tag);
+        tokenGctHFBitCounts_[i] = consumes<L1GctHFBitCountsCollection>(tag);
+        tokenGctHtMiss_[i] = consumes<L1GctHtMissCollection>(tag);
+        tokenGctJetCounts_[i] = consumes<L1GctJetCountsCollection>(tag);
+      }
     }
   }
+  
 
   // -- DTP [drift tube trigger primitive]
   if(m_doSys[DTP]) {
@@ -278,6 +302,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCandCollection> gct_forjets_emul;
   edm::Handle<L1GctJetCandCollection> gct_taujets_data;
   edm::Handle<L1GctJetCandCollection> gct_taujets_emul;
+  edm::Handle<L1GctJetCandCollection> gct_isotaujets_data;
+  edm::Handle<L1GctJetCandCollection> gct_isotaujets_emul;
 
   edm::Handle<L1GctEtHadCollection>	  gct_ht_data;
   edm::Handle<L1GctEtHadCollection>	  gct_ht_emul;
@@ -295,30 +321,60 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_emul;
 
   if(m_doSys[GCT]) {
-   iEvent.getByToken(tokenGctEmCand_isoEm_[0],gct_isolaem_data);
-   iEvent.getByToken(tokenGctEmCand_isoEm_[1],gct_isolaem_emul);
-   iEvent.getByToken(tokenGctEmCand_nonIsoEm_[0],gct_noisoem_data);
-   iEvent.getByToken(tokenGctEmCand_nonIsoEm_[1],gct_noisoem_emul);
-   iEvent.getByToken(tokenGctJetCand_cenJets_[0],gct_cenjets_data);
-   iEvent.getByToken(tokenGctJetCand_cenJets_[1],gct_cenjets_emul);
-   iEvent.getByToken(tokenGctJetCand_forJets_[0],gct_forjets_data);
-   iEvent.getByToken(tokenGctJetCand_forJets_[1],gct_forjets_emul);
-   iEvent.getByToken(tokenGctJetCand_tauJets_[0],gct_taujets_data);
-   iEvent.getByToken(tokenGctJetCand_tauJets_[1],gct_taujets_emul);
-   iEvent.getByToken(tokenGctEtHad_[0],gct_ht_data);
-   iEvent.getByToken(tokenGctEtHad_[1],gct_ht_emul);
-   iEvent.getByToken(tokenGctEtMiss_[0],gct_etmiss_data);
-   iEvent.getByToken(tokenGctEtMiss_[1],gct_etmiss_emul);
-   iEvent.getByToken(tokenGctEtTotal_[0],gct_ettota_data);
-   iEvent.getByToken(tokenGctEtTotal_[1],gct_ettota_emul);
-   iEvent.getByToken(tokenGctHtMiss_[0],gct_htmiss_data);
-   iEvent.getByToken(tokenGctHtMiss_[1],gct_htmiss_emul);
-   iEvent.getByToken(tokenGctHFRingEtSums_[0],gct_hfring_data);
-   iEvent.getByToken(tokenGctHFRingEtSums_[1],gct_hfring_emul);
-   iEvent.getByToken(tokenGctHFBitCounts_[0],gct_hfbcnt_data);
-   iEvent.getByToken(tokenGctHFBitCounts_[1],gct_hfbcnt_emul);
-   iEvent.getByToken(tokenGctJetCounts_[0],gct_jetcnt_data);
-   iEvent.getByToken(tokenGctJetCounts_[1],gct_jetcnt_emul);
+    if(m_stage1_layer2_ == false){
+      iEvent.getByToken(tokenGctEmCand_isoEm_[0],gct_isolaem_data);
+      iEvent.getByToken(tokenGctEmCand_isoEm_[1],gct_isolaem_emul);
+      iEvent.getByToken(tokenGctEmCand_nonIsoEm_[0],gct_noisoem_data);
+      iEvent.getByToken(tokenGctEmCand_nonIsoEm_[1],gct_noisoem_emul);
+      iEvent.getByToken(tokenGctJetCand_cenJets_[0],gct_cenjets_data);
+      iEvent.getByToken(tokenGctJetCand_cenJets_[1],gct_cenjets_emul);
+      iEvent.getByToken(tokenGctJetCand_forJets_[0],gct_forjets_data);
+      iEvent.getByToken(tokenGctJetCand_forJets_[1],gct_forjets_emul);
+      iEvent.getByToken(tokenGctJetCand_tauJets_[0],gct_taujets_data);
+      iEvent.getByToken(tokenGctJetCand_tauJets_[1],gct_taujets_emul);
+      iEvent.getByToken(tokenGctEtHad_[0],gct_ht_data);
+      iEvent.getByToken(tokenGctEtHad_[1],gct_ht_emul);
+      iEvent.getByToken(tokenGctEtMiss_[0],gct_etmiss_data);
+      iEvent.getByToken(tokenGctEtMiss_[1],gct_etmiss_emul);
+      iEvent.getByToken(tokenGctEtTotal_[0],gct_ettota_data);
+      iEvent.getByToken(tokenGctEtTotal_[1],gct_ettota_emul);
+      iEvent.getByToken(tokenGctHtMiss_[0],gct_htmiss_data);
+      iEvent.getByToken(tokenGctHtMiss_[1],gct_htmiss_emul);
+      iEvent.getByToken(tokenGctHFRingEtSums_[0],gct_hfring_data);
+      iEvent.getByToken(tokenGctHFRingEtSums_[1],gct_hfring_emul);
+      iEvent.getByToken(tokenGctHFBitCounts_[0],gct_hfbcnt_data);
+      iEvent.getByToken(tokenGctHFBitCounts_[1],gct_hfbcnt_emul);
+      iEvent.getByToken(tokenGctJetCounts_[0],gct_jetcnt_data);
+      iEvent.getByToken(tokenGctJetCounts_[1],gct_jetcnt_emul);
+    }
+    if(m_stage1_layer2_ == true){
+      iEvent.getByToken(tokenGctEmCand_isoEm_[0],gct_isolaem_data);
+      iEvent.getByToken(tokenGctEmCand_isoEm_[1],gct_isolaem_emul);
+      iEvent.getByToken(tokenGctEmCand_nonIsoEm_[0],gct_noisoem_data);
+      iEvent.getByToken(tokenGctEmCand_nonIsoEm_[1],gct_noisoem_emul);
+      iEvent.getByToken(tokenGctJetCand_cenJets_[0],gct_cenjets_data);
+      iEvent.getByToken(tokenGctJetCand_cenJets_[1],gct_cenjets_emul);
+      iEvent.getByToken(tokenGctJetCand_forJets_[0],gct_forjets_data);
+      iEvent.getByToken(tokenGctJetCand_forJets_[1],gct_forjets_emul);
+      iEvent.getByToken(tokenGctJetCand_tauJets_[0],gct_taujets_data);
+      iEvent.getByToken(tokenGctJetCand_tauJets_[1],gct_taujets_emul);
+      iEvent.getByToken(tokenGctJetCand_isoTauJets_[0],gct_isotaujets_data);
+      iEvent.getByToken(tokenGctJetCand_isoTauJets_[1],gct_isotaujets_emul);      
+      iEvent.getByToken(tokenGctEtHad_[0],gct_ht_data);
+      iEvent.getByToken(tokenGctEtHad_[1],gct_ht_emul);
+      iEvent.getByToken(tokenGctEtMiss_[0],gct_etmiss_data);
+      iEvent.getByToken(tokenGctEtMiss_[1],gct_etmiss_emul);
+      iEvent.getByToken(tokenGctEtTotal_[0],gct_ettota_data);
+      iEvent.getByToken(tokenGctEtTotal_[1],gct_ettota_emul);
+      iEvent.getByToken(tokenGctHtMiss_[0],gct_htmiss_data);
+      iEvent.getByToken(tokenGctHtMiss_[1],gct_htmiss_emul);
+      iEvent.getByToken(tokenGctHFRingEtSums_[0],gct_hfring_data);
+      iEvent.getByToken(tokenGctHFRingEtSums_[1],gct_hfring_emul);
+      iEvent.getByToken(tokenGctHFBitCounts_[0],gct_hfbcnt_data);
+      iEvent.getByToken(tokenGctHFBitCounts_[1],gct_hfbcnt_emul);
+      iEvent.getByToken(tokenGctJetCounts_[0],gct_jetcnt_data);
+      iEvent.getByToken(tokenGctJetCounts_[1],gct_jetcnt_emul);
+    }
   }
 
   // -- DTP [drift tube trigger primitive]
@@ -484,18 +540,43 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =     rct_em_emul .isValid();
   isValidDE[RCT][0]&=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
 
-  isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] =gct_isolaem_emul .isValid();
-  isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1]&=gct_noisoem_emul .isValid();
-  isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1]&=gct_cenjets_emul .isValid();
-  isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1]&=gct_forjets_emul .isValid();
-  isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&=gct_taujets_emul .isValid();
-  isValidDE[GCT][0]&=  gct_etmiss_data .isValid(); isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
-  isValidDE[GCT][0]&=  gct_ettota_data .isValid(); isValidDE[GCT][1]&= gct_ettota_emul .isValid();
-  isValidDE[GCT][0]&=  gct_htmiss_data .isValid(); isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
-  isValidDE[GCT][0]&=  gct_hfring_data .isValid(); isValidDE[GCT][1]&= gct_hfring_emul .isValid();
-  isValidDE[GCT][0]&=  gct_hfbcnt_data .isValid(); isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
-//isValidDE[GCT][0]&=  gct_jetcnt_data .isValid(); isValidDE[GCT][1]&= gct_jetcnt_emul .isValid(); #temporary
-
+  if(m_stage1_layer2_ == false){
+    isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] =gct_isolaem_emul .isValid();
+    isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1]&=gct_noisoem_emul .isValid();
+    isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1]&=gct_cenjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1]&=gct_forjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&=gct_taujets_emul .isValid();
+    isValidDE[GCT][0]&=  gct_etmiss_data .isValid(); isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
+    isValidDE[GCT][0]&=  gct_ettota_data .isValid(); isValidDE[GCT][1]&= gct_ettota_emul .isValid();
+    isValidDE[GCT][0]&=  gct_htmiss_data .isValid(); isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
+    isValidDE[GCT][0]&=  gct_hfring_data .isValid(); isValidDE[GCT][1]&= gct_hfring_emul .isValid();
+    isValidDE[GCT][0]&=  gct_hfbcnt_data .isValid(); isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
+    //isValidDE[GCT][0]&=  gct_jetcnt_data .isValid(); isValidDE[GCT][1]&= gct_jetcnt_emul .isValid(); #temporary
+  }
+  if(m_stage1_layer2_ == true){
+    isValidDE[GCT][0] = gct_isolaem_data .isValid();
+    isValidDE[GCT][1] = gct_isolaem_emul .isValid();
+    isValidDE[GCT][0]&= gct_noisoem_data .isValid();
+    isValidDE[GCT][1]&= gct_noisoem_emul .isValid();
+    isValidDE[GCT][0]&= gct_cenjets_data .isValid();
+    isValidDE[GCT][1]&= gct_cenjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_forjets_data .isValid();
+    isValidDE[GCT][1]&= gct_forjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_taujets_data .isValid();
+    isValidDE[GCT][1]&= gct_taujets_emul .isValid();
+    isValidDE[GCT][0]&= gct_isotaujets_data .isValid();
+    isValidDE[GCT][1]&= gct_isotaujets_emul .isValid();
+    isValidDE[GCT][0]&= gct_etmiss_data .isValid();
+    isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
+    isValidDE[GCT][0]&= gct_ettota_data .isValid();
+    isValidDE[GCT][1]&= gct_ettota_emul .isValid();
+    isValidDE[GCT][0]&= gct_htmiss_data .isValid();
+    isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
+    isValidDE[GCT][0]&= gct_hfring_data .isValid();
+    isValidDE[GCT][1]&= gct_hfring_emul .isValid();
+    isValidDE[GCT][0]&= gct_hfbcnt_data .isValid();
+    isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
+  }
   isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
 
@@ -542,19 +623,36 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloEmCollection>             (     rct_em_data,      rct_em_emul, RCT,RCTem);
   if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloRegionCollection>         (    rct_rgn_data,     rct_rgn_emul, RCT,RCTrgn);
 
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT,GCTisolaem);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT,GCTnoisoem);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	         (     gct_ht_data,      gct_ht_emul, GCT,GCTethad);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	         ( gct_etmiss_data,  gct_etmiss_emul, GCT,GCTetmiss);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	 ( gct_ettota_data , gct_ettota_emul, GCT,GCTettot);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	         ( gct_htmiss_data,  gct_htmiss_emul, GCT,GCThtmiss);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	 ( gct_hfring_data,  gct_hfring_emul, GCT,GCThfring);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	 ( gct_hfbcnt_data,  gct_hfbcnt_emul, GCT,GCThfbit);
-//if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
-
+  if(m_stage1_layer2_==false){
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT,GCTisolaem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT,GCTnoisoem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	         (     gct_ht_data,      gct_ht_emul, GCT,GCTethad);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	         ( gct_etmiss_data,  gct_etmiss_emul, GCT,GCTetmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	 ( gct_ettota_data , gct_ettota_emul, GCT,GCTettot);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	         ( gct_htmiss_data,  gct_htmiss_emul, GCT,GCThtmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	 ( gct_hfring_data,  gct_hfring_emul, GCT,GCThfring);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	 ( gct_hfbcnt_data,  gct_hfbcnt_emul, GCT,GCThfbit);
+    //if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
+  }
+  if(m_stage1_layer2_==true){
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT,GCTisolaem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT,GCTnoisoem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_isotaujets_data,gct_isotaujets_emul, GCT, GCTisotaujets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	         (     gct_ht_data,      gct_ht_emul, GCT,GCTethad);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	         ( gct_etmiss_data,  gct_etmiss_emul, GCT,GCTetmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	 ( gct_ettota_data , gct_ettota_emul, GCT,GCTettot);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	         ( gct_htmiss_data,  gct_htmiss_emul, GCT,GCThtmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	 ( gct_hfring_data,  gct_hfring_emul, GCT,GCThfring);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	 ( gct_hfbcnt_data,  gct_hfbcnt_emul, GCT,GCThfbit);
+    //if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
+  }
+ 
   if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP,DTtpPh);
   if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
 
