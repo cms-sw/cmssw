@@ -45,17 +45,10 @@ class HotlineDQM: public DQMEDAnalyzer{
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   private:
-  //histos booking function
-  void bookHistos(DQMStore::IBooker &);
-  
   //variables from config file
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
