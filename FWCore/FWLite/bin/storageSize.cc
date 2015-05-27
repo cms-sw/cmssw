@@ -17,7 +17,7 @@
 #include "TBufferFile.h"
 
 // user include files
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) try
    
    std::string className(vm[kClassNameOpt].as<std::string>());
    
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
 
    TClass* cls = TClass::GetClass(className.c_str());
    if(0==cls) {

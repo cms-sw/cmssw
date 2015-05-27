@@ -8,7 +8,7 @@
 #include <TFile.h>
 #include <TSystem.h>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitProvenance.h"
 

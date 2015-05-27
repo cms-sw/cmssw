@@ -60,7 +60,7 @@
 
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #if defined(R__LINUX)
 #include "TGX11.h" // !!!! AMT has to be at the end to pass build
@@ -288,7 +288,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
    //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
    // open any graphics or build dictionaries
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
 
    TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
 

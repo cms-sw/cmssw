@@ -219,7 +219,7 @@ int TkAlOfflineJobsMerge(TString pars, TString outFile)
 {
 // load framework lite just to find the CMSSW libs...
 gSystem->Load("libFWCoreFWLite");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 //compile the macro
 gROOT->ProcessLine(".L merge_TrackerOfflineValidation.C++");
 
