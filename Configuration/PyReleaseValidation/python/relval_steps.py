@@ -1120,6 +1120,7 @@ step4Up2015Defaults = {
 steps['RERECOPU']=steps['RERECOPU1']
 
 steps['ALCATT']=merge([{'--filein':'file:step3.root'},step4Defaults])
+steps['ALCATTUp15']=merge([{'--filein':'file:step3.root'},step4Up2015Defaults])
 steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},stCond,step4Defaults])
 steps['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
