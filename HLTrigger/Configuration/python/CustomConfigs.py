@@ -68,15 +68,6 @@ def L1THLT(process):
     return(process)
 
 
-def FASTSIM(process):
-#   modifications when running L1T+HLT
-
-    process=L1THLT(process)
-    process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("simGtDigis")
-
-    return(process)
-
-
 def HLTDropPrevious(process):
 #   drop on input the previous HLT results
     process.source.inputCommands = cms.untracked.vstring (

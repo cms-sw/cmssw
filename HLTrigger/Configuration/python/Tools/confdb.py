@@ -264,6 +264,12 @@ process = loadL1Menu(process)
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
 process = loadL1Menu(process)
 """
+        elif 'LowPU' in self.config.type :
+          self.data += """
+# load 2015 Run-2 L1 Menu for HIon
+from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v2 as loadL1Menu
+process = loadL1Menu(process)
+"""
         else :
           self.data += """
 # load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
