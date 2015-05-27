@@ -8,7 +8,6 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 
 
 ROOT.gSystem.Load("libFWCoreFWLite")
-ROOT.AutoLibraryLoader.enable()
 
 # Whether warn() should print anythingg
 quietWarn = False
