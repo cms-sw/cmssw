@@ -86,7 +86,8 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+#  foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+  foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 Fake )
 
     set name = ${table}_${gtag}  
 
