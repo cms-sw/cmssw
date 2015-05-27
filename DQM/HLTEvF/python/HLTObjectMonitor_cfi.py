@@ -7,6 +7,12 @@ photon_moduleName ="hltEG30R9Id90HE10IsoMTrackIsoFilter"
 muon_pathName = "HLT_IsoMu27"
 muon_moduleName = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
 
+l2muon_pathName = "HLT_L2DoubleMu23_NoVertex"
+l2muon_moduleName = "hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23"
+
+l2NoBPTXmuon_pathName = "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo"
+l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
+
 electron_pathName = "HLT_Ele27_eta2p1_WP75_Gsf"
 electron_moduleName = "hltEle27WP75GsfTrackIsoFilter"
 
@@ -24,6 +30,8 @@ bJet_moduleName = "hltPFMET120Filter"
 bJet_pathNameOR = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
 bJet_moduleNameOR = "hltCSVPF0p7"
 
+muonDxy_pathName = "HLT_DoubleMu18NoFiltersNoVtx"
+muonDxy_moduleName = "hltL3fDimuonL1f0L2NVf10L3NoFiltersNoVtxFiltered18"
 #To avoid booking histogram, set pathName = cms.string("")
 
 hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
@@ -75,6 +83,20 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
+        ),
+    l2muonPt = cms.PSet(
+        pathName = cms.string(l2muon_pathName),
+        moduleName = cms.string(l2muon_moduleName),
+        NbinsX = cms.int32(75),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(150)
+        ),
+    l2NoBPTXmuonPt = cms.PSet(
+        pathName = cms.string(l2NoBPTXmuon_pathName),
+        moduleName = cms.string(l2NoBPTXmuon_moduleName),
+        NbinsX = cms.int32(75),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(150)
         ),
     electronPt = cms.PSet(
         pathName = cms.string(electron_pathName),
@@ -207,5 +229,12 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         NbinsX = cms.int32(50),
         Xmin = cms.int32(60),
         Xmax = cms.int32(160)
+        ),
+    muonDxy = cms.PSet(
+        pathName = cms.string(muonDxy_pathName),
+        moduleName = cms.string(muonDxy_moduleName),
+        NbinsX = cms.int32(2000),
+        Xmin = cms.int32(-10),
+        Xmax = cms.int32(10)
         )
 )
