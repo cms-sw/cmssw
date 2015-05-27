@@ -214,7 +214,7 @@ HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSH
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
 HLT_MET90_IsoTrk50_v*						# JIRA: CMSHLT-130
 
-HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133
+#HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133 (for low PU runs)
 HLT_DiPFJetAve60_HFJEC_v*					# JIRA: CMSHLT-133
 HLT_DiPFJetAve80_HFJEC_v*					# JIRA: CMSHLT-133
 HLT_DiPFJetAve100_HFJEC_v*					# JIRA: CMSHLT-133
@@ -439,19 +439,22 @@ HLT_PFMET400_NoiseCleaned_v*                                    # JIRA: CMSHLT-3
 HLT_HT2000_v*                                                   # JIRA: CMSHLT-312 (express stream)
 HLT_HT2500_v*                                                   # JIRA: CMSHLT-312 (express stream)
 
+#HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343 (waiting for DQM)
 
-HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for low PU runs)
-HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
-HLT_FullTrack30_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
-HLT_FullTrack50_v* 						# JIRA: CMSHLT-273 (for low PU runs)
+HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-369 (waiting for DQM)
 
-HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-HLT_PixelTracks_Multiplicity110_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-HLT_PixelTracks_Multiplicity135_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+#HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for low PU runs)
+#HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
+#HLT_FullTrack30_v* 						# JIRA: CMSHLT-273 (for low PU runs) 
+#HLT_FullTrack50_v* 						# JIRA: CMSHLT-273 (for low PU runs)
 
-HLT_Ele5_SC5_JPsi_Mass2to4p5_v*					# JIRA: CMSHLT-280 (for low PU runs)
+#HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+#HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+#HLT_PixelTracks_Multiplicity110_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+#HLT_PixelTracks_Multiplicity135_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+#HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+
+#HLT_Ele5_SC5_JPsi_Mass2to4p5_v*					# JIRA: CMSHLT-280 (for low PU runs)
 
 #HLT_PFJet15_NoCaloMatched_v*					# JIRA: CMSHLT-260, mod. CMSHLT-285 (for low PU runs)
 #HLT_PFJet20_NoCaloMatched_v*					# JIRA: CMSHLT-260, mod. CMSHLT-285 (for low PU runs)
@@ -510,7 +513,8 @@ HLT_L2Mu10_v*							# JIRA: CMSHLT-357
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
-HLT_L1SingleEG5_OR_EG10_OR_EG20_v*				# JIRA: CMSHLT-290
+#HLT_L1SingleEG5_OR_EG10_OR_EG20_v*				# JIRA: CMSHLT-290 (only for beam splashes)
+
 HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276
@@ -573,6 +577,7 @@ HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 AOutput
 DQMOutput							# online DQMFileSaver
 EcalCalibrationOutput
+#TrackerCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
