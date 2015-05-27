@@ -37,6 +37,12 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 
 ###############################################################
+# LUMI Calibration
+###############################################################
+# AlCaReco for A stream (PD=MinBias)
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_cff import *
+
+###############################################################
 # ECAL Calibration
 ###############################################################
 # ECAL calibration with isol. electrons
@@ -117,6 +123,8 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
+
+pathALCARECOLumiPixelsMinBias = cms.Path(seqALCARECOLumiPixelsMinBias)
 
 pathALCARECOEcalCalZElectron = cms.Path(seqALCARECOEcalCalZElectron)
 pathALCARECOEcalCalWElectron = cms.Path(seqALCARECOEcalCalWElectron)
@@ -241,6 +249,15 @@ ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	paths  = (pathALCARECOSiStripCalZeroBias),
 	content = OutALCARECOSiStripCalZeroBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalZeroBias.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamLumiPixelsMinBias = cms.FilteredStream(
+	responsible = 'Chris Palmer',
+	name = 'LumiPixelsMinBias',
+	paths  = (pathALCARECOLumiPixelsMinBias),
+	content = OutALCARECOLumiPixelsMinBias.outputCommands,
+	selectEvents = OutALCARECOLumiPixelsMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
