@@ -9,6 +9,7 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
@@ -29,6 +30,7 @@ class RPCPointProducer : public edm::stream::EDProducer<> {
       const edm::EDGetTokenT<reco::TrackCollection> tracks;
       const edm::InputTag tracks_;
    private:
+      void beginStream(edm::StreamID) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
       const bool debug;
       const bool incldt;
@@ -42,5 +44,8 @@ class RPCPointProducer : public edm::stream::EDProducer<> {
       const edm::ParameterSet trackTransformerParam;
 
       // ----------member data ---------------------------
+    
+    ObjectMapCSC* TheCSCObjectsMap_;
+    edm::ESWatcher<MuonGeometryRecord> MuonGeometryWatcher;
 };
 

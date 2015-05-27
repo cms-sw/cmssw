@@ -11,6 +11,8 @@
 #include <DataFormats/RPCRecHit/interface/RPCRecHitCollection.h>
 #include <RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h>
 
+ObjectMapCSC::ObjectMapCSC(){
+}
 
 ObjectMapCSC::ObjectMapCSC(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -47,8 +49,44 @@ ObjectMapCSC::ObjectMapCSC(const edm::EventSetup& iSetup){
     }
   }
 }
+
+void ObjectMapCSC::FillObjectMapCSC(const edm::EventSetup& iSetup){
+    edm::ESHandle<RPCGeometry> rpcGeo;
+    edm::ESHandle<CSCGeometry> cscGeo;
+    
+    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+    iSetup.get<MuonGeometryRecord>().get(cscGeo);
+    
+    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+        if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+            auto ch = dynamic_cast< const RPCChamber* >( *it );
+            std::vector< const RPCRoll*> roles = (ch->rolls());
+            for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+                RPCDetId rpcId = (*r)->id();
+                int region=rpcId.region();
+                if(region!=0){
+                    int station=rpcId.station();
+                    int ring=rpcId.ring();
+                    int cscring=ring;
+                    int cscstation=station;
+                    RPCGeomServ rpcsrv(rpcId);
+                    int rpcsegment = rpcsrv.segment();
+                    int cscchamber = rpcsegment; //FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
+                    if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
+                        cscring = 2;
+                    }
+                    CSCStationIndex ind(region,cscstation,cscring,cscchamber);
+                    std::set<RPCDetId> myrolls;
+                    if (rollstoreCSC.find(ind)!=rollstoreCSC.end()) myrolls=rollstoreCSC[ind];
+                    myrolls.insert(rpcId);
+                    rollstoreCSC[ind]=myrolls;
+                }
+            }
+        }
+    }
+}
   
-CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent, bool debug, double eyr){
+CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent, bool debug, double eyr, ObjectMapCSC* TheObjectCSC){
   
   edm::ESHandle<RPCGeometry> rpcGeo;
   edm::ESHandle<CSCGeometry> cscGeo;
@@ -120,7 +158,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	  float dz=segmentDirection.z();
 
 	  if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	  ObjectMapCSC* TheObjectCSC = new ObjectMapCSC(iSetup);
+	  //ObjectMapCSC* TheObjectCSC = new ObjectMapCSC(iSetup);
 	  if(debug) std::cout<<"Creating the CSCIndex"<<std::endl;
 	  CSCStationIndex theindex(rpcRegion,rpcStation,rpcRing,rpcSegment);
 	  if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
@@ -265,7 +303,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	      }
 	    }
 	  }
-      delete TheObjectCSC;
+    //  delete TheObjectCSC;
 	}
       }
     }

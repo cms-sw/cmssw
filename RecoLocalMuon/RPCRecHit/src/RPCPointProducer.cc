@@ -44,6 +44,8 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig) :
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
+    
+  //TheCSCObjectsMap_ = new ObjectMapCSC(iSetup);
 }
 
 
@@ -76,8 +78,11 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(inclcsc){
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     iEvent.getByToken(cscSegments, allCSCSegments);
+    
+    if (MuonGeometryWatcher.check(iSetup)) TheCSCObjectsMap_->FillObjectMapCSC(iSetup);
+      
     if(allCSCSegments.isValid()){
-      CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
+      CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion, TheCSCObjectsMap_);
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
       iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
     }else{
@@ -96,6 +101,12 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
  
+}
+
+void  RPCPointProducer::beginStream(edm::StreamID iID){
+    TheCSCObjectsMap_ = new ObjectMapCSC();
+
+    
 }
 
 
