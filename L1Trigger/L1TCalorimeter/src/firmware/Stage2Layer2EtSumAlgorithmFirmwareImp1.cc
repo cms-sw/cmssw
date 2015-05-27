@@ -64,9 +64,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       
       // At some point we will remove the bit shifts and will need to limit to the precision available in the firmware
       
-      ex += ( ringEx >> 2);
-      ey += ( ringEy >> 2);
-      et += ( ringEt >> 1);
+      ex += ringEx;
+      ey += ringEy;
+      et += ringEt;
       
     }
     

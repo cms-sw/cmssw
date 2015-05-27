@@ -41,7 +41,7 @@ namespace stage2 {
 
      l1t::EtSum et = l1t::EtSum();
 
-     et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFF) << 12 ) >> 12 );
+     et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
      //et.setHwPt(raw_data & 0xFFFFF);
      switch(block.header().getID()){
      case 1:  et.setType(l1t::EtSum::kTotalEt);  break;
@@ -66,7 +66,7 @@ namespace stage2 {
      l1t::EtSum ht = l1t::EtSum(); 
 
      //ht.setHwPt(raw_data & 0xFFFFF);
-     ht.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFF) << 12 ) >> 12 );
+     ht.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
      switch(block.header().getID()){
      case 1:  ht.setType(l1t::EtSum::kTotalHt);  break;
      case 3:  ht.setType(l1t::EtSum::kTotalHtx); break;

@@ -73,9 +73,9 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 	}
       }
 
-      hx += (ringHx >> 5);
-      hy += (ringHy >> 5);
-      ht += (ringHt >> 5);
+      hx += ringHx;
+      hy += ringHy;
+      ht += ringHt;
       
     }
     
