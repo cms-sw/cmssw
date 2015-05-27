@@ -67,6 +67,12 @@ FWPartialConfigGUI::FWPartialConfigGUI( const char* path, FWConfigurationManager
     TGVerticalFrame* vf = new TGVerticalFrame(this);
     AddFrame(vf, new TGLayoutHints(kLHintsNormal, 2, 2, 4, 4));
 
+    // can do a cast to non-const since we own the configuration
+    FWConfiguration::KeyValues* kv = (FWConfiguration::KeyValues*)m_origConfig.keyValues();
+    std::sort(kv->begin(), kv->end(),
+              [](const std::pair<std::string, FWConfiguration>& lhs, const std::pair<std::string, FWConfiguration>& rhs) -> bool {
+             return nmm.btnName(lhs.first) < nmm.btnName(rhs.first); } );
+
     for(FWConfiguration::KeyValues::const_iterator it = m_origConfig.keyValues()->begin(); it != m_origConfig.keyValues()->end(); ++it) {
         if ( it->second.keyValues()) {
             std::string nb =  nmm.btnName(it->first);

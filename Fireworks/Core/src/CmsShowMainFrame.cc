@@ -162,14 +162,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    appendData->createMenuEntry(fileMenu);
    searchFiles->createMenuEntry(fileMenu);
    //searchFiles->disable();
+
+   fileMenu->AddSeparator();
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
-   fileMenu->AddSeparator();
 
-   loadPartialConfig->createMenuEntry(fileMenu);
-   savePartialConfig->createMenuEntry(fileMenu);
-   savePartialConfigAs->createMenuEntry(fileMenu);
+ 
+   TGPopupMenu*  partialSaveMenu = new TGPopupMenu(gClient->GetRoot());
+   fileMenu->AddPopup("Advanced Configuration", partialSaveMenu);
+
+   loadPartialConfig->createMenuEntry(partialSaveMenu);
+   savePartialConfig->createMenuEntry(partialSaveMenu);
+   savePartialConfigAs->createMenuEntry(partialSaveMenu);
    fileMenu->AddSeparator();
     
    exportImage->createMenuEntry(fileMenu);
@@ -183,12 +188,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    saveConfig->createShortcut(kKey_S, "CTRL", GetId());
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
    exportImage->createShortcut(kKey_P, "CTRL", GetId());
-   exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
+   // comment out the followinf one, seems to get double open file dialog events on OSX
+   // exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    loadPartialConfig->createShortcut(kKey_W, "CTRL", GetId());
-   savePartialConfig->createShortcut(kKey_E, "CTRL", GetId());
-   savePartialConfigAs->createShortcut(kKey_E, "CTRL+SHIFT", GetId());
+   savePartialConfig->createShortcut(kKey_Y, "CTRL", GetId());
+   savePartialConfigAs->createShortcut(kKey_Y, "CTRL+SHIFT", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
