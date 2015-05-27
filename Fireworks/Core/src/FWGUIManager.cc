@@ -167,7 +167,9 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
       getAction(cmsshow::sLoadPartialConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+      getAction(cmsshow::sSavePartialConfig)->activated.connect(sigc::mem_fun(this, &FWGUIManager::savePartialToConfigurationFile));
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
+      getAction(cmsshow::sSavePartialConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForPartialSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
@@ -845,7 +847,24 @@ FWGUIManager::promptForSaveConfigurationFile()
    std::string name;
    if (!promptForConfigurationFile(name, kFDSave))
       return;
+
    writeToConfigurationFile_(name);
+}
+
+void
+FWGUIManager::promptForPartialSaveConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDSave))
+      return;
+
+   writePartialToConfigurationFile_(name);
+}
+
+void
+FWGUIManager::savePartialToConfigurationFile()
+{
+   writePartialToConfigurationFile_("current");
 }
 
 void

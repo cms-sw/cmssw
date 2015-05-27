@@ -138,6 +138,7 @@ FWEventItemsManager::clearItems(void)
    goingToClearItems_();
 
    m_items.clear();
+   printf("clear items \n");
 }
 
 static const std::string kType("type");
@@ -216,6 +217,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
         it != keyValues->end();
         ++it)
    {
+       std::cout << "set from item " << it->first <<std::endl;
       const std::string& name = it->first;
       const FWConfiguration& conf = it->second;
       const FWConfiguration::KeyValues* keyValues =  conf.keyValues();

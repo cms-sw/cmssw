@@ -249,6 +249,10 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
                                                                 this, _1));
    m_guiManager->loadPartialFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialLoadConfiguration,
                                                                 this, _1));
+
+   m_guiManager->writePartialToConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialWriteToConfigFile,
+                                                                this,_1));
+
    std::string macPath(gSystem->Getenv("CMSSW_BASE"));
    macPath += "/src/Fireworks/Core/macros";
    const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
@@ -275,6 +279,16 @@ CmsShowMainBase::writeToCurrentConfigFile()
 {
    m_configurationManager->writeToFile(m_configFileName);
 }
+
+void
+CmsShowMainBase::partialWriteToConfigFile(const std::string &name)
+{
+    printf("main base write partial !!!!\n");
+    std::string p =   (name == "current") ? m_configFileName.c_str() : name.c_str();
+    new FWPartialConfigSaveGUI( p.c_str() ,  m_configurationManager.get());
+
+}
+
 
 void
 CmsShowMainBase::reloadConfiguration(const std::string &config)
@@ -327,8 +341,7 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
 void
 CmsShowMainBase::partialLoadConfiguration(const std::string &name)
 {
-    printf("LOAD PARTAL \n");
-    new FWPartialLoadGUI(name.c_str(), m_eiManager.get(), m_configurationManager.get());
+    new FWPartialConfigLoadGUI(name.c_str(), m_configurationManager.get(), m_eiManager.get());
 }
 
 void

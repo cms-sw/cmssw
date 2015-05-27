@@ -80,7 +80,9 @@ public:
 
    void writeToConfigFile(const std::string &config);
    void writeToCurrentConfigFile();
+   void writePartialToConfigFile();
    void reloadConfiguration(const std::string &config);
+   void partialWriteToConfigFile(const std::string &config);
    void partialLoadConfiguration(const std::string &config);
    void setupConfiguration();
    

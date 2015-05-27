@@ -36,5 +36,6 @@
   <class name="FWEveDigitSetScalableMarker"/>
   <class name="FWEveDigitSetScalableMarkerGL"/>
   <class name="FW3DViewDistanceMeasureTool"/>
-  <class name="FWPartialLoadGUI"/>
+  <class name="FWPartialConfigLoadGUI"/>
+  <class name="FWPartialConfigSaveGUI"/>
 </lcgdict>

@@ -120,7 +120,7 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
       fwLog(fwlog::kInfo) << "Writing to file "<< iName.c_str() << "...\n";
       fflush(stdout);
 
-      streamTo(file, top, "top");
+      FWConfiguration::streamTo(file, top, "top");
    }
    catch (std::runtime_error &e)
    { 

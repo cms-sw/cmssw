@@ -8,28 +8,51 @@ class TGCheckButton;
 class FWConfigurationManager;
 class FWEventItemsManager;
 
-class FWPartialLoadGUI : public TGMainFrame
+class FWPartialConfigGUI : public TGMainFrame
 {
  public:
-  FWPartialLoadGUI( const char* path, FWEventItemsManager*, FWConfigurationManager* );
-  ~FWPartialLoadGUI();
+  FWPartialConfigGUI(const char* path,  FWConfigurationManager*);
+  ~FWPartialConfigGUI() {}
+ protected:
+  std::vector <TGCheckButton*> m_entries;
+  FWConfiguration m_origConfig;
+  FWConfigurationManager* m_cfgMng;
+};
+
+//---------------------------------------------------------------------
+
+class FWPartialConfigLoadGUI : public FWPartialConfigGUI
+{
+ public:
+  FWPartialConfigLoadGUI( const char* path,  FWConfigurationManager* ,FWEventItemsManager*);
+  ~FWPartialConfigLoadGUI();
 
   void Load();
   void Cancel();
 
  private:
-  struct ConfEntry {
-    TGCheckButton* btn;
-    bool from_gui;
-    ConfEntry(TGCheckButton* b,  bool g) : btn(b), from_gui(g){}
-  };
-
-  std::vector <ConfEntry> m_entries;
-  FWConfiguration m_origConfig;
   FWEventItemsManager* m_eiMng;
-  FWConfigurationManager* m_cfgMng;
-
-  ClassDef(FWPartialLoadGUI, 0);
+  const char* m_oldConfigName;
+  ClassDef(FWPartialConfigLoadGUI, 0);
 };
+
+
+//---------------------------------------------------------------------
+
+class FWPartialConfigSaveGUI : public FWPartialConfigGUI
+{
+ public:
+  FWPartialConfigSaveGUI( const char* path_out, FWConfigurationManager* );
+  ~FWPartialConfigSaveGUI() {}
+
+  void Write();
+  void Cancel();
+
+ private:
+  std::string m_outFileName;
+
+  ClassDef(FWPartialConfigSaveGUI, 0);
+};
+
 
 #endif
