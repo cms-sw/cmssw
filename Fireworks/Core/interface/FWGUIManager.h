@@ -206,8 +206,8 @@ public:
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
    sigc::signal<void, const std::string&> writePartialToConfigurationFile_;
-    sigc::signal<void, const std::string&> loadFromConfigurationFile_;
-    sigc::signal<void, const std::string&> loadPartialFromConfigurationFile_;
+   sigc::signal<void, const std::string&> loadFromConfigurationFile_;
+   sigc::signal<void, const std::string&> loadPartialFromConfigurationFile_;
    sigc::signal<void, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
