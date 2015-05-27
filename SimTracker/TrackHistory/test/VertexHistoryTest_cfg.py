@@ -27,7 +27,7 @@ process.vertexHistoryAnalyzer = cms.EDAnalyzer("VertexHistoryAnalyzer",
 
 process.GlobalTag.globaltag = 'MC_38Y_V9::All'
 
-process.p = cms.Path(process.playback * process.vertexHistoryAnalyzer)
+process.p = cms.Path(process.playback * process.trackAssociatorByHits * process.vertexAssociatorSequence * process.vertexHistoryAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 readFiles = cms.untracked.vstring()

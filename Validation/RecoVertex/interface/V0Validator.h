@@ -41,8 +41,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/VertexAssociatorRecord.h"
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"

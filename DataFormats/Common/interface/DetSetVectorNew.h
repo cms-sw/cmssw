@@ -11,6 +11,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
 #include <memory>
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
@@ -23,6 +24,8 @@ namespace edm { namespace refhelper { template<typename T> struct FindForNewDetS
 //FIXME remove New when ready
 namespace edmNew {
   typedef uint32_t det_id_type;
+
+  struct CapacityExaustedException : public cms::Exception {  CapacityExaustedException(): cms::Exception("Capacity exausted in DetSetVectorNew"){} };
 
   namespace dslv {
     template< typename T> class LazyGetter;
@@ -61,6 +64,9 @@ namespace edmNew {
     void errorFilling();
     void errorIdExists(det_id_type iid);
     void throw_range(det_id_type iid);
+    inline void throwCapacityExausted() { throw CapacityExaustedException();}
+
+
    }
 
   /** an optitimized container that linearized a "map of vector".
@@ -150,12 +156,24 @@ namespace edmNew {
 	saveEmpty=true; // avoid mess in destructor
       }
 
+      void checkCapacityExausted() const {
+        if (v.onDemand()   && v.m_data.size()==v.m_data.capacity()) dstvdetails::throwCapacityExausted();
+      }
+
+      void checkCapacityExausted(size_type s) const {
+        if (v.onDemand()   && v.m_data.size()+s>v.m_data.capacity()) dstvdetails::throwCapacityExausted();
+      }
+
+
       void reserve(size_type s) {
+        if (item.offset+s <= v.m_data.capacity()) return;
+        if (v.onDemand()) dstvdetails::throwCapacityExausted();	
 	v.m_data.reserve(item.offset+s);
       }
       
       
       void resize(size_type s) {
+        checkCapacityExausted(s);
 	v.m_data.resize(item.offset+s);
 	item.size=s;
       }
@@ -171,11 +189,13 @@ namespace edmNew {
       DataIter end() { return v.m_data.end();}
 
       void push_back(data_type const & d) {
+        checkCapacityExausted();
 	v.m_data.push_back(d);
 	item.size++;
       }
 #ifndef CMS_NOCXX11
       void push_back(data_type && d) {
+        checkCapacityExausted();
         v.m_data.push_back(std::move(d));
         item.size++;
       }
