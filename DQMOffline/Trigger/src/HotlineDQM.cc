@@ -31,22 +31,27 @@ HotlineDQM::~HotlineDQM()
    edm::LogInfo("HotlineDQM") << "Destructor HotlineDQM::~HotlineDQM " << std::endl;
 }
 
-void HotlineDQM::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e)
-{
-    edm::LogInfo("HotlineDQM") << "HotlineDQM::beginRun" << std::endl;
-}
-
 void HotlineDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
 {
     edm::LogInfo("HotlineDQM") << "HotlineDQM::bookHistograms" << std::endl;
-    //book at beginRun
-    bookHistos(ibooker_);
-}
 
-void HotlineDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-        edm::EventSetup const& context)
-{
-    edm::LogInfo("HotlineDQM") << "HotlineDQM::beginLuminosityBlock" << std::endl;
+    ibooker_.cd();
+    ibooker_.setCurrentFolder("HLT/Hotline/" + triggerPath_);
+
+    //online quantities 
+    h_MuPt = ibooker_.book1D("MuPt", "Muon Pt; GeV", 20, 0.0, 2000.0);
+    h_PhotonPt = ibooker_.book1D("PhotonPt", "Photon Pt; GeV", 20, 0.0, 4000.0);
+    h_HT = ibooker_.book1D("HT", "HT; GeV", 20, 0.0, 6000.0);
+    h_MetPt = ibooker_.book1D("MetPt", "Calo MET; GeV", 20, 0.0, 2000);
+    h_PFMetPt = ibooker_.book1D("PFMetPt", "PF MET; GeV", 20, 0.0, 2000);
+
+    if(useMuons) h_OnlineMuPt = ibooker_.book1D("OnlineMuPt", "Online Muon Pt; GeV", 20, 0.0, 2000.0);
+    if(usePhotons) h_OnlinePhotonPt = ibooker_.book1D("OnlinePhotonPt", "Online Photon Pt; GeV", 20, 0.0, 4000.0);
+    if(useHT) h_OnlineHT = ibooker_.book1D("OnlineHT", "Online HT; GeV", 20, 0.0, 6000.0);
+    if(useMet) h_OnlineMetPt = ibooker_.book1D("OnlineMetPt", "Online Calo MET; GeV", 20, 0.0, 2000);
+    if(usePFMet) h_OnlinePFMetPt = ibooker_.book1D("OnlinePFMetPt", "Online PF MET; GeV", 20, 0.0, 2000);
+
+    ibooker_.cd();
 }
 
 void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
@@ -190,39 +195,6 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
         //fill PFMET histogram
         h_PFMetPt->Fill(pfMETCollection->front().et());
     }
-}
-
-
-void HotlineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-    edm::LogInfo("HotlineDQM") << "HotlineDQM::endLuminosityBlock" << std::endl;
-}
-
-
-void HotlineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-    edm::LogInfo("HotlineDQM") << "HotlineDQM::endRun" << std::endl;
-}
-
-void HotlineDQM::bookHistos(DQMStore::IBooker & ibooker_)
-{
-    ibooker_.cd();
-    ibooker_.setCurrentFolder("HLT/Hotline/" + triggerPath_);
-
-    //online quantities 
-    h_MuPt = ibooker_.book1D("MuPt", "Muon Pt; GeV", 20, 0.0, 2000.0);
-    h_PhotonPt = ibooker_.book1D("PhotonPt", "Photon Pt; GeV", 20, 0.0, 4000.0);
-    h_HT = ibooker_.book1D("HT", "HT; GeV", 20, 0.0, 6000.0);
-    h_MetPt = ibooker_.book1D("MetPt", "Calo MET; GeV", 20, 0.0, 2000);
-    h_PFMetPt = ibooker_.book1D("PFMetPt", "PF MET; GeV", 20, 0.0, 2000);
-
-    if(useMuons) h_OnlineMuPt = ibooker_.book1D("OnlineMuPt", "Online Muon Pt; GeV", 20, 0.0, 2000.0);
-    if(usePhotons) h_OnlinePhotonPt = ibooker_.book1D("OnlinePhotonPt", "Online Photon Pt; GeV", 20, 0.0, 4000.0);
-    if(useHT) h_OnlineHT = ibooker_.book1D("OnlineHT", "Online HT; GeV", 20, 0.0, 6000.0);
-    if(useMet) h_OnlineMetPt = ibooker_.book1D("OnlineMetPt", "Online Calo MET; GeV", 20, 0.0, 2000);
-    if(usePFMet) h_OnlinePFMetPt = ibooker_.book1D("OnlinePFMetPt", "Online PF MET; GeV", 20, 0.0, 2000);
-
-    ibooker_.cd();
 }
 
 void HotlineDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
