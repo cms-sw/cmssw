@@ -39,64 +39,22 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.PostRecoGenerator_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-###
 process.load('Configuration.StandardSequences.L1Reco_cff')
-###
-#process.load("SimCalorimetry.Configuration.hcalDigiSequence_cff")
-#process.load("SimGeneral.MixingModule.mixNoPU_cfi")
-process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
-process.load("RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff")
-#process.load("RecoLocalCalo.Configuration.hcalGlobalReco_cff")
-#process.load("EventFilter.HcalRawToDigi.HcalDigiToRaw_cfi")
-#process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-#process.load("EventFilter.RawDataCollector.rawDataCollector_cfi")
+#process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
+#process.load("RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff")
 
-#process.MYecalMultiFitUncalibRecHit=process.ecalMultiFitUncalibRecHit.clone()
 process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
 process.particleFlowClusterECAL.energyCorrector.bunchSpacing = cms.int32(25)
-#process.MYecalMultiFitUncalibRecHit.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
-#process.MYecalMultiFitUncalibRecHit.useLumiInfoRunHeader = cms.bool(False)
 
 process.ecalMultiFitUncalibRecHit.algoPSet = cms.PSet( #for CMSSW >=750pre1
     activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4),
     useLumiInfoRunHeader = cms.bool(False)
 )
 
-###process.raw2cluster = cms.Sequence(
-###    process.siPixelDigis*process.siStripDigis
-###    *process.siPixelClustersPreSplitting
-###    *process.siPixelRecHitsPreSplitting
-###    *process.siStripZeroSuppression
-###    *process.siStripClusters
-###)
-###
-###process.clustToHits = cms.Sequence(
-###    process.siStripMatchedRecHits
-###)
-###
-###process.tracking = cms.Sequence(
-###    process.MeasurementTrackerEventPreSplitting # unclear where to put this
-###    *process.siPixelClusterShapeCachePreSplitting # unclear where to put this
-####    *process.mix
-####    *process.hcalDigiSequence
-###    *process.ecalDigis
-###    *process.ecalPreshowerDigis
-###    *process.ecalLocalRecoSequence
-####    *process.process.MYecalMultiFitUncalibRecHit
-###    *process.hcalDigis
-###    *process.hcalLocalRecoSequence
-###    *process.trackingGlobalReco
-###    *process.vertexreco
-####    *process.recopixelvertexing
-###)
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-#process.endjob_step = cms.EndPath(process.endOfProcess)
-
-# Schedule definition
-#process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
@@ -113,12 +71,7 @@ if hasattr(process, 'cscReEmulTriggerPrimitiveDigis'):
     process.cscReEmulTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
     process.cscReEmulTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 
-
-
 ## END ADDED FOR RAW
-
-
-
 
 
 # -- number of events
