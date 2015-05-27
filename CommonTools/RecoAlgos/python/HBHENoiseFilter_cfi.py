@@ -16,3 +16,9 @@ HBHENoiseFilter = cms.EDFilter(
     inputLabel = cms.InputTag('MakeHBHENoiseFilterResult','HBHENoiseFilterResult'),
     reverseDecision = cms.bool(False)
 )
+
+# Customize MakeHBHENoiseFilterResult in the same manner
+# as HBHENoiseFilterResultProducer
+from Configuration.StandardSequences.Eras import eras
+eras.run2_common.toModify(MakeHBHENoiseFilterResult, IgnoreTS4TS5ifJetInLowBVRegion=False)
+eras.run2_25ns_specific.toModify(MakeHBHENoiseFilterResult, defaultDecision="HBHENoiseFilterResultRun2Loose")
