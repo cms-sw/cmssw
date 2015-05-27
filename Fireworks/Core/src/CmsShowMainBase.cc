@@ -377,12 +377,6 @@ CmsShowMainBase::setupConfiguration()
    m_guiManager->updateStatus("Setting up configuration...");
    if(m_configFileName.empty() ) {
       fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
-      m_guiManager->getMainFrame()->MapSubwindows();
-      m_guiManager->getMainFrame()->Layout();
-      m_guiManager->getMainFrame()->MapRaised();
-      m_configFileName = "newconfig.fwc";
-      m_guiManager->createView("Rho Phi"); 
-      m_guiManager->createView("Rho Z"); 
    }
    else {
       char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
@@ -417,16 +411,20 @@ CmsShowMainBase::setupConfiguration()
                               << std::endl;
          exit(1);
       }
+
+       
    }
-   /* 
-      if(not m_configFileName.empty() ) {
-      //when the program quits we will want to save the configuration automatically
-      m_guiManager->goingToQuit_.connect(
-      boost::bind(&FWConfigurationManager::writeToFile,
-      m_configurationManager.get(),
-      m_configFileName));
-      }
-   */
+
+   // case configuration does not contain GUI Manager entry
+   if ( !m_guiManager->getMainFrame()->IsMapped()) {
+
+       m_guiManager->getMainFrame()->MapSubwindows();
+       m_guiManager->getMainFrame()->Layout();
+       m_guiManager->getMainFrame()->MapRaised();
+       m_configFileName = "newconfig.fwc";
+       m_guiManager->createView("Rho Phi"); 
+       m_guiManager->createView("Rho Z"); 
+   }
 }
 
 
