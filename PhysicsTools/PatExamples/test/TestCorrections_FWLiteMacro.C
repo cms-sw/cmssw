@@ -5,7 +5,7 @@
     /*
       {
       gSystem->Load("libFWCoreFWLite.so");
-      AutoLibraryLoader::enable();
+      FWLiteEnabler::enable();
       gSystem->Load("libDataFormatsFWLite.so");
       gSystem->Load("libDataFormatsPatCandidates.so");
       gSystem->Load("libRooFit") ;
@@ -34,7 +34,7 @@
   // these includes are needed to make the  "gSystem" commands below work
 #include "TSystem.h"
 #include "TROOT.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #endif
 
 
