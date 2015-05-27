@@ -78,13 +78,11 @@ void
 FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const
 {
    assert(0!=iConfig.keyValues());
-   printf("FWConfigurationManager::setFrom\n");
    for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(),
                                                   itEnd = iConfig.keyValues()->end();
        it != itEnd;
        ++it) {
       std::map<std::string,FWConfigurable*>::const_iterator itFound = m_configurables.find(it->first);
-      std::cerr << "==== " << it->first <<std::endl;
       assert(itFound != m_configurables.end());
       itFound->second->setFrom(it->second);
    }
