@@ -32,9 +32,9 @@ public:
     hbins_ = 1;
     hOrder_ = 9;
     vorder_ = 2;    //sets default order of event plane
-    minvtx_ = -25;
-    delvtx_ = 5;
-    nvtxbins_ = 10;
+//    minvtx_ = -25;
+//    delvtx_ = 5;
+//    nvtxbins_ = 10;
   }
 
 
@@ -88,8 +88,6 @@ public:
   {
     int cut;
     if(centbin < 0 ) return -1;
-    //int ietbin = hfetbins*log10( 9.*(et/scale)+1.);
-    //if(ietbin>hfetbins) ietbin=hfetbins-1;
     int ibin = centbin;
     int ivtx = (vtx-minvtx_)/delvtx_;
     if(ivtx < 0 || ivtx > nvtxbins_) return -1;
@@ -268,8 +266,6 @@ public:
   double getCentResErr40(int bin) const { if(bin<2 && bin>=0)  {return centResErr40_[bin];} else {return 0.;}}
 
 private:
-  static const int MAXCUT = 10000;
-  static const int MAXCUTOFF = 1000;
   double flatX_[MAXCUT];
   double flatY_[MAXCUT];
   double flatXDB_[MAXCUT];
@@ -323,10 +319,11 @@ private:
   int caloCentRefMinBin_; //min ref centrality bin for calo weight scale
   int caloCentRefMaxBin_; //max ref centrality bin for calo weight scale
 
-  int nvtxbins_;
-  double minvtx_;
-  double delvtx_;
-
+  static const int nvtxbins_ = 10;
+  static const double minvtx_ = -25.;
+  static const double delvtx_ = 5.;
+  static const int MAXCUT = 10000;
+  static const int MAXCUTOFF = 1000;
 };
 
 #endif
