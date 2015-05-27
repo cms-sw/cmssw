@@ -16,8 +16,14 @@ pvFilter = cms.EDFilter(
 )
 
 ## apply HBHE Noise filter
-## import CommonTools.RecoAlgos.HBHENoiseFilter_cfi
-## HBHENoiseFilter = CommonTools.RecoAlgos.HBHENoiseFilter_cfi.HBHENoiseFilter.clone()
+from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import HBHENoiseFilterResultProducer
+HBHENoiseFilterResultProducerRunTwo = HBHENoiseFilterResultProducer.clone()
+HBHENoiseFilterResultProducerRunTwo.defaultDecision = "HBHENoiseFilterResultRun2Loose"
+HBHENoiseFilter = cms.EDFilter(
+    "BooleanFlagFilter",
+    inputLabel = cms.InputTag("HBHENoiseFilterResultProducerRunTwo", "HBHENoiseFilterResultRun2Loose", "skim"),
+    reverseDecision = cms.bool(False)
+)
 
 ## select events with high pfMET
 pfMETSelector = cms.EDFilter(
@@ -34,7 +40,8 @@ pfMETCounter = cms.EDFilter(
 
 hotlineSkimPFMET = cms.Path(
    pvFilter*
-   ##HBHENoiseFilter*
+   HBHENoiseFilterResultProducerRunTwo*
+   HBHENoiseFilter*
    pfMETSelector*
    pfMETCounter
 )
@@ -54,7 +61,8 @@ caloMETCounter = cms.EDFilter(
 
 hotlineSkimCaloMET = cms.Path(
    pvFilter*
-   ##HBHENoiseFilter*
+   HBHENoiseFilterResultProducerRunTwo*
+   HBHENoiseFilter*
    caloMETSelector*
    caloMETCounter
 )
@@ -74,7 +82,8 @@ CondMETCounter = cms.EDFilter(
 
 hotlineSkimCondMET = cms.Path(
    pvFilter*
-   ##HBHENoiseFilter*
+   HBHENoiseFilterResultProducerRunTwo*
+   HBHENoiseFilter*
    CondMETSelector*
    CondMETCounter
 )
