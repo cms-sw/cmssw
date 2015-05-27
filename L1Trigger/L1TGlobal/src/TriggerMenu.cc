@@ -43,7 +43,7 @@ TriggerMenu::TriggerMenu(
         const unsigned int numberConditionChips,
         const std::vector<std::vector<MuonTemplate> >& vecMuonTemplateVal,
         const std::vector<std::vector<CaloTemplate> >& vecCaloTemplateVal,
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTemplateVal,
+        const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTemplateVal,
         const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTemplateVal,
         const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTemplateVal,
         const std::vector<std::vector<L1GtHfBitCountsTemplate> >& vecHfBitCountsTemplateVal,
@@ -53,7 +53,7 @@ TriggerMenu::TriggerMenu(
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplateVal,
         const std::vector<std::vector<MuonTemplate> >& corMuonTemplateVal,
         const std::vector<std::vector<CaloTemplate> >& corCaloTemplateVal,
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTemplateVal
+        const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTemplateVal
 
 ) :
     m_triggerMenuInterface( "NULL" ),
@@ -244,9 +244,7 @@ void TriggerMenu::buildGtConditionMap() {
         }
     }
 
-    /*
-      /// DMP: Comment out unused templates for now
-
+ 
     //
     size_t vecEnergySumSize = m_vecEnergySumTemplate.size();
     if (condMapSize < vecEnergySumSize) {
@@ -255,14 +253,14 @@ void TriggerMenu::buildGtConditionMap() {
     }
 
     chipNr = -1;
-    for (std::vector<std::vector<L1GtEnergySumTemplate> >::iterator
+    for (std::vector<std::vector<EnergySumTemplate> >::iterator
             itCondOnChip = m_vecEnergySumTemplate.begin();
             itCondOnChip != m_vecEnergySumTemplate.end();
             itCondOnChip++) {
 
         chipNr++;
 
-        for (std::vector<L1GtEnergySumTemplate>::iterator
+        for (std::vector<EnergySumTemplate>::iterator
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
@@ -270,6 +268,8 @@ void TriggerMenu::buildGtConditionMap() {
         }
     }
 
+     /// DMP: Comment out unused templates for now
+    /*
     //
     size_t vecJetCountsSize = m_vecJetCountsTemplate.size();
     if (condMapSize < vecJetCountsSize) {
@@ -469,7 +469,7 @@ void TriggerMenu::setVecCaloTemplate(
 }
 
 void TriggerMenu::setVecEnergySumTemplate(
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTempl) {
+        const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTempl) {
 
     m_vecEnergySumTemplate = vecEnergySumTempl;
 }
@@ -530,7 +530,7 @@ void TriggerMenu::setCorCaloTemplate(
 }
 
 void TriggerMenu::setCorEnergySumTemplate(
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTempl) {
+        const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTempl) {
 
     m_corEnergySumTemplate = corEnergySumTempl;
 }

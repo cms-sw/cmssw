@@ -29,7 +29,7 @@
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
@@ -54,7 +54,7 @@ public:
     TriggerMenu(const std::string&, const unsigned int numberConditionChips,
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
-            const std::vector<std::vector<L1GtEnergySumTemplate> >&,
+            const std::vector<std::vector<EnergySumTemplate> >&,
             const std::vector<std::vector<L1GtJetCountsTemplate> >&,
             const std::vector<std::vector<L1GtCastorTemplate> >&,
             const std::vector<std::vector<L1GtHfBitCountsTemplate> >&,
@@ -64,7 +64,7 @@ public:
             const std::vector<std::vector<CorrelationTemplate> >&,
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
-            const std::vector<std::vector<L1GtEnergySumTemplate> >&
+            const std::vector<std::vector<EnergySumTemplate> >&
     );
 
     // copy constructor
@@ -129,14 +129,14 @@ public:
     void setVecCaloTemplate(const std::vector<std::vector<CaloTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtEnergySumTemplate> >&
+    inline const std::vector<std::vector<EnergySumTemplate> >&
         vecEnergySumTemplate() const {
 
         return m_vecEnergySumTemplate;
     }
 
     void setVecEnergySumTemplate(
-            const std::vector<std::vector<L1GtEnergySumTemplate> >&);
+            const std::vector<std::vector<EnergySumTemplate> >&);
 
     //
     inline const std::vector<std::vector<L1GtJetCountsTemplate> >&
@@ -225,14 +225,14 @@ public:
 
     // get / set the vectors containing the conditions for correlation templates
     //
-    inline const std::vector<std::vector<L1GtEnergySumTemplate> >&
+    inline const std::vector<std::vector<EnergySumTemplate> >&
         corEnergySumTemplate() const {
 
         return m_corEnergySumTemplate;
     }
 
     void setCorEnergySumTemplate(
-            const std::vector<std::vector<L1GtEnergySumTemplate> >&);
+            const std::vector<std::vector<EnergySumTemplate> >&);
 
 
     /// get / set the algorithm map (by name)
@@ -286,7 +286,7 @@ private:
     /// explicit, due to persistency...
     std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
-    std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
+    std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
     std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
     std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
@@ -297,7 +297,7 @@ private:
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;
-    std::vector<std::vector<L1GtEnergySumTemplate> > m_corEnergySumTemplate;
+    std::vector<std::vector<EnergySumTemplate> > m_corEnergySumTemplate;
 
     /// map containing the physics algorithms (by name)
     l1t::AlgorithmMap m_algorithmMap;

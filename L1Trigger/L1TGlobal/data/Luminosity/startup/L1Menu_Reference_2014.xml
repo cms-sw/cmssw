@@ -1,77 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<l1t:l1TriggerMenu xmlns:l1t="http://www.cern.ch/l1t/0.6.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/l1t/0.6.0 L1TriggerMenu.xsd">
+<l1t:l1TriggerMenu xmlns:l1t="http://www.cern.ch/l1t/0.7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/l1t/0.7.0 L1TriggerMenu.xsd">
   <l1t:meta>
-    <l1t:name>L1Menu_Reference_2014_v4</l1t:name>
-    <l1t:datetime>2014-06-18T15:00:36</l1t:datetime>
-    <l1t:uuid_menu>98c404c2-747e-40ec-9255-39bc3018a84b</l1t:uuid_menu>
-    <l1t:comment>Based on L1Menu_Reference_2014_v2 exteneded by three muon conditions and corresponding algorithms.</l1t:comment>
+    <l1t:name>L1Menu_Collisions2015_25nsStage1_v3_subset</l1t:name>
+    <l1t:datetime>2015-05-05T14:03:33</l1t:datetime>
+    <l1t:uuid_menu>e68ff27e-4a64-4099-a2b2-996509d4d2f7</l1t:uuid_menu>
+    <l1t:comment>Subset of latest Collisions2015 menu for energy sums condition test in may 2015.</l1t:comment>
     <l1t:scale_set>L1T_Scales_IN2013005</l1t:scale_set>
-    <l1t:editor_version>0.1.2</l1t:editor_version>
+    <l1t:editor_version>0.2.2</l1t:editor_version>
     <l1t:revisions>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-07-24T10:16:34</l1t:datetime>
+      <l1t:revision hostname="draconian" username="arnold">
+        <l1t:author>Bernhard Arnold</l1t:author>
+        <l1t:datetime>2015-05-06T15:15:45</l1t:datetime>
       </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-07-24T10:00:16</l1t:datetime>
+      <l1t:revision hostname="draconian" username="arnold">
+        <l1t:author>Bernhard Arnold</l1t:author>
+        <l1t:datetime>2015-05-05T15:51:20</l1t:datetime>
       </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-02-26T11:41:50</l1t:datetime>
-      </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-02-26T11:20:54</l1t:datetime>
-      </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-02-26T11:19:49</l1t:datetime>
-      </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-02-26T10:40:47</l1t:datetime>
-      </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-02-26T10:40:17</l1t:datetime>
-      </l1t:revision>
-      <l1t:revision hostname="gtmtca" username="arnold">
-        <l1t:author>Arnold</l1t:author>
-        <l1t:datetime>2014-02-25T14:14:04</l1t:datetime>
+      <l1t:revision hostname="draconian" username="arnold">
+        <l1t:author>Bernhard Arnold</l1t:author>
+        <l1t:datetime>2015-05-05T15:17:58</l1t:datetime>
       </l1t:revision>
     </l1t:revisions>
   </l1t:meta>
   <l1t:conditions>
     <l1t:condCalorimeter>
-      <l1t:uid>da3d5845-e4d5-40b3-a77d-900c10f787f6</l1t:uid>
-      <l1t:name>double_eg_1</l1t:name>
-      <l1t:comment>Reference condition according to file gtl_module_example.vhd</l1t:comment>
+      <l1t:uid>86a17159-cff1-4436-8b2f-1f6e99301e57</l1t:uid>
+      <l1t:name>SingleIsoEG_25_er</l1t:name>
+      <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
-      <l1t:type>double</l1t:type>
+      <l1t:type>single</l1t:type>
       <l1t:comparison_operator>ge</l1t:comparison_operator>
       <l1t:objectType>eg</l1t:objectType>
       <l1t:objectRequirements>
         <l1t:objectRequirement>
-          <l1t:etThreshold>30</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>36</l1t:lower>
-            <l1t:upper>107</l1t:upper>
-          </l1t:phiWindow>
-        </l1t:objectRequirement>
-        <l1t:objectRequirement>
-          <l1t:etThreshold>30</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>108</l1t:lower>
-            <l1t:upper>35</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:etThreshold>50</l1t:etThreshold>
+          <l1t:etaWindow>
+            <l1t:lower>206</l1t:lower>
+            <l1t:upper>49</l1t:upper>
+          </l1t:etaWindow>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
       </l1t:objectRequirements>
       <l1t:relativeBx>0</l1t:relativeBx>
     </l1t:condCalorimeter>
     <l1t:condCalorimeter>
-      <l1t:uid>6cd22f2e-f69d-4207-b326-6b3927d5ac3d</l1t:uid>
-      <l1t:name>quad_jet_1</l1t:name>
+      <l1t:uid>3a48248e-b541-4a24-b97a-43b8d48b8041</l1t:uid>
+      <l1t:name>SingleNoIsoEG_25</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>50</l1t:etThreshold>
+          <l1t:etaWindow>
+            <l1t:lower>206</l1t:lower>
+            <l1t:upper>49</l1t:upper>
+          </l1t:etaWindow>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>61e062f7-cd1b-4a38-b322-d35418ed5aef</l1t:uid>
+      <l1t:name>QuadJet_60</l1t:name>
       <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
       <l1t:type>quad</l1t:type>
@@ -79,142 +107,1057 @@
       <l1t:objectType>jet</l1t:objectType>
       <l1t:objectRequirements>
         <l1t:objectRequirement>
-          <l1t:etThreshold>20</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>72</l1t:lower>
-            <l1t:upper>143</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:etThreshold>120</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
         <l1t:objectRequirement>
-          <l1t:etThreshold>30</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>72</l1t:lower>
-            <l1t:upper>143</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:etThreshold>120</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
         <l1t:objectRequirement>
-          <l1t:etThreshold>40</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>71</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:etThreshold>120</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
         <l1t:objectRequirement>
-          <l1t:etThreshold>50</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>71</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:etThreshold>120</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
       </l1t:objectRequirements>
       <l1t:relativeBx>0</l1t:relativeBx>
     </l1t:condCalorimeter>
     <l1t:condCalorimeter>
-      <l1t:uid>0fbb0530-013a-4d62-94b4-44c558d4a6dd</l1t:uid>
-      <l1t:name>single_eg_1</l1t:name>
+      <l1t:uid>39346e2c-f181-4104-99b3-f37ef298e1a9</l1t:uid>
+      <l1t:name>DoubleTau_40_er</l1t:name>
       <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
-      <l1t:type>single</l1t:type>
-      <l1t:comparison_operator>ge</l1t:comparison_operator>
-      <l1t:objectType>eg</l1t:objectType>
-      <l1t:objectRequirements>
-        <l1t:objectRequirement>
-          <l1t:etThreshold>30</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>108</l1t:lower>
-            <l1t:upper>143</l1t:upper>
-          </l1t:phiWindow>
-        </l1t:objectRequirement>
-      </l1t:objectRequirements>
-      <l1t:relativeBx>0</l1t:relativeBx>
-    </l1t:condCalorimeter>
-    <l1t:condCalorimeter>
-      <l1t:uid>3da57fbc-17ea-4c83-9a72-8670933e887d</l1t:uid>
-      <l1t:name>single_eg_2</l1t:name>
-      <l1t:comment></l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:type>single</l1t:type>
-      <l1t:comparison_operator>ge</l1t:comparison_operator>
-      <l1t:objectType>eg</l1t:objectType>
-      <l1t:objectRequirements>
-        <l1t:objectRequirement>
-          <l1t:etThreshold>30</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>108</l1t:lower>
-            <l1t:upper>143</l1t:upper>
-          </l1t:phiWindow>
-        </l1t:objectRequirement>
-      </l1t:objectRequirements>
-      <l1t:relativeBx>-1</l1t:relativeBx>
-    </l1t:condCalorimeter>
-    <l1t:condCalorimeter>
-      <l1t:uid>29bdaaec-2bad-41ac-9da7-7785cce7be11</l1t:uid>
-      <l1t:name>double_wsc_tau_1</l1t:name>
-      <l1t:comment>Reference condition according to file gtl_module_example.vhd</l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:type>double_wsc</l1t:type>
+      <l1t:type>double</l1t:type>
       <l1t:comparison_operator>ge</l1t:comparison_operator>
       <l1t:objectType>tau</l1t:objectType>
       <l1t:objectRequirements>
         <l1t:objectRequirement>
           <l1t:etThreshold>80</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>71</l1t:upper>
-          </l1t:phiWindow>
           <l1t:etaWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>114</l1t:upper>
+            <l1t:lower>206</l1t:lower>
+            <l1t:upper>49</l1t:upper>
           </l1t:etaWindow>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
         <l1t:objectRequirement>
-          <l1t:etThreshold>128</l1t:etThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>72</l1t:lower>
-            <l1t:upper>143</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:etThreshold>80</l1t:etThreshold>
           <l1t:etaWindow>
-            <l1t:lower>141</l1t:lower>
-            <l1t:upper>255</l1t:upper>
+            <l1t:lower>206</l1t:lower>
+            <l1t:upper>49</l1t:upper>
           </l1t:etaWindow>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
         </l1t:objectRequirement>
       </l1t:objectRequirements>
-      <l1t:deltaRequirement>
-        <l1t:deltaPhiRange>
-          <l1t:lower>0</l1t:lower>
-          <l1t:upper>35</l1t:upper>
-        </l1t:deltaPhiRange>
-        <l1t:deltaEtaRange>
-          <l1t:lower>2</l1t:lower>
-          <l1t:upper>159</l1t:upper>
-        </l1t:deltaEtaRange>
-      </l1t:deltaRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>77333009-dd2e-4d85-9196-5c6d64ba8abf</l1t:uid>
+      <l1t:name>SingleNoIsoEG_15</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>30</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>2b726b5b-6f1f-4f20-8f2e-9db2604c604c</l1t:uid>
+      <l1t:name>SingleIsoEG_15</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>30</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>9e132ea0-6a54-4386-917d-669c68045632</l1t:uid>
+      <l1t:name>SingleIsoEG_10</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>941bbaac-5813-4bcd-999e-c8b209ec020f</l1t:uid>
+      <l1t:name>SingleNoIsoEG_10</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>2768ea5b-a199-4207-b66d-1b7e7ca3198f</l1t:uid>
+      <l1t:name>SingleTau_20_er</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>tau</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>40</l1t:etThreshold>
+          <l1t:etaWindow>
+            <l1t:lower>206</l1t:lower>
+            <l1t:upper>49</l1t:upper>
+          </l1t:etaWindow>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>0007cc8e-6730-4339-a7e1-59406a5445c4</l1t:uid>
+      <l1t:name>DoubleIsoEG_10</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>819f8a44-394a-4966-bc9f-ee3b91d2b974</l1t:uid>
+      <l1t:name>DoubleNoIsoEG_10</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>47b18ce4-e3e8-4869-8998-fd8bb16a104d</l1t:uid>
+      <l1t:name>DoubleIsoEG_10_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>1e8d83d8-8efb-40a0-a710-140bf33d56d6</l1t:uid>
+      <l1t:name>DoubleIsoEG_14_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>920bb5be-934a-4ddc-b7e6-383f0a56c02a</l1t:uid>
+      <l1t:name>DoubleIsoEG_14_10</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>207bfc58-facc-4fee-90f2-57eb35c3c751</l1t:uid>
+      <l1t:name>DoubleNoIsoEG_10_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>aee65667-6710-4834-bfa7-adf131672b63</l1t:uid>
+      <l1t:name>DoubleNoIsoEG_14_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>e221f518-ca34-4b14-a4aa-90815c451dfc</l1t:uid>
+      <l1t:name>DoubleNoIsoEG_14_10</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>double</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>0f2eb75f-8746-43ae-91c9-d60e78af7743</l1t:uid>
+      <l1t:name>SingleIsoEG_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>3c710192-6912-4d3e-b6e1-c67ec9835caa</l1t:uid>
+      <l1t:name>SingleIsoEG_14</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>d4e771bc-3363-4fb3-bc28-6ba5a7e57286</l1t:uid>
+      <l1t:name>SingleNoIsoEG_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>3323be23-99ad-4b9b-8c2e-15a820e091eb</l1t:uid>
+      <l1t:name>SingleNoIsoEG_14</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>6ca7f197-bf4f-454c-93bc-cabf302fd1ee</l1t:uid>
+      <l1t:name>TripleIsoEG_14_10_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>triple</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condCalorimeter>
+    <l1t:condCalorimeter>
+      <l1t:uid>c3febd54-8e1d-4695-b31b-889ee36773e6</l1t:uid>
+      <l1t:name>TripleNoIsoEG_14_10_8</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>triple</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>eg</l1t:objectType>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>28</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>20</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+        <l1t:objectRequirement>
+          <l1t:etThreshold>16</l1t:etThreshold>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>false</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
       <l1t:relativeBx>0</l1t:relativeBx>
     </l1t:condCalorimeter>
     <l1t:condMuon>
-      <l1t:uid>e44265be-e003-43b9-9158-175554bdc872</l1t:uid>
-      <l1t:name>single_muon_cosmic_1</l1t:name>
-      <l1t:comment>preliminary muon condition implementation</l1t:comment>
+      <l1t:uid>a1138586-fff4-4dbe-9cfb-e0b5ec19f8d8</l1t:uid>
+      <l1t:name>SingleMu_6</l1t:name>
+      <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
       <l1t:type>single</l1t:type>
       <l1t:comparison_operator>ge</l1t:comparison_operator>
       <l1t:objectRequirements>
         <l1t:objectRequirement>
-          <l1t:ptThreshold>20</l1t:ptThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>71</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:ptThreshold>12</l1t:ptThreshold>
           <l1t:requestedCharge>ign</l1t:requestedCharge>
           <l1t:qualityLut>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
@@ -225,7 +1168,7 @@
             <l1t:quality>false</l1t:quality>
           </l1t:qualityLut>
           <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
             <l1t:isolation>false</l1t:isolation>
             <l1t:isolation>false</l1t:isolation>
             <l1t:isolation>false</l1t:isolation>
@@ -236,29 +1179,29 @@
       <l1t:relativeBx>0</l1t:relativeBx>
     </l1t:condMuon>
     <l1t:condMuon>
-      <l1t:uid>e9eec8f7-25f7-4247-9f13-fc555ba33e33</l1t:uid>
-      <l1t:name>double_muon_cosmic_1</l1t:name>
-      <l1t:comment>preliminary muon condition implementation</l1t:comment>
+      <l1t:uid>cd33a8c6-6b11-4d05-a2d0-322cf612842b</l1t:uid>
+      <l1t:name>SingleMu_0_er</l1t:name>
+      <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
-      <l1t:type>double</l1t:type>
+      <l1t:type>single</l1t:type>
       <l1t:comparison_operator>ge</l1t:comparison_operator>
       <l1t:objectRequirements>
         <l1t:objectRequirement>
-          <l1t:ptThreshold>40</l1t:ptThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>71</l1t:upper>
-          </l1t:phiWindow>
+          <l1t:ptThreshold>0</l1t:ptThreshold>
+          <l1t:etaWindow>
+            <l1t:lower>319</l1t:lower>
+            <l1t:upper>192</l1t:upper>
+          </l1t:etaWindow>
           <l1t:requestedCharge>ign</l1t:requestedCharge>
           <l1t:qualityLut>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
@@ -269,39 +1212,7 @@
             <l1t:quality>false</l1t:quality>
           </l1t:qualityLut>
           <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-          </l1t:isolationLut>
-        </l1t:objectRequirement>
-        <l1t:objectRequirement>
-          <l1t:ptThreshold>80</l1t:ptThreshold>
-          <l1t:phiWindow>
-            <l1t:lower>0</l1t:lower>
-            <l1t:upper>71</l1t:upper>
-          </l1t:phiWindow>
-          <l1t:requestedCharge>ign</l1t:requestedCharge>
-          <l1t:qualityLut>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-          </l1t:qualityLut>
-          <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
             <l1t:isolation>false</l1t:isolation>
             <l1t:isolation>false</l1t:isolation>
             <l1t:isolation>false</l1t:isolation>
@@ -312,15 +1223,15 @@
       <l1t:relativeBx>0</l1t:relativeBx>
     </l1t:condMuon>
     <l1t:condMuon>
-      <l1t:uid>b5f0d7fd-69db-4eb1-b4f0-679c4053c908</l1t:uid>
-      <l1t:name>quad_muon_wsc_1</l1t:name>
-      <l1t:comment>preliminary muon condition implementation</l1t:comment>
+      <l1t:uid>cc81b02a-fd4c-42d3-b376-d3984f485bc8</l1t:uid>
+      <l1t:name>TripleMu_5_5_3</l1t:name>
+      <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
-      <l1t:type>quad</l1t:type>
+      <l1t:type>triple</l1t:type>
       <l1t:comparison_operator>ge</l1t:comparison_operator>
       <l1t:objectRequirements>
         <l1t:objectRequirement>
-          <l1t:ptThreshold>20</l1t:ptThreshold>
+          <l1t:ptThreshold>10</l1t:ptThreshold>
           <l1t:requestedCharge>ign</l1t:requestedCharge>
           <l1t:qualityLut>
             <l1t:quality>false</l1t:quality>
@@ -328,9 +1239,9 @@
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
@@ -341,14 +1252,14 @@
             <l1t:quality>false</l1t:quality>
           </l1t:qualityLut>
           <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
           </l1t:isolationLut>
         </l1t:objectRequirement>
         <l1t:objectRequirement>
-          <l1t:ptThreshold>40</l1t:ptThreshold>
+          <l1t:ptThreshold>10</l1t:ptThreshold>
           <l1t:requestedCharge>ign</l1t:requestedCharge>
           <l1t:qualityLut>
             <l1t:quality>false</l1t:quality>
@@ -356,9 +1267,9 @@
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
@@ -369,14 +1280,14 @@
             <l1t:quality>false</l1t:quality>
           </l1t:qualityLut>
           <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
           </l1t:isolationLut>
         </l1t:objectRequirement>
         <l1t:objectRequirement>
-          <l1t:ptThreshold>60</l1t:ptThreshold>
+          <l1t:ptThreshold>6</l1t:ptThreshold>
           <l1t:requestedCharge>ign</l1t:requestedCharge>
           <l1t:qualityLut>
             <l1t:quality>false</l1t:quality>
@@ -384,9 +1295,9 @@
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
             <l1t:quality>false</l1t:quality>
@@ -397,133 +1308,291 @@
             <l1t:quality>false</l1t:quality>
           </l1t:qualityLut>
           <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-          </l1t:isolationLut>
-        </l1t:objectRequirement>
-        <l1t:objectRequirement>
-          <l1t:ptThreshold>80</l1t:ptThreshold>
-          <l1t:requestedCharge>ign</l1t:requestedCharge>
-          <l1t:qualityLut>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-            <l1t:quality>false</l1t:quality>
-          </l1t:qualityLut>
-          <l1t:isolationLut>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
-            <l1t:isolation>false</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
           </l1t:isolationLut>
         </l1t:objectRequirement>
       </l1t:objectRequirements>
       <l1t:requestedChargeCorr>ig</l1t:requestedChargeCorr>
-      <l1t:deltaRequirement>
-        <l1t:deltaPhiRange>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condMuon>
+    <l1t:condMuon>
+      <l1t:uid>539feda0-9e95-4e0a-9bf5-743c4c0a411c</l1t:uid>
+      <l1t:name>SingleMu_12</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:ptThreshold>24</l1t:ptThreshold>
+          <l1t:requestedCharge>ign</l1t:requestedCharge>
+          <l1t:qualityLut>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+          </l1t:qualityLut>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:requestedChargeCorr>ig</l1t:requestedChargeCorr>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condMuon>
+    <l1t:condMuon>
+      <l1t:uid>7256e0c5-98e4-4800-91fb-25d657e712ff</l1t:uid>
+      <l1t:name>SingleMu_5</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:ptThreshold>10</l1t:ptThreshold>
+          <l1t:requestedCharge>ign</l1t:requestedCharge>
+          <l1t:qualityLut>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+          </l1t:qualityLut>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:requestedChargeCorr>ig</l1t:requestedChargeCorr>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condMuon>
+    <l1t:condMuon>
+      <l1t:uid>441047e9-e3d0-447b-bac4-358d47a7c659</l1t:uid>
+      <l1t:name>SingleMu_16_er</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:ptThreshold>32</l1t:ptThreshold>
+          <l1t:etaWindow>
+            <l1t:lower>312</l1t:lower>
+            <l1t:upper>199</l1t:upper>
+          </l1t:etaWindow>
+          <l1t:requestedCharge>ign</l1t:requestedCharge>
+          <l1t:qualityLut>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+          </l1t:qualityLut>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:requestedChargeCorr>ig</l1t:requestedChargeCorr>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condMuon>
+    <l1t:condMuon>
+      <l1t:uid>d1df1820-1b17-48ba-a8ef-b376112ed7e6</l1t:uid>
+      <l1t:name>SingleMu_0_Open</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:type>single</l1t:type>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectRequirements>
+        <l1t:objectRequirement>
+          <l1t:ptThreshold>0</l1t:ptThreshold>
+          <l1t:requestedCharge>ign</l1t:requestedCharge>
+          <l1t:qualityLut>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>true</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+            <l1t:quality>false</l1t:quality>
+          </l1t:qualityLut>
+          <l1t:isolationLut>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+            <l1t:isolation>true</l1t:isolation>
+          </l1t:isolationLut>
+        </l1t:objectRequirement>
+      </l1t:objectRequirements>
+      <l1t:requestedChargeCorr>ig</l1t:requestedChargeCorr>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condMuon>
+    <l1t:condEnergySums>
+      <l1t:uid>9578fa7f-477e-43f8-b998-e55d3a433fd0</l1t:uid>
+      <l1t:name>HTT_125</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>htt</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>250</l1t:etThreshold>
+      </l1t:objectRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condEnergySums>
+    <l1t:condEnergySums>
+      <l1t:uid>fc8b6c09-71d8-48a4-89aa-3d80be58a289</l1t:uid>
+      <l1t:name>HTT_150</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>htt</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>300</l1t:etThreshold>
+      </l1t:objectRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condEnergySums>
+    <l1t:condEnergySums>
+      <l1t:uid>fb92b492-668c-48e7-a762-8ab8ee72986a</l1t:uid>
+      <l1t:name>ETM_55</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>etm</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>110</l1t:etThreshold>
+      </l1t:objectRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condEnergySums>
+    <l1t:condEnergySums>
+      <l1t:uid>589d78e7-0ec6-4a02-b151-572dcec8145a</l1t:uid>
+      <l1t:name>ETM_30_pr</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>etm</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>60</l1t:etThreshold>
+        <l1t:phiWindow>
+          <l1t:lower>72</l1t:lower>
+          <l1t:upper>143</l1t:upper>
+        </l1t:phiWindow>
+      </l1t:objectRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condEnergySums>
+    <l1t:condEnergySums>
+      <l1t:uid>3aaa128c-aad3-4999-8325-91288b0a72c0</l1t:uid>
+      <l1t:name>HTM_100</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>htm</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>200</l1t:etThreshold>
+      </l1t:objectRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condEnergySums>
+    <l1t:condEnergySums>
+      <l1t:uid>d0b7618c-d607-4a33-bede-b0f933ecd1a3</l1t:uid>
+      <l1t:name>HTM_100_pr</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>htm</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>200</l1t:etThreshold>
+        <l1t:phiWindow>
           <l1t:lower>0</l1t:lower>
-          <l1t:upper>35</l1t:upper>
-        </l1t:deltaPhiRange>
-        <l1t:deltaEtaRange>
-          <l1t:lower>2</l1t:lower>
-          <l1t:upper>159</l1t:upper>
-        </l1t:deltaEtaRange>
-      </l1t:deltaRequirement>
+          <l1t:upper>71</l1t:upper>
+        </l1t:phiWindow>
+      </l1t:objectRequirement>
       <l1t:relativeBx>0</l1t:relativeBx>
-    </l1t:condMuon>
+    </l1t:condEnergySums>
+    <l1t:condEnergySums>
+      <l1t:uid>465b44eb-44cb-4a77-abc3-999e5c19630c</l1t:uid>
+      <l1t:name>ETT_150</l1t:name>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:comparison_operator>ge</l1t:comparison_operator>
+      <l1t:objectType>ett</l1t:objectType>
+      <l1t:objectRequirement>
+        <l1t:etThreshold>300</l1t:etThreshold>
+      </l1t:objectRequirement>
+      <l1t:relativeBx>0</l1t:relativeBx>
+    </l1t:condEnergySums>
   </l1t:conditions>
   <l1t:algorithms>
     <l1t:algorithm>
-      <l1t:uid>14d491e5-f4bf-4ea6-baca-cee189426296</l1t:uid>
-      <l1t:name>L1_single_eg_1</l1t:name>
-      <l1t:index>0</l1t:index>
-      <l1t:logical_expression>single_eg_1</l1t:logical_expression>
-      <l1t:comment>Reference algorithm according to file gtl_module_example.vhd</l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:mapping>
-        <l1t:module>0</l1t:module>
-        <l1t:index>4</l1t:index>
-      </l1t:mapping>
-    </l1t:algorithm>
-    <l1t:algorithm>
-      <l1t:uid>04bd68b3-4ed0-41b2-9fbc-b25fec0b5cec</l1t:uid>
-      <l1t:name>L1_double_eg_1</l1t:name>
-      <l1t:index>1</l1t:index>
-      <l1t:logical_expression>double_eg_1</l1t:logical_expression>
-      <l1t:comment>Reference algorithm according to file gtl_module_example.vhd</l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:mapping>
-        <l1t:module>0</l1t:module>
-        <l1t:index>0</l1t:index>
-      </l1t:mapping>
-    </l1t:algorithm>
-    <l1t:algorithm>
-      <l1t:uid>092b2950-a0ca-4b91-a1b3-154e8eb8d744</l1t:uid>
-      <l1t:name>L1_single_eg_1_single_eg_2</l1t:name>
-      <l1t:index>5</l1t:index>
-      <l1t:logical_expression> single_eg_1 AND single_eg_2</l1t:logical_expression>
+      <l1t:uid>5825d3e0-cfe2-4267-a7fc-95b814778957</l1t:uid>
+      <l1t:name>L1_HTM100</l1t:name>
+      <l1t:index>2</l1t:index>
+      <l1t:logical_expression> HTM_100</l1t:logical_expression>
       <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
       <l1t:mapping>
         <l1t:module>0</l1t:module>
-        <l1t:index>5</l1t:index>
+        <l1t:index>9</l1t:index>
       </l1t:mapping>
     </l1t:algorithm>
     <l1t:algorithm>
-      <l1t:uid>39308e8b-c8a1-4947-9379-ac8c3674cc39</l1t:uid>
-      <l1t:name>L1_quad_jet_1</l1t:name>
-      <l1t:index>16</l1t:index>
-      <l1t:logical_expression>quad_jet_1</l1t:logical_expression>
-      <l1t:comment>Reference algorithm according to file gtl_module_example.vhd</l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:mapping>
-        <l1t:module>0</l1t:module>
-        <l1t:index>6</l1t:index>
-      </l1t:mapping>
-    </l1t:algorithm>
-    <l1t:algorithm>
-      <l1t:uid>c27fec44-518c-41a3-98f8-3963a95c9b52</l1t:uid>
-      <l1t:name>L1_double_wsc_tau_1</l1t:name>
-      <l1t:index>31</l1t:index>
-      <l1t:logical_expression>double_wsc_tau_1</l1t:logical_expression>
-      <l1t:comment>Reference algorithm according to file gtl_module_example.vhd</l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:mapping>
-        <l1t:module>0</l1t:module>
-        <l1t:index>3</l1t:index>
-      </l1t:mapping>
-    </l1t:algorithm>
-    <l1t:algorithm>
-      <l1t:uid>cc40e81b-661d-4459-82bc-6c2b52caba65</l1t:uid>
-      <l1t:name>L1_single_muon_cosmic_1</l1t:name>
-      <l1t:index>100</l1t:index>
-      <l1t:logical_expression>single_muon_cosmic_1</l1t:logical_expression>
-      <l1t:comment></l1t:comment>
-      <l1t:locked>false</l1t:locked>
-      <l1t:mapping>
-        <l1t:module>0</l1t:module>
-        <l1t:index>2</l1t:index>
-      </l1t:mapping>
-    </l1t:algorithm>
-    <l1t:algorithm>
-      <l1t:uid>2ee4da3f-b133-42f2-8771-4509e928089d</l1t:uid>
-      <l1t:name>L1_double_muon_cosmic_1</l1t:name>
-      <l1t:index>101</l1t:index>
-      <l1t:logical_expression>double_muon_cosmic_1</l1t:logical_expression>
+      <l1t:uid>b94c8768-0099-4c6a-b289-a14acc5db099</l1t:uid>
+      <l1t:name>L1_HTM100_pr</l1t:name>
+      <l1t:index>3</l1t:index>
+      <l1t:logical_expression> HTM_100_pr</l1t:logical_expression>
       <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
       <l1t:mapping>
@@ -532,15 +1601,171 @@
       </l1t:mapping>
     </l1t:algorithm>
     <l1t:algorithm>
-      <l1t:uid>393ee78b-d3e9-48c3-8447-58a6c9fa42b0</l1t:uid>
-      <l1t:name>L1_quad_muon_wsc_1</l1t:name>
-      <l1t:index>102</l1t:index>
-      <l1t:logical_expression>quad_muon_wsc_1</l1t:logical_expression>
+      <l1t:uid>6f96956f-9cac-4db1-b318-58ef3f0485ee</l1t:uid>
+      <l1t:name>L1_ETT150</l1t:name>
+      <l1t:index>4</l1t:index>
+      <l1t:logical_expression>ETT_150</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>15</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>8465809d-d16b-43d6-a175-7de225536044</l1t:uid>
+      <l1t:name>L1_Mu12_EG10</l1t:name>
+      <l1t:index>9</l1t:index>
+      <l1t:logical_expression>SingleMu_12 AND ( SingleIsoEG_10 OR SingleNoIsoEG_10 )</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>4</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>0e045c88-d7d3-4b82-8213-c4530f07b259</l1t:uid>
+      <l1t:name>L1_Mu5_EG15</l1t:name>
+      <l1t:index>10</l1t:index>
+      <l1t:logical_expression>SingleMu_5 AND ( SingleNoIsoEG_15 OR SingleIsoEG_15 )</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>13</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>f8b1a7be-e0ee-4a68-a4d1-9bffabcc9acf</l1t:uid>
+      <l1t:name>L1_DoubleTau40_er</l1t:name>
+      <l1t:index>11</l1t:index>
+      <l1t:logical_expression> DoubleTau_40_er</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>11</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>00ee1958-538e-4cda-8049-a5be260bfbc2</l1t:uid>
+      <l1t:name>L1_Mu16er_TauJet20er</l1t:name>
+      <l1t:index>13</l1t:index>
+      <l1t:logical_expression>SingleMu_16_er AND SingleTau_20_er</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>0</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>bad86d03-0c79-4410-83ea-dd163ae30eb9</l1t:uid>
+      <l1t:name>L1_EG25er_HTT125</l1t:name>
+      <l1t:index>31</l1t:index>
+      <l1t:logical_expression>( SingleNoIsoEG_25 OR SingleIsoEG_25_er ) AND HTT_125</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>10</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>994fdda9-f0eb-475d-8cf1-fdc4495a133d</l1t:uid>
+      <l1t:name>L1_SingleMuOpen</l1t:name>
+      <l1t:index>55</l1t:index>
+      <l1t:logical_expression>SingleMu_0_Open</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>8</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>176cab73-d645-42a7-b23b-76c0839f9e5f</l1t:uid>
+      <l1t:name>L1_ETM30_pr</l1t:name>
+      <l1t:index>66</l1t:index>
+      <l1t:logical_expression> ETM_30_pr</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>14</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>2146ac08-ee67-4a2c-b7b0-0a8e606b7649</l1t:uid>
+      <l1t:name>L1_Mu6_DoubleEG10</l1t:name>
+      <l1t:index>77</l1t:index>
+      <l1t:logical_expression>SingleMu_6 AND ( DoubleIsoEG_10 OR DoubleNoIsoEG_10 OR ( SingleIsoEG_10 AND SingleNoIsoEG_10 ) )</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>3</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>c5db8a0e-0b51-4683-a62c-1e220b3eccf8</l1t:uid>
+      <l1t:name>L1_Mu6_HTT150</l1t:name>
+      <l1t:index>82</l1t:index>
+      <l1t:logical_expression>SingleMu_6 AND HTT_150</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>5</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>207806ca-4c89-48ca-af12-cd922ed09042</l1t:uid>
+      <l1t:name>L1_TripleMu_5_5_3</l1t:name>
+      <l1t:index>98</l1t:index>
+      <l1t:logical_expression>TripleMu_5_5_3</l1t:logical_expression>
       <l1t:comment></l1t:comment>
       <l1t:locked>false</l1t:locked>
       <l1t:mapping>
         <l1t:module>0</l1t:module>
         <l1t:index>7</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>e2b41460-36b9-4de9-b2f2-3fd70c633121</l1t:uid>
+      <l1t:name>L1_TripleEG_14_10_8</l1t:name>
+      <l1t:index>100</l1t:index>
+      <l1t:logical_expression>TripleIsoEG_14_10_8 OR TripleNoIsoEG_14_10_8 OR ( DoubleIsoEG_14_10 AND SingleNoIsoEG_8 ) OR (DoubleNoIsoEG_14_10 AND SingleIsoEG_8 ) OR ( DoubleIsoEG_14_8 AND SingleNoIsoEG_10 ) OR (DoubleNoIsoEG_14_8 AND SingleIsoEG_10 ) OR ( DoubleIsoEG_10_8 AND SingleNoIsoEG_14 ) OR ( DoubleNoIsoEG_10_8 AND SingleIsoEG_14 )</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>6</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>166dd0dc-1d3e-4213-928a-5a32e1c72d73</l1t:uid>
+      <l1t:name>L1_Mu0er_ETM55</l1t:name>
+      <l1t:index>104</l1t:index>
+      <l1t:logical_expression> SingleMu_0_er AND ETM_55</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>12</l1t:index>
+      </l1t:mapping>
+    </l1t:algorithm>
+    <l1t:algorithm>
+      <l1t:uid>a857b9b4-3163-4a04-8b76-b171661f6b5a</l1t:uid>
+      <l1t:name>L1_QuadS1JetC60</l1t:name>
+      <l1t:index>111</l1t:index>
+      <l1t:logical_expression> QuadJet_60</l1t:logical_expression>
+      <l1t:comment></l1t:comment>
+      <l1t:locked>false</l1t:locked>
+      <l1t:mapping>
+        <l1t:module>0</l1t:module>
+        <l1t:index>2</l1t:index>
       </l1t:mapping>
     </l1t:algorithm>
   </l1t:algorithms>

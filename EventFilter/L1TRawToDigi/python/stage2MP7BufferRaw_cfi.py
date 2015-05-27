@@ -2,27 +2,27 @@ import FWCore.ParameterSet.Config as cms
 
 
 mpblocks = cms.untracked.PSet(
-    rxBlockLength    = cms.untracked.vint32(41,41,41,41, # q0 0-3
-                                            41,41,41,41, # q1 4-7
-                                            41,41,41,41, # q2 8-11
-                                            41,41,41,41, # q3 12-15
-                                            41,41,41,41, # q4 16-19
-                                            41,41,41,41, # q5 20-23
-                                            41,41,41,41, # q6 24-27
-                                            41,41,41,41, # q7 28-31
-                                            41,41,41,41, # q8 32-35
-                                            41,41,41,41, # q9 36-39
-                                            41,41,41,41, # q10 40-43
-                                            41,41,41,41, # q11 44-47
-                                            41,41,41,41, # q12 48-51
-                                            41,41,41,41, # q13 52-55
-                                            41,41,41,41, # q14 56-59
-                                            41,41,41,41, # q15 60-63
-                                            41,41,41,41, # q16 64-67
-                                            41,41,41,41), # q17 68-71
+    rxBlockLength    = cms.untracked.vint32(40,40,40,40, # q0 0-3
+                                            40,40,40,40, # q1 4-7
+                                            40,40,40,40, # q2 8-11
+                                            40,40,40,40, # q3 12-15
+                                            40,40,40,40, # q4 16-19
+                                            40,40,40,40, # q5 20-23
+                                            40,40,40,40, # q6 24-27
+                                            40,40,40,40, # q7 28-31
+                                            40,40,40,40, # q8 32-35
+                                            40,40,40,40, # q9 36-39
+                                            40,40,40,40, # q10 40-43
+                                            40,40,40,40, # q11 44-47
+                                            40,40,40,40, # q12 48-51
+                                            40,40,40,40, # q13 52-55
+                                            40,40,40,40, # q14 56-59
+                                            40,40,40,40, # q15 60-63
+                                            40,40,40,40, # q16 64-67
+                                            40,40,40,40), # q17 68-71
 
-    txBlockLength    = cms.untracked.vint32(39,39,39,39, # q0 0-3
-                                            39,39,0,0, # q1 4-7
+    txBlockLength    = cms.untracked.vint32(40,40,40,40, # q0 0-3
+                                            40,40,0,0, # q1 4-7
                                             0,0,0,0, # q2 8-11
                                             0,0,0,0, # q3 12-15
                                             0,0,0,0, # q4 16-19
@@ -50,9 +50,9 @@ stage2MPRaw = cms.EDProducer(
     packetisedData   = cms.untracked.bool(True),
 
     # parameters for non-packetised data
-    nFramesPerEvent  = cms.untracked.int32(41),
-    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0,0),
-    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0,0),
+    nFramesPerEvent  = cms.untracked.int32(40),
+    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0),
+    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(1360),
@@ -62,7 +62,7 @@ stage2MPRaw = cms.EDProducer(
     lenSlinkTrailer  = cms.untracked.int32(8),
 
     # HW parameters
-    boardId          = cms.untracked.vint32( 1,2,3,4,5,6,7,8,9,10,11,12 ),
+    boardId          = cms.untracked.vint32( 0,1,2,3,4,5,6,7,8,9,10 ),
     mux              = cms.untracked.bool(True),
     muxOffset        = cms.untracked.int32(0),
 
@@ -71,7 +71,6 @@ stage2MPRaw = cms.EDProducer(
     # if insufficient data is read from any channel to produce the
     # record, module will pad with zeros
     blocks           = cms.untracked.VPSet(
-        mpblocks,
         mpblocks,
         mpblocks,
         mpblocks,

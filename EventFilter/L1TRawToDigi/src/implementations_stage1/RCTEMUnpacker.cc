@@ -37,6 +37,7 @@ namespace l1t {
       int nBX = int(ceil(block.header().getSize() / 6.)); 
 
       // Find the first and last BXs
+
       int firstBX = -(ceil((double)nBX/2.)-1);
       int lastBX;
       if (nBX % 2 == 0) {
@@ -46,7 +47,8 @@ namespace l1t {
       }
 
       auto resRCTEMCands_ = static_cast<CaloCollections*>(coll)->getCaloEmCands();
-      resRCTEMCands_->setBXRange(std::min(firstBX, resRCTEMCands_->getFirstBX()), std::max(lastBX, resRCTEMCands_->getLastBX()));
+      resRCTEMCands_->resize(144*nBX);
+
 
       // Initialise index
       int unsigned i = 0;
@@ -74,39 +76,32 @@ namespace l1t {
         LogDebug("L1T")<<"--------------- mp7 link ="<<mp7link<<"RCT crate id="<<crate<<", RCT crate even="<<even<<std::endl;
 
         if(!even) {
+          for(int i=0;i<6;i++) converter.Set32bitWordLinkOdd(i,uint[i]);
+          converter.Convert();
 
           for(int j = 0; j < 4; j++) {
 
-            for(int i=0;i<6;i++) converter.Set32bitWordLinkOdd(i,uint[i]);
-            converter.Convert();
-            
             unsigned int rank=(unsigned int)converter.GetNEEt(j);
             unsigned int reg=(unsigned int)converter.GetNEReg(j);
             unsigned int card=(unsigned int)converter.GetNECard(j);
 
-            LogDebug("L1T") <<"index="<<j<<", neRank="<<rank<<", neRegn="<<reg<<", neCard="<<card<<std::endl;
-            L1CaloEmCand em = L1CaloEmCand(rank,reg,card,crate,false);
-            ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-            CaloEmCand EmCand(*p4,(int) em.rank(),(int) em.regionId().ieta(),(int) em.regionId().iphi(),(int) j);            //j was originally em.index, to be checked 
-            EmCand.setHwIso((int) em.isolated());
-            resRCTEMCands_->push_back(bx,EmCand);
+            LogDebug("L1T")<<"UNPACKER, CRATE"<<crate<<"NON ISO em rank="<<rank<<", region="<<reg<<", card="<<card<<std::endl;
+
+            L1CaloEmCand em = L1CaloEmCand(rank,reg,card,crate,false,j,bx);
+            resRCTEMCands_->erase(resRCTEMCands_->begin()+crate*8+2*j+1);
+            resRCTEMCands_->insert(resRCTEMCands_->begin()+crate*8+2*j+1,em);
           }
 
           for(int j = 0; j < 4; j++) {
-
-            for(int i=0;i<6;i++) converter.Set32bitWordLinkEven(i,uint[i]);
-            converter.Convert();
             
             unsigned int rank=converter.GetIEEt(j);
             unsigned int reg=converter.GetIEReg(j);
             unsigned int card=converter.GetIECard(j);
 
-            LogDebug("L1T") <<"index="<<j<<", neRank="<<rank<<", neRegn="<<reg<<", neCard="<<card<<std::endl;
-            L1CaloEmCand em = L1CaloEmCand(rank,reg,card,crate,true);
-            ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-            CaloEmCand EmCand(*p4,(int) em.rank(),(int) em.regionId().ieta(),(int) em.regionId().iphi(),(int) j);            //j was originally em.index, to be checked 
-            EmCand.setHwIso((int) em.isolated());
-            resRCTEMCands_->push_back(bx,EmCand);
+            LogDebug("L1T")<<"UNPACKER, CRATE"<<crate<<"ISO em rank="<<rank<<", region="<<reg<<", card="<<card<<std::endl;
+            L1CaloEmCand em = L1CaloEmCand(rank,reg,card,crate,true,j,bx);
+            resRCTEMCands_->erase(resRCTEMCands_->begin()+crate*8+2*j);
+            resRCTEMCands_->insert(resRCTEMCands_->begin()+crate*8+2*j,em); 
           }
         }// end if odd
       }// end of loop over BX
