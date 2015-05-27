@@ -1,10 +1,7 @@
 <use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/ExprAlgo"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
 </export>
-
-###<!--- flags   CXXFLAGS="-DEDM_ML_DEBUG"/>
