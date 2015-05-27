@@ -51,6 +51,9 @@
 // vertexing
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 
+// simulated vertex
+#include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
+
 // DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
@@ -73,8 +76,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
          ptsq(0), closest_vertex_distance_z(-1.),
          nGenTrk(0),
          num_matched_reco_tracks(0),
-         average_match_quality(0.0),
-         sim_vertex(nullptr) {
+         average_match_quality(0.0) {
       ptot.setPx(0);
       ptot.setPy(0);
       ptot.setPz(0);
@@ -91,7 +93,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     int num_matched_reco_tracks;
     float average_match_quality;
     EncodedEventId eventId;
-    const TrackingVertex * sim_vertex;
+    TrackingVertexRef sim_vertex;
     std::vector<const reco::Vertex *> rec_vertices;
   };
 
@@ -120,6 +122,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
     const reco::Vertex *recVtx;
+    reco::VertexBaseRef recVtxRef;
   };
 
  public:
@@ -134,9 +137,9 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
  private:
   void resetSimPVAssociation(std::vector<simPrimaryVertex>&);
   void matchSim2RecoVertices(std::vector<simPrimaryVertex>&,
-                             const reco::VertexCollection &);
+                             const reco::VertexSimToRecoCollection&);
   void matchReco2SimVertices(std::vector<recoPrimaryVertex>&,
-                             const TrackingVertexCollection &,
+                             const reco::VertexRecoToSimCollection&,
                              const std::vector<simPrimaryVertex>&);
   bool matchRecoTrack2SimSignal(const reco::TrackBaseRef&);
   void fillGenericGenVertexHistograms(const simPrimaryVertex &v);
@@ -156,10 +159,10 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
                                         int, bool);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
-      const edm::Handle<TrackingVertexCollection>);
+      const edm::Handle<TrackingVertexCollection>&);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> getRecoPVs(
-      const edm::Handle<reco::VertexCollection>);
+      const edm::Handle<edm::View<reco::Vertex>>&);
 
   template<class T>
   void computePairDistance(const T &collection, MonitorElement *me);
@@ -176,7 +179,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   const reco::SimToRecoCollection *s2r_;
 
   edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
-  std::vector<edm::EDGetTokenT<reco::VertexCollection> > reco_vertex_collection_tokens_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Vertex> > > reco_vertex_collection_tokens_;
   std::vector<edm::InputTag > reco_vertex_collections_;
   edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
   edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
@@ -184,6 +187,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_
