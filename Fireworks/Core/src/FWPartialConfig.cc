@@ -5,11 +5,14 @@
 #include "TEveManager.h"
 #include "TGString.h"
 #include "TGLabel.h"
+#include "TSystem.h"
+
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/FWXMLConfigParser.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
+
 
 namespace {
 struct MyNameMap {
@@ -168,7 +171,7 @@ FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, FWConfigur
    cancel->Connect("Clicked()", "FWPartialConfigSaveGUI", this, "Cancel()");
    hf->AddFrame(cancel, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
 
-   AddFrame(new TGLabel(this, Form("File: %s", path_out)),  new TGLayoutHints(kLHintsLeft, 8,2,4,2));
+   AddFrame(new TGLabel(this, Form("Output file: %s", gSystem->BaseName(path_out))),  new TGLayoutHints(kLHintsLeft, 8,2,4,2));
   
    SetWindowName("Save Config");
 
