@@ -11,8 +11,9 @@
 #include "Fireworks/Core/interface/FWXMLConfigParser.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
-
+#include "Fireworks/Core/interface/fwLog.h"  
 
 namespace {
 struct MyNameMap {
@@ -42,14 +43,8 @@ struct MyNameMap {
     MyNameMap nmm;
 }
 
-
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-
 FWPartialConfigGUI::FWPartialConfigGUI( const char* path, FWConfigurationManager* iCfg):
-    TGMainFrame(gClient->GetRoot(), 200, 140), m_cfgMng(iCfg)
+    TGTransientFrame(gClient->GetRoot(), FWGUIManager::getGUIManager()->getMainFrame(), 200, 140), m_cfgMng(iCfg)
 {
     if (path) {
         std::ifstream g(path);
@@ -58,7 +53,6 @@ FWPartialConfigGUI::FWPartialConfigGUI( const char* path, FWConfigurationManager
         parser.config()->swap(m_origConfig);
     }
     else {
-        printf("------------- dumping current configuration \n");
         FWConfiguration curr;
         m_cfgMng->to(curr);
         curr.swap(m_origConfig);
@@ -76,9 +70,6 @@ FWPartialConfigGUI::FWPartialConfigGUI( const char* path, FWConfigurationManager
     for(FWConfiguration::KeyValues::const_iterator it = m_origConfig.keyValues()->begin(); it != m_origConfig.keyValues()->end(); ++it) {
         if ( it->second.keyValues()) {
             std::string nb =  nmm.btnName(it->first);
-            printf("itfirst %s kv = %p  sv = %p \n", it->first.c_str(), it->second.keyValues(), it->second.stringValues());
-
-
             TGCheckButton* cb = new TGCheckButton(vf, nb.c_str());
             vf->AddFrame(cb);
 
@@ -86,6 +77,13 @@ FWPartialConfigGUI::FWPartialConfigGUI( const char* path, FWConfigurationManager
         }
     }
 }
+
+void FWPartialConfigGUI::Cancel()
+{
+    // AMT Is this eniugh. Should there be a destroy ?
+    UnmapWindow();
+}
+
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
@@ -100,7 +98,7 @@ FWPartialConfigLoadGUI::FWPartialConfigLoadGUI( const char* path, FWConfiguratio
    load->Connect("Clicked()", "FWPartialConfigLoadGUI", this, "Load()");
    hf->AddFrame(load, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
    TGTextButton* cancel = new TGTextButton(hf, " Cancel ");
-   cancel->Connect("Clicked()", "FWPartialConfigLoadGUI", this, "Cancel()");
+   cancel->Connect("Clicked()", "FWPartialConfigGUI", this, "Cancel()");
    hf->AddFrame(cancel, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
    
    SetWindowName("Load Config");
@@ -149,13 +147,6 @@ void FWPartialConfigLoadGUI::Load()
     UnmapWindow();
 }
 
-
-void FWPartialConfigLoadGUI::Cancel()
-{
-    // AMT should not there be a destroy ??
-    UnmapWindow();
-}
-
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
@@ -163,9 +154,7 @@ void FWPartialConfigLoadGUI::Cancel()
 
 FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, FWConfigurationManager* iCfg):
     FWPartialConfigGUI(0, iCfg), m_outFileName(path_out)
-{
-    printf("partial save  %s !!!! \n",   path_out );
-    
+{    
    TGHorizontalFrame* hf = new TGHorizontalFrame(this);
    AddFrame(hf, new TGLayoutHints( kLHintsRight| kLHintsBottom, 1, 1, 2, 4));
    
@@ -174,10 +163,10 @@ FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, FWConfigur
    hf->AddFrame(write, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
 
    TGTextButton* cancel = new TGTextButton(hf, " Cancel ");
-   cancel->Connect("Clicked()", "FWPartialConfigSaveGUI", this, "Cancel()");
+   cancel->Connect("Clicked()", "FWPartialConfigGUI", this, "Cancel()");
    hf->AddFrame(cancel, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
 
-   AddFrame(new TGLabel(this, Form("Output file: %s", gSystem->BaseName(path_out))),  new TGLayoutHints(kLHintsLeft, 8,2,4,2));
+   AddFrame(new TGLabel(this, Form("Output file: %s", gSystem->BaseName(path_out))),  new TGLayoutHints(kLHintsLeft, 8,2,3,3));
   
    SetWindowName("Save Config");
 
@@ -186,18 +175,10 @@ FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, FWConfigur
    MapWindow();
 }
 
-void
-FWPartialConfigSaveGUI::Cancel()
-{
-    UnmapWindow();
-}
-
 
 void
 FWPartialConfigSaveGUI::Write()
 {
-    printf("--------------write\n");
-    
     FWConfiguration destination;
     {
         std::ifstream g(m_outFileName.c_str());
@@ -217,37 +198,23 @@ FWPartialConfigSaveGUI::Write()
     for (auto i = m_entries.begin(); i != m_entries.end(); i++) {    
         if ((*i)->IsOn()) {
             std::string key =  nmm.realName((*i)->GetText()->GetString());
-            printf("ON check key %s\n", key.c_str());
+            // printf("ON check key %s\n", key.c_str());
             for(FWConfiguration::KeyValues::iterator it = cur_kv->begin(); it != cur_kv->end(); ++it)
             {
                 if ( key.compare(it->first) == 0) {
-                    // we found it in current config, now check if we have to add or replace it in old config
                     bool replace = false;
-                    {
-                        for(FWConfiguration::KeyValuesIt t = it->second.keyValues()->begin(); t != it->second.keyValues()->end(); ++t)
-                            printf("CURRENT subentry %s \n", t->first.c_str());
-                    }
                     if (old_kv) {
-                    for(FWConfiguration::KeyValues::iterator oldit = old_kv->begin(); oldit != old_kv->end(); ++oldit) {
-                        printf("compare with the entries \n");
-                        if ( key.compare(oldit->first) == 0) {
-                            replace = true;
-                            printf("REPLACING KEY \n");
-                            oldit->second.swap(it->second);
-                            {
-                                for(FWConfiguration::KeyValuesIt t = oldit->second.keyValues()->begin(); t != oldit->second.keyValues()->end(); ++t)
-                                    printf("OLD subentry %s \n", t->first.c_str());
+                        for(FWConfiguration::KeyValues::iterator oldit = old_kv->begin(); oldit != old_kv->end(); ++oldit) {
+                            if ( key.compare(oldit->first) == 0) {
+                                replace = true;
+                                oldit->second.swap(it->second);
+                                break;
                             }
-                            break;
                         }
                     }
-                    }
-                    printf("endloop\n");
 
-                    if (!replace) {
-                        printf("adding new key\n");
+                    if (!replace)
                         destination.addKeyValue(it->first, it->second);
-                    }
 
                     break;
                 }
@@ -256,14 +223,11 @@ FWPartialConfigSaveGUI::Write()
     }
 
     // Dump content in the file
-
     std::ofstream file(m_outFileName.c_str());
       if(not file) {
-          printf("can't open output file \n");
+          fwLog(fwlog::kError) << "FWPartialConfigSaveGUI::Write, can't open output file.!\n";
          return;
       }  
-      printf("stream config.....\n");
       FWConfiguration::streamTo(file, destination, "top");
-
       UnmapWindow();
 }

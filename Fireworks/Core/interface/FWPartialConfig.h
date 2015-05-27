@@ -8,15 +8,19 @@ class TGCheckButton;
 class FWConfigurationManager;
 class FWEventItemsManager;
 
-class FWPartialConfigGUI : public TGMainFrame
+class FWPartialConfigGUI : public TGTransientFrame
 {
  public:
   FWPartialConfigGUI(const char* path,  FWConfigurationManager*);
   ~FWPartialConfigGUI() {}
+  void Cancel();
+
  protected:
   std::vector <TGCheckButton*> m_entries;
   FWConfiguration m_origConfig;
   FWConfigurationManager* m_cfgMng;
+
+  ClassDef(FWPartialConfigGUI, 0);
 };
 
 //---------------------------------------------------------------------
@@ -28,7 +32,6 @@ class FWPartialConfigLoadGUI : public FWPartialConfigGUI
   ~FWPartialConfigLoadGUI();
 
   void Load();
-  void Cancel();
 
  private:
   FWEventItemsManager* m_eiMng;
@@ -46,7 +49,6 @@ class FWPartialConfigSaveGUI : public FWPartialConfigGUI
   ~FWPartialConfigSaveGUI() {}
 
   void Write();
-  void Cancel();
 
  private:
   std::string m_outFileName;
