@@ -278,15 +278,15 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubRing.getParameter<double>("xmin"),
       psTTStubRing.getParameter<double>("xmax"));
   Stub_Unkn_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
-  Stub_Unkn_Endcap_Ring->setAxisTitle("# Genuine L1 Stubs", 2);
+  Stub_Unkn_Endcap_Ring->setAxisTitle("# Unknown L1 Stubs", 2);
   
-  HistoName = "NStubs_Gen_Endcap_Ring";
-  Stub_Unkn_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
+  HistoName = "NStubs_Comb_Endcap_Ring";
+  Stub_Comb_Endcap_Ring = dqmStore_->book1D(HistoName, HistoName,
       psTTStubRing.getParameter<int32_t>("Nbinsx"),
       psTTStubRing.getParameter<double>("xmin"),
       psTTStubRing.getParameter<double>("xmax"));
-  Stub_Unkn_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
-  Stub_Unkn_Endcap_Ring->setAxisTitle("# Genuine L1 Stubs", 2);
+  Stub_Comb_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
+  Stub_Comb_Endcap_Ring->setAxisTitle("# Combinatorial L1 Stubs", 2);
   
   
   /// Plots for debugging
