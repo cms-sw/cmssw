@@ -174,6 +174,6 @@ class CondXmlProcessor(object):
     
         sys.path.append('.')
         import pl2xmlComp
-        resultXML = pl2xmlComp.payload2xml( data, plType )
+        resultXML = pl2xmlComp.payload2xml( str(data), str(plType) )
         print resultXML    
     
