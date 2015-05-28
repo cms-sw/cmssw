@@ -998,20 +998,22 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
   }  // End of for summary on discovered simulated primary vertices.
 
   // Now compute the closest distance in z between all simulated vertex
+  // first initialize
+  auto prev_z = simpv.back().z;
+  for(simPrimaryVertex& vsim: simpv) {
+    vsim.closest_vertex_distance_z = std::abs(vsim.z - prev_z);
+    prev_z = vsim.z;
+  }
+  // then calculate
   for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin();
        vsim != simpv.end(); vsim++) {
     std::vector<simPrimaryVertex>::iterator vsim2 = vsim;
     vsim2++;
     for (; vsim2 != simpv.end(); vsim2++) {
-      double distance_z = fabs(vsim->z - vsim2->z);
-      // Initialize with the next-sibling in the vector: minimization
-      // is performed by the next if.
-      if (vsim->closest_vertex_distance_z < 0) {
-        vsim->closest_vertex_distance_z = distance_z;
-        continue;
-      }
-      if (distance_z < vsim->closest_vertex_distance_z)
-        vsim->closest_vertex_distance_z = distance_z;
+      double distance = std::abs(vsim->z - vsim2->z);
+      // need both to be complete
+      vsim->closest_vertex_distance_z = std::min(vsim->closest_vertex_distance_z, distance);
+      vsim2->closest_vertex_distance_z = std::min(vsim2->closest_vertex_distance_z, distance);
     }
   }
   return simpv;
@@ -1080,20 +1082,21 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
   }  // End of for summary on reconstructed primary vertices.
 
   // Now compute the closest distance in z between all reconstructed vertex
+  // first initialize
+  auto prev_z = recopv.back().z;
+  for(recoPrimaryVertex& vreco: recopv) {
+    vreco.closest_vertex_distance_z = std::abs(vreco.z - prev_z);
+    prev_z = vreco.z;
+  }
   for (std::vector<recoPrimaryVertex>::iterator vreco = recopv.begin();
        vreco != recopv.end(); vreco++) {
     std::vector<recoPrimaryVertex>::iterator vreco2 = vreco;
     vreco2++;
     for (; vreco2 != recopv.end(); vreco2++) {
-      double distance_z = fabs(vreco->z - vreco2->z);
-      // Initialize with the next-sibling in the vector: minimization
-      // is performed by the next if.
-      if (vreco->closest_vertex_distance_z < 0) {
-        vreco->closest_vertex_distance_z = distance_z;
-        continue;
-      }
-      if (distance_z < vreco->closest_vertex_distance_z)
-        vreco->closest_vertex_distance_z = distance_z;
+      double distance = std::abs(vreco->z - vreco2->z);
+      // need both to be complete
+      vreco->closest_vertex_distance_z = std::min(vreco->closest_vertex_distance_z, distance);
+      vreco2->closest_vertex_distance_z = std::min(vreco2->closest_vertex_distance_z, distance);
     }
   }
   return recopv;
