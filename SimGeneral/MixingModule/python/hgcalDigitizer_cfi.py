@@ -37,6 +37,8 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                                    tdcOnset_fC       = cms.double(60) ,
                                                                    # LSB for time of arrival estimate from TDC in ns
                                                                    toaLSB_ns         = cms.double(0.005),
+                                                                   #toa computation mode (0=by weighted energy, 1=simple threshold)
+                                                                   toaMode           = cms.uint32(1),
                                                                    # TDC charge drain parameterisation (from J. Kaplon)
                                                                    tdcChargeDrainParameterisation = cms.vdouble(-919.13, 365.36, -14.10, 0.2,
                                                                                                                  -21.85, 49.39,  22.21,  0.8,
@@ -81,6 +83,8 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                                         tdcOnset_fC       = cms.double(60) ,
                                                                         # LSB for time of arrival estimate from TDC in ns
                                                                         toaLSB_ns         = cms.double(0.005),
+                                                                        #toa computation mode (0=by weighted energy, 1=simple threshold)
+                                                                        toaMode           = cms.uint32(1),
                                                                         # TDC charge drain parameterisation (from J. Kaplon)
                                                                         tdcChargeDrainParameterisation = cms.vdouble(-919.13, 365.36, -14.10, 0.2,
                                                                                                                       -21.85, 49.39,  22.21,  0.8,

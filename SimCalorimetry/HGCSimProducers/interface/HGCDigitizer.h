@@ -18,6 +18,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <tuple>
 
 class PCaloHit;
 class PileUpEventPrincipal;
@@ -28,6 +29,21 @@ public:
   
   HGCDigitizer(const edm::ParameterSet& ps);
   ~HGCDigitizer() { }
+
+  typedef std::tuple<int,uint32_t,float> HGCCaloHitTuple_t;
+  static bool orderByDetIdThenTime(const HGCCaloHitTuple_t &a, const HGCCaloHitTuple_t &b)
+  {
+    unsigned int detId_a(std::get<1>(a)), detId_b(std::get<1>(b));
+
+    if(detId_a<detId_b) return true;
+    if(detId_a>detId_b) return false;
+
+    double time_a(std::get<2>(a)), time_b(std::get<2>(b));
+    if(time_a<time_b) return true;
+
+    return false;
+  }
+
 
   /**
      @short handle SimHit accumulation
@@ -90,6 +106,7 @@ private :
   //delay to apply after evaluating time of arrival at the sensitive detector
   float tofDelay_;
 };
+
 
 #endif
 

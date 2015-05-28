@@ -7,7 +7,8 @@ using namespace std;
 
 //
 template<class D>
-HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
+HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps) :
+  toaMode_(WEIGHTEDBYE)
 {
   tdcResolutionInNs_ = 1e-9; // set time resolution very small by default
 
@@ -42,6 +43,7 @@ HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
   if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
   if( ps.exists("tdcChargeDrainParameterisation") ) tdcChargeDrainParameterisation_ = ps.getParameter< std::vector<double> >("tdcChargeDrainParameterisation");
   if( ps.exists("tdcResolutionInPs") )              tdcResolutionInNs_              = ps.getParameter<double>("tdcResolutionInPs")*1e-3; // convert to ns
+  if( ps.exists("toaMode") )                        toaMode_                        = ps.getParameter<uint32_t>("toaMode");
 }
 
 
@@ -180,7 +182,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 
 	  //reset charge to be integrated
 	  totalCharge=charge;
-	  finalToA=toa*charge;
+	  if(toaMode_==WEIGHTEDBYE) finalToA=toa*charge;
 
 	  //add leakage from previous bunches in SARS ADC mode
 	  for(int jt=0; jt<it; jt++)
@@ -197,7 +199,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	      if(debug) std::cout << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
 
 	      totalCharge  += leakCharge;
-	      finalToA     += leakCharge*pulseAvgT_[deltaT+2];
+	      if(toaMode_==WEIGHTEDBYE) finalToA     += leakCharge*pulseAvgT_[deltaT+2];
 	    }
 
 	  //add contamination from posterior bunches
@@ -212,11 +214,11 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	      if(debug) std::cout << "\t\t adding " << extraCharge << " fC @ deltaT=+" << (jt-it) << std::endl; 
 
 	      totalCharge += extraCharge;
-	      finalToA    += extraCharge*toaColl[jt];
+	      if(toaMode_==WEIGHTEDBYE) finalToA    += extraCharge*toaColl[jt];
 	    }
 	  
 	  //finalize ToA contamination
-	  finalToA /= totalCharge;
+	  if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
 	}
 
       toaFromToT[it] = tdcReso->fire(finalToA,tdcResolutionInNs_);

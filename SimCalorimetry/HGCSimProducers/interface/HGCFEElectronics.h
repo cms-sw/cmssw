@@ -16,7 +16,8 @@ class HGCFEElectronics
  public:
 
   enum HGCFEElectronicsFirmwareVersion { TRIVIAL, SIMPLE, WITHTOT };
-  
+  enum HGCFEElectronicsTOTMode { WEIGHTEDBYE, SIMPLETHRESHOLD };
+
   /**
      @short CTOR
    */
@@ -58,6 +59,11 @@ class HGCFEElectronics
      @short implements pulse shape and switch to time over threshold including deadtime
    */
   void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa,CLHEP::RandGauss* reso);
+
+  /**
+     @short returns how ToT will be computed
+   */
+  uint32_t toaMode() { return toaMode_; }
   
   /**
      @short DTOR
@@ -71,7 +77,7 @@ class HGCFEElectronics
   std::vector<double> adcPulse_,pulseAvgT_, tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
     adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
-  
+  uint32_t toaMode_;
 };
 
 //#include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"

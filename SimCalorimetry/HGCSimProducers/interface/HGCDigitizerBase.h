@@ -62,6 +62,12 @@ class HGCDigitizerBase {
     else                    runDigitizer(digiColl,simData,digitizationType);
   }
 
+  /**
+     @short getters
+   */
+  float keV2fC() { return keV2fC_; }
+  bool toaModeByEnergy() { return (myFEelectronics_->toaMode()==HGCFEElectronics<D>::WEIGHTEDBYE); }
+  float tdcOnset() { return myFEelectronics_->getTDCOnset(); }
 
   /**
      @short a trivial digitization: sum energies and digitize without noise
@@ -75,22 +81,22 @@ class HGCDigitizerBase {
 	std::vector<float> chargeColl( it->second[0].size(), 0 ),toa( it->second[0].size(), 0 );
 	for(size_t i=0; i<it->second[0].size(); i++) 
 	  {
-	    double rawEn((it->second)[0][i]);
+	    double rawCharge((it->second)[0][i]);
 
 	    //time of arrival
-	    if(rawEn>0) toa[i]=(it->second)[1][i]/rawEn;
-	    else        toa[i]=0;
+	    if(myFEelectronics_->toaMode()==HGCFEElectronics<D>::WEIGHTEDBYE && rawCharge>0) 
+	      toa[i]=(it->second)[1][i]/rawCharge;
 	    
 	    //convert total energy in GeV to charge (fC)
-	    double totalEn=rawEn*1e6*keV2fC_;
+	    //double totalEn=rawEn*1e6*keV2fC_;
+	    double totalCharge=rawCharge;
 
 	    //add noise (in fC)
 	    //we assume it's randomly distributed and won't impact ToA measurement
-	    totalEn += max(simpleNoiseGen_->fire(),0.);
-	    if(totalEn<0) totalEn=0;
+	    totalCharge += max(simpleNoiseGen_->fire(),0.);
+	    if(totalCharge<0) totalCharge=0;
 
-	    //convert fC -> MIP
-	    chargeColl[i]= totalEn;
+	    chargeColl[i]= totalCharge;
 	  }
 	
 	//run the shaper to create a new data frame
