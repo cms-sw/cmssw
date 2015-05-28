@@ -109,6 +109,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
         :x(x1), y(y1), z(z1),
          ptsq(0), closest_vertex_distance_z(-1.), purity(-1.),
          nRecoTrk(0),
+         num_matched_sim_tracks(0),
          kind_of_vertex(0),
          recVtx(nullptr) {
       r = sqrt(x*x + y*y);
@@ -118,9 +119,11 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     double closest_vertex_distance_z;
     double purity; // calculated and assigned in calculatePurityAndFillHistograms
     int nRecoTrk;
+    int num_matched_sim_tracks;
     int kind_of_vertex;
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
+    std::vector<unsigned int> sim_vertices_num_shared_tracks;
     const reco::Vertex *recVtx;
     reco::VertexBaseRef recVtxRef;
   };

@@ -15,6 +15,7 @@
 
 // associator
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
 
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -558,6 +559,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
 
     book1dlogx("RecoAssoc2GenPVMatchedNotHighest_Pt2", 15, &log_pt2_bins[0]);
     book1dlogx("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", 15, &log_pt2_bins[0]);
+
+    // Shared tracks
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionReco", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionReco", 50, 0, 1);
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
+
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSim", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSim", 50, 0, 1);
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSimMatched", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSimMatched", 50, 0, 1);
   }
 }
 
@@ -696,6 +708,24 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
           ->Fill(v.sim_vertices_internal[0]->closest_vertex_distance_z);
   }
   mes_[label]["RecoAllAssoc2GenProperties"]->Fill(v.kind_of_vertex);
+
+
+  std::string prefix;
+  if(v.sim_vertices.size() == 1) {
+    prefix = "RecoAllAssoc2GenSingleMatched_SharedTrackFraction";
+  }
+  else if(v.sim_vertices.size() > 1) {
+    prefix = "RecoAllAssoc2GenMultiMatched_SharedTrackFraction";
+  }
+
+  for(size_t i=0; i<v.sim_vertices.size(); ++i) {
+    const double sharedTracks = v.sim_vertices_num_shared_tracks[i];
+    const simPrimaryVertex *simV = v.sim_vertices_internal[i];
+    mes_[label][prefix+"Reco"]->Fill(sharedTracks/v.nRecoTrk);
+    mes_[label][prefix+"RecoMatched"]->Fill(sharedTracks/v.num_matched_sim_tracks);
+    mes_[label][prefix+"Sim"]->Fill(sharedTracks/simV->nGenTrk);
+    mes_[label][prefix+"SimMatched"]->Fill(sharedTracks/simV->num_matched_reco_tracks);
+  }
 }
 
 void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
@@ -1037,6 +1067,12 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
       }
       vp->ptsq += (momentum.perp2());
       vp->nRecoTrk++;
+
+      auto matched = r2s_->find(*iTrack);
+      if(matched != r2s_->end()) {
+        vp->num_matched_sim_tracks++;
+      }
+
     }  // End of for loop on daughters reconstructed tracks
   }    // End of for loop on tracking vertices
 
@@ -1135,14 +1171,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
           return a->eventId().event() < b->eventId().event();
         });
 
-      // Set pointers to internal simVertex objects
       for(const TrackingVertex *tv: vrec->sim_vertices) {
+        // Set pointers to internal simVertex objects
         for(const auto& vv: simpv) {
           if (&(*(vv.sim_vertex)) == tv) {
             vrec->sim_vertices_internal.push_back(&vv);
             continue;
           }
         }
+
+        // Calculate number of shared tracks
+        vrec->sim_vertices_num_shared_tracks.push_back(calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_));
       }
     }
 
