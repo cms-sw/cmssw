@@ -33,8 +33,8 @@ class GEMCSCSegmentAlgorithm {
     /// Destructor
     virtual ~GEMCSCSegmentAlgorithm() {};
     /// Run the algorithm = build segments 
-    virtual std::vector<GEMCSCSegment> run(std::map<uint32_t, const CSCLayer*> csclayermap, std::map<uint32_t, const GEMEtaPartition*> gemrollmap,
-					   std::vector<const CSCSegment*> cscsegments, std::vector<const GEMRecHit*> gemrechits) = 0;
+    virtual std::vector<GEMCSCSegment> run(const std::map<uint32_t, const CSCLayer*>& csclayermap, const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
+					   const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits) = 0;
     private:
 };
 
