@@ -56,9 +56,9 @@ void GEMCSCSegmentBuilder::LinkGEMRollsToCSCChamberIndex(const GEMGeometry* gemG
 
   for (TrackingGeometry::DetContainer::const_iterator it=gemGeo->dets().begin();it<gemGeo->dets().end();it++)
     {
-      if(dynamic_cast< const GEMChamber* >( *it ) != 0 )
+      const GEMChamber* ch = dynamic_cast< const GEMChamber* >( *it );
+      if(ch != 0 )
 	{
-	  const GEMChamber* ch = dynamic_cast< const GEMChamber* >( *it );
 	  std::vector< const GEMEtaPartition*> rolls = (ch->etaPartitions());
 	  for(std::vector<const GEMEtaPartition*>::const_iterator r = rolls.begin(); r != rolls.end(); ++r)
 	    {
@@ -96,11 +96,10 @@ void GEMCSCSegmentBuilder::LinkGEMRollsToCSCChamberIndex(const GEMGeometry* gemG
 	  GEMRollsstream<<"[ GEM Id: "<<setit->rawId()<<" ("<<*setit<<")"<<"],"<<std::endl; 
 	}
       std::string GEMRollsstr = GEMRollsstream.str();
-      // edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: LinkGEMRollsToCSCChamberIndex] CSC Station Index :: ["
-      // 					      <<map_first.region()<<","<<map_first.station()<<","<<map_first.ring()<<","<<map_first.chamber()<<","<<map_first.layer()
-      // 					      <<"] has following GEM rolls: ["<<GEMRollsstr<<"]"<<std::endl;
+      edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: LinkGEMRollsToCSCChamberIndex] CSC Station Index :: ["
+       					      <<map_first.region()<<","<<map_first.station()<<","<<map_first.ring()<<","<<map_first.chamber()<<","<<map_first.layer()
+       					      <<"] has following GEM rolls: ["<<GEMRollsstr<<"]"<<std::endl;
     }
-
 }
 
 void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSegmentCollection* cscsegments, GEMCSCSegmentCollection& oc) 
@@ -172,7 +171,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	  int gem1stChamber = cscChamber;
 	  // Just adding also neighbouring chambers here is not enough to get the GEM-CSC segment looking at overlapping chambers
 	  // Need to disentangle the use of the CSC chamber and GEM roll in the GEMCSCSegFit class
-	  // For now just ignore the neighbouring chambers
+	  // For now just ignore the neighbouring chambers and keep code commented out ... at later point we will include it again
 	  // int gem2ndChamber = gem1stChamber+1; if(gem2ndChamber>36) gem2ndChamber-=36; // neighbouring GEM chamber X+1
 	  // int gem3rdChamber = gem1stChamber-1; if(gem2ndChamber<1)  gem2ndChamber+=36; // neighbouring GEM chamber X-1
 	  
@@ -180,7 +179,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	  CSCStationIndex index11(gemRegion,gemStation,gemRing,gem1stChamber,1);  // GEM Chamber Layer 1       
 	  CSCStationIndex index12(gemRegion,gemStation,gemRing,gem1stChamber,2);  // GEM Chamber Layer 2
 	  indexvector.push_back(index11); indexvector.push_back(index12); 
-	  // for now not inserting neighbouring chambers
+	  // for now not inserting neighbouring chambers and keep code commented out ... at later point we will include it again
 	  // CSCStationIndex index21(gemRegion,gemStation,gemRing,gem2ndChamber,1);         CSCStationIndex index22(gemRegion,gemStation,gemRing,gem2ndChamber,2); 
 	  // CSCStationIndex index31(gemRegion,gemStation,gemRing,gem3rdChamber,1);         CSCStationIndex index32(gemRegion,gemStation,gemRing,gem3rdChamber,2); 
 	  // indexvector.push_back(index21); indexvector.push_back(index22); 
@@ -202,8 +201,6 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 						  <<" and number of Rolls for this CSC :: "<<rollsForThisCSCvector.size()<<std::endl;
 	  for(GEMRecHitCollection::const_iterator hitIt = recHits->begin(); hitIt != recHits->end(); ++hitIt) 
 	    {
-	    
-	      // edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: build] GEM Rechit found in "<<hitIt->gemId()<<std::endl;	
 	      GEMDetId gemIdfromHit = hitIt->gemId();
 	      
 	      // Loop over GEM rolls being pointed by a CSC segment and look for a match
