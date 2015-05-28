@@ -19,12 +19,6 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-/* necessary?
-#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
-*/
-
 #include <iosfwd>
 
 class CSCDetId;
@@ -38,7 +32,6 @@ public:
 	
     /// Constructor
     GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2);
-    // GEMCSCSegment(const std::vector<const TrackingRecHit*> gemcsc_rhs, const CSCSegment* csc_segment, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2);
       
     /// Destructor
     virtual ~GEMCSCSegment();
@@ -83,7 +76,6 @@ public:
     virtual std::vector<TrackingRecHit*>       recHits();
 
     CSCDetId cscDetId() const { return  geographicalId(); }
-    // GEMDetId gemDetId() const { return  geographicalId(); }
     
     void print() const;		
     
