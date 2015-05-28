@@ -37,17 +37,13 @@
   <class name="GEMCSCSegmentRef" splitLevel="0"/>
 
 </selection>
-
-
 <exclusion>
   <class name="edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >">
     <method name="sort" splitLevel="0"/>
   </class>
-
   <class name="edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >">
     <method name="sort" splitLevel="0"/>
   </class>
-
   <class name="edm::OwnVector<GEMCSCSegment, edm::ClonePolicy<GEMCSCSegment> >">
     <method name="sort" splitLevel="0"/>
   </class>
