@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V191 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/HLT/V192 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V191')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V192')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -55352,7 +55352,7 @@ process.hltPreElectronStreamOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.triggerStreamResultsFilter = cms.EDFilter( "TriggerResultsFilter",
+process.hltTriggerStreamResultsFilter = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
@@ -55361,7 +55361,7 @@ process.triggerStreamResultsFilter = cms.EDFilter( "TriggerResultsFilter",
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
-process.SelectedElectronFEDListProducerGsf = cms.EDProducer( "SelectedElectronFEDListProducerGsf",
+process.hltSelectedElectronFEDListProducerGsf = cms.EDProducer( "SelectedElectronFEDListProducerGsf",
     electronTags = cms.VInputTag( 'hltEgammaGsfElectrons' ),
     HBHERecHitTag = cms.InputTag( "hltHbhereco" ),
     dumpSelectedEcalFed = cms.bool( True ),
@@ -56915,7 +56915,7 @@ process.EcalCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPre
 process.TrackerCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreTrackerCalibrationOutput + process.hltOutputTrackerCalibration )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
-process.ElectronStreamOutput = cms.EndPath( process.hltGtDigis + process.hltPreElectronStreamOutput + process.triggerStreamResultsFilter + process.SelectedElectronFEDListProducerGsf + process.hltOutputElectronStream )
+process.ElectronStreamOutput = cms.EndPath( process.hltGtDigis + process.hltPreElectronStreamOutput + process.hltTriggerStreamResultsFilter + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputElectronStream )
 process.ExpressOutput = cms.EndPath( process.hltGtDigis + process.hltPreExpressOutput + process.hltOutputExpress )
 process.LookAreaOutput = cms.EndPath( process.hltGtDigis + process.hltPreLookAreaOutput + process.hltPreLookAreaOutputSmart + process.hltOutputLookArea )
 process.NanoDSTOutput = cms.EndPath( process.hltGtDigis + process.hltPreNanoDSTOutput + process.hltOutputNanoDST )
