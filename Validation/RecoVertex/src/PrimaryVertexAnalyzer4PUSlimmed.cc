@@ -1102,8 +1102,6 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
 void PrimaryVertexAnalyzer4PUSlimmed::resetSimPVAssociation(
     std::vector<simPrimaryVertex> & simpv) {
   for (auto & v : simpv) {
-    v.num_matched_reco_tracks = 0;
-    v.average_match_quality = 0;
     v.rec_vertices.clear();
   }
 }
