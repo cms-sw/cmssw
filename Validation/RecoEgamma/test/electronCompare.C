@@ -110,8 +110,8 @@ int electronCompare()
 
 //-----
 // AC
-  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
-  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
+//  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
+//  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
   std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
   std::cout << "CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
