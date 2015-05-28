@@ -29,7 +29,7 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
 
     TEC = cms.PSet(
@@ -37,7 +37,7 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('tobTecStepClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )
@@ -49,7 +49,6 @@ tobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayers'
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
-tobTecStepSeeds.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
 
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
@@ -73,7 +72,8 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 tobTecStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('tobTecStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(16.0)
+    MaxChi2 = cms.double(16.0),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 # TRACK BUILDING
@@ -110,7 +110,7 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 tobTecStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     ComponentName = cms.string('tobTecStepTrajectoryCleanerBySharedHits'),
-    fractionShared = cms.double(0.09),
+    fractionShared = cms.double(0.19),
     allowSharedFirstHit = cms.bool(True)
     )
 tobTecStepTrackCandidates.TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
@@ -173,7 +173,7 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='tobTecStepTracks',
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('MVASelectorIter6'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
@@ -209,14 +209,13 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
             minNumberLayers = 5,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 2,
-            max_minMissHitOutOrIn = 1,
-            max_lostHitFraction = 1.0,
-            d0_par1 = ( 1.2, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.2, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
+            d0_par1 = ( 1.4, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.4, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
             ),
-        ) #end of vpset
+        ),
+    vertices = cms.InputTag("pixelVertices") #end of vpset
     ) #end of clone
 
 
