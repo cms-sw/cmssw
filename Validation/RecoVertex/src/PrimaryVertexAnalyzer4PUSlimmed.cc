@@ -734,25 +734,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
     PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
 
   std::string prefix = "RecoAllAssoc2GenMatched";
-  const simPrimaryVertex *bestMatch = v.sim_vertices_internal[0];
   if(v.sim_vertices_internal.size() > 1) {
-
     prefix += "Merged";
-    // Pick the sim-vertex with largest number of tracks associated to
-    // reco-tracks as the best match
-    auto bestVtx = std::max_element(v.sim_vertices_internal.begin(),
-                                    v.sim_vertices_internal.end(),
-                                    [](const simPrimaryVertex *a, const simPrimaryVertex *b) {
-                                      return a->num_matched_reco_tracks < b->num_matched_reco_tracks;
-                                    });
-    bestMatch = *bestVtx;
   }
 
-
-  const double xres = v.x - bestMatch->x;
-  const double yres = v.y - bestMatch->y;
-  const double zres = v.z - bestMatch->z;
-  const double pt2res = v.ptsq - bestMatch->ptsq;
+  // Use the best match as defined by the vertex truth associator
+  // reco-tracks as the best match
+  const simPrimaryVertex& bestMatch = *(v.sim_vertices_internal[0]);
+  const double xres = v.x - bestMatch.x;
+  const double yres = v.y - bestMatch.y;
+  const double zres = v.z - bestMatch.z;
+  const double pt2res = v.ptsq - bestMatch.ptsq;
 
   const double xresol = xres;
   const double yresol = yres;
@@ -1164,12 +1156,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
         const auto tvPtr = &(*(vertexRefQuality.first));
         vrec->sim_vertices.push_back(tvPtr);
       }
-
-      // TODO: sort the matched sim vertices by eventId to keep old
-      // behaviour for now, to be removed later
-      std::sort(vrec->sim_vertices.begin(), vrec->sim_vertices.end(), [](const TrackingVertex *a, const TrackingVertex *b) {
-          return a->eventId().event() < b->eventId().event();
-        });
 
       for(const TrackingVertex *tv: vrec->sim_vertices) {
         // Set pointers to internal simVertex objects
