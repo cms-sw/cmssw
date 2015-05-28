@@ -16,7 +16,6 @@ namespace {
 }
 
 
-// GEMCSCSegment::GEMCSCSegment(const std::vector<const TrackingRecHit*> gemcsc_rhs, const CSCSegment* csc_segment, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
 GEMCSCSegment::GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
 
   RecSegment(buildDetId(csc_segment->cscDetId())),
@@ -57,10 +56,6 @@ std::vector<TrackingRecHit*> GEMCSCSegment::recHits() {
   for (std::vector<GEMRecHit>::iterator irh = theGEMRecHits.begin(); irh!=theGEMRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
-  /*
-  for (std::vector<CSCRecHit2D>::const_iterator irh = theCSCSegment.specificRecHits().begin(); irh!=theCSCSegment.specificRecHits().end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
-    }*/
   return pointersOfRecHits;
 }
 
@@ -80,18 +75,18 @@ AlgebraicVector GEMCSCSegment::parameters() const {
   // the order of the parameters in the returned vector should be (dx/dz, dy/dz, x, z)
   
   AlgebraicVector result(4);
-
-  result[0] = theLocalDirection.x()/theLocalDirection.z();
-  result[1] = theLocalDirection.y()/theLocalDirection.z();    
+  if(theLocalDirection.z()!=0) {
+    result[0] = theLocalDirection.x()/theLocalDirection.z();
+    result[1] = theLocalDirection.y()/theLocalDirection.z();    
+  }
   result[2] = theOrigin.x();
   result[3] = theOrigin.y();
-
   return result;
 }
 
 
 AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
-  static AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
+  AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
   static bool isInitialized = false;
   if (!isInitialized) {
     theProjectionMatrix[0][1] = 1;
@@ -103,12 +98,6 @@ AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
   return theProjectionMatrix;
 }
 
-
-void GEMCSCSegment::print() const {
-  std::cout << *this << std::endl;
-}
-
-
 std::ostream& operator<<(std::ostream& os, const GEMCSCSegment& seg) {
   os << "GEMCSCSegment: local pos = " << seg.localPosition() << 
     " posErr = (" << sqrt(seg.localPositionError().xx())<<","<<sqrt(seg.localPositionError().yy())<<
@@ -116,7 +105,7 @@ std::ostream& operator<<(std::ostream& os, const GEMCSCSegment& seg) {
     "            dir = " << seg.localDirection() <<
     " dirErr = (" << sqrt(seg.localDirectionError().xx())<<","<<sqrt(seg.localDirectionError().yy())<<
     "0,)\n"<<
-    "            chi2/ndf = " << seg.chi2()/double(seg.degreesOfFreedom()) << 
+    "            chi2/ndf = " << ((seg.degreesOfFreedom()!=0)?(seg.chi2()/double(seg.degreesOfFreedom())):0.0) << 
     " #rechits = " << seg.nRecHits();
   return os;  
 }
