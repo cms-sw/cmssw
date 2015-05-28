@@ -16,8 +16,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <iomanip>
 #include <fstream>
@@ -48,7 +48,7 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
                                                               unsigned theMaxStubs,
                                                               std::vector< double > BarrelCut,
                                                               std::vector< std::vector< double > > RingCut,
-                                                              bool makeDebugFile )
+                                                              bool makeDebugFile, const TrackerTopology *tTopo)
 {
   // For legacy compatibility it takes more inputs than it needs...
   time_t start_time = time (NULL);
@@ -159,9 +159,9 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
         }
         trkIter_end = trkIterator; /// Define subset of theTracker to run over later for speed
 
-        uint32_t lay = PXBDetId(id).layer();
-        uint32_t rod = PXBDetId(id).ladder();
-        uint32_t mod = PXBDetId(id).module();
+        uint32_t lay = tTopo->pxbLayer(id);
+        uint32_t rod = tTopo->pxbLadder(id);
+        uint32_t mod = tTopo->pxbModule(id);
 
         /// These are for later checksums
         if ( rodsPerLayer.find(lay) == rodsPerLayer.end() )
@@ -239,10 +239,10 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
         }
         trkIter_end = trkIterator; /// Define subset of theTracker to run over later for speed
 
-        uint32_t side = PXFDetId(id).side();
-        uint32_t disk = PXFDetId(id).disk();
-        uint32_t ring = PXFDetId(id).ring();
-        uint32_t mod  = PXFDetId(id).module();
+        uint32_t side = tTopo->pxfSide(id);
+        uint32_t disk = tTopo->pxfDisk(id);
+        uint32_t ring = tTopo->pxfBlade(id);
+        uint32_t mod  = tTopo->pxfModule(id);
 
         /// These are for later checksums
         if ( ringsPerDisk.find(disk) == ringsPerDisk.end() )
@@ -496,9 +496,9 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
          (r1>20.0) &&
          detIdToDetIdMap.find(id1) == detIdToDetIdMap.end() )
     {
-      uint32_t lay1 = PXBDetId(id1).layer();
-      uint32_t rod1 = PXBDetId(id1).ladder();
-      uint32_t mod1 = PXBDetId(id1).module();
+      uint32_t lay1 = tTopo->pxbLayer(id1);
+      uint32_t rod1 = tTopo->pxbLadder(id1);
+      uint32_t mod1 = tTopo->pxbModule(id1);
 
       /// Nested loop
       fastExit = false;
@@ -513,9 +513,9 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
              (**trkIterator2).type().isTrackerPixel() &&
              (r2>20.0) )
         {
-          uint32_t lay2 = PXBDetId(id2).layer();
-          uint32_t rod2 = PXBDetId(id2).ladder();
-          uint32_t mod2 = PXBDetId(id2).module();
+          uint32_t lay2 = tTopo->pxbLayer(id2);
+          uint32_t rod2 = tTopo->pxbLadder(id2);
+          uint32_t mod2 = tTopo->pxbModule(id2);
 
           /// Matching conditions
           if (lay2 != lay1) continue;
@@ -616,10 +616,10 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
          (fabs(z1)>70.0) &&
          detIdToDetIdMap.find(id1) == detIdToDetIdMap.end() )
     {
-      uint32_t side1 = PXFDetId(id1).side();
-      uint32_t disk1 = PXFDetId(id1).disk();
-      uint32_t ring1 = PXFDetId(id1).ring();
-      uint32_t mod1  = PXFDetId(id1).module();
+      uint32_t side1 = tTopo->pxfSide(id1);
+      uint32_t disk1 = tTopo->pxfDisk(id1);
+      uint32_t ring1 = tTopo->pxfBlade(id1);
+      uint32_t mod1  = tTopo->pxfModule(id1);
 
       /// Nested loop
       fastExit = false;
@@ -634,10 +634,10 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
              (**trkIterator2).type().isTrackerPixel() &&
              (fabs(z2)>70.0) )
         {
-          uint32_t side2 = PXFDetId(id2).side();
-          uint32_t disk2 = PXFDetId(id2).disk();
-          uint32_t ring2 = PXFDetId(id2).ring();
-          uint32_t mod2 = PXFDetId(id2).module();
+          uint32_t side2 = tTopo->pxfSide(id2);
+          uint32_t disk2 = tTopo->pxfDisk(id2);
+          uint32_t ring2 = tTopo->pxfBlade(id2);
+          uint32_t mod2 = tTopo->pxfModule(id2);
 
           /// Matching conditions
           if (side1 != side2) continue;

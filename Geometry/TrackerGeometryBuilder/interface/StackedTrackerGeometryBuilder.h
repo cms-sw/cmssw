@@ -14,6 +14,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include<map>
 #include <vector>
@@ -49,7 +52,7 @@ class StackedTrackerGeometryBuilder
                                    unsigned theMaxStubs,
                                    std::vector< double > BarrelCut,
                                    std::vector< std::vector< double > > RingCut,
-                                   bool makeDebugFile = false );
+                                   bool makeDebugFile = false, const TrackerTopology *tTopo );
 
   private:
     std::vector< std::vector< int > > makeOffsetArray( double ratio,
