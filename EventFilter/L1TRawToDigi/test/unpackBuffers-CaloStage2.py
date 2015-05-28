@@ -29,6 +29,11 @@ options.register('mpOffset',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "MP offset (frames)")
+options.register('mpHeaderFrames',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP header frames in tx")
 options.register('dmFramesPerEvent',
                  6,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -40,7 +45,7 @@ options.register('dmLatency',
                  VarParsing.VarParsing.varType.int,
                  "Demux latency (frames)")
 options.register('dmOffset',
-                 0,
+                 28,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux offset (frames)")
@@ -65,7 +70,7 @@ options.register('dump',
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
 options.register('debug',
-                 False,
+                 True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Enable debug data")
@@ -80,7 +85,7 @@ options.register('doDemux',
                  VarParsing.VarParsing.varType.bool,
                  "Read demux data")
 options.register('doGT',
-                 True,
+                 False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Read GT data")
@@ -193,8 +198,9 @@ process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPer
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
 #process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
-process.stage2MPRaw.rxFile = cms.untracked.string("merge/rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("merge/tx_summary.txt")
+process.stage2MPRaw.nHeaderFrames = cms.untracked.int32(options.mpHeaderFrames)
+process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
+process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
 
 # Demux config
 if (options.doDemux):
@@ -206,8 +212,8 @@ if (options.doDemux):
 process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("good/demux/rx_summary.txt")
-process.stage2DemuxRaw.txFile = cms.untracked.string("good/demux/tx_summary.txt")
+process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
+process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 
 # GT config
 if (options.doGT):
