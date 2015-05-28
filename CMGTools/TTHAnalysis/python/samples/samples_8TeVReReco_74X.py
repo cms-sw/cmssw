@@ -8,7 +8,7 @@ kreator = ComponentCreator()
 
 #-----------DATA---------------
 
-dataDir = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data"
+dataDir = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data"
 #lumi: 12.21+7.27+0.134 = 19.62 /fb @ 8TeV
 
 json=dataDir+'/json/Cert_Run2012ABCD_22Jan2013ReReco.json'

@@ -25,7 +25,7 @@ RelVals740 = [ TT_NoPU, TT_bx25, TT_bx50, TTLep_NoPU, ZEE_bx50, ZEE_bx25, ZMM_bx
 mcSamples = RelVals740
 
 from CMGTools.TTHAnalysis.setup.Efficiencies import *
-
+dataDir = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data"
 
 #Define splitting
 for comp in mcSamples:
