@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalV6MuonXML_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalV6MuonXML_cfi")
+process.load("Geometry.HGCalCommonData.ecalhcalPhaseIIGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
@@ -69,6 +69,6 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type       = cms.string('CheckOverlap'),
     Resolution = cms.untracked.int32(1000),
-    NodeNames  = cms.untracked.vstring('HGCal')
+    NodeNames  = cms.untracked.vstring('HGCal','HCal')
 ))
 
