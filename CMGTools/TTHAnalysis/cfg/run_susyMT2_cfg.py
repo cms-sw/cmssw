@@ -234,11 +234,15 @@ if test==0:
 elif test==1:
 
     from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
+    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+    from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
+
 #    comp=GJets_HT200to400
 #    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
 
     comp=TTJets
-    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
+#    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
+    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
 
     selectedComponents = [comp]
     comp.splitFactor = 1
