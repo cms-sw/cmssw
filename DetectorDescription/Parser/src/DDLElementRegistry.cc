@@ -14,7 +14,6 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
-#include "DetectorDescription/Parser/src/DDLAlgoPosPart.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
 #include "DetectorDescription/Parser/src/DDLBox.h"
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
@@ -156,10 +155,6 @@ DDLElementRegistry::getElement( const std::string& name )
     else if (name == "PosPart")
     {
       myret = new DDLPosPart(this);
-    }
-    else if (name == "AlgoPosPart")
-    {
-      myret = new DDLAlgoPosPart(this);
     }
     else if (name == "CompositeMaterial")
     {

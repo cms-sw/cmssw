@@ -1,6 +1,7 @@
 #include "DetectorDescription/Algorithm/interface/DDAngular.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
