@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMLocalRECO")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
-#?
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -48,8 +48,6 @@ process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 process.localreco = cms.Sequence(muonlocalreco)
 
-
-
 #????
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 #process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
@@ -63,6 +61,7 @@ process.localreco = cms.Sequence(muonlocalreco)
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 from Configuration.AlCa.GlobalTag import GlobalTag
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 # Fix DT and CSC Alignment #
@@ -81,6 +80,18 @@ process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStrip
 process.dt1DRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
 process.dt1DCosmicRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
 
+# Explicit configuration of CSC for postls1 = run2 #
+####################################################
+process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
+process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
+process.CSCIndexerESProducer.AlgoName = cms.string("CSCIndexerPostls1")
+process.CSCChannelMapperESProducer.AlgoName = cms.string("CSCChannelMapperPostls1")
+process.CSCGeometryESModule.useGangedStripsInME1a = False
+process.csc2DRecHits.readBadChannels = cms.bool(False)
+process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+# process.csc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+# process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+
 process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
     recAlgoConfig = cms.PSet(),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
@@ -95,13 +106,17 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_digi.root'
+        # 'file:out_digi.root'
+        'file:out_digi_100GeV_1000evts.root'
+        # 'file:out_digi_1To100GeV_1000evts.root'
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'file:out_local_reco.root'
+        # 'file:out_local_reco.root'
+        'file:out_local_reco_100GeV_1000evts.root'
+        # 'file:out_local_reco_1To100GeV_1000evts.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',

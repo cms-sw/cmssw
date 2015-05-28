@@ -2,6 +2,9 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
+
+#include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
+#include "DataFormats/GEMRecHit/interface/GEMCSCSegmentCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace { 
@@ -23,6 +26,10 @@ namespace {
     ME0RecHitCollection mc;
     edm::Wrapper<ME0RecHitCollection> mw;
 
+    GEMCSCSegment gs;
+    GEMCSCSegmentCollection gseg;
+    edm::Wrapper<GEMCSCSegmentCollection> gdwc1;
+    GEMCSCSegmentRef gref;
   };
 }
 
