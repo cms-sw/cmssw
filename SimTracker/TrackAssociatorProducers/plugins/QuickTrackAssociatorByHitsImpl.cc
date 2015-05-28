@@ -86,8 +86,8 @@ namespace
 } // end of the unnamed namespace
 
 QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
-                                                               std::shared_ptr<const TrackerHitAssociator> hitAssoc,
-                                                               std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap,
+                                                               std::unique_ptr<const TrackerHitAssociator> hitAssoc,
+                                                               const ClusterTPAssociationList *clusterToTPMap,
 
                                                                bool absoluteNumberOfHits,
                                                                double qualitySimToReco,
@@ -97,7 +97,7 @@ QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGet
                                                                SimToRecoDenomType simToRecoDenominator):
   productGetter_(&productGetter),
   hitAssociator_(std::move(hitAssoc)),
-  clusterToTPMap_(std::move(clusterToTPMap)),
+  clusterToTPMap_(clusterToTPMap),
   qualitySimToReco_(qualitySimToReco),
   puritySimToReco_(puritySimToReco),
   cutRecoToSim_(cutRecoToSim),

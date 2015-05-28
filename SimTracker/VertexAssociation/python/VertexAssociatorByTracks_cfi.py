@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-VertexAssociatorByTracksESProducer = cms.ESProducer("VertexAssociatorByTracksESProducer",
+VertexAssociatorByTracks = cms.EDProducer("VertexAssociatorByTracksProducer",
     # Matching conditions
     R2SMatchedSimRatio = cms.double(0.3),
     R2SMatchedRecoRatio = cms.double(0.0),
@@ -21,7 +21,10 @@ VertexAssociatorByTracksESProducer = cms.ESProducer("VertexAssociatorByTracksESP
         ptMinTP = cms.double(0.9),
         maxRapidityTP = cms.double(2.4),
         tipTP = cms.double(3.5)
-    )
+    ),
+
+    # Track-TrackingParticle association
+    trackAssociation = cms.InputTag("trackingParticleRecoTrackAsssociation")
 )
 
 
