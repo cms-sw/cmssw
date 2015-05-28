@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v2 25ns14e33_v2"
+#TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v2 25ns14e33_v2"
+TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
 HLT_Fake="/dev/CMSSW_7_4_0/Fake"
 HLT_50ns_5e33_v2="/frozen/2015/50ns_5e33/v2.0/HLT"
 HLT_25ns14e33_v2="/frozen/2015/25ns14e33/v2.0/HLT"

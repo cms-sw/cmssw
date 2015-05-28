@@ -13,6 +13,7 @@ HLTriggerRAW  = cms.PSet(
         'drop *_hlt*_*_*',
         'keep *_hltL1GtObjectMap_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
+        'keep FEDRawDataCollection_source_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
