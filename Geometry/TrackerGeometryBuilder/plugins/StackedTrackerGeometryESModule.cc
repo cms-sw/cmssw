@@ -17,7 +17,7 @@ StackedTrackerGeometryESModule::StackedTrackerGeometryESModule( const edm::Param
     phi_window( p.getParameter< double >("phi_window") ),
     z_window( p.getParameter< double >("z_window") ),
     truncation_precision( p.getParameter< unsigned int >("truncation_precision") ),
-    makeDebugFile( p.getParameter< bool >("make_debug_file"))
+    makeDebugFile( p.getParameter< bool >("make_debug_file") )
 {
 
   /// CBC3 switch
@@ -45,7 +45,7 @@ StackedTrackerGeometryESModule::StackedTrackerGeometryESModule( const edm::Param
 
 StackedTrackerGeometryESModule::~StackedTrackerGeometryESModule() {}
 
-boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::produce( const StackedTrackerGeometryRecord & record)
+boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::produce( const StackedTrackerGeometryRecord & record )
 {
   edm::ESHandle< TrackerGeometry > trkGeomHandle;
   record.getRecord< TrackerDigiGeometryRecord >().get(trkGeomHandle);

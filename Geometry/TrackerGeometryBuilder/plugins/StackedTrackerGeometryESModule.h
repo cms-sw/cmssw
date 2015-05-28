@@ -47,7 +47,7 @@ class  StackedTrackerGeometryESModule: public edm::ESProducer
     unsigned                             theMaxStubs;
     std::vector< double >                setBarrelCut;
     std::vector< std::vector< double > > setRingCut;
-
+    const TrackerTopology *tTopo;
 };
 
 #endif
