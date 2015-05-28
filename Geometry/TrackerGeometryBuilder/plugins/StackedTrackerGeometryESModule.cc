@@ -10,13 +10,14 @@
 
 #include "StackedTrackerGeometryESModule.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometryBuilder.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 StackedTrackerGeometryESModule::StackedTrackerGeometryESModule( const edm::ParameterSet & p )
   : radial_window( p.getParameter< double >("radial_window") ),
     phi_window( p.getParameter< double >("phi_window") ),
     z_window( p.getParameter< double >("z_window") ),
     truncation_precision( p.getParameter< unsigned int >("truncation_precision") ),
-    makeDebugFile( p.getParameter< bool >("make_debug_file") )
+    makeDebugFile( p.getParameter< bool >("make_debug_file"))
 {
 
   /// CBC3 switch
@@ -44,10 +45,16 @@ StackedTrackerGeometryESModule::StackedTrackerGeometryESModule( const edm::Param
 
 StackedTrackerGeometryESModule::~StackedTrackerGeometryESModule() {}
 
-boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::produce( const StackedTrackerGeometryRecord & record )
+boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::produce( const StackedTrackerGeometryRecord & record)
 {
   edm::ESHandle< TrackerGeometry > trkGeomHandle;
   record.getRecord< TrackerDigiGeometryRecord >().get(trkGeomHandle);
+
+
+       //Retrieve tracker topology from geometry
+       edm::ESHandle<TrackerTopology> tTopoHandle;
+       record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+       const TrackerTopology* const tTopo = tTopoHandle.product();
 
   StackedTrackerGeometryBuilder builder;
 
@@ -63,7 +70,7 @@ boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::prod
                                                                            theMaxStubs,
                                                                            setBarrelCut,
                                                                            setRingCut,
-                                                                           makeDebugFile ) );
+                                                                           makeDebugFile,tTopo ) );
   }
   else
   {

@@ -20,6 +20,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <boost/shared_ptr.hpp>
 
