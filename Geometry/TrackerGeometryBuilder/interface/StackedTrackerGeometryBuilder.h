@@ -23,6 +23,7 @@
 
 class StackedTrackerGeometry;
 class TrackerGeometry;
+class TrackerTopology;
 
 class StackedTrackerGeometryBuilder
 {
@@ -52,7 +53,7 @@ class StackedTrackerGeometryBuilder
                                    unsigned theMaxStubs,
                                    std::vector< double > BarrelCut,
                                    std::vector< std::vector< double > > RingCut,
-                                   bool makeDebugFile = false, const TrackerTopology *tTopo );
+                                   bool makeDebugFile, const TrackerTopology *tTopo );
 
   private:
     std::vector< std::vector< int > > makeOffsetArray( double ratio,
