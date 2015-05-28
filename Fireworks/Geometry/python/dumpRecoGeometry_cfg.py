@@ -76,7 +76,7 @@ def recoGeoLoad(score):
     elif  score == "GEMDev":
       from Configuration.AlCa.autoCond import autoCond
       process.GlobalTag.globaltag = autoCond['mc']
-      process.load('Configuration.Geometry.GeometryExtended2015MuonReco_GEMDev_cff')
+      process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 
     elif score == "SLHCDB": # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'
