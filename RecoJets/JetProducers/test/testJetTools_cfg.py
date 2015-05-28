@@ -184,6 +184,6 @@ process.maxEvents.input = 5
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-process.out.fileName = 'jettoolbox.root'
+process.out.fileName = 'testJetTools.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
