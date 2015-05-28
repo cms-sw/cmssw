@@ -126,19 +126,31 @@ public:
   int ndof(void) const { return ndof_; }
   LocalPoint intercept() const { return intercept_;}
   LocalVector localdir() const { return localdir_;}
-  // const CSCChamber*      cscchamber     (uint32_t id) const { return cscchambermap_.find(id)->second; }
-  const CSCChamber*      cscchamber     (uint32_t id) const { return (csclayermap_.find(id)->second)->chamber(); }
-  const CSCLayer*        csclayer       (uint32_t id) const { return csclayermap_.find(id)->second; }
-  const GEMEtaPartition* gemetapartition(uint32_t id) const { return gemetapartmap_.find(id)->second; }
-  const CSCChamber*      refcscchamber  ()            const { return (csclayermap_.find(refid_)->second)->chamber(); }
+
+  const CSCChamber*      cscchamber     (uint32_t id) const { 
+    if(csclayermap_.find(id)==csclayermap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find CSCChamber in CSCLayerMap"; return 0;}
+    else { return (csclayermap_.find(id)->second)->chamber(); } 
+  }
+  const CSCLayer*        csclayer       (uint32_t id) const { 
+    if(csclayermap_.find(id)==csclayermap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find CSCLayer in CSCLayerMap"; return 0;}
+    else { return csclayermap_.find(id)->second; }
+  }
+  const GEMEtaPartition* gemetapartition(uint32_t id) const { 
+    if(gemetapartmap_.find(id)==gemetapartmap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find GEMEtaPartition in GEMEtaPartMap"; return 0;}
+    else { return gemetapartmap_.find(id)->second; }
+  }
+  const CSCChamber*      refcscchamber  ()            const { 
+    if(csclayermap_.find(refid_)==csclayermap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find Reference CSCChamber in CSCLayerMap"; return 0;}
+    else { return (csclayermap_.find(refid_)->second)->chamber(); }
+  }
   bool fitdone() const { return fitdone_; }
   
   private:  
   
   // PRIVATE FUNCTIONS
 
-  void fit2(void); // fit for 2 hits
-  void fitlsq(void); // least-squares fit for 3-6 hits  
+  void fit2(void);    // fit for 2 hits
+  void fitlsq(void);  // least-squares fit for 3-6 hits  
   void setChi2(void); // fill chi2_ & ndof_ @@ FKA fillChiSquared()
 
 
@@ -155,7 +167,6 @@ public:
   
   // PROTECTED MEMBER VARIABLES - derived class needs access
 
-  // std::map<uint32_t, const CSCChamber*>      cscchambermap_;
   std::map<uint32_t, const CSCLayer*>        csclayermap_;
   std::map<uint32_t, const GEMEtaPartition*> gemetapartmap_;
   const CSCChamber*                          refcscchamber_;
