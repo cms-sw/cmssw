@@ -37,7 +37,7 @@ void GEMCSCSegFit::fit(void) {
     fitlsq();
     break;
   default:
-    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fit] - cannot fit more than 6 hits!!";
+    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fit] - cannot fit more than 8 hits!!";
   }  
 }
 
@@ -61,9 +61,10 @@ void GEMCSCSegFit::fit2(void) {
   if (d1.subdetId() == MuonSubdetId::GEM) {
     il1 = GEMDetId(d1).layer();
   }
-  if (d1.subdetId() == MuonSubdetId::CSC) {
+  else if (d1.subdetId() == MuonSubdetId::CSC) {
     il1 = CSCDetId(d1).layer() + 2;
   }
+  else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
   const TrackingRecHit& h1 = (**ih);
   ++ih;
   DetId d2 = DetId((*ih)->rawId());
@@ -71,9 +72,10 @@ void GEMCSCSegFit::fit2(void) {
   if (d2.subdetId() == MuonSubdetId::GEM) {
     il2 = GEMDetId(d2).layer();
   }
-  if (d2.subdetId() == MuonSubdetId::CSC) {
+  else if (d2.subdetId() == MuonSubdetId::CSC) {
     il2 = GEMDetId(d2).layer() + 2;
   }
+  else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
   const TrackingRecHit& h2 = (**ih);
   // Skip if on same layer, but should be impossible :)
   if (il1 == il2) {
@@ -91,19 +93,21 @@ void GEMCSCSegFit::fit2(void) {
     const GEMEtaPartition* roll1 = gemetapartition(GEMDetId(d1));
     h1glopos = roll1->toGlobal(h1.localPosition());
   }
-  if(d1.subdetId() == MuonSubdetId::CSC) {
+  else if(d1.subdetId() == MuonSubdetId::CSC) {
     const CSCLayer* layer1 = cscchamber(CSCDetId(d1))->layer(CSCDetId(d1).layer());
     h1glopos = layer1->toGlobal(h1.localPosition());
   }
+  else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
   // global position hit 2
   if(d2.subdetId() == MuonSubdetId::GEM) {
     const GEMEtaPartition* roll2 = gemetapartition(GEMDetId(d2));
     h2glopos = roll2->toGlobal(h2.localPosition());
   }
-  if(d2.subdetId() == MuonSubdetId::CSC) {
+  else if(d2.subdetId() == MuonSubdetId::CSC) {
     const CSCLayer* layer2 = cscchamber(CSCDetId(d2))->layer(CSCDetId(d2).layer());
     h2glopos = layer2->toGlobal(h2.localPosition());
   }
+  else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
   // local positions hit 1 and 2 w.r.t. ref CSC Chamber Frame
   // We want hit wrt chamber (and local z will be != 0)
   LocalPoint h1pos = refcscchamber()->toLocal(h1glopos);  
@@ -113,10 +117,10 @@ void GEMCSCSegFit::fit2(void) {
   // 3) Now make straight line between the two points in local coords
   // ----------------------------------------------------------------    
   float dz = h2pos.z()-h1pos.z();
-
-  uslope_ = ( h2pos.x() - h1pos.x() ) / dz ;
-  vslope_ = ( h2pos.y() - h1pos.y() ) / dz ;
-
+  if(dz != 0) {
+    uslope_ = ( h2pos.x() - h1pos.x() ) / dz ;
+    vslope_ = ( h2pos.y() - h1pos.y() ) / dz ;
+  }
   float uintercept = ( h1pos.x()*h2pos.z() - h2pos.x()*h1pos.z() ) / dz;
   float vintercept = ( h1pos.y()*h2pos.z() - h2pos.y()*h1pos.z() ) / dz;
   intercept_ = LocalPoint( uintercept, vintercept, 0.);
@@ -225,10 +229,11 @@ void GEMCSCSegFit::fitlsq(void) {
 	edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fitlsq] - Tracking RecHit is a GEM Hit in detid ("<<d.rawId()<<")";
 	edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fitlsq] - GEM DetId ("<<GEMDetId(d.rawId())<<")";
       }
-      if(d.subdetId() == MuonSubdetId::CSC) {
+      else if(d.subdetId() == MuonSubdetId::CSC) {
 	edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fitlsq] - Tracking RecHit is a CSC Hit in detid ("<<d.rawId()<<")";
 	edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fitlsq] - CSC DetId ("<<CSCDetId(d.rawId())<<")";
       }
+      else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
     }
 
   // Loop over the TrackingRecHits and make small (2x2) matrices used to fill the blockdiagonal covariance matrix E^-1
@@ -242,11 +247,12 @@ void GEMCSCSegFit::fitlsq(void) {
 	  const GEMEtaPartition* roll = gemetapartition(GEMDetId(d));
 	  gp = roll->toGlobal(hit.localPosition());
 	}
-      if(d.subdetId() == MuonSubdetId::CSC) 
+      else if(d.subdetId() == MuonSubdetId::CSC) 
 	{
 	  const CSCLayer* layer = cscchamber(CSCDetId(d))->layer(CSCDetId(d).layer());
 	  gp = layer->toGlobal(hit.localPosition());
 	}
+      else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
       LocalPoint lp = refcscchamber()->toLocal(gp); 
 
       // LogDebug
@@ -277,7 +283,7 @@ void GEMCSCSegFit::fitlsq(void) {
       if ( !ok ) 
 	{
 	  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fit] Failed to invert covariance matrix: \n" << IC;      
-	  //      return ok;  //@@ SHOULD PASS THIS BACK TO CALLER?
+	  return; // MATRIX INVERSION FAILED ... QUIT VOID FUNCTION
 	}
 
       // M = (AT E A)
@@ -315,15 +321,15 @@ void GEMCSCSegFit::fitlsq(void) {
   if (!ok )
     {
       edm::LogVerbatim("GEMCSCSegment|GEMCSCSegFit") << "[GEMCSCSegFit::fit] Failed to invert matrix: \n" << M;
-      // return ok; //@@ SHOULD PASS THIS BACK TO CALLER?
+      return; // MATRIX INVERSION FAILED ... QUIT VOID FUNCTION 
     }
   else 
     {
       p = M * B;
     }
 
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::fit] p = " 
-  //        << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fit] p = " 
+          << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
   
   // fill member variables  (note origin has local z = 0)
   //  intercept_
@@ -360,11 +366,12 @@ void GEMCSCSegFit::setChi2(void) {
       gp = roll->toGlobal(hit.localPosition());
       gem = true;
     }
-    if(d.subdetId() == MuonSubdetId::CSC) {
+    else if(d.subdetId() == MuonSubdetId::CSC) {
       const CSCLayer* layer = cscchamber(CSCDetId(d))->layer(CSCDetId(d).layer());
       gp = layer->toGlobal(hit.localPosition());
       gem = false;
     }
+    else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
     LocalPoint lp = refcscchamber()->toLocal(gp);
 
     // LogDebug
@@ -380,7 +387,7 @@ void GEMCSCSegFit::setChi2(void) {
     double du = intercept_.x() + uslope_ * z - u;
     double dv = intercept_.y() + vslope_ * z - v;
     
-    //    LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] u, v, z = " << u << ", " << v << ", " << z;
+    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] u, v, z = " << u << ", " << v << ", " << z;
 
     SMatrixSym2 IC; // 2x2, init to 0
 
@@ -390,15 +397,15 @@ void GEMCSCSegFit::setChi2(void) {
     IC(1,1) = hit.localPositionError().yy();
     //    IC(1,0) = IC(0,1);
 
-    //    LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] IC before = \n" << IC;
+    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] IC before = \n" << IC;
 
     // Invert covariance matrix
     bool ok = IC.Invert();
     if (!ok ){
       edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Failed to invert covariance matrix: \n" << IC;
-      //      return ok;
+      return; // MATRIX INVERSION FAILED ... QUIT VOID FUNCTION
     }
-    //    LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] IC after = \n" << IC;
+    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] IC after = \n" << IC;
     chsq += du*du*IC(0,0) + 2.*du*dv*IC(0,1) + dv*dv*IC(1,1);
     // LogDebug
     edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Contribution of this Tracking RecHit to Chi2: du^2*D(1,1) + 2*du*dv*D(1,2) + dv^2*D(2,2) = " 
@@ -407,13 +414,13 @@ void GEMCSCSegFit::setChi2(void) {
   // LogDebug
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total Chi2 = "<<chsq;
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total NDof = "<<2.*hits_.size() - 4;
-  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total Chi2/NDof = "<<chsq/(2.*hits_.size() - 4);
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total Chi2/NDof = "<<((hits_.size()!=0)?(chsq/(2.*hits_.size() - 4)):(0.0));
 
   // fill member variables
   chi2_ = chsq;
   ndof_ = 2.*hits_.size() - 4;
 
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] chi2 = " << chi2_ << "/" << ndof_ << " dof";
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] chi2 = " << chi2_ << "/" << ndof_ << " dof";
 
 }
 
@@ -450,7 +457,8 @@ GEMCSCSegFit::SMatrixSym16 GEMCSCSegFit::weightMatrix() {
   if ( !ok ) 
     {
       edm::LogVerbatim("GEMCSCSegment|GEMCSCSegFit") << "[GEMCSCSegFit::weightMatrix] Failed to invert matrix: \n" << matrix;      
-      //    return ok; //@@ SHOULD PASS THIS BACK TO CALLER?
+      SMatrixSym16 emptymatrix = ROOT::Math::SMatrixIdentity();
+      return emptymatrix; // return (empty) identity matrix if matrix inversion failed 
     }
   return matrix;
 }
@@ -472,10 +480,11 @@ GEMCSCSegFit::SMatrix16by4 GEMCSCSegFit::derivativeMatrix() {
       const GEMEtaPartition* roll = gemetapartition(GEMDetId(d));
       gp = roll->toGlobal(hit.localPosition());
     }
-    if(d.subdetId() == MuonSubdetId::CSC) {
+    else if(d.subdetId() == MuonSubdetId::CSC) {
       const CSCLayer* layer = cscchamber(CSCDetId(d))->layer(CSCDetId(d).layer());
       gp = layer->toGlobal(hit.localPosition());
     }
+    else { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit:fit2] - TrackingRecHit is not in GEM or CSC subdetector"; }
     LocalPoint lp = refcscchamber()->toLocal(gp);
     float z = lp.z();
 
@@ -517,21 +526,22 @@ AlgebraicSymMatrix GEMCSCSegFit::covarianceMatrix() {
   
   SMatrixSym16 weights = weightMatrix();
   SMatrix16by4 A = derivativeMatrix();
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] weights matrix W: \n" << weights;      
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] weights matrix W: \n" << weights;      
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
 
   // (AT W A)^-1
   // e.g. See http://www.phys.ufl.edu/~avery/fitting.html, part I
 
   bool ok;
   SMatrixSym4 result =  ROOT::Math::SimilarityT(A, weights);
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] (AT W A): \n" << result;      
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] (AT W A): \n" << result;      
   ok = result.Invert(); // inverts in place
   if ( !ok ) {
-    edm::LogVerbatim("GEMCSCSegment|GEMCSCSegFit") << "[GEMCSCSegFit::calculateError] Failed to invert matrix: \n" << result;      
-    //    return ok;  //@@ SHOULD PASS THIS BACK TO CALLER?
+    edm::LogVerbatim("GEMCSCSegment|GEMCSCSegFit") << "[GEMCSCSegFit::calculateError] Failed to invert matrix: \n" << result;
+    AlgebraicSymMatrix emptymatrix(4, 0. );
+    return emptymatrix; // return empty matrix if matrix inversion failed
   }
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
   
   // reorder components to match TrackingRecHit interface (GEMCSCSegment isa TrackingRecHit)
   // i.e. slopes first, then positions 
@@ -547,7 +557,7 @@ AlgebraicSymMatrix GEMCSCSegFit::flipErrors( const SMatrixSym4& a ) {
   // parameters in order (uz, vz, u0, v0) 
   // where uz, vz = slopes, u0, v0 = intercepts
     
-  //  LogTrace("GEMCSCSegFit") << "[GEMCSCSegFit::flipErrors] input: \n" << a;      
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::flipErrors] input: \n" << a;      
 
   AlgebraicSymMatrix hold(4, 0. ); 
       
