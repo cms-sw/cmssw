@@ -1,6 +1,6 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_5_0_pre2_std">
-<var name="TEST_REF" value="7_5_0_pre1_std">
+<var name="TEST_NEW" value="7_4_0_pre8_dev1">
+<var name="TEST_REF" value="7_4_0_pre7_std">
 
 <var name="TAG_STARTUP" value="MCRUN2_74_V7">
 <var name="DATA_VERSION" value="v1">
@@ -13,7 +13,7 @@ TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Dev">
 
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
@@ -161,7 +161,7 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ElectronMcSignalValidationPt1000_cfg.py">
+      <target name="analyze" cmd="cmsRun ElectronMcSignalPt1000Validation_cfg.py">
       <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
       
       <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
@@ -282,7 +282,7 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ElectronMcSignalValidationPt1000_gedGsfElectrons_cfg.py">
+      <target name="analyze" cmd="cmsRun ElectronMcSignalPt1000Validation_gedGsfElectrons_cfg.py">
       <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
       
       <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
@@ -549,7 +549,7 @@ FullSim
       <var name="BLUE_FILE" value="electronHistos.ValFullPt10Startup_UP15_gedGsfE.root">
       <var name="RED_FILE" value="electronHistos.ValFullPt10Startup_UP15_gedGsfE.root">
 
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
     </environment>
 
@@ -563,7 +563,7 @@ FullSim
       <var name="BLUE_FILE" value="electronHistos.ValFullPt35Startup_UP15_gedGsfE.root">
       <var name="RED_FILE" value="electronHistos.ValFullPt35Startup_UP15_gedGsfE.root">
 
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
       
     </environment>
     
@@ -581,7 +581,7 @@ FullSim
       <var name="BLUE_FILE" value="electronHistos.ValFullPt1000Startup_UP15_gedGsfE.root">
       <var name="RED_FILE" value="electronHistos.ValFullPt1000Startup_UP15_gedGsfE.root">
 
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
     </environment>
 
@@ -595,7 +595,7 @@ FullSim
       <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
       <var name="RED_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
 
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
     </environment>
   
@@ -609,7 +609,7 @@ FullSim
       <var name="BLUE_FILE" value="electronHistos.ValFullZEEStartup_13_gedGsfE.root">
       <var name="RED_FILE" value="electronHistos.ValFullZEEStartup_13_gedGsfE.root">
 
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
   
     </environment>
 
@@ -628,7 +628,7 @@ FullSim
       <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_gedGsfElectrons_cfg">
       <var name="VAL_POST_CONFIGURATION" value="ElectronMcFakePostValidation_cfg">
       
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
     </environment>  
   

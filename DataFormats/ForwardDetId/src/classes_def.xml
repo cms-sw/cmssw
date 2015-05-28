@@ -1,0 +1,18 @@
+<lcgdict>
+  <class name="HGCEEDetId" ClassVersion="13">
+   <version ClassVersion="13" checksum="2559951294"/>
+   <version ClassVersion="12" checksum="511816684"/>
+  </class>
+  <class name="HGCHEDetId" ClassVersion="13">
+   <version ClassVersion="13" checksum="2561545617"/>
+   <version ClassVersion="12" checksum="512348125"/>
+  </class>
+  <class name="HGCalDetId" ClassVersion="14">
+   <version ClassVersion="14" checksum="2581740375"/>
+   <version ClassVersion="13" checksum="519079711"/>
+  </class>
+  <class name="FastTimeDetId" ClassVersion="14">
+   <version ClassVersion="14" checksum="692755117"/>
+   <version ClassVersion="13" checksum="2752729489"/>
+  </class>
+</lcgdict>
