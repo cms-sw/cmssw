@@ -55,8 +55,8 @@ GEMCSCSegAlgoRR::~GEMCSCSegAlgoRR() {}
 /**
  * Run the algorithm
  */
-std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run( std::map<uint32_t, const CSCLayer*> csclayermap, std::map<uint32_t, const GEMEtaPartition*> gemrollmap, 
-						 std::vector<const CSCSegment*> cscsegments, std::vector<const GEMRecHit*> gemrechits) 
+std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run( const std::map<uint32_t, const CSCLayer*>& csclayermap, const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap, 
+						 const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits) 
 {
 
   // This function is called for each CSC Chamber (ME1/1) associated with a GEM chamber in which GEM Rechits were found
@@ -113,7 +113,7 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run( std::map<uint32_t, const CSCLay
   // empty the temporary gemcsc segments vector
   // segmentvectortmp.clear();
 
-  for(std::vector<const CSCSegment*>::iterator cscSegIt = cscsegments.begin(); cscSegIt != cscsegments.end(); ++cscSegIt)
+  for(std::vector<const CSCSegment*>::const_iterator cscSegIt = cscsegments.begin(); cscSegIt != cscsegments.end(); ++cscSegIt)
     {
 
       // chain hits :: make a vector of TrackingRecHits
@@ -176,8 +176,17 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
 
   // now ask the layer id of the first CSC rechit
   std::vector<const TrackingRecHit*>::const_iterator trhIt = chainedRecHits.begin();
+  // make sure pointer is valid 
+  if(trhIt != chainedRecHits.end()) {
+    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::chainHitsToSegm] CSC segment has zero rechits ... end function here";
+    return chainedRecHits;
+  }
   const CSCLayer * cscLayer = theCSCLayers_.find((*trhIt)->rawId())->second;
   // now ask the chamber id of the first CSC rechit
+  if(!cscLayer) {
+    edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::chainHitsToSegm] CSC rechit ID was not found back in the CSCLayerMap ... end function here";
+    return chainedRecHits;
+  }
   const CSCChamber* cscChamber = cscLayer->chamber();
 
   // For non-empty GEM rechit vector
@@ -189,13 +198,13 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
       float Dtheta_min_l2 = 999;
      
       std::vector<const GEMRecHit*>::const_iterator grhIt = gemrechits.begin();
+
       const GEMRecHit* gemrh_min_l1= *grhIt;
       const GEMRecHit* gemrh_min_l2= *grhIt;
       
       // Loop over GEM rechits from the EnsembleGEMHitContainer
       for(grhIt = gemrechits.begin(); grhIt != gemrechits.end(); ++grhIt) 
 	{
-	
 	  // get GEM Rechit Local & Global Position
 	  auto rhLP = (*grhIt)->localPosition();
 	  const GEMEtaPartition* rhRef  = theGEMEtaParts_.find((*grhIt)->gemId())->second;
@@ -205,9 +214,13 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
 	  auto rhLP_inSegmRef = cscChamber->toLocal(rhGP);
 	  // calculate the extrapolation of the CSC segment to the GEM plane (z-coord)
 	  // to get x- and y- coordinate 
-	  float xe = segLP.x()+segLD.x()*rhLP_inSegmRef.z()/segLD.z();
-	  float ye = segLP.y()+segLD.y()*rhLP_inSegmRef.z()/segLD.z();
-	  float ze = rhLP_inSegmRef.z();
+	  float xe, ye, ze = 0.0; 
+	  if(segLD.z() != 0)
+	    {
+	      xe = segLP.x()+segLD.x()*rhLP_inSegmRef.z()/segLD.z();
+	      ye = segLP.y()+segLD.y()*rhLP_inSegmRef.z()/segLD.z();
+	      ze = rhLP_inSegmRef.z();
+	    }
 	  // 3D extrapolated point in the GEM plane
 	  LocalPoint extrPoint(xe,ye,ze);
 	  
@@ -247,7 +260,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
 		  gemrh_min_l2  = *grhIt;
 		}
 	    }
-
+	  
 	} // end loop over GEM Rechits
       
       // Check whether GEM rechit with smallest delta eta and delta phi 
@@ -255,17 +268,16 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
       // maxima given by the configuration of the algorithm
       bool phiRequirementOK_l1 = Dphi_min_l1 < dPhiChainBoxMax;
       bool thetaRequirementOK_l1 = Dtheta_min_l1 < dThetaChainBoxMax;
-      if(phiRequirementOK_l1 && thetaRequirementOK_l1) 
+      if(phiRequirementOK_l1 && thetaRequirementOK_l1 && gemrh_min_l1!=0) 
 	{
 	  chainedRecHits.push_back(gemrh_min_l1->clone());  
 	}
       bool phiRequirementOK_l2 = Dphi_min_l2 < dPhiChainBoxMax;
       bool thetaRequirementOK_l2 = Dtheta_min_l2 < dThetaChainBoxMax;
-      if(phiRequirementOK_l2 && thetaRequirementOK_l2) 
+      if(phiRequirementOK_l2 && thetaRequirementOK_l2 && gemrh_min_l2!=0) 
 	{
 	  chainedRecHits.push_back(gemrh_min_l2->clone());
 	}
-
     } // End check > 0 GEM rechits
 
   return chainedRecHits;
