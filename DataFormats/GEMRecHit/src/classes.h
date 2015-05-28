@@ -2,12 +2,11 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
-
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegmentCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace { 
+namespace DataFormats_GEMRecHit {
   struct dictionary {
     std::pair<unsigned int, unsigned int> dummyrpc1;
     std::pair<unsigned long, unsigned long> dummyrpc2;
