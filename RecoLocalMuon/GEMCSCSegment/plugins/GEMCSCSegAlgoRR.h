@@ -37,8 +37,8 @@ public:
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<GEMCSCSegment> run( std::map<uint32_t, const CSCLayer*> csclayermap, std::map<uint32_t, const GEMEtaPartition*> gemrollmap,
-				  std::vector<const CSCSegment*> cscsegments, std::vector<const GEMRecHit*> gemrechits);
+  std::vector<GEMCSCSegment> run( const std::map<uint32_t, const CSCLayer*>& csclayermap, const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
+				  const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits);
 private:
 
   /// Utility functions 
@@ -69,7 +69,6 @@ private:
   /// Member variables
   const std::string myName; // name of the algorithm, here: GEMCSCSegAlgoRR
 
-  // std::map<uint32_t, const CSCChamber*>      theCSCChambers_;
   std::map<uint32_t, const CSCLayer*>        theCSCLayers_;
   std::map<uint32_t, const GEMEtaPartition*> theGEMEtaParts_;
   GEMCSCSegFit*                              sfit_;
