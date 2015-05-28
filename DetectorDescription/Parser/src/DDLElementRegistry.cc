@@ -210,7 +210,7 @@ DDLElementRegistry::getElement( const std::string& name )
     // Supporting Cast of elements.
     //  All elements which simply accumulate attributes which are then used
     //  by one of the above elements.
-    else if (name == "MaterialFraction" || name == "ParE" || name == "ParS"
+    else if (name == "MaterialFraction"
 	     || name == "RZPoint" || name == "PartSelector"
 	     || name == "Parameter" || name == "ZSection"
 	     || name == "Translation" 
