@@ -311,7 +311,6 @@ void DDCoreToDDXMLOutput::material( const DDMaterial& material, std::ostream& xo
       }
       xos << "</CompositeMaterial>" << std::endl;
    }
-   //   return temp;
 }
 
 void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, const std::string& rotn ) 
@@ -345,7 +344,6 @@ void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, con
    {
       xos << "<ReflectionRotation ";
    }
-   //  xos << std::fixed << std::setprecision(4);
    xos << "name=\"" << rotName << "\""
    << " phiX=\"" << x.phi()/deg << "*deg\""
    << " thetaX=\"" << x.theta()/deg << "*deg\""
@@ -354,7 +352,6 @@ void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, con
    << " phiZ=\"" << z.phi()/deg << "*deg\""
    << " thetaZ=\"" << z.theta()/deg << "*deg\"/>"
    << std::endl;
-   //  xos << std::fixed << std::setprecision(6);
 }
 
 void DDCoreToDDXMLOutput::logicalPart( const DDLogicalPart& lp, std::ostream& xos ) 
@@ -368,7 +365,6 @@ void DDCoreToDDXMLOutput::logicalPart( const DDLogicalPart& lp, std::ostream& xo
 void DDCoreToDDXMLOutput::position( const DDLogicalPart& parent,
                                    const DDLogicalPart& child,
                                    DDPosData* edgeToChild, 
-                                   // PIdealGeometry& geom
                                    int& rotNameSeed,
                                    std::ostream& xos ) 
 {
@@ -389,11 +385,9 @@ void DDCoreToDDXMLOutput::position( const DDLogicalPart& parent,
          xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
       }
    } // else let default Rotation matrix be created?
-     //  xos  << std::fixed << std::setprecision(4);
    xos << "<Translation x=\"" << edgeToChild->translation().x() <<"*mm\""
    << " y=\"" << edgeToChild->translation().y() <<"*mm\""
    << " z=\"" << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
-   //  xos  << std::fixed << std::setprecision(6);
    xos << "</PosPart>" << std::endl;
 }
 
