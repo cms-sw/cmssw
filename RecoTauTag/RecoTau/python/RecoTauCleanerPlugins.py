@@ -28,6 +28,18 @@ unitCharge = cms.PSet(
     selectionFailValue = cms.double(0),
 )
 
+# similar to unitCharge but handles also cases where tau is made up of
+# a combination of tracks and pf charged hadrons
+charge = cms.PSet(
+    name = cms.string("Charge"),
+    plugin = cms.string("RecoTauChargeCleanerPlugin"),
+    # cleaner is applied to decay modes with the number of prongs given here
+    nprongs = cms.vuint32(1,3),
+    # taus with charge != 1 are rejected
+    passForCharge = cms.int32(1),
+    selectionFailValue = cms.double(0),
+)
+
 # Prefer taus with pt greater 15
 ptGt15 = cms.PSet(
     name = cms.string("PtGt15"),
