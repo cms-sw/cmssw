@@ -2120,31 +2120,30 @@ class ConfigBuilder(object):
                 self.pythonCfgCode += dumpPython(self.process,endpath)
 
         # dump the schedule
-	if not self._options.runUnscheduled:	
-		self.pythonCfgCode += "\n# Schedule definition\n"
-		result = "process.schedule = cms.Schedule("
+	self.pythonCfgCode += "\n# Schedule definition\n"
+	result = "process.schedule = cms.Schedule("
 
-                # handling of the schedule
-		self.process.schedule = cms.Schedule()
-		for item in self.schedule:
-			if not isinstance(item, cms.Schedule):
-				self.process.schedule.append(item)
-			else:
-				self.process.schedule.extend(item)
-
-		if hasattr(self.process,"HLTSchedule"):
-			beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-			afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-			pathNames = ['process.'+p.label_() for p in beforeHLT]
-			result += ','.join(pathNames)+')\n'
-			result += 'process.schedule.extend(process.HLTSchedule)\n'
-			pathNames = ['process.'+p.label_() for p in afterHLT]
-			result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+        # handling of the schedule
+	self.process.schedule = cms.Schedule()
+	for item in self.schedule:
+		if not isinstance(item, cms.Schedule):
+			self.process.schedule.append(item)
 		else:
-			pathNames = ['process.'+p.label_() for p in self.schedule]
-			result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+			self.process.schedule.extend(item)
 
-	        self.pythonCfgCode += result
+	if hasattr(self.process,"HLTSchedule"):
+		beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
+		afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
+		pathNames = ['process.'+p.label_() for p in beforeHLT]
+		result += ','.join(pathNames)+')\n'
+		result += 'process.schedule.extend(process.HLTSchedule)\n'
+		pathNames = ['process.'+p.label_() for p in afterHLT]
+		result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+	else:
+		pathNames = ['process.'+p.label_() for p in self.schedule]
+		result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+
+	self.pythonCfgCode += result
 
 	if self._options.nThreads is not "1":
 		self.pythonCfgCode +="\n"
