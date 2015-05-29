@@ -62,10 +62,10 @@ class PFMETAlgorithmMVA
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName);
   const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName);
 
-  const Float_t evaluateU();
-  const Float_t evaluateDPhi();
-  const Float_t evaluateCovU1();
-  const Float_t evaluateCovU2();
+  const float evaluateU();
+  const float evaluateDPhi();
+  const float evaluateCovU1();
+  const float evaluateCovU2();
 
   MvaMEtUtilities utils_;
     
@@ -78,21 +78,21 @@ class PFMETAlgorithmMVA
   bool   hasPhotons_;
 
   double dZcut_;
-  Float_t* createFloatVector(std::vector<std::string> variableNames);
-  const Float_t GetResponse(const GBRForest *Reader, std::vector<std::string> &variableNames);
+  float* createFloatVector(std::vector<std::string> variableNames);
+  const float GetResponse(const GBRForest *Reader, std::vector<std::string> &variableNames);
   void computeMET();
-  std::map<std::string, Float_t> var_;
+  std::map<std::string, float> var_;
 
 
-  Float_t* mvaInputU_;
-  Float_t* mvaInputDPhi_;
-  Float_t* mvaInputCovU1_;
-  Float_t* mvaInputCovU2_;
+  float* mvaInputU_;
+  float* mvaInputDPhi_;
+  float* mvaInputCovU1_;
+  float* mvaInputCovU2_;
   
-  Float_t mvaOutputU_;
-  Float_t mvaOutputDPhi_;
-  Float_t mvaOutputCovU1_;
-  Float_t mvaOutputCovU2_;
+  float mvaOutputU_;
+  float mvaOutputDPhi_;
+  float mvaOutputCovU1_;
+  float mvaOutputCovU2_;
 
   std::vector<std::string> varForU_;
   std::vector<std::string> varForDPhi_;
