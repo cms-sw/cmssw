@@ -543,7 +543,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   }
 }
 
-void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, reco::BeamSpot beamspot, reco::VertexCollection vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt) const
+void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, const reco::BeamSpot& beamspot,const reco::VertexCollection& vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt) const
 {
 
   using namespace std; 
