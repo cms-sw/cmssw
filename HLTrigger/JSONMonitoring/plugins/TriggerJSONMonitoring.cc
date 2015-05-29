@@ -21,15 +21,11 @@
 
 TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps)
 {
-  if (ps.exists("triggerResults")) triggerResults_ = ps.getParameter<edm::InputTag> ("triggerResults");
-  else                             triggerResults_ = edm::InputTag("TriggerResults","","HLT");
-
+  triggerResults_      = ps.getParameter<edm::InputTag> ("triggerResults");
   triggerResultsToken_ = consumes<edm::TriggerResults>(triggerResults_);
 
-  if (ps.exists("L1Results")) level1Results_ = ps.getParameter<edm::InputTag>("L1Results");   
-  else                        level1Results_ = edm::InputTag("hltGtDigis");                  
-
-  m_l1t_results        = consumes<L1GlobalTriggerReadoutRecord>(level1Results_);             
+  level1Results_ = ps.getParameter<edm::InputTag>("L1Results");   
+  m_l1t_results  = consumes<L1GlobalTriggerReadoutRecord>(level1Results_);             
                                                      
 }
 
