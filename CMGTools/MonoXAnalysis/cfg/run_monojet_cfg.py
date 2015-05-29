@@ -109,7 +109,8 @@ triggerFlagsAna.triggerBits = {
     'MonoJet' : triggers_monojet,
 }
 
-from CMGTools.MonoXAnalysis.samples.samples_monojet import *
+from CMGTools.MonoXAnalysis.samples.samples_monojet_13TeV_PHYS14 import *
+
 signalSamples = MonojetSignalSamples
 backgroundSamples =  WJetsToLNuHT + ZJetsToNuNuHT + SingleTop + [TTJets] + DYJetsM50HT + GJetsHT + QCDHT
 selectedComponents = backgroundSamples + signalSamples
@@ -200,6 +201,40 @@ elif test == 'SR':
     monoJetCtrlLepSkim.minLeptons = 0
     for comp in selectedComponents:
         comp.splitFactor = 350
+elif test == '74X-MC':
+    from CMGTools.MonoXAnalysis.samples.samples_monojet_13TeV_74X import *
+    what = getHeppyOption("sample")
+    if what == "TT":
+        monoJetCtrlLepSkim.minLeptons = 0
+        selectedComponents = [ TT_bx25 ]
+    elif what == "Z":
+        monoJetCtrlLepSkim.minLeptons = 0
+        monoJetSkim.metCut = 0
+        selectedComponents = [ ZEE_bx25, ZMM_bx25, ZTT_bx25 ]
+    else:
+        selectedComponents = RelVals740
+    if not getHeppyOption("all"):
+        for comp in selectedComponents:
+            comp.files = comp.files[:1]
+            comp.splitFactor = 1
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
+elif test == '74X-Data':
+    from CMGTools.MonoXAnalysis.samples.samples_monojet_13TeV_74X import *
+    from CMGTools.MonoXAnalysis.samples.samples_8TeVReReco_74X import *
+    what = getHeppyOption("sample")
+    if what == "SingleMu":
+        selectedComponents = [ SingleMu_740p9 ]
+    elif what == "Z":
+        selectedComponents = [ SingleMuZ_740p9, DoubleElectronZ_740p9 ]
+    elif what == "MuEG":
+        selectedComponents = [ MuEG_740p9 ]
+    else:
+        selectedComponents = dataSamples740p9
+    if not getHeppyOption("all"):
+        for comp in selectedComponents:
+            comp.files = comp.files[:1]
+            comp.splitFactor = 1
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
 
 ## output histogram
 outputService=[]
