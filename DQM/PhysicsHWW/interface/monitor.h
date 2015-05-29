@@ -4,20 +4,28 @@
 #include <string>
 #include "wwtypes.h"
 
-#include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
 using namespace HWWFunctions;
 
 
 class EventMonitor
 {
- public:
-  EventMonitor(DQMStore::IBooker& iBooker);
-  void count(HypothesisType type, const char* name, double weight=1.0);
+public:
 
-  std::map<std::string, int> binMap_;
-  MonitorElement *cutflowHist_[4];
+  EventMonitor();
+
+  struct Entry{
+    unsigned int nevt[5];
+    std::string name;
+    Entry();
+  };
+
+  struct hypo_monitor{
+    std::vector<EventMonitor::Entry> counters;
+    void count(HypothesisType type, const char* name, double weight=1.0);
+    hypo_monitor(){}
+  };
+
+  hypo_monitor monitor;
+
 };
 #endif

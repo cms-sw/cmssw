@@ -57,6 +57,8 @@ class HWWAnalyzer : public DQMEDAnalyzer {
       EGammaMvaEleEstimator* egammaMvaEleEstimator;
       MuonMVAEstimator* muonMVAEstimator;
   
+      EventMonitor eventMonitor;
+
       VertexMaker         vertexMaker;
       EventMaker          eventMaker;
       TrackMaker          trackMaker;
@@ -74,7 +76,10 @@ class HWWAnalyzer : public DQMEDAnalyzer {
       TrkMETMaker         trkMETMaker;
       MVAJetIdMaker       mvaJetIdMaker;
 
-      std::unique_ptr<EventMonitor> eventMonitor;
+      MonitorElement* cutflowHist[4];
+        
+      void FillHistograms();
+
 };
 
 #endif
