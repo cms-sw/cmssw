@@ -206,9 +206,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
   std::vector<MonitorElement*> chi2_vs_eta, nlosthits_vs_eta;
-  std::vector<MonitorElement*> h_chi2meanh, h_losthits_eta;
-  std::vector<MonitorElement*> h_hits_phi;
-  std::vector<MonitorElement*> h_chi2meanhitsh, h_chi2mean_vs_phi;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
