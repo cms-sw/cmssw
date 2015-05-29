@@ -169,7 +169,7 @@ lepAna = cfg.Analyzer(
     # electron isolation correction method (can be "rhoArea" or "deltaBeta")
     ele_isoCorr = "deltaBeta" ,
     el_effectiveAreas = "Phys14_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1')
-    ele_tightId = "MVA" ,
+    ele_tightId = "Cuts_2012" ,
     # Mini-isolation, with pT dependent cone: will fill in the miniRelIso, miniRelIsoCharged, miniRelIsoNeutral variables of the leptons (see https://indico.cern.ch/event/368826/ )
     doMiniIsolation = False, # off by default since it requires access to all PFCandidates 
     packedCandidates = 'packedPFCandidates',
@@ -217,15 +217,31 @@ photonAna = cfg.Analyzer(
 ## Tau Analyzer (generic)
 tauAna = cfg.Analyzer(
     TauAnalyzer, name="tauAnalyzer",
-    ptMin = 15,
-    etaMax = 9999,
-    dxyMax = 0.5,
-    dzMax = 1.0,
-    vetoLeptons = True,
-    leptonVetoDR = 0.4,
-    vetoLeptonsPOG = False,
-    tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
-    tauLooseID = "decayModeFinding",
+    # inclusive very loose hadronic tau selection
+    inclusive_ptMin = 15,
+    inclusive_etaMax = 9999,
+    inclusive_dxyMax = 1000.,
+    inclusive_dzMax = 0.4,
+    inclusive_vetoLeptons = False,
+    inclusive_leptonVetoDR = 0.4,
+    inclusive_decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
+    inclusive_tauID = "decayModeFindingNewDMs",
+    inclusive_vetoLeptonsPOG = False, # If True, the following two IDs are required
+    inclusive_tauAntiMuonID = "",
+    inclusive_tauAntiElectronID = "",
+    # loose hadronic tau selection
+    loose_ptMin = 15,
+    loose_etaMax = 9999,
+    loose_dxyMax = 1000.,
+    loose_dzMax = 0.2,
+    loose_vetoLeptons = True,
+    loose_leptonVetoDR = 0.4,
+    loose_decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
+    loose_tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+    loose_vetoLeptonsPOG = False, # If True, the following two IDs are required
+    loose_tauAntiMuonID = "againstMuonLoose3",
+    loose_tauAntiElectronID = "againstElectronLooseMVA5",
+    loose_tauLooseID = "decayModeFindingNewDMs"
 )
 
 ##------------------------------------------

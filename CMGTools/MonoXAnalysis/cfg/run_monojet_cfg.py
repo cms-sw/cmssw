@@ -104,7 +104,7 @@ treeProducer = cfg.Analyzer(
 #                       dmCounter)
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.MonoXAnalysis.samples.samples_monojet import triggers_monojet
+from CMGTools.MonoXAnalysis.samples.samples_monojet_13TeV_PHYS14 import triggers_monojet
 triggerFlagsAna.triggerBits = {
     'MonoJet' : triggers_monojet,
 }
@@ -134,8 +134,7 @@ sequence = cfg.Sequence(dmCoreSequence+[
 
 #-------- HOW TO RUN ----------- 
 from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
-#test = getHeppyOption('test')
-test = '1'
+test = getHeppyOption('test')
 if test == '1':
     monoJetSkim.metCut = 0
     comp = DYJetsToLL_M50_HT100to200
@@ -210,7 +209,8 @@ elif test == '74X-MC':
     elif what == "Z":
         monoJetCtrlLepSkim.minLeptons = 0
         monoJetSkim.metCut = 0
-        selectedComponents = [ ZEE_bx25, ZMM_bx25, ZTT_bx25 ]
+        #selectedComponents = [ ZEE_bx25, ZMM_bx25, ZTT_bx25 ]
+        selectedComponents = [ ZEE_bx25 ]
     else:
         selectedComponents = RelVals740
     if not getHeppyOption("all"):
@@ -250,9 +250,13 @@ outputService.append(output_service)
 
 # the following is declared in case this cfg is used in input to the heppy.py script
 from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
+from CMGTools.TTHAnalysis.tools.EOSEventsWithDownload import EOSEventsWithDownload
+event_class = EOSEventsWithDownload
+if getHeppyOption("nofetch"):
+    event_class = Events
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence,
-                     services = [],  
-                     events_class = Events)
+                     services = outputService,  
+                     events_class = event_class)
 
 
