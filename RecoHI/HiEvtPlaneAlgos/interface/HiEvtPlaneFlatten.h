@@ -32,9 +32,6 @@ public:
     hbins_ = 1;
     hOrder_ = 9;
     vorder_ = 2;    //sets default order of event plane
-//    minvtx_ = -25;
-//    delvtx_ = 5;
-//    nvtxbins_ = 10;
   }
 
 

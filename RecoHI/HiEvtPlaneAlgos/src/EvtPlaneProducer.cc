@@ -296,7 +296,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iSetup.get<HeavyIonRcd>().get(centralityLabel_,centDB_);
     nCentBins_ = centDB_->m_table.size();
     for(int i = 0; i<NumEPNames; i++) {
-//      flat[i]->setCaloCentRefBins(-1,-1);
       if(caloCentRef_>0) {
 	int minbin = (caloCentRef_-caloCentRefWidth_/2.)*nCentBins_/100.;
 	int maxbin = (caloCentRef_+caloCentRefWidth_/2.)*nCentBins_/100.;
@@ -349,7 +348,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     vzr_sell = -999.9;
   //
   for(int i = 0; i<NumEPNames; i++) rp[i]->reset();
-  if(vzr_sell<minvtx_ || vzr_sell>maxvtx_) return;
+  if(vzr_sell<minvtx_ or vzr_sell>maxvtx_) return;
 
     //calorimetry part
 
