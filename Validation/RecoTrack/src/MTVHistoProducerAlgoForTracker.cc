@@ -174,11 +174,15 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
 }
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
-  h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
-  h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
+  h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", nintPt, minPt, maxPt) );
+  h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", nintEta, minEta, maxEta) );
   h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
-  h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
+  h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices", nintVertpos, minVertpos, maxVertpos) );
   h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 22, -5, 5 ) );
+
+  if(useLogPt) {
+    BinLogX(h_ptSIM.back()->getTH1F());
+  }
 }
 
 void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook){
