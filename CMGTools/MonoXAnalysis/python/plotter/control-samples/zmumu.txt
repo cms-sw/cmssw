@@ -1,0 +1,9 @@
+2L SF/OS: nMu10V == 2 && LepGood1_pdgId == -LepGood2_pdgId
+muon: abs(LepGood1_pdgId) == 13
+tightTag: LepGood1_tightId > 0 && LepGood1_relIso04 < 0.12
+mll: mZ1 > 60 && mZ1 < 120
+nj: (nJet30 == 1 || nJet30 == 2) && jetclean > 0.5
+ptj>110: Jet1_pt > 110 
+dphijj: nJet30 == 1 || (nJet==2 && abs(dphijj)<2.5)
+ele veto: nEle10V == 0
+photon veto: nGamma15V==0 

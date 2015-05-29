@@ -1,0 +1,17 @@
+#nvtx: nVert: 40,0.5,40.5 ; XTitle="N(vertices)", Legend='TR'
+met: metNoMu_pt: [200,250,300,350,400,500,650,1000]    ; XTitle="E_{T}^{miss}  [GeV]",Logy,LegendCutoff=1e-3, YMin=1, YMax=1e7
+j1pt: Jet1_pt: [110,160,210,260,310,360,410,500,650,800,1000]; XTitle="Leading jet p_{T}  [GeV]", Legend='TR',Logy,LegendCutoff=1e-3, YMin=1, YMax=1e7
+#j1eta: Jet1_eta: 40,-2.5,2.5;    XTitle="Leading jet #eta", Legend='TR',Logy,LegendCutoff=1e-3, YMin=1, YMax=1e7
+j2pt: Jet2_pt: [30,80,130,180,230,300,400,550,700,1000]; XTitle="Trailing jet p_{T}  [GeV]", Legend='TR',Logy,LegendCutoff=1e-3, YMin=1, YMax=1e7
+#j2eta: Jet2_eta: 40,-2.5,2.5;    XTitle="Trailing jet #eta", Legend='TR',Logy,LegendCutoff=1e-3, YMin=1, YMax=1e7
+dphijmet: abs(deltaPhi(Jet1_phi, met_phi)): 6,0,3.1416; XTitle="#Delta#phi(jm)", MoreY=1.5, Legend='TL'
+nbj: nBJetMedium25: 3,-0.5,2.5;  XTitle="n b-jets medium WP", Legend='TR'  
+j1qgl: Jet1_qgl: 40,0.0,1.0; XTitle="Leading jet QGL", Legend='TR'
+j2qgl: Jet2_qgl: 40,0.0,1.0; XTitle="Trailing jet QGL", Legend='TR'
+#j1ptd: Jet1_ptd: 40,0.0,1.0; XTitle="Leading jet p_{T}D", Legend='TR'
+#j2ptd: Jet2_ptd: 40,0.0,1.0; XTitle="Trailing jet p_{T}D", Legend='TR'
+#j1mult: Jet1_mult: 60,0.0,60.0; XTitle="Leading jet number of constituents", Legend='TR'
+#j2mult: Jet2_mult: 40,0.0,40.0; XTitle="Trailing jet number of constituents", Legend='TR'
+#j1axis2: Jet1_axis2: 40,0.0,4.0; XTitle="Leading jet axis 2", Legend='TR'
+#j2axis2: Jet2_axis2: 40,0.0,4.0; XTitle="Trailing jet axis 2", Legend='TR'
+
