@@ -15,7 +15,7 @@
 
 enum MVAType { kBaseline = 0 };
 
-const double Pi=cos(-1);
+const double Pi=std::cos(-1);
 
 const std::string PFMETAlgorithmMVA::updateVariableNames(std::string input)
 {
@@ -240,8 +240,8 @@ void PFMETAlgorithmMVA::computeMET()
     double U      = var_["RecoilCor_U"];
     double Phi    = var_["PhiCor_UPhi"];
     if ( U < 0. ) Phi += Pi; //RF: No sign flip for U necessary in that case?
-    double cosPhi = cos(Phi);
-    double sinPhi = sin(Phi);
+    double cosPhi = std::cos(Phi);
+    double sinPhi = std::sin(Phi);
     double metPx  = U*cosPhi - sumLeptonPx_;
     double metPy  = U*sinPhi - sumLeptonPy_;
     double metPt  = sqrt(metPx*metPx + metPy*metPy);
