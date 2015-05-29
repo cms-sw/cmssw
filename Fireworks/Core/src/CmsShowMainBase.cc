@@ -284,7 +284,7 @@ void
 CmsShowMainBase::partialWriteToConfigFile(const std::string &name)
 {
     std::string p =   (name == "current") ? m_configFileName.c_str() : name.c_str();
-    new FWPartialConfigSaveGUI( p.c_str() ,  m_configurationManager.get());
+    new FWPartialConfigSaveGUI( p.c_str() ,  m_configFileName.c_str(), m_configurationManager.get());
 
 }
 
@@ -385,7 +385,7 @@ CmsShowMainBase::setupConfiguration()
            gEve->DisableRedraw();
            if (m_configFileName.empty())
            {
-               m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
+               m_configFileName = m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
            }
            else
            {

@@ -6,6 +6,7 @@
 #include "TGString.h"
 #include "TGLabel.h"
 #include "TSystem.h"
+#include "TROOT.h"
 
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/FWXMLConfigParser.h"
@@ -152,9 +153,9 @@ void FWPartialConfigLoadGUI::Load()
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 
-FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, FWConfigurationManager* iCfg):
-    FWPartialConfigGUI(0, iCfg), m_outFileName(path_out)
-{    
+FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, const char* path_in, FWConfigurationManager* iCfg):
+   FWPartialConfigGUI(0, iCfg), m_outFileName(path_out), m_currFileName(path_in)
+{  
    TGHorizontalFrame* hf = new TGHorizontalFrame(this);
    AddFrame(hf, new TGLayoutHints( kLHintsRight| kLHintsBottom, 1, 1, 2, 4));
    
@@ -181,11 +182,14 @@ FWPartialConfigSaveGUI::Write()
 {
     FWConfiguration destination;
     {
-        std::ifstream g(m_outFileName.c_str());
+       m_currFileName = gSystem->Which(TROOT::GetMacroPath(), m_currFileName.c_str(), kReadPermission);
+       // printf("going to parse m_currFileName %s\n", m_currFileName.c_str());
+        std::ifstream g(m_currFileName.c_str());
         if (g.peek() == (int) '<') {
             FWXMLConfigParser parser(g);
             parser.parse();
             parser.config()->swap(destination);
+            // printf("parsed %s ......... \n",m_currFileName.c_str() );
         }   
     }
 

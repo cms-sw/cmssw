@@ -42,7 +42,7 @@ public:
 
    void writeToFile(const std::string&) const;
    void readFromFile(const std::string&) const;
-   void guessAndReadFromFile(FWJobMetadataManager*) const;
+   std::string guessAndReadFromFile(FWJobMetadataManager*) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

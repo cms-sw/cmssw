@@ -191,7 +191,7 @@ FWConfigurationManager::readFromFile(const std::string& iName) const
    setFrom(*parser.config());
 }
 
-void
+std::string
 FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) const
 {
     struct CMatch {
@@ -250,6 +250,8 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
     std::sort(clist.begin(), clist.end());
     fwLog(fwlog::kInfo) << "Loading configuration file "  << clist.back().file << std::endl;
     setFrom(*(clist.back().cfg));
+
+    return clist.back().file;
 }
 
 //

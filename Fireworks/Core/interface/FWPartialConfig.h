@@ -45,13 +45,14 @@ class FWPartialConfigLoadGUI : public FWPartialConfigGUI
 class FWPartialConfigSaveGUI : public FWPartialConfigGUI
 {
  public:
-  FWPartialConfigSaveGUI( const char* path_out, FWConfigurationManager* );
+   FWPartialConfigSaveGUI( const char* path_out,const char* path_in, FWConfigurationManager* );
   ~FWPartialConfigSaveGUI() {}
 
   void Write();
 
  private:
   std::string m_outFileName;
+  std::string m_currFileName;
 
   ClassDef(FWPartialConfigSaveGUI, 0);
 };
