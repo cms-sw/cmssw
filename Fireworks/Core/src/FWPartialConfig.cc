@@ -224,10 +224,11 @@ FWPartialConfigSaveGUI::Write()
 
     // Dump content in the file
     std::ofstream file(m_outFileName.c_str());
-      if(not file) {
-          fwLog(fwlog::kError) << "FWPartialConfigSaveGUI::Write, can't open output file.!\n";
-         return;
-      }  
-      FWConfiguration::streamTo(file, destination, "top");
-      UnmapWindow();
+    if(not file) {
+       fwLog(fwlog::kError) << "FWPartialConfigSaveGUI::Write, can't open output file.!\n";
+       return;
+    }
+    fwLog(fwlog::kInfo) << "Writing configuration to " << m_outFileName << std::endl;
+    FWConfiguration::streamTo(file, destination, "top");
+    UnmapWindow();
 }
