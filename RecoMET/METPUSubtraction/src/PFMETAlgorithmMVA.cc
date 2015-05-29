@@ -199,9 +199,9 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::PUSubMETCandInfo>& lept
 }
 
 //-------------------------------------------------------------------------------
-Float_t* PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableNames)
+float* PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableNames)
 {
-    Float_t* floatVector = new Float_t[variableNames.size()];
+    float* floatVector = new float[variableNames.size()];
     int i = 0;
     for(auto variableName: variableNames)
     {
@@ -255,9 +255,9 @@ void PFMETAlgorithmMVA::computeMET()
 }
 
 //-------------------------------------------------------------------------------
-const Float_t PFMETAlgorithmMVA::GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames )
+const float PFMETAlgorithmMVA::GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames )
 {
-    Float_t * mvaInputVector = createFloatVector(variableNames);
+    float * mvaInputVector = createFloatVector(variableNames);
     double result = Reader->GetResponse(mvaInputVector);
     delete mvaInputVector;
     return result;
