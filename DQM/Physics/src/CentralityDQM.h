@@ -16,7 +16,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
-
+#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 class DQMStore;
 
 class CentralityDQM : public DQMEDAnalyzer {
@@ -81,12 +81,23 @@ class CentralityDQM : public DQMEDAnalyzer {
   MonitorElement* h_vertex_y;
   MonitorElement* h_vertex_z;
 
+  MonitorElement* h_ep_HFm1;
+  MonitorElement* h_ep_HFp1;
+  MonitorElement* h_ep_trackm1;
+  MonitorElement* h_ep_trackp1;
+  MonitorElement* h_ep_castor1;
+
   MonitorElement* h_ep_HFm2;
   MonitorElement* h_ep_HFp2;
   MonitorElement* h_ep_trackmid2;
   MonitorElement* h_ep_trackm2;
   MonitorElement* h_ep_trackp2;
   MonitorElement* h_ep_castor2;
+
+  MonitorElement* h_ep_HFm3;
+  MonitorElement* h_ep_HFp3;
+  MonitorElement* h_ep_trackmid3;
+
 };
 
 #endif
