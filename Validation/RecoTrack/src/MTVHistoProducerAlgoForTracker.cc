@@ -559,6 +559,10 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 
 }
 
+void MTVHistoProducerAlgoForTracker::fill_simTrackBased_histos(int count, int numSimTracks){
+  h_tracksSIM[count]->Fill(numSimTracks);
+}
+
 // dE/dx
 void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx) {
   for (unsigned int i=0; i<v_dEdx.size(); i++) {

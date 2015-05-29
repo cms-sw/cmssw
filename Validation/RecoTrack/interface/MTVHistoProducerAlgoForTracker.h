@@ -54,6 +54,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					   const reco::Track* track,
 					   int numVertices);
 
+  void fill_simTrackBased_histos(int count, int numSimTracks);
+
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,

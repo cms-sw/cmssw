@@ -276,6 +276,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 
+      histoProducerAlgo_->fill_simTrackBased_histos(w, st);
+
       //
       //fill reconstructed seed histograms
       //

@@ -522,7 +522,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 
-      //if (st!=0) h_tracksSIM[w]->Fill(st);  // TO BE FIXED
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_simTrackBased_histos(w, st);
+      }
 
 
       // ##############################################
