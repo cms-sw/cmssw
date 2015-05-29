@@ -123,5 +123,6 @@ DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
                                                                  
 DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence )
 
-DQMOfflineNoHWW = cms.Sequence(DQMOffline)
-DQMOfflineNoHWW.remove(hwwAnalyzer)
+#nothing has hww for now
+#DQMOfflineNoHWW = cms.Sequence(DQMOffline)
+#DQMOfflineNoHWW.remove(hwwAnalyzer)
