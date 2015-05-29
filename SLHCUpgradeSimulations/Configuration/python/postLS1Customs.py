@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.Configuration.customiseForRunI import customiseForRunI
+
 def customisePostLS1_Common(process):
 
     # deal with CSC separately
@@ -70,7 +72,6 @@ def customisePostLS1_lowPU(process):
 
     return process
 
-
 def customisePostLS1_50ns(process):
 
     # deal with L1 Emulation separately
@@ -95,6 +96,22 @@ def customisePostLS1_HI(process):
 
     # common customisation
     process = customisePostLS1_Common(process)
+
+    return process
+
+def customisePostLS1_B0T(process):
+    # 50ns only
+
+    process=customisePostLS1_50ns(process)
+    process=customiseForRunI(process)
+
+    return process
+
+def customisePostLS1_B0T_lowPU(process):
+    # 50ns only
+
+    process=customisePostLS1_lowPU(process)
+    process=customiseForRunI(process)
 
     return process
 
