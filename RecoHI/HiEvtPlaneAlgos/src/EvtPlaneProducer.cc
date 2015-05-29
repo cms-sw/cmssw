@@ -337,7 +337,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int vs_sell = 0.;
   float vzr_sell;
   iEvent.getByToken(vertexToken,vertex_);
-  const reco::VertexCollection * vertices3 = null;
+  const reco::VertexCollection * vertices3 = nullptr;
   if ( vertex_.isValid() ) {
 	vertices3 = vertex_.product();
 	vs_sell = vertices3->size();
