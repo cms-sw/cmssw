@@ -6,7 +6,7 @@ RecoTauCleaner = cms.EDProducer("RecoTauCleaner",
     src = cms.InputTag("combinatoricRecoTaus"),
     cleaners = cms.VPSet(
         # Reject taus that have charge == 3
-        cleaners.unitCharge,
+        cleaners.charge,
         # Reject taus that are not within DR<0.1 of the jet axis
         #cleaners.matchingConeCut,
         # Reject taus that fail HPS selections
