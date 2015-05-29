@@ -615,7 +615,7 @@ def _since_filter(time_type):
         return lambda since: '%s (%s)' % (_convertTimeType(since), since)
 
     if time_type == conddb.TimeType.lumi:
-        return lambda since: '%s Lumi %5s' % (_high(since), _low(since))
+        return lambda since: '%s Lumi %5s (%s)' % (_high(since), _low(since), since)
 
     return lambda since: since
 
@@ -672,8 +672,6 @@ def list_(args):
             time_type = session.query(conddb.Tag.time_type).\
                 filter(conddb.Tag.name == name).\
                 scalar()
-
-	    logging.info("time type : %s" % time_type)
 
             output_table(args,
                 session.query(conddb.IOV.since, conddb.IOV.insertion_time, conddb.IOV.payload_hash, conddb.Payload.object_type).\
