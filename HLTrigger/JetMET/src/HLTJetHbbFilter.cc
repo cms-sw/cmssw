@@ -27,15 +27,13 @@ template<typename T>
 HLTJetHbbFilter<T>::HLTJetHbbFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
  ,inputJets_   (iConfig.getParameter<edm::InputTag>("inputJets"   ))
  ,inputJetTags_(iConfig.getParameter<edm::InputTag>("inputJetTags"))
- ,minmqq_      (iConfig.getParameter<double>       ("minMqq"      ))
- ,maxmqq_      (iConfig.getParameter<double>       ("maxMqq"      ))
- ,detaqq_      (iConfig.getParameter<double>       ("Detaqq"      ))
- ,detabb_      (iConfig.getParameter<double>       ("Detabb"      ))
- ,dphibb_      (iConfig.getParameter<double>       ("Dphibb"      )) 	
- ,ptsqq_       (iConfig.getParameter<double>       ("Ptsumqq"     ))
- ,ptsbb_       (iConfig.getParameter<double>       ("Ptsumbb"     ))
- ,seta_        (iConfig.getParameter<double>       ("Etaq1Etaq2"  ))
- ,value_       (iConfig.getParameter<std::string>  ("value"       ))
+ ,minmbb_      (iConfig.getParameter<double>       ("minMbb"      ))
+ ,maxmbb_      (iConfig.getParameter<double>       ("maxMbb"      ))
+ ,minptb1_     (iConfig.getParameter<double>       ("minPtb1"     ))
+ ,minptb2_     (iConfig.getParameter<double>       ("minPtb2"     ))
+ ,maxetab_     (iConfig.getParameter<double>       ("maxEtab"     ))
+ ,minptbb_     (iConfig.getParameter<double>       ("minPtbb"     ))
+ ,maxptbb_     (iConfig.getParameter<double>       ("maxPtbb"     ))
  ,mintag1_     (iConfig.getParameter<double>       ("minTag1"     ))
  ,mintag2_     (iConfig.getParameter<double>       ("minTag2"     ))
  ,maxtag_      (iConfig.getParameter<double>       ("maxTag"      ))
@@ -57,15 +55,13 @@ HLTJetHbbFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJets",edm::InputTag("hltJetCollection"));
   desc.add<edm::InputTag>("inputJetTags",edm::InputTag(""));
-  desc.add<double>("minMqq",200);
-  desc.add<double>("maxMqq",200);
-  desc.add<double>("Detaqq",2.5);
-  desc.add<double>("Detabb",10.);
-  desc.add<double>("Dphibb",10.);
-  desc.add<double>("Ptsumqq",0.);
-  desc.add<double>("Ptsumbb",0.);
-  desc.add<double>("Etaq1Etaq2",40.);
-  desc.add<std::string>("value","second");
+  desc.add<double>("minMbb",70);
+  desc.add<double>("maxMbb",200);
+  desc.add<double>("minPtb1",40);
+  desc.add<double>("minPtb2",40);
+  desc.add<double>("maxEtab",3);
+  desc.add<double>("minPtbb",20);
+  desc.add<double>("maxPtbb",-1);
   desc.add<double>("minTag1",0.7);
   desc.add<double>("minTag2",0.4);
   desc.add<double>("maxTag",9999.0);
@@ -74,16 +70,16 @@ HLTJetHbbFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 template<typename T> float HLTJetHbbFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
-        float minDr = 0.1; //matching jet tag with jet
-        float tmpCSV = -20 ;
-        for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
-        float tmpDr = reco::deltaR(*jet,*(jetb->first));
-        if (tmpDr < minDr) {
-                minDr = tmpDr ;
-                tmpCSV= jetb->second;
-                }
-        }
-        return tmpCSV;
+  float minDr = 0.1; //matching jet tag with jet
+  float tmpCSV = -20 ;
+  for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
+    float tmpDr = reco::deltaR(*jet,*(jetb->first));
+    if (tmpDr < minDr) {
+      minDr = tmpDr ;
+      tmpCSV= jetb->second;
+    }
+  }
+  return tmpCSV;
 }
 //
 // member functions
@@ -95,80 +91,108 @@ bool
 HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,trigger::TriggerFilterObjectWithRefs& filterproduct) const
 {
 
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   using namespace trigger;
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
 
-   typedef vector<T> TCollection;
-   typedef Ref<TCollection> TRef;
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
 
-   bool accept(false);
-   //const unsigned int nMax(15);
+  bool accept(false);
+  //const unsigned int nMax(15);
 
-   if (saveTags()) filterproduct.addCollectionTag(inputJets_);
+  Handle<TCollection> jets;
+  event.getByToken(m_theJetsToken,jets);
+  Handle<JetTagCollection> jetTags;
 
-   Handle<TCollection> jets;
-   event.getByToken(m_theJetsToken,jets);
-   Handle<JetTagCollection> jetTags;
+  unsigned int nJet=0;
 
-   unsigned int nJet=0;
+  event.getByToken(m_theJetTagsToken,jetTags);
 
-   event.getByToken(m_theJetTagsToken,jetTags);
+  double tag1    = -99.;
+  double tag2    = -99.;
 
-   double tag1    = -99.;
-   double tag2    = -99.;
+  if (jetTags->size()<2) return false;
 
-   if (jetTags->size()<2) return false;
+  double ejet1   = -99.;
+  double pxjet1  = -99.;
+  double pyjet1  = -99.;
+  double pzjet1  = -99.;
+  double ptjet1  = -99.;
+  double etajet1 = -99.;
 
-   double ejet1   = -99.;
-   double pxjet1  = -99.;
-   double pyjet1  = -99.;
-   double pzjet1  = -99.;
+  double ejet2   = -99.;
+  double pxjet2  = -99.;
+  double pyjet2  = -99.;
+  double pzjet2  = -99.;
+  double ptjet2  = -99.;
+  double etajet2 = -99.;
 
-   double ejet2   = -99.;
-   double pxjet2  = -99.;
-   double pyjet2  = -99.;
-   double pzjet2  = -99.;
+  //looping through sets of jets
+  for (typename TCollection::const_iterator jet1=jets->begin(); (jet1!=jets->end()); ++jet1) {
+    tag1 = findCSV(jet1, *jetTags);
+    ++nJet;
+    for (typename TCollection::const_iterator jet2=(jet1+1); (jet2!=jets->end()); ++jet2) {
+      tag2 = findCSV(jet2, *jetTags);
 
-   //looping through sets of jets
-   for (typename TCollection::const_iterator jet1=jets->begin(); (jet1!=jets->end()); ++jet1) {
-     if (value_=="second") {
-       tag1 = findCSV(jet1, *jetTags);
-     }
-     ++nJet;
-     for (typename TCollection::const_iterator jet2=(jet1+1); (jet2!=jets->end()); ++jet2) {
-       tag2 = findCSV(jet2, *jetTags);
+      ejet1   = jet1->energy();
+      pxjet1  = jet1->px();
+      pyjet1  = jet1->py();
+      pzjet1  = jet1->pz();
+      ptjet1  = jet1->pt();
+      etajet1  = jet1->eta();
 
-       ejet1   = jet1->energy();
-       pxjet1  = jet1->px();
-       pyjet1  = jet1->py();
-       pzjet1  = jet1->pz();
-
-       ejet2   = jet2->energy();
-       pxjet2  = jet2->px();
-       pyjet2  = jet2->py();
-       pzjet2  = jet2->pz();
+      ejet2   = jet2->energy();
+      pxjet2  = jet2->px();
+      pyjet2  = jet2->py();
+      pzjet2  = jet2->pz();
+      ptjet2  = jet2->pt();
+      etajet2  = jet2->eta();
 
 
-       double mbb = sqrt( (ejet1  + ejet2)  * (ejet1  + ejet2) -
-			  (pxjet1 + pxjet2) * (pxjet1 + pxjet2) -
-			  (pyjet1 + pyjet2) * (pyjet1 + pyjet2) - 
-			  (pzjet1 + pzjet2) * (pzjet1 + pzjet2) );// mass of two jets
+      if ( ( (mintag1_ <= tag1) and (tag1 <= maxtag_) ) && ( (mintag2_ <= tag2) and (tag2 <= maxtag_) ) ) {// if they're both b's
+	if ( fabs(etajet1) <= maxetab_ && fabs(etajet2) <= maxetab_ ) { // if they satisfy the eta requirement
+	  if ( ( ptjet1 >= minptb1_ && ptjet2 >= minptb2_ ) || ( ptjet2 >= minptb1_ && ptjet1 >= minptb2_ ) ) { // if they satisfy the pt requirement
+	  
+	    double ptbb = sqrt( (pxjet1 + pxjet2) * (pxjet1 + pxjet2) +
+				(pyjet1 + pyjet2) * (pyjet1 + pyjet2) ); // pt of the two jets
+
+	    if ( ptbb >= minptbb_ && ( maxptbb_ < 0 || ptbb <= maxptbb_ ) ) { //if they satisfy the vector pt requirement
+       
+	      double mbb = sqrt( (ejet1  + ejet2)  * (ejet1  + ejet2) -
+				 (pxjet1 + pxjet2) * (pxjet1 + pxjet2) -
+				 (pyjet1 + pyjet2) * (pyjet1 + pyjet2) - 
+				 (pzjet1 + pzjet2) * (pzjet1 + pzjet2) );// mass of two jets
                                                   
-       if ( ( (mintag1_ <= tag1) and (tag1 <= maxtag_) ) &&
-	    ( (mintag2_ <= tag2) and (tag2 <= maxtag_) ) &&
-	    ( (minmqq_ <= mbb) and (mbb <= maxmqq_ ) ) ) { // if they're both bs and they fit the mass requirement          
-            
-	 accept = true;	 
-	 TRef ref1 = TRef(jets, distance(jets->begin(),jet1));
-	 TRef ref2 = TRef(jets, distance(jets->begin(),jet2));
-	 filterproduct.addObject(triggerType_,ref1);                                                                        
-	 filterproduct.addObject(triggerType_,ref2);  
-       }
+	      if ( (minmbb_ <= mbb) and (mbb <= maxmbb_ ) ) { // if they fit the mass requirement          
+		accept = true;
 
-     }
-   }
-
-   return accept;
+		TRef ref1 = TRef(jets, distance(jets->begin(),jet1));
+		TRef ref2 = TRef(jets, distance(jets->begin(),jet2));
+	      
+		if (saveTags()) filterproduct.addCollectionTag(inputJets_);
+		filterproduct.addObject(triggerType_,ref1);
+		filterproduct.addObject(triggerType_,ref2);
+	      
+		//create METCollection for storing csv tag1 and tag2 results
+		std::auto_ptr<reco::METCollection> csvObject(new reco::METCollection());
+		reco::MET::LorentzVector csvP4(tag1,tag2,0,0);
+		reco::MET::Point vtx(0,0,0);
+		reco::MET csvTags(csvP4, vtx);
+		csvObject->push_back(csvTags);
+		edm::RefProd<reco::METCollection > ref_before_put = event.getRefBeforePut<reco::METCollection >();
+		//put the METCollection into the event (necessary because of how addCollectionTag works...)
+		event.put(csvObject);
+		edm::Ref<reco::METCollection> csvRef(ref_before_put, 0);
+		if (saveTags()) filterproduct.addCollectionTag(edm::InputTag( *moduleLabel()));
+		filterproduct.addObject(trigger::TriggerMET, csvRef); //give it the ID of a MET object
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  return accept;
 }

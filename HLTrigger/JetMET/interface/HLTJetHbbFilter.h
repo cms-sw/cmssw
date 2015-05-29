@@ -22,6 +22,12 @@
 #include <vector>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -48,15 +54,13 @@ class HLTJetHbbFilter : public HLTFilter {
   edm::EDGetTokenT<reco::JetTagCollection> m_theJetTagsToken;
   edm::InputTag inputJets_;
   edm::InputTag inputJetTags_;
-  double minmqq_;
-  double maxmqq_;
-  double detaqq_;
-  double detabb_;
-  double dphibb_;
-  double ptsqq_;
-  double ptsbb_;
-  double seta_;
-  std::string value_;
+  double minmbb_;
+  double maxmbb_;
+  double minptb1_;
+  double minptb2_;
+  double maxetab_; 
+  double minptbb_;
+  double maxptbb_;
   double mintag1_;
   double mintag2_;
   double maxtag_;
