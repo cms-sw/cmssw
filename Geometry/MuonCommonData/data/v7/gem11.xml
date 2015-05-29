@@ -57,22 +57,22 @@
   <Constant name="dx72L" value="([dxTop]-[slope]*([dzInL]-[z70L]-[dzS7L]))"/>
   <Constant name="dx81L" value="([dxTop]-[slope]*([dzInL]-[z80L]+[dzS8L]))"/>
   <Constant name="dx82L" value="([dxTop]-[slope]*([dzInL]-[z80L]-[dzS8L]))"/>
-  <Constant name="dx11S" value="([dxTop]-[slope]*([dzInL]-[z10S]+[dzS1S]))"/>
-  <Constant name="dx12S" value="([dxTop]-[slope]*([dzInL]-[z10S]-[dzS1S]))"/>
-  <Constant name="dx21S" value="([dxTop]-[slope]*([dzInL]-[z20S]+[dzS2S]))"/>
-  <Constant name="dx22S" value="([dxTop]-[slope]*([dzInL]-[z20S]-[dzS2S]))"/>
-  <Constant name="dx31S" value="([dxTop]-[slope]*([dzInL]-[z30S]+[dzS3S]))"/>
-  <Constant name="dx32S" value="([dxTop]-[slope]*([dzInL]-[z30S]-[dzS3S]))"/>
-  <Constant name="dx41S" value="([dxTop]-[slope]*([dzInL]-[z40S]+[dzS4S]))"/>
-  <Constant name="dx42S" value="([dxTop]-[slope]*([dzInL]-[z40S]-[dzS4S]))"/>
-  <Constant name="dx51S" value="([dxTop]-[slope]*([dzInL]-[z50S]+[dzS5S]))"/>
-  <Constant name="dx52S" value="([dxTop]-[slope]*([dzInL]-[z50S]-[dzS5S]))"/>
-  <Constant name="dx61S" value="([dxTop]-[slope]*([dzInL]-[z60S]+[dzS6S]))"/>
-  <Constant name="dx62S" value="([dxTop]-[slope]*([dzInL]-[z60S]-[dzS6S]))"/>
-  <Constant name="dx71S" value="([dxTop]-[slope]*([dzInL]-[z70S]+[dzS7S]))"/>
-  <Constant name="dx72S" value="([dxTop]-[slope]*([dzInL]-[z70S]-[dzS7S]))"/>
-  <Constant name="dx81S" value="([dxTop]-[slope]*([dzInL]-[z80S]+[dzS8S]))"/>
-  <Constant name="dx82S" value="([dxTop]-[slope]*([dzInL]-[z80S]-[dzS8S]))"/>
+  <Constant name="dx11S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z10S]+[dzS1S]))"/>
+  <Constant name="dx12S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z10S]-[dzS1S]))"/>
+  <Constant name="dx21S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z20S]+[dzS2S]))"/>
+  <Constant name="dx22S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z20S]-[dzS2S]))"/>
+  <Constant name="dx31S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z30S]+[dzS3S]))"/>
+  <Constant name="dx32S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z30S]-[dzS3S]))"/>
+  <Constant name="dx41S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z40S]+[dzS4S]))"/>
+  <Constant name="dx42S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z40S]-[dzS4S]))"/>
+  <Constant name="dx51S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z50S]+[dzS5S]))"/>
+  <Constant name="dx52S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z50S]-[dzS5S]))"/>
+  <Constant name="dx61S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z60S]+[dzS6S]))"/>
+  <Constant name="dx62S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z60S]-[dzS6S]))"/>
+  <Constant name="dx71S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z70S]+[dzS7S]))"/>
+  <Constant name="dx72S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z70S]-[dzS7S]))"/>
+  <Constant name="dx81S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z80S]+[dzS8S]))"/>
+  <Constant name="dx82S" value="([dxTop]-[slope]*([dzInL]+[dzLS]-[z80S]-[dzS8S]))"/>
   <Constant name="dyGB11"      value="8.100*mm"/>
   <Constant name="dzGB11L"     value="64.150*cm"/>
   <Constant name="dzGB11S"     value="([dzGB11L]-[dzLS])"/>
