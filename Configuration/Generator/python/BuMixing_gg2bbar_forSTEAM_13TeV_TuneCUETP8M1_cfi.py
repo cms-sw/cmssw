@@ -27,7 +27,7 @@ processParameters = cms.vstring(
 'HardQCD:gg2bbbar = on ',
 'HardQCD:qqbar2bbbar = on ',
 'HardQCD:hardbbbar = on',
-'PhaseSpace:pTHatMin = 10.',
+'PhaseSpace:pTHatMin = 5',
 ),
 parameterSets = cms.vstring('pythia8CommonSettings',
 'pythia8CUEP8M1Settings',
