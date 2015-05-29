@@ -6,20 +6,18 @@
  *
  */
 
+#include <vector>
+#include <string>
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "HLTrigger/JetMET/interface/HLTJetHbbFilter.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include<vector>
-#include<string>
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 using namespace std;
 //
@@ -72,7 +70,7 @@ HLTJetHbbFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("minTag2",0.4);
   desc.add<double>("maxTag",9999.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(string("hlt")+string(typeid(HLTJetHbbFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetHbbFilter<T>>(), desc);
 }
 
 template<typename T> float HLTJetHbbFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){

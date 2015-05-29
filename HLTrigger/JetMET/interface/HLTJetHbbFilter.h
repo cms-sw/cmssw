@@ -4,7 +4,7 @@
 /** \class HLTJetHbbFilter
  *
  *
- *  This class, based on HLTJetSortedVBFFilter is an HLTFilter (-> EDFilter) 
+ *  This class is an HLTFilter (-> EDFilter) 
  *  implementing a two b-jet invariant mass requirement 
  *  Based on HLTJetSortedVBFFilter
  *
@@ -18,8 +18,8 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Handle.h"
 namespace edm {
