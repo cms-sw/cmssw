@@ -54,6 +54,9 @@
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetSortedVBFFilter.cc"
 //
+#include "HLTrigger/JetMET/interface/HLTJetHbbFilter.h"
+#include "HLTrigger/JetMET/src/HLTJetHbbFilter.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 #include "HLTrigger/JetMET/src/HLTJetL1MatchProducer.cc"
 //
@@ -113,6 +116,9 @@ typedef HLTJetEtaTopologyFilter<  PFJet> HLTPFJetEtaTopologyFilter;
 
 typedef HLTJetSortedVBFFilter<CaloJet> HLTCaloJetSortedVBFFilter;
 typedef HLTJetSortedVBFFilter<  PFJet> HLTPFJetSortedVBFFilter;
+
+typedef HLTJetHbbFilter<CaloJet> HLTCaloJetHbbFilter;
+typedef HLTJetHbbFilter<  PFJet> HLTPFJetHbbFilter;
 
 typedef HLTJetL1MatchProducer<CaloJet> HLTCaloJetL1MatchProducer;
 typedef HLTJetL1MatchProducer<  PFJet> HLTPFJetL1MatchProducer;
@@ -187,6 +193,9 @@ DEFINE_FWK_MODULE(HLTAlphaTPFJetFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetSortedVBFFilter);
 DEFINE_FWK_MODULE(HLTPFJetSortedVBFFilter);
+
+DEFINE_FWK_MODULE(HLTCaloJetHbbFilter);
+DEFINE_FWK_MODULE(HLTPFJetHbbFilter);
 
 DEFINE_FWK_MODULE(HLTMonoCaloJetFilter);
 DEFINE_FWK_MODULE(HLTMonoPFJetFilter);
