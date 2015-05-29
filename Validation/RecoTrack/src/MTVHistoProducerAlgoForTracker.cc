@@ -87,6 +87,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxVertcount  = pset.getParameter<double>("maxVertcount");
   nintVertcount = pset.getParameter<int>("nintVertcount");
 
+  //parameters for number of tracks plots
+  minTracks  = pset.getParameter<double>("minTracks");
+  maxTracks  = pset.getParameter<double>("maxTracks");
+  nintTracks = pset.getParameter<int>("nintTracks");
+
   //parameters for resolution plots
   ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
   ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
@@ -176,7 +181,7 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", nintPt, minPt, maxPt) );
   h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", nintEta, minEta, maxEta) );
-  h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks",100,-0.5,99.5) );
+  h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks", nintTracks, minTracks, maxTracks) );
   h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices", nintVertpos, minVertpos, maxVertpos) );
   h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 21, -15.5, 5.5 ) );
 
@@ -241,8 +246,8 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
-  h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks", 100, 0, 2000) );
-  h_fakes.push_back( ibook.book1D("fakes","number of fake reco tracks", 100, 0, 2000) );
+  h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks", nintTracks, minTracks, maxTracks) );
+  h_fakes.push_back( ibook.book1D("fakes","number of fake reco tracks", nintTracks, minTracks, maxTracks) );
   h_charge.push_back( ibook.book1D("charge","charge",3,-1.5,1.5) );
 
   h_hits.push_back( ibook.book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
@@ -359,7 +364,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   chi2_vs_nhits.push_back( ibook.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",nintHit,minHit,maxHit, 100,0,10, " ") );
 
   etares_vs_eta.push_back( ibook.book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
-  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","nrec vs nsim",401,-0.5,400.5,401,-0.5,400.5) );
+  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","nrec vs nsim", nintTracks,minTracks,maxTracks, nintTracks,minTracks,maxTracks) );
 
   chi2_vs_eta.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20, " " ));
   chi2_vs_phi.push_back( ibook.bookProfile("chi2mean_vs_phi","mean #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20, " " ) );

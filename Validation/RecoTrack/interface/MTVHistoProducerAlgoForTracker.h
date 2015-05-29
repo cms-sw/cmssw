@@ -132,6 +132,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double minChi2, maxChi2; int nintChi2;
   double minDeDx, maxDeDx;  int nintDeDx;
   double minVertcount, maxVertcount;  int nintVertcount;
+  double minTracks, maxTracks; int nintTracks;
 
   //
   double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
