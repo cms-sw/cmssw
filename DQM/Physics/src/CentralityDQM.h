@@ -26,7 +26,7 @@ class CentralityDQM : public DQMEDAnalyzer {
   virtual ~CentralityDQM();
 
  protected:
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
  private:
   virtual void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,

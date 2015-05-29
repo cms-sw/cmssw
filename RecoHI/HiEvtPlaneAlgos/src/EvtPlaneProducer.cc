@@ -252,7 +252,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
   trackToken = consumes<reco::TrackCollection>(trackTag_);
 
-  produces<reco::EvtPlaneCollection>("recoLevel");
+  produces<reco::EvtPlaneCollection>();
   for(int i = 0; i<NumEPNames; i++ ) {
     rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
   }
@@ -511,7 +511,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       evtplaneOutput->back().addLevel(3, 0., svNoWgt, cvNoWgt);
     }
 
-    iEvent.put(evtplaneOutput, "recoLevel");
+    iEvent.put(evtplaneOutput);
 }
 
 //define this as a plug-in
