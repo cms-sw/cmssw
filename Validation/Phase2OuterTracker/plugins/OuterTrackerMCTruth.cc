@@ -477,53 +477,53 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   } /// End of loop over TTStubs
   
   
-  /// Go on only if there are TTTracks from PixelDigis
-  if ( PixelDigiTTTrackHandle->size() > 0 )
+  if ( verbosePlots_ )
   {
-    /// Loop over TTTracks
-    unsigned int tkCnt = 0;
-    std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
-    for ( iterTTTrack = PixelDigiTTTrackHandle->begin();
-         iterTTTrack != PixelDigiTTTrackHandle->end();
-         ++iterTTTrack )
+    /// Go on only if there are TTTracks from PixelDigis
+    if ( PixelDigiTTTrackHandle->size() > 0 )
     {
-      /// Make the pointer
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
-      
-      unsigned int nStubs     = tempTrackPtr->getStubRefs().size();
-      
-      double trackPt    = tempTrackPtr->getMomentum().perp();
-      double trackPhi   = tempTrackPtr->getMomentum().phi();
-      double trackEta   = tempTrackPtr->getMomentum().eta();
-      double trackVtxZ0 = tempTrackPtr->getPOCA().z();
-      double trackChi2  = tempTrackPtr->getChi2();
-      double trackChi2R = tempTrackPtr->getChi2Red();
-      
-      
-      /// Check if TTTrack is genuine
-      bool genuineTrack = MCTruthTTTrackHandle->isGenuine( tempTrackPtr );
-      
-      if ( !genuineTrack ) continue;
-      
-      edm::Ptr< TrackingParticle > tpPtr = MCTruthTTTrackHandle->findTrackingParticlePtr( tempTrackPtr );
-      
-      /// Get the corresponding vertex and reject the track
-      /// if its vertex is outside the beampipe
-      if ( tpPtr->vertex().rho() >= 2 )
-        continue;
-      
-      double tpPt = tpPtr->p4().pt();
-      double tpEta = tpPtr->momentum().eta();
-      double tpPhi = tpPtr->momentum().phi();
-      double tpVtxZ0 = tpPtr->vertex().z();
-      
-      if ( nStubs >= HQDelim_ )
+      /// Loop over TTTracks
+      unsigned int tkCnt = 0;
+      std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
+      for ( iterTTTrack = PixelDigiTTTrackHandle->begin();
+           iterTTTrack != PixelDigiTTTrackHandle->end();
+           ++iterTTTrack )
       {
-        Track_HQ_Chi2_TPart_Eta->Fill( tpEta, trackChi2 );
-        Track_HQ_Chi2Red_TPart_Eta->Fill( tpEta, trackChi2R );
+        /// Make the pointer
+        edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
         
-        if ( verbosePlots_ )
+        unsigned int nStubs     = tempTrackPtr->getStubRefs().size();
+        
+        double trackPt    = tempTrackPtr->getMomentum().perp();
+        double trackPhi   = tempTrackPtr->getMomentum().phi();
+        double trackEta   = tempTrackPtr->getMomentum().eta();
+        double trackVtxZ0 = tempTrackPtr->getPOCA().z();
+        double trackChi2  = tempTrackPtr->getChi2();
+        double trackChi2R = tempTrackPtr->getChi2Red();
+        
+        
+        /// Check if TTTrack is genuine
+        bool genuineTrack = MCTruthTTTrackHandle->isGenuine( tempTrackPtr );
+        
+        if ( !genuineTrack ) continue;
+        
+        edm::Ptr< TrackingParticle > tpPtr = MCTruthTTTrackHandle->findTrackingParticlePtr( tempTrackPtr );
+        
+        /// Get the corresponding vertex and reject the track
+        /// if its vertex is outside the beampipe
+        if ( tpPtr->vertex().rho() >= 2 )
+          continue;
+        
+        double tpPt = tpPtr->p4().pt();
+        double tpEta = tpPtr->momentum().eta();
+        double tpPhi = tpPtr->momentum().phi();
+        double tpVtxZ0 = tpPtr->vertex().z();
+        
+        if ( nStubs >= HQDelim_ )
         {
+          Track_HQ_Chi2_TPart_Eta->Fill( tpEta, trackChi2 );
+          Track_HQ_Chi2Red_TPart_Eta->Fill( tpEta, trackChi2R );
+          
           Track_HQ_Pt_TPart_Pt->Fill( tpPt, trackPt );
           Track_HQ_PtRes_TPart_Eta->Fill( tpEta, trackPt - tpPt );
           Track_HQ_InvPt_TPart_InvPt->Fill( 1./tpPt, 1./trackPt );
@@ -534,15 +534,12 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           Track_HQ_EtaRes_TPart_Eta->Fill( tpEta, trackEta - tpEta );
           Track_HQ_VtxZ0_TPart_VtxZ0->Fill( tpVtxZ0, trackVtxZ0 );
           Track_HQ_VtxZ0Res_TPart_Eta->Fill( tpEta, trackVtxZ0 - tpVtxZ0 );
-        } /// End verbosePlots
-      }
-      else
-      {
-        Track_LQ_Chi2_TPart_Eta->Fill( tpEta, trackChi2 );
-        Track_LQ_Chi2Red_TPart_Eta->Fill( tpEta, trackChi2R ); 
-        
-        if ( verbosePlots_ )
+        }
+        else
         {
+          Track_LQ_Chi2_TPart_Eta->Fill( tpEta, trackChi2 );
+          Track_LQ_Chi2Red_TPart_Eta->Fill( tpEta, trackChi2R ); 
+          
           Track_LQ_Pt_TPart_Pt->Fill( tpPt, trackPt );
           Track_LQ_PtRes_TPart_Eta->Fill( tpEta, trackPt - tpPt );
           Track_LQ_InvPt_TPart_InvPt->Fill( 1./tpPt, 1./trackPt );
@@ -553,10 +550,10 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           Track_LQ_EtaRes_TPart_Eta->Fill( tpEta, trackEta - tpEta );
           Track_LQ_VtxZ0_TPart_VtxZ0->Fill( tpVtxZ0, trackVtxZ0 );
           Track_LQ_VtxZ0Res_TPart_Eta->Fill( tpEta, trackVtxZ0 - tpVtxZ0 );
-        } /// End verbosePlots
-      }
-    } /// End of loop over TTTracks
-  }
+        }
+      } /// End of loop over TTTracks
+    }
+  } /// End verbosePlots
   
 }
 
@@ -858,58 +855,58 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
   Stub_PID->setAxisTitle("# L1 Stubs", 2);
   
   
-  // TTTrack Chi2 vs TPart Eta
-  edm::ParameterSet psTrack_Chi2_TPart_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Track_Chi2");
-  HistoName = "Track_LQ_Chi2_TPart_Eta";
-  Track_LQ_Chi2_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("xmin"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("xmax"),
-      psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsy"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("ymin"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("ymax"));
-  Track_LQ_Chi2_TPart_Eta->setAxisTitle("TPart #eta", 1);
-  Track_LQ_Chi2_TPart_Eta->setAxisTitle("L1 Track #chi^{2}", 2);
-  
-  HistoName = "Track_HQ_Chi2_TPart_Eta";
-  Track_HQ_Chi2_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("xmin"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("xmax"),
-      psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsy"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("ymin"),
-      psTrack_Chi2_TPart_Eta.getParameter<double>("ymax"));
-  Track_HQ_Chi2_TPart_Eta->setAxisTitle("TPart #eta", 1);
-  Track_HQ_Chi2_TPart_Eta->setAxisTitle("L1 Track #chi^{2}", 2);
-  
-  // TTTrack Chi2/ndf vs Eta
-  edm::ParameterSet psTrack_Chi2Red_TPart_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Track_Chi2Red");
-  HistoName = "Track_LQ_Chi2Red_TPart_Eta";
-  Track_LQ_Chi2Red_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmin"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmax"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsy"),
-     	psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymin"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
-  Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
-  Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
-  
-  HistoName = "Track_HQ_Chi2Red_TPart_Eta";
-  Track_HQ_Chi2Red_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmin"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmax"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsy"),
-     	psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymin"),
-      psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
-  Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
-  Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
-  
-  
-  /// Plots for debugging
+    /// Plots for debugging
   if ( verbosePlots_ )
   {
+    // TTTrack Chi2 vs TPart Eta
+    edm::ParameterSet psTrack_Chi2_TPart_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Track_Chi2");
+    HistoName = "Track_LQ_Chi2_TPart_Eta";
+    Track_LQ_Chi2_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
+        psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsx"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("xmin"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("xmax"),
+        psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsy"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("ymin"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("ymax"));
+    Track_LQ_Chi2_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_Chi2_TPart_Eta->setAxisTitle("L1 Track #chi^{2}", 2);
+    
+    HistoName = "Track_HQ_Chi2_TPart_Eta";
+    Track_HQ_Chi2_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
+        psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsx"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("xmin"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("xmax"),
+        psTrack_Chi2_TPart_Eta.getParameter<int32_t>("Nbinsy"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("ymin"),
+        psTrack_Chi2_TPart_Eta.getParameter<double>("ymax"));
+    Track_HQ_Chi2_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_Chi2_TPart_Eta->setAxisTitle("L1 Track #chi^{2}", 2);
+    
+    // TTTrack Chi2/ndf vs Eta
+    edm::ParameterSet psTrack_Chi2Red_TPart_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Track_Chi2Red");
+    HistoName = "Track_LQ_Chi2Red_TPart_Eta";
+    Track_LQ_Chi2Red_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
+        psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsx"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmin"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmax"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsy"),
+     	  psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymin"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
+    Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_LQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
+    
+    HistoName = "Track_HQ_Chi2Red_TPart_Eta";
+    Track_HQ_Chi2Red_TPart_Eta = dqmStore_->book2D(HistoName, HistoName,
+        psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsx"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmin"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<double>("xmax"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<int32_t>("Nbinsy"),
+     	  psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymin"),
+        psTrack_Chi2Red_TPart_Eta.getParameter<double>("ymax"));
+    Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("TPart #eta", 1);
+    Track_HQ_Chi2Red_TPart_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
+    
+    
     /// Stub properties compared to TParticles
     dqmStore_->setCurrentFolder(topFolderName_+"/TTStubVSTPart/");
 
