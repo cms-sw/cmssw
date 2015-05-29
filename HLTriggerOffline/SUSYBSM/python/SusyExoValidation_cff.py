@@ -60,24 +60,34 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_MET_HT_MUON +
                                 SUSY_HLT_MET_HT_MUON_ER +
                                 SUSY_HLT_MET_HT_MUON_BTAG +
-                                SUSY_HLT_Razor_Main + 
-                                SUSY_HLT_Razor_QuadJet +
-                                SUSY_HLT_Razor_DM + 
-                                SUSY_HLT_Razor_Main_7e33 + 
-                                SUSY_HLT_Razor_QuadJet_7e33 +
+                                SUSY_HLT_Razor_Main_RsqMR300 + 
+                                SUSY_HLT_Razor_QuadJet_RsqMR300 +
+                                SUSY_HLT_Razor_DM_Rsq0p36 + 
+                                SUSY_HLT_Razor_Main_RsqMR270 + 
+                                SUSY_HLT_Razor_QuadJet_RsqMR270 +
+                                SUSY_HLT_Razor_DM_Rsq0p30 + 
+                                SUSY_HLT_Razor_Main_RsqMR260 + 
+                                SUSY_HLT_Razor_QuadJet_RsqMR260 +
+                                SUSY_HLT_Razor_Main_RsqMR240 + 
+                                SUSY_HLT_Razor_QuadJet_RsqMR240 +
+                                SUSY_HLT_Razor_DM_Rsq0p25 + 
+                                SUSY_HLT_CaloHT200 +
+                                SUSY_HLT_CaloHT250 +
+                                SUSY_HLT_CaloHT300 +
+                                SUSY_HLT_CaloHT350 +
+                                SUSY_HLT_CaloHT400 +
                                 SUSY_HLT_PhotonHT +
                                 SUSY_HLT_HT_DoubleMuon +
                                 SUSY_HLT_HT_DoubleEle +
                                 SUSY_HLT_HT_MuEle +
                                 SUSY_HLT_Muon_BJet +
                                 SUSY_HLT_Electron_BJet +
-                                SUSY_HLT_HT200_alphaT0p57 +
-                                SUSY_HLT_HT250_alphaT0p55 +
-                                SUSY_HLT_HT300_alphaT0p53 +
-                                SUSY_HLT_HT350_alphaT0p52 +
-                                SUSY_HLT_HT400_alphaT0p51 + 
+                                SUSY_HLT_HT200_alphaT0p63 +
+                                SUSY_HLT_HT250_alphaT0p58 +
+                                SUSY_HLT_HT300_alphaT0p54 +
+                                SUSY_HLT_HT350_alphaT0p53 +
+                                SUSY_HLT_HT400_alphaT0p52 + 
                                 SUSY_HLT_DiJet_MET +
-                                SUSY_HLT_HT400_alphaT0p51 +
                                 SUSY_HLT_Mu_VBF
                                 )
 
@@ -107,11 +117,22 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_ER_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_BTAG_FASTSIM +   
-                                        SUSY_HLT_Razor_Main_FASTSIM + 
-                                        SUSY_HLT_Razor_QuadJet_FASTSIM +
-                                        SUSY_HLT_Razor_DM_FASTSIM + 
-                                        SUSY_HLT_Razor_Main_7e33_FASTSIM + 
-                                        SUSY_HLT_Razor_QuadJet_7e33_FASTSIM +
+                                        SUSY_HLT_Razor_Main_RsqMR300_FASTSIM + 
+                                        SUSY_HLT_Razor_QuadJet_RsqMR300_FASTSIM +
+                                        SUSY_HLT_Razor_DM_Rsq0p36_FASTSIM + 
+                                        SUSY_HLT_Razor_Main_RsqMR270_FASTSIM + 
+                                        SUSY_HLT_Razor_QuadJet_RsqMR270_FASTSIM +
+                                        SUSY_HLT_Razor_DM_Rsq0p30_FASTSIM + 
+                                        SUSY_HLT_Razor_Main_RsqMR260_FASTSIM + 
+                                        SUSY_HLT_Razor_QuadJet_RsqMR260_FASTSIM +
+                                        SUSY_HLT_Razor_Main_RsqMR240_FASTSIM + 
+                                        SUSY_HLT_Razor_QuadJet_RsqMR240_FASTSIM +
+                                        SUSY_HLT_Razor_DM_Rsq0p25_FASTSIM + 
+                                        SUSY_HLT_CaloHT200_FASTSIM +
+                                        SUSY_HLT_CaloHT250_FASTSIM +
+                                        SUSY_HLT_CaloHT300_FASTSIM +
+                                        SUSY_HLT_CaloHT350_FASTSIM +
+                                        SUSY_HLT_CaloHT400_FASTSIM +
                                         SUSY_HLT_PhotonHT_FASTSIM +
                                         SUSY_HLT_HT_DoubleMuon_FASTSIM +
                                         SUSY_HLT_HT_DoubleEle_FASTSIM +

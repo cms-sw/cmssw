@@ -53,6 +53,7 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_MET_HT_MUON_ER_POSTPROCESSING +
                               SUSY_HLT_MET_HT_MUON_BTAG_POSTPROCESSING + 
                               SUSY_HLT_Razor_PostVal_POSTPROCESSING + 
+                              SUSY_HLT_CaloHT_POSTPROCESSING + 
                               SUSY_HLT_PhotonHT_POSTPROCESSING +                             
                               SUSY_HLT_HT_DoubleMuon_POSTPROCESSING +
                               SUSY_HLT_HT_DoubleEle_POSTPROCESSING +
@@ -99,6 +100,7 @@ SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_MET_HT_MUON_ER_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_MET_HT_MUON_BTAG_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Razor_PostVal_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_CaloHT_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_PhotonHT_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_HT_DoubleMuon_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_HT_DoubleEle_FASTSIM_POSTPROCESSING +
