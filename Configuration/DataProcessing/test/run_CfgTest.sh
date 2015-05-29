@@ -13,6 +13,7 @@ function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?
 
 runTest "${LOCAL_TEST_DIR}/RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever"
 
+#"ppRun2B0T")
 declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons")
 for scenario in "${arr[@]}"
 do
@@ -22,21 +23,21 @@ do
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "ppRun2B0T")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels" "ppRun2B0T")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario $scenario --lfn=/store/whatever --global-tag GLOBALTAG --skims SiStripCalZeroBias,SiStripCalMinBias,PromptCalibProd"
      runTest "${LOCAL_TEST_DIR}/RunDQMHarvesting.py --scenario $scenario --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG"
 done
 
-declare -a arr=("ppRun2")
+declare -a arr=("ppRun2" "ppRun2B0T")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --miniaod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"

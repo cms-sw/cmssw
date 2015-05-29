@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
-
+from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
 #    return (process)
@@ -81,6 +81,11 @@ def customiseExpressRun2(process):
     process = customiseDataRun2Common(process)
     return process
 
+def customiseExpressRun2B0T(process):
+    process=customiseExpressRun2(process)
+    process=customiseForRunI(process)
+    return process
+
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
@@ -94,6 +99,12 @@ def customisePromptRun2(process):
     process = customisePrompt(process)
     process = customiseDataRun2Common(process)
     return process
+
+def customisePromptRun2B0T(process):
+    process=customisePromptRun2(process)
+    process=customiseForRunI(process)
+    return process
+
 
 ##############################################################################
 
