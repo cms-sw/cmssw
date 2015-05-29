@@ -12,8 +12,7 @@
 #include <DetectorDescription/Core/src/Material.h>
 #include <DetectorDescription/Core/src/Solid.h>
 #include <DetectorDescription/Core/src/Specific.h>
-#include <DetectorDescription/ExprAlgo/interface/AlgoPos.h>
-#include <DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h>
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <string>
 #include <map>
@@ -28,7 +27,6 @@ template class DDI::Singleton<DDI::Store<DDName, std::string* > >;
 template class DDI::Singleton<DDI::Store<DDName, DDI::Material*> >;
 template class DDI::Singleton<DDI::Store<DDName, ReadMapType<double>* > >;
 template class DDI::Singleton<DDI::Store<DDName, std::vector<double>* > >;
-template class DDI::Singleton<DDI::Store<DDName, AlgoPos*> >;
 template class DDI::Singleton<DDI::Store<DDName, DDI::Specific*> >;
 template class DDI::Singleton<DDI::Store<DDName, DDI::LogicalPart*> >;
 template class DDI::Singleton<DDI::Store<DDName, DDI::Solid*> >;
