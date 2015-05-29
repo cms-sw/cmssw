@@ -41,7 +41,7 @@ class StackedTrackerGeometryBuilder
                                    double phi_window,
                                    double z_window,
                                    int truncation_precision,
-                                   bool makeDebugFile = false );
+                                   bool makeDebugFile, const TrackerTopology *tTopo );
   
     /// CBC3 emulation builder
     StackedTrackerGeometry* build( const TrackerGeometry* theTracker,

@@ -30,13 +30,13 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
                                                               double phi_window,
                                                               double z_window,
                                                               int truncation_precision,
-                                                              bool makeDebugFile )
+                                                              bool makeDebugFile,const TrackerTopology *tTopo )
 {
   /// Dummy variables to use only one build method for all
   std::vector< double >                foo;
   std::vector< std::vector< double > > bar;
   return build( theTracker, radial_window, phi_window, z_window, truncation_precision,
-                0, 0, foo, bar, makeDebugFile, 0 );
+                0, 0, foo, bar, makeDebugFile, tTopo );
 }
 
 /// CBC3 dedicated stuff

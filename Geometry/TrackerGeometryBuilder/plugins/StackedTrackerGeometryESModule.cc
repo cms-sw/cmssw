@@ -79,7 +79,7 @@ boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::prod
                                                                          phi_window,
                                                                          z_window,
                                                                          truncation_precision,
-                                                                         makeDebugFile ) );
+                                                                         makeDebugFile,tTopo ) );
   }
 
   return _tracker;
