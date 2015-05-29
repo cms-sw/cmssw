@@ -23,7 +23,8 @@ PythiaParameters = cms.PSet(
 pythia8CommonSettingsBlock,
 pythia8CUEP8M1SettingsBlock,
 processParameters = cms.vstring(
-'HardQCD:all = on'
+'HardQCD:all = on',
+ 'PhaseSpace:pTHatMin = 5',
 ),
 parameterSets = cms.vstring('pythia8CommonSettings',
 'pythia8CUEP8M1Settings',
