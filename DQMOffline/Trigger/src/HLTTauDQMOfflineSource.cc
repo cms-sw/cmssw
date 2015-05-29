@@ -141,6 +141,8 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
 	    if(refObj.objID == 0) { // MET
               edm::Handle<reco::CaloMETCollection> collHandle;
               iEvent.getByLabel(refObj.inputTag,collHandle);
+	      if(!collHandle.isValid())
+		continue;
               reco::CaloMET met = collHandle.product()->front();
               LV p4;
               p4.SetPxPyPzE(met.px(),met.py(),0,0);
