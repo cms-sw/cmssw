@@ -7,6 +7,10 @@ OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
 	'keep *_ALCARECOMuAlGlobalCosmicsInCollisions_*_*',
+	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks_*_*', # selected general tracks
+	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsCombinatorialTF_*_*',
+	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsCosmicTF_*_*',
+	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsRegionalTF_*_*',
         'keep *_muonCSCDigis_*_*',
 	'keep *_muonDTDigis_*_*',
 	'keep *_muonRPCDigis_*_*',
@@ -19,7 +23,11 @@ OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop = cms.PSet(
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
-        'keep DcsStatuss_scalersRawToDigi_*_*')
+        'keep DcsStatuss_scalersRawToDigi_*_*',
+        'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
+	'keep siStripDigis_DetIdCollection_*_*',
+	'keep recoMuons_muons1Leg_*_*', # save muons as timing info is needed for BP corrections in deconvolution
+    )
 )
 
 import copy
