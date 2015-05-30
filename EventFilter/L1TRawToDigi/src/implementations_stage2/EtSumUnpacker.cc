@@ -60,6 +60,20 @@ namespace stage2 {
        res_->push_back(bx,et);
 
 
+       // HT
+
+       raw_data = block.payload()[i++];
+
+       l1t::EtSum ht = l1t::EtSum();
+    
+       ht.setHwPt(raw_data & 0xFFF);
+       ht.setType(l1t::EtSum::kTotalHt);       
+
+       LogDebug("L1T") << "HT: pT " << ht.hwPt();
+
+       res_->push_back(bx,ht);
+
+
        //  MET
 
        raw_data = block.payload()[i++];
@@ -73,20 +87,6 @@ namespace stage2 {
        LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
 
        res_->push_back(bx,met);
-
-
-       // HT
-
-       raw_data = block.payload()[i++];
-
-       l1t::EtSum ht = l1t::EtSum();
-    
-       ht.setHwPt(raw_data & 0xFFF);
-       ht.setType(l1t::EtSum::kTotalHt);       
-
-       LogDebug("L1T") << "HT: pT " << ht.hwPt();
-
-       res_->push_back(bx,ht);
 
 
        // MHT
