@@ -16,6 +16,7 @@ hltGTs = {
     'run2_mc_50nsGRun'       : ('run2_mc_50ns',),
     'run2_mc_50ns_5e33_v1'   : ('run2_mc_50ns',),
     'run2_mc_50ns_5e33_v2'   : ('run2_mc_50ns',),
+    'run2_mc_LowPU'          : ('run2_mc_50ns',),
 
     'run2_hlt_FULL'          : ('run2_hlt',),
     'run2_hlt_GRun'          : ('run2_hlt',),
@@ -26,6 +27,7 @@ hltGTs = {
     'run2_hlt_50nsGRun'      : ('run2_hlt',),
     'run2_hlt_50ns_5e33_v1'  : ('run2_hlt',),
     'run2_hlt_50ns_5e33_v2'  : ('run2_hlt',),
+    'run2_hlt_LowPU'         : ('run2_hlt',),
 
     'run2_data_FULL'         : ('run2_data',),
     'run2_data_GRun'         : ('run2_data',),
@@ -36,6 +38,7 @@ hltGTs = {
     'run2_data_50nsGRun'     : ('run2_data',),
     'run2_data_50ns_5e33_v1' : ('run2_data',),
     'run2_data_50ns_5e33_v2' : ('run2_data',),
+    'run2_data_LowPU'        : ('run2_data',),
 
 }
 

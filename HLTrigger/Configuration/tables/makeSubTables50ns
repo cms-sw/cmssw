@@ -5,7 +5,8 @@
 
 MASTER="/dev/CMSSW_7_4_0/50nsHLT"       # no version, take the latest one
 TARGET="/dev/CMSSW_7_4_0/TABLE"         # directory where to store the sub-tables
-TABLES="50nsGRun"                       # which sub-tables to create
+TABLES="50nsGRun LowPU"                 # which sub-tables to create
+#TABLES="50nsGRun"                       # which sub-tables to create
 
 source subtables.sh
 createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"
