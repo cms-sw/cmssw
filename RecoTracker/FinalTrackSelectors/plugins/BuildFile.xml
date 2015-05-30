@@ -32,7 +32,6 @@
 <use   name="CommonTools/Statistics"/>
 <use   name="clhep"/>
 <use   name="roottmva"/>
-<use   name="RecoTracker/FinalTrackSelectors"/>     
 <library   file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

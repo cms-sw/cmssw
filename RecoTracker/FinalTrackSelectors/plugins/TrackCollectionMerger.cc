@@ -14,6 +14,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/trackAlgoPriorityOrder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -146,6 +147,10 @@ namespace {
     auto ntotTk=k;
     std::vector<bool> selected(ntotTk,true);
 
+    declareDynArray(reco::TrackBase::TrackAlgorithm, ntotTk, algo);
+    declareDynArray(reco::TrackBase::TrackAlgorithm, ntotTk, oriAlgo);
+    declareDynArray(reco::TrackBase::AlgoMask, ntotTk,  algoMask);
+    
 
     // merge (if more than one collection...)
 
@@ -158,8 +163,12 @@ namespace {
       k=0U;
       for (auto i=0U; i< collsSize; ++i) {
 	auto const & tkColl = *trackColls[i];
-	for (auto j=0U; j< nGoods[i]; ++i) {
-	  auto const track = tkColl[tkInds[k]];
+	for (auto j=0U; j< nGoods[i]; ++j) {
+	  auto const & track = tkColl[tkInds[k]];
+	  algo[k] = track.algo();
+	  oriAlgo[k] = track.originalAlgo();
+	  algoMask[k] = track.algoMask();
+
 	  auto validHits=track.numberOfValidHits();
 	  auto validPixelHits=track.hitPattern().numberOfValidPixelHits();
 	  auto lostHits=track.numberOfLostHits();
@@ -169,10 +178,10 @@ namespace {
 	  rhv.reserve(validHits) ;
 	  auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
 	  for (auto it = track.recHitsBegin();  it != track.recHitsEnd(); ++it) {
-	    const auto * hit = (*it);
-	    auto id = hit->rawId() ;
-	    if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
-	    if likely(hit->isValid()) { rhv.emplace_back(id,hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
+	    auto const & hit = *(*it);
+	    auto id = hit.rawId() ;
+	    if(hit.geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
+	    if likely(hit.isValid()) { rhv.emplace_back(id,&hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
 	  }
 	  std::sort_heap(rhv.begin(),rhv.end(),compById);
 	  
@@ -182,6 +191,18 @@ namespace {
       }
       assert(ntotTk==k);
       
+      auto seti = [&](unsigned int ii, unsigned int jj) {
+	selected[jj]=false;
+	selected[ii]=true;
+	if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
+	algoMask[ii] |= algoMask[jj];
+	quals[ii] |= (1<<reco::TrackBase::confirmed);
+	algoMask[jj] = algoMask[ii];  // in case we keep discarded
+	quals[jj] |= (1<<reco::TrackBase::discarded);
+      };
+
+
+
       auto iStart2=0U;
       for (auto i=0U; i<collsSize-1; ++i) {
 	auto iStart1=iStart2;
@@ -195,26 +216,37 @@ namespace {
 	    if (!areDuplicate(rh1[t1],rh1[t2])) continue;
 	    auto score2 = score[t2];
 	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
+
 	    if ( score1 - score2 > almostSame ) {
-	      selected[t2]=false;
+	      seti(t1,t2);
 	    } else if ( score2 - score1 > almostSame ) {
-	      selected[t1]=false;
-	    } else {
-	      selected[t2]=false;
-	    }
-	    
-	    
-	  }
-	}
-      }
+	      seti(t2,t1);
+	    } else {  // take best
+	      constexpr unsigned int qmask =  (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity);
+	      if ( (quals[t1]&qmask) == (quals[t2]&qmask) ) {
+		// take first
+		if (trackAlgoPriorityOrder[algo[t1]] <= trackAlgoPriorityOrder[algo[t2]]) {
+                  seti(t1,t2);    
+		} else {
+                  seti(t2,t1);    
+		}
+	      } else if ( (quals[t1]&qmask) > (quals[t2]&qmask) ) 
+		seti(t1,t2);    
+	      else 
+		seti(t2,t1);    
+	    }  // end ifs...
+	      
+	  } // end t2
+	} // end t1
+      }  // end colls
     }; // end merger;
 
 
     if (collsSize>1) merger();
     
     // products
-    std::unique_ptr<MVACollection> pmvas(new MVACollection());
-    std::unique_ptr<QualityMaskCollection> pquals(new QualityMaskCollection());
+    auto pmvas = std::make_unique<MVACollection>();
+    auto pquals = std::make_unique<QualityMaskCollection>();
 				    
     // clone selected tracks...
     auto nsel=0U;

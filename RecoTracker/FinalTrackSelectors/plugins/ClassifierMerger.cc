@@ -47,9 +47,9 @@ namespace {
 
 	
 	// products
-	std::unique_ptr<MVACollection> mvas(new MVACollection((*hmva)));
-	std::unique_ptr<QualityMaskCollection> quals(new QualityMaskCollection(*hqual));
-	
+	auto mvas = std::make_unique<MVACollection>(*hmva);
+	auto quals = std::make_unique<QualityMaskCollection>(*hqual);
+    	
 	for (auto i=1U; i<srcQuals.size(); ++i) {
 	  evt.getByToken(srcQuals[i], hqual);
 	  auto const & iq = *hqual;

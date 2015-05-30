@@ -21,7 +21,7 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
   edm::Handle<reco::TrackCollection> hSrcTrack;
   evt.getByToken( tokens.hSrcTrackToken_, hSrcTrack );
   
-  reco::TrackRefProd rTracks = evt.getRefBeforePut<reco::TrackCollection>();
+  auto rTracks = evt.getRefBeforePut<reco::TrackCollection>();
   
   TrackingRecHitRefProd rHits;
   reco::TrackExtraRefProd rTrackExtras;
@@ -30,9 +30,6 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
   }
   
-  typedef reco::TrackRef::key_type TrackRefKey;
-
-
   edm::Handle< std::vector<Trajectory> > hTraj;
   edm::RefProd< std::vector<Trajectory> > trajRefProd;
   if ( copyTrajectories_ ) {
@@ -65,7 +62,7 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     selTracks_->back().setExtra( reco::TrackExtraRef( rTrackExtras, selTrackExtras_->size() - 1) );
     auto & tx = selTrackExtras_->back();
     tx.setResiduals(trk.residuals());
-    unsigned nh1=trk.recHitsSize();
+    auto nh1=trk.recHitsSize();
     tx.setHits(rHits,selHits_->size(),nh1);
     // TrackingRecHits
     for( auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
@@ -89,7 +86,7 @@ TrackCollectionCloner::Producer::~Producer() {
   if ( copyTrajectories_ ) {
     selTrajs_->shrink_to_fit();
     assert(selTrajs_->size()==tsize);
-    // assert(selTTAss_->size()==tsize);
+    assert(selTTAss_->size()==tsize);
     evt.put(std::move(selTrajs_));
     evt.put(std::move(selTTAss_));
     

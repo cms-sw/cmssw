@@ -46,7 +46,7 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   // Get tracks 
   edm::Handle<reco::TrackCollection> hSrcTrack;
   evt.getByToken(src_, hSrcTrack );
-  const reco::TrackCollection & tracks(*hSrcTrack);
+  auto const & tracks(*hSrcTrack);
 
     // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
@@ -65,8 +65,9 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   }
 
   // products
-  std::unique_ptr<MVACollection> mvas(new MVACollection(tracks.size(),-99.f));
-  std::unique_ptr<QualityMaskCollection> quals(new QualityMaskCollection(tracks.size(),0));
+  auto mvas = std::make_unique<MVACollection>(tracks.size(),-99.f);
+  auto quals = std::make_unique<QualityMaskCollection>(tracks.size(),0);
+
   
   
   computeMVA(tracks,*hBsp,*hVtx,forest,*mvas);
@@ -74,7 +75,8 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
 
   unsigned int k=0;
   for (auto mva : *mvas) {
-    (*quals)[k++] =  (mva>qualityCuts[0]) << reco::TrackBase::loose
+    (*quals)[k++]
+      =  (mva>qualityCuts[0]) << reco::TrackBase::loose
       |  (mva>qualityCuts[1]) << reco::TrackBase::tight
       |  (mva>qualityCuts[2]) << reco::TrackBase::highPurity
      ;

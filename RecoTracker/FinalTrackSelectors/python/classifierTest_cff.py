@@ -19,5 +19,19 @@ testTrackMerger.trackProducers = ['initialStepTracks']
 testTrackMerger.inputClassifiers =['testMergedClassifier']
 testTrackMerger.minQuality = 'tight'
 
+testTrackClassifier3 = TrackCutClassifier.clone()
+testTrackClassifier3.src = 'detachedTripletStepTracks'
+testTrackClassifier3.mva.minPixelHits = [0,1,1]
 
-testTrackCloning = cms.Sequence(testTrackClassifier1*testTrackClassifier2*testMergedClassifier*testTrackMerger)
+from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
+testTrackMerger2 = TrackCollectionMerger.clone()
+testTrackMerger2.trackProducers = ['initialStepTracks','detachedTripletStepTracks']
+testTrackMerger2.inputClassifiers =['testMergedClassifier','testTrackClassifier3']
+testTrackMerger2.minQuality = 'tight'
+
+
+
+
+
+testTrackCloning = cms.Sequence(testTrackClassifier1*testTrackClassifier2*testTrackClassifier3*
+                                testMergedClassifier*testTrackMerger*testTrackMerger2)
