@@ -50,7 +50,8 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi imp
 # Composite filter
 lowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters   = [cms.PSet(refToPSet_ = cms.string('lowPtTripletStepStandardTrajectoryFilter')),
-                 cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
+                 # cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))
+                ]
     )
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
@@ -109,23 +110,30 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='lowPtTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.6),
+            mvaType = cms.string("Prompt"),
+            useMVAonly = cms.bool(True),
             chi2n_par = cms.double(9999),
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'lowPtTripletStepTight',
             preFilterName = 'lowPtTripletStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
+            mvaType = cms.string("Prompt"),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStep',
             preFilterName = 'lowPtTripletStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
             useMVA = cms.bool(True),
-            minMVA = cms.double(0.4),
+            minMVA = cms.double(0.0),
+            mvaType = cms.string("Prompt"),
+            useMVAonly = cms.bool(True),
             qualityBit = cms.string('highPurity'),
             keepAllTracks = cms.bool(True),
             chi2n_par = cms.double(9999),
