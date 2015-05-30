@@ -31,7 +31,7 @@ public:
   { }
 
   /// ctor from name string
-  PixelEndcapName(std::string name);
+  PixelEndcapName(std::string name, bool phase=false);
 
   virtual ~PixelEndcapName() { }
 
@@ -53,7 +53,7 @@ public:
   int plaquetteName() const { return thePlaquette; }
 
   /// ring Id
-  int ringName() const { return thePannel; }
+  int ringName() const { return thePlaquette; }
 
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
