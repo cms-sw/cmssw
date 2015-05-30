@@ -5,14 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table as Stream A Datasets
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHCalNZS_selector
-streamA_datasetHCalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHCalNZS_selector.l1tResults = cms.InputTag('')
-streamA_datasetHCalNZS_selector.throw      = cms.bool(False)
-streamA_datasetHCalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v2', 
-    'HLT_HcalPhiSym_v2', 
-    'HLT_HcalUTCA_v2')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
@@ -20,6 +12,14 @@ streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
 streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_GlobalRunHPDNoise_v2', 
     'HLT_L1Tech_HBHEHO_totalOR_v2', 
     'HLT_L1Tech_HCAL_HF_single_channel_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
+streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
+streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v2', 
+    'HLT_HcalPhiSym_v2', 
+    'HLT_HcalUTCA_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetInitialPD_selector
 streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -46,7 +46,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_DiPFJetAve160_HFJEC_v2', 
     'HLT_DiPFJetAve220_HFJEC_v2', 
     'HLT_DiPFJetAve300_HFJEC_v2', 
-    'HLT_DiPFJetAve30_HFJEC_v2', 
     'HLT_DiPFJetAve60_HFJEC_v2', 
     'HLT_DiPFJetAve80_HFJEC_v2', 
     'HLT_Dimuon0_Jpsi_Muon_v2', 
@@ -166,7 +165,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_JetE30_NoBPTX_v2', 
     'HLT_JetE50_NoBPTX3BX_NoHalo_v2', 
     'HLT_JetE70_NoBPTX3BX_NoHalo_v2', 
-    'HLT_L1SingleEG5_OR_EG10_OR_EG20_v2', 
     'HLT_L1SingleMuOpen_DT_v2', 
     'HLT_L1SingleMuOpen_v2', 
     'HLT_L1Tech_DT_GlobalOR_v2', 
@@ -366,6 +364,19 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v2', 
     'HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v2', 
     'HLT_ZeroBias_v2' ) )
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetNoBPTX_selector
+streamA_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
+streamA_datasetNoBPTX_selector.throw      = cms.bool(False)
+streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE30_NoBPTX_v2', 
+    'HLT_JetE50_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v2', 
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v2', 
+    'HLT_L2Mu10_NoVertex_NoBPTX_v2', 
+    'HLT_L2Mu35_NoVertex_3Sta_NoBPTX3BX_NoHalo_v2', 
+    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_NoHalo_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

@@ -8,10 +8,11 @@ globalTag = {
   '25ns14e33_v1': 'auto:run2_mc_GRun',
   '50ns_5e33_v1': 'auto:run2_mc_50nsGRun',
   '50nsGRun': 'auto:run2_mc_50nsGRun',
-  '50ns': 'auto:run2_mc_50nsGRun',
-  'HIon': 'auto:run2_mc_HIon',
-  'PIon': 'auto:run2_mc_PIon',
-  'data': 'auto:run1_hlt',
+  '50ns' : 'auto:run2_mc_50nsGRun',
+  'HIon' : 'auto:run2_mc_HIon',
+  'PIon' : 'auto:run2_mc_PIon',
+  'LowPU': 'auto:run2_mc_LowPU',
+  'data' : 'auto:run1_hlt',
 }
 
 

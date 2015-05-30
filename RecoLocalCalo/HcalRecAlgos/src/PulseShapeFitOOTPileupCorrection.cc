@@ -298,11 +298,19 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
          tstrig += charge - ped;
       }
    }
-   if( tsTOTen < 0. ) tsTOTen = pedSig_;
+   //if( tsTOTen < 0. ) tsTOTen = pedSig_;
    std::vector<double> fitParsVec;
-   if( tstrig >= ts4Min_ ) { //Two sigma from 0 
+   if( tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
 //     double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
+   }
+   else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
+     fitParsVec.clear();
+     fitParsVec.push_back(0.);
+     fitParsVec.push_back(0.);
+     fitParsVec.push_back(0.);
+     fitParsVec.push_back(999.);
+     fitParsVec.push_back(false);
    }
    correctedOutput.swap(fitParsVec); correctedOutput.push_back(psfPtr_->getcntNANinfit());
 }
@@ -345,6 +353,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    float pedvalfit   = 0;
    float chi2        = 999; //cannot be zero
    bool  fitStatus   = false;
+   bool useTriple = false;
 
    int BX[3] = {4,5,3};
    if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -353,6 +362,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
 // Only do three-pulse fit when tstrig < ts4Max_, otherwise one-pulse fit is used (above)
    if(chi2 > ts4Chi2_ && !unConstrainedFit_ && tstrig < ts4Max_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+     useTriple=true;
    }
    if(unConstrainedFit_ && nAboveThreshold > 5) { //For the old method 2 do double pulse fit if values above a threshold
      fit(2,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX); 
@@ -371,6 +381,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    fitParsVec.push_back(timevalfit);
    fitParsVec.push_back(pedvalfit);
    fitParsVec.push_back(chi2);
+   fitParsVec.push_back(useTriple);
    return outfitStatus;
 }
 
