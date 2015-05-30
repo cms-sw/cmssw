@@ -53,7 +53,7 @@ namespace edm {
 	    "can't insert transient references in uninitialized AssociationMap");
         }
         //another thread might change the value of productGetter()
-        auto getter =ref.key.productGetter();
+        EDProductGetter const* getter =ref.key.productGetter();
         if(getter == nullptr) {
           Exception::throwThis(errors::LogicError,
 	    "can't insert into AssociationMap unless it was initialized with a getter or RefProd(s) or RefToBaseProd(s)");
