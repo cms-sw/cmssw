@@ -12,14 +12,20 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "HLTrigger/JetMET/interface/HLTJetHbbFilter.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 using namespace std;
+using namespace reco;
+using namespace trigger;
 //
 // constructors and destructor//
 //
@@ -196,3 +202,8 @@ HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,tr
   }
   return accept;
 }
+typedef HLTJetHbbFilter<CaloJet> HLTCaloJetHbbFilter;
+typedef HLTJetHbbFilter<  PFJet> HLTPFJetHbbFilter;
+
+DEFINE_FWK_MODULE(HLTCaloJetHbbFilter);
+DEFINE_FWK_MODULE(HLTPFJetHbbFilter);
