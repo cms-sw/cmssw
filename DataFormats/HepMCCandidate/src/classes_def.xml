@@ -7,7 +7,6 @@
    <version ClassVersion="10" checksum="2736964676"/>
   </class>
   <class name="std::vector<reco::GenParticle>" />
-  <class name="reco::GenParticleCollection" />
   <class name="edm::Wrapper<std::vector<reco::GenParticle> >" />
   <class name="edm::Association<std::vector<reco::GenParticle> >" />
   <class name="edm::Wrapper<edm::Association<std::vector<reco::GenParticle> > >" />
