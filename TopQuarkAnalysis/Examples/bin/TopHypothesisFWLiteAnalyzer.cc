@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
 #include "TopQuarkAnalysis/Examples/bin/NiceStyle.cc"
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   // set nice style for histograms
   setNiceStyle();

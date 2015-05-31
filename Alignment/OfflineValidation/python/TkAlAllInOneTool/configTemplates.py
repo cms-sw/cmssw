@@ -245,7 +245,7 @@ void TkAlExtendedOfflineValidation()
 {
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   //compile the makro
   gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
   // gROOT->ProcessLine(".L ./PlotAlignmentValidation.C++");

@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 {
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   // only allow one argument for this simple example which should be the
   // the python cfg file
