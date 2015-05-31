@@ -31,7 +31,7 @@ public:
 
   virtual SiStripRecHit1D * clone() const GCC11_OVERRIDE {return new SiStripRecHit1D( * this); }
 #ifndef __GCCXML__
-  virtual RecHitPointer cloneSH() const { return std::make_shared<SiStripRecHit1D>(*this);}
+  virtual RecHitPointer cloneSH() const GCC11_OVERRIDE { return std::make_shared<SiStripRecHit1D>(*this);}
 #endif
   
 

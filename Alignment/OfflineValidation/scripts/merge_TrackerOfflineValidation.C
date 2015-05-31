@@ -26,7 +26,7 @@ you can get by these lines (add them to your rootlogon.C):
 if (gSystem->Getenv("CMSSW_RELEASE_BASE") != '\0') {
   printf("\nLoading CMSSW FWLite...\n");
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 }
 
 */

@@ -1,7 +1,7 @@
 /// This is only to make sure that our FWLite tools also compile with gcc
 /// that usually spots errors in a much more readable way
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/Scanner.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -16,7 +16,7 @@ int main (int argc, char* argv[])
 {
     if (argc != 2) { std::cerr << "usage: " << argv[0] << " cmssw_reco_file.root" << std::endl; return 2; }
 
-    AutoLibraryLoader::enable();
+    FWLiteEnabler::enable();
     gROOT->SetStyle ("Plain");
     gStyle->SetPalette(1);
     gStyle->SetHistMinimumZero(1);
