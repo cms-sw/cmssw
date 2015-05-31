@@ -199,7 +199,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
   for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf)
     {
       int fedNum = *cf;
-      if(fedNum > 600 && fedNum <724) 
+      if((fedNum > 600 && fedNum <724) || fedNum==1118 || fedNum == 1120 || fedNum == 1122) 
 	caloFeds.push_back(fedNum);
     }
 
