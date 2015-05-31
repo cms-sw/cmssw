@@ -25,24 +25,36 @@ public:
   //virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
- 
-	// TTStub stacks
-	MonitorElement* Stub_Gen_Barrel = 0;
-	MonitorElement* Stub_Unkn_Barrel = 0;
-	MonitorElement* Stub_Comb_Barrel = 0;
-	MonitorElement* Stub_Gen_Endcap = 0;
-	MonitorElement* Stub_Unkn_Endcap = 0;
-	MonitorElement* Stub_Comb_Endcap = 0;
-	MonitorElement* Stub_Gen_Eta = 0;
-	MonitorElement* Stub_Unkn_Eta = 0;
-	MonitorElement* Stub_Comb_Eta = 0;
-	
-
+  
+  // TTStub stacks
+  MonitorElement* Stub_Gen_Barrel = 0;
+  MonitorElement* Stub_Unkn_Barrel = 0;
+  MonitorElement* Stub_Comb_Barrel = 0;
+  MonitorElement* Stub_Gen_Endcap_Disc = 0;
+  MonitorElement* Stub_Unkn_Endcap_Disc = 0;
+  MonitorElement* Stub_Comb_Endcap_Disc = 0;
+  MonitorElement* Stub_Gen_Endcap_Ring = 0;
+  MonitorElement* Stub_Unkn_Endcap_Ring = 0;
+  MonitorElement* Stub_Comb_Endcap_Ring = 0;
+  MonitorElement* Stub_Gen_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Stub_Unkn_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Stub_Comb_Endcap_Ring_Fw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Stub_Gen_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Stub_Unkn_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Stub_Comb_Endcap_Ring_Bw[5] = {0, 0, 0, 0, 0};
+  MonitorElement* Stub_Gen_Eta = 0;
+  MonitorElement* Stub_Unkn_Eta = 0;
+  MonitorElement* Stub_Comb_Eta = 0;
+  
+  
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  edm::InputTag tagTTStubs_;
+  edm::InputTag tagTTStubMCTruth_;
 
   std::string topFolderName_;
+  bool verbosePlots_;
   
 };
 #endif
