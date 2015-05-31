@@ -98,6 +98,9 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+   <class name="edm::AtomicPtrCache<std::vector<CaloTowerPtr> >">
+     <field name="m_data" transient="true"/>
+  </class>
    <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
      <field name="m_data" transient="true"/>
   </class>
