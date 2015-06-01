@@ -19,19 +19,18 @@ namespace {
 
 class ProjectionMatrixDiag {
   // Aider class to make the return of the projection Matrix thread-safe
-  // Suggestion of Carl Vuosalo
+protected:
+  AlgebraicMatrix theProjectionMatrix;
 public:
-  ProjectionMatrixDiag() {
+  ProjectionMatrixDiag() : theProjectionMatrix(4,5,0) {
     theProjectionMatrix[0][1] = 1;
     theProjectionMatrix[1][2] = 1;
     theProjectionMatrix[2][3] = 1;
     theProjectionMatrix[3][4] = 1;
   }
-  const AlgebraicMatrix &getMatrix() {
+  AlgebraicMatrix &getMatrix() const {
     return (theProjectionMatrix);
   }
-protected:
-  AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
 };
 
 
