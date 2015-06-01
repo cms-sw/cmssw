@@ -11,8 +11,7 @@ pvFilter = cms.EDFilter(
 
 
 ## apply HBHE Noise filter
-import CommonTools.RecoAlgos.HBHENoiseFilter_cfi
-HBHENoiseFilter = CommonTools.RecoAlgos.HBHENoiseFilter_cfi.HBHENoiseFilter.clone()
+from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import HBHENoiseFilter, MakeHBHENoiseFilterResult
 
 
 ## select events with high pfMET
@@ -29,6 +28,7 @@ pfMETCounter = cms.EDFilter(
     )
 
 pfMETSelSeq = cms.Sequence(pvFilter*
+                           MakeHBHENoiseFilterResult*
                            HBHENoiseFilter*
                            pfMETSelector*
                            pfMETCounter
@@ -50,6 +50,7 @@ tcMETCounter = cms.EDFilter(
     )
 
 tcMETSelSeq = cms.Sequence(pvFilter*
+                           MakeHBHENoiseFilterResult*
                            HBHENoiseFilter*
                            tcMETSelector*
                            tcMETCounter
