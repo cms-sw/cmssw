@@ -2,8 +2,58 @@
 
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include <limits>
 
 namespace {
+
+  using Point = math::XYZPoint;
+
+
+  Point getBestVertex(reco::Track const & trk, reco::VertexCollection const & vertices) {
+
+    Point p_dz(0,0,-99999);
+    float dzmin = std::numeric_limits<float>::max();
+    for(auto const & vertex : vertices) {
+      float dz = std::abs(trk.dz(vertex.position()));
+      if(dz < dzmin){
+	p_dz = vertex.position();
+	dzmin = dz;
+      }
+    }
+
+    return p_dz;
+    
+  }
+
+  /*
+    Point getBestVertex(reco::Track const & trk,, VertexCollection const & vertices)  {
+
+    //    Point p(0,0,-99999);
+    Point p_dz(0,0,-99999);
+    // float bestWeight = 0;
+    float dzmin = 10000;
+  for(auto const & vertex : vertices){
+    // auto w = vertex.trackWeight(track);
+    Point v_pos = vertex.position();
+    //    if(w > bestWeight){
+    //  p = v_pos;
+    //   bestWeight = w;
+    //} else if (0 == bestWeight) {
+    float dz = std::abs(trK.dz(v_pos));
+    if(dz < dzmin){
+      p_dz = v_pos;
+      dzmin = dz;
+    }
+    //}
+  }
+
+  return (bestWeight > 0) ? p : p_dz;
+
+}
+  */
+
+
   
 template<bool PROMPT>
 struct mva {
@@ -14,6 +64,7 @@ struct mva {
 		   GBRForest const * forestP) const {
 
     auto const & forest = *forestP;
+    auto tmva_pt_ = trk.pt();
     auto tmva_ndof_ = trk.ndof();
     auto tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
     auto tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement()
@@ -42,21 +93,37 @@ struct mva {
     int lostOut = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
     auto tmva_minlost_ = std::min(lostIn,lostOut);
     auto tmva_lostmidfrac_ = trk.numberOfLostHits() / (trk.numberOfValidHits() + trk.numberOfLostHits());
+   
+    float gbrVals_[PROMPT ? 16 : 12];
+    gbrVals_[0] = tmva_pt_;
+    gbrVals_[1] = tmva_lostmidfrac_;
+    gbrVals_[2] = tmva_minlost_;
+    gbrVals_[3] = tmva_nhits_;
+    gbrVals_[4] = tmva_relpterr_;
+    gbrVals_[5] = tmva_eta_;
+    gbrVals_[6] = tmva_chi2n_no1dmod_;
+    gbrVals_[7] = tmva_chi2n_;
+    gbrVals_[8] = tmva_nlayerslost_;
+    gbrVals_[9] = tmva_nlayers3D_;
+    gbrVals_[10] = tmva_nlayers_;
+    gbrVals_[11] = tmva_ndof_;
 
-    float gbrVals_[11];
-    gbrVals_[0] = tmva_lostmidfrac_;
-    gbrVals_[1] = tmva_minlost_;
-    gbrVals_[2] = tmva_nhits_;
-    gbrVals_[3] = tmva_relpterr_;
-    gbrVals_[4] = tmva_eta_;
-    gbrVals_[5] = tmva_chi2n_no1dmod_;
-    gbrVals_[6] = tmva_chi2n_;
-    gbrVals_[7] = tmva_nlayerslost_;
-    gbrVals_[8] = tmva_nlayers3D_;
-    gbrVals_[9] = tmva_nlayers_;
-    gbrVals_[10] = tmva_ndof_;
+    if (PROMPT) {
+      auto tmva_absd0_ = std::abs(trk.dxy(beamSpot.position()));
+      auto tmva_absdz_ = std::abs(trk.dz(beamSpot.position()));
+      Point bestVertex = getBestVertex(trk,vertices);
+      auto tmva_absd0PV_ = std::abs(trk.dxy(bestVertex));
+      auto tmva_absdzPV_ = std::abs(trk.dz(bestVertex));
+      
+      gbrVals_[12] = tmva_absd0PV_;
+      gbrVals_[13] = tmva_absdzPV_;
+      gbrVals_[14] = tmva_absdz_;
+      gbrVals_[15] = tmva_absd0_;
+    }
 
+ 
 
+    
     return forest.GetClassifier(gbrVals_);
     
   }
