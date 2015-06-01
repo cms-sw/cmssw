@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# AlCaReco for muon based alignment using ZMuMu events
+# AlCaReco output for track based muon alignment
 OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlCalIsolatedMu')
@@ -22,7 +22,7 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
         'keep *_TriggerResults_*_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_offlinePrimaryVertices_*_*',
-        'keep DcsStatuss_scalersRawToDigi_*_*', # DCS information
+        'keep DcsStatuss_scalersRawToDigi_*_*',
     )
 )
 
