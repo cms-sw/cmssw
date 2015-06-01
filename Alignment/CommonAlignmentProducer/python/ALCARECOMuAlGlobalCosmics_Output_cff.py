@@ -1,14 +1,16 @@
-# The following comments couldn't be translated into the new config version:
-
 import FWCore.ParameterSet.Config as cms
 
-# AlCaReco for muon alignment using straight (zero-field) cosmic ray tracks
+# AlCaReco output for track based muon alignment using cosmic ray tracks
 OutALCARECOMuAlGlobalCosmics_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlGlobalCosmics')
     ),
     outputCommands = cms.untracked.vstring(
-	'keep *_ALCARECOMuAlGlobalCosmics_*_*',
+	'keep *_ALCARECOMuAlGlobalCosmics_*_*', # selected cosmic muons
+	'keep *_ALCARECOMuAlCosmicsCTF_*_*',
+	'keep *_ALCARECOMuAlCosmicsCosmicTF_*_*',
+	'keep *_ALCARECOMuAlCosmicsRegional_*_*',
+	'keep *_ALCARECOMuAlGeneralTracks_*_*', # selected general tracks
         'keep *_muonCSCDigis_*_*',
 	'keep *_muonDTDigis_*_*',
 	'keep *_muonRPCDigis_*_*',
