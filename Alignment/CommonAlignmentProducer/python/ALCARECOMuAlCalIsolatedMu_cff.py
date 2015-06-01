@@ -20,6 +20,7 @@ ALCARECOMuAlCalIsolatedDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatu
     DebugOn      = cms.untracked.bool(False)
 )
 
+#________________________________Muon selection____________________________________
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlCalIsolatedMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
     src    = cms.InputTag("muons"),
