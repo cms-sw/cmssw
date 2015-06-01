@@ -55,19 +55,19 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     footprintCorrections = cms.VPSet(
         cms.PSet(
             selection = cms.string("decayMode() = 0"),
-            offset = cms.double(1.8)
+            offset = cms.double(0.0)
         ),
         cms.PSet(
             selection = cms.string("decayMode() = 1 || decayMode() = 2"),
-            offset = cms.double(1.5)
+            offset = cms.double(0.0)
         ),
         cms.PSet(
             selection = cms.string("decayMode() = 5"),
-            offset = cms.double(4.7)
+            offset = cms.double(2.7)
         ),
         cms.PSet(
             selection = cms.string("decayMode() = 6"),
-            offset = cms.double(1.9)
+            offset = cms.double(0.0)
         ),
         cms.PSet(
             selection = cms.string("decayMode() = 10"),
