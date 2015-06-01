@@ -44,4 +44,7 @@ ALCARECOMuAlCalIsolatedMuGeneralTracks = Alignment.CommonAlignmentProducer.Align
     nHitMin = cms.double(7),
 )
 
-seqALCARECOMuAlCalIsolatedMu = cms.Sequence(ALCARECOMuAlCalIsolatedMuHLT + ALCARECOMuAlCalIsolatedDCSFilter + ALCARECOMuAlCalIsolatedMu + ALCARECOMuAlCalIsolatedMuGeneralTracks)
+#________________________________Sequences____________________________________
+seqALCARECOMuAlCalIsolatedMu = cms.Sequence(ALCARECOMuAlCalIsolatedMuHLT + ALCARECOMuAlCalIsolatedDCSFilter + ALCARECOMuAlCalIsolatedMu)
+
+seqALCARECOMuAlCalIsolatedMuGeneralTracks = cms.Sequence(ALCARECOMuAlCalIsolatedMuGeneralTracks)
