@@ -16,7 +16,7 @@ ALCARECOMuAlCalIsolatedDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatu
     DetectorType = cms.vstring('DT0','DTp','DTm','CSCp','CSCm'),
     ApplyFilter  = cms.bool(True),
     AndOr        = cms.bool(False), # False = at least one detector from DetectorType map above is ON
-    DebugOn      = cms.untracked.bool(False)
+    DebugOn      = cms.untracked.bool(False),
 )
 
 #________________________________Muon selection____________________________________
