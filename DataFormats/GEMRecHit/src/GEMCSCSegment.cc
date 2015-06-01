@@ -28,7 +28,7 @@ public:
     theProjectionMatrix[2][3] = 1;
     theProjectionMatrix[3][4] = 1;
   }
-  AlgebraicMatrix &getMatrix() const {
+  const AlgebraicMatrix &getMatrix() const {
     return (theProjectionMatrix);
   }
 };
@@ -103,21 +103,6 @@ AlgebraicVector GEMCSCSegment::parameters() const {
   result[3] = theOrigin.y();
   return result;
 }
-
-/*
-AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
-  AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
-  static bool isInitialized = false;
-  if (!isInitialized) {
-    theProjectionMatrix[0][1] = 1;
-    theProjectionMatrix[1][2] = 1;
-    theProjectionMatrix[2][3] = 1;
-    theProjectionMatrix[3][4] = 1;
-    isInitialized=true;
-  }    
-  return theProjectionMatrix;
-}
-*/
 
 AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
   static const ProjectionMatrixDiag theProjectionMatrix;
