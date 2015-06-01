@@ -228,13 +228,11 @@ namespace Phase2Tracker {
         {
           // loop channels
           int ichan = 0;
-          int icbc;
           for ( int ife = 0; ife < MAX_FE_PER_FED; ife++ )
           {
             // get fedid from cabling
             const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(*fedIndex, ife));
             uint32_t detid = mod.getDetid();
-            std::cout << "=== FE " << detid << std::endl;
             // container for this module's digis
             std::vector<SiPixelCluster> clustersTop;
             std::vector<SiPixelCluster> clustersBottom;
@@ -255,9 +253,8 @@ namespace Phase2Tracker {
                   Phase2TrackerFEDZSSon2SChannelUnpacker unpacker = Phase2TrackerFEDZSSon2SChannelUnpacker(channel);
                   while (unpacker.hasData())
                   {
-                    icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "Son2S cluster at position: " << (int)unpacker.rawX() << " with size: " << (int)unpacker.rawSize() << endl;
+                    ss << std::dec << "Son2S " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << unpacker.chipId() << endl;
                     #endif
                     if (unpacker.rawX()%2) 
                     {
@@ -267,7 +264,6 @@ namespace Phase2Tracker {
                     {
                       clustersBottom.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
                     }
-                    std::cout << std::dec << "Son2S " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 } 
@@ -276,12 +272,10 @@ namespace Phase2Tracker {
                   Phase2TrackerFEDZSSonPSChannelUnpacker unpacker = Phase2TrackerFEDZSSonPSChannelUnpacker(channel);
                   while (unpacker.hasData())
                   {
-                    icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "SonPS cluster at position: " << (int)unpacker.rawX() << " with size: " << (int)unpacker.rawSize() << endl;
+                    ss << std::dec << "SonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << unpacker.chipId() << endl;
                     #endif
                     clustersTop.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
-                    std::cout << std::dec << "SonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 }
@@ -290,12 +284,10 @@ namespace Phase2Tracker {
                   Phase2TrackerFEDZSPonPSChannelUnpacker unpacker = Phase2TrackerFEDZSPonPSChannelUnpacker(channel);
                   while (unpacker.hasData())
                   {
-                    icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "PonPS cluster at position: " << (int)unpacker.rawX() <<" , "<<  (int)unpacker.rawY() << " with size: " << (int)unpacker.rawSize() << endl;
+                    ss << std::dec << "PonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.clusterY() << " " << unpacker.chipId() << endl;
                     #endif
                     clustersBottom.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
-                    std::cout << std::dec << "PonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.clusterY() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 }

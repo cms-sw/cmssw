@@ -223,7 +223,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    // std::cout << "S chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << " " << digi.getLayer() << std::endl; 
+    std::cout << "S chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << " " << digi.getLayer() << std::endl; 
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
     scluster |= (digi.getRawX() & 0xFF) << 3;
     scluster |= ((digi.getSizeX()-1) & 0x07);
@@ -233,7 +233,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    // std::cout << "P chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << std::endl; 
+    std::cout << "P chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << std::endl; 
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
     pcluster |= (digi.getRawX() & 0x7F) << 7;
     pcluster |= (digi.getRawY() & 0x0F) << 3;
