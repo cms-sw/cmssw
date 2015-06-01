@@ -2181,8 +2181,10 @@ class ConfigBuilder(object):
 		#this is not supporting the blacklist at this point since I do not understand it
 		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
 		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import convertToUnscheduled\n"
-
 		self.pythonCfgCode+="process=convertToUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import convertToUnscheduled
+		self.process=convertToUnscheduled(self.process)
 
 		#now add the unscheduled stuff
 		for module in self.importsUnsch:
