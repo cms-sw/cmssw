@@ -5,7 +5,7 @@ ALCARECOMuAlCalIsolatedMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
     andOr = True, ## choose logical OR between Triggerbits
     eventSetupPathsKey = 'MuAlCalIsolatedMu',
     throw = False # tolerate triggers not available
-    )
+)
 
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC" 
