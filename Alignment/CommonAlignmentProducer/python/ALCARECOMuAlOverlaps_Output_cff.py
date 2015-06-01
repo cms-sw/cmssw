@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-# AlCaReco for muon based alignment using tracks in the CSC overlap regions
+# AlCaReco output for track based muon alignment using tracks in the CSC overlap regions
 OutALCARECOMuAlOverlaps_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlOverlaps')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_ALCARECOMuAlOverlaps_*_*', # selected muons through CSC overlaps
+        'keep *_ALCARECOMuAlOverlaps_*_*', # selected muons through CSC overlap regions
         'keep *_ALCARECOMuAlOverlapsGeneralTracks_*_*', # selected general tracks
         'keep *_muonCSCDigis_*_*',
         'keep *_muonDTDigis_*_*',
