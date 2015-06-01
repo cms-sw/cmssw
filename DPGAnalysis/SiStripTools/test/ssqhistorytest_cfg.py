@@ -11,7 +11,7 @@ process = cms.Process("sistripqualityhistory")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -101,8 +101,9 @@ process.TFileService = cms.Service('TFileService',
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 #
 

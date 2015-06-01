@@ -1,3 +1,10 @@
+## Plugins
+### APVCyclePhaseDebuggerFromL1TS
+It is an `EDAnalyzer` which can be used to monitor the content of the `Level1TriggerScalersCollection` produced by SCAL. Histograms are filled for each event with the orbit number of the last: resynch, hard reset, EC0, OC0, Test Enable and Start signals. Therefore the histograms show spikes at the orbit number values when the signals have been issued with the a number of entries equal to the number of events between two signals. In addition two histograms are filled with the differences of the orbit numbers between EC0 and resync and resync and hard reset every time a new resync or a new hard reset has been issued. The configuration requires simply the name of the product with the `Level1TriggerScalersCollection` and, usually, it is `scalersRawToDigi`, as defined in the default configuration.
+
+### APVCyclePhaseProducerFromL1TS
+It is an `EDProducer` which produces an `APVCyclePhaseCollection` which contains, for each Tracker partition, an offset, between 0 and 69, to be used to compute the position of each event in the Tracker APV readout cycle from the orbit number and the bunch crossing number using `orbit*3564+bx-offset`. More details can be found [in this page](https://twiki.cern.ch/twiki/bin/view/CMS/APVReadoutCycle). The standard way of using it is to let the EventSetup provide the parameters using the record `SiStripConfObject` with the label `apvphaseoffsets` (configurable). If the configuration parameter `ignoreDB` is set to true, then the parameters are read from the configuration file and are: `defaultPartitionNames` usually equal to `TI,TO,TP,TM`, `defaultPhases` which contains a vector (one value per partition) of offsets which are used as offset when no resync has been issued, `magicOffset` which is used to correct the orbit number of the last resync to compute the phase when a resync has been issued using the expression: `(defaultPhase + (lastresyncorbit+magicOffset)*3564%70)%70`, and `useEC0` if we want to use `lastEC0orbit` instead of `lastresyncorbit` to compute the phase. Examples of configurations can be found in the `python` directory.
+
 ## ROOT Macros
 This package contains a library of ROOT macros that can be loaded by executing `gSystem->Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libDPGAnalysisSiStripToolsMacros.so")`
 in the root interactive section
@@ -35,3 +42,11 @@ As the macro `PlotOnTrackOccupancy` but for results obtained with the phase 1 ge
 
 ### PlotOnTrackOccupancyPhase2
 As the macro `PlotOnTrackOccupancy` but for results obtained with the phase 2 geometry
+
+## Scripts
+### merge_and_move_generic_fromCrab.sh
+Script which helps to merge root files produced by a crab2 job and saved in the `res` sudirectory of output crab directory. 
+### merge_and_move_generic_fromCrab3.sh
+Script which helps to merge root files produced by a crab3 job and saved in the `results` sudirectory of output crab directory. 
+
+
