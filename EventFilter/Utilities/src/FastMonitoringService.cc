@@ -589,7 +589,7 @@ namespace evf{
 	  }
   }
 
-  void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
+  void FastMonitoringService::reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount)
   {
           std::lock_guard<std::mutex> lock(fmt_.monlock_);
 	  lockStatsDuringLumi_[ls]=std::pair<double,unsigned int>(waitTime,lockCount);
