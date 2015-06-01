@@ -1,4 +1,4 @@
-##!!!For BPH Trigger study only
+##!!!For BPH Trigger and Generator study  only, not ok for physics use.
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
@@ -27,7 +27,7 @@ processParameters = cms.vstring(
 'HardQCD:gg2bbbar = on ',
 'HardQCD:qqbar2bbbar = on ',
 'HardQCD:hardbbbar = on',
-'PhaseSpace:pTHatMin = 2',
+'PhaseSpace:pTHatMin = 5',
 ),
 parameterSets = cms.vstring('pythia8CommonSettings',
 'pythia8CUEP8M1Settings',
