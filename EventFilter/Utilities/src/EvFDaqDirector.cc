@@ -107,6 +107,16 @@ namespace evf {
     char hostname[33];
     gethostname(hostname,32);
     hostname_ = hostname;
+
+    char * fuLockPollIntervalPtr = getenv("FFF_LOCKPOLLINTERVAL");
+    if (fuLockPollIntervalPtr) {
+      try {
+        fuLockPollInterval_=boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
+        edm::LogInfo("Setting fu lock poll interval by environment string: ") << fuLockPollInterval_ << " us";
+      }
+      catch (...) {edm::LogWarning("Unable to parse environment string: ") << std::string(fuLockPollIntervalPtr);}
+    }
+
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
@@ -504,21 +514,20 @@ namespace evf {
 	if (bumpedOk) {
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
+	  ftruncate(fu_readwritelock_fd_, 0);
 	  if (check == 0) {
-	    int wpos;
 	    // write next index in the file, which is the file the next process should take
 	    if (testModeNoBuilderUnit_) {
-	      wpos=fprintf(fu_rw_lock_stream, "%u %u %u %u    ", readLs,
+	      fprintf(fu_rw_lock_stream, "%u %u %u %u", readLs,
 		      readIndex + 1, readLs + 2, readIndex + 1);
 	      jumpLS_ = readLs + 2;
 	      jumpIndex_ = readIndex;
 	    } else {
-	      wpos=fprintf(fu_rw_lock_stream, "%u %u    ", readLs,
+	      fprintf(fu_rw_lock_stream, "%u %u", readLs,
 		      readIndex + 1);
 	    }
-	    ftruncate(fu_readwritelock_fd_, wpos);
-	    fflush(fu_rw_lock_stream);
-
+            fflush(fu_rw_lock_stream);
+            fsync(fu_readwritelock_fd_);
 	    fileStatus = newFile;
 
 	    if (testModeNoBuilderUnit_)
