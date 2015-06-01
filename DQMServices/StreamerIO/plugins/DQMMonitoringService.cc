@@ -67,7 +67,7 @@ void DQMMonitoringService::outputLumiUpdate() {
     float rate = ((float)lumi_events * 1000) / lumi_millis;
     doc.put("events_rate", rate);
 
-    // also save the history in  ptree doc;
+    // also save the history entry
     ptree plumi;
     plumi.put("n", lumi_last);
     plumi.put("nevents", lumi_events);
