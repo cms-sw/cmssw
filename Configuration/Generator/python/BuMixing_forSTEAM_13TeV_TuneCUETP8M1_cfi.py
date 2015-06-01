@@ -23,8 +23,9 @@ PythiaParameters = cms.PSet(
 pythia8CommonSettingsBlock,
 pythia8CUEP8M1SettingsBlock,
 processParameters = cms.vstring(
-'HardQCD:all = on',
- 'PhaseSpace:pTHatMin = 2',
+            'SoftQCD:nonDiffractive = on',
+            'SoftQCD:singleDiffractive = on',
+            'SoftQCD:doubleDiffractive = on',
 ),
 parameterSets = cms.vstring('pythia8CommonSettings',
 'pythia8CUEP8M1Settings',
