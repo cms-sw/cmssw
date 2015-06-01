@@ -11,7 +11,6 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.RecoTLR import customisePromptRun2B0T,customiseExpressRun2B0T
 
 class ppRun2B0T(Reco):
     def __init__(self):
@@ -35,11 +34,14 @@ class ppRun2B0T(Reco):
         """
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
+
+        if not 'customs' in args:
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2B0T']
+        else:
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customisePromptRun2B0T')
+
         process = Reco.promptReco(self,globalTag, **args)
 
-        #add the former top level patches here
-        customisePromptRun2B0T(process)
-        
         return process
 
 
@@ -52,10 +54,14 @@ class ppRun2B0T(Reco):
         """
         if not 'skims' in args:
             args['skims']=['@allForExpress']
+        if not 'customs' in args:
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T']
+        else:
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T')
+
+
         process = Reco.expressProcessing(self,globalTag, **args)
         
-        customiseExpressRun2B0T(process)
-                
         return process
 
     def visualizationProcessing(self, globalTag, **args):
@@ -65,10 +71,13 @@ class ppRun2B0T(Reco):
         Proton collision data taking visualization processing
 
         """
+        if not 'customs' in args:
+            args['customs']=['Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T']
+        else:
+            args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseExpressRun2B0T')
+
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
-        customiseExpressRun2B0T(process)
-                
         return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):

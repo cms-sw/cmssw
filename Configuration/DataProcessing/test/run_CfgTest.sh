@@ -13,8 +13,7 @@ function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?
 
 runTest "${LOCAL_TEST_DIR}/RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever"
 
-#"ppRun2B0T")
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons")
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "ppRun2B0T" "HeavyIons")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio  --alcareco TkAlMinBias+SiStripCalMinBias "
