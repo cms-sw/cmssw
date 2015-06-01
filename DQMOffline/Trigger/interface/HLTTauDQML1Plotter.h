@@ -8,6 +8,8 @@
 
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -27,10 +29,13 @@ private:
     edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraTausToken_;
     edm::InputTag l1ExtraJets_;
     edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraJetsToken_;
+    edm::InputTag l1ExtraMET_;
+    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> l1ExtraMETToken_;
 
     const bool doRefAnalysis_;
     const double matchDeltaR_;
     double l1JetMinEt_;
+    double l1ETMMin_;
 
     const double maxPt_;
     const double maxHighPt_;
@@ -47,6 +52,9 @@ private:
     MonitorElement* l1jetEt_;
     MonitorElement* l1jetEta_;
     MonitorElement* l1jetPhi_;
+
+    MonitorElement* l1etmEt_;
+    MonitorElement* l1etmPhi_;
 
     //Monitor Elements for matching
     MonitorElement* l1tauEtRes_;
@@ -83,5 +91,8 @@ private:
     MonitorElement* secondTauEt_;
     MonitorElement* secondTauEta_;
     MonitorElement* secondTauPhi_;
+
+    MonitorElement* l1etmEtEffNum_;
+    MonitorElement* l1etmEtEffDenom_;
 };
 #endif
