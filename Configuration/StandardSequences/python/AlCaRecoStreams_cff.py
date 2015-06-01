@@ -494,9 +494,9 @@ ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlGlobalCosmics',
-	paths  = (pathALCARECOMuAlGlobalCosmics),
+	paths  = (pathALCARECOMuAlGlobalCosmics,pathALCARECOMuAlGlobalCosmicsTracks),
 	content = OutALCARECOMuAlGlobalCosmics.outputCommands,
 	selectEvents = OutALCARECOMuAlGlobalCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
