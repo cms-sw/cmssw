@@ -67,7 +67,6 @@
 // #include "DataFormats/Scalers/interface/DcsStatus.h"
 
 // include files
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"  
