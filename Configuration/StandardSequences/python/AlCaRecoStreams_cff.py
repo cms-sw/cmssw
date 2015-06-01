@@ -151,6 +151,7 @@ pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIso
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalPhisymDQM)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
+pathALCARECOMuAlCalIsolatedMuGeneralTracks = cms.Path(seqALCARECOMuAlCalIsolatedMuGeneralTracks)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
@@ -395,7 +396,7 @@ ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',
 	name = 'MuAlCalIsolatedMu',
-	paths  = (pathALCARECOMuAlCalIsolatedMu),
+	paths  = (pathALCARECOMuAlCalIsolatedMu, pathALCARECOMuAlCalIsolatedMuGeneralTracks),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
 	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -411,7 +412,7 @@ ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlOverlaps = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlOverlaps',
 	paths  = (pathALCARECOMuAlOverlaps),
 	content = OutALCARECOMuAlOverlaps.outputCommands,
