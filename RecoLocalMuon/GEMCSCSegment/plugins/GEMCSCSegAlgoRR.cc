@@ -177,7 +177,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
   // now ask the layer id of the first CSC rechit
   std::vector<const TrackingRecHit*>::const_iterator trhIt = chainedRecHits.begin();
   // make sure pointer is valid 
-  if(trhIt != chainedRecHits.end()) {
+  if(trhIt == chainedRecHits.end()) {
     edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::chainHitsToSegm] CSC segment has zero rechits ... end function here";
     return chainedRecHits;
   }
