@@ -1311,7 +1311,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       float mistag = 1.;
       // TODO(rovere) put selectors here in front of fill* methods.
       if (v.eventId.event() == 0) {
-        if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
+        if (!recVtxs->empty() &&
+            std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
           mistag = 0.;
           kind_of_signal_vertex |= (1 << IS_ASSOC2FIRST_RECO);
