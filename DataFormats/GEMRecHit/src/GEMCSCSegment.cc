@@ -7,6 +7,7 @@
 #include <DataFormats/GEMRecHit/interface/GEMCSCSegment.h>
 #include <iostream>
 
+
 namespace {
   // Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
   inline
@@ -14,6 +15,26 @@ namespace {
     return CSCDetId (id.endcap(),id.station(),id.ring(),id.chamber(),0);
   }
 }
+
+
+class ProjectionMatrixDiag {
+  // Aider class to make the return of the projection Matrix thread-safe
+  // Suggestion of Carl Vuosalo
+public:
+  ProjectionMatrixDiag() {
+    theProjectionMatrix[0][1] = 1;
+    theProjectionMatrix[1][2] = 1;
+    theProjectionMatrix[2][3] = 1;
+    theProjectionMatrix[3][4] = 1;
+  }
+  const AlgebraicMatrix &getMatrix() {
+    return (theProjectionMatrix);
+  }
+protected:
+  AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
+};
+
+
 
 
 GEMCSCSegment::GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
@@ -84,7 +105,7 @@ AlgebraicVector GEMCSCSegment::parameters() const {
   return result;
 }
 
-
+/*
 AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
   AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
   static bool isInitialized = false;
@@ -97,6 +118,15 @@ AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
   }    
   return theProjectionMatrix;
 }
+*/
+
+AlgebraicMatrix GEMCSCSegment::projectionMatrix() const {
+  static const ProjectionMatrixDiag theProjectionMatrix;
+  return (theProjectionMatrix.getMatrix());
+}
+
+
+
 
 std::ostream& operator<<(std::ostream& os, const GEMCSCSegment& seg) {
   os << "GEMCSCSegment: local pos = " << seg.localPosition() << 
