@@ -82,8 +82,8 @@ def customiseExpressRun2(process):
     return process
 
 def customiseExpressRun2B0T(process):
-    process=customiseExpressRun2(process)
     process=customiseForRunI(process)
+    process=customiseExpressRun2(process)
     return process
 
 ##############################################################################
@@ -91,7 +91,12 @@ def customisePrompt(process):
     process= customisePPData(process)
 
     #add the lumi producer in the prompt reco only configuration
+    if not hasattr(process,'lumiProducer'):
+        #unscheduled..
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
+
     return process
 
 ##############################################################################
@@ -101,8 +106,8 @@ def customisePromptRun2(process):
     return process
 
 def customisePromptRun2B0T(process):
-    process=customisePromptRun2(process)
     process=customiseForRunI(process)
+    process=customisePromptRun2(process)
     return process
 
 
@@ -129,7 +134,12 @@ def customisePromptHI(process):
     process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
      #add the lumi producer in the prompt reco only configuration
+    if not hasattr(process,'lumiProducer'):
+        #unscheduled..
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
+        
 
     return process
 
