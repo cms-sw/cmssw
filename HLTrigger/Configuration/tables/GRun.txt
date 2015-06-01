@@ -55,7 +55,7 @@ HLT_PFJet450_v*						# JIRA: CMSHLT-123
 HLT_PFJet500_v*						# JIRA: CMSHLT-123
 
 #HLT_IterativeTracking_v*				# JIRA: CMSHLT-68 -> TEMPLATE PATH, not for GRun
-HLT_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
+MC_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
 
 HLT_IsoMu24_eta2p1_LooseIsoPFTau20_v*			  		# JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335
 HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v*			# JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335
@@ -171,10 +171,10 @@ HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v*			# JIRA: CMSHLT-128, mod CMSHLT-33
 
 HLT_QuadPFJet_VBF_v*						# JIRA: CMSHLT-128, mod. CMSHLT-181, mod. CMSHLT-234
 HLT_L1_TripleJet_VBF_v*						# JIRA: CMSHLT-128
-HLT_QuadJet45_TripleCSV0p5_v*					# JIRA: CMSHLT-128
-HLT_QuadJet45_DoubleCSV0p5_v*					# JIRA: CMSHLT-128
-HLT_DoubleJet90_Double30_TripleCSV0p5_v*			# JIRA: CMSHLT-128
-HLT_DoubleJet90_Double30_DoubleCSV0p5_v*			# JIRA: CMSHLT-128
+HLT_QuadJet45_TripleBTagCSV0p5_v*				# JIRA: CMSHLT-128
+HLT_QuadJet45_DoubleBTagCSV0p5_v*				# JIRA: CMSHLT-128
+HLT_DoubleJet90_Double30_TripleBTagCSV0p5_v*			# JIRA: CMSHLT-128
+HLT_DoubleJet90_Double30_DoubleBTagCSV0p5_v*			# JIRA: CMSHLT-128
 
 HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v*			# JIRA: CMSHLT-234
 HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v*			# JIRA: CMSHLT-234
@@ -208,6 +208,7 @@ HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSH
 HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSHLT-331  
 HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSHLT-331 
 
+HLT_MET60_IsoTrk35_Loose_v*					# JIRA: CMSHLT-394
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
 HLT_MET90_IsoTrk50_v*						# JIRA: CMSHLT-130
 
@@ -457,28 +458,28 @@ HLT_Random_v*							# JIRA: CMSHLT-244
 
 HLT_Physics_v*							# skim
 
-HLT_PFMETForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_AK4PFJetsForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_PFHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_PFMHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_CaloMETForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_CaloMETCleanedForMC_v*					# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_AK4CaloJetsForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_CaloHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_CaloMHTForMC_v*						# JIRA: CMSHLT-314 (template paths only for MC)
-HLT_AK8PFJetsForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
-HLT_AK8TrimPFJetsForMC_v*					# JIRA: CMSHLT-315 (template paths only for MC)
-HLT_AK8PFHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
-HLT_AK8CaloHTForMC_v*						# JIRA: CMSHLT-315 (template paths only for MC)
-HLT_DoubleEle5_CaloIdL_GsfTrkIdVL_MW_ForMC_v*			# JIRA: CMSHLT-325 (template paths only for MC)
-HLT_Ele5_WPLoose_Gsf_ForMC_v*					# JIRA: CMSHLT-325 (template paths only for MC)
-HLT_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_ForMC_v*		# JIRA: CMSHLT-325 (template paths only for MC)
-HLT_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_ForMC_v*	# JIRA: CMSHLT-325, mod CMSHLT-361 (template paths only for MC)
-HLT_IsoMu_SaveObjects_v*					# JIRA: CMSHLT-322, CMSHLT-335 (template paths only for MC)
-HLT_IsoTkMu15_SaveObjects_v*					# JIRA: CMSHLT-322, CMSHLT-335 (template paths only for MC)
-HLT_DoubleMu_TrkIsoVVL_DZ_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)
-HLT_DoubleGlbTrkMu_TrkIsoVVL_DZ_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)
-HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*			# JIRA: CMSHLT-322 (template paths only for MC)
+MC_PFMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_AK4PFJets_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_PFHT_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_PFMHT_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_CaloMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_CaloMETCleaned_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+MC_AK4CaloJets_v*						# JIRA: CMSHLT-314 (template paths only for MC)
+MC_CaloHT_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_CaloMHT_v*							# JIRA: CMSHLT-314 (template paths only for MC)
+MC_AK8PFJets_v*							# JIRA: CMSHLT-315 (template paths only for MC)
+MC_AK8TrimPFJets_v*						# JIRA: CMSHLT-315 (template paths only for MC)
+MC_AK8PFHT_v*							# JIRA: CMSHLT-315 (template paths only for MC)
+MC_AK8CaloHT_v*							# JIRA: CMSHLT-315 (template paths only for MC)
+MC_DoubleEle5_CaloIdL_GsfTrkIdVL_MW_v*				# JIRA: CMSHLT-325 (template paths only for MC)
+MC_Ele5_WPLoose_Gsf_v*						# JIRA: CMSHLT-325 (template paths only for MC)
+MC_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_v*			# JIRA: CMSHLT-325 (template paths only for MC)
+MC_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_v*	# JIRA: CMSHLT-325, mod CMSHLT-361 (template paths only for MC)
+MC_IsoMu_v*							# JIRA: CMSHLT-322, CMSHLT-335 (template paths only for MC)
+MC_IsoTkMu15_v*							# JIRA: CMSHLT-322, CMSHLT-335 (template paths only for MC)
+MC_DoubleMu_TrkIsoVVL_DZ_v*					# JIRA: CMSHLT-322 (template paths only for MC)
+MC_DoubleGlbTrkMu_TrkIsoVVL_DZ_v*				# JIRA: CMSHLT-322 (template paths only for MC)
+MC_DoubleMuNoFiltersNoVtx_v*					# JIRA: CMSHLT-322 (template paths only for MC)
 
 HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
 HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
@@ -489,6 +490,7 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 AOutput
 DQMOutput							# online DQMFileSaver
+CalibrationOutput
 EcalCalibrationOutput
 #TrackerCalibrationOutput
 RPCMONOutput
