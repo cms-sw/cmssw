@@ -469,10 +469,10 @@ double EnergyUncertaintyPhotonSpecific::computePhotonEnergyUncertainty_highR9(do
   if (brem>2) iBremSl = 1;
 
   float uncertainty = 0;
-  if (et<5) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((5-par2[iEtaSl][iBremSl])*(5-par2[iEtaSl][iBremSl]));
-  if (et>200) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(200-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((200-par2[iEtaSl][iBremSl])*(200-par2[iEtaSl][iBremSl]));
+  if (et<5 && iBremSl > -1 && iBremSl < 6) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((5-par2[iEtaSl][iBremSl])*(5-par2[iEtaSl][iBremSl]));
+  if (et>200 && iBremSl > -1 && iBremSl < 6) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(200-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((200-par2[iEtaSl][iBremSl])*(200-par2[iEtaSl][iBremSl]));
 
-  if (et>5 && et<200) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((et-par2[iEtaSl][iBremSl])*(et-par2[iEtaSl][iBremSl]));
+  if (et>5 && et<200 && iBremSl > -1 && iBremSl < 6) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((et-par2[iEtaSl][iBremSl])*(et-par2[iEtaSl][iBremSl]));
 
   return (uncertainty*energy);
 
