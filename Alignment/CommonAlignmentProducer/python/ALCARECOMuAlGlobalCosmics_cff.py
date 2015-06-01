@@ -6,7 +6,7 @@ ALCARECOMuAlGlobalCosmicsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
     andOr = True, ## choose logical OR between Triggerbits
     eventSetupPathsKey = 'MuAlGlobalCosmics',
     throw = False # tolerate triggers not available
-    )
+)
 
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
@@ -28,8 +28,8 @@ ALCARECOMuAlGlobalCosmics = Alignment.CommonAlignmentProducer.AlignmentMuonSelec
     filter    = cms.bool(True), # not strictly necessary, but provided for symmetry with MuAlStandAloneCosmics
     ptMin     = cms.double(10.0),
     etaMin    = cms.double(-100.0),
-    etaMax    =  cms.double(100.0),
-    )
+    etaMax    = cms.double(100.0),
+)
 
 #________________________________Track selection____________________________________
 # AlCaReco selected general tracks for track based muon alignment
@@ -64,7 +64,6 @@ ALCARECOMuAlGlobalCosmicsRegionalTF = ALCARECOMuAlGlobalCosmicsGeneralTracks.clo
 )
 
 #________________________________Sequences____________________________________  
-
 seqALCARECOMuAlGlobalCosmics = cms.Sequence(ALCARECOMuAlGlobalCosmicsHLT + ALCARECOMuAlGlobalCosmicsDCSFilter + ALCARECOMuAlGlobalCosmics)
 
 seqALCARECOMuAlGlobalCosmicsGeneralTracks   = cms.Sequence(ALCARECOMuAlGlobalCosmicsGeneralTracks)
