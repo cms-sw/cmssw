@@ -13,7 +13,7 @@ hcalSimBlock.hf2.binOfMaximum = 5
 
 mixData = cms.EDProducer("DataMixingModule",
                    hcalSimBlock,
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),
