@@ -1,4 +1,3 @@
-# AlCaReco selected muons from collisions for track based muon alignment
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -21,6 +20,7 @@ ALCARECOMuAlCalIsolatedDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatu
 )
 
 #________________________________Muon selection____________________________________
+# AlCaReco selected muons for track based muon alignment
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlCalIsolatedMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
     src    = cms.InputTag("muons"),
