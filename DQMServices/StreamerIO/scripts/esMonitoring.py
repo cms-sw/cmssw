@@ -284,6 +284,12 @@ class FDJsonHandler(AsyncLineReaderMixin, asyncore.dispatcher):
         except:
             log("cannot deserialize json len: %d content: %s" % (len(line), line))
 
+    def handle_write(self):
+        pass
+
+    def writable(self):
+        return False
+
 class FDJsonServer(asyncore.file_dispatcher):
     def __init__(self, es):
         asyncore.dispatcher.__init__(self)
