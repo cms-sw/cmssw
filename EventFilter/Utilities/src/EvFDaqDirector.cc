@@ -514,8 +514,8 @@ namespace evf {
 	if (bumpedOk) {
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
-	  ftruncate(fu_readwritelock_fd_, 0);
 	  if (check == 0) {
+	    ftruncate(fu_readwritelock_fd_, 0);
 	    // write next index in the file, which is the file the next process should take
 	    if (testModeNoBuilderUnit_) {
 	      fprintf(fu_rw_lock_stream, "%u %u %u %u", readLs,
