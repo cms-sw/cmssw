@@ -503,7 +503,7 @@ ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlGlobalCosmicsInCollisions = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlGlobalCosmicsInCollisions',
 	paths  = (pathALCARECOMuAlGlobalCosmicsInCollisions),
 	content = OutALCARECOMuAlGlobalCosmicsInCollisions.outputCommands,
