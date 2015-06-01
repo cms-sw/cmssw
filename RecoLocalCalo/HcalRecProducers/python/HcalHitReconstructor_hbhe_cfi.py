@@ -33,7 +33,7 @@ hbheprereco = cms.EDProducer(
     setPulseShapeFlags        = cms.bool(True),
 
     # Disable negative energy filter pending db support
-    setNegativeFlags          = cms.bool(False),
+    setNegativeFlags          = cms.bool(True),
 
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(1.0), #GeV
