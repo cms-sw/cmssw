@@ -414,7 +414,7 @@ void GEMCSCSegFit::setChi2(void) {
   // LogDebug
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total Chi2 = "<<chsq;
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total NDof = "<<2.*hits_.size() - 4;
-  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total Chi2/NDof = "<<((hits_.size()!=0)?(chsq/(2.*hits_.size() - 4)):(0.0));
+  edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::setChi2] Total Chi2/NDof = "<<((hits_.size()>2)?(chsq/(2.*hits_.size() - 4)):(0.0));
 
   // fill member variables
   chi2_ = chsq;
