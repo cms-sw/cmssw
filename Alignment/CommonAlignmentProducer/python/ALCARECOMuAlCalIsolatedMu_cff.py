@@ -1,4 +1,4 @@
-# AlCaReco selected muons for track based muon alignment
+# AlCaReco selected muons from collisions for track based muon alignment
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -12,7 +12,6 @@ ALCARECOMuAlCalIsolatedMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC" 
 # "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
 # "BPIX","FPIX","ESp","ESm"
-
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOMuAlCalIsolatedDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
     DetectorType = cms.vstring('DT0','DTp','DTm','CSCp','CSCm'),
