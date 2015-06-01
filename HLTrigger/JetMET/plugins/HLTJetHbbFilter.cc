@@ -47,6 +47,9 @@ HLTJetHbbFilter<T>::HLTJetHbbFilter(const edm::ParameterSet& iConfig) : HLTFilte
 {
   m_theJetsToken = consumes<std::vector<T>>(inputJets_);
   m_theJetTagsToken = consumes<reco::JetTagCollection>(inputJetTags_);
+  
+  //put a dummy METCollection into the event, holding values for csv tag 1 and tag 2 values
+  produces<reco::METCollection>();
 }
 
 
@@ -63,14 +66,14 @@ HLTJetHbbFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("inputJetTags",edm::InputTag(""));
   desc.add<double>("minMbb",70);
   desc.add<double>("maxMbb",200);
-  desc.add<double>("minPtb1",40);
-  desc.add<double>("minPtb2",40);
-  desc.add<double>("maxEtab",3);
-  desc.add<double>("minPtbb",20);
+  desc.add<double>("minPtb1",-1);
+  desc.add<double>("minPtb2",-1);
+  desc.add<double>("maxEtab",99999.0);
+  desc.add<double>("minPtbb",-1);
   desc.add<double>("maxPtbb",-1);
-  desc.add<double>("minTag1",0.7);
-  desc.add<double>("minTag2",0.4);
-  desc.add<double>("maxTag",9999.0);
+  desc.add<double>("minTag1",0.5);
+  desc.add<double>("minTag2",0.2);
+  desc.add<double>("maxTag",99999.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(defaultModuleLabel<HLTJetHbbFilter<T>>(), desc);
 }
@@ -193,6 +196,7 @@ HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,tr
 		edm::Ref<reco::METCollection> csvRef(ref_before_put, 0);
 		if (saveTags()) filterproduct.addCollectionTag(edm::InputTag( *moduleLabel()));
 		filterproduct.addObject(trigger::TriggerMET, csvRef); //give it the ID of a MET object
+		return accept;
 	      }
 	    }
 	  }
