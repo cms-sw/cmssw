@@ -40,7 +40,7 @@ ALCARECOMuAlCalIsolatedMuGeneralTracks = Alignment.CommonAlignmentProducer.Align
     ptMin   = cms.double(8.0),
     pMin    = cms.double(18.0),
     etaMin  = cms.double(-2.6),
-    etaMax  = cms.double(-2.6),
+    etaMax  = cms.double(2.6),
     nHitMin = cms.double(7),
 )
 
