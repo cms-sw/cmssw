@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# AlCaReco output for track based muon alignment
+# AlCaReco output for track based muon alignment using muons from collisions
 OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlCalIsolatedMu')
