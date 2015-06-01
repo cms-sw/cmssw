@@ -1,24 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
 hiEvtPlane = cms.EDProducer("EvtPlaneProducer",
-                            vtxCollection_=cms.InputTag("hiSelectedVertex"),
-                            caloCollection_=cms.InputTag("towerMaker"),
-                            trackCollection_=cms.InputTag("hiGeneralTracks"),                           
-                            useECAL_ = cms.untracked.bool(True),
-                            useHCAL_ = cms.untracked.bool(True),
-                            useTrackPtWeight_ = cms.untracked.bool(True),
-                            minet_ = cms.untracked.double(0.2),
-                            maxet_ = cms.untracked.double(500.0),
-                            minpt_ = cms.untracked.double(0.3),
-                            maxpt_ = cms.untracked.double(2.6),
-                            minvtx_ = cms.untracked.double(-100.),
-                            maxvtx_ = cms.untracked.double(100.),
-                            dzerr_ = cms.untracked.double(10.),
-                            chi2_ = cms.untracked.double(40.)
+                            vertexTag = cms.InputTag("hiSelectedVertex"),
+                            caloTag = cms.InputTag("towerMaker"),
+                            castorTag = cms.InputTag("CastorTowerReco"),
+                            trackTag = cms.InputTag("hiGeneralTracks"),
+                            centralityBinTag = cms.InputTag("centralityBin","HFtowers"),
+                            centralityVariable = cms.string("HFtowers"),
+                            nonDefaultGlauberModel = cms.string(""),
+                            FlatOrder = cms.int32(9),
+                            NumFlatBins = cms.int32(40),
+                            CentBinCompression = cms.int32(5),
+                            caloCentRef = cms.double(80.),
+                            caloCentRefWidth = cms.double(5.0),
+                            loadDB = cms.bool(False),
+                            minet = cms.double(-1.),
+                            maxet = cms.double(-1.),
+                            minpt = cms.double(0.3),
+                            maxpt = cms.double(3.0),
+                            minvtx = cms.double(-25.),
+                            maxvtx = cms.double(25.),
+                            dzerr = cms.double(10.),
+                            chi2 = cms.double(40.)
                             )
-                            
-
-
-
-
-    
