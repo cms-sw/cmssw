@@ -81,8 +81,7 @@ LumiNibbleRawToDigi::~LumiNibbleRawToDigi()
 //
 
 // ------------ method called to produce the data  ------------
-void
-LumiNibbleRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void LumiNibbleRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
 
@@ -91,9 +90,13 @@ LumiNibbleRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if( rawdata.isValid() ) {
         const FEDRawData& tcdsData = rawdata->FEDData(FEDNumbering::MINTCDSuTCAFEDID);
-        evf::evtn::TCDSRecord tcdsRecord(tcdsData.data());
-        nibble = (int)tcdsRecord.getHeader().getData().header.nibble;
-        //std::cout<<"nibble is "<<nibble<<std::endl;
+        if(tcdsData.size()>0){
+            evf::evtn::TCDSRecord tcdsRecord(tcdsData.data());
+            nibble = (int)tcdsRecord.getHeader().getData().header.nibble;
+            //std::cout<<"nibble is "<<nibble<<std::endl;
+        } else {
+            nibble=-2;
+        }
     } else {
         nibble=-1;
     }
@@ -119,9 +122,9 @@ void
 LumiNibbleRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+    descriptions.add("lumiNibbleRawToDigi", desc);
 }
 
 //define this as a plug-in
