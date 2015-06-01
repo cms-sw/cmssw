@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-pfMetCut = 200
-caloMetCut = 200
-condPFMetCut = 150 #PF MET cut for large Calo/PF skim
-condCaloMetCut = 150 #Calo MET cut for large PF/Calo skim
+pfMetCut = 300
+caloMetCut = 300
+condPFMetCut = 100 #PF MET cut for large Calo/PF skim
+condCaloMetCut = 100 #Calo MET cut for large PF/Calo skim
 caloOverPFRatioCut = 2 #cut on Calo MET / PF MET
 PFOverCaloRatioCut = 2 #cut on PF MET / Calo MET
 
