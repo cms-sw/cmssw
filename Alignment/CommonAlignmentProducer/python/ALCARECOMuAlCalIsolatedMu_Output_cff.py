@@ -23,10 +23,6 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
         'keep *_offlineBeamSpot_*_*',
         'keep *_offlinePrimaryVertices_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*', # DCS information
-        # Generator level information
-        'keep *_genParticles_*_*',
-        'keep *_generator_*_*',
-        'drop edmHepMCProduct_generator_*_*',
     )
 )
 
