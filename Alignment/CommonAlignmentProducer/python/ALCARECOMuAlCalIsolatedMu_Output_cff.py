@@ -7,7 +7,7 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_ALCARECOMuAlCalIsolatedMu_*_*', # selected muons
-        'keep *_ALCARECOMuAlGeneralTracks_*_*', # selected general tracks
+        'keep *_ALCARECOMuAlCalIsolatedMuGeneralTracks_*_*', # selected general tracks
         'keep *_muonCSCDigis_*_*',
         'keep *_muonDTDigis_*_*',
         'keep *_muonRPCDigis_*_*',
