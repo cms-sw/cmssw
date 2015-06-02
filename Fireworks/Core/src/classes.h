@@ -5,7 +5,6 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
-// #include "Fireworks/Core/interface/FWGeometryTable.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWEveViewManager.h"
