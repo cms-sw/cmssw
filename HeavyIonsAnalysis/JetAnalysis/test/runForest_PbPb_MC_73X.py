@@ -55,15 +55,16 @@ process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # PbPb 53X MC
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
+
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'MCHI2_75_V2', '')
 
 process.GlobalTag.toGet.extend([
-    cms.PSet(record = cms.string("HeavyIonRcd"),
-             tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
-             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-             label = cms.untracked.string("HFtowersHydjetDrum5")
-         ),
+ cms.PSet(record = cms.string("HeavyIonRcd"),
+tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
+connect = cms.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+label = cms.untracked.string("HFtowersHydjetDrum5")
+ ),
 ])
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
@@ -110,12 +111,12 @@ process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
                                     process.akPu4CaloJetSequence +
                                     process.akVs4CaloJetSequence +
                                     process.akVs4PFJetSequence +
-                                    process.akPu4PFJetSequence +
+                                    process.akPu4PFJetSequence 
 
-                                    process.akPu5CaloJetSequence +
-                                    process.akVs5CaloJetSequence +
-                                    process.akVs5PFJetSequence +
-                                    process.akPu5PFJetSequence
+                                    # process.akPu5CaloJetSequence +
+                                    # process.akVs5CaloJetSequence +
+                                    # process.akVs5PFJetSequence +
+                                    # process.akPu5PFJetSequence
 
                                     )
 
@@ -190,9 +191,9 @@ from HeavyIonsAnalysis.JetAnalysis.jets.HiGenJetsCleaned_cff import *
 
 process.hiSelectGenJets = cms.Sequence(
     ak3HiGenJetsCleaned +
-    ak4HiGenJetsCleaned +
-    ak5HiGenJetsCleaned +
-    ak7HiGenJetsCleaned
+    ak4HiGenJetsCleaned 
+    # ak5HiGenJetsCleaned +
+    # ak7HiGenJetsCleaned
 )
 
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
@@ -223,7 +224,7 @@ process.ana_step = cms.Path(process.heavyIon*
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.phltJetHI = cms.Path( process.hltJetHI )
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
-process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter )
+# process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put in later
 process.phfCoincFilter = cms.Path(process.hfCoincFilter )
 process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
