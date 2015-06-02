@@ -184,7 +184,7 @@ buggyMuon( const reco::Muon* muon,
 //
 // constructors and destructor
 //
-FWMuonBuilder::FWMuonBuilder():m_lineWidth(1)
+FWMuonBuilder::FWMuonBuilder()
 {
 }
 
@@ -250,7 +250,6 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
 						pb->context().getMuonTrackPropagator(),
 						getRecoTrajectoryPoints( muon, pb->item()));
       trk->MakeTrack();
-      trk->SetLineWidth(m_lineWidth);
       pb->setupAddElement( trk, tList );
       if( ! tracksOnly )
 	 addMatchInformation( &(*muon), pb, tList, showEndcap );
@@ -283,7 +282,6 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
 						pb->context().getMuonTrackPropagator(),
 						extraPoints );
       trk->MakeTrack();
-      trk->SetLineWidth(m_lineWidth);
       pb->setupAddElement( trk, tList );
       return;
    }
@@ -300,7 +298,6 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
    {
       TEveTrack* trk = fireworks::prepareTrack( *( muon->outerTrack()), pb->context().getMuonTrackPropagator());
       trk->MakeTrack();
-      trk->SetLineWidth(m_lineWidth);
       pb->setupAddElement( trk, tList );
       return;
    }
@@ -309,6 +306,5 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
    // show it anyway.
    TEveTrack* trk = fireworks::prepareCandidate( *muon, pb->context().getMuonTrackPropagator());
    trk->MakeTrack();
-   trk->SetLineWidth(m_lineWidth);
    pb->setupAddElement( trk, tList );
 }

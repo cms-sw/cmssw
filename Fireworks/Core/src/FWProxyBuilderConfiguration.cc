@@ -97,12 +97,6 @@ FWProxyBuilderConfiguration::populateFrame(TGCompositeFrame* settersFrame)
 
 template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def )
 {
-   for ( const_iterator i = begin(); i != end(); ++i) {
-      if ((*i)->name() == name) {
-         return 0;
-      }
-   }
-
    FWGenericParameter<T>*  mode = new FWGenericParameter<T>(this, name, def);
 
    //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
@@ -118,12 +112,6 @@ template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertPar
 
 template <class T> FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def, T min, T max )
 {
-   for ( const_iterator i = begin(); i != end(); ++i) {
-      if ((*i)->name() == name) {
-         return 0;
-      }
-   }
-
    FWGenericParameterWithRange<T>*  mode = new FWGenericParameterWithRange<T>(this, name, def, min, max);
 
    //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;

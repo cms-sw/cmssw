@@ -44,7 +44,7 @@
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
-#include "Fireworks/Core/interface/FWPartialConfig.h"
+
 
 CmsShowMainBase::CmsShowMainBase()
    : 
@@ -247,12 +247,6 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
 
    m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration,
                                                                 this, _1));
-   m_guiManager->loadPartialFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialLoadConfiguration,
-                                                                this, _1));
-
-   m_guiManager->writePartialToConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialWriteToConfigFile,
-                                                                this,_1));
-
    std::string macPath(gSystem->Getenv("CMSSW_BASE"));
    macPath += "/src/Fireworks/Core/macros";
    const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
@@ -279,15 +273,6 @@ CmsShowMainBase::writeToCurrentConfigFile()
 {
    m_configurationManager->writeToFile(m_configFileName);
 }
-
-void
-CmsShowMainBase::partialWriteToConfigFile(const std::string &name)
-{
-    std::string p =   (name == "current") ? m_configFileName.c_str() : name.c_str();
-    new FWPartialConfigSaveGUI( p.c_str() ,  m_configFileName.c_str(), m_configurationManager.get());
-
-}
-
 
 void
 CmsShowMainBase::reloadConfiguration(const std::string &config)
@@ -336,13 +321,6 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
    m_guiManager->updateStatus("");
 }
 
-
-void
-CmsShowMainBase::partialLoadConfiguration(const std::string &name)
-{
-    new FWPartialConfigLoadGUI(name.c_str(), m_configurationManager.get(), m_eiManager.get());
-}
-
 void
 CmsShowMainBase::setupAutoLoad(float x)
 {
@@ -374,10 +352,14 @@ void
 CmsShowMainBase::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
-
    if(m_configurationManager->getIgnore()) {
-      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
+      fwLog(fwlog::kInfo) << "No configuration is loaded." << std::endl;
+      m_guiManager->getMainFrame()->MapSubwindows();
+      m_guiManager->getMainFrame()->Layout();
+      m_guiManager->getMainFrame()->MapRaised();
       m_configFileName = "newconfig.fwc";
+      m_guiManager->createView("Rho Phi"); 
+      m_guiManager->createView("Rho Z"); 
    }
    else {
        try
@@ -385,7 +367,7 @@ CmsShowMainBase::setupConfiguration()
            gEve->DisableRedraw();
            if (m_configFileName.empty())
            {
-               m_configFileName = m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
+               m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
            }
            else
            {
@@ -413,19 +395,16 @@ CmsShowMainBase::setupConfiguration()
                               << std::endl;
          exit(1);
       }
-
-       
    }
-
-   // case configuration does not contain GUI Manager entry
-   if ( !m_guiManager->getMainFrame()->IsMapped()) {
-
-       m_guiManager->getMainFrame()->MapSubwindows();
-       m_guiManager->getMainFrame()->Layout();
-       m_guiManager->getMainFrame()->MapRaised();
-       m_guiManager->createView("Rho Phi"); 
-       m_guiManager->createView("Rho Z"); 
-   }
+   /* 
+      if(not m_configFileName.empty() ) {
+      //when the program quits we will want to save the configuration automatically
+      m_guiManager->goingToQuit_.connect(
+      boost::bind(&FWConfigurationManager::writeToFile,
+      m_configurationManager.get(),
+      m_configFileName));
+      }
+   */
 }
 
 
@@ -478,21 +457,12 @@ CmsShowMainBase::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
    m_eiManager->add(iItem);
 }
 
-
-void
-CmsShowMainBase::stopPlaying()
-{
-    m_isPlaying = false;
-    checkKeyBindingsOnPLayEventsStateChanged();
-}
-
 void
 CmsShowMainBase::playForward()
 {
    m_forward = true;
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
-   checkKeyBindingsOnPLayEventsStateChanged();
    startAutoLoadTimer();
 }
 
@@ -503,7 +473,6 @@ CmsShowMainBase::playBackward()
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
    startAutoLoadTimer();
-   checkKeyBindingsOnPLayEventsStateChanged();
 }
 
 void
