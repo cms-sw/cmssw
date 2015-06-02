@@ -31,7 +31,9 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        "root://xrootd.unl.edu//store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre8_MCHI1_74_V4_RECO/9a2b7e3cafbe3773a71b61e1e207e825/step3_RAW2DIGI_L1Reco_RECO_84_1_6OV.root"
+        # "root://xrootd.unl.edu//store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre8_MCHI1_74_V4_RECO/9a2b7e3cafbe3773a71b61e1e207e825/step3_RAW2DIGI_L1Reco_RECO_84_1_6OV.root"
+        "file:/data/dgulhan/stas/step3_Hydjet5020TeV_NcollFiltered.root"
+
     ))
 
 # Number of events we want to process, -1 = all events
@@ -142,7 +144,8 @@ process.pfcandAnalyzer.pfPtMin = 0
 #########################
 # Track Analyzer
 #########################
-process.anaTrack.qualityStrings = cms.untracked.vstring('highPurity')
+process.anaTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
+
 process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity')
 process.hiTracks.cut = cms.string('quality("highPurity")')
 
@@ -153,8 +156,8 @@ process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
 process.anaTrack.doPFMatching = False
 process.pixelTrack.doPFMatching = False
 
-# process.ppTrack.doSimVertex = True
-# process.ppTrack.doSimTrack = True
+process.anaTrack.doSimVertex = True
+process.anaTrack.doSimTrack = True
 # process.ppTrack.fillSimTrack = True
 
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff")
@@ -199,7 +202,7 @@ process.hiSelectGenJets = cms.Sequence(
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 
 process.ana_step = cms.Path(process.heavyIon*
-                            process.hltanalysis *
+                            # process.hltanalysis * # should be put back in later
 #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
@@ -224,7 +227,7 @@ process.ana_step = cms.Path(process.heavyIon*
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.phltJetHI = cms.Path( process.hltJetHI )
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
-# process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put in later
+# process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put back in later
 process.phfCoincFilter = cms.Path(process.hfCoincFilter )
 process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )

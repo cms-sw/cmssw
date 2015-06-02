@@ -227,7 +227,7 @@ struct TrackEvent{
   int   mtrkNHit[MAXTRACKS];
   int   mtrkNlayer[MAXTRACKS];
   int   mtrkNlayer3D[MAXTRACKS];
-  int   mtrkQual[MAXTRACKS];
+  int   mtrkQual[MAXQUAL][MAXTRACKS];
   float mtrkChi2[MAXTRACKS];
   float mtrkNdof[MAXTRACKS];
   float mtrkDz1[MAXTRACKS];
@@ -349,6 +349,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     fillSimTrack_ = 0;
     doSimVertex_ = 0;
   }
+  
   // else{
     // associateChi2_             = iConfig.getParameter<bool>  ("associateChi2");
   // }
@@ -851,14 +852,19 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
 
       // Fill matched rec track info
       pev_.pNRec[pev_.nParticle] = nrec;
-      pev_.mtrkQual[pev_.nParticle] = 0;
 
       pev_.mtrkPt[pev_.nParticle] = mtrk->pt();
       pev_.mtrkPtError[pev_.nParticle] = mtrk->ptError();
       pev_.mtrkNHit[pev_.nParticle] = mtrk->numberOfValidHits();
       pev_.mtrkNlayer[pev_.nParticle] = mtrk->hitPattern().trackerLayersWithMeasurement();
       pev_.mtrkNlayer3D[pev_.nParticle] = mtrk->hitPattern().pixelLayersWithMeasurement() + mtrk->hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-      if (mtrk->quality(reco::TrackBase::qualityByName(qualityString_))) pev_.mtrkQual[pev_.nParticle] = 1;
+      // if (mtrk->quality(reco::TrackBase::qualityByName(qualityString_))) pev_.mtrkQual[pev_.nParticle] = 1;
+      
+      for(unsigned int iq = 0; iq < qualityStrings_.size(); ++iq){
+        pev_.mtrkQual[iq][pev_.nParticle]=0;
+        if(mtrk->quality(reco::TrackBase::qualityByName(qualityStrings_[iq].data()))) pev_.mtrkQual[iq][pev_.nParticle]=1;
+      }
+      
       pev_.mtrkChi2[pev_.nParticle]=mtrk->chi2();
       pev_.mtrkNdof[pev_.nParticle]=mtrk->ndof();
       pev_.mtrkDz1[pev_.nParticle] = mtrk->dz(v1);
@@ -1202,7 +1208,10 @@ TrackAnalyzer::beginJob()
       trackTree_->Branch("mtrkNHit",&pev_.mtrkNHit,"mtrkNHit[nParticle]/I");
       trackTree_->Branch("mtrkNlayer",&pev_.mtrkNlayer,"mtrkNlayer[nParticle]/I");
       trackTree_->Branch("mtrkNlayer3D",&pev_.mtrkNlayer3D,"mtrkNlayer3D[nParticle]/I");
-      trackTree_->Branch("mtrkQual",&pev_.mtrkQual,"mtrkQual[nParticle]/I");
+      // trackTree_->Branch("mtrkQual",&pev_.mtrkQual,"mtrkQual[nParticle]/I");
+      for(unsigned int i  = 0; i < qualityStrings_.size(); ++i){
+        trackTree_->Branch(("m"+qualityStrings_[i]).data(),&pev_.mtrkQual[i],("m"+qualityStrings_[i]+"[nParticle]/O").data());
+      }
       trackTree_->Branch("mtrkChi2",&pev_.mtrkChi2,"mtrkChi2[nParticle]/F");
       trackTree_->Branch("mtrkNdof",&pev_.mtrkNdof,"mtrkNdof[nParticle]/F");
       trackTree_->Branch("mtrkDz1",&pev_.mtrkDz1,"mtrkDz1[nParticle]/F");
