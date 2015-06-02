@@ -30,7 +30,8 @@ count_nGammas20 : nGammas20 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5]; XTitle="N(#gamma\,
 
 count_nJet40 : nJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5] ; XTitle='N(jet\, p_{T} > 40)'
 count_nBJet40 : nBJet40 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 40\, CSVM)'
-count_nBJet25 : nBJet25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 35\, CSVM)'
+count_nBJet25 : nBJet25 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 25\, CSVM)'
+count_nBJet20 : nBJet20 : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5] ; XTitle='N(b-jet\, p_{T} > 20\, CSVM)'
 
 ##count_ngenParticles: ngenPart : 500,0,500  ; XTitle="nGenParticles"
 
@@ -119,7 +120,7 @@ isoTrack_dz: isoTrack_dz: 100,0,0.5    ; XTitle="isotrack dz  [cm]"
 
 isoTrack_absIso:  isoTrack_absIso: 10,0,.50;  Legend='TR'
 
-isoTrack_mcMatchId:  isoTrack_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+#isoTrack_mcMatchId:  isoTrack_mcMatchId: 28,-1.5,26.5;  Legend='TR'
 
 ##### TAU
 
@@ -130,10 +131,10 @@ tau_eta: tau_eta: 10,-5.,5.    ; XTitle="tau eta"
 tau_mass: tau_mass: 20,0,400.    ; XTitle="tau mass"
 
 tau_Charge:  tau_charge: [-1.5,-0.5,0.5,1.5];  Legend='TL'
-tau_mcMatchId:  tau_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+#tau_mcMatchId:  tau_mcMatchId: 28,-1.5,26.5;  Legend='TR'
 
-tau_dxy: tau_dxy: 100,0,0.5    ; XTitle="tau dxy  [cm]"
-tau_dz: tau_dz: 100,0,0.5    ; XTitle="tau dz  [cm]"
+#tau_dxy: tau_dxy: 100,0,0.5    ; XTitle="tau dxy  [cm]"
+#tau_dz: tau_dz: 100,0,0.5    ; XTitle="tau dz  [cm]"
 
 tau_isoCI3hit: tau_isoCI3hit: 100,0,0.5    ; XTitle="tau ISO  [GeV]"   
 tau_idCI3hit: tau_idCI3hit: 10,0,10.    ; XTitle="tau ID "
@@ -141,13 +142,13 @@ tau_idCI3hit: tau_idCI3hit: 10,0,10.    ; XTitle="tau ID "
 ##### genCounting
 
 ngenLep : ngenLep : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(ngenLep)'
-genLep_pdgId : genLep_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genLep'
+#genLep_pdgId : genLep_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genLep'
 
 ngenLepFromTau : ngenLepFromTau : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(genLepFromTau)'
-genLepFromTau_pdgId : genLepFromTau_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genLepFromTau'
+#genLepFromTau_pdgId : genLepFromTau_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genLepFromTau'
 
 ngenTau : ngenTau : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5] ; XTitle='N(ngenTau)'
-genTau_pdgId : genTau_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genTau'
+#genTau_pdgId : genTau_pdgId : [10.5,11.5,12.5,13.5,14.5,15.5,16.5] ; XTitle='PDG_ID genTau'
 
 
 ##### PHOTONS
@@ -168,7 +169,7 @@ gamma_hOverE: gamma_hOverE: 100,0,0.1    ; XTitle="gamma hOverE"
 gamma_idCutBased: gamma_idCutBased: 10,0,10.    ; XTitle="gamma ID Cut based"
 gamma_mcMatchId:  gamma_mcMatchId: 28,-1.5,26.5;  Legend='TR'
 
-gamma_genIso: gamma_genIso: 100,0,0.5    ; XTitle="ph gamma ISO  [GeV]"
+#gamma_genIso: gamma_genIso: 100,0,0.5    ; XTitle="ph gamma ISO  [GeV]"
 
 ##### GAMMA control variables
 
@@ -229,9 +230,9 @@ lep_dxy: lep_dxy: 100,0,0.5    ; XTitle="lep dxy  [cm]"
 lep_dz: lep_dz: 100,0,0.5    ; XTitle="lep dz  [cm]"
 
 lep_relIso03:  lep_relIso03: 15,0,.5;  Legend='TR'
-lep_relIso04:  lep_relIso04: 15,0,.5;  Legend='TR'
+#lep_relIso04:  lep_relIso04: 15,0,.5;  Legend='TR'
 lep_miniRelIso: lep_miniRelIso: 15,0,.5;  Legend='TR'
-lep_mcMatchId:  lep_mcMatchId: 28,-1.5,26.5;  Legend='TR'
+#lep_mcMatchId:  lep_mcMatchId: 28,-1.5,26.5;  Legend='TR'
 lep_tightId:  lep_tightId: [-0.5,0.5,1.5,2.5,3.5];  Legend='TL'
 
 lep_lostHits:  lep_lostHits: [-0.5,0.5,1.5,2.5,3.5,4.5,5.5];  Legend='TL'
