@@ -99,6 +99,8 @@ def customizeHLTforNewJetCorrectors(process):
     stringOfOldCorrectorNames = ",".join(correctors)
     if stringOfOldCorrectorNames not in oldCorrectorsSequence:
       seq = _buildSequenceOfCorrectors(process,correctors)
+      #need to attach to process since some code looks for labels for all items in a path
+      setattr(process,"correctorSeqFor"+_correctorNameChanger(correctors[-1]), seq)
       oldCorrectorsSequence.add(stringOfOldCorrectorNames)
       oldCorrectorsToNewSequence[stringOfOldCorrectorNames] = seq
     
