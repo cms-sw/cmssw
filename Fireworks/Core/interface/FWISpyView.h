@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FW3DViewBase.h"
 
 // forward declarations
+class TEveBoxSet;
 
 class FWISpyView : public FW3DViewBase
 {
@@ -33,6 +34,7 @@ public:
    virtual void setContext(const fireworks::Context& x);
 
    virtual void populateController(ViewerParameterGUI&) const;
+   void showEcalBarrel(bool);
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -44,7 +46,10 @@ private:
 
    const FWISpyView& operator=(const FWISpyView&); // stop default
 
-   // ---------- member data --------------------------------};
+   // ---------- member data --------------------------------
+   TEveBoxSet* m_ecalBarrel;
+   FWBoolParameter m_showEcalBarrel;
 };
+
 
 #endif

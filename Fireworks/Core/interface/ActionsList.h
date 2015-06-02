@@ -11,11 +11,6 @@ namespace cmsshow {
    extern const std::string sLoadConfig;
    extern const std::string sSaveConfig;
    extern const std::string sSaveConfigAs;
-
-   extern const std::string sLoadPartialConfig;
-   extern const std::string sSavePartialConfig;
-   extern const std::string sSavePartialConfigAs;
-
    extern const std::string sExportImage;
    extern const std::string sExportAllImages;
 
