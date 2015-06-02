@@ -1,0 +1,31 @@
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/Math"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="PhysicsTools/CandUtils"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/BeamSpot"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoEgamma/EgammaMCTools"/>
+<use   name="RecoJets/JetAlgorithms"/>
+<use   name="CommonTools/Statistics"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="RecoHI/HiEgammaAlgos"/>
+<use   name="DataFormats/HeavyIonEvent"/>
+<use   name="HeavyIonsAnalysis/PhotonAnalysis"/>
+<use   name="CLHEP"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>
+<library   name="UserCodeDataAnalyzers_plugins" file="*.cc">
+</library>

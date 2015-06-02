@@ -1,0 +1,12 @@
+{
+ "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS",
+ "destinationTags": {
+ "__OUTPUT__": {
+ "dependencies": {},
+ "synchronizeTo": "offline"
+ }
+ },
+ "inputTag": "__INPUT__",
+ "since": __SINCE__,
+ "userText": "__COMMENT__"
+}
