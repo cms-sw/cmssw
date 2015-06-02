@@ -381,7 +381,7 @@ void TrackerAlignmentProducerForPCL::init(const edm::EventSetup& setup) {
   GeometryAligner aligner;
 
   std::auto_ptr<Alignments>                   alignments     (theAlignableTracker->alignments());
-  std::auto_ptr<AlignmentErrors>              alignmentErrors(theAlignableTracker->alignmentErrors());
+  std::auto_ptr<AlignmentErrorsExtended>              alignmentErrors(theAlignableTracker->alignmentErrors());
   std::auto_ptr<AlignmentSurfaceDeformations> aliDeforms     (theAlignableTracker->surfaceDeformations());
 
   aligner.applyAlignments<TrackerGeometry>          (&(*theTracker), &(*alignments), &(*alignmentErrors), AlignTransform() ); // don't apply global a second time!
@@ -601,7 +601,7 @@ void TrackerAlignmentProducerForPCL::applyDB(G* geometry, const edm::EventSetup&
   edm::ESHandle<Alignments> alignments;
   record.get(alignments);
 
-  edm::ESHandle<AlignmentErrors> alignmentErrors;
+  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
   setup.get<ErrRcd>().get(alignmentErrors);
 
   GeometryAligner aligner;
@@ -655,7 +655,7 @@ void TrackerAlignmentProducerForPCL::writeForRunRange(cond::Time_t time) {
     }
 
     Alignments*      alignments      = theAlignableTracker->alignments();
-    AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+    AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
 
     writeDB(alignments, "TrackerAlignmentRcd",
             alignmentErrors, "TrackerAlignmentErrorRcd",
@@ -671,14 +671,14 @@ void TrackerAlignmentProducerForPCL::writeForRunRange(cond::Time_t time) {
 
 void TrackerAlignmentProducerForPCL::writeDB(Alignments* alignments,
                                              const std::string& alignRcd,
-                                             AlignmentErrors* alignmentErrors,
+                                             AlignmentErrorsExtended* alignmentErrors,
                                              const std::string& errRcd,
                                              const AlignTransform* globalCoordinates,
                                              cond::Time_t time) const {
   printf("(TrackerAlignmentProducerForPCL) function %s in %s was called\n", __FUNCTION__, __FILE__);
 
   Alignments*      tempAlignments      = alignments;
-  AlignmentErrors* tempAlignmentErrors = alignmentErrors;
+  AlignmentErrorsExtended* tempAlignmentErrors = alignmentErrors;
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
@@ -694,7 +694,7 @@ void TrackerAlignmentProducerForPCL::writeDB(Alignments* alignments,
       globalCoordinates->transform() != AlignTransform::Transform::Identity) {
 
     tempAlignments      = new Alignments();            // temporary storage for
-    tempAlignmentErrors = new AlignmentErrors();  // final alignments and errors
+    tempAlignmentErrors = new AlignmentErrorsExtended();  // final alignments and errors
 
     GeometryAligner aligner;
     aligner.removeGlobalTransform(alignments, alignmentErrors,
@@ -722,7 +722,7 @@ void TrackerAlignmentProducerForPCL::writeDB(Alignments* alignments,
   if (saveApeToDB) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrors for run " << time
                               << " to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, time, errRcd);
+    poolDb->writeOne<AlignmentErrorsExtended>(tempAlignmentErrors, time, errRcd);
 
   } else {
     // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
