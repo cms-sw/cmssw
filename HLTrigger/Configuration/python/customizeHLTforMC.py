@@ -82,7 +82,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_Mu23NoFiltersNoVtx_Photon23_CaloIdL_v*",
       "HLT_DoubleMu18NoFiltersNoVtx_v*",
       "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
-      "HLT_MET60_IsoTrk35_Loose_v*",
+      "HLT_MET60_IsoTrk*",
       )
 
     ESModulesToRemove = (
