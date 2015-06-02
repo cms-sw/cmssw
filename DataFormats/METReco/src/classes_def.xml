@@ -34,13 +34,13 @@
    <version ClassVersion="10" checksum="3022746385"/>
    <version ClassVersion="11" checksum="747083523"/>
   </class>
-  <class name="std::vector<SpecificCaloMETData> "/>
+  <class name="std::vector<SpecificCaloMETData>"/>
 
   <class name="SpecificPFMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="219431109"/>
    <version ClassVersion="11" checksum="1851051058"/>
   </class>
-  <class name="std::vector<SpecificPFMETData> "/>
+  <class name="std::vector<SpecificPFMETData>"/>
   <class name="SpecificGenMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="2173201550"/>
    <version ClassVersion="11" checksum="2260055190"/>

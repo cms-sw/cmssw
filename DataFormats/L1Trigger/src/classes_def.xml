@@ -130,7 +130,7 @@
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> > >" />
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::RefProd<l1extra::L1EtMissParticle> > "/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::RefProd<l1extra::L1EtMissParticle> >"/>
 
   <class name="std::vector<l1extra::L1ParticleMap::L1ObjectType>"/>
 
