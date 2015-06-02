@@ -54,10 +54,10 @@ namespace Phase2Tracker {
     clustersize_  = unMergedSize();
     while(gluedToNextCluster())
     {
-      std::cout << "Cluster " << (uint16_t)unMergedX() << " " << (uint16_t)unMergedSize() << " on chip " << (uint16_t)chipId() << " has to be merged with next one : ";
+      // std::cout << "Cluster " << (uint16_t)unMergedX() << " " << (uint16_t)unMergedSize() << " on chip " << (uint16_t)chipId() << " has to be merged with next one : ";
       this->advance();
       clustersize_ += unMergedSize();
-      std::cout << (uint16_t)unMergedX() << " " << (uint16_t)unMergedSize() << " on chip " << (uint16_t)chipId() << std::endl;
+      // std::cout << (uint16_t)unMergedX() << " " << (uint16_t)unMergedSize() << " on chip " << (uint16_t)chipId() << std::endl;
     }
   }
 

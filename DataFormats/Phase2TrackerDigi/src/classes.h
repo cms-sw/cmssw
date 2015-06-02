@@ -31,7 +31,7 @@ namespace {
 namespace {
   struct dictionary5 {
     edm::Wrapper<Phase2TrackerHeaderDigi > pcom0;
-    edm::Wrapper<edm::DetSet<Phase2TrackerHeaderDigi> > pcom1;
+    edm::Wrapper<std::vector<Phase2TrackerHeaderDigi> > pcom1;
   };
 }
 
