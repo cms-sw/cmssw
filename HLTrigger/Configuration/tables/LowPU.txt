@@ -129,6 +129,7 @@ HLT_Physics_v*							# skim
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
+RatesMonitoring							# CMSHLT-344
 AOutput
 DQMOutput							# online DQMFileSaver
 CalibrationOutput
