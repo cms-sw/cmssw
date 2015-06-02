@@ -33,6 +33,8 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
     p.getParameter<bool>("useLAAlignmentOffsets"):false;
   magname_ = p.existsAs<edm::ESInputTag>("MagneticFieldRecord")?
     p.getParameter<edm::ESInputTag>("MagneticFieldRecord"):edm::ESInputTag("");
+  UseErrorsFromTemplates_    = p.getParameter<bool>("UseErrorsFromTemplates");
+
 
   pset_ = p;
   setWhatProduced(this,myname);
@@ -76,14 +78,16 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 #ifdef NEW_CPEERROR
   // Errors take only from new GenError
   ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
-  iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); //needs new TKPixelCPERecord.h
-  genErrorDBObjectProduct = genErrorDBObject.product();
+  if(UseErrorsFromTemplates_) {  // do only when generrors are needed
+    iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); 
+    genErrorDBObjectProduct = genErrorDBObject.product();
+  }
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>
+    (new PixelCPEGeneric(pset_,magfield.product(),*pDD.product(),
+			 *hTT.product(),lorentzAngle.product(),
+			 genErrorDBObjectProduct,lorentzAngleWidthProduct) );
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-										pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-										lorentzAngleWidthProduct) );
-
-#else
+#else  // old full templates, not used anymore  
   // Errors can be used from tempaltes or from GenError, for testing only
   const bool useNewSimplerErrors = false;
   if(useNewSimplerErrors) { // new genError object
