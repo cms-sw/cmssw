@@ -84,7 +84,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
-				     DoCosmics_                 ||
 				     LoadTemplatesFromDB_ ) )  {
     throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
       << "\nERROR: UseErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
@@ -666,13 +665,11 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
 	<<sizex<<" "<<sizey<<endl;
   }
 
-  //if likely(UseErrorsFromTemplates_ && (qBin_!= 0) ) {
   if likely(UseErrorsFromTemplates_ ) {
       //
       // Use template errors 
       //cout << "Track angles are known. We can use either errors from templates or the error parameterization from DB." << endl;
       
-
       if ( !edgex ) { // Only use this for non-edge clusters
 	if ( sizex == 1 ) {
 	  if ( !bigInX ) {xerr = theClusterParam.sx1;} 
@@ -695,7 +692,7 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
   } else  { // simple errors
 
     // This are the simple errors, hardcoded in the code 
-    cout << "Track angles are not known and we are processing cosmics." << endl; 
+    //cout << "Track angles are not known " << endl; 
     //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
       
     if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel || theDetParam.thePart == GeomDetEnumerators::P1PXB )  {

@@ -39,7 +39,8 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
   pset_ = p;
   setWhatProduced(this,myname);
 
-  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<std::endl; //dk
+  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<" "
+  //	   <<UseErrorsFromTemplates_<<std::endl; //dk
 
 }
 
@@ -81,6 +82,8 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   if(UseErrorsFromTemplates_) {  // do only when generrors are needed
     iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); 
     genErrorDBObjectProduct = genErrorDBObject.product();
+    //} else {
+    //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>
     (new PixelCPEGeneric(pset_,magfield.product(),*pDD.product(),
