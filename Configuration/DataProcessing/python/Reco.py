@@ -38,7 +38,23 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+',DQM'+dqmStep+',ENDJOB'
+
+        miniAODStep=''
+
+# if miniAOD is asked for - then retrieve the miniaod config 
+        if 'outputs' in args:
+            for a in args['outputs']:
+                if a['dataTier'] == 'MINIAOD':
+                    miniAODStep=',PAT' 
+                    options.runUnscheduled=True
+                    
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+miniAODStep+',DQM'+dqmStep+',ENDJOB'
+
+
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
@@ -81,6 +97,10 @@ class Reco(Scenario):
         if 'inputSource' in args:
             options.filetype = args['inputSource']
         process = cms.Process('RECO')
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
         cb.prepare()
@@ -122,6 +142,10 @@ class Reco(Scenario):
         print "Using %s source"%options.filetype            
 
         process = cms.Process('RECO')
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
         cb.prepare()
@@ -166,6 +190,9 @@ class Reco(Scenario):
             options.conditions += ','+args['globalTagConnect']
 
         options.triggerResultsProcess = 'RECO'
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
         
         process = cms.Process('ALCA')
         cb = ConfigBuilder(options, process = process)
@@ -202,6 +229,10 @@ class Reco(Scenario):
  
         process = cms.Process("HARVESTING")
         process.source = dqmIOSource(args)
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
@@ -234,6 +265,10 @@ class Reco(Scenario):
  
         process = cms.Process("ALCAHARVEST")
         process.source = cms.Source("PoolSource")
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
@@ -261,6 +296,10 @@ class Reco(Scenario):
         options.conditions = gtNameAndConnect(globalTag, args)
         process = cms.Process("SKIM")
         process.source = cms.Source("PoolSource")
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
