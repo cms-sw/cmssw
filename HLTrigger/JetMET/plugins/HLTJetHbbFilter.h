@@ -9,7 +9,7 @@
  *  Based on HLTJetSortedVBFFilter
  *
  *
- *  \author Ann Wang
+ *  \author Ann Wang, Javier Duarte
  *
  */
 
