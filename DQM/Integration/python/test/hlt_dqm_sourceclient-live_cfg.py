@@ -28,7 +28,7 @@ process.TkDetMap = cms.Service("TkDetMap")
 process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 #process.load("DQM.HLTEvF.HLTMonitor_cff")
-process.load("DQM.HLTEvF.HLTObjectMonitor_cfi")
+process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
 
 #process.load("DQM.HLTEvF.HLTMonitorClient_cff")
 # added for hlt scalars
