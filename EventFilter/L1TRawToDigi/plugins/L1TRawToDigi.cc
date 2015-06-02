@@ -17,6 +17,8 @@
 //
 
 // system include files
+#include <iostream>
+#include <iomanip>
 #include <memory>
 
 #define EDM_ML_DEBUG 1
@@ -70,6 +72,7 @@ namespace l1t {
          int amc13TrailerSize_;
 
          bool ctp7_mode_;
+         bool debug_;
    };
 }
 
@@ -103,6 +106,8 @@ namespace l1t {
       amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 0);
       amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header", 8);
       amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer", 8);
+
+      debug_ = config.getUntrackedParameter<bool>("debug", false);
    }
 
 
@@ -206,8 +211,16 @@ namespace l1t {
             std::auto_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
                // skip empty filler blocks
-               if (block->header().getID() == 0 and block->header().getSize() == 0)
+               if ((block->header().getID() == 0 and block->header().getSize() == 0) or block->header().raw() == 0xffffffff)
                   continue;
+
+               if (debug_) {
+                  std::cout << ">>> block to unpack <<<" << std::endl
+                     << "hdr:  " << std::hex << std::setw(8) << block->header().raw() << std::endl;
+                  for (const auto& word: block->payload()) {
+                     std::cout << "data: " << std::hex << std::setw(8) << word << std::endl;
+                  }
+               }
 
                auto unpacker = unpackers.find(block->header().getID());
 
