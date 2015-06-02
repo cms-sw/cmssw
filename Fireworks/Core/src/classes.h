@@ -5,6 +5,7 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+// #include "Fireworks/Core/interface/FWGeometryTable.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWEveViewManager.h"
@@ -30,6 +31,7 @@
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
 #include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 #include "Fireworks/Core/src/FW3DViewDistanceMeasureTool.h"
+
 
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
@@ -64,8 +66,6 @@
 #include "Fireworks/Core/src/FWEveOverlap.h"
 #include "Fireworks/Core/src/FWEveDetectorGeo.h"
 #include "Fireworks/Core/src/FWGeoTopNodeGL.h"
-
-#include "Fireworks/Core/interface/FWPartialConfig.h"
 
 namespace Fireworks_Core {
    struct Fireworks_Core {

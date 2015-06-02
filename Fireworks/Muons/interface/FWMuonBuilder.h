@@ -37,7 +37,6 @@ public:
                   bool showEndcap,
                   bool onlyTracks = false);
 
-   void setLineWidth(int w) {m_lineWidth = w;}
 private:
    FWMuonBuilder(const FWMuonBuilder&);    // stop default
 
@@ -46,7 +45,6 @@ private:
    void calculateField(const reco::Muon& iData, FWMagField* field);
 
    // ---------- member data --------------------------------
-   int m_lineWidth;
 };
 
 #endif
