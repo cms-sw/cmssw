@@ -7,6 +7,6 @@ import FWCore.ParameterSet.Config as cms
 
 LumiEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *'
+        'keep *_lumiDigis_*_*'
     )
 )
