@@ -703,6 +703,8 @@ void HLTObjectMonitor::fillPlots(int evtNum, string pathName, edm::Handle<trigge
   
   edm::InputTag moduleFilter(lookupFilter[pathName],"","TEST");
   unsigned int moduleFilterIndex = aodTriggerEvent->filterIndex(moduleFilter);
+
+  if (moduleFilterIndex+1 > aodTriggerEvent->sizeFilters()) return;
   const Keys &keys = aodTriggerEvent->filterKeys( moduleFilterIndex );
 
   ////////////////////////////////
