@@ -55,12 +55,13 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
     << " Failed to find File = " << inputFileName << " !!\n";
   std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()) );
 
-  if(inputFile==nullptr) {
+  std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get("varlist");
+
+  if(lVec==nullptr) {
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA")
-      << " Failed to load file " << inputFileName.fullPath().data() << " !!\n";
+      << " Failed to load mva file : " << inputFileName.fullPath().data() << " is not a proper file !!\n";
   }
 
-  std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get("varlist");
   std::vector<std::string> variableNames;
   for(unsigned int i=0; i< lVec->size();++i)
   {
