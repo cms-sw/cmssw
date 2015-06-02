@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+ 
 process = cms.Process("MYITERATIVEPHISYM")
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
