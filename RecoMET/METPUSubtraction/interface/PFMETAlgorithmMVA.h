@@ -78,7 +78,7 @@ class PFMETAlgorithmMVA
   bool   hasPhotons_;
 
   double dZcut_;
-  float* createFloatVector(std::vector<std::string> variableNames);
+  std::unique_ptr<float[]> createFloatVector(std::vector<std::string> variableNames);
   const float GetResponse(const GBRForest *Reader, std::vector<std::string> &variableNames);
   void computeMET();
   std::map<std::string, float> var_;
