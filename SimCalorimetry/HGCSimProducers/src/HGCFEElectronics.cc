@@ -94,7 +94,7 @@ void HGCFEElectronics<D>::runSimpleShaper(D &dataFrame,std::vector<float> &charg
 	{
 	  if(it+ipulse<0) continue;
 	  if(it+ipulse>=(int)(dataFrame.size())) continue;
-	  float chargeLeak=charge*adcPulse_[(ipulse+2)];
+	  float chargeLeak=charge*adcPulse_[(ipulse+2)]/adcPulse_[2];
 	  newCharge[it+ipulse]+= chargeLeak;
 	  
 	  if(debug) std::cout << " | " << it+ipulse << " " << chargeLeak;
@@ -195,7 +195,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	      int deltaT=(it-jt);
 	      if(deltaT+2>(int)(adcPulse_.size())) continue;
 
-	      float leakCharge( adcPulse_[deltaT+2]*chargeDep_jt );
+	      float leakCharge( chargeDep_jt*adcPulse_[deltaT+2]/adcPulse_[2] );
 	      if(debug) std::cout << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
 
 	      totalCharge  += leakCharge;
@@ -257,7 +257,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  //notice that if the channel is already busy,
 	  //it has already been affected by the leakage of the SARS ADC
 	  if(totFlags[it] || busyFlags[it+ipulse]) continue;
-	  float chargeLeak=charge*adcPulse_[(ipulse+2)];
+	  float chargeLeak=charge*adcPulse_[(ipulse+2)]/adcPulse_[2];
 	  if(debug) std::cout << " | " << it+ipulse << " " << chargeLeak << "( " << charge << "->";
 	  newCharge[it+ipulse]+=chargeLeak;
 	  if(debug) std::cout << newCharge[it+ipulse] << ") ";

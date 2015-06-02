@@ -259,17 +259,16 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	      if(i>0)
 		{
 		  uint32_t prev_id  = std::get<1>(hitRefs[i-1]);
-		  float prev_toa    = std::get<2>(hitRefs[i-1]);
-		  float prev_tof(prev_toa-dist2center/refSpeed_+tofDelay_);
-		  //float prev_charge = std::get<3>(hitRefs[i-1]);
 		  if(prev_id==id)
 		    {
+		      float prev_toa    = std::get<2>(hitRefs[i-1]);
+		      float prev_tof(prev_toa-dist2center/refSpeed_+tofDelay_);
+		      //float prev_charge = std::get<3>(hitRefs[i-1]);
 		      float deltaQ2TDCOnset = tdcOnset-((simHitIt->second)[0][itime]-charge);
 		      float deltaQ          = charge;
 		      float deltaT          = (tof-prev_tof);
 		      fireTDC               = deltaT*(deltaQ2TDCOnset/deltaQ)+prev_tof;
-		    }
-		  
+		    }		  
 		}
 
 	      (simHitIt->second)[1][itime]=fireTDC;
