@@ -190,8 +190,10 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     if(timeStamp_end  <timeStamp_local) timeStamp_end   =timeStamp_local;
     if(timeStamp_begin>timeStamp_local) timeStamp_begin =timeStamp_local;
     orbitNo = iEvent.orbitNumber();
-    LNNo    = ((int) (orbitNo/pow(2,12)) % 64); //-99; // FIXME need the luminibble
-    
+    //LNNo    = ((int) (orbitNo/pow(2,12)) % 64);
+    //int LNNo2    = iEvent.nibble;
+    LNNo    = ((int) (orbitNo >> 12) % 64); // FIXME need the luminibble
+   
     bxModKey.first=bxNo;
     bxModKey.second=-1;
    
@@ -261,7 +263,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
         iEvent.getByToken(pixelToken,hClusterColl);
         
-        const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
+        const edmNew::DetSetVector<SiPixelCluster>& clustColl = *(hClusterColl.product());
         
         
         // ----------------------------------------------------------------------

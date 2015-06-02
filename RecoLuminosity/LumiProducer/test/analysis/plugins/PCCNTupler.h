@@ -33,9 +33,7 @@
 #include "TObject.h"
 #include "TH1F.h"
 
-#define MAX_VERTICES 200
 
-using namespace reco;
 
 class TObject;
 class TTree;
@@ -86,6 +84,8 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPixelClusterLabel;
     edm::InputTag   fPileUpInfoLabel;
+  
+    static const int MAX_VERTICES=200;
 
     bool fAccessSimHitInfo;
 
