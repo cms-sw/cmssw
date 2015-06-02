@@ -53,7 +53,12 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
 {
   if ( inputFileName.location()==edm::FileInPath::Unknown ) throw cms::Exception("PFMETAlgorithmMVA::loadMVA") 
     << " Failed to find File = " << inputFileName << " !!\n";
-  TFile* inputFile = new TFile(inputFileName.fullPath().data());
+  std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()) );
+
+  if(inputFile==nullptr) {
+    throw cms::Exception("PFMETAlgorithmMVA::loadMVA")
+      << " Failed to load file " << inputFileName.fullPath().data() << " !!\n";
+  }
 
   std::vector<std::string> *lVec = (std::vector<std::string>*)inputFile->Get("varlist");
   std::vector<std::string> variableNames;
@@ -73,8 +78,6 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
   if ( !mva )
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA")
       << " Failed to load MVA = " << mvaName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
-
-  delete inputFile;
 
   return mva;
 }
@@ -199,9 +202,9 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::PUSubMETCandInfo>& lept
 }
 
 //-------------------------------------------------------------------------------
-float* PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableNames)
+std::unique_ptr<float[]> PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableNames)
 {
-    float* floatVector = new float[variableNames.size()];
+  std::unique_ptr<float[]> floatVector(new float[variableNames.size()]);
     int i = 0;
     for(auto variableName: variableNames)
     {
@@ -228,8 +231,10 @@ void PFMETAlgorithmMVA::evaluateMVA()
   if(hasPhotons_) { 
     //Fix events with unphysical properties
     double sumLeptonPt = std::max(sqrt(sumLeptonPx_*sumLeptonPx_+sumLeptonPy_*sumLeptonPy_),1.);
-    if(var_["track_U"]/sumLeptonPt < 0.1 || var_["noPileUp_U"]/sumLeptonPt <  0.1 ) mvaOutputU_      = 1.;
-    if(var_["track_U"]/sumLeptonPt < 0.1 || var_["noPileUp_U"]/sumLeptonPt <  0.1 ) mvaOutputDPhi_   = 0.;
+    if(var_["track_U"]/sumLeptonPt < 0.1 || var_["noPileUp_U"]/sumLeptonPt <  0.1 ) {
+      mvaOutputU_      = 1.;
+      mvaOutputDPhi_   = 0.;
+    }
   }
   computeMET();
 }
@@ -257,9 +262,8 @@ void PFMETAlgorithmMVA::computeMET()
 //-------------------------------------------------------------------------------
 const float PFMETAlgorithmMVA::GetResponse(const GBRForest * Reader, std::vector<std::string> &variableNames )
 {
-    float * mvaInputVector = createFloatVector(variableNames);
-    double result = Reader->GetResponse(mvaInputVector);
-    delete mvaInputVector;
+    std::unique_ptr<float[]> mvaInputVector = createFloatVector(variableNames);
+    double result = Reader->GetResponse( mvaInputVector.get() );
     return result;
 }
 
