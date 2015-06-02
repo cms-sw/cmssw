@@ -11,16 +11,17 @@ namespace l1t {
 
    class BlockHeader {
       public:
-         BlockHeader(unsigned int id, unsigned int size, block_t type=MP7) : id_(id), size_(size), type_(type) {};
+         BlockHeader(unsigned int id, unsigned int size, unsigned int mask=0, block_t type=MP7) : id_(id), size_(size), mask_(mask), type_(type) {};
          // Create a MP7 block header: everything is contained in the raw uint32
-         BlockHeader(const uint32_t *data) : id_((data[0] >> ID_shift) & ID_mask), size_((data[0] >> size_shift) & size_mask), type_(MP7) {};
+         BlockHeader(const uint32_t *data) : id_((data[0] >> ID_shift) & ID_mask), size_((data[0] >> size_shift) & size_mask), mask_((data[0] >> mask_shift) & mask_mask), type_(MP7) {};
          // Create a CTP7 block header: size is contained in the general CTP7 header
-         BlockHeader(const uint32_t *data, unsigned int size) : id_((data[0] >> CTP7_shift) & CTP7_mask), size_(size), type_(CTP7) {};
+         BlockHeader(const uint32_t *data, unsigned int size) : id_((data[0] >> CTP7_shift) & CTP7_mask), size_(size), mask_(0), type_(CTP7) {};
 
          bool operator<(const BlockHeader& o) const { return getID() < o.getID(); };
 
          unsigned int getID() const { return id_; };
          unsigned int getSize() const { return size_; };
+         unsigned int getMask() const { return mask_; };
          block_t getType() const { return type_; };
 
          uint32_t raw(block_t type=MP7) const;
@@ -32,9 +33,12 @@ namespace l1t {
          static const unsigned int ID_mask = 0xff;
          static const unsigned int size_shift = 16;
          static const unsigned int size_mask = 0xff;
+         static const unsigned int mask_shift = 8;
+         static const unsigned int mask_mask = 0xff;
 
          unsigned int id_;
          unsigned int size_;
+         unsigned int mask_;
          block_t type_;
    };
 
@@ -42,8 +46,8 @@ namespace l1t {
       public:
          Block(const BlockHeader& h, const uint32_t * payload_start, const uint32_t * payload_end) :
             header_(h), payload_(payload_start, payload_end) {};
-         Block(unsigned int id, const std::vector<uint32_t>& payload, block_t type=MP7) :
-            header_(id, payload.size(), type), payload_(payload) {};
+         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int mask=0, block_t type=MP7) :
+            header_(id, payload.size(), mask, type), payload_(payload) {};
 
          bool operator<(const Block& o) const { return header() < o.header(); };
 

@@ -10,7 +10,7 @@ namespace l1t {
    {
       if (type_ == MP7) {
          LogTrace("L1T") << "Writing MP7 link header";
-         return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift);
+         return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift) | ((mask_ & mask_mask) << mask_shift);
       }
       LogTrace("L1T") << "Writing CTP7 link header";
       return ((id_ & CTP7_mask) << CTP7_shift);
