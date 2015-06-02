@@ -161,7 +161,6 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
 
   typedef std::multiset< ABJetPair, CompareMatchedJets > ABMatchedJets;
   typedef std::multiset< ABJetPair >::iterator ABItr;
-  //typedef std::multiset< Jet >::value_type MatchedJet;
 
   static float deltaRR(float eta1, float phi1, float eta2, float phi2)
   {

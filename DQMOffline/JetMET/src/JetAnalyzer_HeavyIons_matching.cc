@@ -58,7 +58,6 @@ JetAnalyzer_HeavyIons_matching::JetAnalyzer_HeavyIons_matching(const edm::Parame
     mEmEnergy_Jet2_unmatched = 0; 
   }
 
-  //if(std::string("VsPF") == JetType1 || std::string("PuPF") == JetType1){
   if(std::string("VsPF") == JetType1){
     mChargedHadronEnergy_Jet1_unmatched = 0; 
     mNeutralHadronEnergy_Jet1_unmatched = 0;
@@ -67,7 +66,6 @@ JetAnalyzer_HeavyIons_matching::JetAnalyzer_HeavyIons_matching(const edm::Parame
     mChargedMuEnergy_Jet1_unmatched = 0;
   }
   
-  //if(std::string("VsPF") == JetType2 || std::string("PuPF") == JetType2){
   if(std::string("VsPF") == JetType2){
     mChargedHadronEnergy_Jet2_unmatched = 0; 
     mNeutralHadronEnergy_Jet2_unmatched = 0;
@@ -100,7 +98,6 @@ void JetAnalyzer_HeavyIons_matching::bookHistograms(DQMStore::IBooker & ibooker,
       mEmEnergy_Jet2_unmatched = ibooker.book1D("EmEnergy_Jet2_unmatched", "EmEnergy_Jet2_unmatched", 50, 0, 200);
     }
 
-    //if(std::string("VsPF") == JetType1 || std::string("PuPF") == JetType1){
     if(std::string("VsPF") == JetType1){
       mChargedHadronEnergy_Jet1_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet1_unmatched", "charged HAD energy unmatched Jet1",    50, 0, 100);
       mNeutralHadronEnergy_Jet1_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet1_unmatched", "charged HAD energy unmatched Jet1",    50, 0, 100);
@@ -109,7 +106,6 @@ void JetAnalyzer_HeavyIons_matching::bookHistograms(DQMStore::IBooker & ibooker,
       mChargedMuEnergy_Jet1_unmatched = ibooker.book1D("ChargedMuEnergy_Jet1_unmatched", "charged Mu energy unmatched Jet1",    50, 0, 100);
     }
 
-    //if(std::string("VsPF") == JetType2 || std::string("PuPF") == JetType2){
     if(std::string("VsPF") == JetType2){
       mChargedHadronEnergy_Jet2_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet2_unmatched", "charged HAD energy unmatched Jet2",    50, 0, 100);
       mNeutralHadronEnergy_Jet2_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet2_unmatched", "charged HAD energy unmatched Jet2",    50, 0, 100);
@@ -176,36 +172,36 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
   if(std::string("VsCalo") == JetType1) {
     mEvent.getByToken(caloJet1Token_, caloJet1);
-    for (unsigned ijet=0; ijet<caloJet1->size(); ijet++) recoJet1.push_back((*caloJet1)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet1->size(); ++ijet) recoJet1.push_back((*caloJet1)[ijet]);
   }
   if(std::string("PuCalo") == JetType1) {
     mEvent.getByToken(caloJet2Token_, caloJet1);
-    for (unsigned ijet=0; ijet<caloJet1->size(); ijet++) recoJet1.push_back((*caloJet1)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet1->size(); ++ijet) recoJet1.push_back((*caloJet1)[ijet]);
   }
   if(std::string("VsPF") == JetType1) {
     mEvent.getByToken(pfJetsToken_, pfJets);
-    for (unsigned ijet=0; ijet<pfJets->size(); ijet++) recoJet1.push_back((*pfJets)[ijet]);
+    for (unsigned ijet=0; ijet<pfJets->size(); ++ijet) recoJet1.push_back((*pfJets)[ijet]);
   }
   if(std::string("PuPF") == JetType1) {
     mEvent.getByToken(basicJetsToken_, basicJets);
-    for (unsigned ijet=0; ijet<basicJets->size(); ijet++) recoJet1.push_back((*basicJets)[ijet]);
+    for (unsigned ijet=0; ijet<basicJets->size(); ++ijet) recoJet1.push_back((*basicJets)[ijet]);
   }
 
   if(std::string("VsCalo") == JetType2) {
     mEvent.getByToken(caloJet1Token_, caloJet2);
-    for (unsigned ijet=0; ijet<caloJet2->size(); ijet++) recoJet2.push_back((*caloJet2)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet2->size(); ++ijet) recoJet2.push_back((*caloJet2)[ijet]);
   }
   if(std::string("PuCalo") == JetType2) {
     mEvent.getByToken(caloJet2Token_, caloJet2);
-    for (unsigned ijet=0; ijet<caloJet2->size(); ijet++) recoJet2.push_back((*caloJet2)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet2->size(); ++ijet) recoJet2.push_back((*caloJet2)[ijet]);
   }
   if(std::string("VsPF") == JetType2) {
     mEvent.getByToken(pfJetsToken_, pfJets);
-    for (unsigned ijet=0; ijet<pfJets->size(); ijet++) recoJet2.push_back((*pfJets)[ijet]);
+    for (unsigned ijet=0; ijet<pfJets->size(); ++ijet) recoJet2.push_back((*pfJets)[ijet]);
   }
   if(std::string("PuPF") == JetType2) {
     mEvent.getByToken(basicJetsToken_, basicJets);
-    for (unsigned ijet=0; ijet<basicJets->size(); ijet++) recoJet2.push_back((*basicJets)[ijet]);
+    for (unsigned ijet=0; ijet<basicJets->size(); ++ijet) recoJet2.push_back((*basicJets)[ijet]);
   }
 
   // start to perform the matching - between recoJet1 and recoJet2.
@@ -353,13 +349,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 	  mNeutralEmEnergy_Jet1_unmatched->Fill((*pfJets)[Aj.id].neutralEmEnergy());
 	  mChargedMuEnergy_Jet1_unmatched->Fill((*pfJets)[Aj.id].chargedMuEnergy());
 	}
-	// if(std::string("PuPF") == JetType1){
-	//   mChargedHadronEnergy_Jet1_unmatched->Fill((*basicJets)[Aj.id].chargedHadronEnergy());
-	//   mNeutralHadronEnergy_Jet1_unmatched->Fill((*basicJets)[Aj.id].neutralHadronEnergy());
-	//   mChargedEmEnergy_Jet1_unmatched->Fill((*basicJets)[Aj.id].chargedEmEnergy());
-	//   mNeutralEmEnergy_Jet1_unmatched->Fill((*basicJets)[Aj.id].neutralEmEnergy());
-	//   mChargedMuEnergy_Jet1_unmatched->Fill((*basicJets)[Aj.id].chargedMuEnergy());
-	// }
 	
       }
 
@@ -388,13 +377,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 	  mNeutralEmEnergy_Jet2_unmatched->Fill((*pfJets)[Bj.id].neutralEmEnergy());
 	  mChargedMuEnergy_Jet2_unmatched->Fill((*pfJets)[Bj.id].chargedMuEnergy());
 	}
-	// if(std::string("PuPF") == JetType2){
-	//   mChargedHadronEnergy_Jet2_unmatched->Fill((*basicJets)[Bj.id].chargedHadronEnergy());
-	//   mNeutralHadronEnergy_Jet2_unmatched->Fill((*basicJets)[Bj.id].neutralHadronEnergy());
-	//   mChargedEmEnergy_Jet2_unmatched->Fill((*basicJets)[Bj.id].chargedEmEnergy());
-	//   mNeutralEmEnergy_Jet2_unmatched->Fill((*basicJets)[Bj.id].neutralEmEnergy());
-	//   mChargedMuEnergy_Jet2_unmatched->Fill((*basicJets)[Bj.id].chargedMuEnergy());
-	// }
        
       }
       

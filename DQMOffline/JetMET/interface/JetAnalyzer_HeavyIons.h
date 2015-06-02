@@ -113,7 +113,6 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
   edm::EDGetTokenT<reco::CandidateView> caloCandViewToken_;
 
-  //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground>> backgrounds_;
   edm::EDGetTokenT<std::vector<float>> backgrounds_value_;
   edm::EDGetTokenT<reco::Centrality> centralityToken_;
@@ -134,10 +133,6 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mCaloVsPtInitial;
   MonitorElement *mCaloArea;
   MonitorElement *mSumpt;
-  //MonitorElement *mvn;
-  //MonitorElement *mpsin;
-  // MonitorElement *ueraw;  
-
   MonitorElement *mSumPFVsPt;
   MonitorElement *mSumPFVsPtInitial;
   MonitorElement *mSumPFPt;
@@ -178,34 +173,10 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mSumPFVsPt_HF;
   MonitorElement *mSumPFVsPtInitial_HF;
   MonitorElement *mSumPFPt_HF;
-  //MonitorElement *mPFVsPtInitial_eta_phi;
-  //MonitorElement *mPFVsPt_eta_phi;
-  //MonitorElement *mPFPt_eta_phi;
-  //MonitorElement *mSumDeltapT_HF;
-  //MonitorElement *mDeltapT;
-  //MonitorElement *mDeltapT_eta;
-  //MonitorElement *mDeltapT_phiMinusPsi2;
-  //MonitorElement *mDeltapT_eta_phi;
 
   MonitorElement *mSumCaloVsPt_HF;
   MonitorElement *mSumCaloVsPtInitial_HF;
   MonitorElement *mSumCaloPt_HF;
-  //MonitorElement *mCaloVsPtInitial_eta_phi;
-  //MonitorElement *mCaloVsPt_eta_phi;
-  //MonitorElement *mCaloPt_eta_phi;
-
-  /* MonitorElement *mVs_0_x; */
-  /* MonitorElement *mVs_0_y; */
-  /* MonitorElement *mVs_1_x; */
-  /* MonitorElement *mVs_1_y; */
-  /* MonitorElement *mVs_2_x; */
-  /* MonitorElement *mVs_2_y; */
-  /* MonitorElement *mVs_0_x_versus_HF; */
-  /* MonitorElement *mVs_0_y_versus_HF; */
-  /* MonitorElement *mVs_1_x_versus_HF; */
-  /* MonitorElement *mVs_1_y_versus_HF; */
-  /* MonitorElement *mVs_2_x_versus_HF; */
-  /* MonitorElement *mVs_2_y_versus_HF; */
   
   MonitorElement *mSumPFVsPtInitial_n5p191_n2p650;
   MonitorElement *mSumPFVsPtInitial_n2p650_n2p043;
