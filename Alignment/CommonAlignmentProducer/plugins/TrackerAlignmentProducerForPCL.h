@@ -88,7 +88,7 @@ class TrackerAlignmentProducerForPCL : public edm::EDAnalyzer {
     /// Write alignment and/or errors to DB for record names
     /// (removes *globalCoordinates before writing if non-null...).
     /// Takes over ownership of alignments and alignmentErrrors.
-    void writeDB(Alignments*, const std::string&, AlignmentErrors*,
+    void writeDB(Alignments*, const std::string&, AlignmentErrorsExtended*,
                  const std::string&, const AlignTransform*, cond::Time_t) const;
     /// Write surface deformations (bows & kinks) to DB for given record name
     /// Takes over ownership of alignmentsurfaceDeformations.
