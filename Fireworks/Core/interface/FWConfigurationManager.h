@@ -42,14 +42,14 @@ public:
 
    void writeToFile(const std::string&) const;
    void readFromFile(const std::string&) const;
-   std::string guessAndReadFromFile(FWJobMetadataManager*) const;
+   void guessAndReadFromFile(FWJobMetadataManager*) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    ///does not take ownership
    void add(const std::string& iName, FWConfigurable*);
 
-   void setIgnore() { m_ignore = true; }
+   void setIgnore() { m_ignore = false; }
    bool getIgnore() const { return m_ignore; }
 
 private:

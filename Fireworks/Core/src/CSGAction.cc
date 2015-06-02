@@ -378,10 +378,6 @@ CSGAction::keycodeToString(Int_t keycode) {
       rep = TString("->");
       return rep;
    }
-   if (keycode == gVirtualX->KeysymToKeycode(kKey_Space)) {
-      rep = TString("space");
-      return rep;
-   }
    rep = TString("");
    return rep;
 }
