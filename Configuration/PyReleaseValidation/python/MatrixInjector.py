@@ -99,7 +99,7 @@ class MatrixInjector(object):
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
-            "Memory" : 2400,
+            "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 0.1
             }
