@@ -17,7 +17,7 @@ public:
     //! C is, for example, a DDLogicalPart or a DDMaterial or a DDSolid ....
     typedef D value_type;
 
-    explicit iterator( const auto it) : it_(it) { }
+    explicit iterator( const typename DDI::Store<N,C>::iterator it) : it_(it) { }
         
     iterator() : it_(StoreT::instance().begin()) {  }
   
