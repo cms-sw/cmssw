@@ -28,7 +28,6 @@
 #include "TEveManager.h"
 #include "TFile.h"
 #include "TGClient.h"
-#include <KeySymbols.h>
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -320,20 +319,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
    startupTasks()->addTask(f);
 
-
-
-   if(vm.count(kLiveCommandOpt))
-   {
-      f = boost::bind(&CmsShowMain::setLiveMode, this);
-      startupTasks()->addTask(f);
-   }
-      
-   if(vm.count(kFieldCommandOpt)) 
-   {
-      m_context->getField()->setSource(FWMagField::kUser);
-      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
-   }
-
    if ( m_inputFiles.empty()) {
       f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
       startupTasks()->addTask(f);
@@ -363,6 +348,17 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       startupTasks()->addTask(f);
    }
 
+   if(vm.count(kLiveCommandOpt))
+   {
+      f = boost::bind(&CmsShowMain::setLiveMode, this);
+      startupTasks()->addTask(f);
+   }
+      
+   if(vm.count(kFieldCommandOpt)) 
+   {
+      m_context->getField()->setSource(FWMagField::kUser);
+      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
+   }
    if(vm.count(kAutoSaveAllViews)) {
       std::string type = "png";
       if(vm.count(kAutoSaveType)) {
@@ -789,22 +785,12 @@ CmsShowMain::notified(TSocket* iSocket)
 }
 
 void
-CmsShowMain::checkKeyBindingsOnPLayEventsStateChanged()
-{
-    if (m_live) {
-        Int_t keycode = gVirtualX->KeysymToKeycode((int)kKey_Space);
-        Window_t id = FWGUIManager::getGUIManager()->getMainFrame()->GetId();
-        gVirtualX->GrabKey(id, keycode, 0, isPlaying());
-    }
-}
-
-void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
    if (m_live)
       m_navigator->resetNewFileOnNextEvent();
-   CmsShowMainBase::stopPlaying();
+   setIsPlaying(false);
    guiManager()->enableActions();
    checkPosition();
 }

@@ -36,6 +36,7 @@
   <class name="FWEveDigitSetScalableMarker"/>
   <class name="FWEveDigitSetScalableMarkerGL"/>
   <class name="FW3DViewDistanceMeasureTool"/>
+
   <class name="FWGUIEventDataAdder"/>
   <class name="CSGConnector"/>
   <class name="FWIntValueListenerBase"/>
@@ -70,7 +71,5 @@
   <class name="FWEveOverlap"/>
   <class name="FWEveDetectorGeo"/>
   <class name="FWGeoTopNodeGL"/>
-  <class name="FWPartialConfigGUI"/>
-  <class name="FWPartialConfigLoadGUI"/>
-  <class name="FWPartialConfigSaveGUI"/>
+
 </lcgdict>

@@ -80,10 +80,7 @@ public:
 
    void writeToConfigFile(const std::string &config);
    void writeToCurrentConfigFile();
-   void writePartialToConfigFile();
    void reloadConfiguration(const std::string &config);
-   void partialWriteToConfigFile(const std::string &config);
-   void partialLoadConfiguration(const std::string &config);
    void setupConfiguration();
    
    void registerPhysicsObject(const FWPhysicsObjectDesc&iItem);
@@ -117,9 +114,8 @@ public:
    void playForward();
    void playBackward();
    bool isPlaying() const { return m_isPlaying; }
-
-   virtual void checkKeyBindingsOnPLayEventsStateChanged() {}
-   virtual void stopPlaying();
+   void setIsPlaying(bool value) { m_isPlaying = value; }
+   virtual void stopPlaying() = 0;
    virtual void autoLoadNewEvent() = 0;
 
    void setPlayLoop();

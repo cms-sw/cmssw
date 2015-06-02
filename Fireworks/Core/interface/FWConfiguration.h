@@ -70,7 +70,6 @@ public:
    FWConfiguration& addValue(const std::string&);
    void swap(FWConfiguration& );
 
-   static void streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string &name);
 
 private:
 
