@@ -140,6 +140,7 @@ namespace evf{
       void preStreamEarlyTermination(edm::StreamContext const&, edm::TerminationOrigin);
       void preGlobalEarlyTermination(edm::GlobalContext const&, edm::TerminationOrigin);
       void preSourceEarlyTermination(edm::TerminationOrigin);
+      void setExceptionDetected(unsigned int ls);
 
       //this is still needed for use in special functions like DQM which are in turn framework services
       void setMicroState(MicroStateService::Microstate);
@@ -149,6 +150,7 @@ namespace evf{
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
+      void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
       unsigned int getEventsProcessedForLumi(unsigned int lumi);
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 
@@ -226,6 +228,7 @@ namespace evf{
       //helpers for source statistics:
       std::map<unsigned int, unsigned long> accuSize_;
       std::vector<double> leadTimes_;
+      std::map<unsigned int, std::pair<double,unsigned int>> lockStatsDuringLumi_;
 
       //for output module
       std::map<unsigned int, unsigned int> processedEventsPerLumi_;
