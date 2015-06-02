@@ -62,6 +62,7 @@ from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventCont
 
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
+from EventFilter.LumiRawToDigi.Lumi_EventContent_cff import *
 
 #DigiToRaw content
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
@@ -446,6 +447,7 @@ RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+RECOEventContent.outputCommands.extend(LumiEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
@@ -475,6 +477,7 @@ AODEventContent.outputCommands.extend(L1TriggerAOD.outputCommands)
 AODEventContent.outputCommands.extend(HLTriggerAOD.outputCommands)
 AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
 AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
+AODEventContent.outputCommands.extend(LumiEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 AODEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
@@ -592,6 +595,7 @@ FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(LumiEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
