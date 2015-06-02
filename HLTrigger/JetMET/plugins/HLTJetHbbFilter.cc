@@ -20,7 +20,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "HLTrigger/JetMET/interface/HLTJetHbbFilter.h"
+#include "HLTrigger/JetMET/plugins/HLTJetHbbFilter.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 using namespace std;
