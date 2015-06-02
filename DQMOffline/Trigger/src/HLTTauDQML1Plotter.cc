@@ -148,7 +148,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
             l1tauPhiEffDenom_->Fill(iter->phi());
             l1jetPhiEffDenom_->Fill(iter->phi());
         }
-	l1etmEtEffDenom_->Fill(refC.met[0].pt());
+	if(refC.met.size() > 0) l1etmEtEffDenom_->Fill(refC.met[0].pt());
     }
     
     //Analyze L1 Objects (Tau+Jets)
@@ -247,11 +247,13 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
             }
         }
 
-        l1etmEt_->Fill(met.product()->begin()->et());
-        l1etmPhi_->Fill(met.product()->begin()->phi());
+	if(met.isValid()) {
+          l1etmEt_->Fill(met.product()->begin()->et());
+          l1etmPhi_->Fill(met.product()->begin()->phi());
 
-	if( met.product()->begin()->et() > l1ETMMin_){
-          l1etmEtEffNum_->Fill(met.product()->begin()->et());
+	  if( met.product()->begin()->et() > l1ETMMin_){
+            l1etmEtEffNum_->Fill(met.product()->begin()->et());
+	  }
 	}
     }
     
