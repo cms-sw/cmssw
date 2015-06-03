@@ -399,7 +399,7 @@ DECAY   2000015  1.79432821E+00   # TAU2- decays
       5.23654632E-02    2           23   1000015                       # TAU2-  -->  Z0     TAU1-              
       6.17690496E-02    2           25   1000015                       # TAU2-  -->  HL0    TAU1-              
 #         PDG         Width
-DECAY   1000022  2.30683626E-16   # Z1SS  decays
+DECAY   1000022  9.866335E-17   # Z1SS  decays
 #          BR          NDA       ID1       ID2       ID3       ID4
       8.46380651E-01    2      1000039        22                       # Z1SS   -->  GVSS   GM                 
       1.82456244E-02    3      1000039        11       -11             # Z1SS   -->  GVSS   E-     E+          
