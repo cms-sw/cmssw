@@ -148,8 +148,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 
   infoV = tmbParams.getParameter<int>("verbosity");
 
-  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams);
-  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
+  alct.reset( new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams) );
+  clct.reset( new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams) );
 
   //if (theStation==1 && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)==2) infoV = 3;
 
@@ -176,8 +176,8 @@ CSCMotherboard::CSCMotherboard() :
 
   early_tbins = 4;
 
-  alct = new CSCAnodeLCTProcessor();
-  clct = new CSCCathodeLCTProcessor();
+  alct.reset( new CSCAnodeLCTProcessor() );
+  clct.reset( new CSCCathodeLCTProcessor() );
   mpc_block_me1a      = def_mpc_block_me1a;
   alct_trig_enable    = def_alct_trig_enable;
   clct_trig_enable    = def_clct_trig_enable;
@@ -196,8 +196,6 @@ CSCMotherboard::CSCMotherboard() :
 }
 
 CSCMotherboard::~CSCMotherboard() {
-  if (alct) delete alct;
-  if (clct) delete clct;
 }
 
 void CSCMotherboard::clear() {

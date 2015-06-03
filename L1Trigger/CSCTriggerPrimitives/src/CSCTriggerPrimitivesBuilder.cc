@@ -111,7 +111,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   m_maxBX = conf.getParameter<int>("MaxBX");
 
   // Init MPC
-  m_muonportcard = new CSCMuonPortCard(conf);
+  m_muonportcard.reset( new CSCMuonPortCard(conf) );
 }
 
 //------------
@@ -136,7 +136,6 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder()
       }
     }
   }
-  delete m_muonportcard;
 }
 
 //------------

@@ -50,7 +50,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
   rpcDigiProducer_ = conf.existsAs<edm::InputTag>("RPCDigiProducer")?conf.getParameter<edm::InputTag>("RPCDigiProducer"):edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
-  lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
+  lctBuilder_.reset( new CSCTriggerPrimitivesBuilder(conf) ); // pass on the conf
   
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
@@ -75,7 +75,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
   LogDebug("L1CSCTrigger")
     << "deleting trigger primitives after " << iev << " events.";
-  delete lctBuilder_;
 }
 
 //void CSCTriggerPrimitivesProducer::beginRun(const edm::EventSetup& setup) {
