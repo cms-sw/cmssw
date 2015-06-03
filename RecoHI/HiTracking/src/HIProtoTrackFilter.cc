@@ -9,7 +9,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h" 	 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"    
@@ -27,8 +28,12 @@ doVariablePtMin( ps.getParameter<bool>("doVariablePtMin") ),
 theBeamSpotTag( ps.getParameter<InputTag>("beamSpot")),
 theSiPixelRecHits( ps.getParameter<InputTag>("siPixelRecHits")),
 theBeamSpot(0),
+theTrackerTopology(0),
 theVariablePtMin(0)
 { 
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<IdealGeometryRecord>().get(httopo);
+  theTrackerTopology = httopo.product();
 }
 
 /*****************************************************************************/
@@ -41,7 +46,8 @@ theBeamSpotTag( ps.getParameter<InputTag>("beamSpot")),
 theSiPixelRecHits( ps.getParameter<InputTag>("siPixelRecHits")),
 theBeamSpot(0),
 theVariablePtMin(0)
-{ 
+{
+  throw cms::Exception("Configuration") << "HIProtoTrackFilter needs EventSetup, please use PixelTrackFilterWithESFactory to construct it";
 }
 
 /*****************************************************************************/
@@ -73,7 +79,7 @@ bool HIProtoTrackFilter::operator() (const reco::Track* track,const PixelTrackFi
 }
 
 /*****************************************************************************/
-void HIProtoTrackFilter::update(edm::Event& ev)
+void HIProtoTrackFilter::update(edm::Event& ev, const edm::EventSetup& es)
 {
   
   // Get the beam spot
@@ -93,10 +99,9 @@ void HIProtoTrackFilter::update(edm::Event& ev)
   // Estimate multiplicity
   edm::Handle<SiPixelRecHitCollection> recHitColl;
   ev.getByLabel(theSiPixelRecHits, recHitColl);
-  
+
   vector<const TrackingRecHit*> theChosenHits; 	 
-  TrackerLayerIdAccessor acc; 	 
-  edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
+  edmNew::copyDetSetRange(*recHitColl,theChosenHits, theTrackerTopology->pxbDetIdLayerComparator(1));
   float estMult = theChosenHits.size();
   
   theVariablePtMin=thePtMin;
