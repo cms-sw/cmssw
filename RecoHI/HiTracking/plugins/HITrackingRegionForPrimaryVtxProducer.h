@@ -15,7 +15,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h" 	 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"    
@@ -58,10 +59,12 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
       //rechits
       edm::Handle<SiPixelRecHitCollection> recHitColl;
       ev.getByLabel(theSiPixelRecHits, recHitColl);
+
+      edm::ESHandle<TrackerTopology> httopo;
+      es.get<IdealGeometryRecord>().get(httopo);
       
       std::vector<const TrackingRecHit*> theChosenHits; 	 
-      TrackerLayerIdAccessor acc; 	 
-      edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
+      edmNew::copyDetSetRange(*recHitColl,theChosenHits, httopo->pxbDetIdLayerComparator(1));
       return theChosenHits.size(); 	 
       
     }
