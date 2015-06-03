@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-ln -sf $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/heppy.py tmp_heppy.py
+ln -sf $CMSSW_BASE/src/PhysicsTools/HeppyCore/scripts/heppy.py tmp_heppy.py
 ipython --pdb -noconfirm_exit -- tmp_heppy.py "$@" 
 rm tmp_heppy.py
