@@ -136,7 +136,7 @@ if __name__=='__main__':
     from ROOT import TFile
 
     f = TFile('TreeNumpy.root','RECREATE')
-    t = TreeNumpy('Colin', 'Another test tree')
+    t = Tree('Colin', 'Another test tree')
     t.var('a')
     t.var('b')
 
