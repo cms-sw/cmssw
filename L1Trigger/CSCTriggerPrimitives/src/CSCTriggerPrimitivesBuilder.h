@@ -117,7 +117,7 @@ class CSCTriggerPrimitivesBuilder
   const RPCGeometry* rpc_g;
 
   /** Pointer to MPC processor. */
-  CSCMuonPortCard* m_muonportcard;
+  std::unique_ptr<CSCMuonPortCard> m_muonportcard;
 };
 
 #endif

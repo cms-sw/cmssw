@@ -75,10 +75,10 @@ class CSCMotherboard
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** Anode LCT processor. */
-  CSCAnodeLCTProcessor* alct;
+  std::unique_ptr<CSCAnodeLCTProcessor> alct;
 
   /** Cathode LCT processor. */
-  CSCCathodeLCTProcessor* clct;
+  std::unique_ptr<CSCCathodeLCTProcessor> clct;
 
  // VK: change to protected, to allow inheritance
  protected:
