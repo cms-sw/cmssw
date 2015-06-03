@@ -1,0 +1,4 @@
+*.pyc
+*_cc.d
+*_cc.so
+*.pcm
