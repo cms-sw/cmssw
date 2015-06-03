@@ -94,7 +94,7 @@ tcMETCounter = cms.EDFilter(
     minNumber = cms.uint32(1),
 )
 
-tcMETSelSeq = cms.Sequence(
+hotlineSkimTcMET = cms.Path(
    pvFilter*
    MakeHBHENoiseFilterResult*
    HBHENoiseFilter*

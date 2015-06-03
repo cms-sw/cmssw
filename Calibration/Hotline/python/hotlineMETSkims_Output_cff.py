@@ -5,7 +5,8 @@ OutALCARECOMETHotline = cms.PSet(
         SelectEvents = cms.vstring(
             "hotlineSkimPFMET",
             "hotlineSkimCaloMET",
-            "hotlineSkimCondMET"
+            "hotlineSkimCondMET",
+            "hotlineSkimTcMET"
         ),
     ),
     outputCommands = cms.untracked.vstring('keep *')
