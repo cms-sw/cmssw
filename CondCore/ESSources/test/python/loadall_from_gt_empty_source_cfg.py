@@ -58,10 +58,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
                                      detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) ),
                                      )
 
-process.add_( cms.Service( "PrintEventSetupDataRetrieval",
-                           printProviders=cms.untracked.bool( True )
-                           )
-              )
+#process.add_( cms.Service( "PrintEventSetupDataRetrieval",
+#                           printProviders=cms.untracked.bool( True )
+#                           )
+#              )
 
 CondDBSetup = cms.PSet( DBParameters = cms.PSet( authenticationPath = cms.untracked.string( '.' ),
                                                  connectionRetrialPeriod = cms.untracked.int32( 10 ),
