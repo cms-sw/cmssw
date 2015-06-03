@@ -210,6 +210,8 @@ photonAna = cfg.Analyzer(
     ptMin = 15,
     etaMax = 2.5,
     gammaID = "POG_PHYS14_25ns_Loose",
+    rhoPhoton = 'fixedGridRhoFastjetAll',
+    gamma_isoCorr = 'rhoArea',
     do_mc_match = True,
     do_randomCone = False,
 )
