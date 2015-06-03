@@ -11,7 +11,7 @@ class CmsswPreprocessor :
 		print wd,firstEvent,nEvents
 		if nEvents is None:
 			nEvents = -1
-		cmsswConfig = imp.load_source("cmsRunProcess",self.configFile)
+		cmsswConfig = imp.load_source("cmsRunProcess",os.path.expandvars(self.configFile))
 		inputfiles= []
 		for fn in component.files :
 			if not re.match("file:.*",fn) and not re.match("root:.*",fn) :
