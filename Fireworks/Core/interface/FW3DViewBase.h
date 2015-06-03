@@ -34,6 +34,7 @@ class FW3DViewGeometry;
 class FWColorManager;
 class TGLClip;
 class TEveLine;
+class TEveBoxSet;
 
 class FW3DViewDistanceMeasureTool;
 
@@ -61,6 +62,7 @@ public:
    virtual bool requestGLHandlerPick() const;
    void setCurrentDMTVertex(double x, double y, double z);
 
+   void showEcalBarrel(bool);
 private:
    FW3DViewBase(const FW3DViewBase&);    // stop default
 
@@ -77,6 +79,9 @@ private:
    FWBoolParameter m_showPixelEndcap;
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
+
+   TEveBoxSet* m_ecalBarrel;
+   FWBoolParameter m_showEcalBarrel;
 
    FWEnumParameter m_rnrStyle;
    FWBoolParameter m_clipParam;
