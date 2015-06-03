@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V197 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/HLT/V198 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V197')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V198')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -56037,15 +56037,7 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalPhiSym_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltEcalDigis_EcalIntegrityBlockSizeErrors_*',
-      'keep *_hltEcalDigis_EcalIntegrityChIdErrors_*',
-      'keep *_hltEcalDigis_EcalIntegrityGainErrors_*',
-      'keep *_hltEcalDigis_EcalIntegrityGainSwitchErrors_*',
-      'keep *_hltEcalDigis_EcalIntegrityTTIdErrors_*',
-      'keep *_hltEcalDigis_EcalTriggerPrimitives_*',
       'keep *_hltEcalPhiSymFilter_*_*',
-      'keep EBSrFlagsSorted_hltEcalDigis_*_*',
-      'keep EESrFlagsSorted_hltEcalDigis_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
