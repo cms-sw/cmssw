@@ -205,7 +205,9 @@ public:
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
+   sigc::signal<void, const std::string&> writePartialToConfigurationFile_;
    sigc::signal<void, const std::string&> loadFromConfigurationFile_;
+   sigc::signal<void, const std::string&> loadPartialFromConfigurationFile_;
    sigc::signal<void, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
@@ -224,7 +226,10 @@ private:
 
    bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
    void promptForSaveConfigurationFile();
+   void promptForPartialSaveConfigurationFile();
    void promptForLoadConfigurationFile();
+   void promptForPartialLoadConfigurationFile();
+   void savePartialToConfigurationFile();
    
    void delaySliderChanged(Int_t);
    
