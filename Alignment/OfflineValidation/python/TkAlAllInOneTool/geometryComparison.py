@@ -97,7 +97,7 @@ class GeometryComparison(GenericValidation):
             cfgs[cfgName] = configTemplates.compareTemplate
             repMaps[cfgName] = repMap
 
-            cfgSchedule.append( cfgName )
+            cfgSchedule.append( cfgName )  
         GenericValidation.createConfiguration(self, cfgs, path, cfgSchedule, repMaps = repMaps)
 
     def createScript(self, path):
@@ -107,6 +107,8 @@ class GeometryComparison(GenericValidation):
                                    %self.name), repMap)
         for name in self.__compares:
             if  '"DetUnit"' in self.__compares[name][0].split(","):
+                repMap["outputFile"] = (".oO[name]Oo..Comparison_common"+name+".root")
+                repMap["nIndex"] = ("")
                 repMap["runComparisonScripts"] += \
                     ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
                      "/scripts/comparisonScript.C .\n"
@@ -122,33 +124,45 @@ class GeometryComparison(GenericValidation):
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images\n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*PXB*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                       ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/Translations\n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*PXF*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                       ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/Rotations\n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*TIB*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                       ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/CrossTalk\n")
+                        
+                   ### At the moment translations are images with suffix _1 and _2, rotations _3 and _4, and cross talk _5 and _6
+                   ### The numeration depends on the order of the MakePlots(x, y) commands in comparisonScript.C
+                   ### If comparisonScript.C is changed, check if the following lines need to be changed as well
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*TID*\" "
+                       ("find . -maxdepth 1 -name \"*_1*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*TEC*\" "
+                       ("find . -maxdepth 1 -name \"*_2*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+                   
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*TOB*\" "
+                       ("find . -maxdepth 1 -name \"*_3*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*tracker*\" "
+                       ("find . -maxdepth 1 -name \"*_4*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
+                   
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*_5*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*_6*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name "
                         "\"TkMap_SurfDeform*.pdf\" -print | xargs -I {} bash -c"
@@ -171,7 +185,7 @@ class GeometryComparison(GenericValidation):
                    repMap["runComparisonScripts"] += \
                        ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment"
                         "/OfflineValidation/scripts/makeArrowPlots.C "
-                        "$CWD/TkAllInOneTool\n"
+                        ".\n"
                         "root -b -q 'makeArrowPlots.C(\""
                         ".oO[name]Oo..Comparison_common"+name
                         +".root\",\".oO[name]Oo.."
@@ -199,7 +213,8 @@ class GeometryComparison(GenericValidation):
         for cfg in self.configFiles:
             # FIXME: produce this line only for enabled dbOutput
             # postProcess = "rfcp .oO[workdir]Oo./*.db .oO[datadir]Oo.\n"
-            postProcess = "rfcp *.db .oO[datadir]Oo.\n"
+            # postProcess = "rfcp *.db .oO[datadir]Oo.\n"
+            postProcess = ""
             repMap["CommandLine"]+= \
                 repMap["CommandLineTemplate"]%{"cfgFile":cfg,
                                                "postProcess":postProcess}
@@ -207,6 +222,7 @@ class GeometryComparison(GenericValidation):
                                  ".oO[runComparisonScripts]Oo.\n"
                                  )
 
+        #~ print configTemplates.scriptTemplate
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }
         return GenericValidation.createScript(self, scripts, path)
 
