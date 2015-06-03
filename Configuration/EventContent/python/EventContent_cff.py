@@ -705,6 +705,8 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCom
 ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOLumiPixels_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHotline.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMETHotline.outputCommands)
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 

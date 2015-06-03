@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.EventContent.EventContent_cff import FEVTEventContent
+
 OutALCARECOMETHotline = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(
-            "hotlineSkimPFMET",
-            "hotlineSkimCaloMET",
-            "hotlineSkimCondMET",
-            "hotlineSkimTcMET"
+            "pathHotlineSkimPFMET",
+            "pathHotlineSkimCaloMET",
+            "pathHotlineSkimCondMET",
         ),
     ),
-    outputCommands = cms.untracked.vstring('keep *')
+    outputCommands = FEVTEventContent
 )
