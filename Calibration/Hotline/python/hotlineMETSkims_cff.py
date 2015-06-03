@@ -16,14 +16,7 @@ pvFilter = cms.EDFilter(
 )
 
 ## apply HBHE Noise filter
-from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import HBHENoiseFilterResultProducer
-HBHENoiseFilterResultProducerRunTwo = HBHENoiseFilterResultProducer.clone()
-HBHENoiseFilterResultProducerRunTwo.defaultDecision = "HBHENoiseFilterResultRun2Loose"
-HBHENoiseFilter = cms.EDFilter(
-    "BooleanFlagFilter",
-    inputLabel = cms.InputTag("HBHENoiseFilterResultProducerRunTwo", "HBHENoiseFilterResultRun2Loose", "skim"),
-    reverseDecision = cms.bool(False)
-)
+from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import HBHENoiseFilter, MakeHBHENoiseFilterResult
 
 ## select events with high pfMET
 pfMETSelector = cms.EDFilter(
@@ -40,7 +33,7 @@ pfMETCounter = cms.EDFilter(
 
 hotlineSkimPFMET = cms.Path(
    pvFilter*
-   HBHENoiseFilterResultProducerRunTwo*
+   MakeHBHENoiseFilterResult*
    HBHENoiseFilter*
    pfMETSelector*
    pfMETCounter
@@ -61,13 +54,13 @@ caloMETCounter = cms.EDFilter(
 
 hotlineSkimCaloMET = cms.Path(
    pvFilter*
-   HBHENoiseFilterResultProducerRunTwo*
+   MakeHBHENoiseFilterResult*
    HBHENoiseFilter*
    caloMETSelector*
    caloMETCounter
 )
 
-## select events with high MET dependent on PF and Calo MET Conditions
+## select events with extreme PFMET/CaloMET ratio
 CondMETSelector = cms.EDProducer(
    "CandViewShallowCloneCombiner",
    decay = cms.string("pfMet caloMetM"),
@@ -82,8 +75,29 @@ CondMETCounter = cms.EDFilter(
 
 hotlineSkimCondMET = cms.Path(
    pvFilter*
-   HBHENoiseFilterResultProducerRunTwo*
+   MakeHBHENoiseFilterResult*
    HBHENoiseFilter*
    CondMETSelector*
    CondMETCounter
+)
+
+## select events with high tcMET
+tcMETSelector = cms.EDFilter(
+    "CandViewSelector",
+    src = cms.InputTag("tcMet"),
+    cut = cms.string( "pt()>150" )
+)
+
+tcMETCounter = cms.EDFilter(
+    "CandViewCountFilter",
+    src = cms.InputTag("tcMETSelector"),
+    minNumber = cms.uint32(1),
+)
+
+tcMETSelSeq = cms.Sequence(
+   pvFilter*
+   MakeHBHENoiseFilterResult*
+   HBHENoiseFilter*
+   tcMETSelector*
+   tcMETCounter
 )
