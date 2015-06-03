@@ -4,7 +4,6 @@
 /** \class CosmicLayerTriplets
  * find all (resonable) pairs of pixel layers
  */
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,8 +38,6 @@ private:
   //definition of the map 
  
 
-  TrackerLayerIdAccessor acc;
-  
   LayerWithHits *lh1;
   LayerWithHits *lh2;
   LayerWithHits *lh3;
