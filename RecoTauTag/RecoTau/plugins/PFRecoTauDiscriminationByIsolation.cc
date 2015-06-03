@@ -5,6 +5,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "TMath.h"
@@ -108,7 +109,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       for ( edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
 	    cfgFootprintCorrection != cfgFootprintCorrections.end(); ++cfgFootprintCorrection ) {
 	std::string selection = cfgFootprintCorrection->getParameter<std::string>("selection");
-	double offset = cfgFootprintCorrection->getParameter<double>("offset");
+	std::string offset = cfgFootprintCorrection->getParameter<std::string>("offset");
 	footprintCorrectionType* footprintCorrection = new footprintCorrectionType(selection, offset);
 	footprintCorrections_.push_back(footprintCorrection);
       }
@@ -230,13 +231,13 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   bool applyFootprintCorrection_;
   struct footprintCorrectionType
   {
-    footprintCorrectionType(const std::string& selection, double offset)
+    footprintCorrectionType(const std::string& selection, const std::string& offset)
       : selection_(selection),
 	offset_(offset)
     {}
     ~footprintCorrectionType() {}
     StringCutObjectSelector<PFTau> selection_;
-    double offset_;
+    StringObjectFunction<PFTau> offset_;
   };
   std::vector<footprintCorrectionType*> footprintCorrections_;
 
@@ -499,7 +500,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   if ( applyFootprintCorrection_ || storeRawFootprintCorrection_ ) {
     for ( std::vector<footprintCorrectionType*>::const_iterator footprintCorrection = footprintCorrections_.begin();
 	  footprintCorrection != footprintCorrections_.end(); ++footprintCorrection ) {
-      if ( (*footprintCorrection)->selection_(*pfTau) ) footprintCorrection_value = (*footprintCorrection)->offset_;
+      if ( (*footprintCorrection)->selection_(*pfTau) ) {
+	footprintCorrection_value = (*footprintCorrection)->offset_(*pfTau);
+      }
     }
   }
 
