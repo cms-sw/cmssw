@@ -65,7 +65,7 @@
  <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
- <class name="std::vector<std::vector<std::vector<edm::EventID> > > "/>
+ <class name="std::vector<std::vector<std::vector<edm::EventID> > >"/>
  <class name="edm::BranchChildren" ClassVersion="10">
   <version ClassVersion="10" checksum="137742168"/>
  </class>
