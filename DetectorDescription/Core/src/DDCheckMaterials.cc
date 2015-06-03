@@ -29,12 +29,7 @@ bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, in
 	result.first = curr_err;
 	return err;	    
       }
-/*
-     else {
-        edm::LogInfo << " material name=" << flush 
-	     << *mip.isDefined().first << std::endl;
-      }
-*/      
+
       DDMaterial & mp = mip;
       result.second=mp.ddname();	 
       
@@ -77,7 +72,6 @@ bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, in
 	if (c_err) {
 	  err = err | c_err;
 	  curr_err = curr_err + std::string(" constituents have errors:\n") + std::string(4*rlevel,' ') 
-	           //+ res.second.ns() + std::string(":") + res.second.name() 
 		   + std::string(" ") + res.first;
 	  result.first=curr_err;	   
 	}
@@ -94,17 +88,12 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
    bool result = false;
    std::vector<std::pair<std::string,DDName> > errors;
    
-   
-   //DDMaterialReg::instance_t& mr = DDMaterialReg::instance();
-   //DDMaterialReg::instance_t::iterator i = mr.begin();
-   typedef DDBase<DDName,DDI::Material*>::StoreT RegT;
-   RegT::value_type& mr = RegT::instance();
-   RegT::value_type::iterator i = mr.begin();
-   //edm::LogError("DDCheckMaterials") << " material checking, registry access, exiting! " << std::endl; exit(1);
-   for(; i != mr.end(); ++i) {
+   DDBase<DDName,DDI::Material*>::StoreT::value_type& mr = DDBase<DDName,DDI::Material*>::StoreT::instance();
+
+   for( auto i : mr ) {
 	std::pair<std::string,DDName> error("","");
-	DDMaterial tmat(i->first); 
-	//exit(1);
+	DDMaterial tmat(i.first); 
+
 	if (DDCheckMaterial(tmat,error)) {
 	   errors.push_back(error);
 	}	      
@@ -114,9 +103,8 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
    os << "[DDCore:Report] Materials " << std::endl;
    os << s << mr.size() << " Materials declared" << std::endl;
    os << s << "detected errors:" << errors.size() << std::endl;
-   std::vector<std::pair<std::string,DDName> >::iterator j = errors.begin();
-   for (;j!=errors.end();++j) {
-     os << std::endl << s << j->second << "  " << j->first << std::endl;
+   for( auto j : errors ) {
+     os << std::endl << s << j.second << "  " << j.first << std::endl;
      result = true;
    }
    if(res) *res = errors;
