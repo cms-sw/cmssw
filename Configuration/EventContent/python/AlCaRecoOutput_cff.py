@@ -111,3 +111,9 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import 
 # stream for the LumiPixels workflow
 from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+
+###############################################################
+# hotline skim workflows
+###############################################################
+from Calibration.Hotline.hotlineSkims_Output_cff import *
+from Calibration.Hotline.hotlineMETSkims_Output_cff import *

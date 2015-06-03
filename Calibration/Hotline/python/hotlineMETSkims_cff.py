@@ -31,7 +31,7 @@ pfMETCounter = cms.EDFilter(
     minNumber = cms.uint32(1),
 )
 
-hotlineSkimPFMET = cms.Path(
+seqHotlineSkimPFMET = cms.Sequence(
    pvFilter*
    MakeHBHENoiseFilterResult*
    HBHENoiseFilter*
@@ -52,7 +52,7 @@ caloMETCounter = cms.EDFilter(
     minNumber = cms.uint32(1),
 )
 
-hotlineSkimCaloMET = cms.Path(
+seqHotlineSkimCaloMET = cms.Sequence(
    pvFilter*
    MakeHBHENoiseFilterResult*
    HBHENoiseFilter*
@@ -73,31 +73,10 @@ CondMETCounter = cms.EDFilter(
     minNumber = cms.uint32(1),
 )
 
-hotlineSkimCondMET = cms.Path(
+seqHotlineSkimCondMET = cms.Sequence(
    pvFilter*
    MakeHBHENoiseFilterResult*
    HBHENoiseFilter*
    CondMETSelector*
    CondMETCounter
-)
-
-## select events with high tcMET
-tcMETSelector = cms.EDFilter(
-    "CandViewSelector",
-    src = cms.InputTag("tcMet"),
-    cut = cms.string( "pt()>150" )
-)
-
-tcMETCounter = cms.EDFilter(
-    "CandViewCountFilter",
-    src = cms.InputTag("tcMETSelector"),
-    minNumber = cms.uint32(1),
-)
-
-hotlineSkimTcMET = cms.Path(
-   pvFilter*
-   MakeHBHENoiseFilterResult*
-   HBHENoiseFilter*
-   tcMETSelector*
-   tcMETCounter
 )

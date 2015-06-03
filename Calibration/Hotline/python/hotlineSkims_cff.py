@@ -29,7 +29,7 @@ singleMuonFilter = cms.EDFilter(
     src = cms.InputTag("singleMuonSelector"),
     minNumber = cms.uint32(1)
 )
-hotlineSkimSingleMuon = cms.Path(singleMuonSelector * singleMuonFilter)
+seqHotlineSkimSingleMuon = cms.Sequence(singleMuonSelector * singleMuonFilter)
 
 #two muons
 doubleMuonSelector = cms.EDFilter(
@@ -42,7 +42,7 @@ doubleMuonFilter = cms.EDFilter(
     src = cms.InputTag("doubleMuonSelector"),
     minNumber = cms.uint32(2)
 )
-hotlineSkimDoubleMuon = cms.Path(doubleMuonSelector * doubleMuonFilter)
+seqHotlineSkimDoubleMuon = cms.Sequence(doubleMuonSelector * doubleMuonFilter)
 
 #three muons
 tripleMuonSelector = cms.EDFilter(
@@ -55,7 +55,7 @@ tripleMuonFilter = cms.EDFilter(
     src = cms.InputTag("tripleMuonSelector"),
     minNumber = cms.uint32(3)
 )
-hotlineSkimTripleMuon = cms.Path(tripleMuonSelector * tripleMuonFilter)
+seqHotlineSkimTripleMuon = cms.Sequence(tripleMuonSelector * tripleMuonFilter)
 
 #one electron
 singleElectronSelector = cms.EDFilter(
@@ -68,7 +68,7 @@ singleElectronFilter = cms.EDFilter(
     src = cms.InputTag("singleElectronSelector"),
     minNumber = cms.uint32(1)
 )
-hotlineSkimSingleElectron = cms.Path(singleElectronSelector * singleElectronFilter)
+seqHotlineSkimSingleElectron = cms.Sequence(singleElectronSelector * singleElectronFilter)
 
 #two electrons
 doubleElectronSelector = cms.EDFilter(
@@ -81,7 +81,7 @@ doubleElectronFilter = cms.EDFilter(
     src = cms.InputTag("doubleElectronSelector"),
     minNumber = cms.uint32(2)
 )
-hotlineSkimDoubleElectron = cms.Path(doubleElectronSelector * doubleElectronFilter)
+seqHotlineSkimDoubleElectron = cms.Sequence(doubleElectronSelector * doubleElectronFilter)
 
 #three electrons
 tripleElectronSelector = cms.EDFilter(
@@ -94,7 +94,7 @@ tripleElectronFilter = cms.EDFilter(
     src = cms.InputTag("tripleElectronSelector"),
     minNumber = cms.uint32(3)
 )
-hotlineSkimTripleElectron = cms.Path(tripleElectronSelector * tripleElectronFilter)
+seqHotlineSkimTripleElectron = cms.Sequence(tripleElectronSelector * tripleElectronFilter)
 
 #one photon
 singlePhotonSelector = cms.EDFilter(
@@ -107,7 +107,7 @@ singlePhotonFilter = cms.EDFilter(
     src = cms.InputTag("singlePhotonSelector"),
     minNumber = cms.uint32(1)
 )
-hotlineSkimSinglePhoton = cms.Path(singlePhotonSelector * singlePhotonFilter)
+seqHotlineSkimSinglePhoton = cms.Sequence(singlePhotonSelector * singlePhotonFilter)
 
 #two photons
 doublePhotonSelector = cms.EDFilter(
@@ -120,7 +120,7 @@ doublePhotonFilter = cms.EDFilter(
     src = cms.InputTag("doublePhotonSelector"),
     minNumber = cms.uint32(2)
 )
-hotlineSkimDoublePhoton = cms.Path(doublePhotonSelector * doublePhotonFilter)
+seqHotlineSkimDoublePhoton = cms.Sequence(doublePhotonSelector * doublePhotonFilter)
 
 #three photons
 triplePhotonSelector = cms.EDFilter(
@@ -133,7 +133,7 @@ triplePhotonFilter = cms.EDFilter(
     src = cms.InputTag("triplePhotonSelector"),
     minNumber = cms.uint32(3)
 )
-hotlineSkimTriplePhoton = cms.Path(triplePhotonSelector * triplePhotonFilter)
+seqHotlineSkimTriplePhoton = cms.Sequence(triplePhotonSelector * triplePhotonFilter)
 
 #one jet
 singleJetSelector = cms.EDFilter(
@@ -146,7 +146,7 @@ singleJetFilter = cms.EDFilter(
     src = cms.InputTag("singleJetSelector"),
     minNumber = cms.uint32(1)
 )
-hotlineSkimSingleJet = cms.Path(singleJetSelector * singleJetFilter)
+seqHotlineSkimSingleJet = cms.Sequence(singleJetSelector * singleJetFilter)
 
 #two jets
 doubleJetSelector = cms.EDFilter(
@@ -159,7 +159,7 @@ doubleJetFilter = cms.EDFilter(
     src = cms.InputTag("doubleJetSelector"),
     minNumber = cms.uint32(2)
 )
-hotlineSkimDoubleJet = cms.Path(doubleJetSelector * doubleJetFilter)
+seqHotlineSkimDoubleJet = cms.Sequence(doubleJetSelector * doubleJetFilter)
 
 #many jets
 multiJetSelector = cms.EDFilter(
@@ -172,7 +172,7 @@ multiJetFilter = cms.EDFilter(
     src = cms.InputTag("multiJetSelector"),
     minNumber = cms.uint32(multiJetNJets)
 )
-hotlineSkimMultiJet = cms.Path(multiJetSelector * multiJetFilter)
+seqHotlineSkimMultiJet = cms.Sequence(multiJetSelector * multiJetFilter)
 
 #HT
 htMht = cms.EDProducer( "HLTHtMhtProducer",
@@ -197,7 +197,7 @@ htFilter = cms.EDFilter(
     src = cms.InputTag("htSelector"),
     minNumber = cms.uint32(1)
 )
-hotlineSkimHT = cms.Path(htMht * htSelector * htFilter)
+seqHotlineSkimHT = cms.Sequence(htMht * htSelector * htFilter)
 
 #high-mass dileptons
 dimuons = cms.EDProducer(
@@ -234,6 +234,6 @@ diEMuMassFilter = cms.EDFilter(
     minNumber = cms.uint32(1)
 )
 
-hotlineSkimMassiveDimuon = cms.Path(dimuons * dimuonMassFilter)
-hotlineSkimMassiveDielectron = cms.Path(dielectrons * dielectronMassFilter)
-hotlineSkimMassiveEMu = cms.Path(diEMu * diEMuMassFilter)
+seqHotlineSkimMassiveDimuon = cms.Sequence(dimuons * dimuonMassFilter)
+seqHotlineSkimMassiveDielectron = cms.Sequence(dielectrons * dielectronMassFilter)
+seqHotlineSkimMassiveEMu = cms.Sequence(diEMu * diEMuMassFilter)

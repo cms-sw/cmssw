@@ -1,5 +1,5 @@
 AlCaRecoMatrix = {'ExpressCosmics' : 'SiStripCalZeroBias+TkAlCosmics0T',
-                  'StreamExpress'  : 'SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+DtCalib',
+                  'StreamExpress'  : 'SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+DtCalib+Hotline+METHotline',
                   'MinimumBias'    : 'SiStripCalMinBias+TkAlMinBias',
                   'Commissioning'  : 'HcalCalIsoTrk',
                   'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib',
