@@ -116,4 +116,8 @@ def customizeHLTforNewJetCorrectors(process):
         if not p.replace(newModule,seq+newModule):
           print "failed to replace ",m, "in path ", p.label_(), p
 
+  #now remove the old correctors
+  for m in oldCorrectors:
+    delattr(process,m)
+
   return process
