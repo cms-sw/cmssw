@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
@@ -18,11 +19,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 #include <vector>
 class CosmicLayerTriplets {
 public:
-  CosmicLayerTriplets():isFirstCall(true){};
+  CosmicLayerTriplets() {};
   ~CosmicLayerTriplets();
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
  typedef std::pair<SeedLayerPairs::LayerPair, std::vector<const LayerWithHits*> > LayerPairAndLayers;
@@ -44,12 +46,11 @@ private:
   LayerWithHits *lh3;
   LayerWithHits *lh4;
 
+  edm::ESWatcher<TrackerRecoGeometryRecord> watchTrackerGeometry_;
+
    std::vector<BarrelDetLayer const*> bl;
-   std::vector<ForwardDetLayer const*> fpos;
-   std::vector<ForwardDetLayer const*> fneg;
    //MP
    std::vector<LayerWithHits*> allLayersWithHits;
-   bool isFirstCall;
  public:
  
    void init(const SiStripRecHit2DCollection &collstereo,

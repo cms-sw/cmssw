@@ -61,11 +61,10 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
 			       const edm::EventSetup& iSetup){
 
   _geometry=geometry;
-  if(isFirstCall){
+  if(watchTrackerGeometry_.check(iSetup)){
     edm::ESHandle<GeometricSearchTracker> track;
     iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
     bl=track->barrelLayers(); 
-    isFirstCall=false;
   }
   for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); 
       it!=allLayersWithHits.end();it++){
