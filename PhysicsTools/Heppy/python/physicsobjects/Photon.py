@@ -1,6 +1,5 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 from math import exp
-import re
 
 import ROOT
 
@@ -126,6 +125,7 @@ class Photon(PhysicsObject ):
         return offset + exp(slope_exp*self.pt()+offset_exp)
 
 
+
     def passPhotonID(self,name):
         
         idForBarrel = self.etaRegionID()
@@ -142,10 +142,17 @@ class Photon(PhysicsObject ):
 
         return passPhotonID
 
-    def passPhotonIso(self,name,isocorr):
+        if "POG_PHYS14_25ns" in name and idForBarrel == 0:
+            if self.calScaledIsoValueExp(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+                passPhotonID = False
+        else:
+            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+                passPhotonID = False
 
-        idForBarrel = self.etaRegionID()
-        passPhotonIso = True
+        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso():
+            passPhotonID = False
+        
+        return passPhotonID
 
         if self.CutBasedIDWP(name)["chaHadIso"][idForBarrel] < self.chargedHadronIso(isocorr):
             passPhotonIso = False
