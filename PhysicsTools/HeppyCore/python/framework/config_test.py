@@ -3,7 +3,7 @@ import os
 import shutil
 import copy
 
-from PhysicsTools.HeppyCore.framework.config import *
+from config import *
 
 class ConfigTestCase(unittest.TestCase):
 
