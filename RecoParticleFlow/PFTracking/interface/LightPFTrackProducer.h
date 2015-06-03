@@ -10,7 +10,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class PFTrackTransformer;
-class LightPFTrackProducer : public edm::stream::EDProducer {
+class LightPFTrackProducer : public edm::stream::EDProducer<> {
 public:
   
   ///Constructor
