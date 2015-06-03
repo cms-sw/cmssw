@@ -1,0 +1,12 @@
+nJet30 : nJet30 : 8,-0.5,7.5 ; XTitle='N(jet\, p_{T} > 30)',Logy,LegendCutoff=1e-3, YMin=1, YMax=1e4
+nvtx: nVert: 40,0.5,40.5 ; XTitle="N(vertices)", Legend='TR'
+met: met_pt: 60,0,300    ; XTitle="E_{T}^{miss}  [GeV]",Logy,LegendCutoff=1e-3, YMin=1, YMax=1e4
+metnomu: metNoMu_pt: 60,200,1000    ; XTitle="no-mu E_{T}^{miss}  [GeV]",Logy,LegendCutoff=1e-3, YMin=1, YMax=1e4
+mZ1_log: mZ1: 60,60,120 ; XTitle="best m(l^{+}l^{-})  [GeV]",Legend='TR',Logy,LegendCutoff=1e-3, YMin=1, YMax=1e4
+mZ1: mZ1: 60,60,120 ; XTitle="best m(l^{+}l^{-})  [GeV]", Legend='TL'
+iso1: LepGood1_relIso04: 20,0,.4; Logy, LegendCutoff=1e-3, YMin=1, YMax=1e4
+iso2: LepGood2_relIso04: 20,0,.4; Logy, LegendCutoff=1e-3, YMin=1, YMax=1e4
+l1pt:  LepGood1_pt: 40,0,1400; XTitle="Leading lepton p_{T}  [GeV]", Legend='TR'
+l2pt:  LepGood2_pt: 40,0,500; XTitle="Subleading lepton p_{T}  [GeV]", Legend='TR'
+l1eta:  LepGood1_eta: 40,-2.5,2.5;    XTitle="Leading lepton #eta", Legend='TR'
+l2eta:  LepGood2_eta: 40,-2.5,2.5; XTitle="Subleading lepton #eta", Legend='TR'
