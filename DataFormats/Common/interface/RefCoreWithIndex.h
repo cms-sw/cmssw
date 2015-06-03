@@ -25,7 +25,7 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
 namespace edm {  
   class RefCoreWithIndex {
   public:
-    RefCoreWithIndex() :  cachePtr_(nullptr),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
+    RefCoreWithIndex() :  cachePtr_(0),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
 
     RefCoreWithIndex(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient, unsigned int elementIndex);
 

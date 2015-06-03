@@ -93,7 +93,7 @@ namespace edm {
 
 #define PRODUCTPTR_IMPL return refcoreimpl::productPtr(cachePtr_)
 
-#define ISNONNULL_IMPL return isTransient() ? productPtr() != nullptr : id().isValid()
+#define ISNONNULL_IMPL return isTransient() ? productPtr() != 0 : id().isValid()
 
 #define PRODUCTGETTER_IMPL return refcoreimpl::productGetter(cachePtr_)
 
