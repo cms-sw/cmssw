@@ -182,17 +182,27 @@ elif test == '6':
     comp.fineSplitFactor = 1
     monoJetSkim.metCut = 0
     selectedComponents = [ comp ]
-elif test == 'monojet-synch': # sync
+elif test == 'synch-74X': # sync
+    from CMGTools.MonoXAnalysis.samples.samples_monojet_13TeV_74X import *
     #eventSelector.toSelect = [ 11809 ]
     #sequence = cfg.Sequence([eventSelector] + dmCoreSequence+[ ttHEventAna, treeProducer, ])
+    monoJetCtrlLepSkim.minLeptons = 0
+    monoJetSkim.metCut = 0  
+    what = getHeppyOption("sample")
+    if what == "ADD":
+        selectedComponents = [ ADD_MJ ]
+    elif what == "TTLep":
+        selectedComponents = [ TTLep ]
+    else:
+        selectedComponents = RelVals741
     jetAna.recalibrateJets = False 
     jetAna.smearJets       = False 
-    comp = Monojet_M_10_V;
-    comp.files = [ 'root://eoscms//eos/cms/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root' ]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
-    monoJetSkim.metCut = 0
-    selectedComponents = [ comp ]
+    if not getHeppyOption("all"):
+        for comp in selectedComponents:
+            comp.files = comp.files[:1]
+            comp.splitFactor = 1
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
+    #    comp.files = [ 'root://eoscms//eos/cms/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root' ]
 elif test == 'SR':
     selectedComponents = backgroundSamples + signalSamples
     #selectedComponents = backgroundSamples
