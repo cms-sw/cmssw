@@ -191,7 +191,7 @@
 
   <class name="edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > > "/>
+  <class name="std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > >"/>
 
   <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
 
@@ -212,7 +212,7 @@
   <class name="std::vector<pftools::Calibratable>" />
   <class name="std::vector<pftools::CalibratableElement>" />
   <class name="std::vector<pftools::CandidateWrapper>" />
-  <class name="std::vector<pftools::CalibrationResultWrapper> "/>
+  <class name="std::vector<pftools::CalibrationResultWrapper>"/>
   <class name="pftools::CaloWindow"  ClassVersion="10">
    <version ClassVersion="10" checksum="1050281643"/>
   </class>
@@ -266,7 +266,7 @@
 
   <class name="std::vector<reco::PFDisplacedVertex::VertexTrackType>"/>
 
-  <class name="std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > > "/>
+  <class name="std::vector<std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > >"/>
 
   <class name="std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> >"/>
 
