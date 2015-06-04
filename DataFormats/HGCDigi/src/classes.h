@@ -7,7 +7,6 @@ namespace DataFormats_HGCDigi {
     std::vector<HGCSample> vHGCsample;
 
     //EE specific
-    HGCEEDetId anHGCEEDetId;
     HGCDataFrame<HGCEEDetId,HGCSample> anHGCEEDataFrame;
     std::vector<HGCDataFrame<HGCEEDetId,HGCSample> > vHGCEEDataFrames;
     edm::SortedCollection< HGCDataFrame<HGCEEDetId,HGCSample> > scHGCEEDataFrames;
@@ -16,7 +15,6 @@ namespace DataFormats_HGCDigi {
     edm::Wrapper<HGCEEDigiCollection> wdcHGCEE;
 
     //HE specific
-    HGCHEDetId anHGCHEDetId;
     HGCDataFrame<HGCHEDetId,HGCSample> anHGCHEDataFrame;
     std::vector<HGCDataFrame<HGCHEDetId,HGCSample> > vHGCHEDataFrames;
     edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > scHGCHEDataFrames;
