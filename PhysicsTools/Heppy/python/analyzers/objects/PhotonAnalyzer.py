@@ -25,6 +25,7 @@ class PhotonAnalyzer( Analyzer ):
 
     def declareHandles(self):
         super(PhotonAnalyzer, self).declareHandles()
+        self.handles['rhoPhoton'] = AutoHandle( self.cfg_ana.rhoPhoton, 'double')
 
     #----------------------------------------                                                                                                                                   
     # DECLARATION OF HANDLES OF PHOTONS STUFF                                                                                                                                   
@@ -56,6 +57,18 @@ class PhotonAnalyzer( Analyzer ):
             if gamma.pt() < self.cfg_ana.ptMin: continue
             if abs(gamma.eta()) > self.cfg_ana.etaMax: continue
             foundPhoton = True
+
+            gamma.rho = float(self.handles['rhoPhoton'].product()[0])
+            # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Selection_implementation_details
+            if   abs(gamma.eta()) < 1.0:   gamma.EffectiveArea03 = [ 0.0234, 0.0053, 0.078  ]
+            elif abs(gamma.eta()) < 1.479: gamma.EffectiveArea03 = [ 0.0189, 0.0103, 0.0629 ]
+            elif abs(gamma.eta()) < 2.0:   gamma.EffectiveArea03 = [ 0.0171, 0.0057, 0.0264 ]
+            elif abs(gamma.eta()) < 2.2:   gamma.EffectiveArea03 = [ 0.0129, 0.0070, 0.0462 ]
+            elif abs(gamma.eta()) < 2.3:   gamma.EffectiveArea03 = [ 0.0110, 0.0152, 0.0740 ]
+            elif abs(gamma.eta()) < 2.4:   gamma.EffectiveArea03 = [ 0.0074, 0.0232, 0.0924 ]
+            else:                          gamma.EffectiveArea03 = [ 0.0035, 0.1709, 0.1484 ]
+
+            gamma.relIso = (max(gamma.chargedHadronIso()-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.neutralHadronIso()-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.photonIso() - gamma.rho*gamma.EffectiveArea03[2],0))/gamma.pt()
 
             def idWP(gamma,X):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
@@ -90,7 +103,7 @@ class PhotonAnalyzer( Analyzer ):
                 # keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
 
                 # implement cut based ID with CMGTools
-                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID)
+                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID,self.cfg_ana.gamma_isoCorr)
 
             if keepThisPhoton:
                 event.selectedPhotons.append(gamma)
@@ -279,6 +292,8 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
     ptMin = 20,
     etaMax = 2.5,
     gammaID = "PhotonCutBasedIDLoose_CSA14",
+    rhoPhoton = 'fixedGridRhoFastjetAll',
+    gamma_isoCorr = 'rhoArea',
     do_mc_match = True,
     do_randomCone = False,
   )
