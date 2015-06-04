@@ -48,6 +48,9 @@ ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_barrel_new_phigap   1 1 1 0
 ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_ebeegap_new         1 1 1 0
 ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_endcaps_new         1 1 0 0
 ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_endcaps_new_deegap  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_bcl_EtotoEtrue              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_bcl_EtotoEtrue_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_bcl_EtotoEtrue_endcaps      1 1 1 0
 ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrue                1 1 0 0
 ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrue_barrel         1 1 0 0
 ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrue_endcaps        1 1 1 0
@@ -107,9 +110,9 @@ ElectronMcSignalValidatorPt1000/h_ele_HoE_bc_endcaps              1 1 1 0
 ElectronMcSignalValidatorPt1000/h_ele_hcalDepth1OverEcalBc		    1 1 0 0 
 ElectronMcSignalValidatorPt1000/h_ele_hcalDepth1OverEcalBc_barrel	    1 1 0 0	
 ElectronMcSignalValidatorPt1000/h_ele_hcalDepth1OverEcalBc_endcaps	    1 1 1 0
-ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc		    1 1 0 0	
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc		        1 1 0 0	
 ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc_barrel	    1 1 0 0
-ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc_endcaps        1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc_endcaps      1 1 1 0
 ElectronMcSignalValidatorPt1000/h_ele_HoE_fiducial                1 1 1 0
 ElectronMcSignalValidatorPt1000/h_scl_sigietaieta                 1 1 0 0
 ElectronMcSignalValidatorPt1000/h_scl_sigietaieta_barrel          1 1 0 0

@@ -51,6 +51,9 @@ ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap  1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_pfx 1 1 0 0
 ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_barrel_pfx 1 1 0 0
 ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_endcaps_pfx 1 1 1 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue              1 1 0 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_barrel       1 1 0 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_endcaps      1 1 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue                1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_barrel         1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_endcaps        1 1 1 0
@@ -129,9 +132,6 @@ ElectronMcSignalValidator/h_scl_E2x5max_endcaps             1 1 1 0
 ElectronMcSignalValidator/h_scl_E5x5                        1 1 0 0
 ElectronMcSignalValidator/h_scl_E5x5_barrel                 1 1 0 0
 ElectronMcSignalValidator/h_scl_E5x5_endcaps                1 1 1 0
-ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue              1 1 0 0
-ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_barrel       1 1 0 0
-ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_endcaps      1 1 1 0
 ElectronMcSignalValidator/h_ele_HoEVsEta_pfx                0 1 1 1
 
 Electron track variables
