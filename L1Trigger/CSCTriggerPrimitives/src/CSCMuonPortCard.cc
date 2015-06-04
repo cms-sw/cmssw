@@ -32,10 +32,10 @@ CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
   max_stubs_ = CSCConstants::maxStubs;
 
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
-  if (commonParams.getUntrackedParameter<bool>("isSLHC",false))
+  if (commonParams.getParameter<bool>("isSLHC"))
   {
     edm::ParameterSet mpcParams = conf.getParameter<edm::ParameterSet>("mpcSLHC");
-    max_stubs_ = mpcParams.getUntrackedParameter<unsigned int>("mpcMaxStubs", CSCConstants::maxStubs);
+    max_stubs_ = mpcParams.getParameter<unsigned int>("mpcMaxStubs");
   }
 }
 

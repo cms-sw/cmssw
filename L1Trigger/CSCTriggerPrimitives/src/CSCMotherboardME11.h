@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME11_h
-#define CSCTriggerPrimitives_CSCMotherboardME11_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11_h
 
 /** \class CSCMotherboardME11
  *
