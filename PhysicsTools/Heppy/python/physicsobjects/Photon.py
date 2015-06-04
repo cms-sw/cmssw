@@ -5,8 +5,16 @@ import ROOT
 
 class Photon(PhysicsObject ):
 
-    '''                                                                                                                                                                                                                                                                return object from the photon 
-    '''
+    def __init__(self, *args, **kwargs):
+        '''Initializing rho to None. The user is responsible for setting it to the right value 
+        to get the rho-corrected isolation.'''
+        super(Photon, self).__init__(*args, **kwargs)
+        self._physObjInit()
+
+    def _physObjInit(self):
+        self.rho = None
+
+
     def hOVERe(self):
         return self.physObj.hadTowOverEm() 
 
@@ -22,14 +30,20 @@ class Photon(PhysicsObject ):
     def full5x5_sigmaIetaIeta(self):
         return self.physObj.full5x5_sigmaIetaIeta()
 
-    def chargedHadronIso(self):
-        return self.physObj.chargedHadronIso()
+    def chargedHadronIso(self, corr=None):
+        if corr is None or corr == "": return self.physObj.chargedHadronIso()
+        elif corr == "rhoArea": return max(self.physObj.chargedHadronIso()-self.rho*self.EffectiveArea03[0],0)
+        else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
-    def neutralHadronIso(self):
-        return self.physObj.neutralHadronIso()
+    def neutralHadronIso(self, corr=None):
+        if corr is None or corr == "": return self.physObj.neutralHadronIso()
+        elif corr == "rhoArea": return max(self.physObj.neutralHadronIso()-self.rho*self.EffectiveArea03[1],0)
+        else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
-    def photonIso(self):
-        return self.physObj.photonIso()
+    def photonIso(self, corr=None):
+        if corr is None or corr == "": return self.physObj.photonIso()
+        elif corr == "rhoArea": return max(self.physObj.photonIso()-self.rho*self.EffectiveArea03[2],0)
+        else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
     def photonIDCSA14(self, name):
         keepThisPhoton = True
@@ -42,7 +56,8 @@ class Photon(PhysicsObject ):
                 if self.hOVERe() > 0.049        : keepThisPhoton = False
         return keepThisPhoton
 
-    def CutBasedIDWP(self,name):
+    def CutBasedIDWP( self, name, rho=None ):
+        if rho == None and hasattr(self,'rho') and self.rho != None: rho = self.rho
         # recommeneded PHYS14 working points from POG
         WPs = {
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#Pointers_for_PHYS14_selection_im
@@ -83,31 +98,31 @@ class Photon(PhysicsObject ):
         return offset + exp(slope_exp*self.pt()+offset_exp)
 
 
-    def passPhotonID(self,name):
-
+    def passPhotonID(self,name,isocorr):
+        
         idForBarrel = self.etaRegionID()
         passPhotonID = True
 
-        if self.CutBasedIDWP(name)["conversionVeto"][idForBarrel] and self.physObj.hasPixelSeed():
+        if self.CutBasedIDWP(name,isocorr)["conversionVeto"][idForBarrel] and self.physObj.hasPixelSeed():
             passPhotonID = False
 
-        if self.CutBasedIDWP(name)["H/E"][idForBarrel] < self.hOVERe():
+        if self.CutBasedIDWP(name,isocorr)["H/E"][idForBarrel] < self.hOVERe():
             passPhotonID = False
 
-        if self.CutBasedIDWP(name)["sigmaIEtaIEta"][idForBarrel] < self.full5x5_sigmaIetaIeta():
+        if self.CutBasedIDWP(name,isocorr)["sigmaIEtaIEta"][idForBarrel] < self.full5x5_sigmaIetaIeta():
             passPhotonID = False
 
-        if self.CutBasedIDWP(name)["chaHadIso"][idForBarrel] < self.chargedHadronIso():
+        if self.CutBasedIDWP(name,isocorr)["chaHadIso"][idForBarrel] < self.chargedHadronIso(isocorr):
             passPhotonID = False
 
         if "POG_PHYS14_25ns" in name and idForBarrel == 0:
-            if self.calScaledIsoValueExp(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+            if self.calScaledIsoValueExp(*self.CutBasedIDWP(name,isocorr)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
                 passPhotonID = False
         else:
-            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name,isocorr)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
                 passPhotonID = False
 
-        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso():
+        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name,isocorr)["phoIso"][idForBarrel]) < self.photonIso(isocorr):
             passPhotonID = False
         
         return passPhotonID
