@@ -142,9 +142,13 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet pfHtPt_TH1;
   edm::ParameterSet bJetPhi_TH1;
   edm::ParameterSet bJetEta_TH1;
+  edm::ParameterSet bJetCSVCalo_TH1;
+  edm::ParameterSet bJetCSVPF_TH1;
   edm::ParameterSet diMuonMass_TH1;
   edm::ParameterSet diElecMass_TH1;
   edm::ParameterSet muonDxy_TH1;
+
+
 
   //setup path names
   string razor_pathName;
@@ -163,6 +167,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   string pfHtPt_pathName;
   string bJetPlots_pathName;
   string bJetPlots_pathNameOR;
+  string bJetPlots_pathNameCalo;
+  string bJetPlots_pathNamePF;
   string jetAK8Plots_pathName;
   string diMuonMass_pathName;
   string diMuonMass_pathNameOR;
@@ -198,6 +204,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   MonitorElement * pfHtPt_;
   MonitorElement * bJetPhi_;
   MonitorElement * bJetEta_;
+  MonitorElement * bJetCSVCalo_;
+  MonitorElement * bJetCSVPF_;
   MonitorElement * diMuonMass_;
   MonitorElement * diElecMass_;
   MonitorElement * muonDxy_;
@@ -256,6 +264,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   pfHtPt_TH1 = iConfig.getParameter<edm::ParameterSet>("pfHtPt");
   bJetPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetPhi");
   bJetEta_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetEta");
+  bJetCSVCalo_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetCSVCalo");
+  bJetCSVPF_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetCSVPF");
   diMuonMass_TH1 = iConfig.getParameter<edm::ParameterSet>("diMuonMass");
   diElecMass_TH1 = iConfig.getParameter<edm::ParameterSet>("diElecMass");
   muonDxy_TH1 = iConfig.getParameter<edm::ParameterSet>("muonDxy");
@@ -305,12 +315,6 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<trigger::TriggerEvent> aodTriggerEvent;
    iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    if (!aodTriggerEvent.isValid()) return;
-
-   edm::Handle<reco::JetTagCollection> csvCaloTags;
-   iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
-
-   edm::Handle<reco::JetTagCollection> csvPfTags;
-   iEvent.getByToken(csvPfTagsToken_, csvPfTags);
 
    for (string & pathName : quickCollectionPaths) //loop over paths
      {
@@ -465,7 +469,8 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     }
 	   
 	   // bjet eta + phi
-	   else if (pathName == bJetPlots_pathName || pathName == bJetPlots_pathNameOR)
+	   //else if (pathName == bJetPlots_pathName || pathName == bJetPlots_pathNameOR)
+	   else if (pathName == bJetPlots_pathNameCalo || pathName == bJetPlots_pathNamePF)
 	     {
 	       for (const auto & key : keys)
 		 {
@@ -473,7 +478,30 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		   bJetPhi_->Fill(objects[key].phi());
 		 }
 	     }
-
+	   
+	   //b-tagging CSV information
+	   if (pathName == bJetPlots_pathNamePF)
+	     {
+	       edm::Handle<reco::JetTagCollection> csvPfTags;
+	       iEvent.getByToken(csvPfTagsToken_, csvPfTags);
+	       
+	       if (csvPfTags.isValid())
+		 {
+		   for (auto iter = csvPfTags->begin(); iter != csvPfTags->end(); iter++) bJetCSVPF_->Fill(iter->second);
+		 }
+	     }
+	   if (pathName == bJetPlots_pathNameCalo)
+	     {
+	       edm::Handle<reco::JetTagCollection> csvCaloTags;
+	       iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
+	       
+	       if (csvCaloTags.isValid())
+		 {
+		   for (auto iter = csvCaloTags->begin(); iter != csvCaloTags->end(); iter++) bJetCSVCalo_->Fill(iter->second);	    
+		 }
+	     }
+	   
+	   
 	   //muon dxy(use an unique path)
 	   else if (pathName == muonDxyPlots_pathName)
 	     {
@@ -627,6 +655,8 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   pfHtPt_pathName = pfHtPt_TH1.getParameter<string>("pathName");
   bJetPlots_pathName = bJetPhi_TH1.getParameter<string>("pathName");
   bJetPlots_pathNameOR = bJetPhi_TH1.getParameter<string>("pathName_OR");
+  bJetPlots_pathNameCalo = bJetCSVCalo_TH1.getParameter<string>("pathName");
+  bJetPlots_pathNamePF = bJetCSVPF_TH1.getParameter<string>("pathName");
   diMuonMass_pathName = diMuonMass_TH1.getParameter<string>("pathName");
   diMuonMass_pathNameOR = diMuonMass_TH1.getParameter<string>("pathName_OR");
   diElecMass_pathName = diElecMass_TH1.getParameter<string>("pathName");
@@ -717,6 +747,16 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
     {
       quickCollectionPaths.push_back(bJetPlots_pathNameOR);
       lookupFilter[bJetPlots_pathNameOR] = bJetEta_TH1.getParameter<string>("moduleName_OR");
+    }
+  if (lookupIndex.count(bJetPlots_pathNameCalo) >0)
+    {
+      quickCollectionPaths.push_back(bJetPlots_pathNameCalo);
+      lookupFilter[bJetPlots_pathNameCalo] = bJetCSVCalo_TH1.getParameter<string>("moduleName");
+    }
+  if (lookupIndex.count(bJetPlots_pathNamePF) >0)
+    {
+      quickCollectionPaths.push_back(bJetPlots_pathNamePF);
+      lookupFilter[bJetPlots_pathNamePF] = bJetCSVPF_TH1.getParameter<string>("moduleName");
     }
   if (lookupIndex.count(diMuonMass_pathName) >0)
     {
@@ -899,10 +939,24 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       hist_muonDxy->SetMinimum(0);
       muonDxy_ = ibooker.book1D("Muon_dxy",hist_muonDxy);
     }
+  //CSV
+  if (lookupIndex.count(bJetPlots_pathNameCalo) >0)
+    {
+      TH1F * hist_bJetCSVCalo = new TH1F("bJetCSVCalo","calo b-jet CSV ",bJetCSVCalo_TH1.getParameter<int>("NbinsX"),bJetCSVCalo_TH1.getParameter<int>("Xmin"),bJetCSVCalo_TH1.getParameter<int>("Xmax"));
+      hist_bJetCSVCalo->SetMinimum(0);
+      bJetCSVCalo_ = ibooker.book1D("bJetCSVCalo",hist_bJetCSVCalo);
+    } 
+  if (lookupIndex.count(bJetPlots_pathNamePF) >0)
+    {
+      TH1F * hist_bJetCSVPF = new TH1F("bJetCSVPF","pf b-jet CSV",bJetCSVPF_TH1.getParameter<int>("NbinsX"),bJetCSVPF_TH1.getParameter<int>("Xmin"),bJetCSVPF_TH1.getParameter<int>("Xmax"));
+      hist_bJetCSVPF->SetMinimum(0);
+      bJetCSVPF_ = ibooker.book1D("bJetCSVPF",hist_bJetCSVPF);
+    }
+
 
   ////////////////////////////////
   ///
-  /// Backup workspace plots
+  // Backup workspace plots
   ///
   ////////////////////////////////
   ibooker.setCurrentFolder(backupFolder);
@@ -954,7 +1008,8 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       hist_PFMetPhi->SetMinimum(0);
       pfMetPhi_ = ibooker.book1D("PFMET_phi",hist_PFMetPhi);
     }
-  if (lookupIndex.count(bJetPlots_pathName) >0 || lookupIndex.count(bJetPlots_pathNameOR) >0) 
+  if (lookupIndex.count(bJetPlots_pathNameCalo) >0 || lookupIndex.count(bJetPlots_pathNamePF) >0) 
+    //  if (lookupIndex.count(bJetPlots_pathName) >0 || lookupIndex.count(bJetPlots_pathNameOR) >0) 
     {
       //bJet phi
       TH1F * hist_bJetPhi = new TH1F("bJet_phi","b-Jet phi",bJetPhi_TH1.getParameter<int>("NbinsX"),bJetPhi_TH1.getParameter<double>("Xmin"),bJetPhi_TH1.getParameter<double>("Xmax"));
