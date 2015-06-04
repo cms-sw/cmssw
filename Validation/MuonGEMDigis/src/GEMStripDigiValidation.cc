@@ -27,7 +27,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
   LogDebug("GEMStripDIGIValidation")<<"nregions set.\n";
   int nstations = GEMGeometry_->regions()[0]->stations().size(); 
   LogDebug("GEMStripDIGIValidation")<<"nstations set.\n";
-  int nstripsGE11  = 384;
+  int nstripsGE11 = 384;
   int nstripsGE21 = 768;
 
   LogDebug("GEMStripDIGIValidation")<<"Successfully binning set.\n";
@@ -70,6 +70,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
         for( int station_num = 0 ; station_num < nstations ; station_num++) {
           if ( station_num == 0 ) nstrips = nstripsGE11;
           else nstrips = nstripsGE21;
+          if (station_num == 1 ) continue;
           std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
           std::string label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num] +" layer "+layerLabel[layer_num];
           theStrip_phistrip[region_num][station_num][layer_num] = ibooker.book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
@@ -154,9 +155,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       int layer_num = layer-1;
       int binX = (chamber-1)*2+layer_num;
       int binY = nroll;
+      int station_num = station -1; 
       if ( station ==2 ) continue; 
       if ( station== 3 ) station=2;
-      int station_num = station -1; 
 
       // Fill normal plots.
       TString histname_suffix = TString::Format("_r%d",region);
