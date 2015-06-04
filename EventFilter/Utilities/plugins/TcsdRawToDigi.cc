@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    ProdTutorial/LumiRawToDigi
-// Class:      LumiRawToDigi
+// Package:    ProdTutorial/TcdsRawToDigi
+// Class:      TcdsRawToDigi
 // 
-/**\class LumiRawToDigi LumiRawToDigi.cc ProdTutorial/LumiRawToDigi/plugins/LumiRawToDigi.cc
+/**\class TcdsRawToDigi TcdsRawToDigi.cc ProdTutorial/TcdsRawToDigi/plugins/TcdsRawToDigi.cc
 
  Description:  Producer to unpack lumi nibble from TCDS 
 
@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,24 +46,23 @@ using namespace std;
 // class declaration
 //
 
-class LumiRawToDigi : public edm::EDProducer {
+
+class TcdsRawToDigi : public edm::stream::EDProducer<> {
    public:
-      explicit LumiRawToDigi(const edm::ParameterSet&);
-      ~LumiRawToDigi();
+      explicit TcdsRawToDigi(const edm::ParameterSet&);
+      ~TcdsRawToDigi();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
       
       int nibble;
       edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
       
 };
 
-LumiRawToDigi::LumiRawToDigi(const edm::ParameterSet& iConfig)
+TcdsRawToDigi::TcdsRawToDigi(const edm::ParameterSet& iConfig)
 {
     edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("InputLabel");
     dataToken_=consumes<FEDRawDataCollection>(dataLabel);
@@ -71,7 +70,7 @@ LumiRawToDigi::LumiRawToDigi(const edm::ParameterSet& iConfig)
 }
 
 
-LumiRawToDigi::~LumiRawToDigi()
+TcdsRawToDigi::~TcdsRawToDigi()
 {
 }
 
@@ -81,7 +80,7 @@ LumiRawToDigi::~LumiRawToDigi()
 //
 
 // ------------ method called to produce the data  ------------
-void LumiRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
 
@@ -105,27 +104,16 @@ void LumiRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put( std::move(pOut), "nibble" );
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-LumiRawToDigi::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-LumiRawToDigi::endJob() {
-}
-
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-LumiRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+TcdsRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
-    descriptions.add("lumiRawToDigi", desc);
+    descriptions.add("tcdsRawToDigi", desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(LumiRawToDigi);
+DEFINE_FWK_MODULE(TcdsRawToDigi);

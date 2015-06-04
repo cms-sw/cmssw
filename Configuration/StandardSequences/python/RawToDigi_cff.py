@@ -50,7 +50,8 @@ castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone(
 
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
-from EventFilter.LumiRawToDigi.LumiRawToDigi_cfi import *
+from EventFilter.Utilities.tcdsRawToDigi_cfi import *
+tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 RawToDigi = cms.Sequence(csctfDigis
                          +dttfDigis
@@ -67,7 +68,7 @@ RawToDigi = cms.Sequence(csctfDigis
                          +muonRPCDigis
                          +castorDigis
                          +scalersRawToDigi
-                         +lumiDigis)
+                         +tcdsDigis)
 
 RawToDigi_noTk = cms.Sequence(csctfDigis
                               +dttfDigis
@@ -82,7 +83,7 @@ RawToDigi_noTk = cms.Sequence(csctfDigis
                               +muonRPCDigis
                               +castorDigis
                               +scalersRawToDigi
-                              +lumiDigis)
+                              +tcdsDigis)
     
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 csctfDigis.producer = 'rawDataCollector'
