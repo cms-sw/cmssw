@@ -59,7 +59,7 @@ class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::Share
   bool debugParameters_;
   // switch to for enabling checking against the list of bad chambers
   bool checkBadChambers_;
-  CSCTriggerPrimitivesBuilder* lctBuilder_;
+  std::unique_ptr<CSCTriggerPrimitivesBuilder> lctBuilder_;
 };
 
 #endif

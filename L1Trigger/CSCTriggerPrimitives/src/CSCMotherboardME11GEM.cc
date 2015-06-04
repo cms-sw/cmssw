@@ -201,7 +201,7 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM(unsigned endcap, unsigned station,
   const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHC"));
   const edm::ParameterSet me11tmbParams(conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"));
 
-  clct1a = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, me11tmbParams);
+  clct1a.reset( new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, me11tmbParams) );
   clct1a->setRing(4);
 
   match_earliest_alct_me11_only = me11tmbParams.getParameter<bool>("matchEarliestAlctME11Only");
@@ -310,7 +310,7 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM() : CSCMotherboard()
 {
   // Constructor used only for testing.
 
-  clct1a = new CSCCathodeLCTProcessor();
+  clct1a.reset( new CSCCathodeLCTProcessor() );
   clct1a->setRing(4);
 
   pref[0] = match_trig_window_size/2;
@@ -324,7 +324,6 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM() : CSCMotherboard()
 
 CSCMotherboardME11GEM::~CSCMotherboardME11GEM()
 {
-  if (clct1a) delete clct1a;
 }
 
 

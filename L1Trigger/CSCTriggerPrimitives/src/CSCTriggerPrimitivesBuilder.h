@@ -109,7 +109,7 @@ class CSCTriggerPrimitivesBuilder
   int m_minBX, m_maxBX; // min and max BX to sort.
 
   /** Pointers to TMB processors for all possible chambers. */
-  CSCMotherboard*
+  std::unique_ptr<CSCMotherboard>
     tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
 
   const CSCGeometry* csc_g;
@@ -117,7 +117,7 @@ class CSCTriggerPrimitivesBuilder
   const RPCGeometry* rpc_g;
 
   /** Pointer to MPC processor. */
-  CSCMuonPortCard* m_muonportcard;
+  std::unique_ptr<CSCMuonPortCard> m_muonportcard;
 };
 
 #endif

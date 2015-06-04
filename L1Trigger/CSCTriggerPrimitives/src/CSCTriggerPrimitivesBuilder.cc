@@ -91,15 +91,15 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
             if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11(endc, stat, sect, subs, cham, conf);
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
             else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf);
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf) );
             else if (stat==2 && ring==1 && runME21ILT_)
-	      tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf);
+	      tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf) );
             else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf);
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf) );
             else
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboard(endc, stat, sect, subs, cham, conf);
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
           }
         }
       }
@@ -111,7 +111,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   m_maxBX = conf.getParameter<int>("MaxBX");
 
   // Init MPC
-  m_muonportcard = new CSCMuonPortCard(conf);
+  m_muonportcard.reset( new CSCMuonPortCard(conf) );
 }
 
 //------------
@@ -119,24 +119,6 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 //------------
 CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder()
 {
-  for (int endc = min_endcap; endc <= max_endcap; endc++)
-  {
-    for (int stat = min_station; stat <= max_station; stat++)
-    {
-      int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++)
-      {
-        for (int subs = min_subsector; subs <= numsubs; subs++)
-        {
-          for (int cham = min_chamber; cham <= max_chamber; cham++)
-          {
-            delete tmb_[endc-1][stat-1][sect-1][subs-1][cham-1];
-          }
-        }
-      }
-    }
-  }
-  delete m_muonportcard;
 }
 
 //------------
@@ -158,8 +140,7 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters*
         {
           for (int cham = min_chamber; cham <= max_chamber; cham++)
           {
-            CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1];
-            tmb->setConfigParameters(conf);
+            tmb_[endc-1][stat-1][sect-1][subs-1][cham-1]->setConfigParameters(conf);
           }
         }
       }
@@ -208,7 +189,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             
             if (disableME42 && stat==4 && ring==2) continue;
 
-            CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1];
+            CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].get();
 
             // Run processors only if chamber exists in geometry.
             if (tmb == 0 || theGeom->chamber(endc, stat, sect, subs, cham) == 0) continue;
