@@ -87,8 +87,20 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDMuonIdProducer(process):
+def switchOnVIDMuonIdProducer(process, dataFormat):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
+    dataFormatString = "Undefined"
+    if dataFormat == DataFormat.AOD:
+        # No reconfiguration is required, default settings are for AOD
+        dataFormatString = "AOD"
+    elif dataFormat == DataFormat.MiniAOD:
+        # If we are dealing with MiniAOD, we overwrite the muon collection
+        # name appropriately, for the fragment we just loaded above. 
+        process.muonMuonIDs.physicsObjectSrc = cms.InputTag('slimmedMuons')
+        dataFormatString = "MiniAOD"
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
+    #
     sys.stderr.write('Added \'muoMuonIDs\' to process definition!\n')
 
 def setupVIDMuonSelection(process,cutflow,patProducer=None):
@@ -102,7 +114,7 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
     #        patProducer = process.patMuons
     #    idName = cutflow.idName.value()
     #    addVIDSelectionToPATProducer(patProducer,moduleName,idName)
-        
+
 ####
 # Photons
 ####
@@ -135,3 +147,4 @@ def setupVIDPhotonSelection(process,cutflow,patProducer=None):
             patProducer = process.patPhotons
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName)
+

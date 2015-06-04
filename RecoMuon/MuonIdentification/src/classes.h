@@ -3,7 +3,6 @@
 //Add includes for your classes here
 #include "RecoMuon/MuonIdentification/interface/VersionedMuonSelector.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/SelectorUtils/interface/MakePyVIDClassBuilder.h"

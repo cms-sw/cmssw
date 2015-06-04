@@ -8,7 +8,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 process.load("RecoMuon.MuonIdentification.Identification.cutBasedMuonId_MuonPOG_V0_cff")
 process.load("RecoMuon.MuonIsolation.muonPFIsolationCitk_cff")
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-switchOnVIDMuonIdProducer(process)
+switchOnVIDMuonIdProducer(process, DataFormat.AOD)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_loose)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_medium)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_tight)
