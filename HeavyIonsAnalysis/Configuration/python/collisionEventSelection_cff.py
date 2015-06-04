@@ -15,6 +15,10 @@ from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from HLTrigger.special.hltPixelClusterShapeFilter_cfi import *
 hltPixelClusterShapeFilter.inputTag = "siPixelRecHits"
 
+# Cluster-shape filter re-run offline from ClusterCompatibility object
+from HeavyIonsAnalysis.EventAnalysis.HIClusterCompatibilityFilter_cfi import *
+
+
 # Reject BSC beam halo L1 technical bits
 from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
@@ -28,3 +32,8 @@ collisionEventSelection = cms.Sequence(noBSChalo *
                                        primaryVertexFilter *
                                        siPixelRecHits *
                                        hltPixelClusterShapeFilter)
+
+collisionEventSelectionAOD = cms.Sequence(noBSChalo *
+                                          hfCoincFilter3 *
+                                          primaryVertexFilter *
+                                          clusterCompatibilityFilter)

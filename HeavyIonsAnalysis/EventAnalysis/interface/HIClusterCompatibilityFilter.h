@@ -10,8 +10,6 @@
 //
 //
 
-// Don't compile until CMSSW_7_5_0_pre5 or later
-#ifdef CMSSW_7_5_0_pre5_OR_LATER
 
 #include <iostream>
 
@@ -54,5 +52,4 @@ class HIClusterCompatibilityFilter : public edm::EDFilter {
     double              clusterTrunc_;  //maximum vertex compatibility value for event rejection
 };
 
-#endif
 #endif
