@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-                            firstRun = cms.untracked.uint32(165200)
+                            firstRun = cms.untracked.uint32(5)
                             )
 
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
@@ -45,7 +45,7 @@ SiStripApvGainRcd_prep_str = encodeJsonInString("SiStripApvGainRcd_prep.json")
 
 
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
-                                  write = cms.untracked.bool(True),
+                                  write = cms.untracked.bool(False),
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
@@ -71,36 +71,40 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prepMetaData        = cms.untracked.string(SiStripApvGainRcd_prep_str),
                                                                )
                                                       ),
-                                  read = cms.untracked.bool(False),
-                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd') # same strings as fType
+                                  read = cms.untracked.bool(True),
+                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd') # same strings as fType
                                   )
 
 
 process.p = cms.Path(process.mywriter)
 
-from CondCore.CondDB.CondDB_cfi import CondDB
-CondDB.connect = "sqlite_file:DropBoxMetadata.db"
+if process.mywriter.write:
 
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                  CondDB,
-                                  toPut = cms.VPSet(cms.PSet(record = cms.string('DropBoxMetadataRcd'),
-                                                             tag = cms.string('DropBoxMetadata'),
-                                                             timetype   = cms.untracked.string('runnumber')
-                                                             )
-                                                             ),
-                                  loadBlobStreamer = cms.untracked.bool(False),
-                                  #    timetype   = cms.untracked.string('lumiid')
-                                  #    timetype   = cms.untracked.string('runnumber')
-                                  )
+    from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+    CondDBCommon.connect = "sqlite_file:DropBoxMetadata.db"
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_E_V36::All'
+    process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+                                      CondDBCommon,
+                                      toPut = cms.VPSet(cms.PSet(record = cms.string('DropBoxMetadataRcd'),
+                                                                 tag = cms.string('DropBoxMetadata'),
+                                                                 timetype   = cms.untracked.string('runnumber')
+                                                                 )
+                                                                 ),
+                                      loadBlobStreamer = cms.untracked.bool(False),
+                                      #    timetype   = cms.untracked.string('lumiid')
+                                      #    timetype   = cms.untracked.string('runnumber')
+                                      )
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.GlobalTag.globaltag = 'GR_E_V48'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
 
-# process.GlobalTag.toGet = cms.VPSet(
-#     cms.PSet(record = cms.string("DropBoxMetadataRcd"),
-#              tag = cms.string("DropBoxMetadata"),
-#              connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
-#             )
-#     )
+readsqlite = True
+if readsqlite:
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("DropBoxMetadataRcd"),
+                 tag = cms.string("DropBoxMetadata"),
+                 connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
+                )
+        )
