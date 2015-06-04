@@ -79,6 +79,20 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
         ),
+    l2muonPt = cms.PSet(
+        pathName = cms.string("HLT_L2DoubleMu23_NoVertex"),
+        moduleName = cms.string("hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23"),
+        NbinsX = cms.int32(75),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(150)
+        ),
+    l2NoBPTXmuonPt = cms.PSet(
+        pathName = cms.string("HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo"),
+        moduleName = cms.string("hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"),
+        NbinsX = cms.int32(75),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(150)
+        ),
     electronPt = cms.PSet(
         pathName = cms.string(electron_pathName),
         moduleName = cms.string(electron_moduleName),
@@ -224,5 +238,13 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         NbinsX = cms.int32(50),
         Xmin = cms.int32(60),
         Xmax = cms.int32(160)
+        ),
+    muonDxy = cms.PSet(
+        pathName = cms.string("HLT_DoubleMu18NoFiltersNoVtx"),
+        moduleName = cms.string("hltL3fDimuonL1f0L2NVf10L3NoFiltersNoVtxFiltered18"),
+        NbinsX = cms.int32(2000),
+        Xmin = cms.int32(-10),
+        Xmax = cms.int32(10)
         )
+
 )

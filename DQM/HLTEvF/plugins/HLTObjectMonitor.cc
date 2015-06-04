@@ -46,7 +46,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 //#include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 // #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 // #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -88,6 +89,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
+  double dxyFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>);
   double get_wall_time(void);
       // ----------member data ---------------------------
 
@@ -109,7 +111,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;  
   edm::EDGetTokenT<vector<reco::MET>> metToken_;  
-  edm::EDGetTokenT<vector<reco::RecoChargedCandidate>> chargedCandToken_;  
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> chargedCandToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
   edm::EDGetTokenT<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>> rHemisphereToken_;
@@ -134,6 +136,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet muonPt_TH1;
   edm::ParameterSet muonEta_TH1;
   edm::ParameterSet muonPhi_TH1;
+  edm::ParameterSet l2muonPt_TH1;
+  edm::ParameterSet l2NoBPTXmuonPt_TH1;
   edm::ParameterSet electronPt_TH1;
   edm::ParameterSet electronEta_TH1;
   edm::ParameterSet electronPhi_TH1;
@@ -152,13 +156,15 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet bJetEta_TH1;
   edm::ParameterSet diMuonMass_TH1;
   edm::ParameterSet diElecMass_TH1;
-
+  edm::ParameterSet muonDxy_TH1;
 
   //setup path names
   string razor_pathName;
   string alphaT_pathName;
   string photonPlots_pathName;
   string muonPlots_pathName;
+  string l2muonPlots_pathName;
+  string l2NoBPTXmuonPlots_pathName;
   string electronPlots_pathName;
   string jetPt_pathName;
   string tauPt_pathName;
@@ -173,6 +179,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   string diMuonMass_pathName;
   string diMuonMass_pathNameOR;
   string diElecMass_pathName;
+  string muonDxyPlots_pathName;
 
 
   //declare all MEs
@@ -185,6 +192,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   MonitorElement * muonPt_;
   MonitorElement * muonEta_;
   MonitorElement * muonPhi_;
+  MonitorElement * l2muonPt_;
+  MonitorElement * l2NoBPTXmuonPt_;
   MonitorElement * electronPt_;
   MonitorElement * electronEta_;
   MonitorElement * electronPhi_;
@@ -203,6 +212,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   MonitorElement * bJetEta_;
   MonitorElement * diMuonMass_;
   MonitorElement * diElecMass_;
+  MonitorElement * muonDxy_;
 
   MonitorElement * wallTimePerEvent_;
 
@@ -240,6 +250,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   muonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("muonPt");
   muonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("muonEta");
   muonPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("muonPhi");
+  l2muonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("l2muonPt");
+  l2NoBPTXmuonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("l2NoBPTXmuonPt");
   electronPt_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPt");
   electronEta_TH1 = iConfig.getParameter<edm::ParameterSet>("electronEta");
   electronPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPhi");
@@ -258,7 +270,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   bJetEta_TH1 = iConfig.getParameter<edm::ParameterSet>("bJetEta");
   diMuonMass_TH1 = iConfig.getParameter<edm::ParameterSet>("diMuonMass");
   diElecMass_TH1 = iConfig.getParameter<edm::ParameterSet>("diElecMass");
-  
+  muonDxy_TH1 = iConfig.getParameter<edm::ParameterSet>("muonDxy");
+
   //set Token(s) 
   //will need to change 'TEST' to 'HLT' or something else before implementation
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", "TEST"));
@@ -418,6 +431,24 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		 }
 	     }
 
+	   //l2muon pt
+	   else if (pathName == l2muonPlots_pathName)
+	     {
+	       for (const auto & key : keys) 
+		 {
+		   l2muonPt_->Fill(objects[key].pt());
+		 }
+	     }
+	   
+	   //l2NoBPTXmuon pt
+	   else if (pathName == l2NoBPTXmuonPlots_pathName)
+	     {
+	       for (const auto & key : keys) 
+		 {
+		   l2NoBPTXmuonPt_->Fill(objects[key].pt());
+		 }
+	     }
+
 	   //Razor
 	   else if (pathName == razor_pathName)
 	     {
@@ -496,6 +527,15 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		 {
 		   bJetEta_->Fill(objects[key].eta());
 		   bJetPhi_->Fill(objects[key].phi());
+		 }
+	     }
+
+	   //muon dxy(use an unique path)
+	   else if (pathName == muonDxyPlots_pathName)
+	     {
+	       for (const auto & key : keys)
+		 {
+		   muonDxy_->Fill(dxyFinder(objects[key].eta(), objects[key].phi(), recoChargedCands, recoBeamSpot));
 		 }
 	     }
 	   
@@ -623,6 +663,8 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   alphaT_pathName = alphaT_TH1.getParameter<string>("pathName");
   photonPlots_pathName = photonPt_TH1.getParameter<string>("pathName");
   muonPlots_pathName = muonPt_TH1.getParameter<string>("pathName");
+  l2muonPlots_pathName = l2muonPt_TH1.getParameter<string>("pathName");
+  l2NoBPTXmuonPlots_pathName = l2NoBPTXmuonPt_TH1.getParameter<string>("pathName");
   electronPlots_pathName = electronPt_TH1.getParameter<string>("pathName");
   jetPt_pathName = jetPt_TH1.getParameter<string>("pathName");
   jetAK8Plots_pathName = jetAK8Pt_TH1.getParameter<string>("pathName");
@@ -637,6 +679,7 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   diMuonMass_pathName = diMuonMass_TH1.getParameter<string>("pathName");
   diMuonMass_pathNameOR = diMuonMass_TH1.getParameter<string>("pathName_OR");
   diElecMass_pathName = diElecMass_TH1.getParameter<string>("pathName");
+  muonDxyPlots_pathName = muonDxy_TH1.getParameter<string>("pathName");
 
   //link all paths and filters needed
   if (lookupIndex.count(razor_pathName) > 0)
@@ -653,6 +696,16 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
     {
       quickCollectionPaths.push_back(muonPlots_pathName);
       lookupFilter[muonPlots_pathName] = muonPt_TH1.getParameter<string>("moduleName");
+    }
+  if (lookupIndex.count(l2muonPlots_pathName) > 0)
+    {
+      quickCollectionPaths.push_back(l2muonPlots_pathName);
+      lookupFilter[l2muonPlots_pathName] = l2muonPt_TH1.getParameter<string>("moduleName");
+    }
+  if (lookupIndex.count(l2NoBPTXmuonPlots_pathName) > 0)
+    {
+      quickCollectionPaths.push_back(l2NoBPTXmuonPlots_pathName);
+      lookupFilter[l2NoBPTXmuonPlots_pathName] = l2NoBPTXmuonPt_TH1.getParameter<string>("moduleName");
     }
   if (lookupIndex.count(electronPlots_pathName) > 0)
     {
@@ -729,6 +782,11 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
       quickCollectionPaths.push_back(diElecMass_pathName);
       lookupFilter[diElecMass_pathName] = diElecMass_TH1.getParameter<string>("moduleName");
     }
+  if (lookupIndex.count(muonDxyPlots_pathName) > 0)
+    {
+      quickCollectionPaths.push_back(muonDxyPlots_pathName);
+      lookupFilter[muonDxyPlots_pathName] = muonDxy_TH1.getParameter<string>("moduleName");
+    }
 
 
 }
@@ -769,6 +827,20 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       TH1F * hist_muonPt = new TH1F("Muon_pT","Muon pT",muonPt_TH1.getParameter<int>("NbinsX"),muonPt_TH1.getParameter<int>("Xmin"),muonPt_TH1.getParameter<int>("Xmax"));
       hist_muonPt->SetMinimum(0);
       muonPt_ = ibooker.book1D("Muon_pT",hist_muonPt);
+    }
+  //l2 muon pt
+  if (lookupIndex.count(l2muonPlots_pathName) > 0)
+    {
+      TH1F * hist_l2muonPt = new TH1F("L2Muon_pT","L2Muon pT",l2muonPt_TH1.getParameter<int>("NbinsX"),l2muonPt_TH1.getParameter<int>("Xmin"),l2muonPt_TH1.getParameter<int>("Xmax"));
+      hist_l2muonPt->SetMinimum(0);
+      l2muonPt_ = ibooker.book1D("L2Muon_pT",hist_l2muonPt);
+    }
+  //l2 NoBPTX muon pt
+  if (lookupIndex.count(l2NoBPTXmuonPlots_pathName) > 0)
+    {
+      TH1F * hist_l2NoBPTXmuonPt = new TH1F("L2NoBPTXMuon_pT","L2NoBPTXMuon pT",l2NoBPTXmuonPt_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonPt_TH1.getParameter<int>("Xmin"),l2NoBPTXmuonPt_TH1.getParameter<int>("Xmax"));
+      hist_l2NoBPTXmuonPt->SetMinimum(0);
+      l2NoBPTXmuonPt_ = ibooker.book1D("L2NoBPTXMuon_pT",hist_l2NoBPTXmuonPt);
     }
   //electron pt
   if (lookupIndex.count(electronPlots_pathName) > 0)
@@ -869,6 +941,13 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       hist_diElecMass->SetMinimum(0);
       diElecMass_ = ibooker.book1D("diElec_Mass",hist_diElecMass);
     }
+  // muon dxy
+  if (lookupIndex.count(muonDxyPlots_pathName) > 0)
+    {
+      TH1F * hist_muonDxy = new TH1F("Muon_dxy","Muon d_{xy}",muonDxy_TH1.getParameter<int>("NbinsX"),muonDxy_TH1.getParameter<int>("Xmin"),muonDxy_TH1.getParameter<int>("Xmax"));
+      hist_muonDxy->SetMinimum(0);
+      muonDxy_ = ibooker.book1D("Muon_dxy",hist_muonDxy);
+    }
 
   ////////////////////////////////
   ///
@@ -935,6 +1014,20 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       hist_bJetEta->SetMinimum(0);
       bJetEta_ = ibooker.book1D("bJet_eta",hist_bJetEta);
     }
+}
+
+double HLTObjectMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::RecoChargedCandidateCollection> recoChargedCands, edm::Handle<reco::BeamSpot> recoBeamSpot)
+{
+  double dxy = 0;
+  for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin(); l3Muon != recoChargedCands->end(); l3Muon++)
+    {
+      if (deltaR(eta,phi,l3Muon->eta(),l3Muon->phi()) < 0.1)
+        {
+          dxy = (-(l3Muon->vx()-recoBeamSpot->x0()) * l3Muon->py() + (l3Muon->vy()-recoBeamSpot->y0()) * l3Muon->px())/l3Muon->pt();
+          break;
+        }
+    }
+  return dxy;
 }
 
 double HLTObjectMonitor::get_wall_time()
