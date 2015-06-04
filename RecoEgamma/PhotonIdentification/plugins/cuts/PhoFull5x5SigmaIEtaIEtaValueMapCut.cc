@@ -15,9 +15,9 @@ public:
   }
 
 private:
-  float _cutValueEB;
-  float _cutValueEE;
-  float _barrelCutOff;
+  const float _cutValueEB;
+  const float _cutValueEE;
+  const float _barrelCutOff;
   edm::Handle<edm::ValueMap<float> > _full5x5SigmaIEtaIEtaMap;
 
   constexpr static char full5x5SigmaIEtaIEta_[] = "full5x5SigmaIEtaIEta";
@@ -59,7 +59,7 @@ operator()(const reco::PhotonPtr& cand) const{
       _cutValueEB : _cutValueEE );
   
   // Retrieve the variable value for this particle
-  const float full5x5SigmaIEtaIEta = (*_full5x5SigmaIEtaIEtaMap)[cand];
+  const float full5x5SigmaIEtaIEta = _full5x5SigmaIEtaIEtaMap.isValid() ? (*_full5x5SigmaIEtaIEtaMap)[cand] : 0;
   
   // Apply the cut and return the result
   return full5x5SigmaIEtaIEta < cutValue;

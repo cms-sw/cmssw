@@ -79,7 +79,7 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
 
 
   // The object that will compute 5x5 quantities  
-  noZS::EcalClusterLazyTools *lazyToolnoZS;
+  std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
 
   // for AOD case
   edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
@@ -213,15 +213,15 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   // Configure Lazy Tools
   if( isAOD )
-    lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, 
-						  ebReducedRecHitCollection_, 
+    lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+						  ebReducedRecHitCollection_,
 						  eeReducedRecHitCollection_,
-						  esReducedRecHitCollection_); 
+						  esReducedRecHitCollection_));
   else
-    lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, 
-						  ebReducedRecHitCollectionMiniAOD_, 
-						  eeReducedRecHitCollectionMiniAOD_,
-						  esReducedRecHitCollectionMiniAOD_); 
+    lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+						  ebReducedRecHitCollectionMiniAOD_,
+              eeReducedRecHitCollectionMiniAOD_,
+              esReducedRecHitCollectionMiniAOD_)); 
   
   // Get PV
   edm::Handle<reco::VertexCollection> vertices;
@@ -395,8 +395,6 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   writeValueMap(iEvent, src, phoNeutralHadronIsolation, phoNeutralHadronIsolation_);  
   writeValueMap(iEvent, src, phoPhotonIsolation, phoPhotonIsolation_);  
   writeValueMap(iEvent, src, phoWorstChargedIsolation, phoWorstChargedIsolation_);  
-  
-  delete lazyToolnoZS;
 }
 
 void PhotonIDValueMapProducer::writeValueMap(edm::Event &iEvent,

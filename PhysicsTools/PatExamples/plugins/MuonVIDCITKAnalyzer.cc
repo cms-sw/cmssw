@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -25,16 +25,16 @@ using namespace edm;
 //
 // class decleration
 //
-class MuonVIDCITKAnalyzer : public edm::EDAnalyzer 
+class MuonVIDCITKAnalyzer : public edm::stream::EDAnalyzer<>
 {
 public:
   MuonVIDCITKAnalyzer(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-   
+
 private:
   edm::EDGetTokenT<edm::View<reco::Candidate> > muonToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  
+
   // VID
   typedef edm::ValueMap<bool> VIDMap;
   edm::EDGetTokenT<VIDMap> muonLooseVIDToken_;
@@ -117,7 +117,7 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
   event.getByToken(muonTightVIDToken_, muonTightVIDHandle);
   event.getByToken(muonSoftVIDToken_, muonSoftVIDHandle);
   event.getByToken(muonHighPtVIDToken_, muonHighPtVIDHandle);
-  
+
   // CITK
   edm::Handle<CITKMap> muonChIsoCITKHandle;
   edm::Handle<CITKMap> muonNhIsoCITKHandle;
