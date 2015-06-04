@@ -3,10 +3,10 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-class RecoMuonBaseIDCut : public CutApplicatorWithEventContentBase
+class MuonPOGStandardCut : public CutApplicatorWithEventContentBase
 {
 public:
-  RecoMuonBaseIDCut(const edm::ParameterSet& c);
+  MuonPOGStandardCut(const edm::ParameterSet& c);
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
@@ -22,10 +22,10 @@ private:
   edm::Handle<reco::VertexCollection> vtxs_;
 };
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
-                  RecoMuonBaseIDCut, "RecoMuonBaseIDCut");
+                  MuonPOGStandardCut, "MuonPOGStandardCut");
 
 // Define constructors and initialization routines
-RecoMuonBaseIDCut::RecoMuonBaseIDCut(const edm::ParameterSet& c):
+MuonPOGStandardCut::MuonPOGStandardCut(const edm::ParameterSet& c):
   CutApplicatorWithEventContentBase(c)
 {
   const auto cutTypeName = c.getParameter<std::string>("idName");
@@ -36,26 +36,26 @@ RecoMuonBaseIDCut::RecoMuonBaseIDCut(const edm::ParameterSet& c):
   else if ( cutTypeName == "highpt" ) cutType_ = HIGHPT;
   else
   {
-    edm::LogError("RecoMuonBaseIDCut") << "Wrong cut id name, " << cutTypeName;
+    edm::LogError("MuonPOGStandardCut") << "Wrong cut id name, " << cutTypeName;
     cutType_ = NONE;
   }
 
   contentTags_.emplace("vertices", c.getParameter<edm::InputTag>("vertexSrc"));
 }
 
-void RecoMuonBaseIDCut::setConsumes(edm::ConsumesCollector& cc)
+void MuonPOGStandardCut::setConsumes(edm::ConsumesCollector& cc)
 {
   auto vtcs = cc.consumes<reco::VertexCollection>(contentTags_["vertices"]);
   contentTokens_.emplace("vertices", vtcs);
 }
 
-void RecoMuonBaseIDCut::getEventContent(const edm::EventBase& ev)
+void MuonPOGStandardCut::getEventContent(const edm::EventBase& ev)
 {
   ev.getByLabel(contentTags_["vertices"], vtxs_);
 }
 
 // Functors for evaluation
-CutApplicatorBase::result_type RecoMuonBaseIDCut::operator()(const reco::MuonPtr& cand) const
+CutApplicatorBase::result_type MuonPOGStandardCut::operator()(const reco::MuonPtr& cand) const
 {
   if ( cutType_ == LOOSE ) return muon::isLooseMuon(*cand);
   else if ( cutType_ == TIGHT ) return muon::isTightMuon(*cand, vtxs_->at(0));
