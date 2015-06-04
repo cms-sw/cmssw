@@ -329,14 +329,8 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    if (!aodTriggerEvent.isValid()) return;
 
-   edm::Handle<reco::BeamSpot> recoBeamSpot;
-   iEvent.getByToken(beamSpotToken_, recoBeamSpot);
-
    edm::Handle<vector<reco::MET>> recoMet;
    iEvent.getByToken(metToken_, recoMet);
-
-   edm::Handle<vector<reco::RecoChargedCandidate>> recoChargedCands;
-   iEvent.getByToken(chargedCandToken_, recoChargedCands);
 
    edm::Handle<reco::JetTagCollection> csvCaloTags;
    iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
@@ -533,6 +527,12 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   //muon dxy(use an unique path)
 	   else if (pathName == muonDxyPlots_pathName)
 	     {
+	       edm::Handle<vector<reco::RecoChargedCandidate>> recoChargedCands;
+	       iEvent.getByToken(chargedCandToken_, recoChargedCands);
+	       
+	       edm::Handle<reco::BeamSpot> recoBeamSpot;
+	       iEvent.getByToken(beamSpotToken_, recoBeamSpot);
+
 	       for (const auto & key : keys)
 		 {
 		   muonDxy_->Fill(dxyFinder(objects[key].eta(), objects[key].phi(), recoChargedCands, recoBeamSpot));
