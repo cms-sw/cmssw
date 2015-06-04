@@ -15,7 +15,7 @@ FEV=" -F mjvars/t \"$T/0_eventvars_mj_v1/evVarFriend_{cname}.root\" "
 
 ROOT="plots/050515/v1.0/$WHAT"
 
-RUNY="${COREY} mca-74X.txt --s2v "
+RUNY="${COREY} mca-74X.txt --s2v -u "
 RUNYSR="${RUNY} sync/monojet.txt "
 
 case $WHAT in
