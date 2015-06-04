@@ -84,6 +84,7 @@ class HGCDigitizerBase {
 	    double rawCharge((it->second)[0][i]);
 
 	    //time of arrival
+	    toa[i]=(it->second)[1][i];
 	    if(myFEelectronics_->toaMode()==HGCFEElectronics<D>::WEIGHTEDBYE && rawCharge>0) 
 	      toa[i]=(it->second)[1][i]/rawCharge;
 	    
