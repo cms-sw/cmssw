@@ -19,16 +19,18 @@ public:
 
  private:
 
+  // Detail plots
   MonitorElement* theStrip_xy[2][3][2];
   MonitorElement* theStrip_phistrip[2][3][2];
   MonitorElement* theStrip[2][3][2];
   MonitorElement* theStrip_bx[2][3][2];
   MonitorElement* theStrip_zr[2][3][2];
   std::map< UInt_t , MonitorElement* > theStrip_xy_ch;
-  //std::map< UInt_t , MonitorElement* > theStrip_st_dphi;
-  //std::map< UInt_t , MonitorElement* > theStrip_phiz_st_ch;
+
+  // Simple plots
+  std::map< UInt_t , MonitorElement* > theStrip_subEta;
+  std::map< UInt_t , MonitorElement* > theStrip_simple_zr;
   
-  //MonitorElement* theSpecific_phiz[4];
 };
 
 #endif

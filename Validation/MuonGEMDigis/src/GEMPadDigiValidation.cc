@@ -32,6 +32,7 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
       for( int station_num = 0 ; station_num < nstations ; station_num++) {
         if ( station_num == 0 ) nPads = npadsGE11;
         else nPads = npadsGE21;
+        if ( station_num ==1 ) continue;
         name_prefix  = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
         label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num];
         theCSCPad_phipad[region_num][station_num][layer_num] = ibooker.book2D( ("pad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
@@ -93,7 +94,10 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
     Short_t station = (Short_t) id.station();
 		Short_t chamber = (Short_t) id.chamber();
     GEMPadDigiCollection::const_iterator digiItr;
+
+    if ( station ==2 ) continue;
     //loop over digis of given roll
+    //
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
       Short_t pad = (Short_t) digiItr->pad();

@@ -34,6 +34,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
     for( int station_num = 0 ; station_num < nstations ; station_num++) {
       if ( station_num == 0 ) nPads = npadsGE11;
       else nPads = npadsGE21;
+      if ( station_num ==1 ) continue;
       name_prefix  = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num];
       label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num];
       theCSCCoPad_phipad[region_num][station_num] = ibooker.book2D( ("copad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-PI,PI, nPads/2,0,nPads );

@@ -32,6 +32,7 @@ protected:
   std::vector<double> RangeZR_;
   edm::EDGetToken InputTagToken_;
   int nBinXY_;
+  bool detailPlot_;
 
 private :
 };

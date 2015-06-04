@@ -30,6 +30,8 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
   for( auto& station : region->stations() ) 
   for( auto& ring : station->rings()) {
     GEMDetId id;
+    if ( ring->station() ==2 ) continue;
+
     if ( ring->ring() != 1 ) break ; // Only Ring1 is interesting.
     std::stringstream hist_name;
     hist_name<<"gem_sh_xy_r"<<region->region()<<"_st"<<stationLabel[station->station()-1]<<"_";
@@ -60,6 +62,7 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
     for( unsigned int station_num = 0 ; station_num < nstation ; station_num++) {
       for( unsigned int layer_num = 0 ; layer_num < 2 ; layer_num++) {
+          if ( station_num ==1 ) continue;
           gem_sh_zr[region_num][station_num][layer_num] = BookHistZR(ibooker,"gem_sh","SimHit",region_num,station_num,layer_num);
           gem_sh_xy[region_num][station_num][layer_num] = BookHistXY(ibooker,"gem_sh","SimHit",region_num,station_num,layer_num);
           std::string hist_name_for_tof  = std::string("gem_sh_tof_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
@@ -113,6 +116,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t station = id.station();
     Int_t layer = id.layer();
 
+    if ( station ==2 ) continue;
 
 
     //Int_t even_odd = id.chamber()%2;
