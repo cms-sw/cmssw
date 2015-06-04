@@ -8,7 +8,6 @@
    <class name="std::vector<HGCDataFrame<HGCEEDetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > > >" />
-   <class name="HGCEEDigiCollection"/>
    <class name="edm::Wrapper<HGCEEDigiCollection>"/>
 
    <!-- HE specific -->
@@ -17,6 +16,5 @@
    <class name="std::vector<HGCDataFrame<HGCHEDetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > > >" />
-   <class name="HGCHEDigiCollection"/>
    <class name="edm::Wrapper<HGCHEDigiCollection>"/>
 </lcgdict>
