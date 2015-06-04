@@ -2,6 +2,7 @@ import operator
 import itertools
 import copy
 import types
+import re
 
 from ROOT import TLorentzVector
 
@@ -98,12 +99,17 @@ class PhotonAnalyzer( Analyzer ):
                 if gamma.hasPixelSeed():
                     keepThisPhoton = False
                     gamma.idCutBased = 0
+            elif "NoIso" in self.cfg_ana.gammaID:
+                idName = re.split('_NoIso',self.cfg_ana.gammaID)
+                keepThisPhoton = gamma.passPhotonID(idName[0])
+                basenameID = re.split('_looseSieie',idName[0])
+                gamma.idCutBased = gamma.passPhotonID(basenameID[0])
             else:
                 # Reading from miniAOD directly
                 # keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
 
                 # implement cut based ID with CMGTools
-                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID,self.cfg_ana.gamma_isoCorr)
+                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID) and gamma.passPhotonIso(self.cfg_ana.gammaID,self.cfg_ana.gamma_isoCorr)
 
             if keepThisPhoton:
                 event.selectedPhotons.append(gamma)
