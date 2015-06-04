@@ -51,7 +51,7 @@ jetAna.jetEta = 4.7
 jetAna.jetEtaCentral = 2.5
 jetAna.jetPt = 10.
 #jetAna.mcGT = "PHYS14_V4_MC" # jec corrections
-jetAna.recalibrateJets = True
+jetAna.recalibrateJets = False
 jetAna.jetLepDR = 0.4
 jetAna.smearJets = False
 jetAna.jetGammaDR = 0.4
@@ -212,8 +212,8 @@ if test==0:
     from CMGTools.TTHAnalysis.setup.Efficiencies import *
 
     for comp in mcSamples:
-        comp.isMC = False
-        comp.isData = True
+        comp.isMC = True
+        comp.isData = False
         comp.splitFactor = 250 
         comp.puFileMC=dataDir+"/puProfile_Summer12_53X.root"
         comp.puFileData=dataDir+"/puProfile_Data12.root"
@@ -224,7 +224,8 @@ if test==0:
     comp=testComponent
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
-    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
+    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/QCD_Pt_1000to1400_Asympt25ns/0AF8E723-53F9-E411-86B4-0025905C2CBA.root']
+    #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
     selectedComponents = [comp]
     comp.splitFactor = 10
 #    comp.fineSplitFactor = 100
@@ -288,7 +289,7 @@ if doSpecialSettingsForMECCA==1:
     photonAna.do_mc_match = False
 
 
-isData = 1
+isData = 0
 if isData==1:
     jetAna.recalibrateJets = False
 
