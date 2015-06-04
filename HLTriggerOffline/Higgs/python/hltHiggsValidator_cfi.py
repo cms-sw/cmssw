@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","WHToENuBB"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
@@ -318,5 +318,13 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         minCandidates = cms.uint32(1),
         HtJetPtMin = cms.untracked.double(30),
         HtJetEtaMax = cms.untracked.double(3.0),
+        ),
+    WHToENuBB  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_Ele27_WPLoose_Gsf_WHbbBoost_v",
+            ),
+        recElecLabel   = cms.string("gedGsfElectrons"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        minCandidates = cms.uint32(1),
         ),
 )
