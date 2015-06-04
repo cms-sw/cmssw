@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# Update to replace old jet corrector mechanism
+from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
+
 # Possibility to put different ring dependent cut on ADC (PR #9232)                                                              
 def customiseFor9232(process):
     if hasattr(process,'hltEcalPhiSymFilter'):
@@ -8,7 +11,6 @@ def customiseFor9232(process):
         if hasattr(process.hltEcalPhiSymFilter,'ampCut_endcap'):
             delattr(process.hltEcalPhiSymFilter,'ampCut_endcap')
     return process
-
 
 # upgrade RecoTrackSelector to allow BTV-like cuts (PR #8679)
 def customiseFor8679(process):
@@ -104,5 +106,6 @@ def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
         process = customiseFor8356(process)
         process = customiseFor7966(process)
         process = customiseFor7794(process)
+        process = customizeHLTforNewJetCorrectors(process)
 
     return process
