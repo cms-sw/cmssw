@@ -112,11 +112,14 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #process.siStripDigis.UnpackBadChannels = cms.bool(True)
-process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 ## Cosmic Track Reconstruction
 if (process.runType.getRunType() == process.runType.cosmic_run):
     process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+    process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+else:
+    process.load("Configuration.StandardSequences.Reconstruction_cff")
+
 
 ## # offline beam spot
 ## process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
@@ -256,7 +259,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     process.combinatorialcosmicseedfinderP5.MaxNumberOfCosmicClusters = 450
 
     process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
-
 
     process.stripQTester.qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_cosmic.xml')
     process.stripQTester.prescaleFactor          = cms.untracked.int32(2)
