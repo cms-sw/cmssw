@@ -105,6 +105,20 @@ int run( const std::string& connectionString ){
     session.transaction().start();
     readTag( "MyTag", session, snap1 );
     session.transaction().commit();
+    // 
+    session.transaction().start( false );
+    GTEditor gtWriter = session.createGlobalTag("MY_TEST_GT_V0");
+    gtWriter.setDescription( "test GT" );
+    gtWriter.setRelease( "CMSSW_7_5_X" );
+    gtWriter.setSnapshotTime( snap0 );
+    gtWriter.insert( "myrecord", "MyTag" );
+    gtWriter.flush();
+    session.transaction().commit();
+    session.transaction().start();
+    GTProxy gtReader = session.readGlobalTag("MY_TEST_GT_V0");
+    boost::posix_time::ptime snap2 = gtReader.snapshotTime();
+    readTag( "MyTag", session, snap2 );
+    session.transaction().commit();
   } catch (const std::exception& e){
     std::cout << "ERROR: " << e.what() << std::endl;
     return -1;
