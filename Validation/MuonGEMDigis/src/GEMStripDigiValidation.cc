@@ -3,6 +3,7 @@
 GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
   InputTagToken_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("stripLabel"));
+  detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
