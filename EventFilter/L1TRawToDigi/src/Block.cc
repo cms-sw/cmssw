@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
@@ -48,7 +50,7 @@ namespace l1t {
    BlockHeader
    MP7Payload::getHeader()
    {
-      LogTrace("L1T") << "Getting header from " << std::hex << *data_;
+      LogTrace("L1T") << "Getting header from " << std::hex << std::setw(8) << *data_;
 
       return BlockHeader(data_++);
    }
