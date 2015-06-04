@@ -41,7 +41,9 @@ SiStripBadStripRcd_prep_str = encodeJsonInString("SiStripBadStripRcd_prep.json")
 SiStripApvGainRcd_prod_str = encodeJsonInString("SiStripApvGainRcd_prod.json")
 SiStripApvGainRcd_prep_str = encodeJsonInString("SiStripApvGainRcd_prep.json")
 
-
+#SiPixelAli
+SiPixelAliRcd_prod_str = encodeJsonInString("SiPixelAliRcd_prod.json")
+SiPixelAliRcd_prep_str = encodeJsonInString("SiPixelAliRcd_prep.json")
 
 
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
@@ -69,10 +71,17 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiStripApvGainRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiStripApvGainRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('SiPixelAliRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiPixelAliRcd_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiPixelAliRcd_prep_str),
                                                                )
+
                                                       ),
                                   read = cms.untracked.bool(True),
-                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd') # same strings as fType
+                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','SiPixelAliRcd') # same strings as fType
                                   )
 
 
@@ -101,7 +110,7 @@ process.GlobalTag.connect   = 'frontier://PromptProd/CMS_CONDITIONS'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
 
-readsqlite = False
+readsqlite = True
 if readsqlite:
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("DropBoxMetadataRcd"),
