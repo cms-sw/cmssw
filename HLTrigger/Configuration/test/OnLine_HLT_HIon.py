@@ -3803,16 +3803,6 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     reportBy = cms.untracked.string( "job" ),
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-process.hltTriggerRatesMonitor = cms.EDAnalyzer( "TriggerRatesMonitor",
-    dqmPath = cms.untracked.string( "HLT/TriggerRates" ),
-    hltResults = cms.untracked.InputTag( 'TriggerResults','','HLT' ),
-    lumisectionRange = cms.untracked.uint32( 2500 ),
-    l1tResults = cms.untracked.InputTag( "hltGtDigis" )
-)
-process.hltTriggerJSONMonitoring = cms.EDAnalyzer( "TriggerJSONMonitoring",
-    triggerResults = cms.InputTag( 'TriggerResults','','HLT' ),
-    L1Results = cms.InputTag( "hltGtDigis" )
-)
 process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -3890,7 +3880,6 @@ process.HLT_HIL3DoubleMuOpen_OS_v2 = cms.Path( process.HLTBeginSequence + proces
 process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenOSNoCowboy + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilterOpenOSNoCowboy + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltPreAnalyzerEndpath + process.hltL1GtTrigReport + process.hltTrigReport )
-process.RatesMonitoring = cms.EndPath( process.hltGtDigis + process.hltTriggerRatesMonitor + process.hltTriggerJSONMonitoring )
 process.AOutput = cms.EndPath( process.hltGtDigis + process.hltPreAOutput + process.hltOutputA )
 
 # load the DQMStore and DQMRootOutputModule
@@ -3903,7 +3892,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v2, process.HLT_HIL1DoubleMu0_HighQ_v2, process.HLT_HIL2Mu3_v2, process.HLT_HIL2Mu7_v2, process.HLT_HIL2Mu15_v2, process.HLT_HIL2Mu3_NHitQ_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL2DoubleMu0_NHitQ_v2, process.HLT_HIL2DoubleMu3_v2, process.HLT_HIL3Mu3_v2, process.HLT_HIL3DoubleMuOpen_v2, process.HLT_HIL3DoubleMuOpen_SS_v2, process.HLT_HIL3DoubleMuOpen_OS_v2, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.RatesMonitoring, process.AOutput, process.DQMOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v2, process.HLT_HIL1DoubleMu0_HighQ_v2, process.HLT_HIL2Mu3_v2, process.HLT_HIL2Mu7_v2, process.HLT_HIL2Mu15_v2, process.HLT_HIL2Mu3_NHitQ_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL2DoubleMu0_NHitQ_v2, process.HLT_HIL2DoubleMu3_v2, process.HLT_HIL3Mu3_v2, process.HLT_HIL3DoubleMuOpen_v2, process.HLT_HIL3DoubleMuOpen_SS_v2, process.HLT_HIL3DoubleMuOpen_OS_v2, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput ))
 
 
 process.source = cms.Source( "PoolSource",

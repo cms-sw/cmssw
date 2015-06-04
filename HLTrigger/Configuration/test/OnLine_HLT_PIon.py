@@ -8363,16 +8363,6 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     reportBy = cms.untracked.string( "job" ),
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-process.hltTriggerRatesMonitor = cms.EDAnalyzer( "TriggerRatesMonitor",
-    dqmPath = cms.untracked.string( "HLT/TriggerRates" ),
-    hltResults = cms.untracked.InputTag( 'TriggerResults','','HLT' ),
-    lumisectionRange = cms.untracked.uint32( 2500 ),
-    l1tResults = cms.untracked.InputTag( "hltGtDigis" )
-)
-process.hltTriggerJSONMonitoring = cms.EDAnalyzer( "TriggerJSONMonitoring",
-    triggerResults = cms.InputTag( 'TriggerResults','','HLT' ),
-    L1Results = cms.InputTag( "hltGtDigis" )
-)
 process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -8477,7 +8467,6 @@ process.HLT_Photon20_CaloIdVL_IsoL_v2 = cms.Path( process.HLTBeginSequence + pro
 process.HLT_Physics_v2 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltPreAnalyzerEndpath + process.hltL1GtTrigReport + process.hltTrigReport )
-process.RatesMonitoring = cms.EndPath( process.hltGtDigis + process.hltTriggerRatesMonitor + process.hltTriggerJSONMonitoring )
 process.AOutput = cms.EndPath( process.hltGtDigis + process.hltPreAOutput + process.hltOutputA )
 
 # load the DQMStore and DQMRootOutputModule
@@ -8490,7 +8479,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_CaloJet260_v2, process.HLT_Ele27_eta2p1_WPLoose_Gsf_v1, process.HLT_Mu50_v2, process.HLT_PFJet260_v2, process.HLT_Photon20_CaloIdVL_IsoL_v2, process.HLT_Physics_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.RatesMonitoring, process.AOutput, process.DQMOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_CaloJet260_v2, process.HLT_Ele27_eta2p1_WPLoose_Gsf_v1, process.HLT_Mu50_v2, process.HLT_PFJet260_v2, process.HLT_Photon20_CaloIdVL_IsoL_v2, process.HLT_Physics_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput ))
 
 
 process.source = cms.Source( "PoolSource",
