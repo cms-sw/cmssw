@@ -78,7 +78,8 @@ class Photon(PhysicsObject ):
 
         return keepThisPhoton
 
-    def CutBasedIDWP( self, name):
+    def CutBasedIDWP( self, name, rho=None ):
+        if rho == None and hasattr(self,'rho') and self.rho != None: rho = self.rho
         # recommeneded PHYS14 working points from POG
         WPs = {
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#Pointers_for_PHYS14_selection_im
@@ -125,31 +126,31 @@ class Photon(PhysicsObject ):
         return offset + exp(slope_exp*self.pt()+offset_exp)
 
 
-
-    def passPhotonID(self,name):
+    def passPhotonID(self,name,isocorr):
         
         idForBarrel = self.etaRegionID()
         passPhotonID = True
 
-        if self.CutBasedIDWP(name)["conversionVeto"][idForBarrel] and self.physObj.hasPixelSeed():
+        if self.CutBasedIDWP(name,isocorr)["conversionVeto"][idForBarrel] and self.physObj.hasPixelSeed():
             passPhotonID = False
 
-        if self.CutBasedIDWP(name)["H/E"][idForBarrel] < self.hOVERe():
+        if self.CutBasedIDWP(name,isocorr)["H/E"][idForBarrel] < self.hOVERe():
             passPhotonID = False
 
-        if self.CutBasedIDWP(name)["sigmaIEtaIEta"][idForBarrel] < self.full5x5_sigmaIetaIeta():
+        if self.CutBasedIDWP(name,isocorr)["sigmaIEtaIEta"][idForBarrel] < self.full5x5_sigmaIetaIeta():
             passPhotonID = False
 
-        return passPhotonID
+        if self.CutBasedIDWP(name,isocorr)["chaHadIso"][idForBarrel] < self.chargedHadronIso(isocorr):
+            passPhotonID = False
 
         if "POG_PHYS14_25ns" in name and idForBarrel == 0:
-            if self.calScaledIsoValueExp(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+            if self.calScaledIsoValueExp(*self.CutBasedIDWP(name,isocorr)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
                 passPhotonID = False
         else:
-            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name,isocorr)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
                 passPhotonID = False
 
-        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso():
+        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name,isocorr)["phoIso"][idForBarrel]) < self.photonIso(isocorr):
             passPhotonID = False
         
         return passPhotonID
