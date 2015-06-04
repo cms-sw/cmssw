@@ -125,6 +125,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   // edm::EDGetTokenT<reco::TrackCollection> trackToken_;  
 
   //declare params
+  edm::ParameterSet rsq_TH1;
+  edm::ParameterSet mr_TH1;
   edm::ParameterSet alphaT_TH1;
   edm::ParameterSet photonPt_TH1;
   edm::ParameterSet photonEta_TH1;
@@ -153,6 +155,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
 
 
   //setup path names
+  string razor_pathName;
   string alphaT_pathName;
   string photonPlots_pathName;
   string muonPlots_pathName;
@@ -173,6 +176,8 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
 
 
   //declare all MEs
+  MonitorElement * rsq_;
+  MonitorElement * mr_;
   MonitorElement * alphaT_;
   MonitorElement * photonPt_;
   MonitorElement * photonEta_;
@@ -226,6 +231,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
 
 
   //parse params
+  rsq_TH1 = iConfig.getParameter<edm::ParameterSet> ("rsq");
+  mr_TH1 = iConfig.getParameter<edm::ParameterSet> ("mr");
   alphaT_TH1 = iConfig.getParameter<edm::ParameterSet> ("alphaT");
   photonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("photonPt");
   photonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("photonEta");
@@ -410,7 +417,22 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		   muonPhi_->Fill(objects[key].phi());
 		 }
 	     }
-	   
+
+	   //Razor
+	   else if (pathName == razor_pathName)
+	     {
+	       double onlineMR = 0, onlineRsq = 0;
+	       for (const auto & key : keys) 
+		 {
+		   if(objects[key].id() == 0){ //the MET object containing MR and Rsq will show up with ID = 0
+		     onlineMR = objects[key].px(); //razor variables stored in dummy reco::MET objects
+		     onlineRsq = objects[key].py();
+		   }
+		   mr_->Fill(onlineMR);
+		   rsq_->Fill(onlineRsq);
+		 }
+	     }
+
 	   //alphaT
 	   else if (pathName == alphaT_pathName)
 	     {
@@ -597,6 +619,7 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   }
 
   // setup string names
+  razor_pathName = rsq_TH1.getParameter<string>("pathName");
   alphaT_pathName = alphaT_TH1.getParameter<string>("pathName");
   photonPlots_pathName = photonPt_TH1.getParameter<string>("pathName");
   muonPlots_pathName = muonPt_TH1.getParameter<string>("pathName");
@@ -616,7 +639,11 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   diElecMass_pathName = diElecMass_TH1.getParameter<string>("pathName");
 
   //link all paths and filters needed
-  
+  if (lookupIndex.count(razor_pathName) > 0)
+    {
+      quickCollectionPaths.push_back(razor_pathName);
+      lookupFilter[razor_pathName] = rsq_TH1.getParameter<string>("moduleName");
+    }
   if (lookupIndex.count(photonPlots_pathName) > 0)
     {
       quickCollectionPaths.push_back(photonPlots_pathName);
@@ -824,6 +851,16 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       TH1F * hist_diMuonMass = new TH1F("diMuon_Mass","dimuon mass",diMuonMass_TH1.getParameter<int>("NbinsX"),diMuonMass_TH1.getParameter<int>("Xmin"),diMuonMass_TH1.getParameter<int>("Xmax"));
       hist_diMuonMass->SetMinimum(0);
       diMuonMass_ = ibooker.book1D("diMuon_Mass",hist_diMuonMass);
+    }
+  //razor
+  if (lookupIndex.count(razor_pathName) > 0)
+    {
+      TH1F * hist_rsq = new TH1F("rsq","rsq", rsq_TH1.getParameter<int>("NbinsX"), rsq_TH1.getParameter<int>("Xmin"), rsq_TH1.getParameter<int>("Xmax"));
+      hist_rsq->SetMinimum(0);
+      rsq_ = ibooker.book1D("rsq",hist_rsq);
+      TH1F * hist_mr = new TH1F("mr","mr", mr_TH1.getParameter<int>("NbinsX"), mr_TH1.getParameter<int>("Xmin"), mr_TH1.getParameter<int>("Xmax"));
+      hist_mr->SetMinimum(0);
+      mr_ = ibooker.book1D("mr",hist_mr);
     }
   //dielectron mass
   if (lookupIndex.count(diElecMass_pathName) >0)

@@ -19,6 +19,9 @@ pfMet_moduleName = "hltPFMET120"
 jetAk8_pathName = "HLT_AK8PFJet360TrimMod_Mass30"
 jetAk8_moduleName = "hltAK8SinglePFJet360TrimModMass30"
 
+rsq_mr_pathName = "HLT_RsqMR240_Rsq0p09_MR200"
+rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
+
 bJet_pathName = "HLT_PFMET120_NoiseCleaned_BTagCSV07"
 bJet_moduleName = "hltPFMET120Filter"
 bJet_pathNameOR = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
@@ -28,8 +31,8 @@ bJet_moduleNameOR = "hltCSVPF0p7"
 
 hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
     alphaT = cms.PSet(
-        pathName = cms.string("HLT_PFHT200_DiPFJet90_PFAlphaT0p57"),
-        moduleName = cms.string("hltPFHT200PFAlphaT0p57"),
+        pathName = cms.string("HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63"),
+        moduleName = cms.string("hltPFHT200PFAlphaT0p63"),
         NbinsX = cms.int32(30),
         Xmin = cms.int32(0),
         Xmax = cms.int32(5)
@@ -191,6 +194,20 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         NbinsX = cms.int32(50),
         Xmin = cms.double(-3.4),
         Xmax = cms.double(3.4)
+        ),
+    rsq = cms.PSet(
+        pathName = cms.string(rsq_mr_pathName),
+        moduleName = cms.string(rsq_mr_moduleName),
+        NbinsX = cms.int32(30),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(2)
+        ),                                  
+    mr = cms.PSet(
+        pathName = cms.string(rsq_mr_pathName),
+        moduleName = cms.string(rsq_mr_moduleName),
+        NbinsX = cms.int32(50),
+        Xmin = cms.int32(0),
+        Xmax = cms.int32(2000)
         ),
     diMuonMass = cms.PSet(
         pathName = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"),
