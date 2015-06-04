@@ -20,7 +20,7 @@ process.Analyzer = cms.EDAnalyzer("SecSourceAnalyzer",
      dataStep2 = cms.bool(False),
      collSimTrack = cms.InputTag("g4SimHits"),
 	
-     input = cms.SecSource("PoolSource",
+     input = cms.SecSource("EmbeddedRootSource",
         type = cms.string('fixed'),
         nbPileupEvents = cms.PSet(
         averageNumber = cms.double(1.0)

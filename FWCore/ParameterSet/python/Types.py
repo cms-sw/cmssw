@@ -1385,17 +1385,17 @@ if __name__ == "__main__":
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
             self.assertEqual(f.configValue(), "'FWCore/ParameterSet/python/Types.py'")
         def testSecSource(self):
-            s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
-            self.assertEqual(s1.type_(), "PoolSource")
+            s1 = SecSource("EmbeddedRootSource", fileNames = vstring("foo.root"))
+            self.assertEqual(s1.type_(), "EmbeddedRootSource")
             self.assertEqual(s1.configValue(),
-"""PoolSource { """+"""
+"""EmbeddedRootSource { """+"""
     vstring fileNames = {
         'foo.root'
     }
 
 }
 """)
-            s1=SecSource("PoolSource",type=int32(1))
+            s1=SecSource("EmbeddedRootSource",type=int32(1))
             self.assertEqual(s1.type.value(),1)
         def testEventID(self):
             eid = EventID(2, 0, 3)

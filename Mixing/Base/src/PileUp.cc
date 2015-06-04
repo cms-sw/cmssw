@@ -3,9 +3,9 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,15 +43,8 @@ namespace edm {
     none_(type_ == "none"),
     fileNameHash_(0U),
     productRegistry_(new SignallingProductRegistry),
-    input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription(
-                                                                   ModuleDescription(),
-                                                                   *productRegistry_,
-                                                                   std::make_shared<BranchIDListHelper>(),
-                                                                   std::make_shared<ThinnedAssociationsHelper>(),
-                                                                   std::make_shared<ActivityRegistry>(),
-                                                                   -1, -1, -1,
-                                                                   PreallocationConfiguration()
-                                                                   )).release()),
+    input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, VectorInputSourceDescription(
+                                                                   productRegistry_, edm::PreallocationConfiguration())).release()),
     processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),
     eventPrincipal_(),
     lumiPrincipal_(),
@@ -61,8 +54,6 @@ namespace edm {
     vPoissonDistr_OOT_(),
     randomEngines_(),
     playback_(playback),
-    sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
-    samelumi_(pset.getUntrackedParameter<bool>("sameLumiBlock", false)),
     seed_(0) {
 
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
@@ -77,8 +68,8 @@ namespace edm {
 
     // A modified HistoryAppender must be used for unscheduled processing.
     eventPrincipal_.reset(new EventPrincipal(input_->productRegistry(),
-                                       input_->branchIDListHelper(),
-                                       input_->thinnedAssociationsHelper(),
+                                       std::make_shared<BranchIDListHelper>(),
+                                       std::make_shared<ThinnedAssociationsHelper>(),
                                        *processConfiguration_,
                                        nullptr));
 
