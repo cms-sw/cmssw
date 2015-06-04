@@ -48,7 +48,9 @@ validation = vertexPlots.VertexValidation(
     fastsimSamples=[], newRelease=NewRelease)
 validation.download()
 validation.doPlots(algos=Collections, qualities=Qualities, refRelease=RefRelease,
-                   refRepository=RefRepository, newRepository=NewRepository, plotter=vertexPlots.plotter)
+                   refRepository=RefRepository, newRepository=NewRepository, plotter=vertexPlots.plotter,
+                   plotterDrawArgs={"ratio": True}
+)
 
 #validation2 = vertexPlots.VertexValidation(
 #    fullsimSamples = startupsamples + pileupstartupsamples,

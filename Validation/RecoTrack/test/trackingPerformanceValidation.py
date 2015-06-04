@@ -83,7 +83,9 @@ val = trackingPlots.TrackingValidation(
 )
 val.download()
 val.doPlots(algos=Algos, qualities=Qualities, refRelease=RefRelease,
-                   refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.plotter)
+            refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.plotter,
+            plotterDrawArgs={"ratio": True}
+)
 
 # Timing plots
 #val2 = validation.Validation(
