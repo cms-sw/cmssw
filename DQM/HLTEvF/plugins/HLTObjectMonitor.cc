@@ -45,7 +45,6 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-//#include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -114,17 +113,6 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> chargedCandToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
-  edm::EDGetTokenT<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>> rHemisphereToken_;
-  
-
-  // edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvCaloToken_;  
-  // edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvPfToken_;  
-  
-  // edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> siPixelClusterToken_;
-  // edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClusterToken_;
-  // edm::EDGetTokenT<TrackingRecHitCollection> trackingRecHitsToken_;  
-  // edm::EDGetTokenT<reco::TrackExtraCollection> trackExtraToken_;  
-  // edm::EDGetTokenT<reco::TrackCollection> trackToken_;  
 
   //declare params
   edm::ParameterSet rsq_TH1;
@@ -282,17 +270,6 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   chargedCandToken_ = consumes<vector<reco::RecoChargedCandidate>>(edm::InputTag("hltL3NoFiltersNoVtxMuonCandidates","","TEST"));  
   csvCaloTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","","TEST"));
   csvPfTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST"));
-  rHemisphereToken_ = consumes<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>>(edm::InputTag("hltRHemisphere","","TEST"));
-  // csvCaloTagsToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","","TEST"));  
-  // csvPfTagsToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST"));  
-  //  siPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("hltSiPixelClusters","","TEST"));
-  // siStripClusterToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(edm::InputTag("hltSiStripRawToClustersFacility","","TEST"));
-  // trackingRecHitsToken_ = consumes<TrackingRecHitCollection>(edm::InputTag("hltIter2Merged","","TEST"));
-  // trackExtraToken_ = consumes<reco::TrackExtraCollection>(edm::InputTag("hltIter2Merged","","TEST"));
-  // trackToken_ = consumes<reco::TrackCollection>(edm::InputTag("hltIter2Merged","","TEST"));
-
-  // use this csvTagToken_ = consumes<reco::JetTagCollection>(InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST")); 
-  // prob not this csvTagToken_ = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>>(InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST")); 
 
 }
 
@@ -329,38 +306,11 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    if (!aodTriggerEvent.isValid()) return;
 
-   edm::Handle<vector<reco::MET>> recoMet;
-   iEvent.getByToken(metToken_, recoMet);
-
    edm::Handle<reco::JetTagCollection> csvCaloTags;
    iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
 
    edm::Handle<reco::JetTagCollection> csvPfTags;
    iEvent.getByToken(csvPfTagsToken_, csvPfTags);
-
-   edm::Handle<vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>>> rHemisphere;
-   iEvent.getByToken(rHemisphereToken_, rHemisphere);
-
-   // edm::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvCaloTags;
-   // iEvent.getByToken(csvCaloToken_, csvCaloTags);
-
-   // edm::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>> csvPfTags;
-   // iEvent.getByToken(csvPfToken_, csvPfTags);
-
-   // edm::Handle<edmNew::DetSetVector<SiPixelCluster>> siPixelCluster;
-   // iEvent.getByToken(siPixelClusterToken_, siPixelCluster);
-
-   // edm::Handle<edmNew::DetSetVector<SiStripCluster>> siStripCluster;
-   // iEvent.getByToken(siStripClusterToken_, siStripCluster);
-
-   // edm::Handle<TrackingRecHitCollection> trackingRecHits;
-   // iEvent.getByToken(trackingRecHitsToken_, trackingRecHits);
-
-   // edm::Handle<reco::TrackExtraCollection> trackExtras;
-   // iEvent.getByToken(trackExtraToken_, trackExtras);
-
-   // edm::Handle<reco::TrackCollection> tracks;
-   // iEvent.getByToken(trackToken_, tracks);
 
    for (string & pathName : quickCollectionPaths) //loop over paths
      {
