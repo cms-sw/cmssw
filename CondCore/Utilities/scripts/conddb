@@ -67,7 +67,8 @@ def _identify_object(session, objtype, name):
                 raise Exception('There is no tag named %s in the database.' % name)
         elif objtype == 'gt':
             if not _exists(session, conddb.GlobalTag.name, name):
-                raise Exception('There is no global tag named %s in the database.' % name)
+	        # raise Exception('There is no global tag named %s in the database.' % name)
+                logging.info('There is no global tag table in the database.')
         elif objtype == 'payload':
             # In the case of a payload, check and also return the full hash
             return objtype, _get_payload_full_hash(session, name)
@@ -139,10 +140,15 @@ def _confirm_changes(args):
 
 
 def _exists(session, primary_key, value):
-    return session.query(primary_key).\
-        filter(primary_key == value).\
-        count() != 0
+    ret = None
+    try: 
+        ret = session.query(primary_key).\
+    	    filter(primary_key == value).\
+            count() != 0
+    except sqlalchemy.exc.OperationalError:
+        pass
 
+    return ret
 
 def _regexp(connection, field, regexp):
     '''To be used inside filter().
@@ -1312,7 +1318,7 @@ def dump(args):
        		else:
             	   _dump_payload(session, payload, args.loadonly)
 
-    elif args.type == 'gt':
+    elif args.type == 'gt' and _exists(session, conddb.GlobalTag.name, name) != None:
         for payload, in session.query(conddb.IOV.payload_hash).\
             filter(conddb.GlobalTagMap.global_tag_name == name, conddb.IOV.tag_name == conddb.GlobalTagMap.tag_name).\
             distinct():

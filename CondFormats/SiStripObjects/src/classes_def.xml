@@ -10,7 +10,6 @@
   <class name="FedChannelConnection"/>
   <class name="std::vector<FedChannelConnection>"/>
   <class name="std::vector< std::vector<FedChannelConnection> >"/>
-  <class name="SiStripFedCabling::Conns"/>
 
   <class name="SiStripPedestals" class_version="0">
     <field name="indexes" mapping="blob"/>
@@ -34,7 +33,6 @@
   <class name="std::vector<SiStripThreshold::Data>"/>
   <class name="SiStripThreshold::DetRegistry"/>
   <class name="std::vector<SiStripThreshold::DetRegistry>"/>
-  <class name="SiStripThreshold::Container"/>
   <class name="std::vector<SiStripThreshold::Container>"/>
 
   <class name="SiStripApvGain" class_version="0">

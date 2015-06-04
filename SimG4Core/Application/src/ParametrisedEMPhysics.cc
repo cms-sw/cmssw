@@ -22,6 +22,8 @@
 #include "G4RegionStore.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
+#include "G4MuonMinus.hh"
+#include "G4MuonPlus.hh"
 #include "G4PionMinus.hh"
 #include "G4PionPlus.hh"
 #include "G4KaonMinus.hh"
@@ -29,13 +31,17 @@
 #include "G4Proton.hh"
 #include "G4AntiProton.hh"
 
+#include "G4MuonNuclearProcess.hh"
+#include "G4MuonVDNuclearModel.hh"
+
 #include "G4EmProcessOptions.hh"
 #include "G4PhysicsListHelper.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UAtomicDeexcitation.hh"
 #include "G4LossTableManager.hh"
 
-ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) 
+ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, 
+					     const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
 {
   theEcalEMShowerModel = 0;
@@ -215,4 +221,13 @@ void ParametrisedEMPhysics::ConstructProcess() {
     G4LossTableManager::Instance()->SetAtomDeexcitation(de);
     de->SetFluo(true);
   }
+  // enable muon nuclear (valid option for Geant4 10.0pX only)
+  bool munuc = theParSet.getParameter<bool>("FlagMuNucl");
+  if(munuc) {
+    G4MuonNuclearProcess* muNucProcess = new G4MuonNuclearProcess();
+    muNucProcess->RegisterMe(new G4MuonVDNuclearModel());
+    ph->RegisterProcess(muNucProcess, G4MuonPlus::MuonPlus());
+    ph->RegisterProcess(muNucProcess, G4MuonMinus::MuonMinus());
+  }
+
 }

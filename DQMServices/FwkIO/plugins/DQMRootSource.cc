@@ -72,7 +72,7 @@ namespace {
   }
   //NOTE: the merge logic comes from DataFormats/Histograms/interface/MEtoEDMFormat.h
   void mergeTogether(TH1* iOriginal,TH1* iToAdd) {
-    if(iOriginal->TestBit(TH1::kCanRebin)==true && iToAdd->TestBit(TH1::kCanRebin) ==true) {
+    if(iOriginal->CanExtendAllAxes() && iToAdd->CanExtendAllAxes()) {
       TList list;
       list.Add(iToAdd);
       if( -1 == iOriginal->Merge(&list)) {

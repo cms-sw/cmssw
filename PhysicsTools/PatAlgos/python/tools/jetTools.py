@@ -413,10 +413,28 @@ class AddJetCollection(ConfigToolBase):
                         if explicitJTA:
                             _btagInfo = getattr(process, btagInfo+_labelName+postfix)
                             _btagInfo.explicitJTA = cms.bool(explicitJTA)
+                    if btagInfo == 'pfImpactParameterTagInfosAK8':
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfImpactParameterTagInfosAK8.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
+                        if explicitJTA:
+                            _btagInfo = getattr(process, btagInfo+_labelName+postfix)
+                            _btagInfo.explicitJTA = cms.bool(explicitJTA)
+                    if btagInfo == 'pfImpactParameterTagInfosCA15':
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfImpactParameterTagInfosCA15.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
+                        if explicitJTA:
+                            _btagInfo = getattr(process, btagInfo+_labelName+postfix)
+                            _btagInfo.explicitJTA = cms.bool(explicitJTA)
                     if btagInfo == 'pfSecondaryVertexTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfSecondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix), extSVCollection=svSource))
+                        if svClustering:
+                            setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfosAK8':
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfosAK8.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfosAK8'+_labelName+postfix), extSVCollection=svSource))
+                        if svClustering:
+                            setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfosCA15':
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfosCA15.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfosCA15'+_labelName+postfix), extSVCollection=svSource))
                         if svClustering:
                             setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
                     if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
@@ -447,8 +465,16 @@ class AddJetCollection(ConfigToolBase):
                         setattr(process, btagInfo+_labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
                     if btagInfo == 'softPFMuonsTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, muons=muSource))
+                    if btagInfo == 'softPFMuonsTagInfosAK8':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfosAK8.clone(jets = jetSource, primaryVertex=pvSource, muons=muSource))
+                    if btagInfo == 'softPFMuonsTagInfosCA15':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfosCA15.clone(jets = jetSource, primaryVertex=pvSource, muons=muSource))
                     if btagInfo == 'softPFElectronsTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource))
+                    if btagInfo == 'softPFElectronsTagInfosAK8':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfosAK8.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource))
+                    if btagInfo == 'softPFElectronsTagInfosCA15':
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfosCA15.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource))
                     acceptedTagInfos.append(btagInfo)
                 elif hasattr(toptag, btagInfo) :
                     acceptedTagInfos.append(btagInfo)

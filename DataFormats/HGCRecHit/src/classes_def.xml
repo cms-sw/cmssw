@@ -20,7 +20,6 @@
   <class name="edm::RefVector<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >"/>
 
-  <class name="HGCRecHitCollection"/>
   <class name="edm::Wrapper<HGCRecHitCollection>"/>
  
   <class name="edm::DetSet<HGCRecHit>"/>

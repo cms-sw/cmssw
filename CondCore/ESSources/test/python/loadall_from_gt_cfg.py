@@ -21,7 +21,7 @@ process = cms.Process("TEST")
 #process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untracked.bool(True)))
 
 CondDBSetup = cms.PSet( DBParameters = cms.PSet(
-                                                messageLevel = cms.untracked.int32(1),
+                                                messageLevel = cms.untracked.int32(3),
                                                 )
                         )
 

@@ -266,8 +266,8 @@ process = loadL1Menu(process)
 """
         elif 'LowPU' in self.config.type :
           self.data += """
-# load 2015 Run-2 L1 Menu for HIon
-from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v2 as loadL1Menu
+# load 2015 Run-2 L1 Menu for LowPU
+from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v3 as loadL1Menu
 process = loadL1Menu(process)
 """
         else :

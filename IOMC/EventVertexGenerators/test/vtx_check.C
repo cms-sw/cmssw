@@ -2,7 +2,7 @@
 {
 
    gSystem->Load("libFWCoreFWLite") ;
-   AutoLibraryLoader::enable() ;
+   FWLiteEnabler::enable() ;
    
    TFile* f = new TFile("pgun.root") ;
    
