@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V69 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/GRun/V70 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V69')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V70')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -974,50 +974,6 @@ fragment.hltESPDisplacedDijethltTrackCounting2D2ndLong = cms.ESProducer( "TrackC
   nthTrack = cms.int32( 2 ),
   useSignedImpactParameterSig = cms.bool( True )
 )
-fragment.hltESPAK8CaloCorrection = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK8CaloFastJetCorrectionESProducer',
-    'hltESPAK8CaloRelativeCorrectionESProducer',
-    'hltESPAK8CaloAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-fragment.hltESPAK8CaloFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
-  algorithm = cms.string( "AK8CaloHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-fragment.hltESPAK8CaloRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK8CaloHLT" ),
-  level = cms.string( "L2Relative" )
-)
-fragment.hltESPAK8CaloAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK8CaloHLT" ),
-  level = cms.string( "L3Absolute" )
-)
-fragment.hltESPAK8PFCorrection = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK8PFFastJetCorrectionESProducer',
-    'hltESPAK8PFRelativeCorrectionESProducer',
-    'hltESPAK8PFAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-fragment.hltESPAK8PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
-  algorithm = cms.string( "AK8PFHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-fragment.hltESPAK8PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK8PFHLT" ),
-  level = cms.string( "L2Relative" )
-)
-fragment.hltESPAK8PFAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK8PFHLT" ),
-  level = cms.string( "L3Absolute" )
-)
 fragment.hltDisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
   b_pT = cms.double( 0.3684 ),
   deltaR = cms.double( -1.0 ),
@@ -1050,50 +1006,6 @@ fragment.hltDisplacedDijethltESPPromptTrackCountingESProducer = cms.ESProducer( 
   useSignedImpactParameterSig = cms.bool( True ),
   maximumDistanceToJetAxis = cms.double( 999999.0 ),
   nthTrack = cms.int32( -1 )
-)
-fragment.hltESPAK4CaloCorrection = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK4CaloFastJetCorrectionESProducer',
-    'hltESPAK4CaloRelativeCorrectionESProducer',
-    'hltESPAK4CaloAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-fragment.hltESPAK4PFCorrection = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK4PFFastJetCorrectionESProducer',
-    'hltESPAK4PFRelativeCorrectionESProducer',
-    'hltESPAK4PFAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-fragment.hltESPAK4CaloFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
-  algorithm = cms.string( "AK4CaloHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-fragment.hltESPAK4PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
-  algorithm = cms.string( "AK4PFHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-fragment.hltESPAK4PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK4PFHLT" ),
-  level = cms.string( "L2Relative" )
-)
-fragment.hltESPAK4CaloRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK4CaloHLT" ),
-  level = cms.string( "L2Relative" )
-)
-fragment.hltESPAK4CaloAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK4CaloHLT" ),
-  level = cms.string( "L3Absolute" )
-)
-fragment.hltESPAK4PFAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK4PFHLT" ),
-  level = cms.string( "L3Absolute" )
 )
 fragment.MaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "ParabolicMf" ),
@@ -2628,13 +2540,29 @@ fragment.hltFixedGridRhoFastjetAllCalo = cms.EDProducer( "FixedGridRhoProducerFa
     maxRapidity = cms.double( 5.0 ),
     pfCandidatesTag = cms.InputTag( "hltTowerMakerForAll" )
 )
-fragment.hltAK8CaloJetsCorrected = cms.EDProducer( "CaloJetCorrectionProducer",
-    src = cms.InputTag( "hltAK8CaloJets" ),
-    correctors = cms.vstring( 'hltESPAK8CaloCorrection' )
+fragment.hltAK8CaloFastJetCorrector = cms.EDProducer( "L1FastjetCorrectorProducer",
+    srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
+    algorithm = cms.string( "AK8CaloHLT" ),
+    level = cms.string( "L1FastJet" )
 )
-fragment.hltAK8CaloJetsCorrectedIDPassed = cms.EDProducer( "CaloJetCorrectionProducer",
+fragment.hltAK8CaloRelativeCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK8CaloHLT" ),
+    level = cms.string( "L2Relative" )
+)
+fragment.hltAK8CaloAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK8CaloHLT" ),
+    level = cms.string( "L3Absolute" )
+)
+fragment.hltAK8CaloCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
+    correctors = cms.VInputTag( 'hltAK8CaloFastJetCorrector','hltAK8CaloRelativeCorrector','hltAK8CaloAbsoluteCorrector' )
+)
+fragment.hltAK8CaloJetsCorrected = cms.EDProducer( "CorrectedCaloJetProducer",
+    src = cms.InputTag( "hltAK8CaloJets" ),
+    correctors = cms.VInputTag( 'hltAK8CaloCorrector' )
+)
+fragment.hltAK8CaloJetsCorrectedIDPassed = cms.EDProducer( "CorrectedCaloJetProducer",
     src = cms.InputTag( "hltAK8CaloJetsIDPassed" ),
-    correctors = cms.vstring( 'hltESPAK8CaloCorrection' )
+    correctors = cms.VInputTag( 'hltAK8CaloCorrector' )
 )
 fragment.hltAK8SingleCaloJet260 = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
@@ -6135,9 +6063,25 @@ fragment.hltFixedGridRhoFastjetAll = cms.EDProducer( "FixedGridRhoProducerFastje
     maxRapidity = cms.double( 5.0 ),
     pfCandidatesTag = cms.InputTag( "hltParticleFlow" )
 )
-fragment.hltAK8PFJetsCorrected = cms.EDProducer( "PFJetCorrectionProducer",
+fragment.hltAK8PFFastJetCorrector = cms.EDProducer( "L1FastjetCorrectorProducer",
+    srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
+    algorithm = cms.string( "AK8PFHLT" ),
+    level = cms.string( "L1FastJet" )
+)
+fragment.hltAK8PFRelativeCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK8PFHLT" ),
+    level = cms.string( "L2Relative" )
+)
+fragment.hltAK8PFAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK8PFHLT" ),
+    level = cms.string( "L3Absolute" )
+)
+fragment.hltAK8PFCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
+    correctors = cms.VInputTag( 'hltAK8PFFastJetCorrector','hltAK8PFRelativeCorrector','hltAK8PFAbsoluteCorrector' )
+)
+fragment.hltAK8PFJetsCorrected = cms.EDProducer( "CorrectedPFJetProducer",
     src = cms.InputTag( "hltAK8PFJets" ),
-    correctors = cms.vstring( 'hltESPAK8PFCorrection' )
+    correctors = cms.VInputTag( 'hltAK8PFCorrector' )
 )
 fragment.hltAK8PFJetsCorrectedMatchedToCaloJets260 = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
     DeltaR = cms.double( 0.5 ),
@@ -6422,9 +6366,25 @@ fragment.hltAK4CaloJets = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltAK4CaloJetsCorrected = cms.EDProducer( "CaloJetCorrectionProducer",
+fragment.hltAK4CaloFastJetCorrector = cms.EDProducer( "L1FastjetCorrectorProducer",
+    srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L1FastJet" )
+)
+fragment.hltAK4CaloRelativeCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L2Relative" )
+)
+fragment.hltAK4CaloAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L3Absolute" )
+)
+fragment.hltAK4CaloCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
+    correctors = cms.VInputTag( 'hltAK4CaloFastJetCorrector','hltAK4CaloRelativeCorrector','hltAK4CaloAbsoluteCorrector' )
+)
+fragment.hltAK4CaloJetsCorrected = cms.EDProducer( "CorrectedCaloJetProducer",
     src = cms.InputTag( "hltAK4CaloJets" ),
-    correctors = cms.vstring( 'hltESPAK4CaloCorrection' )
+    correctors = cms.VInputTag( 'hltAK4CaloCorrector' )
 )
 fragment.hltSingleCaloJet500 = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
@@ -17623,9 +17583,25 @@ fragment.hltAK4PFJets = cms.EDProducer( "FastjetJetProducer",
     DxyTrVtxMax = cms.double( 0.0 ),
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-fragment.hltAK4PFJetsCorrected = cms.EDProducer( "PFJetCorrectionProducer",
+fragment.hltAK4PFFastJetCorrector = cms.EDProducer( "L1FastjetCorrectorProducer",
+    srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
+    algorithm = cms.string( "AK4PFHLT" ),
+    level = cms.string( "L1FastJet" )
+)
+fragment.hltAK4PFRelativeCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4PFHLT" ),
+    level = cms.string( "L2Relative" )
+)
+fragment.hltAK4PFAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4PFHLT" ),
+    level = cms.string( "L3Absolute" )
+)
+fragment.hltAK4PFCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
+    correctors = cms.VInputTag( 'hltAK4PFFastJetCorrector','hltAK4PFRelativeCorrector','hltAK4PFAbsoluteCorrector' )
+)
+fragment.hltAK4PFJetsCorrected = cms.EDProducer( "CorrectedPFJetProducer",
     src = cms.InputTag( "hltAK4PFJets" ),
-    correctors = cms.vstring( 'hltESPAK4PFCorrection' )
+    correctors = cms.VInputTag( 'hltAK4PFCorrector' )
 )
 fragment.hltJetsNoLeptonsSingleTopEle27 = cms.EDProducer( "HLTPFJetsCleanedFromLeadingLeptons",
     jets = cms.InputTag( "hltAK4PFJetsCorrected" ),
@@ -19195,9 +19171,9 @@ fragment.hltAK4CaloJetsIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     ),
     max_EMF = cms.double( 999.0 )
 )
-fragment.hltAK4CaloJetsCorrectedIDPassed = cms.EDProducer( "CaloJetCorrectionProducer",
+fragment.hltAK4CaloJetsCorrectedIDPassed = cms.EDProducer( "CorrectedCaloJetProducer",
     src = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
-    correctors = cms.vstring( 'hltESPAK4CaloCorrection' )
+    correctors = cms.VInputTag( 'hltAK4CaloCorrector' )
 )
 fragment.hltMetCleanUsingJetID = cms.EDProducer( "HLTMETCleanerUsingJetID",
     minPt = cms.double( 20.0 ),
@@ -48195,7 +48171,8 @@ fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( fr
 fragment.HLTDoLocalHcalSequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbhereco + fragment.hltHfreco + fragment.hltHoreco )
 fragment.HLTDoCaloSequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + fragment.HLTDoLocalHcalSequence + fragment.hltTowerMakerForAll )
 fragment.HLTAK8CaloJetsReconstructionSequence = cms.Sequence( fragment.HLTDoCaloSequence + fragment.hltAK8CaloJets + fragment.hltAK8CaloJetsIDPassed )
-fragment.HLTAK8CaloJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo + fragment.hltAK8CaloJetsCorrected + fragment.hltAK8CaloJetsCorrectedIDPassed )
+fragment.HLTAK8CaloCorrectorProducersSequence = cms.Sequence( fragment.hltAK8CaloFastJetCorrector + fragment.hltAK8CaloRelativeCorrector + fragment.hltAK8CaloAbsoluteCorrector + fragment.hltAK8CaloCorrector )
+fragment.HLTAK8CaloJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo + fragment.HLTAK8CaloCorrectorProducersSequence + fragment.hltAK8CaloJetsCorrected + fragment.hltAK8CaloJetsCorrectedIDPassed )
 fragment.HLTAK8CaloJetsSequence = cms.Sequence( fragment.HLTAK8CaloJetsReconstructionSequence + fragment.HLTAK8CaloJetsCorrectionSequence )
 fragment.HLTDoCaloSequencePF = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + fragment.HLTDoLocalHcalSequence + fragment.hltTowerMakerForPF )
 fragment.HLTAK8CaloJetsPrePFRecoSequence = cms.Sequence( fragment.HLTDoCaloSequencePF + fragment.hltAK8CaloJetsPF + fragment.hltAK4CaloJetsPF )
@@ -48219,11 +48196,13 @@ fragment.HLTTrackReconstructionForPF = cms.Sequence( fragment.HLTDoLocalPixelSeq
 fragment.HLTPreshowerSequence = cms.Sequence( fragment.hltEcalPreshowerDigis + fragment.hltEcalPreshowerRecHit )
 fragment.HLTParticleFlowSequence = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHFEM + fragment.hltParticleFlowClusterHFHAD + fragment.hltLightPFTracks + fragment.hltParticleFlowBlock + fragment.hltParticleFlow )
 fragment.HLTAK8PFJetsReconstructionSequence = cms.Sequence( fragment.HLTL2muonrecoSequence + fragment.HLTL3muonrecoSequence + fragment.HLTTrackReconstructionForPF + fragment.HLTParticleFlowSequence + fragment.hltAK8PFJets )
-fragment.HLTAK8PFJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAll + fragment.hltAK8PFJetsCorrected )
+fragment.HLTAK8PFCorrectorProducersSequence = cms.Sequence( fragment.hltAK8PFFastJetCorrector + fragment.hltAK8PFRelativeCorrector + fragment.hltAK8PFAbsoluteCorrector + fragment.hltAK8PFCorrector )
+fragment.HLTAK8PFJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAll + fragment.HLTAK8PFCorrectorProducersSequence + fragment.hltAK8PFJetsCorrected )
 fragment.HLTAK8PFJetsSequence = cms.Sequence( fragment.HLTPreAK8PFJetsRecoSequence + fragment.HLTAK8PFJetsReconstructionSequence + fragment.HLTAK8PFJetsCorrectionSequence )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
 fragment.HLTAK4CaloJetsReconstructionNoIDSequence = cms.Sequence( fragment.HLTDoCaloSequence + fragment.hltAK4CaloJets )
-fragment.HLTAK4CaloJetsCorrectionNoIDSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo + fragment.hltAK4CaloJetsCorrected )
+fragment.HLTAK4CaloCorrectorProducersSequence = cms.Sequence( fragment.hltAK4CaloFastJetCorrector + fragment.hltAK4CaloRelativeCorrector + fragment.hltAK4CaloAbsoluteCorrector + fragment.hltAK4CaloCorrector )
+fragment.HLTAK4CaloJetsCorrectionNoIDSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo + fragment.HLTAK4CaloCorrectorProducersSequence + fragment.hltAK4CaloJetsCorrected )
 fragment.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence( fragment.hltEcalDigis + fragment.hltEcalPreshowerDigis + fragment.hltEcalUncalibRecHit + fragment.hltEcalDetIdToBeRecovered + fragment.hltEcalRecHit + fragment.hltEcalPreshowerRecHit )
 fragment.HLTPFClusteringForEgamma = cms.Sequence( fragment.hltRechitInRegionsECAL + fragment.hltRechitInRegionsES + fragment.hltParticleFlowRecHitECALL1Seeded + fragment.hltParticleFlowRecHitPSL1Seeded + fragment.hltParticleFlowClusterPSL1Seeded + fragment.hltParticleFlowClusterECALUncorrectedL1Seeded + fragment.hltParticleFlowClusterECALL1Seeded + fragment.hltParticleFlowSuperClusterECALL1Seeded )
 fragment.HLTDoLocalHcalWithTowerSequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbhereco + fragment.hltHfreco + fragment.hltHoreco + fragment.hltTowerMakerForAll )
@@ -48301,7 +48280,8 @@ fragment.HLTIsoEle27WPLooseGsfLooseIsoPFTau20Sequence = cms.Sequence( fragment.H
 fragment.HLTAK4CaloJetsPrePFRecoSequence = cms.Sequence( fragment.HLTDoCaloSequencePF + fragment.hltAK4CaloJetsPF )
 fragment.HLTPreAK4PFJetsRecoSequence = cms.Sequence( fragment.HLTAK4CaloJetsPrePFRecoSequence + fragment.hltAK4CaloJetsPFEt5 )
 fragment.HLTAK4PFJetsReconstructionSequence = cms.Sequence( fragment.HLTL2muonrecoSequence + fragment.HLTL3muonrecoSequence + fragment.HLTTrackReconstructionForPF + fragment.HLTParticleFlowSequence + fragment.hltAK4PFJets )
-fragment.HLTAK4PFJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAll + fragment.hltAK4PFJetsCorrected )
+fragment.HLTAK4PFCorrectorProducersSequence = cms.Sequence( fragment.hltAK4PFFastJetCorrector + fragment.hltAK4PFRelativeCorrector + fragment.hltAK4PFAbsoluteCorrector + fragment.hltAK4PFCorrector )
+fragment.HLTAK4PFJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAll + fragment.HLTAK4PFCorrectorProducersSequence + fragment.hltAK4PFJetsCorrected )
 fragment.HLTAK4PFJetsSequence = cms.Sequence( fragment.HLTPreAK4PFJetsRecoSequence + fragment.HLTAK4PFJetsReconstructionSequence + fragment.HLTAK4PFJetsCorrectionSequence )
 fragment.HLTBtagCSVSequencePF = cms.Sequence( fragment.hltVerticesPF + fragment.hltVerticesPFSelector + fragment.hltVerticesPFFilter + fragment.hltPFJetForBtagSelector + fragment.hltPFJetForBtag + fragment.hltBLifetimeAssociatorPF + fragment.hltBLifetimeTagInfosPF + fragment.hltInclusiveVertexFinderPF + fragment.hltInclusiveSecondaryVerticesPF + fragment.hltTrackVertexArbitratorPF + fragment.hltInclusiveMergedVerticesPF + fragment.hltSecondaryVertexTagInfosPF + fragment.hltCombinedSecondaryVertexBJetTagsPF )
 fragment.HLTEle27erWPTightGsfSequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleIsoEG22erOrSingleEG25Filter + fragment.hltEG27EtL1IsoEG22erOrSingleEG25Filter + fragment.hltEgammaClusterShape + fragment.hltEle27WPTightClusterShapeFilter + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEle27WPTightHEFilter + fragment.hltEgammaEcalPFClusterIso + fragment.hltEle27WPTightEcalIsoFilter + fragment.HLTPFHcalClusteringForEgamma + fragment.hltEgammaHcalPFClusterIso + fragment.hltEle27WPTightHcalIsoFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.hltMixedLayerPairs + fragment.hltEgammaElectronPixelSeeds + fragment.hltEle27WPTightPixelMatchFilter + fragment.HLTGsfElectronSequence + fragment.hltEle27WPTightGsfOneOEMinusOneOPFilter + fragment.hltEle27WPTightGsfChi2Filter + fragment.hltEle27WPTightGsfMissingHitsFilter + fragment.hltEle27WPTightGsfDetaFilter + fragment.hltEle27WPTightGsfDphiFilter + fragment.HLTTrackReconstructionForIsoElectronIter02 + fragment.hltEgammaEleGsfTrackIso + fragment.hltEle27WPTightGsfTrackIsoFilter )
@@ -48313,7 +48293,7 @@ fragment.HLTEle105CaloIdVTGsfTrkIdTGsfSequence = cms.Sequence( fragment.HLTDoFul
 fragment.HLTRecoMETSequence = cms.Sequence( fragment.HLTDoCaloSequence + fragment.hltMet )
 fragment.HLTHBHENoiseCleanerSequence = cms.Sequence( fragment.hltHcalNoiseInfoProducer + fragment.hltHcalTowerNoiseCleaner )
 fragment.HLTAK4CaloJetsReconstructionSequence = cms.Sequence( fragment.HLTDoCaloSequence + fragment.hltAK4CaloJets + fragment.hltAK4CaloJetsIDPassed )
-fragment.HLTAK4CaloJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo + fragment.hltAK4CaloJetsCorrected + fragment.hltAK4CaloJetsCorrectedIDPassed )
+fragment.HLTAK4CaloJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo + fragment.HLTAK4CaloCorrectorProducersSequence + fragment.hltAK4CaloJetsCorrected + fragment.hltAK4CaloJetsCorrectedIDPassed )
 fragment.HLTAK4CaloJetsSequence = cms.Sequence( fragment.HLTAK4CaloJetsReconstructionSequence + fragment.HLTAK4CaloJetsCorrectionSequence )
 fragment.HLTPFClusteringForMuons = cms.Sequence( fragment.hltRecHitInRegionForMuons + fragment.hltRecHitInRegionForMuonsES + fragment.hltParticleFlowRecHitECALForMuons + fragment.hltParticleFlowRecHitPSForMuons + fragment.hltParticleFlowClusterECALUncorrectedForMuons + fragment.hltParticleFlowClusterPSForMuons + fragment.hltParticleFlowClusterECALForMuons )
 fragment.HLTL3muonEcalPFisorecoSequenceNoBoolsForMuons = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTDoLocalHcalSequence + fragment.hltTowerMakerForAll + fragment.hltFixedGridRhoFastjetAllCaloForMuons + fragment.HLTPFClusteringForMuons + fragment.hltMuonEcalPFClusterIsoForMuons )
