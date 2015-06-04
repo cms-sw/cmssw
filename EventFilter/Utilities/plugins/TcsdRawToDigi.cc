@@ -57,7 +57,6 @@ class TcdsRawToDigi : public edm::stream::EDProducer<> {
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
-      int nibble;
       edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
       
 };
@@ -87,6 +86,7 @@ void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<FEDRawDataCollection> rawdata;  
     iEvent.getByToken(dataToken_,rawdata);
 
+    int nibble=-99;
     if( rawdata.isValid() ) {
         const FEDRawData& tcdsData = rawdata->FEDData(FEDNumbering::MINTCDSuTCAFEDID);
         if(tcdsData.size()>0){
@@ -98,7 +98,7 @@ void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } else {
         nibble=-1;
     }
-    std::cout<<"nibble is "<<nibble<<std::endl;
+    //std::cout<<"nibble is "<<nibble<<std::endl;
 
     std::unique_ptr<int> pOut(new int(nibble));
     iEvent.put( std::move(pOut), "nibble" );
