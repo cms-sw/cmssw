@@ -182,7 +182,7 @@ class Sample:
         self._overrideGlobalTag = overrideGlobalTag
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
-            raise Exception("If fastsim=True and putype!=None, also fastsimCorrespondingFullsimPileup must be != None")
+            self._fastsimCorrespondingFullsimPileup = self._putype
 
     def sample(self):
         """Get the sample name"""
@@ -264,14 +264,19 @@ class Sample:
         fastsim = ""
         midfix = ""
         scenario = ""
+        sample = self._sample
         if self._append is not None:
             midfix += self._append
         if self._midfix is not None:
             midfix += "_"+self._midfix
         if self.hasPileup():
             if self._fastsim:
-                pileup = "PU_"
-                midfix += "_"+self.pileupType(newRelease)
+                sample = sample.replace("RelVal", "RelValFS_")
+                # old style
+                #pileup = "PU_"
+                #midfix += "_"+self.pileupType(newRelease)
+                # new style
+                pileup = "PU"+self.pileupType(newRelease)+"_"
             else:
                 pileup = "PU"+self.pileupType(newRelease)+"_"
         if self._fastsim:
@@ -282,7 +287,7 @@ class Sample:
         globalTag = _getGlobalTag(self, newRelease)
 
         fname = 'DQM_V0001_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
-            sample=self._sample, midfix=midfix, newrelease=_stripRelease(newRelease),
+            sample=sample, midfix=midfix, newrelease=_stripRelease(newRelease),
             pileup=pileup, globaltag=globalTag, scenario=scenario, fastsim=fastsim,
             version=self.version(newRelease)
         )
@@ -461,10 +466,9 @@ class Validation:
         if sample.hasScenario():
             tmp += "_"+sample.scenario()
         tmp += "_"+sample.pileup()
-        tmp += self._getSelectionName(quality, algo)
-        refSelection = refGlobalTag+tmp
-        newSelection = newGlobalTag+tmp
-        if sample.hasPileup() and not sample.fastsim():
+        refSelection = refGlobalTag+tmp+self._getSelectionName(quality, algo)
+        newSelection = newGlobalTag+tmp+self._getSelectionName(quality, algo)
+        if sample.hasPileup():
             refPu = sample.pileupType(self._refRelease)
             if refPu != "":
                 refSelection += "_"+refPu
@@ -544,6 +548,7 @@ class Validation:
         fullSelection = fullGlobalTag+"_"+fullSample.pileup()+tmp
         if fullSample.hasPileup():
             fullSelection += "_"+fullSample.pileupType(self._newRelease)
+            fastSelection += "_"+fastSample.pileupType(self._newRelease)
 
         # Construct directories for FastSim, FullSim, and for the results
         fastdir = os.path.join(self._newRepository, self._newRelease, "fastsim", self._newRelease, fastSelection, fastSample.name())
