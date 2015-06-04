@@ -63,7 +63,7 @@ fastsimstartupsamples = [
 ]
 
 pileupfastsimstartupsamples = [
-#    Sample('RelValTTbar', putype="AVE20", midfix="13", fastsim=True, fastsimCorrespondingFullsimPileup="50ns")
+    Sample('RelValTTbar', putype="25ns", midfix="13_PU25", fastsim=True)
 ]
 
 ### Track algorithm name and quality. Can be a list.
