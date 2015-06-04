@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V17 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/LowPU/V18 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V17')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V18')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -8579,6 +8579,16 @@ fragment.hltHIPhoton60 = cms.EDFilter( "HLT1Photon",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 81 )
 )
+fragment.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
+    technicalBits = cms.uint64( 0x11 ),
+    ignoreL1Mask = cms.bool( True ),
+    invert = cms.bool( False ),
+    physicsLoBits = cms.uint64( 0x1 ),
+    physicsHiBits = cms.uint64( 0x0 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    daqPartitions = cms.uint32( 1 ),
+    bunchCrossings = cms.vint32( 0, 1, -1 )
+)
 fragment.hltL1sL1DoubleMuOpen = cms.EDFilter( "HLTLevel1GTSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen" ),
     saveTags = cms.bool( True ),
@@ -12235,6 +12245,7 @@ fragment.HLTPFClusteringForEgammaUnseeded = cms.Sequence( fragment.hltParticleFl
 fragment.HLTEle5SC5JPsiMass2to4p5Sequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleEG5Filter + fragment.hltEle5SC5JPsiEtFilter + fragment.hltEgammaClusterShape + fragment.hltEle5SC5JPsiClusterShapeFilter + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEle5SC5JPsiHEFilter + fragment.hltEgammaEcalPFClusterIso + fragment.hltEle5SC5JPsiEcalIsoFilter + fragment.HLTPFHcalClusteringForEgamma + fragment.hltEgammaHcalPFClusterIso + fragment.hltEle5SC5JPsiHcalIsoFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.hltMixedLayerPairs + fragment.hltEgammaElectronPixelSeeds + fragment.hltEle5SC5JPsiPixelMatchFilter + fragment.HLTGsfElectronSequence + fragment.hltEle5SC5JPsiOneOEMinusOneOPFilter + fragment.HLTTrackReconstructionForIsoElectronIter02 + fragment.hltEgammaEleGsfTrackIso + fragment.hltEle5SC5JPsiTrackIsoFilter + fragment.HLTPFClusteringForEgammaUnseeded + fragment.hltEgammaCandidatesUnseeded + fragment.hltEgammaCandidatesWrapperUnseeded + fragment.hltEle5SC5JPsiEtUnseededFilter + fragment.hltEle5SC5JPsiMass2to4p5Filter )
 fragment.HLTBeginSequenceRandom = cms.Sequence( fragment.hltRandomEventsFilter + fragment.hltGtDigis )
 fragment.HLTDoHIEcalClusWithCleaningSequence = cms.Sequence( fragment.hltIslandBasicClustersHI + fragment.hltHiIslandSuperClustersHI + fragment.hltHiCorrectedIslandBarrelSuperClustersHI + fragment.hltHiCorrectedIslandEndcapSuperClustersHI + fragment.hltCleanedHiCorrectedIslandBarrelSuperClustersHI + fragment.hltRecoHIEcalWithCleaningCandidate )
+fragment.HLTBeginSequenceBPTX = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.hltBPTXCoincidence + fragment.HLTBeamSpot )
 fragment.HLTDoHILocalPixelSequence = cms.Sequence( fragment.hltSiPixelDigis + fragment.hltHISiPixelClusters + fragment.hltHISiPixelClustersCache + fragment.hltHISiPixelRecHits )
 fragment.HLTDoHILocalStripSequence = cms.Sequence( fragment.hltSiStripExcludedFEDListProducer + fragment.hltSiStripRawToClustersFacility + fragment.hltHISiStripClusters )
 fragment.HLTHIL3muonTkCandidateSequence = cms.Sequence( fragment.HLTDoHILocalPixelSequence + fragment.HLTDoHILocalStripSequence + fragment.hltHIL3TrajSeedOIState + fragment.hltHIL3TrackCandidateFromL2OIState + fragment.hltHIL3TkTracksFromL2OIState + fragment.hltHIL3MuonsOIState + fragment.hltHIL3TrajSeedOIHit + fragment.hltHIL3TrackCandidateFromL2OIHit + fragment.hltHIL3TkTracksFromL2OIHit + fragment.hltHIL3MuonsOIHit + fragment.hltHIL3TkFromL2OICombination + fragment.hltHIL3TrajSeedIOHit + fragment.hltHIL3TrackCandidateFromL2IOHit + fragment.hltHIL3TkTracksFromL2IOHit + fragment.hltHIAllL3MuonsIOHit + fragment.hltHIL3TrajectorySeed + fragment.hltHIL3TrackCandidateFromL2 )
@@ -12315,10 +12326,10 @@ fragment.HLT_HISinglePhoton15_v2 = cms.Path( fragment.HLTBeginSequence + fragmen
 fragment.HLT_HISinglePhoton20_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG2BptxAND + fragment.hltPreHISinglePhoton20 + fragment.HLTDoCaloSequence + fragment.HLTDoHIEcalClusWithCleaningSequence + fragment.hltHIPhoton20 + fragment.HLTEndSequence )
 fragment.HLT_HISinglePhoton40_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG5 + fragment.hltPreHISinglePhoton40 + fragment.HLTDoCaloSequence + fragment.HLTDoHIEcalClusWithCleaningSequence + fragment.hltHIPhoton40 + fragment.HLTEndSequence )
 fragment.HLT_HISinglePhoton60_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG5 + fragment.hltPreHISinglePhoton60 + fragment.HLTDoCaloSequence + fragment.HLTDoHIEcalClusWithCleaningSequence + fragment.hltHIPhoton60 + fragment.HLTEndSequence )
-fragment.HLT_HIL1DoubleMu0_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1DoubleMuOpen + fragment.hltPreHIL1DoubleMu0 + fragment.hltL1fL1DoubleMuOpenFiltered0 + fragment.HLTEndSequence )
-fragment.HLT_HIL2Mu3_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleMuOpen + fragment.hltPreHIL2Mu3 + fragment.hltHIL1SingleMuOpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3L2Filtered + fragment.HLTEndSequence )
-fragment.HLT_HIL2DoubleMu0_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1DoubleMuOpen + fragment.hltPreHIL2DoubleMu0 + fragment.hltHIDoubleMuLevel1PathL1OpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0L2Filtered + fragment.HLTEndSequence )
-fragment.HLT_HIL3Mu3_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleMuOpen + fragment.hltPreHIL3Mu3 + fragment.hltHIL1SingleMuOpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu3L3Filtered + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_v1 = cms.Path( fragment.HLTBeginSequenceBPTX + fragment.hltL1sL1DoubleMuOpen + fragment.hltPreHIL1DoubleMu0 + fragment.hltL1fL1DoubleMuOpenFiltered0 + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3_v2 = cms.Path( fragment.HLTBeginSequenceBPTX + fragment.hltL1sL1SingleMuOpen + fragment.hltPreHIL2Mu3 + fragment.hltHIL1SingleMuOpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3L2Filtered + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_v2 = cms.Path( fragment.HLTBeginSequenceBPTX + fragment.hltL1sL1DoubleMuOpen + fragment.hltPreHIL2DoubleMu0 + fragment.hltHIDoubleMuLevel1PathL1OpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0L2Filtered + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu3_v2 = cms.Path( fragment.HLTBeginSequenceBPTX + fragment.hltL1sL1SingleMuOpen + fragment.hltPreHIL3Mu3 + fragment.hltHIL1SingleMuOpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu3L3Filtered + fragment.HLTEndSequence )
 fragment.HLT_FullTrack12_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleJet12BptxAND + fragment.hltPreFullTrack12 + fragment.HLTRecoJetSequenceAK6PrePFForHighPt + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighPtSequence + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingForHighPt + fragment.hltHighPtGoodFullTracks + fragment.hltHighPtFullCands + fragment.hltHighPtFullTrack12 + fragment.HLTEndSequence )
 fragment.HLT_FullTrack20_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleJet16 + fragment.hltPreFullTrack20 + fragment.HLTRecoJetSequenceAK6PrePFForHighPt + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighPtSequence + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingForHighPt + fragment.hltHighPtGoodFullTracks + fragment.hltHighPtFullCands + fragment.hltHighPtFullTrack20 + fragment.HLTEndSequence )
 fragment.HLT_FullTrack30_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleJet16 + fragment.hltPreFullTrack30 + fragment.HLTRecoJetSequenceAK6PrePFForHighPt + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighPtSequence + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingForHighPt + fragment.hltHighPtGoodFullTracks + fragment.hltHighPtFullCands + fragment.hltHighPtFullTrack30 + fragment.HLTEndSequence )

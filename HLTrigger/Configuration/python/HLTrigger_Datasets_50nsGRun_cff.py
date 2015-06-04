@@ -247,6 +247,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Ele23_WPLoose_Gsf_v1', 
     'HLT_Ele25WP60_Ele8_Mass55_v2', 
     'HLT_Ele25WP60_SC4_Mass55_v2', 
+    'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v1', 
