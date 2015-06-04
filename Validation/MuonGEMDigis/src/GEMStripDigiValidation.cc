@@ -161,12 +161,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       TString histname_suffix = TString::Format("_r%d",region);
       TString simple_zr_histname = TString::Format("strip_simple_zr%s",histname_suffix.Data());
 
-      std::cout<<GEMGeometry_->station(region, station)->superChambers().size()<< "  "<<chamber<<std::endl;
-      std::cout<<binX<< "  "<<binY<<std::endl;
 
       histname_suffix = TString::Format("_r%d_st%d",region, station);
       TString subEta_histname = TString::Format("subEta%s",histname_suffix.Data());
-      std::cout<<subEta_histname<<std::endl;
       theStrip_subEta[subEta_histname.Hash()]->Fill( binX, binY); 
 
       // Fill detail plots.

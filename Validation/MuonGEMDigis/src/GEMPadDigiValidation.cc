@@ -22,7 +22,7 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
   int nregions = GEMGeometry_->regions().size();
   int nstations = GEMGeometry_->regions()[0]->stations().size(); 
   if ( nstations > 1 ) {
-    npadsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+    npadsGE21  = GEMGeometry_->regions()[0]->stations()[2]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
 
   for( int region_num = 0 ; region_num < nregions ; region_num++ ) {
