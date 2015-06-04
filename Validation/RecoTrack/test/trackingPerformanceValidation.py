@@ -93,11 +93,12 @@ val.doPlots(algos=Algos, qualities=Qualities, refRelease=RefRelease,
 #             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.timePlotter,
 #             algos=None, qualities=None)
 
-val3 = validation.Validation(
-    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
-    fastsimSamples=[], newRelease=NewRelease,
-    selectionName="_tp")
-val3.download()
-val3.doPlots(algos=None, qualities=None, refRelease=RefRelease,
-             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.tpPlotter)
+# TrackingParticle plots
+#val3 = validation.Validation(
+#    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
+#    fastsimSamples=[], newRelease=NewRelease,
+#    selectionName="_tp")
+#val3.download()
+#val3.doPlots(algos=None, qualities=None, refRelease=RefRelease,
+#             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.tpPlotter)
 
