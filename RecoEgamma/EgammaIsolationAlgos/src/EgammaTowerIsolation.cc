@@ -43,7 +43,7 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
     delete newAlgo;
     newAlgo = new EgammaTowerIsolationNew<1>(&extRadius,&intRadius,*towers);
     oldTowers=towers;
-    id15 = (*towers)[15].id();
+    id15 = towers->size()>15 ? (*towers)[15].id() : 0;
   }
 }
 
