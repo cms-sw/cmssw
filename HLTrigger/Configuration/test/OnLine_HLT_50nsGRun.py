@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V107 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/50nsGRun/V108 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V107')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V108')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -31750,7 +31750,7 @@ process.hltCSVPF0p7 = cms.EDFilter( "HLTPFJetTagWithMatching",
     MaxTag = cms.double( 999999.0 )
 )
 process.hltVBFPFJetCSVSortedMqq200Detaqq1p2 = cms.EDFilter( "HLTPFJetSortedVBFFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     inputJets = cms.InputTag( "hltAK4PFJetsCorrectedLooseID" ),
     Detabb = cms.double( 999.0 ),
     njets = cms.int32( 6 ),
@@ -31769,7 +31769,7 @@ process.hltPreQuadPFJetSingleBTagCSVVBFMqq460 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltVBFPFJetCSVSortedMqq460Detaqq4p1 = cms.EDFilter( "HLTPFJetSortedVBFFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     inputJets = cms.InputTag( "hltAK4PFJetsCorrectedLooseID" ),
     Detabb = cms.double( 999.0 ),
     njets = cms.int32( 4 ),
@@ -31788,7 +31788,7 @@ process.hltPreQuadPFJetDoubleBTagCSVVBFMqq240 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltVBFPFJetCSVSortedMqq240Detaqq2p0 = cms.EDFilter( "HLTPFJetSortedVBFFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     inputJets = cms.InputTag( "hltAK4PFJetsCorrectedLooseID" ),
     Detabb = cms.double( 999.0 ),
     njets = cms.int32( 6 ),
@@ -31807,7 +31807,7 @@ process.hltPreQuadPFJetSingleBTagCSVVBFMqq500 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltVBFPFJetCSVSortedMqq500Detaqq4p6 = cms.EDFilter( "HLTPFJetSortedVBFFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     inputJets = cms.InputTag( "hltAK4PFJetsCorrectedLooseID" ),
     Detabb = cms.double( 999.0 ),
     njets = cms.int32( 4 ),

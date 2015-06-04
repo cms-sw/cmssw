@@ -38,8 +38,8 @@ HLT_L1MinimumBiasHF2AND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
 
 HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133 (for low PU runs)
 
-HLT_L1TechCastorMediumJet_v*					# JIRA: CMSHLT-260 (for LHCf runs)
-HLT_L1TechCastorHaloMuon_v*					# JIRA: CMSHLT-260 (for low PU runs)
+#HLT_L1TechCastorMediumJet_v*					# JIRA: CMSHLT-260 (replaced by the path with the "algo" L1 seed)
+#HLT_L1TechCastorHaloMuon_v*					# JIRA: CMSHLT-260 (replaced by the path with the "algo" L1 seed)
 HLT_L1CastorMediumJet_PFJet15_v*				# JIRA: CMSHLT-334, CMSHLT-376 (for low PU runs)
 
 HLT_DiPFJet15_NoCaloMatched_v*					# JIRA: CMSHLT-285 (for LHCf runs)
