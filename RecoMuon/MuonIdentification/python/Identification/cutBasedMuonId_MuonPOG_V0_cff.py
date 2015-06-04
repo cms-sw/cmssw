@@ -4,6 +4,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
 cutBasedMuonId_MuonPOG_V0_loose = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-loose"),
+    isPOGApproved = cms.untracked.bool(True),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("loose"),
@@ -15,6 +16,7 @@ cutBasedMuonId_MuonPOG_V0_loose = cms.PSet(
 
 cutBasedMuonId_MuonPOG_V0_medium = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-medium"),
+    isPOGApproved = cms.untracked.bool(True),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("medium"),
@@ -26,6 +28,7 @@ cutBasedMuonId_MuonPOG_V0_medium = cms.PSet(
 
 cutBasedMuonId_MuonPOG_V0_tight = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-tight"),
+    isPOGApproved = cms.untracked.bool(True),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("tight"),
@@ -37,6 +40,7 @@ cutBasedMuonId_MuonPOG_V0_tight = cms.PSet(
 
 cutBasedMuonId_MuonPOG_V0_soft = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-soft"),
+    isPOGApproved = cms.untracked.bool(True),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("soft"),
@@ -48,6 +52,7 @@ cutBasedMuonId_MuonPOG_V0_soft = cms.PSet(
 
 cutBasedMuonId_MuonPOG_V0_highpt = cms.PSet(
     idName = cms.string("cutBasedMuonId-MuonPOG-V0-highpt"),
+    isPOGApproved = cms.untracked.bool(True),
     cutFlow = cms.VPSet(
         cms.PSet( cutName = cms.string("MuonPOGStandardCut"),
                   idName = cms.string("highpt"),
