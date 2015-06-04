@@ -743,7 +743,10 @@ class SimpleValidation:
 
         subdir = None
         if self._algoDirMap is not None:
-            subdir = self._algoDirMap[quality][algo]
+            if hasattr(self._algoDirMap, "__call__"):
+                subdir = self._algoDirMap(algo, quality)
+            else:
+                subdir = self._algoDirMap[quality][algo]
         self._plotter.create(openFiles, self._labels, subdir=subdir)
         fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
 
