@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-                            firstRun = cms.untracked.uint32(5)
+                            firstRun = cms.untracked.uint32(300000)
                             )
 
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
@@ -97,10 +97,11 @@ if process.mywriter.write:
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.GlobalTag.globaltag = 'GR_E_V48'
+process.GlobalTag.connect   = 'frontier://PromptProd/CMS_CONDITIONS'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
 
-readsqlite = True
+readsqlite = False
 if readsqlite:
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("DropBoxMetadataRcd"),
