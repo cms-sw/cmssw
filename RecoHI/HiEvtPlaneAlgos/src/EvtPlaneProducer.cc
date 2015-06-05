@@ -510,7 +510,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       evtplaneOutput->back().addLevel(3, 0., svNoWgt, cvNoWgt);
     }
 
-    iEvent.put(evtplaneOutput, "recoLevel");
+    iEvent.put(evtplaneOutput);
 }
 
 //define this as a plug-in

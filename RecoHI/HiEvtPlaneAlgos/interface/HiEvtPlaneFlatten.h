@@ -142,7 +142,7 @@ public:
     caloCentRefVal_/=refmax-refmin+1.;
     if(caloCentRefMinBin_<0) return 1.;
     int indx = getOffsetIndx(centbin,vtx);
-    if(indx < 0 or caloCentRefVal_ == 0 or getPtDB(indx)==0) return 1.;
+    if(indx < 0 || caloCentRefVal_ == 0 || getPtDB(indx)==0) return 1.;
     return caloCentRefVal_/getPtDB(indx);
    }
 
