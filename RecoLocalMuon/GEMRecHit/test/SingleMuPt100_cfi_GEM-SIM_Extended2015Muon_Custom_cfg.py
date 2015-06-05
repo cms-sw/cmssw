@@ -17,6 +17,9 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015MuonReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015Muon_cff')
+# for future releases: use GEMDev
+# process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+# process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
@@ -33,11 +36,12 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 process.options = cms.untracked.PSet()
 
-### TO ACTIVATE LogVerbatim in Simulation Packages NEED TO:                                                                                                                                                  
-### --------------------------------------------------------------                                                                                                                                           
-### scram b disable-biglib                                                                                                                                                                                   
-### scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                                                                                                                                                               
-###                                                                                                                                                                                                          
+### TO ACTIVATE LogVerbatim in Simulation Packages NEED TO:
+### --------------------------------------------------------------
+### scram b disable-biglib                                        
+### scram b clean
+### scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                    
+###                                                               
 ### TO ACTIVATE LogTrace IN GEMRecHit NEED TO COMPILE IT WITH:                           
 ### --------------------------------------------------------------                       
 ### --> scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                                       
