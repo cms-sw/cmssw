@@ -17,9 +17,8 @@ namespace vlq{
       Candidate ( const TLorentzVector& p4 ) :
         p4_(p4) 
       {}
-      Candidate (const vlq::Candidate& cand ) :
-        p4_(cand.getP4()) 
-      {}
+      Candidate (const vlq::Candidate& cand ) 
+      { *this = cand ; }
       float getPt () const { return p4_.Pt() ; } 
       float getEta () const { return p4_.Eta() ; }
       float getPhi () const { return p4_.Phi() ; }
