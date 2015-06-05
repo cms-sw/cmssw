@@ -32,17 +32,23 @@ GsfEleDxyCut::GsfEleDxyCut(const edm::ParameterSet& c) :
   _dxyCutValueEE(c.getParameter<double>("dxyCutValueEE")),
   _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   edm::InputTag vertextag = c.getParameter<edm::InputTag>("vertexSrc");
+  edm::InputTag vertextagMiniAOD = c.getParameter<edm::InputTag>("vertexSrcMiniAOD"); 
   contentTags_.emplace("vertices",vertextag);
+  contentTags_.emplace("verticesMiniAOD",vertextagMiniAOD);
 }
 
 void GsfEleDxyCut::setConsumes(edm::ConsumesCollector& cc) {
-  auto vtcs = 
-    cc.consumes<reco::VertexCollection>(contentTags_["vertices"]);
+  auto vtcs = cc.mayConsume<reco::VertexCollection>(contentTags_["vertices"]);
+  auto vtcsMiniAOD = cc.mayConsume<reco::VertexCollection>(contentTags_["verticesMiniAOD"]);
   contentTokens_.emplace("vertices",vtcs);
+  contentTokens_.emplace("verticesMiniAOD",vtcsMiniAOD);
 }
 
 void GsfEleDxyCut::getEventContent(const edm::EventBase& ev) {    
+  // First try AOD, then go to miniAOD. Use the same Handle since collection class is the same.
   ev.getByLabel(contentTags_["vertices"],_vtxs);
+  if (!_vtxs.isValid())
+    ev.getByLabel(contentTags_["verticesMiniAOD"],_vtxs);
 }
 
 CutApplicatorBase::result_type 

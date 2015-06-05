@@ -119,7 +119,7 @@ namespace edm {
                                   std::string const& productInstanceName,
                                   std::string const& processName) {
       LogInfo("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
-      << (kindOfType == PRODUCT_TYPE ? "  type: " : " type: edm::Veiw<")<<productType
+      << (kindOfType == PRODUCT_TYPE ? "  type: " : " type: edm::View<")<<productType
       << (kindOfType == PRODUCT_TYPE ? "\n  module label: " : ">\n  module label: ")<<moduleLabel
       <<"\n  product instance name: '"<<productInstanceName
       <<"'\n  process name: '"<<processName<<"'\n";

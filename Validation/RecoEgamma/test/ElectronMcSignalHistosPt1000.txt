@@ -1,0 +1,302 @@
+
+Collections sizes
+
+ElectronMcSignalValidatorPt1000/h_recEleNum                       1 1 1 0
+ElectronMcSignalValidatorPt1000/h_recCoreNum                      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_recTrackNum                     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_recOfflineVertices              1 1 1 0
+ElectronMcSignalValidatorPt1000/h_recSeedNum                      1 1 1 1
+
+Basic electron quantities
+
+ElectronMcSignalValidatorPt1000/h_ele_charge                      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexPt                    1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexEta                   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexPhi                   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexP                     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexX                     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexY                     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexZ                     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexTIP                   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_Et                          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_outerP_mode                 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_outerPt_mode                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_vertexPtVsEta_pfx           0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalEnergyError		    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalEnergyError_barrel      1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalEnergyError_endcaps     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_combinedP4Error             1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_combinedP4Error_barrel      1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_combinedP4Error_endcaps     1 1 1 1
+
+Comparison with MC truth (residuals)
+
+ElectronMcSignalValidatorPt1000/h_ele_ChargeMnChargeTrue          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue                     1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue_barrel              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue_endcaps             1	1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue_golden_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue_golden_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue_showering_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrue_showering_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PtoPttrue                   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PtoPttrue_barrel            1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PtoPttrue_endcaps           1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_barrel_new          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_barrel_new_etagap   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_barrel_new_phigap   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_ebeegap_new         1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_endcaps_new         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtrue_endcaps_new_deegap  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_bcl_EtotoEtrue              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_bcl_EtotoEtrue_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_bcl_EtotoEtrue_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrue                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrue_barrel         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrue_endcaps        1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PhiMnPhiTrue                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PhiMnPhiTrue_barrel         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_PhiMnPhiTrue_endcaps        1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrueVsEta_pfx            0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PoPtrueVsPhi_pfx            0 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_EoEtruePfVsEg_pfy           0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EtaMnEtaTrueVsEta_pfx       0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_PhiMnPhiTrueVsEta_pfx       0 1 1 1
+
+Track-cluster matching observables
+
+ElectronMcSignalValidatorPt1000/h_ele_EoP                         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EoP_barrel                  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EoP_endcaps                 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EoPout                      1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EoPout_barrel               1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EoPout_endcaps              1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EeleOPout                   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EeleOPout_barrel            1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EeleOPout_endcaps           1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EseedOP                     1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EseedOP_barrel              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_EseedOP_endcaps             1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaCl_propOut              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaCl_propOut_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaCl_propOut_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaEleCl_propOut           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaEleCl_propOut_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaEleCl_propOut_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaSc_propVtx              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaSc_propVtx_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaSc_propVtx_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiCl_propOut              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiCl_propOut_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiCl_propOut_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiEleCl_propOut           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiEleCl_propOut_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiEleCl_propOut_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiSc_propVtx              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiSc_propVtx_barrel       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiSc_propVtx_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EoPVsEta_pfx                0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EoPoutVsEta_pfx             0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EeleOPoutVsEta_pfx          0 1 1 1
+
+Electron Cluster shapes
+
+ElectronMcSignalValidatorPt1000/h_ele_HoE                         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_barrel                  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_endcaps                 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_bc                      1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_bc_barrel               1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_bc_endcaps              1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth1OverEcalBc		    1 1 0 0 
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth1OverEcalBc_barrel	    1 1 0 0	
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth1OverEcalBc_endcaps	    1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc		        1 1 0 0	
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc_barrel	    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalDepth2OverEcalBc_endcaps      1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_fiducial                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_sigietaieta                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_sigietaieta_barrel          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_sigietaieta_endcaps         1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_full5x5_sigietaieta                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_full5x5_sigietaieta_barrel          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_full5x5_sigietaieta_endcaps         1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_E1x5                        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_E1x5_barrel                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_E1x5_endcaps                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_E2x5max                     1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_E2x5max_barrel              1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_E2x5max_endcaps             1 1 1 0
+ElectronMcSignalValidatorPt1000/h_scl_E5x5                        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_E5x5_barrel                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_scl_E5x5_endcaps                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_HoEVsEta_pfx                0 1 1 1
+
+Electron track variables
+
+ElectronMcSignalValidatorPt1000/h_ele_chi2                        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_chi2_barrel                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_chi2_endcaps                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_foundHits                   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_foundHits_barrel            1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_foundHits_endcaps           1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_lostHits                    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_lostHits_barrel             1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_lostHits_endcaps            1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_ambiguousTracks             1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_chi2VsEta_pfx               0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_foundHitsVsEta_pfx          0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_ambiguousTracksVsEta_pfx    0 1 1 1
+
+Electron seeds
+
+ElectronMcSignalValidatorPt1000/h_ele_seedSubdet2                 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_seedMask                    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedMask_Bpix               1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedMask_Fpix               1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedMask_Tec                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDphi2                   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDphi2_VsEta_pfx         0 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDphi2_VsPt_pfx          0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDphi2Pos                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDphi2Pos_VsEta_pfx      0 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDphi2Pos_VsPt_pfx       0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDrz2                    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDrz2_VsEta_pfx          0 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDrz2_VsPt_pfx           0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDrz2Pos                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDrz2Pos_VsEta_pfx       0 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_seedDrz2Pos_VsPt_pfx        0 1 1 1
+
+Brem fraction and related distributions
+
+ElectronMcSignalValidatorPt1000/h_ele_PinMnPout_mode              1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_fbrem                       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_fbrem_barrel                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_fbrem_endcaps               1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_superclusterfbrem                               1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_superclusterfbrem_barrel                        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_superclusterfbrem_endcaps                       1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_classes                     1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_eta_goldenFrac              0 0 1 0 0 ElectronMcSignalValidatorPt1000/h_ele_eta_golden ElectronMcSignalValidatorPt1000/h_ele_eta
+ElectronMcSignalValidatorPt1000/h_ele_eta_bbremFrac               0 0 1 0 0 ElectronMcSignalValidatorPt1000/h_ele_eta_bbrem  ElectronMcSignalValidatorPt1000/h_ele_eta
+ElectronMcSignalValidatorPt1000/h_ele_eta_showerFrac              0 0 1 0 0 ElectronMcSignalValidatorPt1000/h_ele_eta_shower ElectronMcSignalValidatorPt1000/h_ele_eta
+ElectronMcSignalValidatorPt1000/h_ele_fbremvsEtamean              0 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_fbremvsEtamode              0 1 1 1
+
+Isolation sums
+
+ElectronMcSignalValidatorPt1000/h_ele_tkSumPt_dr03                        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_tkSumPt_dr03_barrel                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_tkSumPt_dr03_endcaps                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalRecHitSumEt_dr03                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalRecHitSumEt_dr03_barrel         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalRecHitSumEt_dr03_endcaps        1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr03_depth1          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr03_depth1_barrel   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr03_depth1_endcaps  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr03_depth2          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr03_depth2_barrel   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr03_depth2_endcaps  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_tkSumPt_dr04                        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_tkSumPt_dr04_barrel                 1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_tkSumPt_dr04_endcaps                1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalRecHitSumEt_dr04                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalRecHitSumEt_dr04_barrel         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_ecalRecHitSumEt_dr04_endcaps        1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr04_depth1          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr04_depth1_barrel   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr04_depth1_endcaps  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr04_depth2          1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr04_depth2_barrel   1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEt_dr04_depth2_endcaps  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr03_depth1         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr03_depth1_barrel  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr03_depth1_endcaps 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr03_depth2         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr03_depth2_barrel  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr03_depth2_endcaps 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr04_depth1         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr04_depth1_barrel  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr04_depth1_endcaps 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr04_depth2         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr04_depth2_barrel  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_hcalTowerSumEtBc_dr04_depth2_endcaps 1 1 1 1
+
+Distributions for all reconstructed electrons (i.e. not requiring a match with mc truth)
+
+ElectronMcSignalValidatorPt1000/h_ele_EoverP_all          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EseedOP_all         1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EoPout_all          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_EeleOPout_all       1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_TIP_all             1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaSc_propVtx_all  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiSc_propVtx_all  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dEtaCl_propOut_all  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_dPhiCl_propOut_all  1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_all             1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_HoE_bc_all          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_mee_all             1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_mee_os              1 1 1 1
+
+Charge mis-ID
+
+ElectronMcSignalValidatorPt1000/h_ele_absetaQmisid  0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_AbsEta_matched_qmisid ElectronMcSignalValidatorPt1000/h_mc_AbsEta  
+ElectronMcSignalValidatorPt1000/h_ele_etaQmisid     0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Eta_matched_qmisid    ElectronMcSignalValidatorPt1000/h_mc_Eta     
+ElectronMcSignalValidatorPt1000/h_ele_ptQmisid      0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Pt_matched_qmisid     ElectronMcSignalValidatorPt1000/h_mc_Pt      
+ElectronMcSignalValidatorPt1000/h_ele_zQmisid       0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Z_matched_qmisid      ElectronMcSignalValidatorPt1000/h_mc_Z
+ElectronMcSignalValidatorPt1000/h_ele_chargeInfo    1 1 1 1 0
+
+Provenance
+
+ElectronMcSignalValidatorPt1000/h_ele_provenance                  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_provenance_barrel           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_provenance_endcaps          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_mva                         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_mva_barrel                  1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_mva_endcaps                 1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_mva_isolated                1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_mva_isolated_barrel         1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_mva_isolated_endcaps        1 1 1 1
+
+pflow variables
+
+ElectronMcSignalValidatorPt1000/h_ele_chargedHadronIso           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_chargedHadronIso_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_chargedHadronIso_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_neutralHadronIso           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_neutralHadronIso_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_neutralHadronIso_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_photonIso	            1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_photonIso_barrel	    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_photonIso_endcaps	    1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_chargedHadronRelativeIso           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_chargedHadronRelativeIso_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_chargedHadronRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_neutralHadronRelativeIso           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_neutralHadronRelativeIso_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_neutralHadronRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_photonRelativeIso           1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_photonRelativeIso_barrel    1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_photonRelativeIso_endcaps   1 1 1 1
+
+Conversion rejection information
+
+ElectronMcSignalValidatorPt1000/h_ele_convFlags       1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_convFlags_all   1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_convDist        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_convDist_all    1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_convDcot        1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_convDcot_all    1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_convRadius      1 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_convRadius_all  1 1 1 1
+
+Reconstruction efficiency
+
+ElectronMcSignalValidatorPt1000/h_ele_absetaEff   0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_AbsEta_matched ElectronMcSignalValidatorPt1000/h_mc_AbsEta 
+ElectronMcSignalValidatorPt1000/h_ele_etaEff      0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Eta_matched    ElectronMcSignalValidatorPt1000/h_mc_Eta    
+ElectronMcSignalValidatorPt1000/h_ele_ptEff       0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Pt_matched     ElectronMcSignalValidatorPt1000/h_mc_Pt     
+ElectronMcSignalValidatorPt1000/h_ele_phiEff      0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Phi_matched    ElectronMcSignalValidatorPt1000/h_mc_Phi    
+ElectronMcSignalValidatorPt1000/h_ele_zEff        0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_mc_Z_matched      ElectronMcSignalValidatorPt1000/h_mc_Z      
+ElectronMcSignalValidatorPt1000/h_ele_etaEff_all  0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_ele_vertexEta_all ElectronMcSignalValidatorPt1000/h_mc_Eta    
+ElectronMcSignalValidatorPt1000/h_ele_ptEff_all   0 1 1 0 0 ElectronMcSignalValidatorPt1000/h_ele_vertexPt_all  ElectronMcSignalValidatorPt1000/h_mc_Pt     
+

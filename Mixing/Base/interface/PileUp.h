@@ -174,20 +174,9 @@ namespace edm {
     // that it is the one that knows how many events will be read.
     ids.reserve(pileEventCnt);
     RecordEventID<T> recorder(ids,eventOperator);
-    int read;
-    if (samelumi_) {
-      const edm::LuminosityBlockID lumi(signal.run(), signal.luminosityBlock());
-      if (sequential_)
-        read = input_->loopSequentialWithID(*eventPrincipal_, fileNameHash_, lumi, pileEventCnt, recorder);
-      else
-        read = input_->loopRandomWithID(*eventPrincipal_, fileNameHash_, lumi, pileEventCnt, recorder, randomEngine(streamID));
-    } else {
-      if (sequential_) {
-        read = input_->loopSequential(*eventPrincipal_, fileNameHash_, pileEventCnt, recorder);
-      } else  {
-        read = input_->loopRandom(*eventPrincipal_, fileNameHash_, pileEventCnt, recorder, randomEngine(streamID));
-      }
-    }
+    int read = 0;
+    CLHEP::HepRandomEngine* engine = (sequential_ ? nullptr : randomEngine(streamID));
+    read = input_->loopOverEvents(*eventPrincipal_, fileNameHash_, pileEventCnt, recorder, engine, &signal);
     if (read != pileEventCnt)
       edm::LogWarning("PileUp") << "Could not read enough pileup events: only " << read << " out of " << pileEventCnt << " requested.";
   }

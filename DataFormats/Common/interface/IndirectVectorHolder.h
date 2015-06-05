@@ -91,10 +91,10 @@ namespace edm {
 	typename RefVectorHolderBase::const_iterator i;
       };
 
-      const_iterator begin() const {
+      const_iterator begin() const GCC11_OVERRIDE {
 	return const_iterator( new const_iterator_imp_specific( helper_->begin() ) );
       }
-      const_iterator end() const {
+      const_iterator end() const GCC11_OVERRIDE {
 	return const_iterator( new const_iterator_imp_specific( helper_->end() ) );
       }
     };

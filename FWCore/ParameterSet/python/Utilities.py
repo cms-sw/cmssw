@@ -312,13 +312,17 @@ if __name__ == "__main__":
                                        par1 = cms.VInputTag("x","y","f1"))
             process.g = cms.EDProducer("GProd",
                                        par1 = cms.InputTag("f"))
+            process.h = cms.EDProducer("HProd", 
+                                       par1 = cms.InputTag("a"))
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
+            process.f4 = cms.EDFilter("Filter4")
             process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g)
             process.p4 = cms.Path(process.a+process.f2+process.b+process.f1)
             process.p2 = cms.Path(process.a+process.b)
             process.p3 = cms.Path(process.f1)
+            process.p5 = cms.Path(process.a+process.h+process.f4) #not used on schedule
             process.schedule = cms.Schedule(process.p1,process.p4,process.p2,process.p3)
             convertToUnscheduled(process)
             self.assertEqual(process.options.allowUnscheduled,cms.untracked.bool(True))
@@ -333,6 +337,9 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
+            self.assert_(not hasattr(process,"f4"))
+            self.assert_(not hasattr(process,"h"))
+            self.assert_(not hasattr(process,"p5"))
             self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g)\n')
             self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')

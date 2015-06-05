@@ -6,6 +6,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimDataFormats/Associations"/>
 <use   name="SimTracker/Common"/>
 <export>
   <lib   name="1"/>

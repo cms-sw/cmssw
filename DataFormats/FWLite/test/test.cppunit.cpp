@@ -8,7 +8,7 @@ Test program for edm::Ref use in ROOT.
 #include <string>
 #include <vector>
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "TFile.h"
 #include "TSystem.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
@@ -56,7 +56,7 @@ public:
   testRefInROOT() { }
   void setUp() {
     if(!sWasRun_) {
-      AutoLibraryLoader::enable();
+      FWLiteEnabler::enable();
       sWasRun_ = true;
     }
     tmpdir = "tmp/";

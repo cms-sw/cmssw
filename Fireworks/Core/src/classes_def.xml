@@ -17,11 +17,8 @@
   <class name="FWGenericParameter<std::string>"/>
   <class name="FWGenericParameter<bool>"/>
   <class name="FWBoolParameterSetter"/>
-  <class name="FWBoolParameter"/>
   <class name="FWStringParameterSetter"/>
-  <class name="FWStringParameter"/>
   <class name="FWLongParameterSetter"/>
-  <class name="FWLongParameter"/>
   <class name="FWEnumParameterSetter"/>
   <class name="FWEnumParameter"/>
   <class name="FWConfiguration::KeyValues"/>
