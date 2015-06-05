@@ -1,7 +1,7 @@
 {
 
   gSystem->Load("libFWCoreFWLite.so");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   TFile fDisabled("tpDisabled.root");
   TTree *tDisabled = (TTree*) fDisabled.Get("Events");

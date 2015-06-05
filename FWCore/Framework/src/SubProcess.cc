@@ -147,7 +147,7 @@ namespace edm {
 
     // set the items
     act_table_ = std::move(items.act_table_);
-    preg_.reset(items.preg_.release());
+    preg_ = items.preg_;
     //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
     // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
     // another thread. We really need to change how this is done in the PrincipalCache.

@@ -111,7 +111,7 @@ if __name__ == "__main__":
     random.seed( os.getpid() )
     GenObject.loadConfigFile (options.config)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
-    ROOT.AutoLibraryLoader.enable()
+    ROOT.FWLiteEnabler::enable()
     # Let's parse any args
     doubleColonRE = re.compile (r'(.+):(.+):(.+)')
     if options.alias:

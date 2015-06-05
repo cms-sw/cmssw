@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.gSystem.Load("libDataFormatsFWLite.so")
-    ROOT.AutoLibraryLoader.enable()
+    ROOT.FWLiteEnabler::enable()
 
     chain1 = Events ([options.file1], forceEvent=True)
     chain2 = Events ([options.file2], forceEvent=True)

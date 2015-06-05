@@ -4,8 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -65,8 +65,8 @@ namespace sistrip {
     productRegistry_->setFrozen();
 
     eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
-                                                  source_->branchIDListHelper(),
-                                                  source_->thinnedAssociationsHelper(),
+                                                  std::make_shared<edm::BranchIDListHelper>(),
+                                                  std::make_shared<edm::ThinnedAssociationsHelper>(),
                                                   *processConfiguration_,
                                                   nullptr));
   }
@@ -74,13 +74,7 @@ namespace sistrip {
   std::unique_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig)
   {
     const edm::VectorInputSourceFactory* sourceFactory = edm::VectorInputSourceFactory::get();
-    edm::InputSourceDescription description(edm::ModuleDescription(),
-                                            *productRegistry_,
-                                            std::make_shared<edm::BranchIDListHelper>(),
-                                            std::make_shared<edm::ThinnedAssociationsHelper>(),
-                                            std::make_shared<edm::ActivityRegistry>(),
-                                            -1, -1, -1,
-                                            edm::PreallocationConfiguration());
+    edm::VectorInputSourceDescription description(productRegistry_, edm::PreallocationConfiguration());
     return sourceFactory->makeVectorInputSource(sourceConfig, description);
   }
 
@@ -88,7 +82,7 @@ namespace sistrip {
   {
     size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopSequential(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
+    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";

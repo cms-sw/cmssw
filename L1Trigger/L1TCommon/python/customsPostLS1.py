@@ -82,15 +82,15 @@ from L1Trigger.Configuration.customise_overwriteL1Menu import *
 def customiseSimL1EmulatorForPostLS1_lowPU(process):
     # load the Stage 1 configuration
     process = customiseSimL1EmulatorForStage1(process)
-    # move to the lowPU v2 L1 menu once the HLT has been updated accordingly
-    process = L1Menu_Collisions2015_lowPU_v2(process)
+    # move to the lowPU v3 L1 menu once the HLT has been updated accordingly
+    process = L1Menu_Collisions2015_lowPU_v3(process)
     return process
 
 def customiseSimL1EmulatorForPostLS1_50ns(process):
     # load the Stage 1 configuration
     process = customiseSimL1EmulatorForStage1(process)
-    # move to the 50ns v0 L1 menu once the HLT has been updated accordingly
-    process = L1Menu_Collisions2015_50ns_v1(process)
+    # move to the 50ns v2 L1 menu once the HLT has been updated accordingly
+    process = L1Menu_Collisions2015_50ns_v2(process)
     return process
 
 def customiseSimL1EmulatorForPostLS1_25ns(process):

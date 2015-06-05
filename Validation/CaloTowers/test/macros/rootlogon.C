@@ -7,5 +7,5 @@ void rootlogon()
     setColors();
     
     gSystem->Load("libFWCoreFWLite.so");
-    AutoLibraryLoader::enable();
+    FWLiteEnabler::enable();
 }

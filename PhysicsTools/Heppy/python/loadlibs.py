@@ -4,7 +4,7 @@ def load_libs():
     print 'loading FWLite.'
     #load the libaries needed
     gSystem.Load("libFWCoreFWLite")
-    gROOT.ProcessLine('AutoLibraryLoader::enable();')
+    gROOT.ProcessLine('FWLiteEnabler::enable();')
     gSystem.Load("libFWCoreFWLite")
         
     #now the RootTools stuff

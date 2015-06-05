@@ -140,7 +140,6 @@
   </class>
   <class name="std::multimap<reco::isodeposit::Direction::Distance,float>"/>
 
-  <class name="reco::IsoDepositMap"/>
   <class name="edm::ValueMap<reco::IsoDeposit>::const_iterator">
     <field name="values_" transient="true"/>
     <field name="i_" transient="true"/>

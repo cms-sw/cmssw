@@ -24,11 +24,20 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 		  GsfEleDEtaInSeedCut,
 		  "GsfEleDEtaInSeedCut");
 
+//a little temporary 72X fix
+float dEtaInSeed(const reco::GsfElectronPtr& ele){
+  return ele->superCluster().isNonnull() && ele->superCluster()->seed().isNonnull() ? 
+    ele->deltaEtaSuperClusterTrackAtVtx() - ele->superCluster()->eta() + ele->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+}
+
 CutApplicatorBase::result_type 
 GsfEleDEtaInSeedCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
   const float dEtaInSeedCutValue = 
-    ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
+    ( std::abs(cand->superCluster()->eta()) < _barrelCutOff ? 
       _dEtaInSeedCutValueEB : _dEtaInSeedCutValueEE );
-  return std::abs(cand->deltaEtaSeedClusterTrackAtVtx()) < dEtaInSeedCutValue;
+  // return std::abs(cand->deltaEtaSeedClusterTrackAtVtx()) < dEtaInSeedCutValue;
+  return std::abs(dEtaInSeed(cand))<dEtaInSeedCutValue;
 }
+
+

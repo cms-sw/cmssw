@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "TStopwatch.h"
 
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
   // ----------------------------------------------------------------------
   // First Part:
   //
-  //  * enable the AutoLibraryLoader
+  //  * enable FWLite
   //  * book the histograms of interest
   //  * open the input file
   // ----------------------------------------------------------------------
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
  
   // book a set of histograms
   fwlite::TFileService fs = fwlite::TFileService(argv[2]);
