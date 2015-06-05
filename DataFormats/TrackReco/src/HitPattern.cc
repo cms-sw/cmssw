@@ -92,16 +92,8 @@ uint16_t HitPattern::encode(const TrackingRecHit &hit, const TrackerTopology& tt
 
 uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
-    uint16_t pattern = HitPattern::EMPTY_PATTERN;
-
     uint16_t detid = id.det();
-
-    // adding tracker/muon detector bit
-    pattern |= (detid & SubDetectorMask) << SubDetectorOffset;
-
-    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC) bits
     uint16_t subdet = id.subdetId();
-    pattern |= (subdet & SubstrMask) << SubstrOffset;
 
     // adding layer/disk/wheel bits
     uint16_t layer = 0x0;
@@ -128,8 +120,6 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const
         }
     }
 
-    pattern |= (layer & LayerMask) << LayerOffset;
-
     // adding mono/stereo bit
     uint16_t side = 0x0;
     if (detid == DetId::Tracker) {
@@ -138,6 +128,22 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const
         side = 0x0;
     }
 
+    return encode(detid, subdet, layer, side, hitType);
+}
+
+uint16_t HitPattern::encode(uint16_t det, uint16_t subdet, uint16_t layer, uint16_t side, TrackingRecHit::Type hitType) {
+    uint16_t pattern = HitPattern::EMPTY_PATTERN;
+
+    // adding tracker/muon detector bit
+    pattern |= (det & SubDetectorMask) << SubDetectorOffset;
+
+    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC) bits
+    pattern |= (subdet & SubstrMask) << SubstrOffset;
+
+    // adding layer/disk/wheel bits
+    pattern |= (layer & LayerMask) << LayerOffset;
+
+    // adding mono/stereo bit
     pattern |= (side & SideMask) << SideOffset;
 
     TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
@@ -239,6 +245,16 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const 
 
     uint16_t pattern = HitPattern::encode(id, hitType, ttopo);
 
+    return appendHit(pattern, hitType);
+}
+
+bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
+{
+    //if HitPattern is full, journey ends no matter what.
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
+
     switch (hitType) {
     case TrackingRecHit::valid:
     case TrackingRecHit::missing:
@@ -289,6 +305,10 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const 
     }
 
     return false;
+}
+
+bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
+    return appendHit(encode(DetId::Tracker, subdet, layer, stereo, hitType), hitType);
 }
 
 bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)

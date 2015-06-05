@@ -323,6 +323,14 @@ public:
     bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
     bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. MiniAOD PackedCandidate, and the IO rule for
+     * reading old versions of HitPattern)
+     */
+    bool appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
+
     /// Sets HitPattern as empty
     void resetHitPattern();
 
@@ -427,6 +435,10 @@ inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hi
 inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit, const TrackerTopology& ttopo)
 {
     return hitPattern_.appendHit(hit, ttopo);
+}
+
+inline bool TrackBase::appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
+    return hitPattern_.appendTrackerHit(subdet, layer, stereo, hitType);
 }
 
 inline void TrackBase::resetHitPattern()

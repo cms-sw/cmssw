@@ -222,6 +222,14 @@ public:
     bool appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
     bool appendHit(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. MiniAOD PackedCandidate, and the IO rule for
+     * reading old versions of HitPattern)
+     */
+    bool appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
+
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
 
@@ -401,6 +409,7 @@ private:
     static uint16_t encode(const TrackingRecHit &hit, const TrackerTopology& ttopo);
     static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
     static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
+    static uint16_t encode(uint16_t det, uint16_t subdet, uint16_t layer, uint16_t side, TrackingRecHit::Type hitType);
 
     // generic count methods
     typedef bool filterType(uint16_t);
@@ -415,6 +424,7 @@ private:
     bool insertExpectedInnerHit(const uint16_t pattern);
     bool insertExpectedOuterHit(const uint16_t pattern);
     void insertHit(const uint16_t pattern);
+    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     uint16_t getHitPatternByAbsoluteIndex(int position) const;
 
