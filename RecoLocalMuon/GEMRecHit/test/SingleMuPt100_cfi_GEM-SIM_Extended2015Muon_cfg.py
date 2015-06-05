@@ -49,6 +49,12 @@ process.options = cms.untracked.PSet()
 ### --> scram b clean                                             
 ### before issuing the scram command above                        
 ### --------------------------------------------------------------
+### !!! If you want to compile any CSC-related code with LogDebug ON, 
+### you need to explicitly compile and build the CSCDetId package too,
+### i.e. do first: git cms-addpkg DataFormats/MuonDetId.              
+### This problem can occur at other places as well, so check carefully
+### the compilation process when switching on the debug flags     
+### --------------------------------------------------------------
 ### LogTrace output goes to cout; all other output to "junk.log"  
 ### Code/Configuration with thanks to Tim Cox                     
 ### --------------------------------------------------------------
