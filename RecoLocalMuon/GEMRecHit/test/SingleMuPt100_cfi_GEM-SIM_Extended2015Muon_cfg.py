@@ -26,14 +26,47 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
 process.source = cms.Source("EmptySource")
+process.options = cms.untracked.PSet()
 
-process.options = cms.untracked.PSet(
-
+### TO ACTIVATE LogVerbatim in Simulation Packages NEED TO:       
+### --------------------------------------------------------------
+### scram b disable-biglib                                        
+### scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                    
+###                                                               
+### TO ACTIVATE LogTrace IN GEMRecHit NEED TO COMPILE IT WITH:
+### --------------------------------------------------------------
+### --> scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                
+### Make sure that you first cleaned your CMSSW version:          
+### --> scram b clean                                             
+### before issuing the scram command above                        
+### --------------------------------------------------------------
+### LogTrace output goes to cout; all other output to "junk.log"  
+### Code/Configuration with thanks to Tim Cox                     
+### --------------------------------------------------------------
+### to have a handle on the loops inside RPCSimSetup              
+### I have split the LogDebug stream in several streams           
+### that can be activated independentl                            
+##################################################################
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.categories.append("ME0GeometryBuilderfromDDD") # in Geometry/GEMGeometryBuilder
+process.MessageLogger.categories.append("ME0NumberingScheme")        # in Geometry/MuonNumbering
+process.MessageLogger.categories.append("MuonSimDebug")              # in SimG4CMS/Muon
+process.MessageLogger.categories.append("MuonME0FrameRotation")      # in SimG4CMS/Muon
+process.MessageLogger.debugModules = cms.untracked.vstring("*")
+process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string("DEBUG"),
+    default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    ME0GeometryBuilderfromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    ME0NumberingScheme        = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    MuonME0FrameRotation      = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    MuonSimDebug              = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
 )
 
 # Production Info
@@ -69,10 +102,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     AddAntiParticle = cms.bool(True),
     PGunParameters = cms.PSet(
-        MaxEta = cms.double(2.5),
+        MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
         MaxPt = cms.double(100.01),
-        MinEta = cms.double(-2.5),
+        MinEta = cms.double(2.0),
         MinPhi = cms.double(-3.14159265359),
         MinPt = cms.double(99.99),
         PartID = cms.vint32(-13)
