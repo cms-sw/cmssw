@@ -6,6 +6,9 @@
   <class name="reco::MuonToTrackingParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::MuonToTrackingParticleAssociator>" persistent="false"/>
 
+  <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
+  <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
+
   <class name="reco::VertexSimToRecoCollection" />
   <class name="edm::Wrapper<reco::VertexSimToRecoCollection>" />
   <class name="reco::VertexRecoToSimCollection" />

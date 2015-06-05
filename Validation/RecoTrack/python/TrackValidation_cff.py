@@ -10,6 +10,7 @@ from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import cutsRecoTracks_cfi
 
 from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
+from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
 
 # Validation iterative steps
 cutsRecoTracksInitialStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
@@ -143,7 +144,8 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
 tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
-    trackingParticleRecoTrackAsssociation
+    trackingParticleRecoTrackAsssociation +
+    VertexAssociatorByPositionAndTracks
 )
 tracksValidationTruthFS = cms.Sequence(
     quickTrackAssociatorByHits +
