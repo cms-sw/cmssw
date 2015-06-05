@@ -61,14 +61,26 @@ jetAna.cleanJetsFromFirstPhoton = True
 jetAna.cleanJetsFromIsoTracks = True ## added for Dominick
 
 # TAU 
-tauAna.etaMax = 2.3
-tauAna.dxyMax = 99999.
-tauAna.dzMax = 99999.
-tauAna.vetoLeptons = False
-tauAna.vetoLeptonsPOG = True
-tauAna.decayModeID = "" # ignored if not set or ""
-tauAna.tauAntiMuonID = "againstMuonTight"
-tauAna.tauAntiElectronID = "againstElectronLoose"
+tauAna.inclusive_ptMin = 20.0
+tauAna.inclusive_etaMax = 2.3
+tauAna.inclusive_dxyMax = 99999.
+tauAna.inclusive_dzMax = 99999.
+tauAna.inclusive_vetoLeptons = False
+tauAna.inclusive_vetoLeptonsPOG = True
+tauAna.inclusive_decayModeID = "byLooseCombinedIsolationDeltaBetaCorr3Hits" # ignored if not set or ""
+tauAna.inclusive_tauAntiMuonID = "againstMuonTight"
+tauAna.inclusive_tauAntiElectronID = "againstElectronLoose"
+
+tauAna.loose_ptMin = 20.0
+tauAna.loose_etaMax = 2.3
+tauAna.loose_dxyMax = 99999.
+tauAna.loose_dzMax = 99999.
+tauAna.loose_vetoLeptons = False
+tauAna.loose_vetoLeptonsPOG = True
+tauAna.loose_decayModeID = "byLooseCombinedIsolationDeltaBetaCorr3Hits" # ignored if not set or ""
+tauAna.loose_tauAntiMuonID = "againstMuonTight"
+tauAna.loose_tauAntiElectronID = "againstElectronLoose"
+
 
 # Photon
 photonAna.etaCentral = 2.5
@@ -221,6 +233,8 @@ if test==0:
         comp.json = json
     # ------------------------------------------------------------------------------------------- #
 
+    #eventSelector.toSelect = [ 263876 ]
+    #sequence = cfg.Sequence([eventSelector] + sequence)
     comp=testComponent
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
