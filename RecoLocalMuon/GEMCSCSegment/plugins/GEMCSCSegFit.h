@@ -36,6 +36,7 @@
 #include <Geometry/GEMGeometry/interface/GEMChamber.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <Math/Functions.h>
 #include <Math/SVector.h>
@@ -127,20 +128,33 @@ public:
   LocalPoint intercept() const { return intercept_;}
   LocalVector localdir() const { return localdir_;}
 
-  const CSCChamber*      cscchamber     (uint32_t id) const { 
-    if(csclayermap_.find(id)==csclayermap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find CSCChamber in CSCLayerMap"; return 0;}
-    else { return (csclayermap_.find(id)->second)->chamber(); } 
+  const CSCChamber*      cscchamber     (uint32_t id) const {
+    // Test whether id is found
+    if(csclayermap_.find(id)==csclayermap_.end()) 
+      { // id is not found
+	throw cms::Exception("InvalidDetId") << "[GEMCSCSegFit] Failed to find CSCChamber in CSCLayerMap"<< std::endl; 
+      } // chamber is not found and exception is thrown
+    else 
+      {  // id is found
+	return (csclayermap_.find(id)->second)->chamber(); 
+      } // chamber found and returned
   }
-  const CSCLayer*        csclayer       (uint32_t id) const { 
-    if(csclayermap_.find(id)==csclayermap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find CSCLayer in CSCLayerMap"; return 0;}
+  const CSCLayer*        csclayer       (uint32_t id) const {
+    if(csclayermap_.find(id)==csclayermap_.end()) { 
+      throw cms::Exception("InvalidDetId") << "[GEMCSCSegFit] Failed to find CSCLayer in CSCLayerMap" << std::endl;
+    }
     else { return csclayermap_.find(id)->second; }
   }
   const GEMEtaPartition* gemetapartition(uint32_t id) const { 
-    if(gemetapartmap_.find(id)==gemetapartmap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find GEMEtaPartition in GEMEtaPartMap"; return 0;}
+    if(gemetapartmap_.find(id)==gemetapartmap_.end()) { 
+      throw cms::Exception("InvalidDetId") << "[GEMCSCSegFit] Failed to find GEMEtaPartition in GEMEtaPartMap" << std::endl;
+    }
     else { return gemetapartmap_.find(id)->second; }
   }
   const CSCChamber*      refcscchamber  ()            const { 
-    if(csclayermap_.find(refid_)==csclayermap_.end()) { edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit] Failed to find Reference CSCChamber in CSCLayerMap"; return 0;}
+    if(csclayermap_.find(refid_)==csclayermap_.end()) { 
+      throw cms::Exception("InvalidDetId") << "[GEMCSCSegFit] Failed to find Reference CSCChamber in CSCLayerMap" << std::endl;
+    }
     else { return (csclayermap_.find(refid_)->second)->chamber(); }
   }
   bool fitdone() const { return fitdone_; }
