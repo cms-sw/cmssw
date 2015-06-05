@@ -32,9 +32,6 @@ public:
     hbins_ = 1;
     hOrder_ = 9;
     vorder_ = 2;    //sets default order of event plane
-    minvtx_ = -25;
-    delvtx_ = 5;
-    nvtxbins_ = 10;
   }
 
 
@@ -88,8 +85,6 @@ public:
   {
     int cut;
     if(centbin < 0 ) return -1;
-    //int ietbin = hfetbins*log10( 9.*(et/scale)+1.);
-    //if(ietbin>hfetbins) ietbin=hfetbins-1;
     int ibin = centbin;
     int ivtx = (vtx-minvtx_)/delvtx_;
     if(ivtx < 0 || ivtx > nvtxbins_) return -1;
@@ -147,7 +142,7 @@ public:
     caloCentRefVal_/=refmax-refmin+1.;
     if(caloCentRefMinBin_<0) return 1.;
     int indx = getOffsetIndx(centbin,vtx);
-    if(caloCentRefVal_==0 || getPtDB(indx)==0) return 1.;
+    if(indx < 0 || caloCentRefVal_ == 0 || getPtDB(indx)==0) return 1.;
     return caloCentRefVal_/getPtDB(indx);
    }
 
@@ -179,13 +174,15 @@ public:
   double getSoffset(double s, double vtx, int centbin) const
   {
         int indx = getOffsetIndx(centbin,vtx);
-        return s-yoffDB_[indx];
+        if ( indx >= 0 ) return s-yoffDB_[indx];
+	else return s;
   }
 
   double getCoffset(double c, double vtx, int centbin) const
   {
         int indx = getOffsetIndx(centbin,vtx);
-        return c-xoffDB_[indx];
+        if ( indx >= 0 ) return c-xoffDB_[indx];
+	else return c;
   }
 
   double getOffsetPsi(double s, double c) const
@@ -268,8 +265,12 @@ public:
   double getCentResErr40(int bin) const { if(bin<2 && bin>=0)  {return centResErr40_[bin];} else {return 0.;}}
 
 private:
+  static constexpr int nvtxbins_ = 10;
+  static constexpr double minvtx_ = -25.;
+  static constexpr double delvtx_ = 5.;
   static const int MAXCUT = 10000;
   static const int MAXCUTOFF = 1000;
+
   double flatX_[MAXCUT];
   double flatY_[MAXCUT];
   double flatXDB_[MAXCUT];
@@ -322,10 +323,6 @@ private:
   int vorder_; //order of flattened event plane
   int caloCentRefMinBin_; //min ref centrality bin for calo weight scale
   int caloCentRefMaxBin_; //max ref centrality bin for calo weight scale
-
-  int nvtxbins_;
-  double minvtx_;
-  double delvtx_;
 
 };
 
