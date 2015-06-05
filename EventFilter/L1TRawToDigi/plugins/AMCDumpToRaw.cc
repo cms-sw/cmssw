@@ -43,7 +43,7 @@
 #include <iomanip>
 #include <boost/algorithm/string.hpp>
 
-#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 
 
 namespace l1t {

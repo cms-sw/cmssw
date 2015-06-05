@@ -36,7 +36,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
@@ -202,8 +202,8 @@ namespace l1t {
             if (fwId_ > 0)
                fw = fwId_;
 
-            unsigned board = amc.header().getBoardID();
-            unsigned amc_no = amc.header().getAMCNumber();
+            unsigned board = amc.blockHeader().getBoardID();
+            unsigned amc_no = amc.blockHeader().getAMCNumber();
 
             auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 
@@ -224,7 +224,7 @@ namespace l1t {
 
                auto unpacker = unpackers.find(block->header().getID());
 
-               block->amc(amc.header());
+               block->amc(amc.blockHeader());
 
                if (unpacker == unpackers.end()) {
                   LogDebug("L1T") << "Cannot find an unpacker for block ID "
