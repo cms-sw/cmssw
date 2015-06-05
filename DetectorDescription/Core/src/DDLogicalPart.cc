@@ -8,10 +8,9 @@
 void
 DD_NC( const DDName & n )
 {
-  std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
-  typedef std::vector<DDName>::iterator IT;
+  auto & ns = LPNAMES::instance()[n.name()];
   bool alreadyIn( false );
-  for( IT p = ns.begin(); p != ns.end(); ++p )
+  for( const auto& p : ns )
   {
     if( p->ns() == n.ns())
     {

@@ -401,40 +401,32 @@ void tutorial()
   // test the filter
   //bool doIt=true;
 
-
-
-  std::map<std::string,DDSpecificsFilter::comp_op> cop;
-  cop["=="] = DDSpecificsFilter::equals;
-  cop["!="] = DDSpecificsFilter::not_equals;
-  cop["<"]  = DDSpecificsFilter::smaller;
-  cop[">"]  = DDSpecificsFilter::bigger;
-  cop[">="]  = DDSpecificsFilter::bigger_equals;
-  cop["<="]  = DDSpecificsFilter::smaller_equals;
-  std::map<std::string,DDSpecificsFilter::log_op> lop;
-  lop["AND"] = DDSpecificsFilter::AND;
-  lop["OR"] = DDSpecificsFilter::OR;
-  std::map<std::string,DDQuery::log_op> qop;
-  qop["AND"] = DDQuery::AND;
-  qop["OR"] = DDQuery::OR;
-  std::map<DDQuery::log_op,DDFilteredView::log_op> mmlog;
-  mmlog[DDQuery::AND] = DDFilteredView::AND;
-  mmlog[DDQuery::OR] = DDFilteredView::OR;
+  std::map<std::string,DDCompOp> cop;
+  cop["=="] = DDCompOp::equals;
+  cop["!="] = DDCompOp::not_equals;
+  cop["<"]  = DDCompOp::smaller;
+  cop[">"]  = DDCompOp::bigger;
+  cop[">="]  = DDCompOp::bigger_equals;
+  cop["<="]  = DDCompOp::smaller_equals;
+  std::map<std::string,DDLogOp> lop;
+  lop["AND"] = DDLogOp::AND;
+  lop["OR"] = DDLogOp::OR;
   bool moreFilters = true;
   bool moreQueries = true;
   bool moreFilterCriteria = true;
   std::string flog, ls, p, cs, v, q;
   while(moreQueries) {
-    std::vector<std::pair<DDQuery::log_op,DDSpecificsFilter*> > vecF;
+    std::vector<std::pair<DDLogOp,DDSpecificsFilter*> > vecF;
     while(moreFilters) { 
       DDSpecificsFilter * f = new DDSpecificsFilter();
       std::string flog;
       std::string asString;
       bool asStringBool = false;
-      std::cout << "filter log_op = ";
+      std::cout << "filter LogOp = ";
       std::cin >> flog;
       if(flog=="end") 
 	break;
-      vecF.push_back(std::make_pair(qop[flog],f));
+      vecF.push_back(std::make_pair(lop[flog],f));
       while (moreFilterCriteria) {
 	std::cout << " logic   = ";
 	std::cin >> ls;
@@ -467,7 +459,7 @@ void tutorial()
    
     DDScope scope;
     DDQuery query(ccv);
-    std::vector<std::pair<DDQuery::log_op,DDSpecificsFilter*> >::size_type loop=0;
+    std::vector<std::pair<DDLogOp,DDSpecificsFilter*> >::size_type loop=0;
     for(; loop < vecF.size(); ++loop) {
       DDFilter * filter = vecF[loop].second;  
       const DDFilter & fi = *filter;
@@ -573,8 +565,8 @@ void tutorial()
     DDFilteredView fv(compactview);
 
     if (ans=="y") {
-      for (std::vector<std::pair<DDQuery::log_op,DDSpecificsFilter*> >::size_type j=0; j<vecF.size(); ++j) {
-	fv.addFilter(*(vecF[j].second), mmlog[vecF[j].first]);
+      for (std::vector<std::pair<DDLogOp,DDSpecificsFilter*> >::size_type j=0; j<vecF.size(); ++j) {
+	fv.addFilter(*(vecF[j].second), DDLogOp::AND);
       }
     
       //bool looop = true;
