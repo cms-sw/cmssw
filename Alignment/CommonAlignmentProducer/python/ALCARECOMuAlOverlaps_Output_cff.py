@@ -23,6 +23,7 @@ OutALCARECOMuAlOverlaps_noDrop = cms.PSet(
         'keep *_offlineBeamSpot_*_*',
         'keep *_offlinePrimaryVertices_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
+    )
 )
 
 import copy
