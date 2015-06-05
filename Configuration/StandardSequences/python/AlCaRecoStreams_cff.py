@@ -396,7 +396,7 @@ ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
     )
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
-	responsible = 'Javier Fernandez',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlCalIsolatedMu',
 	paths  = (pathALCARECOMuAlCalIsolatedMu, pathALCARECOMuAlCalIsolatedMuGeneralTracks),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
@@ -405,7 +405,7 @@ ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
-	responsible = 'Javier Fernandez',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlZMuMu',
 	paths  = (pathALCARECOMuAlZMuMu),
 	content = OutALCARECOMuAlZMuMu.outputCommands,
@@ -522,7 +522,7 @@ ALCARECOStreamTkAlBeamHalo = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlBeamHalo',
 	paths  = (pathALCARECOMuAlBeamHalo),
 	content = OutALCARECOMuAlBeamHalo.outputCommands,
@@ -531,7 +531,7 @@ ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlBeamHaloOverlaps = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlBeamHaloOverlaps',
 	paths  = (pathALCARECOMuAlBeamHaloOverlaps),
 	content = OutALCARECOMuAlBeamHaloOverlaps.outputCommands,
