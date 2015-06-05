@@ -1,5 +1,5 @@
-#ifndef GeomPropagators_ECALBounds_H
-#define GeomPropagators_ECALBounds_H
+#ifndef RecoTauTag_TauTagTools_ECALBounds_H
+#define RecoTauTag_TauTagTools_ECALBounds_H
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
