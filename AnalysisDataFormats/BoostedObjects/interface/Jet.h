@@ -19,12 +19,14 @@ namespace vlq{
       ~Jet () {}
 
       int   getIndex () const { return index_ ; } 
+      double getCSV () const { return csvDiscrimiator_ ; }
       bool  getIsbtagged () const { return isbtagged_ ; } 
       bool  getIstoptagged () const { return istoptagged_ ; }
       bool  getIshtagged () const { return ishtagged_ ; }
       bool  getIswtagged () const { return iswtagged_ ; } 
 
       void setIndex( const int& index) {index_ = index ; } 
+      void setCSV( const double& csv) {csvDiscrimiator_ = csv ; } 
       void setIsbtagged( const bool& isbtagged) {isbtagged_ = isbtagged ; } 
       void setIstoptagged( const bool& istoptagged) {istoptagged_ = istoptagged ; }
       void setIshtagged( const bool& ishtagged) {ishtagged_ = ishtagged ; }

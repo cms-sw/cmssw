@@ -3,7 +3,8 @@
  <version ClassVersion="10" checksum="548957944"/>
 </class>
 
-<class name="vlq::GenParticle" ClassVersion="10">
+<class name="vlq::GenParticle" ClassVersion="11">
+ <version ClassVersion="11" checksum="690863366"/>
  <version ClassVersion="10" checksum="57839716"/>
 </class>
 
@@ -11,14 +12,16 @@
  <version ClassVersion="10" checksum="1103100465"/>
 </class>
 
-<class name="vlq::Jet" ClassVersion="13">
+<class name="vlq::Jet" ClassVersion="14">
+ <version ClassVersion="14" checksum="2354134023"/>
  <version ClassVersion="13" checksum="901612403"/>
  <version ClassVersion="12" checksum="1971238902"/>
  <version ClassVersion="11" checksum="2747855388"/>
 <version ClassVersion="10" checksum="468838756"/>
 </class>
 
-<class name="vlq::ResolvedVjj" ClassVersion="13">
+<class name="vlq::ResolvedVjj" ClassVersion="14">
+ <version ClassVersion="14" checksum="1421398784"/>
  <version ClassVersion="13" checksum="1070015178"/>
  <version ClassVersion="12" checksum="617948693"/>
  <version ClassVersion="11" checksum="1686967227"/>
