@@ -47,10 +47,9 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
-// #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-// #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-// #include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -113,6 +112,10 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> chargedCandToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
+  edm::EDGetTokenT<vector<reco::CaloJet>> csvCaloJetsToken_;
+  edm::EDGetTokenT<vector<reco::PFJet>> csvPfJetsToken_;
+  
+
 
   //declare params
   edm::ParameterSet rsq_TH1;
@@ -148,7 +151,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet diElecMass_TH1;
   edm::ParameterSet muonDxy_TH1;
 
-
+  string processName_;
 
   //setup path names
   string razor_pathName;
@@ -174,7 +177,6 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   string diMuonMass_pathNameOR;
   string diElecMass_pathName;
   string muonDxyPlots_pathName;
-
 
   //declare all MEs
   MonitorElement * rsq_;
@@ -237,6 +239,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
 
 
   //parse params
+  processName_ = iConfig.getParameter<string>("processName");
+
   rsq_TH1 = iConfig.getParameter<edm::ParameterSet> ("rsq");
   mr_TH1 = iConfig.getParameter<edm::ParameterSet> ("mr");
   alphaT_TH1 = iConfig.getParameter<edm::ParameterSet> ("alphaT");
@@ -272,14 +276,17 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
 
   //set Token(s) 
   //will need to change 'TEST' to 'HLT' or something else before implementation
-  triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", "TEST"));
-  aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", "TEST"));
+  triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", processName_));
+  aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", processName_));
   lumiScalersToken_ = consumes<LumiScalersCollection>(edm::InputTag("hltScalersRawToDigi","",""));
-  beamSpotToken_ = consumes<reco::BeamSpot>(edm::InputTag("hltOnlineBeamSpot","","TEST")); 
-  metToken_ = consumes<vector<reco::MET>>(edm::InputTag("hltPFMETProducer","","TEST"));  
-  chargedCandToken_ = consumes<vector<reco::RecoChargedCandidate>>(edm::InputTag("hltL3NoFiltersNoVtxMuonCandidates","","TEST"));  
-  csvCaloTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","","TEST"));
-  csvPfTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","","TEST"));
+  beamSpotToken_ = consumes<reco::BeamSpot>(edm::InputTag("hltOnlineBeamSpot","",processName_)); 
+  metToken_ = consumes<vector<reco::MET>>(edm::InputTag("hltPFMETProducer","",processName_));  
+  chargedCandToken_ = consumes<vector<reco::RecoChargedCandidate>>(edm::InputTag("hltL3NoFiltersNoVtxMuonCandidates","",processName_));  
+  csvCaloTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","",processName_));
+  csvPfTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","",processName_));
+  csvCaloJetsToken_ = consumes<vector<reco::CaloJet>>(edm::InputTag("hltSelector8CentralJetsL1FastJet","",processName_));
+  csvPfJetsToken_ = consumes<vector<reco::PFJet>>(edm::InputTag("hltPFJetForBtag","",processName_));
+
 
 }
 
@@ -322,7 +329,7 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 {
 	   
 	   const TriggerObjectCollection objects = aodTriggerEvent->getObjects();
-	   edm::InputTag moduleFilter(lookupFilter[pathName],"","TEST");
+	   edm::InputTag moduleFilter(lookupFilter[pathName],"",processName_);
 	   unsigned int moduleFilterIndex = aodTriggerEvent->filterIndex(moduleFilter);
 	   
 	   if (moduleFilterIndex+1 > aodTriggerEvent->sizeFilters()) return;
@@ -484,8 +491,10 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     {
 	       edm::Handle<reco::JetTagCollection> csvPfTags;
 	       iEvent.getByToken(csvPfTagsToken_, csvPfTags);
+	       edm::Handle<vector<reco::PFJet>> csvPfJets;
+	       iEvent.getByToken(csvPfJetsToken_, csvPfJets);
 	       
-	       if (csvPfTags.isValid())
+	       if (csvPfTags.isValid() && csvPfJets.isValid())
 		 {
 		   for (auto iter = csvPfTags->begin(); iter != csvPfTags->end(); iter++) bJetCSVPF_->Fill(iter->second);
 		 }
@@ -494,27 +503,32 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     {
 	       edm::Handle<reco::JetTagCollection> csvCaloTags;
 	       iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
+	       edm::Handle<vector<reco::CaloJet>> csvCaloJets;
+	       iEvent.getByToken(csvCaloJetsToken_, csvCaloJets);
 	       
-	       if (csvCaloTags.isValid())
+
+	       if (csvCaloTags.isValid() && csvCaloJets.isValid())
 		 {
 		   for (auto iter = csvCaloTags->begin(); iter != csvCaloTags->end(); iter++) bJetCSVCalo_->Fill(iter->second);	    
 		 }
 	     }
 	   
-	   
 	   //muon dxy(use an unique path)
 	   else if (pathName == muonDxyPlots_pathName)
 	     {
 	       edm::Handle<vector<reco::RecoChargedCandidate>> recoChargedCands;
-	       iEvent.getByToken(chargedCandToken_, recoChargedCands);
-	       
+	       iEvent.getByToken(chargedCandToken_, recoChargedCands);	       
 	       edm::Handle<reco::BeamSpot> recoBeamSpot;
 	       iEvent.getByToken(beamSpotToken_, recoBeamSpot);
 	       double muon_dxy;
-	       for (const auto & key : keys)
+	       
+	       if (recoChargedCands.isValid() && recoBeamSpot.isValid())
 		 {
-		   muon_dxy = dxyFinder(objects[key].eta(), objects[key].phi(), recoChargedCands, recoBeamSpot);
-		   if (muon_dxy != -99.) muonDxy_->Fill(muon_dxy);
+		   for (const auto & key : keys)
+		     {
+		       muon_dxy = dxyFinder(objects[key].eta(), objects[key].phi(), recoChargedCands, recoBeamSpot);
+		       if (muon_dxy != -99.) muonDxy_->Fill(muon_dxy);
+		     }
 		 }
 	     }
 	   
@@ -616,7 +630,7 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 {
   if (debugPrint) std::cout << "Calling beginRun. " << std::endl;
   bool changed = true;
-  if (hltConfig_.init(iRun, iSetup, "TEST", changed))
+  if (hltConfig_.init(iRun, iSetup, processName_, changed))
     {
       if (debugPrint) std::cout << "Extracting HLTconfig. " << std::endl;
     }
