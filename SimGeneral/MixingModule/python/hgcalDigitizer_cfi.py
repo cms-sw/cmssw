@@ -26,7 +26,7 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                                    # ADC saturation
                                                                    adcSaturation_fC  = cms.double(100),
                                                                    # the tdc resolution smearing (in picoseconds)
-                                                                   tdcResolutionInPs = cms.double( 80.0 ),
+                                                                   tdcResolutionInPs = cms.double( 0.001 ),
                                                                    # LSB for TDC, assuming 12 bit dynamic range to 10 pC
                                                                    tdcNbits          = cms.uint32(12),
                                                                    # TDC saturation
@@ -72,7 +72,7 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                                         # ADC saturation
                                                                         adcSaturation_fC  = cms.double(100),
                                                                          # the tdc resolution smearing (in picoseconds)
-                                                                        tdcResolutionInPs = cms.double( 80.0 ),
+                                                                        tdcResolutionInPs = cms.double( 0.001 ),
                                                                         # LSB for TDC, assuming 12 bit dynamic range to 10 pC
                                                                         tdcNbits          = cms.uint32(12),
                                                                         # TDC saturation
