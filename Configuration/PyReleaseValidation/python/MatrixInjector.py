@@ -105,7 +105,7 @@ class MatrixInjector(object):
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
             "Multicore" : opt.nThreads,
-            "Memory" : 2400,
+            "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 1
             }
