@@ -49,10 +49,6 @@ class FakeTrackProducer : public edm::stream::EDProducer<> {
       /// Muon selection
       //StringCutObjectSelector<T> selector_;
 
-      // EventSetup
-      edm::ESHandle<TrackerGeometry> theGeometry;
-      edm::ESHandle<MagneticField>   theMagField;
-
       const PTrajectoryStateOnDet & getState(const TrajectorySeed &seed) const { return seed.startingState(); }
       const PTrajectoryStateOnDet & getState(const TrackCandidate &seed) const { return seed.trajectoryStateOnDet(); }
       TrajectorySeed::range  getHits (const TrajectorySeed &seed) const { return seed.recHits(); }
@@ -77,7 +73,9 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     using namespace std;
 
 
+    edm::ESHandle<TrackerGeometry> theGeometry;
     iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
+    edm::ESHandle<MagneticField>   theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
     Handle<vector<T> > src;
