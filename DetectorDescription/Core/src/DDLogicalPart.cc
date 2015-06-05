@@ -12,7 +12,7 @@ DD_NC( const DDName & n )
   bool alreadyIn( false );
   for( const auto& p : ns )
   {
-    if( p->ns() == n.ns())
+    if( p.ns() == n.ns())
     {
       alreadyIn = true;
       break;
