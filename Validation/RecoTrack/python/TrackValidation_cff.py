@@ -10,6 +10,7 @@ from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import cutsRecoTracks_cfi
 
 from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
+from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
 
 # Validation iterative steps
 cutsRecoTracksInitialStep = cutsRecoTracks_cfi.cutsRecoTracks.clone()
@@ -86,6 +87,23 @@ cutsRecoTracksMuonSeededStepOutInHp = cutsRecoTracks_cfi.cutsRecoTracks.clone()
 cutsRecoTracksMuonSeededStepOutInHp.algorithm=cms.vstring("muonSeededStepOutIn")
 cutsRecoTracksMuonSeededStepOutInHp.quality=cms.vstring("highPurity")
 
+# BTV-like selection
+import PhysicsTools.RecoAlgos.btvTracks_cfi as btvTracks_cfi
+cutsRecoTracksBtvLike = btvTracks_cfi.btvTrackRefs.clone()
+
+# Select tracks associated to AK4 jets
+import RecoJets.JetAssociationProducers.ak4JTA_cff as ak4JTA_cff
+ak4JetTracksAssociatorAtVertexPFAll = ak4JTA_cff.ak4JetTracksAssociatorAtVertexPF.clone(
+    jets = "ak4PFJets"
+)
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
+import CommonTools.RecoAlgos.jetTracksAssociationToTrackRefs_cfi as jetTracksAssociationToTrackRefs_cfi
+cutsRecoTracksAK4PFJets = jetTracksAssociationToTrackRefs_cfi.jetTracksAssociationToTrackRefs.clone(
+    association = "ak4JetTracksAssociatorAtVertexPFAll",
+    jets = "ak4PFJets",
+    correctedPtMin = 10,
+)
+
 trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
@@ -110,8 +128,9 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepInOutHp"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepOutIn"),
                                    cms.InputTag("cutsRecoTracksMuonSeededStepOutInHp"),
+                                   cms.InputTag("cutsRecoTracksBtvLike"),
+                                   cms.InputTag("cutsRecoTracksAK4PFJets"),
                                    )
-trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
 trackValidator.dodEdxPlots = True
 #trackValidator.minpT = cms.double(-1)
@@ -119,31 +138,37 @@ trackValidator.dodEdxPlots = True
 #trackValidator.nintpT = cms.int32(40)
 
 # the track selectors
-tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
-                                cutsRecoTracksInitialStep*
-                                cutsRecoTracksInitialStepHp*
-                                cutsRecoTracksLowPtTripletStep*
-                                cutsRecoTracksLowPtTripletStepHp*
-                                cutsRecoTracksPixelPairStep*
-                                cutsRecoTracksPixelPairStepHp*
-                                cutsRecoTracksDetachedTripletStep*
-                                cutsRecoTracksDetachedTripletStepHp*
-                                cutsRecoTracksMixedTripletStep*
-                                cutsRecoTracksMixedTripletStepHp*
-                                cutsRecoTracksPixelLessStep*
-                                cutsRecoTracksPixelLessStepHp*
-                                cutsRecoTracksTobTecStep*
-                                cutsRecoTracksTobTecStepHp*
-                                cutsRecoTracksJetCoreRegionalStep*
-                                cutsRecoTracksJetCoreRegionalStepHp*
-                                cutsRecoTracksMuonSeededStepInOut*
-                                cutsRecoTracksMuonSeededStepInOutHp*
-                                cutsRecoTracksMuonSeededStepOutIn*
-                                cutsRecoTracksMuonSeededStepOutInHp )
+tracksValidationSelectors = cms.Sequence(
+    cms.ignore(cutsRecoTracksHp)*
+    cms.ignore(cutsRecoTracksInitialStep)*
+    cms.ignore(cutsRecoTracksInitialStepHp)*
+    cms.ignore(cutsRecoTracksLowPtTripletStep)*
+    cms.ignore(cutsRecoTracksLowPtTripletStepHp)*
+    cms.ignore(cutsRecoTracksPixelPairStep)*
+    cms.ignore(cutsRecoTracksPixelPairStepHp)*
+    cms.ignore(cutsRecoTracksDetachedTripletStep)*
+    cms.ignore(cutsRecoTracksDetachedTripletStepHp)*
+    cms.ignore(cutsRecoTracksMixedTripletStep)*
+    cms.ignore(cutsRecoTracksMixedTripletStepHp)*
+    cms.ignore(cutsRecoTracksPixelLessStep)*
+    cms.ignore(cutsRecoTracksPixelLessStepHp)*
+    cms.ignore(cutsRecoTracksTobTecStep)*
+    cms.ignore(cutsRecoTracksTobTecStepHp)*
+    cms.ignore(cutsRecoTracksJetCoreRegionalStep)*
+    cms.ignore(cutsRecoTracksJetCoreRegionalStepHp)*
+    cms.ignore(cutsRecoTracksMuonSeededStepInOut)*
+    cms.ignore(cutsRecoTracksMuonSeededStepInOutHp)*
+    cms.ignore(cutsRecoTracksMuonSeededStepOutIn)*
+    cms.ignore(cutsRecoTracksMuonSeededStepOutInHp)*
+    cms.ignore(cutsRecoTracksBtvLike)*
+    ak4JetTracksAssociatorAtVertexPFAll*
+    cutsRecoTracksAK4PFJets
+)
 tracksValidationTruth = cms.Sequence(
     tpClusterProducer +
     quickTrackAssociatorByHits +
-    trackingParticleRecoTrackAsssociation
+    trackingParticleRecoTrackAsssociation +
+    VertexAssociatorByPositionAndTracks
 )
 tracksValidationTruthFS = cms.Sequence(
     quickTrackAssociatorByHits +
@@ -163,3 +188,8 @@ tracksPreValidationFS = cms.Sequence(
 tracksValidation = cms.Sequence( trackValidator)
 tracksValidationFS = cms.Sequence( trackValidator )
 
+tracksValidationStandalone = cms.Sequence(
+    ak4PFL1FastL2L3CorrectorChain+
+    tracksPreValidation+
+    tracksValidation
+)
