@@ -98,7 +98,7 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),cosTrackRef);
     cosTrackCands.push_back(cosCand); 
   }
-  theTrackFinder->reconstruct(cosTrackCands,iEvent);
+  theTrackFinder->reconstruct(cosTrackCands,iEvent,iSetup);
   LogTrace(metname)<<"Event loaded";
 
 }

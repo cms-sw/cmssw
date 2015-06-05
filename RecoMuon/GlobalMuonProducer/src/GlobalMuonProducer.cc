@@ -143,7 +143,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     }
   }
     
-  theTrackFinder->reconstruct(staTrackCands, event);      
+  theTrackFinder->reconstruct(staTrackCands, event, eventSetup);
   
   
   LogTrace(metname)<<"Event loaded"

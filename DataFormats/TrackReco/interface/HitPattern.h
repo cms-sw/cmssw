@@ -129,6 +129,8 @@
 #include <ostream>
 #include <memory>
 
+class TrackerTopology;
+
 namespace reco
 {
 
@@ -214,10 +216,11 @@ public:
     HitPattern &operator=(const HitPattern &other);
 
     template<typename I>
-    bool appendHits(const I &begin, const I &end);
-    bool appendHit(const TrackingRecHit &hit);
-    bool appendHit(const TrackingRecHitRef &ref);
-    bool appendHit(const DetId &id, TrackingRecHit::Type hitType);
+    bool appendHits(const I &begin, const I &end, const TrackerTopology& ttopo);
+    bool appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo);
+    bool appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo);
+    bool appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+    bool appendHit(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
@@ -391,11 +394,13 @@ private:
 
 
     // detector side for tracker modules (mono/stereo)
-    static uint16_t isStereo(DetId i);
+    static uint16_t isStereo(DetId i, const TrackerTopology& ttopo);
+    static uint16_t isStereo(DetId i); // DEPRECATED, to be removed
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
 
-    static uint16_t encode(const TrackingRecHit &hit);
-    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType);
+    static uint16_t encode(const TrackingRecHit &hit, const TrackerTopology& ttopo);
+    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
     // generic count methods
     typedef bool filterType(uint16_t);
@@ -443,10 +448,10 @@ inline std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory
 }
 
 template<typename I>
-bool HitPattern::appendHits(const I &begin, const I &end)
+bool HitPattern::appendHits(const I &begin, const I &end, const TrackerTopology& ttopo)
 {
     for (I hit = begin; hit != end; hit++) {
-        if unlikely((!appendHit(*hit))) {
+      if unlikely((!appendHit(*hit, ttopo))) {
             return false;
         }
     }

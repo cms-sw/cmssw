@@ -313,14 +313,15 @@ public:
 
     /// append hit patterns from vector of hit references
     template<typename C>
-    bool appendHits(const C &c);
+    bool appendHits(const C &c, const TrackerTopology& ttopo);
 
     template<typename I>
-    bool appendHits(const I &begin, const I &end);
+    bool appendHits(const I &begin, const I &end, const TrackerTopology& ttopo);
 
     /// append a single hit to the HitPattern
-    bool appendHitPattern(const TrackingRecHit &hit);
-    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType);
+    bool appendHitPattern(const TrackingRecHit &hit, const TrackerTopology& ttopo);
+    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
     /// Sets HitPattern as empty
     void resetHitPattern();
@@ -418,9 +419,14 @@ inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hi
     return hitPattern_.appendHit(id, hitType);
 }
 
-inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
+inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
-    return hitPattern_.appendHit(hit);
+    return hitPattern_.appendHit(id, hitType, ttopo);
+}
+
+inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit, const TrackerTopology& ttopo)
+{
+    return hitPattern_.appendHit(hit, ttopo);
 }
 
 inline void TrackBase::resetHitPattern()
@@ -429,15 +435,15 @@ inline void TrackBase::resetHitPattern()
 }
 
 template<typename I>
-bool TrackBase::appendHits(const I &begin, const I &end)
+bool TrackBase::appendHits(const I &begin, const I &end, const TrackerTopology& ttopo)
 {
-    return hitPattern_.appendHits(begin, end);
+    return hitPattern_.appendHits(begin, end, ttopo);
 }
 
 template<typename C>
-bool TrackBase::appendHits(const C &c)
+bool TrackBase::appendHits(const C &c, const TrackerTopology& ttopo)
 {
-    return setHitPattern(c.begin(), c.end());
+    return hitPattern_.appendHits(c.begin(), c.end(), ttopo);
 }
 
 inline TrackBase::index TrackBase::covIndex(index i, index j)

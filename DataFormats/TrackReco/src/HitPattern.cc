@@ -10,6 +10,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include<bitset>
 
 using namespace reco;
@@ -78,14 +80,72 @@ void HitPattern::clear(void)
     memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
-bool HitPattern::appendHit(const TrackingRecHitRef &ref)
+bool HitPattern::appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo)
 {
-    return appendHit(*ref);
+    return appendHit(*ref, ttopo);
 }
 
-uint16_t HitPattern::encode(const TrackingRecHit &hit)
+uint16_t HitPattern::encode(const TrackingRecHit &hit, const TrackerTopology& ttopo)
 {
-    return encode(hit.geographicalId(), hit.getType());
+    return encode(hit.geographicalId(), hit.getType(), ttopo);
+}
+
+uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
+{
+    uint16_t pattern = HitPattern::EMPTY_PATTERN;
+
+    uint16_t detid = id.det();
+
+    // adding tracker/muon detector bit
+    pattern |= (detid & SubDetectorMask) << SubDetectorOffset;
+
+    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC) bits
+    uint16_t subdet = id.subdetId();
+    pattern |= (subdet & SubstrMask) << SubstrOffset;
+
+    // adding layer/disk/wheel bits
+    uint16_t layer = 0x0;
+    if (detid == DetId::Tracker) {
+        layer = ttopo.layer(id);
+    } else if (detid == DetId::Muon) {
+        switch (subdet) {
+        case MuonSubdetId::DT:
+            layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
+            layer |= DTLayerId(id.rawId()).superLayer();
+            break;
+        case MuonSubdetId::CSC:
+            layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
+            layer |= (CSCDetId(id.rawId()).ring() - 1);
+            break;
+        case MuonSubdetId::RPC: 
+            {
+                RPCDetId rpcid(id.rawId());
+                layer = ((rpcid.station() - 1) << 2);
+                layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+                layer |= abs(rpcid.region());
+            }
+            break;
+        }
+    }
+
+    pattern |= (layer & LayerMask) << LayerOffset;
+
+    // adding mono/stereo bit
+    uint16_t side = 0x0;
+    if (detid == DetId::Tracker) {
+        side = isStereo(id, ttopo);
+    } else if (detid == DetId::Muon) {
+        side = 0x0;
+    }
+
+    pattern |= (side & SideMask) << SideOffset;
+
+    TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
+                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing : hitType;
+
+    pattern |= (patternHitType & HitTypeMask) << HitTypeOffset;
+
+    return pattern;
 }
 
 uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
@@ -165,9 +225,70 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
     return pattern;
 }
 
-bool HitPattern::appendHit(const TrackingRecHit &hit)
+bool HitPattern::appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo)
 {
-    return appendHit(hit.geographicalId(), hit.getType());
+    return appendHit(hit.geographicalId(), hit.getType(), ttopo);
+}
+
+bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
+{
+    //if HitPattern is full, journey ends no matter what.
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
+
+    uint16_t pattern = HitPattern::encode(id, hitType, ttopo);
+
+    switch (hitType) {
+    case TrackingRecHit::valid:
+    case TrackingRecHit::missing:
+    case TrackingRecHit::inactive:
+    case TrackingRecHit::bad:
+        // hitCount != endT => we are not inserting T type of hits but of T'
+        // 0 != beginT || 0 != endT => we already have hits of T type
+        // so we already have hits of T in the vector and we don't want to
+        // mess them with T' hits.
+        if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
+            cms::Exception("HitPattern")
+                    << "TRACK_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "TRACK_HITS"
+                    << " in a row.";
+            return false;
+        }
+        return insertTrackHit(pattern);
+        break;
+    case TrackingRecHit::missing_inner:
+        if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
+            cms::Exception("HitPattern")
+                    << "MISSING_INNER_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "MISSING_INNER_HITS"
+                    << " in a row.";
+            return false;
+        }
+        return insertExpectedInnerHit(pattern);
+        break;
+    case TrackingRecHit::missing_outer:
+        if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
+            cms::Exception("HitPattern")
+                    << "MISSING_OUTER_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "MISSING_OUTER_HITS"
+                    << " in a row.";
+            return false;
+        }
+        return insertExpectedOuterHit(pattern);
+        break;
+    }
+
+    return false;
 }
 
 bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
@@ -834,6 +955,29 @@ void HitPattern::print(HitCategory category, std::ostream &stream) const
     }
 
     stream.flags(flags);
+}
+
+uint16_t HitPattern::isStereo(DetId i, const TrackerTopology& ttopo)
+{
+    if (i.det() != DetId::Tracker) {
+        return 0;
+    }
+
+    switch (i.subdetId()) {
+    case PixelSubdetector::PixelBarrel:
+    case PixelSubdetector::PixelEndcap:
+        return 0;
+    case StripSubdetector::TIB:
+        return ttopo.tibIsStereo(i);
+    case StripSubdetector::TID:
+        return ttopo.tidIsStereo(i);
+    case StripSubdetector::TOB:
+        return ttopo.tobIsStereo(i);
+    case StripSubdetector::TEC:
+        return ttopo.tecIsStereo(i);
+    default:
+        return 0;
+    }
 }
 
 uint16_t HitPattern::isStereo(DetId i)

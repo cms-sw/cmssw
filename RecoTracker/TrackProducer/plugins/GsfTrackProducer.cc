@@ -15,6 +15,9 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
   GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
 		       iConfig.getParameter<bool>("useHitsSplitting")),
@@ -61,6 +64,9 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
+
   //
   //declare and get TrackColection to be retrieved from the event
   //
@@ -80,7 +86,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   //put everything in the event
   putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
-	   outputTrajectoryColl, algoResults, theBuilder.product(), bs);
+	   outputTrajectoryColl, algoResults, theBuilder.product(), bs, httopo.product());
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }
 
