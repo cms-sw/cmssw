@@ -29,12 +29,14 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     GlbRefitterParameters = cms.PSet(
         DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-        
+        GEMRecHitLabel = cms.InputTag("gemRecHits"),
+       
         MuonHitsOption = cms.int32(1),
         PtCut = cms.double(1.0),
         Chi2ProbabilityCut = cms.double(30.0),
         Chi2CutCSC = cms.double(150.0),
         Chi2CutDT = cms.double(10.0),
+        Chi2CutGEM = cms.double(1.0),
         Chi2CutRPC = cms.double(1.0),
         HitThreshold = cms.int32(1),
         

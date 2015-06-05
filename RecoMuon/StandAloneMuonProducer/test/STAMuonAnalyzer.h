@@ -5,10 +5,18 @@
  *  Analyzer of the StandAlone muon tracks
  *
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  \modified by C. Calabria - INFN Bari
  */
 
 // Base Class Headers
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
   class ParameterSet;
@@ -34,24 +42,19 @@ public:
 
   virtual void beginJob() ;
   virtual void endJob() ;
-protected:
 
 private:
-  std::string theRootFileName;
-  TFile* theFile;
 
-  std::string theSTAMuonLabel;
-  std::string theSeedCollectionLabel;
+  std::map<std::string,TH1F*> histContainer_;
+  std::map<std::string,TH2F*> histContainer2D_; 
 
-  // Histograms
-  TH1F *hPtRec;
-  TH1F *hPtSim; 
-  TH1F *hPres;
-  TH1F *h1_Pres;
-  TH1F *hPTDiff;
-  TH1F *hPTDiff2;
-  TH2F *hPTDiffvsEta;
-  TH2F *hPTDiffvsPhi;
+  edm::InputTag staTrackLabel_;
+  edm::InputTag muonLabel_;
+  bool noGEMCase_;
+  bool isGlobalMuon_;
+
+  double minEta_;
+  double maxEta_;
 
   // Counters
   int numberOfSimTracks;
