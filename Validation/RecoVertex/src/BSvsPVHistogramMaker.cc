@@ -164,11 +164,11 @@ void BSvsPVHistogramMaker::beginRun(const unsigned int nrun) {
 
     if(_runHistoProfile) {
       (*_hdeltaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltaxvsorbrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
-      (*_hdeltaxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*_hdeltaxvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*_hdeltayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltayvsorbrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]");
-      (*_hdeltayvsorbrun)->SetBit(TH1::kCanRebin);
+      (*_hdeltayvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*_hdeltazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltazvsorbrun)->GetYaxis()->SetTitle("#Delta(Z) [cm]");
-      (*_hdeltazvsorbrun)->SetBit(TH1::kCanRebin);
+      (*_hdeltazvsorbrun)->SetCanExtend(TH1::kAllAxes);
     }
     if(_runHistoBXProfile) {
       (*_hdeltaxvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltaxvsbxrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");

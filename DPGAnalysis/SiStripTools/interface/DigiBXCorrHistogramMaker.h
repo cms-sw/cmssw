@@ -283,7 +283,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
       sprintf(title,"%s %s multiplicity vs BX mod(70) and Orbit",slab.c_str(),m_hitname.c_str());
       m_ndigivscycletime[i] =  m_rhm.makeTProfile2D(name,title,70,-0.5,69.5,90,0.,90*262144);
       //      m_ndigivscycletime[i]->GetXaxis()->SetTitle("Event 1 BX mod(70)"); m_ndigivscycletime[i]->GetYaxis()->SetTitle("time [Orb#]");
-      //      m_ndigivscycletime[i]->SetBit(TH1::kCanRebin);
+      //      m_ndigivscycletime[i]->SetCanExtend(TH1::kYaxis);
     }
 
     // vs BX number
@@ -326,7 +326,7 @@ void DigiBXCorrHistogramMaker<T>::beginRun(const unsigned int nrun) {
     if(m_runHisto) {
       if(m_ndigivscycletime[i]) {
 	(*m_ndigivscycletime[i])->GetXaxis()->SetTitle("Event 1 BX mod(70)"); (*m_ndigivscycletime[i])->GetYaxis()->SetTitle("time [Orb#]");
-	(*m_ndigivscycletime[i])->SetBit(TH1::kCanRebin);
+	(*m_ndigivscycletime[i])->SetCanExtend(TH1::kAllAxes);
       }
     }
   }
