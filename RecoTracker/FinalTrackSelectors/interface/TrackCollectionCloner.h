@@ -12,20 +12,13 @@
  */
 
 #include <utility>
-#include <vector>
 #include <memory>
 #include <algorithm>
-#include <map>
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/TrackCollectionTokens.h"
 
 
 
@@ -38,20 +31,9 @@ public:
   bool copyTrajectories_;
  
 
-  struct Tokens {
-    Tokens(){}
-    Tokens(edm::InputTag const & tag, edm::ConsumesCollector && iC) :
-      hSrcTrackToken_( iC.consumes<reco::TrackCollection>( tag ) ),
-      hTrajToken_( iC.mayConsume< std::vector<Trajectory> >( tag ) ),
-      hTTAssToken_( iC.mayConsume< TrajTrackAssociationCollection >( tag ) ){}
+  using Tokens = TrackCollectionTokens;
+
     
-    /// source collection label
-    edm::EDGetTokenT<reco::TrackCollection> hSrcTrackToken_;
-    edm::EDGetTokenT< std::vector<Trajectory> > hTrajToken_;
-    edm::EDGetTokenT< TrajTrackAssociationCollection > hTTAssToken_;
-
-  };
-
   template<typename Producer>
   TrackCollectionCloner(Producer & producer, const edm::ParameterSet & cfg, bool copyDefault ) :
     copyExtras_(cfg.template getUntrackedParameter<bool>("copyExtras", copyDefault)),

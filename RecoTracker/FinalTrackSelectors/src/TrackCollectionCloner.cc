@@ -18,8 +18,6 @@ TrackCollectionCloner::Producer::Producer(edm::Event& ievt, TrackCollectionClone
 
 /// process one event
 void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vector<unsigned int> const & selected) {
-  edm::Handle<reco::TrackCollection> hSrcTrack;
-  evt.getByToken( tokens.hSrcTrackToken_, hSrcTrack );
   
   auto rTracks = evt.getRefBeforePut<reco::TrackCollection>();
   
@@ -30,20 +28,22 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
   }
   
-  edm::Handle< std::vector<Trajectory> > hTraj;
   edm::RefProd< std::vector<Trajectory> > trajRefProd;
   if ( copyTrajectories_ ) {
-    evt.getByToken(tokens.hTrajToken_, hTraj);
     trajRefProd = evt.getRefBeforePut< std::vector<Trajectory> >();
   }
+
+  std::vector<Trajectory> dummy;
+
+  auto const & trajIn =  copyTrajectories_ ? tokens.trajectories(evt) : dummy;
   
-  auto const & tracksIn = *hSrcTrack;
+  auto const & tracksIn = tokens.tracks(evt);
   for (auto k : selected) {
     auto const & trk = tracksIn[k];
     selTracks_->emplace_back( trk ); // clone and store
     if (copyTrajectories_) {
       // we assume tracks and trajectories are one-to-one and the assocMap is useless 
-      selTrajs_->emplace_back((*hTraj)[k]);
+      selTrajs_->emplace_back(trajIn[k]);
       assert(selTrajs_->back().measurements().size()==trk.recHitsSize());
       selTTAss_->insert ( edm::Ref< std::vector<Trajectory> >(trajRefProd, selTrajs_->size() - 1),
       			  reco::TrackRef(rTracks, selTracks_->size() - 1)
