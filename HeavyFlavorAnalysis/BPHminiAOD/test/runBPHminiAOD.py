@@ -11,5 +11,5 @@ Filter      = True
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('PAT')
 
-from HeavyFlavorAnalysis.Skim.SkimOniaTracks_cff import SkimOniaTracks
-SkimOniaTracks(process,inFileNames,outFileName,Global_Tag,MC,Filter)
+from HeavyFlavorAnalysis.BPHminiAOD.BPHminiAOD_cff import BPHminiAOD
+BPHminiAOD(process,inFileNames,outFileName,Global_Tag,MC,Filter)
