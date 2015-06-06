@@ -54,6 +54,7 @@ namespace edm {
     vPoissonDistr_OOT_(),
     randomEngines_(),
     playback_(playback),
+    sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
     seed_(0) {
 
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
