@@ -15,7 +15,8 @@ process.load("DQM.Integration.test.environment_cfi")
 #process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
 #process.dqmSaver.dirName = '.'
 
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+#process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" ) # for muon hlt dqm
 #SiStrip Local Reco
