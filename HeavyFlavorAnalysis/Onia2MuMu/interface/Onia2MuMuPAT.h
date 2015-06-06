@@ -58,7 +58,6 @@ class Onia2MuMuPAT : public edm::EDProducer {
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
   bool addMCTruth_;
-  GreaterByPt<pat::CompositeCandidate> pTComparator_;
   GreaterByVProb<pat::CompositeCandidate> vPComparator_;
 
   InvariantMassFromVertex massCalculator;

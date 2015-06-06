@@ -386,7 +386,6 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  // std::sort(oniaOutput->begin(),oniaOutput->end(),pTComparator_);
   std::sort(oniaOutput->begin(),oniaOutput->end(),vPComparator_);
 
   iEvent.put(oniaOutput);
