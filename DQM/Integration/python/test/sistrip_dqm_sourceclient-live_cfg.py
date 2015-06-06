@@ -112,11 +112,14 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #process.siStripDigis.UnpackBadChannels = cms.bool(True)
-process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 ## Cosmic Track Reconstruction
 if (process.runType.getRunType() == process.runType.cosmic_run):
     process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+    process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+else:
+    process.load("Configuration.StandardSequences.Reconstruction_cff")
+
 
 ## # offline beam spot
 ## process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
@@ -257,7 +260,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 
     process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
 
-
     process.stripQTester.qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_cosmic.xml')
     process.stripQTester.prescaleFactor          = cms.untracked.int32(2)
     process.stripQTester.getQualityTestsFromFile = cms.untracked.bool(True)
@@ -304,15 +306,15 @@ if (process.runType.getRunType() == process.runType.pp_run):
     process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
     process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
     
-    process.MonitorTrackResiduals_gentk.Tracks                 = 'earlyGeneralTracks'
-    process.MonitorTrackResiduals_gentk.trajectoryInput        = 'earlyGeneralTracks'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('earlyGeneralTracks')
-    process.TrackMon_gentk.TrackProducer    = cms.InputTag("earlyGeneralTracks")
-    process.TrackMon_gentk.allTrackProducer = cms.InputTag("earlyGeneralTracks")
-    process.SiStripMonitorTrack_gentk.TrackProducer = 'earlyGeneralTracks'
+    process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
+    process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
+    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('initialStepTracksPreSplitting')
+    process.TrackMon_gentk.TrackProducer    = cms.InputTag('initialStepTracksPreSplitting')
+    process.TrackMon_gentk.allTrackProducer = cms.InputTag('initialStepTracksPreSplitting')
+    process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
 
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
-    # Client config for cosmic data
+
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
     process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
@@ -341,35 +343,23 @@ if (process.runType.getRunType() == process.runType.pp_run):
 
     # Reco for pp collisions
 
-    process.load('RecoTracker.Configuration.RecoTracker_cff')
-    
-    #process.newCombinedSeeds.seedCollections = cms.VInputTag(
-    #    cms.InputTag('initialStepSeeds'),
-    #    )
-    
-    process.load('RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff')
-    import RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi
-    process.load('RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi')
-    process.earlyGeneralTracks.TrackProducers = (
-        cms.InputTag('initialStepTracks'),
-        )
-            
-    process.earlyGeneralTracks.hasSelector=cms.vint32(1)
-    process.earlyGeneralTracks.selectedTrackQuals = cms.VInputTag(
-        # cms.InputTag("initialStepSelector","initialStep"),
-        cms.InputTag("initialStep"),
-        )
-    process.earlyGeneralTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ) )
+    process.load('RecoTracker.IterativeTracking.InitialStepPreSplitting_cff')
+    process.InitialStepPreSplitting.remove(process.initialStepTrackRefsForJetsPreSplitting)
+    process.InitialStepPreSplitting.remove(process.caloTowerForTrkPreSplitting)
+    process.InitialStepPreSplitting.remove(process.ak4CaloJetsForTrkPreSplitting)
+    process.InitialStepPreSplitting.remove(process.jetsForCoreTrackingPreSplitting)
+    process.InitialStepPreSplitting.remove(process.siPixelClusters)
+    process.InitialStepPreSplitting.remove(process.siPixelRecHits)
+    process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
+    process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)
 
-    process.load("RecoTracker.IterativeTracking.iterativeTk_cff")
+    from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
+    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
 
-    process.iterTracking_FirstStep =cms.Sequence(
-        process.InitialStep
-        *process.earlyGeneralTracks
-        )
-
-    #process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
-    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing*process.iterTracking_FirstStep)
+    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 
     process.p = cms.Path(
         process.scalersRawToDigi*
