@@ -41,6 +41,8 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
 
   bool useTight = false; //use tight quality cut selection
 
+  bool doHighD0 = false; //restrict to looking only at tracking particles with 0.01 < |d0| < 0.1cm
+
 
   //some counters for integrated efficiencies
   int n_all_eta2p5 = 0;
@@ -250,6 +252,8 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   // 'H' - High pt range, pt>15 GeV              //
   /////////////////////////////////////////////////
 
+  TString title = "L1 tracks";
+  if (doPixelTrack) title = "L1 pixel tracks";
 
   TH1F* h_tp_pt   = new TH1F("tp_pt",   ";Tracking particle p_{T} [GeV]; Tracking particles / 1.0 GeV", 100,  0,   100.0);
   TH1F* h_tp_pt_L = new TH1F("tp_pt_L", ";Tracking particle p_{T} [GeV]; Tracking particles / 0.1 GeV",  50,  0,     5.0);
@@ -267,57 +271,103 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   TH1F* h_match_tp_z0   = new TH1F("match_tp_z0",   ";Tracking particle z_{0} [cm]; Tracking particles / 1.0 cm",    50, -25.0, 25.0);
   TH1F* h_match_tp_d0   = new TH1F("match_tp_d0",   ";Tracking particle d_{0} [cm]; Tracking particles / 0.0004 cm", 100, -0.02,   0.02);
 
-  TH1F* h_match_trk_nstub   = new TH1F("match_trk_nstub",   ";Number of stubs; L1 tracks / 1.0", 15, 0, 15);
-  TH1F* h_match_trk_nstub_C = new TH1F("match_trk_nstub_C", ";Number of stubs; L1 tracks / 1.0", 15, 0, 15);
-  TH1F* h_match_trk_nstub_I = new TH1F("match_trk_nstub_I", ";Number of stubs; L1 tracks / 1.0", 15, 0, 15);
-  TH1F* h_match_trk_nstub_F = new TH1F("match_trk_nstub_F", ";Number of stubs; L1 tracks / 1.0", 15, 0, 15);
+  TH1F* h_match_trk_nstub   = new TH1F("match_trk_nstub",   ";Number of stubs; "+title+" / 1.0", 15, 0, 15);
+  TH1F* h_match_trk_nstub_C = new TH1F("match_trk_nstub_C", ";Number of stubs; "+title+" / 1.0", 15, 0, 15);
+  TH1F* h_match_trk_nstub_I = new TH1F("match_trk_nstub_I", ";Number of stubs; "+title+" / 1.0", 15, 0, 15);
+  TH1F* h_match_trk_nstub_F = new TH1F("match_trk_nstub_F", ";Number of stubs; "+title+" / 1.0", 15, 0, 15);
 
   // chi2 histograms
   // note: last bin is an overflow bin
-  TH1F* h_match_trk_chi2     = new TH1F("match_trk_chi2",     ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match5p_trk_chi2   = new TH1F("match5p_trk_chi2",   ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_C_L = new TH1F("match_trk_chi2_C_L", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_I_L = new TH1F("match_trk_chi2_I_L", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_F_L = new TH1F("match_trk_chi2_F_L", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_C_M = new TH1F("match_trk_chi2_C_M", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_I_M = new TH1F("match_trk_chi2_I_M", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_F_M = new TH1F("match_trk_chi2_F_M", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_C_H = new TH1F("match_trk_chi2_C_H", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_I_H = new TH1F("match_trk_chi2_I_H", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
-  TH1F* h_match_trk_chi2_F_H = new TH1F("match_trk_chi2_F_H", ";#chi^{2}; L1 tracks / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2     = new TH1F("match_trk_chi2",     ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match5p_trk_chi2   = new TH1F("match5p_trk_chi2",   ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_C_L = new TH1F("match_trk_chi2_C_L", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_I_L = new TH1F("match_trk_chi2_I_L", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_F_L = new TH1F("match_trk_chi2_F_L", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_C_M = new TH1F("match_trk_chi2_C_M", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_I_M = new TH1F("match_trk_chi2_I_M", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_F_M = new TH1F("match_trk_chi2_F_M", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_C_H = new TH1F("match_trk_chi2_C_H", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_I_H = new TH1F("match_trk_chi2_I_H", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
+  TH1F* h_match_trk_chi2_F_H = new TH1F("match_trk_chi2_F_H", ";#chi^{2}; "+title+" / 1.0", 100, 0, 100);
 
   // chi2/dof histograms
   // note: lastbin is an overflow bin
-  TH1F* h_match_trk_chi2_dof     = new TH1F("match_trk_chi2_dof",     ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match5p_trk_chi2_dof   = new TH1F("match5p_trk_chi2_dof",   ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_C_L = new TH1F("match_trk_chi2_dof_C_L", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_I_L = new TH1F("match_trk_chi2_dof_I_L", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_F_L = new TH1F("match_trk_chi2_dof_F_L", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_C_M = new TH1F("match_trk_chi2_dof_C_M", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_I_M = new TH1F("match_trk_chi2_dof_I_M", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_F_M = new TH1F("match_trk_chi2_dof_F_M", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_C_H = new TH1F("match_trk_chi2_dof_C_H", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_I_H = new TH1F("match_trk_chi2_dof_I_H", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
-  TH1F* h_match_trk_chi2_dof_F_H = new TH1F("match_trk_chi2_dof_F_H", ";#chi^{2} / D.O.F.; L1 tracks / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof     = new TH1F("match_trk_chi2_dof",     ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match5p_trk_chi2_dof   = new TH1F("match5p_trk_chi2_dof",   ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_C_L = new TH1F("match_trk_chi2_dof_C_L", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_I_L = new TH1F("match_trk_chi2_dof_I_L", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_F_L = new TH1F("match_trk_chi2_dof_F_L", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_C_M = new TH1F("match_trk_chi2_dof_C_M", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_I_M = new TH1F("match_trk_chi2_dof_I_M", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_F_M = new TH1F("match_trk_chi2_dof_F_M", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_C_H = new TH1F("match_trk_chi2_dof_C_H", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_I_H = new TH1F("match_trk_chi2_dof_I_H", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+  TH1F* h_match_trk_chi2_dof_F_H = new TH1F("match_trk_chi2_dof_F_H", ";#chi^{2} / D.O.F.; "+title+" / 0.1", 150, 0, 15);
+
 
   // resolution histograms
-  TH1F* h_res_pt    = new TH1F("res_pt",    ";p_{T} residual (L1 - sim) [GeV]; L1 tracks / 0.05",   200,-5.0,   5.0);
-  TH1F* h_res_ptRel = new TH1F("res_ptRel", ";p_{T} residual (L1 - sim) / p_{T}; L1 tracks / 0.01", 200,-1.0,   1.0);
-  TH1F* h_res_eta   = new TH1F("res_eta",   ";#eta residual (L1 - sim); L1 tracks / 0.0002",        100,-0.01,  0.01);
-  TH1F* h_res_phi   = new TH1F("res_phi",   ";#phi residual (L1 - sim) [rad]; L1 tracks / 0.0001",  100,-0.005, 0.005);
-  TH1F* h_res_z0    = new TH1F("res_z0",    ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
-  TH1F* h_res_z0_C  = new TH1F("res_z0_C",  ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
-  TH1F* h_res_z0_I  = new TH1F("res_z0_I",  ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
-  TH1F* h_res_z0_F  = new TH1F("res_z0_F",  ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
+  TH1F* h_res_pt    = new TH1F("res_pt",    ";p_{T} residual (L1 - sim) [GeV]; "+title+" / 0.05",   200,-5.0,   5.0);
+  TH1F* h_res_ptRel = new TH1F("res_ptRel", ";p_{T} residual (L1 - sim) / p_{T}; "+title+" / 0.01", 200,-1.0,   1.0);
+  TH1F* h_res_eta   = new TH1F("res_eta",   ";#eta residual (L1 - sim); "+title+" / 0.0002",        100,-0.01,  0.01);
+  TH1F* h_res_phi   = new TH1F("res_phi",   ";#phi residual (L1 - sim) [rad]; "+title+" / 0.0001",  100,-0.005, 0.005);
 
-  TH1F* h_res5p_pt    = new TH1F("res5p_pt",    ";p_{T} residual (L1 - sim) [GeV]; L1 tracks / 0.05",   200,-5.0,   5.0);
-  TH1F* h_res5p_ptRel = new TH1F("res5p_ptRel", ";p_{T} residual (L1 - sim) / p_{T}; L1 tracks / 0.01", 200,-1.0,   1.0);
-  TH1F* h_res5p_eta   = new TH1F("res5p_eta",   ";#eta residual (L1 - sim); L1 tracks / 0.0002",        100,-0.01,  0.01);
-  TH1F* h_res5p_phi   = new TH1F("res5p_phi",   ";#phi residual (L1 - sim) [rad]; L1 tracks / 0.0001",  100,-0.005, 0.005);
-  TH1F* h_res5p_z0;
-  if (doPixelTrack) h_res5p_z0 = new TH1F("res5p_z0",    ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.002",    100,-0.1, 0.1);
-  else h_res5p_z0 = new TH1F("res5p_z0",    ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
-  TH1F* h_res5p_d0    = new TH1F("res5p_d0",    ";d_{0} residual (L1 - sim) [cm]; L1 tracks / 0.0002 cm", 200,-0.02,0.02);
+  TH1F* h_res_z0;
+  TH1F* h_res_z0_C;
+  TH1F* h_res_z0_I;
+  TH1F* h_res_z0_F;
+
+  TH1F* h_res_z0_C_low;
+  TH1F* h_res_z0_I_low;
+  TH1F* h_res_z0_F_low;
+  TH1F* h_res_z0_C_high;
+  TH1F* h_res_z0_I_high;
+  TH1F* h_res_z0_F_high;
+
+  TH1F* h_res_z0_L;
+  TH1F* h_res_z0_M;
+  TH1F* h_res_z0_H;
+
+  float maxz0res = 1.0;
+  if (doPixelTrack) maxz0res = 0.1;
+  TString titlez0res = "0.02";
+  if (doPixelTrack) titlez0res = "0.002";
+
+  h_res_z0    = new TH1F("res_z0",    ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_C  = new TH1F("res_z0_C",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_I  = new TH1F("res_z0_I",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_F  = new TH1F("res_z0_F",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_L  = new TH1F("res_z0_L",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_M  = new TH1F("res_z0_M",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_H  = new TH1F("res_z0_H",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  
+  h_res_z0_C_low  = new TH1F("res_z0_C_low",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_I_low  = new TH1F("res_z0_I_low",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_F_low  = new TH1F("res_z0_F_low",  ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_C_high  = new TH1F("res_z0_C_high",";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_I_high  = new TH1F("res_z0_I_high",";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  h_res_z0_F_high  = new TH1F("res_z0_F_high",";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+
+
+  TH1F* h_res5p_pt    = new TH1F("res5p_pt",    ";p_{T} residual (L1 - sim) [GeV]; "+title+" / 0.05",   200,-5.0,   5.0);
+  TH1F* h_res5p_ptRel = new TH1F("res5p_ptRel", ";p_{T} residual (L1 - sim) / p_{T}; "+title+" / 0.01", 200,-1.0,   1.0);
+  TH1F* h_res5p_eta   = new TH1F("res5p_eta",   ";#eta residual (L1 - sim); "+title+" / 0.0002",        100,-0.01,  0.01);
+  TH1F* h_res5p_phi   = new TH1F("res5p_phi",   ";#phi residual (L1 - sim) [rad]; "+title+" / 0.0001",  100,-0.005, 0.005);
+  TH1F* h_res5p_z0    = new TH1F("res5p_z0",    ";z_{0} residual (L1 - sim) [cm]; "+title+" / "+titlez0res, 100,(-1)*maxz0res, maxz0res);
+  TH1F* h_res5p_d0    = new TH1F("res5p_d0",    ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0002 cm", 200,-0.02,0.02);
+
+  TH1F* h_res5p_d0_C  = new TH1F("res5p_d0_C",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_I  = new TH1F("res5p_d0_I",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_F  = new TH1F("res5p_d0_F",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_L  = new TH1F("res5p_d0_L",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_M  = new TH1F("res5p_d0_M",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_H  = new TH1F("res5p_d0_H",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+
+  TH1F* h_res5p_d0_C_low  = new TH1F("res5p_d0_C_low",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_I_low  = new TH1F("res5p_d0_I_low",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_F_low  = new TH1F("res5p_d0_F_low",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_C_high  = new TH1F("res5p_d0_C_high",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_I_high  = new TH1F("res5p_d0_I_high",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
+  TH1F* h_res5p_d0_F_high  = new TH1F("res5p_d0_F_high",  ";d_{0} residual (L1 - sim) [cm]; "+title+" / 0.0001 cm", 200,-0.05,0.05);
 
 
   // resolution vs. pt histograms
@@ -490,7 +540,9 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
       if (tp_pt->at(it) > 100.) continue; //to have same kinematic range as before for muons!
       if (fabs(tp_eta->at(it)) > 2.5) continue;
       if (fabs(tp_z0->at(it)) > 30.0) continue;
-            
+
+      if (doHighD0 && (fabs(tp_d0->at(it)) < 0.010 || fabs(tp_d0->at(it)) > 0.10) ) continue;
+
       h_tp_pt->Fill(tp_pt->at(it));
       if (tp_pt->at(it) < 5.0) h_tp_pt_L->Fill(tp_pt->at(it));
       
@@ -644,6 +696,7 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
       else if (fabs(matchtrk_eta->at(it)) >= 1.6) h_match_trk_nstub_F->Fill(matchtrk_nstub->at(it));
       
 
+      // ----------------------------------------------------------------------------------------------------------------
       // fill resolution histograms
       h_res_pt   ->Fill(matchtrk_pt->at(it)  - tp_pt->at(it));
       h_res_ptRel->Fill((matchtrk_pt->at(it) - tp_pt->at(it))/tp_pt->at(it));
@@ -664,6 +717,39 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
       else if (fabs(matchtrk_eta->at(it)) >= 1.6) h_res_z0_F->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
       
 
+      if (tp_pt->at(it) < 5.0) {
+	if (fabs(matchtrk_eta->at(it)) < 1.0) h_res_z0_C_low->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+	else  h_res_z0_F_low->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+      }
+      else if (tp_pt->at(it) > 10.0) {
+	if (fabs(matchtrk_eta->at(it)) < 1.0) h_res_z0_C_high->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+	else h_res_z0_F_high->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+      }
+
+      if (matchtrk_pt->at(it) < 5.0) h_res_z0_L->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+      else if (matchtrk_pt->at(it) < 15.0) h_res_z0_M->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+      else h_res_z0_H->Fill(matchtrk_z0->at(it) - tp_z0->at(it));
+      
+
+      if (fabs(matchtrk_eta->at(it)) < 0.8) h_res5p_d0_C->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+      else if (fabs(matchtrk_eta->at(it)) < 1.6 && fabs(matchtrk_eta->at(it)) >= 0.8) h_res5p_d0_I->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+      else if (fabs(matchtrk_eta->at(it)) >= 1.6) h_res5p_d0_F->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+
+      if (tp_pt->at(it) < 5.0) {
+	if (fabs(matchtrk_eta->at(it)) < 1.0) h_res5p_d0_C_low->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+	else h_res5p_d0_F_low->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+      }
+      else if (tp_pt->at(it) > 10.0) {
+	if (fabs(matchtrk_eta->at(it)) < 1.0) h_res5p_d0_C_high->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+	else h_res5p_d0_F_high->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+      }
+
+      if (matchtrk_pt->at(it) < 5.0) h_res5p_d0_L->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+      else if (matchtrk_pt->at(it) < 15.0) h_res5p_d0_M->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+      else h_res5p_d0_H->Fill(matchtrk5p_d0->at(it) - tp_d0->at(it));
+
+
+      // ----------------------------------------------------------------------------------------------------------------
       // fill resolution vs. pt histograms    
       for (int im=0; im<nRANGE; im++) {
        if ( (tp_pt->at(it) > (float)im*5.0) && (tp_pt->at(it) < (float)im*5.0+5.0) ) {
@@ -929,6 +1015,26 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   TH1F* h2_res5pVsEta_ptRel = new TH1F("res5pVsEta2_ptRel", ";Tracking particle |#eta|; p_{T} resolution / p_{T}", 25,0,2.5);
 
 
+  // resolution vs. eta histograms (gaussian fit)
+  TH1F* h3_resVsEta_eta_L = new TH1F("resVsEta_eta_L_gaus", ";|#eta|; #sigma(#eta)", 25,0,2.5);
+  TH1F* h3_resVsEta_eta_M = new TH1F("resVsEta_eta_M_gaus", ";|#eta|; #sigma(#eta)", 25,0,2.5);
+  TH1F* h3_resVsEta_eta_H = new TH1F("resVsEta_eta_H_gaus", ";|#eta|; #sigma(#eta)", 25,0,2.5);
+
+  TH1F* h3_resVsEta_z0_L = new TH1F("resVsEta_z0_L_gaus", ";|#eta|; #sigma(z_{0}) [cm]", 25,0,2.5);
+  TH1F* h3_resVsEta_z0_M = new TH1F("resVsEta_z0_M_gaus", ";|#eta|; #sigma(z_{0}) [cm]", 25,0,2.5);
+  TH1F* h3_resVsEta_z0_H = new TH1F("resVsEta_z0_H_gaus", ";|#eta|; #sigma(z_{0}) [cm]", 25,0,2.5);
+
+  TH1F* h3_resVsEta_phi_L = new TH1F("resVsEta_phi_L_gaus", ";|#eta|; #sigma(#phi) [rad]", 25,0,2.5);
+  TH1F* h3_resVsEta_phi_M = new TH1F("resVsEta_phi_M_gaus", ";|#eta|; #sigma(#phi) [rad]", 25,0,2.5);
+  TH1F* h3_resVsEta_phi_H = new TH1F("resVsEta_phi_H_gaus", ";|#eta|; #sigma(#phi) [rad]", 25,0,2.5);
+
+  TH1F* h3_resVsEta_ptRel_L = new TH1F("resVsEta_ptRel_L_gaus", ";|#eta|; #sigma(p_{T}) / p_{T}", 25,0,2.5);
+  TH1F* h3_resVsEta_ptRel_M = new TH1F("resVsEta_ptRel_M_gaus", ";|#eta|; #sigma(p_{T}) / p_{T}", 25,0,2.5);
+  TH1F* h3_resVsEta_ptRel_H = new TH1F("resVsEta_ptRel_H_gaus", ";|#eta|; #sigma(p_{T}) / p_{T}", 25,0,2.5);
+
+  TString fitdir = "FitResults/";
+
+
   for (int i=0; i<nETARANGE; i++) {
     // set bin content and error
     h2_resVsEta_eta  ->SetBinContent(i+1, h_resVsEta_eta[i]  ->GetRMS());
@@ -993,6 +1099,220 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
     h2_res5pVsEta_pt   ->SetBinError(  i+1, h_res5pVsEta_pt[i]   ->GetRMSError());
     h2_res5pVsEta_ptRel->SetBinContent(i+1, h_res5pVsEta_ptRel[i]->GetRMS());
     h2_res5pVsEta_ptRel->SetBinError(  i+1, h_res5pVsEta_ptRel[i]->GetRMSError());
+
+
+
+    // ---------------------------------------------------------------------------------------------------
+    // gaussian fit instead
+    // ---------------------------------------------------------------------------------------------------
+  
+    TCanvas cfit;
+    char text[500];
+
+    float sigma = 0;
+    float esigma = 0;
+    TF1* fit;
+
+    float rms = 0;
+    float erms = 0;
+
+    fit = new TF1("fit", "gaus", -0.01,0.01);
+    h_resVsEta_eta_L[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_eta_L[i]->GetRMS();
+    erms = h_resVsEta_eta_L[i]->GetRMSError();
+    h3_resVsEta_eta_L->SetBinContent(i+1, sigma);   
+    h3_resVsEta_eta_L->SetBinError(i+1, esigma);   
+    h_resVsEta_eta_L[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_eta_L_"+etarange[i]+".png");
+    delete fit;
+
+    fit = new TF1("fit", "gaus", -0.01,0.01);
+    h_resVsEta_eta_M[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_eta_M[i]->GetRMS();
+    erms = h_resVsEta_eta_M[i]->GetRMSError();
+    h3_resVsEta_eta_M->SetBinContent(i+1, sigma);   
+    h3_resVsEta_eta_M->SetBinError(i+1, esigma);   
+    h_resVsEta_eta_M[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_eta_M_"+etarange[i]+".png");
+    delete fit;
+
+    fit = new TF1("fit", "gaus", -0.01,0.01);
+    h_resVsEta_eta_H[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_eta_H[i]->GetRMS();
+    erms = h_resVsEta_eta_H[i]->GetRMSError();
+    h3_resVsEta_eta_H->SetBinContent(i+1, sigma);   
+    h3_resVsEta_eta_H->SetBinError(i+1, esigma);   
+    h_resVsEta_eta_H[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_eta_H_"+etarange[i]+".png");
+    delete fit;
+
+
+    if (doPixelTrack) fit = new TF1("fit", "gaus", -0.3,0.3);
+    else fit = new TF1("fit", "gaus", -1,1);
+    h_resVsEta_z0_L[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_z0_L[i]->GetRMS();
+    erms = h_resVsEta_z0_L[i]->GetRMSError();
+    h3_resVsEta_z0_L->SetBinContent(i+1, sigma);   
+    h3_resVsEta_z0_L->SetBinError(i+1, esigma);   
+    h_resVsEta_z0_L[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_z0_L_"+etarange[i]+".png");
+    delete fit;
+
+    if (doPixelTrack) fit = new TF1("fit", "gaus", -0.3,0.3);
+    else fit = new TF1("fit", "gaus", -1,1);
+    h_resVsEta_z0_M[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_z0_M[i]->GetRMS();
+    erms = h_resVsEta_z0_M[i]->GetRMSError();
+    h3_resVsEta_z0_M->SetBinContent(i+1, sigma);   
+    h3_resVsEta_z0_M->SetBinError(i+1, esigma);   
+    h_resVsEta_z0_M[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_z0_M_"+etarange[i]+".png");
+    delete fit;
+
+    if (doPixelTrack) fit = new TF1("fit", "gaus", -0.3,0.3);
+    else fit = new TF1("fit", "gaus", -1,1);
+    h_resVsEta_z0_H[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_z0_H[i]->GetRMS();
+    erms = h_resVsEta_z0_H[i]->GetRMSError();
+    h3_resVsEta_z0_H->SetBinContent(i+1, sigma);   
+    h3_resVsEta_z0_H->SetBinError(i+1, esigma);   
+    h_resVsEta_z0_H[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_z0_H_"+etarange[i]+".png");
+    delete fit;
+
+
+    fit = new TF1("fit", "gaus", -0.005,0.005);
+    h_resVsEta_phi_L[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_phi_L[i]->GetRMS();
+    erms = h_resVsEta_phi_L[i]->GetRMSError();
+    h3_resVsEta_phi_L->SetBinContent(i+1, sigma);   
+    h3_resVsEta_phi_L->SetBinError(i+1, esigma);   
+    h_resVsEta_phi_L[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_phi_L_"+etarange[i]+".png");
+    delete fit;
+
+    fit = new TF1("fit", "gaus", -0.005,0.005);
+    h_resVsEta_phi_M[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_phi_M[i]->GetRMS();
+    erms = h_resVsEta_phi_M[i]->GetRMSError();
+    h3_resVsEta_phi_M->SetBinContent(i+1, sigma);   
+    h3_resVsEta_phi_M->SetBinError(i+1, esigma);   
+    h_resVsEta_phi_M[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_phi_M_"+etarange[i]+".png");
+    delete fit;
+
+    fit = new TF1("fit", "gaus", -0.005,0.005);
+    h_resVsEta_phi_H[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_phi_H[i]->GetRMS();
+    erms = h_resVsEta_phi_H[i]->GetRMSError();
+    h3_resVsEta_phi_H->SetBinContent(i+1, sigma);   
+    h3_resVsEta_phi_H->SetBinError(i+1, esigma);   
+    h_resVsEta_phi_H[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_phi_H_"+etarange[i]+".png");
+    delete fit;
+
+
+    fit = new TF1("fit", "gaus", -0.5,0.5);
+    h_resVsEta_ptRel_L[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_ptRel_L[i]->GetRMS();
+    erms = h_resVsEta_ptRel_L[i]->GetRMSError();
+    h3_resVsEta_ptRel_L->SetBinContent(i+1, sigma);   
+    h3_resVsEta_ptRel_L->SetBinError(i+1, esigma);   
+    h_resVsEta_ptRel_L[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_ptRel_L_"+etarange[i]+".png");
+    delete fit;
+
+    fit = new TF1("fit", "gaus", -0.5,0.5);
+    h_resVsEta_ptRel_M[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_ptRel_M[i]->GetRMS();
+    erms = h_resVsEta_ptRel_M[i]->GetRMSError();
+    h3_resVsEta_ptRel_M->SetBinContent(i+1, sigma);   
+    h3_resVsEta_ptRel_M->SetBinError(i+1, esigma);   
+    h_resVsEta_ptRel_M[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_ptRel_M_"+etarange[i]+".png");
+    delete fit;
+
+    fit = new TF1("fit", "gaus", -0.5,0.5);
+    h_resVsEta_ptRel_H[i]->Fit("fit","R");
+    sigma  = fit->GetParameter(2);
+    esigma = fit->GetParError(2);
+    rms = h_resVsEta_ptRel_H[i]->GetRMS();
+    erms = h_resVsEta_ptRel_H[i]->GetRMSError();
+    h3_resVsEta_ptRel_H->SetBinContent(i+1, sigma);   
+    h3_resVsEta_ptRel_H->SetBinError(i+1, esigma);   
+    h_resVsEta_ptRel_H[i]->Draw();
+    sprintf(text,"RMS: %.4f +/- %.4f",rms,erms);
+    mySmallText(0.2,0.86,1,text);
+    sprintf(text,"Fit: %.4f +/- %.4f",sigma,esigma);
+    mySmallText(0.2,0.8,2,text);
+    cfit.SaveAs(fitdir+"resVsEta_ptRel_H_"+etarange[i]+".png");
+    delete fit;
 
   }
 
@@ -1063,7 +1383,12 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
 
   if (useTight) type = type+"_tight";
 
-  TFile* fout = new TFile("output_"+type+".root","recreate");
+  TString fout_name = "";
+  if (doPixelTrack && doHighD0) fout_name = "_pix_highd0";
+  else if (doPixelTrack) fout_name = "_pix";
+  else if (doHighD0) fout_name = "_highd0";
+
+  TFile* fout = new TFile("output_"+type+fout_name+".root","recreate");
 
 
   // -------------------------------------------------------------------------------------------
@@ -1458,6 +1783,22 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   c.SaveAs("TrkPlots/"+type+"_res5pVsEta_ptRel.eps");
   c.SaveAs("TrkPlots/"+type+"_res5pVsEta_ptRel.png");
   if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+
+
+  h3_resVsEta_eta_L->Write();
+  h3_resVsEta_z0_L->Write();
+  h3_resVsEta_phi_L->Write();
+  h3_resVsEta_ptRel_L->Write();
+
+  h3_resVsEta_eta_M->Write();
+  h3_resVsEta_z0_M->Write();
+  h3_resVsEta_phi_M->Write();
+  h3_resVsEta_ptRel_M->Write();
+
+  h3_resVsEta_eta_H->Write();
+  h3_resVsEta_z0_H->Write();
+  h3_resVsEta_phi_H->Write();
+  h3_resVsEta_ptRel_H->Write();
 
 
   // ----------------------------------------------------------------------------------------------------------------
@@ -1876,6 +2217,110 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
     c.SaveAs("TrkPlots/"+type+"_res_z0_F.png");
     if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
 
+    h_res_z0_C_low->Draw();
+    h_res_z0_C_low->Write();
+    rms = h_res_z0_C_low->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| < 0.8");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_C_low.eps");
+    c.SaveAs(DIR+type+"_res_z0_C_low.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res_z0_I_low->Draw();
+    h_res_z0_I_low->Write();
+    rms = h_res_z0_I_low->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"0.8 < |eta| < 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_I_low.eps");
+    c.SaveAs(DIR+type+"_res_z0_I_low.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res_z0_F_low->Draw();
+    h_res_z0_F_low->Write();
+    rms = h_res_z0_F_low->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| > 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_F_low.eps");
+    c.SaveAs(DIR+type+"_res_z0_F_low.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+
+    h_res_z0_C_high->Draw();
+    h_res_z0_C_high->Write();
+    rms = h_res_z0_C_high->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| < 0.8");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_C_high.eps");
+    c.SaveAs(DIR+type+"_res_z0_C_high.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res_z0_I_high->Draw();
+    h_res_z0_I_high->Write();
+    rms = h_res_z0_I_high->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"0.8 < |eta| < 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_I_high.eps");
+    c.SaveAs(DIR+type+"_res_z0_I_high.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res_z0_F_high->Draw();
+    h_res_z0_F_high->Write();
+    rms = h_res_z0_F_high->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| > 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_F_high.eps");
+    c.SaveAs(DIR+type+"_res_z0_F_high.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+
+
+
+
+    h_res_z0_L->Draw();
+    h_res_z0_L->Write();
+    rms = h_res_z0_L->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"p_{T} < 5 GeV");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_L.eps");
+    c.SaveAs(DIR+type+"_res_z0_L.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res_z0_M->Draw();
+    h_res_z0_M->Write();
+    rms = h_res_z0_M->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"5 < p_{T} < 15 GeV");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_M.eps");
+    c.SaveAs(DIR+type+"_res_z0_M.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res_z0_H->Draw();
+    h_res_z0_H->Write();
+    rms = h_res_z0_H->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"p_{T} > 15 GeV");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res_z0_H.eps");
+    c.SaveAs(DIR+type+"_res_z0_H.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+
+
+
     h_res5p_pt->Draw();
     rms = h_res5p_pt->GetRMS();
     sprintf(ctxt,"RMS = %.4f",rms);
@@ -1925,6 +2370,147 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   c.SaveAs("TrkPlots/"+type+"_res5p_d0.eps");
   c.SaveAs("TrkPlots/"+type+"_res5p_d0.png");
   if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+  
+
+
+  if (doDetailedPlots) {
+    
+    h_res5p_d0_C->Draw();
+    h_res5p_d0_C->Write();
+    rms = h_res5p_d0_C->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| < 0.8");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_C.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_C.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_I->Draw();
+    h_res5p_d0_I->Write();
+    rms = h_res5p_d0_I->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"0.8 < |eta| < 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_I.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_I.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_F->Draw();
+    h_res5p_d0_F->Write();
+    rms = h_res5p_d0_F->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| > 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_F.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_F.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    
+    h_res5p_d0_C_low->Draw();
+    h_res5p_d0_C_low->Write();
+    rms = h_res5p_d0_C_low->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| < 0.8");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_C_low.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_C_low.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_I_low->Draw();
+    h_res5p_d0_I_low->Write();
+    rms = h_res5p_d0_I_low->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"0.8 < |eta| < 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_I_low.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_I_low.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_F_low->Draw();
+    h_res5p_d0_F_low->Write();
+    rms = h_res5p_d0_F_low->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| > 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_F_low.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_F_low.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    
+    h_res5p_d0_C_high->Draw();
+    h_res5p_d0_C_high->Write();
+    rms = h_res5p_d0_C_high->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| < 0.8");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_C_high.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_C_high.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_I_high->Draw();
+    h_res5p_d0_I_high->Write();
+    rms = h_res5p_d0_I_high->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"0.8 < |eta| < 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_I_high.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_I_high.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_F_high->Draw();
+    h_res5p_d0_F_high->Write();
+    rms = h_res5p_d0_F_high->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"|eta| > 1.6");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_F_high.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_F_high.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    
+    h_res5p_d0_L->Draw();
+    h_res5p_d0_L->Write();
+    rms = h_res5p_d0_L->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"p_{T} < 5 GeV");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_L.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_L.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_M->Draw();
+    h_res5p_d0_M->Write();
+    rms = h_res5p_d0_M->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"5 < p_{T} < 15 GeV");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_M.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_M.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+    h_res5p_d0_H->Draw();
+    h_res5p_d0_H->Write();
+    rms = h_res5p_d0_H->GetRMS();
+    sprintf(ctxt,"RMS = %.4f;",rms);
+    mySmallText(0.22,0.82,1,ctxt);
+    sprintf(ctxt,"p_{T} > 15 GeV");
+    mySmallText(0.22,0.76,1,ctxt);
+    c.SaveAs(DIR+type+"_res5p_d0_H.eps");
+    c.SaveAs(DIR+type+"_res5p_d0_H.png");
+    if (makeCanvas) c.SaveAs(type+"_canvas.pdf");
+    
+  }
   
  
   // ----------------------------------------------------------------------------------------------------------------
