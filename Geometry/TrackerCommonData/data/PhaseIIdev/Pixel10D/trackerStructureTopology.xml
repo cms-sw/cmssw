@@ -7,7 +7,7 @@
      </SpecPar>
      <SpecPar name="PixelBarrelSubDetPar">
        <PartSelector path="//PixelBarrel" />
-       <Parameter name="TkDDDStructure" value="PixelBarrel"/>
+       <Parameter name="TkDDDStructure" value="PixelPhase1Barrel"/>
      </SpecPar>
      <SpecPar name="PixelBarrelLayerPar">
       <PartSelector path="//PixelBarrelLayer0"/>
@@ -302,6 +302,10 @@
       <Parameter name="PixelROC_Y" value="8"/>
     </SpecPar>
 
+     <SpecPar name="Phase2OTBarrelSubDetPar">
+       <PartSelector path="//Phase2OTBarrel" />
+       <Parameter name="TkDDDStructure" value="Phase2OTBarrel"/>
+     </SpecPar>
 <SpecPar name="OuterTrackerPixelBarrelLayerPar">
 <PartSelector path="//Layer1"/>
 <PartSelector path="//Layer2"/>
@@ -320,6 +324,12 @@
 <PartSelector path="//Rod6"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
 </SpecPar>
+
+<SpecPar name="Phase2OTEndcapSubDetPar">
+  <PartSelector path="//Phase2OTForward" />
+  <Parameter name="TkDDDStructure" value="Phase2OTEndcap"/>
+</SpecPar>
+
 <SpecPar name="OuterTrackerPixelEndcapDiskPar">
 <PartSelector path="//Disc6"/>
 <PartSelector path="//Disc7"/>

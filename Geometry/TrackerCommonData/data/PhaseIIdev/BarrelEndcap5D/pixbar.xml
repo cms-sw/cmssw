@@ -5,6 +5,7 @@
     <Constant name="Rin1" value="2.50*cm"/>
     <Constant name="Rin2" value="18.00*cm"/>
     <Constant name="Rin3" value="18.6*cm"/>
+    <Constant name="RinSupTubCab"      value="15.00*cm"/>
     <Constant name="Rout1" value="20.35*cm"/> <!-- 21.35*cm-->
     <Constant name="Rout2" value="21.00*cm"/>
     <Constant name="Zv1" value="28.70*cm"/>
@@ -146,7 +147,7 @@
     <Rotation name="180D" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
   </RotationSection>
   <SolidSection label="pixbar.xml">
-    <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
+    <Polycone name="Barrel" startPhi="0*deg" deltaPhi="360*deg">
       <ZSection z="-291.0*cm" rMin="117.99*cm" rMax="120.0*cm"/>
       <ZSection z="-119.0*cm" rMin="117.99*cm" rMax="120.0*cm"/>
       <ZSection z="-119.0*cm" rMin="19.0*cm" rMax="120.0*cm"/>
@@ -162,6 +163,27 @@
       <ZSection z="119.0*cm" rMin="117.99*cm" rMax="120.0*cm"/>
       <ZSection z="291.0*cm" rMin="117.99*cm" rMax="120.0*cm"/>
     </Polycone>
+    <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="-119.0*cm" rMin="19.0*cm" rMax="[Rout2]"/>
+      <ZSection z="-117.0*cm"          rMin="19.0*cm"          rMax="[Rout2]" />
+      <ZSection z="-117.0*cm"          rMin="19.0*cm"          rMax="[Rout1]" />
+      <ZSection z="-29.12*cm" rMin="19.0*cm" rMax="[Rout1]"/>
+      <ZSection z="-29.12*cm" rMin="[Rin2]" rMax="[Rout1]"/>
+      <ZSection z="-[Zv1]"         rMin="[Rin2]"          rMax="[Rout1]" />
+      <ZSection z="-[Zv1]"         rMin="[Rin1]"          rMax="[Rout1]" />
+      <ZSection z="[Zv1]"          rMin="[Rin1]"          rMax="[Rout1]" />
+      <ZSection z="[Zv1]"          rMin="[Rin2]"          rMax="[Rout1]" />
+      <ZSection z="29.12*cm" rMin="[Rin2]" rMax="[Rout1]"/>
+      <ZSection z="29.12*cm" rMin="19.0*cm" rMax="[Rout1]"/>
+      <ZSection z="117.0*cm"          rMin="19.0*cm"          rMax="[Rout1]" />
+      <ZSection z="117.0*cm"          rMin="19.0*cm"          rMax="[Rout2]" />
+      <ZSection z="119.0*cm" rMin="19.0*cm" rMax="[Rout2]"/>
+    </Polycone> 
+    <SubtractionSolid name="Phase2OTBarrel">
+      <rSolid name="Barrel"/>
+      <rSolid name="PixelBarrel"/>
+      <Translation x="0*cm" y="0*cm" z="0*cm"/>
+    </SubtractionSolid>
     <!--
     <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
       <RZPoint r="[Rin1]" z="-[Zv1]"/>
@@ -276,6 +298,10 @@
   <LogicalPartSection label="pixbar.xml">
     <LogicalPart name="PixelBarrel" category="unspecified">
       <rSolid name="PixelBarrel"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Phase2OTBarrel" category="unspecified">
+      <rSolid name="Phase2OTBarrel"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
     <LogicalPart name="PixelBarrelSuppTub" category="unspecified">
