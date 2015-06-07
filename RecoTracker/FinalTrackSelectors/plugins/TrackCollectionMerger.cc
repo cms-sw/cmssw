@@ -108,10 +108,8 @@ namespace {
     auto collsSize = srcColls.size();
     auto rSize=0U;
     declareDynArray(reco::TrackCollection const *, collsSize, trackColls);
-    declareDynArray(edm::Handle<reco::TrackCollection>, collsSize, trackHandles);
     for (auto i=0U; i< collsSize; ++i) {
-      evt.getByToken(srcColls[i].hTrackToken_,trackHandles[i]);
-      trackColls[i] = trackHandles[i].product();
+      trackColls[i] = &srcColls[i].tracks(evt);
       rSize += (*trackColls[i]).size();
     }
 
