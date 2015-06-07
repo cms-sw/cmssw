@@ -72,7 +72,7 @@ namespace {
 
     desc.add<std::string>("TrackQuality","highPurity");
     desc.add<double>("maxChi2",30.);
-    desc.add<int>("minNumberOfLayersWithMeasBeforeFiltering",std::numeric_limits<int>::max());
+    desc.add<int>("minNumberOfLayersWithMeasBeforeFiltering",0);
     // old mode     
     desc.add<edm::InputTag>("overrideTrkQuals",edm::InputTag());
 
@@ -125,16 +125,20 @@ namespace {
     std::vector<bool> collectedStrips;
     std::vector<bool> collectedPixels;
 
-    if(oldPxlMaskToken_.isUninitialized()) {
+    if(!oldPxlMaskToken_.isUninitialized()) {
       edm::Handle<PixelMaskContainer> oldPxlMask;
       edm::Handle<StripMaskContainer> oldStrMask;
       iEvent.getByToken(oldPxlMaskToken_ ,oldPxlMask);
       iEvent.getByToken(oldStrMaskToken_ ,oldStrMask);
       LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
+      // std::cout <<"TrackClusterRemover "<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl" << std::endl;
       oldStrMask->copyMaskTo(collectedStrips);
       oldPxlMask->copyMaskTo(collectedPixels);
       assert(stripClusters->dataSize()>=collectedStrips.size());
       collectedStrips.resize(stripClusters->dataSize(), false);
+      //std::cout << "TrackClusterRemover " <<"total strip already to skip: "
+      //	<<std::count(collectedStrips.begin(),collectedStrips.end(),true) <<std::endl;
+
     }else {
       collectedStrips.resize(stripClusters->dataSize(), false);
       collectedPixels.resize(pixelClusters->dataSize(), false);
@@ -153,14 +157,18 @@ namespace {
     auto const & trajs = trajectories_.trajectories(iEvent);
     auto s = tracks.size();
 
+    assert(s==trajs.size());
+
     QualityMaskCollection oldStyle;
     QualityMaskCollection const * pquals=nullptr;
     
     if (!overrideTrkQuals_.isUninitialized()) {
       edm::Handle<edm::ValueMap<int> > quals;
       iEvent.getByToken(overrideTrkQuals_,quals);
-      oldStyle.resize(s);
-      for (auto i=0U; i<s; ++i) oldStyle[i]= (*quals).get(i);
+      assert(s==(*quals).size());
+
+      oldStyle.resize(s,0);
+      for (auto i=0U; i<s; ++i) if ( (*quals).get(i) > 0 ) oldStyle[i] = (255)&(*quals).get(i);
       pquals = &oldStyle; 
     }
 
@@ -169,6 +177,8 @@ namespace {
       iEvent.getByToken(srcQuals, hqual);
       pquals = hqual.product();
     }
+
+    // if (!pquals) std::cout << "no qual collection" << std::endl;
     
     for (auto i=0U; i<s; ++i){
       const reco::Track & track = tracks[i];
@@ -184,7 +194,7 @@ namespace {
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
 	if (cluster.isStrip()) collectedStrips[cluster.key()]=true;
-	else                  collectedPixels[cluster.key()]=true;
+	else                   collectedPixels[cluster.key()]=true;
 	if (trackerHitRTTI::isMatched(thit))
 	  collectedStrips[reinterpret_cast<SiStripMatchedRecHit2D const&>(hit).stereoClusterRef().key()]=true;
       }
@@ -194,7 +204,7 @@ namespace {
     auto removedStripClusterMask =
       std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster>>(stripClusters),collectedStrips);
       LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true);
-      // std::cout << "TrackClusterRemover " <<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true) <<std::endl;
+      // std::cout << "TrackClusterRemover " <<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true) <<std::endl;
       iEvent.put(std::move(removedStripClusterMask));
 
       auto removedPixelClusterMask= 
