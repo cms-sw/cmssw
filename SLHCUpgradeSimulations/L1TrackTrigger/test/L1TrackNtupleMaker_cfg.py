@@ -34,10 +34,11 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 Source_Files = cms.untracked.vstring(
-    ## single muons PU=140
-    '/store/mc/TTI2023Upg14D/SingleMuMinusFlatPt0p2To150/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/0097A61E-04E7-E311-824C-003048678F9C.root',
+    ## single muons PU=0
+    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/NoPU/SingleMuon_E2023TTI_NoPU.root',
+    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/NoPU/SingleMuPlus_E2023TTI_NoPU.root'
     )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
@@ -50,10 +51,15 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('Single
 
 #run the tracking
 BeamSpotFromSim = cms.EDProducer("BeamSpotFromSimProducer")
+#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)  ## uncomment this to run with wider projection windows (for electrons)
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 
-#pixel stuff
+
+############################################################
+# pixel stuff
+############################################################
+
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 process.siPixelRecHits = siPixelRecHits
 
@@ -67,16 +73,22 @@ process.pixRec = cms.Path(
 process.raw2digi_step = cms.Path(process.RawToDigi)
 
 
+############################################################
 # Define the track ntuple process, MyProcess is the (unsigned) PDGID corresponding to the process which is run
 # e.g. single electron/positron = 11
 #      single pion+/pion- = 211
 #      single muon+/muon- = 13 
 #      pions in jets = 6
+#      taus = 15
+#      all TPs = 1
+############################################################
+
 process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        MyProcess = cms.int32(13),
                                        DebugMode = cms.bool(False),      ## printout lots of debug statements
                                        SaveAllTracks = cms.bool(True),   ## save all L1 tracks, not just truth matched to primary particle
-                                       DoPixelTrack = cms.bool(True)     ## save information for pixel tracks
+                                       DoPixelTrack = cms.bool(False),   ## save information for pixel tracks
+                                       SaveStubs = cms.bool(False)       ## save some info for *all* stubs
                                        )
 process.ana = cms.Path(process.L1TrackNtuple)
 
