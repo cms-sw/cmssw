@@ -86,6 +86,10 @@ class Photon(PhysicsObject ):
         "POG_PHYS14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.028,0.093],"sigmaIEtaIEta":[0.0107,0.0272],
         "chaHadIso":[2.67,1.79],"neuHadIso":[[7.23,0.0028,0.5408],[8.89,0.01725]],"phoIso":[[2.11,0.0014],[3.09,0.0091]]},
         
+        # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2?rev=11
+        "POG_PHYS14_25ns_Loose_old": {"conversionVeto": [True,True], "H/E":[0.048,0.069],"sigmaIEtaIEta":[0.0106,0.0266],
+        "chaHadIso":[2.56,3.12],"neuHadIso":[[3.74,0.0025,0.],[17.11,0.0118,0.]],"phoIso":[[2.68,0.001],[2.70,0.0059]]},
+        
         "POG_PHYS14_25ns_Medium": {"conversionVeto": [True,True], "H/E":[0.012,0.023],"sigmaIEtaIEta":[0.0100,0.0267],
         "chaHadIso":[1.79,1.09],"neuHadIso":[[0.16,0.0028,0.5408],[4.31,0.0172]],"phoIso":[[1.90,0.0014],[1.90,0.0091]]},
         
