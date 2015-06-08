@@ -87,10 +87,13 @@ namespace Phase2Tracker
       std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
       FEDRawData& frd = rcollection->FEDData(fedid);
       int size = fedbuffer.size()*8;
+      frd.resize(size);
+      /*
       uint8_t arrtemp[size];
       vec_to_array(fedbuffer,arrtemp);
-      frd.resize(size);
       memcpy(frd.data(),arrtemp,size);
+      */
+      memcpy(frd.data(),&fedbuffer[0],size);
       festatus.assign(72,false);
       digis_t.clear();
       // advance connections pointer

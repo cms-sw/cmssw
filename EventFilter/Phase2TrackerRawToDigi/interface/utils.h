@@ -387,15 +387,6 @@ namespace Phase2Tracker {
       memcpy(arr+8*(it-vec.begin()),&*it,8);
     }
   }
-
-  struct second_sort
-  {
-    template <typename t1, typename t2>
-    bool operator() (std::pair<t1, t2> const & a, std::pair<t1, t2> const & b) const 
-    {
-      return a.second < b.second;
-    }
-  };
 } // end of Phase2Tracker namespace
 
 #endif // } end def utils

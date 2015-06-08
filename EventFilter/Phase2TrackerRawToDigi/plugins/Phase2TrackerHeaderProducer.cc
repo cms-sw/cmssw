@@ -57,7 +57,6 @@ namespace Phase2Tracker {
      {
        const FEDRawData& fed = buffers->FEDData(fedIndex);
        if(fed.size()==0) continue;
-       std::cout << "FEDIndex: " << fedIndex << std::endl;
        // construct buffer
        Phase2Tracker::Phase2TrackerFEDBuffer buffer(fed.data(),fed.size());
        Phase2TrackerHeaderDigi head_digi = Phase2TrackerHeaderDigi(buffer.trackerHeader());

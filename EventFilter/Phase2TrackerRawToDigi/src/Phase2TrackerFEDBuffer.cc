@@ -196,7 +196,6 @@ namespace Phase2Tracker
         ss << "Cause: FED Buffer Size does not match data => missing condition data? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ - bufferDiff << " bytes" << "\n";
-        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
         valid_ = 0;
       }
     }
@@ -213,7 +212,6 @@ namespace Phase2Tracker
         ss << "Cause: FED Buffer Size does not match data => corrupted buffer? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ - bufferDiff << " bytes" << "\n";
-        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
         valid_ = 0;
       }
     } 
@@ -260,11 +258,10 @@ namespace Phase2Tracker
           ss << "Cause: Number of condition data does not match the announced value!"<< "\n";
           ss << "Expected condition data Size " << size << " entries" << "\n";
           ss << "Computed condition data Size " << cdata.size() << " entries" << "\n";
-          // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
           valid_ = 0;
         }
       }
-      // REMOVE THIS : inject fake cond data for tests
+      // DEBUG ONLY : inject fake cond data for tests
       /*
       cdata[0x0011] = 0x0001;
       cdata[0x0012] = 0x0002;
