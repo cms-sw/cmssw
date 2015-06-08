@@ -132,7 +132,7 @@ namespace l1t {
       event.getByToken(fedData_, feds);
 
       if (!feds.isValid()) {
-         LogError("L1T") << "Cannot unpack: no collection found";
+         LogError("L1T") << "Cannot unpack: no FEDRawDataCollection found";
          return;
       }
 
