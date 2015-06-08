@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/ParallelAnalysis/interface/TSelectorAnalyzer.h"
 #include "PhysicsTools/ParallelAnalysis/interface/TrackAnalysisAlgorithm.h"
