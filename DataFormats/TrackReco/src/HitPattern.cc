@@ -90,6 +90,36 @@ uint16_t HitPattern::encode(const TrackingRecHit &hit, const TrackerTopology& tt
     return encode(hit.geographicalId(), hit.getType(), ttopo);
 }
 
+namespace {
+    uint16_t encodeMuonLayer(const DetId& id) {
+        uint16_t detid = id.det();
+        uint16_t subdet = id.subdetId();
+
+        uint16_t layer = 0x0;
+        if (detid == DetId::Muon) {
+            switch (subdet) {
+            case MuonSubdetId::DT:
+                layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
+                layer |= DTLayerId(id.rawId()).superLayer();
+                break;
+            case MuonSubdetId::CSC:
+                layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
+                layer |= (CSCDetId(id.rawId()).ring() - 1);
+                break;
+            case MuonSubdetId::RPC: 
+                {
+                    RPCDetId rpcid(id.rawId());
+                    layer = ((rpcid.station() - 1) << 2);
+                    layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+                    layer |= abs(rpcid.region());
+                }
+                break;
+            }
+        }
+        return layer;
+    }
+}
+
 uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
     uint16_t detid = id.det();
@@ -309,6 +339,21 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
 
 bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
     return appendHit(encode(DetId::Tracker, subdet, layer, stereo, hitType), hitType);
+}
+
+bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
+    //if HitPattern is full, journey ends no matter what.
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
+
+    if unlikely(id.det() != DetId::Muon) {
+        throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
+    }
+
+    uint16_t detid = id.det();
+    uint16_t subdet = id.subdetId();
+    return appendHit(encode(detid, subdet, encodeMuonLayer(id), 0, hitType), hitType);
 }
 
 bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)

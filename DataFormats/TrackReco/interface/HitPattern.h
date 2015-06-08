@@ -230,6 +230,14 @@ public:
      */
     bool appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
 
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. the IO rule for reading old versions of
+     * HitPattern)
+     */
+    bool appendMuonHit(const DetId& id, TrackingRecHit::Type hitType);
+
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
 

@@ -331,6 +331,14 @@ public:
      */
     bool appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
 
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. the IO rule for reading old versions of
+     * HitPattern)
+     */
+    bool appendMuonHitPattern(const DetId& id, TrackingRecHit::Type hitType);
+
     /// Sets HitPattern as empty
     void resetHitPattern();
 
@@ -439,6 +447,10 @@ inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit, const Tracker
 
 inline bool TrackBase::appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
     return hitPattern_.appendTrackerHit(subdet, layer, stereo, hitType);
+}
+
+inline bool TrackBase::appendMuonHitPattern(const DetId& id, TrackingRecHit::Type hitType) {
+    return hitPattern_.appendMuonHit(id, hitType);
 }
 
 inline void TrackBase::resetHitPattern()
