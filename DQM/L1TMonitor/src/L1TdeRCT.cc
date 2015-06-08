@@ -1915,7 +1915,7 @@ void L1TdeRCT::readFEDVector(MonitorElement* histogram,const edm::EventSetup& es
   const std::vector<int> Feds = summary->m_fed_in;
   for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
     int fedNum = *cf;
-    if(fedNum > 600 && fedNum <724) 
+    if(( fedNum > 600 && fedNum <724) || fedNum==1118 || fedNum==1120 || fedNum==1122) 
       caloFeds.push_back(fedNum);
   }
   
