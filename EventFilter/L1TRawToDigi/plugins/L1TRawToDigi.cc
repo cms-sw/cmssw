@@ -186,7 +186,10 @@ namespace l1t {
          for (auto& amc: packet.payload()) {
             auto payload64 = amc.data();
             const uint32_t * start = (const uint32_t*) payload64.get();
-            const uint32_t * end = start + (amc.size() * 2);
+            // Want to have payload size in 32 bit words, but AMC measures
+            // it in 64 bit words → factor 2.  Also, subtract 3 words for
+            // header and trailer.
+            const uint32_t * end = start + ((amc.size() - 3) * 2);
 
             std::auto_ptr<Payload> payload;
             if (ctp7_mode_) {
