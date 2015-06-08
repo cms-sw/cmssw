@@ -4,6 +4,8 @@
 <use   name="FWCore/ParameterSet"/>
 <bin   name="testCore" file="testRunner.cpp,DDIsValid.cppunit.cc">
 </bin>
+<bin   name="testStrVector" file="testRunner.cpp,DDStrVector.cppunit.cc">
+</bin>
 <bin   name="testShapes" file="testShapes.cpp">
 </bin>
 <bin   file="clhepToROOTMath.cpp">
