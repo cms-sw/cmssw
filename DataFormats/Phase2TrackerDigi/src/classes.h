@@ -23,7 +23,8 @@ namespace {
 namespace {
   struct dictionary4 {
     edm::Wrapper<Phase2TrackerCommissioningDigi > pcom0;
-    edm::Wrapper<edm::DetSet<Phase2TrackerCommissioningDigi> > pcom1;
+    edm::Wrapper<std::vector<Phase2TrackerCommissioningDigi> > pcom1;
+    edm::Wrapper<std::vector< std::vector<Phase2TrackerCommissioningDigi> > > pcom2;
   };
 }
 
