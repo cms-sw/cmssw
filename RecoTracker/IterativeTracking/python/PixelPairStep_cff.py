@@ -9,7 +9,7 @@ pixelPairStepClusters = trackClusterRemover.clone(
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
     oldClusterRemovalInfo                    = cms.InputTag("lowPtTripletStepClusters"),
-    overrideTrkQuals                         = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
+    trackClassifier                          = cms.InputTag('lowPtTripletStep',"QualityMasks"),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )

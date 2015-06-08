@@ -4,7 +4,7 @@ from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 
 
 
-testTrackClassifier1 = TrackMVAClassifierDetached.clone()
+testTrackClassifier1 = TrackMVAClassifierPrompt.clone()
 testTrackClassifier1.src = 'initialStepTracks'
 testTrackClassifier1.GBRForestLabel = 'MVASelectorIter0_13TeV'
 testTrackClassifier1.qualityCuts = [-0.9,-0.8,-0.7]

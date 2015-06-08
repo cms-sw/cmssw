@@ -65,7 +65,7 @@ namespace {
   void TrackClusterRemover::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("trajectories",edm::InputTag());
-    desc.add<std::string>("trackClassifier","");
+    desc.add<edm::InputTag>("trackClassifier",edm::InputTag("","QualityMasks"));
     desc.add<edm::InputTag>("pixelClusters",edm::InputTag("siPixelClusters"));
     desc.add<edm::InputTag>("stripClusters",edm::InputTag("siStripClusters"));
     desc.add<edm::InputTag>("oldClusterRemovalInfo",edm::InputTag());
@@ -98,9 +98,9 @@ namespace {
     if ( !overrideTrkQuals.label().empty() )
       overrideTrkQuals_ = consumes<edm::ValueMap<int> >(overrideTrkQuals);
 
-    auto const & classifier = iConfig.getParameter<std::string>("trackClassifier");
-    if ( !classifier.empty())
-      srcQuals = consumes<QualityMaskCollection>(edm::InputTag(classifier,"QualityMasks"));
+    auto const & classifier = iConfig.getParameter<edm::InputTag>("trackClassifier");
+    if ( !classifier.label().empty())
+      srcQuals = consumes<QualityMaskCollection>(classifier);
 
     auto const &  oldClusterRemovalInfo = iConfig.getParameter<edm::InputTag>("oldClusterRemovalInfo");
     if (!oldClusterRemovalInfo.label().empty()) {
