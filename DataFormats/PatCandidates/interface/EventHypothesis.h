@@ -5,6 +5,10 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <typeinfo>
+#include <iostream>
+#include <type_traits>
+#include <cxxabi.h>
 
 namespace pat {
    // forward declaration
@@ -98,6 +102,8 @@ namespace pat {
         private:
             template<typename Iterator, typename Predicate>
             Iterator realGet(const Iterator &realBegin, const Iterator &realEnd, const Predicate &p, size_t idx) const ;
+	    char * getDemangledSymbol(const char* mangledSymbol) const;
+	    template<typename T> std::string createExceptionMessage(const CandRefType &ref) const;
 
             std::vector<value_type> particles_;
 
@@ -135,16 +141,31 @@ namespace pat {
         }
         return it;
    }
-    
+
+   template<typename T>
+   std::string
+   EventHypothesis::createExceptionMessage(const CandRefType &ref) const {
+     std::stringstream message;
+     char *currentType = getDemangledSymbol(typeid(std::remove_reference<decltype(ref)>::type::value_type).name());
+     char *targetType = getDemangledSymbol(typeid(T).name());
+     if (currentType != nullptr && targetType != nullptr) {
+       message << "You can't convert a '" << currentType << "' to a '" << targetType << "'" << std::endl;
+       free(currentType);
+       free(targetType);
+     } else {
+       message << "You can't convert a '" << typeid(ref).name() << "' to a '" << typeid(T).name() << "'" << std::endl;
+       message << "Note: you can use 'c++filt -t' command to convert the above in human readable types." << std::endl;
+     }
+     return message.str();
+   }
+
    template<typename T> 
    const T * 
    EventHypothesis::getAs(const std::string &role, int index) const 
    {
        CandRefType ref = get(role, index);
        const T* ret = dynamic_cast<const T*>(ref.get());
-       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") <<
-                "You can't convert a " << typeid(*ref).name() << " to a " << typeid(T).name() << "\n" <<
-                "note: you can use c++filt command to convert the above in human readable types.\n";
+       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
        return ret;
    }
    template<typename T> 
@@ -153,9 +174,7 @@ namespace pat {
    {
        CandRefType ref = get(filter, index);
        const T* ret = dynamic_cast<const T*>(ref.get());
-       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") <<
-                "You can't convert a " << typeid(*ref).name() << " to a " << typeid(T).name() << "\n" <<
-                "note: you can use c++filt command to convert the above in human readable types.\n";
+       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
        return ret;
    }
    template<typename T>
