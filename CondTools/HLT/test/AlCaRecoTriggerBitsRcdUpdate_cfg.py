@@ -69,7 +69,7 @@ process.dbInput = cms.ESSource(
     "PoolDBESSource",
     CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
 #    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_HLT'),
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('AlCaRecoTriggerBitsRcd'),
 #        tag = cms.string('TestTag') # choose tag to update
