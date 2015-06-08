@@ -64,7 +64,7 @@ typedef math::XYZVector XYZVector;
 typedef math::XYZVector XYZPoint;
 
 std::vector<std::pair<int,float> > CalorimetryManager::myZero_ = std::vector<std::pair<int,float> >
-(1,std::pair<int,float>(0,0.));
+  (1,std::pair<int,float>(0,0.));
 
 CalorimetryManager::CalorimetryManager() : 
   myCalorimeter_(0),
@@ -343,7 +343,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
       thePart.push_back(&myElec);
       thePart.push_back(&myPosi);
     }
-  // Electrons
+    // Electrons
   } else {  
     
     X0depth = 0.;
@@ -367,8 +367,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   // Initialize the Grid in ECAL
   int size = gridSize_;
   if(maxEnergy>100) size=11;
-//  if ( maxEnergy < threshold5x5 ) size = 5;
-//  if ( maxEnergy < threshold3x3 ) size = 3;
+  //  if ( maxEnergy < threshold5x5 ) size = 5;
+  //  if ( maxEnergy < threshold3x3 ) size = 3;
 
 
   EMShower theShower(random,aGammaGenerator,&showerparam,&thePart,  NULL, NULL, bFixedLength_);
@@ -401,37 +401,37 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   //maximumdepth dependence of the radiusfactorbehindpreshower
   //First tuning: Shilpi Jain (Mar-Apr 2010); changed after tuning - Feb-July - Shilpi Jain
   /* **************
-  myGrid.setRadiusFactor(radiusFactor_);
-  if(onLayer1 || onLayer2)
-    {
-      float b               = radiusPreshowerCorrections_[0];
-      float a               = radiusFactor_*( 1.+radiusPreshowerCorrections_[1]*radiusPreshowerCorrections_[0] );
-      float maxdepth        = X0depth+theShower.getMaximumOfShower();
-      float newRadiusFactor = radiusFactor_;
-      if(myPart.e()<=250.)
-        {
-	  newRadiusFactor = a/(1.+b*maxdepth); 
-	}
-      myGrid.setRadiusFactor(newRadiusFactor);
-    }
-  else // otherwise use the normal radius factor
-    {
-      myGrid.setRadiusFactor(radiusFactor_);
-    }
-  ************** */
-  if(myTrack.onEcal() == 2) // if on EE  
+     myGrid.setRadiusFactor(radiusFactor_);
+     if(onLayer1 || onLayer2)
      {
-       if( (onLayer1 || onLayer2) && myPart.e()<=250.)
-         {
-	   double maxdepth        = X0depth+theShower.getMaximumOfShower();
-	   double newRadiusFactor = radiusFactorEE_ * aTerm/(1.+bTerm*maxdepth);
-	   myGrid.setRadiusFactor(newRadiusFactor);
-	 }
-       else // otherwise use the normal radius factor
-         {
-           myGrid.setRadiusFactor(radiusFactorEE_);
-         }
-     }//if(myTrack.onEcal() == 2)
+     float b               = radiusPreshowerCorrections_[0];
+     float a               = radiusFactor_*( 1.+radiusPreshowerCorrections_[1]*radiusPreshowerCorrections_[0] );
+     float maxdepth        = X0depth+theShower.getMaximumOfShower();
+     float newRadiusFactor = radiusFactor_;
+     if(myPart.e()<=250.)
+     {
+     newRadiusFactor = a/(1.+b*maxdepth); 
+     }
+     myGrid.setRadiusFactor(newRadiusFactor);
+     }
+     else // otherwise use the normal radius factor
+     {
+     myGrid.setRadiusFactor(radiusFactor_);
+     }
+     ************** */
+  if(myTrack.onEcal() == 2) // if on EE  
+    {
+      if( (onLayer1 || onLayer2) && myPart.e()<=250.)
+	{
+	  double maxdepth        = X0depth+theShower.getMaximumOfShower();
+	  double newRadiusFactor = radiusFactorEE_ * aTerm/(1.+bTerm*maxdepth);
+	  myGrid.setRadiusFactor(newRadiusFactor);
+	}
+      else // otherwise use the normal radius factor
+	{
+	  myGrid.setRadiusFactor(radiusFactorEE_);
+	}
+    }//if(myTrack.onEcal() == 2)
   else                      // else if on EB
     {
       myGrid.setRadiusFactor(radiusFactorEB_);
@@ -443,13 +443,13 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   // The shower simulation
   myGrid.setTrackParameters(myPart.Vect().Unit(),X0depth,myTrack);
 
-//  std::cout << " PS ECAL GAP HCAL X0 " << myGrid.ps1TotalX0()+myGrid.ps2TotalX0() << " " << myGrid.ecalTotalX0();
-//  std::cout << " " << myGrid.ecalHcalGapTotalX0() << " " << myGrid.hcalTotalX0() << std::endl;
-//  std::cout << " PS ECAL GAP HCAL L0 " << myGrid.ps1TotalL0()+myGrid.ps2TotalL0() << " " << myGrid.ecalTotalL0();
-//  std::cout << " " << myGrid.ecalHcalGapTotalL0() << " " << myGrid.hcalTotalL0() << std::endl;
-//  std::cout << "ECAL-HCAL " << myTrack.momentum().eta() << " " <<  myGrid.ecalHcalGapTotalL0() << std::endl;
-//
-//  std::cout << " Grid created " << std::endl;
+  //  std::cout << " PS ECAL GAP HCAL X0 " << myGrid.ps1TotalX0()+myGrid.ps2TotalX0() << " " << myGrid.ecalTotalX0();
+  //  std::cout << " " << myGrid.ecalHcalGapTotalX0() << " " << myGrid.hcalTotalX0() << std::endl;
+  //  std::cout << " PS ECAL GAP HCAL L0 " << myGrid.ps1TotalL0()+myGrid.ps2TotalL0() << " " << myGrid.ecalTotalL0();
+  //  std::cout << " " << myGrid.ecalHcalGapTotalL0() << " " << myGrid.hcalTotalL0() << std::endl;
+  //  std::cout << "ECAL-HCAL " << myTrack.momentum().eta() << " " <<  myGrid.ecalHcalGapTotalL0() << std::endl;
+  //
+  //  std::cout << " Grid created " << std::endl;
   if(myPreshower) theShower.setPreshower(myPreshower);
   
   HcalHitMaker myHcalHitMaker(myGrid,(unsigned)0); 
@@ -517,7 +517,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
     emeas = myHDResponse_->responseHCAL(0, EGen, pathEta, 0, random); // last par. = 0 = e/gamma
     //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
     if(debug_)
-	  LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
+      LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
   }
   else {
     emeas = myHDResponse_->getHCALEnergyResponse(EGen, hit, random);
@@ -525,23 +525,23 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
 
   if(debug_)
     LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - on-calo "   
-				<< "  eta = " << pathEta 
-				<< "  phi = " << pathPhi 
-				<< "  Egen = " << EGen 
-				<< "  Emeas = " << emeas << std::endl;
+			       << "  eta = " << pathEta 
+			       << "  phi = " << pathPhi 
+			       << "  Egen = " << EGen 
+			       << "  Emeas = " << emeas << std::endl;
 
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-	double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
-	CaloHitID current_id(cell.rawId(),tof,myTrack.id());
-	std::map<CaloHitID,float> hitMap;
-	hitMap[current_id] = emeas;
-	updateHCAL(hitMap,myTrack.id());
+    double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
+    CaloHitID current_id(cell.rawId(),tof,myTrack.id());
+    std::map<CaloHitID,float> hitMap;
+    hitMap[current_id] = emeas;
+    updateHCAL(hitMap,myTrack.id());
   }
 }
 
 void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random){//,
-					    // const edm::ParameterSet& fastCalo){
+  // const edm::ParameterSet& fastCalo){
 
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   XYZTLorentzVector moment = myTrack.momentum();
@@ -556,8 +556,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       << "   e  = " << myTrack.hcalEntrance().e() << std::endl;
 
   if (debug_) {
-      LogInfo("FastCalorimetry") << " HDShowerSimulation "  << myTrack << std::endl;      
-    }
+    LogInfo("FastCalorimetry") << " HDShowerSimulation "  << myTrack << std::endl;      
+  }
 
 
   int hit;
@@ -593,7 +593,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
   double emeas = 0.;
   double pmip= myHDResponse_->getMIPfraction(eGen, pathEta);
-//  std::cout << " CalorimetryManager onHcal " <<  pmip  << std::endl;
+  //  std::cout << " CalorimetryManager onHcal " <<  pmip  << std::endl;
 
  
   //double emeas = -0.000001; 
@@ -626,14 +626,14 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 	direction = myTrack.vfcalEntrance().Vect().Unit();
       }
 
-  if(debug_)
-    LogInfo("FastCalorimetry") 
-      << "CalorimetryManager::HDShowerSimulation - on-calo 1 "
-      << std::endl
-      << "  onEcal    = " <<  myTrack.onEcal()  << std::endl
-      << "  onHcal    = " <<  myTrack.onHcal()  << std::endl
-      << "  onVFcal   = " <<  myTrack.onVFcal() << std::endl
-      << "  position  = " << caloentrance << std::endl;
+    if(debug_)
+      LogInfo("FastCalorimetry") 
+	<< "CalorimetryManager::HDShowerSimulation - on-calo 1 "
+	<< std::endl
+	<< "  onEcal    = " <<  myTrack.onEcal()  << std::endl
+	<< "  onHcal    = " <<  myTrack.onHcal()  << std::endl
+	<< "  onVFcal   = " <<  myTrack.onVFcal() << std::endl
+	<< "  position  = " << caloentrance << std::endl;
 
 
     DetId pivot;
@@ -646,7 +646,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       {
 	//	std::cout << " CalorimetryManager onHcal " <<  myTrack.onHcal() << " caloentrance" << caloentrance  << std::endl;
 	pivot=myCalorimeter_->getClosestCell(caloentrance,					     
-					    false, false);
+					     false, false);
       }
 
     EcalHitMaker myGrid(myCalorimeter_,caloentrance,pivot,
@@ -674,8 +674,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       //           For HF, the resolution is due to the PE statistic
 
       if(useShowerLibrary) {
-         theHFShowerLibrary->recoHFShowerLibrary(myTrack);  
-         status = true;
+	theHFShowerLibrary->recoHFShowerLibrary(myTrack);  
+	status = true;
       } else {
         HFShower theShower(random,
 	    		   &theHDShowerparam,
@@ -683,8 +683,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 			   &myHcalHitMaker,
 			   onECAL,
 			   eGen);
-			   //			 eGen);
-			   //			 e); // PV Warning : temporarly set the energy to the generated E
+	//			 eGen);
+	//			 e); // PV Warning : temporarly set the energy to the generated E
 
         status = theShower.compute();
       }
@@ -802,9 +802,9 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 	  << "   mip  = " << mip << std::endl;  
 
       if(myTrack.onEcal() > 0) {
-	    // Save ECAL hits
-		updateECAL(myGrid.getHits(),onECAL,myTrack.id(),correction*ecorr);
-	  }
+	// Save ECAL hits
+	updateECAL(myGrid.getHits(),onECAL,myTrack.id(),correction*ecorr);
+      }
 
       // Save HCAL hits
       if(myTrack.onVFcal() && useShowerLibrary) {
@@ -816,22 +816,22 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 	  
     }      
     else {  // shower simulation failed  
-//      std::cout << " Shower simulation failed " << trackPosition.Vect() << std::endl;
-//      std::cout << " The FSimTrack " << myTrack << std::endl;
-//      std::cout << " HF entrance on VFcal" << myTrack.onVFcal() << std::endl;
-//      std::cout << " trackPosition.eta() " << trackPosition.eta() << std::endl;
+      //      std::cout << " Shower simulation failed " << trackPosition.Vect() << std::endl;
+      //      std::cout << " The FSimTrack " << myTrack << std::endl;
+      //      std::cout << " HF entrance on VFcal" << myTrack.onVFcal() << std::endl;
+      //      std::cout << " trackPosition.eta() " << trackPosition.eta() << std::endl;
       if(myTrack.onHcal() || myTrack.onVFcal())
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
 	  double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
-      CaloHitID current_id(cell.rawId(),tof,myTrack.id());
+	  CaloHitID current_id(cell.rawId(),tof,myTrack.id());
 	  std::map<CaloHitID,float> hitMap;
 	  hitMap[current_id] = emeas;
 	  updateHCAL(hitMap,myTrack.id());
 	  if(debug_)
 	    LogInfo("FastCalorimetry") << " HCAL simple cell "   
-					<< cell.rawId() << " added    E = " 
-					<< emeas << std::endl;  
+				       << cell.rawId() << " added    E = " 
+				       << emeas << std::endl;  
 	}
     }
 
@@ -839,7 +839,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
   if(debug_)
     LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::HDShowerSimulation  finished "
-	 << std::endl;
+			       << std::endl;
 }
 
 
@@ -859,10 +859,10 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
 
   if(debug_)
     LogInfo("FastCalorimetry") << "CalorimetryManager::MuonMipSimulation - track param."
-         << std::endl
-	 << "  eta = " << moment.eta() << std::endl
-         << "  phi = " << moment.phi() << std::endl
-         << "   et = " << moment.Et()  << std::endl;
+			       << std::endl
+			       << "  eta = " << moment.eta() << std::endl
+			       << "  phi = " << moment.phi() << std::endl
+			       << "   et = " << moment.Et()  << std::endl;
 
   //  int hit;
   //  int pid = abs(myTrack.type());
@@ -1056,8 +1056,8 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   std::map<CaloHitID,float>::const_iterator mapitr;
   std::map<CaloHitID,float>::const_iterator endmapitr;
   if(myTrack.onEcal() > 0) {
-	// Save ECAL hits
-	updateECAL(myGrid.getHits(),onECAL,myTrack.id());
+    // Save ECAL hits
+    updateECAL(myGrid.getHits(),onECAL,myTrack.id());
   }
 
   // Save HCAL hits
@@ -1065,7 +1065,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   
   if(debug_)
     LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::MipShowerSimulation  finished "
-	 << std::endl;
+			       << std::endl;
 }
 
 
@@ -1126,16 +1126,16 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 	{
 	  LogInfo("FastCalorimetry") << " r < " << theTailIntervals_[ir*2] << " R_M : " << theTailIntervals_[ir*2+1] << "        ";
 	}
-  //changed after tuning - Feb-July - Shilpi Jain
+      //changed after tuning - Feb-July - Shilpi Jain
       //      LogInfo("FastCalorimetry") << "Radius correction factor " << radiusFactor_ << std::endl;
       LogInfo("FastCalorimetry") << "Radius correction factors:  EB & EE " << radiusFactorEB_ << " : "<< radiusFactorEE_ << std::endl;
-  //(end of) changed after tuning - Feb-July - Shilpi Jain
+      //(end of) changed after tuning - Feb-July - Shilpi Jain
       LogInfo("FastCalorimetry") << std::endl;
       if(mipValues_.size()>2) 	{
 	LogInfo("FastCalorimetry") << "Improper number of parameters for the preshower ; using 95keV" << std::endl;
 	mipValues_.clear();
 	mipValues_.resize(2,0.000095);
-	}
+      }
     }
 
   LogInfo("FastCalorimetry") << " FrontLeakageProbability : " << pulledPadSurvivalProbability_ << std::endl;
@@ -1146,22 +1146,22 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   edm::ParameterSet CalorimeterParam = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
 
   rsp = CalorimeterParam.getParameter<std::vector<double> >("RespCorrP");
-   LogInfo("FastCalorimetry") << " RespCorrP (rsp) size " << rsp.size() << std::endl;
+  LogInfo("FastCalorimetry") << " RespCorrP (rsp) size " << rsp.size() << std::endl;
 
   if( rsp.size()%3 !=0 )  {
     LogInfo("FastCalorimetry") 
       << " RespCorrP size is wrong -> no corrections applied !!!" 
       << std::endl;
 
-      p_knots.push_back(14000.);
-      k_e.push_back    (1.);
-      k_h.push_back    (1.);
+    p_knots.push_back(14000.);
+    k_e.push_back    (1.);
+    k_h.push_back    (1.);
   }
   else {
     for(unsigned i = 0; i < rsp.size(); i += 3) { 
-     LogInfo("FastCalorimetry") << "i = " << i/3 << "   p = " << rsp [i] 
-				<< "   k_e(p) = " << rsp[i+1] 
-				<< "   k_e(p) = " << rsp[i+2] << std::endl; 
+      LogInfo("FastCalorimetry") << "i = " << i/3 << "   p = " << rsp [i] 
+				 << "   k_e(p) = " << rsp[i+1] 
+				 << "   k_e(p) = " << rsp[i+2] << std::endl; 
       
       p_knots.push_back(rsp[i]);
       k_e.push_back    (rsp[i+1]);
@@ -1241,7 +1241,7 @@ void CalorimetryManager::respCorr(double p) {
 
   if(debug_)
     LogInfo("FastCalorimetry") << " p, ecorr, hcorr = " << p << " "  
-			        << ecorr << "  " << hcorr << std::endl;
+			       << ecorr << "  " << hcorr << std::endl;
 	
 }
 
@@ -1251,28 +1251,28 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID,float>& hitMap, int
   std::map<CaloHitID,float>::const_iterator endmapitr=hitMap.end();
   if(onEcal==1) {
     EBMapping_.reserve(EBMapping_.size()+hitMap.size());
-	endmapitr=hitMap.end();
+    endmapitr=hitMap.end();
     for(mapitr=hitMap.begin();mapitr!=endmapitr;++mapitr) {
-	  //correct energy
-	  float energy = mapitr->second;
-	  energy *= corr;
+      //correct energy
+      float energy = mapitr->second;
+      energy *= corr;
 	  
-	  //make finalized CaloHitID
-	  CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
+      //make finalized CaloHitID
+      CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
 	  
       EBMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
     }
   }
   else if(onEcal==2) {
     EEMapping_.reserve(EEMapping_.size()+hitMap.size());
-	endmapitr=hitMap.end();
+    endmapitr=hitMap.end();
     for(mapitr=hitMap.begin();mapitr!=endmapitr;++mapitr) {
       //correct energy
-	  float energy = mapitr->second;
-	  energy *= corr;
+      float energy = mapitr->second;
+      energy *= corr;
 	  
-	  //make finalized CaloHitID
-	  CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
+      //make finalized CaloHitID
+      CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
 	  
       EEMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
     }
@@ -1288,38 +1288,38 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
   HMapping_.reserve(HMapping_.size()+hitMap.size());
   for(mapitr=hitMap.begin(); mapitr!=endmapitr; ++mapitr) {
     //correct energy
-	float energy = mapitr->second;
+    float energy = mapitr->second;
     energy *= corr;
 
-	float time = mapitr->first.timeSlice();
-	//put energy into uncalibrated state for digitizer && correct timing
-	if(HcalDigitizer_){
-	  HcalDetId hdetid = HcalDetId(mapitr->first.unitID());
-	  if (hdetid.subdetId()== HcalBarrel){
-            energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
-		time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
-          }
-	  else if (hdetid.subdetId()== HcalEndcap){
-	    energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
-		time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
-	  }
-	  else if (hdetid.subdetId()== HcalForward){
-            if(useShowerLibrary) {
-              if(useCorrectionSL) energy *= hfcorr[hdetid.ietaAbs()-29];
-            } else {
- 	      if(hdetid.depth()== 1) energy *= samplingHF_[0];
-	      if(hdetid.depth()== 2) energy *= samplingHF_[1];
-            } 
-		time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
-	  }
-	  else if (hdetid.subdetId()== HcalOuter){
-            energy /= samplingHO_[hdetid.ietaAbs()-1];
-		time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
-	  }
-	}	
+    float time = mapitr->first.timeSlice();
+    //put energy into uncalibrated state for digitizer && correct timing
+    if(HcalDigitizer_){
+      HcalDetId hdetid = HcalDetId(mapitr->first.unitID());
+      if (hdetid.subdetId()== HcalBarrel){
+	energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+	time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
+      }
+      else if (hdetid.subdetId()== HcalEndcap){
+	energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+	time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
+      }
+      else if (hdetid.subdetId()== HcalForward){
+	if(useShowerLibrary) {
+	  if(useCorrectionSL) energy *= hfcorr[hdetid.ietaAbs()-29];
+	} else {
+	  if(hdetid.depth()== 1) energy *= samplingHF_[0];
+	  if(hdetid.depth()== 2) energy *= samplingHF_[1];
+	} 
+	time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
+      }
+      else if (hdetid.subdetId()== HcalOuter){
+	energy /= samplingHO_[hdetid.ietaAbs()-1];
+	time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
+      }
+    }	
 	
     //make finalized CaloHitID
-	CaloHitID current_id(mapitr->first.unitID(),time,trackID);
+    CaloHitID current_id(mapitr->first.unitID(),time,trackID);
     HMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
   }
 }
@@ -1331,13 +1331,13 @@ void CalorimetryManager::updatePreshower(const std::map<CaloHitID,float>& hitMap
   ESMapping_.reserve(ESMapping_.size()+hitMap.size());
   for(mapitr=hitMap.begin();mapitr!=endmapitr;++mapitr) {
     //correct energy
-	float energy = mapitr->second;
-	energy *= corr;
+    float energy = mapitr->second;
+    energy *= corr;
 	
-	//make finalized CaloHitID
-	CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
+    //make finalized CaloHitID
+    CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
 	
-	ESMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
+    ESMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
   }
 }
 
@@ -1390,17 +1390,17 @@ void CalorimetryManager::loadMuonSimTracks(edm::SimTrackContainer &muons) const
 	{
 	  muons[i].setTkPosition(itcheck->trackerSurfacePosition());
 	  muons[i].setTkMomentum(itcheck->trackerSurfaceMomentum());
-//	  std::cout << " Found the SimTrack " << std::endl;
-//	  std::cout << *itcheck << std::endl;
-//	  std::cout << "SimTrack Id "<< id << " " << muons[i] << " " << std::endl;
+	  //	  std::cout << " Found the SimTrack " << std::endl;
+	  //	  std::cout << *itcheck << std::endl;
+	  //	  std::cout << "SimTrack Id "<< id << " " << muons[i] << " " << std::endl;
 	}
-//      else
-//	{
-//	  std::cout << " Calorimetery Manager : this should really not happen " << std::endl;
-//	  std::cout << " Was looking for " << id << " " << muons[i] << std::endl;
-//	  for(unsigned i=0;i<muonSimTracks.size();++i)
-//	    std::cout << muonSimTracks[i] << std::endl;
-//	}
+      //      else
+      //	{
+      //	  std::cout << " Calorimetery Manager : this should really not happen " << std::endl;
+      //	  std::cout << " Was looking for " << id << " " << muons[i] << std::endl;
+      //	  for(unsigned i=0;i<muonSimTracks.size();++i)
+      //	    std::cout << muonSimTracks[i] << std::endl;
+      //	}
     }
 
 }
