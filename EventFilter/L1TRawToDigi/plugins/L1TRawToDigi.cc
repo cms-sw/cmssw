@@ -216,7 +216,10 @@ namespace l1t {
 
                if (debug_) {
                   std::cout << ">>> block to unpack <<<" << std::endl
-                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::endl;
+                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
+                     << " (ID " << block->header().getID() << ", size " << block->header().getSize()
+                     << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
+                     << ")" << std::endl;
                   for (const auto& word: block->payload()) {
                      std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::endl;
                   }
