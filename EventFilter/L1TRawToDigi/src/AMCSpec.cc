@@ -112,8 +112,8 @@ namespace amc {
    void
    Packet::finalize()
    {
-      Header h(payload_.data());
-      Trailer t(&payload_.back());
+      header_ = Header(payload_.data());
+      trailer_ = Trailer(&payload_.back());
 
       // remove trailer
       payload_.erase(payload_.end() - 1);

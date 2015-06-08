@@ -56,12 +56,12 @@ namespace l1t {
          BlockHeader header() const { return header_; };
          std::vector<uint32_t> payload() const { return payload_; };
 
-         void amc(const amc::BlockHeader& h) { amc_ = h; };
-         amc::BlockHeader amc() const { return amc_; };
+         void amc(const amc::Header& h) { amc_ = h; };
+         amc::Header amc() const { return amc_; };
 
       private:
          BlockHeader header_;
-         amc::BlockHeader amc_;
+         amc::Header amc_;
          std::vector<uint32_t> payload_;
    };
 

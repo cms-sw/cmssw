@@ -224,7 +224,7 @@ namespace l1t {
 
                auto unpacker = unpackers.find(block->header().getID());
 
-               block->amc(amc.blockHeader());
+               block->amc(amc.header());
 
                if (unpacker == unpackers.end()) {
                   LogDebug("L1T") << "Cannot find an unpacker for block ID "

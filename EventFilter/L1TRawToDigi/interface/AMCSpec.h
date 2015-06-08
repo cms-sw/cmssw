@@ -129,12 +129,17 @@ namespace amc {
          std::vector<uint64_t> block(unsigned int id) const;
          std::unique_ptr<uint64_t[]> data();
          BlockHeader blockHeader(unsigned int block=0) const { return block_header_; };
+         Header header() const { return header_; };
+         Trailer trailer() const { return trailer_; };
 
          inline unsigned int blocks() const { return block_header_.getBlocks(); };
          inline unsigned int size() const { return block_header_.getSize(); };
 
       private:
          BlockHeader block_header_;
+         Header header_;
+         Trailer trailer_;
+
          std::vector<uint64_t> payload_;
    };
 }
