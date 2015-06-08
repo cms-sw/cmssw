@@ -597,9 +597,9 @@ def _low(n):
 
 def _convertTimeType(since):
     try:
-        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+        return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)))
     except ValueError:
-        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
+        return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
 
 
 def _since_filter(time_type):
@@ -618,10 +618,10 @@ def _since_filter(time_type):
     '''
 
     if time_type == conddb.TimeType.time:
-        return _convertTimeType
+        return lambda since: '%s (%s)' % (_convertTimeType(since), since)
 
     if time_type == conddb.TimeType.lumi:
-        return lambda since: '%s Lumi %5s' % (_high(since), _low(since))
+        return lambda since: '%s : %5s (%s)' % (_high(since), _low(since), since)
 
     return lambda since: since
 
@@ -678,6 +678,12 @@ def list_(args):
             time_type = session.query(conddb.Tag.time_type).\
                 filter(conddb.Tag.name == name).\
                 scalar()
+	
+	    sinceLabel = 'Since: Run '
+	    if time_type == conddb.TimeType.time:
+	        sinceLabel = 'Since: UTC          (timestamp)'
+	    if time_type == conddb.TimeType.lumi:
+	        sinceLabel = '  Run  : Lumi  (rawSince)'
 
             output_table(args,
                 session.query(conddb.IOV.since, conddb.IOV.insertion_time, conddb.IOV.payload_hash, conddb.Payload.object_type).\
@@ -691,7 +697,7 @@ def list_(args):
                     from_self().\
                     order_by(conddb.IOV.since, conddb.IOV.insertion_time).\
                     all(),
-                ['Since', 'Insertion Time', 'Payload', 'Object Type'],
+                [sinceLabel, 'Insertion Time', 'Payload', 'Object Type'],
                 filters = [_since_filter(time_type), None, None, None],
             )
 
