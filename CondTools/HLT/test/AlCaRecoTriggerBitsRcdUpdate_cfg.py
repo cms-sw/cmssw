@@ -73,7 +73,7 @@ process.dbInput = cms.ESSource(
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('AlCaRecoTriggerBitsRcd'),
 #        tag = cms.string('TestTag') # choose tag to update
-        tag = cms.string('AlCaRecoHLTpaths_Christmas09_offline')
+        tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v7_hlt')
         )
                       )
     )
