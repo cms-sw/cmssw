@@ -457,7 +457,7 @@ def xrdcp(src, dest):
     elif os.path.exists(dest):
         pfn_dest = dest
 
-    command = ['xrdcp','-force']
+    command = ['xrdcp']
     if recursive:
         # print 'recursive'
         topDir = src.rstrip('/').split('/')[-1]
@@ -492,7 +492,7 @@ def xrdcp(src, dest):
 def _xrdcpSingleFile( pfn_src, pfn_dest):
     """Copies a single file using xrd."""
     
-    command = ['xrdcp','-force']
+    command = ['xrdcp']
     command.append(pfn_src)
     command.append(pfn_dest)
     # print ' '.join(command)
