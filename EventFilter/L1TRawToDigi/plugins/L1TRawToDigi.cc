@@ -218,9 +218,9 @@ namespace l1t {
                      << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
                      << " (ID " << block->header().getID() << ", size " << block->header().getSize()
                      << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
-                     << ")" << std::endl;
+                     << ")" << std::dec << std::endl;
                   for (const auto& word: block->payload()) {
-                     std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::endl;
+                     std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
                   }
                }
 
