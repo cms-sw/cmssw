@@ -31,7 +31,7 @@ namespace {
   }
     
   inline float chi2(reco::Track const & tk) { return tk.normalizedChi2();}
-
+  
   inline int lostLayers(reco::Track const & tk) {
       return tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
     }
@@ -49,8 +49,10 @@ namespace {
     
     Cuts(const edm::ParameterSet & cfg) {
       fillArrayF(maxChi2,cfg,"maxChi2");
+      fillArrayF(maxChi2n,cfg,"maxChi2n");
       fillArrayI(minPixelHits,cfg,"minPixelHits");
       fillArrayI(min3DLayers,cfg,"min3DLayers");
+      fillArrayI(minLayers,cfg,"minLayers");
       fillArrayI(maxLostLayers,cfg,"maxLostLayers");
 		
     }
@@ -65,8 +67,15 @@ namespace {
      
       
       float ret = -1.f;
+      auto  nLayers = trk.hitPattern().trackerLayersWithMeasurement();
+      ret = std::min(ret,cut(nLayers,minLayers,std::greater_equal<int>()));
+      if (ret==-1.f) return ret;
+
+      ret = cut(chi2(trk)/float(nLayers),maxChi2n,std::less_equal<float>());
+      if (ret==-1.f) return ret;
       ret = cut(chi2(trk),maxChi2,std::less_equal<float>());
       if (ret==-1.f) return ret;
+     
       ret = std::min(ret,cut(n3DLayers(trk),min3DLayers,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
       ret = std::min(ret,cut(nPixelHits(trk),minPixelHits,std::greater_equal<int>()));
@@ -83,13 +92,17 @@ namespace {
 
     static void fillDescriptions(edm::ParameterSetDescription & desc) {
       desc.add<std::vector<int>>("minPixelHits",{0,0,1});
+      desc.add<std::vector<int>>("minLayers",{3,4,5});
       desc.add<std::vector<int>>("min3DLayers",{1,2,3});
       desc.add<std::vector<int>>("maxLostLayers",{99,3,3});
       desc.add<std::vector<double>>("maxChi2",{9999.,25.,16.});
+      desc.add<std::vector<double>>("maxChi2n",{9999.,1.0,0.4});
     }
 
 
     float maxChi2[3];
+    float maxChi2n[3];
+    int minLayers[3];
     int min3DLayers[3];
     int minPixelHits[3];
     int maxLostLayers[3];

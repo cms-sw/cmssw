@@ -110,39 +110,12 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     )
 
 # Final selection
-import RecoTracker.IterativeTracking.LowPtTripletStep_cff
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='pixelPairStepTracks',
-    useAnyMVA = cms.bool(True),
-    trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            GBRForestLabel = cms.string('MVASelectorIter2_13TeV'),
-            name = 'pixelPairStepLoose',
-            useMVA = cms.bool(True),
-            useMVAonly = cms.bool(True),
-            minMVA = cms.double(-0.2),
-            mvaType = cms.string("Prompt"),
-            ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            GBRForestLabel = cms.string('MVASelectorIter2_13TeV'),
-            mvaType = cms.string("Prompt"),
-            name = 'pixelPairStepTight',
-            preFilterName = 'pixelPairStepLoose',
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            GBRForestLabel = cms.string('MVASelectorIter2_13TeV'),
-            name = 'pixelPairStep',
-            preFilterName = 'pixelPairStepLoose',
-            mvaType = cms.string("Prompt"),
-            qualityBit = cms.string('highPurity'),
-            useMVA = cms.bool(True),
-            useMVAonly = cms.bool(True),
-            minMVA = cms.double(0.3),
-            keepAllTracks = cms.bool(True),
-            ),
-        ) #end of vpset
-    ) #end of clone
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+pixelPairStep =  TrackMVAClassifierPrompt.clone()
+pixelPairStep.src = 'pixelPairStepTracks'
+pixelPairStep.GBRForestLabel = 'MVASelectorIter2_13TeV'
+pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
+
 
 # Final sequence
 PixelPairStep = cms.Sequence(pixelPairStepClusters*
@@ -150,4 +123,4 @@ PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStepSeeds*
                          pixelPairStepTrackCandidates*
                          pixelPairStepTracks*
-                         pixelPairStepSelector)
+                         pixelPairStep)
