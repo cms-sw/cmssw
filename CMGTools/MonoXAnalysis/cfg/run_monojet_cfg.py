@@ -232,14 +232,17 @@ elif test == '74X-Data':
     from CMGTools.MonoXAnalysis.samples.samples_monojet_13TeV_74X import *
     from CMGTools.MonoXAnalysis.samples.samples_8TeVReReco_74X import *
     what = getHeppyOption("sample")
-    if what == "SingleMu":
-        selectedComponents = [ SingleMu_740p9 ]
+    if what == "JetHT":
+        monoJetSkim.metCut = 0
+        selectedComponents = [ JetHT_742 ]
     elif what == "Z":
-        selectedComponents = [ SingleMuZ_740p9, DoubleElectronZ_740p9 ]
+        monoJetCtrlLepSkim.minLeptons = 2
+        monoJetSkim.metCut = 0
+        selectedComponents = [ SingleMuZ_742, DoubleElectronZ_742 ]
     elif what == "MuEG":
-        selectedComponents = [ MuEG_740p9 ]
+        selectedComponents = [ MuEG_742 ]
     else:
-        selectedComponents = dataSamples740p9
+        selectedComponents = dataSamples742
     if not getHeppyOption("all"):
         for comp in selectedComponents:
             comp.files = comp.files[:1]
