@@ -21,8 +21,17 @@ namespace l1t {
    std::auto_ptr<Block>
    Payload::getBlock()
    {
-      if (end_ - data_ < getHeaderSize())
+      if (end_ - data_ < getHeaderSize()) {
+         LogDebug("L1T") << "Reached end of payload";
          return std::auto_ptr<Block>();
+      }
+
+      if (data_[0] == 0xffffffff) {
+         LogDebug("L1T") << "Skipping padding word";
+         ++data_;
+         return getBlock();
+      }
+
       auto header = getHeader();
 
       if (end_ - data_ < header.getSize()) {

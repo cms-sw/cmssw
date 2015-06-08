@@ -213,10 +213,6 @@ namespace l1t {
             // getBlock() returns a non-null auto_ptr on success
             std::auto_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
-               // skip empty filler blocks
-               if ((block->header().getID() == 0 and block->header().getSize() == 0) or block->header().raw() == 0xffffffff)
-                  continue;
-
                if (debug_) {
                   std::cout << ">>> block to unpack <<<" << std::endl
                      << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
