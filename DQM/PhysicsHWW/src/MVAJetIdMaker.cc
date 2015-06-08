@@ -13,7 +13,7 @@ MVAJetIdMaker::MVAJetIdMaker(const edm::ParameterSet& iConfig, edm::ConsumesColl
   thePVCollection_     = iCollector.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag"));
   jetCorrectorToken_   = iCollector.consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jetCorrector"));
 
-  fPUJetIdAlgo = new PileupJetIdAlgo(iConfig);
+  fPUJetIdAlgo = new PileupJetIdAlgo(iConfig.getParameter<edm::ParameterSet>("puJetIDParams"));
 
 }
 
