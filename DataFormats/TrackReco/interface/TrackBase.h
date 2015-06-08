@@ -321,7 +321,6 @@ public:
     /// append a single hit to the HitPattern
     bool appendHitPattern(const TrackingRecHit &hit, const TrackerTopology& ttopo);
     bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
-    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
     /**
      * This is meant to be used only in cases where the an
@@ -428,11 +427,6 @@ private:
 inline const HitPattern & TrackBase::hitPattern() const
 {
     return hitPattern_;
-}
-
-inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType)
-{
-    return hitPattern_.appendHit(id, hitType);
 }
 
 inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)

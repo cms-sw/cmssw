@@ -220,7 +220,6 @@ public:
     bool appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo);
     bool appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo);
     bool appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
-    bool appendHit(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
 
     /**
      * This is meant to be used only in cases where the an
@@ -411,12 +410,10 @@ private:
 
     // detector side for tracker modules (mono/stereo)
     static uint16_t isStereo(DetId i, const TrackerTopology& ttopo);
-    static uint16_t isStereo(DetId i); // DEPRECATED, to be removed
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
 
     static uint16_t encode(const TrackingRecHit &hit, const TrackerTopology& ttopo);
     static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
-    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType); // DEPRECATED, to be removed
     static uint16_t encode(uint16_t det, uint16_t subdet, uint16_t layer, uint16_t side, TrackingRecHit::Type hitType);
 
     // generic count methods
