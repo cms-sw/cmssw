@@ -183,15 +183,15 @@ class Looper(object):
             print 'Stopped loop following a UserWarning exception'
 
         info = self.logger.info
-        info('number of events processed: {nEv}'.format(nEv=iEv+1))
-        info('')
+        warning = self.logger.warning
+        warning('number of events processed: {nEv}'.format(nEv=iEv+1))
+        warning('')
         info( self.cfg_comp )
         info('')        
         for analyzer in self.analyzers:
             analyzer.endLoop(self.setup)
         if self.timeReport:
             allev = max([x['events'] for x in self.timeReport])
-            warning = self.logger.warning
             warning("\n      ---- TimeReport (all times in ms; first evt is skipped) ---- ")
             warning("%9s   %9s    %9s   %9s %6s   %s" % ("processed","all evts","time/proc", " time/all", "  [%] ", "analyer"))
             warning("%9s   %9s    %9s   %9s %6s   %s" % ("---------","--------","---------", "---------", " -----", "-------------"))
@@ -242,28 +242,28 @@ class Looper(object):
         self.setup.close() 
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-#     import pickle
-#     import sys
-#     import os
-#     if len(sys.argv) == 2 :
-#         cfgFileName = sys.argv[1]
-#         pckfile = open( cfgFileName, 'r' )
-#         config = pickle.load( pckfile )
-#         comp = config.components[0]
-#         events_class = config.events_class
-#     elif len(sys.argv) == 3 :
-#         cfgFileName = sys.argv[1]
-#         file = open( cfgFileName, 'r' )
-#         cfg = imp.load_source( 'cfg', cfgFileName, file)
-#         compFileName = sys.argv[2]
-#         pckfile = open( compFileName, 'r' )
-#         comp = pickle.load( pckfile )
-#         cfg.config.components=[comp]
-#         events_class = cfg.config.events_class
+    import pickle
+    import sys
+    import os
+    if len(sys.argv) == 2 :
+        cfgFileName = sys.argv[1]
+        pckfile = open( cfgFileName, 'r' )
+        config = pickle.load( pckfile )
+        comp = config.components[0]
+        events_class = config.events_class
+    elif len(sys.argv) == 3 :
+        cfgFileName = sys.argv[1]
+        file = open( cfgFileName, 'r' )
+        cfg = imp.load_source( 'cfg', cfgFileName, file)
+        compFileName = sys.argv[2]
+        pckfile = open( compFileName, 'r' )
+        comp = pickle.load( pckfile )
+        cfg.config.components=[comp]
+        events_class = cfg.config.events_class
 
-#     looper = Looper( 'Loop', cfg.config,nPrint = 5)
-#     looper.loop()
-#     looper.write()
+    looper = Looper( 'Loop', cfg.config,nPrint = 5)
+    looper.loop()
+    looper.write()
 
