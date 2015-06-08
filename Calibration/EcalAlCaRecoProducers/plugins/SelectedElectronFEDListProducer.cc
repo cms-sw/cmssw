@@ -392,16 +392,13 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	 ++itElectronColl , ++itElectronCollFlag, ++itRecoEcalCandColl){  
 
       // get ecal candidate collection
-      try { iEvent.getByToken(*itRecoEcalCandColl,triggerRecoEcalCandidateCollection);
-	if(triggerRecoEcalCandidateCollection.failedToGet()) continue ;
-      }
-      catch (cms::Exception &exception){ continue; }
+      iEvent.getByToken(*itRecoEcalCandColl,triggerRecoEcalCandidateCollection);
+      if(triggerRecoEcalCandidateCollection.failedToGet()) continue ;
       
       // get gsf electron collection
-      try { iEvent.getByToken(*itElectronColl,electrons);
-	if(electrons.failedToGet()) continue ;
-      }
-      catch (cms::Exception &exception){ continue; }
+      iEvent.getByToken(*itElectronColl,electrons);
+      if(electrons.failedToGet()) continue ;
+
 
       triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerCluster, recoEcalCandColl);
       if(recoEcalCandColl.empty()) triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerPhoton,   recoEcalCandColl);
