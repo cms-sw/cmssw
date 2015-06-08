@@ -45,7 +45,7 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     x.push_back("z");                                           	trans->SetBranchUnits("z",     "cm");      //trans->SetBranchMax("z", 100); trans->SetBranchMin("z", -100);
     y.push_back("dr");		trans->SetBranchSF("dr", 	10000);     trans->SetBranchUnits("dr",    "#mum");
     y.push_back("dz");		trans->SetBranchSF("dz", 	10000);     trans->SetBranchUnits("dz",    "#mum");
-    y.push_back("rdphi");	trans->SetBranchSF("rdphi",10000);     trans->SetBranchUnits("rdphi", "#mum rad");
+    y.push_back("rdphi");	trans->SetBranchSF("rdphi",10000);      trans->SetBranchUnits("rdphi", "#mum rad");
     y.push_back("dx");		trans->SetBranchSF("dx", 	10000);     trans->SetBranchUnits("dx",    "#mum");    //trans->SetBranchMax("dx", 10); trans->SetBranchMin("dx", -10);
     y.push_back("dy");		trans->SetBranchSF("dy", 	10000);     trans->SetBranchUnits("dy",    "#mum");    //trans->SetBranchMax("dy", 10); trans->SetBranchMin("dy", -10);
     trans->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
@@ -62,12 +62,12 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
     vector<TString> a,b;
-    a.push_back("alpha");       rot->SetBranchUnits("alpha",    "rad");  
-    a.push_back("beta");        rot->SetBranchUnits("beta",   "rad");
-    a.push_back("gamma");       rot->SetBranchUnits("gamma",   "rad");
-    b.push_back("dalpha");      rot->SetBranchUnits("dalpha",    "rad");      
-    b.push_back("dbeta");       rot->SetBranchUnits("dbeta",    "rad");     
-    b.push_back("dgamma");      rot->SetBranchUnits("dgamma",    "rad");    
+    a.push_back("alpha");       									rot->SetBranchUnits("alpha",    "rad");  
+    a.push_back("beta");        									rot->SetBranchUnits("beta",   "rad");
+    a.push_back("gamma");       									rot->SetBranchUnits("gamma",   "rad");
+    b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");      
+    b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");     
+    b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");    
     rot->MakePlots(a, b); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
@@ -81,14 +81,14 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
     vector<TString> dx,dy;
-    dx.push_back("dr");		cross->SetBranchSF("dr", 	10000);     cross->SetBranchUnits("dr",    "#mum");
-    dx.push_back("dz");		cross->SetBranchSF("dz", 	10000);     cross->SetBranchUnits("dz",    "#mum");
-    dx.push_back("rdphi");	cross->SetBranchSF("rdphi",10000);     cross->SetBranchUnits("rdphi", "#mum rad");
-    dx.push_back("dx");		cross->SetBranchSF("dx", 	10000);     cross->SetBranchUnits("dx",    "#mum");  
-    dx.push_back("dy");		cross->SetBranchSF("dy", 	10000);     cross->SetBranchUnits("dy",    "#mum"); 
-    dy.push_back("dalpha");      cross->SetBranchUnits("dalpha",    "rad");      
-    dy.push_back("dbeta");       cross->SetBranchUnits("dbeta",    "rad");     
-    dy.push_back("dgamma");      cross->SetBranchUnits("dgamma",    "rad");    
+    dx.push_back("dalpha"); cross->SetBranchSF("dalpha", 1000);     cross->SetBranchUnits("dalpha", "mrad");      
+    dx.push_back("dbeta");  cross->SetBranchSF("dbeta", 1000);     	cross->SetBranchUnits("dbeta",  "mrad");     
+    dx.push_back("dgamma"); cross->SetBranchSF("dgamma", 1000);     cross->SetBranchUnits("dgamma", "mrad"); 
+    dy.push_back("dr");		cross->SetBranchSF("dr", 	10000);     cross->SetBranchUnits("dr",    "#mum");
+    dy.push_back("dz");		cross->SetBranchSF("dz", 	10000);     cross->SetBranchUnits("dz",    "#mum");
+    dy.push_back("rdphi");	cross->SetBranchSF("rdphi",10000);      cross->SetBranchUnits("rdphi", "#mum rad");
+    dy.push_back("dx");		cross->SetBranchSF("dx", 	10000);     cross->SetBranchUnits("dx",    "#mum");  
+    dy.push_back("dy");		cross->SetBranchSF("dy", 	10000);     cross->SetBranchUnits("dy",    "#mum");     
     cross->MakePlots(dx,dy); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
