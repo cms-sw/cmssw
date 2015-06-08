@@ -5,6 +5,7 @@ autoSkim = {
     'Cosmics':'CosmicSP+CosmicTP+LogError',
     'Mu' : 'WMu+ZMu+HighMET+LogError',    
     'EG':'WElectron+ZElectron+HighMET+LogError',
+    'TopMuEG':'TopMuEG+LogError',
     'Electron':'WElectron+ZElectron+HighMET+LogError',
     'Photon':'WElectron+ZElectron+HighMET+LogError+DiPhoton+EXOHPTE',
     'JetMETTau':'LogError+Tau',
@@ -20,10 +21,12 @@ autoSkim = {
     'METBTag': 'HighMET+LogError+EXOHSCP',
     'BTag': 'LogError+EXOHSCP',
     'MET': 'HighMET+LogError+EXOHSCP',
+    'HighMET': 'HighMET+LogError',
 
     'HT': 'HighMET+LogError',
 
     'Tau': 'LogError',
+    'MuTau': 'MuTau+LogError',
     'PhotonHad': 'LogError',
     'MuHad': 'LogError',
     'MultiJet': 'LogError',
