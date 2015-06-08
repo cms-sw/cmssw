@@ -216,9 +216,9 @@ namespace l1t {
 
                if (debug_) {
                   std::cout << ">>> block to unpack <<<" << std::endl
-                     << "hdr:  " << std::hex << std::setw(8) << block->header().raw() << std::endl;
+                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::endl;
                   for (const auto& word: block->payload()) {
-                     std::cout << "data: " << std::hex << std::setw(8) << word << std::endl;
+                     std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::endl;
                   }
                }
 
@@ -227,10 +227,10 @@ namespace l1t {
                block->amc(amc.header());
 
                if (unpacker == unpackers.end()) {
-                  LogDebug("L1T") << "Cannot find an unpacker for block ID "
-                     << block->header().getID() << ", AMC # " << amc_no
-                     << ", board ID " << board << ", FED ID " << fedId
-                     << ", and FW ID " << fw << "!";
+                  LogDebug("L1T") << "Cannot find an unpacker for"
+                     << "\n\tblock: ID " << block->header().getID() << ", size " << block->header().getSize()
+                     << "\n\tAMC: # " << amc_no << ", board ID 0x" << std::hex << board << std::dec
+                     << "\n\tFED ID " << fedId << ", and FW ID " << fw;
                   // TODO Handle error
                } else if (!unpacker->second->unpack(*block, coll.get())) {
                   LogDebug("L1T") << "Error unpacking data for block ID "
