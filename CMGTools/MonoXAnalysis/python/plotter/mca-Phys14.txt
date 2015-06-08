@@ -1,0 +1,54 @@
+# MonoJet samples
+X10V+:    Monojet_M_10_V   : 1.0; FillColor=ROOT.kRed-9, Label="X_{V} 10 GeV"
+#X100V+:  Monojet_M_100_V  : 1.0; FillColor=ROOT.kRed-8, Label="X_{V} 100 GeV"
+#X1000V+: Monojet_M_1000_V : 1.0; FillColor=ROOT.kRed-7, Label="X_{V} 1000 GeV"
+
+#X1AV+:    Monojet_M_1_AV    : 1.0; FillColor=ROOT.kViolet-9, Label="MJ^{AV} 1 GeV"
+#X10AV+:   Monojet_M_10_AV   : 1.0; FillColor=ROOT.kViolet-8, Label="MJ^{AV} 10 GeV"
+#X100AV+:  Monojet_M_100_AV  : 1.0; FillColor=ROOT.kViolet-7, Label="MJ^{AV} 100 GeV"
+#X1000AV+: Monojet_M_1000_AV : 1.0; FillColor=ROOT.kViolet-6, Label="MJ^{AV} 1000 GeV"
+
+# -- Z->nunu Background --
+ZNuNu       : ZJetsToNuNu_HT100to200 : xsec; FillColor=ROOT.kAzure-9, Label="Z\#nu\#nu+jets", NormSystematic=0.2
+ZNuNu       : ZJetsToNuNu_HT200to400 : xsec; FillColor=ROOT.kAzure-9, Label="Z\#nu\#nu+jets", NormSystematic=0.2
+ZNuNu       : ZJetsToNuNu_HT400to600 : xsec; FillColor=ROOT.kAzure-9, Label="Z\#nu\#nu+jets", NormSystematic=0.2
+ZNuNu       : ZJetsToNuNu_HT600toInf : xsec; FillColor=ROOT.kAzure-9, Label="Z\#nu\#nu+jets", NormSystematic=0.2
+
+# -- W+jets background -- 
+WJets     : WJetsToLNu_HT100to200 :  xsec; Label="W+jets", FillColor=ROOT.kAzure+3, NormSystematic=0.5
+WJets     : WJetsToLNu_HT200to400 :  xsec; Label="W+jets", FillColor=ROOT.kAzure+3, NormSystematic=0.5
+WJets     : WJetsToLNu_HT400to600 :  xsec; Label="W+jets", FillColor=ROOT.kAzure+3, NormSystematic=0.5
+WJets     : WJetsToLNu_HT600toInf :  xsec; Label="W+jets", FillColor=ROOT.kAzure+3, NormSystematic=0.5
+
+# -- Z->ll background -- (to be processed)
+DYJets    : DYJetsToLL_M50_HT100to200 :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DYJets    : DYJetsToLL_M50_HT200to400 :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DYJets    : DYJetsToLL_M50_HT400to600 :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+DYJets    : DYJetsToLL_M50_HT600toInf :  xsec; Label="Z+jets", FillColor=ROOT.kCyan, NormSystematic=0.5
+
+# -- photon + jets background --
+GJets     : GJets_HT100to200 :  xsec;  Label="\#gamma+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+GJets     : GJets_HT200to400 :  xsec;  Label="\#gamma+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+GJets     : GJets_HT400to600 :  xsec;  Label="\#gamma+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+GJets     : GJets_HT600toInf :  xsec;  Label="\#gamma+jets", FillColor=ROOT.kCyan+2, NormSystematic=0.5
+
+# -- QCD multijets --
+#QCD       : QCD_HT_100To250  :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+#QCD       : QCD_HT_250To500  :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+#QCD       : QCD_HT_250To500_ext1  :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+#QCD       : QCD_HT_500To1000 :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+#QCD       : QCD_HT_500To1000_ext1 :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+#QCD       : QCD_HT_1000ToInf :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+#QCD       : QCD_HT_1000ToInf_ext1 :  xsec;  Label="QCD", FillColor=ROOT.kGray, NormSystematic=0.5
+
+# -- TTbar background
+Top      : TTJets: xsec ; FillColor=ROOT.kGreen+3, Label="tt", NormSystematic=0.5
+
+# Single Top and Top+W associated prod.
+Top 	 : T_tWch:     xsec;  FillColor=ROOT.kGreen-7, Label="single t", NormSystematic=0.2
+Top 	 : TBar_tWch:  xsec;  FillColor=ROOT.kGreen-7, Label="single t", NormSystematic=0.2
+Top      : TToLeptons_tch:     xsec ;  FillColor=ROOT.kGreen-7, Label="single t", NormSystematic=0.2
+Top  	 : TBarToLeptons_tch:  xsec ;  FillColor=ROOT.kGreen-7, Label="single t", NormSystematic=0.2
+Top      : TToLeptons_sch:     xsec ;  FillColor=ROOT.kGreen-7, Label="single t", NormSystematic=0.2
+Top  	 : TBarToLeptons_sch:  xsec ;  FillColor=ROOT.kGreen-7, Label="single t", NormSystematic=0.2
+

@@ -1,11 +1,21 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
+from math import exp
+import re
 
 import ROOT
 
 class Photon(PhysicsObject ):
 
-    '''                                                                                                                                                                                                                                                                return object from the photon 
-    '''
+    def __init__(self, *args, **kwargs):
+        '''Initializing rho to None. The user is responsible for setting it to the right value 
+        to get the rho-corrected isolation.'''
+        super(Photon, self).__init__(*args, **kwargs)
+        self._physObjInit()
+
+    def _physObjInit(self):
+        self.rho = None
+
+
     def hOVERe(self):
         return self.physObj.hadTowOverEm() 
 
@@ -21,14 +31,20 @@ class Photon(PhysicsObject ):
     def full5x5_sigmaIetaIeta(self):
         return self.physObj.full5x5_sigmaIetaIeta()
 
-    def chargedHadronIso(self):
-        return self.physObj.chargedHadronIso()
+    def chargedHadronIso(self, corr=None):
+        if corr is None or corr == "": return self.physObj.chargedHadronIso()
+        elif corr == "rhoArea": return max(self.physObj.chargedHadronIso()-self.rho*self.EffectiveArea03[0],0)
+        else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
-    def neutralHadronIso(self):
-        return self.physObj.neutralHadronIso()
+    def neutralHadronIso(self, corr=None):
+        if corr is None or corr == "": return self.physObj.neutralHadronIso()
+        elif corr == "rhoArea": return max(self.physObj.neutralHadronIso()-self.rho*self.EffectiveArea03[1],0)
+        else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
-    def photonIso(self):
-        return self.physObj.photonIso()
+    def photonIso(self, corr=None):
+        if corr is None or corr == "": return self.physObj.photonIso()
+        elif corr == "rhoArea": return max(self.physObj.photonIso()-self.rho*self.EffectiveArea03[2],0)
+        else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
     def photonIDCSA14(self, name, sidebands=False):
         keepThisPhoton = True
@@ -63,18 +79,18 @@ class Photon(PhysicsObject ):
 
         return keepThisPhoton
 
-    def CutBasedIDWP(self,name):
+    def CutBasedIDWP( self, name):
         # recommeneded PHYS14 working points from POG
         WPs = {
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#Pointers_for_PHYS14_selection_im
-        "POG_PHYS14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.048,0.069],"sigmaIEtaIEta":[0.0106,0.0266],
-        "chaHadIso":[2.56,3.12],"neuHadIso":[[3.74,0.0025],[17.11,0.0118]],"phoIso":[[2.68,0.001],[2.70,0.0059]]},
+        "POG_PHYS14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.028,0.093],"sigmaIEtaIEta":[0.0107,0.0272],
+        "chaHadIso":[2.67,1.79],"neuHadIso":[[7.23,0.0028,0.5408],[8.89,0.01725]],"phoIso":[[2.11,0.0014],[3.09,0.0091]]},
         
-        "POG_PHYS14_25ns_Medium": {"conversionVeto": [True,True], "H/E":[0.032,0.0166],"sigmaIEtaIEta":[0.0101,0.0264],
-        "chaHadIso":[1.90,1.95],"neuHadIso":[[2.96,0.0025],[4.42,0.0118]],"phoIso":[[1.39,0.001],[1.89,0.0059]]},
+        "POG_PHYS14_25ns_Medium": {"conversionVeto": [True,True], "H/E":[0.012,0.023],"sigmaIEtaIEta":[0.0100,0.0267],
+        "chaHadIso":[1.79,1.09],"neuHadIso":[[0.16,0.0028,0.5408],[4.31,0.0172]],"phoIso":[[1.90,0.0014],[1.90,0.0091]]},
         
-        "POG_PHYS14_25ns_Tight": {"conversionVeto": [True,True], "H/E":[0.011,0.015],"sigmaIEtaIEta":[0.0099,0.0263],
-        "chaHadIso":[1.86,1.68],"neuHadIso":[[2.64,0.0025],[4.42,0.0118]],"phoIso":[[1.39,0.001],[1.03,0.0059]]},
+        "POG_PHYS14_25ns_Tight": {"conversionVeto": [True,True], "H/E":[0.010,0.015],"sigmaIEtaIEta":[0.0100,0.0265],
+        "chaHadIso":[1.66,1.04],"neuHadIso":[[0.14,0.0028,0.5408],[3.89,0.0172]],"phoIso":[[1.40,0.0014],[1.40,0.0091]]},
 
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#CSA14_selections_for_20_bx_25_sc
         "POG_CSA14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.553,0.062],"sigmaIEtaIEta":[0.0099,0.0284],
@@ -86,7 +102,13 @@ class Photon(PhysicsObject ):
         "POG_CSA14_25ns_Tight": {"conversionVeto": [True,True], "H/E":[0.019,0.016],"sigmaIEtaIEta":[0.0099,0.0263],
         "chaHadIso":[1.61,0.69],"neuHadIso":[[3.98,0.007],[4.52,0.0129]],"phoIso":[[3.01,0.0033],[3.61,0.0108]]},
         }
-        return WPs[name]
+        
+        baseWP = re.split('_',name)
+        if "looseSieie" in baseWP[-1]: 
+            baseWP.pop()
+            WPs["_".join(baseWP)]["sigmaIEtaIEta"] = [0.015,0.035]
+
+        return WPs["_".join(baseWP)]
 
 
     def etaRegionID(self):
@@ -97,12 +119,15 @@ class Photon(PhysicsObject ):
             idForBarrel = 1
         return idForBarrel
 
-    def calScaledIsoValue(self,slope,offset):
+    def calScaledIsoValueLin(self,offset,slope):
         return slope*self.pt()+offset
+
+    def calScaledIsoValueExp(self,offset,slope_exp,offset_exp):
+        return offset + exp(slope_exp*self.pt()+offset_exp)
 
 
     def passPhotonID(self,name):
-
+        
         idForBarrel = self.etaRegionID()
         passPhotonID = True
 
@@ -115,19 +140,28 @@ class Photon(PhysicsObject ):
         if self.CutBasedIDWP(name)["sigmaIEtaIEta"][idForBarrel] < self.full5x5_sigmaIetaIeta():
             passPhotonID = False
 
-        if self.CutBasedIDWP(name)["chaHadIso"][idForBarrel] < self.chargedHadronIso():
-            passPhotonID = False
-
-        if self.calScaledIsoValue(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
-            passPhotonID = False
-
-        if self.calScaledIsoValue(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso():
-            passPhotonID = False
-        
         return passPhotonID
 
+    def passPhotonIso(self,name,isocorr):
 
-                
+        idForBarrel = self.etaRegionID()
+        passPhotonIso = True
+
+        if self.CutBasedIDWP(name)["chaHadIso"][idForBarrel] < self.chargedHadronIso(isocorr):
+            passPhotonIso = False
+
+        if "POG_PHYS14_25ns" in name and idForBarrel == 0:
+            if self.calScaledIsoValueExp(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
+                passPhotonIso = False
+        else:
+            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
+                passPhotonIso = False
+
+        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso(isocorr):
+            passPhotonIso = False
+        
+        return passPhotonIso
+
     pass
 
 setattr(ROOT.pat.Photon, "recoPhotonIso", ROOT.reco.Photon.photonIso)
