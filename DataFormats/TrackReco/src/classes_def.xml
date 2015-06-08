@@ -374,11 +374,7 @@
   <class name="edm::Ptr<reco::Track>" />
   <class name="std::vector<edm::Ptr<reco::Track> >" />
 
-  <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
 
   <class name="edm::helpers::Key<edm::RefProd <std::vector <reco::Track> > >" />
 
