@@ -108,7 +108,6 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<trigger::TriggerEvent> aodTriggerToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;  
-  edm::EDGetTokenT<vector<reco::MET>> metToken_;  
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> chargedCandToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
@@ -280,7 +279,6 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", processName_));
   lumiScalersToken_ = consumes<LumiScalersCollection>(edm::InputTag("hltScalersRawToDigi","",""));
   beamSpotToken_ = consumes<reco::BeamSpot>(edm::InputTag("hltOnlineBeamSpot","",processName_)); 
-  metToken_ = consumes<vector<reco::MET>>(edm::InputTag("hltPFMETProducer","",processName_));  
   chargedCandToken_ = consumes<vector<reco::RecoChargedCandidate>>(edm::InputTag("hltL3NoFiltersNoVtxMuonCandidates","",processName_));  
   csvCaloTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo","",processName_));
   csvPfTagsToken_ = consumes<reco::JetTagCollection>(edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF","",processName_));
