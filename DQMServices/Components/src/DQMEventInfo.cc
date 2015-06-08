@@ -80,8 +80,9 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
   processStartTimeStamp_->Fill(currentTime_);
   runStartTimeStamp_ = ibooker.bookFloat("runStartTimeStamp");
   runStartTimeStamp_->Fill(stampToReal(iRun.beginTime()));
-  char hostname[33];
-  gethostname(hostname,32);
+  char hostname[65];
+  gethostname(hostname,64);
+  hostname[64] = 0;
   hostName_= ibooker.bookString("hostName",hostname);
   processName_= ibooker.bookString("processName",subsystemname_);
   char* pwd = getcwd(NULL, 0);
