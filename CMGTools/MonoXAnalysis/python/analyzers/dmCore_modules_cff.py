@@ -1,5 +1,5 @@
 ##########################################################
-##          SUSY COMMON MODULES ARE DEFINED HERE        ##
+##          MONOX COMMON MODULES ARE DEFINED HERE       ##
 ## skimming modules are configured to not cut anything  ##
 ##########################################################
 
@@ -10,7 +10,7 @@ from PhysicsTools.Heppy.analyzers.gen.all import *
 import os
 
 from CMGTools.TTHAnalysis.analyzers.ttHhistoCounterAnalyzer import ttHhistoCounterAnalyzer
-susyCounter = cfg.Analyzer(
+dmCounter = cfg.Analyzer(
     ttHhistoCounterAnalyzer, name="ttHhistoCounterAnalyzer",
     )
 
@@ -90,11 +90,11 @@ pileUpAna = cfg.Analyzer(
 genAna = cfg.Analyzer(
     GeneratorAnalyzer, name="GeneratorAnalyzer",
     # BSM particles that can appear with status <= 2 and should be kept
-    stableBSMParticleIds = [ 1000022 ],
+    stableBSMParticleIds = { 1000022 },
     # Particles of which we want to save the pre-FSR momentum (a la status 3).
     # Note that for quarks and gluons the post-FSR doesn't make sense,
     # so those should always be in the list
-    savePreFSRParticleIds = [ 1,2,3,4,5, 11,12,13,14,15,16, 21 ],
+    savePreFSRParticleIds = { 1,2,3,4,5, 11,12,13,14,15,16, 21 },
     # Make also the list of all genParticles, for other analyzers to handle
     makeAllGenParticles = True,
     # Make also the splitted lists
@@ -117,14 +117,8 @@ genHFAna = cfg.Analyzer(
 )
 pdfwAna = cfg.Analyzer(
     PDFWeightsAnalyzer, name="PDFWeightsAnalyzer",
-    PDFWeights = [ pdf for pdf,num in PDFWeights ]
-    )
-
-# Save SUSY masses
-from CMGTools.TTHAnalysis.analyzers.susyParameterScanAnalyzer import susyParameterScanAnalyzer
-susyScanAna = cfg.Analyzer(
-    susyParameterScanAnalyzer, name="susyParameterScanAnalyzer",
-    doLHE=True,
+    PDFWeights = [ pdf for pdf,num in PDFWeights ],
+    doPDFVars = True,
     )
 
 # Lepton Analyzer (generic)
@@ -147,33 +141,33 @@ lepAna = cfg.Analyzer(
     inclusive_muon_dxy = 0.5,
     inclusive_muon_dz  = 1.0,
     muon_dxydz_track = "innerTrack",
-    # loose muon selection
+    # veto muon selection
     loose_muon_id     = "POG_ID_Loose",
-    loose_muon_pt     = 5,
+    loose_muon_pt     = 10,
     loose_muon_eta    = 2.4,
-    loose_muon_dxy    = 0.05,
-    loose_muon_dz     = 0.1,
-    loose_muon_relIso = 0.5,
+    loose_muon_dxy    = 0.2,
+    loose_muon_dz     = 0.5,
+    loose_muon_relIso = 0.4,
     # inclusive very loose electron selection
     inclusive_electron_id  = "",
     inclusive_electron_pt  = 5,
     inclusive_electron_eta = 2.5,
     inclusive_electron_dxy = 0.5,
     inclusive_electron_dz  = 1.0,
-    inclusive_electron_lostHits = 1.0,
-    # loose electron selection
-    loose_electron_id     = "POG_Cuts_ID_2012_Veto_full5x5",
-    loose_electron_pt     = 7,
+    inclusive_electron_lostHits = 5.0,
+    # veto electron selection
+    loose_electron_id     = "POG_Cuts_ID_PHYS14_25ns_v2_ConvVetoDxyDz_Veto_full5x5",
+    loose_electron_pt     = 10,
     loose_electron_eta    = 2.5,
-    loose_electron_dxy    = 0.05,
-    loose_electron_dz     = 0.1,
-    loose_electron_relIso = 0.5,
-    loose_electron_lostHits = 1.0,
+    loose_electron_dxy    = 0.5,
+    loose_electron_dz     = 1.0,
+    loose_electron_relIso = 1.0,
+    loose_electron_lostHits = 5.0,
     # muon isolation correction method (can be "rhoArea" or "deltaBeta")
-    mu_isoCorr = "rhoArea" ,
+    mu_isoCorr = "deltaBeta" ,
     mu_effectiveAreas = "Phys14_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1')
     # electron isolation correction method (can be "rhoArea" or "deltaBeta")
-    ele_isoCorr = "rhoArea" ,
+    ele_isoCorr = "deltaBeta" ,
     el_effectiveAreas = "Phys14_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1')
     ele_tightId = "Cuts_2012" ,
     # Mini-isolation, with pT dependent cone: will fill in the miniRelIso, miniRelIsoCharged, miniRelIsoNeutral variables of the leptons (see https://indico.cern.ch/event/368826/ )
@@ -188,14 +182,25 @@ lepAna = cfg.Analyzer(
     match_inclusiveLeptons = False, # match to all inclusive leptons
     )
 
-## Lepton-based Skim (generic, but requirements depend on the final state)
-from CMGTools.TTHAnalysis.analyzers.ttHLepSkimmer import ttHLepSkimmer
-ttHLepSkim = cfg.Analyzer(
-    ttHLepSkimmer, name='ttHLepSkimmer',
-    minLeptons = 0,
+
+## MET-based Skim
+from CMGTools.MonoXAnalysis.analyzers.monoJetSkimmer import monoJetSkimmer
+monoJetSkim = cfg.Analyzer(
+    monoJetSkimmer, name='monoJetSkimmer',
+    jets      = "cleanJets", # jet collection to use
+    jetPtCuts = [],          # e.g. [60,40,30,20] to require at least four jets with pt > 60,40,30,20 
+    metCut = 0               # MET cut      
+    )
+
+## number of leptons Skim
+from CMGTools.MonoXAnalysis.analyzers.monoJetCtrlLepSkimmer import monoJetCtrlLepSkimmer
+monoJetCtrlLepSkim = cfg.Analyzer(
+    monoJetCtrlLepSkimmer, name='monoJetCtrlLepSkimmer',
+    minLeptons = 1,
     maxLeptons = 999,
     #idCut  = "lepton.relIso03 < 0.2" # can give a cut
-    #ptCuts = [20,10],                # can give a set of pt cuts on the leptons
+    idCut = 'lepton.muonID("POG_ID_Medium") if abs(lepton.pdgId())==13 else lepton.electronID("POG_Cuts_ID_PHYS14_25ns_v1_Veto_full5x5")',
+    ptCuts = [20],                # can give a set of pt cuts on the leptons
     )
 
 ## Photon Analyzer (generic)
@@ -211,36 +216,34 @@ photonAna = cfg.Analyzer(
     do_randomCone = False,
 )
 
-
 ## Tau Analyzer (generic)
 tauAna = cfg.Analyzer(
     TauAnalyzer, name="tauAnalyzer",
     # inclusive very loose hadronic tau selection
-    inclusive_ptMin = 18,
+    inclusive_ptMin = 15,
     inclusive_etaMax = 9999,
     inclusive_dxyMax = 1000.,
-    inclusive_dzMax = 0.4,
+    inclusive_dzMax = 1000,
     inclusive_vetoLeptons = False,
     inclusive_leptonVetoDR = 0.4,
-    inclusive_decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
-    inclusive_tauID = "decayModeFindingNewDMs",
+    inclusive_decayModeID = "decayModeFinding", # ignored if not set or ""
+    inclusive_tauID = "decayModeFinding",
     inclusive_vetoLeptonsPOG = False, # If True, the following two IDs are required
     inclusive_tauAntiMuonID = "",
     inclusive_tauAntiElectronID = "",
     # loose hadronic tau selection
-    loose_ptMin = 18,
+    loose_ptMin = 15,
     loose_etaMax = 9999,
     loose_dxyMax = 1000.,
-    loose_dzMax = 0.2,
-    loose_vetoLeptons = True,
+    loose_dzMax = 1000,
+    loose_vetoLeptons = False,
     loose_leptonVetoDR = 0.4,
-    loose_decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
+    loose_decayModeID = "decayModeFinding", # ignored if not set or ""
     loose_tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
     loose_vetoLeptonsPOG = False, # If True, the following two IDs are required
-    loose_tauAntiMuonID = "againstMuonLoose3",
-    loose_tauAntiElectronID = "againstElectronLooseMVA5",
-    loose_tauLooseID = "decayModeFindingNewDMs"
-
+    loose_tauAntiMuonID = "",
+    loose_tauAntiElectronID = "",
+    loose_tauLooseID = "decayModeFinding"
 )
 
 ##------------------------------------------
@@ -250,7 +253,7 @@ tauAna = cfg.Analyzer(
 ## those are the cuts for the nonEMu                                                                                                                                                                         
 isoTrackAna = cfg.Analyzer(
     IsoTrackAnalyzer, name='isoTrackAnalyzer',
-    setOff=True,
+    setOff=False,
     #####
     candidates='packedPFCandidates',
     candidatesTypes='std::vector<pat::PackedCandidate>',
@@ -270,7 +273,6 @@ isoTrackAna = cfg.Analyzer(
     doPrune = True
     )
 
-
 ## Jets Analyzer (generic)
 jetAna = cfg.Analyzer(
     JetAnalyzer, name='jetAnalyzer',
@@ -280,16 +282,16 @@ jetAna = cfg.Analyzer(
     rho = ('fixedGridRhoFastjetAll','',''),
     jetPt = 25.,
     jetEta = 4.7,
-    jetEtaCentral = 2.4,
+    jetEtaCentral = 2.5,
     jetLepDR = 0.4,
-    jetLepArbitration = (lambda jet,lepton : lepton), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
-    cleanSelectedLeptons = True, #Whether to clean 'selectedLeptons' after disambiguation. Treat with care (= 'False') if running Jetanalyzer more than once
+    jetLepArbitration = (lambda jet,lepton : (jet,lepton)), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
+    cleanSelectedLeptons = False, #Whether to clean 'selectedLeptons' after disambiguation. Treat with care (= 'False') if running Jetanalyzer more than once
     minLepPt = 10,
     relaxJetId = False,  
     doPuId = False, # Not commissioned in 7.0.X
     recalibrateJets = "MC", # True, False, 'MC', 'Data'
     recalibrationType = "AK4PFchs",
-    mcGT     = "PHYS14_25_V2",
+    mcGT     = "MCRUN2_74_V9",
     jecPath = "%s/src/CMGTools/RootTools/data/jec/" % os.environ['CMSSW_BASE'],
     shiftJEC = 0, # set to +1 or -1 to get +/-1 sigma shifts
     smearJets = False,
@@ -298,7 +300,7 @@ jetAna = cfg.Analyzer(
     cleanJetsFromFirstPhoton = False,
     cleanJetsFromTaus = False,
     cleanJetsFromIsoTracks = False,
-    doQG = False,
+    doQG = True,
     cleanGenJetsFromPhoton = False
     )
 
@@ -309,7 +311,6 @@ ttHFatJetAna = cfg.Analyzer(
     jetCol = 'slimmedJetsAK8',
     jetPt = 100.,
     jetEta = 2.4,
-    jetLepDR = 0.4,
     # v--- not implemented for AK8
     #jetLepDR = 0.4,
     #minLepPt = 10,
@@ -325,7 +326,6 @@ ttHFatJetAna = cfg.Analyzer(
 from CMGTools.TTHAnalysis.analyzers.ttHSVAnalyzer import ttHSVAnalyzer
 ttHSVAna = cfg.Analyzer(
     ttHSVAnalyzer, name="ttHSVAnalyzer",
-    do_mc_match = True,
 )
 
 # Secondary vertex analyzer
@@ -335,15 +335,14 @@ ttHHeavyFlavourHadronAna = cfg.Analyzer(
 )
 
 
-
 metAna = cfg.Analyzer(
     METAnalyzer, name="metAnalyzer",
     metCollection     = "slimmedMETs",
-    noPUMetCollection = "slimmedMETs",    
+    noPUMetCollection = "slimmedMETs",
     copyMETsByValue = False,
     doTkMet = False,
     doMetNoPU = True,
-    doMetNoMu = False,
+    doMetNoMu = True,
     doMetNoEle = False,
     doMetNoPhoton = False,
     recalibrate = False,
@@ -363,23 +362,8 @@ ttHCoreEventAna = cfg.Analyzer(
     jetForBiasedDPhi = "cleanJets",
     )
 
-## Jet-MET based Skim (generic, but requirements depend on the final state)
-# from CMGTools.TTHAnalysis.analyzers.ttHJetMETSkimmer import ttHJetMETSkimmer
-# ttHJetMETSkim = cfg.Analyzer(
-#    ttHJetMETSkimmer, name='ttHJetMETSkimmer',
-#    jets      = "cleanJets", # jet collection to use
-#    jetPtCuts = [],  # e.g. [60,40,30,20] to require at least four jets with pt > 60,40,30,20
-#    jetVetoPt =  0,  # if non-zero, veto additional jets with pt > veto beyond the ones in jetPtCuts
-#    metCut    =  0,  # MET cut
-#    htCut     = ('htJet40j', 0), # cut on HT defined with only jets and pt cut 40, at zero; i.e. no cut
-#                                 # see ttHCoreEventAnalyzer for alternative definitions
-#    mhtCut    = ('mhtJet40', 0), # cut on MHT defined with all leptons, and jets with pt > 40.
-#    nBJet     = ('CSVv2IVFM', 0, "jet.pt() > 30"),     # require at least 0 jets passing CSV medium and pt > 30
-#    )
-
-
 # Core sequence of all common modules
-susyCoreSequence = [
+dmCoreSequence = [
     skimAnalyzer,
    #eventSelector,
     jsonAna,
@@ -389,20 +373,16 @@ susyCoreSequence = [
     genHiggsAna,
     genHFAna,
     pdfwAna,
-    susyScanAna,
     vertexAna,
     lepAna,
-    ttHLepSkim,
-    #ttHLepMCAna,
     photonAna,
     tauAna,
-    isoTrackAna,
+ #   isoTrackAna,
     jetAna,
-    #ttHFatJetAna,  # out of core sequence for now
-    #ttHSVAna, # out of core sequence for now
     metAna,
     ttHCoreEventAna,
-    #ttHJetMETSkim
+    monoJetSkim,
+    monoJetCtrlLepSkim,
     triggerFlagsAna,
     eventFlagsAna,
 ]

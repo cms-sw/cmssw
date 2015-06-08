@@ -1,0 +1,12 @@
+muon veto: nMu10V==0
+electron veto: nEle10V==0
+tau veto: nTau20V==0
+photon veto: nGamma15V==0
+leading jet: nJet30 >= 1 && Jet1_pt > 110 && abs(Jet1_eta) < 2.5
+njets<=2: nJet30 <= 2 
+dphi jj: nJet30 == 1 || (nJet30==2 && abs(dphijj)<2.5)
+jet cleaning: jetclean > 0.5
+MET>200: metNoMu_pt > 200
+MET>300: metNoMu_pt > 300
+MET>400: metNoMu_pt > 400
+MET>500: metNoMu_pt > 500
