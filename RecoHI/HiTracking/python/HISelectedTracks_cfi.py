@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiGlobalPrimTracks',
-    useAnyMVA = cms.bool(False),
+    useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter4'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
