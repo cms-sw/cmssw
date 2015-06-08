@@ -85,7 +85,7 @@ tauAna.loose_tauAntiElectronID = "againstElectronLoose"
 # Photon
 photonAna.etaCentral = 2.5
 photonAna.ptMin = 20
-photonAna.gammaID = "POG_PHYS14_25ns_Loose_looseSieie_NoIso"
+photonAna.gammaID = "POG_PHYS14_25ns_Loose_old_looseSieie_NoIso"
 photonAna.do_randomCone = True
 
 # Isolated Track
