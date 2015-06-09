@@ -57,7 +57,12 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK4CaloJe
     'HLT_HISinglePhoton60_v2', 
     'HLT_IsoTrackHB_v1', 
     'HLT_IsoTrackHE_v1', 
+    'HLT_JetE30_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE30_NoBPTX_v2', 
+    'HLT_JetE50_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v2', 
     'HLT_L1CastorHighJet_v1', 
+    'HLT_L1CastorMediumJet_PFJet15_v1', 
     'HLT_L1CastorMediumJet_v1', 
     'HLT_L1CastorMuon_v1', 
     'HLT_L1DoubleJet20_v1', 
@@ -77,9 +82,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK4CaloJe
     'HLT_L1TOTEM1_MinBias_v1', 
     'HLT_L1TOTEM3_ZeroBias_v1', 
     'HLT_L1Tech5_BPTX_PlusOnly_v1', 
-    'HLT_L1Tech62_CASTORJet_PFJet15_v1', 
-    'HLT_L1Tech62_CASTORJet_v1', 
-    'HLT_L1Tech63_CASTORHaloMuon_v2', 
     'HLT_L1Tech6_BPTX_MinusOnly_v1', 
     'HLT_L1Tech7_NoBPTX_v1', 
     'HLT_L1Tech_DT_GlobalOR_v1', 
@@ -111,10 +113,32 @@ streamA_datasetInitialPDForHI_selector.triggerConditions = cms.vstring('HLT_HIL1
     'HLT_HIL2Mu3_v2', 
     'HLT_HIL3Mu3_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetHT_selector
+streamA_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetJetHT_selector.l1tResults = cms.InputTag('')
+streamA_datasetJetHT_selector.throw      = cms.bool(False)
+streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_DiPFJetAve30_HFJEC_v2')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
 streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v1', 
     'HLT_ZeroBias_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetNoBPTX_selector
+streamA_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
+streamA_datasetNoBPTX_selector.throw      = cms.bool(False)
+streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE30_NoBPTX_v2', 
+    'HLT_JetE50_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleMu_selector
+streamA_datasetSingleMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetSingleMu_selector.l1tResults = cms.InputTag('')
+streamA_datasetSingleMu_selector.throw      = cms.bool(False)
+streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_L1SingleMuOpen_DT_v1', 
+    'HLT_L1SingleMuOpen_v1')
 
