@@ -9,7 +9,7 @@
 
 namespace vlq{
   class Candidate ; 
-  typedef std::vector<Candidate> CandidateCollection ; 
+  typedef std::vector<vlq::Candidate> CandidateCollection ; 
   class Candidate {
     public:
       Candidate () {}
