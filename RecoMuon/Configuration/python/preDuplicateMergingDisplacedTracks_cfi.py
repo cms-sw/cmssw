@@ -8,7 +8,7 @@ preDuplicateMergingDisplacedTracks.trackProducers = [
     ]
 preDuplicateMergingDisplacedTracks.inputClassifiers =[
    "muonSeededTracksInOutClassifier",
-   "muonSeededTracksOutInDispacedClassifier"
+   "muonSeededTracksOutInDisplacedClassifier"
    ]
 
 preDuplicateMergingDisplacedTracks.foundHitBonus  = 100.0
