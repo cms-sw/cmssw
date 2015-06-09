@@ -87,6 +87,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxVertcount  = pset.getParameter<double>("maxVertcount");
   nintVertcount = pset.getParameter<int>("nintVertcount");
 
+  //parameters for number of tracks plots
+  minTracks  = pset.getParameter<double>("minTracks");
+  maxTracks  = pset.getParameter<double>("maxTracks");
+  nintTracks = pset.getParameter<int>("nintTracks");
+
   //parameters for resolution plots
   ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
   ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
@@ -174,11 +179,15 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
 }
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
-  h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
-  h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
-  h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
-  h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
-  h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 22, -5, 5 ) );
+  h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", nintPt, minPt, maxPt) );
+  h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", nintEta, minEta, maxEta) );
+  h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks", nintTracks, minTracks, maxTracks) );
+  h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices", nintVertpos, minVertpos, maxVertpos) );
+  h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 21, -15.5, 5.5 ) );
+
+  if(useLogPt) {
+    BinLogX(h_ptSIM.back()->getTH1F());
+  }
 }
 
 void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook){
@@ -237,8 +246,8 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
-  h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks",401,-0.5,400.5) );
-  h_fakes.push_back( ibook.book1D("fakes","number of fake reco tracks",101,-0.5,100.5) );
+  h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks", nintTracks, minTracks, maxTracks) );
+  h_fakes.push_back( ibook.book1D("fakes","number of fake reco tracks", nintTracks, minTracks, maxTracks) );
   h_charge.push_back( ibook.book1D("charge","charge",3,-1.5,1.5) );
 
   h_hits.push_back( ibook.book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
@@ -351,36 +360,37 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_assocSharedHit.push_back(ibook.book1D("assocSharedHit","number of shared hits",41,-0.5,40.5));
   // ----------------------
 
-  chi2_vs_nhits.push_back( ibook.book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
+  // use the standard error of the mean as the errors in the profile
+  chi2_vs_nhits.push_back( ibook.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",nintHit,minHit,maxHit, 100,0,10, " ") );
 
   etares_vs_eta.push_back( ibook.book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
-  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","nrec vs nsim",401,-0.5,400.5,401,-0.5,400.5) );
+  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","nrec vs nsim", nintTracks,minTracks,maxTracks, nintTracks,minTracks,maxTracks) );
 
-  chi2_vs_eta.push_back( ibook.book2D("chi2_vs_eta","chi2_vs_eta",nintEta,minEta,maxEta, 200, 0, 20 ));
-  chi2_vs_phi.push_back( ibook.book2D("chi2_vs_phi","#chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20 ) );
+  chi2_vs_eta.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20, " " ));
+  chi2_vs_phi.push_back( ibook.bookProfile("chi2mean_vs_phi","mean #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20, " " ) );
 
-  nhits_vs_eta.push_back( ibook.book2D("nhits_vs_eta","nhits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nPXBhits_vs_eta.push_back( ibook.book2D("nPXBhits_vs_eta","# PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nPXFhits_vs_eta.push_back( ibook.book2D("nPXFhits_vs_eta","# PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTIBhits_vs_eta.push_back( ibook.book2D("nTIBhits_vs_eta","# TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTIDhits_vs_eta.push_back( ibook.book2D("nTIDhits_vs_eta","# TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTOBhits_vs_eta.push_back( ibook.book2D("nTOBhits_vs_eta","# TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nTEChits_vs_eta.push_back( ibook.book2D("nTEChits_vs_eta","# TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nhits_vs_eta.push_back( ibook.bookProfile("hits_eta","mean hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nPXBhits_vs_eta.push_back( ibook.bookProfile("PXBhits_vs_eta","mean # PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nPXFhits_vs_eta.push_back( ibook.bookProfile("PXFhits_vs_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nTIBhits_vs_eta.push_back( ibook.bookProfile("TIBhits_vs_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nTIDhits_vs_eta.push_back( ibook.bookProfile("TIDhits_vs_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nTOBhits_vs_eta.push_back( ibook.bookProfile("TOBhits_vs_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nTEChits_vs_eta.push_back( ibook.bookProfile("TEChits_vs_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
 
-  nLayersWithMeas_vs_eta.push_back( ibook.book2D("nLayersWithMeas_vs_eta","# Layers with measurement vs eta",
-						nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nPXLlayersWithMeas_vs_eta.push_back( ibook.book2D("nPXLlayersWithMeas_vs_eta","# PXL Layers with measurement vs eta",
-						   nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nSTRIPlayersWithMeas_vs_eta.push_back( ibook.book2D("nSTRIPlayersWithMeas_vs_eta","# STRIP Layers with measurement vs eta",
-						      nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nSTRIPlayersWith1dMeas_vs_eta.push_back( ibook.book2D("nSTRIPlayersWith1dMeas_vs_eta","# STRIP Layers with 1D measurement vs eta",
-							nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  nSTRIPlayersWith2dMeas_vs_eta.push_back( ibook.book2D("nSTRIPlayersWith2dMeas_vs_eta","# STRIP Layers with 2D measurement vs eta",
-						       nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nLayersWithMeas_vs_eta.push_back( ibook.bookProfile("LayersWithMeas_eta","mean # Layers with measurement vs eta",
+                                                      nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nPXLlayersWithMeas_vs_eta.push_back( ibook.bookProfile("PXLlayersWithMeas_vs_eta","mean # PXL Layers with measurement vs eta",
+                                                         nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nSTRIPlayersWithMeas_vs_eta.push_back( ibook.bookProfile("STRIPlayersWithMeas_vs_eta","mean # STRIP Layers with measurement vs eta",
+                                                           nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nSTRIPlayersWith1dMeas_vs_eta.push_back( ibook.bookProfile("STRIPlayersWith1dMeas_vs_eta","mean # STRIP Layers with 1D measurement vs eta",
+                                                             nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nSTRIPlayersWith2dMeas_vs_eta.push_back( ibook.bookProfile("STRIPlayersWith2dMeas_vs_eta","mean # STRIP Layers with 2D measurement vs eta",
+                                                             nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
 
-  nhits_vs_phi.push_back( ibook.book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
+  nhits_vs_phi.push_back( ibook.bookProfile("hits_phi","mean # hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit, " ") );
 
-  nlosthits_vs_eta.push_back( ibook.book2D("nlosthits_vs_eta","nlosthits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  nlosthits_vs_eta.push_back( ibook.bookProfile("losthits_vs_eta","mean # lost hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
 
   //resolution of track parameters
   //                       dPt/Pt    cotTheta        Phi            TIP            LIP
@@ -553,6 +563,10 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
   }
 
+}
+
+void MTVHistoProducerAlgoForTracker::fill_simTrackBased_histos(int count, int numSimTracks){
+  h_tracksSIM[count]->Fill(numSimTracks);
 }
 
 // dE/dx

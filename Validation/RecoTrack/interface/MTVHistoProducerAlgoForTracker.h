@@ -54,6 +54,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					   const reco::Track* track,
 					   int numVertices);
 
+  void fill_simTrackBased_histos(int count, int numSimTracks);
+
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,
@@ -130,6 +132,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double minChi2, maxChi2; int nintChi2;
   double minDeDx, maxDeDx;  int nintDeDx;
   double minVertcount, maxVertcount;  int nintVertcount;
+  double minTracks, maxTracks; int nintTracks;
 
   //
   double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
@@ -206,9 +209,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
   std::vector<MonitorElement*> chi2_vs_eta, nlosthits_vs_eta;
-  std::vector<MonitorElement*> h_chi2meanh, h_losthits_eta;
-  std::vector<MonitorElement*> h_hits_phi;
-  std::vector<MonitorElement*> h_chi2meanhitsh, h_chi2mean_vs_phi;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
