@@ -30,7 +30,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+// #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -40,6 +40,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -484,7 +485,7 @@ HiPFJetAnalyzer::analyze(const Event& iEvent,
 
   Handle<TrackingParticleCollection>  TPCollectionHfake;
   Handle<edm::View<reco::Track> >  trackCollection;
-  ESHandle<TrackAssociatorBase> theAssociator;
+  // ESHandle<TrackAssociatorBase> theAssociator;
   // const TrackAssociatorByHits *theAssociatorByHits;
   reco::RecoToSimCollection recSimColl;
   edm::Handle<reco::RecoToSimCollection > recotosimCollectionH;
