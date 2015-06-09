@@ -9,6 +9,9 @@
 //---------------------------------------------------------------------------
 
 
+// Base class: TrackingRecHitAlgorithm
+#include "FastSimulation/TrackingRecHitProducer/TrackingRecHitAlgorithm.h"
+
 //Framework
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -33,14 +36,15 @@ class TFile;
 class RandomEngineAndDistribution;
 class SimpleHistogramGenerator;
 
-class SiPixelGaussianSmearingRecHitConverterAlgorithm {
+class SiPixelGaussianSmearingRecHitConverterAlgorithm : public TrackingRecHitAlgorithm {
 public:
-  //--- Constructor, virtual destructor (just in case)
+  //--- Constructor
   explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(		   
+   TrackingRecHitAlgorithm(),							   
    const edm::ParameterSet& pset,
    GeomDetType::SubDetector pixelPart);
 
-  // destructor
+  //--- Virtual destructor (just in case)
   virtual ~SiPixelGaussianSmearingRecHitConverterAlgorithm();
   
   // return results
