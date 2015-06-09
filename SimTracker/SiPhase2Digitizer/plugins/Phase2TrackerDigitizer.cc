@@ -107,15 +107,16 @@ namespace cms
       std::vector<PSimHit> const& simHits = *hSimHits.product();
       for (auto it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
 	unsigned int detId_raw = (*it).detUnitId();
+	if (detectorUnits_.find(detId_raw) == detectorUnits_.end()) continue;
 	if (detIds.insert(detId_raw).second) {
 	  // The insert succeeded, so this detector element has not yet been processed.
-	  const std::string algotype = getAlgoType(detId_raw);
 	  Phase2TrackerGeomDetUnit* phase2det = detectorUnits_[detId_raw];
 
 	  // access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
 	  LogDebug("PixelDigitizer") << "B-field(T) at " << phase2det->surface().position() << "(cm): " 
 	         		     << pSetup_->inTesla(phase2det->surface().position());
+	  const std::string algotype = getAlgoType(detId_raw);
 	  if (algomap_.find(algotype) != algomap_.end()) 
 	    algomap_[algotype]->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, phase2det, bfield);
 	  else
@@ -150,12 +151,9 @@ namespace cms
 	unsigned int detId_raw = (*iu)->geographicalId().rawId();
 	DetId detId = DetId(detId_raw);
 	if (DetId(detId).det() == DetId::Detector::Tracker) {
-	  unsigned int isub = detId.subdetId();
-	  if (isub == PixelSubdetector::PixelBarrel || isub == PixelSubdetector::PixelEndcap) {
-	    Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<Phase2TrackerGeomDetUnit*>(*iu);
-	    assert(pixdet);
-	    detectorUnits_.insert(std::make_pair(detId_raw, pixdet));
-	  }
+	  Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<Phase2TrackerGeomDetUnit*>(*iu);
+	  assert(pixdet);
+	  detectorUnits_.insert(std::make_pair(detId_raw, pixdet));
 	}
       }
     }
@@ -243,20 +241,17 @@ namespace cms
     DetId detId = DetId(detId_raw);
     std::string algotype = "";
     if (detId.det() == DetId::Detector::Tracker) {
-      // Pixel type explicitly mentioned here
-      if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
-	if (detIdStackDetIdmap_.find(detId) != detIdStackDetIdmap_.end()) {
-	  StackedTrackerDetId stackDetId = detIdStackDetIdmap_[detId]->Id();
-	  if (stkGeom_->isPSModule(stackDetId)) {
-	    if (detId == detIdStackDetIdmap_[detId]->stackMember(0))
-	      algotype = PixelinPS;
-            else if (detId == detIdStackDetIdmap_[detId]->stackMember(1))
-              algotype = StripinPS;
-	  } 
-          else algotype = TwoStrip;
+      if (detIdStackDetIdmap_.find(detId) != detIdStackDetIdmap_.end()) {
+	StackedTrackerDetId stackDetId = detIdStackDetIdmap_[detId]->Id();
+	if (stkGeom_->isPSModule(stackDetId)) {
+	  if (detId == detIdStackDetIdmap_[detId]->stackMember(0))
+	    algotype = PixelinPS;
+	  else if (detId == detIdStackDetIdmap_[detId]->stackMember(1))
+	    algotype = StripinPS;
 	} 
-        else algotype = InnerPixel;
-      }
+	else algotype = TwoStrip;
+      } 
+      else algotype = InnerPixel;
     } 
     return algotype;
   }
