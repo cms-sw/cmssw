@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: SingleMuPt100_cfi -s GEN,SIM --conditions auto:run2_mc --magField 38T_PostLS1 --datatier GEN-SIM --geometry Extended2015Muon,Extended2015MuonReco --eventcontent FEVTDEBUGHLT --era Run2_25ns -n 100 --no_exec --fileout out_sim.root --python_filename SingleMuPt100_cfi_GEM-SIM_Extended2015Muon_cfg.py
+# with command line options: SingleMuPt100_cfi -s GEN,SIM --conditions auto:run2_design --magField 38T_PostLS1 --datatier GEN-SIM --geometry Extended2015Muon,Extended2015MuonReco --customise=SLHCUpgradeSimulations/Configuration/gemCustoms.customise2023,SLHCUpgradeSimulations/Configuration/me0Customs.customise --eventcontent FEVTDEBUGHLT --era Run2_25ns -n 100 --no_exec --fileout out_sim.root --python_filename SingleMuPt100_cfi_GEM-SIM_Extended2015Muon_Custom_cfg.py
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
@@ -29,31 +29,31 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
 process.source = cms.Source("EmptySource")
 process.options = cms.untracked.PSet()
 
-### TO ACTIVATE LogVerbatim in Simulation Packages NEED TO:       
+### TO ACTIVATE LogVerbatim in Simulation Packages NEED TO:
 ### --------------------------------------------------------------
 ### scram b disable-biglib                                        
 ### scram b clean
 ### scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                    
 ###                                                               
-### TO ACTIVATE LogTrace IN GEMRecHit NEED TO COMPILE IT WITH:
-### --------------------------------------------------------------
-### --> scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                
-### Make sure that you first cleaned your CMSSW version:          
-### --> scram b clean                                             
-### before issuing the scram command above                        
+### TO ACTIVATE LogTrace IN GEMRecHit NEED TO COMPILE IT WITH:                           
+### --------------------------------------------------------------                       
+### --> scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"                                       
+### Make sure that you first cleaned your CMSSW version:                                 
+### --> scram b clean
+### before issuing the scram command above
 ### --------------------------------------------------------------
 ### !!! If you want to compile any CSC-related code with LogDebug ON, 
-### you need to explicitly compile and build the CSCDetId package too,
-### i.e. do first: git cms-addpkg DataFormats/MuonDetId.              
+### you need to explicitly compile and build the CSCDetId package too, 
+### i.e. do first: git cms-addpkg DataFormats/MuonDetId.
 ### This problem can occur at other places as well, so check carefully
-### the compilation process when switching on the debug flags     
+### the compilation process when switching on the debug flags
 ### --------------------------------------------------------------
 ### LogTrace output goes to cout; all other output to "junk.log"  
 ### Code/Configuration with thanks to Tim Cox                     
@@ -78,6 +78,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     MuonME0FrameRotation      = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     MuonSimDebug              = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
 )
+
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -107,7 +108,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     AddAntiParticle = cms.bool(True),
@@ -139,4 +140,19 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
+# customisation of the process.
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.gemCustoms
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2023 
+
+#call to customisation function customise2023 imported from SLHCUpgradeSimulations.Configuration.gemCustoms
+process = customise2023(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.me0Customs
+from SLHCUpgradeSimulations.Configuration.me0Customs import customise 
+
+#call to customisation function customise imported from SLHCUpgradeSimulations.Configuration.me0Customs
+process = customise(process)
+
+# End of customisation functions
 
