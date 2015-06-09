@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
-#Note: legacy validation code of this producer was removed between CMSSW74->CMSSW75
-
 siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecHitConverter",
 
 #    ROUList = cms.VInputTag(cms.InputTag("mix","famosSimHitsTrackerHits")),
@@ -61,7 +58,6 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     UseCMSSWPixelParametrization = cms.bool(True),
 
     # Pixel CMSSW Parametrization
-    # the pixel parametrization is found using pixelAV templates like in FullSim/reco
     templateIdBarrel = cms.int32( 40 ),
     templateIdForward  = cms.int32( 41 ),
     PixelMultiplicityFile40T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelData40T.root'),
@@ -76,6 +72,14 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
     NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
     NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root'),
+#ALICE: adding new pixel forward resolution file
+    NewPixelForwardResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution2014.root'),
+#    NewPixelBarrelResolutionFile3 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),                                               
+#ALICE: adding new pixel barrel resolution file
+    NewPixelBarrelResolutionFile3 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution2014.root'),
+    probfilebarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bmergeprob.root'),
+    probfileforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fmergeprob.root'),
+
 
     UseNewParametrization = cms.bool(True),
 
@@ -109,9 +113,6 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     HitFindingProbability_TEC6 = cms.double(1.0),
     HitFindingProbability_TEC7 = cms.double(1.0),
 
-
-    # the strip parametrization is approximated by Gaussian distributions
-    
     # TIB
     TIB1x = cms.double(0.00195),
     TIB1y = cms.double(3.3775), ## 11.7/sqrt(12.)
