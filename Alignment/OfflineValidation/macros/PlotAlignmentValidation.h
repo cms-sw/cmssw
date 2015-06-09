@@ -88,6 +88,25 @@ public:
   
   THStack* addHists(const char *selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
+  // These are helpers for DMR plotting
+
+  struct DMRPlotInfo {
+    std::string variable;
+    int nbins;
+    double min, max;
+    int minHits;
+    bool plotPlain, plotSplits, plotLayers;
+    int subDetId, nLayers;
+    THStack* hstack;
+    TLegend* legend;
+    TkOfflineVariables* vars;
+    float maxY;
+    TH1F* h;
+    TH1F* h1;
+    TH1F* h2;
+    bool firsthisto;
+  };
+
 private : 
   TList* getTreeList();
   std::string treeBaseDir;
@@ -115,25 +134,6 @@ private :
   bool moreThanOneSource;
   std::string fileNames[10];
   int fileCounter;	
-
-  // These are helpers for DMR plotting
-
-  struct DMRPlotInfo {
-    std::string variable;
-    int nbins;
-    double min, max;
-    int minHits;
-    bool plotPlain, plotSplits, plotLayers;
-    int subDetId, nLayers;
-    THStack* hstack;
-    TLegend* legend;
-    TkOfflineVariables* vars;
-    float maxY;
-    TH1F* h;
-    TH1F* h1;
-    TH1F* h2;
-    bool firsthisto;
-  };
 
   std::string getSelectionForDMRPlot(int minHits, int subDetId, int direction = 0, int layer = 0);
   std::string getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
