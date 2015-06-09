@@ -153,7 +153,7 @@ def main( options, args ):
     # Propagate global options to _heppyGlobalOptions within this module
     # I have to import it explicitly, 'global' does not work since the
     # module is not set when executing the main
-    from PhysicsTools.HeppyCore.framework.heppy import _heppyGlobalOptions
+    from PhysicsTools.HeppyCore.framework.heppy_loop import _heppyGlobalOptions
     for opt in options.extraOptions:
         if "=" in opt:
             (key,val) = opt.split("=",1)
@@ -177,7 +177,7 @@ def main( options, args ):
         shutil.copy( cfgFileName, outDir )
         pool = Pool(processes=min(len(selComps),10))
         ## workaround for a scoping problem in ipython+multiprocessing
-        import PhysicsTools.HeppyCore.framework.heppy as ML 
+        import PhysicsTools.HeppyCore.framework.heppy_loop as ML 
         for comp in selComps:
             print 'submitting', comp.name
             pool.apply_async( ML.runLoopAsync, [comp, outDir, 'PhysicsTools.HeppyCore.__cfg_to_run__', options],
