@@ -997,6 +997,10 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on discovered simulated primary vertices.
 
+  // In case of no simulated vertices, break here
+  if(simpv.empty())
+    return simpv;
+
   // Now compute the closest distance in z between all simulated vertex
   // first initialize
   auto prev_z = simpv.back().z;
@@ -1080,6 +1084,10 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     }
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on reconstructed primary vertices.
+
+  // In case of no reco vertices, break here
+  if(recopv.empty())
+    return recopv;
 
   // Now compute the closest distance in z between all reconstructed vertex
   // first initialize
