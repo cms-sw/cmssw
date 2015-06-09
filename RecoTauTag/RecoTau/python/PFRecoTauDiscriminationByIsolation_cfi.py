@@ -28,7 +28,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
 
     applyPhotonPtSumOutsideSignalConeCut = cms.bool(False),
     maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
-    maxRelPhotonSumPt_outsideSignalCone = cms.double(0.20),
+    maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10),
 
     qualityCuts = PFTauQualityCuts, # set the standard quality cuts
 
