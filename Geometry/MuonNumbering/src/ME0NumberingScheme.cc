@@ -3,6 +3,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 
 //#define LOCAL_DEBUG
@@ -45,8 +46,9 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   // --------------------
 }
 
-int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
+int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
+    edm::LogVerbatim("ME0NumberingScheme")<<"ME0NumberingScheme::baseNumberToUnitNumber BEGIN "<<std::endl;
   // Debug using LOCAL_DEBUG
   #ifdef LOCAL_DEBUG
     std::cout << "ME0Numbering "<<num.getLevels()<<std::endl;
