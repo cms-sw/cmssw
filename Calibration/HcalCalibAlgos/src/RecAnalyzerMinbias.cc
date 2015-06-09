@@ -11,7 +11,7 @@
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,64 +29,72 @@
 #include "TFile.h"
 #include "TTree.h"
 
+namespace HcalRecMinbias {
+  struct myInfo{
+    double theMB0, theMB1, theMB2, theMB3, theMB4, runcheck;
+    myInfo() {
+      theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = runcheck = 0;
+    }
+  };
+  struct Counters {
+    Counters() {}
+    std::string                                       fOutputFileName_;
+    mutable std::map<std::pair<int,HcalDetId>,myInfo> myMap_;
+  };
+}
+
 // class declaration
-class RecAnalyzerMinbias : public edm::EDAnalyzer {
+class RecAnalyzerMinbias : public edm::stream::EDAnalyzer<edm::GlobalCache<HcalRecMinbias::Counters> > {
 
 public:
-  explicit RecAnalyzerMinbias(const edm::ParameterSet&);
+  explicit RecAnalyzerMinbias(const edm::ParameterSet&, const HcalRecMinbias::Counters* count);
   ~RecAnalyzerMinbias();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  static std::unique_ptr<HcalRecMinbias::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    HcalRecMinbias::Counters* count = new HcalRecMinbias::Counters();
+    count->fOutputFileName_= iConfig.getUntrackedParameter<std::string>("HistOutFile");
+    edm::LogInfo("AnalyzerMB") << "Output File: " << count->fOutputFileName_;
+    return std::unique_ptr<HcalRecMinbias::Counters>(count);
+  }
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const HcalRecMinbias::Counters* counters);
   virtual void beginJob() ;
-  virtual void endJob() ;
     
 private:
   void analyzeHcal(const HBHERecHitCollection&, const HFRecHitCollection&, int);
     
   // ----------member data ---------------------------
-  char                      name[700], title[700];
-  std::string               fOutputFileName ;
-  bool                      theRecalib, ignoreL1, runNZS_;
-  double                    eLowHB_, eHighHB_, eLowHE_, eHighHE_;
-  double                    eLowHF_, eHighHF_;
-  std::map<DetId,double>    corrFactor_;
-  TFile                    *hOutputFile ;
-  TTree                    *myTree;
-  std::vector<TH1D *>       histo;
-  std::vector<unsigned int> hcalID;
-
-  // Root tree members
-  double                     rnnum, rnnumber;
-  int                        mysubd, depth, iphi, ieta, cells, trigbit;
-  float                      mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
-  struct myInfo{
-    double theMB0, theMB1, theMB2, theMB3, theMB4, runcheck;
-    void MyInfo() {
-      theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = runcheck = 0;
-    }
-  };
-  std::map<std::pair<int,HcalDetId>,myInfo> myMap;
-  edm::EDGetTokenT<HBHERecHitCollection>    tok_hbherecoMB_;
-  edm::EDGetTokenT<HFRecHitCollection>      tok_hfrecoMB_;
-  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
+  bool                       theRecalib_, ignoreL1_, runNZS_;
+  double                     eLowHB_, eHighHB_, eLowHE_, eHighHE_;
+  double                     eLowHF_, eHighHF_;
+  std::map<DetId,double>     corrFactor_;
+  std::vector<unsigned int>  hcalID_;
+//std::vector<TH1D *>        histo_;
+  double                     rnnum;
+  std::map<std::pair<int,HcalDetId>,HcalRecMinbias::myInfo> myMap_;
+  edm::EDGetTokenT<HBHERecHitCollection>                    tok_hbherecoMB_;
+  edm::EDGetTokenT<HFRecHitCollection>                      tok_hfrecoMB_;
+  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord>          tok_hltL1GtMap_;
 };
 
 // constructors and destructor
-RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) {
+RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig, const HcalRecMinbias::Counters* counters) {
 
   // get name of output file with histogramms
-  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
-  ignoreL1        = iConfig.getUntrackedParameter<bool>("IgnoreL1", false);
+  runNZS_               = iConfig.getParameter<bool>("RunNZS");
+  eLowHB_               = iConfig.getParameter<double>("ELowHB");
+  eHighHB_              = iConfig.getParameter<double>("EHighHB");
+  eLowHE_               = iConfig.getParameter<double>("ELowHE");
+  eHighHE_              = iConfig.getParameter<double>("EHighHE");
+  eLowHF_               = iConfig.getParameter<double>("ELowHF");
+  eHighHF_              = iConfig.getParameter<double>("EHighHF");
+  ignoreL1_             = iConfig.getUntrackedParameter<bool>("IgnoreL1",false);
   std::string      cfile= iConfig.getUntrackedParameter<std::string>("CorrFile");
   std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");
   std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("HcalIphi");
   std::vector<int> depth= iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
-  runNZS_         = iConfig.getParameter<bool>("RunNZS");
-  eLowHB_         = iConfig.getParameter<double>("ELowHB");
-  eHighHB_        = iConfig.getParameter<double>("EHighHB");
-  eLowHE_         = iConfig.getParameter<double>("ELowHE");
-  eHighHE_        = iConfig.getParameter<double>("EHighHE");
-  eLowHF_         = iConfig.getParameter<double>("ELowHF");
-  eHighHF_        = iConfig.getParameter<double>("EHighHF");
 
   // get token names of modules, producing object collections
   tok_hbherecoMB_   = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
@@ -96,7 +104,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) {
   // Read correction factors
   std::ifstream infile(cfile);
   if (!infile.is_open()) {
-    theRecalib = false;
+    theRecalib_ = false;
     edm::LogInfo("AnalyzerMB") << "Cannot open '" << cfile 
 			       << "' for the correction file";
   } else {
@@ -117,12 +125,11 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) {
     infile.close();
     edm::LogInfo("AnalyzerMB") << "Reads " << nrec << " correction factors for "
 			       << ndets << " detIds";
-    theRecalib = (ndets>0);
+    theRecalib_ = (ndets>0);
   }
 
-  edm::LogInfo("AnalyzerMB") << "Output File: " << fOutputFileName 
-			     << " Flags (ReCalib): " << theRecalib 
-			     << " (IgnoreL1): " << ignoreL1 << " (NZS) " 
+  edm::LogInfo("AnalyzerMB") << " Flags (ReCalib): " << theRecalib_
+			     << " (IgnoreL1): " << ignoreL1_ << " (NZS) " 
 			     << runNZS_ << " and with " << ieta.size() 
 			     << " detId for full histogram";
   edm::LogInfo("AnalyzerMB") << "Thresholds for HB " << eLowHB_ << ":" 
@@ -135,28 +142,59 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) {
 			    ((std::abs(ieta[k]) == 16) && (depth[k] == 3)) ? HcalEndcap :
 			    (depth[k] == 4) ? HcalOuter : HcalBarrel);
     unsigned int id = (HcalDetId(subd,ieta[k],iphi[k],depth[k])).rawId();
-    hcalID.push_back(id);
+    hcalID_.push_back(id);
     edm::LogInfo("AnalyzerMB") << "DetId[" << k << "] " << HcalDetId(id);
   }
+  myMap_.clear();
 }
   
 RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
   
 void RecAnalyzerMinbias::beginJob() {
+  /*
   std::string hc[5] = {"Empty", "HB", "HE", "HO", "HF"};
-  for (unsigned int i=0; i<hcalID.size(); i++) {
-    HcalDetId id = HcalDetId(hcalID[i]);
+  char        name[700], title[700];
+  for (unsigned int i=0; i<hcalID_.size(); i++) {
+    HcalDetId id = HcalDetId(hcalID_[i]);
     int subdet   = id.subdetId();
     sprintf (name, "%s%d_%d_%d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
     sprintf (title, "Energy Distribution for %s ieta %d iphi %d depth %d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
     double xmin = (subdet == 4) ? -10 : -1;
     double xmax = (subdet == 4) ? 90 : 9;
     TH1D*  hh   = new TH1D(name, title, 50, xmin, xmax);
-    histo.push_back(hh);
+    histo_.push_back(hh);
   };
+  */
+}
 
-  hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
-  myTree = new TTree("RecJet","RecJet Tree");
+void RecAnalyzerMinbias::endStream() {
+
+  for (std::map<std::pair<int,HcalDetId>,HcalRecMinbias::myInfo>::const_iterator itr=myMap_.begin(); itr != myMap_.end(); ++itr) {
+    std::pair<int,HcalDetId> id = itr->first;
+    std::map<std::pair<int,HcalDetId>,HcalRecMinbias::myInfo>::iterator itr1 = (globalCache()->myMap_).find(id);
+    if (itr1 == globalCache()->myMap_.end()) {
+      HcalRecMinbias::myInfo info;
+      globalCache()->myMap_[id] = info;
+      itr1 = (globalCache()->myMap_).find(id);
+      itr1->second.runcheck = itr->second.runcheck;
+    }
+    itr1->second.theMB0  += itr->second.theMB0;
+    itr1->second.theMB1  += itr->second.theMB1;
+    itr1->second.theMB2  += itr->second.theMB2;
+    itr1->second.theMB3  += itr->second.theMB3;
+    itr1->second.theMB4  += itr->second.theMB4;
+  }
+}
+  
+//  EndJob
+//
+void RecAnalyzerMinbias::globalEndJob(const HcalRecMinbias::Counters* count) {
+ 
+  TFile* hOutputFile   = new TFile(count->fOutputFileName_.c_str(), "RECREATE");
+  TTree* myTree        = new TTree("RecJet","RecJet Tree");
+  double                     rnnumber;
+  int                        mysubd, depth, iphi, ieta, cells, trigbit;
+  float                      mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
   myTree->Branch("cells",    &cells,    "cells/I");
   myTree->Branch("mysubd",   &mysubd,   "mysubd/I");
   myTree->Branch("depth",    &depth,    "depth/I");
@@ -169,18 +207,11 @@ void RecAnalyzerMinbias::beginJob() {
   myTree->Branch("mom4_MB",  &mom4_MB,  "mom4_MB/F");
   myTree->Branch("trigbit",  &trigbit,  "trigbit/I");
   myTree->Branch("rnnumber", &rnnumber, "rnnumber/D");
-  myMap.clear();
-  return ;
-}
-  
-//  EndJob
-//
 
-void RecAnalyzerMinbias::endJob() {
   cells = 0;
-  for (std::map<std::pair<int,HcalDetId>,myInfo>::const_iterator itr=myMap.begin(); itr != myMap.end(); ++itr) {
+  for (std::map<std::pair<int,HcalDetId>,HcalRecMinbias::myInfo>::const_iterator itr=count->myMap_.begin(); itr != count->myMap_.end(); ++itr) {
     edm::LogInfo("AnalyzerMB") << "Fired trigger bit number "<<itr->first.first;
-    myInfo info = itr->second;
+    HcalRecMinbias::myInfo info = itr->second;
     if (info.theMB0 > 0) { 
       mom0_MB  = info.theMB0;
       mom1_MB  = info.theMB1;
@@ -206,9 +237,7 @@ void RecAnalyzerMinbias::endJob() {
   
   hOutputFile->Write();   
   hOutputFile->cd();
-  for(unsigned int i = 0; i<histo.size(); i++){
-    histo[i]->Write();
-  }
+//for (unsigned int i = 0; i<histo_.size(); i++) histo_[i]->Write();
   myTree->Write();
   hOutputFile->Close() ;
 }
@@ -250,7 +279,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     return;
   }
 
-  if (ignoreL1) {
+  if (ignoreL1_) {
     analyzeHcal(HithbheMB, HithfMB, 1);
   } else {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
@@ -283,7 +312,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     // Recalibration of energy
     DetId mydetid = hbheItr->id().rawId();
     double icalconst(1.);	 
-    if (theRecalib) {
+    if (theRecalib_) {
       std::map<DetId,double>::iterator itr = corrFactor_.find(mydetid);
       if (itr != corrFactor_.end()) icalconst = itr->second;
     }
@@ -293,18 +322,20 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     HcalDetId hid    = HcalDetId(id);
     double eLow      = (hid.subdet() == HcalEndcap) ? eLowHE_  : eLowHB_;
     double eHigh     = (hid.subdet() == HcalEndcap) ? eHighHE_ : eHighHB_;
-    for (unsigned int i = 0; i < hcalID.size(); i++) {
-      if (hcalID[i] == id.rawId()) {
-	histo[i]->Fill(energyhit);
+    /*
+    for (unsigned int i = 0; i < hcalID_.size(); i++) {
+      if (hcalID_[i] == id.rawId()) {
+	histo_[i]->Fill(energyhit);
 	break;
       }
     }
+    */
     if (runNZS_ || (energyhit >= eLow && energyhit <= eHigh)) {
-      std::map<std::pair<int,HcalDetId>,myInfo>::iterator itr1 = myMap.find(std::pair<int,HcalDetId>(algoBit,hid));
-      if (itr1 == myMap.end()) {
-	myInfo info;
-	myMap[std::pair<int,HcalDetId>(algoBit,hid)] = info;
-	itr1 = myMap.find(std::pair<int,HcalDetId>(algoBit,hid));
+      std::map<std::pair<int,HcalDetId>,HcalRecMinbias::myInfo>::iterator itr1 = myMap_.find(std::pair<int,HcalDetId>(algoBit,hid));
+      if (itr1 == myMap_.end()) {
+	HcalRecMinbias::myInfo info;
+	myMap_[std::pair<int,HcalDetId>(algoBit,hid)] = info;
+	itr1 = myMap_.find(std::pair<int,HcalDetId>(algoBit,hid));
       } 
       itr1->second.theMB0++;
       itr1->second.theMB1 += energyhit;
@@ -321,7 +352,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     // Recalibration of energy
     DetId mydetid = hfItr->id().rawId();
     double icalconst(1.);	 
-    if (theRecalib) {
+    if (theRecalib_) {
       std::map<DetId,double>::iterator itr = corrFactor_.find(mydetid);
       if (itr != corrFactor_.end()) icalconst = itr->second;
     }
@@ -330,22 +361,24 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     double energyhit = aHit.energy();
     DetId id         = (*hfItr).detid(); 
     HcalDetId hid    = HcalDetId(id);
-    for (unsigned int i = 0; i < hcalID.size(); i++) {
-      if (hcalID[i] == id.rawId()) {
-	histo[i]->Fill(energyhit);
+    /*
+    for (unsigned int i = 0; i < hcalID_.size(); i++) {
+      if (hcalID_[i] == id.rawId()) {
+	histo_[i]->Fill(energyhit);
 	break;
       }
     }
+    */
     //
     // Remove PMT hits
     //	 
     if ((runNZS_ && fabs(energyhit) <= 40.) || 
 	(energyhit >= eLowHF_ && energyhit <= eHighHF_)) {
-      std::map<std::pair<int,HcalDetId>,myInfo>::iterator itr1 = myMap.find(std::pair<int,HcalDetId>(algoBit,hid));
-      if (itr1 == myMap.end()) {
-	myInfo info;
-	myMap[std::pair<int,HcalDetId>(algoBit,hid)] = info;
-	itr1 = myMap.find(std::pair<int,HcalDetId>(algoBit,hid));
+      std::map<std::pair<int,HcalDetId>,HcalRecMinbias::myInfo>::iterator itr1 = myMap_.find(std::pair<int,HcalDetId>(algoBit,hid));
+      if (itr1 == myMap_.end()) {
+	HcalRecMinbias::myInfo info;
+	myMap_[std::pair<int,HcalDetId>(algoBit,hid)] = info;
+	itr1 = myMap_.find(std::pair<int,HcalDetId>(algoBit,hid));
       }
       itr1->second.theMB0++;
       itr1->second.theMB1 += energyhit;

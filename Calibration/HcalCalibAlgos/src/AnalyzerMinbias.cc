@@ -64,7 +64,7 @@ namespace HcalMinbias {
     double theMB0, theMB1, theMB2, theMB3, theMB4;
     double theNS0, theNS1, theNS2, theNS3, theNS4;
     double theDif0, theDif1, theDif2, runcheck;
-    void MyInfo() {
+    myInfo() {
       theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0;
       theNS0 = theNS1 = theNS2 = theNS3 = theNS4 = 0;
       theDif0 = theDif1 = theDif2 = runcheck = 0;
@@ -86,13 +86,12 @@ public:
   static std::unique_ptr<HcalMinbias::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     HcalMinbias::Counters* count = new HcalMinbias::Counters();
     count->fOutputFileName_= iConfig.getUntrackedParameter<std::string>("HistOutFile");
-    return std::unique_ptr<HcalMinbias::Counters>(new HcalMinbias::Counters());
+    return std::unique_ptr<HcalMinbias::Counters>(count);
   }
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endStream() override;
   static  void globalEndJob(const HcalMinbias::Counters* counters);
-  virtual void beginJob() ;
   
 private:
     
@@ -142,8 +141,6 @@ AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig,
   
 AnalyzerMinbias::~AnalyzerMinbias() { }
   
-void AnalyzerMinbias::beginJob() { }
-
 void AnalyzerMinbias::endStream() {
 
   for (std::map<std::pair<int,HcalDetId>,HcalMinbias::myInfo>::const_iterator itr=myMap_.begin(); itr != myMap_.end(); ++itr) {
@@ -155,16 +152,16 @@ void AnalyzerMinbias::endStream() {
       itr1 = (globalCache()->myMap_).find(id);
       itr1->second.runcheck = itr->second.runcheck;
     }
-    itr1->second.theNS0 += itr->second.theNS0;
-    itr1->second.theNS1 += itr->second.theNS1;
-    itr1->second.theNS2 += itr->second.theNS2;
-    itr1->second.theNS3 += itr->second.theNS3;
-    itr1->second.theNS4 += itr->second.theNS4;
-    itr1->second.theMB0 += itr->second.theMB0;
-    itr1->second.theMB1 += itr->second.theMB1;
-    itr1->second.theMB2 += itr->second.theMB2;
-    itr1->second.theMB3 += itr->second.theMB3;
-    itr1->second.theMB4 += itr->second.theMB4;
+    itr1->second.theNS0  += itr->second.theNS0;
+    itr1->second.theNS1  += itr->second.theNS1;
+    itr1->second.theNS2  += itr->second.theNS2;
+    itr1->second.theNS3  += itr->second.theNS3;
+    itr1->second.theNS4  += itr->second.theNS4;
+    itr1->second.theMB0  += itr->second.theMB0;
+    itr1->second.theMB1  += itr->second.theMB1;
+    itr1->second.theMB2  += itr->second.theMB2;
+    itr1->second.theMB3  += itr->second.theMB3;
+    itr1->second.theMB4  += itr->second.theMB4;
     itr1->second.theDif0 += itr->second.theDif0;
     itr1->second.theDif1 += itr->second.theDif1;
     itr1->second.theDif2 += itr->second.theDif2;
@@ -175,8 +172,8 @@ void AnalyzerMinbias::endStream() {
 //
 void AnalyzerMinbias::globalEndJob(const HcalMinbias::Counters* count) {
    
-  TFile* hOutputFile_  = new TFile(count->fOutputFileName_.c_str(), "RECREATE") ;
-  TTree* myTree_ = new TTree("RecJet","RecJet Tree");
+  TFile* hOutputFile_ = new TFile(count->fOutputFileName_.c_str(), "RECREATE") ;
+  TTree* myTree_      = new TTree("RecJet","RecJet Tree");
   double         rnnumber;
   int            mydet, mysubd, depth, iphi, ieta, cells, trigbit;
   float          phi, eta;
