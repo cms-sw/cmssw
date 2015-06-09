@@ -84,8 +84,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK4CaloJe
     'HLT_L1Tech5_BPTX_PlusOnly_v1', 
     'HLT_L1Tech6_BPTX_MinusOnly_v1', 
     'HLT_L1Tech7_NoBPTX_v1', 
-    'HLT_L1TechCastorHaloMuon_v1', 
-    'HLT_L1TechCastorMediumJet_v1', 
     'HLT_L1Tech_DT_GlobalOR_v1', 
     'HLT_PFJet15_FwdEta2_NoCaloMatched_v2', 
     'HLT_PFJet15_FwdEta3_NoCaloMatched_v2', 
