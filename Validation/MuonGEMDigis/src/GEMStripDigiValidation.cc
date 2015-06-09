@@ -40,9 +40,8 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
     int region_num = region->region();
     TString title_suffix = TString::Format(" at Region%d",region_num);
     TString histname_suffix = TString::Format("_r%d",region_num);
-    TString simpleZR_title    = TString::Format("ZR Occupancy%s",title_suffix.Data());
-    TString simpleZR_histname = TString::Format("strip_simple_zr%s",title_suffix.Data());
-
+    TString simpleZR_title    = TString::Format("ZR Occupancy%s; |Z|(cm) ; R(cm)",title_suffix.Data());
+    TString simpleZR_histname = TString::Format("strip_simple_zr%s",histname_suffix.Data());
     theStrip_simple_zr[simpleZR_histname.Hash() ] = ibooker.book2D(simpleZR_histname, simpleZR_title, 100, 550, 820, 100, 100, 380);
     for( auto& station : region->stations()) {
       if ( station->station()==2) continue;
@@ -50,15 +49,23 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
       TString title_suffix2 = title_suffix + TString::Format("  Station%d", station_num);
       TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
 
-      TString subEta_title    = TString::Format("Occupancy for detector component %s",title_suffix2.Data());
-      TString subEta_histname = TString::Format("subEta%s",histname_suffix2.Data());
+      TString dcEta_title    = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
+      TString dcEta_histname = TString::Format("strip_dcEta%s",histname_suffix2.Data());
       int nXbins = station->rings()[0]->nSuperChambers()* 2 ;
 
       int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
       int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
       int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2 ;
 
-      theStrip_subEta[ subEta_histname.Hash() ] = ibooker.book2D(subEta_histname, subEta_title, nXbins+1, 0, nXbins+1, nYbins, 1, nYbins+1);
+      theStrip_dcEta[ dcEta_histname.Hash() ] = ibooker.book2D(dcEta_histname, dcEta_title, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+      int idx = 0 ;
+      for(unsigned int sCh = 1 ; sCh <= station->superChambers().size() ; sCh++ ) {
+        for( unsigned int Ch =1 ; Ch<=2 ; Ch++) {
+          idx++;
+          TString label = TString::Format("ch%d_la%d",sCh, Ch);
+          theStrip_dcEta[ dcEta_histname.Hash() ]->setBinLabel(idx, label.Data());
+        }
+      }
 
     }
   }
@@ -162,11 +169,12 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       // Fill normal plots.
       TString histname_suffix = TString::Format("_r%d",region);
       TString simple_zr_histname = TString::Format("strip_simple_zr%s",histname_suffix.Data());
+      theStrip_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(g_z), g_r);
 
 
       histname_suffix = TString::Format("_r%d_st%d",region, station);
-      TString subEta_histname = TString::Format("subEta%s",histname_suffix.Data());
-      theStrip_subEta[subEta_histname.Hash()]->Fill( binX, binY); 
+      TString dcEta_histname = TString::Format("strip_dcEta%s",histname_suffix.Data());
+      theStrip_dcEta[dcEta_histname.Hash()]->Fill( binX, binY); 
 
       // Fill detail plots.
       if ( detailPlot_) {

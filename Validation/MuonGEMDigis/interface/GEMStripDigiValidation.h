@@ -28,7 +28,7 @@ public:
   std::map< UInt_t , MonitorElement* > theStrip_xy_ch;
 
   // Simple plots
-  std::map< UInt_t , MonitorElement* > theStrip_subEta;
+  std::map< UInt_t , MonitorElement* > theStrip_dcEta;
   std::map< UInt_t , MonitorElement* > theStrip_simple_zr;
   
 };
