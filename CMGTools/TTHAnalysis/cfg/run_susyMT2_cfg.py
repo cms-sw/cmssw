@@ -87,6 +87,7 @@ photonAna.etaCentral = 2.5
 photonAna.ptMin = 20
 photonAna.gammaID = "POG_PHYS14_25ns_Loose_old_looseSieie_NoIso"
 photonAna.do_randomCone = True
+photonAna.do_mc_match = True
 
 # Isolated Track
 isoTrackAna.setOff=False
@@ -301,13 +302,12 @@ doSpecialSettingsForMECCA = 1
 if doSpecialSettingsForMECCA==1:
     jetAna.doQG = False
     photonAna.do_randomCone = False
-    photonAna.do_mc_match = False
 
 
 isData = 0
 if isData==1:
     jetAna.recalibrateJets = False
-
+    photonAna.do_mc_match = False
 # ------------------------------------------------------------------------------------------- #
 
 
