@@ -241,13 +241,14 @@ done
 ######################################################################
 ######################################################################
 extendedValidationTemplate="""
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
 void TkAlExtendedOfflineValidation()
 {
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
   //compile the makro
-  gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
+  //gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
   // gROOT->ProcessLine(".L ./PlotAlignmentValidation.C++");
 
   .oO[extendedInstantiation]Oo.
