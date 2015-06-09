@@ -202,7 +202,7 @@ process.hiSelectGenJets = cms.Sequence(
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 
 process.ana_step = cms.Path(process.heavyIon*
-                            # process.hltanalysis * # should be put back in later
+                            process.hltanalysis * 
 #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
