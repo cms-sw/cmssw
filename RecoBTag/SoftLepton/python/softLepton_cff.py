@@ -4,7 +4,11 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
 from RecoBTag.SoftLepton.softMuonTagInfos_cfi import *
 from RecoBTag.SoftLepton.softPFElectronTagInfos_cfi import *
+from RecoBTag.SoftLepton.softPFElectronTagInfosAK8_cfi import *
+from RecoBTag.SoftLepton.softPFElectronTagInfosCA15_cfi import *
 from RecoBTag.SoftLepton.softPFMuonTagInfos_cfi import *
+from RecoBTag.SoftLepton.softPFMuonTagInfosAK8_cfi import *
+from RecoBTag.SoftLepton.softPFMuonTagInfosCA15_cfi import *
 from RecoBTag.SoftLepton.SoftLeptonByMVA_cff import *
 from RecoBTag.SoftLepton.SoftLeptonByPt_cff import *
 from RecoBTag.SoftLepton.SoftLeptonByIP3d_cff import *

@@ -1,0 +1,51 @@
+<lcgdict>
+<class name="vlq::Candidate" ClassVersion="10">
+ <version ClassVersion="10" checksum="548957944"/>
+</class>
+
+<class name="vlq::GenParticle" ClassVersion="11">
+ <version ClassVersion="11" checksum="690863366"/>
+ <version ClassVersion="10" checksum="57839716"/>
+</class>
+
+<class name="vlq::GenParticleWithDaughters" ClassVersion="10">
+ <version ClassVersion="10" checksum="1103100465"/>
+</class>
+
+<class name="vlq::Jet" ClassVersion="15">
+ <version ClassVersion="15" checksum="2584536038"/>
+ <version ClassVersion="14" checksum="2354134023"/>
+ <version ClassVersion="13" checksum="901612403"/>
+ <version ClassVersion="12" checksum="1971238902"/>
+ <version ClassVersion="11" checksum="2747855388"/>
+<version ClassVersion="10" checksum="468838756"/>
+</class>
+
+<class name="vlq::ResolvedVjj" ClassVersion="14">
+ <version ClassVersion="14" checksum="1421398784"/>
+ <version ClassVersion="13" checksum="1070015178"/>
+ <version ClassVersion="12" checksum="617948693"/>
+ <version ClassVersion="11" checksum="1686967227"/>
+ <version ClassVersion="10" checksum="4213496467"/>
+</class>
+
+<class name="edm::Wrapper<vlq::Candidate>"/>
+<class name="std::vector<vlq::Candidate>"/>
+<class name="edm::Wrapper<std::vector<vlq::Candidate> >"/>
+
+<class name="edm::Wrapper<vlq::GenParticleWithDaughters>"/>
+<class name="std::vector<vlq::GenParticleWithDaughters>"/>
+<class name="edm::Wrapper<std::vector<vlq::GenParticleWithDaughters> >"/>
+
+<class name="edm::Wrapper<vlq::GenParticle>"/>
+<class name="std::vector<vlq::GenParticle>"/>
+<class name="edm::Wrapper<std::vector<vlq::GenParticle> >"/>
+
+<class name="edm::Wrapper<vlq::Jet>"/>
+<class name="std::vector<vlq::Jet>"/>
+<class name="edm::Wrapper<std::vector<vlq::Jet> >"/>
+
+<class name="edm::Wrapper<vlq::ResolvedVjj>"/>
+<class name="std::vector<vlq::ResolvedVjj>"/>
+<class name="edm::Wrapper<std::vector<vlq::ResolvedVjj> >"/>
+</lcgdict>
