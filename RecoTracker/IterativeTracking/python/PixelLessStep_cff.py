@@ -190,7 +190,7 @@ pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
-pixelLessStepClassifier1 = TrackMVAClassifierDetached.clone()
+pixelLessStepClassifier1 = TrackMVAClassifierPrompt.clone()
 pixelLessStepClassifier1.src = 'pixelLessStepTracks'
 pixelLessStepClassifier1.GBRForestLabel = 'MVASelectorIter5_13TeV'
 pixelLessStepClassifier1.qualityCuts = [-0.4,0.0,0.4]
