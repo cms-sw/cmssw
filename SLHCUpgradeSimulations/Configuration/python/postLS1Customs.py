@@ -138,8 +138,6 @@ def customise_DQM(process):
     # Turn off "low bias voltage" region in HCAL noise filters
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
-    if hasattr(process,'MakeHBHENoiseFilterResult'):
-        process.MakeHBHENoiseFilterResult.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
     return process
 
 
@@ -147,8 +145,6 @@ def customise_DQM_25ns(process):
     # Switch the default decision of the HCAL noise filter
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
-    if hasattr(process,'MakeHBHENoiseFilterResult'):
-        process.MakeHBHENoiseFilterResult.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
     return process
 
 
