@@ -49,10 +49,10 @@ if [ -d $outputFolder ]; then
     exit;
 else
     mkdir $outputFolder;
-    mkdir -p $outputFolder/$labelA/tree;
-    mkdir -p $outputFolder/$labelB/tree;
-    cp $fileA $outputFolder/$labelA/tree/tree_tree.root
-    cp $fileB $outputFolder/$labelB/tree/tree_tree.root
+    mkdir -p $outputFolder/$labelA/mt2;
+    mkdir -p $outputFolder/$labelB/mt2;
+    cp $fileA $outputFolder/$labelA/mt2/mt2_tree.root
+    cp $fileB $outputFolder/$labelB/mt2/mt2_tree.root
 fi 
 
 
@@ -64,11 +64,11 @@ EOF
 
 cd ../python/plotter/
 
-python mcPlots.py -f --tree tree  -P $workingDir/$outputFolder  $workingDir/$outputFolder/inputs.txt susy-mT2/validation_MT2.txt susy-mT2/validation_plots_MT2.txt --pdir $workingDir/$outputFolder/plots -p ref_ttHWWdata,ttHWWdata -u -e --plotmode=norm --showRatio --maxRatioRange 0.65 1.35 --flagDifferences
+python mcPlots.py -f --tree mt2  -P $workingDir/$outputFolder  $workingDir/$outputFolder/inputs.txt susy-mT2/validation_MT2.txt susy-mT2/validation_plots_MT2.txt --pdir $workingDir/$outputFolder/plots -p ref_ttHWWdata,ttHWWdata -u -e --plotmode=norm --showRatio --maxRatioRange 0.65 1.35 --flagDifferences
 
 cd $OLDPWD
 
-
-cp $outputFolder/$labelB/tree/tree_tree.root $outputFolder/plots/
+cp $outputFolder/$labelA/mt2/mt2_tree.root $outputFolder/plots/$labelA.root
+cp $outputFolder/$labelB/mt2/mt2_tree.root $outputFolder/plots/$labelB.root
 
 fi;
