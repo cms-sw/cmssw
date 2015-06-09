@@ -31,8 +31,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        # "root://xrootd.unl.edu//store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre8_MCHI1_74_V4_RECO/9a2b7e3cafbe3773a71b61e1e207e825/step3_RAW2DIGI_L1Reco_RECO_84_1_6OV.root"
-        "file:/data/dgulhan/stas/step3_Hydjet5020TeV_NcollFiltered.root"
+        "/store/relval/CMSSW_7_5_0_pre5/RelValPhotonJets_Pt_10_13_HI/GEN-SIM-RECO/MCHI2_75_V2-v2/00000/BAA0D4EC-AF0B-E511-95A6-02163E011865.root"
 
     ))
 
@@ -113,7 +112,7 @@ process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
                                     process.akPu4CaloJetSequence +
                                     process.akVs4CaloJetSequence +
                                     process.akVs4PFJetSequence +
-                                    process.akPu4PFJetSequence 
+                                    process.akPu4PFJetSequence
 
                                     # process.akPu5CaloJetSequence +
                                     # process.akVs5CaloJetSequence +
@@ -194,26 +193,28 @@ from HeavyIonsAnalysis.JetAnalysis.jets.HiGenJetsCleaned_cff import *
 
 process.hiSelectGenJets = cms.Sequence(
     ak3HiGenJetsCleaned +
-    ak4HiGenJetsCleaned 
+    ak4HiGenJetsCleaned
     # ak5HiGenJetsCleaned +
     # ak7HiGenJetsCleaned
 )
 
+process.anaTrack.doSimTrack = cms.untracked.bool(False)
+
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 
 process.ana_step = cms.Path(process.heavyIon*
-                            process.hltanalysis * 
+                            process.hltanalysis *
 #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
                             #process.hiGenJetsCleaned*
                             process.quickTrackAssociatorByHits*
-                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
+                            #process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.hiSelectGenJets +
                             process.jetSequences +
-                            process.photonStep_withReco +
-                            #process.ggHiNtuplizer +
+                            process.photonStep +
+                            process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
                             process.rechitAna +
 #temp                            process.hltMuTree +
