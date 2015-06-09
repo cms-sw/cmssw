@@ -1,7 +1,9 @@
 ///
 /// \class l1t::Stage1Layer2EtSumAlgorithmImpHW
 ///
-/// Description: first iteration of stage 1 jet sums algo
+/// \author: Nick Smith (nick.smith@cern.ch)
+///
+/// Description: hardware emulation of et sum algorithm
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithmImp.h"
@@ -12,13 +14,17 @@
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetCalibrationMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
+#include <cassert>
 
 l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsStage1* params) : params_(params)
 {
   //now do what ever initialization is needed
-  for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
-    sinPhi.push_back(sin(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
-    cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
+  for(size_t i=0; i<cordicPhiValues.size(); ++i) {
+    cordicPhiValues[i] = static_cast<int>(pow(2.,16)*(((float) i)-36)*M_PI/36);
+  }
+  for(size_t i=0; i<sines.size(); ++i) {
+    sines[i] = static_cast<long>(pow(2,30)*sin(i*20*M_PI/180));
+    cosines[i] = static_cast<long>(pow(2,30)*cos(i*20*M_PI/180));
   }
 }
 
@@ -28,21 +34,10 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::~Stage1Layer2EtSumAlgorithmImpHW() {
 
 }
 
-
-//double l1t::Stage1Layer2EtSumAlgorithmImpHW::regionPhysicalEt(const l1t::CaloRegion& cand) const {
-//  return jetLsb*cand.hwPt();
-//}
-
 void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
 							const std::vector<l1t::CaloEmCand> & EMCands,
+							const std::vector<l1t::Jet> * jets,
 							      std::vector<l1t::EtSum> * etsums) {
-
-  unsigned int sumET = 0;
-  double sumEx = 0;
-  double sumEy = 0;
-  unsigned int sumHT = 0;
-  double sumHx = 0;
-  double sumHy = 0;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
@@ -65,87 +60,67 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
-  // double towerLsb = params_->towerLsbSum();
-  // int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
-  // // ----- cluster jets for repurposing of MHT phi (use if for angle between leading jet)
-  // std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  // std::vector<l1t::Jet> * unSortedJets = new std::vector<l1t::Jet>();
-  // std::vector<l1t::Jet> * SortedJets = new std::vector<l1t::Jet>();
-  // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  std::vector<SimpleRegion> regionEtVect;
+  std::vector<SimpleRegion> regionHtVect;
 
-  //if jetCalibrationType is set to None in the config
-  // std::string jetCalibrationType = params_->jetCalibrationType();
-  // std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
-  // JetCalibration(unCorrJets, jetCalibrationParams, unSortedJets, jetCalibrationType, towerLsb);
-
-  // SortJets(unSortedJets, SortedJets);
-  // int dijet_phi=DiJetPhi(SortedJets);
-
-  for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
-    if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
-      continue;
+  // hwPt() is the sum ET+HT in region, for stage 1 this will be
+  // the region sum input to MET algorithm
+  // In stage 2, we would move to hwEtEm() and hwEtHad() for separate MET/MHT
+  // Thresholds will be hardware values not physical
+  for (auto& region : *subRegions) {
+    if ( region.hwEta() >= etSumEtaMinEt && region.hwEta() <= etSumEtaMaxEt)
+    {
+      if(region.hwPt() >= etSumEtThresholdEt)
+      {
+        SimpleRegion r;
+        r.ieta = region.hwEta();
+        r.iphi = region.hwPhi();
+        r.et   = region.hwPt();
+        regionEtVect.push_back(r);
+      }
     }
-
-    //double regionET= regionPhysicalEt(*region);
-    int regionET = region->hwPt();
-
-    if(regionET >= etSumEtThresholdEt){
-      sumET += regionET;
-      sumEx += (((double) regionET) * cosPhi[region->hwPhi()]);
-      sumEy += (((double) regionET) * sinPhi[region->hwPhi()]);
-    }
-  }
-
-  for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
-    if (region->hwEta() < etSumEtaMinHt || region->hwEta() > etSumEtaMaxHt) {
-      continue;
-    }
-
-    //double regionET= regionPhysicalEt(*region);
-    int regionET = region->hwPt();
-
-    if(regionET >= etSumEtThresholdHt) {
-      sumHT += regionET;
-      sumHx += (((double) regionET) * cosPhi[region->hwPhi()]);
-      sumHy += (((double) regionET) * sinPhi[region->hwPhi()]);
+    if ( region.hwEta() >= etSumEtaMinHt && region.hwEta() <= etSumEtaMaxHt)
+    {
+      if(region.hwPt() >= etSumEtThresholdHt)
+      {
+        SimpleRegion r;
+        r.ieta = region.hwEta();
+        r.iphi = region.hwPhi();
+        r.et   = region.hwPt();
+        regionHtVect.push_back(r);
+      }
     }
   }
 
-  unsigned int MET = ((unsigned int) sqrt(sumEx * sumEx + sumEy * sumEy));
-  unsigned int MHT = ((unsigned int) sqrt(sumHx * sumHx + sumHy * sumHy));
+  int sumET, MET, iPhiET;
+  std::tie(sumET, MET, iPhiET) = doSumAndMET(regionEtVect, ETSumType::kEmSum);
 
-  double physicalPhi = atan2(sumEy, sumEx) + 3.1415927;
-  // Global Trigger expects MET phi to be 0-71 (e.g. tower granularity)
-  // Although we calculated it with regions, there is some benefit to interpolation.
-  unsigned int iPhiET = 4*L1CaloRegionDetId::N_PHI * physicalPhi / (2 * 3.1415927);
+  int sumHT, MHT, iPhiHT;
+  std::tie(sumHT, MHT, iPhiHT) = doSumAndMET(regionHtVect, ETSumType::kHadronicSum);
 
-  double physicalPhiHT = atan2(sumHy, sumHx) + 3.1415927;
-  unsigned int iPhiHT = L1CaloRegionDetId::N_PHI * (physicalPhiHT) / (2 * 3.1415927);
+  //MHT is replaced with MHT/HT
+  uint16_t MHToHT=MHToverHT(MHT,sumHT);
+  //iPhiHt is replaced by the dPhi between two most energetic jets
+  iPhiHT = DiJetPhi(jets);
 
-  const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
-
+  // Set quality (i.e. overflow) bits appropriately
   int METqual = 0;
   int MHTqual = 0;
   int ETTqual = 0;
   int HTTqual = 0;
-  if(MET >= 0xfff)
+  if(MET >= 0xfff) // MET 12 bits
     METqual = 1;
-  if(MHT >= 0xfff)
+  if(MHT >= 0x7f)  // MHT 7 bits
     MHTqual = 1;
-  if(sumET >= 0xfff) //hardcoded 12 bit maximum
+  if(sumET >= 0xfff)
     ETTqual = 1;
   if(sumHT >= 0xfff)
     HTTqual = 1;
 
-  // scale MHT by sumHT
-  //double mtmp = ((double) MHT / (double) sumHT);
-  //int rank=params_->HtMissScale().rank(mtmp);
 
-  //MHT=rank;
-  //iPhiHT=dijet_phi;
-
+  const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET&0xfff,0,iPhiET,METqual);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0xfff,0,iPhiHT,MHTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHToHT&0x7f,0,iPhiHT,MHTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
@@ -159,12 +134,10 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   EtSumToGtScales(params_, preGtEtSums, etsums);
 
   delete subRegions;
-  // delete unCorrJets;
-  // delete unSortedJets;
-  // delete SortedJets;
   delete preGtEtSums;
 
-  const bool verbose = true;
+  // Emulator - HDL simulation comparison printout
+  const bool verbose = false;
   if(verbose)
   {
     for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();
@@ -193,6 +166,104 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   }
 }
 
+std::tuple<int, int, int>
+l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion>& regionEt, ETSumType sumType)
+{
+  std::array<int, 18> sumEtaPos{};
+  std::array<int, 18> sumEtaNeg{};
+  bool inputOverflow(false);
+  for (const auto& r : regionEt)
+  {
+    if ( r.ieta < 11 )
+      sumEtaNeg[r.iphi] += r.et;
+    else
+      sumEtaPos[r.iphi] += r.et;
+
+    if ( r.et >= (1<<10) )
+      inputOverflow = true;
+  }
+
+  std::array<int, 18> sumEta{};
+  int sumEt(0);
+  for(size_t i=0; i<sumEta.size(); ++i)
+  {
+    assert(sumEtaPos[i] >= 0 && sumEtaNeg[i] >= 0);
+    sumEta[i] = sumEtaPos[i] + sumEtaNeg[i];
+    sumEt += sumEta[i];
+  }
+  sumEt = (sumEt % (1<<12)) | ((sumEt >= (1<<12) || inputOverflow) ? (1<<12):0);
+  assert(sumEt>=0 && sumEt < (1<<13));
+
+  // 0, 20, 40, 60, 80 degrees
+  std::array<int, 5> sumsForCos{};
+  std::array<int, 5> sumsForSin{};
+  for(size_t iphi=0; iphi<sumEta.size(); ++iphi)
+  {
+    if ( iphi < 5 )
+    {
+      sumsForCos[iphi] += sumEta[iphi];
+      sumsForSin[iphi] += sumEta[iphi];
+    }
+    else if ( iphi < 9 )
+    {
+      sumsForCos[9-iphi] -= sumEta[iphi];
+      sumsForSin[9-iphi] += sumEta[iphi];
+    }
+    else if ( iphi < 14 )
+    {
+      sumsForCos[iphi-9] -= sumEta[iphi];
+      sumsForSin[iphi-9] -= sumEta[iphi];
+    }
+    else
+    {
+      sumsForCos[18-iphi] += sumEta[iphi];
+      sumsForSin[18-iphi] -= sumEta[iphi];
+    }
+  }
+
+  long sumX(0l);
+  long sumY(0l);
+  for(int i=0; i<5; ++i)
+  {
+    sumX += sumsForCos[i]*cosines[i];
+    sumY += sumsForSin[i]*sines[i];
+  }
+  assert(abs(sumX)<(1l<<48) && abs(sumY)<(1l<<48));
+  int cordicX = sumX>>25;
+  int cordicY = sumY>>25;
+
+  uint32_t cordicMag(0);
+  int cordicPhase(0);
+  cordic(cordicX, cordicY, cordicPhase, cordicMag);
+
+  int met(0);
+  int metPhi(0);
+  if ( sumType == ETSumType::kHadronicSum )
+  {
+    met  = (cordicMag % (1<<7)) | ((cordicMag >= (1<<7)) ? (1<<7):0);
+    metPhi = cordicToMETPhi(cordicPhase) >> 2;
+    assert(metPhi >=0 && metPhi < 18);
+  }
+  else
+  {
+    met  = (cordicMag % (1<<12)) | ((cordicMag >= (1<<12)) ? (1<<12):0);
+    metPhi = cordicToMETPhi(cordicPhase);
+    assert(metPhi >=0 && metPhi < 72);
+  }
+
+  return std::make_tuple(sumEt, met, metPhi);
+}
+
+// converts phase from 3Q16 to 0-71
+int
+l1t::Stage1Layer2EtSumAlgorithmImpHW::cordicToMETPhi(int phase)
+{
+  for(size_t i=0; i<cordicPhiValues.size()-1; ++i)
+    if ( phase >= cordicPhiValues[i] && phase < cordicPhiValues[i+1] )
+      return i;
+  return -1;
+}
+
 int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
 
   // cout << "Number of jets: " << jets->size() << endl;
@@ -208,6 +279,24 @@ int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> *
 
   int difference=abs(iphi1-iphi2);
 
-  if ( difference > 8 ) difference= L1CaloRegionDetId::N_PHI - difference - 1; // make Physical dphi always positive
+  if ( difference > 9 ) difference= L1CaloRegionDetId::N_PHI - difference ; // make Physical dphi always positive
   return difference;
+}
+
+uint16_t l1t::Stage1Layer2EtSumAlgorithmImpHW::MHToverHT(uint16_t num,uint16_t den)  const {
+
+  uint16_t result;
+  uint32_t numerator(num),denominator(den);
+
+  if(numerator == denominator)
+    result = 0x7f;
+  else
+    {
+      numerator = numerator << 7;
+      result = numerator/denominator;
+      result = result & 0x7f;
+    }
+  // cout << "Result: " << result << endl;
+
+  return result;
 }

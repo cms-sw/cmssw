@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
@@ -10,7 +12,7 @@ namespace l1t {
    {
       if (type_ == MP7) {
          LogTrace("L1T") << "Writing MP7 link header";
-         return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift);
+         return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift) | ((capID_ & capID_mask) << capID_shift);
       }
       LogTrace("L1T") << "Writing CTP7 link header";
       return ((id_ & CTP7_mask) << CTP7_shift);
@@ -19,8 +21,17 @@ namespace l1t {
    std::auto_ptr<Block>
    Payload::getBlock()
    {
-      if (end_ - data_ < getHeaderSize())
+      if (end_ - data_ < getHeaderSize()) {
+         LogDebug("L1T") << "Reached end of payload";
          return std::auto_ptr<Block>();
+      }
+
+      if (data_[0] == 0xffffffff) {
+         LogDebug("L1T") << "Skipping padding word";
+         ++data_;
+         return getBlock();
+      }
+
       auto header = getHeader();
 
       if (end_ - data_ < header.getSize()) {
@@ -48,7 +59,8 @@ namespace l1t {
    BlockHeader
    MP7Payload::getHeader()
    {
-      LogTrace("L1T") << "Getting header from " << std::hex << *data_;
+      LogTrace("L1T") << "Getting header from " << std::hex << std::setw(8) << *data_;
+
       return BlockHeader(data_++);
    }
 
