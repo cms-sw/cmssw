@@ -27,7 +27,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
 
 
 ########### DATABASE conditions ############################
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 .oO[condLoad]Oo.

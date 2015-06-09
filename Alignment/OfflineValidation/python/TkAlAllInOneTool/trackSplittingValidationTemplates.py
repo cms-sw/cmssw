@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.Geometry.GeometryDB_cff")
 
 # including global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # setting global tag
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 # process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
