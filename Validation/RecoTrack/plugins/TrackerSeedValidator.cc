@@ -218,7 +218,9 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	double dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
 	  * momentum.z()/sqrt(momentum.perp2());
 
-	st++;
+        if(tp->eventId().bunchCrossing() == 0) {
+          st++;
+        }
 
 	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->eventId().bunchCrossing());
 
@@ -275,6 +277,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	if (matchedTrackPointer) asts++;
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
+
+      histoProducerAlgo_->fill_simTrackBased_histos(w, st);
 
       //
       //fill reconstructed seed histograms

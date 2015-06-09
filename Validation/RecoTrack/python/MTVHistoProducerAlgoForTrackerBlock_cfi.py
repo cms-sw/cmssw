@@ -88,6 +88,10 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     minVertcount = cms.double(-0.5),
     maxVertcount = cms.double(160.5),
     nintVertcount = cms.int32(161),
+
+    minTracks = cms.double(0),
+    maxTracks = cms.double(2000),
+    nintTracks = cms.int32(100),
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),
