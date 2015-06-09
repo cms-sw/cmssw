@@ -10,6 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -46,6 +47,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<vector<reco::GenParticle> >    genParticlesCollection_;
    edm::EDGetTokenT<edm::View<reco::GsfElectron> > gsfElectronsCollection_;
    edm::EDGetTokenT<edm::View<reco::Photon> >      recoPhotonsCollection_;
+   edm::EDGetTokenT<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonsHiIso_;
    edm::EDGetTokenT<edm::View<reco::Muon> >        recoMuonsCollection_;
    edm::EDGetTokenT<EcalRecHitCollection>          ebRecHitCollection_;
    edm::EDGetTokenT<EcalRecHitCollection>          eeRecHitCollection_;
@@ -175,6 +177,22 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  phoBC1Eta_;
    vector<float>  phoBC2E_;
    vector<float>  phoBC2Eta_;
+   vector<float>  pho_ecalClusterIsoR2_;
+   vector<float>  pho_ecalClusterIsoR3_;
+   vector<float>  pho_ecalClusterIsoR4_;
+   vector<float>  pho_ecalClusterIsoR5_;
+   vector<float>  pho_hcalRechitIsoR1_;
+   vector<float>  pho_hcalRechitIsoR2_;
+   vector<float>  pho_hcalRechitIsoR3_;
+   vector<float>  pho_hcalRechitIsoR4_;
+   vector<float>  pho_hcalRechitIsoR5_;
+   vector<float>  pho_trackIsoR1PtCut20_;
+   vector<float>  pho_trackIsoR2PtCut20_;
+   vector<float>  pho_trackIsoR3PtCut20_;
+   vector<float>  pho_trackIsoR4PtCut20_;
+   vector<float>  pho_trackIsoR5PtCut20_;
+   vector<float>  pho_swissCrx_;
+   vector<float>  pho_seedTime_;
 
    // reco::Muon
    Int_t          nMu_;
