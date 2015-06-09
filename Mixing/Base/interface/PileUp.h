@@ -129,9 +129,6 @@ namespace edm {
     // sequential reading
     bool sequential_;
 
-    // force reading pileup events from the same lumisection as the signal event
-    bool samelumi_;
-    
     // read the seed for the histo and probability function cases
     int seed_;
   };

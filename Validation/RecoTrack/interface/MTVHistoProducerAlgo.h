@@ -30,13 +30,11 @@ class MTVHistoProducerAlgo{
  MTVHistoProducerAlgo(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) : MTVHistoProducerAlgo(pset, iC){};
  MTVHistoProducerAlgo(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) : pset_(pset){};
   virtual ~MTVHistoProducerAlgo() {}
-  // to be implemented in the concrete classes
-  virtual void initialize()=0;
 
   virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookSimTrackHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecodEdxHistos(DQMStore::IBooker& ibook)=0;
-  virtual void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook)=0;
 
   virtual void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;
 
@@ -44,6 +42,7 @@ class MTVHistoProducerAlgo{
 						   const TrackingParticle& tp,
 						   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 						   double dxy, double dz, int nSimHits,
+                                                   int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 						   const reco::Track* track,
 						   int numVertices,
 						   double dR)=0;
@@ -82,12 +81,6 @@ class MTVHistoProducerAlgo{
 						 int chargeTP,
 						 const reco::Track& track,
 						 const math::XYZPoint& bsPosition)=0;
-
-  virtual void finalHistoFits(int counter)=0;
-
-
-  virtual void fillProfileHistosFromVectors(int counter)=0;
-
 
  protected:
   //protected functions

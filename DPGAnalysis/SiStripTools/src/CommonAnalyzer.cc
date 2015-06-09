@@ -73,7 +73,23 @@ TNamed* CommonAnalyzer::getObjectWithSuffix(const char* name, const char* suffix
 
 const std::vector<unsigned int> CommonAnalyzer::getRunList() const {
 
+  return getList("run");
+
+}
+
+const std::vector<unsigned int> CommonAnalyzer::getFillList() const {
+
+  return getList("fill");
+
+}
+
+const std::vector<unsigned int> CommonAnalyzer::getList(const char* what) const {
+
   std::vector<unsigned int> runlist;
+  char searchstring[100];
+  char decodestring[100];
+  sprintf(searchstring,"%s_",what);
+  sprintf(decodestring,"%s_%%u",what);
 
   std::string fullpath = _module + "/" + _path;
   if(_file) {
@@ -85,9 +101,9 @@ const std::vector<unsigned int> CommonAnalyzer::getRunList() const {
       while((key=(TKey*)it.Next())) {
 	std::cout << key->GetName() << std::endl;
 	TClass cl(key->GetClassName());
-	if (cl.InheritsFrom("TDirectory") && strstr(key->GetName(),"run_") != 0 ) {
+	if (cl.InheritsFrom("TDirectory") && strstr(key->GetName(),searchstring) != 0 ) {
 	  unsigned int run;
-	  sscanf(key->GetName(),"run_%u",&run);
+	  sscanf(key->GetName(),decodestring,&run);
 	  runlist.push_back(run);
 	} 
       }

@@ -3,6 +3,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -16,9 +18,11 @@ public:
   explicit VertexAssociatorByTracksProducer(const edm::ParameterSet&);
   ~VertexAssociatorByTracksProducer();
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      
+
   // ----------member data ---------------------------
   const double R2SMatchedSimRatio_;
   const double R2SMatchedRecoRatio_;
@@ -63,6 +67,38 @@ VertexAssociatorByTracksProducer::VertexAssociatorByTracksProducer(const edm::Pa
 }
 
 VertexAssociatorByTracksProducer::~VertexAssociatorByTracksProducer() {}
+
+void VertexAssociatorByTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // Matching conditions
+  desc.add<double>("R2SMatchedSimRatio", 0.3);
+  desc.add<double>("R2SMatchedRecoRatio", 0.0);
+  desc.add<double>("S2RMatchedSimRatio", 0.0);
+  desc.add<double>("S2RMatchedRecoRatio", 0.3);
+
+  //RecoTrack selection
+  desc.add<std::string>("trackQuality", "highPurity");
+
+  // TrackingParticle selection
+  edm::ParameterSetDescription descTp;
+
+  descTp.add<double>("lipTP", 30.0);
+  descTp.add<bool>("chargedOnlyTP", true);
+  descTp.add<std::vector<int>>("pdgIdTP",  std::vector<int>());
+  descTp.add<bool>("signalOnlyTP", true);
+  descTp.add<double>("minRapidityTP", -2.4);
+  descTp.add<int>("minHitTP", 0);
+  descTp.add<double>("ptMinTP", 0.9);
+  descTp.add<double>("maxRapidityTP", 2.4);
+  descTp.add<double>("tipTP", 3.5);
+  desc.add<edm::ParameterSetDescription>("trackingParticleSelector", descTp);
+
+  // Track-TrackingParticle association
+  desc.add<edm::InputTag>("trackAssociation", edm::InputTag("trackingParticleRecoTrackAsssociation"));
+
+  descriptions.add("VertexAssociatorByTracks", desc);
+}
 
 void VertexAssociatorByTracksProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   edm::Handle<reco::RecoToSimCollection > recotosimCollectionH;

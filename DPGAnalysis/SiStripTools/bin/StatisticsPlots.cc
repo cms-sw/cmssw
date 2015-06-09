@@ -144,7 +144,7 @@ TH1D* SummaryHisto(TFile& ff, const char* module) {
   CommonAnalyzer castat(&ff,"",module);
   
   TH1D* nevents = new TH1D("nevents","Number of events vs run",10,0.,10.);
-  nevents->SetBit(TH1::kCanRebin);
+  nevents->SetCanExtend(TH1::kXaxis);
   
   std::vector<unsigned int> runs = castat.getRunList();
   std::sort(runs.begin(),runs.end());
@@ -277,7 +277,7 @@ void StatisticsPlots(const char* fullname, const char* module, const char* label
   // Summary histograms
 
   TH1D* nevents = new TH1D("nevents","Number of events vs run",10,0.,10.);
-  nevents->SetBit(TH1::kCanRebin);
+  nevents->SetCanExtend(TH1::kXaxis);
 
 
   std::vector<unsigned int> runs = castat.getRunList();
