@@ -132,7 +132,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     value     = "HF";
     DDSpecificsFilter filter0;
     DDValue           ddv0(attribute, value, 0);
-    filter0.setCriteria(ddv0, DDSpecificsFilter::equals);
+    filter0.setCriteria(ddv0, DDCompOp::equals);
     DDFilteredView fv0(cpv);
     fv0.addFilter(filter0);
     hfNames = getNames(fv0);
@@ -162,7 +162,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     value     = "HFFibre";
     DDSpecificsFilter filter1;
     DDValue           ddv1(attribute,value,0);
-    filter1.setCriteria(ddv1, DDSpecificsFilter::equals);
+    filter1.setCriteria(ddv1, DDCompOp::equals);
     DDFilteredView fv1(cpv);
     fv1.addFilter(filter1);
     fibreNames = getNames(fv1);
@@ -186,7 +186,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     value     = "HFPMT";
     DDSpecificsFilter filter3;
     DDValue           ddv3(attribute,value,0);
-    filter3.setCriteria(ddv3,DDSpecificsFilter::equals);
+    filter3.setCriteria(ddv3,DDCompOp::equals);
     DDFilteredView fv3(cpv);
     fv3.addFilter(filter3);
     std::vector<G4String> pmtNames = getNames(fv3);
@@ -211,7 +211,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     value     = "HFFibreBundleStraight";
     DDSpecificsFilter filter4;
     DDValue           ddv4(attribute,value,0);
-    filter4.setCriteria(ddv4,DDSpecificsFilter::equals);
+    filter4.setCriteria(ddv4,DDCompOp::equals);
     DDFilteredView fv4(cpv);
     fv4.addFilter(filter4);
     std::vector<G4String> fibreNames = getNames(fv4);
@@ -235,7 +235,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     value     = "HFFibreBundleConical";
     DDSpecificsFilter filter5;
     DDValue           ddv5(attribute,value,0);
-    filter5.setCriteria(ddv5,DDSpecificsFilter::equals);
+    filter5.setCriteria(ddv5,DDCompOp::equals);
     DDFilteredView fv5(cpv);
     fv5.addFilter(filter5);
     fibreNames = getNames(fv5);
@@ -261,7 +261,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     value     = name;
     DDSpecificsFilter filter6;
     DDValue           ddv6(attribute,value,0);
-    filter6.setCriteria(ddv6,DDSpecificsFilter::equals);
+    filter6.setCriteria(ddv6,DDCompOp::equals);
     DDFilteredView fv6(cpv);
     fv6.addFilter(filter6);
     if (fv6.firstChild()) {
@@ -284,7 +284,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   attribute = "ReadOutName";
   DDSpecificsFilter filter2;
   DDValue           ddv2(attribute,name,0);
-  filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
+  filter2.setCriteria(ddv2,DDCompOp::equals);
   DDFilteredView fv2(cpv);
   fv2.addFilter(filter2);
   bool dodet = fv2.firstChild();
