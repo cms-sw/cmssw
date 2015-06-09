@@ -34,15 +34,15 @@ ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD()
 
 ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
-  std::string attribute = "ReadOutName"; // could come from .orcarc
-  std::string value     = "MuonME0Hits";    // could come from .orcarc
+  std::string attribute = "ReadOutName";
+  std::string value     = "MuonME0Hits";
   DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonME0's
   DDSpecificsFilter filter;
   filter.setCriteria(val, // name & value of a variable 
-		     DDSpecificsFilter::matches,
-		     DDSpecificsFilter::AND, 
+		     DDCompOp::matches,
+		     DDLogOp::AND, 
 		     true, // compare strings otherwise doubles
 		     true // use merged-specifics or simple-specifics
 		     );

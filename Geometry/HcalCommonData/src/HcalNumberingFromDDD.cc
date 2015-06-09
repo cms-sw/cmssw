@@ -615,7 +615,7 @@ void HcalNumberingFromDDD::initialize(std::string & name,
 
   DDSpecificsFilter filter;
   DDValue           ddv(attribute,name,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
+  filter.setCriteria(ddv,DDCompOp::equals);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool ok = fv.firstChild();

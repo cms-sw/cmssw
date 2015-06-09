@@ -90,7 +90,7 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
    
    DDBase<DDName,DDI::Material*>::StoreT::value_type& mr = DDBase<DDName,DDI::Material*>::StoreT::instance();
 
-   for( auto i : mr ) {
+   for( const auto& i : mr ) {
 	std::pair<std::string,DDName> error("","");
 	DDMaterial tmat(i.first); 
 
