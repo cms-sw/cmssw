@@ -21,13 +21,16 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 
 ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD()
-{ }
+{ 
+  LogDebug("ME0GeometryBuilderfromDDD") <<"[ME0GeometryBuilderFromDDD::constructor]";
+}
 
 ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD() 
 { }
