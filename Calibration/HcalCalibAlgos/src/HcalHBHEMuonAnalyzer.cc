@@ -56,6 +56,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+//#define DebugLog
+
 class HcalDDDRecConstantsTemp {
 
 public:
@@ -118,7 +120,9 @@ HcalDDDRecConstantsTemp::HcalDDDRecConstantsTemp() {
 }
 
 HcalDDDRecConstantsTemp::~HcalDDDRecConstantsTemp() {
-  std::cout << "HcalDDDRecConstantsTemp::destructed!!!" << std::endl;
+#ifdef DebugLog
+  edm::LogInfo("HcalHBHEMuon")  << "HcalDDDRecConstantsTemp::destructed!!!";
+#endif
 }
 
 std::vector<HcalDDDRecConstantsTemp::HcalActiveLength>
@@ -149,14 +153,14 @@ private:
   double activeLength(const DetId&);
   bool   isGoodVertex(const reco::Vertex& vtx);
   // ----------member data ---------------------------
-  HLTConfigProvider hltConfig_;
+  HLTConfigProvider          hltConfig_;
   edm::Service<TFileService> fs;
-  edm::InputTag     HLTriggerResults_, labelBS_, labelVtx_, labelEBRecHit_;
-  edm::InputTag     labelEERecHit_, labelHBHERecHit_, labelMuon_;
-  int               verbosity_, maxDepth_;
+  edm::InputTag              HLTriggerResults_;
+  std::string                labelEBRecHit_, labelEERecHit_;
+  std::string                labelVtx_, labelHBHERecHit_, labelMuon_;
+  int                        verbosity_, maxDepth_;
 
   edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
-  edm::EDGetTokenT<reco::BeamSpot>                        tok_BS_;
   edm::EDGetTokenT<reco::VertexCollection>                tok_Vtx_;
   edm::EDGetTokenT<EcalRecHitCollection>                  tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection>                  tok_EE_;
@@ -164,72 +168,76 @@ private:
   edm::EDGetTokenT<reco::MuonCollection>                  tok_Muon_;
 
   //////////////////////////////////////////////////////
-  std::vector<double> PtGlob ,track_cosmic_positionIX ,track_cosmic_positionIY , track_cosmic_positionIZ, track_cosmic_positionOX, track_cosmic_positionOY, track_cosmic_positionOZ;
-
-  std::vector<double> track_cosmic_momentumOX,track_cosmic_momentumOY,track_cosmic_momentumOZ,track_cosmic_momentumIX,track_cosmic_momentumIY,track_cosmic_momentumIZ, track_cosmic_detIDinner, track_cosmic_detIDouter;
-  std::vector<double> EtaGlob;
-  std::vector<double> PhiGlob,chiGlobal,GlobalMuonHits,MatchedStat,GlobalTrckPt,GlobalTrckEta,GlobalTrckPhi;
-  std::vector<double> TrackerLayer,innerTrackpt,innerTracketa,innerTrackphi;
-  std::vector<double> NumPixelLayers,chiTracker,DxyTracker,DzTracker;
-  std::vector<double> OuterTrackPt,OuterTrackEta,OuterTrackPhi,OuterTrackChi,OuterTrackHits,OuterTrackRHits;
-  std::vector<double> trackerlayer_hits,No_pixelLayers,NormChi2,ImpactParameter;
-  std::vector<double> Tight_GlobalMuonTrkFit,Tight_MuonHits,Tight_MatchedStations,Tight_LongPara,Tight_PixelHits,Tight_TrkerLayers,Tight_TransImpara,High_TrackLayers;
-  std::vector<bool>   innerTrack, OuterTrack, GlobalTrack;
-  std::vector<double> IsolationR04,IsolationR03;
-  std::vector<double> Energy,MuonHcalEnergy,MuonEcalEnergy,MuonHOEnergy,MuonEcal3x3Energy,MuonHcal1x1Energy, Pmuon;
-  std::vector<unsigned int> MuonEcalDetId,MuonHcalDetId,MuonEHcalDetId, MuonHcalHot;
-  std::vector<double> MuonHcalDepth1Energy,MuonHcalDepth2Energy,MuonHcalDepth3Energy,MuonHcalDepth4Energy,MuonHcalDepth5Energy,MuonHcalDepth6Energy,MuonHcalDepth7Energy;
-  std::vector<double> MuonHcalDepth1HotEnergy,MuonHcalDepth2HotEnergy,MuonHcalDepth3HotEnergy,MuonHcalDepth4HotEnergy,MuonHcalDepth5HotEnergy,MuonHcalDepth6HotEnergy,MuonHcalDepth7HotEnergy;
-  std::vector<double> MuonHcalActiveLength;
+  std::vector<double>       PtGlob, EtaGlob, PhiGlob, chiGlobal;
+  std::vector<double>       GlobalMuonHits,MatchedStat,GlobalTrckPt;
+  std::vector<double>       GlobalTrckEta,GlobalTrckPhi,TrackerLayer;
+  std::vector<double>       innerTrackpt,innerTracketa,innerTrackphi;
+  std::vector<double>       NumPixelLayers,chiTracker,DxyTracker,DzTracker;
+  std::vector<double>       OuterTrackPt,OuterTrackEta,OuterTrackPhi;
+  std::vector<double>       OuterTrackChi,OuterTrackHits,OuterTrackRHits;
+  std::vector<double>       Tight_LongPara,Tight_PixelHits,Tight_TransImpara;
+  std::vector<bool>         innerTrack, OuterTrack, GlobalTrack;
+  std::vector<double>       IsolationR04,IsolationR03;
+  std::vector<double>       Energy,MuonHcalEnergy,MuonEcalEnergy,MuonHOEnergy;
+  std::vector<double>       MuonEcal3x3Energy,MuonHcal1x1Energy, Pmuon;
+  std::vector<unsigned int> MuonEcalDetId,MuonHcalDetId,MuonEHcalDetId;
+  std::vector<double>       MuonHcalHot,MuonHcalDepth1Energy;
+  std::vector<double>       MuonHcalDepth2Energy,MuonHcalDepth3Energy;
+  std::vector<double>       MuonHcalDepth4Energy,MuonHcalDepth5Energy;
+  std::vector<double>       MuonHcalDepth6Energy,MuonHcalDepth7Energy;
+  std::vector<double>       MuonHcalDepth1HotEnergy,MuonHcalDepth2HotEnergy;
+  std::vector<double>       MuonHcalDepth3HotEnergy,MuonHcalDepth4HotEnergy;
+  std::vector<double>       MuonHcalDepth5HotEnergy,MuonHcalDepth6HotEnergy;
+  std::vector<double>       MuonHcalDepth7HotEnergy,MuonHcalActiveLength;
   std::vector<HcalDDDRecConstantsTemp::HcalActiveLength> actHB , actHE;
-  int                 type; 
-
-  std::string       hltlabel_;
-  std::vector<std::string> all_triggers,all_triggers1,all_triggers2,all_triggers3,all_triggers4,all_triggers5;
+  std::vector<std::string>  all_triggers;
   ////////////////////////////////////////////////////////////
 
-  std::vector<bool>  isHB, isHE;
-  TTree             *TREE;
-  std::vector<bool>  all_ifTriggerpassed;
-  std::vector<bool>  muon_is_good, muon_global, muon_tracker, Trk_match_MuStat;
-  std::vector<int>   hltresults;
-  std::vector<std::string> hltpaths,TrigName_;
-  std::vector<int>    v_RH_h3x3_ieta;
-  std::vector<int>    v_RH_h3x3_iphi;
-  std::vector<double> v_RH_h3x3_ene, PxGlob, PyGlob,PzGlob,Pthetha;
-  std::vector<double>  PCharge,PChi2,PD0, PD0Error,dxyWithBS,dzWithBS,PdxyTrack, PdzTrack,PNormalizedChi2, PNDoF, PValidHits, PLostHits, NPvx, NPvy, NPvz, NQOverP, NQOverPError, NTrkMomentum, NRefPointX, NRefPointY, NRefPointZ;
-  std::vector<bool> NTrkQuality;
-  double            h3x3; 
-  unsigned int RunNumber, EventNumber , LumiNumber, BXNumber;
-  double _RecoMuon1TrackIsoSumPtMaxCutValue_03, _RecoMuon1TrackIsoSumPtMaxCutValue_04; 
-  int           ntriggers;
-  std::string theTrackQuality;
-  edm::InputTag muonsrc_;
-  std::vector <double> track_cosmic_xposition , track_cosmic_yposition, track_cosmic_zposition, track_cosmic_xmomentum,track_cosmic_ymomentum, track_cosmic_zmomentum, track_cosmic_rad, track_cosmic_detid;
-
+  TTree                    *TREE;
+  std::vector<bool>         muon_is_good, muon_global, muon_tracker;
+  std::vector<int>          hltresults;
+  unsigned int              RunNumber, EventNumber , LumiNumber, BXNumber;
  };
 
 HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
   HLTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
-  labelBS_          = iConfig.getParameter<edm::InputTag>("LabelBS");
-  labelVtx_         = iConfig.getParameter<edm::InputTag>("LabelVertex");
-  labelEBRecHit_    = iConfig.getParameter<edm::InputTag>("LabelEBRecHit");
-  labelEERecHit_    = iConfig.getParameter<edm::InputTag>("LabelEERecHit");
-  labelHBHERecHit_  = iConfig.getParameter<edm::InputTag>("LabelHBHERecHit");
-  labelMuon_        = iConfig.getParameter<edm::InputTag>("LabelMuon");
+  labelVtx_         = iConfig.getParameter<std::string>("LabelVertex");
+  labelEBRecHit_    = iConfig.getParameter<std::string>("LabelEBRecHit");
+  labelEERecHit_    = iConfig.getParameter<std::string>("LabelEERecHit");
+  labelHBHERecHit_  = iConfig.getParameter<std::string>("LabelHBHERecHit");
+  labelMuon_        = iConfig.getParameter<std::string>("LabelMuon");
   verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
   maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
   if (maxDepth_ > 7)      maxDepth_ = 7;
   else if (maxDepth_ < 1) maxDepth_ = 4;
+  std::string modnam = iConfig.getUntrackedParameter<std::string>("ModuleName","");
+  std::string procnm = iConfig.getUntrackedParameter<std::string>("ProcessName","");
 
   tok_trigRes_  = consumes<edm::TriggerResults>(HLTriggerResults_);
-  tok_BS_       = consumes<reco::BeamSpot>(labelBS_);
-  tok_Vtx_      = consumes<reco::VertexCollection>(labelVtx_);
-  tok_EB_       = consumes<EcalRecHitCollection>(labelEBRecHit_);
-  tok_EE_       = consumes<EcalRecHitCollection>(labelEERecHit_);
-  tok_HBHE_     = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
+  if (modnam == "") {
+    tok_Vtx_      = consumes<reco::VertexCollection>(labelVtx_);
+    tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEBRecHit_));
+    tok_EE_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEERecHit_));
+    tok_HBHE_     = consumes<HBHERecHitCollection>(labelHBHERecHit_);
+    tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
+    edm::LogInfo("HcalHBHEMuon")  << "Labels used " << HLTriggerResults_ << " "
+				  << labelVtx_ << " " << labelEBRecHit_ << " "
+				  << labelEERecHit_ << " " << labelHBHERecHit_
+				  << " " << labelMuon_;
+  } else {
+    tok_Vtx_      = consumes<reco::VertexCollection>(edm::InputTag(modnam,labelVtx_,procnm));
+    tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag(modnam,labelEBRecHit_,procnm));
+    tok_EE_       = consumes<EcalRecHitCollection>(edm::InputTag(modnam,labelEERecHit_,procnm));
+    tok_HBHE_     = consumes<HBHERecHitCollection>(edm::InputTag(modnam,labelHBHERecHit_,procnm));
+    tok_Muon_     = consumes<reco::MuonCollection>(edm::InputTag(modnam,labelMuon_,procnm));
+    edm::LogInfo("HcalHBHEMuon")   << "Labels used "   << HLTriggerResults_
+				   << "\n            " << edm::InputTag(modnam,labelVtx_,procnm)
+				   << "\n            " << edm::InputTag(modnam,labelEBRecHit_,procnm)
+				   << "\n            " << edm::InputTag(modnam,labelEERecHit_,procnm)
+				   << "\n            " << edm::InputTag(modnam,labelHBHERecHit_,procnm)
+				   << "\n            " << edm::InputTag(modnam,labelMuon_,procnm);
+  }
 }
 
 HcalHBHEMuonAnalyzer::~HcalHBHEMuonAnalyzer() {
@@ -249,37 +257,43 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   EventNumber = iEvent.id().event();
   LumiNumber  = iEvent.id().luminosityBlock();
   BXNumber    = iEvent.bunchCrossing();
-  LogDebug("HcalHBHEMuon") << "Run " << RunNumber << " Event " << EventNumber
-			   << " Lumi " << LumiNumber << " BX " << BXNumber;
-  
+#ifdef DebugLog
+  edm::LogInfo("HcalHBHEMuon") << "Run " << RunNumber << " Event " << EventNumber
+			       << " Lumi " << LumiNumber << " BX " << BXNumber;
+#endif  
   edm::Handle<edm::TriggerResults> _Triggers;
   iEvent.getByToken(tok_trigRes_, _Triggers); 
-  
-  LogDebug("HcalHBHEMuon") << "Size of all triggers "  << all_triggers.size();
+#ifdef DebugLog
+  edm::LogInfo("HcalHBHEMuon") << "Size of all triggers "  << all_triggers.size();
+#endif
   int Ntriggers = all_triggers.size();
-  LogDebug("HcalHBHEMuon") << "Size of HLT MENU: " << _Triggers->size();
-  
+#ifdef DebugLog
+  edm::LogInfo("HcalHBHEMuon") << "Size of HLT MENU: " << _Triggers->size();
+#endif
   if (_Triggers.isValid()) {
     const edm::TriggerNames &triggerNames_ = iEvent.triggerNames(*_Triggers);
     std::vector<int> index;
     for (int i=0;i < Ntriggers;i++) {
       index.push_back(triggerNames_.triggerIndex(all_triggers[i]));
-      int triggerSize =int( _Triggers->size());
-      LogDebug("HcalHBHEMuon") << "outside loop " << index[i]
-			       << "\ntriggerSize " << triggerSize;
+      int triggerSize = int( _Triggers->size());
+#ifdef DebugLog
+      edm::LogInfo("HcalHBHEMuon") << "outside loop " << index[i]
+				   << "\ntriggerSize " << triggerSize;
+#endif
       if (index[i] < triggerSize) {
-        hltresults.push_back(_Triggers->accept(index[i])) ;
-	LogDebug("HcalHBHEMuon") << "Trigger_info " << triggerSize
-				 << " triggerSize " << index[i]
-				 << " trigger_index " << hltresults.at(i)
-				 << " hltresult";
+	hltresults.push_back(_Triggers->accept(index[i]));
+#ifdef DebugLog
+	edm::LogInfo("HcalHBHEMuon") << "Trigger_info " << triggerSize
+				     << " triggerSize " << index[i]
+				     << " trigger_index " << hltresults.at(i)
+				     << " hltresult";
+#endif
       } else {
 	edm::LogInfo("HcalHBHEMuon") << "Requested HLT path \"" <<  "\" does not exist";
       }
     }
   }
-  
-  // get handles to calogeometry and calotopology
+
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
@@ -304,9 +318,6 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   const HcalTopology* theHBHETopology = htopo.product();
 
   // Relevant blocks from iEvent
-  edm::Handle<reco::BeamSpot> bmspot;
-  iEvent.getByToken(tok_BS_, bmspot);
-
   edm::Handle<reco::VertexCollection> vtx;
   iEvent.getByToken(tok_Vtx_, vtx);
   
@@ -320,24 +331,26 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   
   edm::Handle<reco::MuonCollection> _Muon;
   iEvent.getByToken(tok_Muon_, _Muon);
-
+  
+  // get handles to calogeometry and calotopology
+  if (!(vtx.isValid()))                  return;
   reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
-  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != firstGoodVertex; it++)
-    {
-      if(isGoodVertex(*it)){
+  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != firstGoodVertex; it++) {
+    if (isGoodVertex(*it)) {
       firstGoodVertex = it;
       break;
-      }
     }
+  }
   // require a good vertex
-  if (firstGoodVertex == vtx->end()) return;
+  if (firstGoodVertex == vtx->end())     return;
   
-  math::XYZPoint bspot;
-  bspot= (bmspot.isValid()) ? bmspot->position() : math::XYZPoint(0,0,0);
-
-  
-  if (_Muon.isValid()) { 
+  bool accept(false);
+  if (_Muon.isValid() && barrelRecHitsHandle.isValid() && 
+      endcapRecHitsHandle.isValid() && hbhe.isValid()) { 
     for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon!= _Muon->end(); ++RecMuon)  {
+      
+      if (RecMuon->p() > 10.0) accept = true;
+
       muon_is_good.push_back(RecMuon->isPFMuon());
       muon_global.push_back(RecMuon->isGlobalMuon());
       muon_tracker.push_back(RecMuon->isTrackerMuon());
@@ -346,6 +359,10 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       PhiGlob.push_back(RecMuon->phi());
       Energy.push_back(RecMuon->energy());	
       Pmuon.push_back(RecMuon->p());
+#ifdef DebugLog
+      edm::LogInfo("HcalHBHEMuon") << "Energy:" << RecMuon->energy() << " P:"
+				   << RecMuon->p();
+#endif
       // acessing tracker hits info
       if (RecMuon->track().isNonnull()) {
 	TrackerLayer.push_back(RecMuon->track()->hitPattern().trackerLayersWithMeasurement());
@@ -452,7 +469,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  HcalDetId hcid0(closestCell.rawId());
 	  activeL = activeLength(trackID.detIdHCAL);
 	  HcalDetId hotCell;
-	  h3x3 = spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, false);
+	  spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, false);
 	  isHot = matchId(closestCell,hotCell);
 	  if (hotCell != HcalDetId()) {
 	    std::vector<std::pair<double,int> > ehdepth;
@@ -489,7 +506,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       MuonHcalActiveLength.push_back(activeL);
     }
   }
-  TREE->Fill();
+  if (accept) TREE->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -604,21 +621,25 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
   all_triggers.clear();
   if (hltConfig_.init(iRun, iSetup,"HLT" , changed)) {
     // if init returns TRUE, initialisation has succeeded!
+#ifdef DebugLog
     edm::LogInfo("TriggerBlock") << "HLT config with process name " 
 				 << "HLT" << " successfully extracted";
-    std::string string_search[5]={"HLT_IsoMu_","HLT_L1SingleMu_","HLT_L2Mu","HLT_Mu","HLT_RelIso1p0Mu"};
+#endif
+//  std::string string_search[5]={"HLT_IsoMu_","HLT_L1SingleMu_","HLT_L2Mu","HLT_Mu","HLT_RelIso1p0Mu"};
+    std::string string_search[6]={"HLT_IsoMu17","HLT_IsoMu20","HLT_IsoMu24","HLT_IsoMu27","HLT_Mu45","HLT_Mu50"};
+  
     unsigned int ntriggers = hltConfig_.size();
     for (unsigned int t=0;t<ntriggers;++t) {
       std::string hltname(hltConfig_.triggerName(t));
-      for (unsigned int ik=0; ik<5; ++ik) {
+      for (unsigned int ik=0; ik<6; ++ik) {
 	if (hltname.find(string_search[ik])!=std::string::npos ){
 	  all_triggers.push_back(hltname);
 	  break;
 	}
       }
     }//loop over ntriggers
-    LogDebug("HcalHBHEMuon") << "All triggers size in begin run " 
-			     << all_triggers.size();
+    edm::LogInfo("HcalHBHEMuon") << "All triggers size in begin run " 
+				 << all_triggers.size();
   } else {
     edm::LogError("HcalHBHEMuon") << "Error! HLT config extraction with process name " 
 				  << "HLT"<< " failed";
@@ -747,8 +768,7 @@ double HcalHBHEMuonAnalyzer::activeLength(const DetId& id_) {
   return lx;
 }
 
-bool HcalHBHEMuonAnalyzer::isGoodVertex(const reco::Vertex& vtx)
-{
+bool HcalHBHEMuonAnalyzer::isGoodVertex(const reco::Vertex& vtx) {
   if (vtx.isFake())                   return false;
   if (vtx.ndof() < 4)                 return false;
   if (vtx.position().Rho() > 2.)      return false;

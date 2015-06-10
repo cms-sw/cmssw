@@ -56,11 +56,11 @@ hltEcalIsolPixelTrackL2FilterHE = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                saveTags = cms.bool( False )
                                                )
 
-hltHITIPTCorrectorHE = cms.EDProducer("IPTCorrector",
-                                      corTracksLabel = cms.InputTag( "hltIter0PFlowCtfWithMaterialTracks" ),
-                                      filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHE" ),
-                                      associationCone = cms.double( 0.2 )
-                                      )
+hltHcalITIPTCorrectorHE = cms.EDProducer("IPTCorrector",
+                                         corTracksLabel = cms.InputTag( "hltIter0PFlowCtfWithMaterialTracks" ),
+                                         filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHE" ),
+                                         associationCone = cms.double( 0.2 )
+                                         )
 
 hltIsolPixelTrackL3FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MaxPtNearby = cms.double( 2.0 ),
@@ -73,7 +73,7 @@ hltIsolPixelTrackL3FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinEnergyTrack = cms.double( 18.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                            MaxEtaTrack = cms.double( 2.2 ),
-                                           candTag = cms.InputTag( "hltHITIPTCorrectorHE" ),
+                                           candTag = cms.InputTag( "hltHcalITIPTCorrectorHE" ),
                                            filterTrackEnergy = cms.bool( True )
                                            )
 
@@ -133,11 +133,11 @@ hltEcalIsolPixelTrackL2FilterHB = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                saveTags = cms.bool( False )
                                                )
 
-hltHITIPTCorrectorHB = cms.EDProducer("IPTCorrector",
-                                      corTracksLabel = cms.InputTag( "hltIter0PFlowCtfWithMaterialTracks" ),
-                                      filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHB" ),
-                                      associationCone = cms.double( 0.2 )
-                                      )
+hltHcalITIPTCorrectorHB = cms.EDProducer("IPTCorrector",
+                                         corTracksLabel = cms.InputTag( "hltIter0PFlowCtfWithMaterialTracks" ),
+                                         filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHB" ),
+                                         associationCone = cms.double( 0.2 )
+                                         )
 
 hltIsolPixelTrackL3FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MaxPtNearby = cms.double( 2.0 ),
@@ -150,6 +150,6 @@ hltIsolPixelTrackL3FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinEnergyTrack = cms.double( 18.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                            MaxEtaTrack = cms.double( 1.15 ),
-                                           candTag = cms.InputTag( "hltHITIPTCorrectorHB" ),
+                                           candTag = cms.InputTag( "hltHcalITIPTCorrectorHB" ),
                                            filterTrackEnergy = cms.bool( True )
                                            )
