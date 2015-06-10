@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 
-from PhysicsTools.HeppyCore.framework.chain import Chain
+from chain import Chain
 from PhysicsTools.HeppyCore.utils.testtree import create_tree
 
 testfname = 'test_tree.root'
