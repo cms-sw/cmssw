@@ -25,12 +25,12 @@ akVs2Calocorr = patJetCorrFactors.clone(
 
 akVs2CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs2CaloJets'))
 
-akVs2Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
+#akVs2Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
 
 akVs2CalobTagger = bTaggers("akVs2Calo",0.2)
 
 #create objects locally since they dont load properly otherwise
-akVs2Calomatch = akVs2CalobTagger.match
+#akVs2Calomatch = akVs2CalobTagger.match
 akVs2Caloparton = akVs2CalobTagger.parton
 akVs2CaloPatJetFlavourAssociationLegacy = akVs2CalobTagger.PatJetFlavourAssociationLegacy
 akVs2CaloPatJetPartons = akVs2CalobTagger.PatJetPartons
@@ -181,7 +181,7 @@ akVs2CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs2Ca
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akVs2Calo"),
@@ -190,8 +190,8 @@ akVs2CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs2Ca
                                                              )
 
 akVs2CaloJetSequence_mc = cms.Sequence(
-                                                  akVs2Caloclean
-                                                  *
+                                                  #akVs2Caloclean
+                                                  #*
                                                   akVs2Calomatch
                                                   *
                                                   akVs2Caloparton

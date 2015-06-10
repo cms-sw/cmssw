@@ -25,12 +25,12 @@ akVs2PFcorr = patJetCorrFactors.clone(
 
 akVs2PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs2CaloJets'))
 
-akVs2PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
+#akVs2PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
 
 akVs2PFbTagger = bTaggers("akVs2PF",0.2)
 
 #create objects locally since they dont load properly otherwise
-akVs2PFmatch = akVs2PFbTagger.match
+#akVs2PFmatch = akVs2PFbTagger.match
 akVs2PFparton = akVs2PFbTagger.parton
 akVs2PFPatJetFlavourAssociationLegacy = akVs2PFbTagger.PatJetFlavourAssociationLegacy
 akVs2PFPatJetPartons = akVs2PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ akVs2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs2PFpa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akVs2PF"),
@@ -190,8 +190,8 @@ akVs2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs2PFpa
                                                              )
 
 akVs2PFJetSequence_mc = cms.Sequence(
-                                                  akVs2PFclean
-                                                  *
+                                                  #akVs2PFclean
+                                                  #*
                                                   akVs2PFmatch
                                                   *
                                                   akVs2PFparton

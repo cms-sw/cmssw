@@ -25,12 +25,12 @@ ak6PFcorr = patJetCorrFactors.clone(
 
 ak6PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak6CaloJets'))
 
-ak6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
+#ak6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
 
 ak6PFbTagger = bTaggers("ak6PF",0.6)
 
 #create objects locally since they dont load properly otherwise
-ak6PFmatch = ak6PFbTagger.match
+#ak6PFmatch = ak6PFbTagger.match
 ak6PFparton = ak6PFbTagger.parton
 ak6PFPatJetFlavourAssociationLegacy = ak6PFbTagger.PatJetFlavourAssociationLegacy
 ak6PFPatJetPartons = ak6PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJet
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak6PF"),
@@ -190,8 +190,8 @@ ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJet
                                                              )
 
 ak6PFJetSequence_mc = cms.Sequence(
-                                                  ak6PFclean
-                                                  *
+                                                  #ak6PFclean
+                                                  #*
                                                   ak6PFmatch
                                                   *
                                                   ak6PFparton

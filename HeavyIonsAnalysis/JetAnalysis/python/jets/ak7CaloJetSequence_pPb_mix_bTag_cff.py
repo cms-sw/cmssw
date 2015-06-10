@@ -25,12 +25,12 @@ ak7Calocorr = patJetCorrFactors.clone(
 
 ak7CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak7CaloJets'))
 
-ak7Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak7HiGenJets'))
+#ak7Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak7HiGenJets'))
 
 ak7CalobTagger = bTaggers("ak7Calo",0.7)
 
 #create objects locally since they dont load properly otherwise
-ak7Calomatch = ak7CalobTagger.match
+#ak7Calomatch = ak7CalobTagger.match
 ak7Caloparton = ak7CalobTagger.parton
 ak7CaloPatJetFlavourAssociationLegacy = ak7CalobTagger.PatJetFlavourAssociationLegacy
 ak7CaloPatJetPartons = ak7CalobTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak7CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak7Calopa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak7Calo"),
@@ -190,8 +190,8 @@ ak7CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak7Calopa
                                                              )
 
 ak7CaloJetSequence_mc = cms.Sequence(
-                                                  ak7Caloclean
-                                                  *
+                                                  #ak7Caloclean
+                                                  #*
                                                   ak7Calomatch
                                                   *
                                                   ak7Caloparton

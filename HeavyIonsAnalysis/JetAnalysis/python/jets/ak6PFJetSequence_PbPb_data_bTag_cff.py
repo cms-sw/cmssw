@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 ak6PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak6PFJets"),
-    matched = cms.InputTag("ak6HiGenJetsCleaned"),
+    matched = cms.InputTag("ak6HiGenJets"),
     maxDeltaR = 0.6
     )
 
@@ -25,12 +25,12 @@ ak6PFcorr = patJetCorrFactors.clone(
 
 ak6PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak6CaloJets'))
 
-ak6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJetsCleaned'))
+#ak6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
 
 ak6PFbTagger = bTaggers("ak6PF",0.6)
 
 #create objects locally since they dont load properly otherwise
-ak6PFmatch = ak6PFbTagger.match
+#ak6PFmatch = ak6PFbTagger.match
 ak6PFparton = ak6PFbTagger.parton
 ak6PFPatJetFlavourAssociationLegacy = ak6PFbTagger.PatJetFlavourAssociationLegacy
 ak6PFPatJetPartons = ak6PFbTagger.PatJetPartons
@@ -172,7 +172,7 @@ ak6PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak6PFJets"),
         )
 
 ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak6HiGenJetsCleaned',
+                                                             genjetTag = 'ak6HiGenJets',
                                                              rParam = 0.6,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJet
                                                              )
 
 ak6PFJetSequence_mc = cms.Sequence(
-                                                  ak6PFclean
-                                                  *
+                                                  #ak6PFclean
+                                                  #*
                                                   ak6PFmatch
                                                   *
                                                   ak6PFparton

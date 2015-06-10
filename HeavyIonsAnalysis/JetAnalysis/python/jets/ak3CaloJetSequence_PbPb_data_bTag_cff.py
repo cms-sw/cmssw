@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 ak3Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak3CaloJets"),
-    matched = cms.InputTag("ak3HiGenJetsCleaned"),
+    matched = cms.InputTag("ak3HiGenJets"),
     maxDeltaR = 0.3
     )
 
@@ -25,12 +25,12 @@ ak3Calocorr = patJetCorrFactors.clone(
 
 ak3CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak3CaloJets'))
 
-ak3Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak3HiGenJetsCleaned'))
+#ak3Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak3HiGenJets'))
 
 ak3CalobTagger = bTaggers("ak3Calo",0.3)
 
 #create objects locally since they dont load properly otherwise
-ak3Calomatch = ak3CalobTagger.match
+#ak3Calomatch = ak3CalobTagger.match
 ak3Caloparton = ak3CalobTagger.parton
 ak3CaloPatJetFlavourAssociationLegacy = ak3CalobTagger.PatJetFlavourAssociationLegacy
 ak3CaloPatJetPartons = ak3CalobTagger.PatJetPartons
@@ -172,7 +172,7 @@ ak3CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak3CaloJets
         )
 
 ak3CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak3CalopatJetsWithBtagging"),
-                                                             genjetTag = 'ak3HiGenJetsCleaned',
+                                                             genjetTag = 'ak3HiGenJets',
                                                              rParam = 0.3,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ ak3CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak3Calopa
                                                              )
 
 ak3CaloJetSequence_mc = cms.Sequence(
-                                                  ak3Caloclean
-                                                  *
+                                                  #ak3Caloclean
+                                                  #*
                                                   ak3Calomatch
                                                   *
                                                   ak3Caloparton

@@ -25,12 +25,12 @@ ak5PFcorr = patJetCorrFactors.clone(
 
 ak5PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak5CaloJets'))
 
-ak5PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak5HiGenJets'))
+#ak5PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak5HiGenJets'))
 
 ak5PFbTagger = bTaggers("ak5PF",0.5)
 
 #create objects locally since they dont load properly otherwise
-ak5PFmatch = ak5PFbTagger.match
+#ak5PFmatch = ak5PFbTagger.match
 ak5PFparton = ak5PFbTagger.parton
 ak5PFPatJetFlavourAssociationLegacy = ak5PFbTagger.PatJetFlavourAssociationLegacy
 ak5PFPatJetPartons = ak5PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5PFpatJet
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak5PF"),
@@ -190,8 +190,8 @@ ak5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5PFpatJet
                                                              )
 
 ak5PFJetSequence_mc = cms.Sequence(
-                                                  ak5PFclean
-                                                  *
+                                                  #ak5PFclean
+                                                  #*
                                                   ak5PFmatch
                                                   *
                                                   ak5PFparton

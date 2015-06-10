@@ -87,7 +87,6 @@ process.TFileService = cms.Service("TFileService",
 # Additional Reconstruction and Analysis: Main Body
 #####################################################################################
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiGenJetsCleaned_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_PbPb_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_PbPb_mc_cff')
@@ -188,14 +187,15 @@ process.muons.TrackExtractorPSet.inputTrackCollection = "hiGeneralTracks"
 process.muons.inputCollectionLabels = ["hiGeneralTracks", "globalMuons", "standAloneMuons:UpdatedAtVtx", "tevMuons:firstHit", "tevMuons:picky", "tevMuons:dyt"]
 
 # HYDJET RECO file didn't have ak2GenJets and ak6GenJets as input, so removed them
-# and ran our own hiGenJetsCleaned sequence
-from HeavyIonsAnalysis.JetAnalysis.jets.HiGenJetsCleaned_cff import *
+# and ran our own hiGenJets sequence
+from RecoHI.HiJetAlgos.HiGenJets_cff import ak3HiGenJets, ak4HiGenJets
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
 
 process.hiSelectGenJets = cms.Sequence(
-    ak3HiGenJetsCleaned +
-    ak4HiGenJetsCleaned
-    # ak5HiGenJetsCleaned +
-    # ak7HiGenJetsCleaned
+    genParticlesForJets +
+    ak3HiGenJets +
+    ak4HiGenJets
 )
 
 process.anaTrack.doSimTrack = cms.untracked.bool(False)

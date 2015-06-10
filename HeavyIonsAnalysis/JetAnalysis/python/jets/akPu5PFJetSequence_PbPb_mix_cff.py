@@ -6,7 +6,7 @@ from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 
 akPu5PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akPu5PFJets"),
-    matched = cms.InputTag("ak5HiGenJetsCleaned"),
+    matched = cms.InputTag("ak5HiGenJets"),
     maxDeltaR = 0.5
     )
 
@@ -43,7 +43,7 @@ akPu5PFpatJets = patJets.clone(jetSource = cms.InputTag("akPu5PFJets"),
 				            )
 
 akPu5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5PFpatJets"),
-                                                             genjetTag = 'ak5HiGenJetsCleaned',
+                                                             genjetTag = 'ak5HiGenJets',
                                                              rParam = 0.5,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJets',
@@ -52,7 +52,7 @@ akPu5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5PFpa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal")
+							     eventInfoTag = cms.InputTag("generator")
                                                              )
 
 akPu5PFJetSequence_mc = cms.Sequence(

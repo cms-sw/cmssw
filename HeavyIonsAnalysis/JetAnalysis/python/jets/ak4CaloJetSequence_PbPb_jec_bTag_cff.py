@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 ak4Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak4CaloJets"),
-    matched = cms.InputTag("ak4HiGenJetsCleaned"),
+    matched = cms.InputTag("ak4HiGenJets"),
     maxDeltaR = 0.4
     )
 
@@ -25,12 +25,12 @@ ak4Calocorr = patJetCorrFactors.clone(
 
 ak4CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak4CaloJets'))
 
-ak4Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiGenJetsCleaned'))
+#ak4Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiGenJets'))
 
 ak4CalobTagger = bTaggers("ak4Calo",0.4)
 
 #create objects locally since they dont load properly otherwise
-ak4Calomatch = ak4CalobTagger.match
+#ak4Calomatch = ak4CalobTagger.match
 ak4Caloparton = ak4CalobTagger.parton
 ak4CaloPatJetFlavourAssociationLegacy = ak4CalobTagger.PatJetFlavourAssociationLegacy
 ak4CaloPatJetPartons = ak4CalobTagger.PatJetPartons
@@ -172,7 +172,7 @@ ak4CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak4CaloJets
         )
 
 ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4CalopatJetsWithBtagging"),
-                                                             genjetTag = 'ak4HiGenJetsCleaned',
+                                                             genjetTag = 'ak4HiGenJets',
                                                              rParam = 0.4,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4Calopa
                                                              )
 
 ak4CaloJetSequence_mc = cms.Sequence(
-                                                  ak4Caloclean
-                                                  *
+                                                  #ak4Caloclean
+                                                  #*
                                                   ak4Calomatch
                                                   *
                                                   ak4Caloparton

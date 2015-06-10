@@ -25,12 +25,12 @@ akPu3PFcorr = patJetCorrFactors.clone(
 
 akPu3PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu3CaloJets'))
 
-akPu3PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak3HiGenJets'))
+#akPu3PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak3HiGenJets'))
 
 akPu3PFbTagger = bTaggers("akPu3PF",0.3)
 
 #create objects locally since they dont load properly otherwise
-akPu3PFmatch = akPu3PFbTagger.match
+#akPu3PFmatch = akPu3PFbTagger.match
 akPu3PFparton = akPu3PFbTagger.parton
 akPu3PFPatJetFlavourAssociationLegacy = akPu3PFbTagger.PatJetFlavourAssociationLegacy
 akPu3PFPatJetPartons = akPu3PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ akPu3PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu3PFpa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akPu3PF"),
@@ -190,8 +190,8 @@ akPu3PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu3PFpa
                                                              )
 
 akPu3PFJetSequence_mc = cms.Sequence(
-                                                  akPu3PFclean
-                                                  *
+                                                  #akPu3PFclean
+                                                  #*
                                                   akPu3PFmatch
                                                   *
                                                   akPu3PFparton

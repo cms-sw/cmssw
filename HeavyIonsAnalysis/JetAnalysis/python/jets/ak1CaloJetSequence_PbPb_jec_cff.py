@@ -6,7 +6,7 @@ from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 
 ak1Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak1CaloJets"),
-    matched = cms.InputTag("ak1HiGenJetsCleaned"),
+    matched = cms.InputTag("ak1HiGenJets"),
     maxDeltaR = 0.1
     )
 
@@ -43,7 +43,7 @@ ak1CalopatJets = patJets.clone(jetSource = cms.InputTag("ak1CaloJets"),
 				            )
 
 ak1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak1CalopatJets"),
-                                                             genjetTag = 'ak1HiGenJetsCleaned',
+                                                             genjetTag = 'ak1HiGenJets',
                                                              rParam = 0.1,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJets',

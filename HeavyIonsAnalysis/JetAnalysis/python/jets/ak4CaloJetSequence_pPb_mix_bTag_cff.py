@@ -25,12 +25,12 @@ ak4Calocorr = patJetCorrFactors.clone(
 
 ak4CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak4CaloJets'))
 
-ak4Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiGenJets'))
+#ak4Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiGenJets'))
 
 ak4CalobTagger = bTaggers("ak4Calo",0.4)
 
 #create objects locally since they dont load properly otherwise
-ak4Calomatch = ak4CalobTagger.match
+#ak4Calomatch = ak4CalobTagger.match
 ak4Caloparton = ak4CalobTagger.parton
 ak4CaloPatJetFlavourAssociationLegacy = ak4CalobTagger.PatJetFlavourAssociationLegacy
 ak4CaloPatJetPartons = ak4CalobTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4Calopa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak4Calo"),
@@ -190,8 +190,8 @@ ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4Calopa
                                                              )
 
 ak4CaloJetSequence_mc = cms.Sequence(
-                                                  ak4Caloclean
-                                                  *
+                                                  #ak4Caloclean
+                                                  #*
                                                   ak4Calomatch
                                                   *
                                                   ak4Caloparton

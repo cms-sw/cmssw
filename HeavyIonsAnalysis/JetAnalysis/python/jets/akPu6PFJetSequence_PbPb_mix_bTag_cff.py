@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 akPu6PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akPu6PFJets"),
-    matched = cms.InputTag("ak6HiGenJetsCleaned"),
+    matched = cms.InputTag("ak6HiGenJets"),
     maxDeltaR = 0.6
     )
 
@@ -25,12 +25,12 @@ akPu6PFcorr = patJetCorrFactors.clone(
 
 akPu6PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu6CaloJets'))
 
-akPu6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJetsCleaned'))
+#akPu6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
 
 akPu6PFbTagger = bTaggers("akPu6PF",0.6)
 
 #create objects locally since they dont load properly otherwise
-akPu6PFmatch = akPu6PFbTagger.match
+#akPu6PFmatch = akPu6PFbTagger.match
 akPu6PFparton = akPu6PFbTagger.parton
 akPu6PFPatJetFlavourAssociationLegacy = akPu6PFbTagger.PatJetFlavourAssociationLegacy
 akPu6PFPatJetPartons = akPu6PFbTagger.PatJetPartons
@@ -172,7 +172,7 @@ akPu6PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu6PFJets
         )
 
 akPu6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu6PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak6HiGenJetsCleaned',
+                                                             genjetTag = 'ak6HiGenJets',
                                                              rParam = 0.6,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -181,7 +181,7 @@ akPu6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu6PFpa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akPu6PF"),
@@ -190,8 +190,8 @@ akPu6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu6PFpa
                                                              )
 
 akPu6PFJetSequence_mc = cms.Sequence(
-                                                  akPu6PFclean
-                                                  *
+                                                  #akPu6PFclean
+                                                  #*
                                                   akPu6PFmatch
                                                   *
                                                   akPu6PFparton

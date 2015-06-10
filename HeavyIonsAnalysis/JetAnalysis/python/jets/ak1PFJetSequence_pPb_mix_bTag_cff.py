@@ -25,12 +25,12 @@ ak1PFcorr = patJetCorrFactors.clone(
 
 ak1PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak1CaloJets'))
 
-ak1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
+#ak1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
 
 ak1PFbTagger = bTaggers("ak1PF",0.1)
 
 #create objects locally since they dont load properly otherwise
-ak1PFmatch = ak1PFbTagger.match
+#ak1PFmatch = ak1PFbTagger.match
 ak1PFparton = ak1PFbTagger.parton
 ak1PFPatJetFlavourAssociationLegacy = ak1PFbTagger.PatJetFlavourAssociationLegacy
 ak1PFPatJetPartons = ak1PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak1PFpatJet
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak1PF"),
@@ -190,8 +190,8 @@ ak1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak1PFpatJet
                                                              )
 
 ak1PFJetSequence_mc = cms.Sequence(
-                                                  ak1PFclean
-                                                  *
+                                                  #ak1PFclean
+                                                  #*
                                                   ak1PFmatch
                                                   *
                                                   ak1PFparton

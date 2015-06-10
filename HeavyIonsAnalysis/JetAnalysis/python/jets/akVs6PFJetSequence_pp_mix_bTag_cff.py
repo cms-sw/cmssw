@@ -25,12 +25,12 @@ akVs6PFcorr = patJetCorrFactors.clone(
 
 akVs6PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs6CaloJets'))
 
-akVs6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
+#akVs6PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
 
 akVs6PFbTagger = bTaggers("akVs6PF",0.6)
 
 #create objects locally since they dont load properly otherwise
-akVs6PFmatch = akVs6PFbTagger.match
+#akVs6PFmatch = akVs6PFbTagger.match
 akVs6PFparton = akVs6PFbTagger.parton
 akVs6PFPatJetFlavourAssociationLegacy = akVs6PFbTagger.PatJetFlavourAssociationLegacy
 akVs6PFPatJetPartons = akVs6PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ akVs6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs6PFpa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akVs6PF"),
@@ -190,8 +190,8 @@ akVs6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs6PFpa
                                                              )
 
 akVs6PFJetSequence_mc = cms.Sequence(
-                                                  akVs6PFclean
-                                                  *
+                                                  #akVs6PFclean
+                                                  #*
                                                   akVs6PFmatch
                                                   *
                                                   akVs6PFparton

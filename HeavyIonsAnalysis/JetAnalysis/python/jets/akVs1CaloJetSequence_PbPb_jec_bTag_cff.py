@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 akVs1Calomatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akVs1CaloJets"),
-    matched = cms.InputTag("ak1HiGenJetsCleaned"),
+    matched = cms.InputTag("ak1HiGenJets"),
     maxDeltaR = 0.1
     )
 
@@ -25,12 +25,12 @@ akVs1Calocorr = patJetCorrFactors.clone(
 
 akVs1CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs1CaloJets'))
 
-akVs1Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJetsCleaned'))
+#akVs1Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
 
 akVs1CalobTagger = bTaggers("akVs1Calo",0.1)
 
 #create objects locally since they dont load properly otherwise
-akVs1Calomatch = akVs1CalobTagger.match
+#akVs1Calomatch = akVs1CalobTagger.match
 akVs1Caloparton = akVs1CalobTagger.parton
 akVs1CaloPatJetFlavourAssociationLegacy = akVs1CalobTagger.PatJetFlavourAssociationLegacy
 akVs1CaloPatJetPartons = akVs1CalobTagger.PatJetPartons
@@ -172,7 +172,7 @@ akVs1CalopatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs1Calo
         )
 
 akVs1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1CalopatJetsWithBtagging"),
-                                                             genjetTag = 'ak1HiGenJetsCleaned',
+                                                             genjetTag = 'ak1HiGenJets',
                                                              rParam = 0.1,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ akVs1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1Ca
                                                              )
 
 akVs1CaloJetSequence_mc = cms.Sequence(
-                                                  akVs1Caloclean
-                                                  *
+                                                  #akVs1Caloclean
+                                                  #*
                                                   akVs1Calomatch
                                                   *
                                                   akVs1Caloparton

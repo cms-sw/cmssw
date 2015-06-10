@@ -24,12 +24,12 @@ ALGO_SUB_RADIUS_OBJECT_corr = patJetCorrFactors.clone(
 
 ALGO_SUB_RADIUS_OBJECT_JetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ALGO_SUB_RADIUS_CaloJets'))
 
-ALGO_SUB_RADIUS_OBJECT_clean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ALGO_RADIUS_GENJETS'))
+#ALGO_SUB_RADIUS_OBJECT_clean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ALGO_RADIUS_GENJETS'))
 
 ALGO_SUB_RADIUS_OBJECT_bTagger = bTaggers("ALGO_SUB_RADIUS_OBJECT_",0.RADIUS_)
 
 #create objects locally since they dont load properly otherwise
-ALGO_SUB_RADIUS_OBJECT_match = ALGO_SUB_RADIUS_OBJECT_bTagger.match
+#ALGO_SUB_RADIUS_OBJECT_match = ALGO_SUB_RADIUS_OBJECT_bTagger.match
 ALGO_SUB_RADIUS_OBJECT_parton = ALGO_SUB_RADIUS_OBJECT_bTagger.parton
 ALGO_SUB_RADIUS_OBJECT_PatJetFlavourAssociationLegacy = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetFlavourAssociationLegacy
 ALGO_SUB_RADIUS_OBJECT_PatJetPartons = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetPartons
@@ -189,8 +189,8 @@ ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.Inp
                                                              )
 
 ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
-                                                  ALGO_SUB_RADIUS_OBJECT_clean
-                                                  *
+                                                  #ALGO_SUB_RADIUS_OBJECT_clean
+                                                  #*
                                                   ALGO_SUB_RADIUS_OBJECT_match
                                                   *
                                                   ALGO_SUB_RADIUS_OBJECT_parton

@@ -25,12 +25,12 @@ akVs4PFcorr = patJetCorrFactors.clone(
 
 akVs4PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs4CaloJets'))
 
-akVs4PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiGenJets'))
+#akVs4PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak4HiGenJets'))
 
 akVs4PFbTagger = bTaggers("akVs4PF",0.4)
 
 #create objects locally since they dont load properly otherwise
-akVs4PFmatch = akVs4PFbTagger.match
+#akVs4PFmatch = akVs4PFbTagger.match
 akVs4PFparton = akVs4PFbTagger.parton
 akVs4PFPatJetFlavourAssociationLegacy = akVs4PFbTagger.PatJetFlavourAssociationLegacy
 akVs4PFPatJetPartons = akVs4PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ akVs4PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs4PFpa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akVs4PF"),
@@ -190,8 +190,8 @@ akVs4PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs4PFpa
                                                              )
 
 akVs4PFJetSequence_mc = cms.Sequence(
-                                                  akVs4PFclean
-                                                  *
+                                                  #akVs4PFclean
+                                                  #*
                                                   akVs4PFmatch
                                                   *
                                                   akVs4PFparton

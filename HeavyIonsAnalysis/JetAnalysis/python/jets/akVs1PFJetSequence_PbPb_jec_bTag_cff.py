@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 akVs1PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akVs1PFJets"),
-    matched = cms.InputTag("ak1HiGenJetsCleaned"),
+    matched = cms.InputTag("ak1HiGenJets"),
     maxDeltaR = 0.1
     )
 
@@ -25,12 +25,12 @@ akVs1PFcorr = patJetCorrFactors.clone(
 
 akVs1PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs1CaloJets'))
 
-akVs1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJetsCleaned'))
+#akVs1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
 
 akVs1PFbTagger = bTaggers("akVs1PF",0.1)
 
 #create objects locally since they dont load properly otherwise
-akVs1PFmatch = akVs1PFbTagger.match
+#akVs1PFmatch = akVs1PFbTagger.match
 akVs1PFparton = akVs1PFbTagger.parton
 akVs1PFPatJetFlavourAssociationLegacy = akVs1PFbTagger.PatJetFlavourAssociationLegacy
 akVs1PFPatJetPartons = akVs1PFbTagger.PatJetPartons
@@ -172,7 +172,7 @@ akVs1PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs1PFJets
         )
 
 akVs1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak1HiGenJetsCleaned',
+                                                             genjetTag = 'ak1HiGenJets',
                                                              rParam = 0.1,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ akVs1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1PFpa
                                                              )
 
 akVs1PFJetSequence_mc = cms.Sequence(
-                                                  akVs1PFclean
-                                                  *
+                                                  #akVs1PFclean
+                                                  #*
                                                   akVs1PFmatch
                                                   *
                                                   akVs1PFparton

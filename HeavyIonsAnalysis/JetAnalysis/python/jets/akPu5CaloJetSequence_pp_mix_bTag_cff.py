@@ -25,12 +25,12 @@ akPu5Calocorr = patJetCorrFactors.clone(
 
 akPu5CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu5CaloJets'))
 
-akPu5Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak5HiGenJets'))
+#akPu5Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak5HiGenJets'))
 
 akPu5CalobTagger = bTaggers("akPu5Calo",0.5)
 
 #create objects locally since they dont load properly otherwise
-akPu5Calomatch = akPu5CalobTagger.match
+#akPu5Calomatch = akPu5CalobTagger.match
 akPu5Caloparton = akPu5CalobTagger.parton
 akPu5CaloPatJetFlavourAssociationLegacy = akPu5CalobTagger.PatJetFlavourAssociationLegacy
 akPu5CaloPatJetPartons = akPu5CalobTagger.PatJetPartons
@@ -181,7 +181,7 @@ akPu5CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5Ca
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("akPu5Calo"),
@@ -190,8 +190,8 @@ akPu5CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5Ca
                                                              )
 
 akPu5CaloJetSequence_mc = cms.Sequence(
-                                                  akPu5Caloclean
-                                                  *
+                                                  #akPu5Caloclean
+                                                  #*
                                                   akPu5Calomatch
                                                   *
                                                   akPu5Caloparton

@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 ak5PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("ak5PFJets"),
-    matched = cms.InputTag("ak5HiGenJetsCleaned"),
+    matched = cms.InputTag("ak5HiGenJets"),
     maxDeltaR = 0.5
     )
 
@@ -25,12 +25,12 @@ ak5PFcorr = patJetCorrFactors.clone(
 
 ak5PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak5CaloJets'))
 
-ak5PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak5HiGenJetsCleaned'))
+#ak5PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak5HiGenJets'))
 
 ak5PFbTagger = bTaggers("ak5PF",0.5)
 
 #create objects locally since they dont load properly otherwise
-ak5PFmatch = ak5PFbTagger.match
+#ak5PFmatch = ak5PFbTagger.match
 ak5PFparton = ak5PFbTagger.parton
 ak5PFPatJetFlavourAssociationLegacy = ak5PFbTagger.PatJetFlavourAssociationLegacy
 ak5PFPatJetPartons = ak5PFbTagger.PatJetPartons
@@ -172,7 +172,7 @@ ak5PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak5PFJets"),
         )
 
 ak5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak5HiGenJetsCleaned',
+                                                             genjetTag = 'ak5HiGenJets',
                                                              rParam = 0.5,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ ak5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5PFpatJet
                                                              )
 
 ak5PFJetSequence_mc = cms.Sequence(
-                                                  ak5PFclean
-                                                  *
+                                                  #ak5PFclean
+                                                  #*
                                                   ak5PFmatch
                                                   *
                                                   ak5PFparton

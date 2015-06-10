@@ -25,12 +25,12 @@ akVs1PFcorr = patJetCorrFactors.clone(
 
 akVs1PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs1CaloJets'))
 
-akVs1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
+#akVs1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
 
 akVs1PFbTagger = bTaggers("akVs1PF",0.1)
 
 #create objects locally since they dont load properly otherwise
-akVs1PFmatch = akVs1PFbTagger.match
+#akVs1PFmatch = akVs1PFbTagger.match
 akVs1PFparton = akVs1PFbTagger.parton
 akVs1PFPatJetFlavourAssociationLegacy = akVs1PFbTagger.PatJetFlavourAssociationLegacy
 akVs1PFPatJetPartons = akVs1PFbTagger.PatJetPartons
@@ -190,8 +190,8 @@ akVs1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1PFpa
                                                              )
 
 akVs1PFJetSequence_mc = cms.Sequence(
-                                                  akVs1PFclean
-                                                  *
+                                                  #akVs1PFclean
+                                                  #*
                                                   akVs1PFmatch
                                                   *
                                                   akVs1PFparton

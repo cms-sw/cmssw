@@ -25,12 +25,12 @@ ak1Calocorr = patJetCorrFactors.clone(
 
 ak1CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak1CaloJets'))
 
-ak1Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
+#ak1Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
 
 ak1CalobTagger = bTaggers("ak1Calo",0.1)
 
 #create objects locally since they dont load properly otherwise
-ak1Calomatch = ak1CalobTagger.match
+#ak1Calomatch = ak1CalobTagger.match
 ak1Caloparton = ak1CalobTagger.parton
 ak1CaloPatJetFlavourAssociationLegacy = ak1CalobTagger.PatJetFlavourAssociationLegacy
 ak1CaloPatJetPartons = ak1CalobTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak1Calopa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak1Calo"),
@@ -190,8 +190,8 @@ ak1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak1Calopa
                                                              )
 
 ak1CaloJetSequence_mc = cms.Sequence(
-                                                  ak1Caloclean
-                                                  *
+                                                  #ak1Caloclean
+                                                  #*
                                                   ak1Calomatch
                                                   *
                                                   ak1Caloparton

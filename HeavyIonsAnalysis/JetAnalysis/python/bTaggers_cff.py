@@ -179,12 +179,12 @@ class bTaggers:
             )
 
         self.PatJetFlavourId               = cms.Sequence(self.PatJetPartons*self.PatJetFlavourAssociation)
-        self.match   = patJetGenJetMatch.clone(
-            src      = cms.InputTag(jetname+"Jets"),
-            matched  = cms.InputTag(jetname+"clean"),
-            maxDeltaR = rParam 
-            )
+        #self.match   = patJetGenJetMatch.clone(
+        #    src      = cms.InputTag(jetname+"Jets"),
+        #    matched  = cms.InputTag(jetname+"clean"),
+        #    maxDeltaR = rParam 
+        #    )
         self.parton  = patJetPartonMatch.clone(src      = cms.InputTag(jetname+"Jets"),
-                                                matched = cms.InputTag("hiPartons")
+                                                matched = cms.InputTag("genParticles")
                                                 )
 

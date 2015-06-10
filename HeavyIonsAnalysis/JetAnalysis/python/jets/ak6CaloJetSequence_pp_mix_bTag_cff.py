@@ -25,12 +25,12 @@ ak6Calocorr = patJetCorrFactors.clone(
 
 ak6CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak6CaloJets'))
 
-ak6Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
+#ak6Caloclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak6HiGenJets'))
 
 ak6CalobTagger = bTaggers("ak6Calo",0.6)
 
 #create objects locally since they dont load properly otherwise
-ak6Calomatch = ak6CalobTagger.match
+#ak6Calomatch = ak6CalobTagger.match
 ak6Caloparton = ak6CalobTagger.parton
 ak6CaloPatJetFlavourAssociationLegacy = ak6CalobTagger.PatJetFlavourAssociationLegacy
 ak6CaloPatJetPartons = ak6CalobTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak6CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6Calopa
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak6Calo"),
@@ -190,8 +190,8 @@ ak6CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6Calopa
                                                              )
 
 ak6CaloJetSequence_mc = cms.Sequence(
-                                                  ak6Caloclean
-                                                  *
+                                                  #ak6Caloclean
+                                                  #*
                                                   ak6Calomatch
                                                   *
                                                   ak6Caloparton

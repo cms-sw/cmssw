@@ -8,7 +8,7 @@ from RecoJets.JetProducers.JetIDParams_cfi import *
 
 akPu1PFmatch = patJetGenJetMatch.clone(
     src = cms.InputTag("akPu1PFJets"),
-    matched = cms.InputTag("ak1HiGenJetsCleaned"),
+    matched = cms.InputTag("ak1HiGenJets"),
     maxDeltaR = 0.1
     )
 
@@ -25,12 +25,12 @@ akPu1PFcorr = patJetCorrFactors.clone(
 
 akPu1PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu1CaloJets'))
 
-akPu1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJetsCleaned'))
+#akPu1PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak1HiGenJets'))
 
 akPu1PFbTagger = bTaggers("akPu1PF",0.1)
 
 #create objects locally since they dont load properly otherwise
-akPu1PFmatch = akPu1PFbTagger.match
+#akPu1PFmatch = akPu1PFbTagger.match
 akPu1PFparton = akPu1PFbTagger.parton
 akPu1PFPatJetFlavourAssociationLegacy = akPu1PFbTagger.PatJetFlavourAssociationLegacy
 akPu1PFPatJetPartons = akPu1PFbTagger.PatJetPartons
@@ -172,7 +172,7 @@ akPu1PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu1PFJets
         )
 
 akPu1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu1PFpatJetsWithBtagging"),
-                                                             genjetTag = 'ak1HiGenJetsCleaned',
+                                                             genjetTag = 'ak1HiGenJets',
                                                              rParam = 0.1,
                                                              matchJets = cms.untracked.bool(False),
                                                              matchTag = 'patJetsWithBtagging',
@@ -190,8 +190,8 @@ akPu1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu1PFpa
                                                              )
 
 akPu1PFJetSequence_mc = cms.Sequence(
-                                                  akPu1PFclean
-                                                  *
+                                                  #akPu1PFclean
+                                                  #*
                                                   akPu1PFmatch
                                                   *
                                                   akPu1PFparton

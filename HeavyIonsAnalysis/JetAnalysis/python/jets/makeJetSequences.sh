@@ -1,7 +1,8 @@
 #!/bin/sh
 
-echo "import FWCore.ParameterSet.Config as cms" > HiGenJetsCleaned_cff.py
-echo "from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *" >> HiGenJetsCleaned_cff.py
+#echo "import FWCore.ParameterSet.Config as cms" > HiGenJetsCleaned_cff.py
+#echo "from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *" >> HiGenJetsCleaned_cff.py
+#echo "from RecoHI.HiJetAlgos.HiGenJets_cff import *" >> HiGenJets_cff.py
 
 # ReReco stuff for jec only
 echo "import FWCore.ParameterSet.Config as cms" > HiReRecoJets_cff.py
@@ -10,7 +11,7 @@ echo "from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *" >> HiReRecoJets_cff.py
 
 for system in PbPb pp pPb
 do
-    for sample in data mc mix jec
+    for sample in data mix jec
     do
         for algo in ak
         do
@@ -30,13 +31,13 @@ do
 
                             if [ $btaggers == "NONE" ]; then
                                 btag=""
-                                genjets="HiGenJetsCleaned"
+                                genjets="HiGenJets"
                             elif [ $system == "pPb" ]; then
                                 btag=$btaggers
                                 genjets="HiGenJets"
                             else
                                 btag=$btaggers
-                                genjets="HiGenJetsCleaned"
+                                genjets="HiGenJets"
                             fi
 
                             ismc="False"
@@ -72,9 +73,9 @@ do
                                 genjets="HiGenJets"
                             fi
 
-                            if [ $sample == "mix" ]; then
-                                eventinfotag="hiSignal"
-                            fi
+                            #if [ $sample == "mix" ]; then
+                            #    eventinfotag="hiSignal"
+                            #fi
 
                             if [ $object == "Calo" ]; then
                                 corrlabel="_HI"
@@ -98,7 +99,7 @@ do
                                 | sed "s/TRACKS/$tracks/g" \
                                 | sed "s/PARTICLEFLOW/$pflow/g" \
                                 | sed "s/DOMATCH/$domatch/g" \
-                                >> HiGenJetsCleaned_cff.py
+                                >> HiGenJets_cff.py
                             fi
 
                             if [ $btaggers == "bTag_" ]; then
@@ -155,18 +156,18 @@ do
     done
 done
 
-echo "" >> HiGenJetsCleaned_cff.py
-echo "hiGenJetsCleaned = cms.Sequence(" >> HiGenJetsCleaned_cff.py
+echo "" >> HiGenJets_cff.py
+echo "hiGenJets = cms.Sequence(" >> HiGenJets_cff.py
 
 for algo in ak
   do
   for radius in 1 2 3 4 5 6 7
     do
-    echo "$algo${radius}HiGenJetsCleaned" >> HiGenJetsCleaned_cff.py
+    echo "$algo${radius}HiGenJets" >> HiGenJets_cff.py
     if [ $radius -ne 7 ]; then
-	echo "+" >> HiGenJetsCleaned_cff.py
+	echo "+" >> HiGenJets_cff.py
     else
-	echo ")" >> HiGenJetsCleaned_cff.py
+	echo ")" >> HiGenJets_cff.py
     fi
 
   done

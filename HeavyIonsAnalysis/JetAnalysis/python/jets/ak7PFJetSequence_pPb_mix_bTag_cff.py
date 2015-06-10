@@ -25,12 +25,12 @@ ak7PFcorr = patJetCorrFactors.clone(
 
 ak7PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak7CaloJets'))
 
-ak7PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak7HiGenJets'))
+#ak7PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak7HiGenJets'))
 
 ak7PFbTagger = bTaggers("ak7PF",0.7)
 
 #create objects locally since they dont load properly otherwise
-ak7PFmatch = ak7PFbTagger.match
+#ak7PFmatch = ak7PFbTagger.match
 ak7PFparton = ak7PFbTagger.parton
 ak7PFPatJetFlavourAssociationLegacy = ak7PFbTagger.PatJetFlavourAssociationLegacy
 ak7PFPatJetPartons = ak7PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak7PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak7PFpatJet
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("hiGenParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak7PF"),
@@ -190,8 +190,8 @@ ak7PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak7PFpatJet
                                                              )
 
 ak7PFJetSequence_mc = cms.Sequence(
-                                                  ak7PFclean
-                                                  *
+                                                  #ak7PFclean
+                                                  #*
                                                   ak7PFmatch
                                                   *
                                                   ak7PFparton

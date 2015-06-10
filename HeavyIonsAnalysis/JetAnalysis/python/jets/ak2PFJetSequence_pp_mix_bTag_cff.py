@@ -25,12 +25,12 @@ ak2PFcorr = patJetCorrFactors.clone(
 
 ak2PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak2CaloJets'))
 
-ak2PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
+#ak2PFclean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ak2HiGenJets'))
 
 ak2PFbTagger = bTaggers("ak2PF",0.2)
 
 #create objects locally since they dont load properly otherwise
-ak2PFmatch = ak2PFbTagger.match
+#ak2PFmatch = ak2PFbTagger.match
 ak2PFparton = ak2PFbTagger.parton
 ak2PFPatJetFlavourAssociationLegacy = ak2PFbTagger.PatJetFlavourAssociationLegacy
 ak2PFPatJetPartons = ak2PFbTagger.PatJetPartons
@@ -181,7 +181,7 @@ ak2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2PFpatJet
                                                              fillGenJets = True,
                                                              isMC = True,
                                                              genParticles = cms.untracked.InputTag("genParticles"),
-							     eventInfoTag = cms.InputTag("hiSignal"),
+							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
                                                              bTagJetName = cms.untracked.string("ak2PF"),
@@ -190,8 +190,8 @@ ak2PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak2PFpatJet
                                                              )
 
 ak2PFJetSequence_mc = cms.Sequence(
-                                                  ak2PFclean
-                                                  *
+                                                  #ak2PFclean
+                                                  #*
                                                   ak2PFmatch
                                                   *
                                                   ak2PFparton
