@@ -14,11 +14,26 @@ options.register('streamer',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Use streamer file as input")
-options.register('dump',
+options.register('dumpRaw',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+options.register('dumpDigis',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print digis")
+options.register('histos',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Produce standard histograms")
+options.register('edm',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Produce EDM file")
 
                  
 options.parseArguments()
@@ -58,19 +73,6 @@ process.options = cms.untracked.PSet(
 )
 
 
-# Output definition
-process.output = cms.OutputModule(
-    "PoolOutputModule",
-    outputCommands = cms.untracked.vstring("keep *"),
-    fileName = cms.untracked.string('l1tCalo_2015_EDM.root')
-)
-
-# Additional output definition
-# TTree output file
-process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1tCalo_2015_histos.root')
-
-
 # enable debug message logging for our modules
 process.MessageLogger = cms.Service(
     "MessageLogger",
@@ -94,12 +96,12 @@ process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1352 ),
-    dumpPayload = cms.untracked.bool ( options.dump )
+    dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
 
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
-process.caloStage1Digis.InputLabel = cms.InputTag('stage1Raw')
+process.caloStage1Digis.InputLabel = cms.InputTag('rawDataCollector')
 
 # Path and EndPath definitions
 process.path = cms.Path(
@@ -108,7 +110,39 @@ process.path = cms.Path(
 
 )
 
-process.out = cms.EndPath(
-    process.output
-)
+# optional histograms & text dump
+if (options.dumpDigis or options.histos):
+    process.load("CommonTools.UtilAlgos.TFileService_cfi")
+    process.TFileService.fileName = cms.string('l1tCalo_histos.root')
 
+    process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
+    process.l1tStage2CaloAnalyzer.towerToken   = cms.InputTag("None")
+    process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+    process.l1tStage2CaloAnalyzer.mpEGToken    = cms.InputTag("None")
+    process.l1tStage2CaloAnalyzer.mpJetToken   = cms.InputTag("None")
+    process.l1tStage2CaloAnalyzer.mpTauToken   = cms.InputTag("None")
+    process.l1tStage2CaloAnalyzer.mpEtSumToken = cms.InputTag("None")
+    process.l1tStage2CaloAnalyzer.egToken      = cms.InputTag("caloStage1Digis")
+    process.l1tStage2CaloAnalyzer.jetToken     = cms.InputTag("caloStage1Digis")
+    process.l1tStage2CaloAnalyzer.tauToken     = cms.InputTag("caloStage1Digis","rlxTaus")
+    process.l1tStage2CaloAnalyzer.etSumToken   = cms.InputTag("caloStage1Digis")
+    process.l1tStage2CaloAnalyzer.doText       = cms.untracked.bool(options.dumpDigis)
+    process.l1tStage2CaloAnalyzer.doHistos     = cms.untracked.bool(options.histos)
+
+    process.analyzer = cms.Path(
+        process.l1tStage2CaloAnalyzer
+    )
+
+# optional EDM file
+if (options.edm):
+    process.output = cms.OutputModule(
+        "PoolOutputModule",
+        outputCommands = cms.untracked.vstring("keep *"),
+        fileName = cms.untracked.string('l1tCalo_EDM.root')
+    )
+
+    process.out = cms.EndPath(
+        process.output
+    )
+    
+    
