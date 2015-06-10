@@ -240,6 +240,11 @@ HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_v*                        # JIRA: CMSHLT-1
 HLT_PFHT300_DiPFJetAve90_PFAlphaT0p54_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
 HLT_PFHT350_DiPFJetAve90_PFAlphaT0p53_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
 HLT_PFHT400_DiPFJetAve90_PFAlphaT0p52_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
+HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v*                        # JIRA: CMSHLT-416
+HLT_PFHT250_DiPFJetAve90_PFAlphaT0p55_v*                        # JIRA: CMSHLT-416
+HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_v*                        # JIRA: CMSHLT-416
+HLT_PFHT350_DiPFJetAve90_PFAlphaT0p52_v*                        # JIRA: CMSHLT-416
+HLT_PFHT400_DiPFJetAve90_PFAlphaT0p51_v*                        # JIRA: CMSHLT-416
 
 HLT_BTagMu_DiJet20_Mu5_v*					# JIRA: CMSHLT-144
 HLT_BTagMu_DiJet40_Mu5_v*					# JIRA: CMSHLT-144
