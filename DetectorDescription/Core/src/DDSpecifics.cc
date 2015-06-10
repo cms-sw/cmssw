@@ -13,7 +13,7 @@ DDSpecifics::DDSpecifics(const DDName & name) : DDBase<DDName,Specific*>()
 }
 
 DDSpecifics::DDSpecifics(const DDName & name,
-                         const selectors_type & partSelections,
+                         const std::vector<std::string> & partSelections,
 	      		 const DDsvalues_type & svalues,
 			 bool doRegex)
  : DDBase<DDName,Specific*>()
@@ -45,10 +45,10 @@ const DDsvalues_type & DDSpecifics::specifics() const
   return rep().specifics(); 
 }         
 
-bool DDSpecifics::nodes(DDNodes & result) const 
-{
-   return rep().nodes(result);
-}
+// bool DDSpecifics::nodes(DDNodes & result) const 
+// {
+//    return rep().nodes(result);
+// }
 
 /** node() will only work, if
     - there is only one PartSelection std::string

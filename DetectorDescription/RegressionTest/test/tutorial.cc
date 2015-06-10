@@ -236,32 +236,12 @@ void tutorial()
  
   // The same, but creating a reference to it:
   DDLogicalPart root = cpv.root(); 
- 
-
   DDLogicalPart world = root; //(DDName("CMS","cms"));
   std::cout << "The world volume is described by following solid:" << std::endl;
   std::cout << world.solid() << std::endl << std::endl;
   DDMaterial worldMaterial = root.material();
   std::cout << "The world volume is filled with following material:" << std::endl;
   std::cout << worldMaterial << std::endl << std::endl;
- 
-  // example navigation: list all daughters of the world:
-  DDCompactView::logchild_type logPartsChildren;
-  typedef DDCompactView::graph_type::const_edge_range NR; // type of range of neightbours 
-  // range of itors to std::pair<DDLogicalPart,DDPosData*>
-  //NR children;
-  /*
-    children = cpvGraph.nodes(world);
-    if (children.first != children.second) { // yes, there were some neighbors of DDLogicalPart world
-    std::cout << world << " has following direct children:" << std::endl;
-    for (; children.first != children.second; ++(children.first)) {
-    std::cout << "    " << cpvGraph.nodeData(children.first->first)
-    << " copyno=" << children.first->second->copyno_ 
-    << " rot=" << children.first->second->rot_ << std::endl;
-    }
-    }
-  */
-  std::cout << std::endl;
  
   // Of course, if the names are well known (from the XML) one can always
   // obtain direct access: 
@@ -271,37 +251,6 @@ void tutorial()
   //  taken into account)
   DDLogicalPart endcapXtal("ECalEndcapCrystal");
   DDLogicalPart endcapBasket("ECalEndcapE7");
- 
-  // For example, we weigh the crystal 
-  // (currently one has to use DDCompactView to calculate the weight,
-  //  in future DDLogicalPart.weight() will do it. In fact, 
-  //  DDLogicalPart.weight() can be used after DDCompactView.weight(..)
-  //  was used - it returns the cached weight!)
-  //std::cout << "Some weight calculation: " << std::endl;
-  /*
-    if (endcapXtal.solid()) {
-    std::cout << "    The weight of " << endcapXtal << " is " 
-    << cpv.weight(endcapXtal)/kg 
-    << " kg." << std::endl;
-    }	
-      
-    // Or the crystal container (note, that all -expanded- children are considered
-    // when calculating weight ...
-    if (endcapBasket.solid()) {
-    std::cout << "    The weight of " << endcapBasket << " is " 
-    << cpv.weight(endcapBasket)/kg
-    << " kg." << std::endl;
-    }	
- 
-    // Or the whole thing ...
-    DDLogicalPart endcap("ECalEndcap");
- 
-    if (endcap.solid()) {
-    std::cout << "    The weight of "  <<  endcap << " is " 
-    << cpv.weight(endcap)/(1000*kg) << " tons." 
-    << std::endl << std::endl;           
-    }	
-  */
  
   // Let's switch from the CompactView to the ExpandedView
   // interfaced through DDExpandedView
@@ -321,9 +270,6 @@ void tutorial()
   clock_t StartT, EndT;
   StartT = clock();
   while(exv.next()) { // loop over the !whole! ExpandedView ...
-    //if (exv.logicalPart() == endcapXtal) {
-    //  ++xtalCount;
-    //}
     if (exv.logicalPart().category()==DDEnums::sensitive) {
       ++sensVolCount;
     }  
@@ -335,47 +281,6 @@ void tutorial()
 	    << std::endl 
 	    << "out of " << overall << " expanded nodes! " << std::endl
 	    << std::endl;
-      
-  // Now please have a look at spec-par.xml in DDD/DDCore/test
-  // where several specific datasets were attached to some of the 
-  // endcap crystal.
-  // We will try to retrieve this attached information:
-  // First we try to find the 'single-boy' (look at spec-pars.xml,
-  // the tag using name="JustMe" addresses only one single crystal
-  // in one of the two ECal-Endcaps)
-  DDNodes result;
-  DDSpecifics spec1(DDName("JustMe","spec-pars.xml"));
-  std::cout << "Looking for " << spec1 << std::endl;
-  if (spec1.nodes(result)) { // fills the DDNodes-std::vector, if corresponding nodes are found
-    std::cout << "There are " << result.size() << " nodes which match the selection " 
-	      << spec1.selection() << std::endl;
-    dump_nodes(result);     
-  }
-  // The data attached to this node are the data specified wiht spec1:
-  /*
-    std::cout << "Data-set attached: " << std::endl;
-    DDsvalues_type::const_iterator dataIt = spec1.specifics().begin();
-    for(; dataIt != spec1.specifics().end(); ++ dataIt)
-    std::cout << " name=[" <<  DDValue(dataIt->first) << "] value[0]=[" << dataIt->second[0] << "]" 
-    << std::endl << std::endl;
-
-    std::cout << std::endl << std::endl;
-    result.clear();
-  */
-
-  // Now let's find all nodes in the ExpandedView which correspond to
-  // the selection specified in <SpecPar name="all-xtal-in-endcap2" ... />
-  // of file spec-pars.xml
-  /*
-    DDSpecifics spec2(DDName("all-xtal-in-endcap2","spec-pars.xml"));
-    std::cout << "Looking for " << spec2 << std::endl;
-    if (spec2.nodes(result)) { // fills the DDNodes-std::vector, if corresponding nodes are found
-    std::cout << "There are " << result.size() << " nodes which match the selection " 
-    << spec2.selection() << std::endl;
-    //dump_nodes(result);     
-    }
-    std::cout << std::endl;
-  */
 
   // Test the SCOPE
   DDCompactView ccv;
@@ -397,9 +302,7 @@ void tutorial()
   }
   std::cout << "counted " << si << " nodes in the scope " << std::endl << std::endl;
 
-
   // test the filter
-  //bool doIt=true;
 
   std::map<std::string,DDCompOp> cop;
   cop["=="] = DDCompOp::equals;
@@ -465,17 +368,7 @@ void tutorial()
       const DDFilter & fi = *filter;
       query.addFilter( fi, vecF[loop].first );
     }  
-  
-    //const std::vector<DDExpandedNode> & res = query.exec();
-    // std::vector<DDExpandedNode>::const_iterator rit = res.begin();
-    /*
-      for (; rit != res.end(); ++rit) {
-      std::cout << *rit << std::endl;
-      }
-    */  
     std::cout << "The Scope is now: " << std::endl << scope << std::endl;
-    //std::cout << "The query-result contains " << res.size() << " nodes." << std::endl; 
-  
     std::string ans;
     ans = "";
     DDCompactView aaaaa;
@@ -540,8 +433,7 @@ void tutorial()
 	  }
 	  else {
 	    std::cout << "no match!" << std::endl;
-	  }     
-       
+	  }    
 	}
       }  
     }
@@ -760,8 +652,6 @@ void tutorial()
 
   while (exx.next() && n_c--) {
     dumpHistory(exx.geoHistory());
-  }  
-
-
+  }
 }
 
