@@ -61,7 +61,7 @@ namespace reco {
 }                                                                                        
 
 //______________________________________________________________________________
-const char *VirtualJetProducer::JetType::names[] = {
+const char *const VirtualJetProducer::JetType::names[] = {
   "BasicJet","GenJet","CaloJet","PFJet","TrackJet","PFClusterJet"
 };
 
@@ -70,7 +70,7 @@ const char *VirtualJetProducer::JetType::names[] = {
 VirtualJetProducer::JetType::Type
 VirtualJetProducer::JetType::byName(const string &name)
 {
-  const char **pos = std::find(names, names + LastJetType, name);
+  const char *const *pos = std::find(names, names + LastJetType, name);
   if (pos == names + LastJetType) {
     std::string errorMessage="Requested jetType not supported: "+name+"\n";
     throw cms::Exception("Configuration",errorMessage);
@@ -418,6 +418,13 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   output( iEvent, iSetup );
   LogDebug("VirtualJetProducer") << "Wrote jets\n";
   
+  // Clear the work vectors so that memory is free for other modules.
+  // Use the trick of swapping with an empty vector so that the memory
+  // is actually given back rather than silently kept.
+  decltype(fjInputs_)().swap(fjInputs_);
+  decltype(fjJets_)().swap(fjJets_);
+  decltype(inputs_)().swap(inputs_);  
+
   return;
 }
 
