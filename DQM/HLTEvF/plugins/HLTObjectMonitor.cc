@@ -634,21 +634,16 @@ HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
     }
   
   string pathName_noVersion;
-  vector<string> datasetPaths;
-  
-  //ATTN!!! this will need to be changed to proper DQM stream before deploying
-  vector<string> datasetNames = hltConfig_.streamContent("A");
-  for (unsigned int i=0;i<datasetNames.size();i++) {
-    datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
-    for (const auto & pathName : datasetPaths){
+  vector<string> triggerPaths = hltConfig_.triggerNames();
+  for (const auto & pathName : triggerPaths)
+    {
       pathName_noVersion = hltConfig_.removeVersion(pathName);
-      //only add unique pathNames (keys) to the lookup table by only adding it if it's no t already in the table
-      if (lookupIndex.find(pathName_noVersion) == lookupIndex.end()){
-	lookupIndex[pathName_noVersion] = hltConfig_.triggerIndex(pathName);
-      }
+      if (lookupIndex.find(pathName_noVersion) == lookupIndex.end())
+	{
+	  lookupIndex[pathName_noVersion] = hltConfig_.triggerIndex(pathName);
+	}
     }
-  }
-
+  
   // setup string names
   razor_pathName = rsq_TH1.getParameter<string>("pathName");
   alphaT_pathName = alphaT_TH1.getParameter<string>("pathName");
