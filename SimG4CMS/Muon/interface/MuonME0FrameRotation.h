@@ -11,6 +11,7 @@
  *
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Muon/interface/MuonFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
 
