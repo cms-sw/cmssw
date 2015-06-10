@@ -54,10 +54,14 @@
 
 //Associator for chi2: Including header files
 //===========Commented out for first commit to 75X, TrackAssociator not yet ported
-// #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-// #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-// #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-// #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/TrackAssociatorProducers/plugins/TrackAssociatorByChi2Impl.h"
+#include "SimTracker/TrackAssociatorProducers/plugins/TrackAssociatorByHitsImpl.h"
+
+//#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -99,6 +103,7 @@
 #include "TGraph.h"
 
 #include <sstream>    
+#include <string>
 
 #include <iostream>
 #include <fstream>
@@ -127,11 +132,10 @@ public:
   void beginRun(edm::Run const&, edm::EventSetup const&);
   void endRun(edm::Run const&, edm::EventSetup const&);
 
-
-  
   //protected:
   
   private:
+
 
   //edm::EDGetTokenT <std::vector<RecoChargedCandidate> > OurCandidatesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
@@ -140,6 +144,10 @@ public:
   edm::EDGetTokenT <ME0MuonCollection > OurMuonsToken_;
   edm::EDGetTokenT<ME0SegmentCollection> OurSegmentsToken_;
 
+  // edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
+  // edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
+
+  std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > track_Collection_Token;
 
   //Associator for chi2: objects
   //edm::InputTag associatormap;
@@ -147,13 +155,15 @@ public:
 
   bool UseAssociators;
   bool RejectEndcapMuons;
-  //const TrackAssociatorByChi2* associatorByChi2;
-  //const TrackAssociatorByHits* associatorByHits;
+  const TrackAssociatorByChi2Impl* associatorByChi2;
+
 
 
   std::vector<std::string> associators;
-  // std::vector<const TrackAssociatorBase*> associator;
+  //std::vector<const TrackAssociatorBase*> associator;
   std::vector<edm::InputTag> label;
+
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
 
 
   //GenParticleCustomSelector gpSelector;	
@@ -313,6 +323,19 @@ ME0MuonAnalyzer::ME0MuonAnalyzer(const edm::ParameterSet& iConfig)
   OurMuonsToken_ = consumes<ME0MuonCollection>(OurMuonsTag);
   edm::InputTag OurSegmentsTag ("me0Segments");
   OurSegmentsToken_ = consumes<ME0SegmentCollection>(OurSegmentsTag);
+
+
+  for (unsigned int www=0;www<label.size();www++){
+    track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
+  }
+  // simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
+  // recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
+
+  if (UseAssociators) {
+    for (auto const& thisassociator :associators) {
+      consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(thisassociator));
+    }
+  }
 
 
   std::cout<<"Contructor end"<<std::endl;
@@ -610,18 +633,24 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   chi2_vs_eta_h = new TH2F("chi2_vs_eta_h","#chi^{2} vs #eta",4, 2.0, 2.8 , 200, 0, 20);
 
   Nevents=0;
-  //Commenting this out, not ready for 75X yet
   // std::cout<<"HERE NOW"<<std::endl;
   // if (UseAssociators) {
-  //   std::cout<<"HERE NOW"<<std::endl;
-  //   edm::ESHandle<TrackAssociatorBase> theAssociator;
-  //   std::cout<<"HERE NOW"<<std::endl;
   //   for (unsigned int w=0;w<associators.size();w++) {
-  //     std::cout<<"loop "<<w<<std::endl;
-  //     iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-  //     associator.push_back( theAssociator.product() );
+  //     //std::cout<<"loop "<<w<<std::endl;
+  //     if (associators[w].compare("muonAssociatorByHits")==0){
+  // 	edm::ESHandle<TrackAssociatorByHits> theAssociator;
+  // 	iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
+  // 	associator.push_back( theAssociator.product() );
+  //     }
+  //     else if (associators[w].compare("TrackAssociatorByChi2")==0){
+  // 	edm::ESHandle<TrackAssociatorByChi2> theAssociator;
+  // 	iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
+  // 	associator.push_back( theAssociator.product() );
+  //     }
+
   //   }
   // }
+
 
 
 }
@@ -637,6 +666,16 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout<<"ANALYZER"<<std::endl;
   Nevents_h->Fill(1);
   using namespace edm;
+
+
+  if (UseAssociators) {
+    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+    for (unsigned int w=0;w<associators.size();w++) {
+      iEvent.getByLabel(associators[w],theAssociator);
+      associator.push_back( theAssociator.product() );
+    }
+  }
+
 
   //run_ = (int)iEvent.id().run();
   //event_ = (int)iEvent.id().event();
@@ -1347,452 +1386,422 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
  //Track Association by Chi2:
-  //Commented out for first commit to 75X, Track Association not yet ported
 
 
-  // //Map the list of all me0muons that failed or passed delR matching to a list of only Tight me0Muons that failed or passed delR matching
-  // std::vector<bool> SkimmedIsMatched;
-  // int i_me0muon=0;
-  // for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
-  //      thisMuon != OurMuons->end(); ++thisMuon, ++i_me0muon){
-  //   if (!muon::isGoodMuon(me0Geom, *thisMuon, muon::Tight)) continue;
-  //   SkimmedIsMatched.push_back(IsMatched[i_me0muon]);
-  // }
+  //Map the list of all me0muons that failed or passed delR matching to a list of only Tight me0Muons that failed or passed delR matching
+  std::vector<bool> SkimmedIsMatched;
+  int i_me0muon=0;
+  for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
+       thisMuon != OurMuons->end(); ++thisMuon, ++i_me0muon){
+    if (!muon::isGoodMuon(me0Geom, *thisMuon, muon::Tight)) continue;
+    SkimmedIsMatched.push_back(IsMatched[i_me0muon]);
+  }
 
-  // //int w=0;
-  // //std::cout<<"associators size = "<<associators.size()<<std::endl;
-  // if (UseAssociators) {
-  // for (unsigned int ww=0;ww<associators.size();ww++){
+  //int w=0;
+  //std::cout<<"associators size = "<<associators.size()<<std::endl;
+  if (UseAssociators) {
+  for (unsigned int ww=0;ww<associators.size();ww++){
 
-  //   //std::cout<<associator[ww]<<std::endl;
-  //   //std::cout<<"Starting loop over associators (only 1 I think)"<<std::endl;
+    for (unsigned int www=0;www<label.size();www++){
+      //
+      // reco::RecoToGenCollection recSimColl;
+      // reco::GenToRecoCollection simRecColl;
 
-  //   //associatorByChi2 = dynamic_cast<const TrackAssociatorByChi2*>(associator[ww]);
-
-
-  //   //associatorByHits = dynamic_cast<const TrackAssociatorByHits*>(associator[ww]);
-
-  //   //associatorByChi2 = associator[ww];
-  //   //std::cout<<"here now"<<std::endl;
-  //   //std::cout<<"associatorByChi2 = "<<associatorByChi2<<std::endl;
-
-  //   //if (associatorByChi2==0) continue;
-    
-  //   //if (associatorByHits==0) continue;
-
-  //   //if (associator[ww]==0) continue;
-  //   //std::cout<<"here now"<<std::endl;
-
-  //   //std::cout<<"label size = "<<label.size()<<std::endl;
-  //   for (unsigned int www=0;www<label.size();www++){
-  //     //
-  //     // reco::RecoToGenCollection recSimColl;
-  //     // reco::GenToRecoCollection simRecColl;
-
-  //     reco::RecoToSimCollection recSimColl;
-  //     reco::SimToRecoCollection simRecColl;
-  //     edm::Handle<View<Track> >  trackCollection;
+      reco::RecoToSimCollection recSimColl;
+      reco::SimToRecoCollection simRecColl;
+      edm::Handle<View<Track> >  trackCollection;
 
 
 
-  //     unsigned int trackCollectionSize = 0;
+      unsigned int trackCollectionSize = 0;
 
-  //     //      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_) continue;
-  //     //std::cout<<label[www].process()<<", "<<label[www].label()<<", "<<label[www].instance()<<std::endl;
-  //     if(!iEvent.getByLabel(label[www], trackCollection)) {
-  // 	//std::cout<<"Inserting, since no label"<<std::endl;
-  // 	recSimColl.post_insert();
-  // 	simRecColl.post_insert();
+	 //if(!iEvent.getByLabel(label[www], trackCollection)) {
+      if(!iEvent.getByToken(track_Collection_Token[www], trackCollection)){
+  	recSimColl.post_insert();
+  	simRecColl.post_insert();
 
-  //     }
+      }
 
-  //     else {
-  // 	trackCollectionSize = trackCollection->size();
-  // 	// recSimColl=associatorByChi2->associateRecoToGen(trackCollection,
-  // 	// 						genParticles,
-  // 	// 						&iEvent,
-  // 	// 						&iSetup);
-  // 	// //std::cout<<"here now"<<std::endl;
-  // 	// simRecColl=associatorByChi2->associateGenToReco(trackCollection,
-  // 	// 						genParticles,
-  // 	// 						&iEvent,
-  // 	// 						&iSetup);
+      else {
+  	trackCollectionSize = trackCollection->size();
+  
+	// if (associators[ww].compare("TrackAssociatorByChi2")==0){
+	//   // recSimColl=associatorByChi2->associateRecoToSim(trackCollection,
+  	//   // 						trackingParticles,
+  	//   // 						&iEvent,
+  	//   // 						&iSetup);
+
+	//   // simRecColl=associatorByChi2->associateSimToReco(trackCollection,
+  	//   // 						trackingParticles,
+  	//   // 						&iEvent,
+  	//   // 						&iSetup);
+	// }
+	// else if (associators[ww].compare("muonAssociatorByHits")==0){
+	//   const MuonAssociatorByHits* associatorByHits;
+	//   recSimColl=associatorByHits->associateRecoToSim(trackCollection,
+  	// 						trackingParticles,
+  	// 						&iEvent,
+  	// 						&iSetup);
+ 
+	//   simRecColl=associatorByHits->associateSimToReco(trackCollection,
+  	// 						trackingParticles,
+  	// 						&iEvent,
+  	// 						&iSetup);
+
+	// }
+	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
+						      trackingParticles);
+
+
+	simRecColl=associator[ww]->associateSimToReco(trackCollection,
+						      trackingParticles);
 	
-  // 	// recSimColl=associatorByChi2->associateRecoToSim(trackCollection,
-  // 	// 						trackingParticles,
-  // 	// 						&iEvent,
-  // 	// 						&iSetup);
 
-  // 	// simRecColl=associatorByChi2->associateSimToReco(trackCollection,
-  // 	// 						trackingParticles,
-  // 	// 						&iEvent,
-  // 	// 						&iSetup);
+      }
+      //std::cout<<"here now"<<std::endl;
+      //int ats = 0;
+      //std::cout<<"genParticlesForChi2.size() = "<<genParticlesForChi2.size()<<std::endl;
+      //for (GenParticleCollection::size_type i=0; i<genParticlesForChi2.size(); i++){
 
+
+      for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
+  	//bool TP_is_matched = false;
+  	//double quality = 0.;
+  	//bool Quality05  = false;
+  	//bool Quality075 = false;
+
+  	// GenParticleRef tpr(genParticles, i);
+  	// GenParticle* tp=const_cast<GenParticle*>(tpr.get());
+
+  	const TrackingParticle& TPCheck=(*trackingParticles)[i];
+  	if (abs(TPCheck.pdgId()) != 13) continue;
+
+  	TrackingParticleRef tpr(trackingParticles, i);
+  	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
+  	TrackingParticle::Vector momentumTP; 
+  	TrackingParticle::Point vertexTP;
+  	//double dxySim = 0;
+  	//double dzSim = 0;
+
+  	//Collision like particle
+  	//if(! gpSelector(*tp)) continue;
+
+  	//Considering only the muon tracking particles
+  	if (abs(tp->pdgId()) != 13) continue;
+
+  	momentumTP = tp->momentum();
+  	vertexTP = tp->vertex();
 	
-  // 	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-  // 							trackingParticles,
-  // 							&iEvent,
-  // 							&iSetup);
-
-  // 	simRecColl=associator[ww]->associateSimToReco(trackCollection,
-  // 							trackingParticles,
-  // 							&iEvent,
-  // 							&iSetup);
-
-  // 	// recSimColl=associatorByHits->associateRecoToSim(trackCollection,
-  // 	// 						trackingParticles,
-  // 	// 						&iEvent,
-  // 	// 						&iSetup);
-
-  // 	// simRecColl=associatorByHits->associateSimToReco(trackCollection,
-  // 	// 						trackingParticles,
-  // 	// 						&iEvent,
-  // 	// 						&iSetup);
-  //     }
-  //     //std::cout<<"here now"<<std::endl;
-  //     //int ats = 0;
-  //     //std::cout<<"genParticlesForChi2.size() = "<<genParticlesForChi2.size()<<std::endl;
-  //     //for (GenParticleCollection::size_type i=0; i<genParticlesForChi2.size(); i++){
-
-
-  //     for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
-  // 	//bool TP_is_matched = false;
-  // 	//double quality = 0.;
-  // 	//bool Quality05  = false;
-  // 	//bool Quality075 = false;
-
-  // 	// GenParticleRef tpr(genParticles, i);
-  // 	// GenParticle* tp=const_cast<GenParticle*>(tpr.get());
-
-  // 	const TrackingParticle& TPCheck=(*trackingParticles)[i];
-  // 	if (abs(TPCheck.pdgId()) != 13) continue;
-
-  // 	TrackingParticleRef tpr(trackingParticles, i);
-  // 	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
-  // 	TrackingParticle::Vector momentumTP; 
-  // 	TrackingParticle::Point vertexTP;
-  // 	//double dxySim = 0;
-  // 	//double dzSim = 0;
-
-  // 	//Collision like particle
-  // 	//if(! gpSelector(*tp)) continue;
-
-  // 	//Considering only the muon tracking particles
-  // 	if (abs(tp->pdgId()) != 13) continue;
-
-  // 	momentumTP = tp->momentum();
-  // 	vertexTP = tp->vertex();
-	
-  // 	//This section fills the denominator for the chi2 efficiency...
+  	//This section fills the denominator for the chi2 efficiency...
 
 	
-  // 	if ((tp->pt() >FakeRatePtCut) ){
-  // 	  bool SignalMuon=false;
-  // 	  // for(unsigned int i=0; i<gensize; ++i) {
-  // 	  //   const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  // 	  //   if ((reco::deltaR(CurrentParticle,*tp) < 0.05) && (fabs(10.0-tp->pt()) < 0.25) && (CurrentParticle.numberOfMothers()==0) && (tp->status()==1) ) {
-  // 	  //     SignalMuon=true;
-  // 	  //     //std::cout<<"tp gen particle pt = "<<(*tp->genParticle_begin())->pt()<<", gen part pt = "<<CurrentParticle.pt()<<std::endl;
-  // 	  //     //std::cout<<reco::deltaR((*tp->genParticle_begin()),CurrentParticle)<<std::endl;
-  // 	  //   }
-  // 	  // }
+  	if ((tp->pt() >FakeRatePtCut) ){
+  	  bool SignalMuon=false;
+  	  // for(unsigned int i=0; i<gensize; ++i) {
+  	  //   const reco::GenParticle& CurrentParticle=(*genParticles)[i];
+  	  //   if ((reco::deltaR(CurrentParticle,*tp) < 0.05) && (fabs(10.0-tp->pt()) < 0.25) && (CurrentParticle.numberOfMothers()==0) && (tp->status()==1) ) {
+  	  //     SignalMuon=true;
+  	  //     //std::cout<<"tp gen particle pt = "<<(*tp->genParticle_begin())->pt()<<", gen part pt = "<<CurrentParticle.pt()<<std::endl;
+  	  //     //std::cout<<reco::deltaR((*tp->genParticle_begin()),CurrentParticle)<<std::endl;
+  	  //   }
+  	  // }
 	  
-  // 	  //if ( (tp->status()==1) && ( tp->genParticle_begin()->numberOfMothers()==0 ) ) SignalMuon=false;
+  	  //if ( (tp->status()==1) && ( tp->genParticle_begin()->numberOfMothers()==0 ) ) SignalMuon=false;
 
-  // 	  //if ( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
+  	  //if ( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
 
-  // 	  //std::cout<<"tp status is "<<tp->status()<<std::endl;
-  // 	  //std::cout<<(*tp->genParticle_begin())->numberOfMothers()<<std::endl;
-  // 	  if (tp->status() !=-99){
-  // 	    int motherid=-1;
-  // 	    if ((*tp->genParticle_begin())->numberOfMothers()>0)  {
-  // 	      if ((*tp->genParticle_begin())->mother()->numberOfMothers()>0){
-  // 		motherid=(*tp->genParticle_begin())->mother()->mother()->pdgId();
-  // 	      }
-  // 	    }
+  	  //std::cout<<"tp status is "<<tp->status()<<std::endl;
+  	  //std::cout<<(*tp->genParticle_begin())->numberOfMothers()<<std::endl;
+  	  if (tp->status() !=-99){
+  	    int motherid=-1;
+  	    if ((*tp->genParticle_begin())->numberOfMothers()>0)  {
+  	      if ((*tp->genParticle_begin())->mother()->numberOfMothers()>0){
+  		motherid=(*tp->genParticle_begin())->mother()->mother()->pdgId();
+  	      }
+  	    }
 
-  // 	    std::cout<<"Mother ID = "<<motherid<<std::endl;
+  	    std::cout<<"Mother ID = "<<motherid<<std::endl;
 
-  // 	    if ( 
-  // 		( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) )  ||
-  // 		( (tp->status()==1) ) ) SignalMuon=true;
+  	    if ( 
+  		( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) )  ||
+  		( (tp->status()==1) ) ) SignalMuon=true;
 
-  // 	    //if (SignalMuon) PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
-  // 	  }
-  // 	  //SignalMuon=true;
-  // 	  //if (tp->NumberOfMothers()==0) SignalMuon=true;
+  	    //if (SignalMuon) PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
+  	  }
+  	  //SignalMuon=true;
+  	  //if (tp->NumberOfMothers()==0) SignalMuon=true;
 	  
-  // 	  if (SignalMuon){
-  // 	    TPMuon_Eta->Fill(fabs(tp->eta()));
-  // 	    TPMuon_WideBinning_Eta->Fill(fabs(tp->eta()));
-  // 	    TPMuon_WidestBinning_Eta->Fill(fabs(tp->eta()));
-  // 	    if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) ) {
-  // 	      TPMuon_SmallBins_Pt->Fill(tp->pt());
-  // 	      TPMuon_VariableBins_Pt->Fill(tp->pt());
-  // 	      TPMuon_Pt->Fill(tp->pt());
-  // 	    }
+  	  if (SignalMuon){
+  	    TPMuon_Eta->Fill(fabs(tp->eta()));
+  	    TPMuon_WideBinning_Eta->Fill(fabs(tp->eta()));
+  	    TPMuon_WidestBinning_Eta->Fill(fabs(tp->eta()));
+  	    if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) ) {
+  	      TPMuon_SmallBins_Pt->Fill(tp->pt());
+  	      TPMuon_VariableBins_Pt->Fill(tp->pt());
+  	      TPMuon_Pt->Fill(tp->pt());
+  	    }
 
-  // 	  }
+  	  }
 	  
-  // 	}
-  // 	//std::cout<<"Section complete"<<std::endl;
+  	}
+  	//std::cout<<"Section complete"<<std::endl;
 
-  // 	//...end section
-  // 	if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) )  PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
+  	//...end section
+  	if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) )  PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
 
-  // 	std::vector<std::pair<RefToBase<Track>, double> > rt;
+  	std::vector<std::pair<RefToBase<Track>, double> > rt;
 
-  // 	//Check if the gen particle has been associated to any reco track
-  // 	if(simRecColl.find(tpr) != simRecColl.end()){
-  // 	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
-  // 	  //It has, so we check that the pair TrackRef/double pair collection (vector of pairs) is not empty
-  // 	  if (rt.size()!=0) {
-  // 	    //It is not empty, so there is at least one real track that the gen particle is matched to
+  	//Check if the gen particle has been associated to any reco track
+  	if(simRecColl.find(tpr) != simRecColl.end()){
+  	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
+  	  //It has, so we check that the pair TrackRef/double pair collection (vector of pairs) is not empty
+  	  if (rt.size()!=0) {
+  	    //It is not empty, so there is at least one real track that the gen particle is matched to
 	    
-  // 	    //We take the first element of the vector, .begin(), and the trackRef from it, ->first, this is our best possible track match
-  // 	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
-  // 	    //std::cout<<"-----------------------------associated Track #"<<assoc_recoTrack.key()<<std::endl;
+  	    //We take the first element of the vector, .begin(), and the trackRef from it, ->first, this is our best possible track match
+  	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
+  	    //std::cout<<"-----------------------------associated Track #"<<assoc_recoTrack.key()<<std::endl;
 
-  // 	    //quality = rt.begin()->second;
-  // 	    //std::cout << "TrackingParticle #" <<tpr.key()  
-  // 	    //<< " with pt=" << sqrt(momentumTP.perp2()) 
-  // 	    //<< " associated with quality:" << quality <<std::endl;
+  	    //quality = rt.begin()->second;
+  	    //std::cout << "TrackingParticle #" <<tpr.key()  
+  	    //<< " with pt=" << sqrt(momentumTP.perp2()) 
+  	    //<< " associated with quality:" << quality <<std::endl;
 
-  // 	    //Also, seeing as we have found a gen particle that is matched to a track, it is efficient, so we put it in the numerator of the efficiency plot
-  // 	    //if (( sqrt(momentumTP.perp2()) > FakeRatePtCut) && (TMath::Abs(tp->eta()) < 2.8) )Chi2MatchedME0Muon_Eta->Fill(tp->eta());
-  // 	    //if ( ( assoc_recoTrack->pt() > FakeRatePtCut) && (TMath::Abs(tp->eta()) < 2.8) )Chi2MatchedME0Muon_Eta->Fill(tp->eta());
+  	    //Also, seeing as we have found a gen particle that is matched to a track, it is efficient, so we put it in the numerator of the efficiency plot
+  	    //if (( sqrt(momentumTP.perp2()) > FakeRatePtCut) && (TMath::Abs(tp->eta()) < 2.8) )Chi2MatchedME0Muon_Eta->Fill(tp->eta());
+  	    //if ( ( assoc_recoTrack->pt() > FakeRatePtCut) && (TMath::Abs(tp->eta()) < 2.8) )Chi2MatchedME0Muon_Eta->Fill(tp->eta());
 
-  // 	  }
+  	  }
 
-  // 	}//END if(simRecColl.find(tpr) != simRecColl.end())
-  //     }// END for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
-  //     //END for (GenParticleCollection::size_type i=0; i<genParticlesForChi2.size(); i++)
-  //     //std::cout<<"About to start on tracks"<<std::endl;
+  	}//END if(simRecColl.find(tpr) != simRecColl.end())
+      }// END for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
+      //END for (GenParticleCollection::size_type i=0; i<genParticlesForChi2.size(); i++)
+      //std::cout<<"About to start on tracks"<<std::endl;
       
-  //     for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
-  // 	//bool Track_is_matched = false; 
-  // 	RefToBase<Track> track(trackCollection, i);
+      for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
+  	//bool Track_is_matched = false; 
+  	RefToBase<Track> track(trackCollection, i);
 
-  // 	//std::vector<std::pair<TrackingParticleRef, double> > tp;
-  // 	//std::vector<std::pair<GenParticleRef, double> > tp;
-  // 	//std::vector<std::pair<GenParticleRef, double> > tpforfake;
+  	//std::vector<std::pair<TrackingParticleRef, double> > tp;
+  	//std::vector<std::pair<GenParticleRef, double> > tp;
+  	//std::vector<std::pair<GenParticleRef, double> > tpforfake;
 
-  // 	std::vector<std::pair<TrackingParticleRef, double> > tp;
-  // 	std::vector<std::pair<TrackingParticleRef, double> > tpforfake;
-  // 	//TrackingParticleRef tpr;
-  // 	//GenParticleRef tpr;
-  // 	//GenParticleRef tprforfake;
-  // 	TrackingParticleRef tpr;
-  // 	TrackingParticleRef tprforfake;
+  	std::vector<std::pair<TrackingParticleRef, double> > tp;
+  	std::vector<std::pair<TrackingParticleRef, double> > tpforfake;
+  	//TrackingParticleRef tpr;
+  	//GenParticleRef tpr;
+  	//GenParticleRef tprforfake;
+  	TrackingParticleRef tpr;
+  	TrackingParticleRef tprforfake;
 
-  // 	//Check if the track is associated to any gen particle
-  // 	bool TrackIsEfficient = false;
-  // 	//std::cout<<"About to check first collection"<<std::endl;
-  // 	if(recSimColl.find(track) != recSimColl.end()){
-  // 	  tp = recSimColl[track];
+  	//Check if the track is associated to any gen particle
+  	bool TrackIsEfficient = false;
+  	//std::cout<<"About to check first collection"<<std::endl;
+  	if(recSimColl.find(track) != recSimColl.end()){
+  	  tp = recSimColl[track];
 
-  // 	  if (tp.size()!=0) {
-  // 	    //Track_is_matched = true;
-  // 	    tpr = tp.begin()->first;
-  // 	    //if (abs(tpr->pdgId()) != 13) continue;
+  	  if (tp.size()!=0) {
+  	    //Track_is_matched = true;
+  	    tpr = tp.begin()->first;
+  	    //if (abs(tpr->pdgId()) != 13) continue;
 
-  // 	    double assocChi2 = -(tp.begin()->second);
+  	    double assocChi2 = -(tp.begin()->second);
 	   
-  // 	    //So this track is matched to a gen particle, lets get that gen particle now
+  	    //So this track is matched to a gen particle, lets get that gen particle now
 
-  // 	    if (  (simRecColl.find(tpr) != simRecColl.end())    ){
-  // 	      std::vector<std::pair<RefToBase<Track>, double> > rt;
-  // 	      //Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
-  // 	      //std::cout<<"Comparing gen and reco tracks"<<std::endl;
-  // 	      if  (simRecColl[tpr].size() > 0){
-  // 		rt=simRecColl[tpr];
-  // 		RefToBase<Track> bestrecotrackforeff = rt.begin()->first;
-  // 		//Only fill the efficiency histo if the track found matches up to a gen particle's best choice
-  // 		if ( (bestrecotrackforeff == track ) && (abs(tpr->pdgId()) == 13) ) {
-  // 		  TrackIsEfficient=true;
-  // 		  //This section fills the numerator of the efficiency calculation...
-  // 		  //if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )
-  // 		  PostMatch_TP_R->Fill( sqrt(pow(tpr->vertex().x(),2) + pow(tpr->vertex().y(),2)) );
-  // 		  if (tpr->eventId().bunchCrossing()) PostMatch_BX0_TP_R->Fill( sqrt(pow(tpr->vertex().x(),2) + pow(tpr->vertex().y(),2)) );
-
-
-  // 		  if ( (tpr->pt() > FakeRatePtCut) )
-  // 		    {
+  	    if (  (simRecColl.find(tpr) != simRecColl.end())    ){
+  	      std::vector<std::pair<RefToBase<Track>, double> > rt;
+  	      //Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
+  	      //std::cout<<"Comparing gen and reco tracks"<<std::endl;
+  	      if  (simRecColl[tpr].size() > 0){
+  		rt=simRecColl[tpr];
+  		RefToBase<Track> bestrecotrackforeff = rt.begin()->first;
+  		//Only fill the efficiency histo if the track found matches up to a gen particle's best choice
+  		if ( (bestrecotrackforeff == track ) && (abs(tpr->pdgId()) == 13) ) {
+  		  TrackIsEfficient=true;
+  		  //This section fills the numerator of the efficiency calculation...
+  		  //if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )
+  		  PostMatch_TP_R->Fill( sqrt(pow(tpr->vertex().x(),2) + pow(tpr->vertex().y(),2)) );
+  		  if (tpr->eventId().bunchCrossing()) PostMatch_BX0_TP_R->Fill( sqrt(pow(tpr->vertex().x(),2) + pow(tpr->vertex().y(),2)) );
 
 
-  // 		      bool SignalMuon=false;
-  // 		      // for(unsigned int i=0; i<gensize; ++i) {
-  // 		      // 	const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  // 		      // 	if ((reco::deltaR(CurrentParticle,*track) < 0.05) && (fabs(10.0-track->pt()) < 0.25) && (CurrentParticle.numberOfMothers()==0) && (tpr->status()==1)) SignalMuon=true;
-  // 		      // }
+  		  if ( (tpr->pt() > FakeRatePtCut) )
+  		    {
 
-  // 		      //if ( (tpr->status()==1) && ( tpr->genParticle_begin()->numberOfMothers()==0 ) ) SignalMuon=true;
-  // 		      //if ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
 
-  // 		      //int motherid=(*tpr->genParticle_begin())->mother()->pdgId();
+  		      bool SignalMuon=false;
+  		      // for(unsigned int i=0; i<gensize; ++i) {
+  		      // 	const reco::GenParticle& CurrentParticle=(*genParticles)[i];
+  		      // 	if ((reco::deltaR(CurrentParticle,*track) < 0.05) && (fabs(10.0-track->pt()) < 0.25) && (CurrentParticle.numberOfMothers()==0) && (tpr->status()==1)) SignalMuon=true;
+  		      // }
 
-  // 		      if (tpr->status() !=-99){
-  // 			int motherid=-1;
-  // 			if ((*tpr->genParticle_begin())->numberOfMothers()>0)  {
-  // 			  if ((*tpr->genParticle_begin())->mother()->numberOfMothers()>0){
-  // 			    motherid=(*tpr->genParticle_begin())->mother()->mother()->pdgId();
-  // 			  }
-  // 			}		
-  // 			std::cout<<"Mother ID = "<<motherid<<std::endl;
-  // 			if ( 
-  // 			    ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) )  ||
-  // 			    ( (tpr->status()==1)  ) )SignalMuon=true;
-  // 			//( (tpr->status()==1) && ( (fabs(motherid)==22) || (fabs(motherid)==23) ) ) ) SignalMuon=true;
+  		      //if ( (tpr->status()==1) && ( tpr->genParticle_begin()->numberOfMothers()==0 ) ) SignalMuon=true;
+  		      //if ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
 
-  // 		      }
-  // 			//SignalMuon=true;
+  		      //int motherid=(*tpr->genParticle_begin())->mother()->pdgId();
 
-  // 			if (SignalMuon){
-  // 			Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
-  // 			Chi2MatchedME0Muon_WideBinning_Eta->Fill(fabs(tpr->eta()));
-  // 			Chi2MatchedME0Muon_WidestBinning_Eta->Fill(fabs(tpr->eta()));
-  // 			if ( (TMath::Abs(tpr->eta()) > 2.0) && (TMath::Abs(tpr->eta()) < 2.8) ) {
-  // 			  Chi2MatchedME0Muon_Pt->Fill(tpr->pt());
-  // 			  Chi2MatchedME0Muon_SmallBins_Pt->Fill(tpr->pt());
-  // 			  Chi2MatchedME0Muon_VariableBins_Pt->Fill(tpr->pt());
-  // 			}
+  		      if (tpr->status() !=-99){
+  			int motherid=-1;
+  			if ((*tpr->genParticle_begin())->numberOfMothers()>0)  {
+  			  if ((*tpr->genParticle_begin())->mother()->numberOfMothers()>0){
+  			    motherid=(*tpr->genParticle_begin())->mother()->mother()->pdgId();
+  			  }
+  			}		
+  			std::cout<<"Mother ID = "<<motherid<<std::endl;
+  			if ( 
+  			    ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) )  ||
+  			    ( (tpr->status()==1)  ) )SignalMuon=true;
+  			//( (tpr->status()==1) && ( (fabs(motherid)==22) || (fabs(motherid)==23) ) ) ) SignalMuon=true;
 
-  // 			std::cout<<"eta = "<<tpr->eta()<<std::endl;
-  // 			if ( (track->pt() > 5.0) && (track->pt() <= 10.0) )  	Chi2MatchedME0Muon_Eta_5_10->Fill(fabs(tpr->eta()));
-  // 			if ( (track->pt() > 9.0) && (track->pt() <= 11.0) )  	Chi2MatchedME0Muon_Eta_9_11->Fill(fabs(tpr->eta()));
-  // 			if ( (track->pt() > 10.0) && (track->pt() <= 50.0) )	Chi2MatchedME0Muon_Eta_10_50->Fill(fabs(tpr->eta()));
-  // 			if ( (track->pt() > 50.0) && (track->pt() <= 100.0) )	Chi2MatchedME0Muon_Eta_50_100->Fill(fabs(tpr->eta()));
-  // 			if ( track->pt() > 100.0) 		Chi2MatchedME0Muon_Eta_100->Fill(fabs(tpr->eta()));
-  // 		      }
+  		      }
+  			//SignalMuon=true;
 
-  // 		    }
-  // 		  //...end section
+  			if (SignalMuon){
+  			Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
+  			Chi2MatchedME0Muon_WideBinning_Eta->Fill(fabs(tpr->eta()));
+  			Chi2MatchedME0Muon_WidestBinning_Eta->Fill(fabs(tpr->eta()));
+  			if ( (TMath::Abs(tpr->eta()) > 2.0) && (TMath::Abs(tpr->eta()) < 2.8) ) {
+  			  Chi2MatchedME0Muon_Pt->Fill(tpr->pt());
+  			  Chi2MatchedME0Muon_SmallBins_Pt->Fill(tpr->pt());
+  			  Chi2MatchedME0Muon_VariableBins_Pt->Fill(tpr->pt());
+  			}
 
-  // 		  if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )AssociatedChi2_h->Fill(assocChi2);
-  // 		  if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )AssociatedChi2_Prob_h->Fill(TMath::Prob((assocChi2)*5,5));
-  // 		  //std::cout<<"assocChi2 = "<<assocChi2<<std::endl;
-  // 		}
-  // 	      }
-  // 	    }
+  			std::cout<<"eta = "<<tpr->eta()<<std::endl;
+  			if ( (track->pt() > 5.0) && (track->pt() <= 10.0) )  	Chi2MatchedME0Muon_Eta_5_10->Fill(fabs(tpr->eta()));
+  			if ( (track->pt() > 9.0) && (track->pt() <= 11.0) )  	Chi2MatchedME0Muon_Eta_9_11->Fill(fabs(tpr->eta()));
+  			if ( (track->pt() > 10.0) && (track->pt() <= 50.0) )	Chi2MatchedME0Muon_Eta_10_50->Fill(fabs(tpr->eta()));
+  			if ( (track->pt() > 50.0) && (track->pt() <= 100.0) )	Chi2MatchedME0Muon_Eta_50_100->Fill(fabs(tpr->eta()));
+  			if ( track->pt() > 100.0) 		Chi2MatchedME0Muon_Eta_100->Fill(fabs(tpr->eta()));
+  		      }
+
+  		    }
+  		  //...end section
+
+  		  if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )AssociatedChi2_h->Fill(assocChi2);
+  		  if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )AssociatedChi2_Prob_h->Fill(TMath::Prob((assocChi2)*5,5));
+  		  //std::cout<<"assocChi2 = "<<assocChi2<<std::endl;
+  		}
+  	      }
+  	    }
 	
 	    
 	    
-  // 	  }
-  // 	}
-  // 	//Check if this muon matched via Del-R matching, if no best match is found
+  	  }
+  	}
+  	//Check if this muon matched via Del-R matching, if no best match is found
 	
-  // 	//std::cout<<"Failed to fill eff plot, checking if matched in delR"<<std::endl;
-  // 	// if (SkimmedIsMatched[i]){
-  // 	//   if (track->pt() >FakeRatePtCut) {
-  // 	//     if (tp.size()!=0) std::cout<<"Failed to find matching sim track: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  // 	//   }
-  // 	// }
+  	//std::cout<<"Failed to fill eff plot, checking if matched in delR"<<std::endl;
+  	// if (SkimmedIsMatched[i]){
+  	//   if (track->pt() >FakeRatePtCut) {
+  	//     if (tp.size()!=0) std::cout<<"Failed to find matching sim track: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	//   }
+  	// }
 	
-  // 	//Trying another way of measuring fake rate...
-  // 	if (!TrackIsEfficient) {
+  	//Trying another way of measuring fake rate...
+  	if (!TrackIsEfficient) {
 
-  // 	  if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
-  // 	    Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  // 	    Chi2UnmatchedME0Muon_WideBinning_Eta->Fill(fabs(track->eta()));
-  // 	    Chi2UnmatchedME0Muon_WidestBinning_Eta->Fill(fabs(track->eta()));
-  // 	    if ( (TMath::Abs(track->eta()) > 2.0) && (TMath::Abs(track->eta()) < 2.8) ) {
-  // 	      Chi2UnmatchedME0Muon_Pt->Fill(track->pt());
-  // 	      Chi2UnmatchedME0Muon_SmallBins_Pt->Fill(track->pt());
-  // 	      Chi2UnmatchedME0Muon_VariableBins_Pt->Fill(track->pt());
-  // 	    }
-  // 	  }
-  // 	  //std::cout<<"unmatched eta = "<<track->eta();
+  	  if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
+  	    Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
+  	    Chi2UnmatchedME0Muon_WideBinning_Eta->Fill(fabs(track->eta()));
+  	    Chi2UnmatchedME0Muon_WidestBinning_Eta->Fill(fabs(track->eta()));
+  	    if ( (TMath::Abs(track->eta()) > 2.0) && (TMath::Abs(track->eta()) < 2.8) ) {
+  	      Chi2UnmatchedME0Muon_Pt->Fill(track->pt());
+  	      Chi2UnmatchedME0Muon_SmallBins_Pt->Fill(track->pt());
+  	      Chi2UnmatchedME0Muon_VariableBins_Pt->Fill(track->pt());
+  	    }
+  	  }
+  	  //std::cout<<"unmatched eta = "<<track->eta();
 
-  // 	}
-  // 	//End checking of Efficient muons
+  	}
+  	//End checking of Efficient muons
 
-  // 	//For Fakes --------------------------------------------  here we fill the numerator for the F.R., Chi2UnmatchedME0Muon_Eta
-  // 	//The denominator is filled elsewhere, just a histo of all the ME0Muon eta values
-  // 	//It is ME0Muon_Cuts_Eta, so named because it is all ME0Muons passing the selection (also the pT cut)
+  	//For Fakes --------------------------------------------  here we fill the numerator for the F.R., Chi2UnmatchedME0Muon_Eta
+  	//The denominator is filled elsewhere, just a histo of all the ME0Muon eta values
+  	//It is ME0Muon_Cuts_Eta, so named because it is all ME0Muons passing the selection (also the pT cut)
 
 	
-  // 	//Check if finding a track associated to a gen particle fails, or if there is no track in the collection at all
+  	//Check if finding a track associated to a gen particle fails, or if there is no track in the collection at all
 
-  // 	if( (recSimColl.find(track) == recSimColl.end() ) || ( recSimColl[track].size() == 0  ) ){
-  // 	  //So we've now determined that this track is not associated to any gen, and fill our histo of fakes:
-  // 	  // if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
-  // 	  //   Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  // 	  //   std::cout<<"unmatched eta = "<<track->eta();
-  // 	  // }
-  // 	  //Check if this muon matched via Del-R matching
-  // 	  if (SkimmedIsMatched[i]){
+  	if( (recSimColl.find(track) == recSimColl.end() ) || ( recSimColl[track].size() == 0  ) ){
+  	  //So we've now determined that this track is not associated to any gen, and fill our histo of fakes:
+  	  // if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
+  	  //   Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
+  	  //   std::cout<<"unmatched eta = "<<track->eta();
+  	  // }
+  	  //Check if this muon matched via Del-R matching
+  	  if (SkimmedIsMatched[i]){
 
 
-  // 	    if ((track->pt() >FakeRatePtCut) ){
-  // 	      if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  // 	    }
-  // 	  }
-  // 	}
+  	    if ((track->pt() >FakeRatePtCut) ){
+  	      if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	    }
+  	  }
+  	}
 	
-  // 	//Its possible that the track is associated to a gen particle, but isn't the best match and would still fail
-  // 	//In that case, we go to the gen particle...
-  // 	else if (recSimColl[track].size() > 0){
-  // 	  tpforfake = recSimColl[track];
-  // 	  tprforfake=tpforfake.begin()->first;
-  // 	  //We now have the gen particle, to check
+  	//Its possible that the track is associated to a gen particle, but isn't the best match and would still fail
+  	//In that case, we go to the gen particle...
+  	else if (recSimColl[track].size() > 0){
+  	  tpforfake = recSimColl[track];
+  	  tprforfake=tpforfake.begin()->first;
+  	  //We now have the gen particle, to check
 
 
-  // 	  //If for some crazy reason we can't find the gen particle, that means its a fake
-  // 	  if (  (simRecColl.find(tprforfake) == simRecColl.end())  ||  (simRecColl[tprforfake].size() == 0)  ) {
-  // 	    // if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8))  {
-  // 	    //   Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  // 	    //   std::cout<<"unmatched eta = "<<track->eta();
-  // 	    // }
-  // 	    //Check if this muon matched via Del-R matching
-  // 	    if (SkimmedIsMatched[i]){
-  // 	      if ((track->pt() >FakeRatePtCut) ) {
-  // 		if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  // 	      }
-  // 	    }
-  // 	  }
-  // 	  //We can probably find the gen particle
-  // 	  else if(simRecColl[tprforfake].size() > 0)  {
-  // 	    //We can now access the best possible track for the gen particle that this track was matched to
-  // 	    std::vector<std::pair<RefToBase<Track>, double> > rtforfake;
-  // 	    rtforfake=simRecColl[tprforfake];
+  	  //If for some crazy reason we can't find the gen particle, that means its a fake
+  	  if (  (simRecColl.find(tprforfake) == simRecColl.end())  ||  (simRecColl[tprforfake].size() == 0)  ) {
+  	    // if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8))  {
+  	    //   Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
+  	    //   std::cout<<"unmatched eta = "<<track->eta();
+  	    // }
+  	    //Check if this muon matched via Del-R matching
+  	    if (SkimmedIsMatched[i]){
+  	      if ((track->pt() >FakeRatePtCut) ) {
+  		if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	      }
+  	    }
+  	  }
+  	  //We can probably find the gen particle
+  	  else if(simRecColl[tprforfake].size() > 0)  {
+  	    //We can now access the best possible track for the gen particle that this track was matched to
+  	    std::vector<std::pair<RefToBase<Track>, double> > rtforfake;
+  	    rtforfake=simRecColl[tprforfake];
 	   
-  // 	    RefToBase<Track> bestrecotrack = rtforfake.begin()->first;
-  // 	    //if the best reco track is NOT the track that we're looking at, we know we have a fake, that was within the cut, but not the closest
-  // 	    if (bestrecotrack != track) {
-  // 	      // if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
-  // 	      // 	Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  // 	      // 	std::cout<<"unmatched eta = "<<track->eta();
-  // 	      // }
-  // 	      //Check if this muon matched via Del-R matching
-  // 	      if (IsMatched[i]){
-  // 		if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  // 	      }
-  // 	    }
+  	    RefToBase<Track> bestrecotrack = rtforfake.begin()->first;
+  	    //if the best reco track is NOT the track that we're looking at, we know we have a fake, that was within the cut, but not the closest
+  	    if (bestrecotrack != track) {
+  	      // if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
+  	      // 	Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
+  	      // 	std::cout<<"unmatched eta = "<<track->eta();
+  	      // }
+  	      //Check if this muon matched via Del-R matching
+  	      if (IsMatched[i]){
+  		if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	      }
+  	    }
 
-  // 	  }
-  // 	}
+  	  }
+  	}
 
-  // 	//End For Fakes --------------------------------------------
+  	//End For Fakes --------------------------------------------
 
 	
-  // 	if (TMath::Abs(track->eta()) < 2.8) CheckME0Muon_Eta->Fill(fabs(track->eta()));	
+  	if (TMath::Abs(track->eta()) < 2.8) CheckME0Muon_Eta->Fill(fabs(track->eta()));	
 
-  // 	NormChi2_h->Fill(track->normalizedChi2());
-  // 	NormChi2Prob_h->Fill(TMath::Prob(track->chi2(),(int)track->ndof()));
-  // 	NormChi2VsHits_h->Fill(track->numberOfValidHits(),track->normalizedChi2());
-
-
-  // 	chi2_vs_eta_h->Fill((track->eta()),track->normalizedChi2());
-
-  // 	//nhits_vs_eta_h->Fill((track->eta()),track->numberOfValidHits());
+  	NormChi2_h->Fill(track->normalizedChi2());
+  	NormChi2Prob_h->Fill(TMath::Prob(track->chi2(),(int)track->ndof()));
+  	NormChi2VsHits_h->Fill(track->numberOfValidHits(),track->normalizedChi2());
 
 
-  //     }//END for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
-  //     //delete recSimColl;
-  //     //delete simRecColl;
-  //   }//END for (unsigned int www=0;www<label.size();www++)
-  // }// END for (unsigned int www=0;www<label.size();www++)
-  // }//END if UseAssociators
+  	chi2_vs_eta_h->Fill((track->eta()),track->normalizedChi2());
+
+  	//nhits_vs_eta_h->Fill((track->eta()),track->numberOfValidHits());
+
+
+      }//END for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
+      //delete recSimColl;
+      //delete simRecColl;
+    }//END for (unsigned int www=0;www<label.size();www++)
+  }// END for (unsigned int www=0;www<label.size();www++)
+  }//END if UseAssociators
   //std::cout<<"Finished chi2 stuff"<<std::endl;
 
   // for (std::vector<ME0Segment>::const_iterator thisSegment = OurSegments->begin();
