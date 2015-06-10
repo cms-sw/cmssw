@@ -25,29 +25,15 @@ process.options = cms.untracked.PSet(
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
-
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'GR_E_V48') # express
-process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
-process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-for pset in process.GlobalTag.toGet.value():
-    pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
-# fix for multi-run processing
-process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
-
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.GlobalTag.globaltag = 'GR_E_V48'
 
 ## Track refit
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.load('RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi')
 
 # remove the following lines if you run on RECO files
-process.MeasurementTrackerEvent.stripClusterProducer = 'ALCARECOTkAlMinBias'
-process.MeasurementTrackerEvent.pixelClusterProducer = 'ALCARECOTkAlMinBias'
-process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag() 
 process.TrackRefitter.src = 'ALCARECOTkAlMinBias'
+process.TrackRefitter.NavigationSchool = ''
 
 
 ## PV refit
@@ -94,7 +80,6 @@ process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = 1
 
 
 process.p = cms.Path(process.offlineBeamSpot                        + 
-                     process.MeasurementTrackerEvent                + 
                      process.TrackRefitter                          + 
                      process.offlinePrimaryVerticesFromRefittedTrks +
                      process.d0_phi_analyzer)
