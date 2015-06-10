@@ -46,7 +46,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         """Here we declare the variables that we always want and that are hard-coded"""
         tr.var('run', int, storageType="i")
         tr.var('lumi', int, storageType="i")
-        tr.var('evt', int, storageType="i")
+        tr.var('evt', int, storageType="l")
         tr.var('isData', int)
 
  #       self.triggerBitCheckers = []
