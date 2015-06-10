@@ -366,7 +366,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
     }
   }
   // In the case of a bind mount, try looking again at the source directory.
-  if (best->bind && best->origin)
+  if (best && best->bind && best->origin)
   {
     struct stat s2;
     struct statfs sfs2;
