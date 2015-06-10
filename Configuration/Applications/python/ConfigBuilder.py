@@ -1001,6 +1001,7 @@ class ConfigBuilder(object):
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
 	    self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
+            self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationCosmics_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
             if self._options.isMC==True:
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmicsMC_cff"
