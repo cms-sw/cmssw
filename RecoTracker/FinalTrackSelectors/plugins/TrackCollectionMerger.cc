@@ -252,24 +252,29 @@ namespace {
     auto isel=0U;
     for (auto i=0U; i<collsSize; ++i) {
       std::vector<unsigned int> selId;
+     std::vector<unsigned int>  tid;
       auto iStart1=iStart2;
       iStart2=iStart1+nGoods[i];
       assert(producer.selTracks_->size()==isel);
       for (auto t1=iStart1; t1<iStart2; ++t1) {
 	if (!selected[t1]) continue;
 	++nsel;
+	tid.push_back(t1);
 	selId.push_back(tkInds[t1]);
 	pmvas->push_back(mvas[t1]);
 	pquals->push_back(quals[t1]);
       }
       producer(srcColls[i],selId);
       assert(producer.selTracks_->size()==nsel);
+      assert(tid.size()==nsel-isel);
+      auto k=0U;
       for (;isel<nsel;++isel) {
 	auto & otk = (*producer.selTracks_)[isel];
 	otk.setQualityMask((*pquals)[isel]);
-	// otk.setOriginalAlgorithm(oriAlgo[i]);
-	//otk.setAlgoMask(algoMask[i]);
+	otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
+	otk.setAlgoMask(algoMask[tid[k++]]);
       }
+      assert(tid.size()==k);
     }
 
     assert(producer.selTracks_->size()==pmvas->size());
