@@ -76,9 +76,9 @@ process.options = cms.untracked.PSet(
 # enable debug message logging for our modules
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    threshold  = cms.untracked.string('DEBUG'),
-    categories = cms.untracked.vstring('L1T'),
-    debugModules = cms.untracked.vstring('*')
+    threshold  = cms.untracked.string('INFO'),
+    categories = cms.untracked.vstring('L1T', 'L1TCaloEvents'),
+#    debugModules = cms.untracked.vstring(
 #        'mp7BufferDumpToRaw',
 #        'l1tDigis',
 #        'caloStage1Digis'
