@@ -47,6 +47,8 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(MC_, genParticles);
 
+  if(!genParticles.isValid()) return;
+
   // Look for primary bosons
   // It is not guaranteed that primary bosons are stored in event history.
   // Is it really needed when check if taus from the boson is removed? 
