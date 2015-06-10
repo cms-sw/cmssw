@@ -133,6 +133,23 @@ if (options.dumpDigis or options.histos):
         process.l1tStage2CaloAnalyzer
     )
 
+    if (options.dumpDigis):
+        process.load('L1Trigger.L1GctAnalyzer.dumpGctDigis_cfi')
+        process.dumpGctDigis.doRctEm = cms.untracked.bool(True)
+        process.dumpGctDigis.doRegions = cms.untracked.bool(True)
+        process.dumpGctDigis.doInternEm = cms.untracked.bool(False)
+        process.dumpGctDigis.doEm = cms.untracked.bool(False)
+        process.dumpGctDigis.doJets = cms.untracked.bool(False)
+        process.dumpGctDigis.doEnergySums = cms.untracked.bool(False)
+        process.dumpGctDigis.doFibres = cms.untracked.bool(False)
+        process.dumpGctDigis.doEmulated = cms.untracked.bool(False)
+        process.dumpGctDigis.doHardware = cms.untracked.bool(True)
+        process.dumpGctDigis.outFile = cms.untracked.string('')
+        process.dumpGctDigis.rawInput = cms.untracked.InputTag("caloStage1Digis")
+
+        process.analyzer.insert(1,process.dumpGctDigis)
+
+
 # optional EDM file
 if (options.edm):
     process.output = cms.OutputModule(
