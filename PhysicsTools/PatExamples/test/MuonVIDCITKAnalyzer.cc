@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -25,7 +25,7 @@ using namespace edm;
 //
 // class decleration
 //
-class MuonVIDCITKAnalyzer : public edm::stream::EDAnalyzer<>
+class MuonVIDCITKAnalyzer : public edm::EDAnalyzer
 {
 public:
   MuonVIDCITKAnalyzer(const edm::ParameterSet&);
