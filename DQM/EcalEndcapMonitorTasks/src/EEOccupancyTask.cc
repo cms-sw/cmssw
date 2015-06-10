@@ -579,7 +579,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) && false) { //Shervin
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
@@ -611,7 +611,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EEDigiCollection> digis;
 
-  if ( e.getByLabel(EEDigiCollection_, digis) && false) {
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EEOccupancyTask") << "event " << ievt_ << " digi collection size " << need;
@@ -719,7 +719,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalPnDiodeDigiCollection> PNs;
 
-  if ( e.getByLabel(EcalPnDiodeDigiCollection_, PNs) && false ) {//Shervin
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, PNs) ) {
 
     // filling mem occupancy only for the 5 channels belonging
     // to a fully reconstructed PN's
@@ -755,7 +755,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRecHitCollection> rechits;
 
-  if ( e.getByLabel(EcalRecHitCollection_, rechits) && false ) {//Shervin
+  if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
 
     int nebrh = rechits->size();
     LogDebug("EEOccupancyTask") << "event " << ievt_ << " rec hits collection size " << nebrh;
@@ -836,7 +836,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalTrigPrimDigiCollection> trigPrimDigis;
 
-  if ( e.getByLabel(EcalTrigPrimDigiCollection_, trigPrimDigis) && false ) { //Shervin
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, trigPrimDigis) ) {
 
     int nebtpg = trigPrimDigis->size();
     LogDebug("EEOccupancyTask") << "event " << ievt_ << " trigger primitives digis collection size " << nebtpg;
