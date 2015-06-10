@@ -23,7 +23,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   std::auto_ptr<reco::TrackCollection>& selTracks,
 				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				   AlgoProductCollection& algoResults)
+				   AlgoProductCollection& algoResults,
+                                   const TrackerTopology *ttopo)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -100,7 +101,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     if (theSchool.isValid())
       {
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,prop,measTk);
+	setSecondHitPattern(theTraj,track,prop,measTk, ttopo);
       }
     //==============================================================
     
@@ -120,7 +121,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 	   j != transHits.end(); j ++ ) {
 	if ((**j).hit()!=0){
 	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
+	  track.setHitPattern( * hit, ih ++, *ttopo );
 	  selHits->push_back( hit );
 	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	}
@@ -130,7 +131,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 	   j != transHits.begin()-1; --j ) {
 	if ((**j).hit()!=0){
 	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
+	  track.setHitPattern( * hit, ih ++, *ttopo );
 	  selHits->push_back( hit );
 	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	}

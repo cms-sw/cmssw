@@ -1,11 +1,6 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -13,7 +8,7 @@
 using namespace reco;
 
 
-uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
+uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i, const TrackerTopology& ttopo){
   
   // ignore the rec hit if the number of hit is larger than the max
   if (i >= 32 * PatternSize / HitSize) return 0;
@@ -38,18 +33,7 @@ uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
   // adding layer/disk/wheel bits
   uint32_t layer = 0;
   if (detid == DetId::Tracker) {
-    if (subdet == PixelSubdetector::PixelBarrel) 
-      layer = PXBDetId(id).layer();
-    else if (subdet == PixelSubdetector::PixelEndcap)
-      layer = PXFDetId(id).disk();
-    else if (subdet == StripSubdetector::TIB)
-      layer = TIBDetId(id).layer();
-    else if (subdet == StripSubdetector::TID)
-      layer = TIDDetId(id).wheel();
-    else if (subdet == StripSubdetector::TOB)
-      layer = TOBDetId(id).layer();
-    else if (subdet == StripSubdetector::TEC)
-      layer = TECDetId(id).wheel();
+      layer = ttopo.layer(id);
   } else if (detid == DetId::Muon) {
     if (subdet == (uint32_t) MuonSubdetId::DT) 
       layer = ((DTLayerId(id.rawId()).station()-1)<<2) + DTLayerId(id.rawId()).superLayer();
@@ -70,7 +54,7 @@ uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
   // adding mono/stereo bit
   uint32_t side = 0;
   if (detid == DetId::Tracker) {
-       side = isStereo(id);
+       side = isStereo(id, ttopo);
   } else if (detid == DetId::Muon) {
        side = 0;
   }
@@ -92,7 +76,7 @@ void HitPattern::setHitPattern(int position, uint32_t pattern) {
   }
 }
 
-void HitPattern::appendHit(const TrackingRecHit & hit){
+void HitPattern::appendHit(const TrackingRecHit & hit, const TrackerTopology& ttopo){
 
   // get rec hit det id and rec hit type
   DetId id = hit.geographicalId();
@@ -146,7 +130,7 @@ void HitPattern::appendHit(const TrackingRecHit & hit){
 
   unsigned int i =  numberOfHits();
   for(std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it)
-    set(**it,i++);
+    set(**it,i++, ttopo);
 
 
 }
@@ -614,7 +598,7 @@ void HitPattern::print (std::ostream &stream) const
      stream.flags(flags);
 }
 
-uint32_t HitPattern::isStereo (DetId i) 
+uint32_t HitPattern::isStereo (DetId i, const TrackerTopology& ttopo) 
 {
      switch (i.det()) {
      case DetId::Tracker:
@@ -622,26 +606,14 @@ uint32_t HitPattern::isStereo (DetId i)
 	  case PixelSubdetector::PixelBarrel:
 	  case PixelSubdetector::PixelEndcap:
 	       return 0;
-	  case StripSubdetector::TIB:
-	  {
-	       TIBDetId id = i;
-	       return id.isStereo();
-	  }
-	  case StripSubdetector::TID:
-	  {
-	       TIDDetId id = i;
-	       return id.isStereo();
-	  }
-	  case StripSubdetector::TOB:
-	  {
-	       TOBDetId id = i;
-	       return id.isStereo();
-	  }
-	  case StripSubdetector::TEC:
-	  {
-	       TECDetId id = i;
-	       return id.isStereo();
-	  }
+          case StripSubdetector::TIB:
+               return ttopo.tibIsStereo(i);
+          case StripSubdetector::TID:
+               return ttopo.tidIsStereo(i);
+          case StripSubdetector::TOB:
+               return ttopo.tobIsStereo(i);
+          case StripSubdetector::TEC:
+               return ttopo.tecIsStereo(i);
 	  default:
 	       return 0;
 	  }

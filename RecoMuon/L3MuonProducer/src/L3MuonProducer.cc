@@ -146,7 +146,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     L2TrackCands.push_back(L2Cand);
   }
   
-  theTrackFinder->reconstruct(L2TrackCands, event);      
+  theTrackFinder->reconstruct(L2TrackCands, event, eventSetup);
   
   LogTrace(metname)<<"Event loaded"
                    <<"================================"

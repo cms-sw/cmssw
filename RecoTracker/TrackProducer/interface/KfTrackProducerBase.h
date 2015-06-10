@@ -30,7 +30,8 @@ public:
 			std::auto_ptr<reco::TrackCollection>&,
 			std::auto_ptr<reco::TrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&);
+			AlgoProductCollection&,
+                        const TrackerTopology *ttopo);
 
 
   //  void setSecondHitPattern(Trajectory* traj, reco::Track& track);

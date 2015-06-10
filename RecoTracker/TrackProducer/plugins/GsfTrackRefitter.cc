@@ -11,6 +11,8 @@
 #include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 #include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -66,6 +68,9 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<IdealGeometryRecord>().get(httopo);
+
   //
   //declare and get TrackCollection to be retrieved from the event
   //
@@ -106,7 +111,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   
   //put everything in th event
   putInEvt(theEvent, thePropagator.product(), theMeasTk.product(),
-	   outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs);
+	   outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs, httopo.product());
   LogDebug("GsfTrackRefitter") << "end" << "\n";
 }
 
