@@ -84,6 +84,7 @@ MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
   muonPhIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValueGamma04PAT"));
   muonPuIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValuePU04PAT"));
 
+  usesResource("TFileService");
   edm::Service<TFileService> fs;
   h2Ch_ = fs->make<TH2F>("h2Ch", "ChIso;IsoValue ChIso;CITK ChIso", 100, 0, 10, 100, 0, 10);
   h2Nh_ = fs->make<TH2F>("h2Nh", "NhIso;IsoValue NhIso;CITK NhIso", 100, 0, 10, 100, 0, 10);

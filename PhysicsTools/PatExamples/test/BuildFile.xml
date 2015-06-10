@@ -6,4 +6,5 @@
   <use   name="PhysicsTools/CandUtils"/>
   <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
 </library>
