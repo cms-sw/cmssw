@@ -83,7 +83,6 @@ std::ostream & operator<<( std::ostream  & os, const DDSpecifics & sp)
 
 std::ostream & operator<<( std::ostream & os, const std::vector<std::string> & v)
 {
-  std::vector<std::string>::const_iterator it = v.begin();
   for( const auto& it : v ) {
     os << it << std::endl;
   }
