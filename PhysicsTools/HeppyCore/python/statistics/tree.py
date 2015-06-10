@@ -57,7 +57,7 @@ class Tree(object):
             if storageType not in dtypes: 
                 raise RuntimeError, 'Unknown storage type %s for branch %s' % (storageType, varName)
             selfmap[varName]=numpy.zeros(len,dtypes[storageType])
-            self.tree.Branch(varName,selfmap[varName],varName+postfix+'/I')
+            self.tree.Branch(varName,selfmap[varName],varName+postfix+'/'+storageType)
         else:
             raise RuntimeError, 'Unknown type %s for branch %s' % (type, varName)
         if title:
