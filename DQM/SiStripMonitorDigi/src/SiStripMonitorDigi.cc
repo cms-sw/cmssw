@@ -451,7 +451,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 						    "" );
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)",1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots",2);
-      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetBit(TH1::kCanRebin);
+      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetCanExtend(TH1::kAllAxes);
     }
 
     //cumulative number of Strips in APV shots
@@ -886,7 +886,7 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , co
   if(!me) return me;
 
   me->setAxisTitle("Event Time in Seconds",1);
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
 
@@ -1070,7 +1070,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						    Parameters.getParameter<double>("ymax"),
 						    "" );
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
-    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetBit(TH1::kCanRebin);
+    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
   
   // Number of Digi vs Bx - Profile
@@ -1176,7 +1176,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						      "" );
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)",1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots",2);
-    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetBit(TH1::kCanRebin);
+    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
 
 
