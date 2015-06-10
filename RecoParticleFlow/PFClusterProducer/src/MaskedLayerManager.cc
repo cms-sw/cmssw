@@ -80,3 +80,33 @@ MaskedLayerManager::buildAbsorberGanging(const ForwardSubdetector& det ) const {
   }
   return result;
 }
+
+std::unordered_map<unsigned,unsigned> 
+MaskedLayerManager::buildLayerGanging(const ForwardSubdetector& det ) const {
+  std::unordered_map<unsigned,unsigned> result;  
+  auto idet = allowed_layers.find(det);
+  if( idet == allowed_layers.end() ) {
+    throw cms::Exception("BadDet") 
+      << "Couldn't find detector in list of masks";
+  }
+  std::vector<unsigned> skipped_layers;
+  int first_skipped_layer = 0;
+  for( const auto& layer : idet->second ) {
+    if( layer.second ) {
+      if( first_skipped_layer == 0 ) {
+        result.insert(std::make_pair(layer.first,layer.first));
+      } else {
+        result.insert(std::make_pair(layer.first,first_skipped_layer));
+        for( unsigned skipped_layer : skipped_layers ) {
+          result.insert(std::make_pair(skipped_layer,first_skipped_layer));
+        }
+      }
+      skipped_layers.clear();
+      first_skipped_layer = 0;
+    } else {
+      skipped_layers.push_back(layer.first);
+      if( first_skipped_layer == 0 ) first_skipped_layer = layer.first;
+    }
+  }
+  return result;
+}

@@ -19,6 +19,7 @@ class MaskedLayerManager {
 
   bool isRecHitDropped(const reco::PFRecHit&) const;
   std::multimap<unsigned,unsigned> buildAbsorberGanging(const ForwardSubdetector& ) const;
+  std::unordered_map<unsigned,unsigned> buildLayerGanging(const ForwardSubdetector& ) const;
   const std::map<unsigned,bool> layerMask(const ForwardSubdetector& det ) const {
     if( !allowed_layers.count(det) ) {
       throw cms::Exception("UnmaskableDetector") 
