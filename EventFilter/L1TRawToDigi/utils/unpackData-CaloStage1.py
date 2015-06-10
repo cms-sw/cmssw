@@ -34,6 +34,11 @@ options.register('edm',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Produce EDM file")
+options.register('valEvents',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Filter on validation events")
 
                  
 options.parseArguments()
@@ -99,23 +104,35 @@ process.dumpRaw = cms.EDAnalyzer(
     dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
 
+# validation event filter
+process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
+
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
 process.caloStage1Digis.InputLabel = cms.InputTag('rawDataCollector')
 
+# analyzer/dumper
+process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
+process.load('L1Trigger.L1GctAnalyzer.dumpGctDigis_cfi')
+
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.dumpRaw
+    process.validationEventFilter
+    +process.dumpRaw
     +process.caloStage1Digis
-
+    +process.l1tStage2CaloAnalyzer
+    +process.dumpGctDigis
 )
+
+# enable validation event filtering
+if (not options.valEvents):
+    process.path.remove(process.validationEventFilter)
 
 # optional histograms & text dump
 if (options.dumpDigis or options.histos):
     process.load("CommonTools.UtilAlgos.TFileService_cfi")
     process.TFileService.fileName = cms.string('l1tCalo_histos.root')
 
-    process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
     process.l1tStage2CaloAnalyzer.towerToken   = cms.InputTag("None")
     process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
     process.l1tStage2CaloAnalyzer.mpEGToken    = cms.InputTag("None")
@@ -128,13 +145,10 @@ if (options.dumpDigis or options.histos):
     process.l1tStage2CaloAnalyzer.etSumToken   = cms.InputTag("caloStage1Digis")
     process.l1tStage2CaloAnalyzer.doText       = cms.untracked.bool(options.dumpDigis)
     process.l1tStage2CaloAnalyzer.doHistos     = cms.untracked.bool(options.histos)
+else:
+    process.path.remove(process.l1tStage2CaloAnalyzer)
 
-    process.analyzer = cms.Path(
-        process.l1tStage2CaloAnalyzer
-    )
-
-    if (options.dumpDigis):
-        process.load('L1Trigger.L1GctAnalyzer.dumpGctDigis_cfi')
+if (options.dumpDigis):
         process.dumpGctDigis.doRctEm = cms.untracked.bool(True)
         process.dumpGctDigis.doRegions = cms.untracked.bool(True)
         process.dumpGctDigis.doInternEm = cms.untracked.bool(False)
@@ -146,8 +160,8 @@ if (options.dumpDigis or options.histos):
         process.dumpGctDigis.doHardware = cms.untracked.bool(True)
         process.dumpGctDigis.outFile = cms.untracked.string('')
         process.dumpGctDigis.rawInput = cms.untracked.InputTag("caloStage1Digis")
-
-        process.analyzer.insert(1,process.dumpGctDigis)
+else:
+    process.path.remove(process.dumpGctDigis)
 
 
 # optional EDM file
