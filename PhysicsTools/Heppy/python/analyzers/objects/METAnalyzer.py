@@ -38,6 +38,23 @@ class METAnalyzer( Analyzer ):
         px,py = self.met.px()+deltaMet[0], self.met.py()+deltaMet[1]
         met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
+
+    def uParaPerp(self,met,boson, doUpara):
+
+        self.upara = 0
+        self.uperp = 0
+        uX = - self.met.px() - boson.px()
+        uY = - self.met.py() - boson.py()
+        u1 = (uX*boson.px() + uY*boson.py())/boson.pt()
+        u2 = (uX*boson.px() - uY*boson.py())/boson.pt()
+
+        self.upara = u1
+        self.uperp = u2
+
+        if doUpara:
+            return self.upara
+        return self.uperp
+
     def makeTkMETs(self, event):
 
         charged = []
@@ -76,12 +93,21 @@ class METAnalyzer( Analyzer ):
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) ))
 ##        print 'tkmet',self.tkMet.pt(),'tkmetphi',self.tkMet.phi()
 
+        event.tkMet.sumEt = sum([x.pt() for x in charged])
+        event.tkMetPVchs.sumEt = sum([x.pt() for x in chargedchs])
+        event.tkMetPVLoose.sumEt = sum([x.pt() for x in chargedPVLoose])
+        event.tkMetPVTight.sumEt = sum([x.pt() for x in chargedPVTight])
 
-        event.tkSumEt = sum([x.pt() for x in charged])
-        event.tkPVchsSumEt = sum([x.pt() for x in chargedchs])
-        event.tkPVLooseSumEt = sum([x.pt() for x in chargedPVLoose])
-        event.tkPVTightSumEt = sum([x.pt() for x in chargedPVTight])
+        if  hasattr(event,'zll_p4'):
+            event.tkMet.upara =  self.uParaPerp(event.tkMet,event.zll_p4, True)
+            event.tkMetPVchs.upara =  self.uParaPerp(event.tkMetPVchs,event.zll_p4, True)
+            event.tkMetPVLoose.upara =  self.uParaPerp(event.tkMetPVLoose,event.zll_p4, True)
+            event.tkMetPVTight.upara =  self.uParaPerp(event.tkMetPVTight,event.zll_p4, True)
 
+            event.tkMet.uperp =  self.uParaPerp(event.tkMet,event.zll_p4, False)
+            event.tkMetPVchs.uperp =  self.uParaPerp(event.tkMetPVchs,event.zll_p4, False)
+            event.tkMetPVLoose.uperp =  self.uParaPerp(event.tkMetPVLoose,event.zll_p4, False)
+            event.tkMetPVTight.uperp =  self.uParaPerp(event.tkMetPVTight,event.zll_p4, False)
 
     def makeGenTkMet(self, event):
         genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
@@ -93,12 +119,12 @@ class METAnalyzer( Analyzer ):
 
         mupx = 0
         mupy = 0
-        #sum muon momentum                                                                                                                                                                                                                            
+        #sum muon momentum
         for mu in event.selectedMuons:
             mupx += mu.px()
             mupy += mu.py()
 
-        #subtract muon momentum and construct met                                                                                                                                                                                                     
+        #subtract muon momentum and construct met
         px,py = self.metNoMu.px()+mupx, self.metNoMu.py()+mupy
         self.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
         px,py = self.metNoMuNoPU.px()+mupx, self.metNoMuNoPU.py()+mupy
@@ -113,12 +139,12 @@ class METAnalyzer( Analyzer ):
 
         elepx = 0
         elepy = 0
-        #sum electron momentum                                                                                                                                                                                                                            
+        #sum electron momentum
         for ele in event.selectedElectrons:
             elepx += ele.px()
             elepy += ele.py()
 
-        #subtract electron momentum and construct met                                                                                                                                                                                                     
+        #subtract electron momentum and construct met
         px,py = self.metNoEle.px()+elepx, self.metNoEle.py()+elepy
         self.metNoEle.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
@@ -132,7 +158,7 @@ class METAnalyzer( Analyzer ):
 
         phopx = 0
         phopy = 0
-        #sum photon momentum                                                                                                                                                                                                                            
+        #sum photon momentum
         for pho in event.selectedPhotons:
             phopx += pho.px()
             phopy += pho.py()
@@ -171,14 +197,9 @@ class METAnalyzer( Analyzer ):
 
         self.met_sig = self.met.significance()
         self.met_sumet = self.met.sumEt()
-
-
-        ###https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h
-        if not self.cfg_ana.copyMETsByValue:
-          self.metraw = self.met.shiftedPt(12, 0)
-          self.metType1chs = self.met.shiftedPt(12, 1)
-          setattr(event, "metraw"+self.cfg_ana.collectionPostFix, self.metraw)
-          setattr(event, "metType1chs"+self.cfg_ana.collectionPostFix, self.metType1chs)
+        if  hasattr(event,'zll_p4'):
+            self.met_upara =  self.uParaPerp(self.met,event.zll_p4, True)
+            self.met_uperp =  self.uParaPerp(self.met,event.zll_p4, False)
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
