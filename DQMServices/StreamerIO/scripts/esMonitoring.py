@@ -344,8 +344,8 @@ class FDOutputListener(AsyncLineReaderTimeoutMixin, asyncore.file_dispatcher):
         self.start = LineHistoryStart();
         self.end = LineHistoryEnd()
 
-        self.es.update_doc({ 'extra': { 'stdlog': self.start } })
-        self.es.update_doc({ 'extra': { 'stdlog_start': self.end } })
+        self.es.update_doc({ 'extra': { 'stdlog_start': self.start } })
+        self.es.update_doc({ 'extra': { 'stdlog_end': self.end } })
 
     def writable(self):
         return False
