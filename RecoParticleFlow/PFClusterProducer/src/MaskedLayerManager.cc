@@ -84,29 +84,23 @@ MaskedLayerManager::buildAbsorberGanging(const ForwardSubdetector& det ) const {
 std::unordered_map<unsigned,unsigned> 
 MaskedLayerManager::buildLayerGanging(const ForwardSubdetector& det ) const {
   std::unordered_map<unsigned,unsigned> result;  
-  auto idet = allowed_layers.find(det);
-  if( idet == allowed_layers.end() ) {
-    throw cms::Exception("BadDet") 
-      << "Couldn't find detector in list of masks";
-  }
-  std::vector<unsigned> skipped_layers;
-  int first_skipped_layer = 0;
-  for( const auto& layer : idet->second ) {
-    if( layer.second ) {
-      if( first_skipped_layer == 0 ) {
-        result.insert(std::make_pair(layer.first,layer.first));
-      } else {
-        result.insert(std::make_pair(layer.first,first_skipped_layer));
-        for( unsigned skipped_layer : skipped_layers ) {
-          result.insert(std::make_pair(skipped_layer,first_skipped_layer));
-        }
+  
+  // this gives us 2 -> 1,2 , 3 -> 3, 6 -> 4,5,6, etc...
+  std::multimap<unsigned,unsigned> ganged_layers = buildAbsorberGanging(det);
+
+  //get the layer mask
+  const std::map<unsigned,bool>& mask = layerMask(det);
+
+  // now turn this in to 1,2,3 -> 1, 4,5 -> 2, etc.
+  for( unsigned i = 1, j = 1; i <= mask.size(); ++i ) {
+    if( ganged_layers.count(i) ) {
+      auto range = ganged_layers.equal_range(i);
+      for( auto itr = range.first; itr != range.second; ++itr ) {
+        result.insert(std::make_pair(itr->second,j));
       }
-      skipped_layers.clear();
-      first_skipped_layer = 0;
-    } else {
-      skipped_layers.push_back(layer.first);
-      if( first_skipped_layer == 0 ) first_skipped_layer = layer.first;
+      ++j;
     }
   }
+  
   return result;
 }
