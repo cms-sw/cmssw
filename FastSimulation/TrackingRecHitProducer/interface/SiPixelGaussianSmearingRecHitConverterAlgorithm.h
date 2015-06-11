@@ -9,9 +9,6 @@
 //---------------------------------------------------------------------------
 
 
-// Base class: TrackingRecHitAlgorithm
-#include "FastSimulation/TrackingRecHitProducer/TrackingRecHitAlgorithm.h"
-
 //Framework
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -36,15 +33,14 @@ class TFile;
 class RandomEngineAndDistribution;
 class SimpleHistogramGenerator;
 
-class SiPixelGaussianSmearingRecHitConverterAlgorithm : public TrackingRecHitAlgorithm {
+class SiPixelGaussianSmearingRecHitConverterAlgorithm {
 public:
-  //--- Constructor
+  //--- Constructor, virtual destructor (just in case)
   explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(		   
-   TrackingRecHitAlgorithm(),							   
    const edm::ParameterSet& pset,
    GeomDetType::SubDetector pixelPart);
 
-  //--- Virtual destructor (just in case)
+  // destructor
   virtual ~SiPixelGaussianSmearingRecHitConverterAlgorithm();
   
   // return results
@@ -63,6 +59,7 @@ public:
   //
   void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY,
                  RandomEngineAndDistribution const*);
+  bool hitsMerge(const PSimHit& simHit);
 
 private:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
@@ -98,6 +95,10 @@ private:
   //Splite the resolution histograms for cvs uploading
   TFile* thePixelResolutionFile2;
   std::string thePixelResolutionFileName2;
+  TFile* thePixelResolutionFile3;
+  std::string thePixelResolutionFileName3;
+  TFile* probfile;
+  std::string probfileName;
 
   unsigned int theLayer;
   // output
