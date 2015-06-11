@@ -16,6 +16,9 @@
  * Chang Liu:
  * The class links maps for nextLayers and compatibleLayers in the same time.
  *
+ * Cesare Calabria:
+ * GEMs implementation.
+ *
  */
 
 
@@ -35,7 +38,7 @@ class MuonNavigationSchool : public NavigationSchool {
 
   public:
     ///Constructor
-    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true);
+    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = true);
     /// Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
