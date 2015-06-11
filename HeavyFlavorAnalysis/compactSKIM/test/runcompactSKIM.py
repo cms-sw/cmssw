@@ -11,5 +11,5 @@ Filter      = True
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('PAT')
 
-from HeavyFlavorAnalysis.BPHminiAOD.BPHminiAOD_cff import BPHminiAOD
-BPHminiAOD(process,inFileNames,outFileName,Global_Tag,MC,Filter)
+from HeavyFlavorAnalysis.compactSKIM.compactSKIM_cff import compactSKIM
+compactSKIM(process,inFileNames,outFileName,Global_Tag,MC,Filter)
