@@ -10,6 +10,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include<bitset>
 
@@ -150,6 +151,11 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
               layer |= abs(gemid.layer()-1);
             }
             break;
+	case MuonSubdetId::ME0:
+	  ME0DetId me0id(id.rawId());
+	  //Only layer information that is meaningful currently is in the roll/etapartition
+	  layer = (me0id.roll());
+	  break;
         }
     }
 
@@ -819,7 +825,9 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
         } else if (muonGEMHitFilter(pattern)) {
             stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") 
                    << ", roll " << getGEMRoll(pattern);
-         } else {
+	} else if (muonME0HitFilter(pattern)) {
+	   stream << "\tme0 " << getME0Layer(pattern);
+        } else {
             stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
                    << getSubStructure(pattern);
         }
