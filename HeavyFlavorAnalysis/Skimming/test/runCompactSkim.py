@@ -11,5 +11,5 @@ Filter      = True
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('PAT')
 
-from HeavyFlavorAnalysis.CompactSkim.CompactSkim_cff import CompactSkim
+from HeavyFlavorAnalysis.Skimming.CompactSkim_cff import CompactSkim
 CompactSkim(process,inFileNames,outFileName,Global_Tag,MC,Filter)
