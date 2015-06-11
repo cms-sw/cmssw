@@ -246,6 +246,17 @@ class LocalDataset( BaseDataset ):
                 self.files.append( '/'.join([self.dir, file]) )
                 # print file
 
+class EOSDataset(BaseDataset): 
+    '''A dataset located in any given eos directory'''
+
+    def __init__(self, directory, pattern):
+        self.castorDir = directory
+        name = directory
+        super(EOSDataset, self).__init__( name, 'EOS', pattern)
+
+    def buildListOfFiles(self, pattern='.*root'):
+        self.files = castortools.matchingFiles( self.castorDir, pattern )
+        
 
 class Dataset( BaseDataset ):
     
@@ -255,11 +266,6 @@ class Dataset( BaseDataset ):
         self.maskExists = False
         self.report = None
         super(Dataset, self).__init__(name, user, pattern)
-        #        self.buildListOfFiles( pattern )
-        #        self.extractFileSizes()
-        #        self.maskExists = False
-        #        self.report = None
-        #        self.buildListOfBadFiles()
         
     def buildListOfFiles(self, pattern='.*root'):
         '''fills list of files, taking all root files matching the pattern in the castor dir'''
@@ -297,17 +303,6 @@ class Dataset( BaseDataset ):
 
     def extractFileSizes(self):
         '''Get the file size for each file, from the eos ls -l command.'''
-        #lsout = castortools.runEOSCommand(self.castorDir, 'ls','-l')[0]
-        #lsout = lsout.split('\n')
-        #self.filesAndSizes = {}
-        #for entry in lsout:
-        #    values = entry.split()
-        #    if( len(values) != 9):
-        #        continue
-        #    # using full abs path as a key.
-        #    file = '/'.join([self.lfnDir, values[8]])
-        #    size = values[4]
-        #    self.filesAndSizes[file] = size 
         # EOS command does not work in tier3
         lsout = castortools.runXRDCommand(self.castorDir,'dirlist')[0]
         lsout = lsout.split('\n')

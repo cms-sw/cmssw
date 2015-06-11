@@ -26,7 +26,13 @@ class TestDataset(unittest.TestCase):
         create_dataset('ds1', n_files)
         ds1 = LocalDataset('/ds1', 'datasets', '.*root')
         self.assertEqual( len(ds1.listOfGoodFiles()), n_files)
-    
+        # shutil.rmtree('datasets')
+
+    def test_eos(self):
+        ds1 = EOSDataset('/eos/cms/store/cmst3/user/cbern/EOSTests/ds1', 
+                         '.*root') 
+        self.assertEqual(len(ds1.listOfGoodFiles()), 10)
+
 
 if __name__ == '__main__':
     import os
