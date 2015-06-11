@@ -45,12 +45,12 @@ jetPreDQMSeq=cms.Sequence(ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
-
-corrPfMetType1.jetCorrLabel = cms.InputTag('dqmAk4PFL1FastL2L3ResidualCorrector')
+dqmCorrPfMetType1=corrPfMetType1.clone()
+dqmCorrPfMetType1.jetCorrLabel = cms.InputTag('dqmAk4PFL1FastL2L3ResidualCorrector')
 
 jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*pileupJetIdProducer*pileupJetIdProducerChs*QGTagger*
                                       jetPreDQMSeq*
                                       dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*
-                                      corrPfMetType1*pfMetT1*
+                                      dqmCorrPfMetType1*pfMetT1*
                                       jetDQMAnalyzerSequence*METDQMAnalyzerSequence)
 jetMETDQMOfflineSourceMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD*jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)
