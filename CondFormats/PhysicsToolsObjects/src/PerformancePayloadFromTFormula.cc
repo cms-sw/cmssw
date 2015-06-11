@@ -2,13 +2,21 @@
 
 const int PerformancePayloadFromTFormula::InvalidPos=-1;
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
 using namespace std;
 
 void PerformancePayloadFromTFormula::initialize() {
+  boost::uuids::random_generator gen;
+
   for( std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end(); ++formula ) {
-    //FIXME: "rr" should be unique!
-    boost::shared_ptr<TFormula> temp(new TFormula("rr",formula->c_str()));
+    boost::uuids::uuid uniqueFormulaId = gen();
+    const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
+    boost::shared_ptr<TFormula> temp(new TFormula(formulaUniqueName.c_str(),formula->c_str()));
     temp->Compile();
     compiledFormulas_.push_back(temp);
   }
