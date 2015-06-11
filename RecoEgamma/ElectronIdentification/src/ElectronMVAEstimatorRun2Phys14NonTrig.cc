@@ -128,7 +128,7 @@ createSingleReader(int iCategory, std::string filename){
   //
   // Create the reader  
   //
-  TMVA::Reader *tmpTMVAReader = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *tmpTMVAReader = new TMVA::Reader( "!Color:Silent:Error" );
 
   //
   // Configure all variables and spectators. Note: the order and names
