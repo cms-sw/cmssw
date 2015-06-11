@@ -251,6 +251,8 @@ class EOSDataset(BaseDataset):
 
     def __init__(self, directory, pattern):
         self.castorDir = directory
+        if not castortools.isEOSDir(self.castorDir):
+            raise ValueError('directory should be a directory on EOS.')
         name = directory
         super(EOSDataset, self).__init__( name, 'EOS', pattern)
 
