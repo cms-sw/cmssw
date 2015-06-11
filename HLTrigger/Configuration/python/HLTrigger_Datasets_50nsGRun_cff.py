@@ -522,33 +522,6 @@ streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIso
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v2', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_v2')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
-streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
-streamA_datasetTemplates_selector.throw      = cms.bool(False)
-streamA_datasetTemplates_selector.triggerConditions = cms.vstring('MC_AK4CaloJets_v1', 
-    'MC_AK4PFJets_v1', 
-    'MC_AK8CaloHT_v1', 
-    'MC_AK8PFHT_v1', 
-    'MC_AK8PFJets_v1', 
-    'MC_AK8TrimPFJets_v1', 
-    'MC_CaloHT_v1', 
-    'MC_CaloMETCleaned_v1', 
-    'MC_CaloMET_v1', 
-    'MC_CaloMHT_v1', 
-    'MC_DoubleEle5_CaloIdL_GsfTrkIdVL_MW_v1', 
-    'MC_DoubleGlbTrkMu_TrkIsoVVL_DZ_v1', 
-    'MC_DoubleMuNoFiltersNoVtx_v1', 
-    'MC_DoubleMu_TrkIsoVVL_DZ_v1', 
-    'MC_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_v1', 
-    'MC_Ele5_WPLoose_Gsf_v1', 
-    'MC_IsoMu_v1', 
-    'MC_IsoTkMu15_v1', 
-    'MC_PFHT_v1', 
-    'MC_PFMET_v1', 
-    'MC_PFMHT_v1', 
-    'MC_ReducedIterativeTracking_v1')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTOTEM_selector
 streamA_datasetToTOTEM_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetToTOTEM_selector.l1tResults = cms.InputTag('')

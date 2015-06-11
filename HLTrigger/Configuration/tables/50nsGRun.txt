@@ -490,6 +490,7 @@ AlCa_LumiPixels_ZeroBias_v*					# JIRA: CMSHLT-239
 HLT_Random_v*							# JIRA: CMSHLT-244
 
 HLT_Physics_v*							# skim
+DST_Physics_v*							# skim
 
 MC_PFMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
 MC_AK4PFJets_v*							# JIRA: CMSHLT-314 (template paths only for MC)
@@ -524,6 +525,8 @@ HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 RatesMonitoring							# CMSHLT-344
 AOutput
 DQMOutput							# online DQMFileSaver
+DQMEventDisplayOutput
+DQMCalibrationOutput
 CalibrationOutput
 EcalCalibrationOutput
 #TrackerCalibrationOutput
@@ -534,5 +537,7 @@ ALCALUMIPIXELSOutput
 #ElectronStreamOutput						# JIRA: CMSHLT-366
 #ExpressForCosmicsOutput					# only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
+LookAreaOutput
+NanoDSTOutput
 #HLTDQMOutput
 #HLTMONOutput
