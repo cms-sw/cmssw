@@ -67,7 +67,7 @@ process.d0_phi_analyzer.BeamFitter.OutputFileName            = 'BeamFit_LumiBase
 process.d0_phi_analyzer.BeamFitter.TrackAlgorithm            = cms.untracked.vstring()
 process.d0_phi_analyzer.BeamFitter.TrackCollection           = 'TrackRefitter'
 process.d0_phi_analyzer.BeamFitter.SaveFitResults            = True
-process.d0_phi_analyzer.BeamFitter.SaveNtuple                = True
+process.d0_phi_analyzer.BeamFitter.SaveNtuple                = False
 process.d0_phi_analyzer.BeamFitter.SavePVVertices            = True
    
 process.d0_phi_analyzer.PVFitter.Apply3DFit                  = True
