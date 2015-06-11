@@ -827,8 +827,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
                   continue;
                 }
 
-	      int EndCapLUT=-1;
-              if(endcap==0) EndCapLUT=1; // ME+
+	      int EndCapLUT=1;
+              //if(endcap==0) EndCapLUT=1; // ME+
               if(endcap==1) EndCapLUT=0; // ME-
 
               lclphidat lclPhi;
