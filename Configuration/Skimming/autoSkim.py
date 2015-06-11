@@ -1,11 +1,11 @@
 autoSkim = {
     'Commissioning':'DT+LogError',
     'Cosmics':'CosmicSP+CosmicTP+LogError',
-    'CosmicsSP':'CosmicSP++LogError',
+    'CosmicsSP':'CosmicSP+LogError',
     'TopMuEG':'TopMuEG+LogError',
-    'HighMET': 'HighMET+LogError',
     'ZElectron' : 'ZElectron+LogError',
     'ZMu' : 'ZMu+LogError',
+    'HighMET': 'HighMET+LogError',
     'MuTau': 'MuTau+LogError',
     
     }
