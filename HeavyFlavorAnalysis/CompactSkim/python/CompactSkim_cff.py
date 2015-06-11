@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def compactSKIM(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=True,Filter=True):
+def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=True,Filter=True):
 
    process.load('Configuration.StandardSequences.Services_cff')
    process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
