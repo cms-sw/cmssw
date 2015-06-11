@@ -33,6 +33,12 @@ class TestDataset(unittest.TestCase):
                          '.*root') 
         self.assertEqual(len(ds1.listOfGoodFiles()), 10)
 
+    def test_eos_fail(self):
+        self.assertRaises( ValueError, 
+                           EOSDataset, 'not_existing_path', '.*root')
+        # should test that we fail when a plain file is provided 
+        # instead ofa directory.. but eostools not set up for that yet.
+
 
 if __name__ == '__main__':
     import os
