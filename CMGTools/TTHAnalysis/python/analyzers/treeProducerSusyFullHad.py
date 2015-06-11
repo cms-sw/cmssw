@@ -25,12 +25,19 @@ susyFullHad_globalVariables = susyCore_globalVariables + [
     NTupleVariable("diffMetMht_had", lambda ev : ev.diffMetMht_had, help="abs( vec(mht) - vec(met) ) - only jets"),
     NTupleVariable("deltaPhiMin_had", lambda ev : ev.deltaPhiMin_had, help="minimal deltaPhi between the MET and the four leading jets with pt>40 and eta<2.4"),
 
+    ##--------------------------------------------------
+    # Met definitions
+    ##--------------------------------------------------
+
     NTupleVariable("met_rawPt", lambda ev : ev.met.shiftedPt(12, 0), help="raw met p_{T}"),
     NTupleVariable("met_rawPhi", lambda ev : ev.met.shiftedPhi(12, 0), help="raw met phi"),
 
-    #    NTupleVariable("tkmet_pt", lambda ev : ev.tkMet.pt(), help="TK E_{T}^{miss}"),
-    #    NTupleVariable("tkmet_phi", lambda ev : ev.tkMet.phi(), help="TK E_{T}^{miss}"),
-    
+    NTupleVariable("met_caloPt", lambda ev : ev.met.caloMETPt(), help="calo met p_{T}"),
+    NTupleVariable("met_caloPhi", lambda ev : ev.met.caloMETPhi(), help="calo met phi"),
+
+    NTupleVariable("met_trkPt", lambda ev : ev.tkMet.pt() if  hasattr(ev,'tkMet') else  0, help="tkmet p_{T}"),
+    NTupleVariable("met_trkPhi", lambda ev : ev.tkMet.phi() if  hasattr(ev,'tkMet') else  0, help="tkmet phi"),
+
     ##--------------------------------------------------
     # Physics object multplicities
     ##--------------------------------------------------
