@@ -3,7 +3,7 @@
 #define RecoMuon_ME0MuonTrackCollProducer_h
 
 #include <memory>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-class ME0MuonTrackCollProducer : public edm::EDProducer {
+class ME0MuonTrackCollProducer : public edm::stream::EDProducer<> {
   public:
     explicit ME0MuonTrackCollProducer(const edm::ParameterSet&);
     //std::vector<double> findSimVtx(edm::Event& iEvent);

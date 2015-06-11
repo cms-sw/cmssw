@@ -17,43 +17,28 @@
 
 #include <DataFormats/MuonReco/interface/ME0Muon.h>
 #include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
-
-// #include "CLHEP/Matrix/SymMatrix.h"
-// #include "CLHEP/Matrix/Matrix.h"
-// #include "CLHEP/Vector/ThreeVector.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "TLorentzVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-//#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-//#include "TRandom3.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-//#include "DataFormats/Math/interface/deltaPhi.h"
-//#include <deltaR.h>
 #include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 
-// #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-// #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
-
 //Associator for chi2: Including header files
-//===========Commented out for first commit to 75X, TrackAssociator not yet ported
 #include "SimTracker/TrackAssociatorProducers/plugins/TrackAssociatorByChi2Impl.h"
 #include "SimTracker/TrackAssociatorProducers/plugins/TrackAssociatorByHitsImpl.h"
 
@@ -69,7 +54,6 @@
 #include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
-//#include "CommonTools/CandAlgos/interface/TrackingParticleCustomSelector.h"
 
 #include "RecoMuon/MuonIdentification/plugins/ME0MuonSelector.cc"
 
@@ -87,9 +71,6 @@
 #include "TStyle.h"
 #include <TCanvas.h>
 #include <TLatex.h>
-//#include "CMSStyle.C"
-//#include "tdrstyle.C"
-//#include "lumi.C"
 #include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
@@ -126,9 +107,6 @@ public:
 
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void endJob();
-  //virtual void beginJob(const edm::EventSetup&);
-  //void beginJob();
   void beginRun(edm::Run const&, edm::EventSetup const&);
   void endRun(edm::Run const&, edm::EventSetup const&);
 
@@ -136,21 +114,12 @@ public:
   
   private:
 
-
-  //edm::EDGetTokenT <std::vector<RecoChargedCandidate> > OurCandidatesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticlesToken_;
   edm::EDGetTokenT <reco::TrackCollection > generalTracksToken_;
   edm::EDGetTokenT <ME0MuonCollection > OurMuonsToken_;
   edm::EDGetTokenT<ME0SegmentCollection> OurSegmentsToken_;
-
-  // edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
-  // edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
-
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > track_Collection_Token;
-
-  //Associator for chi2: objects
-  //edm::InputTag associatormap;
 
 
   bool UseAssociators;
@@ -160,17 +129,10 @@ public:
 
 
   std::vector<std::string> associators;
-  //std::vector<const TrackAssociatorBase*> associator;
   std::vector<edm::InputTag> label;
-
   std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
 
-
-  //GenParticleCustomSelector gpSelector;	
-  //TrackingParticleCustomSelector gpSelector;	
-  //std::string parametersDefiner;
-
-
+  //Histos for plotting
   TString histoFolder;
   TString me0MuonSelector;
   TFile* histoFile; 
@@ -268,13 +230,10 @@ public:
 
   TH1F *Nevents_h;
 
-  
-//Removing this
 };
 
 ME0MuonAnalyzer::ME0MuonAnalyzer(const edm::ParameterSet& iConfig) 
 {
-  std::cout<<"Contructor"<<std::endl;
   histoFile = new TFile(iConfig.getParameter<std::string>("HistoFile").c_str(), "recreate");
   histoFolder = iConfig.getParameter<std::string>("HistoFolder").c_str();
   me0MuonSelector = iConfig.getParameter<std::string>("ME0MuonSelectionType").c_str();
@@ -284,35 +243,11 @@ ME0MuonAnalyzer::ME0MuonAnalyzer(const edm::ParameterSet& iConfig)
   FakeRatePtCut   = iConfig.getParameter<double>("FakeRatePtCut");
   MatchingWindowDelR   = iConfig.getParameter<double>("MatchingWindowDelR");
 
-  //Associator for chi2: getting parametters
-  //associatormap = iConfig.getParameter< edm::InputTag >("associatormap");
+  //Associator for chi2: getting parameters
   UseAssociators = iConfig.getParameter< bool >("UseAssociators");
   associators = iConfig.getParameter< std::vector<std::string> >("associators");
 
   label = iConfig.getParameter< std::vector<edm::InputTag> >("label");
-
-  // gpSelector = GenParticleCustomSelector(iConfig.getParameter<double>("ptMinGP"),
-  // 					 iConfig.getParameter<double>("minRapidityGP"),
-  // 					 iConfig.getParameter<double>("maxRapidityGP"),
-  // 					 iConfig.getParameter<double>("tipGP"),
-  // 					 iConfig.getParameter<double>("lipGP"),
-  // 					 iConfig.getParameter<bool>("chargedOnlyGP"),
-  // 					 iConfig.getParameter<int>("statusGP"),
-  // 					 iConfig.getParameter<std::vector<int> >("pdgIdGP"));
-
-    // gpSelector = TrackingParticleCustomSelector(iConfig.getParameter<double>("ptMinGP"),
-  // 					 iConfig.getParameter<double>("minRapidityGP"),
-  // 					 iConfig.getParameter<double>("maxRapidityGP"),
-  // 					 iConfig.getParameter<double>("tipGP"),
-  // 					 iConfig.getParameter<double>("lipGP"),
-  // 					 iConfig.getParameter<bool>("chargedOnlyGP"),
-  // 					 iConfig.getParameter<int>("statusGP"),
-  // 					 iConfig.getParameter<std::vector<int> >("pdgIdGP"));
-  // //
-    //parametersDefiner =iConfig.getParameter<std::string>("parametersDefiner");
-
-  // edm::InputTag OurCandidatesTag ("me0MuonConverting");
-  // OurCandidatesToken_ = consumes<RecoChargedCandidate>(OurCandidatesTag);
   edm::InputTag genParticlesTag ("genParticles");
   genParticlesToken_ = consumes<reco::GenParticleCollection>(genParticlesTag);
   edm::InputTag trackingParticlesTag ("mix","MergedTrackTruth");
@@ -324,12 +259,10 @@ ME0MuonAnalyzer::ME0MuonAnalyzer(const edm::ParameterSet& iConfig)
   edm::InputTag OurSegmentsTag ("me0Segments");
   OurSegmentsToken_ = consumes<ME0SegmentCollection>(OurSegmentsTag);
 
-
+  //Getting tokens and doing consumers for track associators
   for (unsigned int www=0;www<label.size();www++){
     track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
   }
-  // simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
-  // recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
 
   if (UseAssociators) {
     for (auto const& thisassociator :associators) {
@@ -343,16 +276,12 @@ ME0MuonAnalyzer::ME0MuonAnalyzer(const edm::ParameterSet& iConfig)
 
 
 
-//void ME0MuonAnalyzer::beginJob(const edm::EventSetup& iSetup)
 void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
 
-//void ME0MuonAnalyzer::beginJob()
-//{
-
-  std::cout<<"At start of begin run"<<std::endl;  
-
-  double varbins[]={0.,5.,10.,15.,20.,25.,30.,40.,50.,70.,100.};
+  //Making the directory to write plot pngs to
   mkdir(histoFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  //Histos for plotting
   Candidate_Eta = new TH1F("Candidate_Eta"      , "Candidate #eta"   , 4, 2.0, 2.8 );
 
   Nevents_h = new TH1F("Nevents_h"      , "Nevents"   , 2, 0, 2 );
@@ -370,7 +299,6 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   Rechit_R = new TH1F("Rechit_R"      , "Rechit r"   , 30, 0, 150 );
   Rechit_Pos = new TH2F("Rechit_Pos"      , "Rechit x,y"   ,100,-100.,100., 100,-100.,100. );
 
-  //  GenMuon_Eta = new TH1F("GenMuon_Eta"      , "GenMuon #eta"   , 4, 2.0, 2.8 );
   GenMuon_Phi = new TH1F("GenMuon_Phi"      , "GenMuon #phi"   , 60, -3, 3. );
   GenMuon_R = new TH1F("GenMuon_R"      , "GenMuon r"   , 30, 0, 150 );
   GenMuon_Pos = new TH2F("GenMuon_Pos"      , "GenMuon x,y"   ,100,-100.,100., 100,-100.,100. );
@@ -395,6 +323,9 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   TPMuon_Eta = new TH1F("TPMuon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
 
   GenMuon_Pt = new TH1F("GenMuon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+
+  //Default variable binning scheme
+  double varbins[]={0.,5.,10.,15.,20.,25.,30.,40.,50.,70.,100.};
   GenMuon_SmallBins_Pt = new TH1F("GenMuon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
 
   GenMuon_VariableBins_Pt = new TH1F("GenMuon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
@@ -633,24 +564,6 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   chi2_vs_eta_h = new TH2F("chi2_vs_eta_h","#chi^{2} vs #eta",4, 2.0, 2.8 , 200, 0, 20);
 
   Nevents=0;
-  // std::cout<<"HERE NOW"<<std::endl;
-  // if (UseAssociators) {
-  //   for (unsigned int w=0;w<associators.size();w++) {
-  //     //std::cout<<"loop "<<w<<std::endl;
-  //     if (associators[w].compare("muonAssociatorByHits")==0){
-  // 	edm::ESHandle<TrackAssociatorByHits> theAssociator;
-  // 	iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-  // 	associator.push_back( theAssociator.product() );
-  //     }
-  //     else if (associators[w].compare("TrackAssociatorByChi2")==0){
-  // 	edm::ESHandle<TrackAssociatorByChi2> theAssociator;
-  // 	iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-  // 	associator.push_back( theAssociator.product() );
-  //     }
-
-  //   }
-  // }
-
 
 
 }
@@ -663,7 +576,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 {
 
-  std::cout<<"ANALYZER"<<std::endl;
   Nevents_h->Fill(1);
   using namespace edm;
 
@@ -677,21 +589,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
 
-  //run_ = (int)iEvent.id().run();
-  //event_ = (int)iEvent.id().event();
-
-
-    //David's functionality
-
-
   using namespace reco;
-
-  // Handle <ME0MuonCollection > OurMuons;
-  // iEvent.getByLabel <ME0MuonCollection> ("me0SegmentMatcher", OurMuons);
-
-  // Handle <std::vector<RecoChargedCandidate> > OurCandidates;
-  // iEvent.getByToken(OurCandidatesToken_, OurCandidates);
-
   Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken_, genParticles);
   const GenParticleCollection genParticlesForChi2 = *(genParticles.product());
@@ -722,7 +620,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   Handle <TrackCollection > generalTracks;
   iEvent.getByToken (generalTracksToken_, generalTracks);
-  //std::cout<<"About to get me0muons"<<std::endl;
+
   Handle <std::vector<ME0Muon> > OurMuons;
   iEvent.getByToken (OurMuonsToken_, OurMuons);
 
@@ -738,221 +636,24 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   ESHandle<Propagator> shProp;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", shProp);
   
-
-
-  //For Track Association:
-
-
-  //For Track Association:
-  //edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP; 
-  //iSetup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
-
-
-  //=====Finding ME0Muons that match gen muons, plotting the closest of those
   //    -----First, make a vector of bools for each ME0Muon
 
   std::vector<bool> IsMatched;
   std::vector<int> SegIdForMatch;
-    //std::cout<<"Looping on me0Muons"<<std::endl;
   for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
        thisMuon != OurMuons->end(); ++thisMuon){
     if (!muon::isGoodMuon(me0Geom, *thisMuon, muon::Tight)) continue;
     IsMatched.push_back(false);
     SegIdForMatch.push_back(-1);
   }
-  //std::cout<<IsMatched.size()<<" total me0muons"<<std::endl;
-  //   -----Now, loop over each gen muon to compare it to each ME0Muon
-  //   -----For each gen muon, take the closest ME0Muon that is a match within delR 0.15
-  //   -----Each time a match on an ME0Muon is made, change the IsMatched bool corresponding to it to true
-  //   -----Also, each time a match on an ME0Muon is made, we plot the pt and eta of the gen muon it was matched to
-
-  // unsigned int gensize=genParticles->size();
-  // for(unsigned int i=0; i<gensize; ++i) {
-  //   const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  //   if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
-  //     for (std::vector<Track>::const_iterator thisTrack = generalTracks->begin();
-  // 	   thisTrack != generalTracks->end();++thisTrack){
-  // 	VertexDiff_h->Fill(fabs(thisTrack->vz()-CurrentParticle.vz()));
-  // 	PtDiff_h->Fill(fabs(thisTrack->pt() - CurrentParticle.pt())/CurrentParticle.pt());
-  // 	PtDiff_s->Fill(CurrentParticle.eta(),fabs(thisTrack->pt() - CurrentParticle.pt())/CurrentParticle.pt());
-  // 	PtDiff_p->Fill(CurrentParticle.eta(),fabs(thisTrack->pt() - CurrentParticle.pt())/CurrentParticle.pt());
-  // 	PDiff_h->Fill(fabs(thisTrack->p() - CurrentParticle.p())/CurrentParticle.p());
-  // 	PDiff_s->Fill(CurrentParticle.eta(),fabs(thisTrack->p() - CurrentParticle.p())/CurrentParticle.p());
-  // 	PDiff_p->Fill(CurrentParticle.eta(),fabs(thisTrack->p() - CurrentParticle.p())/CurrentParticle.p());
-  //     }
-  //   }
-  // }
-  //--------------------------------------------------------------
-
-
-  //============================Debugging
-  //  bool FoundRightMuon = false;
-
-  // for(unsigned int i=0; i<gensize; ++i) {
-  //    const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  //    if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
-  //      if ((fabs(CurrentParticle.eta()) < 2.0 ) ||(fabs(CurrentParticle.eta()) > 2.8 )) continue;
-  //      std::cout<<"Current Particle = "<<CurrentParticle.eta()<<", "<<CurrentParticle.phi()<<std::endl;
-  //      for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
-  // 	   thisMuon != OurMuons->end(); ++thisMuon){
-  // 	TrackRef tkRef = thisMuon->innerTrack();
-  // 	double thisDelR = reco::deltaR(CurrentParticle,*tkRef);
-
-  // 	ME0Segment Seg = thisMuon->me0segment();
-  // 	ME0DetId id =Seg.me0DetId();
-  // 	auto roll = me0Geom->etaPartition(id); 
-  // 	auto GlobVect(roll->toGlobal(Seg.localPosition()));
-
-  // 	if (thisDelR < 0.15){
-
-  // 	  std::cout<<"ME0Muon = "<<tkRef->pt()<<", "<<tkRef->eta()<<", "<<tkRef->phi()<<std::endl;
-  // 	  std::cout<<"Segment = "<<GlobVect.eta()<<", "<<GlobVect.phi()<<std::endl;
-
-	  
-  // 	}
-  // 	else if (tkRef->pt() > 8.0){
-  // 	  std::cout<<"Out of range = "<<tkRef->pt()<<", "<<tkRef->eta()<<", "<<tkRef->phi()<<std::endl;
-  // 	  std::cout<<"Segment = "<<GlobVect.eta()<<", "<<GlobVect.phi()<<std::endl;
-  // 	}
-  // 	if (fabs(tkRef->pt()-10.0) < 1.0) FoundRightMuon=true;
-	
-  //      }
-  //    }
-  // }
-
-
-      
-    
-  // if (!FoundRightMuon){
-  // std::cout<<"Current Particle = "<<CurrentParticle.eta()<<", "<<CurrentParticle.phi()<<std::endl;
-  // std::cout<<"Pos:"<<std::endl;
-  // std::cout<<r3Final.eta()<<", "<<r3Final.phi()<<std::endl;
-  // 	}
-  // for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); 
-  // 	   ++thisSegment){
-  // 	ME0DetId id = thisSegment->me0DetId();
-  // 	//std::cout<<"ME0DetId =  "<<id<<std::endl;
-  // 	auto roll = me0Geom->etaPartition(id); 
-  // 	auto GlobVect(roll->toGlobal(thisSegment->localPosition()));
-
-  // 	double thisDelR = reco::deltaR(r3Final,GlobVect);
-  // 	if (!FoundRightMuon){
-  // 	if (thisDelR < 0.3){
-  // 	  std::cout<<"Segment = "<<GlobVect.eta()<<", "<<GlobVect.phi()<<std::endl;
-  // 	  std::cout<<"local errors = "<<thisSegment->localPositionError().xx()<<", "<<thisSegment->localPositionError().yy()<<std::endl;
-  // 	}
-  // 	}
-
-
-  // for (std::vector<Track>::const_iterator thisTrack = generalTracks->begin();
-  // 	   thisTrack != generalTracks->end();++thisTrack){
-
-  // //Remove later
-  // if (fabs(thisTrack->eta()) < 1.8) continue;
-  // //if (fabs(thisTrack->pt()) < 0.6) continue;
-
-  // //std::cout<<"Track pt = "<<thisTrack->pt();
-  // float zSign  = thisTrack->pz()/fabs(thisTrack->pz());
-
-  // //float zValue = 560. * zSign;
-  // float zValue = 526.75 * zSign;
-  // Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
-  // //Getting the initial variables for propagation
-  // int chargeReco = thisTrack->charge(); 
-  // GlobalVector p3reco, r3reco;
-
-  // p3reco = GlobalVector(thisTrack->outerPx(), thisTrack->outerPy(), thisTrack->outerPz());
-  // r3reco = GlobalVector(thisTrack->outerX(), thisTrack->outerY(), thisTrack->outerZ());
-
-  // AlgebraicSymMatrix66 covReco;
-  // //This is to fill the cov matrix correctly
-  // AlgebraicSymMatrix55 covReco_curv;
-  // covReco_curv = thisTrack->outerStateCovariance();
-  // FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
-  // getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
-
-  // //Now we propagate and get the propagated variables from the propagated state
-  // SteppingHelixStateInfo startrecostate(initrecostate);
-  // SteppingHelixStateInfo lastrecostate;
-
-  // const SteppingHelixPropagator* ThisshProp = 
-  // 	dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-	
-  // lastrecostate = ThisshProp->propagate(startrecostate, *plane);
-	
-  // FreeTrajectoryState finalrecostate;
-  // lastrecostate.getFreeState(finalrecostate);
-      
-  // AlgebraicSymMatrix66 covFinalReco;
-  // GlobalVector p3FinalReco_glob, r3FinalReco_globv;
-  // getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
-      
-  // GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-
-  // for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); 
-  // 	   ++thisSegment){
-  // 	ME0DetId id = thisSegment->me0DetId();
-  // 	auto roll = me0Geom->etaPartition(id); 
-  // 	//auto GlobVect(roll->toGlobal(thisSegment->localPosition()));
-	
-  // 	LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
-  // 	LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
-  // 	LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
-  // 	JacobianCartesianToLocal jctl(roll->surface(),ltp);
-  // 	AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
-
-  // 	AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
-  // 	AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force
-  // 	for(int i=0; i<5; ++i) {
-  // 	  for(int j=0; j<5; ++j) {
-  // 	    C[i][j] = Ctmp[i][j]; 
-
-  // 	  }
-  // 	}  
-
-  // 	Double_t sigmax = sqrt(C[3][3]+thisSegment->localPositionError().xx() );      
-  // 	Double_t sigmay = sqrt(C[4][4]+thisSegment->localPositionError().yy() );
-
-
-
-  // 	XPull_h->Fill((Seg->localPosition().x()-r3FinalReco.x())/sigmax);
-  // 	YPull_h->Fill((Seg->localPosition().y()-r3FinalReco.y())/sigmay);
-
-  // 	XDiff_h->Fill((Seg->localPosition().x()-r3FinalReco.x()));
-  // 	YDiff_h->Fill((Seg->localPosition().y()-r3FinalReco.y()));
-	
-
-  // }
-  // // double thisDelR = reco::deltaR(CurrentParticle,*thisTrack);
-  // // if (false){
-
-	
-  // // }
-  // //       if (!FoundRightMuon){
-  // //  	if (thisDelR < 0.15){
-
-  // //  	  std::cout<<"Track = "<<thisTrack->pt()<<", "<<thisTrack->eta()<<", "<<thisTrack->phi()<<std::endl;
-  // //  	  std::cout<<"Pos:"<<std::endl;
-  // //  	  std::cout<<r3FinalReco_globv.eta()<<", "<<r3FinalReco_globv.phi()<<std::endl;
-
-  // //  	  std::cout<<"Err:"<<std::endl;
-  // //  	  std::cout<<covFinalReco(0,0)<<", "<<covFinalReco(1,1)<<std::endl;
-  // //  	}
-  // //       }
-  // //       }
-  // // }
-  // }
-
  
-  std::vector<int> MatchedSegIds;
 
+  //=====Finding ME0Muons that match gen muons, plotting the closest of those
+  std::vector<int> MatchedSegIds;
 
   for(unsigned int i=0; i<gensize; ++i) {
     const reco::GenParticle& CurrentParticle=(*genParticles)[i];
     if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
-
-      //if ( (fabs(CurrentParticle.eta()) > 2.0) && (fabs(CurrentParticle.eta()) < 2.8) )  GenMuon_Eta->Fill(CurrentParticle.eta());
-      ////std::cout<<"Mother's ID is: "<<CurrentParticle.motherId()<<std::endl;
      
       double LowestDelR = 9999;
       double thisDelR = 9999;
@@ -964,8 +665,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
       double VertexDiff=-1,PtDiff=-1,QOverPtDiff=-1,PDiff=-1;
 
-
-      //std::cout<<"Size = "<<OurMuons->size()<<std::endl;
       for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
 	   thisMuon != OurMuons->end(); ++thisMuon){
 	if (!muon::isGoodMuon(me0Geom, *thisMuon, muon::Tight)) continue;
@@ -1026,120 +725,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		DelR_Track_Window_Failed_Under5->Fill(thisDelR);
 		Pt_Track_Window_Failed_Under5->Fill(thisTrack->pt());
 	      }
-	      // if ( (thisTrack->pt() > 9.5) && (thisTrack->pt() < 10.5) ){
-	      // 	//if ( (thisTrack->pt() > 0) ){
-	      // 	////////////////Start propagation from ME0SegmentMatcher
-	      // 	float zSign  = thisTrack->pz()/fabs(thisTrack->pz());
-
-	      // 	float zValue = 526.75 * zSign;
-
-	      // 	Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
-
-	      // 	//Getting the initial variables for propagation
-
-	      // 	int chargeReco = thisTrack->charge(); 
-	      // 	GlobalVector p3reco, r3reco;
-
-	      // 	p3reco = GlobalVector(thisTrack->outerPx(), thisTrack->outerPy(), thisTrack->outerPz());
-	      // 	r3reco = GlobalVector(thisTrack->outerX(), thisTrack->outerY(), thisTrack->outerZ());
-
-	      // 	AlgebraicSymMatrix66 covReco;
-	      // 	//This is to fill the cov matrix correctly
-	      // 	AlgebraicSymMatrix55 covReco_curv;
-	      // 	covReco_curv = thisTrack->outerStateCovariance();
-	      // 	FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
-	      // 	getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
-
-	      // 	//Now we propagate and get the propagated variables from the propagated state
-	      // 	SteppingHelixStateInfo startrecostate(initrecostate);
-	      // 	SteppingHelixStateInfo lastrecostate;
-
-	      // 	const SteppingHelixPropagator* ThisshProp = 
-	      // 	  dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-	
-	      // 	lastrecostate = ThisshProp->propagate(startrecostate, *plane);
-	
-	      // 	FreeTrajectoryState finalrecostate;
-	      // 	lastrecostate.getFreeState(finalrecostate);
-
-	      // 	AlgebraicSymMatrix66 covFinalReco;
-	      // 	GlobalVector p3FinalReco_glob, r3FinalReco_globv;
-	      // 	getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
-
-
-	      // 	//To transform the global propagated track to local coordinates
-	      // 	int SegmentNumber = 0;
-
-	      // 	reco::ME0Muon MuonCandidate;
-
-	      // 	for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); 
-	      // 	     ++thisSegment,++SegmentNumber){
-	      // 	  ME0DetId id = thisSegment->me0DetId();
-
-	      // 	  auto roll = me0Geom->etaPartition(id); 
-
-	      // 	  if ( zSign * roll->toGlobal(thisSegment->localPosition()).z() < 0 ) continue;
-
-	      // 	  GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-
-	      // 	  LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
-	      // 	  LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
-
-	      // 	  LocalPoint thisPosition(thisSegment->localPosition());
-	      // 	  LocalVector thisDirection(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());  //FIXME
-
-	      // 	  //The same goes for the error
-	      // 	  AlgebraicMatrix thisCov(4,4,0);   
-	      // 	  for (int i = 1; i <=4; i++){
-	      // 	    for (int j = 1; j <=4; j++){
-	      // 	      thisCov(i,j) = thisSegment->parametersError()(i,j);
-	      // 	    }
-	      // 	  }
-
-	      // 	  /////////////////////////////////////////////////////////////////////////////////////////
-
-
-	      // 	  LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
-	      // 	  JacobianCartesianToLocal jctl(roll->surface(),ltp);
-	      // 	  AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
-
-	      // 	  AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
-	      // 	  AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force
-	      // 	  for(int i=0; i<5; ++i) {
-	      // 	    for(int j=0; j<5; ++j) {
-	      // 	      C[i][j] = Ctmp[i][j]; 
-
-	      // 	    }
-	      // 	  }
-
-	      // 	  Double_t sigmax = sqrt(C[3][3]+thisSegment->localPositionError().xx() );      
-	      // 	  Double_t sigmay = sqrt(C[4][4]+thisSegment->localPositionError().yy() );
-
-	
-	      // 	  if( reco::deltaR(roll->toGlobal(thisSegment->localPosition()),*thisTrack) < 0.3){
-
-	      // 	  //if( reco::deltaR(roll->toGlobal(thisSegment->localPosition()),r3FinalReco) < 0.3){
-
-	      // 	    FailedTrack_Window_XPull->Fill(fabs(thisPosition.x()-r3FinalReco.x()) / (1.0 * sigmax));
-	      // 	    FailedTrack_Window_YPull->Fill(fabs(thisPosition.y()-r3FinalReco.y()) / (1.0 * sigmay));
-
-	      // 	    FailedTrack_Window_XDiff->Fill(fabs(thisPosition.x()-r3FinalReco.x()));
-	      // 	    FailedTrack_Window_YDiff->Fill(fabs(thisPosition.y()-r3FinalReco.y()));
-
-		  
-	      // 	    //Calculating if there's a match in distance, if so, we also plot the direction difference
-	      // 	    //bool X_MatchFound = false, Y_MatchFound = false;
-	      // 	    //if ( (fabs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (fabs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
-	      // 	    //if ( (fabs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (fabs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
-		    
-	      // 	    //if (X_MatchFound && Y_MatchFound)  FailedTrack_Window_PhiDiff->Fill(fabs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()));
-	      // 	    FailedTrack_Window_PhiDiff->Fill(fabs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()));
-
-	      // 	    ////////////////End propagation from ME0SegmentMatcher
-	      // 	  }
-
-	      // 	}
-	      // }
 	      Pt_Track_Window_Failed->Fill(thisTrack->pt());
 	    }
 	  }
@@ -1183,12 +768,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  PDiff_p->Fill(CurrentParticle.eta(),PDiff);
 	}
 	MatchedSegIds.push_back(SegIdForMatch[MatchedID]);
-
-	// if ( ((CurrentParticle.eta()) > 2.4) && ((CurrentParticle.eta()) < 3.8) ) {
-	//   //MatchedME0Muon_Pt->Fill(CurrentParticle.pt());
-	//   //MatchedME0Muon_Pt->Fill(.pt());
-	  
-	// }
       }
 
 
@@ -1213,98 +792,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
 
-//Diff studies for gen matching
-
- //  std::cout<<"Doing first propagation"<<std::endl;
- // for(unsigned int i=0; i<gensize; ++i) {
- //    const reco::GenParticle& CurrentParticle=(*genParticles)[i];
- //    if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
- //      if ((fabs(CurrentParticle.eta()) < 2.0 ) ||(fabs(CurrentParticle.eta()) > 2.8 )) continue;
-
- //      float zSign  = CurrentParticle.pz()/fabs(CurrentParticle.pz());
-
- //    	float zValue = 526.75 * zSign;
- //    	Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
- //    	TLorentzVector Momentum;
- //    	Momentum.SetPtEtaPhiM(CurrentParticle.pt()
- //    			      ,CurrentParticle.eta()
- //    			      ,CurrentParticle.phi()
- //    			      ,CurrentParticle.mass());
- //    	GlobalVector p3gen(Momentum.Px(), Momentum.Py(), Momentum.Pz());
- //    	GlobalVector r3gen = GlobalVector(CurrentParticle.vertex().x()
- //    					  ,CurrentParticle.vertex().y()
- //    					  ,CurrentParticle.vertex().z());
-
- //    	AlgebraicSymMatrix66 covGen = AlgebraicMatrixID(); 
- //    	covGen *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
- //    	AlgebraicSymMatrix66 covFinal;
- //    	int chargeGen =  CurrentParticle.charge(); 
-
- //    	//Propagation
- //    	FreeTrajectoryState initstate = getFTS(p3gen, r3gen, chargeGen, covGen, &*bField);
-	
- //    	SteppingHelixStateInfo startstate(initstate);
- //    	SteppingHelixStateInfo laststate;
-
- //    	const SteppingHelixPropagator* ThisshProp = 
- //    	  dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-
- //    	laststate = ThisshProp->propagate(startstate, *plane);
-
- //    	FreeTrajectoryState finalstate;
- //    	laststate.getFreeState(finalstate);
-	
- //    	GlobalVector p3Final, r3Final;
- //    	getFromFTS(finalstate, p3Final, r3Final, chargeGen, covFinal);
-
-
- // 	int ME0MuonID = 0;
-
- // 	for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
- // 	   thisMuon != OurMuons->end(); ++thisMuon){
-
- // 	TrackRef tkRef = thisMuon->innerTrack();
- // 	SegIdForMatch.push_back(thisMuon->me0segid());
-
- // 	ME0Segment Seg = thisMuon->me0segment();
- // 	ME0DetId id =Seg.me0DetId();
- // 	auto roll = me0Geom->etaPartition(id); 
-
- // 	double DirectionPull, DirectionPullNum, DirectionPullDenom;
-
- // 	//Computing the sigma for the track direction
- // 	Double_t mag_track = p3Final.perp();
- // 	//Double_t phi_track = p3Final.phi();
-
- // 	//Double_t dmagdx_track = p3Final.x()/mag_track;
- // 	//Double_t dmagdy_track = p3Final.y()/mag_track;
- // 	Double_t dphidx_track = -p3Final.y()/(mag_track*mag_track);
- // 	Double_t dphidy_track = p3Final.x()/(mag_track*mag_track);
- // 	Double_t sigmaphi_track = sqrt( dphidx_track*dphidx_track*covFinal(3,3)+
- // 					dphidy_track*dphidy_track*covFinal(4,4)+
- // 					dphidx_track*dphidy_track*2*covFinal(3,4) );
-
- // 	DirectionPullNum = p3Final.phi()-roll->toGlobal(Seg.localDirection()).phi();
- // 	DirectionPullDenom = sqrt( pow(roll->toGlobal(Seg.localPosition()).phi(),2) + pow(sigmaphi_track,2) );
- // 	DirectionPull = DirectionPullNum / DirectionPullDenom;
-	
-
- // 	if (IsMatched[ME0MuonID]){
- // 	  SegGenDirPhiDiff_True_h->Fill(p3Final.phi()-roll->toGlobal(Seg.localDirection()).phi() );
- // 	  SegGenDirEtaDiff_True_h->Fill(p3Final.eta()-roll->toGlobal(Seg.localDirection()).eta() );
- // 	  SegGenDirPhiPull_True_h->Fill(DirectionPull);
- // 	}
-
- // 	if ((zSign * roll->toGlobal(Seg.localDirection()).z()) > 0 ){
- // 	  SegGenDirPhiDiff_All_h->Fill(p3Final.phi()-roll->toGlobal(Seg.localDirection()).phi() );
- // 	  SegGenDirPhiPull_All_h->Fill(DirectionPull);
-    
- // 	  SegGenDirEtaDiff_All_h->Fill(p3Final.eta()-roll->toGlobal(Seg.localDirection()).eta() );
- // 	}
- // 	ME0MuonID++;
- // 	}
- //    }
- // }
 
   //Del R study ===========================
   for(unsigned int i=0; i<gensize; ++i) {
@@ -1337,18 +824,10 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
        thisMuon != OurMuons->end(); ++thisMuon){
     if (!muon::isGoodMuon(me0Geom, *thisMuon, muon::Tight)) continue;
     TrackRef tkRef = thisMuon->innerTrack();
-
-
-
-
-      //Moved resolution stuff here, only calculate resolutions for matched muons!
-
-
+    //Moved resolution stuff here, only calculate resolutions for matched muons!
     if (!IsMatched[ME0MuonID]){
 
       UnmatchedME0Muon_Eta->Fill(fabs(tkRef->eta()));
-
-
 
       if ((tkRef->pt() > FakeRatePtCut) && (TMath::Abs(tkRef->eta()) < 2.8) )  {
 	if ( (tkRef->pt() > 5.0) && (tkRef->pt() <= 10.0) )  	UnmatchedME0Muon_Cuts_Eta_5_10->Fill(fabs(tkRef->eta()));
@@ -1377,15 +856,13 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
     
       }
-      //if ( (TMath::Abs(tkRef->eta()) > 2.0) && (TMath::Abs(tkRef->eta()) < 3.4) ) UnmatchedME0Muon_Pt->Fill(tkRef->pt());
-      
     }
     ME0MuonID++;
   }
   
 
 
- //Track Association by Chi2:
+ //Track Association by Chi2 or hits:
 
 
   //Map the list of all me0muons that failed or passed delR matching to a list of only Tight me0Muons that failed or passed delR matching
@@ -1400,197 +877,93 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //int w=0;
   //std::cout<<"associators size = "<<associators.size()<<std::endl;
   if (UseAssociators) {
-  for (unsigned int ww=0;ww<associators.size();ww++){
+    for (unsigned int ww=0;ww<associators.size();ww++){
 
-    for (unsigned int www=0;www<label.size();www++){
-      //
-      // reco::RecoToGenCollection recSimColl;
-      // reco::GenToRecoCollection simRecColl;
+      for (unsigned int www=0;www<label.size();www++){
 
-      reco::RecoToSimCollection recSimColl;
-      reco::SimToRecoCollection simRecColl;
-      edm::Handle<View<Track> >  trackCollection;
-
-
-
-      unsigned int trackCollectionSize = 0;
-
-	 //if(!iEvent.getByLabel(label[www], trackCollection)) {
-      if(!iEvent.getByToken(track_Collection_Token[www], trackCollection)){
-  	recSimColl.post_insert();
-  	simRecColl.post_insert();
-
-      }
-
-      else {
-  	trackCollectionSize = trackCollection->size();
-  
-	// if (associators[ww].compare("TrackAssociatorByChi2")==0){
-	//   // recSimColl=associatorByChi2->associateRecoToSim(trackCollection,
-  	//   // 						trackingParticles,
-  	//   // 						&iEvent,
-  	//   // 						&iSetup);
-
-	//   // simRecColl=associatorByChi2->associateSimToReco(trackCollection,
-  	//   // 						trackingParticles,
-  	//   // 						&iEvent,
-  	//   // 						&iSetup);
-	// }
-	// else if (associators[ww].compare("muonAssociatorByHits")==0){
-	//   const MuonAssociatorByHits* associatorByHits;
-	//   recSimColl=associatorByHits->associateRecoToSim(trackCollection,
-  	// 						trackingParticles,
-  	// 						&iEvent,
-  	// 						&iSetup);
- 
-	//   simRecColl=associatorByHits->associateSimToReco(trackCollection,
-  	// 						trackingParticles,
-  	// 						&iEvent,
-  	// 						&iSetup);
-
-	// }
-	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-						      trackingParticles);
-
-
-	simRecColl=associator[ww]->associateSimToReco(trackCollection,
-						      trackingParticles);
+	reco::RecoToSimCollection recSimColl;
+	reco::SimToRecoCollection simRecColl;
+	edm::Handle<View<Track> >  trackCollection;
 	
-
-      }
-      //std::cout<<"here now"<<std::endl;
-      //int ats = 0;
-      //std::cout<<"genParticlesForChi2.size() = "<<genParticlesForChi2.size()<<std::endl;
-      //for (GenParticleCollection::size_type i=0; i<genParticlesForChi2.size(); i++){
-
-
-      for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
-  	//bool TP_is_matched = false;
-  	//double quality = 0.;
-  	//bool Quality05  = false;
-  	//bool Quality075 = false;
-
-  	// GenParticleRef tpr(genParticles, i);
-  	// GenParticle* tp=const_cast<GenParticle*>(tpr.get());
-
-  	const TrackingParticle& TPCheck=(*trackingParticles)[i];
-  	if (abs(TPCheck.pdgId()) != 13) continue;
-
-  	TrackingParticleRef tpr(trackingParticles, i);
-  	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
-  	TrackingParticle::Vector momentumTP; 
-  	TrackingParticle::Point vertexTP;
-  	//double dxySim = 0;
-  	//double dzSim = 0;
-
-  	//Collision like particle
-  	//if(! gpSelector(*tp)) continue;
-
-  	//Considering only the muon tracking particles
-  	if (abs(tp->pdgId()) != 13) continue;
-
-  	momentumTP = tp->momentum();
-  	vertexTP = tp->vertex();
 	
-  	//This section fills the denominator for the chi2 efficiency...
-
 	
-  	if ((tp->pt() >FakeRatePtCut) ){
-  	  bool SignalMuon=false;
-  	  // for(unsigned int i=0; i<gensize; ++i) {
-  	  //   const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  	  //   if ((reco::deltaR(CurrentParticle,*tp) < 0.05) && (fabs(10.0-tp->pt()) < 0.25) && (CurrentParticle.numberOfMothers()==0) && (tp->status()==1) ) {
-  	  //     SignalMuon=true;
-  	  //     //std::cout<<"tp gen particle pt = "<<(*tp->genParticle_begin())->pt()<<", gen part pt = "<<CurrentParticle.pt()<<std::endl;
-  	  //     //std::cout<<reco::deltaR((*tp->genParticle_begin()),CurrentParticle)<<std::endl;
-  	  //   }
-  	  // }
+	unsigned int trackCollectionSize = 0;
+      
+	if(!iEvent.getByToken(track_Collection_Token[www], trackCollection)){
+	  recSimColl.post_insert();
+	  simRecColl.post_insert();
 	  
-  	  //if ( (tp->status()==1) && ( tp->genParticle_begin()->numberOfMothers()==0 ) ) SignalMuon=false;
-
-  	  //if ( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
-
-  	  //std::cout<<"tp status is "<<tp->status()<<std::endl;
-  	  //std::cout<<(*tp->genParticle_begin())->numberOfMothers()<<std::endl;
-  	  if (tp->status() !=-99){
-  	    int motherid=-1;
-  	    if ((*tp->genParticle_begin())->numberOfMothers()>0)  {
-  	      if ((*tp->genParticle_begin())->mother()->numberOfMothers()>0){
-  		motherid=(*tp->genParticle_begin())->mother()->mother()->pdgId();
-  	      }
-  	    }
-
+	}
+	
+	else {
+	  trackCollectionSize = trackCollection->size();
+	  recSimColl=associator[ww]->associateRecoToSim(trackCollection,
+							trackingParticles);
+	  
+	  
+	  simRecColl=associator[ww]->associateSimToReco(trackCollection,
+						      trackingParticles);
+	  
+	  
+	}
+	
+	for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
+	  
+	  const TrackingParticle& TPCheck=(*trackingParticles)[i];
+	  if (abs(TPCheck.pdgId()) != 13) continue;
+	  
+	  TrackingParticleRef tpr(trackingParticles, i);
+	  TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
+	  TrackingParticle::Vector momentumTP; 
+	  TrackingParticle::Point vertexTP;
+	  
+	  if (abs(tp->pdgId()) != 13) continue;
+	  
+	  momentumTP = tp->momentum();
+	  vertexTP = tp->vertex();
+	  
+	  //This section fills the denominator for the chi2 efficiency...
+	  
+	  
+	  if ((tp->pt() >FakeRatePtCut) ){
+	    bool SignalMuon=false;
+	    if (tp->status() !=-99){
+	      int motherid=-1;
+	      if ((*tp->genParticle_begin())->numberOfMothers()>0)  {
+		if ((*tp->genParticle_begin())->mother()->numberOfMothers()>0){
+		  motherid=(*tp->genParticle_begin())->mother()->mother()->pdgId();
+		}
+	      }
+	      
   	    std::cout<<"Mother ID = "<<motherid<<std::endl;
-
+	    
   	    if ( 
   		( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) )  ||
   		( (tp->status()==1) ) ) SignalMuon=true;
-
-  	    //if (SignalMuon) PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
-  	  }
-  	  //SignalMuon=true;
-  	  //if (tp->NumberOfMothers()==0) SignalMuon=true;
-	  
-  	  if (SignalMuon){
-  	    TPMuon_Eta->Fill(fabs(tp->eta()));
-  	    TPMuon_WideBinning_Eta->Fill(fabs(tp->eta()));
-  	    TPMuon_WidestBinning_Eta->Fill(fabs(tp->eta()));
-  	    if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) ) {
-  	      TPMuon_SmallBins_Pt->Fill(tp->pt());
-  	      TPMuon_VariableBins_Pt->Fill(tp->pt());
-  	      TPMuon_Pt->Fill(tp->pt());
-  	    }
-
-  	  }
-	  
-  	}
-  	//std::cout<<"Section complete"<<std::endl;
-
-  	//...end section
-  	if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) )  PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
-
-  	std::vector<std::pair<RefToBase<Track>, double> > rt;
-
-  	//Check if the gen particle has been associated to any reco track
-  	if(simRecColl.find(tpr) != simRecColl.end()){
-  	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
-  	  //It has, so we check that the pair TrackRef/double pair collection (vector of pairs) is not empty
-  	  if (rt.size()!=0) {
-  	    //It is not empty, so there is at least one real track that the gen particle is matched to
 	    
-  	    //We take the first element of the vector, .begin(), and the trackRef from it, ->first, this is our best possible track match
-  	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
-  	    //std::cout<<"-----------------------------associated Track #"<<assoc_recoTrack.key()<<std::endl;
-
-  	    //quality = rt.begin()->second;
-  	    //std::cout << "TrackingParticle #" <<tpr.key()  
-  	    //<< " with pt=" << sqrt(momentumTP.perp2()) 
-  	    //<< " associated with quality:" << quality <<std::endl;
-
-  	    //Also, seeing as we have found a gen particle that is matched to a track, it is efficient, so we put it in the numerator of the efficiency plot
-  	    //if (( sqrt(momentumTP.perp2()) > FakeRatePtCut) && (TMath::Abs(tp->eta()) < 2.8) )Chi2MatchedME0Muon_Eta->Fill(tp->eta());
-  	    //if ( ( assoc_recoTrack->pt() > FakeRatePtCut) && (TMath::Abs(tp->eta()) < 2.8) )Chi2MatchedME0Muon_Eta->Fill(tp->eta());
-
-  	  }
-
-  	}//END if(simRecColl.find(tpr) != simRecColl.end())
-      }// END for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
-      //END for (GenParticleCollection::size_type i=0; i<genParticlesForChi2.size(); i++)
-      //std::cout<<"About to start on tracks"<<std::endl;
+  	    //if (SignalMuon) PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
+	    }
+	    if (SignalMuon){
+	      TPMuon_Eta->Fill(fabs(tp->eta()));
+	      TPMuon_WideBinning_Eta->Fill(fabs(tp->eta()));
+	      TPMuon_WidestBinning_Eta->Fill(fabs(tp->eta()));
+	      if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) ) {
+		TPMuon_SmallBins_Pt->Fill(tp->pt());
+		TPMuon_VariableBins_Pt->Fill(tp->pt());
+		TPMuon_Pt->Fill(tp->pt());
+	      }
+	      
+	    }
+	    
+	  }
+	  if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) )  PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
+  	}// END for (TrackingParticleCollection::size_type i=0; i<trackingParticles->size(); i++){
       
       for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
-  	//bool Track_is_matched = false; 
   	RefToBase<Track> track(trackCollection, i);
-
-  	//std::vector<std::pair<TrackingParticleRef, double> > tp;
-  	//std::vector<std::pair<GenParticleRef, double> > tp;
-  	//std::vector<std::pair<GenParticleRef, double> > tpforfake;
 
   	std::vector<std::pair<TrackingParticleRef, double> > tp;
   	std::vector<std::pair<TrackingParticleRef, double> > tpforfake;
-  	//TrackingParticleRef tpr;
-  	//GenParticleRef tpr;
-  	//GenParticleRef tprforfake;
   	TrackingParticleRef tpr;
   	TrackingParticleRef tprforfake;
 
@@ -1601,9 +974,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   	  tp = recSimColl[track];
 
   	  if (tp.size()!=0) {
-  	    //Track_is_matched = true;
   	    tpr = tp.begin()->first;
-  	    //if (abs(tpr->pdgId()) != 13) continue;
 
   	    double assocChi2 = -(tp.begin()->second);
 	   
@@ -1611,8 +982,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   	    if (  (simRecColl.find(tpr) != simRecColl.end())    ){
   	      std::vector<std::pair<RefToBase<Track>, double> > rt;
-  	      //Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
-  	      //std::cout<<"Comparing gen and reco tracks"<<std::endl;
   	      if  (simRecColl[tpr].size() > 0){
   		rt=simRecColl[tpr];
   		RefToBase<Track> bestrecotrackforeff = rt.begin()->first;
@@ -1628,17 +997,8 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   		  if ( (tpr->pt() > FakeRatePtCut) )
   		    {
 
-
+		      
   		      bool SignalMuon=false;
-  		      // for(unsigned int i=0; i<gensize; ++i) {
-  		      // 	const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  		      // 	if ((reco::deltaR(CurrentParticle,*track) < 0.05) && (fabs(10.0-track->pt()) < 0.25) && (CurrentParticle.numberOfMothers()==0) && (tpr->status()==1)) SignalMuon=true;
-  		      // }
-
-  		      //if ( (tpr->status()==1) && ( tpr->genParticle_begin()->numberOfMothers()==0 ) ) SignalMuon=true;
-  		      //if ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
-
-  		      //int motherid=(*tpr->genParticle_begin())->mother()->pdgId();
 
   		      if (tpr->status() !=-99){
   			int motherid=-1;
@@ -1651,12 +1011,9 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   			if ( 
   			    ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) )  ||
   			    ( (tpr->status()==1)  ) )SignalMuon=true;
-  			//( (tpr->status()==1) && ( (fabs(motherid)==22) || (fabs(motherid)==23) ) ) ) SignalMuon=true;
 
   		      }
-  			//SignalMuon=true;
-
-  			if (SignalMuon){
+		      if (SignalMuon){
   			Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
   			Chi2MatchedME0Muon_WideBinning_Eta->Fill(fabs(tpr->eta()));
   			Chi2MatchedME0Muon_WidestBinning_Eta->Fill(fabs(tpr->eta()));
@@ -1665,8 +1022,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   			  Chi2MatchedME0Muon_SmallBins_Pt->Fill(tpr->pt());
   			  Chi2MatchedME0Muon_VariableBins_Pt->Fill(tpr->pt());
   			}
-
-  			std::cout<<"eta = "<<tpr->eta()<<std::endl;
+			
   			if ( (track->pt() > 5.0) && (track->pt() <= 10.0) )  	Chi2MatchedME0Muon_Eta_5_10->Fill(fabs(tpr->eta()));
   			if ( (track->pt() > 9.0) && (track->pt() <= 11.0) )  	Chi2MatchedME0Muon_Eta_9_11->Fill(fabs(tpr->eta()));
   			if ( (track->pt() > 10.0) && (track->pt() <= 50.0) )	Chi2MatchedME0Muon_Eta_10_50->Fill(fabs(tpr->eta()));
@@ -1679,7 +1035,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   		  if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )AssociatedChi2_h->Fill(assocChi2);
   		  if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) )AssociatedChi2_Prob_h->Fill(TMath::Prob((assocChi2)*5,5));
-  		  //std::cout<<"assocChi2 = "<<assocChi2<<std::endl;
   		}
   	      }
   	    }
@@ -1688,16 +1043,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    
   	  }
   	}
-  	//Check if this muon matched via Del-R matching, if no best match is found
-	
-  	//std::cout<<"Failed to fill eff plot, checking if matched in delR"<<std::endl;
-  	// if (SkimmedIsMatched[i]){
-  	//   if (track->pt() >FakeRatePtCut) {
-  	//     if (tp.size()!=0) std::cout<<"Failed to find matching sim track: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  	//   }
-  	// }
-	
-  	//Trying another way of measuring fake rate...
+  	//A simple way of measuring fake rate:
   	if (!TrackIsEfficient) {
 
   	  if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
@@ -1710,76 +1056,61 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   	      Chi2UnmatchedME0Muon_VariableBins_Pt->Fill(track->pt());
   	    }
   	  }
-  	  //std::cout<<"unmatched eta = "<<track->eta();
 
   	}
   	//End checking of Efficient muons
+	
+	//Deprecated F.R. method, only used for debugging offline.  Commented out now:
 
-  	//For Fakes --------------------------------------------  here we fill the numerator for the F.R., Chi2UnmatchedME0Muon_Eta
-  	//The denominator is filled elsewhere, just a histo of all the ME0Muon eta values
-  	//It is ME0Muon_Cuts_Eta, so named because it is all ME0Muons passing the selection (also the pT cut)
+  	// //For Fakes --------------------------------------------  here we fill the numerator for the F.R., Chi2UnmatchedME0Muon_Eta
+  	// //The denominator is filled elsewhere, just a histo of all the ME0Muon eta values
+  	// //It is ME0Muon_Cuts_Eta, so named because it is all ME0Muons passing the selection (also the pT cut)
 
 	
-  	//Check if finding a track associated to a gen particle fails, or if there is no track in the collection at all
+  	// //Check if finding a track associated to a gen particle fails, or if there is no track in the collection at all
 
-  	if( (recSimColl.find(track) == recSimColl.end() ) || ( recSimColl[track].size() == 0  ) ){
-  	  //So we've now determined that this track is not associated to any gen, and fill our histo of fakes:
-  	  // if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
-  	  //   Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  	  //   std::cout<<"unmatched eta = "<<track->eta();
-  	  // }
-  	  //Check if this muon matched via Del-R matching
-  	  if (SkimmedIsMatched[i]){
-
-
-  	    if ((track->pt() >FakeRatePtCut) ){
-  	      if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  	    }
-  	  }
-  	}
+  	// if( (recSimColl.find(track) == recSimColl.end() ) || ( recSimColl[track].size() == 0  ) ){
+  	//   if (SkimmedIsMatched[i]){
+  	//     if ((track->pt() >FakeRatePtCut) ){
+  	//       if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	//     }
+  	//   }
+  	// }
 	
-  	//Its possible that the track is associated to a gen particle, but isn't the best match and would still fail
-  	//In that case, we go to the gen particle...
-  	else if (recSimColl[track].size() > 0){
-  	  tpforfake = recSimColl[track];
-  	  tprforfake=tpforfake.begin()->first;
-  	  //We now have the gen particle, to check
+  	// //Its possible that the track is associated to a gen particle, but isn't the best match and would still fail
+  	// //In that case, we go to the gen particle...
+  	// else if (recSimColl[track].size() > 0){
+  	//   tpforfake = recSimColl[track];
+  	//   tprforfake=tpforfake.begin()->first;
+  	//   //We now have the gen particle, to check
 
 
-  	  //If for some crazy reason we can't find the gen particle, that means its a fake
-  	  if (  (simRecColl.find(tprforfake) == simRecColl.end())  ||  (simRecColl[tprforfake].size() == 0)  ) {
-  	    // if ((track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8))  {
-  	    //   Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  	    //   std::cout<<"unmatched eta = "<<track->eta();
-  	    // }
-  	    //Check if this muon matched via Del-R matching
-  	    if (SkimmedIsMatched[i]){
-  	      if ((track->pt() >FakeRatePtCut) ) {
-  		if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  	      }
-  	    }
-  	  }
-  	  //We can probably find the gen particle
-  	  else if(simRecColl[tprforfake].size() > 0)  {
-  	    //We can now access the best possible track for the gen particle that this track was matched to
-  	    std::vector<std::pair<RefToBase<Track>, double> > rtforfake;
-  	    rtforfake=simRecColl[tprforfake];
+  	//   //If for some crazy reason we can't find the gen particle, that means its a fake
+  	//   if (  (simRecColl.find(tprforfake) == simRecColl.end())  ||  (simRecColl[tprforfake].size() == 0)  ) {
+  	//     //Check if this muon matched via Del-R matching
+  	//     if (SkimmedIsMatched[i]){
+  	//       if ((track->pt() >FakeRatePtCut) ) {
+  	// 	if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	//       }
+  	//     }
+  	//   }
+  	//   //We can probably find the gen particle
+  	//   else if(simRecColl[tprforfake].size() > 0)  {
+  	//     //We can now access the best possible track for the gen particle that this track was matched to
+  	//     std::vector<std::pair<RefToBase<Track>, double> > rtforfake;
+  	//     rtforfake=simRecColl[tprforfake];
 	   
-  	    RefToBase<Track> bestrecotrack = rtforfake.begin()->first;
-  	    //if the best reco track is NOT the track that we're looking at, we know we have a fake, that was within the cut, but not the closest
-  	    if (bestrecotrack != track) {
-  	      // if ( (track->pt() > FakeRatePtCut) && (TMath::Abs(track->eta()) < 2.8) ) {
-  	      // 	Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
-  	      // 	std::cout<<"unmatched eta = "<<track->eta();
-  	      // }
-  	      //Check if this muon matched via Del-R matching
-  	      if (IsMatched[i]){
-  		if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
-  	      }
-  	    }
+  	//     RefToBase<Track> bestrecotrack = rtforfake.begin()->first;
+  	//     //if the best reco track is NOT the track that we're looking at, we know we have a fake, that was within the cut, but not the closest
+  	//     if (bestrecotrack != track) {
+  	//       //Check if this muon matched via Del-R matching
+  	//       if (IsMatched[i]){
+  	// 	if (tp.size()!=0) std::cout<<"Found an me0muontrack failing chi2 matching: "<<track->pt()<<", "<<track->eta()<<", "<<tp.begin()->second<<std::endl;
+  	//       }
+  	//     }
 
-  	  }
-  	}
+  	//   }
+  	// }
 
   	//End For Fakes --------------------------------------------
 
@@ -1793,111 +1124,31 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   	chi2_vs_eta_h->Fill((track->eta()),track->normalizedChi2());
 
-  	//nhits_vs_eta_h->Fill((track->eta()),track->numberOfValidHits());
-
 
       }//END for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
-      //delete recSimColl;
-      //delete simRecColl;
-    }//END for (unsigned int www=0;www<label.size();www++)
-  }// END for (unsigned int www=0;www<label.size();www++)
+      }// END for (unsigned int www=0;www<label.size();www++)
+    }//END     for (unsigned int ww=0;ww<associators.size();ww++){
   }//END if UseAssociators
-  //std::cout<<"Finished chi2 stuff"<<std::endl;
-
-  // for (std::vector<ME0Segment>::const_iterator thisSegment = OurSegments->begin();
-  //      thisSegment != OurSegments->end();++thisSegment){
-  //   LocalVector TempVect(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());
-  //   Segment_Eta->Fill(TempVect.eta());
-  // }
-
   
   for (std::vector<Track>::const_iterator thisTrack = generalTracks->begin();
        thisTrack != generalTracks->end();++thisTrack){
     Track_Eta->Fill(fabs(thisTrack->eta()));
     if ( (TMath::Abs(thisTrack->eta()) > 2.0) && (TMath::Abs(thisTrack->eta()) < 2.8) ) Track_Pt->Fill(thisTrack->pt());
-
-    
-
-    
   }
 
-  // //Standalone Muon study:
-
-  // std::cout<<"About to get muons:"<<std::endl;
-  // edm::Handle<std::vector<Muon> > muons;
-  // iEvent.getByLabel("Muons", muons);
-  
-  // std::cout<<"Have muons, about to start"<<std::endl;
-  // for(unsigned int i=0; i<gensize; ++i) {
-  //   const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-  //   if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
-
-  //     double LowestDelR = 9999;
-  //     double thisDelR = 9999;
-      
-  //     std::vector<double> ReferenceTrackPt;
-
-  //     //double VertexDiff=-1,PtDiff=-1,QOverPtDiff=-1,PDiff=-1,MatchedEta=-1;
-  //     double PtDiff=-1,QOverPtDiff=-1,MatchedEta=-1;
-
-  //     std::cout<<"Size = "<<OurMuons->size()<<std::endl;
-  //     for (std::vector<Muon>::const_iterator thisMuon = muons->begin();
-  // 	   thisMuon != muons->end(); ++thisMuon){
-  // 	if (thisMuon->isStandAloneMuon()){
-	  
-  // 	  TrackRef tkRef = thisMuon->outerTrack();
-  // 	  thisDelR = reco::deltaR(CurrentParticle,*tkRef);
-  // 	  if (tkRef->pt() > FakeRatePtCut ) {
-  // 	    if (thisDelR < MatchingWindowDelR ){
-  // 	      if (thisDelR < LowestDelR){
-  // 		LowestDelR = thisDelR;
-
-  // 		MatchedEta=fabs(CurrentParticle.eta());
-  // 		//VertexDiff = fabs(tkRef->vz()-CurrentParticle.vz());
-  // 		QOverPtDiff = ( (tkRef->charge() /tkRef->pt()) - (CurrentParticle.charge()/CurrentParticle.pt() ) )/  (CurrentParticle.charge()/CurrentParticle.pt() );
-  // 		PtDiff = (tkRef->pt() - CurrentParticle.pt())/CurrentParticle.pt();
-  // 		//PDiff = (tkRef->p() - CurrentParticle.p())/CurrentParticle.p();
-  // 	      }
-  // 	    }
-  // 	  }
-  // 	}
-  //     }
-  //     StandaloneMatchedME0Muon_Eta->Fill(MatchedEta);
-  //     StandaloneMatchedME0Muon_WideBinning_Eta->Fill(MatchedEta);
-  //     StandaloneMatchedME0Muon_WidestBinning_Eta->Fill(MatchedEta);
-
-  //     //StandaloneVertexDiff_h->Fill(VertexDiff);
-  //     StandalonePtDiff_h->Fill(PtDiff);	
-  //     StandaloneQOverPtDiff_h->Fill(QOverPtDiff);
-  //     StandalonePtDiff_s->Fill(CurrentParticle.eta(),PtDiff);
-
-  //   }
-  // }
-
-  // for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
-  //      thisMuon != OurMuons->end(); ++thisMuon){
-  //   TrackRef tkRef = thisMuon->innerTrack();
-  //   ME0Muon_Eta->Fill(tkRef->eta());
-  //   if ( (TMath::Abs(tkRef->eta()) > 2.4) && (TMath::Abs(tkRef->eta()) < 4.0) ) ME0Muon_Pt->Fill(tkRef->pt());
-  // }
   
   std::vector<double> SegmentEta, SegmentPhi, SegmentR, SegmentX, SegmentY;
-  // std::vector<const ME0Segment*> Ids;
-  // std::vector<const ME0Segment*> Ids_NonGenMuons;
-  // std::vector<const ME0Segment*> UniqueIdList;
-   std::vector<int> Ids;
-   std::vector<int> Ids_NonGenMuons;
-   std::vector<int> UniqueIdList;
-   int TrackID=0;
+  std::vector<int> Ids;
+  std::vector<int> Ids_NonGenMuons;
+  std::vector<int> UniqueIdList;
+  int TrackID=0;
 
-   //std::cout<<"Doing some propagation"<<std::endl;
-   int MuID = 0;
-   for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
-	thisMuon != OurMuons->end(); ++thisMuon){
+  int MuID = 0;
+
+  for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
+       thisMuon != OurMuons->end(); ++thisMuon){
     if (!muon::isGoodMuon(me0Geom, *thisMuon, muon::Tight)) continue;
     TrackRef tkRef = thisMuon->innerTrack();
-    //ME0Segment segRef = thisMuon->me0segment();
-    //const ME0Segment* SegId = segRef->get();
 
     ME0Segment Seg = thisMuon->me0segment();
     ME0DetId id =Seg.me0DetId();
@@ -1906,122 +1157,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     int SegId=thisMuon->me0segid();
 
-    //std::cout<<SegId<<std::endl;
-
-
-    //For a direction study...
-    // if ( (tkRef->pt() > 5.0) && (IsMatched[MuID]) ){
-    //   SegPosDirPhiDiff_True_h->Fill(roll->toGlobal(Seg.localPosition()).phi()-roll->toGlobal(Seg.localDirection()).phi() );
-    //   SegPosDirEtaDiff_True_h->Fill(roll->toGlobal(Seg.localPosition()).eta()-roll->toGlobal(Seg.localDirection()).eta() );
-    // }
-
-    // SegPosDirPhiDiff_All_h->Fill(roll->toGlobal(Seg.localPosition()).phi()-roll->toGlobal(Seg.localDirection()).phi() );
-    // SegPosDirEtaDiff_All_h->Fill(roll->toGlobal(Seg.localPosition()).eta()-roll->toGlobal(Seg.localDirection()).eta() );
-
-    // // For another direction study...
-    // float zSign  = tkRef->pz()/fabs(tkRef->pz());
-
-    // //float zValue = 560. * zSign;
-    // float zValue = 526.75 * zSign;
-    // Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
-    // //Getting the initial variables for propagation
-    // int chargeReco = tkRef->charge(); 
-    // GlobalVector p3reco, r3reco;
-
-    // p3reco = GlobalVector(tkRef->outerPx(), tkRef->outerPy(), tkRef->outerPz());
-    // r3reco = GlobalVector(tkRef->outerX(), tkRef->outerY(), tkRef->outerZ());
-
-    // AlgebraicSymMatrix66 covReco;
-    // //This is to fill the cov matrix correctly
-    // AlgebraicSymMatrix55 covReco_curv;
-    // covReco_curv = tkRef->outerStateCovariance();
-    // FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
-    // getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
-
-    // //Now we propagate and get the propagated variables from the propagated state
-    // SteppingHelixStateInfo startrecostate(initrecostate);
-    // SteppingHelixStateInfo lastrecostate;
-
-    // const SteppingHelixPropagator* ThisshProp = 
-    //   dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-	
-    // lastrecostate = ThisshProp->propagate(startrecostate, *plane);
-	
-    // FreeTrajectoryState finalrecostate;
-    // lastrecostate.getFreeState(finalrecostate);
-      
-    // AlgebraicSymMatrix66 covFinalReco;
-    // GlobalVector p3FinalReco_glob, r3FinalReco_globv;
-    // getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
-    // GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-
-    // double DirectionPull, DirectionPullNum, DirectionPullDenom;
-
-    // //Computing the sigma for the track direction
-    // Double_t mag_track = p3FinalReco_glob.perp();
-    // //Double_t phi_track = p3FinalReco_glob.phi();
-
-    // //Double_t dmagdx_track = p3FinalReco_glob.x()/mag_track;
-    // //Double_t dmagdy_track = p3FinalReco_glob.y()/mag_track;
-    // Double_t dphidx_track = -p3FinalReco_glob.y()/(mag_track*mag_track);
-    // Double_t dphidy_track = p3FinalReco_glob.x()/(mag_track*mag_track);
-    // Double_t sigmaphi_track = sqrt( dphidx_track*dphidx_track*covFinalReco(3,3)+
-    // 				dphidy_track*dphidy_track*covFinalReco(4,4)+
-    // 				dphidx_track*dphidy_track*2*covFinalReco(3,4) );
-
-    // DirectionPullNum = p3FinalReco_glob.phi()-roll->toGlobal(Seg.localDirection()).phi();
-    // DirectionPullDenom = sqrt( pow(roll->toGlobal(Seg.localPosition()).phi(),2) + pow(sigmaphi_track,2) );
-    // DirectionPull = DirectionPullNum / DirectionPullDenom;
-
-    // if ( (tkRef->pt() > 5.0)&& (IsMatched[MuID]) ){
-    //   SegTrackDirPhiDiff_True_h->Fill(p3FinalReco_glob.phi()-roll->toGlobal(Seg.localDirection()).phi() );
-    //   SegTrackDirEtaDiff_True_h->Fill(p3FinalReco_glob.eta()-roll->toGlobal(Seg.localDirection()).eta() );
-    //   SegTrackDirPhiPull_True_h->Fill(DirectionPull);
-    // }
-    // SegTrackDirPhiDiff_All_h->Fill(p3FinalReco_glob.phi()-roll->toGlobal(Seg.localDirection()).phi() );
-    // SegTrackDirPhiPull_All_h->Fill(DirectionPull);
-    
-    // SegTrackDirEtaDiff_All_h->Fill(p3FinalReco_glob.eta()-roll->toGlobal(Seg.localDirection()).eta() );
-
-
-    // LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
-    // LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
-    // LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
-    // JacobianCartesianToLocal jctl(roll->surface(),ltp);
-    // AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
-
-    // AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
-    // AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force
-    // for(int i=0; i<5; ++i) {
-    //   for(int j=0; j<5; ++j) {
-    // 	C[i][j] = Ctmp[i][j]; 
-
-    //   }
-    // }  
-
-    // LocalPoint thisPosition(Seg.localPosition());
-
-    // Double_t sigmax = sqrt(C[3][3]+Seg.localPositionError().xx() );      
-    // Double_t sigmay = sqrt(C[4][4]+Seg.localPositionError().yy() );
-
-    // XPull_h->Fill((thisPosition.x()-r3FinalReco.x())/sigmax);
-    // YPull_h->Fill((thisPosition.y()-r3FinalReco.y())/sigmay);
-    
-    // XDiff_h->Fill((thisPosition.x()-r3FinalReco.x()));
-    // YDiff_h->Fill((thisPosition.y()-r3FinalReco.y()));
-
-    // //std::cout<<"AM HERE"<<std::endl;
-    // if ( (tkRef->pt() > FakeRatePtCut)&& (IsMatched[MuID]) ){
-      
-
-
-    //   //std::cout<<"thisPosition = "<<thisPosition<<std::endl;
-    //   //std::cout<<"r3FinalReco = "<<r3FinalReco<<std::endl;
-    // }
-
-    //End Direction studies
-
-
     bool IsNew = true;
     for (unsigned int i =0; i < Ids.size(); i++){
       if (SegId == Ids[i]) IsNew=false;
@@ -2029,8 +1164,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     if (IsNew) {
       UniqueIdList.push_back(SegId);
-      //std::cout<<"New SegId = "<<SegId<<std::endl;
-      //std::cout<<GlobVect<<std::endl;
       SegmentEta.push_back(GlobVect.eta());
       SegmentPhi.push_back(GlobVect.phi());
       SegmentR.push_back(GlobVect.perp());
@@ -2042,7 +1175,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     ME0Muon_Eta->Fill(fabs(tkRef->eta()));
 
-    //std::cout<<"Filling eta histos"<<std::endl;
     if ((tkRef->pt() > FakeRatePtCut) && (TMath::Abs(tkRef->eta()) < 2.8)){
       ME0Muon_Cuts_Eta->Fill(fabs(tkRef->eta()));
       ME0Muon_Cuts_WideBinning_Eta->Fill(fabs(tkRef->eta()));
@@ -2060,15 +1192,12 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	ME0Muon_VariableBins_Pt->Fill(tkRef->pt());
       }
     }
-    
-
-
     TrackID++;
     MuID++;
 
-   }
+  } //END   for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
   
-   //std::cout<<UniqueIdList.size()<<" unique segments per event"<<std::endl;
+
   for (unsigned int i = 0; i < UniqueIdList.size(); i++){
     int Num_Total=0, Num_Fake = 0, Num_Fake_Associated = 0;
     for (unsigned int j = 0; j < Ids.size(); j++){
@@ -2096,19 +1225,12 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     FakeTracksPerAssociatedSegment_s->Fill(SegmentEta[i], (double)Num_Fake_Associated);
     FakeTracksPerAssociatedSegment_p->Fill(SegmentEta[i], (double)Num_Fake_Associated);
 
-    // if (SegmentEta[i] > 2.4){
-    //   Segment_Eta->Fill(SegmentEta[i]);
-    //   Segment_Phi->Fill(SegmentPhi[i]);
-    //   Segment_R->Fill(SegmentR[i]);
-    //   Segment_Pos->Fill(SegmentX[i],SegmentY[i]);
-    // }
   }
 
   //================  For Segment Plotting
   for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); 
        ++thisSegment){
     ME0DetId id = thisSegment->me0DetId();
-    //std::cout<<"ME0DetId =  "<<id<<std::endl;
     auto roll = me0Geom->etaPartition(id); 
     auto GlobVect(roll->toGlobal(thisSegment->localPosition()));
     Segment_Eta->Fill(fabs(GlobVect.eta()));
@@ -2119,7 +1241,6 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
     auto theseRecHits = thisSegment->specificRecHits();
-    //std::cout <<"ME0 Ensemble Det Id "<<id<<"  Number of RecHits "<<theseRecHits.size()<<std::endl;
     
     for (auto thisRecHit = theseRecHits.begin(); thisRecHit!= theseRecHits.end(); thisRecHit++){
       auto me0id = thisRecHit->me0Id();
@@ -2136,59 +1257,30 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   //==================
 
-    for(unsigned int i=0; i<gensize; ++i) {
-      const reco::GenParticle& CurrentParticle=(*genParticles)[i];
-      if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
-	double SmallestDelR = 999.;
-	for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); 
-	     ++thisSegment){
-	  ME0DetId id = thisSegment->me0DetId();
-	  //std::cout<<"ME0DetId =  "<<id<<std::endl;
-	  auto roll = me0Geom->etaPartition(id); 
+  for(unsigned int i=0; i<gensize; ++i) {
+    const reco::GenParticle& CurrentParticle=(*genParticles)[i];
+    if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
+      double SmallestDelR = 999.;
+      for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); 
+	   ++thisSegment){
+	ME0DetId id = thisSegment->me0DetId();
+	auto roll = me0Geom->etaPartition(id); 
 	  auto GlobVect(roll->toGlobal(thisSegment->localPosition()));
-	  //Segment_Eta->Fill(fabs(GlobVect.eta()));
-	  //Segment_Phi->Fill(GlobVect.phi());
-	  //Segment_R->Fill(GlobVect.perp());
-	  //Segment_Pos->Fill(GlobVect.x(),GlobVect.y());
-	  
 	  if (reco::deltaR(CurrentParticle,GlobVect) < SmallestDelR) SmallestDelR = reco::deltaR(CurrentParticle,GlobVect);
-
-	}
-	if ((fabs(CurrentParticle.eta()) < 2.0 ) ||(fabs(CurrentParticle.eta()) > 2.8 )) continue;
-	DelR_Segment_GenMuon->Fill(SmallestDelR);
+	  
       }
+      if ((fabs(CurrentParticle.eta()) < 2.0 ) ||(fabs(CurrentParticle.eta()) > 2.8 )) continue;
+      DelR_Segment_GenMuon->Fill(SmallestDelR);
     }
-  
-
-    
-  // for (std::vector<RecoChargedCandidate>::const_iterator thisCandidate = OurCandidates->begin();
-  //      thisCandidate != OurCandidates->end(); ++thisCandidate){
-  //   TLorentzVector CandidateVector;
-  //   CandidateVector.SetPtEtaPhiM(thisCandidate->pt(),thisCandidate->eta(),thisCandidate->phi(),0);
-  //   //std::cout<<"On a muon"<<std::endl;
-  //   //std::cout<<thisCandidate->eta()<<std::endl;
-  //   Candidate_Eta->Fill(fabs(thisCandidate->eta()));
-  // }
-
-  // if (OurCandidates->size() == 2){
-  //   TLorentzVector CandidateVector1,CandidateVector2;
-  //   CandidateVector1.SetPtEtaPhiM((*OurCandidates)[0].pt(),(*OurCandidates)[0].eta(),(*OurCandidates)[0].phi(),0);
-  //   CandidateVector2.SetPtEtaPhiM((*OurCandidates)[1].pt(),(*OurCandidates)[1].eta(),(*OurCandidates)[1].phi(),0);
-  //   Double_t Mass = (CandidateVector1+CandidateVector2).M();
-  //   Mass_h->Fill(Mass);
-  // }
-  
-  
+  }
 }
 
-//void ME0MuonAnalyzer::endJob() 
+
 void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) 
 
 {
-
-  //std::cout<<"Nevents = "<<Nevents<<std::endl;
-  //TString cmsText     = "CMS Prelim.";
-  //TString cmsText     = "#splitline{CMS PhaseII Simulation}{Prelim}";
+  
+  //Write plots to histo root file and folder
   TString cmsText     = "CMS PhaseII Simulation Prelim.";
 
   TString lumiText = "PU 140, 14 TeV";
