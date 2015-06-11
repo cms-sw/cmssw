@@ -165,9 +165,6 @@ find . -name "*.stdout" -exec gzip -f {} \;
 ######################################################################
 mergeParallelResults="""
 
-#set directory to which TkAlOfflineJobsMerge.C saves the merged file
-# export OUTPUTDIR=.oO[datadir]Oo.
-export OUTPUTDIR=.
 .oO[copyMergeScripts]Oo.
 .oO[haddLoop]Oo.
 
