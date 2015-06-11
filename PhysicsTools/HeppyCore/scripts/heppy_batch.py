@@ -144,17 +144,20 @@ cp -r Loop/* $SUBMISIONDIR"""
    elif remoteDir.startswith("/pnfs/psi.ch"):
        cpCmd="""echo 'sending root files to remote dir'
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/dcap/ # Fabio's workaround to fix gfal-tools
-for f in Loop/treeProducerSusyFullHad/*.root
+for f in Loop/mt2*.root
 do
-echo $f
-ff=`basename $f | cut -d . -f 1`
-echo $ff
-gfal-mkdir {srm}
-echo "gfal-copy file:///`pwd`/Loop/treeProducerSusyFullHad/$file.root {srm}/${{ff}}_{idx}.root"
-gfal-copy file:///`pwd`/Loop/treeProducerSusyFullHad/$ff.root {srm}/${{ff}}_{idx}.root
+   ff=`basename $f | cut -d . -f 1`
+   #d=`echo $f | cut -d / -f 2`
+   gfal-mkdir {srm}
+   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root"
+   gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
+   if [ $? -ne 0 ]; then
+      echo "ERROR: remote copy failed for file $ff"
+   else
+      echo "remote copy succeeded"
+      rm Loop/$ff.root
+   fi
 done
-rm Loop/treeProducerSusyFullHad/*.root
-echo 'sending the logs back'
 cp -r Loop/* $SUBMISIONDIR""".format(idx=index, srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")])
    else:
        print "remote directory not supported yet: ", remoteDir
@@ -198,7 +201,8 @@ fi
 
 #source $VO_CMS_SW_DIR/cmsset_default.sh
 source {vo}/cmsset_default.sh
-export SCRAM_ARCH=slc6_amd64_gcc481
+#export SCRAM_ARCH=slc6_amd64_gcc481
+export SCRAM_ARCH=slc6_amd64_gcc491
 #cd $CMSSW_BASE/src
 cd {cmssw}/src
 shopt -s expand_aliases
@@ -208,8 +212,8 @@ cp -rf $SUBMISIONDIR .
 ls
 cd `find . -type d | grep /`
 echo 'running'
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
 #python $CMSSW_BASE/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
-python {cmssw}/src/CMGTools/RootTools/python/fwlite/looper.py pycfg.py config.pck
 echo
 {copy}
 ###########################################################################
