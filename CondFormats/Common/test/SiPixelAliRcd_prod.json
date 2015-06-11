@@ -3,7 +3,7 @@
     "destinationTags": {
         "SiPixelAli_PCL_v0_prompt": {
             "dependencies": {
-                "SiPixelAli_PCL_v0_hlt": "hlt",
+                "SiPixelAli_PCL_v0_hlt": "hlt"
             }, 
             "synchronizeTo": "pcl"
         }

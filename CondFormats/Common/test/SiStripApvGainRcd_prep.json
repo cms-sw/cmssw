@@ -3,7 +3,7 @@
     "destinationTags": {
         "SiStripApvGain_PCL_v0_prompt": {
             "dependencies": {
-                "SiStripApvGain_PCL_v0_hlt": "hlt",
+                "SiStripApvGain_PCL_v0_hlt": "hlt"
             }, 
             "synchronizeTo": "pcl"
         }
