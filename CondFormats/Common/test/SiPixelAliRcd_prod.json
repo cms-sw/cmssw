@@ -1,12 +1,11 @@
 {
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_ALIGNMENT", 
     "destinationTags": {
-        "SiPixelAli_PCL_v0_offline": {
+        "SiPixelAli_PCL_v0_prompt": {
             "dependencies": {
                 "SiPixelAli_PCL_v0_hlt": "hlt",
-                "SiPixelAli_PCL_v0_prompt": "prompt"
             }, 
-            "synchronizeTo": "offline"
+            "synchronizeTo": "pcl"
         }
     }, 
     "inputTag": "SiPixelAli_pcl", 

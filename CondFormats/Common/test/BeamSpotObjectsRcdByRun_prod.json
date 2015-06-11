@@ -1,13 +1,12 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT", 
     "destinationTags": {
-        "BeamSpotObjects_PCL_byRun_v0_offline": {
+        "BeamSpotObjects_PCL_byRun_v0_hlt": {
             "dependencies": {
-                "BeamSpotObjects_PCL_byRun_v0_hlt": "hlt",
                 "BeamSpotObjects_2009_v1_express": "express",
-                "BeamSpotObjects_PCL_byRun_v0_prompt": "prompt"
+                "BeamSpotObjects_PCL_byRun_v0_prompt": "pcl"
             }, 
-            "synchronizeTo": "offline"
+            "synchronizeTo": "hlt"
         }
     },
     "inputTag": "BeamSpotObject_ByRun", 

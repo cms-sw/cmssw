@@ -1,14 +1,13 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_31X_STRIP", 
     "destinationTags": {
-        "SiStripBadChannel_FromOfflineCalibration_GR10_v6_offline": {
+        "SiStripBadChannel_FromOfflineCalibration_GR10_v1_prompt": {
             "dependencies": {
-                "SiStripBadChannel_FromOfflineCalibration_GR10_v1_prompt": "prompt"
             },
-            "synchronizeTo": "offline"
+            "synchronizeTo": "pcl"
         }
     },
     "inputTag": "SiStripBadStrip_pcl",
     "since": null,
-    "userText": "T0 PCL Upload for SiStrip bad-channles"
+    "userText": "T0 PCL Upload for SiStrip bad-channels"
 }

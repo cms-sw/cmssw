@@ -4,7 +4,7 @@
         "BeamSpotObjects_PCL_byLumi_v0_prompt": {
             "dependencies": {
             }, 
-            "synchronizeTo": "prompt"
+            "synchronizeTo": "pcl"
         }
     },
     "inputTag": "BeamSpotObject_ByLumi", 

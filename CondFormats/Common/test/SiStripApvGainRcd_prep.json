@@ -1,12 +1,11 @@
 {
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_STRIP", 
     "destinationTags": {
-        "SiStripApvGain_PCL_v0_offline": {
+        "SiStripApvGain_PCL_v0_prompt": {
             "dependencies": {
                 "SiStripApvGain_PCL_v0_hlt": "hlt",
-                "SiStripApvGain_PCL_v0_prompt": "prompt"
             }, 
-            "synchronizeTo": "offline"
+            "synchronizeTo": "pcl"
         }
     }, 
     "inputTag": "SiStripApvGain_pcl", 
