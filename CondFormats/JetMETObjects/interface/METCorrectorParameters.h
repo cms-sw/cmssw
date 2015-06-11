@@ -79,10 +79,10 @@ class METCorrectorParameters
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
     const Definitions& definitions()                             const {return mDefinitions;   }
     unsigned size()                                              const {return mRecords.size();}
-    unsigned size(unsigned fVar)                                 const;
-    int binIndex(const std::vector<float>& fX)                   const;
-    int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
-    std::vector<float> binCenters(unsigned fVar)                 const;
+    //unsigned size(unsigned fVar)                                 const;
+    //int binIndex(const std::vector<float>& fX)                   const;
+    //int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
+    //std::vector<float> binCenters(unsigned fVar)                 const;
     void printScreen()                                           const;
     void printFile(const std::string& fFileName)                 const;
     bool isValid() const { return valid_; }
