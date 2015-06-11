@@ -9,7 +9,7 @@ import re
 import pprint
 import time
 
-import eostools as castortools
+import PhysicsTools.HeppyCore.utils.eostools as castortools
 
 class BatchManager:
     """
