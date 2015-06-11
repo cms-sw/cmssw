@@ -24,6 +24,7 @@ class AnyMVAEstimatorRun2Base {
   // defined with respect to eta, pt, etc.
   // This function determines the category for a given particle.
   virtual int findCategory( const edm::Ptr<reco::Candidate>& particle) = 0;
+  virtual int getNCategories() = 0;
  
 };
 
