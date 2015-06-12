@@ -214,8 +214,10 @@ def getPrescalesDescription(name, out, end):
 
 # format the information about a path associated to a specific endpath
 def dumpPath(name, out, end):
+  if name not in process.paths:
+    return '        %-*s*** missing ***' % (length, name)
+
   path = process.paths[name]
-  length = max(len(p) for p in process.paths) + 4
   
   # look for prescales
   preDesc = getPrescalesDescription(name, out, end)
@@ -273,7 +275,7 @@ def dumpStream(stream):
 
   missing    = assigned - allpaths
   if missing:
-    print '    *** missing paths in the output module ***'
+    print '    *** paths missing from the output module ***'
     for path in sorted(missing):
       print dumpPath(path, out, end)
 
@@ -293,6 +295,12 @@ def dumpOutput(stream):
 # read the list of streams
 streams = process.streams._Parameterizable__parameterNames
 streams.sort()
+
+# figure the longest path name
+length   = 32
+length_p = max(len(p) for p in process.paths)
+length_d = max(len(p) for d in process.datasets.__dict__ if not d.startswith('_') for p in process.datasets.__dict__[d])
+length = max(length_p, length_d, length) + 4
 
 for stream in streams:
   dumpStream(stream)
