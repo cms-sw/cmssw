@@ -5,7 +5,9 @@
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
 
-  <class name="reco::TrackBase" ClassVersion="13">
+  <class name="reco::TrackBase" ClassVersion="16">
+   <version ClassVersion="16" checksum="3673246687"/>
+   <version ClassVersion="15" checksum="1802760569"/>
    <version ClassVersion="14" checksum="3929365050"/>
    <version ClassVersion="13" checksum="1244921154"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -362,7 +364,9 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="13">
+  <class name="reco::Track" ClassVersion="16">
+   <version ClassVersion="16" checksum="697987788"/>
+   <version ClassVersion="15" checksum="3694119510"/>
    <version ClassVersion="14" checksum="4228121071"/>
    <version ClassVersion="13" checksum="36410295"/>
    <version ClassVersion="12" checksum="1190637787"/>
