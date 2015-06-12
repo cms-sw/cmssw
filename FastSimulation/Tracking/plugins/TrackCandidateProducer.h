@@ -45,8 +45,6 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   
  private:
 
-  void addSplitHits(const TrajectorySeedHitCandidate&, std::vector<TrajectorySeedHitCandidate>&); 
-  
   unsigned int minNumberOfCrossedLayers;
   unsigned int maxNumberOfCrossedLayers;
 
