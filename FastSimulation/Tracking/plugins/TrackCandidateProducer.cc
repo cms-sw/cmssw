@@ -119,13 +119,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::SimTrackContainer> simTracks;
   e.getByToken(simTrackToken,simTracks);
   
-  // Useful typedef's to avoid retyping
-  typedef std::pair<reco::TrackRef,edm::Ref<std::vector<Trajectory> > > TrackPair;
-
-  // The produced objects
+  // output collection
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
       
-  for (unsigned seednr = 0; seeds->size(); ++seednr){
+  for (unsigned seednr = 0; seednr < seeds->size(); ++seednr){
     
     const BasicTrajectorySeed seed = seeds->at(seednr);
     if(seed.nHits()==0)
@@ -133,103 +130,103 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     int simTrackId =  ((const SiTrackerGSMatchedRecHit2D*) (&*(seed.recHits().first)))->simtrackId();
 
-      // A vector of TrackerRecHits belonging to the track and the number of crossed layers
-      std::vector<TrajectorySeedHitCandidate> theTrackerRecHits;
-      unsigned theNumberOfCrossedLayers = 0;      
+    // A vector of TrackerRecHits belonging to the track and the number of crossed layers
+    std::vector<TrajectorySeedHitCandidate> theTrackerRecHits;
+    unsigned theNumberOfCrossedLayers = 0;      
 
-	LogDebug("FastTracking")<<"Track " << simTrackId << " is considered to return a track candidate" ;
+    LogDebug("FastTracking")<<"Track " << simTrackId << " is considered to return a track candidate" ;
 
-	// Get all the rechits associated to this track
-	SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = recHits->get(simTrackId);
-	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-	SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+    // Get all the rechits associated to this track
+    SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = recHits->get(simTrackId);
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
 
-	LogDebug("FastTracking")<<"counting: "<<theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin<<" hits to be considered.";
+    LogDebug("FastTracking")<<"counting: "<<theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin<<" hits to be considered.";
 
-	bool firstRecHit = true;
-	TrajectorySeedHitCandidate theCurrentRecHit, thePreviousRecHit;
-	TrajectorySeedHitCandidate theFirstHitComp, theSecondHitComp;
+    bool firstRecHit = true;
+    TrajectorySeedHitCandidate theCurrentRecHit, thePreviousRecHit;
+    TrajectorySeedHitCandidate theFirstHitComp, theSecondHitComp;
 	
-	for ( iterRecHit = theRecHitRangeIteratorBegin; 
-	      iterRecHit != theRecHitRangeIteratorEnd; 
-	      ++iterRecHit) {
+    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	  iterRecHit != theRecHitRangeIteratorEnd; 
+	  ++iterRecHit) {
 	  
-	  // Check the number of crossed layers
-	  if ( theNumberOfCrossedLayers >= maxNumberOfCrossedLayers ) continue;
+      // Check the number of crossed layers
+      if ( theNumberOfCrossedLayers >= maxNumberOfCrossedLayers ) continue;
 	  
-	  // Get current and previous rechits
-	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
-	  theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),trackerGeometry.product(),trackerTopology.product());
+      // Get current and previous rechits
+      if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
+      theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),trackerGeometry.product(),trackerTopology.product());
 	  
 
-	  // Count the number of crossed layers
-	  if ( !theCurrentRecHit.isOnTheSameLayer(thePreviousRecHit) ) 
-	    ++theNumberOfCrossedLayers;
+      // Count the number of crossed layers
+      if ( !theCurrentRecHit.isOnTheSameLayer(thePreviousRecHit) ) 
+	++theNumberOfCrossedLayers;
 	  
-	  // Add all rechits (Grouped Trajectory Builder) from this hit onwards
-	  // Always add the first seeding rechit anyway
-	  if ( !rejectOverlaps || firstRecHit ) {  
-	    // Split matched hits (if requested / possible )
-	    if ( splitHits && theCurrentRecHit.matchedHit()->isMatched() ) addSplitHits(theCurrentRecHit,theTrackerRecHits);
-	    else theTrackerRecHits.push_back(theCurrentRecHit);	      // No splitting   
-	    firstRecHit = false;
+      // Add all rechits (Grouped Trajectory Builder) from this hit onwards
+      // Always add the first seeding rechit anyway
+      if ( !rejectOverlaps || firstRecHit ) {  
+	// Split matched hits (if requested / possible )
+	if ( splitHits && theCurrentRecHit.matchedHit()->isMatched() ) addSplitHits(theCurrentRecHit,theTrackerRecHits);
+	else theTrackerRecHits.push_back(theCurrentRecHit);	      // No splitting   
+	firstRecHit = false;
 	    
-	    // And now treat the following RecHits if hits in the same layer 
-	    // have to be rejected - The split option is not 
-	  } else { 
+	// And now treat the following RecHits if hits in the same layer 
+	// have to be rejected - The split option is not 
+      } else { 
 	    
-	    // Not the same layer : Add the current hit
-	    if ( theCurrentRecHit.subDetId()    != thePreviousRecHit.subDetId() || 
-		 theCurrentRecHit.layerNumber() != thePreviousRecHit.layerNumber() ) {
+	// Not the same layer : Add the current hit
+	if ( theCurrentRecHit.subDetId()    != thePreviousRecHit.subDetId() || 
+	     theCurrentRecHit.layerNumber() != thePreviousRecHit.layerNumber() ) {
 	      
-	      // Split matched hits (if requested / possible )
-	      if ( splitHits && theCurrentRecHit.matchedHit()->isMatched() ) addSplitHits(theCurrentRecHit,theTrackerRecHits);
-	      else 		theTrackerRecHits.push_back(theCurrentRecHit); 		// No splitting   	      
+	  // Split matched hits (if requested / possible )
+	  if ( splitHits && theCurrentRecHit.matchedHit()->isMatched() ) addSplitHits(theCurrentRecHit,theTrackerRecHits);
+	  else 		theTrackerRecHits.push_back(theCurrentRecHit); 		// No splitting   	      
 	      
-	      // Same layer : keep the current hit if better, and drop the other - otherwise do nothing  
-	    } else if ( theCurrentRecHit.localError() < thePreviousRecHit.localError() ) { 
+	  // Same layer : keep the current hit if better, and drop the other - otherwise do nothing  
+	} else if ( theCurrentRecHit.localError() < thePreviousRecHit.localError() ) { 
 	      
-	      // Split matched hits (if requested / possible )
-	      if( splitHits && theCurrentRecHit.matchedHit()->isMatched() ){
-		// Remove the previous hit(s)
-		theTrackerRecHits.pop_back();
-		if ( thePreviousRecHit.matchedHit()->isMatched() ) theTrackerRecHits.pop_back();
+	  // Split matched hits (if requested / possible )
+	  if( splitHits && theCurrentRecHit.matchedHit()->isMatched() ){
+	    // Remove the previous hit(s)
+	    theTrackerRecHits.pop_back();
+	    if ( thePreviousRecHit.matchedHit()->isMatched() ) theTrackerRecHits.pop_back();
 		
-		// Replace by the new hits
-		addSplitHits(theCurrentRecHit,theTrackerRecHits);
-	      }
-	      // No splitting   
-	      else {
-		theTrackerRecHits.back() = theCurrentRecHit; // Replace the previous hit by the current hit
-	      }
-	      
-	    } else {
-	      
-	      //keep the older rechit as a reference if the error of the new one is worse
-	      theCurrentRecHit = thePreviousRecHit;
-	    }  
+	    // Replace by the new hits
+	    addSplitHits(theCurrentRecHit,theTrackerRecHits);
 	  }
-	}// End of loop over the track rechits
+	  // No splitting   
+	  else {
+	    theTrackerRecHits.back() = theCurrentRecHit; // Replace the previous hit by the current hit
+	  }
+	      
+	} else {
+	      
+	  //keep the older rechit as a reference if the error of the new one is worse
+	  theCurrentRecHit = thePreviousRecHit;
+	}  
+      }
+    }// End of loop over the track rechits
 
     
-      LogDebug("FastTracking")<<" number of hits: " << theTrackerRecHits.size()<<" after counting overlaps and splitting.";
+    LogDebug("FastTracking")<<" number of hits: " << theTrackerRecHits.size()<<" after counting overlaps and splitting.";
 
-      // 1) Create the OwnVector of TrackingRecHits
-      edm::OwnVector<TrackingRecHit> recHits;
-      unsigned nTrackerHits = theTrackerRecHits.size();
-      recHits.reserve(nTrackerHits); // To save some time at push_back
+    // 1) Create the OwnVector of TrackingRecHits
+    edm::OwnVector<TrackingRecHit> recHits;
+    unsigned nTrackerHits = theTrackerRecHits.size();
+    recHits.reserve(nTrackerHits); // To save some time at push_back
 
-      if (seed.direction()==oppositeToMomentum){
-	LogDebug("FastTracking")<<"reversing the order of the hits";
-	std::reverse(theTrackerRecHits.begin(),theTrackerRecHits.end());
-      }
+    if (seed.direction()==oppositeToMomentum){
+      LogDebug("FastTracking")<<"reversing the order of the hits";
+      std::reverse(theTrackerRecHits.begin(),theTrackerRecHits.end());
+    }
 
-      for ( unsigned ih=0; ih<nTrackerHits; ++ih ) {
-	TrackingRecHit* aTrackingRecHit = theTrackerRecHits[ih].hit()->clone();
-	recHits.push_back(aTrackingRecHit);
+    for ( unsigned ih=0; ih<nTrackerHits; ++ih ) {
+      TrackingRecHit* aTrackingRecHit = theTrackerRecHits[ih].hit()->clone();
+      recHits.push_back(aTrackingRecHit);
 	
-      }//loop over the rechits
+    }//loop over the rechits
 
     // Check the number of crossed layers
     if ( theNumberOfCrossedLayers < minNumberOfCrossedLayers ) {
@@ -243,37 +240,37 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //PTrajectoryStateOnDet PTSOD = seed->startingState();
     PTrajectoryStateOnDet PTSOD;
 
-      //create the initial state from the SimTrack
+    //create the initial state from the SimTrack
     int vertexIndex = simTracks->at(simTrackId).vertIndex();
-      //   a) origin vertex
-      GlobalPoint  position(simVertices->at(vertexIndex).position().x(),
-			    simVertices->at(vertexIndex).position().y(),
-			    simVertices->at(vertexIndex).position().z());
+    //   a) origin vertex
+    GlobalPoint  position(simVertices->at(vertexIndex).position().x(),
+			  simVertices->at(vertexIndex).position().y(),
+			  simVertices->at(vertexIndex).position().z());
       
-      //   b) initial momentum
-      GlobalVector momentum( simTracks->at(simTrackId).momentum().x() , 
-			     simTracks->at(simTrackId).momentum().y() , 
-			     simTracks->at(simTrackId).momentum().z() );
-      //   c) electric charge
-      float        charge   = (*simTracks)[simTrackId].charge();
-      //  -> inital parameters
-      GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField.product());
- //  -> large initial errors
-      AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();    
-      CurvilinearTrajectoryError initialError(errorMatrix);
-      // -> initial state
-      FreeTrajectoryState initialFTS(initialParams, initialError);      
+    //   b) initial momentum
+    GlobalVector momentum( simTracks->at(simTrackId).momentum().x() , 
+			   simTracks->at(simTrackId).momentum().y() , 
+			   simTracks->at(simTrackId).momentum().z() );
+    //   c) electric charge
+    float        charge   = (*simTracks)[simTrackId].charge();
+    //  -> inital parameters
+    GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField.product());
+    //  -> large initial errors
+    AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();    
+    CurvilinearTrajectoryError initialError(errorMatrix);
+    // -> initial state
+    FreeTrajectoryState initialFTS(initialParams, initialError);      
 #ifdef FAMOS_DEBUG
-      std::cout << "TrajectorySeedProducer: FTS momentum " << initialFTS.momentum() << std::endl;
+    std::cout << "TrajectorySeedProducer: FTS momentum " << initialFTS.momentum() << std::endl;
 #endif
-      const GeomDet* initialLayer = trackerGeometry->idToDet(recHits.front().geographicalId());
-      //this is wrong because the FTS is defined at vertex, and it need to be properly propagated to the first rechit
-      //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
-       const TrajectoryStateOnSurface initialTSOS = propagator->propagate(initialFTS,initialLayer->surface()) ;
-       if (!initialTSOS.isValid()) continue; 
+    const GeomDet* initialLayer = trackerGeometry->idToDet(recHits.front().geographicalId());
+    //this is wrong because the FTS is defined at vertex, and it need to be properly propagated to the first rechit
+    //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+    const TrajectoryStateOnSurface initialTSOS = propagator->propagate(initialFTS,initialLayer->surface()) ;
+    if (!initialTSOS.isValid()) continue; 
        
 
-       PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
+    PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
     
     TrackCandidate newTrackCandidate(recHits,seed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr));
 
