@@ -90,7 +90,48 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     ReferenceCountingPointer<BoundPlane> surf(bp);
     ME0EtaPartition* mep=new ME0EtaPartition(me0id, surf, e_p_specs);
     geometry->add(mep);
+    
+    
+    //    std::list<ME0EtaPartition *> gepls;
+    /*
+    if (chids.find(chid)!=chids.end()){
+      gepls = chids[chid];
+    }
+    */
+    //    gepls.push_back(gep);
+    //chids[chid]=gepls;
+    
   }
+  /*
+  // Create the ME0Chambers and store them on the Geometry 
+
+  for( std::map<ME0DetId, std::list<ME0EtaPartition *> >::iterator ich=chids.begin();
+       ich != chids.end(); ich++){
+    ME0DetId chid = ich->first;
+    std::list<ME0EtaPartition * > gepls = ich->second;
+
+    // compute the overall boundplane. At the moment we use just the last
+    // surface
+    BoundPlane* bp=0;
+    for(std::list<ME0EtaPartition *>::iterator gepl=gepls.begin();
+    gepl!=gepls.end(); gepl++){
+    const BoundPlane& bps = (*gepl)->surface();
+      bp = const_cast<BoundPlane *>(&bps);
+    }
+
+    ReferenceCountingPointer<BoundPlane> surf(bp);
+    // Create the chamber 
+    ME0Chamber* ch = new ME0Chamber (chid, surf); 
+    // Add the etaps to rhe chamber
+    for(std::list<ME0EtaPartition *>::iterator gepl=gepls.begin();
+    gepl!=gepls.end(); gepl++){
+      ch->add(*gepl);
+    }
+    // Add the chamber to the geometry
+    geometry->add(ch);
+
+  }
+  */
   return geometry;
 }
 

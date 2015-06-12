@@ -3,6 +3,7 @@
  *  \author N. Amapane - CERN
  *
  *  \modified by R. Radogna & C. Calabria
+ *  \modified by D. Nash
  */
 
 #include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
@@ -12,11 +13,13 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
+#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
 
 #include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
+#include <RecoMuon/DetLayers/src/MuonME0DetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -67,9 +70,16 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
       muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
   } else {
     LogInfo(metname) << "No GEM geometry is available.";
-    }
+  }
     
-  
+  // Build ME0 layers
+  edm::ESHandle<ME0Geometry> me0;
+  if (me0.isValid()) {
+    //LogInfo(metname) << "Geometry = "<<*me0;
+    muonDetLayerGeometry->addME0Layers(MuonME0DetLayerGeometryBuilder::buildEndcapLayers(*me0));
+  } else {
+    LogInfo(metname) << "No ME0 geometry is available.";
+  }
   // Build RPC layers
   edm::ESHandle<RPCGeometry> rpc;
   record.getRecord<MuonGeometryRecord>().get(rpc);
