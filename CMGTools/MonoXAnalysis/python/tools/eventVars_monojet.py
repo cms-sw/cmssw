@@ -2,8 +2,8 @@ from CMGTools.TTHAnalysis.treeReAnalyzer import *
 
 class EventVarsMonojet:
     def __init__(self):
-        self.branches = [ "nMu10V", "nMu20T", "nEle10V", "nEle20T", "nTau20V", "nGamma15V", "nGamma175T",
-                          "dphijj","jetclean",
+        self.branches = [ "nMu10V", "nMu20T", "nEle10V", "nEle20T", "nTau18V", "nGamma15V", "nGamma175T",
+                          "dphijj","jetclean1", "jetclean2",
                           "weight"]
     def initSampleNormalization(self,sample_nevt):
         self.sample_nevt = sample_nevt        
@@ -31,8 +31,8 @@ class EventVarsMonojet:
             if lep.dz > (0.015310 if abs(lep.eta)<1.479 else 0.147154): return False
             return abs(lep.eta) < 2.5 and lep.tightId > 0 and lep.convVeto and lep.lostHits <= 1 and lep.relIso04 < 0.12
     def tauIdVeto(self,tau):
-        if tau.pt <= 20 or abs(tau.eta) > 2.3: return False
-        return tau.idDecayMode > 0.5 and tau.idCI3hit > 0.5
+        if tau.pt <= 18 or abs(tau.eta) > 2.3: return False
+        return tau.idDecayMode > 0.5 and tau.isoCI3hit < 5.0
     def gammaIdVeto(self,gamma):
         return gamma.pt > 15 and abs(gamma.eta) < 2.5
     def gammaIdTight(self,gamma):
@@ -47,7 +47,7 @@ class EventVarsMonojet:
         ret['nEle10V'] = sum([(abs(l.pdgId)==11 and int(self.lepIdVeto(l))) for l in leps ])
         ret['nEle20T'] = sum([(abs(l.pdgId)==11 and int(self.lepIdTight(l))) for l in leps ])
         taus = [t for t in Collection(event,"TauGood","nTauGood")]
-        ret['nTau20V'] = sum([(int(self.tauIdVeto(t))) for t in taus ])
+        ret['nTau18V'] = sum([(int(self.tauIdVeto(t))) for t in taus ])
         photons = [p for p in Collection(event,"GammaGood","nGammaGood")]
         ret['nGamma15V'] = sum([(int(self.gammaIdVeto(p))) for p in photons ])
         ret['nGamma175T'] = sum([(int(self.gammaIdTight(p))) for p in photons ])
@@ -57,9 +57,10 @@ class EventVarsMonojet:
         ret['dphijj'] = deltaPhi(jets[0],jets[1]) if njet >= 2 else 999 
         if njet >= 1:
             jclean = jets[0].chHEF > 0.2 and jets[0].neHEF < 0.7 and jets[0].phEF < 0.7
-            if njet >= 2:
-                jclean = jclean and jets[0].neHEF < 0.7 and jets[0].phEF < 0.9
-            ret['jetclean'] = jclean
+            ret['jetclean1'] = jclean
+        if njet >= 2:
+            jclean = jets[1].neHEF < 0.7 and jets[1].phEF < 0.9
+            ret['jetclean2'] = jclean
         return ret
 
 if __name__ == '__main__':
