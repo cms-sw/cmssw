@@ -127,7 +127,11 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet muonEta_TH1;
   edm::ParameterSet muonPhi_TH1;
   edm::ParameterSet l2muonPt_TH1;
+  edm::ParameterSet l2muonEta_TH1;
+  edm::ParameterSet l2muonPhi_TH1;
   edm::ParameterSet l2NoBPTXmuonPt_TH1;
+  edm::ParameterSet l2NoBPTXmuonEta_TH1;
+  edm::ParameterSet l2NoBPTXmuonPhi_TH1;
   edm::ParameterSet electronPt_TH1;
   edm::ParameterSet electronEta_TH1;
   edm::ParameterSet electronPhi_TH1;
@@ -188,7 +192,11 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   MonitorElement * muonEta_;
   MonitorElement * muonPhi_;
   MonitorElement * l2muonPt_;
+  MonitorElement * l2muonEta_;
+  MonitorElement * l2muonPhi_;
   MonitorElement * l2NoBPTXmuonPt_;
+  MonitorElement * l2NoBPTXmuonEta_;
+  MonitorElement * l2NoBPTXmuonPhi_;
   MonitorElement * electronPt_;
   MonitorElement * electronEta_;
   MonitorElement * electronPhi_;
@@ -250,7 +258,11 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   muonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("muonEta");
   muonPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("muonPhi");
   l2muonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("l2muonPt");
+  l2muonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("l2muonEta");
+  l2muonPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("l2muonPhi");
   l2NoBPTXmuonPt_TH1 = iConfig.getParameter<edm::ParameterSet>("l2NoBPTXmuonPt");
+  l2NoBPTXmuonEta_TH1 = iConfig.getParameter<edm::ParameterSet>("l2NoBPTXmuonEta");
+  l2NoBPTXmuonPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("l2NoBPTXmuonPhi");
   electronPt_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPt");
   electronEta_TH1 = iConfig.getParameter<edm::ParameterSet>("electronEta");
   electronPhi_TH1 = iConfig.getParameter<edm::ParameterSet>("electronPhi");
@@ -390,6 +402,8 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	       for (const auto & key : keys) 
 		 {
 		   l2muonPt_->Fill(objects[key].pt());
+		   l2muonEta_->Fill(objects[key].eta());
+		   l2muonPhi_->Fill(objects[key].phi());
 		 }
 	     }
 	   
@@ -399,6 +413,8 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	       for (const auto & key : keys) 
 		 {
 		   l2NoBPTXmuonPt_->Fill(objects[key].pt());
+		   l2NoBPTXmuonEta_->Fill(objects[key].eta());
+		   l2NoBPTXmuonPhi_->Fill(objects[key].phi());
 		 }
 	     }
 
@@ -989,6 +1005,28 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       TH1F * hist_muonPhi = new TH1F("Muon_phi","Muon phi",muonPhi_TH1.getParameter<int>("NbinsX"),muonPhi_TH1.getParameter<double>("Xmin"),muonPhi_TH1.getParameter<double>("Xmax"));
       hist_muonPhi->SetMinimum(0);
       muonPhi_ = ibooker.book1D("Muon_phi",hist_muonPhi);
+    }
+  if (lookupIndex.count(l2muonPlots_pathName) > 0)
+    {
+      //l2 muon eta
+      TH1F * hist_l2muonEta = new TH1F("L2Muon_eta","L2Muon eta",l2muonEta_TH1.getParameter<int>("NbinsX"),l2muonEta_TH1.getParameter<int>("Xmin"),l2muonEta_TH1.getParameter<int>("Xmax")); 
+      hist_l2muonEta->SetMinimum(0); 
+      l2muonEta_ = ibooker.book1D("L2Muon_eta",hist_l2muonEta);
+      //l2 muon phi
+      TH1F * hist_l2muonPhi = new TH1F("L2Muon_phi","L2Muon phi",l2muonPhi_TH1.getParameter<int>("NbinsX"),l2muonPhi_TH1.getParameter<double>("Xmin"),l2muonPhi_TH1.getParameter<double>("Xmax"));
+      hist_l2muonPhi->SetMinimum(0);
+      l2muonPhi_ = ibooker.book1D("L2Muon_phi",hist_l2muonPhi);
+    }
+  if (lookupIndex.count(l2NoBPTXmuonPlots_pathName) > 0)
+    {
+      //l2NoBPTXmuon eta
+      TH1F * hist_l2NoBPTXmuonEta = new TH1F("L2NoBPTXMuon_eta","L2NoBPTXMuon eta",l2NoBPTXmuonEta_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonEta_TH1.getParameter<int>("Xmin"),l2NoBPTXmuonEta_TH1.getParameter<int>("Xmax"));
+      hist_l2NoBPTXmuonEta->SetMinimum(0);
+      l2NoBPTXmuonEta_ = ibooker.book1D("L2NoBPTXMuon_eta",hist_l2NoBPTXmuonEta);
+      //l2NoBPTXmuon phi
+      TH1F * hist_l2NoBPTXmuonPhi = new TH1F("L2NoBPTXMuon_phi","L2NoBPTXMuon phi",l2NoBPTXmuonPhi_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonPhi_TH1.getParameter<double>("Xmin"),l2NoBPTXmuonPhi_TH1.getParameter<double>("Xmax"));
+      hist_l2NoBPTXmuonPhi->SetMinimum(0);
+      l2NoBPTXmuonPhi_ = ibooker.book1D("L2NoBPTXMuon_phi",hist_l2NoBPTXmuonPhi);
     }
   if (lookupIndex.count(electronPlots_pathName) > 0)
     {
