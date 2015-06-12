@@ -84,7 +84,7 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   
  private:
   // Data members
-  std::vector<TMVA::Reader*> _tmvaReaders;
+  std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;
 
   // All variables needed by this MVA
   std::string _MethodName;
