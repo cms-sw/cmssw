@@ -240,8 +240,6 @@ def getEndPath(output):
     if searchOut.found:
       out = o.label_()
       break
-  else:
-    print "    *** corresponding EndPath not found ***"
   return out
 
 
@@ -273,11 +271,14 @@ def dumpStream(stream):
     for path in sorted(unassigned):
       print dumpPath(path, out, end)
 
-  missing    = assigned - allpaths
-  if missing:
-    print '    *** paths missing from the output module ***'
-    for path in sorted(missing):
-      print dumpPath(path, out, end)
+  if not end:
+    print '    *** corresponding EndPath not found ***'
+  else:
+    missing    = assigned - allpaths
+    if missing:
+      print '    *** paths missing from the EndPath\'s output module ***'
+      for path in sorted(missing):
+        print dumpPath(path, out, end)
 
 
 def dumpOutput(stream):
