@@ -1,13 +1,13 @@
 /**
    \file
-   Declaration of PhotonConversionProducer
+   Declaration of OniaPhotonConversionProducer
 
    \author Stefano Argiro
    \modifier Alberto Sanchez
 */
 
-#ifndef __PhotonConversionProducer_h_
-#define __PhotonConversionProducer_h_
+#ifndef __OniaPhotonConversionProducer_h_
+#define __OniaPhotonConversionProducer_h_
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -30,10 +30,10 @@
 
  */
 
-class PhotonConversionProducer : public edm::EDProducer {
+class OniaPhotonConversionProducer : public edm::EDProducer {
 
  public:
-  explicit PhotonConversionProducer(const edm::ParameterSet& ps);
+  explicit OniaPhotonConversionProducer(const edm::ParameterSet& ps);
  
  private:
 

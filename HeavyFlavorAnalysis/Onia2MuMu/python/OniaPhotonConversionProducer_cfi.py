@@ -17,7 +17,7 @@ pi0_small_max = 0.140
 pi0_large_min = 0.110
 pi0_large_max = 0.160
 
-PhotonCandidates = cms.EDProducer('PhotonConversionProducer',
+PhotonCandidates = cms.EDProducer('OniaPhotonConversionProducer',
     conversions = cms.InputTag(tag_conversion),
     convAlgo    = cms.string(conv_algo),
     convQuality = cms.vstring(conv_qual),

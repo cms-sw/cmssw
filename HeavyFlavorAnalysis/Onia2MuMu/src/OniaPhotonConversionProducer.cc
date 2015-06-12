@@ -1,4 +1,4 @@
-#include "HeavyFlavorAnalysis/PhotonConversion/interface/PhotonConversionProducer.h"
+#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaPhotonConversionProducer.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -52,7 +52,7 @@ namespace reco {
   }
 }
 
-PhotonConversionProducer:: PhotonConversionProducer(const edm::ParameterSet& ps){
+OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::ParameterSet& ps){
   convCollection_          = ps.getParameter<edm::InputTag>("conversions");
   thePVs_                  = ps.getParameter<edm::InputTag>("primaryVertexTag");
   wantTkVtxCompatibility_  = ps.getParameter<bool>("wantTkVtxCompatibility");
@@ -95,7 +95,7 @@ PhotonConversionProducer:: PhotonConversionProducer(const edm::ParameterSet& ps)
 }
 
 
-void PhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup& esetup){
+void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup& esetup){
 
   std::auto_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
   std::auto_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
@@ -203,7 +203,7 @@ void PhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup&
   delete convSelection_;
 }
 
-int PhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool flagTkVtxCompatibility, 
+int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool flagTkVtxCompatibility, 
                                             bool flagCompatibleInnerHits, bool flagHighpurity,
                                             bool pizero_rejected, bool large_pizero_window ) {
    int flags = 0;
@@ -236,7 +236,7 @@ int PhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool flagT
 /** Put in out collection only those conversion candidates that are not sharing tracks.
     If sharing, keep the one with the best chi2.
  */
-void PhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c, std::vector<int> &f){
+void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c, std::vector<int> &f){
   // first sort from high to low chi2 prob
   std::sort(c.begin(),c.end(),ConversionLessByChi2);
   int iter1 = 0;
@@ -256,7 +256,7 @@ void PhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c, s
   }
 }
 
-bool PhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversion& conv, const reco::VertexCollection& priVtxs) {
+bool OniaPhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversion& conv, const reco::VertexCollection& priVtxs) {
   std::vector< std::pair< double, short> > idx[2];
   short ik=-1;
   BOOST_FOREACH(edm::RefToBase<reco::Track> tk, conv.tracks()){
@@ -281,7 +281,7 @@ bool PhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversion& c
   return false;
 }
 
-bool PhotonConversionProducer::foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB) {
+bool OniaPhotonConversionProducer::foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB) {
   size_t count=0;
   uint32_t oldSubStr=0;
   for (int i=0; i<hitPatA.numberOfHits(reco::HitPattern::HitCategory::TRACK_HITS) && count<2; i++) {
@@ -300,7 +300,7 @@ bool PhotonConversionProducer::foundCompatibleInnerHits(const reco::HitPattern& 
   return false;  
 }
 
-bool PhotonConversionProducer::
+bool OniaPhotonConversionProducer::
 HighpuritySubset(const reco::Conversion& conv, const reco::VertexCollection& priVtxs){
   // select high purity conversions our way:
   // vertex chi2 cut
@@ -329,7 +329,7 @@ HighpuritySubset(const reco::Conversion& conv, const reco::VertexCollection& pri
   return true;
 }
 
-pat::CompositeCandidate *PhotonConversionProducer::makePhotonCandidate(const reco::Conversion& conv){
+pat::CompositeCandidate *OniaPhotonConversionProducer::makePhotonCandidate(const reco::Conversion& conv){
 
   pat::CompositeCandidate *photonCand = new pat::CompositeCandidate();
   photonCand->setP4(convertVector(conv.refittedPair4Momentum()));
@@ -343,7 +343,7 @@ pat::CompositeCandidate *PhotonConversionProducer::makePhotonCandidate(const rec
 }
 
 // create a collection of PF photons
-const reco::PFCandidateCollection  PhotonConversionProducer::selectPFPhotons(const reco::PFCandidateCollection& pfcandidates) {
+const reco::PFCandidateCollection  OniaPhotonConversionProducer::selectPFPhotons(const reco::PFCandidateCollection& pfcandidates) {
   reco::PFCandidateCollection pfphotons;
   for (reco::PFCandidateCollection::const_iterator cand =   pfcandidates.begin(); cand != pfcandidates.end(); ++cand){
     if (cand->particleId() == reco::PFCandidate::gamma) pfphotons.push_back(*cand);
@@ -351,7 +351,7 @@ const reco::PFCandidateCollection  PhotonConversionProducer::selectPFPhotons(con
   return  pfphotons;
 }
 
-bool PhotonConversionProducer::CheckPi0( const reco::Conversion& conv, const reco::PFCandidateCollection& photons,
+bool OniaPhotonConversionProducer::CheckPi0( const reco::Conversion& conv, const reco::PFCandidateCollection& photons,
 				            bool &pizero_rejected ) {
   // 2 windows are defined for Pi0 rejection, Conversions that, paired with others photons from the event, have an
   // invariant mass inside the "small" window will be pizero_rejected and those that falls in the large window will
@@ -377,12 +377,12 @@ bool PhotonConversionProducer::CheckPi0( const reco::Conversion& conv, const rec
   return check_large;
 }
 
-reco::Candidate::LorentzVector PhotonConversionProducer::convertVector(const math::XYZTLorentzVectorF& v){
+reco::Candidate::LorentzVector OniaPhotonConversionProducer::convertVector(const math::XYZTLorentzVectorF& v){
   return reco::Candidate::LorentzVector(v.x(),v.y(), v.z(), v.t());
 }
 
 
-void PhotonConversionProducer::endJob(){
+void OniaPhotonConversionProducer::endJob(){
    std::cout << "############################" << std::endl;
    std::cout << "Conversion Candidate producer report" << std::endl;
    std::cout << "############################" << std::endl;
@@ -401,4 +401,4 @@ void PhotonConversionProducer::endJob(){
    std::cout << "############################" << std::endl;
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(PhotonConversionProducer);
+DEFINE_FWK_MODULE(OniaPhotonConversionProducer);
