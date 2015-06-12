@@ -59,7 +59,7 @@ constexpr char ElectronMVAValueMapProducer::mvaValuesMapName_[];
 constexpr char ElectronMVAValueMapProducer::mvaCategoriesMapName_[];
 
 ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet& iConfig) :
-  mvaEstimatorPhys14NonTrig_( iConfig.getParameter<std::vector<std::string> >("mvaPhys14NonTrigWeightFiles") )
+  mvaEstimatorPhys14NonTrig_( iConfig.getParameterSet("mvaConfigPhys14NonTrig") )
 {
 
   //
