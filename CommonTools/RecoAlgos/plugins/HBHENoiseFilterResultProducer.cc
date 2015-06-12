@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class HBHENoiseFilterResultProducer : public edm::EDProducer {
+class HBHENoiseFilterResultProducer : public edm::stream::EDProducer<> {
    public:
       explicit HBHENoiseFilterResultProducer(const edm::ParameterSet&);
       ~HBHENoiseFilterResultProducer();
