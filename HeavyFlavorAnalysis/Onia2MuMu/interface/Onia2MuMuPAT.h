@@ -20,6 +20,8 @@
 #include <CommonTools/UtilAlgos/interface/StringCutObjectSelector.h>
 #include "RecoVertex/VertexTools/interface/InvariantMassFromVertex.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 template<typename T>
 struct GreaterByVProb {
   typedef T first_argument_type;
@@ -49,9 +51,10 @@ class Onia2MuMuPAT : public edm::EDProducer {
 
   // ----------member data ---------------------------
  private:
-  edm::InputTag muons_;
-  edm::InputTag thebeamspot_;
-  edm::InputTag thePVs_;
+  
+  edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
+  edm::EDGetTokenT<reco::BeamSpot> thebeamspot_;
+  edm::EDGetTokenT<reco::VertexCollection> thePVs_;
   StringCutObjectSelector<pat::Muon> higherPuritySelection_;
   StringCutObjectSelector<pat::Muon> lowerPuritySelection_; 
   StringCutObjectSelector<reco::Candidate, true> dimuonSelection_;

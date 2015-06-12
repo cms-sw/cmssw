@@ -26,9 +26,9 @@
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 
 Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet& iConfig):
-  muons_(iConfig.getParameter<edm::InputTag>("muons")),
-  thebeamspot_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
-  thePVs_(iConfig.getParameter<edm::InputTag>("primaryVertexTag")),
+  muons_(consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
+  thebeamspot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotTag"))),
+  thePVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexTag"))),
   higherPuritySelection_(iConfig.getParameter<std::string>("higherPuritySelection")),
   lowerPuritySelection_(iConfig.getParameter<std::string>("lowerPuritySelection")),
   dimuonSelection_(iConfig.existsAs<std::string>("dimuonSelection") ? iConfig.getParameter<std::string>("dimuonSelection") : ""),
@@ -76,12 +76,12 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
   Handle<BeamSpot> theBeamSpot;
-  iEvent.getByLabel(thebeamspot_,theBeamSpot);
+  iEvent.getByToken(thebeamspot_,theBeamSpot);
   BeamSpot bs = *theBeamSpot;
   theBeamSpotV = Vertex(bs.position(), bs.covariance3D());
 
   Handle<VertexCollection> priVtxs;
-  iEvent.getByLabel(thePVs_, priVtxs);
+  iEvent.getByToken(thePVs_, priVtxs);
   if ( priVtxs->begin() != priVtxs->end() ) {
     thePrimaryV = Vertex(*(priVtxs->begin()));
   }
@@ -90,7 +90,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   Handle< View<pat::Muon> > muons;
-  iEvent.getByLabel(muons_,muons);
+  iEvent.getByToken(muons_,muons);
 
   edm::ESHandle<TransientTrackBuilder> theTTBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTBuilder);
@@ -181,12 +181,14 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if( addMuonlessPrimaryVertex_  && thePrimaryV.tracksSize()>2) {
 	    // Primary vertex matched to the dimuon, now refit it removing the two muons
 	    OniaVtxReProducer revertex(priVtxs, iEvent);
-	    Handle<TrackCollection> pvtracks;
-	    iEvent.getByLabel(revertex.inputTracks(),   pvtracks);
+            edm::EDGetTokenT<reco::TrackCollection> revtxtrks_ = consumes<reco::TrackCollection>(revertex.inputTracks());
+	    edm::Handle<reco::TrackCollection> pvtracks;
+	    iEvent.getByToken(revtxtrks_,   pvtracks);
  	    if( !pvtracks.isValid()) { std::cout << "pvtracks NOT valid " << std::endl; }
  	    else {
-	      Handle<BeamSpot>        pvbeamspot; 
-	      iEvent.getByLabel(revertex.inputBeamSpot(), pvbeamspot);
+	      edm::Handle<reco::BeamSpot> pvbeamspot; 
+              edm::EDGetTokenT<reco::BeamSpot> revtxbs_ = consumes<reco::BeamSpot>(revertex.inputBeamSpot());
+	      iEvent.getByToken(revtxbs_, pvbeamspot);
 	      if (pvbeamspot.id() != theBeamSpot.id()) edm::LogWarning("Inconsistency") << "The BeamSpot used for PV reco is not the same used in this analyzer.";
 	      // I need to go back to the reco::Muon object, as the TrackRef in the pat::Muon can be an embedded ref.
 	      const reco::Muon *rmu1 = dynamic_cast<const reco::Muon *>(it->originalObject());
@@ -352,8 +354,9 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      myCand.addUserFloat("ppdlTrue",-99.);
 	    }
 	  } else {
-	    Handle<GenParticleCollection>theGenParticles;
-	    iEvent.getByLabel("genParticles", theGenParticles);
+	    edm::Handle<reco::GenParticleCollection> theGenParticles;
+            edm::EDGetTokenT<reco::GenParticleCollection> genCands_ = consumes<reco::GenParticleCollection>((edm::InputTag)"genParticles");
+	    iEvent.getByToken(genCands_, theGenParticles);
 	    if (theGenParticles.isValid()){
 	      for(size_t iGenParticle=0; iGenParticle<theGenParticles->size();++iGenParticle) {
 		const Candidate & genCand = (*theGenParticles)[iGenParticle];
