@@ -106,7 +106,8 @@ public:
 
   /// Call at end of each loop (must be implemented in derived class)
   virtual void terminate(const edm::EventSetup& iSetup) = 0;
-  virtual void terminate() {}
+  virtual void terminate() {};
+
 
   /// Run the algorithm (must be implemented in derived class)
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
