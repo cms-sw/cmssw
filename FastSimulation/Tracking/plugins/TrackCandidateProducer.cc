@@ -46,7 +46,7 @@
 //for debug only 
 //#define FAMOS_DEBUG
 
-TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):thePropagator(0) 
+TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
 {  
 #ifdef FAMOS_DEBUG
   std::cout << "TrackCandidateProducer created" << std::endl;
@@ -64,12 +64,6 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):th
   // The main product is a track candidate collection.
   produces<TrackCandidateCollection>();
   
-  // The name of the seed producer
-  seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");
-
-  // The name of the recHit producer
-  hitProducer = conf.getParameter<edm::InputTag>("HitProducer");
-
   // The minimum number of crossed layers
   minNumberOfCrossedLayers = conf.getParameter<unsigned int>("MinNumberOfCrossedLayers");
 
@@ -86,121 +80,96 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):th
   // Typically don't do that at HLT for electrons, but do it otherwise
   seedCleaning = conf.getParameter<bool>("SeedCleaning");
 
-  simTracks_ = conf.getParameter<edm::InputTag>("SimTracks");
   estimatorCut_= conf.getParameter<double>("EstimatorCut");
+  
+  // input tags, labels, tokens
+  edm::InputTag simTrackLabel = conf.getParameter<edm::InputTag>("simTracks");
+  simVertexToken = consumes<edm::SimVertexContainer>(simTrackLabel);
+  simTrackToken = consumes<edm::SimTrackContainer>(simTrackLabel);
 
-  // consumes
-  seedToken = consumes<edm::View<TrajectorySeed> >(seedProducer);
-  recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducer);
-  edm::InputTag _label("famosSimHits");
-  simVertexToken = consumes<edm::SimVertexContainer>(_label);
-  simTrackToken = consumes<edm::SimTrackContainer>(_label);
+  edm::InputTag seedLabel = conf.getParameter<edm::InputTag>("src");
+  seedToken = consumes<edm::View<TrajectorySeed> >(seedLabel);
+
+  edm::InputTag recHitLabel = conf.getParameter<edm::InputTag>("recHits");
+  recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(recHitLabel);
+  
+  propagatorLabel = conf.getParameter<std::string>("propagator");
 }
   
-// Virtual destructor needed.
-TrackCandidateProducer::~TrackCandidateProducer() {
-
-  if(thePropagator) delete thePropagator;
-} 
- 
-void 
-TrackCandidateProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
-
-  //services
-  edm::ESHandle<MagneticField>          magField;
-  edm::ESHandle<TrackerGeometry>        geometry;
-
-  es.get<IdealMagneticFieldRecord>().get(magField);
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-
-  theMagField = &(*magField);
-  theGeometry = &(*geometry);
-
-  thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
-}
-  
-  // Functions that get called by framework every event
 void 
 TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
 
+  // get services
+  edm::ESHandle<MagneticField>          magneticField;
+  es.get<IdealMagneticFieldRecord>().get(magneticField);
+
+  edm::ESHandle<TrackerGeometry>        trackerGeometry;
+  es.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+
+  edm::ESHandle<TrackerTopology>        trackerTopology;
+  es.get<TrackerTopologyRcd>().get(trackerTopology);
+
+  edm::ESHandle<Propagator>             propagator;
+  es.get<TrackingComponentsRecord>().get(propagatorLabel,propagator);
+    
+  // get products
+  edm::Handle<edm::View<TrajectorySeed> > seeds;
+  e.getByToken(seedToken,seeds);
+
+  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> recHits;
+  e.getByToken(recHitToken, recHits);
+
+  edm::Handle<edm::SimVertexContainer> simVertices;
+  e.getByToken(simVertexToken,simVertices);
+
+  edm::Handle<edm::SimTrackContainer> simTracks;
+  e.getByToken(simTrackToken,simTracks);
+  
   // Useful typedef's to avoid retyping
   typedef std::pair<reco::TrackRef,edm::Ref<std::vector<Trajectory> > > TrackPair;
 
   // The produced objects
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
-  
-  // Get the seeds
-  edm::Handle<edm::View<TrajectorySeed> > theSeeds;
-  e.getByToken(seedToken,theSeeds);
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
-
-
-  // No seed -> output an empty track collection
-  if(theSeeds->size() == 0) {
-    e.put(output);
-    return;
-  }
-
-  // Get the GS RecHits
-  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-  e.getByToken(recHitToken, theGSRecHits);
 
   //get other general things
-  const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
- 
-  // SimTracks and SimVertices
-  edm::Handle<edm::SimVertexContainer> theSimVtx;
-  e.getByToken(simVertexToken,theSimVtx);
-  edm::Handle<edm::SimTrackContainer> theSTC;
-  e.getByToken(simTrackToken,theSTC);
-
-  const edm::SimTrackContainer* theSimTracks = &(*theSTC);
-  LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
-     
+  const std::vector<unsigned> simTrackIds = recHits->ids();
+      
   // Loop over the seeds
   int currentTrackId = -1;
  
-#ifdef FAMOS_DEBUG
-  std::cout << "Input seed Producer : " << seedProducer << std::endl;
-  std::cout << "Number of seeds : " << theSeeds->size() << std::endl;
-#endif
-  unsigned seed_size = theSeeds->size(); 
+  unsigned seed_size = seeds->size(); 
   for (unsigned seednr = 0; seednr < seed_size; ++seednr){
     
     LogDebug("FastTracking")<<"looking at seed #:"<<seednr;
 
     // The seed
-    const BasicTrajectorySeed* aSeed = &((*theSeeds)[seednr]);
+    const BasicTrajectorySeed* aSeed = &((*seeds)[seednr]);
 
     std::vector<int> simTrackIds;
     std::map<int,TrajectoryStateOnSurface> seedStates;
     std::map<int,TrajectoryStateOnSurface> simtkStates;
 
     TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
-    if (theSeeds->at(seednr).nHits()==0){
+    if (seeds->at(seednr).nHits()==0){
       //new stuff for no hits on seed
 
       LogDebug("FastTracking")<<" seed with no hits to be considered.";
 
-      PTrajectoryStateOnDet ptod =theSeeds->at(seednr).startingState();
+      PTrajectoryStateOnDet ptod =seeds->at(seednr).startingState();
       DetId id(ptod.detId());
-      const GeomDet * g = theGeometry->idToDet(id);
+      const GeomDet * g = trackerGeometry->idToDet(id);
       const Surface * surface=&g->surface();
       
-      TrajectoryStateOnSurface seedState(trajectoryStateTransform::transientState(ptod,surface,theMagField));
+      TrajectoryStateOnSurface seedState(trajectoryStateTransform::transientState(ptod,surface,magneticField.product()));
       
-      edm::ESHandle<Propagator> propagator;
-      es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",propagator);
+      edm::ESHandle<Propagator> _propagator;
+      es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",_propagator);
       
       double minimunEst=1000000;
-      LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
-      for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
+      LogDebug("FastTracking")<<"looking at: "<< simTrackIds.size()<<" simtracks.";
+      for ( unsigned tkId=0;  tkId != simTrackIds.size(); ++tkId ) {
 	
-	const SimTrack & simtrack = (*theSimTracks)[theSimTrackIds[tkId]];
+	const SimTrack & simtrack =simTracks->at(simTrackIds[tkId]);
 
 	GlobalPoint position(simtrack.trackerSurfacePosition().x(),
 			     simtrack.trackerSurfacePosition().y(),
@@ -220,10 +189,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	GlobalTrajectoryParameters glb_parameters(position,
 						  momentum,
 						  charge,
-						  theMagField);
+						  magneticField.product());
 	FreeTrajectoryState simtrack_trackerstate(glb_parameters);
 	
-	TrajectoryStateOnSurface simtrack_comparestate = propagator->propagate(simtrack_trackerstate,*surface);
+	TrajectoryStateOnSurface simtrack_comparestate = _propagator->propagate(simtrack_trackerstate,*surface);
 
 	  
 	if (!simtrack_comparestate.isValid()){
@@ -250,7 +219,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	if (est<minimunEst)	  minimunEst=est;
 	if (est<estimatorCut_){
-	  simTrackIds.push_back(theSimTrackIds[tkId]);
+	  simTrackIds.push_back(simTrackIds[tkId]);
 	  //making a state with exactly the sim track parameters
 	  //the initial errors are set to unity just for kicks
 	  //	  AlgebraicSymMatrix C(5,1);// C*=50;
@@ -258,7 +227,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  AlgebraicSymMatrix55 C = seedState.curvilinearError().matrix();
 	  C *= 0.0000001;
 
-	  seedStates[theSimTrackIds[tkId]] = TrajectoryStateOnSurface(simtrack_comparestate.globalParameters(),
+	  seedStates[simTrackIds[tkId]] = TrajectoryStateOnSurface(simtrack_comparestate.globalParameters(),
 								      CurvilinearTrajectoryError(C),
 								      seedState.surface());
 	  LogDebug("FastTracking")<<"the compatibility estimator is: "<<est<<" for track id: "<<simTrackIds.back();
@@ -271,7 +240,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // Find the first hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
       const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
-      theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,theGeometry,tTopo);
+      theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,trackerGeometry.product(),trackerTopology.product());
       // The SimTrack id associated to that recHit
       simTrackIds.push_back( theFirstSeedingRecHit->simtrackId() );
     }
@@ -294,7 +263,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	LogDebug("FastTracking")<<"Track " << simTrackId << " is considered to return a track candidate" ;
 
 	// Get all the rechits associated to this track
-	SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
+	SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = recHits->get(simTrackId);
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
@@ -314,14 +283,14 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  
 	  // Get current and previous rechits
 	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
-	  theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
+	  theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),trackerGeometry.product(),trackerTopology.product());
 	  
 	  //>>>>>>>>>BACKBUILDING CHANGE: DO NOT STAT FROM THE FIRST HIT OF THE SEED
 
 	  // NOTE: checking the direction --> specific for OIHit only
 	  //	  if( aSeed->direction()!=oppositeToMomentum ) { 
 	  //  // Check that the first rechit is indeed the first seeding hit
-	  //  if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
+	  //  if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && seeds->at(seednr).nHits()!=0 ) continue;
 	  // }
 	  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -413,20 +382,20 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
  
     } else {
       //create the initial state from the SimTrack
-      int vertexIndex = (*theSimTracks)[currentTrackId].vertIndex();
+      int vertexIndex = (*simTracks)[currentTrackId].vertIndex();
       //   a) origin vertex
-      GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
-			    (*theSimVtx)[vertexIndex].position().y(),
-			    (*theSimVtx)[vertexIndex].position().z());
+      GlobalPoint  position(simVertices->at(vertexIndex).position().x(),
+			    simVertices->at(vertexIndex).position().y(),
+			    simVertices->at(vertexIndex).position().z());
       
       //   b) initial momentum
-      GlobalVector momentum( (*theSimTracks)[currentTrackId].momentum().x() , 
-			     (*theSimTracks)[currentTrackId].momentum().y() , 
-			     (*theSimTracks)[currentTrackId].momentum().z() );
+      GlobalVector momentum( simTracks->at(currentTrackId).momentum().x() , 
+			     simTracks->at(currentTrackId).momentum().y() , 
+			     simTracks->at(currentTrackId).momentum().z() );
       //   c) electric charge
-      float        charge   = (*theSimTracks)[simTrackId].charge();
+      float        charge   = (*simTracks)[simTrackId].charge();
       //  -> inital parameters
-      GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
+      GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField.product());
  //  -> large initial errors
       AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();    
       CurvilinearTrajectoryError initialError(errorMatrix);
@@ -435,17 +404,17 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: FTS momentum " << initialFTS.momentum() << std::endl;
 #endif
-      const GeomDet* initialLayer = theGeometry->idToDet(recHits.front().geographicalId());
+      const GeomDet* initialLayer = trackerGeometry->idToDet(recHits.front().geographicalId());
       //this is wrong because the FTS is defined at vertex, and it need to be properly propagated to the first rechit
       //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
-       const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
+       const TrajectoryStateOnSurface initialTSOS = propagator->propagate(initialFTS,initialLayer->surface()) ;
        if (!initialTSOS.isValid()) continue; 
        
 
        PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
     }
     
-    TrackCandidate newTrackCandidate(recHits,*aSeed,PTSOD,edm::RefToBase<TrajectorySeed>(theSeeds,seednr));
+    TrackCandidate newTrackCandidate(recHits,*aSeed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr));
 
     output->push_back(newTrackCandidate);
     

@@ -39,23 +39,13 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   
   explicit TrackCandidateProducer(const edm::ParameterSet& conf);
   
-  virtual ~TrackCandidateProducer();
-  
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
+  virtual ~TrackCandidateProducer(){;}
   
   virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
   
  private:
 
   void addSplitHits(const TrajectorySeedHitCandidate&, std::vector<TrajectorySeedHitCandidate>&); 
-  const TrackerGeometry*  theGeometry;
-  const MagneticField*  theMagField;
-  PropagatorWithMaterial* thePropagator;
-
-
-  edm::InputTag seedProducer;
-  edm::InputTag hitProducer;
-  std::vector<edm::InputTag> trackProducers;
   
   unsigned int minNumberOfCrossedLayers;
   unsigned int maxNumberOfCrossedLayers;
@@ -67,11 +57,13 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   edm::InputTag simTracks_;
   double estimatorCut_;
 
-  // tokens
+  // tokens & labels
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
   edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
+  std::string propagatorLabel;
+  
 };
 
 #endif
