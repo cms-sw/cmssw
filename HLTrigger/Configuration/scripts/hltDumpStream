@@ -15,7 +15,14 @@ else:
   config = open(configname)
 exec config in globals(), hlt.__dict__
 config.close()
-process = hlt.process
+
+if 'process' in hlt.__dict__:
+  process = hlt.process
+elif 'fragment' in hlt.__dict__:
+  process = hlt.fragment
+else:
+  sys.stderr.write("Error: the input is not a valid HLT configuration")
+  sys.exit(1)
 
 # read global prescale service
 prescale = dict()
