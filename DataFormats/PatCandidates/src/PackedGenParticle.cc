@@ -20,7 +20,8 @@ void pat::PackedGenParticle::unpack() const {
     float pz = std::tanh(y)*std::sqrt((m*m+pt*pt)/(1.-std::tanh(y)*std::tanh(y)));
     float eta = std::asinh(pz/pt);
     double shift = (pt<1. ? 0.1*pt : 0.1/pt); // shift particle phi to break degeneracies in angular separations
-    double phi = int16_t(packedPhi_)*3.2f/std::numeric_limits<int16_t>::max() + shift*3.2/std::numeric_limits<int16_t>::max();
+    double sign = ( ( int(pt*10) % 2 == 0 ) ? 1 : -1 ); // introduce a pseudo-random sign of the shift
+    double phi = int16_t(packedPhi_)*3.2f/std::numeric_limits<int16_t>::max() + sign*shift*3.2/std::numeric_limits<int16_t>::max();
     p4_ = PolarLorentzVector(pt,eta,phi,m);
     p4c_ = p4_;
     unpacked_ = true;
