@@ -176,8 +176,11 @@ namespace l1t {
 
          amc13::Packet packet;
          if (!packet.parse(
+                  (const uint64_t*) data,
                   (const uint64_t*) (data + slinkHeaderSize_),
-                  (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8)) {
+                  (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
+                  header.lvl1ID(),
+                  header.bxID())) {
             LogError("L1T")
                << "Could not extract AMC13 Packet.";
             return;
