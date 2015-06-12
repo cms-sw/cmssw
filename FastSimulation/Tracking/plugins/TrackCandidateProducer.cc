@@ -40,12 +40,6 @@
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-
-//
-
-//for debug only 
-//#define FAMOS_DEBUG
-
 TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
 {  
   // products
