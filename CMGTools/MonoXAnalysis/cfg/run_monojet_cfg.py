@@ -190,19 +190,20 @@ elif test == 'synch-74X': # sync
     monoJetSkim.metCut = 0  
     what = getHeppyOption("sample")
     if what == "ADD":
-        selectedComponents = [ ADD_MJ ]
+        comp = ADD_MJ
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValADDMonoJet_d3MD3_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/80CF5456-B9EC-E411-93DA-002618FDA248.root' ]
+        selectedComponents = [ comp ]
     elif what == "TTLep":
-        selectedComponents = [ TTLep ]
+        comp = TTLep
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
+        selectedComponents = [ comp ]
     else:
         selectedComponents = RelVals741
     jetAna.recalibrateJets = False 
     jetAna.smearJets       = False 
-    if not getHeppyOption("all"):
-        for comp in selectedComponents:
-            comp.files = comp.files[:1]
-            comp.splitFactor = 1
-            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
-    #    comp.files = [ 'root://eoscms//eos/cms/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root' ]
+    for comp in selectedComponents:
+        comp.splitFactor = 1
+        comp.fineSplitFactor = 10
 elif test == 'SR':
     selectedComponents = backgroundSamples + signalSamples
     #selectedComponents = backgroundSamples
