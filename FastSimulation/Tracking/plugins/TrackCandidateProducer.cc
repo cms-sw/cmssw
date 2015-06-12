@@ -150,100 +150,13 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     std::map<int,TrajectoryStateOnSurface> simtkStates;
 
     TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
-    if (seeds->at(seednr).nHits()==0){
-      //new stuff for no hits on seed
-
-      LogDebug("FastTracking")<<" seed with no hits to be considered.";
-
-      PTrajectoryStateOnDet ptod =seeds->at(seednr).startingState();
-      DetId id(ptod.detId());
-      const GeomDet * g = trackerGeometry->idToDet(id);
-      const Surface * surface=&g->surface();
-      
-      TrajectoryStateOnSurface seedState(trajectoryStateTransform::transientState(ptod,surface,magneticField.product()));
-      
-      edm::ESHandle<Propagator> _propagator;
-      es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",_propagator);
-      
-      double minimunEst=1000000;
-      LogDebug("FastTracking")<<"looking at: "<< simTrackIds.size()<<" simtracks.";
-      for ( unsigned tkId=0;  tkId != simTrackIds.size(); ++tkId ) {
-	
-	const SimTrack & simtrack =simTracks->at(simTrackIds[tkId]);
-
-	GlobalPoint position(simtrack.trackerSurfacePosition().x(),
-			     simtrack.trackerSurfacePosition().y(),
-			     simtrack.trackerSurfacePosition().z());
-	
-	GlobalVector momentum(simtrack.trackerSurfaceMomentum().x(),
-			      simtrack.trackerSurfaceMomentum().y(),
-			      simtrack.trackerSurfaceMomentum().z());
-
-	if (position.basicVector().dot( momentum.basicVector() ) * seedState.globalPosition().basicVector().dot(seedState.globalMomentum().basicVector()) <0. ){
-	  LogDebug("FastTracking")<<"not on the same direction.";
-	  continue;
-	}
-
-	//no charge mis-identification ... FIXME
-	int charge = (int) simtrack.charge();
-	GlobalTrajectoryParameters glb_parameters(position,
-						  momentum,
-						  charge,
-						  magneticField.product());
-	FreeTrajectoryState simtrack_trackerstate(glb_parameters);
-	
-	TrajectoryStateOnSurface simtrack_comparestate = _propagator->propagate(simtrack_trackerstate,*surface);
-
-	  
-	if (!simtrack_comparestate.isValid()){
-	  LogDebug("FastTracking")<<" ok this is a state-based seed. simtrack state does not propagate to the seed surface. skipping.";
-	  continue;}
-	
-	if (simtrack_comparestate.globalPosition().basicVector().dot(simtrack_comparestate.globalMomentum().basicVector()) * seedState.globalPosition().basicVector().dot(seedState.globalMomentum().basicVector()) <0. ){
-	  LogDebug("FastTracking")<<"not on the same direction.";
-	  continue;
-	}
-	
-	AlgebraicVector5 v(seedState.localParameters().vector() - simtrack_comparestate.localParameters().vector());
-	AlgebraicSymMatrix55 m(seedState.localError().matrix());
-	bool ierr = !m.Invert();
-	if ( ierr ){
-	  edm::LogWarning("FastTracking") <<" Candidate Producer cannot invert the error matrix! - Skipping...";
-	  continue;
-	}
-	double est = ROOT::Math::Similarity(v,m);
-      	LogDebug("FastTracking")<<"comparing two state on the seed surface:\n"
-					  <<"seed: "<<seedState
-					  <<"sim: "<<simtrack_comparestate
-					  <<"\n estimator is: "<<est;
-
-	if (est<minimunEst)	  minimunEst=est;
-	if (est<estimatorCut_){
-	  simTrackIds.push_back(simTrackIds[tkId]);
-	  //making a state with exactly the sim track parameters
-	  //the initial errors are set to unity just for kicks
-	  //	  AlgebraicSymMatrix C(5,1);// C*=50;
-	  //new attempt!!!!
-	  AlgebraicSymMatrix55 C = seedState.curvilinearError().matrix();
-	  C *= 0.0000001;
-
-	  seedStates[simTrackIds[tkId]] = TrajectoryStateOnSurface(simtrack_comparestate.globalParameters(),
-								      CurvilinearTrajectoryError(C),
-								      seedState.surface());
-	  LogDebug("FastTracking")<<"the compatibility estimator is: "<<est<<" for track id: "<<simTrackIds.back();
-	}
-      }//SimTrack loop
-      if (simTrackIds.size()==0) LogDebug("FastTracking")<<"could not find any simtrack within errors, closest was at: "<<minimunEst;
-    }//seed has 0 hit.
-    else{
-      //same old stuff
-      // Find the first hit of the Seed
-      TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-      const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
-      theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,trackerGeometry.product(),trackerTopology.product());
-      // The SimTrack id associated to that recHit
-      simTrackIds.push_back( theFirstSeedingRecHit->simtrackId() );
-    }
+    //same old stuff
+    // Find the first hit of the Seed
+    TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
+    const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+    theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,trackerGeometry.product(),trackerTopology.product());
+    // The SimTrack id associated to that recHit
+    simTrackIds.push_back( theFirstSeedingRecHit->simtrackId() );
 
     //from then on, only the simtrack IDs are usefull.
     //now loop over all possible trackid for this seed.
