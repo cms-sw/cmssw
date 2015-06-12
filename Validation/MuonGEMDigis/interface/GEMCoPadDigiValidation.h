@@ -23,6 +23,11 @@ public:
   MonitorElement* theCSCCoPad_zr[2][3];
 	std::map< UInt_t , MonitorElement* > theCSCCoPad_xy_ch;
 
+
+  // Simple plots
+  std::map< UInt_t , MonitorElement* > theCoPad_dcEta;
+  std::map< UInt_t , MonitorElement* > theCoPad_simple_zr;
+
 };
 
 #endif
