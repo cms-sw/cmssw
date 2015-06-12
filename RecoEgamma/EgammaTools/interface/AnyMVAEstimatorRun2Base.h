@@ -1,14 +1,16 @@
 #ifndef RecoEgamma_EgammaTools_AnyMVAEstimatorRun2Base_H
 #define RecoEgamma_EgammaTools_AnyMVAEstimatorRun2Base_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 class AnyMVAEstimatorRun2Base {
 
  public:
   // Constructor, destructor
-  AnyMVAEstimatorRun2Base(){};
-  ~AnyMVAEstimatorRun2Base(){};
+  AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf){};
+  virtual ~AnyMVAEstimatorRun2Base(){};
 
   // Functions that must be provided in derived classes
   // These function should work on electrons or photons
@@ -28,5 +30,9 @@ class AnyMVAEstimatorRun2Base {
  
 };
 
+// define the factory for this base class
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< AnyMVAEstimatorRun2Base* (const edm::ParameterSet&) > 
+		  AnyMVAEstimatorRun2Factory;
 
 #endif
