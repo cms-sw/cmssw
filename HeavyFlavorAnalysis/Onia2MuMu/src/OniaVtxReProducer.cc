@@ -1,14 +1,13 @@
-#include "HeavyFlavorAnalysis/Onia2MuMu/interface/VertexReProducer.h"
+#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-///#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) 
+OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) 
 {
     const edm::Provenance *prov = handle.provenance();
     if (prov == 0) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
@@ -41,14 +40,14 @@ VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &ha
         }
     }
     if (!foundTracks || !foundBeamSpot) {
-        edm::LogWarning("VertexReProducer_MissingParentage") << 
+        edm::LogWarning("OniaVtxReProducer_MissingParentage") << 
             "Can't find parentage info for vertex collection inputs: " << 
 	    (foundTracks ? "" : "tracks ") << (foundBeamSpot ? "" : "beamSpot") << "\n";
     }
 }
 
 void
-VertexReProducer::configure(const edm::ParameterSet &iConfig) 
+OniaVtxReProducer::configure(const edm::ParameterSet &iConfig) 
 {
     config_ = iConfig;
     tracksTag_   = iConfig.getParameter<edm::InputTag>("TrackLabel");
@@ -57,7 +56,7 @@ VertexReProducer::configure(const edm::ParameterSet &iConfig)
 }
 
 std::vector<TransientVertex> 
-VertexReProducer::makeVertices(const reco::TrackCollection &tracks, 
+OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks, 
                                const reco::BeamSpot &bs, 
                                const edm::EventSetup &iSetup) const 
 {

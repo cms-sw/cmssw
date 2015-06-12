@@ -1,5 +1,5 @@
-#ifndef HeavyFlavorAnalysis_Onia2MuMu_interface_VertexReProducer_h
-#define HeavyFlavorAnalysis_Onia2MuMu_interface_VertexReProducer_h
+#ifndef HeavyFlavorAnalysis_Onia2MuMu_interface_OniaVtxReProducer_h
+#define HeavyFlavorAnalysis_Onia2MuMu_interface_OniaVtxReProducer_h
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -12,12 +12,12 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
 
-class VertexReProducer {
+class OniaVtxReProducer {
     public:
         /// This is the real constructor to be used
-        VertexReProducer(const edm::Handle<reco::VertexCollection> &configFromOriginalVertexCollection, const edm::Event &iEvent ) ;
+        OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &configFromOriginalVertexCollection, const edm::Event &iEvent ) ;
         /// This is only for testing
-        VertexReProducer(const edm::ParameterSet &configByHand) { configure(configByHand); } 
+        OniaVtxReProducer(const edm::ParameterSet &configByHand) { configure(configByHand); } 
 
         /// Make the vertices
         std::vector<TransientVertex> makeVertices(const reco::TrackCollection &tracks, const reco::BeamSpot &bs, const edm::EventSetup &iSetup) const;

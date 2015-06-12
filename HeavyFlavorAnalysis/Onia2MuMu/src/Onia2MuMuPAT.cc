@@ -18,7 +18,7 @@
 #include "TMath.h"
 #include "Math/VectorUtil.h"
 #include "TVector3.h"
-#include "HeavyFlavorAnalysis/Onia2MuMu/interface/VertexReProducer.h"
+#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
@@ -180,7 +180,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  muonLess.reserve(thePrimaryV.tracksSize());
 	  if( addMuonlessPrimaryVertex_  && thePrimaryV.tracksSize()>2) {
 	    // Primary vertex matched to the dimuon, now refit it removing the two muons
-	    VertexReProducer revertex(priVtxs, iEvent);
+	    OniaVtxReProducer revertex(priVtxs, iEvent);
 	    Handle<TrackCollection> pvtracks;
 	    iEvent.getByLabel(revertex.inputTracks(),   pvtracks);
  	    if( !pvtracks.isValid()) { std::cout << "pvtracks NOT valid " << std::endl; }
