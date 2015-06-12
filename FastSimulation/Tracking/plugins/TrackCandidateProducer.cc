@@ -130,9 +130,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // The produced objects
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
-
-  //get other general things
-  const std::vector<unsigned> simTrackIds = recHits->ids();
       
   // Loop over the seeds
   int currentTrackId = -1;
@@ -145,10 +142,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // The seed
     const BasicTrajectorySeed* aSeed = &((*seeds)[seednr]);
 
-    std::vector<int> simTrackIds;
-    std::map<int,TrajectoryStateOnSurface> seedStates;
-    std::map<int,TrajectoryStateOnSurface> simtkStates;
-
     TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
     //same old stuff
     // Find the first hit of the Seed
@@ -156,13 +149,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
     theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,trackerGeometry.product(),trackerTopology.product());
     // The SimTrack id associated to that recHit
-    simTrackIds.push_back( theFirstSeedingRecHit->simtrackId() );
+    int simTrackId =  theFirstSeedingRecHit->simtrackId();
 
     //from then on, only the simtrack IDs are usefull.
     //now loop over all possible trackid for this seed.
     //an actual seed can be shared by two tracks in dense envirronement, and also for hit-less seeds.
-    for (unsigned int iToMake=0;iToMake!=simTrackIds.size();++iToMake){
-      int simTrackId = simTrackIds[iToMake];
       
       // Don't consider seeds belonging to a track already considered 
       // (Equivalent to seed cleaning)
@@ -287,13 +278,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //PTrajectoryStateOnDet PTSOD = aSeed->startingState();
     PTrajectoryStateOnDet PTSOD;
 
-    if (aSeed->nHits()==0){
-      //stabilize the fit with the true simtrack state
-      //in case of zero hits
-      
-      PTSOD = trajectoryStateTransform::persistentState(seedStates[simTrackId],aSeed->startingState().detId());
- 
-    } else {
       //create the initial state from the SimTrack
       int vertexIndex = (*simTracks)[currentTrackId].vertIndex();
       //   a) origin vertex
@@ -325,13 +309,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
        
 
        PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
-    }
     
     TrackCandidate newTrackCandidate(recHits,*aSeed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr));
 
     output->push_back(newTrackCandidate);
     
-    }//loop over possible simtrack associated.
   }//loop over all possible seeds.
   
   // Save the track candidates in the event
