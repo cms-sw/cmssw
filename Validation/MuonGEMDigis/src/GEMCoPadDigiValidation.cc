@@ -123,7 +123,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     Short_t station = (Short_t) id.station();
     Short_t layer = (Short_t) id.layer();
     Short_t chamber = (Short_t) id.chamber();
-    //if ( station ==2 ) continue;  //Copad collection did not have (2 short) station.
+    if ( station ==2 ) station = 3; // For right geometry 
 
     GEMCoPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
@@ -165,8 +165,8 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       int layer_num = layer-1;
       int binX = (chamber-1)*2+layer_num;
       int binY = nroll;
+      if ( station== 3 ) station=2;
       int station_num = station-1;
-      //if ( station== 3 ) station=2;  for strip and pad.
 
       // Fill normal plots.
       TString histname_suffix = TString::Format("_r%d",region);
