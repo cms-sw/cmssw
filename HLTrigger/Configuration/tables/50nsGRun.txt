@@ -522,7 +522,7 @@ HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
-RatesMonitoring							# CMSHLT-344
+#RatesMonitoring						# CMSHLT-344, only in 'online', not in 'GRun'
 AOutput
 DQMOutput							# online DQMFileSaver
 DQMEventDisplayOutput
