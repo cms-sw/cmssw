@@ -130,7 +130,7 @@ DST_Physics_v*							# skim
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
-RatesMonitoring							# CMSHLT-344
+#RatesMonitoring						# CMSHLT-344, only in 'online'
 AOutput
 DQMOutput							# online DQMFileSaver
 DQMEventDisplayOutput
