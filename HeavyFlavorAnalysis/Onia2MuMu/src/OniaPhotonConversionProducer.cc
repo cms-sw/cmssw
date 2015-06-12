@@ -52,9 +52,10 @@ namespace reco {
   }
 }
 
-OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::ParameterSet& ps){
-  convCollection_          = ps.getParameter<edm::InputTag>("conversions");
-  thePVs_                  = ps.getParameter<edm::InputTag>("primaryVertexTag");
+OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::ParameterSet& ps) {
+  convCollectionToken_     = consumes<reco::ConversionCollection>(ps.getParameter<edm::InputTag>("conversions"));
+  thePVsToken_             = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("primaryVertexTag"));
+
   wantTkVtxCompatibility_  = ps.getParameter<bool>("wantTkVtxCompatibility");
   sigmaTkVtxComp_          = ps.getParameter<uint32_t>("sigmaTkVtxComp");
   wantCompatibleInnerHits_ = ps.getParameter<bool>("wantCompatibleInnerHits");
@@ -66,7 +67,8 @@ OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::Parameter
   _minDistanceOfApproachMinCut = ps.getParameter<double>("minDistanceOfApproachMinCut");
   _minDistanceOfApproachMaxCut = ps.getParameter<double>("minDistanceOfApproachMaxCut");
 
-  pfCandidateCollection_  = ps.getParameter<edm::InputTag>("pfcandidates");
+  pfCandidateCollectionToken_  = consumes<reco::PFCandidateCollection>(ps.getParameter<edm::InputTag>("pfcandidates"));
+
   pi0OnlineSwitch_        = ps.getParameter<bool>("pi0OnlineSwitch");
   pi0SmallWindow_         = ps.getParameter<std::vector<double> >("pi0SmallWindow");
   pi0LargeWindow_         = ps.getParameter<std::vector<double> >("pi0LargeWindow");
@@ -102,13 +104,13 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
   std::vector<int> flagCollection;   
 
   edm::Handle<reco::VertexCollection> priVtxs;
-  event.getByLabel(thePVs_, priVtxs);
+  event.getByToken(thePVsToken_, priVtxs);
     
   edm::Handle<reco::ConversionCollection> pConv;
-  event.getByLabel(convCollection_,pConv);
+  event.getByToken(convCollectionToken_,pConv);
 
   edm::Handle<reco::PFCandidateCollection> pfcandidates;
-  event.getByLabel(pfCandidateCollection_,pfcandidates);
+  event.getByToken(pfCandidateCollectionToken_,pfcandidates);
 
   const reco::PFCandidateCollection pfphotons = selectPFPhotons(*pfcandidates);  
 

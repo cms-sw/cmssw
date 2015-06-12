@@ -12,6 +12,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -49,10 +52,10 @@ class OniaPhotonConversionProducer : public edm::EDProducer {
   const reco::PFCandidateCollection selectPFPhotons(const reco::PFCandidateCollection&);
   bool CheckPi0( const reco::Conversion&, const reco::PFCandidateCollection&, bool &);
 
-  edm::InputTag convCollection_;
-  edm::InputTag pfPhotonCollection_;
-  edm::InputTag thePVs_;
-  edm::InputTag pfCandidateCollection_;
+  edm::EDGetTokenT<reco::ConversionCollection> convCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> thePVsToken_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateCollectionToken_;
+
   bool        wantTkVtxCompatibility_;
   uint32_t    sigmaTkVtxComp_;
   bool        wantCompatibleInnerHits_;
