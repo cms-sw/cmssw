@@ -11,7 +11,7 @@ globalMixedWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMateria
 
 # The sequence
 ctfTracking = cms.Sequence(globalMixedSeeds*globalMixedTrackCandidates*globalMixedWithMaterialTracks*ctfWithMaterialTracks)
-globalMixedTrackCandidates.SeedProducer = cms.InputTag("globalMixedSeeds")
+globalMixedTrackCandidates.src = cms.InputTag("globalMixedSeeds")
 globalMixedTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks']
 globalMixedWithMaterialTracks.src = 'globalMixedTrackCandidates'
 globalMixedWithMaterialTracks.TTRHBuilder = 'WithoutRefit'

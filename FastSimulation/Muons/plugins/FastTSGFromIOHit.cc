@@ -37,6 +37,8 @@ FastTSGFromIOHit::~FastTSGFromIOHit()
 
 void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, std::vector<TrajectorySeed> & result) {
   
+  std::cout << "hey, i'm here!" << std::endl;
+
   // Retrieve the Monte Carlo truth (SimTracks)
   edm::Handle<edm::SimTrackContainer> theSimTracks;
   getEvent()->getByLabel(theSimTrackCollectionLabel,theSimTracks);
@@ -57,7 +59,9 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
   // Cut on muons with low momenta
   if ( muRef->pt() < thePtCut 
        || muRef->innerMomentum().Rho() < thePtCut 
-       || muRef->innerMomentum().R() < 2.5 ) return;
+       || muRef->innerMomentum().R() < 2.5 ){
+    std::cout << "returning..." << std::endl;
+  }return;
   
   // Copy the collection of seeds (ahem, this is time consuming!)
   std::vector<TrajectorySeed> tkSeeds;
@@ -98,6 +102,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
   unsigned int is=0;
   unsigned int isMax=tkSeeds.size();
   for (;is!=isMax;++is){
+    std::cout << "!!! " << tkSeeds[is].nHits() << std::endl;
     result.push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
   } // End of tk seed loop
   
