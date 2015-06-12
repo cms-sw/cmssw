@@ -65,7 +65,7 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    process.packedGenParticles.inputVertices = cms.InputTag('offlinePrimaryVertices')
 
    # make photon candidate conversions for P-wave studies
-   process.load('HeavyFlavorAnalysis.PhotonConversion.PhotonConversionProducer_cfi')
+   process.load('HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi')
 
    # Pick branches you want to keep
    SlimmedEventContent = [
