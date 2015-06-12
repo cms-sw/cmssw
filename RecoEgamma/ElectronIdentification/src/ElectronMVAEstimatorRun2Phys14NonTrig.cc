@@ -5,9 +5,13 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig( std::vector<std::string> filenames){
+ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf):
+  AnyMVAEstimatorRun2Base(conf){
 
-  if( (int)(filenames.size()) != nCategories )
+  const std::vector <edm::FileInPath> weightFiles 
+    = conf.getParameter<std::vector<edm::FileInPath> >("weightFiles");
+
+  if( (int)(weightFiles.size()) != nCategories )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
 
@@ -21,7 +25,7 @@ ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig( st
     // std::unique_ptr<TMVA::Reader> thisReader( createSingleReader(i, filenames.at(i) ) ) ;    
     // _tmvaReaders.push_back( thisReader );
 
-    _tmvaReaders.push_back( std::unique_ptr<TMVA::Reader> ( createSingleReader(i, filenames.at(i) ) ) );
+    _tmvaReaders.push_back( std::unique_ptr<TMVA::Reader> ( createSingleReader(i, weightFiles[i] ) ) );
 
   }
 
@@ -126,7 +130,7 @@ isEndcapCategory(int category ){
 
 
 TMVA::Reader *ElectronMVAEstimatorRun2Phys14NonTrig::
-createSingleReader(int iCategory, std::string filename){
+createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
 
   //
   // Create the reader  
@@ -176,8 +180,7 @@ createSingleReader(int iCategory, std::string filename){
   //
   // Book the method and set up the weights file
   //
-  edm::FileInPath weightsFile( filename );
-  tmpTMVAReader->BookMVA(_MethodName , weightsFile.fullPath() );
+  tmpTMVAReader->BookMVA(_MethodName , weightFile.fullPath() );
 
   return tmpTMVAReader;
 }

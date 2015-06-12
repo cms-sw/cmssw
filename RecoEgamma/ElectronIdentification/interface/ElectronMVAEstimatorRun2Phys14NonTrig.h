@@ -62,14 +62,14 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   };
   
   // Constructor and destructor
-  ElectronMVAEstimatorRun2Phys14NonTrig( std::vector<std::string> filenames );
+  ElectronMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf);
   ~ElectronMVAEstimatorRun2Phys14NonTrig();
 
   // Calculation of the MVA value
   float mvaValue( const edm::Ptr<reco::Candidate>& particle);
  
   // Utility functions
-  TMVA::Reader *createSingleReader(int iCategory, std::string filename);
+  TMVA::Reader *createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
 
   inline int getNCategories(){return nCategories;};
   bool isEndcapCategory( int category );
@@ -91,5 +91,9 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   AllVariables _allMVAVars;
   
 };
+
+DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
+		  ElectronMVAEstimatorRun2Phys14NonTrig,
+		  "ElectronMVAEstimatorRun2Phys14NonTrig");
 
 #endif
