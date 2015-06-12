@@ -64,7 +64,8 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
 void pat::PackedCandidate::unpack() const {
     float pt = MiniFloatConverter::float16to32(packedPt_);
     double shift = (pt<1. ? 0.1*pt : 0.1/pt); // shift particle phi to break degeneracies in angular separations
-    double phi = int16_t(packedPhi_)*3.2f/std::numeric_limits<int16_t>::max() + shift*3.2/std::numeric_limits<int16_t>::max();
+    double sign = ( ( int(pt*10) % 2 == 0 ) ? 1 : -1 ); // introduce a pseudo-random sign of the shift
+    double phi = int16_t(packedPhi_)*3.2f/std::numeric_limits<int16_t>::max() + sign*shift*3.2/std::numeric_limits<int16_t>::max();
     p4_ = PolarLorentzVector(pt,
                              int16_t(packedEta_)*6.0f/std::numeric_limits<int16_t>::max(),
                              phi,
