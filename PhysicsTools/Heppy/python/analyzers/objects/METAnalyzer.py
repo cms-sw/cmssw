@@ -38,7 +38,7 @@ class METAnalyzer( Analyzer ):
         px,py = self.met.px()+deltaMet[0], self.met.py()+deltaMet[1]
         met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
-    def adduParaPerp(self, met, boson):
+    def adduParaPerp(self, met, boson, postfix):
 
         upara = 0
         uperp = 0
@@ -47,8 +47,8 @@ class METAnalyzer( Analyzer ):
         u1 = (uX*boson.px() + uY*boson.py())/boson.pt()
         u2 = (uX*boson.px() - uY*boson.py())/boson.pt()
 
-        met.upara = u1
-        met.uperp = u2
+        setattr(met, "upara"+postfix, u1)
+        setattr(met, "uperp"+postfix, u2)
 
     def makeTkMETs(self, event):
 
@@ -94,10 +94,10 @@ class METAnalyzer( Analyzer ):
         event.tkMetPVTight.sumEt = sum([x.pt() for x in chargedPVTight])
 
         if  hasattr(event,'zll_p4'):
-            self.adduParaPerp(event.tkMet, event.zll_p4)
-            self.adduParaPerp(event.tkMetPVchs, event.zll_p4)
-            self.adduParaPerp(event.tkMetPVLoose, event.zll_p4)
-            self.adduParaPerp(event.tkMetPVTight, event.zll_p4)
+            self.adduParaPerp(event.tkMet, event.zll_p4,"_zll")
+            self.adduParaPerp(event.tkMetPVchs, event.zll_p4,"_zll")
+            self.adduParaPerp(event.tkMetPVLoose, event.zll_p4,"_zll")
+            self.adduParaPerp(event.tkMetPVTight, event.zll_p4,"_zll")
 
     def makeGenTkMet(self, event):
         genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
@@ -188,8 +188,8 @@ class METAnalyzer( Analyzer ):
         self.met_sig = self.met.significance()
         self.met_sumet = self.met.sumEt()
         if  hasattr(event,'zll_p4'):
-            self.adduParaPerp(self.met,event.zll_p4)
-            self.adduParaPerp(self.met,event.zll_p4)
+            self.adduParaPerp(self.met,event.zll_p4,"_zll")
+            self.adduParaPerp(self.met,event.zll_p4,"_zll")
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
