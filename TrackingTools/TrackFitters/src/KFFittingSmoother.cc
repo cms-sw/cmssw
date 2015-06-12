@@ -262,16 +262,18 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
   while ( hasoutliers || has_low_pixel_prob ); // ggiurgiu@fnal.gov
 
   if ( smoothed.isValid() ) {
-    if ( noInvalidHitsBeginEnd )  {
+    if ( noInvalidHitsBeginEnd 
+	 && !smoothed.empty() //should we send a warning ?
+	 )  {
       // discard latest dummy measurements
-      if (!smoothed.lastMeasurement().recHitR().isValid() )
+      if (!smoothed.empty() && !smoothed.lastMeasurement().recHitR().isValid() )
 	LogTrace("TrackFitters") << "Last measurement is invalid";
 
-      while (!smoothed.lastMeasurement().recHitR().isValid() )
+      while (!smoothed.empty() && !smoothed.lastMeasurement().recHitR().isValid() )
 	smoothed.pop();
 
       //remove the invalid hits at the begin of the trajectory
-      if ( !smoothed.firstMeasurement().recHitR().isValid() ) {
+      if (!smoothed.empty() && !smoothed.firstMeasurement().recHitR().isValid() ) {
 	LogTrace("TrackFitters") << "First measurement is in`valid";
 	Trajectory tmpTraj(smoothed.seed(),smoothed.direction());
 	Trajectory::DataContainer  & meas = smoothed.measurements();
