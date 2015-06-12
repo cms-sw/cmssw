@@ -277,11 +277,7 @@ bool PhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversion& c
     
     std::stable_sort(idx[ik].begin(),idx[ik].end(),lt_);
   }
-  try {
   if (idx[0][0].second==idx[1][0].second || idx[0][1].second==idx[1][0].second || idx[0][0].second==idx[1][1].second) return true;
-  } catch ( ...) {
-    std::cout << "*** accesing beyond " << idx[0].size() << " " << idx[1].size() << std::endl;
-  }
   return false;
 }
 
