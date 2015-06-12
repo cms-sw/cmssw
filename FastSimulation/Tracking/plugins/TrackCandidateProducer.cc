@@ -122,7 +122,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     TrajectorySeedHitCandidate recHitCandidate;
     unsigned numberOfCrossedLayers = 0;      
     for ( ; recHitIter != recHitEnd; ++recHitIter) {
-	  
       recHitCandidate = TrajectorySeedHitCandidate(&(*recHitIter),trackerGeometry.product(),trackerTopology.product());
       if ( recHitCandidates.size() == 0 || !recHitCandidate.isOnTheSameLayer(recHitCandidates.back()) ) {
 	++numberOfCrossedLayers;
@@ -146,15 +145,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::OwnVector<TrackingRecHit> trackRecHits;
     for ( unsigned index = 0; index<recHitCandidates.size(); ++index ) {
       if(splitHits && recHitCandidates[index].matchedHit()->isMatched()){
-	const SiTrackerGSRecHit2D* mHit = recHitCandidates[index].matchedHit()->monoHit();
-	const SiTrackerGSRecHit2D* sHit = recHitCandidates[index].matchedHit()->stereoHit();
-	if( mHit->simhitId() < sHit->simhitId() ) {
-	  trackRecHits.push_back(mHit->clone());
-	  trackRecHits.push_back(sHit->clone());
-	} else {
-	  trackRecHits.push_back(sHit->clone());
-	  trackRecHits.push_back(mHit->clone());
-	}
+	trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
+	trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
       }
       else {
 	trackRecHits.push_back(recHitCandidates[index].hit()->clone());
