@@ -51,8 +51,8 @@ def configureVIDMVAEleID_V1( mvaWP ):
         cutFlow = cms.VPSet( 
             cms.PSet( cutName = cms.string("GsfEleMVACut"),
                       mvaCuts = cms.vdouble( mvaWP.getCutValues() ),
-                      mvaValueMapName = cms.string( mvaWP.mvaValueMapName ),
-                      mvaCategoriesMapName =cms.string( mvaWP.mvaCategoriesMapName ),
+                      mvaValueMapName = cms.InputTag( mvaWP.mvaValueMapName ),
+                      mvaCategoriesMapName =cms.InputTag( mvaWP.mvaCategoriesMapName ),
                       needsAdditionalProducts = cms.bool(True),
                       isIgnored = cms.bool(False)
                       )
