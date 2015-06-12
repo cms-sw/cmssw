@@ -1,7 +1,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
@@ -21,8 +20,6 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
    gsfElectronsCollection_ = consumes<edm::View<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("gsfElectronLabel"));
    recoPhotonsCollection_  = consumes<edm::View<reco::Photon> >     (ps.getParameter<edm::InputTag>("recoPhotonSrc"));
    recoMuonsCollection_    = consumes<edm::View<reco::Muon> >       (ps.getParameter<edm::InputTag>("recoMuonSrc"));
-   ebRecHitCollection_     = consumes<EcalRecHitCollection>         (ps.getParameter<edm::InputTag>("ebRecHitCollection"));
-   eeRecHitCollection_     = consumes<EcalRecHitCollection>         (ps.getParameter<edm::InputTag>("eeRecHitCollection"));
    vtxCollection_          = consumes<vector<reco::Vertex> >        (ps.getParameter<edm::InputTag>("VtxLabel"));
    recoPhotonsHiIso_ = consumes<edm::ValueMap<reco::HIPhotonIsolation> > (ps.getParameter<edm::InputTag>("recoPhotonHiIsolationMap"));
 
@@ -131,7 +128,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
 // tree_->Branch("phoEleVeto",            &phoEleVeto_);        // TODO: not available in reco::
    tree_->Branch("phoR9",                 &phoR9_);
    tree_->Branch("phoHoverE",             &phoHoverE_);
-// tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_);  // TODO: not available in reco::
+   tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_);  // TODO: not available in reco::
 // tree_->Branch("phoSigmaIEtaIPhi",      &phoSigmaIEtaIPhi_);  // TODO: not available in reco::
 // tree_->Branch("phoSigmaIPhiIPhi",      &phoSigmaIPhiIPhi_);  // TODO: not available in reco::
    tree_->Branch("phoE1x3",               &phoE1x3_);
@@ -292,7 +289,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 // phoEleVeto_           .clear();  // TODO: not available in reco::
    phoR9_                .clear();
    phoHoverE_            .clear();
-// phoSigmaIEtaIEta_     .clear();  // TODO: not available in reco::
+   phoSigmaIEtaIEta_     .clear();  // TODO: not available in reco::
 // phoSigmaIEtaIPhi_     .clear();  // TODO: not available in reco::
 // phoSigmaIPhiIPhi_     .clear();  // TODO: not available in reco::
    phoE1x3_              .clear();
@@ -562,9 +559,6 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
    edm::Handle<edm::View<reco::GsfElectron> > gsfElectronsHandle;
    e.getByToken(gsfElectronsCollection_, gsfElectronsHandle);
 
-   EcalClusterLazyTools       lazyTool     (e, es, ebRecHitCollection_, eeRecHitCollection_);
-   noZS::EcalClusterLazyTools lazyTool_noZS(e, es, ebRecHitCollection_, eeRecHitCollection_);
-
    // loop over electrons
    for (edm::View<reco::GsfElectron>::const_iterator ele = gsfElectronsHandle->begin(); ele != gsfElectronsHandle->end(); ++ele) {
       eleCharge_           .push_back(ele->charge());
@@ -584,13 +578,13 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       elePt_               .push_back(ele->pt());
       eleEta_              .push_back(ele->eta());
       elePhi_              .push_back(ele->phi());
-      eleSCEn_             .push_back(ele->superCluster()->energy());
-      eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
-      eleSCEta_            .push_back(ele->superCluster()->eta());
-      eleSCPhi_            .push_back(ele->superCluster()->phi());
-      eleSCRawEn_          .push_back(ele->superCluster()->rawEnergy());
-      eleSCEtaWidth_       .push_back(ele->superCluster()->etaWidth());
-      eleSCPhiWidth_       .push_back(ele->superCluster()->phiWidth());
+      // eleSCEn_             .push_back(ele->superCluster()->energy());
+      // eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
+      // eleSCEta_            .push_back(ele->superCluster()->eta());
+      // eleSCPhi_            .push_back(ele->superCluster()->phi());
+      // eleSCRawEn_          .push_back(ele->superCluster()->rawEnergy());
+      // eleSCEtaWidth_       .push_back(ele->superCluster()->etaWidth());
+      // eleSCPhiWidth_       .push_back(ele->superCluster()->phiWidth());
       eleHoverE_           .push_back(ele->hcalOverEcalBc());
       eleEoverP_           .push_back(ele->eSuperClusterOverP());
       eleEoverPInv_        .push_back(fabs(1./ele->ecalEnergy()-1./ele->trackMomentumAtVtx().R()));
@@ -601,11 +595,12 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       eleSigmaIPhiIPhi_    .push_back(ele->sigmaIphiIphi());
 //    eleConvVeto_         .push_back((int)ele->passConversionVeto()); // TODO: not available in reco::
       eleMissHits_         .push_back(ele->gsfTrack()->numberOfLostHits());
-      eleESEffSigmaRR_     .push_back(lazyTool.eseffsirir(*(ele->superCluster())));
+//      eleESEffSigmaRR_     .push_back(lazyTool.eseffsirir(*(ele->superCluster())));
 
       // full 5x5
-      vector<float> vCovEle = lazyTool_noZS.localCovariances(*(ele->superCluster()->seed()));
-      eleSigmaIEtaIEta_2012_.push_back(isnan(vCovEle[0]) ? 0. : sqrt(vCovEle[0]));
+      // vector<float> vCovEle = lazyTool_noZS.localCovariances(*(ele->superCluster()->seed()));
+      // eleSigmaIEtaIEta_2012_.push_back(isnan(vCovEle[0]) ? 0. : sqrt(vCovEle[0]));
+      eleSigmaIEtaIEta_2012_.push_back(ele->full5x5_sigmaIetaIeta() );
 
       // isolation
       reco::GsfElectron::PflowIsolationVariables pfIso = ele->pfIsolationVariables();
@@ -615,19 +610,19 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       elePFPUIso_          .push_back(pfIso.sumPUPt);
 
       // seed
-      eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
-      eleBC1Eta_           .push_back(ele->superCluster()->seed()->eta());
+      // eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
+      // eleBC1Eta_           .push_back(ele->superCluster()->seed()->eta());
 
       // parameters of the very first PFCluster
-      reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
-      if (bc != ele->superCluster()->clustersEnd()) {
-         eleBC2E_  .push_back((*bc)->energy());
-         eleBC2Eta_.push_back((*bc)->eta());
-      }
-      else {
-         eleBC2E_  .push_back(-99);
-         eleBC2Eta_.push_back(-99);
-      }
+      // reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
+      // if (bc != ele->superCluster()->clustersEnd()) {
+      //    eleBC2E_  .push_back((*bc)->energy());
+      //    eleBC2Eta_.push_back((*bc)->eta());
+      // }
+      // else {
+      //    eleBC2E_  .push_back(-99);
+      //    eleBC2Eta_.push_back(-99);
+      // }
 
       nEle_++;
 
@@ -644,63 +639,61 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es)
    e.getByToken(recoPhotonsHiIso_, recoPhotonHiIsoHandle);
    const edm::ValueMap<reco::HIPhotonIsolation> & isoMap = * recoPhotonHiIsoHandle;
 
-   EcalClusterLazyTools       lazyTool     (e, es, ebRecHitCollection_, eeRecHitCollection_);
-   noZS::EcalClusterLazyTools lazyTool_noZS(e, es, ebRecHitCollection_, eeRecHitCollection_);
-
    // loop over photons
    for (edm::View<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
       phoE_             .push_back(pho->energy());
       phoEt_            .push_back(pho->et());
       phoEta_           .push_back(pho->eta());
       phoPhi_           .push_back(pho->phi());
-      phoSCE_           .push_back(pho->superCluster()->energy());
-      phoSCRawE_        .push_back(pho->superCluster()->rawEnergy());
-      phoESEn_          .push_back(pho->superCluster()->preshowerEnergy());
-      phoSCEta_         .push_back(pho->superCluster()->eta());
-      phoSCPhi_         .push_back(pho->superCluster()->phi());
-      phoSCEtaWidth_    .push_back(pho->superCluster()->etaWidth());
-      phoSCPhiWidth_    .push_back(pho->superCluster()->phiWidth());
-      phoSCBrem_        .push_back(pho->superCluster()->phiWidth()/pho->superCluster()->etaWidth());
+      // phoSCE_           .push_back(pho->superCluster()->energy());
+      // phoSCRawE_        .push_back(pho->superCluster()->rawEnergy());
+      // phoESEn_          .push_back(pho->superCluster()->preshowerEnergy());
+      // phoSCEta_         .push_back(pho->superCluster()->eta());
+      // phoSCPhi_         .push_back(pho->superCluster()->phi());
+      // phoSCEtaWidth_    .push_back(pho->superCluster()->etaWidth());
+      // phoSCPhiWidth_    .push_back(pho->superCluster()->phiWidth());
+      // phoSCBrem_        .push_back(pho->superCluster()->phiWidth()/pho->superCluster()->etaWidth());
       phohasPixelSeed_  .push_back((int)pho->hasPixelSeed());
 //    phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
-      phoR9_            .push_back(pho->r9());
+      //phoR9_            .push_back(pho->r9());
       phoHoverE_        .push_back(pho->hadTowOverEm());
 
-//    phoSigmaIEtaIEta_ .push_back(pho->see());   // TODO: not available in reco::
-//    phoSigmaIEtaIPhi_ .push_back(pho->sep());   // TODO: not available in reco::
-//    phoSigmaIPhiIPhi_ .push_back(pho->spp());   // TODO: not available in reco::
+      phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
+      //phoSigmaIEtaIPhi_ .push_back(pho->sep());   // TODO: not available in reco::
+      //phoSigmaIPhiIPhi_ .push_back(pho->spp());   // TODO: not available in reco::
 
-      phoE1x3_          .push_back(lazyTool.e1x3(      *(pho->superCluster()->seed())));
-      phoE2x2_          .push_back(lazyTool.e2x2(      *(pho->superCluster()->seed())));
-      phoE2x5Max_       .push_back(lazyTool.e2x5Max(   *(pho->superCluster()->seed())));
-      phoE5x5_          .push_back(lazyTool.e5x5(      *(pho->superCluster()->seed())));
-      phoESEffSigmaRR_  .push_back(lazyTool.eseffsirir(*(pho->superCluster())));
+      // phoE1x3_          .push_back(lazyTool.e1x3(      *(pho->superCluster()->seed())));
+      // phoE2x2_          .push_back(lazyTool.e2x2(      *(pho->superCluster()->seed())));
+      // phoE2x5Max_       .push_back(lazyTool.e2x5Max(   *(pho->superCluster()->seed())));
+      // phoE5x5_          .push_back(lazyTool.e5x5(      *(pho->superCluster()->seed())));
+      // phoESEffSigmaRR_  .push_back(lazyTool.eseffsirir(*(pho->superCluster())));
 
       // full 5x5
-      vector<float> vCov = lazyTool_noZS.localCovariances(*(pho->superCluster()->seed()));
-      phoSigmaIEtaIEta_2012_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-      phoSigmaIEtaIPhi_2012_ .push_back(vCov[1]);
-      phoSigmaIPhiIPhi_2012_ .push_back(isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+      // vector<float> vCov = lazyTool_noZS.localCovariances(*(pho->superCluster()->seed()));
+      // phoSigmaIEtaIEta_2012_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+      // phoSigmaIEtaIPhi_2012_ .push_back(vCov[1]);
+      // phoSigmaIPhiIPhi_2012_ .push_back(isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+      phoSigmaIEtaIEta_2012_.push_back(pho->full5x5_sigmaIetaIeta() );
 
-      phoE1x3_2012_          .push_back(lazyTool_noZS.e1x3(   *(pho->superCluster()->seed())));
-      phoE2x2_2012_          .push_back(lazyTool_noZS.e2x2(   *(pho->superCluster()->seed())));
-      phoE2x5Max_2012_       .push_back(lazyTool_noZS.e2x5Max(*(pho->superCluster()->seed())));
-      phoE5x5_2012_          .push_back(lazyTool_noZS.e5x5(   *(pho->superCluster()->seed())));
+      // phoE1x3_2012_          .push_back(lazyTool_noZS.e1x3(   *(pho->superCluster()->seed())));
+      // phoE2x2_2012_          .push_back(lazyTool_noZS.e2x2(   *(pho->superCluster()->seed())));
+      // phoE2x5Max_2012_       .push_back(lazyTool_noZS.e2x5Max(*(pho->superCluster()->seed())));
+      // phoE5x5_2012_          .push_back(lazyTool_noZS.e5x5(   *(pho->superCluster()->seed())));
 
       // seed
-      phoBC1E_     .push_back(pho->superCluster()->seed()->energy());
-      phoBC1Eta_   .push_back(pho->superCluster()->seed()->eta());
+      // phoBC1E_     .push_back(pho->superCluster()->seed()->energy());
+      // phoBC1Eta_   .push_back(pho->superCluster()->seed()->eta());
 
       // parameters of the very first PFCluster
-      reco::CaloCluster_iterator bc = pho->superCluster()->clustersBegin();
-      if (bc != pho->superCluster()->clustersEnd()) {
-         phoBC2E_  .push_back((*bc)->energy());
-         phoBC2Eta_.push_back((*bc)->eta());
-      }
-      else {
-         phoBC2E_  .push_back(-99);
-         phoBC2Eta_.push_back(-99);
-      }
+      // reco::CaloCluster_iterator bc = pho->superCluster()->clustersBegin();
+      // if (bc != pho->superCluster()->clustersEnd()) {
+      //    phoBC2E_  .push_back((*bc)->energy());
+      //    phoBC2Eta_.push_back((*bc)->eta());
+      // }
+      // else {
+      //    phoBC2E_  .push_back(-99);
+      //    phoBC2Eta_.push_back(-99);
+      // }
 
       unsigned int idx = pho - recoPhotonsHandle->begin();
       edm::RefToBase<reco::Photon> photonRef = recoPhotonsHandle->refAt(idx);

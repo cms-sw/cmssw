@@ -49,8 +49,6 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<edm::View<reco::Photon> >      recoPhotonsCollection_;
    edm::EDGetTokenT<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonsHiIso_;
    edm::EDGetTokenT<edm::View<reco::Muon> >        recoMuonsCollection_;
-   edm::EDGetTokenT<EcalRecHitCollection>          ebRecHitCollection_;
-   edm::EDGetTokenT<EcalRecHitCollection>          eeRecHitCollection_;
    edm::EDGetTokenT<vector<reco::Vertex> >         vtxCollection_;
 
    TTree*         tree_;
@@ -158,7 +156,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
 // vector<int>    phoEleVeto_;         // TODO: not available in reco::
    vector<float>  phoR9_;
    vector<float>  phoHoverE_;
-// vector<float>  phoSigmaIEtaIEta_;   // TODO: not available in reco::
+   vector<float>  phoSigmaIEtaIEta_;   // TODO: not available in reco::
 // vector<float>  phoSigmaIEtaIPhi_;   // TODO: not available in reco::
 // vector<float>  phoSigmaIPhiIPhi_;   // TODO: not available in reco::
    vector<float>  phoE1x3_;

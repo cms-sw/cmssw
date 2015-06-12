@@ -10,7 +10,5 @@ ggHiNtuplizer = cms.EDAnalyzer(
     recoPhotonSrc      = cms.InputTag("photons"),
     recoPhotonHiIsolationMap = cms.InputTag("photonIsolationHIProducer"),
     recoMuonSrc        = cms.InputTag("muons"),
-    ebRecHitCollection = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    eeRecHitCollection = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
     VtxLabel           = cms.InputTag("hiSelectedVertex"),
 )
