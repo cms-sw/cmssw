@@ -260,11 +260,12 @@ elif test==1:
     comp=TTJets
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
     comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
+#    comp=JetHT_742
 #    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
 
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
+#    comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
 
 elif test==2:
 
@@ -287,8 +288,7 @@ elif test==2:
     from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
     selectedComponents = [ 
 TTJets, TTJets_LO, # TTJets
-QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt1000to1400, QCD_Pt1400to1800, QCD_Pt1800to2400, QCD_Pt2400to3200, QCD_Pt3200toInf, # QCD_Pt
-#QCD_Pt2400to3200
+QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt470to600, QCD_Pt1000to1400, QCD_Pt1400to1800, QCD_Pt1800to2400, QCD_Pt2400to3200, QCD_Pt3200toInf, # QCD_Pt
 ]
 
     # test all components (1 thread per component).
@@ -296,9 +296,10 @@ QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt1000to1400, QCD_Pt1400to180
         comp.splitFactor = 1200
         #comp.fineSplitFactor = 2 # to run two jobs per file
         comp.files = comp.files[:]
-        #comp.files = comp.files[:1]  
+        #comp.files = comp.files[:1]
         #comp.files = comp.files[57:58]  # to process only file [57]  
-        comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
+        # triggers on MC
+        #comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
 
 
 
@@ -314,8 +315,6 @@ if doSpecialSettingsForMECCA==1:
 
 isData = 0
 if isData==1:
-    jetAna.recalibrateJets = False
-    photonAna.do_mc_match = False
     for comp in mcSamples:
         comp.isMC = False
         comp.isData = True
