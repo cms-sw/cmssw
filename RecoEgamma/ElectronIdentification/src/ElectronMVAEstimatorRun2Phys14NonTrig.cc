@@ -13,10 +13,15 @@ ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig( st
 
   _tmvaReaders.clear();
   _MethodName = "BDTG method";
+  // Create a TMVA reader object for each category
   for(int i=0; i<nCategories; i++){
-    
-    TMVA::Reader *thisReader = createSingleReader(i, filenames.at(i) ) ;
-    _tmvaReaders.push_back( thisReader );
+
+    // Use unique_ptr so that all readers are properly cleaned up
+    // when the vector clear() is called in the destructor
+    // std::unique_ptr<TMVA::Reader> thisReader( createSingleReader(i, filenames.at(i) ) ) ;    
+    // _tmvaReaders.push_back( thisReader );
+
+    _tmvaReaders.push_back( std::unique_ptr<TMVA::Reader> ( createSingleReader(i, filenames.at(i) ) ) );
 
   }
 
@@ -25,8 +30,6 @@ ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig( st
 ElectronMVAEstimatorRun2Phys14NonTrig::
 ~ElectronMVAEstimatorRun2Phys14NonTrig(){
   
-  // It is expected that as vector clears its contents,
-  // the delete is called on each pointer automatically
   _tmvaReaders.clear();
 }
 
