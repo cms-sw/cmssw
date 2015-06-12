@@ -44,7 +44,6 @@ process.load("DQM.Integration.test.environment_cfi")
 process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
 
 process.dqmEnv.subSystemFolder    = "SiStrip"
-process.dqmSaver.producer = "Playback"
 process.dqmSaver.saveByLumiSection = 30
 
 # uncomment for running in local
@@ -226,13 +225,12 @@ process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siS
 #--------------------------
 # Global Plot Switches
 #--------------------------
-process.SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = True
 process.SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = cms.bool(False)
 
 ### COSMIC RUN SETTING
 if (process.runType.getRunType() == process.runType.cosmic_run):
     # event selection for cosmic data
-    # process.DQMStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*','HLT_*Cosmic*','HLT_ZeroBias*'))
+    process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*','HLT_L1*')
     # Reference run for cosmic
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_cosmic.root'
     # Source config for cosmic data
@@ -292,14 +290,12 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 ### pp COLLISION SETTING
 if (process.runType.getRunType() == process.runType.pp_run):
     #event selection for pp collisions
-#    process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*',
-#                                                                                                  'HLT_Jet*',
-#                                                                                                  'HLT_HT*',
-#                                                                                                  'HLT_MinBias_#*',
-#                                                                                                  'HLT_Physics*#',
-#                                                                                                  'HLT_ZeroBias#*',
-#                                                                                                  'HLT_PAL1*',
-#                                                                                                  'HLT_PAZeroBias_*'))    
+    process.source.SelectEvents = cms.untracked.vstring(
+        'HLT_L1*',
+        'HLT_Jet*',
+        'HLT_Physics*',
+        'HLT_ZeroBias*'
+        )
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
     # Source and Client config for pp collisions
 

@@ -233,6 +233,8 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     if (dname.find("BadModuleList") != std::string::npos) continue;
     if (dname.find("ring") !=std::string::npos) continue;
     std::vector<MonitorElement*> meVec;
+    if (dname.find("ring") !=std::string::npos) continue;
+    
     ybin++;
     dqm_store->cd((*ic));
     meVec = dqm_store->getContents((*ic));
