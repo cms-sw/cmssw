@@ -11,14 +11,11 @@ trackCandidateProducer = cms.EDProducer(
 
     # Reject overlapping hits? (GroupedTracking from 170pre2 onwards)
     OverlapCleaning = cms.bool(False),
-    # Reject copies of tracks from several seeds - take the first seed in that case
-    SeedCleaning = cms.bool(True),
 
     # Split matched hits? 
     SplitHits = cms.bool(True),
     simTracks = cms.InputTag('famosSimHits'),
-    EstimatorCut = cms.double(0),
-
+    
     propagator = cms.string('PropagatorWithMaterial')
 )
 

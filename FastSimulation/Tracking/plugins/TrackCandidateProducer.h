@@ -52,10 +52,8 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
 
   bool rejectOverlaps;
   bool splitHits;
-  bool seedCleaning;
  
   edm::InputTag simTracks_;
-  double estimatorCut_;
 
   // tokens & labels
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;

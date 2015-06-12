@@ -76,12 +76,6 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   // Split hits ?
   splitHits = conf.getParameter<bool>("SplitHits");
 
-  // Reject tracks with several seeds ?
-  // Typically don't do that at HLT for electrons, but do it otherwise
-  seedCleaning = conf.getParameter<bool>("SeedCleaning");
-
-  estimatorCut_= conf.getParameter<double>("EstimatorCut");
-  
   // input tags, labels, tokens
   edm::InputTag simTrackLabel = conf.getParameter<edm::InputTag>("simTracks");
   simVertexToken = consumes<edm::SimVertexContainer>(simTrackLabel);
@@ -131,35 +125,14 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // The produced objects
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
       
-  // Loop over the seeds
-  int currentTrackId = -1;
- 
-  unsigned seed_size = seeds->size(); 
-  for (unsigned seednr = 0; seednr < seed_size; ++seednr){
+  for (unsigned seednr = 0; seeds->size(); ++seednr){
     
-    LogDebug("FastTracking")<<"looking at seed #:"<<seednr;
+    const BasicTrajectorySeed seed = seeds->at(seednr);
+    if(seed.nHits()==0)
+      continue;
+    
+    int simTrackId =  ((const SiTrackerGSMatchedRecHit2D*) (&*(seed.recHits().first)))->simtrackId();
 
-    // The seed
-    const BasicTrajectorySeed* aSeed = &((*seeds)[seednr]);
-
-    TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
-    //same old stuff
-    // Find the first hit of the Seed
-    TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-    const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
-    theFirstSeedingTrackerRecHit = TrajectorySeedHitCandidate(theFirstSeedingRecHit,trackerGeometry.product(),trackerTopology.product());
-    // The SimTrack id associated to that recHit
-    int simTrackId =  theFirstSeedingRecHit->simtrackId();
-
-    //from then on, only the simtrack IDs are usefull.
-    //now loop over all possible trackid for this seed.
-    //an actual seed can be shared by two tracks in dense envirronement, and also for hit-less seeds.
-      
-      // Don't consider seeds belonging to a track already considered 
-      // (Equivalent to seed cleaning)
-      if ( seedCleaning && currentTrackId == simTrackId ) continue;
-      currentTrackId = simTrackId;
-      
       // A vector of TrackerRecHits belonging to the track and the number of crossed layers
       std::vector<TrajectorySeedHitCandidate> theTrackerRecHits;
       unsigned theNumberOfCrossedLayers = 0;      
@@ -189,14 +162,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
 	  theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),trackerGeometry.product(),trackerTopology.product());
 	  
-	  //>>>>>>>>>BACKBUILDING CHANGE: DO NOT STAT FROM THE FIRST HIT OF THE SEED
-
-	  // NOTE: checking the direction --> specific for OIHit only
-	  //	  if( aSeed->direction()!=oppositeToMomentum ) { 
-	  //  // Check that the first rechit is indeed the first seeding hit
-	  //  if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && seeds->at(seednr).nHits()!=0 ) continue;
-	  // }
-	  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 	  // Count the number of crossed layers
 	  if ( !theCurrentRecHit.isOnTheSameLayer(thePreviousRecHit) ) 
@@ -255,7 +220,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       unsigned nTrackerHits = theTrackerRecHits.size();
       recHits.reserve(nTrackerHits); // To save some time at push_back
 
-      if (aSeed->direction()==oppositeToMomentum){
+      if (seed.direction()==oppositeToMomentum){
 	LogDebug("FastTracking")<<"reversing the order of the hits";
 	std::reverse(theTrackerRecHits.begin(),theTrackerRecHits.end());
       }
@@ -275,20 +240,20 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //>>>>>>>>>BACKBUILDING CHANGE: REPLACE THE STARTING STATE
 
     // Create a track Candidate (now with the reference to the seed!) .
-    //PTrajectoryStateOnDet PTSOD = aSeed->startingState();
+    //PTrajectoryStateOnDet PTSOD = seed->startingState();
     PTrajectoryStateOnDet PTSOD;
 
       //create the initial state from the SimTrack
-      int vertexIndex = (*simTracks)[currentTrackId].vertIndex();
+    int vertexIndex = simTracks->at(simTrackId).vertIndex();
       //   a) origin vertex
       GlobalPoint  position(simVertices->at(vertexIndex).position().x(),
 			    simVertices->at(vertexIndex).position().y(),
 			    simVertices->at(vertexIndex).position().z());
       
       //   b) initial momentum
-      GlobalVector momentum( simTracks->at(currentTrackId).momentum().x() , 
-			     simTracks->at(currentTrackId).momentum().y() , 
-			     simTracks->at(currentTrackId).momentum().z() );
+      GlobalVector momentum( simTracks->at(simTrackId).momentum().x() , 
+			     simTracks->at(simTrackId).momentum().y() , 
+			     simTracks->at(simTrackId).momentum().z() );
       //   c) electric charge
       float        charge   = (*simTracks)[simTrackId].charge();
       //  -> inital parameters
@@ -310,7 +275,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
        PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
     
-    TrackCandidate newTrackCandidate(recHits,*aSeed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr));
+    TrackCandidate newTrackCandidate(recHits,seed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr));
 
     output->push_back(newTrackCandidate);
     
