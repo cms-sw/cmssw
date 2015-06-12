@@ -38,22 +38,17 @@ class METAnalyzer( Analyzer ):
         px,py = self.met.px()+deltaMet[0], self.met.py()+deltaMet[1]
         met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
+    def adduParaPerp(self, met, boson):
 
-    def uParaPerp(self,met,boson, doUpara):
-
-        self.upara = 0
-        self.uperp = 0
-        uX = - self.met.px() - boson.px()
-        uY = - self.met.py() - boson.py()
+        upara = 0
+        uperp = 0
+        uX = - met.px() - boson.px()
+        uY = - met.py() - boson.py()
         u1 = (uX*boson.px() + uY*boson.py())/boson.pt()
         u2 = (uX*boson.px() - uY*boson.py())/boson.pt()
 
-        self.upara = u1
-        self.uperp = u2
-
-        if doUpara:
-            return self.upara
-        return self.uperp
+        met.upara = u1
+        met.uperp = u2
 
     def makeTkMETs(self, event):
 
@@ -99,15 +94,10 @@ class METAnalyzer( Analyzer ):
         event.tkMetPVTight.sumEt = sum([x.pt() for x in chargedPVTight])
 
         if  hasattr(event,'zll_p4'):
-            event.tkMet.upara =  self.uParaPerp(event.tkMet,event.zll_p4, True)
-            event.tkMetPVchs.upara =  self.uParaPerp(event.tkMetPVchs,event.zll_p4, True)
-            event.tkMetPVLoose.upara =  self.uParaPerp(event.tkMetPVLoose,event.zll_p4, True)
-            event.tkMetPVTight.upara =  self.uParaPerp(event.tkMetPVTight,event.zll_p4, True)
-
-            event.tkMet.uperp =  self.uParaPerp(event.tkMet,event.zll_p4, False)
-            event.tkMetPVchs.uperp =  self.uParaPerp(event.tkMetPVchs,event.zll_p4, False)
-            event.tkMetPVLoose.uperp =  self.uParaPerp(event.tkMetPVLoose,event.zll_p4, False)
-            event.tkMetPVTight.uperp =  self.uParaPerp(event.tkMetPVTight,event.zll_p4, False)
+            self.adduParaPerp(event.tkMet, event.zll_p4)
+            self.adduParaPerp(event.tkMetPVchs, event.zll_p4)
+            self.adduParaPerp(event.tkMetPVLoose, event.zll_p4)
+            self.adduParaPerp(event.tkMetPVTight, event.zll_p4)
 
     def makeGenTkMet(self, event):
         genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
@@ -198,8 +188,8 @@ class METAnalyzer( Analyzer ):
         self.met_sig = self.met.significance()
         self.met_sumet = self.met.sumEt()
         if  hasattr(event,'zll_p4'):
-            self.met_upara =  self.uParaPerp(self.met,event.zll_p4, True)
-            self.met_uperp =  self.uParaPerp(self.met,event.zll_p4, False)
+            self.adduParaPerp(self.met,event.zll_p4)
+            self.adduParaPerp(self.met,event.zll_p4)
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
