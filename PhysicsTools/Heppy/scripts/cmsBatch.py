@@ -7,7 +7,7 @@ from optparse import OptionParser
 
 # particle flow specific
 from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
-import PhysicsTools.Heppy.utils.eostools as castortools
+import PhysicsTools.HeppyCore.utils.eostools as castortools
 
 # cms specific
 import FWCore.ParameterSet.Config as cms
