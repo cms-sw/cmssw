@@ -37,7 +37,7 @@ class ChainTestCase(unittest.TestCase):
         os.remove(tmpfile)
     
     def test_load_3(self):
-        '''Test chaining of two files.'''
+        '''Test LFN/root-fn loading'''
         chain = Chain(["root://{0}".format(os.path.abspath(testfname))], 'test_tree')
         self.assertEqual(len(chain), 100)
 
