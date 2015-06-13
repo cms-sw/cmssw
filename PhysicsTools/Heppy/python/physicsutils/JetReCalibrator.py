@@ -18,10 +18,10 @@ class JetReCalibrator:
         if upToLevel >= 2: self.vPar.push_back(self.L2JetPar);
         if upToLevel >= 3: self.vPar.push_back(self.L3JetPar);
         # Add residuals if needed
-        if doResidualJECs :
+        if doResidualJECs : 
             self.ResJetPar = ROOT.JetCorrectorParameters("%s/%s_L2L3Residual_%s.txt" % (path,globalTag,jetFlavour))
             self.vPar.push_back(self.ResJetPar);
-        #Step3 (Construct a FactorizedJetCorrector object)
+        #Step3 (Construct a FactorizedJetCorrector object) 
         self.JetCorrector = ROOT.FactorizedJetCorrector(self.vPar)
         if os.path.exists("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour)):
             self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour));
@@ -54,13 +54,13 @@ class JetReCalibrator:
             self.JetUncertainty.setJetEta(jet.eta())
             self.JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
             try:
-                jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True)
+                jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True) 
             except RuntimeError, r:
                 print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
                 jet.jetEnergyCorrUncertainty = 0.5
         if jet.photonEnergyFraction() < 0.9 and jet.pt()*corr*jet.rawFactor() > 10:
             metShift[0] -= jet.px()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction())
-            metShift[1] -= jet.py()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction())
+            metShift[1] -= jet.py()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction()) 
         if delta != 0:
             #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
             corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)
@@ -97,10 +97,10 @@ class Type1METCorrection:
         self.vPar.push_back(self.L2JetPar);
         self.vPar.push_back(self.L3JetPar);
         # Add residuals if needed
-        if doResidualJECs :
+        if doResidualJECs : 
             self.ResJetPar = ROOT.JetCorrectorParameters("%s/%s_L2L3Residual_%s.txt" % (path,globalTag,jetFlavour))
             self.vPar.push_back(self.ResJetPar);
-        #Step3 (Construct a FactorizedJetCorrector object)
+        #Step3 (Construct a FactorizedJetCorrector object) 
         self.JetCorrector = ROOT.FactorizedJetCorrector(self.vPar)
         self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour));
         self.vPar1 = ROOT.vector(ROOT.JetCorrectorParameters)()
