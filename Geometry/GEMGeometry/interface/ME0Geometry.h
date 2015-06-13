@@ -6,15 +6,18 @@
  *  The model of the geometry of ME0.
  *
  *  \author M. Maggi - INFN Bari
+ *  \edited by D. Nash
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
+#include "Geometry/GEMGeometry/interface/ME0Chamber.h"
 #include <vector>
 #include <map>
 
-class GeomDetType;
+//class GeomDetType;
+//class GeomDetUnit;
 
 class ME0Geometry : public TrackingGeometry {
 
@@ -55,8 +58,14 @@ class ME0Geometry : public TrackingGeometry {
   /// Return a etaPartition given its id
   const ME0EtaPartition* etaPartition(ME0DetId id) const;
 
+  /// Return a vector of all ME0 chambers
+  const std::vector<const ME0Chamber*>& chambers() const;
+
   /// Add a ME0 etaPartition  to the Geometry
   void add(ME0EtaPartition* etaPartition);
+
+  /// Add a ME0 Chamber  to the Geometry
+  void add(ME0Chamber* chamber);
 
  private:
   DetUnitContainer theEtaPartitions;
@@ -69,6 +78,7 @@ class ME0Geometry : public TrackingGeometry {
   mapIdToDet theMap;
 
   std::vector<ME0EtaPartition const*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
+  std::vector<ME0Chamber const*> allChambers; // Are owned by this class.
 
 };
 

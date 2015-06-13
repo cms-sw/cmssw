@@ -6,6 +6,7 @@
  */
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromDDD.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Chamber.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 
 #include <DetectorDescription/Core/interface/DDFilter.h>

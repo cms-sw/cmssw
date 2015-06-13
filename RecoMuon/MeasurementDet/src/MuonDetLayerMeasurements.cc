@@ -3,6 +3,7 @@
  *
  *  \author C. Liu, R. Bellan, N. Amapane
  *   \modified by C. Calabria to include GEMs
+ *  \modified by D. Nash to include ME0s
  *
  */
 
@@ -26,12 +27,14 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
 						   edm::InputTag csclabel, 
 						   edm::InputTag rpclabel,
  						   edm::InputTag gemlabel,
+						   edm::InputTag me0label,
 						   edm::ConsumesCollector& iC,
-						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM): 
+						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0): 
   enableDTMeasurement(enableDT),
   enableCSCMeasurement(enableCSC),
   enableRPCMeasurement(enableRPC),
   enableGEMMeasurement(enableGEM),
+  enableME0Measurement(enableME0),
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
@@ -40,6 +43,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theCSCEventCacheID(0),
   theRPCEventCacheID(0),
   theGEMEventCacheID(0),
+  theME0EventCacheID(),
   theEvent(0)
 {
 
@@ -47,6 +51,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
   rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
   gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
+  me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
 
 
   static int procInstance(0);
@@ -62,6 +67,9 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   std::ostringstream sGEM;
   sGEM<<"MuonDetLayerMeasurements::checkGEMRecHits::" << procInstance;
   //theGEMCheckName = sGEM.str();
+  std::ostringstream sME0;
+  sME0<<"MuonDetLayerMeasurements::checkME0RecHits::" << procInstance;
+  //theME0CheckName = sME0.str();
   procInstance++;
 }
 
@@ -149,6 +157,27 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
          result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
     }
   }
+   else if (geoId.subdetId()  == MuonSubdetId::ME0) {
+    if(enableME0Measurement)
+    {
+      checkME0RecHits(); 
+
+      // Create the chamber Id
+      ME0DetId chamberId(geoId.rawId());
+    
+      // Get the ME0-Segment which relies on this chamber
+      // Getting rechits right now, not segments - maybe it should be segments?
+      ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
+
+      //LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()<<std::endl;
+
+      // Create the MuonTransientTrackingRecHit
+      for (ME0SegmentCollection::const_iterator rechit = range.first; 
+	   rechit!=range.second; ++rechit)
+	result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+      //LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits = " << result.size()<<std::endl;
+    }
+  }
   else {
     // wrong type
     throw cms::Exception("MuonDetLayerMeasurements") << "The DetLayer with det " << geoId.det() << " subdet " << geoId.subdetId() << " is not a valid Muon DetLayer. ";
@@ -222,6 +251,21 @@ void MuonDetLayerMeasurements::checkGEMRecHits()
   }
 }
 
+void MuonDetLayerMeasurements::checkME0RecHits()
+{
+  checkEvent();
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theME0EventCacheID) return;
+
+  {
+    theEvent->getByToken(me0Token_, theME0RecHits);
+    theME0EventCacheID = cacheID;
+  }
+  if(!theME0RecHits.isValid())
+  {
+    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
+  }
+}
 
 ///measurements method if already got the Event 
 MeasurementContainer
@@ -242,6 +286,15 @@ MuonDetLayerMeasurements::measurements(const DetLayer* layer,
 				       const edm::Event& iEvent) {
   
   MeasurementContainer result;
+  
+
+  // DetId geoId = det->geographicalId();
+  // if (geoId.subdetId()  == MuonSubdetId::ME0) {
+  //   if(enableME0Measurement) {
+  //     ME0DetId chamberId(geoId.rawId());
+  //     LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "ME0 Chamber ID in measurements: "<<chamberId<<std::endl;
+  //   }
+  // }
   
   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
   LogTrace("RecoMuon")<<"compatibleDets: "<<dss.size()<<std::endl;
