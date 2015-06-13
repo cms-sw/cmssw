@@ -217,13 +217,13 @@ void BSvsPVHistogramMaker::fill(const unsigned int orbit, const int bx, const re
 	  if(_hdeltazvsorbrun && *_hdeltazvsorbrun )  (*_hdeltazvsorbrun)->Fill(orbit,deltaz);
 	}
 	if(_runHistoBXProfile) {
-	  if(_hdeltaxvsbxrun && *_hdeltaxvsbxrun )  (*_hdeltaxvsbxrun)->Fill(bx,deltax);
-	  if(_hdeltayvsbxrun && *_hdeltayvsbxrun )  (*_hdeltayvsbxrun)->Fill(bx,deltay);
-	  if(_hdeltazvsbxrun && *_hdeltazvsbxrun )  (*_hdeltazvsbxrun)->Fill(bx,deltaz);
+	  if(_hdeltaxvsbxrun && *_hdeltaxvsbxrun )  (*_hdeltaxvsbxrun)->Fill(bx%3564,deltax);
+	  if(_hdeltayvsbxrun && *_hdeltayvsbxrun )  (*_hdeltayvsbxrun)->Fill(bx%3564,deltay);
+	  if(_hdeltazvsbxrun && *_hdeltazvsbxrun )  (*_hdeltazvsbxrun)->Fill(bx%3564,deltaz);
 	  if(_runHistoBX2D) {
-	    if(_hdeltaxvsbx2drun && *_hdeltaxvsbx2drun )  (*_hdeltaxvsbx2drun)->Fill(bx,deltax);
-	    if(_hdeltayvsbx2drun && *_hdeltayvsbx2drun )  (*_hdeltayvsbx2drun)->Fill(bx,deltay);
-	    if(_hdeltazvsbx2drun && *_hdeltazvsbx2drun )  (*_hdeltazvsbx2drun)->Fill(bx,deltaz);
+	    if(_hdeltaxvsbx2drun && *_hdeltaxvsbx2drun )  (*_hdeltaxvsbx2drun)->Fill(bx%3564,deltax);
+	    if(_hdeltayvsbx2drun && *_hdeltayvsbx2drun )  (*_hdeltayvsbx2drun)->Fill(bx%3564,deltay);
+	    if(_hdeltazvsbx2drun && *_hdeltazvsbx2drun )  (*_hdeltazvsbx2drun)->Fill(bx%3564,deltaz);
 	  }
 	}
       }
