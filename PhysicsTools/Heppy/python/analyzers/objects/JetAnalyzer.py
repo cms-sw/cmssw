@@ -104,7 +104,7 @@ class JetAnalyzer( Analyzer ):
 
         for delta, shift in [(1.0, "JECUp"), (0.0, ""), (-1.0, "JECDown")]:
             for j1 in allJets:
-                corr = self.jetReCalibrator.getCorrection(j1, rho, delta, event.deltaMetFromJEC)
+                corr = self.jetReCalibrator.getCorrection(j1, rho, delta, self.deltaMetFromJEC)
                 setattr(j1, "corr"+shift, corr)
 
         self.allJetsUsedForMET = allJets
