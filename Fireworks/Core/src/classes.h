@@ -30,6 +30,8 @@
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
 #include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 #include "Fireworks/Core/src/FW3DViewDistanceMeasureTool.h"
+#include "Fireworks/Core/interface/FWPartialConfig.h"
+
 namespace Fireworks_Core {
    struct Fireworks_Core {
       //add 'dummy' Wrapper variable for each class type you put into the Event
