@@ -77,11 +77,10 @@ namespace l1t {
                auto misshtsum_unp = UnpackerFactory::get()->make("stage1::MissHtUnpacker");
 
                 if (fed == 1352) {
-                  auto rctRegion_unp = UnpackerFactory::get()->make("stage1::RCTRegionUnpacker");
-                  auto rctEm_unp = UnpackerFactory::get()->make("stage1::RCTEmUnpacker");
+                  auto rct_unp = UnpackerFactory::get()->make("stage1::RCTEmRegionUnpacker");
                   
-                  if(board == 4109){  
-
+                  // 4109 == 0x100D
+                  if(board == 0x2300){  
                     res[77] = cjet_unp_Left;
                     res[79] = cjet_unp_Right;  
                     res[81] = fjet_unp_Left;
@@ -98,13 +97,9 @@ namespace l1t {
                     res[103] = tau_unp_Right;
                     res[105] = isotau_unp_Left;
                     res[107] = isotau_unp_Right;
-                  }
-                  for (int m=0;m<36;m++) {
-                    if (board == 4109) {
-                      res[m*2] = rctRegion_unp;
-                    }
-                    else if (board == 4110) {
-                      res[m*2] = rctEm_unp;
+
+                    for (int m=0;m<36;m++) {
+                      res[m*2] = rct_unp;
                     }
                   }
                }

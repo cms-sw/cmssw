@@ -70,31 +70,35 @@ DumpGctDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
-  outFile_ << "Run :" << iEvent.id().run() << "  Event :" << iEvent.id().event() << endl;
+  std::stringstream text;
+
+  text << "Run :" << iEvent.id().run() << "  Event :" << iEvent.id().event() << endl;
   
   // EM
-  if (doRctEM_ && doHW_) { doRctEM(iEvent, rawLabel_); }
-  if (doRctEM_ && doEmu_) { doRctEM(iEvent, emuRctLabel_); }
-  if (doEM_ && doHW_) { doEM(iEvent, rawLabel_); }
-  if (doEM_ && doEmu_){ doEM(iEvent, emuGctLabel_); }
+  if (doRctEM_ && doHW_) { doRctEM(iEvent, rawLabel_, text); }
+  if (doRctEM_ && doEmu_) { doRctEM(iEvent, emuRctLabel_, text); }
+  if (doEM_ && doHW_) { doEM(iEvent, rawLabel_, text); }
+  if (doEM_ && doEmu_){ doEM(iEvent, emuGctLabel_, text); }
 
   // Jets
-  if (doRegions_ && doHW_) { doRegions(iEvent, rawLabel_); }
-  if (doRegions_ && doEmu_) { doRegions(iEvent, emuRctLabel_); }
-  if (doJets_ && doHW_) { doJets(iEvent, rawLabel_); }
-  if (doJets_ && doEmu_) { doJets(iEvent, emuGctLabel_); }
+  if (doRegions_ && doHW_) { doRegions(iEvent, rawLabel_, text); }
+  if (doRegions_ && doEmu_) { doRegions(iEvent, emuRctLabel_, text); }
+  if (doJets_ && doHW_) { doJets(iEvent, rawLabel_, text); }
+  if (doJets_ && doEmu_) { doJets(iEvent, emuGctLabel_, text); }
 
   // Energy Sums
-  if (doEnergySums_ && doHW_) { doEnergySums(iEvent, rawLabel_); }
-  if (doEnergySums_ && doEmu_) { doEnergySums(iEvent, emuGctLabel_); }
+  if (doEnergySums_ && doHW_) { doEnergySums(iEvent, rawLabel_, text); }
+  if (doEnergySums_ && doEmu_) { doEnergySums(iEvent, emuGctLabel_, text); }
 
   // debugging
-  if (doInternEM_ && doHW_) { doInternEM(iEvent, rawLabel_); }
-  if (doFibres_ && doHW_) { doFibres(iEvent, rawLabel_); }
+  if (doInternEM_ && doHW_) { doInternEM(iEvent, rawLabel_, text); }
+  if (doFibres_ && doHW_) { doFibres(iEvent, rawLabel_, text); }
+
+  edm::LogInfo("L1TCaloEvents") << text.str();
 
 }
 
-void DumpGctDigis::doEM(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doEM(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text) {
 
   using namespace edm;
 
@@ -107,27 +111,27 @@ void DumpGctDigis::doEM(const edm::Event& iEvent, const edm::InputTag& label) {
   iEvent.getByLabel(label.label(),"isoEm",isoEm);
   iEvent.getByLabel(label.label(),"nonIsoEm",nonIsoEm);
 
-  outFile_ << "Iso EM from : " << label.label() << endl;
+  text << "Iso EM from : " << label.label() << endl;
   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
-    outFile_ << (*ie) 
+    text << (*ie) 
              << " ieta(detID)=" << ie->regionId().ieta()
              << " iphi(detID)=" << ie->regionId().iphi()
              << endl;
   } 
-  outFile_ << endl;
+  text << endl;
   
-  outFile_ << "Non-iso EM from : " << label.label() << endl;
+  text << "Non-iso EM from : " << label.label() << endl;
   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
-    outFile_ << (*ne) 
+    text << (*ne) 
              << " ieta(detID)=" << ne->regionId().ieta()
              << " iphi(detID)=" << ne->regionId().iphi()
              << endl;
   } 
-  outFile_ << endl;
+  text << endl;
 
 }
 
-void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text) {
 
   using namespace edm;
 
@@ -137,21 +141,21 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label)
  
   iEvent.getByLabel(label, em);
 
-  outFile_ << "RCT EM from : " << label.label() << endl;
+  text << "RCT EM from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
     if (e->rank() >= rctEmMinRank_) {
-      outFile_ << (*e) 
+      text << (*e) 
                << " ieta(detID)=" << e->regionId().ieta()
                << " iphi(detID)=" << e->regionId().iphi()
                << endl;
     }
   } 
-  outFile_ << endl;
+  text << endl;
   
 }
 
 
-void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text) {
 
   using namespace edm;
 
@@ -161,16 +165,16 @@ void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& labe
   
   iEvent.getByLabel(label, rgns);
 
-  outFile_ << "Regions from : " << label.label() << endl;
+  text << "Regions from : " << label.label() << endl;
   for (r=rgns->begin(); r!=rgns->end(); r++) {
-    outFile_ << (*r) << endl;
+    text << (*r) << endl;
   } 
-  outFile_ << endl;
+  text << endl;
 
 }
 
 
-void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text) {
 
   using namespace edm;
 
@@ -188,26 +192,26 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   iEvent.getByLabel(labelStr,"forJets",forJets);
   iEvent.getByLabel(labelStr,"tauJets",tauJets);
   
-  outFile_ << "Central jets from : " << labelStr << endl;
+  text << "Central jets from : " << labelStr << endl;
   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
-    outFile_ << (*cj) << endl;
+    text << (*cj) << endl;
   } 
-  outFile_ << endl;
+  text << endl;
   
-  outFile_ << "Forward jets from : " << labelStr << endl;
+  text << "Forward jets from : " << labelStr << endl;
   for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
-    outFile_ << (*fj) << endl;
+    text << (*fj) << endl;
   } 
-  outFile_ << endl;
+  text << endl;
   
-  outFile_ << "Tau jets from : " << labelStr << endl;
+  text << "Tau jets from : " << labelStr << endl;
   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
-    outFile_ << (*tj) << endl;
+    text << (*tj) << endl;
   }
 }
 
 
-void DumpGctDigis::doInternEM(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doInternEM(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text) {
 
   using namespace edm;
 
@@ -217,19 +221,19 @@ void DumpGctDigis::doInternEM(const edm::Event& iEvent, const edm::InputTag& lab
   
   iEvent.getByLabel(label, em);
 
-  outFile_ << "Internal EM from : " << label.label() << endl;
+  text << "Internal EM from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
-    outFile_ << (*e) 
+    text << (*e) 
              << " ieta(detID)=" << e->regionId().ieta()
              << " iphi(detID)=" << e->regionId().iphi()
              << endl;
   } 
-  outFile_ << endl;
+  text << endl;
   
 }
 
 
-void DumpGctDigis::doFibres(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doFibres(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text) {
 
   using namespace edm;
 
@@ -239,15 +243,15 @@ void DumpGctDigis::doFibres(const edm::Event& iEvent, const edm::InputTag& label
   
   iEvent.getByLabel(label, fibres);
 
-  outFile_ << "Fibres from : " << label.label() << endl;
+  text << "Fibres from : " << label.label() << endl;
   for (f=fibres->begin(); f!=fibres->end(); f++) {
-    outFile_ << (*f) << endl;
+    text << (*f) << endl;
   } 
-  outFile_ << endl;
+  text << endl;
   
 }
 
-void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& label)
+void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& label, std::stringstream& text)
 {
   using namespace edm;
   
@@ -261,26 +265,26 @@ void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& l
   iEvent.getByLabel(label, etMiss);
   iEvent.getByLabel(label, htMiss);
   
-  outFile_ << "Energy sums from: " << label.label() << endl;
+  text << "Energy sums from: " << label.label() << endl;
   
   L1GctEtTotalCollection::const_iterator et;
   for (et=etTotal->begin(); et!=etTotal->end(); et++){
-    outFile_ << *(et) << endl;
+    text << *(et) << endl;
   }
 
   L1GctEtHadCollection::const_iterator ht;
   for (ht=etHad->begin(); ht!=etHad->end(); ht++){
-    outFile_ << *(ht) << endl;
+    text << *(ht) << endl;
   }
 
   L1GctEtMissCollection::const_iterator met;
   for (met=etMiss->begin(); met!=etMiss->end(); met++){
-    outFile_ << *(met) << endl;
+    text << *(met) << endl;
   }
 
   L1GctHtMissCollection::const_iterator mht;
   for (mht=htMiss->begin(); mht!=htMiss->end(); mht++){
-    outFile_ << *(mht) << endl;
+    text << *(mht) << endl;
   }
 
 }
