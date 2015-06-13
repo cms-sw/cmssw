@@ -68,12 +68,14 @@ class JetReCalibrator:
                 metShift[0] -= jet.px()*jet.rawFactor()*corr*delta*jet.jetEnergyCorrUncertainty
                 metShift[1] -= jet.py()*jet.rawFactor()*corr*delta*jet.jetEnergyCorrUncertainty
         #print "   jet with raw pt %6.2f eta %+5.3f phi %+5.3f: previous corr %.4f, my corr %.4f " % (jet.pt()*jet.rawFactor(), jet.eta(), jet.phi(), 1./jet.rawFactor(), corr)
+        return corr
 
     def correct(self,jet,rho,delta=0,metShift=[0,0]):
         """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
            If a two-component list is passes as 'metShift', it will be modified adding to the first and second
            component the change to the MET along x and y due to the JEC, defined as the negative difference
            between the new and old jet 4-vectors, for jets with corrected pt > 10."""
+        corr = self.getCorrection(jet,rho,delta,metShift)
         if corr <= 0:
             return False
         jet.setP4(jet.p4() * (corr * jet.rawFactor()))
