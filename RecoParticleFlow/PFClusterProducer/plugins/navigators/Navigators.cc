@@ -213,8 +213,6 @@ typedef HGCRecHitNavigator<PFLayer::HGC_ECAL,
 			   PFLayer::HGC_HCALB,
 			   PFRecHitHGCHENavigator> PFRecHitHGCNavigator;
 
-EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
-
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigator, "PFRecHitEcalBarrelNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigator, "PFRecHitEcalEndcapNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitShashlikNavigator, "PFRecHitShashlikNavigator");
