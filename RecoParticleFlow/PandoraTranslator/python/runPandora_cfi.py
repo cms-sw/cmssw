@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoParticleFlow.PFClusterProducer.hgcLayerMaskingConfig_cff import hgcLayerMasking
+
 pandorapfanew = cms.EDProducer('PandoraCMSPFCandProducer',
     debugPrint = cms.bool(False), #for cout statements
     debugHisto = cms.bool(False), #for diagnostic/calibration histograms
@@ -26,4 +28,6 @@ pandorapfanew = cms.EDProducer('PandoraCMSPFCandProducer',
     outputFile = cms.string('pandoraoutput.root'),
     MaxDeltaPtOverPtForPfo = cms.double(1.00),
     MaxDeltaPtOverPtForClusterlessPfo = cms.double(0.50),
+    DoLayerMasking = cms.bool(False), #off by default
+    LayerMaskingParams = hgcLayerMasking
 )
