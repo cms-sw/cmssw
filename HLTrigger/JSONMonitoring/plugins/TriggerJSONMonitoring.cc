@@ -467,7 +467,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   unsigned int iRun = iLumi.run();
 
   evf::FastMonitoringService * fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
-  unsigned int writeFiles = fms_ ? fms_->getEventsProcessedForLumi(iLs)>0 : true;
+  bool writeFiles = fms_ ? fms_->getEventsProcessedForLumi(iLs)>0 : true;
 
   if (iSummary->processed->value().at(0)!=0 && writeFiles) {
     Json::StyledWriter writer;
