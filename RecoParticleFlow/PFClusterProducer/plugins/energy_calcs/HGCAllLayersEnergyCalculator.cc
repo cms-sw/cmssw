@@ -4,6 +4,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/MaskedLayerManager.h"
 
 #include "TFile.h"
 #include "TGraphErrors.h"
@@ -51,6 +52,8 @@ class HGCAllLayersEnergyCalibrator : public PFClusterEnergyCorrectorBase {
 		fIn->Close();
 	      }
 	  }
+         const edm::ParameterSet& masking_info = conf.getParameter<edm::ParameterSet>("masking_info");
+        mask_.reset(new MaskedLayerManager(masking_info));
       }
   HGCAllLayersEnergyCalibrator(const HGCAllLayersEnergyCalibrator&) = delete;
   HGCAllLayersEnergyCalibrator& operator=(const HGCAllLayersEnergyCalibrator&) = delete;
@@ -77,6 +80,8 @@ class HGCAllLayersEnergyCalibrator : public PFClusterEnergyCorrectorBase {
   const TGraphErrors * _hgcOverburdenParam;
   const TGraphErrors * _hgcLambdaOverburdenParam;
   void correctEnergyActual(reco::PFCluster&) const;
+
+  std::unique_ptr<MaskedLayerManager> mask_;
   
 };
 

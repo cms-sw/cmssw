@@ -2,7 +2,7 @@
 
 #-c ${CMSSW_BASE}/src/RecoParticleFlow/PFClusterProducer/test/hgcal_rechits.fwc
 
-cmsShow -c ${CMSSW_BASE}/src/RecoParticleFlow/PFClusterProducer/test/hgcal_rechits.fwc --geom-file ~/work/public/xHGCAL/cmsRecoGeom-2023HGCalV5.root --sim-geom-file ~/work/public/xHGCAL/cmsSimGeom-2023HGCalV5.root -i ${CMSSW_BASE}/src/matrix_tests/12201_SingleElectronPt10+SingleElectronPt10_Extended2023HGCalMuon_GenSimFull+DigiFull_Extended2023HGCalMuon+RecoFull_Extended2023HGCalMuon+HARVESTFull_Extended2023HGCalMuon/step3.root
+cmsShow -c ${CMSSW_BASE}/src/RecoParticleFlow/PFClusterProducer/test/hgcal_rechits.fwc --geom-file ~/work/public/xHGCAL/cmsRecoGeom-2023HGCalV5.root --sim-geom-file ~/work/public/xHGCAL/cmsSimGeom-2023HGCalV5.root -i ${CMSSW_BASE}/src/matrix_tests/15602_SingleElectronPt35+SingleElectronPt35_Extended2023HGCalMuonPandora_GenSimHLBeamSpotFull+DigiFull_Extended2023HGCalMuonPandora+RecoFullHGCAL_Extended2023HGCalMuonPandora/step3.root
 
 
 #${CMSSW_BASE}/src/matrix_tests/12202_SingleElectronPt10+SingleElectronPt10_Extended2023HGCalMuon_GenSimFull+DigiFull_Extended2023HGCalMuon+RecoFull_Extended2023HGCalMuon+HARVESTFull_Extended2023HGCalMuon/step3.root
