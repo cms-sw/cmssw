@@ -917,7 +917,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['services'].append( "-FastMonitoringService" )
       self.options['services'].append( "-DQMStore" )
       self.options['modules'].append( "-hltDQMFileSaver" )
-      self.options['paths'].append( "-RatesMonitoring" )
 
     if self.config.fragment:
       # extract a configuration file fragment
