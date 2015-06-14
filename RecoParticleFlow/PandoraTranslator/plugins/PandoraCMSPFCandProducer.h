@@ -61,6 +61,7 @@ class HGCalGeometry;
 class MagneticField;
 class TrackerGeometry;
 class PropagatorWithMaterial;
+class MaskedLayerManager;
 
 // namespace pandora {class Pandora;}
 
@@ -307,6 +308,11 @@ private:
   std::vector<ReferenceCountingPointer<BoundDisk> > _plusSurface,_minusSurface;
   std::unique_ptr<PropagatorWithMaterial> _mat_prop;  
 
+  //for layer masking
+  bool DoLayerMasking;
+  MaskedLayerManager* LayerManager;
+  std::unordered_map<unsigned,unsigned> m_LayerGangingEE, m_LayerGangingHEF, m_LayerGangingHEB;
+  
   TFile * file;
   TTree *mytree;
   double ene_track, ene_match_track,ene_match_em,ene_match_had, ene_had,ene_em,ene_match,mass_match,pid_match,pT_match,charge_match;

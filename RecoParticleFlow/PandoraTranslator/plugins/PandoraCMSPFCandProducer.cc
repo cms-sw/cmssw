@@ -5,6 +5,7 @@
 #include "LCContentFast.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSTemplateAlgorithm.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSGlobalHadronCompensationPlugin.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/MaskedLayerManager.h"
 //#include "PandoraMonitoringApi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -103,6 +104,7 @@ namespace cms_content {
 //
 PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iConfig) : 
   debugPrint(iConfig.getParameter<bool>("debugPrint")), debugHisto(iConfig.getParameter<bool>("debugHisto")), useRecoTrackAsssociation(iConfig.getParameter<bool>("useRecoTrackAsssociation")),
+  LayerManager(nullptr),
   m_calibEE(ForwardSubdetector::HGCEE,"EE",debugPrint), m_calibHEF(ForwardSubdetector::HGCHEF,"HEF",debugPrint), m_calibHEB(ForwardSubdetector::HGCHEB,"HEB",debugPrint), calibInitialized(false),
   _deltaPtOverPtForPfo(iConfig.getParameter<double>("MaxDeltaPtOverPtForPfo")),
   _deltaPtOverPtForClusterlessPfo(iConfig.getParameter<double>("MaxDeltaPtOverPtForClusterlessPfo"))
@@ -132,6 +134,15 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   m_useOverburdenCorrection = iConfig.getParameter<bool>("useOverburdenCorrection");
   _outputFileName = iConfig.getParameter<std::string>("outputFile");
 
+  DoLayerMasking = iConfig.getParameter<bool>("DoLayerMasking");
+  if(DoLayerMasking) {
+    LayerManager = new MaskedLayerManager(iConfig.getParameter<edm::ParameterSet>("LayerMaskingParams"));
+    //get the layer gangings, which will be needed in processRecHits
+    m_LayerGangingEE = LayerManager->buildLayerGanging(ForwardSubdetector::HGCEE);
+    m_LayerGangingHEF = LayerManager->buildLayerGanging(ForwardSubdetector::HGCHEF);
+    m_LayerGangingHEB = LayerManager->buildLayerGanging(ForwardSubdetector::HGCHEB);
+  }
+  
   stm = new steerManager(m_energyWeightingFilename.fullPath().c_str());
   
   speedoflight = (CLHEP::c_light/CLHEP::cm)/CLHEP::ns;
@@ -151,6 +162,10 @@ PandoraCMSPFCandProducer::~PandoraCMSPFCandProducer()
     delete m_hitEperLayer_HAD[ForwardSubdetector::HGCEE];
     delete m_hitEperLayer_HAD[ForwardSubdetector::HGCHEF];
     delete m_hitEperLayer_HAD[ForwardSubdetector::HGCHEB]; 
+  }
+  
+  if(DoLayerMasking){
+    delete LayerManager;
   }
 }
 
@@ -381,30 +396,50 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
     nHGCeeLayers = nHGClayers[0]; nHGChefLayers = nHGClayers[1]; nHGChebLayers = nHGClayers[2]/2;
     if(debugPrint) std::cout << "HGCEE layers = " << nHGCeeLayers << ", HGCHEF layers = " << nHGChefLayers << ", HGCHEB layers = " << nHGChebLayers << std::endl;
 
-    //set layer max vals in calib objects
-    m_calibEE.m_TotalLayers = nHGCeeLayers;
-    m_calibHEF.m_TotalLayers = nHGChefLayers;
-    m_calibHEB.m_TotalLayers = nHGChebLayers;
-
+	//objects for setting up absorber weighting and layer masking
+	std::multimap<unsigned,unsigned> ganged_layers_EE, ganged_layers_HEF, ganged_layers_HEB;
+	if(DoLayerMasking){
+		ganged_layers_EE = LayerManager->buildAbsorberGanging(ForwardSubdetector::HGCEE);
+		ganged_layers_HEF = LayerManager->buildAbsorberGanging(ForwardSubdetector::HGCHEF);
+		ganged_layers_HEB = LayerManager->buildAbsorberGanging(ForwardSubdetector::HGCHEB);
+	}
+	CalibHGC* m_calib[] = {&m_calibEE, &m_calibHEF, &m_calibHEB};
+	std::multimap<unsigned,unsigned>* ganged_layers[] = {&ganged_layers_EE, &ganged_layers_HEF, &ganged_layers_HEB};
+	unsigned int nMaskedLayers[] = {0,0,0};
+	
     //open ROOT file with histograms containing layer depths
     TFile* file = TFile::Open(m_layerDepthFilename.fullPath().c_str(),"READ");
     TH1F* h_x0 = (TH1F*)file->Get("x0");
     TH1F* h_lambda = (TH1F*)file->Get("lambda");
-    unsigned h_max = h_x0->GetNbinsX();
-    for(unsigned ih = 1; ih <= h_max; ih++){
-        if(ih <= nHGCeeLayers) {
-            m_calibEE.nCellRadiationLengths.push_back(h_x0->GetBinContent(ih));
-            m_calibEE.nCellInteractionLengths.push_back(h_lambda->GetBinContent(ih));
-        }
-        else if(ih <= nHGCeeLayers + nHGChefLayers){
-            m_calibHEF.nCellRadiationLengths.push_back(h_x0->GetBinContent(ih));
-            m_calibHEF.nCellInteractionLengths.push_back(h_lambda->GetBinContent(ih));
-        }
-        else if(ih <= nHGCeeLayers + nHGChefLayers + nHGChebLayers){
-            m_calibHEB.nCellRadiationLengths.push_back(h_x0->GetBinContent(ih));
-            m_calibHEB.nCellInteractionLengths.push_back(h_lambda->GetBinContent(ih));
-        }
-    }
+	unsigned h_max = h_x0->GetNbinsX();
+	for(unsigned ih = 1; ih <= h_max; ih++){
+		double buffer_x0, buffer_lambda;
+		buffer_x0 = buffer_lambda = 0;
+		
+		int det_index = 0;
+		if(ih <= nHGCeeLayers) det_index = 0;
+		else if(ih <= nHGCeeLayers + nHGChefLayers) det_index = 1;
+		else if(ih <= nHGCeeLayers + nHGChefLayers + nHGChebLayers) det_index = 2;
+		
+		if(DoLayerMasking){
+			if( ganged_layers[det_index]->count(ih) ) {
+				auto range = ganged_layers[det_index]->equal_range(ih);
+				for( auto itr = range.first; itr != range.second; ++itr ) {
+					buffer_x0 += h_x0->GetBinContent(itr->second);
+					buffer_lambda += h_lambda->GetBinContent(itr->second);
+				}
+				++nMaskedLayers[det_index];
+			}
+			else continue;
+		}
+		else {
+			buffer_x0 = h_x0->GetBinContent(ih);
+			buffer_lambda = h_lambda->GetBinContent(ih);
+		}
+		
+		m_calib[det_index]->nCellRadiationLengths.push_back(buffer_x0);
+		m_calib[det_index]->nCellInteractionLengths.push_back(buffer_lambda);
+	}
     //close file
     file->Close();
     //set calibration layers: EE*2* for EE, HEF1 for HEF and HEB
@@ -415,6 +450,19 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
     m_calibHEB.calibrationRadiationLength = m_calibHEF.nCellRadiationLengths[1];
     m_calibHEB.calibrationInteractionLength = m_calibHEF.nCellInteractionLengths[1];
 
+	//reset layer max vals if masking is enabled
+	//automatically adds the proper number of layers to Pandora geometry further down
+	if(DoLayerMasking){
+		nHGCeeLayers = nMaskedLayers[0];
+		nHGChefLayers = nMaskedLayers[1];
+		nHGChebLayers = nMaskedLayers[2];
+	}
+	
+	//set layer max vals in calib objects
+    m_calibEE.m_TotalLayers = nHGCeeLayers;
+    m_calibHEF.m_TotalLayers = nHGChefLayers;
+    m_calibHEB.m_TotalLayers = nHGChebLayers;
+	
     //toggle use of overburden corrections
     m_calibEE.useOverburdenCorrection = m_useOverburdenCorrection;
 
@@ -976,8 +1024,27 @@ void PandoraCMSPFCandProducer::ProcessRecHits(const reco::PFRecHit* rh, unsigned
     }
     
     unsigned int layer = 0;
-    if(calib.m_id==ForwardSubdetector::HGCEE) layer = (unsigned int) ((HGCEEDetId)(detid)).layer() ;
-    else if(calib.m_id==ForwardSubdetector::HGCHEF || calib.m_id==ForwardSubdetector::HGCHEB) layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+    if(calib.m_id==ForwardSubdetector::HGCEE) {
+		layer = (unsigned int) ((HGCEEDetId)(detid)).layer() ;
+		if(DoLayerMasking){
+			auto iter = m_LayerGangingEE.find(layer);
+			if(iter != m_LayerGangingEE.end()) layer = iter->second;
+		}
+	}
+    else if(calib.m_id==ForwardSubdetector::HGCHEF){
+		layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+		if(DoLayerMasking){
+			auto iter = m_LayerGangingHEF.find(layer);
+			if(iter != m_LayerGangingHEF.end()) layer = iter->second;
+		}
+	}
+    else if(calib.m_id==ForwardSubdetector::HGCHEB){
+		layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+		if(DoLayerMasking){
+			auto iter = m_LayerGangingHEB.find(layer);
+			if(iter != m_LayerGangingHEB.end()) layer = iter->second;
+		}
+	}
     
     //hack because calo and HGC CornersVec are different formats
     const HGCalGeometry::CornersVec corners = ( std::move( geom->getCorners( detid ) ) );
@@ -1333,16 +1400,28 @@ void PandoraCMSPFCandProducer::preparePFO(edm::Event& iEvent){
           ForwardSubdetector thesubdet = (ForwardSubdetector)detid.subdetId();
           if (thesubdet == 3) {
             int layer = (int) ((HGCEEDetId)(detid)).layer() ;
+			if(DoLayerMasking){
+				auto iter = m_LayerGangingEE.find(layer);
+				if(iter != m_LayerGangingEE.end()) layer = iter->second;
+			}
             clusterEMenergyECAL += hgcHit->energy() * cos_theta * m_calibEE.GetADC2GeV() * m_calibEE.GetEMCalib(layer,eta);
             clusterHADenergyECAL += hgcHit->energy() * cos_theta * m_calibEE.GetADC2GeV() * m_calibEE.GetHADCalib(layer,eta);
           }
           else if (thesubdet == 4) {
             int layer = (int) ((HGCHEDetId)(detid)).layer() ;
+			if(DoLayerMasking){
+				auto iter = m_LayerGangingHEF.find(layer);
+				if(iter != m_LayerGangingHEF.end()) layer = iter->second;
+			}
             clusterEMenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEF.GetADC2GeV() * m_calibHEF.GetEMCalib(layer,eta);
             clusterHADenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEF.GetADC2GeV() * m_calibHEF.GetHADCalib(layer,eta);
           }
           else if (thesubdet == 5) {
             int layer = (int) ((HGCHEDetId)(detid)).layer() ;
+			if(DoLayerMasking){
+				auto iter = m_LayerGangingHEB.find(layer);
+				if(iter != m_LayerGangingHEB.end()) layer = iter->second;
+			}
             clusterEMenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEB.GetADC2GeV() * m_calibHEB.GetEMCalib(layer,eta);
             clusterHADenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEB.GetADC2GeV() * m_calibHEB.GetHADCalib(layer,eta);
           }
