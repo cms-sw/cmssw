@@ -525,6 +525,8 @@ steps['ZpTT_1500_8TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_T
 
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
 steps['Cosmics_UP15']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Up2015Defaults])
+steps['CosmicsSPLoose']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,100000),step1Defaults])
+steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,100000),step1Up2015Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
 
@@ -567,7 +569,7 @@ hiAlca = {'--conditions':'auto:run2_mc_HIon', '--customise':'SLHCUpgradeSimulati
 hiAlca2011 = {'--conditions':'auto:run1_mc_hi', '--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI'}
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2,'--beamspot':'RealisticHI2011Collision'}])
-hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons','-n':2,'--beamspot':'RealisticHI2011Collision'}])
+hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons','-n':2,'--beamspot':'NominalHICollision2015'}])
 
 steps['HydjetQ_MinBias_5020GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}

@@ -298,11 +298,10 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
          tstrig += charge - ped;
       }
    }
-   //if( tsTOTen < 0. ) tsTOTen = pedSig_;
+   
    std::vector<double> fitParsVec;
-   if( tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0 
+   if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
-//     double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
    }
    else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
      fitParsVec.clear();
@@ -413,7 +412,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    //Times and amplitudes
    for(int i = 0; i < int((n-1)/2); i++) {
      hybridfitter->SetLimitedVariable(0+i*2, varNames[2*i+0]  , vstart[0+i*2],   step[0+i*2],iniTimesArr[iBX[i]]+tMin, iniTimesArr[ iBX[i] ]+tMax);
-     hybridfitter->SetLimitedVariable(1+i*2, varNames[2*i+1]  , vstart[1+i*2],   step[1+i*2],      0, iTSTOTEn);
+     hybridfitter->SetLimitedVariable(1+i*2, varNames[2*i+1]  , vstart[1+i*2],   step[1+i*2],      0, 1.2*iTSTOTEn);
      //Secret Option to fix the time 
      if(timeSig_ < 0) hybridfitter->SetFixedVariable(0+i*2, varNames[2*i+0],vstart[0+i*2]);
    }

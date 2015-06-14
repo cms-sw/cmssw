@@ -124,14 +124,17 @@ HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
 HLT_Random_v*							# JIRA: CMSHLT-244
 
 HLT_Physics_v*							# skim
+DST_Physics_v*							# skim
 
 #DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
-RatesMonitoring							# CMSHLT-344
+#RatesMonitoring						# CMSHLT-344, only in 'online'
 AOutput
 DQMOutput							# online DQMFileSaver
+DQMEventDisplayOutput
+DQMCalibrationOutput
 CalibrationOutput
 EcalCalibrationOutput
 #TrackerCalibrationOutput
@@ -142,5 +145,7 @@ ALCALUMIPIXELSOutput
 #ElectronStreamOutput						# JIRA: CMSHLT-366
 #ExpressForCosmicsOutput					# only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
+LookAreaOutput
+NanoDSTOutput
 #HLTDQMOutput
 #HLTMONOutput
