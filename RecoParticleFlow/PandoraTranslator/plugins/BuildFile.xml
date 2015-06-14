@@ -1,6 +1,5 @@
 <use name="pandora"/>
 <use name="RecoParticleFlow/PandoraTranslator"/>
-<use name="RecoParticleFlow/PFClusterProducer"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
@@ -40,6 +39,6 @@
 <use name="FWCore/RootAutoLibraryLoader"/>
 <use name="rootcint"/>
 
-<library file="*.cc" name="HGCalPandoraTranslatorPlugins">
+<library file="*.cc" name="RecoParticleFlowPandoraTranslatorPlugins">
    <flags EDM_PLUGIN="1"/>
 </library>
