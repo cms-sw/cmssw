@@ -222,8 +222,9 @@ public:
   
   void preparePFO(edm::Event& iEvent);
   void prepareGeometry();
+  unsigned int GetHGCLayer(const DetId& detid, const ForwardSubdetector& subdet) const;
   void SetDefaultSubDetectorParameters(const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
-  void CalculateCornerSubDetectorParameters(const CaloSubdetectorGeometry* geom,  const std::vector<DetId>& cells, const pandora::SubDetectorType subDetectorType, 
+  void CalculateCornerSubDetectorParameters(const CaloSubdetectorGeometry* geom,  const std::vector<DetId>& cells, const pandora::SubDetectorType subDetectorType, const ForwardSubdetector& subdet,
                                             double& min_innerRadius, double& max_outerRadius, double& min_innerZ, double& max_outerZ,
                                             bool doLayers, std::vector<double>& min_innerR_depth, std::vector<double>& min_innerZ_depth) const;
   void SetCornerSubDetectorParameters(PandoraApi::Geometry::SubDetector::Parameters &parameters, 
