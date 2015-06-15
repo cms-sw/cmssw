@@ -13,8 +13,8 @@ l2muon_moduleName = "hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23"
 l2NoBPTXmuon_pathName = "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo"
 l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
 
-electron_pathName = "HLT_Ele27_eta2p1_WP75_Gsf"
-electron_moduleName = "hltEle27WP75GsfTrackIsoFilter"
+electron_pathName = "HLT_Ele23_WPLoose_Gsf"
+electron_moduleName = "hltEle23WPLooseGsfTrackIsoFilter"
 
 caloMet_pathName = "HLT_MET75_IsoTrk50"
 caloMet_moduleName = "hltMETClean75"
