@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
 process.options = cms.untracked.PSet(
     # wantSummary = cms.untracked.bool(True)
-    #SkipEvent = cms.untracked.vstring('ProductNotFound')
+    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 #####################################################################################
@@ -23,14 +23,14 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring(
-        "/store/user/tuos/HIAOD2015/round3/June01/JETv2/HIHighPt/JET_AOD_DATA750pre5_round3v02/150602_224917/0000/step2_RAW2DIGI_L1Reco_JET_AOD_101.root"
+                            fileNames = cms.untracked.vstring("file:AOD_sample_file.root")
+                        )
 
-    ))
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10))
+
 
 
 #####################################################################################
@@ -177,7 +177,7 @@ process.ana_step = cms.Path(#process.heavyIon*
 #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
-                            #process.jetSequences +
+                            process.jetSequences +
                             #process.photonStep +
                             process.ggHiNtuplizer +
                             process.pfcandAnalyzer +

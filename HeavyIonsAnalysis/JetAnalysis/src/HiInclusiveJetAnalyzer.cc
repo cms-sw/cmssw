@@ -85,10 +85,10 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   pfCandidateLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("pfCandidateLabel",edm::InputTag("particleFlowTmp"));
 
-  EBSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EBRecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  EESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EERecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
-  HcalRecHitHFSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHFRecHitSrc",edm::InputTag("hfreco"));
-  HcalRecHitHBHESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHBHERecHitSrc",edm::InputTag("hbhereco"));
+  // EBSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EBRecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  // EESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EERecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  // HcalRecHitHFSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHFRecHitSrc",edm::InputTag("hfreco"));
+  // HcalRecHitHBHESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHBHERecHitSrc",edm::InputTag("hbhereco"));
 
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("hiGenParticles"));
 
@@ -208,8 +208,8 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("neutralSum", jets_.neutralSum,"neutralSum[nref]/F");
     t->Branch("neutralN", jets_.neutralN,"neutralN[nref]/I");
 
-    t->Branch("hcalSum", jets_.hcalSum,"hcalSum[nref]/F");
-    t->Branch("ecalSum", jets_.ecalSum,"ecalSum[nref]/F");
+    // t->Branch("hcalSum", jets_.hcalSum,"hcalSum[nref]/F");
+    // t->Branch("ecalSum", jets_.ecalSum,"ecalSum[nref]/F");
 
     t->Branch("eMax", jets_.eMax,"eMax[nref]/F");
     t->Branch("eSum", jets_.eSum,"eSum[nref]/F");
@@ -459,16 +459,16 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(trackTag_,tracks);
 
-  edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebHits;
-  edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeHits;
+  // edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebHits;
+  // edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeHits;
 
-  edm::Handle<HFRecHitCollection> hfHits;
-  edm::Handle<HBHERecHitCollection> hbheHits;
+  //edm::Handle<HFRecHitCollection> hfHits;
+  //edm::Handle<HBHERecHitCollection> hbheHits;
 
-  iEvent.getByLabel(HcalRecHitHBHESrc_,hbheHits);
-  iEvent.getByLabel(HcalRecHitHFSrc_,hfHits);
-  iEvent.getByLabel(EBSrc_,ebHits);
-  iEvent.getByLabel(EESrc_,eeHits);
+  //iEvent.getByLabel(HcalRecHitHBHESrc_,hbheHits);
+  //iEvent.getByLabel(HcalRecHitHFSrc_,hfHits);
+  // iEvent.getByLabel(EBSrc_,ebHits);
+  // iEvent.getByLabel(EESrc_,eeHits);
 
   edm::Handle<reco::GenParticleCollection> genparts;
   iEvent.getByLabel(genParticleSrc_,genparts);
@@ -607,26 +607,26 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	  GlobalPoint pv(tagInfoIP.primaryVertex()->position().x(),tagInfoIP.primaryVertex()->position().y(),tagInfoIP.primaryVertex()->position().z());
 	  
 	  for(int it=0;it<jets_.nselIPtrk[jets_.nref] ;it++)
-	  {
-	    jets_.ipJetIndex[jets_.nIP + it]= jets_.nref;
-	    reco::btag::TrackIPData data = tagInfoIP.impactParameterData()[it];
-	    jets_.ipPt[jets_.nIP + it] = selTracks[it]->pt();
-	    jets_.ipEta[jets_.nIP + it] = selTracks[it]->eta();
-	    jets_.ipDxy[jets_.nIP + it] = selTracks[it]->dxy(tagInfoIP.primaryVertex()->position());
-	    jets_.ipDz[jets_.nIP + it] = selTracks[it]->dz(tagInfoIP.primaryVertex()->position());
-	    jets_.ipChi2[jets_.nIP + it] = selTracks[it]->normalizedChi2();
-	    jets_.ipNHit[jets_.nIP + it] = selTracks[it]->numberOfValidHits();
-	    jets_.ipNHitPixel[jets_.nIP + it] = selTracks[it]->hitPattern().numberOfValidPixelHits();
-	    jets_.ipNHitStrip[jets_.nIP + it] = selTracks[it]->hitPattern().numberOfValidStripHits();
-	    jets_.ipIsHitL1[jets_.nIP + it]  = selTracks[it]->hitPattern().hasValidHitInFirstPixelBarrel();
-	    jets_.ipProb0[jets_.nIP + it] = tagInfoIP.probabilities(0)[it];
-	    jets_.ip2d[jets_.nIP + it] = data.ip2d.value();
-	    jets_.ip2dSig[jets_.nIP + it] = data.ip2d.significance();
-	    jets_.ip3d[jets_.nIP + it] = data.ip3d.value();
-	    jets_.ip3dSig[jets_.nIP + it] = data.ip3d.significance();
-	    jets_.ipDist2Jet[jets_.nIP + it] = data.distanceToJetAxis.value();
-	    jets_.ipClosest2Jet[jets_.nIP + it] = (data.closestToJetAxis - pv).mag();  //decay length
-	  }
+	    {
+	      jets_.ipJetIndex[jets_.nIP + it]= jets_.nref;
+	      reco::btag::TrackIPData data = tagInfoIP.impactParameterData()[it];
+	      jets_.ipPt[jets_.nIP + it] = selTracks[it]->pt();
+	      jets_.ipEta[jets_.nIP + it] = selTracks[it]->eta();
+	      jets_.ipDxy[jets_.nIP + it] = selTracks[it]->dxy(tagInfoIP.primaryVertex()->position());
+	      jets_.ipDz[jets_.nIP + it] = selTracks[it]->dz(tagInfoIP.primaryVertex()->position());
+	      jets_.ipChi2[jets_.nIP + it] = selTracks[it]->normalizedChi2();
+	      jets_.ipNHit[jets_.nIP + it] = selTracks[it]->numberOfValidHits();
+	      jets_.ipNHitPixel[jets_.nIP + it] = selTracks[it]->hitPattern().numberOfValidPixelHits();
+	      jets_.ipNHitStrip[jets_.nIP + it] = selTracks[it]->hitPattern().numberOfValidStripHits();
+	      jets_.ipIsHitL1[jets_.nIP + it]  = selTracks[it]->hitPattern().hasValidHitInFirstPixelBarrel();
+	      jets_.ipProb0[jets_.nIP + it] = tagInfoIP.probabilities(0)[it];
+	      jets_.ip2d[jets_.nIP + it] = data.ip2d.value();
+	      jets_.ip2dSig[jets_.nIP + it] = data.ip2d.significance();
+	      jets_.ip3d[jets_.nIP + it] = data.ip3d.value();
+	      jets_.ip3dSig[jets_.nIP + it] = data.ip3d.significance();
+	      jets_.ipDist2Jet[jets_.nIP + it] = data.distanceToJetAxis.value();
+	      jets_.ipClosest2Jet[jets_.nIP + it] = (data.closestToJetAxis - pv).mag();  //decay length
+	    }
 
 	  jets_.nIP += jets_.nselIPtrk[jets_.nref];
 
@@ -724,8 +724,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       jets_.trackHardSum[jets_.nref] = 0;
       jets_.trackHardN[jets_.nref] = 0;
 
-      jets_.hcalSum[jets_.nref] = 0;
-      jets_.ecalSum[jets_.nref] = 0;
+      // jets_.hcalSum[jets_.nref] = 0;
+      // jets_.ecalSum[jets_.nref] = 0;
 
       jets_.genChargedSum[jets_.nref] = 0;
       jets_.genHardSum[jets_.nref] = 0;
@@ -814,42 +814,42 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 
       // Calorimeter fractions
 
-      for(unsigned int i = 0; i < hbheHits->size(); ++i){
-	const HBHERecHit & hit= (*hbheHits)[i];
-	math::XYZPoint pos = getPosition(hit.id(),vtx);
-	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
-	if(dr < rParam){
-	  jets_.hcalSum[jets_.nref] += getEt(pos,hit.energy());
-	}
-      }
+      //   for(unsigned int i = 0; i < hbheHits->size(); ++i){
+      // 	const HBHERecHit & hit= (*hbheHits)[i];
+      // 	math::XYZPoint pos = getPosition(hit.id(),vtx);
+      // 	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
+      // 	if(dr < rParam){
+      // 	  jets_.hcalSum[jets_.nref] += getEt(pos,hit.energy());
+      // 	}
+      //   }
 
-      for(unsigned int i = 0; i < hfHits->size(); ++i){
-	const HFRecHit & hit= (*hfHits)[i];
-	math::XYZPoint pos = getPosition(hit.id(),vtx);
-	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
-	if(dr < rParam){
-	  jets_.hcalSum[jets_.nref] += getEt(pos,hit.energy());
-	}
-      }
+      //   for(unsigned int i = 0; i < hfHits->size(); ++i){
+      // 	const HFRecHit & hit= (*hfHits)[i];
+      // 	math::XYZPoint pos = getPosition(hit.id(),vtx);
+      // 	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
+      // 	if(dr < rParam){
+      // 	  jets_.hcalSum[jets_.nref] += getEt(pos,hit.energy());
+      // 	}
+      //   }
 
 
-      for(unsigned int i = 0; i < ebHits->size(); ++i){
-	const EcalRecHit & hit= (*ebHits)[i];
-	math::XYZPoint pos = getPosition(hit.id(),vtx);
-	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
-	if(dr < rParam){
-	  jets_.ecalSum[jets_.nref] += getEt(pos,hit.energy());
-	}
-      }
+      //   for(unsigned int i = 0; i < ebHits->size(); ++i){
+      // 	const EcalRecHit & hit= (*ebHits)[i];
+      // 	math::XYZPoint pos = getPosition(hit.id(),vtx);
+      // 	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
+      // 	if(dr < rParam){
+      // 	  jets_.ecalSum[jets_.nref] += getEt(pos,hit.energy());
+      // 	}
+      //   }
 
-      for(unsigned int i = 0; i < eeHits->size(); ++i){
-	const EcalRecHit & hit= (*eeHits)[i];
-	math::XYZPoint pos = getPosition(hit.id(),vtx);
-	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
-	if(dr < rParam){
-	  jets_.ecalSum[jets_.nref] += getEt(pos,hit.energy());
-	}
-      }
+      //   for(unsigned int i = 0; i < eeHits->size(); ++i){
+      // 	const EcalRecHit & hit= (*eeHits)[i];
+      // 	math::XYZPoint pos = getPosition(hit.id(),vtx);
+      // 	double dr = deltaR(jet.eta(),jet.phi(),pos.eta(),pos.phi());
+      // 	if(dr < rParam){
+      // 	  jets_.ecalSum[jets_.nref] += getEt(pos,hit.energy());
+      // 	}
+      //   }
 
     }
     // Jet ID for CaloJets
@@ -910,35 +910,35 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	    //case 1:	// Charged hadron
 	    //case 3:	// Muon
 	  case 4:	// Photon
-	  {
-	    const float dpseudorapidity =
-	      p.eta() - pseudorapidity_adapt;
-	    const float dazimuth =
-	      reco::deltaPhi(p.phi(), azimuth_adapt);
-	    // The Gaussian scale factor is 0.5 / (0.1 * 0.1)
-	    // = 50
-	    const float angular_weight =
-	      exp(-50.0F * (dpseudorapidity * dpseudorapidity +
-			    dazimuth * dazimuth));
-	    const float weighted_perp =
-	      angular_weight * p.pt() * p.pt();
-	    const float weighted_perp_square =
-	      weighted_perp * p.pt();
+	    {
+	      const float dpseudorapidity =
+		p.eta() - pseudorapidity_adapt;
+	      const float dazimuth =
+		reco::deltaPhi(p.phi(), azimuth_adapt);
+	      // The Gaussian scale factor is 0.5 / (0.1 * 0.1)
+	      // = 50
+	      const float angular_weight =
+		exp(-50.0F * (dpseudorapidity * dpseudorapidity +
+			      dazimuth * dazimuth));
+	      const float weighted_perp =
+		angular_weight * p.pt() * p.pt();
+	      const float weighted_perp_square =
+		weighted_perp * p.pt();
 
-	    perp_square_sum += weighted_perp_square;
-	    if (weighted_perp >= max_weighted_perp) {
-	      pseudorapidity_adapt_new = p.eta();
-	      azimuth_adapt_new = p.phi();
-	      max_weighted_perp = weighted_perp;
+	      perp_square_sum += weighted_perp_square;
+	      if (weighted_perp >= max_weighted_perp) {
+		pseudorapidity_adapt_new = p.eta();
+		azimuth_adapt_new = p.phi();
+		max_weighted_perp = weighted_perp;
+	      }
 	    }
-	  }
 	  default:
 	    break;
 	  }
 	}
 	// Update the fake rejection value
 	jets_.discr_fr01[jets_.nref] = std::max(
-	  jets_.discr_fr01[jets_.nref], perp_square_sum);
+						jets_.discr_fr01[jets_.nref], perp_square_sum);
 	// Update the directional adaption
 	pseudorapidity_adapt = pseudorapidity_adapt_new;
 	azimuth_adapt = azimuth_adapt_new;
@@ -1135,7 +1135,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	    break;
 	  }
 	}
-      jets_.ngen++;
+	jets_.ngen++;
       }
     }
 
@@ -1162,9 +1162,9 @@ void HiInclusiveJetAnalyzer::fillL1Bits(const edm::Event &iEvent)
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GlobalTrigger->technicalTriggerWord();
 
   for (int i=0; i<64;i++)
-  {
-    jets_.l1TBit[i] = technicalTriggerWordBeforeMask.at(i);
-  }
+    {
+      jets_.l1TBit[i] = technicalTriggerWordBeforeMask.at(i);
+    }
   jets_.nL1TBit = 64;
 
   int ntrigs = L1GlobalTrigger->decisionWord().size();

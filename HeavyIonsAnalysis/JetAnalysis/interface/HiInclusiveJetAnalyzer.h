@@ -72,10 +72,10 @@ private:
   int TaggedJet(reco::Jet calojet, edm::Handle<reco::JetTagCollection > jetTags );
 
   edm::InputTag   jetTag_, vtxTag_, genjetTag_, eventInfoTag_, L1gtReadout_, pfCandidateLabel_, trackTag_, matchTag_;
-  edm::InputTag HcalRecHitHFSrc_;
-  edm::InputTag HcalRecHitHBHESrc_;
-  edm::InputTag EBSrc_;
-  edm::InputTag EESrc_;
+  // edm::InputTag HcalRecHitHFSrc_;
+  // edm::InputTag HcalRecHitHBHESrc_;
+  // edm::InputTag EBSrc_;
+  // edm::InputTag EESrc_;
   edm::InputTag genParticleSrc_;
 
   std::vector<float> usedStringPts;
@@ -205,8 +205,9 @@ private:
     float signalChargedSum[MAXJETS];
     float signalHardSum[MAXJETS];
 
-    float hcalSum[MAXJETS];
-    float ecalSum[MAXJETS];
+    // Update by Raghav, since we are not saving the HBHErechit collection
+    // float hcalSum[MAXJETS];
+    // float ecalSum[MAXJETS];
 
 
     float fHPD[MAXJETS];
