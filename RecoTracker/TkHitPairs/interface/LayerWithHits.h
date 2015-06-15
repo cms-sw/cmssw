@@ -16,8 +16,10 @@ class LayerWithHits
     theDetLayer(dl),theHits(theInputHits){}
   
   /// Usage: 
-  ///  TrackerLayerIdAccessor acc;
-  ///  LayerWithHits( theLayer, collrphi, acc.stripTIBLayer(1) );
+  ///  edm::ESHandle<TrackerTopology> httopo;
+  ///  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  ///  const TrackerTopology& ttopo = *httopo;
+  ///  LayerWithHits( theLayer, collrphi, ttopo.tibDetIdLayerComparator(1) );
   template <typename DSTV, typename SEL>
   LayerWithHits(const DetLayer *dl,
                 DSTV const & allhits,    

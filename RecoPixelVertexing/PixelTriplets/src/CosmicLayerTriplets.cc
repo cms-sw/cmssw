@@ -13,6 +13,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 using std::vector;
 vector<CosmicLayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers()
 {
@@ -69,6 +72,10 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
     bl=track->barrelLayers(); 
     isFirstCall=false;
   }
+  edm::ESHandle<TrackerTopology> httopo;
+  iSetup.get<IdealGeometryRecord>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
+
   for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); 
       it!=allLayersWithHits.end();it++){
     delete *it;
@@ -81,9 +88,9 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
     const DetLayer*  bl2=dynamic_cast<DetLayer*>(bl[11]);
     const DetLayer*  bl3=dynamic_cast<DetLayer*>(bl[12]);
     //   //LayersWithHits
-    lh1=new  LayerWithHits(bl1,collrphi,acc.stripTOBLayer(4));   allLayersWithHits.push_back(lh1);
-    lh2=new  LayerWithHits(bl2,collrphi,acc.stripTOBLayer(5));   allLayersWithHits.push_back(lh2);
-    lh3=new  LayerWithHits(bl3,collrphi,acc.stripTOBLayer(6));   allLayersWithHits.push_back(lh3);
+    lh1=new  LayerWithHits(bl1,collrphi,ttopo.tobDetIdLayerComparator(4));   allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,collrphi,ttopo.tobDetIdLayerComparator(5));   allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,collrphi,ttopo.tobDetIdLayerComparator(6));   allLayersWithHits.push_back(lh3);
   }
   if(_geometry=="MTCC"){ 
 
@@ -92,9 +99,9 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
     const DetLayer*  bl3=dynamic_cast<DetLayer*>(bl[2]);
     const DetLayer*  bl4=dynamic_cast<DetLayer*>(bl[3]);
 
-    lh1=new  LayerWithHits(bl1,collrphi,acc.stripTIBLayer(1)); allLayersWithHits.push_back(lh1);
-    lh2=new  LayerWithHits(bl2,collrphi,acc.stripTIBLayer(2)); allLayersWithHits.push_back(lh2);
-    lh3=new  LayerWithHits(bl3,collrphi,acc.stripTOBLayer(1)); allLayersWithHits.push_back(lh3);
-    lh4=new  LayerWithHits(bl4,collrphi,acc.stripTOBLayer(2)); allLayersWithHits.push_back(lh4);
+    lh1=new  LayerWithHits(bl1,collrphi,ttopo.tibDetIdLayerComparator(1)); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,collrphi,ttopo.tibDetIdLayerComparator(2)); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,collrphi,ttopo.tobDetIdLayerComparator(1)); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,collrphi,ttopo.tobDetIdLayerComparator(2)); allLayersWithHits.push_back(lh4);
   }
 }
