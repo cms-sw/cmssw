@@ -74,11 +74,11 @@ class Electron( Lepton ):
             'POG_CSA14_50ns_v1_Loose'  :  [('dEtaIn', [0.016, 0.025]), ('dPhiIn', [0.080, 0.097]), ('sigmaIEtaIEta', [0.012, 0.032]), ('H/E', [0.15 , 0.12 ]), ('1/E-1/p', [0.11 , 0.11 ])],
             'POG_CSA14_50ns_v1_Medium' :  [('dEtaIn', [0.015, 0.023]), ('dPhiIn', [0.051, 0.056]), ('sigmaIEtaIEta', [0.010, 0.030]), ('H/E', [0.10 , 0.099]), ('1/E-1/p', [0.053, 0.11 ])],
             'POG_CSA14_50ns_v1_Tight'  :  [('dEtaIn', [0.012, 0.019]), ('dPhiIn', [0.024, 0.043]), ('sigmaIEtaIEta', [0.010, 0.029]), ('H/E', [0.074, 0.080]), ('1/E-1/p', [0.026, 0.076])],
-            ## ------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_PHYS14_sample?rev=13
-            'POG_PHYS14_25ns_v1_Veto'   :  [('dEtaIn', [0.016315, 0.010671]), ('dPhiIn', [0.252044, 0.245263]), ('sigmaIEtaIEta', [0.011100 , 0.033987]), ('H/E', [0.345843, 0.134691]), ('1/E-1/p', [0.248070, 0.157160])],
-            'POG_PHYS14_25ns_v1_Loose'  :  [('dEtaIn', [0.012442, 0.010654]), ('dPhiIn', [0.072624, 0.145129]), ('sigmaIEtaIEta', [0.010557 , 0.032602]), ('H/E', [0.121476, 0.131862]), ('1/E-1/p', [0.221803, 0.142283])],
-            'POG_PHYS14_25ns_v1_Medium' :  [('dEtaIn', [0.007641, 0.009285]), ('dPhiIn', [0.032643, 0.042447]), ('sigmaIEtaIEta', [0.010399 , 0.029524]), ('H/E', [0.060662, 0.104263]), ('1/E-1/p', [0.153897, 0.137468])],
-            'POG_PHYS14_25ns_v1_Tight'  :  [('dEtaIn', [0.006574, 0.005681]), ('dPhiIn', [0.022868, 0.032046]), ('sigmaIEtaIEta', [0.010181 , 0.028766]), ('H/E', [0.037553, 0.081902]), ('1/E-1/p', [0.131191, 0.106055])],
+            ## ------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_PHYS14_sample?rev=19
+            'POG_PHYS14_25ns_v1_Veto'   :  [('dEtaIn', [0.013625, 0.011932]), ('dPhiIn', [0.230374, 0.255450]), ('sigmaIEtaIEta', [0.011586 , 0.031849]), ('H/E', [0.181130, 0.223870]), ('1/E-1/p', [0.295751, 0.177032])],
+            'POG_PHYS14_25ns_v1_Loose'  :  [('dEtaIn', [0.009277, 0.009833]), ('dPhiIn', [0.094739, 0.149934]), ('sigmaIEtaIEta', [0.010331 , 0.031838]), ('H/E', [0.093068, 0.115754]), ('1/E-1/p', [0.189968, 0.163368])],
+            'POG_PHYS14_25ns_v1_Medium' :  [('dEtaIn', [0.008925, 0.007429]), ('dPhiIn', [0.035973, 0.067879]), ('sigmaIEtaIEta', [0.009996 , 0.030135]), ('H/E', [0.050537, 0.086782]), ('1/E-1/p', [0.091942, 0.113254])],
+            'POG_PHYS14_25ns_v1_Tight'  :  [('dEtaIn', [0.006046, 0.007057]), ('dPhiIn', [0.028092, 0.030159]), ('sigmaIEtaIEta', [0.009947 , 0.028237]), ('H/E', [0.045772, 0.067778]), ('1/E-1/p', [0.020118, 0.078265])],
         }
         WP_conversion_veto = {
             # missing Hits incremented by 1 because we return False if >=, note the '='
@@ -91,7 +91,7 @@ class Electron( Lepton ):
             'POG_CSA14_50ns_v1_ConvVeto_Loose'  :  WP['POG_CSA14_50ns_v1_Loose' ]+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
             'POG_CSA14_50ns_v1_ConvVeto_Medium' :  WP['POG_CSA14_50ns_v1_Medium']+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
             'POG_CSA14_50ns_v1_ConvVeto_Tight'  :  WP['POG_CSA14_50ns_v1_Tight' ]+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
-            ## ------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_PHYS14_sample?rev=13
+            ## ------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_PHYS14_sample?rev=19
             'POG_PHYS14_25ns_v1_ConvVeto_Veto'   :  WP['POG_PHYS14_25ns_v1_Veto'  ]+[('conversionVeto', [True, True]), ('missingHits', [3, 4])],
             'POG_PHYS14_25ns_v1_ConvVeto_Loose'  :  WP['POG_PHYS14_25ns_v1_Loose' ]+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
             'POG_PHYS14_25ns_v1_ConvVeto_Medium' :  WP['POG_PHYS14_25ns_v1_Medium']+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
@@ -101,12 +101,11 @@ class Electron( Lepton ):
         WP.update(WP_conversion_veto)
 
         WP_conversion_veto_DxyDz = {
-            # missing Hits incremented by 1 because we return False if >=, note the '='
-            ## ------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_PHYS14_sample
-            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Veto'   :  WP['POG_PHYS14_25ns_v1_ConvVeto_Veto'  ]+[('dxy',[0.060279, 0.273097]), ('dz',[0.800538, 0.885860])],
-            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Loose'  :  WP['POG_PHYS14_25ns_v1_ConvVeto_Loose' ]+[('dxy',[0.022664, 0.097358]), ('dz',[0.173670, 0.198444])],
-            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Medium' :  WP['POG_PHYS14_25ns_v1_ConvVeto_Medium']+[('dxy',[0.011811, 0.051682]), ('dz',[0.070775, 0.180720])],
-            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Tight'  :  WP['POG_PHYS14_25ns_v1_ConvVeto_Tight' ]+[('dxy',[0.009924, 0.027261]), ('dz',[0.015310, 0.147154])],
+            ## ------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_PHYS14_sample?rev=19
+            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Veto'   :  WP['POG_PHYS14_25ns_v1_ConvVeto_Veto'  ]+[('dxy',[0.094095, 0.342293]), ('dz',[0.713070, 0.953461])],
+            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Loose'  :  WP['POG_PHYS14_25ns_v1_ConvVeto_Loose' ]+[('dxy',[0.035904, 0.099266]), ('dz',[0.075496, 0.197897])],
+            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Medium' :  WP['POG_PHYS14_25ns_v1_ConvVeto_Medium']+[('dxy',[0.012235, 0.036719]), ('dz',[0.042020, 0.138142])],
+            'POG_PHYS14_25ns_v1_ConvVetoDxyDz_Tight'  :  WP['POG_PHYS14_25ns_v1_ConvVeto_Tight' ]+[('dxy',[0.008790, 0.027984]), ('dz',[0.021226, 0.133431])],
         }
 
         WP.update(WP_conversion_veto_DxyDz)

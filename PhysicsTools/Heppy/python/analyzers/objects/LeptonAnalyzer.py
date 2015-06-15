@@ -36,19 +36,34 @@ class LeptonAnalyzer( Analyzer ):
         self.electronEnergyCalibrator = EmbeddedElectronCalibrator()
 #        if hasattr(cfg_comp,'efficiency'):
 #            self.efficiency= EfficiencyCorrector(cfg_comp.efficiency)
-        # Isolation cut
+        # Isolation cut Electron
+        #NOTE Electron -> Iso03
+        if hasattr(cfg_ana, 'inclusive_electron_isoCut'):
+            self.inclEleIsoCut = cfg_ana.inclusive_electron_isoCut
+        else:
+            self.inclEleIsoCut = lambda ele : (
+                    ele.relIso03 <= self.cfg_ana.inclusive_electron_relIso and 
+                    ele.absIso03 <  getattr(self.cfg_ana,'inclusive_electron_absIso',9e99))
         if hasattr(cfg_ana, 'loose_electron_isoCut'):
             self.eleIsoCut = cfg_ana.loose_electron_isoCut
         else:
             self.eleIsoCut = lambda ele : (
                     ele.relIso03 <= self.cfg_ana.loose_electron_relIso and 
                     ele.absIso03 <  getattr(self.cfg_ana,'loose_electron_absIso',9e99))
+        # Isolation cut Muon
+        #NOTE Muon -> Iso04
+        if hasattr(cfg_ana, 'inclusive_muon_isoCut'):
+            self.inclMuIsoCut = cfg_ana.inclusive_muon_isoCut
+        else:
+            self.inclMuIsoCut = lambda mu : (
+                    mu.relIso04 <= self.cfg_ana.inclusive_muon_relIso and 
+                    mu.absIso04 <  getattr(self.cfg_ana,'inclusive_muon_absIso',9e99))
         if hasattr(cfg_ana, 'loose_muon_isoCut'):
             self.muIsoCut = cfg_ana.loose_muon_isoCut
         else:
             self.muIsoCut = lambda mu : (
-                    mu.relIso03 <= self.cfg_ana.loose_muon_relIso and 
-                    mu.absIso03 <  getattr(self.cfg_ana,'loose_muon_absIso',9e99))
+                    mu.relIso04 <= self.cfg_ana.loose_muon_relIso and 
+                    mu.absIso04 <  getattr(self.cfg_ana,'loose_muon_absIso',9e99))
 
 
 
@@ -122,15 +137,22 @@ class LeptonAnalyzer( Analyzer ):
         #make inclusive leptons
         inclusiveMuons = []
         inclusiveElectrons = []
-        for mu in allmuons:
-            if (mu.track().isNonnull() and mu.muonID(self.cfg_ana.inclusive_muon_id) and 
-                    mu.pt()>self.cfg_ana.inclusive_muon_pt and abs(mu.eta())<self.cfg_ana.inclusive_muon_eta and 
-                    abs(mu.dxy())<self.cfg_ana.inclusive_muon_dxy and abs(mu.dz())<self.cfg_ana.inclusive_muon_dz):
+        for mu in allmuons:                        
+            if (mu.track().isNonnull() and 
+                    mu.muonID(self.cfg_ana.inclusive_muon_id) and
+                    mu.pt()>self.cfg_ana.inclusive_muon_pt and 
+                    abs(mu.eta())<self.cfg_ana.inclusive_muon_eta and
+                    abs(mu.dxy())<self.cfg_ana.inclusive_muon_dxy and 
+                    abs(mu.dz())<self.cfg_ana.inclusive_muon_dz and
+                    self.inclMuIsoCut(mu) ):
                 inclusiveMuons.append(mu)
         for ele in allelectrons:
             if ( ele.electronID(self.cfg_ana.inclusive_electron_id) and
-                    ele.pt()>self.cfg_ana.inclusive_electron_pt and abs(ele.eta())<self.cfg_ana.inclusive_electron_eta and 
-                    abs(ele.dxy())<self.cfg_ana.inclusive_electron_dxy and abs(ele.dz())<self.cfg_ana.inclusive_electron_dz and 
+                    ele.pt()>self.cfg_ana.inclusive_electron_pt and 
+                    abs(ele.eta())<self.cfg_ana.inclusive_electron_eta and 
+                    abs(ele.dxy())<self.cfg_ana.inclusive_electron_dxy and 
+                    abs(ele.dz())<self.cfg_ana.inclusive_electron_dz and 
+                    self.inclEleIsoCut(ele) and 
                     ele.lostInner()<=self.cfg_ana.inclusive_electron_lostHits ):
                 inclusiveElectrons.append(ele)
         event.inclusiveLeptons = inclusiveMuons + inclusiveElectrons
@@ -471,6 +493,8 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     inclusive_muon_eta = 2.4,
     inclusive_muon_dxy = 0.5,
     inclusive_muon_dz  = 1.0,
+    #inclusive_muon_isoCut = lambda muon :muon.relIso04 < 0.2,
+    inclusive_muon_relIso = 0.4,
     muon_dxydz_track   = "muonBestTrack",
     # loose muon selection
     loose_muon_id     = "POG_ID_Loose",
@@ -479,14 +503,16 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_muon_dxy    = 0.05,
     loose_muon_dz     = 0.2,
     loose_muon_relIso = 0.4,
-    # loose_muon_isoCut = lambda muon :muon.miniRelIso < 0.2 
+    #loose_muon_isoCut = lambda muon :muon.miniRelIso < 0.2 
     # inclusive very loose electron selection
     inclusive_electron_id  = "",
     inclusive_electron_pt  = 5,
     inclusive_electron_eta = 2.5,
     inclusive_electron_dxy = 0.5,
     inclusive_electron_dz  = 1.0,
+    #inclusive_electron_relIso  = 0.2,
     inclusive_electron_lostHits = 1.0,
+    #inclusive_electron_isoCut = lambda electron :electron.relIso04 < 0.2,
     # loose electron selection
     loose_electron_id     = "", #POG_MVA_ID_NonTrig_full5x5",
     loose_electron_pt     = 7,
