@@ -47,6 +47,7 @@ HitPairGeneratorFromLayerPairForPhotonConversion::HitPairGeneratorFromLayerPairF
 
 void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const ConversionRegion& convRegion,
 								const TrackingRegion & region, OrderedHitPairs & result,
+								const Layers& layers,
 								const edm::Event& event, const edm::EventSetup& es)
 {
  auto oldSize = result.size();
@@ -60,8 +61,8 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
-  Layer innerLayerObj = innerLayer();
-  Layer outerLayerObj = outerLayer();
+  Layer innerLayerObj = layers[theInnerLayer];
+  Layer outerLayerObj = layers[theOuterLayer];
 
 #ifdef mydebug_Seed
   ss << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name() << std::endl;
