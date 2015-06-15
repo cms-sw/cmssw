@@ -76,3 +76,22 @@ for iev,event in enumerate(events):
         selectElectron(electrons.product(),i,event)
         print selectElectron
 
+#test the validator framework
+
+print 'test validation framework' 
+
+selectElectronValid = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight)
+selectMuonValid = VIDMuonSelector(globalMuonPromptTight_V0)
+from  PhysicsTools.SelectorUtils.VIDSelectorValidator import VIDSelectorValidator
+electron_validator = VIDSelectorValidator(selectElectronValid,'std::vector<pat::Electron>','slimmedElectrons')
+muon_validator = VIDSelectorValidator(selectMuonValid,'std::vector<pat::Muon>','slimmedMuons')
+
+signal_files     = []
+background_files = []
+mix_files        = ['root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root']
+
+electron_validator.setMixFiles(mix_files)
+muon_validator.setMixFiles(mix_files)
+
+electron_validator.runValidation()
+muon_validator.runValidation()
