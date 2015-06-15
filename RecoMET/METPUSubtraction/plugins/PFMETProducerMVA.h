@@ -38,6 +38,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -78,6 +79,11 @@ namespace reco
 							  const reco::Vertex* hardScatterVertex, 
 							  int& lId, bool& lHasPhotons, edm::Event & iEvent);
 
+    std::vector<reco::PUSubMETCandInfo> computeLeptonInfo(const std::vector<edm::RefToBase<const reco::Candidate>>& srcLeptons_, const reco::CandidateView& pfCandidates_view,
+                                    const reco::Vertex* hardScatterVertex,
+                                    int& lId, bool& lHasPhotons);
+
+
     std::vector<reco::PUSubMETCandInfo> computeJetInfo(const reco::PFJetCollection&, const edm::Handle<reco::PFJetCollection>&,
 							  const edm::ValueMap<float>&, const reco::VertexCollection&, 
 							  const reco::Vertex*, const JetCorrector &iCorr,
@@ -93,6 +99,10 @@ namespace reco
     bool   istau        (const reco::Candidate *iCand);
     double chargedFracInCone(const reco::Candidate *iCand,const reco::CandidateView& pfCandidates,const reco::Vertex* hardScatterVertex,double iDRMax=0.2);
 
+    std::vector<std::vector<size_t> > getPermutations(std::vector<size_t> lengths, std::vector<size_t>& current, std::vector<std::vector<size_t> >& result);
+    
+    std::vector<std::vector<size_t> > getPermutations(const edm::Event& evt);
+
    // configuration parameter
     edm::EDGetTokenT<reco::PFJetCollection> srcCorrJets_;
     edm::EDGetTokenT<reco::PFJetCollection> srcUncorrJets_;
@@ -101,8 +111,10 @@ namespace reco
     edm::EDGetTokenT<edm::View<reco::Candidate> > srcPFCandidatesView_;
     edm::EDGetTokenT<reco::VertexCollection> srcVertices_;
     typedef std::vector<edm::InputTag> vInputTag;
+    vInputTag srcLeptonsTags_;
     std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
     int minNumLeptons_; // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
+    bool permuteLeptons_; // JS: option to calculate MVA MET for each combination of taking one lepton from each of the candidate views given by the input tags; if two input tags are identical, creates only combinations with the index of the former collection larger than the one of the later collection, e.g. (1, 0), (2, 0), but not (0, 0) or (1, 2)
     edm::EDGetTokenT<edm::Handle<double> > srcRho_;
 
     std::string correctorLabel_;
