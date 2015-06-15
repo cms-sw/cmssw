@@ -10,6 +10,7 @@
 
 #include "StackedTrackerGeometryESModule.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometryBuilder.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 StackedTrackerGeometryESModule::StackedTrackerGeometryESModule( const edm::ParameterSet & p )
   : radial_window( p.getParameter< double >("radial_window") ),
@@ -49,6 +50,12 @@ boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::prod
   edm::ESHandle< TrackerGeometry > trkGeomHandle;
   record.getRecord< TrackerDigiGeometryRecord >().get(trkGeomHandle);
 
+
+       //Retrieve tracker topology from geometry
+       edm::ESHandle<TrackerTopology> tTopoHandle;
+       record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+       const TrackerTopology* const tTopo = tTopoHandle.product();
+
   StackedTrackerGeometryBuilder builder;
 
   /// CBC3 switch
@@ -63,7 +70,7 @@ boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::prod
                                                                            theMaxStubs,
                                                                            setBarrelCut,
                                                                            setRingCut,
-                                                                           makeDebugFile ) );
+                                                                           makeDebugFile,tTopo ) );
   }
   else
   {
@@ -72,7 +79,7 @@ boost::shared_ptr< StackedTrackerGeometry > StackedTrackerGeometryESModule::prod
                                                                          phi_window,
                                                                          z_window,
                                                                          truncation_precision,
-                                                                         makeDebugFile ) );
+                                                                         makeDebugFile,tTopo ) );
   }
 
   return _tracker;

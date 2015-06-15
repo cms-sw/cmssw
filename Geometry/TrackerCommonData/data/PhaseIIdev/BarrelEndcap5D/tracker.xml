@@ -16030,16 +16030,22 @@
       <ZSection z="-[cms:TrackBeamZ2]" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
       <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
       <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
-      <ZSection z="-194.8*cm" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-      <ZSection z="-180.0*cm" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="[cms:TrackCalorR]"/>
       <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
       <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
-      <ZSection z="-172.2*cm" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-      <ZSection z="172.2*cm" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-28.70*cm" rMin="[pixbar:Rin1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="28.70*cm" rMin="[pixbar:Rin1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="[cms:TrackCalorR]"/>
       <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
       <ZSection z="180.0*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
-      <ZSection z="180.0*cm" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-      <ZSection z="194.8*cm" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="[cms:TrackCalorR]"/>
       <ZSection z="270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
       <ZSection z="270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
       <ZSection z="[cms:TrackBeamZ2]" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
@@ -18143,7 +18149,7 @@
 <rChild name="tracker:BModule32Layer1OUTERactive"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:Layer1"/>
 </PosPart>
 <PosPart copyNumber="1">
@@ -18981,7 +18987,7 @@
 <rChild name="tracker:BModule28Layer2OUTERactive"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:Layer2"/>
 </PosPart>
 <PosPart copyNumber="1">
@@ -19795,7 +19801,7 @@
 <rChild name="tracker:BModule27Layer3OUTERactive"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:Layer3"/>
 </PosPart>
 <PosPart copyNumber="1">
@@ -20159,7 +20165,7 @@
 <rChild name="tracker:BModule12Layer4OUTERactive"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:Layer4"/>
 </PosPart>
 <PosPart copyNumber="1">
@@ -20523,7 +20529,7 @@
 <rChild name="tracker:BModule12Layer5OUTERactive"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:Layer5"/>
 </PosPart>
 <PosPart copyNumber="1">
@@ -20887,7 +20893,7 @@
 <rChild name="tracker:BModule12Layer6OUTERactive"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:Layer6"/>
 </PosPart>
 <PosPart copyNumber="1">
@@ -21236,7 +21242,7 @@
 <Translation x="0*mm" y="0*mm" z="-20.6*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:Disc6"/>
 <Translation x="0*mm" y="0*mm" z="1024.44*mm"/>
 </PosPart>
@@ -21586,7 +21592,7 @@
 <Translation x="0*mm" y="0*mm" z="-20.6*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:Disc7"/>
 <Translation x="0*mm" y="0*mm" z="1272.45*mm"/>
 </PosPart>
@@ -21936,7 +21942,7 @@
 <Translation x="0*mm" y="0*mm" z="-20.6*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:Disc8"/>
 <Translation x="0*mm" y="0*mm" z="1566.04*mm"/>
 </PosPart>
@@ -22286,7 +22292,7 @@
 <Translation x="0*mm" y="0*mm" z="-20.6*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:Disc9"/>
 <Translation x="0*mm" y="0*mm" z="1913.58*mm"/>
 </PosPart>
@@ -22636,231 +22642,231 @@
 <Translation x="0*mm" y="0*mm" z="-20.6*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:Disc10"/>
 <Translation x="0*mm" y="0*mm" z="2325*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR214Z1150"/>
 <Translation x="0*mm" y="0*mm" z="1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR214Z1169"/>
 <Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR342Z1150"/>
 <Translation x="0*mm" y="0*mm" z="1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR342Z1169"/>
 <Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR492Z1150"/>
 <Translation x="0*mm" y="0*mm" z="1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR492Z1169"/>
 <Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR670Z1169"/>
 <Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR872Z1169"/>
 <Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1064Z1169"/>
 <Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR214Z-1169"/>
 <Translation x="0*mm" y="0*mm" z="-1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR214Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.443*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR342Z-1169"/>
 <Translation x="0*mm" y="0*mm" z="-1159.77*mm"/> 
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR342Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.443*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR492Z-1169"/>
 <Translation x="0*mm" y="0*mm" z="-1159.77*mm"/> 
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR492Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.443*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR670Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.54*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR872Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.54*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1064Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.54*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1179Z1250"/>
 <Translation x="0*mm" y="0*mm" z="1250.29*mm"/> <!-- 1250.29-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1179Z1444"/>
 <Translation x="0*mm" y="0*mm" z="1445.0*mm"/> <!-- 1445.0*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1179Z1715"/>
 <Translation x="0*mm" y="0*mm" z="1715.8*mm"/> <!-- 1715.8*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1179Z2036"/>
 <Translation x="0*mm" y="0*mm" z="2036.36*mm"/> <!-- 2036.36*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1179Z2415"/>
 <Translation x="0*mm" y="0*mm" z="2415.84*mm"/> <!-- 2415.84*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:serviceR1179Z2765"/>
 <Translation x="0*mm" y="0*mm" z="2765.3*mm"/> <!-- 2765.8*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR1190Z2910"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR214Z1160"/>
 <Translation x="0*mm" y="0*mm" z="1184.64*mm"/> <!-- 1165.2*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR670Z1179"/>
 <Translation x="0*mm" y="0*mm" z="1184.64*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR204Z1169"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR1096Z1169"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:supportR1101Z1320"/>
 <Translation x="0*mm" y="0*mm" z="1680.22*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:supportR235Z1320"/>
 <Translation x="0*mm" y="0*mm" z="1680.22*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR249Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR375Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR525Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR702Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR904Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR214Z1170"/>
 <Translation x="0*mm" y="0*mm" z="-1184.64*mm"/> <!-- 1165.2*mm -->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR670Z1189"/>
 <Translation x="0*mm" y="0*mm" z="-1184.64*mm"/>
 </PosPart>
 <!--
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:supportR1101Z2621"/>
 <Translation x="0*mm" y="0*mm" z="-1971.22*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixfwd:PixelForward"/>
+<rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:supportR235Z2621"/>
 <Translation x="0*mm" y="0*mm" z="-1971.22*mm"/>
 </PosPart>
 -->
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR249Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR375Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR525Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR702Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="pixbar:PixelBarrel"/>
+<rParent name="pixbar:Phase2OTBarrel"/>
 <rChild name="tracker:supportR904Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
