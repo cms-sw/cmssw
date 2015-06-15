@@ -535,8 +535,12 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   unsigned int iLs  = iLumi.luminosityBlock();
   unsigned int iRun = iLumi.run();
 
-  evf::FastMonitoringService * fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
-  bool writeFiles = fms_ ? fms_->getEventsProcessedForLumi(iLs)>0 : true;
+  bool writeFiles=true;
+  if (edm::Service<evf::MicroStateService>().isAvailable()) {
+    evf::FastMonitoringService * fms = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
+    if (fms)
+      writeFiles = fms->getEventsProcessedForLumi(iLs)>0;
+  }
 
   if (iSummary->processed->value().at(0)!=0 && writeFiles) {
     Json::StyledWriter writer;
@@ -580,12 +584,12 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outHltJsnData.close();
 
     //HLT jsn entries
-    StringJ hltJsnFilelist_;
-    hltJsnFilelist_.update(ssHltJsnData.str());
-    IntJ hltJsnFilesize_    = result.size();
-    IntJ hltJsnFileAdler32_ = cms::Adler32(result.c_str(),result.size());
-    StringJ hltJsnInputFiles_;
-    hltJsnInputFiles_.update("");
+    StringJ hltJsnFilelist;
+    hltJsnFilelist.update(ssHltJsnData.str());
+    IntJ hltJsnFilesize    = result.size();
+    IntJ hltJsnFileAdler32 = cms::Adler32(result.c_str(),result.size());
+    StringJ hltJsnInputFiles;
+    hltJsnInputFiles.update("");
 
     //L1 .jsndata file
     Json::Value l1JsnData;
@@ -612,34 +616,34 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outL1JsnData<<result;
     outL1JsnData.close();
 
-    StringJ l1JsnFilelist_;
-    l1JsnFilelist_.update(ssL1JsnData.str());
-    IntJ l1JsnFilesize_    = result.size();
-    IntJ l1JsnFileAdler32_ = cms::Adler32(result.c_str(), result.size());
-    StringJ l1JsnInputFiles_;               
-    l1JsnInputFiles_.update("");
+    StringJ l1JsnFilelist;
+    l1JsnFilelist.update(ssL1JsnData.str());
+    IntJ l1JsnFilesize    = result.size();
+    IntJ l1JsnFileAdler32 = cms::Adler32(result.c_str(), result.size());
+    StringJ l1JsnInputFiles;               
+    l1JsnInputFiles.update("");
  
     //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
     //Only three variables are different between the files: 
     //the file list, the file size and the Adler32 value
-    IntJ daqJsnProcessed_   = iSummary->processed->value().at(0);
-    IntJ daqJsnAccepted_    = daqJsnProcessed_;
-    IntJ daqJsnErrorEvents_ = 0;                  
-    IntJ daqJsnRetCodeMask_ = 0;                 
+    IntJ daqJsnProcessed   = iSummary->processed->value().at(0);
+    IntJ daqJsnAccepted    = daqJsnProcessed;
+    IntJ daqJsnErrorEvents = 0;                  
+    IntJ daqJsnRetCodeMask = 0;                 
 
     //write out HLT metadata jsn
     Json::Value hltDaqJsn;
     hltDaqJsn[DataPoint::SOURCE] = sourceHost;
     hltDaqJsn[DataPoint::DEFINITION] = sOutDef.str();
 
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
-    hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize_.value());
-    hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32.value());
     hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
 
     result = writer.write(hltDaqJsn);
@@ -657,14 +661,14 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     l1DaqJsn[DataPoint::SOURCE] = sourceHost;
     l1DaqJsn[DataPoint::DEFINITION] = sOutDef.str();
 
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
-    l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize_.value());
-    l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32.value());
     l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
 
     result = writer.write(l1DaqJsn);
