@@ -54,7 +54,6 @@ class VIDSelectorValidator:
 
         print 'running validation for: %s'%(select.name())
 
-
         # checksum of the input files
         if not len(samples['signal'] + samples['background'] + samples['mix']):
             raise Exception('NoInputFiles','There were no input files given, cannot validate!')
@@ -66,7 +65,9 @@ class VIDSelectorValidator:
 
         for key in sorted(samples.keys()):
             if len(samples[key]):
-                self.processEvents(samples[key],key)
+                local_hash = md5.new()
+                self.processEvents(samples[key],key,local_hash)
+                self.__hasher.update(local_hash.hexdigest())
        
         print 'event processing checksum: %s'%(self.__hasher.hexdigest())
 
@@ -79,13 +80,21 @@ class VIDSelectorValidator:
             self.__hasher.update(item)
             print 'Input %s file: %s'%(name,item)
 
-    def processEvents(self,the_list,name):
+    def processEvents(self,the_list,name,hasher):
         #data products
         handle, productLabel = Handle(self.__colltype), self.__collname
 
         #now loop over the events in each category
         events = Events(the_list)
         n_pass, n_fail = 0,0
+
+        sub_cutnames = []
+        sub_hashes   = []
+        for idstring in repr(self.__selector).split('\n'):
+            if idstring == '': continue
+            sub_cutnames.append(idstring.split()[2]) # gets the cutname
+            sub_hashes.append(md5.new(idstring))
+
         for event in events:
             event.getByLabel(productLabel,handle)
             for i,obj in enumerate(handle.product()):
@@ -93,7 +102,18 @@ class VIDSelectorValidator:
                     n_pass += 1
                 else:
                     n_fail += 1
-                self.__hasher.update(repr(self.__selector))
-        self.__hasher.update(str(n_pass))
-        self.__hasher.update(str(n_fail))        
-        print '%s sample pass : fail : hash -> %d : %d : %s'%(name,n_pass,n_fail,self.__hasher.hexdigest())
+                icut = 0
+                for idstring in repr(self.__selector).split('\n'):
+                    if idstring == '': continue
+                    sub_hashes[icut].update(idstring)
+                    icut += 1
+
+        for sub_hash in sub_hashes:
+            hasher.update(sub_hash.hexdigest())
+        
+        hasher.update(str(n_pass))
+        hasher.update(str(n_fail))        
+        print '%s sample pass : fail : hash -> %d : %d : %s'%(name,n_pass,n_fail,hasher.hexdigest())
+        print '%s sample cut breakdown:'%(name)
+        for i,sub_hash in enumerate(sub_hashes):
+            print '\t%s hash -> %s'%(sub_cutnames[i],sub_hash.hexdigest())
