@@ -6,7 +6,8 @@
 class ExpressionEvaluatorCutWithEventContent : public CutApplicatorWithEventContentBase {
 public:
   ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c);
-  
+  virtual ~ExpressionEvaluatorCutWithEventContent() {};
+
   result_type asCandidate(const argument_type& cand) const override final {
     return (*cut_)(cand);
   }
@@ -19,13 +20,19 @@ public:
     cut_->getEventContent(event);
   }
 
+  const std::string& name() const override final { return realname_; }
+
 private:
-  std::unique_ptr<CutApplicatorWithEventContentBase> cut_;
+  const std::string realname_;
+  CutApplicatorWithEventContentBase* cut_;
 };
 
 ExpressionEvaluatorCutWithEventContent::
-ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) : CutApplicatorWithEventContentBase(c) { 
-  const std::string close_function(" };");
+ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) : 
+  CutApplicatorWithEventContentBase(c),
+  realname_(c.getParameter<std::string>("realCutName")) 
+{ 
+  const std::string close_function("; };");
   const std::string candTypePreamble("CandidateType candidateType() const override final { return ");
   
   //construct the overload of candidateType()
@@ -38,9 +45,9 @@ ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) : CutApplicat
   // concatenate and evaluate the expression
   const std::string total_expr = candTypeExpr + std::string("\n") + oprExpr;
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
-                                 "CutApplicatorBase",
+                                 "CutApplicatorWithEventContentBase",
                                  total_expr.c_str());
-  cut_.reset(eval.expr<CutApplicatorWithEventContentBase>());
+  cut_ = eval.expr<CutApplicatorWithEventContentBase>();
 
 }
 

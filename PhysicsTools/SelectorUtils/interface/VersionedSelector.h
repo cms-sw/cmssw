@@ -171,23 +171,24 @@ initialize( const edm::ParameterSet& conf ) {
     cend(cutflow.end());
   std::vector<edm::ParameterSet>::const_iterator icut = cbegin;
   std::map<std::string,unsigned> cut_counter;
-  for( ; icut != cend; ++icut ) {  
-    std::stringstream realname;    
-    const std::string& name = icut->getParameter<std::string>("cutName");
-    if( !cut_counter.count(name) ) cut_counter[name] = 0;      
-    realname << name << "_" << cut_counter[name];
+  for( ; icut != cend; ++icut ) {    
+    const std::string& cname = icut->getParameter<std::string>("cutName");
     const bool needsContent = 
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
     candf::CandidateCut* plugin = nullptr;
-    CINT_GUARD(plugin = CutApplicatorFactory::get()->create(name,*icut));
+    CINT_GUARD(plugin = CutApplicatorFactory::get()->create(cname,*icut));
     if( plugin != nullptr ) {
       cuts_.push_back(SHARED_PTR(candf::CandidateCut)(plugin));
     } else {
       throw cms::Exception("BadPluginName")
-	<< "The requested cut: " << name << " is not available!";
+	<< "The requested cut: " << cname << " is not available!";
     }
     needs_event_content_.push_back(needsContent);
+    const std::string& name = plugin->name();
+    std::stringstream realname;    
+    if( !cut_counter.count(name) ) cut_counter[name] = 0;      
+    realname << name << "_" << cut_counter[name];
     const std::string therealname = realname.str();
     this->push_back(therealname);
     this->set(therealname);
