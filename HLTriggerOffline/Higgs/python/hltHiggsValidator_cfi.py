@@ -7,7 +7,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
-    # -- The instance name of the reco::GenParticles collection
+    # -- The instance name of the reco::GenParticles collection -
     genParticleLabel = cms.string("genParticles"),
     
     # -- The instance name of the reco::GenJets collection
