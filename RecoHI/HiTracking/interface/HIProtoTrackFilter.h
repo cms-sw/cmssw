@@ -15,7 +15,7 @@ public:
 	HIProtoTrackFilter(const edm::ParameterSet& ps);
 	virtual ~HIProtoTrackFilter();
 	virtual bool operator() (const reco::Track*, const PixelTrackFilter::Hits & hits) const;
-  virtual void update(edm::Event& ev, const edm::EventSetup& es);
+	virtual void update(edm::Event& ev, const edm::EventSetup& es);
 private:
 	double theTIPMax;
 	double theChi2Max, thePtMin;
