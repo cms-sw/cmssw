@@ -114,7 +114,7 @@ process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 #-----------------------------
 process.evfDQMPath = cms.Path(#process.physicsEventsFilter+
                               process.cscDQMEvF +
- 			      process.dtunpacker +
+ 			      process.dtunpacker + process.DTDataIntegrityTask +
  			      process.ecalDigis  + process.ecalFEDMonitor + 
 			      process.l1tfed +
  			      process.siPixelDigis + process.SiPixelHLTSource +

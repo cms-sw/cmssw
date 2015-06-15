@@ -58,7 +58,6 @@ process.options = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)
     )
-
 oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
