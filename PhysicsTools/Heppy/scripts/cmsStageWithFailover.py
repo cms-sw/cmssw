@@ -4,7 +4,7 @@
 
 if __name__ == '__main__':
 
-    import CMGTools.Production.eostools as eostools
+    import PhysicsTools.HeppyCore.utils.eostools as eostools
     eostools.setCAFPath()
 
     from cmsIO import *
