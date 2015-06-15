@@ -57,7 +57,7 @@ HLT_PFJet450_v*						# JIRA: CMSHLT-123
 HLT_PFJet500_v*						# JIRA: CMSHLT-123
 
 #HLT_IterativeTracking_v*				# JIRA: CMSHLT-68 -> TEMPLATE PATH, not for GRun
-MC_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
+#MC_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> MC path, not for online
 
 HLT_IsoMu24_eta2p1_LooseIsoPFTau20_v*			  		# JIRA: CMSHLT-160, mod. CMSHLT-272
 HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v*			# JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-264
