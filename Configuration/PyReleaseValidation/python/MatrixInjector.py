@@ -57,7 +57,7 @@ class MatrixInjector(object):
             self.wmagent = 'cmsweb.cern.ch'
 
         if not self.dqmgui:
-            self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
+            self.dqmgui="https://cmsweb.cern.ch/dqm/relval;https://cmsweb-testbed.cern.ch/dqm/relval"
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
 # self.couchDB = 'reqmgr_config_cache'
