@@ -13,7 +13,13 @@ HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86, C
 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86, CMSHLT-162
 #HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86 -> TEMPLATE PATH, not for GRun
 
-HLT_Mu17_Mu8_DZ_v*					# JIRA: CMSHLT-162
+#HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-406
+#HLT_Mu17_Mu8_SameSign_DZ_v*				# JIRA: CMHSLT-163, CMSHLT-406
+#HLT_Mu20_Mu10_v*					# JIRA: CMSHLT-406
+#HLT_Mu20_Mu10_DZ_v*					# JIRA: CMSHLT-406
+#HLT_Mu20_Mu10_SameSign_DZ_v*				# JIRA: CMSHLT-406
+
+HLT_Mu17_Mu8_DZ_v*					# JIRA: CMSHLT-162, CMSHLT-406
 HLT_Mu17_TkMu8_DZ_v*					# JIRA: CMSHLT-162
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*			# JIRA: CMSHLT-162
 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*		# JIRA: CMSHLT-162
@@ -329,9 +335,6 @@ HLT_Dimuon0_Upsilon_Muon_v*					# JIRA: CMHSLT-155
 HLT_QuadMuon0_Dimuon0_Jpsi_v*					# JIRA: CMHSLT-155
 HLT_QuadMuon0_Dimuon0_Upsilon_v*				# JIRA: CMHSLT-155
 
-HLT_Mu17_Mu8_SameSign_v*					# JIRA: CMHSLT-163
-HLT_Mu17_Mu8_SameSign_DPhi_v*					# JIRA: CMHSLT-163
-
 HLT_Rsq0p25_v*                                                  # JIRA: CMSHLT-164, mod. CMSHLT-358
 HLT_Rsq0p30_v*                                                  # JIRA: CMSHLT-164, mod CMSHLT-358
 HLT_RsqMR240_Rsq0p09_MR200_4jet_v*                              # JIRA: CMSHLT-164, mod CMSHLT-358 (only for 7e33)
@@ -452,6 +455,8 @@ HLT_HT2500_v*                                                   # JIRA: CMSHLT-3
 HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343
 
 HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-369
+
+#HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-431
 
 HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261 (for commissioning)
