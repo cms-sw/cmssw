@@ -140,7 +140,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality_);
   maxRestrictionPt_                   = iConfig.getParameter<double>("MinTrackPt");
   slopeRestrictionPt_                 = iConfig.getParameter<double>("SlopeTrackPt");
-  selectionParameter_.minPt           = (slopeRestrictPt_ > 0) ? maxRestrictionPt_ - 2.5/slopeRestrictPt_ : maxRestrictionPt_;
+  selectionParameter_.minPt           = (slopeRestrictionPt_ > 0) ? (maxRestrictionPt_ - 2.5/slopeRestrictionPt_) : maxRestrictionPt_;
   selectionParameter_.minQuality      = trackQuality_;
   selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
   selectionParameter_.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
