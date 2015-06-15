@@ -10,7 +10,7 @@
 #include <regex>
 #include <dlfcn.h>
 
-#define VI_DEBUG
+//#define VI_DEBUG
 
 #ifdef VI_DEBUG
 #include <iostream>
