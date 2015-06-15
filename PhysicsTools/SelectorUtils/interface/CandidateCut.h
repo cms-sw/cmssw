@@ -7,8 +7,11 @@
 namespace candidate_functions {
   class CandidateCut : public std::unary_function<reco::CandidatePtr,bool>{
   public:
+    CandidateCut() {}
     virtual result_type operator()(const argument_type&) const = 0;
     virtual ~CandidateCut() {}
+
+    virtual const std::string& name() const = 0;
   };
 }
 

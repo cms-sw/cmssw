@@ -17,6 +17,9 @@
 
 class CutApplicatorWithEventContentBase : public CutApplicatorBase {
  public:  
+
+ CutApplicatorWithEventContentBase(): CutApplicatorBase() {}
+
  CutApplicatorWithEventContentBase(const edm::ParameterSet& c) :
   CutApplicatorBase(c) {
   }

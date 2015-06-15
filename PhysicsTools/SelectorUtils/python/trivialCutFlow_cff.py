@@ -21,6 +21,7 @@ trivialCutFlow = cms.PSet(
                   needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)                ),
         cms.PSet( cutName = cms.string("ExpressionEvaluatorCut"),
+                  realCutName = cms.string("StringMinPtCut"),
                   candidateType = cms.string("NONE"),
                   functionDef = cms.string(string_func),
                   needsAdditionalProducts = cms.bool(False),

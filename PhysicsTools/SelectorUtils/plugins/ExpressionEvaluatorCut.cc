@@ -6,17 +6,24 @@
 class ExpressionEvaluatorCut : public CutApplicatorBase {
 public:
   ExpressionEvaluatorCut(const edm::ParameterSet& c);
+  virtual ~ExpressionEvaluatorCut(){};
   
   result_type asCandidate(const argument_type& cand) const override final {
     return (*cut_)(cand);
   }
 
+  const std::string& name() const override final { return realname_; }
+
 private:
-  std::unique_ptr<CutApplicatorBase> cut_;
+  const std::string realname_;
+  CutApplicatorBase* cut_;
 };
 
 ExpressionEvaluatorCut::
-ExpressionEvaluatorCut(const edm::ParameterSet& c) : CutApplicatorBase(c) { 
+ExpressionEvaluatorCut(const edm::ParameterSet& c) : 
+  CutApplicatorBase(c),
+  realname_(c.getParameter<std::string>("realCutName"))
+{
   const std::string close_function("; };");
   const std::string candTypePreamble("CandidateType candidateType() const override final { return ");
   
@@ -32,8 +39,7 @@ ExpressionEvaluatorCut(const edm::ParameterSet& c) : CutApplicatorBase(c) {
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorBase",
                                  total_expr.c_str());
-  cut_.reset(eval.expr<CutApplicatorBase>());
-
+  cut_ = eval.expr<CutApplicatorBase>();
 }
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
