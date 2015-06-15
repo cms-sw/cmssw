@@ -20,7 +20,7 @@ hltCkfActivityTrackCandidates.SplitHits = False
 
 hltActivityCkfTrackCandidatesForGSF = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltActivityCkfTrackCandidatesForGSF.src = cms.InputTag("hltActivityStartUpElectronPixelSeeds")
-
+hltActivityCkfTrackCandidatesForGSF.SplitHits = True
 
 
 # CTF track fit with material
