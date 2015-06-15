@@ -37,6 +37,9 @@ class SimpleHistogramGenerator;
 
 class PixelTemplateSmearerBase : public TrackingRecHitAlgorithm {
 public:
+  //--- Use this type to keep track of groups of hits that need to be merged:
+  typedef std::vector<const PSimHit*> MergeGroup;
+
   //--- Constructor, virtual destructor (just in case)
   explicit PixelTemplateSmearerBase(  const std::string& name,
 				      const edm::ParameterSet& config,
@@ -62,9 +65,22 @@ public:
   //
   TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const ;
 
-  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY,
+  //--- Process one hit.  The core of the code :)
+  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
+		 const double boundX, const double boundY,
                  RandomEngineAndDistribution const*);
-  bool hitsMerge(const PSimHit& simHit);
+
+  //--- Process one merge group.
+  void smearMergeGroup( MergeGroup* mg ) const;
+
+  //--- Process all unmerged hits.  Calls smearHit() for each.
+  void processUnmergedHits( std::vector< const PSimHit* > & unmergedHits ) const;
+
+  //--- Process all groups of merged hits.
+  void processMergeGroups( std::vector< MergeGroup* > & mergeGroups ) const;
+
+  //--- Method to decide if the two hits on the same DetUnit are merged, or not.
+  bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;
 
 protected:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization

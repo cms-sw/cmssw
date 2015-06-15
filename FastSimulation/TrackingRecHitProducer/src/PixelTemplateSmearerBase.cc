@@ -85,19 +85,103 @@ PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
 
 //------------------------------------------------------------------------------
 //  Simulate all simHits on one DetUnit (i.e. module/plaquette).
+//
+//  NB: the loop logic uses [] to access the elements of the vector.  I (Petar)
+//  tried to make it happen with iterators, but it turned out that using [] was 
+//  both easier to write and *much* easier to understand (and thus to support
+//  long term).
 //------------------------------------------------------------------------------
 TrackingRecHitProductPtr 
 PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 {
-  //  (NB: This is a range-based for-loop in C++11 standard.)
-#if 0 
- for (const PSimHit* simHit: product->getSimHits())
-    {
-      const Local3DPoint& position = simHit->localPosition();
-      //LocalError error(_error2,_error2,_error2);
-      const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
-      
+  //--- getSimHits() returns a reference to a vector of pointers to
+  //    PSimHits.  Since we need to keep track of various locations in
+  //    this array, we need to use either indices or iterators.
+  vector<const PSimHit*> & simHits = product->getSimHits();  
+
+  int nHits = simHits.size();         //  Number of hits on this DetUnit
+
+  vector< const PSimHit* >    listOfUnmergedHits;    // this that were not merged
+  vector< MergeGroup* > listOfMergeGroups;     // groups of hits that should be merged
+  MergeGroup* mergeGroupByHit[ nHits ];        // fixed size array, 0 if hit is unmerged
+
+  //--- Iterate over hits
+  for ( int i = 0; i < nHits-1; ++i ) {
+    mergeGroupByHit[i] = 0;     // initialize this cell to a NULL pointer.
+    
+    //--- Inner loop over remaining hits.  j starts from i+1 and goes to nHits
+    for ( int j = i+1 ; j < nHits; ++j ) {
+
+      //--- Calculate the distance between hits i and j:
+      bool merged = hitsMerge( *simHits[i], *simHits[j] );
+
+      //--- Decide what to do about these two hits.
+      if ( merged ) {
+	if ( mergeGroupByHit[i] == 0 ) {
+	  // This is the first time we realized i is merged with any
+	  // other hit, so create a new merge group
+	  mergeGroupByHit[i] = new MergeGroup();
+	  listOfMergeGroups.push_back( mergeGroupByHit[i] );   // keep track of it
+
+	  // Add hit i as the first to its own merge group
+	  // (simHits[i] is a const pointer to PSimHit).
+	  mergeGroupByHit[i]->push_back( simHits[i] );
+	}
+	//--- Add hit j as well
+	mergeGroupByHit[i]->push_back( simHits[j] );
+
+	//--- Mark that hit j is a part of the same merge group.  This
+	//    way, we can find the same merge group starting from
+	//    index j, too.  Note that if hit i was a part of a merge
+	//    goup found earlier (for some hit prior to i), then
+	//    mergeGroupByHit[i] would not be zero even if it wasn't
+	//    made for hit i :)
+	mergeGroupByHit[j] = mergeGroupByHit[i];
+	
+      }
+    } //--- end of loop over j
+
+    //--- At this point, there are two possibilities.  Either hit i
+    //    was already chosen to be merged with some hit prior to it,
+    //    or the loop over j found another merged hit.  In either
+    //    case, if mergeGroupByHit[i] is empty, then the hit is
+    //    unmerged.
+    //
+    if ( mergeGroupByHit[i] == 0 ) {
+	//--- Keep track of it.
+      listOfUnmergedHits.push_back( simHits[i] );
     }
+  } //--- end of loop over i
+
+
+  //--- We now have two lists: a list of hits that are unmerged, and
+  //    the list of merge groups.  Process each separately.
+  //
+  processUnmergedHits( listOfUnmergedHits );
+  processMergeGroups(  listOfMergeGroups );
+
+  //--- We're done with this det unit, and ought to clean up used
+  //    memory.  We don't own the PSimHits, and the vector of
+  //    listOfUnmergedHits simply goes out of scope.  However, we
+  //    created the MergeGroups and thus we need to get rid of them.
+  //
+  for ( vector<MergeGroup*>::iterator 
+	  mg_it = listOfMergeGroups.begin(),
+	  mg_end = listOfMergeGroups.end();
+	mg_it != mg_end;
+	++mg_it ) {
+    delete *mg_it;    // each MergeGroup is deleted; its ptrs to PSimHits we do not own...
+  }
+
+
+
+#if 0 
+  //  (NB: This is a range-based for-loop in C++11 standard.)
+  for (const PSimHit* simHit: product->getSimHits()) {
+    const Local3DPoint& position = simHit->localPosition();
+    //LocalError error(_error2,_error2,_error2);
+    const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
+  }
 #endif
   return product;
 }
@@ -105,6 +189,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 
 //------------------------------------------------------------------------------
 //   Smear one hit.  The main action is in here.
+// &&& @ALICE: this function may also need to be "const" :(
 //------------------------------------------------------------------------------
 void PixelTemplateSmearerBase::smearHit(
   const PSimHit& simHit,
@@ -498,46 +583,109 @@ void PixelTemplateSmearerBase::smearHit(
  
 
 
+//------------------------------------------------------------------------------
+//   Process all unmerged hits.  Calls smearHit() for each.
+//------------------------------------------------------------------------------
+void PixelTemplateSmearerBase::
+processUnmergedHits( std::vector< const PSimHit* > & unmergedHits ) const 
+{
+  // &&& @ALICE: please implement.  This should be straightforward, since
+  // &&& it is basically the same as the old code that called SiPixelGaussianBlahBlah
+  // &&& You iterate over unmergedHits vector, and call smearHit() for each
+  // &&& dereferenced iterator.  The only problem is that, then, smearHit() may
+  // &&& have to become "const", and that may be a problem.
+}
+
+
+//------------------------------------------------------------------------------
+//   Process all groups of merged hits.
+//------------------------------------------------------------------------------
+void PixelTemplateSmearerBase::
+processMergeGroups( std::vector< MergeGroup* > & mergeGroups ) const 
+{
+  for ( vector<MergeGroup*>::iterator 
+	  mg_it = mergeGroups.begin(),
+	  mg_end = mergeGroups.end();
+	mg_it != mg_end;
+	++mg_it ) {
+    //
+    smearMergeGroup( *mg_it );
+  }
+
+}
+
+
+//------------------------------------------------------------------------------
+//   Process all groups of merged hits.
+//------------------------------------------------------------------------------
+void PixelTemplateSmearerBase::
+smearMergeGroup( MergeGroup* mg ) const 
+{
+  // &&& @ALICE: please implement
+  // &&& For each merge group, iterate over hits, find those with max y and min y
+  // &&& and hits with max x and min x, and then take the average of the two,
+  // &&& with appropriate errors.
+}
+
 
 //-----------------------------------------------------------------------------
 //   Method to determine if hits merge.
-//   &&& I'm not sure everything got pasted correctly in here :(
+//
+// &&& To speed the things up, maybe we should have min and max distances, and
+// &&& throw random numbers for only those in between ?  --> @ALICE please decide.
+// 	if ( d < d_min ) {
+// 	  // for sure merged
+// 	  merged = True;
+// 	}
+// 	else if ( d > d_max ) {
+// 	  // for sure unmerged
+// 	  merged = False;
+// 	}
+// 	else {
+// 	  // throw a random number, decide if merged or not
+// 	  // &&& Need a code to do this
+// 	  merged = True;  // for testing
+// 	}
 //-----------------------------------------------------------------------------
-bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit)
+bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const
 {
-  std::cout << "P hitsMerge"<< std::endl;
-  LocalVector localDir = simHit.momentumAtEntry().unit();
-  float locy = localDir.y();
-  float locz = localDir.z();
-  float cotbeta = locy/locz;
+  //getting cotbeta and the local eta
+  LocalVector localDir = simHit1.momentumAtEntry().unit();
+  float locy1 = localDir.y();
+  float locz1 = localDir.z();
+  float cotbeta = locy1/locz1;
   float loceta = fabs(-log((double)(-cotbeta+sqrt((double)(1.+cotbeta*cotbeta)))));
 
-  const Local3DPoint lp = simHit.localPosition();
-  float lpy = lp.y();
-  float lpx = lp.x();
-  float locdis = 10000.*sqrt(pow(lpx, 2) + pow(lpy, 2));
+  //getting local x and y position and distance between two points
+  const Local3DPoint lp1 = simHit1.localPosition();
+  const Local3DPoint lp2 = simHit2.localPosition();
+  float lpy1 = lp1.y();
+  float lpx1 = lp1.x();
+  float lpy2 = lp2.y();
+  float lpx2 = lp2.x();
+  float locdis = 10000.* sqrt(pow(lpx1 - lpx2, 2) + pow(lpy1 - lpy2, 2));
 
-  //  std::cout << "cotbeta local x local y local eta local distance" << std::endl;
-  // std::cout << cotbeta << " " << lpx << " " << lpy << " " << loceta << " " << locdis << std::endl;
+  std::cout << "cotbeta local x1 local y1 local x2 local y2 local eta local distance" << std::endl;
+  std::cout << cotbeta << " " << lpx1 << " " << lpy1 << " " << lpx2 << " " << lpy2 << " " << loceta << " " << locdis << std::endl;
  
+  //assigning probability file based on location (barrel or forward)
   //  if( isForward ) {
   //  probfile = new TFile( "FastSimulation/TrackingRecHitProducer/data/fmergeprob.root"  ,"READ");}
-    //  std::cout << "Forward" << std::endl;}
   //else {
   //  probfile = new TFile( "FastSimulation/TrackingRecHitProducer/data/bmergeprob.root"  ,"READ");}
-    // std::cout << "Barrel" << std::endl;} 
+
+  //getting probability from histogram generated with Morris's code
   TH2F * probhisto = (TH2F*)probfile->Get("h2bc");
   float prob = probhisto->GetBinContent(probhisto->GetXaxis()->FindFixBin(locdis),probhisto->GetYaxis()->FindFixBin(loceta));
+  //assinging random probability between 0 and 1
   float randprob = ((double) rand() / (RAND_MAX));
   
-  // std::cout << "probability of merging: " << prob << " and assigned probability: " << randprob << std::endl;
-  std::cout << "end P hitsMerge"<< std::endl;
-  if (randprob <= prob) {
-    std::cout << "True!" << std::endl;
-    return true;}
+  std::cout << "probability of merging: " << prob << " and assigned probability: " << randprob << std::endl;
+  
+  //returning true if random probability is less than calculated, returning false if its more than calculated
+  if (randprob <= prob) return true;
   else return false;
 }
-
 
 
 //-----------------------------------------------------------------------------
