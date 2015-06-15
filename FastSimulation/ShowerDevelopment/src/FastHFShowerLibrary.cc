@@ -31,17 +31,11 @@
 
 //#define DebugLog
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) : fast(p)
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) 
+  : fast(p)
 {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   applyFidCut              = m_HS.getParameter<bool>("ApplyFiducialCut");
-}
-
-FastHFShowerLibrary::~FastHFShowerLibrary() 
-{
- if(hfshower)         delete hfshower;
- if(numberingScheme)  delete numberingScheme;
- if(numberingFromDDD) delete numberingFromDDD;
 }
 
 void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
@@ -52,17 +46,16 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
   std::string name = "HcalHits";
-  hfshower = new HFShowerLibrary(name,*cpv,fast);
-  numberingFromDDD = new HcalNumberingFromDDD(name, *cpv);  
-  numberingScheme  = new HcalNumberingScheme();
-
-// Geant4 particles
+  hfshower.reset(new HFShowerLibrary(name,*cpv,fast));
+  numberingFromDDD.reset(new HcalNumberingFromDDD(name, *cpv));  
+  
+  // Geant4 particles
   G4DecayPhysics decays;
   decays.ConstructParticle();  
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
   partTable->SetReadiness();
 
-  if (hfshower) hfshower->initRun(partTable); // init particle code
+  hfshower->initRun(partTable); // init particle code
 }
 
 void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
@@ -94,7 +87,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   double tSlice = 0.1*vertex.mag()/29.98;
 
   std::vector<HFShowerLibrary::Hit> hits =
-              hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,false,tSlice);
+    hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,false,tSlice);
 
   for (unsigned int i=0; i<hits.size(); ++i) {
     G4ThreeVector pos = hits[i].position;
@@ -106,7 +99,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
       int lay = 1;
       uint32_t id = 0;
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
-      id = numberingScheme->getUnitID(tmp);
+      id = numberingScheme.getUnitID(tmp);
 
       CaloHitID current_id(id,time,myTrack.id());
       std::map<CaloHitID,float>::iterator cellitr;
