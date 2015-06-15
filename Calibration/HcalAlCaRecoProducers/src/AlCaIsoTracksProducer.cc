@@ -148,7 +148,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
   processName_                        = iConfig.getParameter<std::string>("ProcessName");
   maxRestrictionPt_                   = iConfig.getParameter<double>("MinTrackPt");
   slopeRestrictionPt_                 = iConfig.getParameter<double>("SlopeTrackPt");
-  selectionParameter_.minPt           = maxRestrictionPt_;
+  selectionParameter_.minPt           = (slopeRestrictPt_ > 0) ? maxRestrictionPt_ - 2.5/slopeRestrictPt_ : maxRestrictionPt_;
   selectionParameter_.minQuality      = reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
   selectionParameter_.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
