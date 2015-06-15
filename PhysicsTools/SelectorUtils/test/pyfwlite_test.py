@@ -27,6 +27,11 @@ selectElectron = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_stand
 print 'Initialized VID Selector for Electrons'
 print selectElectron
 
+from PhysicsTools.SelectorUtils.trivialCutFlow_cff import trivialCutFlow
+testExprEval = VIDElectronSelector(trivialCutFlow)
+print testExprEval
+
+
 # try muons!
 from RecoMuon.MuonIdentification.VIDMuonSelector import VIDMuonSelector
 from RecoMuon.MuonIdentification.Identification.globalMuonPromptTight_V0_cff import globalMuonPromptTight_V0
@@ -73,8 +78,10 @@ for iev,event in enumerate(events):
         if el.pt() < 5: continue
         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % (
                     i, el.pt(), el.superCluster().eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto())
-        selectElectron(electrons.product(),i,event)
+        selectElectron(electrons.product(),i,event)       
         print selectElectron
+        testExprEval(electrons.product(),i,event)
+        print testExprEval
 
 #test the validator framework
 
@@ -95,3 +102,4 @@ muon_validator.setMixFiles(mix_files)
 
 electron_validator.runValidation()
 muon_validator.runValidation()
+
