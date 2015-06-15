@@ -201,7 +201,7 @@ initialize( const edm::ParameterSet& conf ) {
   cut_counter.clear();
   for( ; icut != cend; ++icut ) {
     std::stringstream realname;
-    const std::string& name = icut->getParameter<std::string>("cutName");    
+    const std::string& name = cuts_[std::distance(cbegin,icut)]->name();    
     if( !cut_counter.count(name) ) cut_counter[name] = 0;      
     realname << name << "_" << cut_counter[name];
     cut_indices_.push_back(typename Selector<T>::index_type(&(this->bits_),realname.str()));    
