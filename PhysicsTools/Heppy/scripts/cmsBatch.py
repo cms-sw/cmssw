@@ -338,7 +338,7 @@ batchManager.SubmitJobs( waitingTime )
 
 # logging
 
-from logger import logger
+from PhysicsTools.HeppyCore.utils.logger import logger
 
 oldPwd = os.getcwd()
 os.chdir(batchManager.outputDir_)
