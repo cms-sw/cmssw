@@ -24,8 +24,6 @@
 
 template<typename T>
 struct GreaterByVProb {
-  typedef T first_argument_type;
-  typedef T second_argument_type;
   bool operator()( const T & t1, const T & t2 ) const {
     return t1.userFloat("vProb") > t2.userFloat("vProb");
   }
