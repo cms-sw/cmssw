@@ -27,7 +27,10 @@ class AnyMVAEstimatorRun2Base {
   // This function determines the category for a given particle.
   virtual int findCategory( const edm::Ptr<reco::Candidate>& particle) = 0;
   virtual int getNCategories() = 0;
- 
+  // The name is a unique name associated with a particular MVA implementation,
+  // it is found as a const data member in a derived class.
+  virtual const std::string getName() = 0;
+
 };
 
 // define the factory for this base class
