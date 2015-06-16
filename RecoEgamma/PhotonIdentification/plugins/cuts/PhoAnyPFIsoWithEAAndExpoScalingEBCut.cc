@@ -12,6 +12,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+  
   CandidateType candidateType() const override final { 
     return PHOTON; 
   }
@@ -109,4 +111,32 @@ operator()(const reco::PhotonPtr& cand) const{
 
   // Apply the cut and return the result
   return anyPFIsoWithEA < isolationCutValue;
+}
+
+double PhoAnyPFIsoWithEAAndExpoScalingEBCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::PhotonPtr pho(cand);
+  // Figure out the cut value
+  // The value is generally pt-dependent: C1 + pt * C2
+  const float pt = pho->pt();
+
+  // In this version of the isolation cut we apply
+  // exponential pt scaling to the barrel isolation cut,
+  // and linear pt scaling to the endcap isolation cut.
+  double absEta = std::abs(pho->superCluster()->eta());
+  
+  // Retrieve the variable value for this particle
+  float anyPFIso = (*_anyPFIsoMap)[pho];
+
+  // Apply pile-up correction
+  double eA = _effectiveAreas.getEffectiveArea( absEta );
+  double rho = *_rhoHandle;
+  float anyPFIsoWithEA = std::max(0.0, anyPFIso - rho * eA);
+
+  // Divide by pT if the relative isolation is requested
+  if( _useRelativeIso )
+    anyPFIsoWithEA /= pt;
+
+  // Apply the cut and return the result
+  return anyPFIsoWithEA;
 }

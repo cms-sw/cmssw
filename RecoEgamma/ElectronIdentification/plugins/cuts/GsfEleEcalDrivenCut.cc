@@ -13,6 +13,8 @@ public:
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -34,4 +36,9 @@ operator()(const reco::GsfElectronPtr& cand) const{
   if(ecalDriven<0) return true;
   else if(ecalDriven==0) return !cand->ecalDriven();
   else return cand->ecalDriven();
+}
+
+double GsfEleEcalDrivenCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  return ele->ecalDriven();
 }

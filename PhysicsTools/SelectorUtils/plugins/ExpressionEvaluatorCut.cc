@@ -12,6 +12,10 @@ public:
     return (*cut_)(cand);
   }
 
+  double value(const reco::CandidatePtr& cand) const override final {
+    return cut_->value(cand);
+  }
+
   const std::string& name() const override final { return realname_; }
 
 private:
@@ -24,6 +28,7 @@ ExpressionEvaluatorCut(const edm::ParameterSet& c) :
   CutApplicatorBase(c),
   realname_(c.getParameter<std::string>("realCutName"))
 {
+  const std::string newline("\n");
   const std::string close_function("; };");
   const std::string candTypePreamble("CandidateType candidateType() const override final { return ");
   
@@ -34,8 +39,13 @@ ExpressionEvaluatorCut(const edm::ParameterSet& c) :
   // read in the overload of operator()
   const std::string& oprExpr = c.getParameter<std::string>("functionDef");
   
+  // read in the overload of value()
+  const std::string& valExpr = c.getParameter<std::string>("valueDef");
+
   // concatenate and evaluate the expression
-  const std::string total_expr = candTypeExpr + std::string("\n") + oprExpr;
+  const std::string total_expr = ( candTypeExpr + newline + 
+                                   oprExpr      + newline +
+                                   valExpr                  );
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorBase",
                                  total_expr.c_str());
