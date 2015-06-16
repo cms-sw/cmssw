@@ -31,7 +31,7 @@ rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
 bJet_pathNameCalo = "HLT_PFMET120_NoiseCleaned_BTagCSV0p72"
 bJet_moduleNameCalo = "hltBLifetimeL3FilterCSVsusy"
 bJet_pathNamePF = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
-bJet_moduleNamePF = "hltCSVPF0p7"
+bJet_moduleNamePF = "hltCSVPF0p78"
 
 #To avoid booking histogram, set pathName = cms.string("")
 
