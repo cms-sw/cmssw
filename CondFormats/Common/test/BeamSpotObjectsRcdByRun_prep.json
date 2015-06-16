@@ -1,12 +1,12 @@
 {
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT", 
     "destinationTags": {
-        "BeamSpotObjects_PCL_byRun_v1_hlt": {
+        "BeamSpotObjects_PCL_byRun_v1_prompt": {
             "dependencies": {
                 "BeamSpotObjects_PCL_byRun_v1_express": "express",
-                "BeamSpotObjects_PCL_byRun_v1_prompt": "pcl"
+                "BeamSpotObjects_PCL_byRun_v1_hlt": "hlt"
             }, 
-            "synchronizeTo": "hlt"
+            "synchronizeTo": "pcl"
         }
     },
     "inputTag": "BeamSpotObject_ByRun", 

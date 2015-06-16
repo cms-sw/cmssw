@@ -2,8 +2,7 @@
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_31X_STRIP", 
     "destinationTags": {
         "SiStripBadChannel_FromOfflineCalibration_GR10_v1_prompt": {
-            "dependencies": {
-            },
+            "dependencies": {},
             "synchronizeTo": "pcl"
         }
     },

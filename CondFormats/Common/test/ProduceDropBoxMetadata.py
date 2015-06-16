@@ -105,7 +105,7 @@ if process.mywriter.write:
                                       )
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = 'GR_E_V48'
+process.GlobalTag.globaltag = 'GR_E_V49'
 process.GlobalTag.connect   = 'frontier://PromptProd/CMS_CONDITIONS'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
