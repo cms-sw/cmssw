@@ -12,7 +12,6 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-#include "TauAnalysis/SVFitStandAlone2011/interface/NSVfitStandaloneAlgorithm2011.h"
 #include "TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h"
 
 #include <sstream>
@@ -71,20 +70,15 @@ void DiTauWithSVFitProducer<T, U>::produce(edm::Event& iEvent, const edm::EventS
 
   svFitStandalone::kDecayType leg1type = svFitStandalone::kUndefinedDecayType;
   svFitStandalone::kDecayType leg2type = svFitStandalone::kUndefinedDecayType;
-  NSVfitStandalone2011::kDecayType leg1type2011 = NSVfitStandalone2011::kHadDecay;
-  NSVfitStandalone2011::kDecayType leg2type2011 = NSVfitStandalone2011::kHadDecay;
 
   if (typeid(T) == typeid(pat::Tau)) {
       leg1type=svFitStandalone::kTauToHadDecay;
-      leg1type2011=NSVfitStandalone2011::kHadDecay;
       warningMessage += " - first leg is hadronic tau";
   } else if (typeid(T) == typeid(pat::Electron)) {
       leg1type=svFitStandalone::kTauToElecDecay;
-      leg1type2011=NSVfitStandalone2011::kLepDecay;
       warningMessage += " - first leg is electron from tau";
   } else if (typeid(T) == typeid(pat::Muon)) {
       leg1type=svFitStandalone::kTauToMuDecay;
-      leg1type2011=NSVfitStandalone2011::kLepDecay;
       warningMessage += " - first leg is muon from tau";
   } else {
       warningMessage += " - first leg - COULD NOT IDENTIFY TYPE";
@@ -92,15 +86,12 @@ void DiTauWithSVFitProducer<T, U>::produce(edm::Event& iEvent, const edm::EventS
 
   if (typeid(U) == typeid(pat::Tau)) {
       leg2type=svFitStandalone::kTauToHadDecay;
-      leg2type2011=NSVfitStandalone2011::kHadDecay;
       warningMessage += " - second leg is hadronic tau";
   } else if (typeid(U) == typeid(pat::Electron)) {
       leg2type=svFitStandalone::kTauToElecDecay;
-      leg2type2011=NSVfitStandalone2011::kLepDecay;
       warningMessage += " - second leg is electron from tau";
   } else if (typeid(U) == typeid(pat::Muon)) {
       leg2type=svFitStandalone::kTauToMuDecay;
-      leg2type2011=NSVfitStandalone2011::kLepDecay;
       warningMessage += " - second leg is muon from tau";
   }
 
@@ -141,19 +132,7 @@ void DiTauWithSVFitProducer<T, U>::produce(edm::Event& iEvent, const edm::EventS
     double massSVFit=0.;
     float det=tmsig.Determinant();
     if(det>1e-8) {
-      if (SVFitVersion_ == 1) {
-        //Note that this works only for di-objects where the tau is the leg1 and mu is leg2
-        NSVfitStandalone2011::Vector measuredMET(met.p4().x(), met.p4().y(), 0);
-        std::vector<NSVfitStandalone2011::MeasuredTauLepton2011> measuredTauLeptons;
-        NSVfitStandalone2011::LorentzVector p1(diTau.daughter(0)->p4());
-        NSVfitStandalone2011::LorentzVector p2(diTau.daughter(1)->p4());
-        measuredTauLeptons.push_back(NSVfitStandalone2011::MeasuredTauLepton2011(leg2type2011,p2));
-        measuredTauLeptons.push_back(NSVfitStandalone2011::MeasuredTauLepton2011(leg1type2011,p1));
-        NSVfitStandaloneAlgorithm2011 algo(measuredTauLeptons,measuredMET, &tmsig, 0);
-        algo.maxObjFunctionCalls(5000);
-        algo.fit();
-        massSVFit = algo.fittedDiTauSystem().mass();
-      } else if (SVFitVersion_ == 2) {
+      if (SVFitVersion_ == 2) {
         //Note that this works only for di-objects where the tau is the leg1 and mu is leg2
         std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
         int leg1DecayMode = -1;
