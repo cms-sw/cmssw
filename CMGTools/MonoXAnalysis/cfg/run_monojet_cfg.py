@@ -199,8 +199,8 @@ elif test == 'synch-74X': # sync
         selectedComponents = [ comp ]
     else:
         selectedComponents = RelVals741
-    jetAna.recalibrateJets = False 
-    jetAna.smearJets       = False 
+    jetAna.recalibrateJets = True
+    jetAna.smearJets       = True
     for comp in selectedComponents:
         comp.splitFactor = 1
         comp.fineSplitFactor = 10
