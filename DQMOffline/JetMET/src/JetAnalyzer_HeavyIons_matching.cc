@@ -80,7 +80,7 @@ JetAnalyzer_HeavyIons_matching::JetAnalyzer_HeavyIons_matching(const edm::Parame
 void JetAnalyzer_HeavyIons_matching::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &) 
   {
 
-    ibooker.setCurrentFolder("JetMET/JetValidation/"+mInputJet1Collection.label()+mInputJet2Collection.label());
+    ibooker.setCurrentFolder("JetMET/HIJetValidation/"+mInputJet1Collection.label()+mInputJet2Collection.label());
     
     mpT_ratio_Jet1Jet2 = ibooker.book1D("Ratio_Jet1pT_vs_Jet2pT","",100, 0, 10);
     mpT_Jet1_matched = ibooker.book1D("Jet1_matched_jet_Spectra","",100, 0, 1000);

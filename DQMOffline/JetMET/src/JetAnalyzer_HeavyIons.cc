@@ -230,7 +230,7 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
 void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &) 
   {
 
-    ibooker.setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());
+    ibooker.setCurrentFolder("JetMET/HIJetValidation/"+mInputCollection.label());
     
     double edge_pseudorapidity[etaBins_ +1] = {-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191 };
 
@@ -420,6 +420,9 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     else 
       LogInfo("OutputInfo") << " Histograms will be saved to file:" << mOutputFile;
 
+    delete h2D_etabins_vs_pt2;
+    delete h2D_etabins_vs_pt;
+    
   }
 
 
@@ -715,7 +718,9 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       mSumSquaredCaloVsPt_eta->Fill(edge_pseudorapidity[k],hSumCaloVsPt[k]->GetRMS(1));
       mSumSquaredCaloPt_eta->Fill(edge_pseudorapidity[k],hSumCaloPt[k]->GetRMS(1));
     
-    
+      delete hSumCaloVsPtInitial[k];
+      delete hSumCaloVsPt[k];
+      delete hSumCaloPt[k];
     
     }// eta bin loop  
 
@@ -890,6 +895,10 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       mSumSquaredPFVsPtInitial_eta->Fill(edge_pseudorapidity[k],hSumPFVsPtInitial[k]->GetRMS(1));
       mSumSquaredPFVsPt_eta->Fill(edge_pseudorapidity[k],hSumPFVsPt[k]->GetRMS(1));
       mSumSquaredPFPt_eta->Fill(edge_pseudorapidity[k],hSumPFPt[k]->GetRMS(1));
+
+      delete hSumPFVsPtInitial[k];
+      delete hSumPFVsPt[k];
+      delete hSumPFPt[k];
 
     }// eta bin loop  
 
