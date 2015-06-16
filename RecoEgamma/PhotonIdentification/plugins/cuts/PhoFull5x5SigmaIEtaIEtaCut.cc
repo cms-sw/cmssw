@@ -7,6 +7,8 @@ public:
   
   result_type operator()(const reco::PhotonPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return PHOTON; 
   }
@@ -39,4 +41,10 @@ operator()(const reco::PhotonPtr& cand) const{
   
   // Apply the cut and return the result
   return cand->full5x5_sigmaIetaIeta() < full5x5SigmaIEtaIEtaCutValue;
+}
+
+double PhoFull5x5SigmaIEtaIEtaCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::PhotonPtr pho(cand);
+  return pho->full5x5_sigmaIetaIeta();
 }

@@ -10,6 +10,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return PHOTON; 
   }
@@ -63,4 +65,10 @@ operator()(const reco::PhotonPtr& cand) const{
   
   // Apply the cut and return the result
   return full5x5SigmaIEtaIEta < cutValue;
+}
+
+double PhoFull5x5SigmaIEtaIEtaValueMapCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::PhotonPtr pho(cand);
+  return (*_full5x5SigmaIEtaIEtaMap)[cand];
 }

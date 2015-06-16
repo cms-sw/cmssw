@@ -15,6 +15,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -64,4 +66,9 @@ operator()(const reco::GsfElectronPtr& cand) const{
   const float et = cand->et();
   const float cutValue = et > slopeStart_(cand)  ? slopeTerm_(cand)*(et-slopeStart_(cand)) + constTerm_(cand) : constTerm_(cand);
   return isolEmHadDepth1 < cutValue + rhoConstant_*rho;
+}
+
+double GsfEleEmHadD1IsoRhoCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  return ele->dr03EcalRecHitSumEt() + ele->dr03HcalDepth1TowerSumEt();
 }
