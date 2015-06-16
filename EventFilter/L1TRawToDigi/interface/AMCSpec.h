@@ -31,6 +31,8 @@ namespace amc {
          inline unsigned int getMore() const { return (data_ >> More_bit_shift) & 1; };
          inline unsigned int getSegmented() const { return (data_ >> Segmented_bit_shift) & 1; };
 
+         inline unsigned int validCRC() const { return (data_ >> CRC_bit_shift) & 1; };
+
       private:
          static const unsigned int Size_shift = 32;
          static const unsigned int Size_mask = 0xffffff;
@@ -103,6 +105,7 @@ namespace amc {
          inline unsigned int getSize() const { return (data_ >> Size_shift) & Size_mask; };
 
          uint64_t raw() const { return data_; }
+         void check(unsigned int crc, unsigned int lv1_id, unsigned int size);
 
       private:
          static const unsigned int Size_shift = 0;
@@ -123,8 +126,9 @@ namespace amc {
          // Add payload fragment from an AMC13 block to the AMC packet
          void addPayload(const uint64_t*, unsigned int);
          // To be called after the last payload addition.  Removes header
-         // and trailer from the actual paylod.
-         void finalize();
+         // and trailer from the actual paylod.  Also performs
+         // cross-checks for data consistency.
+         void finalize(unsigned int lv1, unsigned int bx);
 
          std::vector<uint64_t> block(unsigned int id) const;
          std::unique_ptr<uint64_t[]> data();

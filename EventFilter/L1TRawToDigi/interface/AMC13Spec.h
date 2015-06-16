@@ -51,6 +51,7 @@ namespace amc13 {
          inline unsigned int getBX() const { return (data_ >> BX_shift) & BX_mask; };
 
          uint64_t raw() const { return data_; };
+         void check(unsigned int crc, unsigned int block, unsigned int lv1_id, unsigned int bx);
 
       private:
          static const unsigned int CRC_shift = 32;
@@ -73,7 +74,7 @@ namespace amc13 {
          unsigned int size() const;
 
          void add(unsigned int amc_no, unsigned int board, const std::vector<uint64_t>& load);
-         bool parse(const uint64_t*, unsigned int);
+         bool parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx);
          bool write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const;
 
          inline std::vector<amc::Packet> payload() const { return payload_; };

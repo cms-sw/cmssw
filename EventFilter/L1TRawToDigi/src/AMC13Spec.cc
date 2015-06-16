@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/CRC32Calculator.h"
@@ -31,6 +33,20 @@ namespace amc13 {
    }
 
    void
+   Trailer::check(unsigned int crc, unsigned int block, unsigned int lv1_id, unsigned int bx)
+   {
+      if ((crc != 0 && crc != getCRC()) || block != getBlock() || (lv1_id & LV1_mask) != getLV1ID() || (bx & BX_mask) != getBX()) {
+         edm::LogWarning("L1T")
+            << "Found AMC13 trailer with:"
+            << "\n\tBX " << getBX() << ", LV1 ID " << getLV1ID() << ", block # " << getBlock()
+            << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << getCRC() << std::dec
+            << "\nBut expected:"
+            << "\n\tBX " << (bx & BX_mask) << ", LV1 ID " << (lv1_id & LV1_mask) << ", block # " << block
+            << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << crc;
+      }
+   }
+
+   void
    Packet::add(unsigned int amc_no, unsigned int board, const std::vector<uint64_t>& load)
    {
       edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size()
@@ -40,7 +56,7 @@ namespace amc13 {
    }
 
    bool
-   Packet::parse(const uint64_t *data, unsigned int size)
+   Packet::parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx)
    {
       // Need at least a header and trailer
       // TODO check if this can be removed
@@ -49,7 +65,6 @@ namespace amc13 {
          return false;
       }
 
-      auto block_start = data;
       header_ = Header(data++);
 
       if (!header_.valid()) {
@@ -74,10 +89,14 @@ namespace amc13 {
       unsigned int tot_nblocks = 0; // total blocks of payload
       unsigned int maxblocks = 0; // counting the # of amc13 header/trailers (1 ea per block)
 
+      bool check_crc = false;
       for (const auto& amc: payload_) {
          tot_size += amc.blockHeader().getSize();
          tot_nblocks += amc.blockHeader().getBlocks();
          maxblocks = std::max(maxblocks, amc.blockHeader().getBlocks());
+
+         if (amc.blockHeader().validCRC())
+            check_crc = true;
       }
 
       unsigned int words = tot_size + // payload size
@@ -101,60 +120,52 @@ namespace amc13 {
          amc.addPayload(data, amc.blockHeader().getBlockSize());
          data += amc.blockHeader().getBlockSize();
       }
-      auto block_end = data;
 
       Trailer t(data++);
 
-      std::string check(reinterpret_cast<const char*>(block_start), reinterpret_cast<const char*>(block_end));
-      cms::CRC32Calculator crc(check);
+      int crc = 0;
+      if (check_crc) {
+         std::string check(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(data) - 4);
+         crc = cms::CRC32Calculator(check).checksum();
 
-      if (crc.checksum() != t.getCRC()) {
-         edm::LogWarning("L1T") << "Mismatch in checksums for block 0";
+         LogDebug("L1T") << "checking data checksum of " << std::hex << crc << std::dec;
       }
 
-      if (t.getBlock() != 0 ) {
-         edm::LogWarning("L1T")
-            << "Block trailer mismatch: "
-            << "expected block 0, but trailer is for block "
-            << t.getBlock();
-      }
+      t.check(crc, 0, lv1, bx);
 
       // Read in remaining AMC blocks
       for (unsigned int b = 1; b < maxblocks; ++b) {
-         block_start = data;
-
          Header block_h(data++);
          std::vector<amc::BlockHeader> headers;
 
          for (unsigned int i = 0; i < block_h.getNumberOfAMCs(); ++i)
             headers.push_back(amc::BlockHeader(data++));
 
+         check_crc = false;
          for (const auto& amc: headers) {
             payload_[amc.getAMCNumber() - 1].addPayload(data, amc.getBlockSize());
             data += amc.getBlockSize();
-         }
 
-         block_end = data;
+            if (amc.validCRC())
+               check_crc = true;
+         }
 
          t = Trailer(data++);
 
-         check = std::string(reinterpret_cast<const char*>(block_start), reinterpret_cast<const char*>(block_end));
-         crc = cms::CRC32Calculator(check);
+         if (check_crc) {
+            std::string check(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(data) - 4);
+            crc = cms::CRC32Calculator(check).checksum();
 
-         if (crc.checksum() != t.getCRC()) {
-            edm::LogWarning("L1T") << "Mismatch in checksums for block " << b;
+            LogDebug("L1T") << "checking data checksum of " << std::hex << crc << std::dec;
+         } else {
+            crc = 0;
          }
 
-         if (t.getBlock() != 0 ) {
-            edm::LogWarning("L1T")
-               << "Block trailer mismatch: "
-               << "expected block " << b
-               << ", but trailer is for block " << t.getBlock();
-         }
+         t.check(crc, b, lv1, bx);
       }
 
       for (auto& amc: payload_) {
-         amc.finalize();
+         amc.finalize(lv1, bx);
       }
 
       return true;

@@ -29,6 +29,8 @@ caloStage2Params.egMaxHcalEt                = cms.double(0.)
 caloStage2Params.egMaxPtHOverE          = cms.double(128.)
 caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT_995eff.txt")
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressShapesLUT.txt")
+caloStage2Params.egShapeIdType              = cms.string("unspecified")
+caloStage2Params.egShapeIdVersion           = cms.uint32(0)
 caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT_995eff.txt")
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUTPU40bx25NrRings4Eff95.txt")
@@ -39,7 +41,8 @@ caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(3)
 #caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
 #caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
 caloStage2Params.egPUSParams                = cms.vdouble(1,4,27)
-
+caloStage2Params.egCalibrationType          = cms.string("unspecified")
+caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT_Trimming5.txt")
 
 # Tau

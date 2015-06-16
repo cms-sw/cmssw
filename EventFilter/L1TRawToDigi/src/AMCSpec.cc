@@ -1,6 +1,7 @@
-#include <iostream>
+#include <iomanip>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/CRC32Calculator.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 
@@ -97,6 +98,20 @@ namespace amc {
    {
    }
 
+   void
+   Trailer::check(unsigned int crc, unsigned int lv1_id, unsigned int size)
+   {
+      if (crc != getCRC() || size != getSize() || (lv1_id & LV1ID_mask) != getLV1ID()) {
+         edm::LogWarning("L1T")
+            << "Found AMC trailer with:"
+            << "\n\tLV1 ID " << getLV1ID() << ", size " << getSize()
+            << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << getCRC() << std::dec
+            << "\nBut expected:"
+            << "\n\tLV1 ID " << (lv1_id & LV1ID_mask) << ", size " << size
+            << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << crc;
+      }
+   }
+
    Packet::Packet(unsigned int amc, unsigned int board, const std::vector<uint64_t>& load) :
       block_header_(amc, board, load.size()),
       payload_(load)
@@ -110,17 +125,22 @@ namespace amc {
    }
 
    void
-   Packet::finalize()
+   Packet::finalize(unsigned int lv1, unsigned int bx)
    {
       header_ = Header(payload_.data());
       trailer_ = Trailer(&payload_.back());
+
+      std::string check(reinterpret_cast<const char*>(payload_.data()), payload_.size() * 8 - 4);
+      auto crc = cms::CRC32Calculator(check).checksum();
+
+      trailer_.check(crc, lv1, header_.getSize());
 
       // remove trailer
       payload_.erase(payload_.end() - 1);
       // remove two header words
       payload_.erase(payload_.begin(), payload_.begin() + 2);
 
-      // FIXME add header + trailer checks.
+      // FIXME add header checks.
    }
 
    std::vector<uint64_t>
