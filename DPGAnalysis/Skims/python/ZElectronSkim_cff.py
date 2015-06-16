@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # run on MIONAOD
 RUN_ON_MINIAOD = False
-print "ZEE SKIM. RUN ON MINIAOD = ",RUN_ON_MINIAOD
 
 # cuts
 ELECTRON_CUT=("pt > 10 && abs(eta)<2.5")
