@@ -72,7 +72,7 @@ int hadd(const char *filesSeparatedByCommaOrEmpty = "", const char * outputFile 
     Int_t nEvt = 0;
     //get file name
     std::cout<<"Type in general file name (ending is added automatically)."<<std::endl;
-    std::cout<<"i.e. Validation_CRUZET_data as name, code adds 1,2,3 + .root"<<std::endl;
+    std::cout<<"i.e. Validation_CRUZET_data_ as name, code adds 1,2,3 + .root"<<std::endl;
     std::cin>>inputFileName;
     
     std::cout << "Type number of files to merge." << std::endl;
@@ -117,10 +117,9 @@ int hadd(const char *filesSeparatedByCommaOrEmpty = "", const char * outputFile 
   TString outputFileString;
 
   if (strlen(outputFile)!=0) 
-    outputFileString = TString("$OUTPUTDIR/")+ TString(outputFile);
+    outputFileString = TString(outputFile);
   else
-    outputFileString = "$OUTPUTDIR/merge_output.root";
-  
+    outputFileString = "merge_output.root";
   TFile *Target = TFile::Open( outputFileString, "RECREATE" );
   MergeRootfile( Target, FileList);
   std::cout << "Finished merging of histograms." << std::endl;
@@ -175,9 +174,9 @@ int hadd(const char *filesSeparatedByCommaOrEmpty = "", const char * outputFile 
 /////////////////////////////////////////////////////////////////////////
 void MergeRootfile( TDirectory *target, TList *sourcelist) {
 
- 
-  TString path( (char*)strstr( target->GetPath(), ":" ) );
-  path.Remove( 0, 2 );
+  cout << target->GetPath() << endl;
+  TString path( (char*)strstr( target->GetPath(), ".root:" ) );
+  path.Remove( 0, 7 );
   //  TString tmp;
   TFile *first_source = (TFile*)sourcelist->First();
   first_source->cd( path );
