@@ -1,19 +1,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 
 
-SiTrackerGSRecHit2D::SiTrackerGSRecHit2D( const LocalPoint& pos, const LocalError& err,
-					  GeomDet const & idet,
-					  const int simhitId         ,
-					  const int simtrackId       ,
-					  const uint32_t eeId        ,
-					  ClusterRef const&  cluster ,
-					  const int pixelMultiplicityX = -1,
-					  const int pixelMultiplicityY = -1 
-					   ): 
-  GSSiTrackerRecHit2DLocalPos(pos,err,idet) ,
-  simhitId_(simhitId) ,
-  simtrackId_(simtrackId) ,
-  eeId_(eeId) ,
-  cluster_(cluster), 
-  pixelMultiplicityAlpha_(pixelMultiplicityX), 
-  pixelMultiplicityBeta_(pixelMultiplicityY){}
+bool SiTrackerGSRecHit2D::sharesInput( const TrackingRecHit* other, 
+					      SharedInputType what) const
+{
+  const SiTrackerGSRecHit2D * otherCasted = dynamic_cast<const SiTrackerGSRecHit2D*>(other);
+  return bool(otherCasted) && otherCasted->id() == this->id() && otherCasted->eeId() == this->eeId();
+}
