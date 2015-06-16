@@ -60,11 +60,9 @@ void DTTriggerEfficiencyTest::beginRun(const edm::Run& r,const edm::EventSetup& 
 
 }
 
-void DTTriggerEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & c) {
-}
-
 void DTTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+  if (!bookingdone) Bookings(ibooker,igetter);
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -324,7 +322,7 @@ void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,DTCham
 }
 
 
-void DTTriggerEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+void DTTriggerEfficiencyTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
 
   vector<string>::const_iterator iTr   = trigSources.begin();

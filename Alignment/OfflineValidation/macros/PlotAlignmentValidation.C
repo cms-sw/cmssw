@@ -830,7 +830,7 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   TGaxis::SetMaxDigits(3);
 
   Bool_t errorflag = kTRUE;
-  TFile* fi1 = new TFile(inputFile,"read");
+  TFile* fi1 = TFile::Open(inputFile,"read");
   TDirectoryFile* mta1 = NULL;
   TDirectoryFile* mtb1 = NULL;
   TCanvas* normchi = NULL;
