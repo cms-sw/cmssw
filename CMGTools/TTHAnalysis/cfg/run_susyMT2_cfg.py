@@ -211,7 +211,7 @@ from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 0
+test = 2
 if test==0:
     # ------------------------------------------------------------------------------------------- #
     # --- all this lines taken from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 
@@ -250,7 +250,7 @@ elif test==1:
     # Uncomment the two following lines to run on a specific event
     #eventSelector.toSelect = [ 84142401 ]
     #sequence = cfg.Sequence([eventSelector] + sequence)
-    from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
+    #from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
     from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
     from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
 
@@ -259,38 +259,47 @@ elif test==1:
 
     comp=TTJets
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
-    #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
-    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
+    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
+#    comp=JetHT_742
+#    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
 
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
+#    comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
 
 elif test==2:
-    from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
+
+    #from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
     # full production
+#    selectedComponents = [ 
+#TTJets, # TTJets
+#TToLeptons_tch, TToLeptons_sch, TBarToLeptons_tch, TBarToLeptons_sch, TBar_tWch, T_tWch, #singleTop
+#TTWJets, TTZJets, TTH, #TT+boson
+#ZJetsToNuNu_HT100to200, ZJetsToNuNu_HT200to400, ZJetsToNuNu_HT400to600, ZJetsToNuNu_HT600toInf, # ZJetsToNuNu_HT
+#WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, # WJetsToLNu_HT
+#GJets_HT100to200_fixPhoton, GJets_HT200to400_fixPhoton, GJets_HT400to600_fixPhoton, GJets_HT600toInf_fixPhoton, # GJets_HT
+#QCD_HT_100To250_fixPhoton, QCD_HT_250To500_fixPhoton, QCD_HT_500To1000_fixPhoton, QCD_HT_1000ToInf_fixPhoton, QCD_HT_250To500_ext1_fixPhoton, QCD_HT_500To1000_ext1_fixPhoton,QCD_HT_1000ToInf_ext1_fixPhoton, # QCD_HT
+#QCD_Pt170to300_fixPhoton, QCD_Pt300to470_fixPhoton, QCD_Pt470to600_fixPhoton, QCD_Pt600to800_fixPhoton, QCD_Pt800to1000_fixPhoton, QCD_Pt1000to1400_fixPhoton, QCD_Pt1400to1800_fixPhoton, QCD_Pt1800to2400_fixPhoton, QCD_Pt2400to3200_fixPhoton, QCD_Pt3200_fixPhoton, # QCD_Pt
+#QCD_Pt50to80, QCD_Pt80to120, QCD_Pt120to170, #For QCD Estimate
+#SMS_T2tt_2J_mStop850_mLSP100, SMS_T2tt_2J_mStop650_mLSP325, SMS_T2tt_2J_mStop500_mLSP325, SMS_T2tt_2J_mStop425_mLSP325, SMS_T2qq_2J_mStop600_mLSP550, SMS_T2qq_2J_mStop1200_mLSP100, SMS_T2bb_2J_mStop900_mLSP100, SMS_T2bb_2J_mStop600_mLSP580, SMS_T1tttt_2J_mGl1500_mLSP100, SMS_T1tttt_2J_mGl1200_mLSP800, SMS_T1qqqq_2J_mGl1400_mLSP100, SMS_T1qqqq_2J_mGl1000_mLSP800, SMS_T1bbbb_2J_mGl1500_mLSP100, SMS_T1bbbb_2J_mGl1000_mLSP900, # SMS
+#DYJetsToLL_M50_HT100to200, DYJetsToLL_M50_HT200to400, DYJetsToLL_M50_HT400to600, DYJetsToLL_M50_HT600toInf # DYJetsToLL_M50_HT
+#]
+
+    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
     selectedComponents = [ 
-TTJets, # TTJets
-TToLeptons_tch, TToLeptons_sch, TBarToLeptons_tch, TBarToLeptons_sch, TBar_tWch, T_tWch, #singleTop
-TTWJets, TTZJets, TTH, #TT+boson
-ZJetsToNuNu_HT100to200, ZJetsToNuNu_HT200to400, ZJetsToNuNu_HT400to600, ZJetsToNuNu_HT600toInf, # ZJetsToNuNu_HT
-WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, # WJetsToLNu_HT
-GJets_HT100to200_fixPhoton, GJets_HT200to400_fixPhoton, GJets_HT400to600_fixPhoton, GJets_HT600toInf_fixPhoton, # GJets_HT
-QCD_HT_100To250_fixPhoton, QCD_HT_250To500_fixPhoton, QCD_HT_500To1000_fixPhoton, QCD_HT_1000ToInf_fixPhoton, QCD_HT_250To500_ext1_fixPhoton, QCD_HT_500To1000_ext1_fixPhoton,QCD_HT_1000ToInf_ext1_fixPhoton, # QCD_HT
-QCD_Pt170to300_fixPhoton, QCD_Pt300to470_fixPhoton, QCD_Pt470to600_fixPhoton, QCD_Pt600to800_fixPhoton, QCD_Pt800to1000_fixPhoton, QCD_Pt1000to1400_fixPhoton, QCD_Pt1400to1800_fixPhoton, QCD_Pt1800to2400_fixPhoton, QCD_Pt2400to3200_fixPhoton, QCD_Pt3200_fixPhoton, # QCD_Pt
-QCD_Pt50to80, QCD_Pt80to120, QCD_Pt120to170, #For QCD Estimate
-SMS_T2tt_2J_mStop850_mLSP100, SMS_T2tt_2J_mStop650_mLSP325, SMS_T2tt_2J_mStop500_mLSP325, SMS_T2tt_2J_mStop425_mLSP325, SMS_T2qq_2J_mStop600_mLSP550, SMS_T2qq_2J_mStop1200_mLSP100, SMS_T2bb_2J_mStop900_mLSP100, SMS_T2bb_2J_mStop600_mLSP580, SMS_T1tttt_2J_mGl1500_mLSP100, SMS_T1tttt_2J_mGl1200_mLSP800, SMS_T1qqqq_2J_mGl1400_mLSP100, SMS_T1qqqq_2J_mGl1000_mLSP800, SMS_T1bbbb_2J_mGl1500_mLSP100, SMS_T1bbbb_2J_mGl1000_mLSP900, # SMS
-DYJetsToLL_M50_HT100to200, DYJetsToLL_M50_HT200to400, DYJetsToLL_M50_HT400to600, DYJetsToLL_M50_HT600toInf # DYJetsToLL_M50_HT
+TTJets, TTJets_LO, # TTJets
+QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt470to600, QCD_Pt1000to1400, QCD_Pt1400to1800, QCD_Pt1800to2400, QCD_Pt2400to3200, QCD_Pt3200toInf, # QCD_Pt
 ]
 
     # test all components (1 thread per component).
     for comp in selectedComponents:
-        comp.splitFactor = 600
+        comp.splitFactor = 1200
         #comp.fineSplitFactor = 2 # to run two jobs per file
         comp.files = comp.files[:]
-        #comp.files = comp.files[:1]  
+        #comp.files = comp.files[:1]
         #comp.files = comp.files[57:58]  # to process only file [57]  
-        comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
+        # triggers on MC
+        #comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
 
 
 
@@ -298,7 +307,7 @@ DYJetsToLL_M50_HT100to200, DYJetsToLL_M50_HT200to400, DYJetsToLL_M50_HT400to600,
 
 # ------------------------------------------------------------------------------------------- #
 
-doSpecialSettingsForMECCA = 1
+doSpecialSettingsForMECCA = 0
 if doSpecialSettingsForMECCA==1:
     jetAna.doQG = False
     photonAna.do_randomCone = False
@@ -306,8 +315,10 @@ if doSpecialSettingsForMECCA==1:
 
 isData = 0
 if isData==1:
-    jetAna.recalibrateJets = False
-    photonAna.do_mc_match = False
+    for comp in mcSamples:
+        comp.isMC = False
+        comp.isData = True
+        #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
 # ------------------------------------------------------------------------------------------- #
 
 
@@ -338,4 +349,3 @@ config = cfg.Config( components = selectedComponents,
                      events_class = event_class)
 #                     events_class = Events)
 #printComps(config.components, True)
-        
