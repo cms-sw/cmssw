@@ -197,6 +197,14 @@ elif test == 'synch-74X': # sync
         comp = TTLep
         comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
         selectedComponents = [ comp ]
+    elif what == "ZMM":
+        comp = ZMM
+        comp.files = [ ]
+        selectedComponents = [ comp ]
+    elif what == "TTbar":
+        comp = TTbar
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
+        selectedComponents = [ comp ]
     else:
         selectedComponents = RelVals741
     jetAna.recalibrateJets = True
