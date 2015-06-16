@@ -538,7 +538,6 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      int currentId = rechit->simtrackId();		      
 	      std::cout << "\t\t\tRecHit # " << ri << "\t SimTrackId = " << currentId << std::endl;
 	      SimTrackIds.push_back(currentId);
-	      std::cout<<"\t\t\t SimHit ID belonging to this RecHit = "<< rechit->simhitId() << std::endl;
 	      DetId detid = rechit->geographicalId();
 	      unsigned int subdet = detid.subdetId();
 

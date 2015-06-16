@@ -5,61 +5,44 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h" 
 
-// typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster > ClusterRef;
-// typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
-
 class SiTrackerGSRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   
-public:
+ public:
   
- 
   
-  SiTrackerGSRecHit2D(): GSSiTrackerRecHit2DLocalPos(),
-			 simhitId_(),
-			 simtrackId_(),
-			 eeId_(),
-                         cluster_(),  
-			 pixelMultiplicityAlpha_(), 
-                         pixelMultiplicityBeta_() {}
+  
+ SiTrackerGSRecHit2D()
+   : GSSiTrackerRecHit2DLocalPos()
+    , simtrackId_() {}
   
   ~SiTrackerGSRecHit2D() {}
   
- typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster > ClusterRef;
- typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
-
-
-  SiTrackerGSRecHit2D( const LocalPoint&, const LocalError&,
-		       GeomDet const & idet,
-		       const int simhitId,
-		       const int simtrackId,
-		       const uint32_t eeId,
-		       ClusterRef const&  cluster,
-		       const int pixelMultiplicityX,
-		       const int pixelMultiplicityY);     
+  SiTrackerGSRecHit2D( const LocalPoint & pos, 
+		       const LocalError & err,
+		       const GeomDet & idet,
+		       const uint32_t simtrackId)
+    : GSSiTrackerRecHit2DLocalPos(pos,err,idet)
+    , simtrackId_(simtrackId)
+    , id_(-1)
+    , eeId_(-1)
+    {};
   
   virtual SiTrackerGSRecHit2D * clone() const {SiTrackerGSRecHit2D * p = new SiTrackerGSRecHit2D( * this); p->load(); return p;}
   
-  const int& simhitId()    const { return simhitId_;}
-  const int& simtrackId()  const { return simtrackId_;}
+  const uint32_t & id()          const { return id_;}
+  const uint32_t& simtrackId()  const { return simtrackId_;}
   const uint32_t& eeId()   const { return eeId_;}
-  const int& simMultX()    const { return pixelMultiplicityAlpha_;}
-  const int& simMultY()    const { return pixelMultiplicityBeta_;}
-
-  ClusterRef const& cluster() const { return cluster_;}
-  void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
   
+  void setId(uint32_t id){id_ = id;}
   void setEeId(uint32_t eeId){eeId_ = eeId;}
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
  private:
   
-  int simhitId_;
-  int simtrackId_;
+  const uint32_t simtrackId_;
+  uint32_t id_;
   uint32_t eeId_;
-  ClusterRef cluster_;
-  int pixelMultiplicityAlpha_;
-  int pixelMultiplicityBeta_;
   
 };
 
