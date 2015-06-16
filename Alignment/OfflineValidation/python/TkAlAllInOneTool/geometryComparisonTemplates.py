@@ -9,10 +9,7 @@ process = cms.Process("ValidationIntoNTuples")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
-process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
-
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
@@ -50,10 +47,7 @@ process = cms.Process("validation")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
-process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
-
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
