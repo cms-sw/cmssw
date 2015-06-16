@@ -1,4 +1,4 @@
 # relvals for sync
 ADD+:     ADD_MJ           : 1.0; FillColor=ROOT.kRed-9, Label="ADD RelVal"
 TTLep:    TTLep            : 1.0; FillColor=ROOT.kGreen-7, Label="tt lep RelVal"
-
+TTbar:    TTbar            : 1.0; FillColor=ROOT.kBlue-7, Label="tt RelVal"
