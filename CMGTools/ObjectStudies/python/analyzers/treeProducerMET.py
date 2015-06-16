@@ -19,11 +19,16 @@ met_globalVariables = [
 
    # ----------------------- dedicated met info -------------------------------------------------------------------- #     
 
-    NTupleVariable("met_rawPt", lambda ev : ev.met.shiftedPt(12, 0), help="raw met p_{T}"),
-    NTupleVariable("met_rawPhi", lambda ev : ev.met.shiftedPhi(12, 0), help="raw met phi"),
+    NTupleVariable("met_uPara_zll", lambda ev : ev.met.upara_zll if  hasattr(ev,'zll_p4') else -999 , help="recoil MET"),
+    NTupleVariable("met_uPerp_zll", lambda ev : ev.met.uperp_zll if  hasattr(ev,'zll_p4') else -999 , help="recoil MET"),
 
-    NTupleVariable("met_caloPt", lambda ev : ev.met.caloMETPt(), help="raw met p_{T}"),
-    NTupleVariable("met_caloPhi", lambda ev : ev.met.caloMETPhi(), help="raw met phi"),
+    NTupleVariable("met_rawPt", lambda ev : ev.met.uncorrectedPt(), help="raw met p_{T}"),
+    NTupleVariable("met_rawPhi", lambda ev : ev.met.uncorrectedPhi(), help="raw met phi"),
+    NTupleVariable("met_rawSumEt", lambda ev : ev.met.uncorrectedSumEt(), help="raw met sumEt"),
+
+    NTupleVariable("met_caloPt", lambda ev : ev.met.caloMETPt(), help="calo met p_{T}"),
+    NTupleVariable("met_caloPhi", lambda ev : ev.met.caloMETPhi(), help="calo met phi"),
+    NTupleVariable("met_caloSumEt", lambda ev : ev.met.caloMETSumEt(), help="calo met sumEt"),
 
    # ----------------------- type1met studies info -------------------------------------------------------------------- #     
 
@@ -46,25 +51,27 @@ met_globalVariables = [
 
     NTupleVariable("tkmet_pt", lambda ev : ev.tkMet.pt() if  hasattr(ev,'tkMet') else  0, help="TK E_{T}^{miss} dz<0.1 pt"),
     NTupleVariable("tkmet_phi", lambda ev : ev.tkMet.phi() if  hasattr(ev,'tkMet') else  0 , help="TK E_{T}^{miss} dz<0.1 phi"),
-    NTupleVariable("tkmet_sumEt", lambda ev : ev.tkSumEt if  hasattr(ev,'tkSumEt') else  0 , help="TK sumEt charged dz<0.1 pt"),
-                                                                                                                                                                                                 
+    NTupleVariable("tkmet_sumEt", lambda ev : ev.tkMet.sumEt if  hasattr(ev,'tkMet') else  0 , help="TK sumEt charged dz<0.1 pt"),
+
+    NTupleVariable("tkmet_uPara_zll", lambda ev : ev.tkMet.upara_zll if  hasattr(ev,'tkMet') and hasattr(ev,'zll_p4') else -999 , help="TK sumEt charged dz<0.1 pt"),
+    NTupleVariable("tkmet_uPerp_zll", lambda ev : ev.tkMet.uperp_zll if  hasattr(ev,'tkMet') and hasattr(ev,'zll_p4') else -999 , help="TK sumEt charged dz<0.1 pt"),
+
     NTupleVariable("tkmet_genPt", lambda ev : ev.tkGenMet.pt() if  hasattr(ev,'tkGenMet') else  0 , help="TK E_{T}^{miss} dz<0.1 pt"),
     NTupleVariable("tkmet_genPhi", lambda ev : ev.tkGenMet.phi() if  hasattr(ev,'tkGenMet') else  0 , help="TK E_{T}^{miss} dz<0.1 phi"),
 
 #    NTupleVariable("tkmetchs_pt", lambda ev : ev.tkMetchs.pt(), help="TK E_{T}^{miss} fromPV>0 pt"),
 #    NTupleVariable("tkmetchs_phi", lambda ev : ev.tkMetchs.phi(), help="TK E_{T}^{miss} fromPV>0 phi"),
-#    #    NTupleVariable("tkmetchs_sumEt", lambda ev : ev.tkchsSumEt, help="TK sumEt charged fromPV>0"),
+#    #    NTupleVariable("tkmetchs_sumEt", lambda ev : ev.tkMetchs.sumEt, help="TK sumEt charged fromPV>0"),
 #
 
 #    NTupleVariable("tkmetPVLoose_pt", lambda ev : ev.tkMetPVLoose.pt(), help="TK E_{T}^{miss} fromPV>1 pt"),
 #    NTupleVariable("tkmetPVLoose_phi", lambda ev : ev.tkMetPVLoose.phi(), help="TK E_{T}^{miss} fromPV>1 phi"),
-#    #    NTupleVariable("tkmetPVLoose_sumEt", lambda ev : ev.tkPVLooseSumEt, help="TK sumEt charged fromPV>1"),
+#    #    NTupleVariable("tkmetPVLoose_sumEt", lambda ev : ev.tkMetPVLoose.sumEt, help="TK sumEt charged fromPV>1"),
 #                                                                                                                                                                                                   
 
 #    NTupleVariable("tkmetPVTight_pt", lambda ev : ev.tkMetPVTight.pt(), help="TK E_{T}^{miss} fromPV>2 pt"),
 #    NTupleVariable("tkmetPVTight_phi", lambda ev : ev.tkMetPVTight.phi(), help="TK E_{T}^{miss} fromPV>2 phi"),
-#    #    NTupleVariable("tkmetPVTight_sumEt", lambda ev : ev.tkPVTightSumEt, help="TK sumEt charged fromPV>2"),               
-
+#    #    NTupleVariable("tkmetPVTight_sumEt", lambda ev : ev.tkPVTight.sumEt, help="TK sumEt charged fromPV>2"),
 
     ]
 
