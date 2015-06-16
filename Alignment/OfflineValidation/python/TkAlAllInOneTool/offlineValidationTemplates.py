@@ -146,7 +146,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
  ## GlobalTag Conditions (if needed)
  ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 
