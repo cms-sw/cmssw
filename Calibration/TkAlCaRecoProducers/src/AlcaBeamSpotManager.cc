@@ -305,7 +305,8 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
 	  																															    
       }
       //tmprun = currentBS->second.Run																														    
-      ++countlumi;																																    
+      // increase the counter by one only if the IOV hasn't been closed																														    
+      if (!docreate) ++countlumi;																																    
       
       currentBS = nextBS;
       nextBS	= nextNextBS;
