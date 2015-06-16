@@ -167,8 +167,12 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
      DoubleHinTaus = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_Mu17_Mu8_SameSign_v",
-            "HLT_Mu17_Mu8_SameSign_DPhi_v"
+            "HLT_Mu17_Mu8_v",
+            "HLT_Mu17_Mu8_DZ_v",
+            "HLT_Mu17_Mu8_SameSign_DZ_v",
+            "HLT_Mu20_Mu10_v",
+            "HLT_Mu20_Mu10_DZ_v",
+            "HLT_Mu20_Mu10_SameSign_DZ_v"
         ),
         recMuonLabel  = cms.string("muons"),
         # -- Analysis specific cuts
