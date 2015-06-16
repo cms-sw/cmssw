@@ -68,6 +68,8 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 # HCAL noise
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
+#HCAL calibration iterative PhiSym
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_cff import *
 
 ###############################################################
 # Muon alignment
@@ -150,6 +152,7 @@ pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
+pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalPhisymDQM)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
@@ -383,7 +386,14 @@ ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-
+ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
+    responsible = 'Natalia Lychkovskaya',
+    name = 'ALCARECOHcalCalIterativePhiSym',
+    paths  = (pathALCARECOHcalCalIterativePhiSym),
+    content = OutALCARECOHcalCalIterativePhiSym.outputCommands,
+    selectEvents = OutALCARECOHcalCalIterativePhiSym.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+    )
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',
 	name = 'MuAlCalIsolatedMu',
