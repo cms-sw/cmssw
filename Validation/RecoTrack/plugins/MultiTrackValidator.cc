@@ -464,7 +464,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  }
 	//---------- THE PART ABOVE HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 
-	st++;   //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
+        //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) ), but only for in-time TPs
+        if(tp.eventId().bunchCrossing() == 0) {
+          st++;
+        }
 
 	// in the coming lines, histos are filled using as input
 	// - momentumTP
@@ -522,7 +525,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 
-      //if (st!=0) h_tracksSIM[w]->Fill(st);  // TO BE FIXED
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_simTrackBased_histos(w, st);
+      }
 
 
       // ##############################################

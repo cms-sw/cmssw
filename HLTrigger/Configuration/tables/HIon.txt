@@ -21,4 +21,5 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath
 
 AOutput
+#RatesMonitoring				# only in 'online'
 DQMOutput

@@ -734,25 +734,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
     PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
 
   std::string prefix = "RecoAllAssoc2GenMatched";
-  const simPrimaryVertex *bestMatch = v.sim_vertices_internal[0];
   if(v.sim_vertices_internal.size() > 1) {
-
     prefix += "Merged";
-    // Pick the sim-vertex with largest number of tracks associated to
-    // reco-tracks as the best match
-    auto bestVtx = std::max_element(v.sim_vertices_internal.begin(),
-                                    v.sim_vertices_internal.end(),
-                                    [](const simPrimaryVertex *a, const simPrimaryVertex *b) {
-                                      return a->num_matched_reco_tracks < b->num_matched_reco_tracks;
-                                    });
-    bestMatch = *bestVtx;
   }
 
-
-  const double xres = v.x - bestMatch->x;
-  const double yres = v.y - bestMatch->y;
-  const double zres = v.z - bestMatch->z;
-  const double pt2res = v.ptsq - bestMatch->ptsq;
+  // Use the best match as defined by the vertex truth associator
+  // reco-tracks as the best match
+  const simPrimaryVertex& bestMatch = *(v.sim_vertices_internal[0]);
+  const double xres = v.x - bestMatch.x;
+  const double yres = v.y - bestMatch.y;
+  const double zres = v.z - bestMatch.z;
+  const double pt2res = v.ptsq - bestMatch.ptsq;
 
   const double xresol = xres;
   const double yresol = yres;
@@ -1005,21 +997,27 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on discovered simulated primary vertices.
 
+  // In case of no simulated vertices, break here
+  if(simpv.empty())
+    return simpv;
+
   // Now compute the closest distance in z between all simulated vertex
+  // first initialize
+  auto prev_z = simpv.back().z;
+  for(simPrimaryVertex& vsim: simpv) {
+    vsim.closest_vertex_distance_z = std::abs(vsim.z - prev_z);
+    prev_z = vsim.z;
+  }
+  // then calculate
   for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin();
        vsim != simpv.end(); vsim++) {
     std::vector<simPrimaryVertex>::iterator vsim2 = vsim;
     vsim2++;
     for (; vsim2 != simpv.end(); vsim2++) {
-      double distance_z = fabs(vsim->z - vsim2->z);
-      // Initialize with the next-sibling in the vector: minimization
-      // is performed by the next if.
-      if (vsim->closest_vertex_distance_z < 0) {
-        vsim->closest_vertex_distance_z = distance_z;
-        continue;
-      }
-      if (distance_z < vsim->closest_vertex_distance_z)
-        vsim->closest_vertex_distance_z = distance_z;
+      double distance = std::abs(vsim->z - vsim2->z);
+      // need both to be complete
+      vsim->closest_vertex_distance_z = std::min(vsim->closest_vertex_distance_z, distance);
+      vsim2->closest_vertex_distance_z = std::min(vsim2->closest_vertex_distance_z, distance);
     }
   }
   return simpv;
@@ -1087,21 +1085,26 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on reconstructed primary vertices.
 
+  // In case of no reco vertices, break here
+  if(recopv.empty())
+    return recopv;
+
   // Now compute the closest distance in z between all reconstructed vertex
+  // first initialize
+  auto prev_z = recopv.back().z;
+  for(recoPrimaryVertex& vreco: recopv) {
+    vreco.closest_vertex_distance_z = std::abs(vreco.z - prev_z);
+    prev_z = vreco.z;
+  }
   for (std::vector<recoPrimaryVertex>::iterator vreco = recopv.begin();
        vreco != recopv.end(); vreco++) {
     std::vector<recoPrimaryVertex>::iterator vreco2 = vreco;
     vreco2++;
     for (; vreco2 != recopv.end(); vreco2++) {
-      double distance_z = fabs(vreco->z - vreco2->z);
-      // Initialize with the next-sibling in the vector: minimization
-      // is performed by the next if.
-      if (vreco->closest_vertex_distance_z < 0) {
-        vreco->closest_vertex_distance_z = distance_z;
-        continue;
-      }
-      if (distance_z < vreco->closest_vertex_distance_z)
-        vreco->closest_vertex_distance_z = distance_z;
+      double distance = std::abs(vreco->z - vreco2->z);
+      // need both to be complete
+      vreco->closest_vertex_distance_z = std::min(vreco->closest_vertex_distance_z, distance);
+      vreco2->closest_vertex_distance_z = std::min(vreco2->closest_vertex_distance_z, distance);
     }
   }
   return recopv;
@@ -1110,8 +1113,6 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
 void PrimaryVertexAnalyzer4PUSlimmed::resetSimPVAssociation(
     std::vector<simPrimaryVertex> & simpv) {
   for (auto & v : simpv) {
-    v.num_matched_reco_tracks = 0;
-    v.average_match_quality = 0;
     v.rec_vertices.clear();
   }
 }
@@ -1164,12 +1165,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
         const auto tvPtr = &(*(vertexRefQuality.first));
         vrec->sim_vertices.push_back(tvPtr);
       }
-
-      // TODO: sort the matched sim vertices by eventId to keep old
-      // behaviour for now, to be removed later
-      std::sort(vrec->sim_vertices.begin(), vrec->sim_vertices.end(), [](const TrackingVertex *a, const TrackingVertex *b) {
-          return a->eventId().event() < b->eventId().event();
-        });
 
       for(const TrackingVertex *tv: vrec->sim_vertices) {
         // Set pointers to internal simVertex objects

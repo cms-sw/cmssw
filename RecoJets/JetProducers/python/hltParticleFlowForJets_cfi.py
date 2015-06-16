@@ -11,7 +11,7 @@ hltParticleFlowBlock = cms.EDProducer("PFBlockProducer",
     verbose = cms.untracked.bool(False),
     elementImporters = cms.VPSet(
         cms.PSet(
-            source = cms.InputTag("particleFlowClusterECALUncorrected"), #we use uncorrected
+            source = cms.InputTag("particleFlowClusterECAL"),
             importerName = cms.string('GenericClusterImporter')
         ),
         cms.PSet(

@@ -30,7 +30,7 @@ void proof_thing2_sel()
   }
 
   //Setup the proof server
-  TProof *myProof=TProof::Open( "" );
+  TProof *myProof=TProof::Open( "", "workers=2" );
   
   // This makes sure the TSelector library and dictionary are properly
   // installed in the remote PROOF servers

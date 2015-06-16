@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ## The iso-based HBHE noise filter ___________________________________________||
+from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
 from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
 
 ## The CSC beam halo tight filter ____________________________________________||
@@ -43,7 +44,7 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 ## good events.
 
 metFilters = cms.Sequence(
-   MakeHBHENoiseFilterResult *
+   HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
    CSCTightHaloFilter *
    hcalLaserEventFilter *

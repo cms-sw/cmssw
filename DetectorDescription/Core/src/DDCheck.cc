@@ -127,7 +127,7 @@ bool DDCheckAll(const DDCompactView & cpv, std::ostream & os)
      lp_names[std::make_pair(lp.name().ns(),lp.name().name())]++;
    }
    
-   for( auto mit : lp_names ) {
+   for( const auto& mit : lp_names ) {
      if (mit.second >1) {
        os << "interesting: " << mit.first.first << ":" << mit.first.second
           << " counted " << mit.second << " times!" << std::endl;
