@@ -42,5 +42,8 @@ class CmsswPreprocessor :
 		f.close()
 		runstring="%s %s >& %s/cmsRun.log" % (self.command,configfile,wd)
 		print "Running pre-processor: %s " %runstring
-		os.system(runstring)
+                ret=os.system(runstring)
+                if ret != 0:
+                     print "CMSRUN failed"
+                     exit(ret)
 		return component
