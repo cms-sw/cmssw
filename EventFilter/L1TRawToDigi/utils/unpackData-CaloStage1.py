@@ -9,6 +9,11 @@ import FWCore.ParameterSet.Config as cms
 # options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
+options.register('skipEvents',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Number of events to skip")
 options.register('streamer',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -59,12 +64,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 if (options.streamer) :
     process.source = cms.Source(
         "NewEventStreamFileReader",
-        fileNames = cms.untracked.vstring (options.inputFiles)
+        fileNames = cms.untracked.vstring (options.inputFiles),
+        skipEvents=cms.untracked.uint32(options.skipEvents)
     )
 else :
     process.source = cms.Source (
         "PoolSource",
-        fileNames = cms.untracked.vstring (options.inputFiles)
+        fileNames = cms.untracked.vstring (options.inputFiles),
+        skipEvents=cms.untracked.uint32(options.skipEvents)
     )
 
 # N events
