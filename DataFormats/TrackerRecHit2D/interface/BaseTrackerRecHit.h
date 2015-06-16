@@ -40,11 +40,11 @@ public:
   virtual ~BaseTrackerRecHit() {}
 
   // no position (as in persistent)
-  BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
+ BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)),qualWord_(0) {}
 
-  BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
-    TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e){
+ BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
+		    GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
+  TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e), qualWord_(0){
     LocalError lape = static_cast<TrackerGeomDet const *>(det())->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
