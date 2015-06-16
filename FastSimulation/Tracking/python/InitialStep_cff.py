@@ -21,7 +21,7 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 initialStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("initialStepSeeds"),
+    src = cms.InputTag("initialStepSeeds"),
     MinNumberOfCrossedLayers = 3
     )
 
