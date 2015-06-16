@@ -14,7 +14,7 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Phys14NonTrig.h"
+#include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 
 #include <memory>
 #include <vector>
@@ -32,15 +32,16 @@ class ElectronMVAValueMapProducer : public edm::stream::EDProducer<> {
   
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
+  template<typename T>
   void writeValueMap(edm::Event &iEvent,
 		     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
-		     const std::vector<float> & values,
+		     const std::vector<T> & values,
 		     const std::string    & label) const ;
   
-  void writeValueMap(edm::Event &iEvent,
-		     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
-		     const std::vector<int> & values,
-		     const std::string    & label) const ;
+  // void writeValueMap(edm::Event &iEvent,
+  // 		     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
+  // 		     const std::vector<int> & values,
+  // 		     const std::string    & label) const ;
   
   // for AOD case
   edm::EDGetToken src_;
@@ -48,18 +49,16 @@ class ElectronMVAValueMapProducer : public edm::stream::EDProducer<> {
   // for miniAOD case
   edm::EDGetToken srcMiniAOD_;
 
-  // Electron MVA estimator
-  ElectronMVAEstimatorRun2Phys14NonTrig mvaEstimatorPhys14NonTrig_;
+  // MVA estimator
+  std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
 
-  constexpr static char mvaValuesMapName_[] = "eleMVAPhys14NonTrigValues";
-  constexpr static char mvaCategoriesMapName_[] = "eleMVAPhys14NonTrigCategories";
+  // Value map names
+  std::vector <std::string> mvaValueMapNames_;
+  std::vector <std::string> mvaCategoriesMapNames_;
+
 };
 
-constexpr char ElectronMVAValueMapProducer::mvaValuesMapName_[];
-constexpr char ElectronMVAValueMapProducer::mvaCategoriesMapName_[];
-
-ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet& iConfig) :
-  mvaEstimatorPhys14NonTrig_( iConfig.getParameterSet("mvaConfigPhys14NonTrig") )
+ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet& iConfig) 
 {
 
   //
@@ -68,8 +67,42 @@ ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet
   src_        = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"));
   srcMiniAOD_ = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
 
-  produces<edm::ValueMap<float> >(mvaValuesMapName_);  
-  produces<edm::ValueMap<int> >(mvaCategoriesMapName_);  
+  // Loop over the list of MVA configurations passed here from python and
+  // construct all requested MVA esimtators.
+  const std::vector<edm::ParameterSet>& mvaEstimatorConfigs
+    = iConfig.getParameterSetVector("mvaConfigurations");
+  for( auto &imva : mvaEstimatorConfigs ){
+
+    std::unique_ptr<AnyMVAEstimatorRun2Base> thisEstimator;
+    thisEstimator.reset(NULL);
+    const edm::ParameterSet& pConf = iConfig.getParameterSet("mvaConfig");
+    if( !pConf.empty() ) {
+      const std::string& pName = pConf.getParameter<std::string>("mvaName");
+      // The factory below constructs the MVA of the appropriate type based
+      // on the "mvaName" which is the name of the derived MVA class (plugin)
+      AnyMVAEstimatorRun2Base *estimator = AnyMVAEstimatorRun2Factory::get()->create(pName, pConf);
+      thisEstimator.reset(estimator);
+      
+    } else 
+      throw cms::Exception(" MVA configuration not found: ")
+	<< " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
+
+    mvaEstimators_.push_back( thisEstimator );
+
+    //
+    // Compose and save the names of the value maps to be produced
+    //
+    std::string thisValueMapName = thisEstimator->getName() + "Values";
+    std::string thisCategoriesMapName = thisEstimator->getName() + "Categories";
+    mvaValueMapNames_.push_back( thisValueMapName );
+    mvaCategoriesMapNames_.push_back( thisCategoriesMapName );
+
+    // Declare the maps to the framework
+    produces<edm::ValueMap<float> >(thisValueMapName);  
+    produces<edm::ValueMap<int> >(thisCategoriesMapName);  
+
+  }
+
 
 }
 
@@ -94,51 +127,56 @@ void ElectronMVAValueMapProducer::produce(edm::Event& iEvent, const edm::EventSe
   }
 
  
-  // size_t n = src->size();
-  std::vector<float> mvaValues;
-  std::vector<int> mvaCategories;
-  
-  // reco::GsfElectron::superCluster() is virtual so we can exploit polymorphism
-  for (size_t i = 0; i < src->size(); ++i){
-    auto iEle = src->ptrAt(i);
+  // Loop over MVA estimators
+  for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
 
-    mvaValues.push_back( mvaEstimatorPhys14NonTrig_.mvaValue(  iEle ) );
-    mvaCategories.push_back( mvaEstimatorPhys14NonTrig_.findCategory(  iEle ) );
+    std::vector<float> mvaValues;
+    std::vector<int> mvaCategories;
 
-  }
+    // Loop over particles
+    for (size_t i = 0; i < src->size(); ++i){
+      auto iEle = src->ptrAt(i);
+      
+      mvaValues.push_back( mvaEstimators_[iEstimator]->mvaValue(  iEle ) );
+      mvaCategories.push_back( mvaEstimators_[iEstimator]->findCategory(  iEle ) );
+    } // end loop over particles
+
+    writeValueMap(iEvent, src, mvaValues, mvaValueMapNames_[iEstimator] );  
+    writeValueMap(iEvent, src, mvaCategories, mvaCategoriesMapNames_[iEstimator] );  
+
+  } // end loop over estimators
   
-  writeValueMap(iEvent, src, mvaValues, mvaValuesMapName_);  
-  writeValueMap(iEvent, src, mvaCategories, mvaCategoriesMapName_);  
 
 }
 
+template<typename T>
 void ElectronMVAValueMapProducer::writeValueMap(edm::Event &iEvent,
 					     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
-					     const std::vector<float> & values,
+					     const std::vector<T> & values,
 					     const std::string    & label) const 
 {
   using namespace edm; 
   using namespace std;
-  auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
-  edm::ValueMap<float>::Filler filler(*valMap);
+  auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+  edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
   iEvent.put(valMap, label);
 }
 
-void ElectronMVAValueMapProducer::writeValueMap(edm::Event &iEvent,
-					     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
-					     const std::vector<int> & values,
-					     const std::string    & label) const 
-{
-  using namespace edm; 
-  using namespace std;
-  auto_ptr<ValueMap<int> > valMap(new ValueMap<int>());
-  edm::ValueMap<int>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(valMap, label);
-}
+// void ElectronMVAValueMapProducer::writeValueMap(edm::Event &iEvent,
+// 					     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
+// 					     const std::vector<int> & values,
+// 					     const std::string    & label) const 
+// {
+//   using namespace edm; 
+//   using namespace std;
+//   auto_ptr<ValueMap<int> > valMap(new ValueMap<int>());
+//   edm::ValueMap<int>::Filler filler(*valMap);
+//   filler.insert(handle, values.begin(), values.end());
+//   filler.fill();
+//   iEvent.put(valMap, label);
+// }
 
 void ElectronMVAValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
