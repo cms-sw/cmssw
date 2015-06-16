@@ -400,7 +400,17 @@ namespace edm {
   ProductHolderBase*
   Principal::getExistingProduct(ProductHolderBase const& productHolder) {
     ProductHolderBase* phb = getExistingProduct(productHolder.branchDescription().branchID());
-    assert(nullptr == phb || BranchKey(productHolder.branchDescription()) == BranchKey(phb->branchDescription()));
+    if(nullptr != phb && BranchKey(productHolder.branchDescription()) != BranchKey(phb->branchDescription())) {
+      BranchDescription const& newProduct = phb->branchDescription();
+      BranchDescription const& existing = productHolder.branchDescription();
+      if(newProduct.branchName() != existing.branchName() && newProduct.branchID() == existing.branchID()) {
+        throw cms::Exception("HashCollision") << "Principal::getExistingProduct\n" <<
+          " Branch " << newProduct.branchName() << " has same branch ID as branch " << existing.branchName() << "\n" <<
+          "Workaround: change process name or product instance name of " << newProduct.branchName() << "\n";
+      } else {
+        assert(nullptr == phb || BranchKey(productHolder.branchDescription()) == BranchKey(phb->branchDescription()));
+      }
+    }
     return phb;
   }
 
