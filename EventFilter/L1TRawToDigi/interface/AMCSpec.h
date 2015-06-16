@@ -31,6 +31,8 @@ namespace amc {
          inline unsigned int getMore() const { return (data_ >> More_bit_shift) & 1; };
          inline unsigned int getSegmented() const { return (data_ >> Segmented_bit_shift) & 1; };
 
+         inline unsigned int validCRC() const { return (data_ >> CRC_bit_shift) & 1; };
+
       private:
          static const unsigned int Size_shift = 32;
          static const unsigned int Size_mask = 0xffffff;
