@@ -135,11 +135,6 @@ namespace amc {
 
       trailer_.check(crc, lv1, header_.getSize());
 
-      // remove trailer
-      payload_.erase(payload_.end() - 1);
-      // remove two header words
-      payload_.erase(payload_.begin(), payload_.begin() + 2);
-
       // FIXME add header checks.
    }
 
@@ -158,9 +153,10 @@ namespace amc {
    std::unique_ptr<uint64_t[]>
    Packet::data()
    {
-      std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size()]);
-      for (unsigned int i = 0; i < payload_.size(); ++i)
-         res.get()[i] = payload_[i];
+      // Remove 3 words: 2 for the header, 1 for the trailer
+      std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size() - 3]);
+      for (unsigned int i = 0; i < payload_.size() - 3; ++i)
+         res.get()[i] = payload_[i + 2];
       return res;
    }
 }

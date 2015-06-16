@@ -137,7 +137,8 @@ namespace amc {
          Trailer trailer() const { return trailer_; };
 
          inline unsigned int blocks() const { return block_header_.getBlocks(); };
-         inline unsigned int size() const { return block_header_.getSize(); };
+         // Returns the size of the payload _without_ the headers
+         inline unsigned int size() const { return block_header_.getSize() - 3; };
 
       private:
          BlockHeader block_header_;
