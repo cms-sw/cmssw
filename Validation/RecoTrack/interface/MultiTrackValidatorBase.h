@@ -72,8 +72,6 @@ class MultiTrackValidatorBase {
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx1Tag;
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx2Tag;
 
-  edm::ESHandle<MagneticField> theMF;
-
   bool ignoremissingtkcollection_;
 };
 

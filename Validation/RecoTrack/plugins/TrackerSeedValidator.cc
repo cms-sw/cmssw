@@ -67,9 +67,6 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
 TrackerSeedValidator::~TrackerSeedValidator(){delete histoProducerAlgo_;}
 
 void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
-  setup.get<IdealMagneticFieldRecord>().get(theMF);
-  setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
-
   {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "simulation");
@@ -122,6 +119,12 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   edm::ESHandle<TrackerTopology> httopo;
   setup.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
+
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
+  setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+
+  edm::ESHandle<MagneticField> theMF;
+  setup.get<IdealMagneticFieldRecord>().get(theMF);
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
