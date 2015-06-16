@@ -9,6 +9,12 @@ result_type asCandidate(const argument_type& obj) const override final {
 }  
 """
 
+string_value = """
+double value(const reco::CandidatePtr& obj) const override final { 
+  return obj->pt();
+}  
+"""
+
 trivialCutFlow = cms.PSet(
     idName = cms.string("trivialCutFlow"),
     cutFlow = cms.VPSet(
@@ -24,6 +30,7 @@ trivialCutFlow = cms.PSet(
                   realCutName = cms.string("StringMinPtCut"),
                   candidateType = cms.string("NONE"),
                   functionDef = cms.string(string_func),
+                  valueDef = cms.string(string_value),
                   needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)                )
     )

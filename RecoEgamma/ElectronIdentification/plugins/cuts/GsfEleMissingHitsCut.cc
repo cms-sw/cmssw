@@ -13,6 +13,8 @@ public:
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -37,4 +39,13 @@ operator()(const reco::GsfElectronPtr& cand) const{
   const unsigned mHits = 
     cand->gsfTrack()->hitPattern().numberOfHits(missingHitType);
   return mHits <= maxMissingHits;
+}
+
+double GsfEleMissingHitsCut::value(const reco::CandidatePtr& cand) const {
+  constexpr reco::HitPattern::HitCategory missingHitType =
+    reco::HitPattern::MISSING_INNER_HITS;
+  reco::GsfElectronPtr ele(cand);
+  const unsigned mHits = 
+    ele->gsfTrack()->hitPattern().numberOfHits(missingHitType);
+  return mHits;
 }

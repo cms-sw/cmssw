@@ -20,6 +20,10 @@ public:
     cut_->getEventContent(event);
   }
 
+  double value(const reco::CandidatePtr& cand) const override final {
+    return cut_->value(cand);
+  }
+
   const std::string& name() const override final { return realname_; }
 
 private:
@@ -32,6 +36,7 @@ ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) :
   CutApplicatorWithEventContentBase(c),
   realname_(c.getParameter<std::string>("realCutName")) 
 { 
+  const std::string newline("\n");
   const std::string close_function("; };");
   const std::string candTypePreamble("CandidateType candidateType() const override final { return ");
   
@@ -42,8 +47,24 @@ ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) :
   // read in the overload of operator()
   const std::string& oprExpr = c.getParameter<std::string>("functionDef");
   
+  // read in the overload of value()
+  const std::string& valExpr = c.getParameter<std::string>("valueDef");
+
+  // read in the overload of setConsumes()
+  const std::string& setConsumesExpr = 
+    c.getParameter<std::string>("setConsumesDef");
+
+  // read in the overload of getEventContent()
+  const std::string& getEventContentExpr = 
+    c.getParameter<std::string>("getEventContentDef");
+  
+
   // concatenate and evaluate the expression
-  const std::string total_expr = candTypeExpr + std::string("\n") + oprExpr;
+  const std::string total_expr = ( candTypeExpr        + newline + 
+                                   oprExpr             + newline +
+                                   valExpr             + newline +
+                                   setConsumesExpr     + newline +
+                                   getEventContentExpr             );
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorWithEventContentBase",
                                  total_expr.c_str());
