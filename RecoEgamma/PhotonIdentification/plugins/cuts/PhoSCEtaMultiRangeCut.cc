@@ -17,6 +17,8 @@ public:
   
   result_type operator()(const reco::PhotonPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return PHOTON; 
   }
@@ -42,4 +44,11 @@ operator()(const reco::PhotonPtr& cand) const{
     }
   }
   return result;
+}
+
+double PhoSCEtaMultiRangeCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::PhotonPtr pho(cand);
+  const reco::SuperClusterRef& scref = pho->superCluster();
+  return ( _absEta ? std::abs(scref->eta()) : scref->eta() );
 }
