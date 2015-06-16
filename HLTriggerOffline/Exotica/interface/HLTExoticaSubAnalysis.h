@@ -147,6 +147,7 @@ private:
     std::vector<double> _parametersEta;
     std::vector<double> _parametersPhi;
     std::vector<double> _parametersTurnOn;
+    std::vector<double> _parametersTurnOnSumEt;
     std::vector<double> _parametersDxy;
 
     /// gen/rec objects cuts
