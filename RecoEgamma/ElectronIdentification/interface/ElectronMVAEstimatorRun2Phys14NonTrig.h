@@ -73,6 +73,7 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
 
   inline int getNCategories(){return nCategories;};
   bool isEndcapCategory( int category );
+  const inline std::string getName(){return name_;};
 
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
@@ -83,6 +84,12 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   void constrainMVAVariables();
   
  private:
+
+  // MVA name. This is a unique name for this MVA implementation.
+  // It will be used as part of ValueMap names, so it shouldn't have
+  // spaces or funny symbols.
+  const std::string name_ = "eleMVAPhys14NonTrig";
+
   // Data members
   std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;
 

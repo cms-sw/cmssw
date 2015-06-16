@@ -8,10 +8,10 @@
 ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf){
 
-  const std::vector <edm::FileInPath> weightFiles 
-    = conf.getParameter<std::vector<edm::FileInPath> >("weightFiles");
+  const std::vector <std::string> weightFileNames
+    = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
-  if( (int)(weightFiles.size()) != nCategories )
+  if( (int)(weightFileNames.size()) != nCategories )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
 
@@ -22,10 +22,9 @@ ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(con
 
     // Use unique_ptr so that all readers are properly cleaned up
     // when the vector clear() is called in the destructor
-    // std::unique_ptr<TMVA::Reader> thisReader( createSingleReader(i, filenames.at(i) ) ) ;    
-    // _tmvaReaders.push_back( thisReader );
 
-    _tmvaReaders.push_back( std::unique_ptr<TMVA::Reader> ( createSingleReader(i, weightFiles[i] ) ) );
+    edm::FileInPath weightFile( weightFileNames[i] );
+    _tmvaReaders.push_back( std::unique_ptr<TMVA::Reader> ( createSingleReader(i, weightFile ) ) );
 
   }
 
