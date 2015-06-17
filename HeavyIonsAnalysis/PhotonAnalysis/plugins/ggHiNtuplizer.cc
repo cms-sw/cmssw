@@ -578,13 +578,13 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       elePt_               .push_back(ele->pt());
       eleEta_              .push_back(ele->eta());
       elePhi_              .push_back(ele->phi());
-      // eleSCEn_             .push_back(ele->superCluster()->energy());
-      // eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
-      // eleSCEta_            .push_back(ele->superCluster()->eta());
-      // eleSCPhi_            .push_back(ele->superCluster()->phi());
-      // eleSCRawEn_          .push_back(ele->superCluster()->rawEnergy());
-      // eleSCEtaWidth_       .push_back(ele->superCluster()->etaWidth());
-      // eleSCPhiWidth_       .push_back(ele->superCluster()->phiWidth());
+      eleSCEn_             .push_back(ele->superCluster()->energy());
+      eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
+      eleSCEta_            .push_back(ele->superCluster()->eta());
+      eleSCPhi_            .push_back(ele->superCluster()->phi());
+      eleSCRawEn_          .push_back(ele->superCluster()->rawEnergy());
+      eleSCEtaWidth_       .push_back(ele->superCluster()->etaWidth());
+      eleSCPhiWidth_       .push_back(ele->superCluster()->phiWidth());
       eleHoverE_           .push_back(ele->hcalOverEcalBc());
       eleEoverP_           .push_back(ele->eSuperClusterOverP());
       eleEoverPInv_        .push_back(fabs(1./ele->ecalEnergy()-1./ele->trackMomentumAtVtx().R()));
@@ -613,7 +613,7 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       // eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
       // eleBC1Eta_           .push_back(ele->superCluster()->seed()->eta());
 
-      // parameters of the very first PFCluster
+      //parameters of the very first PFCluster
       // reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
       // if (bc != ele->superCluster()->clustersEnd()) {
       //    eleBC2E_  .push_back((*bc)->energy());
@@ -645,17 +645,17 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es)
       phoEt_            .push_back(pho->et());
       phoEta_           .push_back(pho->eta());
       phoPhi_           .push_back(pho->phi());
-      // phoSCE_           .push_back(pho->superCluster()->energy());
-      // phoSCRawE_        .push_back(pho->superCluster()->rawEnergy());
-      // phoESEn_          .push_back(pho->superCluster()->preshowerEnergy());
-      // phoSCEta_         .push_back(pho->superCluster()->eta());
-      // phoSCPhi_         .push_back(pho->superCluster()->phi());
-      // phoSCEtaWidth_    .push_back(pho->superCluster()->etaWidth());
-      // phoSCPhiWidth_    .push_back(pho->superCluster()->phiWidth());
-      // phoSCBrem_        .push_back(pho->superCluster()->phiWidth()/pho->superCluster()->etaWidth());
+      phoSCE_           .push_back(pho->superCluster()->energy());
+      phoSCRawE_        .push_back(pho->superCluster()->rawEnergy());
+      phoESEn_          .push_back(pho->superCluster()->preshowerEnergy());
+      phoSCEta_         .push_back(pho->superCluster()->eta());
+      phoSCPhi_         .push_back(pho->superCluster()->phi());
+      phoSCEtaWidth_    .push_back(pho->superCluster()->etaWidth());
+      phoSCPhiWidth_    .push_back(pho->superCluster()->phiWidth());
+      phoSCBrem_        .push_back(pho->superCluster()->phiWidth()/pho->superCluster()->etaWidth());
       phohasPixelSeed_  .push_back((int)pho->hasPixelSeed());
 //    phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
-      //phoR9_            .push_back(pho->r9());
+      phoR9_            .push_back(pho->r9());
       phoHoverE_        .push_back(pho->hadTowOverEm());
 
       phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
