@@ -5,6 +5,7 @@ from Configuration.Generator.HerwigppUE_EE_5C_cfi import *
 from Configuration.Generator.HerwigppPDF_CTEQ6_LO_cfi import *
 from Configuration.Generator.HerwigppEnergy_13TeV_cfi import *
 from Configuration.Generator.HerwigppMECorrections_cfi import *
+from Configuration.Generator.HerwigppReshuffle_RestMostOffShell_cfi import *
 
 generator = cms.EDFilter("ThePEGGeneratorFilter",
 	herwigDefaultsBlock,
@@ -12,6 +13,7 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 	herwigppPDFSettingsBlock,
 	herwigppEnergySettingsBlock,
 	herwigppMECorrectionsSettingsBlock,
+	herwigppReshuffleSettingsBlock,
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
@@ -20,6 +22,7 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 		'hwpp_pdf_CTEQ6L1',
 		'hwpp_cm_13TeV',
 		'hwpp_MECorr_Off',
+		'hwpp_reshuffle_RestMostOffShell',
 		'ttbarprocess',
 
 	),
