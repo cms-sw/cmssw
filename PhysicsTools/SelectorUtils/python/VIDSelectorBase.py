@@ -63,6 +63,9 @@ class VIDSelectorBase:
     def cutFlowSize(self):
         return self.__instance.cutFlowSize()
 
+    def cutFlowResult(self):
+        return self.__instance.cutFlowResult()
+
     def howFarInCutFlow(self):
         return self.__instance.howFarInCutFlow()
 

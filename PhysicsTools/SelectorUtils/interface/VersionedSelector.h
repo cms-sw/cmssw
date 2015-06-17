@@ -226,10 +226,16 @@ initialize( const edm::ParameterSet& conf ) {
 template<class T> 
 vid::CutFlowResult VersionedSelector<T>::cutFlowResult() const {
   std::unordered_map<std::string,unsigned> names_to_index;
+  std::map<std::string,unsigned> cut_counter;
   for( unsigned idx = 0; idx < cuts_.size(); ++idx ) {
-    names_to_index.emplace(cuts_[idx]->name(),idx);
+    const std::string& name = cuts_[idx]->name();
+    if( !cut_counter.count(name) ) cut_counter[name] = 0;  
+    std::stringstream realname;
+    realname << name << "_" << cut_counter[name];
+    names_to_index.emplace(realname.str(),idx);
+    cut_counter[name]++;
   }
-  return vid::CutFlowResult(names_to_index,bitmap_,values_);
+  return vid::CutFlowResult(name_,names_to_index,bitmap_,values_);
 }
 
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"

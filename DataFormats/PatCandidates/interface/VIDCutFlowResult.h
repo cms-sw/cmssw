@@ -11,9 +11,18 @@ namespace vid {
     template<class T> friend class VersionedSelector;
 
     CutFlowResult() : bitmap_(0) {}
+    CutFlowResult(const std::string& name,
+                  const std::unordered_map<std::string,unsigned>& n2idx,
+                  unsigned bitmap, 
+                  const std::vector<double>& values) : 
+      name_(name),
+      bitmap_(bitmap), 
+      values_(values), 
+      name_to_index_(n2idx) {}
     
-    bool cutflowPassed() const { return (bool)bitmap_; } 
-    size_t cutflowSize() const { return name_to_index_.size(); } 
+    const std::string& cutFlowName()   const   { return name_; }
+    bool               cutFlowPassed() const { return (bool)bitmap_; } 
+    size_t             cutFlowSize()   const { return name_to_index_.size(); } 
 
     const std::string& getNameAtIndex(const unsigned idx) const;
     
@@ -29,7 +38,8 @@ namespace vid {
     CutFlowResult getCutFlowResultMasking(const std::vector<unsigned>& idxs) const;
     CutFlowResult getCutFlowResultMasking(const std::vector<std::string>& names) const;
 
-  private:    
+  private:
+    std::string name_;
     unsigned bitmap_;
     std::vector<double> values_;
     std::unordered_map<std::string,unsigned> name_to_index_;
@@ -40,13 +50,7 @@ namespace vid {
 
     bool getCutValue(const unsigned idx) const {
       return values_[idx];
-    }
-
-    CutFlowResult(const std::unordered_map<std::string,unsigned>& n2idx,
-                  unsigned bitmap, 
-                  const std::vector<double>& values) : 
-    bitmap_(bitmap), values_(values), name_to_index_(n2idx) {}
-    
+    } 
   };
 }
 
