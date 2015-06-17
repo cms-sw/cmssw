@@ -22,7 +22,7 @@ if "/functions_cc.so" not in ROOT.gSystem.GetLibraries():
 
 def scalarToVector(x):
     x0 = x
-    x = re.sub(r"(LepGood|Lep|JetFwd|Jet|GenTop|SV)(\d)_(\w+)", lambda m : "%s_%s[%d]" % (m.group(1),m.group(3),int(m.group(2))-1), x)
+    x = re.sub(r"(LepGood|Lep|JetFwd|JetClean|Jet|GenTop|SV)(\d)_(\w+)", lambda m : "%s_%s[%d]" % (m.group(1),m.group(3),int(m.group(2))-1), x)
     x = re.sub(r"\bmet\b", "met_pt", x)
     return x
 
