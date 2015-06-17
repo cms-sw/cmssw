@@ -106,77 +106,87 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   MergeGroup* mergeGroupByHit[ nHits ];        // fixed size array, 0 if hit is unmerged
 
   
-  // &&& @ALICE: what we are missing is nHits == 1 case.  Then the code below will
-  // &&& not execute.  But then it's easy, because there is only one unmerged hit and
-  // &&& no MergeGroups.
-
-
-  //--- Iterate over hits
-  for ( int i = 0; i < nHits-1; ++i ) {
-    mergeGroupByHit[i] = 0;     // initialize this cell to a NULL pointer.
-    
-    //--- Inner loop over remaining hits.  j starts from i+1 and goes to nHits
-    for ( int j = i+1 ; j < nHits; ++j ) {
-
-      //--- Calculate the distance between hits i and j:
-      bool merged = hitsMerge( *simHits[i], *simHits[j] );
-
-      //--- Decide what to do about these two hits.
-      if ( merged ) {
-	// First, check if the other guy (j) is in some merge group already
-	if ( mergeGroupByHit[j] != 0 ) {
-	  // It is... use it.
-	  mergeGroupByHit[i] = mergeGroupByHit[j];          // use the same MG
-	  mergeGroupByHit[i]->push_back( simHits[i] );      // save i in there
-	}
-	else { 
-	  // j is not merged.  Check if i is merged with another hit yet.
-	  //
-	  if ( mergeGroupByHit[i] == 0 ) {
-	    // This is the first time we realized i is merged with any
-	    // other hit.  Create a new merge group for i and j.
-	    mergeGroupByHit[i] = new MergeGroup();
-	    listOfMergeGroups.push_back( mergeGroupByHit[i] );   // keep track of it
-	    //
-	    // Add hit i as the first to its own merge group
-	    // (simHits[i] is a const pointer to PSimHit).
-	    mergeGroupByHit[i]->push_back( simHits[i] );
-	  }
-	  //--- Add hit j as well
-	  mergeGroupByHit[i]->push_back( simHits[j] );
-	  //
-	  //--- Mark that hit j is a part of the same merge group.  This
-	  //    way, we can find the same merge group starting from
-	  //    index j, too.  Note that if hit i was a part of a merge
-	  //    goup found earlier (for some hit prior to i), then
-	  //    mergeGroupByHit[i] would not be zero even if it wasn't
-	  //    made for hit i :)
-	  mergeGroupByHit[j] = mergeGroupByHit[i];
-
-	} // --- end of else if ( j has merge group )
-
-      } //--- end of if (merged)
-	
-    } //--- end of loop over j
-
-    //--- At this point, there are two possibilities.  Either hit i
-    //    was already chosen to be merged with some hit prior to it,
-    //    or the loop over j found another merged hit.  In either
-    //    case, if mergeGroupByHit[i] is empty, then the hit is
-    //    unmerged.
+  //--- Check special cases (nHits = 0 or 1), and finish them off first.
+  //
+  if ( nHits == 0 ) {
+    return product;
+  }
+  else if ( nHits == 1 ) {
+    //--- One unmerged hit, no merge groups...
+    listOfUnmergedHits.push_back( simHits[0] );
+  }
+  else {
+    //--- The usual case.  More than one hit on this DetUnit.
+    //    Iterate over hits.
     //
-    if ( mergeGroupByHit[i] == 0 ) {
+    for ( int i = 0; i < nHits-1; ++i ) {
+      //
+      mergeGroupByHit[i] = 0;     // initialize this cell to a NULL pointer.
+      
+      //--- Inner loop over remaining hits.  j starts from i+1 and goes to nHits
+      for ( int j = i+1 ; j < nHits; ++j ) {
+	
+	//--- Calculate the distance between hits i and j:
+	bool merged = hitsMerge( *simHits[i], *simHits[j] );
+	
+	//--- Decide what to do about these two hits.
+	if ( merged ) {
+	  // First, check if the other guy (j) is in some merge group already
+	  if ( mergeGroupByHit[j] != 0 ) {
+	    // It is... use it.
+	    mergeGroupByHit[i] = mergeGroupByHit[j];          // use the same MG
+	    mergeGroupByHit[i]->push_back( simHits[i] );      // save i in there
+	  }
+	  else { 
+	    // j is not merged.  Check if i is merged with another hit yet.
+	    //
+	    if ( mergeGroupByHit[i] == 0 ) {
+	      // This is the first time we realized i is merged with any
+	      // other hit.  Create a new merge group for i and j.
+	      mergeGroupByHit[i] = new MergeGroup();
+	      listOfMergeGroups.push_back( mergeGroupByHit[i] );   // keep track of it
+	      //
+	      // Add hit i as the first to its own merge group
+	      // (simHits[i] is a const pointer to PSimHit).
+	      mergeGroupByHit[i]->push_back( simHits[i] );
+	    }
+	    //--- Add hit j as well
+	    mergeGroupByHit[i]->push_back( simHits[j] );
+	    //
+	    //--- Mark that hit j is a part of the same merge group.  This
+	    //    way, we can find the same merge group starting from
+	    //    index j, too.  Note that if hit i was a part of a merge
+	    //    goup found earlier (for some hit prior to i), then
+	    //    mergeGroupByHit[i] would not be zero even if it wasn't
+	    //    made for hit i :)
+	    mergeGroupByHit[j] = mergeGroupByHit[i];
+	    
+	  } // --- end of else if ( j has merge group )
+	  
+	} //--- end of if (merged)
+	
+      } //--- end of loop over j
+
+      //--- At this point, there are two possibilities.  Either hit i
+      //    was already chosen to be merged with some hit prior to it,
+      //    or the loop over j found another merged hit.  In either
+      //    case, if mergeGroupByHit[i] is empty, then the hit is
+      //    unmerged.
+      //
+      if ( mergeGroupByHit[i] == 0 ) {
 	//--- Keep track of it.
-      listOfUnmergedHits.push_back( simHits[i] );
-    }
-  } //--- end of loop over i
+	listOfUnmergedHits.push_back( simHits[i] );
+      }
+    } //--- end of loop over i
+    
+  } // --- end of if (nHits == 1) else {...}
 
 
   //--- We now have two lists: a list of hits that are unmerged, and
   //    the list of merge groups.  Process each separately.
   //
-  processUnmergedHits( listOfUnmergedHits );
-  processMergeGroups(  listOfMergeGroups );
+  product = processUnmergedHits( listOfUnmergedHits, product );
+  product = processMergeGroups(  listOfMergeGroups,  product );
 
   //--- We're done with this det unit, and ought to clean up used
   //    memory.  We don't own the PSimHits, and the vector of
@@ -191,16 +201,6 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     delete *mg_it;    // each MergeGroup is deleted; its ptrs to PSimHits we do not own...
   }
 
-
-
-#if 0 
-  //  (NB: This is a range-based for-loop in C++11 standard.)
-  for (const PSimHit* simHit: product->getSimHits()) {
-    const Local3DPoint& position = simHit->localPosition();
-    //LocalError error(_error2,_error2,_error2);
-    const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
-  }
-#endif
   return product;
 }
 
@@ -597,28 +597,46 @@ void PixelTemplateSmearerBase::smearHit(
     }
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
   std::cout << "end P smearHit"<< std::endl;
+
+  //--- We now have everything to make a SiTrackerGSRecHit2D
+  //
+  // const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
+  
+  //TODO: this is only a minimal example
+  SiTrackerGSRecHit2D recHit( thePosition, //const LocalPoint &     (LocalPoint is a typedef for Local3DPoint)
+			      theError,    //const LocalError &
+			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
+			      0,           //const int simhitId
+			      0,           //const int simtrackId
+			      0,           //const uint32_t eeId
+			      SiTrackerGSRecHit2D::ClusterRef(),   //ClusterRef const &cluster
+			      theClslenx,  //const int pixelMultiplicityX
+			      theClsleny   //const int pixelMultiplicityY
+			      );
+  // product->getRecHits().push_back(recHit);
+  //
 }
- 
 
 
 //------------------------------------------------------------------------------
 //   Process all unmerged hits.  Calls smearHit() for each.
 //------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::
-processUnmergedHits( std::vector< const PSimHit* > & unmergedHits ) const 
+TrackingRecHitProductPtr PixelTemplateSmearerBase::
+processUnmergedHits( std::vector< const PSimHit* > & unmergedHits, 
+                     TrackingRecHitProductPtr product ) const
 {
   // &&& @ALICE: please implement.  This should be straightforward, since
   // &&& it is basically the same as the old code that called SiPixelGaussianBlahBlah
   // &&& You iterate over unmergedHits vector, and call smearHit() for each
   // &&& dereferenced iterator.  The only problem is that, then, smearHit() may
   // &&& have to become "const", and that may be a problem.
+#if 0
 
   for (const PSimHit* simHit : unmergedHits) {
     const Local3DPoint& position = simHit->localPosition();
     const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
     
-    // SiPixelRecHit recHit = smearHit( .... );
-
+    //SiPixelRecHit recHit = smearHit( .... );
 
     // &&& problem is that smearHit() is not const and it must be... maybe it
     // &&& should return recHit...
@@ -637,6 +655,7 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits ) const
 			       );
     product->getRecHits().push_back(recHit);
   }
+#endif
   return product;
 }
 
@@ -645,8 +664,9 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits ) const
 //------------------------------------------------------------------------------
 //   Process all groups of merged hits.
 //------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::
-processMergeGroups( std::vector< MergeGroup* > & mergeGroups ) const 
+TrackingRecHitProductPtr PixelTemplateSmearerBase::
+processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
+                    TrackingRecHitProductPtr product ) const
 {
   for ( vector<MergeGroup*>::iterator 
 	  mg_it = mergeGroups.begin(),
@@ -656,7 +676,7 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups ) const
     //
     smearMergeGroup( *mg_it );
   }
-
+  return product;
 }
 
 

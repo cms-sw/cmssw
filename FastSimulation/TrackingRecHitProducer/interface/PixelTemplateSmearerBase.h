@@ -62,10 +62,18 @@ public:
   //
   void         setPixelPart(GeomDetType::SubDetector subdet) { thePixelPart = subdet; }
   
-  //
+  //--- Process all hits on this DetUnit.  Calls the other two processXYZ() methods.
   TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const ;
 
-  //--- Process one hit.  The core of the code :)
+  //--- Process all unmerged hits.  Calls smearHit() for each.
+  TrackingRecHitProductPtr processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
+						TrackingRecHitProductPtr process ) const;
+
+  //--- Process all groups of merged hits.
+  TrackingRecHitProductPtr processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
+					       TrackingRecHitProductPtr process ) const;
+
+  //--- Process one umerged hit.  The core of the code :)
   void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
 		 const double boundX, const double boundY,
                  RandomEngineAndDistribution const*);
@@ -73,14 +81,9 @@ public:
   //--- Process one merge group.
   void smearMergeGroup( MergeGroup* mg ) const;
 
-  //--- Process all unmerged hits.  Calls smearHit() for each.
-  void processUnmergedHits( std::vector< const PSimHit* > & unmergedHits ) const;
-
-  //--- Process all groups of merged hits.
-  void processMergeGroups( std::vector< MergeGroup* > & mergeGroups ) const;
-
   //--- Method to decide if the two hits on the same DetUnit are merged, or not.
   bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;
+
 
 protected:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
