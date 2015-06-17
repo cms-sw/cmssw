@@ -87,7 +87,7 @@ ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet
       throw cms::Exception(" MVA configuration not found: ")
 	<< " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
 
-    mvaEstimators_.push_back( thisEstimator );
+    mvaEstimators_.emplace_back( thisEstimator.release() );
 
     //
     // Compose and save the names of the value maps to be produced
@@ -158,7 +158,7 @@ void ElectronMVAValueMapProducer::writeValueMap(edm::Event &iEvent,
   using namespace edm; 
   using namespace std;
   auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
-  edm::ValueMap<T>::Filler filler(*valMap);
+  typename edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
   iEvent.put(valMap, label);
