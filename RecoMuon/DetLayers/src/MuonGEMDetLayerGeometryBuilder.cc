@@ -126,14 +126,14 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());                                   
   if(backRings.size()!=0 && frontRings.size()!=0) result = new MuRingForwardDoubleLayer(frontRings, backRings);
-  //result = 0;
-  
+    else result = 0;
+  if(result != 0){
   LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
                     << " and " << backRings.size()
                     << " rings, at Z " << result->position().z()
                     << " R1: " << result->specificSurface().innerRadius()
                     << " R2: " << result->specificSurface().outerRadius();
-  
+  }
   return result;
 
 }
