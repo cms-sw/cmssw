@@ -86,9 +86,9 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
  private:
 
   // MVA name. This is a unique name for this MVA implementation.
-  // It will be used as part of ValueMap names, so it shouldn't have
-  // spaces or funny symbols.
-  const std::string name_ = "eleMVAPhys14NonTrig";
+  // It will be used as part of ValueMap names.
+  // For simplicity, keep it set to the class name.
+  const std::string name_ = "ElectronMVAEstimatorRun2Phys14NonTrig";
 
   // Data members
   std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;
