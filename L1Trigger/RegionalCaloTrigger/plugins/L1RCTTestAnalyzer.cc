@@ -127,22 +127,31 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    // for sorting later
    L1CaloEmCollection * myL1EmColl = new L1CaloEmCollection;
 
-   for (ecal=ecalColl->begin(); ecal!=ecalColl->end(); ecal++)
-     {
-       for (unsigned short sample = 0; sample < (*ecal).size(); sample++)
-	 {
-	   h_ecalTimeSample->Fill(sample);
-	 }
-     }
+   if (ecalColl.isValid()) {
 
-   for (hcal=hcalColl->begin(); hcal!=hcalColl->end(); hcal++)
-     {
-       h_towerMip->Fill( (*hcal).SOI_fineGrain() );
-       for (unsigned short sample = 0; sample < (*hcal).size(); sample++)
-	 {
-	   h_hcalTimeSample->Fill(sample);
-	 }
-     }
+     for (ecal=ecalColl->begin(); ecal!=ecalColl->end(); ecal++)
+       {
+	 for (unsigned short sample = 0; sample < (*ecal).size(); sample++)
+	   {
+	     h_ecalTimeSample->Fill(sample);
+	   }
+       }
+     
+   }
+
+   
+   if (hcalColl.isValid()) {
+
+     for (hcal=hcalColl->begin(); hcal!=hcalColl->end(); hcal++)
+       {
+	 h_towerMip->Fill( (*hcal).SOI_fineGrain() );
+	 for (unsigned short sample = 0; sample < (*hcal).size(); sample++)
+	   {
+	     h_hcalTimeSample->Fill(sample);
+	   }
+       }
+     
+   }
 
    if(showEmCands)
      {
