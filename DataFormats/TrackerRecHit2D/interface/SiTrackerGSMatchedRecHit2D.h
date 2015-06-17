@@ -15,6 +15,8 @@ class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
     , eeId_(-1)
     , hitCombinationId_(-1)
     , isMatched_(false)
+    , componentMono_() 
+    , componentStereo_()
     {}
   
   ~SiTrackerGSMatchedRecHit2D() {}
@@ -27,6 +29,8 @@ class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
     , eeId_(-1)
     , hitCombinationId_(-1)
     , isMatched_(false)
+    , componentMono_() 
+    , componentStereo_()
     {};
 
   SiTrackerGSMatchedRecHit2D( const LocalPoint & pos, 
@@ -72,9 +76,9 @@ class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   uint32_t hitCombinationId_;
   std::vector<uint32_t> simTrackIds_;
 
-  const bool isMatched_;
-  const SiTrackerGSRecHit2D componentMono_;
-  const SiTrackerGSRecHit2D componentStereo_;
+  bool isMatched_;
+  SiTrackerGSRecHit2D componentMono_;
+  SiTrackerGSRecHit2D componentStereo_;
 };
 
 
