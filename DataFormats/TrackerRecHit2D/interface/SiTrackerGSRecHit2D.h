@@ -64,4 +64,6 @@ inline bool operator<( const SiTrackerGSRecHit2D& one, const SiTrackerGSRecHit2D
   }
 }
 
+typedef SiTrackerGSRecHit2D                   FastTRecHit; //Fast Tracker RecHit
+
 #endif
