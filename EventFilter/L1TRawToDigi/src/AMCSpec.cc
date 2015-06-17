@@ -112,10 +112,16 @@ namespace amc {
       }
    }
 
-   Packet::Packet(unsigned int amc, unsigned int board, const std::vector<uint64_t>& load) :
-      block_header_(amc, board, load.size()),
-      payload_(load)
+   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load) :
+      block_header_(amc, board, load.size() + 3), // add 3 words for header (2) and trailer (1)
+      header_(amc, lv1id, bx, load.size() + 3, orbit, board, 0),
+      trailer_(0, lv1id, load.size() + 3)
    {
+      auto hdata = header_.raw();
+      payload_.reserve(load.size() + 3);
+      payload_.insert(payload_.end(), hdata.begin(), hdata.end());
+      payload_.insert(payload_.end(), load.begin(), load.end());
+      payload_.insert(payload_.end(), trailer_.raw());
    }
 
    void

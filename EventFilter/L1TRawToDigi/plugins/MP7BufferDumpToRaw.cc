@@ -424,7 +424,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
   LogDebug("L1T") << "Creating AMC packet " << iBoard;
   //  LogDebug("L1T") << iBoard << ", " << boardId_.at(iBoard) << ", " << load64.size();
   
-  amc13.add(iBoard, boardId_.at(iBoard), load64);
+  amc13.add(iBoard, boardId_.at(iBoard), 0, 0, 0, load64);
 
 }
 
@@ -447,10 +447,9 @@ MP7BufferDumpToRaw::formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawDa
   FEDHeader header(payload);
   header.set(payload, evType_, evtId, bxId, fedId_);
 
+  amc13.write(iEvent, payload, slinkHeaderSize_, size - slinkHeaderSize_ - slinkTrailerSize_);
+
   payload += slinkHeaderSize_;
-
-  amc13.write(iEvent, payload, size - slinkHeaderSize_ - slinkTrailerSize_);
-
   payload += amc13.size() * 8;
 
   FEDTrailer trailer(payload);
