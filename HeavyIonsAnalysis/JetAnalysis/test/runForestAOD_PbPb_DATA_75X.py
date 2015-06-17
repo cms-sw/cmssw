@@ -183,9 +183,9 @@ process.ana_step = cms.Path(#process.heavyIon*
                             process.pfcandAnalyzer +
                             #process.rechitAna +
 #temp                            process.hltMuTree +
-                            process.HiForest
-                            #process.anaTrack +
-                            #process.pixelTrack
+                            process.HiForest+
+                            process.anaTrack +
+                            process.pixelTrack
                             )
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')

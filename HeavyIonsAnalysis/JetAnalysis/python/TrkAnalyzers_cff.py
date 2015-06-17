@@ -10,7 +10,7 @@ anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
 
 anaTrack.qualityStrings = cms.untracked.vstring('highPurity','highPuritySetWithPV')
 
-pixelTrack = anaTrack.clone(trackSrc = cms.InputTag("hiPixel3PrimTracks"))
+pixelTrack = anaTrack.clone(trackSrc = cms.InputTag("hiGeneralAndPixelTracks"))
 pixelTrack.useQuality = False
 pixelTrack.trackPtMin = 0.4
 
