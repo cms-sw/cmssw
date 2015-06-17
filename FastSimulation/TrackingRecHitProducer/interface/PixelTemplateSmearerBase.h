@@ -45,22 +45,11 @@ public:
 				      const edm::ParameterSet& config,
 				      edm::ConsumesCollector& consumesCollector );
   
-  // destructor
+  //--- Destructor
   virtual ~PixelTemplateSmearerBase();
   
-  // return results
-  Local3DPoint getPosition()  {return thePosition;}
-  double       getPositionX() {return thePositionX;}
-  double       getPositionY() {return thePositionY;}
-  double       getPositionZ() {return thePositionZ;}
-  LocalError   getError()     {return theError;}
-  double       getErrorX()    {return theErrorX;}
-  double       getErrorY()    {return theErrorY;}
-  double       getErrorZ()    {return theErrorZ;}
-  unsigned int getPixelMultiplicityAlpha() {return theClslenx;}
-  unsigned int getPixelMultiplicityBeta()  {return theClsleny;}
-  //
-  void         setPixelPart(GeomDetType::SubDetector subdet) { thePixelPart = subdet; }
+  //  &&& Why do we need this?
+  void setPixelPart(GeomDetType::SubDetector subdet) { thePixelPart = subdet; }
   
   //--- Process all hits on this DetUnit.  Calls the other two processXYZ() methods.
   TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const ;
@@ -74,12 +63,13 @@ public:
 					       TrackingRecHitProductPtr process ) const;
 
   //--- Process one umerged hit.  The core of the code :)
-  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
-		 const double boundX, const double boundY,
-                 RandomEngineAndDistribution const*);
+  SiTrackerGSRecHit2D smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
+				const double boundX, const double boundY,
+				RandomEngineAndDistribution const*) const;
 
   //--- Process one merge group.
-  void smearMergeGroup( MergeGroup* mg ) const;
+  SiTrackerGSRecHit2D smearMergeGroup( MergeGroup* mg, 
+				       const PixelGeomDetUnit* detUnit ) const;
 
   //--- Method to decide if the two hits on the same DetUnit are merged, or not.
   bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;
@@ -109,8 +99,10 @@ protected:
   // Useful private members
   GeomDetType::SubDetector thePixelPart;
 
-  std::map<unsigned,const SimpleHistogramGenerator*> theXHistos;
-  std::map<unsigned,const SimpleHistogramGenerator*> theYHistos;
+  // &&& Petar: must be mutable, otherwise operator[] on the map won't
+  // &&&        work (and I have no idea why)
+  mutable std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
+  mutable std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
 
   TFile* thePixelResolutionFile1;
   std::string thePixelResolutionFileName1;
@@ -123,16 +115,5 @@ protected:
   std::string probfileName;
 
   unsigned int theLayer;
-  // output
-  Local3DPoint thePosition;
-  double       thePositionX;
-  double       thePositionY;
-  double       thePositionZ;
-  LocalError   theError;
-  double       theErrorX;
-  double       theErrorY;
-  double       theErrorZ;
-  unsigned int theClslenx;
-  unsigned int theClsleny;
 };
 #endif

@@ -185,8 +185,13 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //--- We now have two lists: a list of hits that are unmerged, and
   //    the list of merge groups.  Process each separately.
   //
-  product = processUnmergedHits( listOfUnmergedHits, product );
-  product = processMergeGroups(  listOfMergeGroups,  product );
+  product = processUnmergedHits( listOfUnmergedHits, product,
+				 boundX, boundY,
+				 randomEngine );
+
+  product = processMergeGroups(  listOfMergeGroups,  product,
+				 boundX, boundY,
+				 randomEngine );
 
   //--- We're done with this det unit, and ought to clean up used
   //    memory.  We don't own the PSimHits, and the vector of
@@ -209,12 +214,12 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 //   Smear one hit.  The main action is in here.
 // &&& @ALICE: this function may also need to be "const" :(
 //------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::smearHit(
+SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
   const PSimHit& simHit,
   const PixelGeomDetUnit* detUnit,
   const double boundX,
   const double boundY,
-  RandomEngineAndDistribution const* random)
+  RandomEngineAndDistribution const* random)  const
 {
   std::cout << "P smearHit"<< std::endl;
   #ifdef FAMOS_DEBUG
@@ -406,6 +411,21 @@ void PixelTemplateSmearerBase::smearHit(
     }
   }
 
+
+  //--- Prepare to return results
+  Local3DPoint thePosition;  
+  double       thePositionX; 
+  double       thePositionY; 
+  double       thePositionZ; 
+  LocalError   theError;     
+  double       theErrorX;    
+  double       theErrorY;    
+  //double       theErrorZ;    
+  unsigned int theClslenx;   
+  unsigned int theClsleny;   
+
+
+
   //------------------------------
   //  Check if the cluster is near an edge.  If it protrudes
   //  outside the edge of the sensor, the truncate it and it will
@@ -473,7 +493,7 @@ void PixelTemplateSmearerBase::smearHit(
         theErrorY = sy1*microntocm;
     else  theErrorY = sigmay*microntocm;
   }
-  theErrorZ = 1e-8; // 1 um means zero
+  // theErrorZ = 1e-8; // 1 um means zero  (not needed)
   theError = LocalError( theErrorX*theErrorX, 0., theErrorY*theErrorY);
   // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
   // as for resolution matrix
@@ -564,8 +584,17 @@ void PixelTemplateSmearerBase::smearHit(
   do {
     //
     // Smear the hit Position
-    thePositionX = theXHistos[theXHistN]->generate(random);
-    thePositionY = theYHistos[theYHistN]->generate(random);
+    const SimpleHistogramGenerator * xgen = theXHistos[theXHistN];
+    thePositionX = xgen->generate(random);
+    //thePositionX = theXHistos[theXHistN]->generate(random);
+    ///thePositionX = 0.0;  // &&&  just to make it compile
+    
+    const SimpleHistogramGenerator * ygen = theYHistos[theYHistN];
+    thePositionY = ygen->generate(random);
+    //thePositionY = theYHistos[theYHistN]->generate(random);
+    ///thePositionY = 0.0;  // &&&  just to make it compile
+
+
     if( isForward ) thePositionY *= sign;
     thePositionZ = 0.0; // set at the centre of the active area
     //protect from empty resolution histograms
@@ -615,6 +644,7 @@ void PixelTemplateSmearerBase::smearHit(
 			      );
   // product->getRecHits().push_back(recHit);
   //
+  return recHit;
 }
 
 
@@ -692,7 +722,7 @@ smearMergeGroup( MergeGroup* mg ) const
   // &&& with appropriate errors.
 
    // SiPixelRecHit recHit = ( .... );
-
+  
 }
 
 
