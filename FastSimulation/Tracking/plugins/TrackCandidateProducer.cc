@@ -106,7 +106,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
 
     // Get all the rechits associated to this track
-    int simTrackId =  ((const SiTrackerGSMatchedRecHit2D*) (&*(seed.recHits().first)))->simtrackId();
+    int simTrackId =  ((const SiTrackerGSMatchedRecHit2D*) (&*(seed.recHits().first)))->simTrackId(0);
     SiTrackerGSMatchedRecHit2DCollection::range recHitRange = recHits->get(simTrackId);
     SiTrackerGSMatchedRecHit2DCollection::const_iterator recHitIter = recHitRange.first;
     SiTrackerGSMatchedRecHit2DCollection::const_iterator recHitEnd  = recHitRange.second;

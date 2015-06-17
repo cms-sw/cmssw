@@ -756,8 +756,9 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
 
       // create rechit
       temporaryRecHits[trackID].push_back(
-					  new SiTrackerGSRecHit2D(position, error, theDetUnit,trackID)
+					  new SiTrackerGSRecHit2D(position, error, theDetUnit)
 					  );
+      temporaryRecHits[trackID].back().addSimTrackId(trackID);
       
        // This a correpondence map between RecHits and SimHits 
       // (for later  use in matchHits)
@@ -1311,11 +1312,10 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	else{ //need to copy the original in a "matched" type rechit
 
 	  SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
-										*rit->det(), 
-										rit->simtrackId()); 
+										*rit->det());
+	  rit_copy->addSimTrackId(rit->simTrackId(0));
 	  //std::cout << "Simple hit  hit: isMatched =\t" << rit_copy->isMatched() << ", "
 	  //    <<  rit_copy->monoHit() << ", " <<  rit_copy->stereoHit() << std::endl;
-	  
 	  matchedMap[it->first].push_back( rit_copy );  // if not strip place the original one in vector (making it into a matched)	
 	}
 	
@@ -1328,12 +1328,12 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	std::cout << rit->localPosition().x() << std::endl;
 	std::cout << rit->localPositionError().xx() << std::endl;
 	std::cout << rit->det()->index() << std::endl;
-	std::cout << rit->simtrackId();
+	std::cout << rit->simTrackId(0);
 	exit(0);
 	*/
 	SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
-									      *rit->det(), 
-									      rit->simtrackId());	
+									      *rit->det());	
+	rit_copy->addSimTrackId(rit->simTrackId(0));
 	matchedMap[it->first].push_back( rit_copy );  // if not strip place the original one in vector (makining it into a matched)
      }
       

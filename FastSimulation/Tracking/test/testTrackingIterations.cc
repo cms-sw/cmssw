@@ -546,7 +546,7 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	theLayerNumber=tTopo->layer(theDetId);
 	if(hit==0){
 	  const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(ihit)));
-	  firstID = theFirstSeedingRecHit->simtrackId();
+	  firstID = theFirstSeedingRecHit->simTrackId(0);
 	  firstSubDetId =  theSubDetId;
 	  firstLayerNumber = theLayerNumber;	
 	  std::cout << "First Hit " << " Subdet " << firstSubDetId << ", Layer " << firstLayerNumber << std::endl;
@@ -658,7 +658,7 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	if(hit==0){
 	  const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(ihit)));
-	  firstID = theFirstSeedingRecHit->simtrackId();
+	  firstID = theFirstSeedingRecHit->simTrackId(0);
 	  firstSubDetId =  theSubDetId;
 	  firstLayerNumber = theLayerNumber;	
 	  std::cout << "First Hit " << " Subdet " << firstSubDetId << ", Layer " << firstLayerNumber << std::endl; 
