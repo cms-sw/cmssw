@@ -56,6 +56,7 @@ streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults'
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v1', 
+    'HLT_DiSC30_18_EIso_AND_HE_Mass70_v1', 
     'HLT_IsoTrackHB_v1', 
     'HLT_IsoTrackHE_v1', 
     'HLT_L1SingleMuOpen_DT_v1', 
@@ -117,7 +118,8 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_Ele33_CaloIdM_TrackIdM_PFJet30_v2', 
     'HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v2', 
     'HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_v2', 
-    'HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_v2')
+    'HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_v2', 
+    'HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetDoubleMuon_selector
 streamA_datasetDoubleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -134,8 +136,8 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_v1', 
     'HLT_Mu10_CentralPFJet30_BTagCSV0p54PF_v2', 
     'HLT_Mu17_Mu8_DZ_v1', 
-    'HLT_Mu17_Mu8_SameSign_DPhi_v1', 
-    'HLT_Mu17_Mu8_SameSign_v1', 
+    'HLT_Mu17_Mu8_SameSign_DZ_v1', 
+    'HLT_Mu17_Mu8_v1', 
     'HLT_Mu17_TkMu8_DZ_v2', 
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2', 
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v2', 
@@ -143,6 +145,9 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2', 
     'HLT_Mu17_TrkIsoVVL_v2', 
     'HLT_Mu17_v1', 
+    'HLT_Mu20_Mu10_DZ_v1', 
+    'HLT_Mu20_Mu10_SameSign_DZ_v1', 
+    'HLT_Mu20_Mu10_v1', 
     'HLT_Mu24_TrkIsoVVL_v2', 
     'HLT_Mu24_v1', 
     'HLT_Mu27_TkMu8_v2', 
@@ -441,7 +446,6 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_IsoTkMu24_eta2p1_v2', 
     'HLT_IsoTkMu27_v2', 
     'HLT_L1SingleMu16_v1', 
-    'HLT_L1SingleMuOpen_DT_v1', 
     'HLT_L1SingleMuOpen_v1', 
     'HLT_L2Mu10_v1', 
     'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v2', 
@@ -495,7 +499,6 @@ streamA_datasetSinglePhoton_selector.triggerConditions = cms.vstring('HLT_Photon
     'HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_v2', 
     'HLT_Photon36_R9Id90_HE10_IsoM_v2', 
     'HLT_Photon36_v2', 
-    'HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_v1', 
     'HLT_Photon500_v1', 
     'HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_v2', 
     'HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_VBF_v2', 

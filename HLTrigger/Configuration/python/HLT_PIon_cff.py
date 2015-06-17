@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V79 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/PIon/V80 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V79')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V80')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -469,13 +469,25 @@ fragment.transferSystem = cms.PSet(
     emulator = cms.vstring( 'None' )
   )
 )
-fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
-  'Templates' ) )
+fragment.streams = cms.PSet( 
+  A = cms.vstring( 'HLTPhysics',
+    'JetHT',
+    'SingleElectron',
+    'SingleMuon',
+    'Templates' ),
+  DQM = cms.vstring( 'OnlineMonitor' )
+)
 fragment.datasets = cms.PSet( 
-  InitialPD = cms.vstring( 'HLT_Ele27_eta2p1_WPLoose_Gsf_v1',
+  HLTPhysics = cms.vstring( 'HLT_Physics_v2' ),
+  JetHT = cms.vstring( 'HLT_PFJet260_v2' ),
+  OnlineMonitor = cms.vstring( 'HLT_CaloJet260_v2',
+    'HLT_Ele27_eta2p1_WPLoose_Gsf_v1',
     'HLT_Mu50_v2',
     'HLT_PFJet260_v2',
+    'HLT_Photon20_CaloIdVL_IsoL_v2',
     'HLT_Physics_v2' ),
+  SingleElectron = cms.vstring( 'HLT_Ele27_eta2p1_WPLoose_Gsf_v1' ),
+  SingleMuon = cms.vstring( 'HLT_Mu50_v2' ),
   Templates = cms.vstring( 'HLT_CaloJet260_v2',
     'HLT_Photon20_CaloIdVL_IsoL_v2' )
 )
