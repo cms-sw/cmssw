@@ -15,3 +15,7 @@
 <library   file="HcalGeometryDetIdAnalyzer.cc" name="testHcalGeometryDetIdESProducer">
  <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="HcalParametersAnalyzer.cc" name="testHcalGeometryESProducer">
+ <use name="CondFormats/GeometryObjects"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
