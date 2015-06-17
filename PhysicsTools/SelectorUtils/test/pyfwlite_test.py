@@ -66,12 +66,20 @@ for iev,event in enumerate(events):
         if el.pt() < 5: continue
         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % (
                     i, el.pt(), el.superCluster().eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto())
-        selectElectron(electrons.product(),i,event)
+        passfail = selectElectron(electrons.product(),i,event)        
         print selectElectron
 
         cf_result = selectElectron.cutFlowResult()
         for i in range(cf_result.cutFlowSize()):
             print '%d : %s : %d'%(i,cf_result.getNameAtIndex(i),cf_result.getCutResultByName(cf_result.getNameAtIndex(i)))
+        print passfail
+        print cf_result.cutFlowPassed()
+        masked_cf_ints = cf_result.getCutFlowResultMasking([2,3,4,9])
+        masked_cf_strs = cf_result.getCutFlowResultMasking(['GsfEleDEtaInCut_0',
+                                                            'GsfEleDPhiInCut_0',
+                                                            'GsfEleFull5x5SigmaIEtaIEtaCut_0',
+                                                            'GsfEleDeltaBetaIsoCutStandalone_0'])
+        print masked_cf_ints.cutFlowPassed(), masked_cf_strs.cutFlowPassed()
 
 #test the validator framework
 
