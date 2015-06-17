@@ -63,6 +63,14 @@ int run( const std::string& connectionString ){
       editor.flush();
       std::cout <<"> iov changes flushed..."<<std::endl;
     }
+    if( !session.existsIov( "MyTag2" ) ){
+      editor = session.createIov<std::string>( "MyTag2", cond::runnumber );
+      editor.setDescription("Test for timestamp selection");
+      editor.insert( 100, p0 );
+      std::cout <<"> inserted 1 iovs..."<<std::endl;
+      editor.flush();
+      std::cout <<"> iov changes flushed..."<<std::endl;
+    }
     session.transaction().commit();
     std::cout <<"> iov changes committed!..."<<std::endl;
     ::sleep(2);
@@ -76,21 +84,7 @@ int run( const std::string& connectionString ){
     proxy.find( 101 );
     for( const auto i : proxy ){
       std::cout <<"# iov since "<<i.since<<" - till "<<i.till<<std::endl; 
-    }    
-    session.transaction().commit();
-    session.transaction().start( false );
-    if( !session.existsIov( "MyTag2" ) ){
-      editor = session.createIov<std::string>( "MyTag2", cond::runnumber ); 
-      editor.setDescription("Test for timestamp selection");
-      editor.insert( 100, p0 );
-      std::cout <<"> inserted 1 iovs..."<<std::endl;
-      editor.flush();
-      std::cout <<"> iov changes flushed..."<<std::endl;
     }
-    session.transaction().commit();
-    std::cout <<"> iov changes committed!..."<<std::endl;
-    ::sleep(2);
-    session.transaction().start();
     proxy = session.readIov( "MyTag2" );
     readIov( proxy, 1, false );
     readIov( proxy, 100, true );
