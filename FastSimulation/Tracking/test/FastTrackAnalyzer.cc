@@ -417,14 +417,14 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	// int simdetid = (*isim).detUnitId();
 	//	std::cout<<"  simdetid = "<< simdetid << std::endl;
 	if((int) detid.rawId() == (int) (*isim).detUnitId() && 
-	   (int) (*iterrechit).simtrackId()== (int) (*isim).trackId())
+	   (int) (*iterrechit).simTrackId(0)== (int) (*isim).trackId())
 	  {
 	    matchedSimHits++;
 	    numpartners++;
 	    simHit = &*isim;
 	    
 	    /*
-	    std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+	    std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simTrackId(0) << std::endl;
 	    std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 	    
 	    */
 	  }
@@ -442,7 +442,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      int stereodetid = theStereoDet->geographicalId().rawId();
 	      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
 	      if( monodetid == (int) (*isim).detUnitId() && 
-		  (int) (*iterrechit).simtrackId()==(int) (*isim).trackId()){
+		  (int) (*iterrechit).simTrackId(0)==(int) (*isim).trackId()){
 		//matching the rphi one
 		//		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 		matchedSimHits++;
@@ -450,12 +450,12 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		simHit = &(*isim);
 		
 		/*
-		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simTrackId(0) << std::endl;
 		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
 		*/
 	      }
 	      if( stereodetid == (int) (*isim).detUnitId() && 
-		  (int) (*iterrechit).simtrackId() == (int) (*isim).trackId()){
+		  (int) (*iterrechit).simTrackId(0) == (int) (*isim).trackId()){
 		//matching the rphi one
 		numpartners++;
 		//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
@@ -463,7 +463,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		simHitStereoPatch = &(*isim);
 		
 		/*
-		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simTrackId(0) << std::endl;
 		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
 		*/	  
 	      }
@@ -535,7 +535,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (*it) )	  
 	    {
 	      std::cout<<"---------------------------------------------------------------"<< std::endl;
-	      int currentId = rechit->simtrackId();		      
+	      int currentId = rechit->simTrackId(0);		      
 	      std::cout << "\t\t\tRecHit # " << ri << "\t SimTrackId = " << currentId << std::endl;
 	      SimTrackIds.push_back(currentId);
 	      DetId detid = rechit->geographicalId();
@@ -549,11 +549,11 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 	      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 		if( (int) detid.rawId() == (int) (*isim).detUnitId() && 
-		    (int) rechit->simtrackId() == (int) (*isim).trackId()){
+		    (int) rechit->simTrackId(0) == (int) (*isim).trackId()){
 		  simHit = &(*isim);
 		  matchedSimHits++;
 		  /*
-		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << rechit->simtrackId() << std::endl;
+		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << rechit->simTrackId(0) << std::endl;
 		  std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 	    		  
 		  */
 		}
@@ -571,7 +571,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		      int stereodetid = theStereoDet->geographicalId().rawId();
 		      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
 		      if( monodetid == (int) (*isim).detUnitId() && 
-			  (int) rechit->simtrackId() == (int) (*isim).trackId()){
+			  (int) rechit->simTrackId(0) == (int) (*isim).trackId()){
 			//matching the rphi one
 			//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 			matchedSimHits++;
@@ -581,7 +581,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 		      }
 		      if( stereodetid == (int) (*isim).detUnitId() && 
-			  (int) (*rechit).simtrackId() == (int) (*isim).trackId()){
+			  (int) (*rechit).simTrackId(0) == (int) (*isim).trackId()){
 			//matching the rphi one
 			numpartners++;
 			//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;

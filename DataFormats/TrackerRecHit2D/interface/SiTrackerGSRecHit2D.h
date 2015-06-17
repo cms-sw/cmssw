@@ -13,37 +13,46 @@ class SiTrackerGSRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   
  SiTrackerGSRecHit2D()
    : GSSiTrackerRecHit2DLocalPos()
-    , simtrackId_() {}
+    , id_(-1)
+    , eeId_(-1)
+    , hitCombinationId_(-1)
+    , simTrackIds_(1,-1)
+    {}
   
   ~SiTrackerGSRecHit2D() {}
   
-  SiTrackerGSRecHit2D( const LocalPoint & pos, 
-		       const LocalError & err,
-		       const GeomDet & idet,
-		       const uint32_t simtrackId)
-    : GSSiTrackerRecHit2DLocalPos(pos,err,idet)
-    , simtrackId_(simtrackId)
+ SiTrackerGSRecHit2D( const LocalPoint & pos,
+		      const LocalError & err,
+		      const GeomDet & idet)
+   : GSSiTrackerRecHit2DLocalPos(pos,err,idet)
     , id_(-1)
     , eeId_(-1)
-    {};
+    , hitCombinationId_(-1)
+    , simTrackIds_(1,-1)
+    {}
   
   virtual SiTrackerGSRecHit2D * clone() const {SiTrackerGSRecHit2D * p = new SiTrackerGSRecHit2D( * this); p->load(); return p;}
   
-  const uint32_t & id()          const { return id_;}
-  const uint32_t& simtrackId()  const { return simtrackId_;}
-  const uint32_t& eeId()   const { return eeId_;}
+  int32_t                      id()                     const { return id_;}
+  int32_t                      eeId()                   const { return eeId_;}
+  const std::vector<int32_t> & simTrackIds()            const { return simTrackIds_;}
+  size_t                       nSimTrackIds()           const { return simTrackIds_.size();}
+  int32_t                      simTrackId(size_t index) const { return index < simTrackIds_.size() ? simTrackIds_[index] : -1;}
   
-  void setId(uint32_t id){id_ = id;}
-  void setEeId(uint32_t eeId){eeId_ = eeId;}
+  void setId(int32_t id){id_ = id;}
+  void setEeId(int32_t eeId){eeId_ = eeId;}
+  void setHitCombinationId(int32_t hitCombinationId) {hitCombinationId_ = hitCombinationId;}
+  void addSimTrackId(int32_t simTrackId)  {simTrackIds_.push_back(simTrackId);}
+  void addSimTrackIds(const std::vector<int32_t> & simTrackIds)  {simTrackIds_.insert(simTrackIds_.end(),simTrackIds.begin(),simTrackIds.end());}
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
  private:
   
-  const uint32_t simtrackId_;
-  uint32_t id_;
-  uint32_t eeId_;
-  
+  int32_t id_;
+  int32_t eeId_;
+  int32_t hitCombinationId_;
+  std::vector<int32_t> simTrackIds_;
 };
 
 // Comparison operators
