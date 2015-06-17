@@ -121,6 +121,7 @@ process.caloStage1Digis.InputLabel = cms.InputTag('rawDataCollector')
 # analyzer/dumper
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.load('L1Trigger.L1GctAnalyzer.dumpGctDigis_cfi')
+process.load('L1Trigger.RegionalCaloTrigger.L1RCTTestAnalyzer_cfi')
 
 # Path and EndPath definitions
 process.path = cms.Path(
@@ -128,6 +129,7 @@ process.path = cms.Path(
     +process.dumpRaw
     +process.caloStage1Digis
     +process.l1tStage2CaloAnalyzer
+    +process.L1RCTTestAnalyzer
     +process.dumpGctDigis
 )
 
@@ -152,8 +154,10 @@ if (options.dumpDigis or options.histos):
     process.l1tStage2CaloAnalyzer.etSumToken   = cms.InputTag("caloStage1Digis")
     process.l1tStage2CaloAnalyzer.doText       = cms.untracked.bool(options.dumpDigis)
     process.l1tStage2CaloAnalyzer.doHistos     = cms.untracked.bool(options.histos)
+    process.L1RCTTestAnalyzer.rctDigisLabel    = cms.InputTag("caloStage1Digis")
 else:
     process.path.remove(process.l1tStage2CaloAnalyzer)
+    process.path.remove(process.L1RCTTestAnalyzer)
 
 if (options.dumpDigis):
         process.dumpGctDigis.doRctEm = cms.untracked.bool(True)
