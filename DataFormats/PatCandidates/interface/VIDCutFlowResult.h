@@ -20,8 +20,11 @@ namespace vid {
       values_(values), 
       name_to_index_(n2idx) {}
     
-    const std::string& cutFlowName()   const   { return name_; }
-    bool               cutFlowPassed() const { return (bool)bitmap_; } 
+    const std::string& cutFlowName()   const { return name_; }
+    bool               cutFlowPassed() const { 
+      const unsigned all_pass = name_to_index_.size()-1;
+      return (all_pass&bitmap_) == all_pass; 
+    } 
     size_t             cutFlowSize()   const { return name_to_index_.size(); } 
 
     const std::string& getNameAtIndex(const unsigned idx) const;
