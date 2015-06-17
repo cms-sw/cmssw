@@ -78,5 +78,8 @@ class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
 };
 
 
+typedef SiTrackerGSMatchedRecHit2D                   FastTMRecHit; //Fast Tracker Matched RecHit
+typedef std::vector<FastTMRecHit>                    FastTMRecHitCombination;
+typedef std::vector<FastTMRecHitCombination>         FastTMRecHitCombinations;  
 
 #endif
