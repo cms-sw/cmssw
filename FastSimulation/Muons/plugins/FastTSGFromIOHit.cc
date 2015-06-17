@@ -57,7 +57,8 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
   // Cut on muons with low momenta
   if ( muRef->pt() < thePtCut 
        || muRef->innerMomentum().Rho() < thePtCut 
-       || muRef->innerMomentum().R() < 2.5 ) return;
+       || muRef->innerMomentum().R() < 2.5 ){
+  }return;
   
   // Copy the collection of seeds (ahem, this is time consuming!)
   std::vector<TrajectorySeed> tkSeeds;
