@@ -75,6 +75,7 @@ print 'test validation framework'
 
 selectElectronValid = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight)
 selectMuonValid = VIDMuonSelector(globalMuonPromptTight_V0)
+
 from  PhysicsTools.SelectorUtils.VIDSelectorValidator import VIDSelectorValidator
 electron_validator = VIDSelectorValidator(selectElectronValid,'std::vector<pat::Electron>','slimmedElectrons')
 muon_validator = VIDSelectorValidator(selectMuonValid,'std::vector<pat::Muon>','slimmedMuons')
