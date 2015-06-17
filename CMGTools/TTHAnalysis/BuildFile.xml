@@ -5,7 +5,6 @@
 <use name="EgammaAnalysis/ElectronTools"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="RecoVertex/KalmanVertexFit"/>
-<use name="MagneticField/ParametrizedEngine"/>
 <use name="roottmva"/>
 <use name="rootminuit2"/>
 <use name="lhapdf"/>
