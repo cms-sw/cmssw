@@ -83,6 +83,10 @@ for iev,event in enumerate(events):
         testExprEval(electrons.product(),i,event)
         print testExprEval
 
+        cf_result = selectElectron.cutFlowResult()
+        for i in range(cf_result.cutFlowSize()):
+            print '%d : %s : %d'%(i,cf_result.getNameAtIndex(i),cf_result.getCutResultByName(cf_result.getNameAtIndex(i)))
+
 #test the validator framework
 
 print 'test validation framework' 

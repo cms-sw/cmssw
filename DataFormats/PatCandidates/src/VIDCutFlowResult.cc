@@ -61,7 +61,7 @@ namespace vid {
       }
       bitmap = bitmap | 1 << idx;
     }
-    return CutFlowResult(name_to_index_,bitmap,values_);
+    return CutFlowResult(name_,name_to_index_,bitmap,values_);
   }
 
   CutFlowResult CutFlowResult::
@@ -76,7 +76,7 @@ namespace vid {
       }
       bitmap = bitmap | 1 << idx->second;
     }
-    return CutFlowResult(name_to_index_,bitmap,values_);
+    return CutFlowResult(name_,name_to_index_,bitmap,values_);
   }
 
   CutFlowResult CutFlowResult::
@@ -87,7 +87,7 @@ namespace vid {
         << idx << " is out of bounds for this cut flow!";
     }
     bitmap = bitmap | 1 << idx;
-    return CutFlowResult(name_to_index_,bitmap,values_);
+    return CutFlowResult(name_,name_to_index_,bitmap,values_);
   }
   
   CutFlowResult CutFlowResult::
@@ -100,6 +100,6 @@ namespace vid {
         << " is not known for this cutflow!";
     }
     bitmap = bitmap | 1 << idx->second;
-    return CutFlowResult(name_to_index_,bitmap,values_);
+    return CutFlowResult(name_,name_to_index_,bitmap,values_);
   }
 }
