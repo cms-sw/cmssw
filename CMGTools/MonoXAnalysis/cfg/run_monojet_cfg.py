@@ -197,13 +197,21 @@ elif test == 'synch-74X': # sync
         comp = TTLep
         comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
         selectedComponents = [ comp ]
-    elif what == "ZMM":
-        comp = ZMM
-        comp.files = [ ]
+    elif what == "DYJets":
+        comp = DYJetsToLL_M50_50ns
+        comp.files = [ 'root://eoscms//eos/cms/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/04963444-D107-E511-B245-02163E00F339.root' ]
         selectedComponents = [ comp ]
     elif what == "TTbar":
         comp = TTbar
         comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
+        selectedComponents = [ comp ]
+    elif what == "WJets":
+        comp = WJetsToLNu_HT400to600
+        comp.files = [ 'root://eoscms//eos/cms/store/mc/RunIISpring15DR74/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v3/00000/6408230F-9F08-E511-A1A6-D4AE526A023A.root' ]
+        selectedComponents = [ comp ]
+    elif what == "RSGrav":
+        comp = RSGravGaGa
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValRSGravitonToGaGa_13TeV/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/189277BA-DCEC-E411-B3B8-0025905B859E.root' ]
         selectedComponents = [ comp ]
     else:
         selectedComponents = RelVals741
