@@ -217,13 +217,13 @@ void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
 
     if(m_runHistoProfile) {
       (*m_hvtxxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hvtxxvsorbrun)->GetYaxis()->SetTitle("X [cm]");
-      (*m_hvtxxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hvtxxvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hvtxyvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hvtxyvsorbrun)->GetYaxis()->SetTitle("Y [cm]");
-      (*m_hvtxyvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hvtxyvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hvtxzvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hvtxzvsorbrun)->GetYaxis()->SetTitle("Z [cm]");
-      (*m_hvtxzvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hvtxzvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hnvtxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hnvtxvsorbrun)->GetYaxis()->SetTitle("Nvertices");
-      (*m_hnvtxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hnvtxvsorbrun)->SetCanExtend(TH1::kAllAxes);
     }
 
     if(m_runHistoBXProfile) {
@@ -243,9 +243,9 @@ void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
 
     if(m_runHisto2D) {
       (*m_hnvtxvsbxvsorbrun)->GetXaxis()->SetTitle("BX#"); (*m_hnvtxvsbxvsorbrun)->GetYaxis()->SetTitle("time [orbit#]");
-      (*m_hnvtxvsbxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hnvtxvsbxvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hnvtxvsorbrun2D)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hnvtxvsorbrun2D)->GetYaxis()->SetTitle("Nvertices");
-      (*m_hnvtxvsorbrun2D)->SetBit(TH1::kCanRebin);
+      (*m_hnvtxvsorbrun2D)->SetCanExtend(TH1::kAllAxes);
     }
   }
 }
