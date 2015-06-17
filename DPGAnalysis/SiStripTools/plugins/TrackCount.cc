@@ -364,7 +364,7 @@ TrackCount::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 
   if(m_runHisto) {
     (*m_ntrkvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");    (*m_ntrkvsorbrun)->GetYaxis()->SetTitle("Ntracks");
-    (*m_ntrkvsorbrun)->SetBit(TH1::kCanRebin);
+    (*m_ntrkvsorbrun)->SetCanExtend(TH1::kXaxis);
   }
 }
 
