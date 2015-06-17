@@ -13,6 +13,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include <sstream>
 
@@ -83,6 +84,10 @@ string MuonPatternRecoDumper::dumpMuonId(const DetId &id) const{
   else if(id.subdetId() == MuonSubdetId::GEM){
     GEMDetId chamberId(id.rawId());
     output<<"(GEM): "<<chamberId<<endl;  
+  }
+  else if(id.subdetId() == MuonSubdetId::ME0){
+    ME0DetId chamberId(id.rawId());
+    output<<"(ME0): "<<chamberId<<endl;  
   }
   else if(id.subdetId() == MuonSubdetId::RPC){
     RPCDetId chamberId(id.rawId());
