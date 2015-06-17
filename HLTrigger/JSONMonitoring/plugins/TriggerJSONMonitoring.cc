@@ -19,13 +19,14 @@
 
 #include <fstream>
 
-TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps)
+TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps) :
+  triggerResults_(ps.getParameter<edm::InputTag>("triggerResults")),
+  triggerResultsToken_(consumes<edm::TriggerResults>(triggerResults_)),
+  level1Results_(ps.getParameter<edm::InputTag>("L1Results")),   
+  m_l1t_results(consumes<L1GlobalTriggerReadoutRecord>(level1Results_)),             
+  hltPrescaleProvider_(ps, consumesCollector(), *this)
 {
-  triggerResults_      = ps.getParameter<edm::InputTag> ("triggerResults");
-  triggerResultsToken_ = consumes<edm::TriggerResults>(triggerResults_);
 
-  level1Results_ = ps.getParameter<edm::InputTag>("L1Results");   
-  m_l1t_results  = consumes<L1GlobalTriggerReadoutRecord>(level1Results_);             
                                                      
 }
 
@@ -132,7 +133,7 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 
   //Prescale index
-  prescaleIndex_ = hltConfig_.prescaleSet(iEvent, iSetup);
+  prescaleIndex_ = hltPrescaleProvider_.prescaleSet(iEvent, iSetup);
 
   //Check that the prescale index hasn't changed inside a lumi section
   unsigned int newLumi = (unsigned int) iEvent.eventAuxiliary().luminosityBlock();
@@ -311,9 +312,12 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
   //Initialize hltConfig_     
   bool changed = true;
-  if (hltConfig_.init(iRun, iSetup, triggerResults_.process(), changed)) resetRun(changed);
+  if (hltPrescaleProvider_.init(iRun, iSetup, triggerResults_.process(), changed)){
+    hltConfig_ =  hltPrescaleProvider_.hltConfigProvider();
+    resetRun(changed);
+  }
   else{
-    LogDebug("TriggerJSONMonitoring") << "HLTConfigProvider initialization failed!" << std::endl;
+    LogDebug("TriggerJSONMonitoring") << "HLTPrescaleProvider initialization failed!" << std::endl;
     return;
   }
 

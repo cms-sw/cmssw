@@ -30,6 +30,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"          
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"  
@@ -140,6 +141,7 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1t_results; // Token for L1 GT Readout Record
 
   //Variables that change at most once per run 
+  HLTPrescaleProvider hltPrescaleProvider_; // To get at HLTConfigProvider
   HLTConfigProvider hltConfig_;         // to get configuration for HLT
   const L1GtTriggerMenu* m_l1GtMenu;    // L1 trigger menu   
   AlgorithmMap algorithmMap;            // L1 algorithm map  
