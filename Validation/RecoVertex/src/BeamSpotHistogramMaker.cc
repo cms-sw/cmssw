@@ -98,17 +98,17 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   (*_hbssigmazrun)->GetXaxis()->SetTitle("sigmaZ [cm]");   (*_hbssigmazrun)->GetYaxis()->SetTitle("Events");
 
   (*_hbsxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbsxvsorbrun)->GetYaxis()->SetTitle("X [cm]");
-  (*_hbsxvsorbrun)->SetCanExtend(TH1::kAllAxes);
+  (*_hbsxvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbsyvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbsyvsorbrun)->GetYaxis()->SetTitle("Y [cm]");
-  (*_hbsyvsorbrun)->SetCanExtend(TH1::kAllAxes);
+  (*_hbsyvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbszvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbszvsorbrun)->GetYaxis()->SetTitle("Z [cm]");
-  (*_hbszvsorbrun)->SetCanExtend(TH1::kAllAxes);
+  (*_hbszvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbssigmaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmaxvsorbrun)->GetYaxis()->SetTitle("sigmaX [cm]");
-  (*_hbssigmaxvsorbrun)->SetCanExtend(TH1::kAllAxes);
+  (*_hbssigmaxvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbssigmayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmayvsorbrun)->GetYaxis()->SetTitle("sigmaY [cm]");
-  (*_hbssigmayvsorbrun)->SetCanExtend(TH1::kAllAxes);
+  (*_hbssigmayvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbssigmazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmazvsorbrun)->GetYaxis()->SetTitle("sigmaZ [cm]");
-  (*_hbssigmazvsorbrun)->SetCanExtend(TH1::kAllAxes);
+  (*_hbssigmazvsorbrun)->SetBit(TH1::kCanRebin);
 
 
 }

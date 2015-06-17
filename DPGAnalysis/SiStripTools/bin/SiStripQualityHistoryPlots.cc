@@ -20,7 +20,7 @@ TH1D* AverageRunBadChannels(TFile& ff, const char* module, const char* histo, co
   CommonAnalyzer camult(&ff,"",module);
 
   TH1D* badchannels = new TH1D("badchannels","Average Number of Bad Channels vs run",10,0.,10.);
-  badchannels->SetCanExtend(TH1::kXaxis);
+  badchannels->SetBit(TH1::kCanRebin);
 
   std::vector<unsigned int> runs = camult.getRunList();
   std::sort(runs.begin(),runs.end());

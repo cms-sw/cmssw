@@ -35,13 +35,13 @@ class OOTSummary {
   TH1F* hngoodbx;
   OOTSummary() {
     hootfrac = new TH1F("ootfrac","OOT fraction vs fill/run",10,0.,10.);
-    hootfrac->SetCanExtend(TH1::kXaxis);
+    hootfrac->SetBit(TH1::kCanRebin);
 
     hootfracsum = new TH1F("ootfracsum","OOT summed fraction vs fill/run",10,0.,10.);
-    hootfracsum->SetCanExtend(TH1::kXaxis);
+    hootfracsum->SetBit(TH1::kCanRebin);
   
     hngoodbx = new TH1F("ngoodbx","Number of good BX pairs vs fill/run",10,0.,10.);
-    hngoodbx->SetCanExtend(TH1::kXaxis);
+    hngoodbx->SetBit(TH1::kCanRebin);
     
   }
   ~OOTSummary() {
