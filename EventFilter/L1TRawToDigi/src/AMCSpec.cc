@@ -112,6 +112,15 @@ namespace amc {
       }
    }
 
+   void
+   Trailer::writeCRC(const uint64_t *start, uint64_t *end)
+   {
+      std::string dstring(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(end) + 4);
+      auto crc = cms::CRC32Calculator(dstring).checksum();
+
+      *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
+   }
+
    Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load) :
       block_header_(amc, board, load.size() + 3), // add 3 words for header (2) and trailer (1)
       header_(amc, lv1id, bx, load.size() + 3, orbit, board, 0),
@@ -122,6 +131,9 @@ namespace amc {
       payload_.insert(payload_.end(), hdata.begin(), hdata.end());
       payload_.insert(payload_.end(), load.begin(), load.end());
       payload_.insert(payload_.end(), trailer_.raw());
+
+      auto ptr = payload_.data();
+      Trailer::writeCRC(ptr, ptr + payload_.size() - 1);
    }
 
    void
