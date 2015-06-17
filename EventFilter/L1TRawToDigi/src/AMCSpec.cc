@@ -112,10 +112,28 @@ namespace amc {
       }
    }
 
-   Packet::Packet(unsigned int amc, unsigned int board, const std::vector<uint64_t>& load) :
-      block_header_(amc, board, load.size()),
-      payload_(load)
+   void
+   Trailer::writeCRC(const uint64_t *start, uint64_t *end)
    {
+      std::string dstring(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(end) + 4);
+      auto crc = cms::CRC32Calculator(dstring).checksum();
+
+      *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
+   }
+
+   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load) :
+      block_header_(amc, board, load.size() + 3), // add 3 words for header (2) and trailer (1)
+      header_(amc, lv1id, bx, load.size() + 3, orbit, board, 0),
+      trailer_(0, lv1id, load.size() + 3)
+   {
+      auto hdata = header_.raw();
+      payload_.reserve(load.size() + 3);
+      payload_.insert(payload_.end(), hdata.begin(), hdata.end());
+      payload_.insert(payload_.end(), load.begin(), load.end());
+      payload_.insert(payload_.end(), trailer_.raw());
+
+      auto ptr = payload_.data();
+      Trailer::writeCRC(ptr, ptr + payload_.size() - 1);
    }
 
    void
@@ -135,11 +153,6 @@ namespace amc {
 
       trailer_.check(crc, lv1, header_.getSize());
 
-      // remove trailer
-      payload_.erase(payload_.end() - 1);
-      // remove two header words
-      payload_.erase(payload_.begin(), payload_.begin() + 2);
-
       // FIXME add header checks.
    }
 
@@ -158,9 +171,10 @@ namespace amc {
    std::unique_ptr<uint64_t[]>
    Packet::data()
    {
-      std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size()]);
-      for (unsigned int i = 0; i < payload_.size(); ++i)
-         res.get()[i] = payload_[i];
+      // Remove 3 words: 2 for the header, 1 for the trailer
+      std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size() - 3]);
+      for (unsigned int i = 0; i < payload_.size() - 3; ++i)
+         res.get()[i] = payload_[i + 2];
       return res;
    }
 }

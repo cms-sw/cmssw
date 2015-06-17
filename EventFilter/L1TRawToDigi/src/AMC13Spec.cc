@@ -23,10 +23,9 @@ namespace amc13 {
       return (getNumberOfAMCs() <= max_amc) && (getFormatVersion() == fov);
    }
 
-   Trailer::Trailer(unsigned int crc, unsigned int blk, unsigned int lv1, unsigned int bx)
+   Trailer::Trailer(unsigned int blk, unsigned int lv1, unsigned int bx)
    {
       data_ =
-         (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift) |
          (static_cast<uint64_t>(blk & BlkNo_mask) << BlkNo_shift) |
          (static_cast<uint64_t>(lv1 & LV1_mask) << LV1_shift) |
          (static_cast<uint64_t>(bx & BX_mask) << BX_shift);
@@ -47,12 +46,21 @@ namespace amc13 {
    }
 
    void
-   Packet::add(unsigned int amc_no, unsigned int board, const std::vector<uint64_t>& load)
+   Trailer::writeCRC(const uint64_t *start, uint64_t *end)
+   {
+      std::string dstring(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(end) + 4);
+      auto crc = cms::CRC32Calculator(dstring).checksum();
+
+      *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
+   }
+
+   void
+   Packet::add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load)
    {
       edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size()
          << " as payload #" << amc_no;
       // Start by indexing with 1
-      payload_.push_back(amc::Packet(amc_no, board, load));
+      payload_.push_back(amc::Packet(amc_no, board, lv1id, orbit, bx, load));
    }
 
    bool
@@ -190,7 +198,7 @@ namespace amc13 {
       unsigned int maxblocks = 0;
 
       for (const auto& amc: payload_) {
-         words += amc.size();
+         words += amc.header().getSize();
          blocks += amc.blocks();
          maxblocks = std::max(maxblocks, amc.blocks());
       }
@@ -201,7 +209,7 @@ namespace amc13 {
    }
 
    bool
-   Packet::write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const
+   Packet::write(const edm::Event& ev, unsigned char * ptr, unsigned int skip, unsigned int size) const
    {
       if (size < this->size() * 8)
          return false;
@@ -209,10 +217,10 @@ namespace amc13 {
       if (size % 8 != 0)
          return false;
 
-      uint64_t * data = reinterpret_cast<uint64_t*>(ptr);
+      uint64_t * data = reinterpret_cast<uint64_t*>(ptr + skip);
 
       for (unsigned int b = 0; b < blocks(); ++b) {
-         uint64_t * block_start = data;
+         // uint64_t * block_start = data;
 
          std::vector<uint64_t> block_headers;
          std::vector<uint64_t> block_load;
@@ -245,9 +253,8 @@ namespace amc13 {
          for (const auto& word: block_headers)
             *(data++) = word;
 
-         std::string dstring(reinterpret_cast<char*>(block_start), reinterpret_cast<char*>(data));
-         cms::CRC32Calculator crc(dstring);
-         *(data++) = Trailer(crc.checksum(), b, ev.id().event(), ev.bunchCrossing()).raw();
+         *data = Trailer(b, ev.id().event(), ev.bunchCrossing()).raw();
+         Trailer::writeCRC(reinterpret_cast<uint64_t*>(ptr), data);
       }
 
       return true;

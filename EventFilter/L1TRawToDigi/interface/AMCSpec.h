@@ -107,6 +107,8 @@ namespace amc {
          uint64_t raw() const { return data_; }
          void check(unsigned int crc, unsigned int lv1_id, unsigned int size);
 
+         static void writeCRC(const uint64_t *start, uint64_t *end);
+
       private:
          static const unsigned int Size_shift = 0;
          static const unsigned int Size_mask = 0xfffff;
@@ -121,7 +123,7 @@ namespace amc {
    class Packet {
       public:
          Packet(const uint64_t* d) : block_header_(d) {};
-         Packet(unsigned int amc, unsigned int board, const std::vector<uint64_t>& load);
+         Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load);
 
          // Add payload fragment from an AMC13 block to the AMC packet
          void addPayload(const uint64_t*, unsigned int);
@@ -137,7 +139,8 @@ namespace amc {
          Trailer trailer() const { return trailer_; };
 
          inline unsigned int blocks() const { return block_header_.getBlocks(); };
-         inline unsigned int size() const { return block_header_.getSize(); };
+         // Returns the size of the payload _without_ the headers
+         inline unsigned int size() const { return block_header_.getSize() - 3; };
 
       private:
          BlockHeader block_header_;

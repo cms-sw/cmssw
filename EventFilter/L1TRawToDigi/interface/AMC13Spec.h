@@ -43,7 +43,7 @@ namespace amc13 {
    class Trailer {
       public:
          Trailer(const uint64_t *data) : data_(data[0]) {};
-         Trailer(unsigned int crc, unsigned int blk, unsigned int lv1, unsigned int bx);
+         Trailer(unsigned int blk, unsigned int lv1, unsigned int bx);
 
          inline unsigned int getCRC() const { return (data_ >> CRC_shift) & CRC_mask; };
          inline unsigned int getBlock() const { return (data_ >> BlkNo_shift) & BlkNo_mask; };
@@ -52,6 +52,7 @@ namespace amc13 {
 
          uint64_t raw() const { return data_; };
          void check(unsigned int crc, unsigned int block, unsigned int lv1_id, unsigned int bx);
+         static void writeCRC(const uint64_t *start, uint64_t *end);
 
       private:
          static const unsigned int CRC_shift = 32;
@@ -73,9 +74,9 @@ namespace amc13 {
          unsigned int blocks() const;
          unsigned int size() const;
 
-         void add(unsigned int amc_no, unsigned int board, const std::vector<uint64_t>& load);
+         void add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load);
          bool parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx);
-         bool write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const;
+         bool write(const edm::Event& ev, unsigned char * ptr, unsigned int skip, unsigned int size) const;
 
          inline std::vector<amc::Packet> payload() const { return payload_; };
 
