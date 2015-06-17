@@ -9,7 +9,6 @@ process = cms.Process("BeamPixel")
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("DQM.Integration.test.inputsource_cfi")
 
-
 #----------------------------
 # HLT Filter
 #----------------------------
@@ -77,7 +76,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
                                             vertexCollection   = cms.untracked.InputTag("pixelVertices"),
-                                            pixelHitCollection = cms.untracked.InputTag("siPixelRecHits"),
+                                            #pixelHitCollection = cms.untracked.InputTag("siPixelRecHits"),
+                                            pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),
                                             nLumiReset         = cms.uint32(2),
                                             dataFromFit        = cms.bool(True),
@@ -99,23 +99,31 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
 
 
-    #----------------------------
-    # Pixel-Tracks Configuration
-    #----------------------------
-    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
 
+
+    process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
+    #pixel  track/vertices reco
+    process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
+    process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
+    #process.dqmBeamMonitor.PVFitter.errorScale = 1.25 #keep checking this with new release expected close to 1.2
+    
+    from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
+    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
 
     #----------------------------
     # Pixel-Vertices Configuration
     #----------------------------
-    process.reconstruction_step = cms.Sequence(process.siPixelDigis*
+    process.reconstruction_step  = cms.Sequence(process.siPixelDigis*
                                                process.offlineBeamSpot*
-                                               process.siPixelClusters*
-                                               process.siPixelRecHits*
-                                               process.siPixelClusterShapeCache*
-                                               process.PixelLayerTriplets*
-                                               process.pixelTracks*
-                                               process.pixelVertices)
+                                               process.siPixelClustersPreSplitting*
+                                               process.siPixelRecHitsPreSplitting*
+                                               process.siPixelClusterShapeCachePreSplitting*
+                                               process.recopixelvertexing
+                                               )
 
 
     #----------------------------
