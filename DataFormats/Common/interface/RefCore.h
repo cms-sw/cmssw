@@ -79,13 +79,13 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
 
-    WrapperBase const* getProductPtr(std::type_info const& type) const;
+    WrapperBase const* getProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const;
 
-    WrapperBase const* tryToGetProductPtr(std::type_info const& type) const;
+    WrapperBase const* tryToGetProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const;
 
-    WrapperBase const* getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey) const;
+    WrapperBase const* getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey, EDProductGetter const* prodGetter) const;
 
-    bool isThinnedAvailable(unsigned int thinnedKey) const;
+    bool isThinnedAvailable(unsigned int thinnedKey, EDProductGetter const* prodGetter) const;
 
     void productNotFoundException(std::type_info const& type) const;
 
