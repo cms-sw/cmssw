@@ -13,6 +13,9 @@ import FWCore.ParameterSet.Config as cms
 #     https://indico.cern.ch/event/367861/contribution/1/material/slides/0.pdf
 #
 
+# This MVA implementation class name
+mvaPhys14NonTrigClassName = cms.string("ElectronMVAEstimatorRun2Phys14NonTrig")
+
 # There are 6 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
 #   0   EB1 (eta<0.8)  pt 5-10 GeV
@@ -22,22 +25,22 @@ import FWCore.ParameterSet.Config as cms
 #   4   EB2 (eta>=0.8) pt 10-inf GeV
 #   5   EE             pt 10-inf GeV
 
-mvaPhys14NonTrigWeightFiles_V1 = cms.vstring
-("RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB1_5_oldscenario2phys14_BDT.weights.xml",
- "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB2_5_oldscenario2phys14_BDT.weights.xml",
- "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EE_5_oldscenario2phys14_BDT.weights.xml",
- "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB1_10_oldscenario2phys14_BDT.weights.xml",
- "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB2_10_oldscenario2phys14_BDT.weights.xml",
- "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EE_10_oldscenario2phys14_BDT.weights.xml"
- )
+mvaPhys14NonTrigWeightFiles_V1 = cms.vstring(
+    "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB1_5_oldscenario2phys14_BDT.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB2_5_oldscenario2phys14_BDT.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EE_5_oldscenario2phys14_BDT.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB1_10_oldscenario2phys14_BDT.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EB2_10_oldscenario2phys14_BDT.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/PHYS14/EIDmva_EE_10_oldscenario2phys14_BDT.weights.xml"
+    )
 
 # Load some common definitions for MVA machinery
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
 
 # The locatoins of value maps with the actual MVA values and categories
 # for all particles
-mvaValueMapName      = "electronMVAValueMapProducer:eleMVAPhys14NonTrigValues"
-mvaCategoriesMapName = "electronMVAValueMapProducer:eleMVAPhys14NonTrigCategories"
+mvaValueMapName      = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigValues"
+mvaCategoriesMapName = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigCategories"
 
 # The working point for this MVA that is expected to have about 80% signal
 # efficiency on average separately for barrel and separately for endcap
@@ -75,6 +78,12 @@ MVA_WP90 = EleMVA_6Categories_WP(
 # Finally, set up VID configuration for all cuts
 #
 
+# Create the PSet that will be fed to the MVA value map producer
+mvaEleID_PHYS14_PU20bx25_nonTrig_V1_producer_config = cms.PSet( 
+    mvaName            = mvaPhys14NonTrigClassName,
+    mvaWeightFileNames = mvaPhys14NonTrigWeightFiles_V1
+    )
+# Create the VPset's for VID cuts
 mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
 mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
 
