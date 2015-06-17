@@ -14,7 +14,7 @@
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
 {
-   static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
+  const static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
       { "All", All },
       { "VeryLoose", VeryLoose },
       { "Loose", Loose },

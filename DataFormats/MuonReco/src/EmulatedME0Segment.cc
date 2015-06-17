@@ -39,8 +39,8 @@ AlgebraicVector EmulatedME0Segment::parameters() const {
 
 
 AlgebraicMatrix EmulatedME0Segment::projectionMatrix() const {
-  static AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
-  static bool isInitialized = false;
+  const static AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
+  const static bool isInitialized = false;
   if (!isInitialized) {
     theProjectionMatrix[0][1] = 1;
     theProjectionMatrix[1][2] = 1;

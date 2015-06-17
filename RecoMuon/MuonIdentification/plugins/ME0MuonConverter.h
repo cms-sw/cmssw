@@ -4,22 +4,16 @@
 /** \class ME0MuonConverter 
  * Produces a collection of ME0Segment's in endcap muon ME0s. 
  *
- * $Date: 2010/03/11 23:48:11 $
  *
  * \author David Nash
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-#include "TH1.h" 
-#include "TFile.h"
 
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -38,7 +32,7 @@
 
 
 
-class ME0MuonConverter : public edm::EDProducer {
+class ME0MuonConverter : public edm::stream::EDProducer<> {
 public:
     /// Constructor
     explicit ME0MuonConverter(const edm::ParameterSet&);
