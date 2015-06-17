@@ -75,12 +75,11 @@ ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet
 
     std::unique_ptr<AnyMVAEstimatorRun2Base> thisEstimator;
     thisEstimator.reset(NULL);
-    const edm::ParameterSet& pConf = iConfig.getParameterSet("mvaConfig");
-    if( !pConf.empty() ) {
-      const std::string& pName = pConf.getParameter<std::string>("mvaName");
+    if( !imva.empty() ) {
+      const std::string& pName = imva.getParameter<std::string>("mvaName");
       // The factory below constructs the MVA of the appropriate type based
       // on the "mvaName" which is the name of the derived MVA class (plugin)
-      AnyMVAEstimatorRun2Base *estimator = AnyMVAEstimatorRun2Factory::get()->create(pName, pConf);
+      AnyMVAEstimatorRun2Base *estimator = AnyMVAEstimatorRun2Factory::get()->create(pName, imva);
       thisEstimator.reset(estimator);
       
     } else 
