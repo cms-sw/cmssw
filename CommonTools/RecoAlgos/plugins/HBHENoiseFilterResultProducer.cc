@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class HBHENoiseFilterResultProducer : public edm::EDProducer {
+class HBHENoiseFilterResultProducer : public edm::stream::EDProducer<> {
    public:
       explicit HBHENoiseFilterResultProducer(const edm::ParameterSet&);
       ~HBHENoiseFilterResultProducer();
@@ -57,6 +57,11 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
       bool IgnoreTS4TS5ifJetInLowBVRegion_;
       std::string defaultDecision_;
 
+      int minNumIsolatedNoiseChannels_;
+      double minIsolatedNoiseSumE_;
+      double minIsolatedNoiseSumEt_;
+
+      // other members
       std::map<std::string, bool> decisionMap_;
 };
 
@@ -75,10 +80,16 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   IgnoreTS4TS5ifJetInLowBVRegion_ = iConfig.getParameter<bool>("IgnoreTS4TS5ifJetInLowBVRegion");
   defaultDecision_ = iConfig.getParameter<std::string>("defaultDecision");
 
+  // parameters related to isolation filter
+  minNumIsolatedNoiseChannels_ = iConfig.getParameter<int>("minNumIsolatedNoiseChannels");
+  minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
+  minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");
+
   produces<bool>("HBHENoiseFilterResult");
   produces<bool>("HBHENoiseFilterResultRun1");
   produces<bool>("HBHENoiseFilterResultRun2Loose");
   produces<bool>("HBHENoiseFilterResultRun2Tight");
+  produces<bool>("HBHEIsoNoiseFilterResult");
 }
 
 
@@ -143,6 +154,13 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   pOut = std::auto_ptr<bool>(new bool(!it->second));
   iEvent.put(pOut, "HBHENoiseFilterResult");
 
+  // Check isolation requirements
+  const bool failIsolation = summary.numIsolatedNoiseChannels() >= minNumIsolatedNoiseChannels_ ||
+                             summary.isolatedNoiseSumE() >= minIsolatedNoiseSumE_ ||
+                             summary.isolatedNoiseSumEt() >= minIsolatedNoiseSumEt_;
+  pOut = std::auto_ptr<bool>(new bool(!failIsolation));
+  iEvent.put(pOut, "HBHEIsoNoiseFilterResult");
+  
   return;
 }
 
