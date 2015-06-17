@@ -11,6 +11,8 @@
 </bin>
 <bin   file="testConditionDatabase_1.cpp" name="testConditionDatabase_1">
 </bin>
+<bin   file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
+</bin>
 <bin   file="testRootStreaming.cpp" name="testRootStreaming">
   <lib   name="testCondDBDict"/>
 </bin>
