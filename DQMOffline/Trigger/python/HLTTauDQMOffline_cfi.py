@@ -73,6 +73,7 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     L1Plotter = cms.untracked.PSet(
         DQMFolder             = cms.untracked.string('L1'),
         L1Taus                = cms.untracked.InputTag("l1extraParticles", "Tau"),
+        L1IsoTaus             = cms.untracked.InputTag("l1extraParticles", "IsoTau"),
         L1Jets                = cms.untracked.InputTag("l1extraParticles", "Central"),
         L1JetMinEt            = cms.untracked.double(40), # FIXME: this value is arbitrary at the moment
         L1ETM                 = cms.untracked.InputTag("l1extraParticles", "MET"),

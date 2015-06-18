@@ -27,6 +27,8 @@ private:
     //The filters
     edm::InputTag l1ExtraTaus_;
     edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraTausToken_;
+    edm::InputTag l1ExtraIsoTaus_;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraIsoTausToken_;
     edm::InputTag l1ExtraJets_;
     edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraJetsToken_;
     edm::InputTag l1ExtraMET_;
@@ -49,6 +51,10 @@ private:
     MonitorElement* l1tauEta_;
     MonitorElement* l1tauPhi_;
 
+    MonitorElement* l1isotauEt_;
+    MonitorElement* l1isotauEta_;
+    MonitorElement* l1isotauPhi_;
+
     MonitorElement* l1jetEt_;
     MonitorElement* l1jetEta_;
     MonitorElement* l1jetPhi_;
@@ -58,6 +64,7 @@ private:
 
     //Monitor Elements for matching
     MonitorElement* l1tauEtRes_;
+    MonitorElement* l1isotauEtRes_;
     MonitorElement* l1jetEtRes_;
 
     MonitorElement* l1tauEtEffNum_;
@@ -71,6 +78,18 @@ private:
 
     MonitorElement* l1tauPhiEffNum_;
     MonitorElement* l1tauPhiEffDenom_;
+
+    MonitorElement* l1isotauEtEffNum_;
+    MonitorElement* l1isotauEtEffDenom_;
+    
+    MonitorElement* l1isotauHighEtEffNum_;
+    MonitorElement* l1isotauHighEtEffDenom_;
+    
+    MonitorElement* l1isotauEtaEffNum_;
+    MonitorElement* l1isotauEtaEffDenom_;
+    
+    MonitorElement* l1isotauPhiEffNum_;
+    MonitorElement* l1isotauPhiEffDenom_;
 
     MonitorElement* l1jetEtEffNum_;
     MonitorElement* l1jetEtEffDenom_;

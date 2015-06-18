@@ -31,6 +31,8 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::Consume
   //Process PSet
   l1ExtraTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
   l1ExtraTausToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraTaus_);
+  l1ExtraIsoTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1IsoTaus");
+  l1ExtraIsoTausToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraIsoTaus_);
   l1ExtraJets_      = ps.getUntrackedParameter<edm::InputTag>("L1Jets");
   l1ExtraJetsToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraJets_);
   l1ExtraMET_       = ps.getUntrackedParameter<edm::InputTag>("L1ETM");
@@ -59,6 +61,10 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
   l1tauEt_ = iBooker.book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
   l1tauEta_ = iBooker.book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
   l1tauPhi_ = iBooker.book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
+
+  l1isotauEt_ = iBooker.book1D("L1IsoTauEt","L1 iso#tau E_{T};L1 iso#tau E_{T};entries",binsEt_,0,maxPt_);
+  l1isotauEta_ = iBooker.book1D("L1IsoTauEta","L1 iso#tau #eta;L1 iso#tau #eta;entries",binsEta_,-maxEta_,maxEta_);
+  l1isotauPhi_ = iBooker.book1D("L1IsoTauPhi","L1 iso#tau #phi;L1 iso#tau #phi;entries",binsPhi_,minPhi,maxPhi);
         
   l1jetEt_ = iBooker.book1D("L1JetEt","L1 central jet E_{T};L1 jet E_{T};entries",binsEt_,0,maxPt_);
   snprintf(buffer, BUFMAX, "L1 central jet #eta (E_{T} > %.1f);L1 jet #eta;entries", l1JetMinEt_);
@@ -85,6 +91,7 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
         
   if (doRefAnalysis_) {
     l1tauEtRes_ = iBooker.book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
+    l1isotauEtRes_ = iBooker.book1D("L1IsoTauEtResol","L1 iso#tau E_{T} resolution;[L1 iso#tau E_{T}-Ref iso#tau E_{T}]/Ref iso#tau E_{T};entries",60,-1,4);
     snprintf(buffer, BUFMAX, "L1 central jet E_{T} resolution (E_{T} > %.1f);[L1 jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries", l1JetMinEt_);
     l1jetEtRes_ = iBooker.book1D("L1JetEtResol", buffer, 60, -1, 4);
             
@@ -101,6 +108,18 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
             
     l1tauPhiEffNum_ = iBooker.book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
     l1tauPhiEffDenom_ = iBooker.book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau #phi;Efficiency",binsPhi_,minPhi,maxPhi);
+
+    l1isotauEtEffNum_ = iBooker.book1D("L1IsoTauEtEffNum","L1 iso#tau E_{T} Efficiency;Ref iso#tau E_{T};entries",binsEt_,0,maxPt_);                                                                        
+    l1isotauHighEtEffNum_ = iBooker.book1D("L1IsoTauHighEtEffNum","L1 iso#tau E_{T} Efficiency (high E_{T});Ref iso#tau E_{T};entries",binsEt_,0,maxHighPt_);                                               
+                                                                                                                                                                                                
+    l1isotauEtEffDenom_ = iBooker.book1D("L1IsoTauEtEffDenom","L1 iso#tau E_{T} Denominator;Ref iso#tau E_{T};entries",binsEt_,0,maxPt_);                                                                   
+    l1isotauHighEtEffDenom_ = iBooker.book1D("L1IsoTauHighEtEffDenom","L1 iso#tau E_{T} Denominator (high E_{T});Ref iso#tau E_{T};Efficiency",binsEt_,0,maxHighPt_);                                       
+                                                                                                                                                                                                
+    l1isotauEtaEffNum_ = iBooker.book1D("L1IsoTauEtaEffNum","L1 iso#tau #eta Efficiency;Ref iso#tau #eta;entries",binsEta_,-maxEta_,maxEta_);                                                               
+    l1isotauEtaEffDenom_ = iBooker.book1D("L1IsoTauEtaEffDenom","L1 iso#tau #eta Denominator;Ref iso#tau #eta;entries",binsEta_,-maxEta_,maxEta_);                                                          
+                                                                                                                                                                                                
+    l1isotauPhiEffNum_ = iBooker.book1D("L1IsoTauPhiEffNum","L1 iso#tau #phi Efficiency;Ref iso#tau #phi;entries",binsPhi_,minPhi,maxPhi);                                                                  
+    l1isotauPhiEffDenom_ = iBooker.book1D("L1IsoTauPhiEffDenom","L1 iso#tau #phi Denominator;Ref iso#tau #phi;Efficiency",binsPhi_,minPhi,maxPhi);
             
     l1jetEtEffNum_ = iBooker.book1D("L1JetEtEffNum","L1 central jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
     l1jetHighEtEffNum_ = iBooker.book1D("L1JetHighEtEffNum","L1 central jet E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
@@ -138,14 +157,18 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
         //Tau reference
         for ( LVColl::const_iterator iter = refC.taus.begin(); iter != refC.taus.end(); ++iter ) {
             l1tauEtEffDenom_->Fill(iter->pt());
+            l1isotauEtEffDenom_->Fill(iter->pt());
             l1jetEtEffDenom_->Fill(iter->pt());
             l1tauHighEtEffDenom_->Fill(iter->pt());
+            l1isotauHighEtEffDenom_->Fill(iter->pt());
             l1jetHighEtEffDenom_->Fill(iter->pt());
             
             l1tauEtaEffDenom_->Fill(iter->eta());
+            l1isotauEtaEffDenom_->Fill(iter->eta());
             l1jetEtaEffDenom_->Fill(iter->eta());
             
             l1tauPhiEffDenom_->Fill(iter->phi());
+            l1isotauPhiEffDenom_->Fill(iter->phi());
             l1jetPhiEffDenom_->Fill(iter->phi());
         }
 	if(refC.met.size() > 0) l1etmEtEffDenom_->Fill(refC.met[0].pt());
@@ -153,9 +176,11 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     
     //Analyze L1 Objects (Tau+Jets)
     edm::Handle<l1extra::L1JetParticleCollection> taus;
+    edm::Handle<l1extra::L1JetParticleCollection> isotaus;
     edm::Handle<l1extra::L1JetParticleCollection> jets;
     edm::Handle<l1extra::L1EtMissParticleCollection> met;
     iEvent.getByToken(l1ExtraTausToken_, taus);
+    iEvent.getByToken(l1ExtraIsoTausToken_, isotaus);
     iEvent.getByToken(l1ExtraJetsToken_, jets);
     iEvent.getByToken(l1ExtraMETToken_, met);
     
@@ -163,6 +188,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     
     //Set Variables for the threshold plot
     LVColl l1taus;
+    LVColl l1isotaus;
     LVColl l1jets;
     LVColl l1met;
 
@@ -179,6 +205,21 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     }
     else {
       edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection " << l1ExtraTaus_.encode();
+    }
+
+    if(isotaus.isValid()) {
+      for(l1extra::L1JetParticleCollection::const_iterator i = isotaus->begin(); i != isotaus->end(); ++i) {
+        l1isotaus.push_back(i->p4());
+        if(!doRefAnalysis_) {
+          l1isotauEt_->Fill(i->et());
+          l1isotauEta_->Fill(i->eta());
+          l1isotauPhi_->Fill(i->phi());
+          pathTaus.push_back(i->p4());
+        }
+      }
+    }
+    else {
+      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 isotau collection " << l1ExtraIsoTaus_.encode();
     }
 
     if(jets.isValid()) {
@@ -227,6 +268,24 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
             }
         }
         
+        for ( LVColl::const_iterator i = refC.taus.begin(); i != refC.taus.end(); ++i ) {
+            std::pair<bool,LV> m = match(*i,l1isotaus,matchDeltaR_);
+            if ( m.first ) {
+                l1isotauEt_->Fill(m.second.pt());
+                l1isotauEta_->Fill(m.second.eta());  
+                l1isotauPhi_->Fill(m.second.phi());  
+         
+                l1isotauEtEffNum_->Fill(i->pt());
+                l1isotauHighEtEffNum_->Fill(i->pt());
+                l1isotauEtaEffNum_->Fill(i->eta());
+                l1isotauPhiEffNum_->Fill(i->phi());
+             
+                l1isotauEtRes_->Fill((m.second.pt()-i->pt())/i->pt());
+    
+                pathTaus.push_back(m.second);
+            }
+        }
+
         for ( LVColl::const_iterator i = refC.taus.begin(); i != refC.taus.end(); ++i ) {
             std::pair<bool,LV> m = match(*i,l1jets,matchDeltaR_);
             if ( m.first ) {
