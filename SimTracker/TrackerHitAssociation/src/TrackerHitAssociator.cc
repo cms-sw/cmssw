@@ -99,7 +99,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
   //  The collections are specified via ROUList in the configuration, and can
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof)
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
-
+  const char* highTag = "HighTof";
   for(auto const& cfToken : config.cfTokens_) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     int Nhits = 0;
@@ -114,7 +114,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
           theEvent.labelsForToken(cfToken, labels);
           std::string trackerContainer(labels.productInstance);
           unsigned int tofBin = StripDigiSimLink::LowTof;
-          if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
+          if (trackerContainer.find(highTag) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
@@ -136,7 +136,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
           theEvent.labelsForToken(simHitToken, labels);
           std::string trackerContainer(labels.productInstance);
           unsigned int tofBin = StripDigiSimLink::LowTof;
-          if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
+          if (trackerContainer.find(highTag) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
