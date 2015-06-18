@@ -86,13 +86,16 @@ ElectronMVAValueMapProducer::ElectronMVAValueMapProducer(const edm::ParameterSet
       throw cms::Exception(" MVA configuration not found: ")
 	<< " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
 
+    // The unique pointer control is passed to the vector in the line below.
+    // Don't use thisEstimator pointer beyond the next line.
     mvaEstimators_.emplace_back( thisEstimator.release() );
 
     //
     // Compose and save the names of the value maps to be produced
     //
-    std::string thisValueMapName = thisEstimator->getName() + "Values";
-    std::string thisCategoriesMapName = thisEstimator->getName() + "Categories";
+    const auto& currentEstimator = mvaEstimators_.back();
+    std::string thisValueMapName = currentEstimator->getName() + "Values";
+    std::string thisCategoriesMapName = currentEstimator->getName() + "Categories";
     mvaValueMapNames_.push_back( thisValueMapName );
     mvaCategoriesMapNames_.push_back( thisCategoriesMapName );
 
