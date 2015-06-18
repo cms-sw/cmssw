@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.EventContent.EventContent_cff import FEVTEventContent
+
 OutALCARECOHotline = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(
@@ -21,7 +23,5 @@ OutALCARECOHotline = cms.PSet(
             "pathHotlineSkimMassiveEMu"
         ),
     ),
-    outputCommands = cms.untracked.vstring(
-        'keep *'
-        )
+    outputCommands = FEVTEventContent.outputCommands 
 )

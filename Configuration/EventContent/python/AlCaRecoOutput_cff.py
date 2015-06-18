@@ -117,3 +117,58 @@ from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import
 ###############################################################
 from Calibration.Hotline.hotlineSkims_Output_cff import *
 from Calibration.Hotline.hotlineMETSkims_Output_cff import *
+
+ALCARECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep edmTriggerResults_*_*_*'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlZMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsInCollisions_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0THLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlLAS_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolated_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolatedPA_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlJpsiMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIterativePhiSym_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalMinBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalElectron_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalUncalElectron_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPi0Calib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalDijets_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalGammaJet_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIsoTrk_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIsoTrkNoHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHO_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHOCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalNoise_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlStandAloneCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlZMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlOverlaps_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOLumiPixels_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHotline.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMETHotline.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBiasHI_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBiasHI_noDrop.outputCommands)
+
+
+ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
