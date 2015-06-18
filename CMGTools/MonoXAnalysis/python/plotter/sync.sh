@@ -19,14 +19,18 @@ RUNY="${COREY} mca-74X.txt --s2v -u "
 RUNYSR="${RUNY} sync/monojet_twiki.txt "
 RUNY2M="${RUNY} sync/zmumu_twiki.txt "
 RUNY1M="${RUNY} sync/wmunu_twiki.txt "
+RUNY1G="${RUNY} sync/gjets_twiki.txt "
 
 case $WHAT in
 sr)
-        echo "python ${RUNYSR} $FEV --xp TTbar --xp DYLL --xp WJets"
+        echo "python ${RUNYSR} $FEV --xp TTbar --xp DYLL --xp WJets --xp RSGravGaGa "
 ;;
 wmunu)
-        echo "python ${RUNY1M} $FEV --sp WJets --xp ADD --xp TTLep --xp TTbar --xp DYLL"
+        echo "python ${RUNY1M} $FEV --sp WJets --xp ADD --xp TTLep --xp TTbar --xp DYLL --xp RSGravGaGa "
 ;;
 zmumu)
-        echo "python ${RUNY2M} $FEV --sp DYLL --xp ADD --xp TTLep --xp TTbar --xp WJets"
+        echo "python ${RUNY2M} $FEV --sp DYLL --xp ADD --xp TTLep --xp TTbar --xp WJets --xp RSGravGaGa "
+;;
+gjets)
+        echo "python ${RUNY1G} $FEV --sp DYLL --xp ADD --xp TTLep --xp TTbar --xp WJets --xp DYLL "
 esac;

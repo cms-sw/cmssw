@@ -3,7 +3,7 @@ from CMGTools.TTHAnalysis.treeReAnalyzer import *
 class EventVarsMonojet:
     def __init__(self):
         self.branches = [ "nMu10V", "nMu20T", "nEle10V", "nEle20T", "nTau18V", "nGamma15V", "nGamma175T",
-                          "dphijj", "weight", "jetclean1", "jetclean2"
+                          "dphijj", "weight", "jetclean1", "jetclean2", "phmet_pt", "phmet_phi"
                           ]
     def initSampleNormalization(self,sample_nevt):
         self.sample_nevt = sample_nevt        
@@ -45,6 +45,12 @@ class EventVarsMonojet:
         return gamma.pt > 15 and abs(gamma.eta) < 2.5
     def gammaIdTight(self,gamma):
         return gamma.pt > 175 and abs(gamma.eta) < 2.5
+    def metNoPh(self,met,photons):
+        px = met.Px() + sum([p.p4().Px() for p in photons])
+        py = met.Py() + sum([p.p4().Py() for p in photons])
+        ret = ROOT.TVector3()
+        ret.SetXYZ(px,py,0.)
+        return ret
     def __call__(self,event):
         # prepare output
         #ret = dict([(name,0.0) for name in self.branches])
@@ -63,6 +69,14 @@ class EventVarsMonojet:
         # event variables for the monojet analysis
         jets = [j for j in Collection(event,"Jet","nJet")]
         njet = len(jets)
+        photonsT = [p for p in photons if self.gammaIdTight(p)]
+        #print "check photonsT size is ", len(photonsT), " and nGamma175T = ",ret['nGamma175T']
+        (met, metphi)  = event.met_pt, event.met_phi
+        metp4 = ROOT.TLorentzVector()
+        metp4.SetPtEtaPhiM(met,0,metphi,0)
+        phmet = self.metNoPh(metp4,photonsT)
+        ret['phmet_pt'] = phmet.Pt()
+        ret['phmet_phi'] = phmet.Phi()
         ### muon-jet cleaning
         # Define the loose muons to be cleaned
         ret["iM"] = []
@@ -93,13 +107,15 @@ class EventVarsMonojet:
         for jfloat in "pt eta phi mass btagCSV rawPt".split():
             jetret[jfloat] = []
         dphijj = 999
+        ijc = 0
         for idx in ret["iJ"]:
             jet = jets[idx]
             for jfloat in "pt eta phi mass btagCSV rawPt".split():
                 jetret[jfloat].append( getattr(jet,jfloat) )
-            if   idx==0: ret['jetclean1'] = jet.chHEF > 0.2 and jet.neHEF < 0.7 and jet.phEF < 0.7
-            elif idx==1: ret['jetclean2'] = jet.neHEF < 0.7 and jet.phEF < 0.9
-            if idx==1: dphijj = deltaPhi(jets[0],jet)
+            if   ijc==0: ret['jetclean1'] = jet.chHEF > 0.2 and jet.neHEF < 0.7 and jet.phEF < 0.7
+            elif ijc==1: ret['jetclean2'] = jet.neHEF < 0.7 and jet.phEF < 0.9
+            if ijc==1: dphijj = deltaPhi(jets[ret["iJ"][0]],jet)
+            ijc += 1
         ret["nJetClean"] = len(ret['iJ'])
         # 5. compute the sums 
         ret["nJetClean30"] = 0
@@ -107,7 +123,7 @@ class EventVarsMonojet:
             if not j._clean: continue
             if j.pt > 30:
                 ret["nJetClean30"] += 1
-        ret['dphijj'] = deltaPhi(jets[0],jets[1]) if njet >= 2 else 999 
+        ret['dphijj'] = dphijj
 
         ### muon-tau cleaning
         # Define cleaned taus
