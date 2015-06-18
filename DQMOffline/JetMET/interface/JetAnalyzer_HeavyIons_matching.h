@@ -166,8 +166,8 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
   {
     float deta = eta1 - eta2;
     float dphi = fabs(phi1 - phi2);
-    if(dphi > 3.14159 )dphi -= 2*3.14159;
-    float dr = sqrt(pow(deta,2) + pow(dphi,2));
+    if(dphi > M_PI )dphi -= 2*M_PI;
+    float dr = sqrt(deta*deta + dphi*dphi);
     return dr;
   }
   
