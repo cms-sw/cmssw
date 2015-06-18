@@ -17,6 +17,8 @@
 
 #include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
+
 namespace DataFormats_PatCandidates {
   struct dictionaryother {
 
@@ -50,6 +52,11 @@ namespace DataFormats_PatCandidates {
   std::vector<pat::CandKinResolution>  v_ckr;
   pat::CandKinResolutionValueMap vm_ckr;
   edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
+
+  vid::CutFlowResult vcfr;
+  edm::ValueMap<vid::CutFlowResult> vm_vcfr;
+  edm::Wrapper<vid::CutFlowResult> w_vcfr;
+  edm::Wrapper<edm::ValueMap<vid::CutFlowResult> > w_vm_vcfr;
 
   };
 

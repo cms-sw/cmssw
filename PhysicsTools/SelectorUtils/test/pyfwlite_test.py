@@ -66,11 +66,38 @@ for iev,event in enumerate(events):
         if el.pt() < 5: continue
         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % (
                     i, el.pt(), el.superCluster().eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto())
-        selectElectron(electrons.product(),i,event)
+        passfail = selectElectron(electrons.product(),i,event)        
         print selectElectron
 
+        cf_result = selectElectron.cutFlowResult()
+        for i in range(cf_result.cutFlowSize()):
+            print '%d : %s : %d'%(i,cf_result.getNameAtIndex(i),cf_result.getCutResultByName(cf_result.getNameAtIndex(i)))
+        print passfail
+        print cf_result.cutFlowPassed()
+        masked_cf_ints = cf_result.getCutFlowResultMasking([2,3,4,9])
+        masked_cf_strs = cf_result.getCutFlowResultMasking(['GsfEleDEtaInCut_0',
+                                                            'GsfEleDPhiInCut_0',
+                                                            'GsfEleFull5x5SigmaIEtaIEtaCut_0',
+                                                            'GsfEleDeltaBetaIsoCutStandalone_0'])
+        print masked_cf_ints.cutFlowPassed(), masked_cf_strs.cutFlowPassed()
 
+#test the validator framework
 
+print 'test validation framework' 
 
+selectElectronValid = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight)
+selectMuonValid = VIDMuonSelector(globalMuonPromptTight_V0)
 
+from  PhysicsTools.SelectorUtils.VIDSelectorValidator import VIDSelectorValidator
+electron_validator = VIDSelectorValidator(selectElectronValid,'std::vector<pat::Electron>','slimmedElectrons')
+muon_validator = VIDSelectorValidator(selectMuonValid,'std::vector<pat::Muon>','slimmedMuons')
 
+signal_files     = []
+background_files = []
+mix_files        = ['root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root']
+
+electron_validator.setMixFiles(mix_files)
+muon_validator.setMixFiles(mix_files)
+
+electron_validator.runValidation()
+muon_validator.runValidation()
