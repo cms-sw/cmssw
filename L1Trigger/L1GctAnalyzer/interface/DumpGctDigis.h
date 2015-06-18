@@ -65,7 +65,8 @@ private:
   bool doFibres_;
   bool doEnergySums_;
 
-  unsigned rctEmMinRank_;
+  unsigned emMinRank_;
+  unsigned jetMinRank_;
 
   std::ofstream outFile_;
   

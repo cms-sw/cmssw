@@ -40,7 +40,8 @@ DumpGctDigis::DumpGctDigis(const edm::ParameterSet& iConfig) :
   doInternEM_( iConfig.getUntrackedParameter<bool>("doInternEm", true) ),
   doFibres_( iConfig.getUntrackedParameter<bool>("doFibres", false) ),
   doEnergySums_( iConfig.getUntrackedParameter<bool>("doEnergySums", false) ),
-  rctEmMinRank_( iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0) )
+  emMinRank_( iConfig.getUntrackedParameter<unsigned>("emMinRank", 0) ),
+  jetMinRank_( iConfig.getUntrackedParameter<unsigned>("jetMinRank", 0) )
 {
   //now do what ever initialization is needed
 
@@ -113,20 +114,24 @@ void DumpGctDigis::doEM(const edm::Event& iEvent, const edm::InputTag& label, st
 
   text << "Iso EM from : " << label.label() << endl;
   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
-    text << (*ie) 
-             << " ieta(detID)=" << ie->regionId().ieta()
-             << " iphi(detID)=" << ie->regionId().iphi()
-             << endl;
-  } 
+    if (ie->rank() >= emMinRank_) {
+      text << (*ie) 
+	   << " ieta(detID)=" << ie->regionId().ieta()
+	   << " iphi(detID)=" << ie->regionId().iphi()
+	   << endl;
+    } 
+  }
   text << endl;
   
   text << "Non-iso EM from : " << label.label() << endl;
   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
-    text << (*ne) 
-             << " ieta(detID)=" << ne->regionId().ieta()
-             << " iphi(detID)=" << ne->regionId().iphi()
-             << endl;
-  } 
+    if (ne->rank() >= emMinRank_) {
+      text << (*ne) 
+	   << " ieta(detID)=" << ne->regionId().ieta()
+	   << " iphi(detID)=" << ne->regionId().iphi()
+	   << endl;
+    } 
+  }
   text << endl;
 
 }
@@ -143,7 +148,7 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label,
 
   text << "RCT EM from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
-    if (e->rank() >= rctEmMinRank_) {
+    if (e->rank() >= emMinRank_) {
       text << (*e) 
                << " ieta(detID)=" << e->regionId().ieta()
                << " iphi(detID)=" << e->regionId().iphi()
@@ -167,7 +172,9 @@ void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& labe
 
   text << "Regions from : " << label.label() << endl;
   for (r=rgns->begin(); r!=rgns->end(); r++) {
-    text << (*r) << endl;
+    if (r->et() >= jetMinRank_) {
+      text << (*r) << endl;
+    }
   } 
   text << endl;
 
@@ -194,19 +201,25 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label, 
   
   text << "Central jets from : " << labelStr << endl;
   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
-    text << (*cj) << endl;
+    if (cj->rank() >= jetMinRank_) {
+      text << (*cj) << endl;
+    }
   } 
   text << endl;
   
   text << "Forward jets from : " << labelStr << endl;
   for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
-    text << (*fj) << endl;
+    if (fj->rank() >= jetMinRank_) {
+      text << (*fj) << endl;
+    }
   } 
   text << endl;
   
   text << "Tau jets from : " << labelStr << endl;
   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
-    text << (*tj) << endl;
+    if (tj->rank() >= jetMinRank_) {
+      text << (*tj) << endl;
+    }
   }
 }
 
