@@ -368,10 +368,10 @@ HLT_Ele15_IsoVVVL_PFHT350_PFMET70_v*				# JIRA: CMSHLT-165, mod. CMSHLT-311, mod
 HLT_Ele15_IsoVVVL_BTagCSV0p72_PFHT400_v*			# JIRA: CMSHLT-165, mod. CMSHLT-311, CMSHLT-405
 HLT_Ele15_IsoVVVL_PFHT600_v*					# JIRA: CMSHLT-165, mod. CMSHLT-311
 HLT_Ele15_PFHT300_v*						# JIRA: CMSHLT-165, mod. CMSHLT-311
-HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v*				# JIRA: CMSHLT-165, mod. CMSHLT-311, mod CMSHLT-356
-HLT_Mu15_IsoVVVL_BTagCSV0p72_PFHT400_v*				# JIRA: CMSHLT-165, mod. CMSHLT-311, CMSHLT-405
-HLT_Mu15_IsoVVVL_PFHT600_v*					# JIRA: CMSHLT-165, mod. CMSHLT-311
-HLT_Mu15_PFHT300_v*						# JIRA: CMSHLT-165, mod. CMSHLT-311
+HLT_Mu15_IsoVVVL_PFHT350_PFMET70_v*				# JIRA: CMSHLT-165, mod. CMSHLT-311, mod CMSHLT-356, CMSHLT-417
+HLT_Mu15_IsoVVVL_BTagCSV0p72_PFHT400_v*				# JIRA: CMSHLT-165, mod. CMSHLT-311, CMSHLT-405, CMSHLT-417
+HLT_Mu15_IsoVVVL_PFHT600_v*					# JIRA: CMSHLT-165, mod. CMSHLT-311, CMSHLT-417
+HLT_Mu15_PFHT300_v*						# JIRA: CMSHLT-165, mod. CMSHLT-311, CMSHLT-417
 
 HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*			# JIRA: CMSHLT-268
 HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*			# JIRA: CMSHLT-268
@@ -464,6 +464,39 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 
 HLT_L1SingleMu16_v*						# JIRA: CMSHLT-357
 HLT_L2Mu10_v*							# JIRA: CMSHLT-357
+
+HLT_FullTrack12ForEndOfFill_v*                                  # JIRA: CMSHLT-273,CMSHLT-404
+HLT_FullTrack20_v*                                              # JIRA: CMSHLT-273,CMSHLT-404
+HLT_FullTrack30_v*                                              # JIRA: CMSHLT-273,CMSHLT-404
+HLT_FullTrack50_v*                                              # JIRA: CMSHLT-273,CMSHLT-404
+
+HLT_HIL1DoubleMu0_v*                                            # JIRA: CMSHLT-258,CMSHLT-404
+HLT_HIL2Mu3_v*                                                  # JIRA: CMSHLT-258,CMSHLT-404
+HLT_HIL2DoubleMu0_v*                                            # JIRA: CMSHLT-258,CMSHLT-404
+HLT_HIL3Mu3_v*                                                  # JIRA: CMSHLT-258,CMSHLT-404
+
+HLT_HISinglePhoton10ForEndOfFill_v*                             # JIRA: CMSHLT-279,CMSHLT-404
+HLT_HISinglePhoton15ForEndOfFill_v*                             # JIRA: CMSHLT-279,CMSHLT-404
+HLT_HISinglePhoton20ForEndOfFill_v*                             # JIRA: CMSHLT-279,CMSHLT-404
+HLT_HISinglePhoton40_v*                                         # JIRA: CMSHLT-279,CMSHLT-404
+HLT_HISinglePhoton60_v*                                         # JIRA: CMSHLT-279,CMSHLT-404
+
+HLT_AK4CaloJet30ForEndOfFill_v*                                 # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4CaloJet40ForEndOfFill_v*                                 # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4CaloJet50ForEndOfFill_v*                                 # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4CaloJet80_v*                                             # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4CaloJet100_v*                                            # JIRA: CMSHLT-279,CMSHLT-404
+
+HLT_AK4PFJet30ForEndOfFill_v*                                   # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4PFJet50ForEndOfFill_v*                                   # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4PFJet80_v*                                               # JIRA: CMSHLT-279,CMSHLT-404
+HLT_AK4PFJet100_v*                                              # JIRA: CMSHLT-279,CMSHLT-404
+
+HLT_PixelTracks_Multiplicity60_v*                               # JIRA: CMSHLT-150,CMSHLT-404
+HLT_PixelTracks_Multiplicity85_v*                               # JIRA: CMSHLT-150,CMSHLT-404
+HLT_PixelTracks_Multiplicity110_v*                              # JIRA: CMSHLT-150,CMSHLT-404
+HLT_PixelTracks_Multiplicity135_v*                              # JIRA: CMSHLT-150,CMSHLT-404
+HLT_PixelTracks_Multiplicity160_v*                              # JIRA: CMSHLT-150,CMSHLT-404
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
