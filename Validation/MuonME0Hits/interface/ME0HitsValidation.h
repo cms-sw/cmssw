@@ -17,6 +17,7 @@ public:
 
   MonitorElement* me0_sh_xy[2][6];
   MonitorElement* me0_sh_zr[2][6];
+  MonitorElement* me0_sh_tot_zr[2];
 
   MonitorElement* me0_sh_tof[2][6];
   MonitorElement* me0_sh_tofMu[2][6];

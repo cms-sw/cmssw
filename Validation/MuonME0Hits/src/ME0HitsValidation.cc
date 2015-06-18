@@ -24,6 +24,7 @@ void ME0HitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
+          me0_sh_tot_zr[region_num] = BookHistZR(ibooker,"me0_sh","SimHit",region_num);
       for( unsigned int layer_num = 0 ; layer_num < 6 ; layer_num++) {
           me0_sh_zr[region_num][layer_num] = BookHistZR(ibooker,"me0_sh","SimHit",region_num,layer_num);
           me0_sh_xy[region_num][layer_num] = BookHistXY(ibooker,"me0_sh","SimHit",region_num,layer_num);
@@ -59,6 +60,7 @@ void ME0HitsValidation::analyze(const edm::Event& e,
  edm::ESHandle<ME0Geometry> hGeom;
  iSetup.get<MuonGeometryRecord>().get(hGeom);
  const ME0Geometry* ME0Geometry_ =( &*hGeom);
+ 
   edm::Handle<edm::PSimHitContainer> ME0Hits;
   e.getByToken(InputTagToken_, ME0Hits);
   if (!ME0Hits.isValid()) {
@@ -104,11 +106,14 @@ void ME0HitsValidation::analyze(const edm::Event& e,
 //fill histos for Muons only
       me0_sh_tofMu[(int)(region/2.+0.5)][layer-1]->Fill(timeOfFlightMuon);
       me0_sh_elossMu[(int)(region/2.+0.5)][layer-1]->Fill(energyLossMuon*1.e9);
+ 	
+      std::cout<<"Muons :   "<<timeOfFlightMuon<<"   EnergyLoss:  "<<energyLossMuon<<std::endl;
     }
     
       // fill hist
     // First, fill variable has no condition.
     me0_sh_zr[(int)(region/2.+0.5)][layer-1]->Fill(g_z,g_r);
+    me0_sh_tot_zr[(int)(region/2.+0.5)]->Fill(g_z,g_r);
     me0_sh_xy[(int)(region/2.+0.5)][layer-1]->Fill(g_x,g_y);
     me0_sh_tof[(int)(region/2.+0.5)][layer-1]->Fill(timeOfFlight);
     me0_sh_eloss[(int)(region/2.+0.5)][layer-1]->Fill(energyLoss*1.e9);
