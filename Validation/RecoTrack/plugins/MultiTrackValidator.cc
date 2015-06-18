@@ -514,10 +514,13 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
         histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
-          h_simul_coll[ww]->Fill(www);
-          if (matchedTrackPointer) {
+          if(matchedTrackPointer)
             asts++;
-            h_assoc_coll[ww]->Fill(www);
+          if(dRtpSelector(tp)) {
+            h_simul_coll[ww]->Fill(www);
+            if (matchedTrackPointer) {
+              h_assoc_coll[ww]->Fill(www);
+            }
           }
 
 
