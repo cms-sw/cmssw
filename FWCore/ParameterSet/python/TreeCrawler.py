@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys, os, inspect, copy, struct, dis
+import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
 
 def packageNameFromFilename(name):
@@ -107,7 +107,7 @@ class mymf(modulefinder.ModuleFinder):
 
     def import_module(self,partnam,fqname,parent):
                               
-        if partnam in ("FWCore","os","unittest"):
+        if partnam in ("os","unittest"):
             r = None
         else:
             r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
@@ -129,19 +129,16 @@ class mymf(modulefinder.ModuleFinder):
     def scan_opcodes_25(self, co, unpack = struct.unpack):
         """
         This is basically just the default opcode scanner from ModuleFinder, but extended to also
-        look for "process.load(<module>)' commands. This is complicated by the fact that we don't
-        know what the name of the Process object is (usually "process", but doesn't have to be).
-        So we have to also scan for declarations of Process objects. This is in turn is complicated
-        by the fact that we don't know how FWCore.ParameterSet.Config has been imported (usually
-        "... as cms" but doesn't have to be) so we also have to scan for that import.
-        
-        So, the additional parts are:
-        
-        1) Scan for the FWCore.ParameterSet.Config import and note down what name it's imported as.
-        2) Scan for Process declarations using the name noted in (1), record any of the object names.
-        3) Scan for "load" method calls to anything noted in (2) and yield their arguments.
-        
-        The ModuleFinder.scan_opcodes_25 implementation I based this on I got from
+        look for "process.load(<module>)' commands. Since the Process object might not necassarily
+        be called "process", it scans for a call to a "load" method with a single parameter on
+        *any* object. If one is found it checks if the parameter is a string that refers to a valid
+        python module in the local or global area. If it does, the scanner assumes this was a call
+        to a Process object and yields the module name.
+        It's not possible to scan first for Process object declarations to get the name of the
+        objects since often (e.g. for customisation functions) the object is passed to a function
+        in a different file.
+
+        The ModuleFinder.scan_opcodes_25 implementation this is based was taken from
         https://hg.python.org/cpython/file/2.7/Lib/modulefinder.py#l364
         """
         # Scan the code, and yield 'interesting' opcode combinations
@@ -152,69 +149,78 @@ class mymf(modulefinder.ModuleFinder):
         LOAD_CONST = modulefinder.LOAD_CONST
         IMPORT_NAME = modulefinder.IMPORT_NAME
         STORE_OPS = modulefinder.STORE_OPS
-        STORE_NAME = modulefinder.STORE_NAME
         HAVE_ARGUMENT = modulefinder.HAVE_ARGUMENT
-        LOAD_NAME = chr(dis.opname.index('LOAD_NAME'))
         LOAD_ATTR = chr(dis.opname.index('LOAD_ATTR'))
+        LOAD_NAME = chr(dis.opname.index('LOAD_NAME'))
+        CALL_FUNCTION = chr(dis.opname.index('CALL_FUNCTION'))
         LOAD_LOAD_AND_IMPORT = LOAD_CONST + LOAD_CONST + IMPORT_NAME
         
         try :
-            fwCoreIndex=names.index('FWCore.ParameterSet.Config')
-            loadMethodOpargs=struct.pack( '<H', names.index('load') )
-            loadMethodOpcodes=(LOAD_ATTR,loadMethodOpargs[0],loadMethodOpargs[1])
-            # This will be the list of Process objects. Usually there's just one called "process", but
-            # I don't know that for sure. For now I'll just set it to None though, as a marker that I
-            # don't yet know the opcodes to declare a process object. Once I do I'll set to "[]"
-            processObjects=None
-            # This will be the opcodes equivalent to a "foo = cms.Process("bar")" statement. This list as
-            # it stands is incomplete, I can't do the rest until I know how FWCore is imported. Whatever
-            # happens I need to add [LOAD_NAME,indexOfName,indexOfName] to the start, but I don't know
-            # what the name is (usually "cms" because it's imported with "import ... as cms"). I also
-            # might need to trim off these LOAD_ATTR commands if they're done before storing the name.
-            processDefinitionOpcodes=[]
-            for loadAttrName in ['ParameterSet','Config','Process'] :
-                opArgument=struct.pack( '<H', names.index(loadAttrName) )
-                processDefinitionOpcodes.extend( [LOAD_ATTR,opArgument[0],opArgument[1]] )
-        except ValueError : # Doesn't look like this file imports FWCore.ParameterSet.Config and/or use Process
-            fwCoreIndex=None
-            processObjects=None
+            indexOfLoadConst = names.index("load") # This might throw a ValueError
+            # These are the opcodes required to access the "load" attribute. This might
+            # not even be a function, but I check for that later.
+            loadMethodOpcodes = LOAD_ATTR+struct.pack('<H',indexOfLoadConst)
+        except ValueError :
+            # doesn't look like "load" is used anywhere in this file
+            loadMethodOpcodes=None
 
         while code:
             c = code[0]
             
-            # If I have a full list of the opcodes needed for a Process definition, check to see if this is one
-            if processObjects!=None : # processObjects will be None until I have completed step (1) in the comment at the top
-                if len(code)>=len(processDefinitionOpcodes) : # Check for step (2) in comment at top
-                    isProcessDefinition=True
-                    for index in xrange( len(processDefinitionOpcodes) ) :
-                        if code[index]!=processDefinitionOpcodes[index] :
-                            isProcessDefinition=False
-                    if isProcessDefinition :
-                        code=code[len(processDefinitionOpcodes):] # Trim off what I've just checked
-                        # The only thing I'm interested in is what name is given to the new object,
-                        # so that I can search for "<newname>.load( <module> )".
-                        while code[0]!=STORE_NAME :
-                            if code[0] >= HAVE_ARGUMENT:
-                                code = code[3:]
-                            else:
-                                code = code[1:]
-                        # I've hit the opcode which tells me what the name of the object is (probably "process"
-                        # but I don't know for sure). Note that I'm storing the opcodes for retrieving the object
-                        # rather than a string of the object name 
-                        processObjects.append( (LOAD_NAME,code[1],code[2]) )
+            # Check to see if this is a call to a "load" method
+            if loadMethodOpcodes!=None and len(code)>=9 : # Need at least 9 codes for the full call
+                if code[:3]==loadMethodOpcodes :
+                    # The attribute "load" is being accessed, need to make sure this is a function call.
+                    # I'll look ahead and see if the CALL_FUNCTION code is used - this could be in a different
+                    # place depending on the number of arguments, but I'm only interested in methods with a
+                    # single argument so I know exactly where CALL_FUNCTION should be.
+                    if code[6]==CALL_FUNCTION :
+                        # I know this is calling a method called "load" with one argument. I need
+                        # to find out what the argument is. Note that I still don't know if this is
+                        # on a cms.Process object.
+                        indexInTable=unpack('<H',code[4:6])[0]
+                        if code[3]==LOAD_CONST :
+                            # The argument is a constant, so retrieve that from the table
+                            loadMethodArgument=consts[indexInTable]
+                            # I know a load method with one argument has been called on *something*, but I don't
+                            # know if it was a cms.Process object. All I can do is check to see if the argument is
+                            # a string, and if so if it refers to a python file in the user or global areas.
+                            try :
+                                loadMethodArgument = loadMethodArgument.replace("/",".")
+                                # I can only use imp.find_module on submodules (i.e. each bit between a "."), so try
+                                # that on each submodule in turn using the previously found filename. Note that I have
+                                # to try this twice, because if the first pass traverses into a package in the local
+                                # area but the subpackage has not been checked out it will report that the subpackage
+                                # doesn't exist, even though it is available in the global area.
+                                try :
+                                    parentFilename=[self._localarea+"/python"]
+                                    for subModule in loadMethodArgument.split(".") :
+                                        moduleInfo=imp.find_module( subModule, parentFilename )
+                                        parentFilename=[moduleInfo[1]]
+                                    # If control got this far without raising an exception, then it must be a valid python module
+                                    yield "import", (None, loadMethodArgument)
+                                except ImportError :
+                                    # Didn't work in the local area, try in the global area.
+                                    parentFilename=[self._globalarea+"/python"]
+                                    for subModule in loadMethodArgument.split(".") :
+                                        moduleInfo=imp.find_module( subModule, parentFilename )
+                                        parentFilename=[moduleInfo[1]]
+                                    # If control got this far without raising an exception, then it must be a valid python module
+                                    yield "import", (None, loadMethodArgument)
+                            except Exception as error:
+                                # Either there was an import error (not a python module) or there was a string
+                                # manipulaton error (argument not a string). Assume this wasn't a call on a
+                                # cms.Process object and move on silently.
+                                pass
+                        
+                        elif code[3]==LOAD_NAME :
+                            # The argument is a variable. I can get the name of the variable quite easily but
+                            # not the value, unless I execute all of the opcodes. Not sure what to do here,
+                            # guess I'll just print a warning so that the user knows?
+                            print "Unable to determine the value of variable '"+names[indexInTable]+"' to see if it is a proces.load(...) statement in file "+co.co_filename
+                        
+                        code=code[9:]
                         continue
-    
-                # Wasn't a declaration of a new Process object. See if it is accessing a pre existing one
-                if len(code)>=9 : # Check for step (3) in comment at top
-                    for processObject in processObjects :
-                        if processObject==(code[0],code[1],code[2]) :
-                            # One of the process objects is being accessed. See if it's calling the "load" method
-                            if (code[3],code[4],code[5])==loadMethodOpcodes :
-                                if code[6]==LOAD_CONST :
-                                    moduleNameIndex=unpack('<H',code[7:9])[0]
-                                    yield "import", (None, consts[moduleNameIndex])
-                                    code=code[9:]
-                                    continue
 
             if c in STORE_OPS:
                 oparg, = unpack('<H', code[1:3])
@@ -224,27 +230,6 @@ class mymf(modulefinder.ModuleFinder):
             if code[:9:3] == LOAD_LOAD_AND_IMPORT:
                 oparg_1, oparg_2, oparg_3 = unpack('<xHxHxH', code[:9])
                 level = consts[oparg_1]
-
-                # See if this is the import of FWCore.ParameterSet.Config (i.e. step (1) in the comment at the top).
-                # If processObjects is not None then I've already done this once and don't need to do it again.
-                if fwCoreIndex!=None and processObjects==None:
-                    if oparg_3==fwCoreIndex :
-                        # Peek ahead in the opcodes to see how FWCore.ParameterSet.Config is
-                        # stored. Note that I want to peek ahead, so I can't change "code".
-                        opcodes=code[9:]
-                        while opcodes[0]!=STORE_NAME : # STORE_NAME is the final thing I'm looking for, but I also want to know about LOAD_ATTR
-                            if (opcodes[0],opcodes[1],opcodes[2])==(processDefinitionOpcodes[0],processDefinitionOpcodes[1],processDefinitionOpcodes[2]) :
-                                # The LOAD_ATTR is done before the save, so I don't need to do it after the load.
-                                processDefinitionOpcodes=processDefinitionOpcodes[3:]
-                            opcodes=opcodes[3:]
-                        # The next command in opcodes is the STORE_NAME. I need to know the arguments because they're
-                        # the same as will be used in LOAD_NAME, which goes at the start of the commands.
-                        processDefinitionOpcodes=[LOAD_NAME,opcodes[1],opcodes[2]]+processDefinitionOpcodes
-                        # I now have the full list of opcodes of when a cms.Process object is declared. I can search for
-                        # Process object definitions, each of which I'll put in processObjects.
-                        processObjects=[]
-                    # I still want to report the import, so don't do a "continue" here
-
                 if level == -1: # normal import
                     yield "import", (consts[oparg_2], names[oparg_3])
                 elif level == 0: # absolute import
@@ -258,6 +243,21 @@ class mymf(modulefinder.ModuleFinder):
             else:
                 code = code[1:]
 
+def removeRecursiveLoops( node, verbose=False, currentStack=None ) :
+    if currentStack is None : currentStack=[]
+    try :
+        duplicateIndex=currentStack.index( node ) # If there isn't a recursive loop this will raise a ValueError
+        if verbose :
+            print "Removing recursive loop in:"
+            for index in xrange(duplicateIndex,len(currentStack)) :
+                print "   ",currentStack[index].name,"-->"
+            print "   ",node.name
+        currentStack[-1].dependencies.remove(node)
+    except ValueError:
+        # No recursive loop found, so continue traversing the tree
+        currentStack.append( node )
+        for subnode in node.dependencies :
+            removeRecursiveLoops( subnode, verbose, currentStack[:] )
 
 def transformIntoGraph(depgraph,toplevel):
     packageDict = {}
@@ -276,6 +276,7 @@ def transformIntoGraph(depgraph,toplevel):
             package = packageDict[key]
             package.dependencies = [packageDict[name] for name in value.keys() if name.count(".") == 2]
 
+    removeRecursiveLoops( packageDict[toplevel] )
     # find and return the top level config
     return packageDict[toplevel]
 
