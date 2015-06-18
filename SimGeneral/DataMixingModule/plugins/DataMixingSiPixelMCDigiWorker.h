@@ -33,6 +33,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
+
 
 #include <map>
 #include <vector>
@@ -42,7 +45,6 @@
 namespace CLHEP {
   class HepRandomEngine;
 }
-
 
 namespace edm
 {
@@ -68,6 +70,7 @@ namespace edm
 
       void setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bs); //this sets pu_scale
 
+      void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
 
     private:
 
@@ -79,20 +82,34 @@ namespace edm
        */
       struct PixelEfficiencies {
 	PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
+	bool FromConfig; // If true read from Config, otherwise use Database                                                    
+
+	double theInstLumiScaleFactor;
+	std::vector<double> pu_scale; // in config: 0-3 BPix, 4-5 FPix (inner, outer)                                           
+	std::vector<std::vector<double> > thePUEfficiency; // Instlumi dependent efficiency                                     
 	double thePixelEfficiency[20];     // Single pixel effciency
 	double thePixelColEfficiency[20];  // Column effciency
 	double thePixelChipEfficiency[20]; // ROC efficiency
 	std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
 	std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
-	std::vector<double> thePUEfficiency[20]; // Instlumi dependent efficiency
+	//std::vector<double> thePUEfficiency[20]; // Instlumi dependent efficiency
 	double theInnerEfficiency_FPix[20]; // Fpix inner module efficiency
 	double theOuterEfficiency_FPix[20]; // Fpix outer module efficiency
 	unsigned int FPixIndex;         // The Efficiency index for FPix Disks
+	// Read factors from DB and fill containers
+	std::map<uint32_t, double> PixelGeomFactors;
+	std::map<uint32_t, double> ColGeomFactors;
+	std::map<uint32_t, double> ChipGeomFactors;
+	std::map<uint32_t, size_t > iPU;
+
+	void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
+	bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);
+    
       };
 
       // Needed by dynamic inefficiency 
       // 0-3 BPix, 4-5 FPix (inner, outer)
-      double _pu_scale[20];
+      //double _pu_scale[20];
 
       // data specifiers
 
@@ -104,6 +121,10 @@ namespace edm
       edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > PixelDigiPToken_ ;  // Token to retrieve information 
 
       edm::ESHandle<TrackerGeometry> pDD;
+
+      // Get Dynamic Inefficiency scale factors from DB                                                                          
+      edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
+
 
       // 
       // Internal typedefs
@@ -132,13 +153,14 @@ namespace edm
       const int NumberOfBarrelLayers;     // Default = 3  
       const int NumberOfEndcapDisks;      // Default = 2  
 
-      const double theInstLumiScaleFactor;
-      const double bunchScaleAt25;
+      //const double theInstLumiScaleFactor;
+      //const double bunchScaleAt25;
 
       const bool AddPixelInefficiency;        // bool to read in inefficiencies    
 
-      const PixelEfficiencies pixelEff_;
+      PixelEfficiencies pixelEff_;
 
+      bool FirstCall_;
 
     };
 }//edm
