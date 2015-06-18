@@ -200,6 +200,7 @@ elif test == 'synch-74X': # sync
     elif what == "DYJets":
         comp = DYJetsToLL_M50_50ns
         comp.files = [ 'root://eoscms//eos/cms/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/04963444-D107-E511-B245-02163E00F339.root' ]
+        jetAna.mcGT = "MCRUN2_74_V9A"
         selectedComponents = [ comp ]
     elif what == "TTbar":
         comp = TTbar
@@ -216,7 +217,7 @@ elif test == 'synch-74X': # sync
     else:
         selectedComponents = RelVals741
     jetAna.recalibrateJets = True
-    jetAna.smearJets       = True
+    jetAna.smearJets       = False
     for comp in selectedComponents:
         comp.splitFactor = 1
         comp.fineSplitFactor = 10
