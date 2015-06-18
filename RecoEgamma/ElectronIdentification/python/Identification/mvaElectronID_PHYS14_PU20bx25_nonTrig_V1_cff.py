@@ -46,35 +46,33 @@ mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassNam
 mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Categories"
 
 # The working point for this MVA that is expected to have about 80% signal
-# efficiency on average separately for barrel and separately for endcap
-# (averaged over pt 5-inf range)
+# efficiency on in each category
 idName = "mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"
 MVA_WP80 = EleMVA_6Categories_WP(
     idName,
     mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.738, # EB1 low pt
-    cutCategory1 = 0.738, # EB2 low pt
-    cutCategory2 = 0.730, # EE low pt
-    cutCategory3 = 0.738, # EB1 
-    cutCategory4 = 0.738, # EB2
-    cutCategory5 = 0.730  # EE
+    cutCategory0 = -0.253, # EB1 low pt
+    cutCategory1 =  0.081, # EB2 low pt
+    cutCategory2 = -0.081, # EE low pt
+    cutCategory3 =  0.965, # EB1 
+    cutCategory4 =  0.917, # EB2
+    cutCategory5 =  0.683  # EE
     )
 
 # The working point for this MVA that is expected to have about 90% signal
-# efficiency on average separately for barrel and separately for endcap
-# (averaged over pt 5-inf range)
+# efficiency in each category
 idName = "mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"
 MVA_WP90 = EleMVA_6Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.479, # EB1 low pt
-    cutCategory1 = 0.479, # EB2 low pt
-    cutCategory2 = 0.479, # EE low pt 
-    cutCategory3 = 0.479, # EB1       
-    cutCategory4 = 0.479, # EB2       
-    cutCategory5 = 0.479  # EE        
+    cutCategory0 = -0.483, # EB1 low pt
+    cutCategory1 = -0.267, # EB2 low pt
+    cutCategory2 = -0.323, # EE low pt 
+    cutCategory3 =  0.933, # EB1       
+    cutCategory4 =  0.825, # EB2       
+    cutCategory5 =  0.337  # EE        
     )
 
 #
@@ -98,6 +96,6 @@ mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
 #
 
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.idName,
-                              '7fcecb0b036c94288f32e8da93125322')
+                              '8b587a6315d6808df7af9d3471d22a20')
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.idName,
-                              '29b397d5baae679fe747576a9a190c53')
+                              'a01428d36d3d0e6b1f89ab772aa606a1')
