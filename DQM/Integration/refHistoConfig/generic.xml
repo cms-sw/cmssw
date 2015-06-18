@@ -1,3 +1,0 @@
-<SubDetectors name="RPC" category="Run summary" source="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/PromptReco/110/835/DQM_V0001_R000110835__Cosmics__CRAFT09-PromptReco-v1__RECO.root">
-    <ReferenceEntity name=".*"/>
-  </SubDetectors>
