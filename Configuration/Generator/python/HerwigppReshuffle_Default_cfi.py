@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 herwigppReshuffleSettingsBlock = cms.PSet(
 
 	hwpp_reshuffle_Default = cms.vstring(
-		'set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption "Default"',
+		'set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption Default',
 	),
 )
 

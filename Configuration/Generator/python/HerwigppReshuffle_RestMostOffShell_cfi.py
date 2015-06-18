@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 herwigppReshuffleSettingsBlock = cms.PSet(
 
 	hwpp_reshuffle_RestMostOffShell = cms.vstring(
-		'set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption "RestMostOffShell"',
+		'set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption RestMostOffShell',
 	),
 )
 
