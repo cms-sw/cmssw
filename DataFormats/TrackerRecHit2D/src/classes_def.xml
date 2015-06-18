@@ -9,7 +9,8 @@
    <version ClassVersion="11" checksum="1613493049"/>
    <version ClassVersion="10" checksum="877294307"/>
   </class>
-  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="13">
+  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="14">
+   <version ClassVersion="14" checksum="1553184391"/>
    <version ClassVersion="13" checksum="2874379530"/>
    <version ClassVersion="12" checksum="312033037"/>
    <version ClassVersion="11" checksum="1553184391"/>

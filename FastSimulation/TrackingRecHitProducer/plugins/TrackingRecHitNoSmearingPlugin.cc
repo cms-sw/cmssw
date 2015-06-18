@@ -6,6 +6,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <string>
 #include <iostream>
 
