@@ -39,7 +39,6 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")            # On RAW+RECO
-#process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi")           # On RAW+RECO
 process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
 process.load("SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi")  # On RECO
 

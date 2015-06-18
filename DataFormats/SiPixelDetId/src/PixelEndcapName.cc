@@ -10,37 +10,53 @@ namespace {
   const bool pilot_blade = true;  
 }
 
+// Decodes the pixel name from the cmssw DetID, uses tracker topology
 PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bool phase)
-  : PixelModuleName(false), phase1(phase)
-{
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0), phase1(phase) {
+
 
   //PXFDetId cmssw_numbering(id);
   int side     = tt->pxfSide(id);
   int tmpBlade = tt->pxfBlade(id);
   theDisk      = tt->pxfDisk(id);
-  thePlaquette = tt->pxfModule(id);
-  bool outer = false;   // outer means with respect to the LHC ring (x - axis)
-
+  thePannel    = tt->pxfPanel(id);
+  bool outer = false;   // outer means with respect to the LHC ring (x - axis) Bm(p)I/O
 
   if(phase1) {  // phase 1
 
-    // this still has to be modified so blades start from 1 on the top
-    if (tmpBlade>=7 && tmpBlade<=17) {
+    int ring=0; // ring number , according to radius, 1-lower, 2- higher
+
+    if (tmpBlade>=7 && tmpBlade<=17) {  // ring 1, O
       outer = true;
       theBlade = tmpBlade-6;                      //7...17-->1...11
-    } else if (tmpBlade>=32 && tmpBlade<=48) {
-      outer = true;
-      theBlade = 60-tmpBlade;                     //32...48-->28...12
-    } else if( tmpBlade<=6 ) {
-      theBlade = 7-tmpBlade;                      //1...6-->6...1
-    } else if( tmpBlade>=18 && tmpBlade<=31 ) {
-      theBlade = 38-tmpBlade;                     //18...31-->20...7
-    } else if( tmpBlade>=49 && tmpBlade<=56 ) {
-      theBlade = 77-tmpBlade;                     //49...56-->28...21
-    } //  iasonas2-end
+      ring = 1;   // lower radius
 
-    thePannel = tt->pxfPanel(id); // this is the ring
-    //thePannel = tt->pxfRing(id); // this is the ring
+    } else if( tmpBlade<=6 ) {  // ring 1, I
+      theBlade = 7-tmpBlade;                      //1...6-->6...1
+      ring=1;
+
+    } else if( tmpBlade>=18 && tmpBlade<=22 ) {  // ring 1, I
+      theBlade = 29-tmpBlade;                     //18...22-->11...7
+      ring=1;
+
+    } else if (tmpBlade>=32 && tmpBlade<=48) {  // ring 2, O
+      outer = true;
+      theBlade = tmpBlade-31;                     //32...48-->28...12
+      ring=2;  // higher radius
+
+    } else if( tmpBlade>=23 && tmpBlade<=31 ) { // ring 2, I
+      theBlade = 32-tmpBlade;                     //23...31-->9...1
+      ring=2;
+
+    } else if( tmpBlade>=49 && tmpBlade<=56 ) { // ring 2, I
+      theBlade = 66-tmpBlade;                     //49...56-->28...21
+      ring=2;
+
+    } //  end
+
+    thePlaquette = ring;
+
 
   } else { // phase0
 
@@ -66,7 +82,7 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bo
       theBlade = 31-tmpBlade; 
     } 
 
-    thePannel    = tt->pxfPanel(id);
+    thePlaquette = tt->pxfModule(id);  // ring number is coded as plaqutte (plaqs are unused)
     
   } // end phase1
 
@@ -77,33 +93,51 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bo
 
 }
 
+// Decodes the pixel name from the cmssw DetID, uses old pixel name classes
 PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
-  : PixelModuleName(false), phase1(phase)
-{
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0), phase1(phase) {
+
   PXFDetId cmssw_numbering(id);
   int side = cmssw_numbering.side();
   int tmpBlade = cmssw_numbering.blade();
-  thePlaquette = cmssw_numbering.module();
   theDisk = cmssw_numbering.disk();
+  thePannel = cmssw_numbering.panel();  
   bool outer = false;   // outer means with respect to the LHC ring (x - axis)
 
   if(phase1) { // phase1
-    // this still has to be modified so blades start from 1 on the top
-    if (tmpBlade>=7 && tmpBlade<=17) {
-      outer = true;   // outer means with respect to the LHC ring (x - axis)
-      theBlade = tmpBlade-6;                      //7...17-->1...11
-    } else if (tmpBlade>=32 && tmpBlade<=48) {
+
+    int ring=0; // ring number , according to radius, 1-lower, 2- higher
+
+    if (tmpBlade>=7 && tmpBlade<=17) {  // ring 1, O
       outer = true;
-      theBlade = 60-tmpBlade;                     //32...48-->28...12
-    } else if( tmpBlade<=6 ) {
+      theBlade = tmpBlade-6;                      //7...17-->1...11
+      ring = 1;   // lower radius
+
+    } else if( tmpBlade<=6 ) {  // ring 1, I
       theBlade = 7-tmpBlade;                      //1...6-->6...1
-    } else if( tmpBlade>=18 && tmpBlade<=31 ) {
-      theBlade = 38-tmpBlade;                     //18...31-->20...7
-    } else if( tmpBlade>=49 && tmpBlade<=56 ) {
-      theBlade = 77-tmpBlade;                     //49...56-->28...21
-    } //  iasonas2-end
-    
-    thePannel = cmssw_numbering.panel();  // this is really the ring
+      ring=1;
+
+    } else if( tmpBlade>=18 && tmpBlade<=22 ) {  // ring 1, I
+      theBlade = 29-tmpBlade;                     //18...22-->11...7
+      ring=1;
+
+    } else if (tmpBlade>=32 && tmpBlade<=48) {  // ring 2, O
+      outer = true;
+      theBlade = tmpBlade-31;                     //32...48-->28...12
+      ring=2;  // higher radius
+
+    } else if( tmpBlade>=23 && tmpBlade<=31 ) { // ring 2, I
+      theBlade = 32-tmpBlade;                     //23...31-->9...1
+      ring=2;
+
+    } else if( tmpBlade>=49 && tmpBlade<=56 ) { // ring 2, I
+      theBlade = 66-tmpBlade;                     //49...56-->28...21
+      ring=2;
+
+    } //  end
+
+    thePlaquette = ring;
 
   } else { // phase 0
 
@@ -128,7 +162,7 @@ PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
       theBlade = 31-tmpBlade; 
     }
 
-    thePannel = cmssw_numbering.panel();
+    thePlaquette = cmssw_numbering.module();
  
   } // end phase1
 
@@ -140,9 +174,9 @@ PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
 }
 
 // constructor from name string
-PixelEndcapName::PixelEndcapName(std::string name)
+PixelEndcapName::PixelEndcapName(std::string name, bool phase)
   : PixelModuleName(false), thePart(mO), theDisk(0), 
-    theBlade(0), thePannel(0), thePlaquette(0) {
+    theBlade(0), thePannel(0), thePlaquette(0), phase1(phase) {
 
   // parse the name string
   // first, check to make sure this is an FPix name, should start with "FPix_"
@@ -213,11 +247,25 @@ PixelEndcapName::PixelEndcapName(std::string name)
       << name;
   }
 
+  // find the panel
+  string panelString;
+  if(phase1) panelString = name.substr(name.find("_PNL")+4, name.find("_RNG")-name.find("_PNL")-4);
+  else       panelString = name.substr(name.find("_PNL")+4, name.find("_PLQ")-name.find("_PNL")-4);
 
+  if      (panelString == "1") thePannel = 1;
+  else if (panelString == "2") thePannel = 2;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine panel number in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
+
+  // find the plaquette, for phase 1 this is the rung number
   if(phase1) { // phase1
+
     string ringString = name.substr(name.find("_RNG")+4, name.size()-name.find("_RNG")-4);
-    if (ringString == "1")      thePannel = 1; // code ring in the pannel
-    else if (ringString == "2") thePannel = 2;
+    if (ringString == "1")      thePlaquette = 1; // code ring in the plaquette
+    else if (ringString == "2") thePlaquette = 2;
     else {
       edm::LogError ("BadNameString|SiPixel") 
 	<< "Unable to determine ring number in PixelEndcapName::PixelEndcapName(std::string): "
@@ -226,28 +274,19 @@ PixelEndcapName::PixelEndcapName(std::string name)
 
   } else { // phase 0
 
-    // find the panel
-    string panelString = name.substr(name.find("_PNL")+4, name.find("_PLQ")-name.find("_PNL")-4);
-    if (panelString == "1") thePannel = 1;
-    else if (panelString == "2") thePannel = 2;
+    // find the plaquette
+    string plaquetteString = name.substr(name.find("_PLQ")+4, name.size()-name.find("_PLQ")-4);
+    if (plaquetteString == "1") thePlaquette = 1;
+    else if (plaquetteString == "2") thePlaquette = 2;
+    else if (plaquetteString == "3") thePlaquette = 3;
+    else if (plaquetteString == "4") thePlaquette = 4;
     else {
       edm::LogError ("BadNameString|SiPixel") 
-	<< "Unable to determine panel number in PixelEndcapName::PixelEndcapName(std::string): "
+	<< "Unable to determine plaquette number in PixelEndcapName::PixelEndcapName(std::string): "
 	<< name;
     }
+    
   } // end phase1
-
-  // find the plaquette
-  string plaquetteString = name.substr(name.find("_PLQ")+4, name.size()-name.find("_PLQ")-4);
-  if (plaquetteString == "1") thePlaquette = 1;
-  else if (plaquetteString == "2") thePlaquette = 2;
-  else if (plaquetteString == "3") thePlaquette = 3;
-  else if (plaquetteString == "4") thePlaquette = 4;
-  else {
-    edm::LogError ("BadNameString|SiPixel") 
-      << "Unable to determine plaquette number in PixelEndcapName::PixelEndcapName(std::string): "
-      << name;
-  }
 
 
 } // PixelEndcapName::PixelEndcapName(std::string name)
@@ -299,7 +338,11 @@ string PixelEndcapName::name() const
 {
   std::ostringstream stm;
 
-  stm <<"FPix_B"<<thePart<<"_D"<<theDisk<<"_BLD"<<theBlade<<"_PNL"<<thePannel<<"_PLQ"<<thePlaquette;
+  if(phase1) 
+    stm <<"FPix_B"<<thePart<<"_D"<<theDisk<<"_BLD"<<theBlade<<"_PNL"<<thePannel<<"_RNG"<<thePlaquette;
+  else 
+    stm <<"FPix_B"<<thePart<<"_D"<<theDisk<<"_BLD"<<theBlade<<"_PNL"<<thePannel<<"_PLQ"<<thePlaquette;
+
   return stm.str();
 }
 
@@ -340,17 +383,24 @@ DetId PixelEndcapName::getDetId(const TrackerTopology* tt) {
 
   if(phase1) { // phase1
 
-    // this still has to be modified so blades start from 1 on the top
-    if (outer) {
-      if          (tmpBlade>=7 && tmpBlade<=17)    theBlade = tmpBlade+6;
-      else if     (tmpBlade>=32 && tmpBlade<=48)   theBlade = 60-tmpBlade;
-    } else { //inner
-      if          (tmpBlade<=6 )                   theBlade = 7-tmpBlade;
-      else if     (tmpBlade>=18 && tmpBlade<=31)   theBlade = 38-tmpBlade;
-      else if     (tmpBlade>=49 && tmpBlade<=56)   theBlade = 77-tmpBlade;
-    }
+    module=1;
+    int ring  = static_cast<uint32_t>(ringName()); // this is ring for phase1
+    if(ring==1) { // ring 1, lower radius 
+      if (outer) {
+	if          (tmpBlade>=1 && tmpBlade<=11)    blade = tmpBlade+6;
+      } else { //inner
+	if          (tmpBlade<=6 )                   blade = 7-tmpBlade;
+	else                                         blade = 29-tmpBlade;
+      }
 
-    module = static_cast<uint32_t>(ringName());
+    } else if (ring==2) { //ring 2, upper radius 
+      if (outer) {
+	if          (tmpBlade>=1 && tmpBlade<=17)    blade = tmpBlade+31;
+      } else { //inner
+	if          (tmpBlade<=9 )                   blade = 32-tmpBlade;
+	else                                         blade = 66-tmpBlade;
+      }
+    }
   
   } else { // phase 0
  
@@ -406,19 +456,27 @@ PXFDetId PixelEndcapName::getDetId() {
 
   if(phase1) { // phase1
 
-    // this still has to be modified so blades start from 1 on the top
-    if (outer) {
-      if          (tmpBlade>=7 && tmpBlade<=17)    theBlade = tmpBlade+6;
-      else if     (tmpBlade>=32 && tmpBlade<=48)   theBlade = 60-tmpBlade;
-    } else { //inner
-      if          (tmpBlade<=6 )                   theBlade = 7-tmpBlade;
-      else if     (tmpBlade>=18 && tmpBlade<=31)   theBlade = 38-tmpBlade;
-      else if     (tmpBlade>=49 && tmpBlade<=56)   theBlade = 77-tmpBlade;
-    }
+    module = 1;  // for phase 1 always 1, 
+    int ring = static_cast<uint32_t>(ringName()); // this is ring for phase1
+    if(ring==1) { // ring 1, lower radius 
+      if (outer) {
+	if          (tmpBlade>=1 && tmpBlade<=11)    blade = tmpBlade+6;
+      } else { //inner
+	if          (tmpBlade<=6 )                   blade = 7-tmpBlade;
+	else                                         blade = 29-tmpBlade;
+      }
 
-    module = static_cast<uint32_t>(ringName());
+    } else if (ring==2) { //ring 2, upper radius 
+      if (outer) {
+	if          (tmpBlade>=1 && tmpBlade<=17)    blade = tmpBlade+31;
+      } else { //inner
+	if          (tmpBlade<=9 )                   blade = 32-tmpBlade;
+	else                                         blade = 66-tmpBlade;
+      }
+    }
   
   } else { // phase 0
+
     if (outer) {
       blade = tmpBlade + 6;
     } else { // inner

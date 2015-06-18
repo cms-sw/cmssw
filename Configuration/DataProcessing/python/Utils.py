@@ -121,5 +121,6 @@ def dqmSeq(args,default):
             
 def gtNameAndConnect(globalTag, args):
     if args.has_key('globalTagConnect') and args['globalTagConnect'] != '':
-        return globalTag + ','+args['globalTagConnect']
-    return globalTag
+        return globalTag + ','+args['globalTagConnect']        
+    # we override here the default in the release which uses the FrontierProd servlet not suited for Tier0 activity
+    return globalTag +',frontier://PromptProd/CMS_CONDITIONS'

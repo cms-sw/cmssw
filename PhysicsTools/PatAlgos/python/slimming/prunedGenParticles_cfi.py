@@ -7,8 +7,8 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "++keep abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15", # keep leptons, with history
         "keep abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16",   # keep neutrinos
         "drop   status == 2",                                              # drop the shower part of the history
-        "+keep pdgId == 22 && status == 1 && pt > 10",                     # keep gamma above 10 GeV and its first parent
-        "+keep pdgId == 11 && status == 1 && pt > 3",                     # keep first parent of electrons above 10 GeV
+        "+keep pdgId == 22 && status == 1 && (pt > 10 || isPromptFinalState())", # keep gamma above 10 GeV (or all prompt) and its first parent
+        "+keep abs(pdgId) == 11 && status == 1 && (pt > 3 || isPromptFinalState())", # keep first parent of electrons above 3 GeV (or prompt)
         "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
 	"drop  status > 30 && status < 70 ", 				   #remove pythia8 garbage
 	"drop  pdgId == 21 && pt < 5",                                    #remove pythia8 garbage
@@ -30,6 +30,6 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 # keep protons 
         "keep pdgId = 2212",
         "keep status == 3 || ( 21 <= status <= 29) || ( 11 <= status <= 19)",  #keep event summary (status=3 for pythia6, 21 <= status <= 29 for pythia8)
-
+        "keep isHardProcess() || fromHardProcessFinalState() || fromHardProcessDecayed() || fromHardProcessBeforeFSR() || (statusFlags().fromHardProcess() && statusFlags().isLastCopy())",  #keep event summary based on status flags
     )
 )

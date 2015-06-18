@@ -2,11 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MYGAMMAJET")
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['startup']
+process.GlobalTag.globaltag=autoCond['run2_data']
+
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(1000)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -19,8 +22,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = 
 cms.untracked.vstring(
-#   'file:/tmp/andriusj/6EC8FCC8-E2A8-E411-9506-002590596468.root'
-        '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
+   'file:/tmp/andriusj/6EC8FCC8-E2A8-E411-9506-002590596468.root'
+#        '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
  )
 )
 

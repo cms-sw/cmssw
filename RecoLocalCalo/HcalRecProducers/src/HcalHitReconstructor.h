@@ -52,9 +52,9 @@ class HcalTopology;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     private:      
       typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
-      typedef void (HBHENegativeFlagSetter::*SetCorrectionFcnForNegative)(boost::shared_ptr<AbsOOTPileupCorrection>);
 
       HcalSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
@@ -106,7 +106,6 @@ class HcalTopology;
       std::string mcOOTCorrectionName_;
       std::string mcOOTCorrectionCategory_;
       SetCorrectionFcn setPileupCorrection_;
-      SetCorrectionFcnForNegative setPileupCorrectionForNegative_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       std::unique_ptr<HcalFlagHFDigiTimeParams> HFDigiTimeParams; // HF DigiTime parameters

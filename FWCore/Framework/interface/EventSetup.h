@@ -70,7 +70,7 @@ class EventSetup
         BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
         const T* value = nullptr;
         eventSetupTryToGetImplementation(*this, value);
-        return *value;
+        return value;
       }
 
       /** can directly access data if data_default_record_trait<> is defined for this data type **/

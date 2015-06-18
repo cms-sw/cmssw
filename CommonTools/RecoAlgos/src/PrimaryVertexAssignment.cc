@@ -9,7 +9,8 @@
 
 std::pair<int,PrimaryVertexAssignment::Quality>
 PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vertices,
-                                   const reco::TrackRef& track,
+                                   const reco::TrackRef& trackRef,
+                                   const reco::Track* track,
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
 
@@ -19,7 +20,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   typedef reco::Vertex::trackRef_iterator IT;
   float bestweight=0;
   for( auto const & vtx : vertices) {
-      float w = vtx.trackWeight(track);
+      float w = vtx.trackWeight(trackRef);
       if (w > bestweight){
           bestweight=w;
           iVertex=index;
@@ -92,7 +93,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
 
   // if the track is not compatible with other PVs but is compatible with the BeamSpot, we may simply have not reco'ed the PV!
   //  we still point it to the closest in Z, but flag it as possible orphan-primary
-  if(track->dxy(vertices[0].position())<maxDxyForNotReconstructedPrimary_ && track->dxy(vertices[0].position())/track->dxyError()<maxDxySigForNotReconstructedPrimary_)
+  if(std::abs(track->dxy(vertices[0].position()))<maxDxyForNotReconstructedPrimary_ && std::abs(track->dxy(vertices[0].position())/track->dxyError())<maxDxySigForNotReconstructedPrimary_)
      return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::NotReconstructedPrimary);
  
   //FIXME: here we could better handle V0s and NucInt
@@ -100,7 +101,6 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   // all other tracks could be non-B secondaries and we just attach them with closest Z
   if(vtxIdMinDz>=0)
      return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::OtherDz);
-
   //If for some reason even the dz failed (when?) we consider the track not assigned
   return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
 }

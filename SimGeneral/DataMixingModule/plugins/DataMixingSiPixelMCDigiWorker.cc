@@ -368,7 +368,7 @@ namespace edm
     CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     // set pileup information.

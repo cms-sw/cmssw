@@ -101,7 +101,7 @@ class VersionedSelector : public Selector<T> {
   }
   
 #ifndef __ROOTCLING__
-  using typename Selector<T>::operator();
+  using Selector<T>::operator();
 #endif
   
   const unsigned char* md55Raw() const { return id_md5_; } 

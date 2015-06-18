@@ -162,6 +162,25 @@ exit 0
 
    return script
 
+def batchScriptIC(jobDir):
+   '''prepare a IC version of the batch script'''
+
+
+   cmssw_release = os.environ['CMSSW_BASE']
+   script = """#!/bin/bash
+export X509_USER_PROXY=/home/hep/$USER/myproxy
+source /vols/cms/grid/setup.sh
+cd {jobdir}
+cd {cmssw}/src
+eval `scramv1 ru -sh`
+cd -
+echo 'running'
+python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+echo
+echo 'sending the job directory back'
+mv Loop/* ./
+""".format(jobdir = jobDir,cmssw = cmssw_release)
+   return script
 
 def batchScriptLocal(  remoteDir, index ):
    '''prepare a local version of the batch script, to run using nohup'''
@@ -173,7 +192,6 @@ echo 'sending the job directory back'
 mv Loop/* ./
 """ 
    return script
-
 
 
 class MyBatchManager( BatchManager ):
@@ -197,6 +215,8 @@ class MyBatchManager( BatchManager ):
            scriptFile.write( batchScriptLocal( storeDir, value) )  # watch out arguments are swapped (although not used)
        elif mode == 'PISA' :
 	   scriptFile.write( batchScriptPISA( storeDir, value) ) 	
+       elif mode == 'IC':
+           scriptFile.write( batchScriptIC(jobDir) )
        scriptFile.close()
        os.system('chmod +x %s' % scriptFileName)
        

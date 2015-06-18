@@ -36,6 +36,9 @@ CentralityDQM::CentralityDQM(const edm::ParameterSet& ps) {
   vertexTag_ = ps.getParameter<InputTag>("vertexcollection");
   vertexToken = consumes<std::vector<reco::Vertex> >(vertexTag_);
 
+  eventplaneTag_ = ps.getParameter<InputTag>("eventplanecollection");
+  eventplaneToken = consumes<reco::EvtPlaneCollection>(eventplaneTag_);
+
   // just to initialize
 }
 
@@ -91,6 +94,16 @@ void CentralityDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   h_vertex_x = bei.book1D("h_vertex_x", "h_vertex_x", 400, -4, 4);
   h_vertex_y = bei.book1D("h_vertex_y", "h_vertex_y", 400, -4, 4);
   h_vertex_z = bei.book1D("h_vertex_z", "h_vertex_z", 400, -40, 40);
+
+  Double_t psirange = 4;
+  bei.setCurrentFolder("Physics/Centrality/EventPlane/");
+  h_ep_HFm2 = bei.book1D("h_ep_HFm2", "h_ep_HFm2", 800,-psirange,psirange);
+  h_ep_HFp2 = bei.book1D("h_ep_HFp2", "h_ep_HFp2", 800,-psirange,psirange);
+  h_ep_trackmid2 = bei.book1D("h_ep_trackmid2", "h_ep_trackmid2", 800,-psirange,psirange);
+  h_ep_trackm2 = bei.book1D("h_ep_trackm2", "h_ep_trackm2", 800,-psirange,psirange);
+  h_ep_trackp2 = bei.book1D("h_ep_trackp2", "h_ep_trackp2", 800,-psirange,psirange);
+  h_ep_castor2 = bei.book1D("h_ep_castor2", "h_ep_castor2", 800,-psirange,psirange);
+
 }
 
 //
@@ -104,6 +117,8 @@ void CentralityDQM::analyze(const edm::Event& iEvent,
   iEvent.getByToken(centralityToken, cent);  //_centralitytag comes from the cfg
   // as an inputTag and is
   //"hiCentrality"
+  edm::Handle<reco::EvtPlaneCollection> ep;
+  iEvent.getByToken(eventplaneToken, ep);
 
   if (!cent.isValid()) return;
 
@@ -140,4 +155,13 @@ void CentralityDQM::analyze(const edm::Event& iEvent,
   h_vertex_x->Fill(vertex->begin()->x());
   h_vertex_y->Fill(vertex->begin()->y());
   h_vertex_z->Fill(vertex->begin()->z());
+
+  EvtPlaneCollection::const_iterator rp = ep->begin();
+  h_ep_HFm2->Fill((rp)->angle());
+  h_ep_HFp2->Fill((rp+1)->angle());
+  h_ep_trackmid2->Fill((rp+3)->angle());
+  h_ep_trackm2->Fill((rp+4)->angle());
+  h_ep_trackp2->Fill((rp+5)->angle());
+  h_ep_castor2->Fill((rp+25)->angle());
+
 }

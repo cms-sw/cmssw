@@ -24,7 +24,7 @@ DQMSEQUENCE=HARVESTING:validationHarvesting+dqmHarvesting
 #fi
 
 #python /afs/cern.ch/user/r/rovere/public/checkMem.py cmsDriver.py step3_MC1_4 -s ${DQMSEQUENCE} --harvesting AtRunEnd --conditions auto:mc --filetype DQM --filein file:step2_MC1_4_RAW2DIGI_RECO_VALIDATION_DQM_inDQM.root --mc --customise DQMServices/Components/test/customHarvesting.py >& q3.4.log && mv DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_4.root
-cmsDriver.py step3_MC1_4 -s ${DQMSEQUENCE} --harvesting AtRunEnd --conditions auto:mc --filetype DQM --filein file:step2_MC1_4_RAW2DIGI_L1Reco_RECO_VALIDATION_DQM_inDQM.root --mc --customise DQMServices/Components/test/customHarvesting.py --python_filename=test_${tnum}_b_1.py  --no_exec
+cmsDriver.py step3_MC1_4 -s ${DQMSEQUENCE} --harvesting AtRunEnd --conditions auto:run1_mc --filetype DQM --filein file:step2_MC1_4_RAW2DIGI_L1Reco_RECO_VALIDATION_DQM_inDQM.root --mc --customise DQMServices/Components/test/customHarvesting.py --python_filename=test_${tnum}_b_1.py  --no_exec
 
 cmsRun -e test_${tnum}_b_1.py >& q3.4.log
 

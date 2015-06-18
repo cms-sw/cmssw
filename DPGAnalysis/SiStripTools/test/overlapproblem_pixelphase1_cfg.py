@@ -35,7 +35,7 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 
 process.load("DPGAnalysis.SiStripTools.tkAlTrackRefitSequence_cff")
@@ -43,8 +43,6 @@ process.refittedTracks.src = cms.InputTag("generalTracks")
 process.refittedTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
-process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(18)  # check if they induce a difference
-process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(1023)  # check if they induce a difference
 
 #process.KFFittingSmootherWithOutliersRejectionAndRK.LogPixelProbabilityCut = cms.double(-16.0)
 
@@ -88,6 +86,7 @@ process.load("DPGAnalysis.SiStripTools.overlapproblemtpanalyzer_cfi")
 
 
 process.p0 = cms.Path( process.seqTrackRefitting
+                       + process.trackAssociatorByHits
                        + process.overlapproblemtsosanalyzer # + process.overlapproblemtsoshitfiltered + process.overlapproblemtsosats
                        + process.overlapproblemtsosall # + process.overlapproblemtsoshitfilteredall + process.overlapproblemtsosatsall 
                        + process.overlapproblemtpanalyzer

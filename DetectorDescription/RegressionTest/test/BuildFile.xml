@@ -1,4 +1,3 @@
-
 <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDErrorReport">
   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh" />
   <use   name="FWCore/Utilities" />
@@ -91,3 +90,7 @@
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/MessageLogger"/>
 </bin>
+
+<library file="tutorial.cc"  name="DetectorDescriptionTutorial">
+  <use name="DetectorDescription/RegressionTest"/>
+</library>

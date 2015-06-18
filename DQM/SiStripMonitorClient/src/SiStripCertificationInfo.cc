@@ -14,7 +14,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -30,7 +30,8 @@
 //
 // -- Contructor
 //
-SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) {
+SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) :
+  m_cacheID_(0) {
   // Create MessageSender
   edm::LogInfo( "SiStripCertificationInfo") << "SiStripCertificationInfo::Deleting SiStripCertificationInfo ";
   // get back-end interface
@@ -201,7 +202,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   resetSiStripCertificationMEs();

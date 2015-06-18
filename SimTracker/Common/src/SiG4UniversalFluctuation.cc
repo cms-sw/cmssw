@@ -230,8 +230,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
         siga=sqrt(a1) ;
         p1 = max(0., CLHEP::RandGaussQ::shoot(engine, a1, siga) + 0.5);
       } else {
-        CLHEP::RandPoissonQ randPoissonQ(*engine, a1);
-        p1 = double(randPoissonQ.fire());
+	p1 = double(CLHEP::RandPoissonQ::shoot(engine,a1));
       }
     
       // excitation type 2
@@ -239,8 +238,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
         siga=sqrt(a2) ;
         p2 = max(0., CLHEP::RandGaussQ::shoot(engine, a2, siga) + 0.5);
       } else {
-        CLHEP::RandPoissonQ randPoissonQ(*engine, a2);
-        p2 = double(randPoissonQ.fire());
+	p2 = double(CLHEP::RandPoissonQ::shoot(engine,a2));
       }
     
       loss = p1*e1Fluct+p2*e2Fluct;
@@ -259,8 +257,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
         siga=sqrt(a3) ;
         p3 = max(0., CLHEP::RandGaussQ::shoot(engine, a3, siga) + 0.5);
       } else {
-        CLHEP::RandPoissonQ randPoissonQ(*engine, a3);
-        p3 = double(randPoissonQ.fire());
+	p3 = double(CLHEP::RandPoissonQ::shoot(engine,a3));
       }
       double lossc = 0.;
       if (p3 > 0) {
@@ -302,8 +299,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
     siga=sqrt(a3);
     p3 = max(0., CLHEP::RandGaussQ::shoot(engine, a3, siga) + 0.5);
   } else {
-    CLHEP::RandPoissonQ randPoissonQ(*engine, a3);
-    p3 = double(randPoissonQ.fire());
+    p3 = double(CLHEP::RandPoissonQ::shoot(engine,a3));
   }
   if (p3 > 0.) {
     double w = (tmax-e0)/tmax;

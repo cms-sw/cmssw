@@ -13,15 +13,19 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( Fake GRun HIon PIon 50nsGRun )
+#  set tables = ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+  set tables = ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 Fake )
 else if ( ($2 == dev) || ($2 == DEV) ) then
-  set tables = ( GRun HIon PIon 50nsGRun )
+  set tables = ( GRun 50nsGRun HIon PIon LowPU )
+else if ( ($2 == lowpu) || ($2 == LOWPU) || ($2 == LowPU) ) then
+  set tables = ( LowPU )
 else if ( ($2 == full) || ($2 == FULL) ) then
   set tables = ( FULL )
 else if ( ($2 == fake) || ($2 == FAKE) ) then
   set tables = ( Fake )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
-  set tables = ( Fake )
+#  set tables = ( 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+  set tables = ( 25ns14e33_v1 50ns_5e33_v1 Fake )
 else
   set tables = ( $2 )
 endif
@@ -31,8 +35,10 @@ foreach gtag ( $1 )
   foreach table ( $tables )
 
     if ($gtag == DATA) then
+      set realData = True
       set base = RelVal_${rawLHC}
     else
+      set realData = False
       set base = RelVal_${rawSIM}
     endif
 
@@ -41,9 +47,7 @@ foreach gtag ( $1 )
     set base = ( $base OnLine_HLT RelVal_HLT RelVal_HLT2 )
 
     if ( $gtag == MC ) then
-      if ( ( $table != HIon ) && ( $table != PIon) ) then
-        set base = ( $base FastSim_GenToHLT )
-      endif
+      set base = ( $base FastSim_GenToHLT )
     endif
 
     foreach task ( $base )
@@ -51,10 +55,19 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      echo "`date +%T` cmsRun $name.py >& $name.log"
-#     ls -l        $name.py
-      time  cmsRun $name.py >& $name.log
-      echo "`date +%T` exit status: $?"
+
+      if ( $task == OnLine_HLT ) then
+        set short = ${task}_${table}
+        echo "`date +%T` cmsRun $short.py realData=${realData} globalTag="@" inputFiles="@" >& $name.log"
+#       ls -l        $short.py
+        time  cmsRun $short.py realData=${realData} globalTag="@" inputFiles="@" >& $name.log
+        echo "`date +%T` exit status: $?"
+      else
+        echo "`date +%T` cmsRun $name.py >& $name.log"
+#       ls -l        $name.py
+        time  cmsRun $name.py >& $name.log
+        echo "`date +%T` exit status: $?"
+      endif
 
       if ( ( $task == RelVal_${rawLHC} ) || ( $task == RelVal_${rawSIM} ) ) then
 #       link to input file for subsequent steps
@@ -67,22 +80,6 @@ foreach gtag ( $1 )
   end
 
 end
-
-# special fastsim integration test
-
-if ( $1 == MC ) then
-  foreach task ( IntegrationTestWithHLT_cfg )
-
-    echo
-    set name = ${task}
-    rm -f $name.{log,root}
-    echo "`date +%T` cmsRun $name.py >& $name.log"
-#   ls -l        $name.py
-    time  cmsRun $name.py >& $name.log
-    echo "`date +%T` exit status: $?"
-
-  end
-endif
 
 # separate hlt+reco and reco+(validation)+dqm workflows
 
@@ -114,7 +111,7 @@ end
 
 # running each HLT trigger path individually one by one
 
-if ( ($2 != all) && ($2 != dev) && ($2 != frozen) && ($2 != full) ) then
+if ( ($2 != all) && ($2 != dev) && ($2 != full) && ($2 != fake) && ($2 != frozen) ) then
   ./runIntegration.csh $1 $2
 endif
 

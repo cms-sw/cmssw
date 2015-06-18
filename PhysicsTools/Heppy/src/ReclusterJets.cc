@@ -1,5 +1,6 @@
 #include "PhysicsTools/Heppy/interface/ReclusterJets.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "fastjet/tools/Pruner.hh"
 
 using namespace std;
 
@@ -68,4 +69,33 @@ std::vector<math::XYZTLorentzVector> ReclusterJets::getGroupingExclusive(int nje
   // return
   return makeP4s(exclusiveJets_);
 }
+
+math::XYZTLorentzVector ReclusterJets::getPruned(double zcut, double rcutFactor) {
+ // cluster everything first
+ exclusiveJets_ = fastjet::sorted_by_pt(fjClusterSeq_->exclusive_jets(1));
+ // get pruned exclusive
+ return getPrunedSubjetExclusive(0, zcut, rcutFactor);
+}
+
+math::XYZTLorentzVector ReclusterJets::getPrunedSubjetExclusive(unsigned int isubjet, double zcut, double rcutFactor) {
+ if (isubjet >= exclusiveJets_.size()) {
+ throw cms::Exception("InvalidArgument", "getPrunedSubjetExclusive called for non-existing exclusive subjet");
+ }
+ return getPruned(exclusiveJets_[isubjet], zcut, rcutFactor);
+}
+math::XYZTLorentzVector ReclusterJets::getPrunedSubjetInclusive(unsigned int isubjet, double zcut, double rcutFactor) {
+ if (isubjet >= inclusiveJets_.size()) {
+ throw cms::Exception("InvalidArgument", "getPrunedSubjetInclusive called for non-existing inclusive subjet");
+ }
+ return getPruned(inclusiveJets_[isubjet], zcut, rcutFactor);
+}
+
+math::XYZTLorentzVector ReclusterJets::getPruned(const fastjet::PseudoJet & jet, double zcut, double rcutFactor) {
+ // create pruner
+ fastjet::Pruner pruner(fastjet::cambridge_algorithm, zcut, rcutFactor);
+ // Prune the jet
+ fastjet::PseudoJet pruned_jet = pruner(jet);
+ return LorentzVector( pruned_jet.px(), pruned_jet.py(), pruned_jet.pz(), pruned_jet.e() );
+}
+
 }

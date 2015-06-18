@@ -96,9 +96,9 @@
   TCanvas c4("c4", "Calo vs Gen");
   Styles::FormatPad( &c4, false );
   gStyle->SetPalette(1);
-  TDirectory* dir = comp.dir1();
+  dir = comp.dir1();
   dir->cd();
-  TH2F *h2 = (TH2F*) dir->Get("RecEt_VS_TrueEt_");
+  h2 = (TH2F*) dir->Get("RecEt_VS_TrueEt_");
   h2->Draw("colz");
   Styles::SavePlot("Calo_vs_Gen", outdir.c_str() );
 

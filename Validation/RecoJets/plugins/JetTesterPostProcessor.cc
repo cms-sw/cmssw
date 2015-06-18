@@ -51,6 +51,9 @@ JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     std::string rundir_reco=RunDir+inputJetLabelRECO_.label();
     std::string rundir_miniaod=RunDir+inputJetLabelMiniAOD_.label();
 
+    MonitorElement* mGenPt_Reco=iget_.get(rundir_reco+"/"+"GenPt");
+    MonitorElement* mGenPhi_Reco=iget_.get(rundir_reco+"/"+"GenPhi");
+    MonitorElement* mGenEta_Reco=iget_.get(rundir_reco+"/"+"GenEta");
     MonitorElement* mPt_Reco=iget_.get(rundir_reco+"/"+"Pt");
     MonitorElement* mPhi_Reco=iget_.get(rundir_reco+"/"+"Phi");
     MonitorElement* mEta_Reco=iget_.get(rundir_reco+"/"+"Eta");
@@ -89,6 +92,9 @@ JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     MonitorElement* mchargedHadronEnergyFraction_Reco=iget_.get(rundir_reco+"/"+"chargedHadronEnergyFraction");
 
     std::vector<MonitorElement*>ME_Reco;
+    ME_Reco.push_back(mGenPt_Reco);
+    ME_Reco.push_back(mGenPhi_Reco);
+    ME_Reco.push_back(mGenEta_Reco);
     ME_Reco.push_back(mPt_Reco);
     ME_Reco.push_back(mPhi_Reco);
     ME_Reco.push_back(mEta_Reco);
@@ -112,6 +118,9 @@ JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     ME_Reco.push_back(mneutralHadronEnergyFraction_Reco);
     ME_Reco.push_back(mchargedHadronEnergyFraction_Reco);
 
+    MonitorElement* mGenPt_MiniAOD=iget_.get(rundir_miniaod+"/"+"GenPt");
+    MonitorElement* mGenPhi_MiniAOD=iget_.get(rundir_miniaod+"/"+"GenPhi");
+    MonitorElement* mGenEta_MiniAOD=iget_.get(rundir_miniaod+"/"+"GenEta");
     MonitorElement* mPt_MiniAOD=iget_.get(rundir_miniaod+"/"+"Pt");
     MonitorElement* mPhi_MiniAOD=iget_.get(rundir_miniaod+"/"+"Phi");
     MonitorElement* mEta_MiniAOD=iget_.get(rundir_miniaod+"/"+"Eta");
@@ -136,6 +145,9 @@ JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     MonitorElement* mchargedHadronEnergyFraction_MiniAOD=iget_.get(rundir_miniaod+"/"+"chargedHadronEnergyFraction");
 
     std::vector<MonitorElement*>ME_MiniAOD;
+    ME_MiniAOD.push_back(mGenPt_MiniAOD);
+    ME_MiniAOD.push_back(mGenPhi_MiniAOD);
+    ME_MiniAOD.push_back(mGenEta_MiniAOD);
     ME_MiniAOD.push_back(mPt_MiniAOD);
     ME_MiniAOD.push_back(mPhi_MiniAOD);
     ME_MiniAOD.push_back(mEta_MiniAOD);
@@ -160,6 +172,9 @@ JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     ME_MiniAOD.push_back(mchargedHadronEnergyFraction_MiniAOD);
 
     ibook_.setCurrentFolder(RunDir+"MiniAOD_over_RECO");
+    mGenPt_MiniAOD_over_Reco=ibook_.book1D("GenPt_MiniAOD_over_RECO",(TH1F*)mGenPt_Reco->getRootObject());
+    mGenPhi_MiniAOD_over_Reco=ibook_.book1D("GenPhi_MiniAOD_over_RECO",(TH1F*)mGenPhi_Reco->getRootObject());
+    mGenEta_MiniAOD_over_Reco=ibook_.book1D("GenEta_MiniAOD_over_RECO",(TH1F*)mGenEta_Reco->getRootObject());
     mPt_MiniAOD_over_Reco=ibook_.book1D("Pt_MiniAOD_over_RECO",(TH1F*)mPt_Reco->getRootObject());
     mPhi_MiniAOD_over_Reco=ibook_.book1D("Phi_MiniAOD_over_RECO",(TH1F*)mPhi_Reco->getRootObject());
     mEta_MiniAOD_over_Reco=ibook_.book1D("Eta_MiniAOD_over_RECO",(TH1F*)mEta_Reco->getRootObject());
@@ -197,6 +212,9 @@ JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     mphotonEnergyFraction_MiniAOD_over_Reco=ibook_.book1D("photonEnergyFraction_MiniAOD_over_RECO",(TH1F*)mphotonEnergyFraction_Reco->getRootObject());
 
     std::vector<MonitorElement*>ME_MiniAOD_over_Reco;
+    ME_MiniAOD_over_Reco.push_back(mGenPt_MiniAOD_over_Reco);
+    ME_MiniAOD_over_Reco.push_back(mGenPhi_MiniAOD_over_Reco);
+    ME_MiniAOD_over_Reco.push_back(mGenEta_MiniAOD_over_Reco);
     ME_MiniAOD_over_Reco.push_back(mPt_MiniAOD_over_Reco);
     ME_MiniAOD_over_Reco.push_back(mPhi_MiniAOD_over_Reco);
     ME_MiniAOD_over_Reco.push_back(mEta_MiniAOD_over_Reco);

@@ -5,7 +5,7 @@ HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterS
 	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	VertexCollection_           = 	edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "Vertex" ), [this](edm::InputTag const & tag){return mayConsume< reco::VertexCollection>(tag);});
 	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
-	simVertexCollection_ = consumes<std::vector<SimVertex> >(edm::InputTag("g4SimHits"));
+	simVertexCollection_ = consumes<std::vector<SimVertex> >(iConfig.getParameter<edm::InputTag> ("SimVertexCollection"));
 
 	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
 	hlTriggerResults_Label = label.module;
@@ -92,19 +92,20 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 			if (VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" )
 			{
 				iEvent.getByToken(VertexCollection_.at(coll), VertexHandler);
-				if (VertexHandler.isValid())   VertexOK=true;
+				if (VertexHandler.isValid()>0)   VertexOK=true;
 			}
 			
-			//calculate the variable (RecoVertex - SimVertex)
-			float value=VertexHandler->begin()->z()-simPV;
-			
-			//if value is over/under flow, assign the extreme value
-			float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)]->getTH1F()->GetXaxis()->GetXmax();
-			if(value>maxValue)	value=maxValue-0.0001; 
-			if(value<-maxValue)	value=-maxValue+0.0001; 
-			
-			//fill the histo
-			if (VertexOK) H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)] -> Fill(value);
+			if (VertexOK){
+				//calculate the variable (RecoVertex - SimVertex)
+				float value=VertexHandler->begin()->z()-simPV;
+				
+				//if value is over/under flow, assign the extreme value
+				float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)]->getTH1F()->GetXaxis()->GetXmax();
+				if(value>maxValue)	value=maxValue-0.0001; 
+				if(value<-maxValue)	value=-maxValue+0.0001; 
+				//fill the histo
+				H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)] -> Fill(value);
+			}
 		}// for on VertexCollection_
 	}//for on hltPathNames_
 }

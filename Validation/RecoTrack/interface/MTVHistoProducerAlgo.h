@@ -35,6 +35,7 @@ class MTVHistoProducerAlgo{
 
   virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookRecodEdxHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook)=0;
 
   virtual void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;
@@ -65,8 +66,7 @@ class MTVHistoProducerAlgo{
 				             int nSimHits,
    					     double sharedFraction, double dR)=0;
 
-  virtual void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref,const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx)=0;
-  //  virtual void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
+  virtual void fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx)=0;
 
   virtual void fill_simAssociated_recoTrack_histos(int count,
 						   const reco::Track& track)=0;

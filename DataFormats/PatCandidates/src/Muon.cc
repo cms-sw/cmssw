@@ -235,7 +235,7 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
 void Muon::embedMuonBestTrack(bool force) {
   muonBestTrack_.clear();
   embeddedMuonBestTrack_ = false;
-  bool alreadyEmbedded = force;
+  bool alreadyEmbedded = false;
   if (!force) {
       switch (muonBestTrackType()) {
         case None: alreadyEmbedded = true; break;
@@ -247,7 +247,7 @@ void Muon::embedMuonBestTrack(bool force) {
         case DYT: if (embeddedDytMuon_) alreadyEmbedded = true; break;
       }
   }
-  if (!alreadyEmbedded) {
+  if (force || !alreadyEmbedded) {
       muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
       embeddedMuonBestTrack_ = true;
   }
@@ -256,10 +256,10 @@ void Muon::embedMuonBestTrack(bool force) {
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedTunePMuonBestTrack(bool force) {
   tunePMuonBestTrack_.clear();
-  bool alreadyEmbedded = force;
+  bool alreadyEmbedded = false;
   embeddedTunePMuonBestTrack_ = false;
   if (!force) {
-      switch (muonBestTrackType()) {
+      switch (tunePMuonBestTrackType()) {
           case None: alreadyEmbedded = true; break;
           case InnerTrack: if (embeddedTrack_) alreadyEmbedded = true; break;
           case OuterTrack: if (embeddedStandAloneMuon_) alreadyEmbedded = true; break;
@@ -272,7 +272,7 @@ void Muon::embedTunePMuonBestTrack(bool force) {
           if (embeddedMuonBestTrack_) alreadyEmbedded = true;
       }
   }
-  if (!alreadyEmbedded) {
+  if (force || !alreadyEmbedded) {
       tunePMuonBestTrack_.push_back(*reco::Muon::tunePMuonBestTrack());
       embeddedTunePMuonBestTrack_ = true;
   }
@@ -428,6 +428,11 @@ bool Muon::isTightMuon(const reco::Vertex&vtx) const {
 
 bool Muon::isLooseMuon() const {
   return muon::isLooseMuon(*this);
+
+}
+
+bool Muon::isMediumMuon() const {
+  return muon::isMediumMuon(*this);
 
 }
 

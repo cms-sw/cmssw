@@ -10,6 +10,7 @@ import netrc
 import os
 import re
 import sys
+import stat
 import subprocess
 import tempfile
 import textwrap
@@ -112,6 +113,7 @@ def _run_editor(editor, tempfd):
 
 
 def _parse_timestamp(timestamp):
+
     try:
         return datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
     except ValueError:
@@ -257,7 +259,13 @@ def connect(args, init=False, read_only=True):
 
         # read_only refers to the destination database only
         # (the source is always read_only) -- see copy() command
-        return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+	if os.path.exists(args.destdb): 
+           return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+	else: # dest DB not yet there, needs init ... 
+	   conn1 = _connect(args.db, init, args.verbose, True, args.force)
+	   conn2 = _connect(args.destdb, True, args.verbose, False, args.force)
+	   conn2.init()
+	   return conn1, conn2
 
     return _connect(args.db, init, args.verbose, read_only, args.force)
 
@@ -301,12 +309,15 @@ class Colors(object):
     end = '\033[0m'
 
     def __init__(self, args):
-        if args.nocolors:
-            # TODO: Also disable if we are not running in a terminal
-            for member in dir(self):
-                if not member.startswith('_'):
-                    setattr(self, member, '')
 
+    	if ( stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode)  or  # we are running in a pipe
+             args.nocolors ):
+	     self.noColors()
+
+    def noColors(self):
+       for member in dir(self):
+           if not member.startswith('_'):
+               setattr(self, member, '')
 
 colors = None
 
@@ -508,6 +519,9 @@ def search(args):
         def _ilike_or_regexp_highlight_filter(cell):
             return _ilike_or_regexp_highlight(args, cell, args.string)
 
+    def size(cell):
+        return str( sys.getsizeof( bytearray(cell) ) )
+
     output_table(args,
         session.query(conddb.Tag.name, conddb.Tag.time_type, conddb.Tag.object_type, conddb.Tag.synchronization, conddb.Tag.insertion_time, conddb.Tag.description).\
             filter(
@@ -523,7 +537,7 @@ def search(args):
     )
 
     output_table(args,
-        session.query(conddb.Payload.hash, conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time).\
+        session.query(conddb.Payload.hash, conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time, conddb.Payload.data).\
             filter(
                 _ilike_or_regexp(args, connection, conddb.Payload.hash, args.string)
                 | _ilike_or_regexp(args, connection, conddb.Payload.object_type, args.string)
@@ -531,23 +545,26 @@ def search(args):
             order_by(conddb.Payload.insertion_time.desc()).\
             limit(args.limit).\
             all(),
-        ['Payload', 'Object Type', 'Version', 'Insertion Time'],
-        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, None],
+        ['Payload', 'Object Type', 'Version', 'Insertion Time', 'Size'],
+        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, size],
     )
 
-    output_table(args,
-        session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
-            filter(
-                _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
-                | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
-                | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
-            ).\
-            order_by(conddb.GlobalTag.insertion_time.desc()).\
-            limit(args.limit).\
-            all(),
-        ['Global Tag', 'Release', 'Insertion Time', 'Description'],
-        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
-    )
+    try:
+        output_table(args,
+            session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
+                filter(
+                    _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
+                    | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
+                    | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
+                ).\
+                order_by(conddb.GlobalTag.insertion_time.desc()).\
+                limit(args.limit).\
+                all(),
+            ['Global Tag', 'Release', 'Insertion Time', 'Description'],
+            filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
+    	 )
+    except sqlalchemy.exc.OperationalError:
+    	 sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
 
 def _inserted_before(timestamp):
@@ -572,6 +589,13 @@ def _low(n):
     return int(n) & 0xffffffff
 
 
+def _convertTimeType(since):
+    try:
+        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+    except ValueError:
+        return str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
+
+
 def _since_filter(time_type):
     '''Returns a filter function for the given time type that returns
     a human-readable string of the given since.
@@ -588,12 +612,37 @@ def _since_filter(time_type):
     '''
 
     if time_type == conddb.TimeType.time:
-        return lambda since: str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+        return _convertTimeType
 
     if time_type == conddb.TimeType.lumi:
         return lambda since: '%s Lumi %5s' % (_high(since), _low(since))
 
     return lambda since: since
+
+
+def listTags_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    output_table(args,
+        session.query(conddb.Tag.name, conddb.Tag.time_type, conddb.Tag.object_type, conddb.Tag.synchronization, conddb.Tag.end_of_validity, conddb.Tag.insertion_time, conddb.Tag.description ).\
+            order_by(conddb.Tag.insertion_time, conddb.Tag.name).\
+            all(),
+        ['Name', 'TimeType', 'ObjectType', 'Synchronisation', 'EndOfValidity', 'Insertion_time', 'Description'],
+    )
+
+
+def listGTsForTag_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    output_table(args,
+        session.query(conddb.GlobalTagMap.global_tag_name, conddb.GlobalTagMap.tag_name, conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
+	    filter(conddb.GlobalTagMap.tag_name == args.name).\
+            order_by(conddb.GlobalTagMap.global_tag_name).\
+            all(),
+        ['GT_name', 'Tag_name', 'record', 'label'],
+    )
 
 
 def listGTs_(args):
@@ -640,18 +689,22 @@ def list_(args):
                 filters = [_since_filter(time_type), None, None, None],
             )
 
-        is_global_tag = _exists(session, conddb.GlobalTag.name, name)
-        if is_global_tag:
-            if args.long:
-                _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+	try:
+            is_global_tag = _exists(session, conddb.GlobalTag.name, name)
+            if is_global_tag:
+                if args.long:
+                    _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+	    
+                output_table(args,
+                    session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+                        filter(conddb.GlobalTagMap.global_tag_name == name).\
+                        order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
+                        all(),
+                    ['Record', 'Label', 'Tag'],
+                )
+	except sqlalchemy.exc.OperationalError:
+            sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
-            output_table(args,
-                session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
-                    filter(conddb.GlobalTagMap.global_tag_name == name).\
-                    order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
-                    all(),
-                ['Record', 'Label', 'Tag'],
-            )
 
         if not is_tag and not is_global_tag:
             raise Exception('There is no tag or global tag named %s in the database.' % name)
@@ -920,6 +973,10 @@ def copy(args):
 
 
 def edit(args):
+
+    global colors
+    colors.noColors()
+
     connection = connect(args, read_only=False)
     session = connection.session()
 
@@ -1285,7 +1342,7 @@ def main():
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v prints debugging information of this tool, like tracebacks in case of errors. -vv prints, in addition, all SQL statements issued. -vvv prints, in addition, all results returned by queries.')
     parser.add_argument('--quiet', '-q', action='store_true', help='Quiet mode. Disables all standard output.')
     parser.add_argument('--yes', '-y', action='store_true', help='Acknowledged mode. Disables confirmation prompts before writes to the database.')
-    parser.add_argument('--nocolors', action='store_true', help='Disable colors. TODO: This is automatically done when the output is not connected to a terminal (e.g. a file).')
+    parser.add_argument('--nocolors', action='store_true', help='Disable colors. This is automatically done when the output is connected to a pipe (e.g. " conddb ... | less" ).')
     parser.add_argument('--editor', '-e', default=None, help='Editor to use. Default: the content of the EDITOR environment variable.')
     parser.add_argument('--force', action='store_true', help='Force edit in official databases. Only meant for experts.')
     parser.add_argument('--noLimit', action='store_true', help='Ignore the limit setting for the subcommand. This may generate a _lot_ of output and put some load on the DB, so please use with care.')
@@ -1308,6 +1365,13 @@ def main():
     parser_list.add_argument('--snapshot', '-T', default=None, help="Snapshot time. If provided, the output will represent the state of the IOVs inserted into database up to the given time. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
     parser_list.add_argument('--limit', '-L', type=int, default=500, help='Limit on the number of IOVs returned. The returned results are the latest N IOVs. Only applies when listing tags.')
     parser_list.set_defaults(func=list_)
+
+    parser_listTags = parser_subparsers.add_parser('listTags', description='Lists all the Tags available in the DB.')
+    parser_listTags.set_defaults(func=listTags_)
+
+    parser_listGTsForTag = parser_subparsers.add_parser('listGTsForTag', description='Lists the GTs which contain a given tag.')
+    parser_listGTsForTag.add_argument('name', help="Name of the tag.")
+    parser_listGTsForTag.set_defaults(func=listGTsForTag_)
 
     parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
     parser_listGTs.set_defaults(func=listGTs_)
@@ -1368,7 +1432,6 @@ def main():
     if args.noLimit:
        args.limit = None
        logging.info("noLimit specified, setting limit to %s" % str(args.limit))
-
 
     if args.verbose >= 1:
         # Include the traceback

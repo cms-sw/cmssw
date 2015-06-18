@@ -107,7 +107,7 @@ class MatrixInjector(object):
             "Multicore" : opt.nThreads,
             "Memory" : 2400,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 10
+            "TimePerEvent" : 0.1
             }
 
         self.defaultHarvest={
@@ -168,7 +168,8 @@ class MatrixInjector(object):
             wmsplit['RECOUP15_PU50']=1
             wmsplit['DIGIUP15_PU25']=1
             wmsplit['RECOUP15_PU25']=1
-            wmsplit['DIGIHISt3']=5
+            wmsplit['DIGIHIMIX']=5
+            wmsplit['RECOHIMIX']=5
             wmsplit['RECODSplit']=1
             wmsplit['SingleMuPt10_UP15_ID']=1
             wmsplit['DIGIUP15_ID']=1
@@ -197,7 +198,9 @@ class MatrixInjector(object):
                     index=0
                     splitForThisWf=None
                     thisLabel=self.speciallabel
-                    if 'HARVESTGEN' in s[3]:
+                    #if 'HARVESTGEN' in s[3]:
+                    if len( [step for step in s[3] if "HARVESTGEN" in step] )>0:
+                        chainDict['TimePerEvent']=0.01
                         thisLabel=thisLabel+"_gen"
                     processStrPrefix=''
                     setPrimaryDs=None

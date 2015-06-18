@@ -144,7 +144,7 @@ namespace edm {
     
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
     
     void setPtr(std::type_info const& toType,
                 unsigned long index,
@@ -402,7 +402,7 @@ namespace edm {
    template<typename T, unsigned int M, typename P>
   void OwnArray<T, M, P>::fillView(ProductID const& id,
                                  std::vector<void const*>& pointers,
-                                 helper_vector& helpers) const {
+                                 FillViewHelperVector& helpers) const {
     typedef Ref<OwnArray>      ref_type ;
     typedef reftobase::RefHolder<ref_type> holder_type;
 
@@ -441,7 +441,7 @@ namespace edm {
   fillView(OwnArray<T,M,P> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

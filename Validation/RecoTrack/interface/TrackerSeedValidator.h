@@ -32,6 +32,8 @@ class TrackerSeedValidator : public DQMEDAnalyzer, protected MultiTrackValidator
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   
  private:
+  std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associatorTokens;
+
   std::string builderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
   std::string dirName_;

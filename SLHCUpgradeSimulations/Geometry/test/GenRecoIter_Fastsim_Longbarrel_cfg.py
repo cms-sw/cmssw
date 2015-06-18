@@ -214,11 +214,11 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
 process.load("Validation.RecoTrack.cutsTPFake_cfi")
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.trackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
 ## TrackerHitAssociator TODO: ask Mark to implement this
-#process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
+#process.load('SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi')
 #process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 process.load('Configuration.StandardSequences.Validation_cff')
@@ -242,9 +242,10 @@ process.cutsRecoTracksHpwbtagc.ptMin = cms.double(1.0)
 process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksHp"),
                                            cms.InputTag("cutsRecoTracksHpwbtagc"),
-                                           cms.InputTag("cutsRecoTracksZeroHp"),
-                                           cms.InputTag("cutsRecoTracksFirstHp")
+                                           cms.InputTag("cutsRecoTracksInitialStepHp"),
+                                           cms.InputTag("cutsRecoTracksLowPtTripletStepHp")
                                            )
+process.trackValidator.associators = ['trackAssociatorByHits']
 #process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
 process.trackValidator.UseAssociators = True
 ## options to match with 363 histos for comparison
@@ -277,8 +278,9 @@ process.trackValidator.ptMinTP = cms.double(0.9)
 
 process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksHpwbtagc*
-                                 process.cutsRecoTracksZeroHp*
-                                 process.cutsRecoTracksFirstHp*
+                                 process.cutsRecoTracksInitialStepHp*
+                                 process.cutsRecoTracksLowPtTripletStepHp*
+                                 process.trackAssociatorByHits*
                                  process.trackValidator)
 
 ########################################

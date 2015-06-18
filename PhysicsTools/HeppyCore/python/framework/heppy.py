@@ -49,12 +49,13 @@ def runLoop( comp, outDir, config, options):
                    config,
                    options.nevents, 0,
                    nPrint = options.nprint,
-                   timeReport = options.timeReport)
-    print loop
+                   timeReport = options.timeReport,
+                   quiet = options.quiet)
+    # print loop
     if options.iEvent is None:
         loop.loop()
         loop.write()
-        print loop
+        # print loop
     else:
         # loop.InitOutput()
         iEvent = int(options.iEvent)
@@ -121,6 +122,11 @@ def split(comps):
     return splitComps
 
 
+_heppyGlobalOptions = {}
+
+def getHeppyOption(name,default=None):
+    global _heppyGlobalOptions
+    return _heppyGlobalOptions[name] if name in _heppyGlobalOptions else default
 
 def main( options, args ):
 
@@ -140,13 +146,28 @@ def main( options, args ):
         print 'ERROR: second argument must be an existing file (your input cfg).'
         sys.exit(3)
 
+    if options.verbose:
+        import logging
+        logging.basicConfig(level=logging.INFO)
+
+    # Propagate global options to _heppyGlobalOptions within this module
+    # I have to import it explicitly, 'global' does not work since the
+    # module is not set when executing the main
+    from PhysicsTools.HeppyCore.framework.heppy import _heppyGlobalOptions
+    for opt in options.extraOptions:
+        if "=" in opt:
+            (key,val) = opt.split("=",1)
+            _heppyGlobalOptions[key] = val
+        else:
+            _heppyGlobalOptions[opt] = True
+
     file = open( cfgFileName, 'r' )
     cfg = imp.load_source( 'PhysicsTools.HeppyCore.__cfg_to_run__', cfgFileName, file)
 
     selComps = [comp for comp in cfg.config.components if len(comp.files)>0]
     selComps = split(selComps)
-    for comp in selComps:
-        print comp
+    # for comp in selComps:
+    #    print comp
     if len(selComps)>10:
         print "WARNING: too many threads {tnum}, will just use a maximum of 10.".format(tnum=len(selComps))
     if not createOutputDir(outDir, selComps, options.force):
@@ -183,6 +204,7 @@ if __name__ == '__main__':
 
     parser.add_option("-N", "--nevents",
                       dest="nevents",
+                      type="int",
                       help="number of events to process",
                       default=None)
     parser.add_option("-p", "--nprint",
@@ -208,8 +230,22 @@ if __name__ == '__main__':
                       action='store_true',
                       help="Make a report of the time used by each analyzer",
                       default=False)
-
-
+    parser.add_option("-v", "--verbose",
+                      dest="verbose",
+                      action='store_true',
+                      help="increase the verbosity of the output (from 'warning' to 'info' level)",
+                      default=False)
+    parser.add_option("-q", "--quiet",
+                      dest="quiet",
+                      action='store_true',
+                      help="do not print log messages to screen.",
+                      default=False)
+    parser.add_option("-o", "--option",
+                      dest="extraOptions",
+                      type="string",
+                      action="append",
+                      default=[],
+                      help="Save one extra option (either a flag, or a key=value pair) that can be then accessed from the job config file")
 
     (options,args) = parser.parse_args()
 

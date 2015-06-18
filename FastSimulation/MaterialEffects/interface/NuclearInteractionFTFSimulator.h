@@ -20,8 +20,6 @@
 #include "G4LorentzVector.hh"
 #include "G4ThreeVector.hh"
 
-#include <vector>
-
 class ParticlePropagator;
 class RandomEngineAndDistribution;
 class G4ParticleDefinition;
@@ -32,13 +30,20 @@ class G4FTFModel;
 class G4ExcitedStringDecay;
 class G4LundStringFragmentation;
 class G4GeneratorPrecompoundInterface;
+class G4CascadeInterface;
+class G4DiffuseElastic;
+class G4PhysicsLogVector;
+
+static const int numHadrons = 30;
+static const int npoints = 21;
 
 class NuclearInteractionFTFSimulator : public MaterialEffectsSimulator
 {
 public:
 
   /// Constructor
-  NuclearInteractionFTFSimulator(unsigned int distAlgo, double distCut);
+  NuclearInteractionFTFSimulator(unsigned int distAlgo, double distCut, 
+				 double elimit, double eth);
 
   /// Default Destructor
   ~NuclearInteractionFTFSimulator();
@@ -53,15 +58,18 @@ private:
   double distanceToPrimary(const RawParticle& Particle,
 			   const RawParticle& aDaughter) const;
 
-  std::vector<const G4ParticleDefinition*> theG4Hadron;
-  std::vector<double> theNuclIntLength;
-  std::vector<int> theId;
+  static const G4ParticleDefinition* theG4Hadron[numHadrons];
+  static int theId[numHadrons];
+  G4PhysicsLogVector* vect;
 
   G4TheoFSGenerator* theHadronicModel;
   G4FTFModel* theStringModel;
   G4ExcitedStringDecay* theStringDecay; 
   G4LundStringFragmentation* theLund;
   G4GeneratorPrecompoundInterface* theCascade; 
+
+  G4CascadeInterface* theBertiniCascade;
+  G4DiffuseElastic* theDiffuseElastic;
 
   G4Step* dummyStep;
   G4Track* currTrack;
@@ -73,13 +81,17 @@ private:
   G4ThreeVector vectProj;
   G4ThreeVector theBoost;
 
+  double theBertiniLimit;
   double theEnergyLimit;
 
   double theDistCut;
   double distMin;
 
-  int numHadrons;
+  double intLengthElastic;
+  double intLengthInelastic;
+
   int currIdx;
+  size_t index;
   unsigned int theDistAlgo;
 };
 #endif

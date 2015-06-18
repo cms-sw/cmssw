@@ -23,9 +23,9 @@ struct TrackConfigSelector {
   typedef reco::TrackCollection collection;
 
  TrackConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-    theBaseSelector(cfg),
-    theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector")),
-    theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"))
+   theBaseSelector(cfg, iC),
+   theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector"), iC),
+   theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"), iC)
   {
     //TODO Wrap the BaseSelector into its own PSet
     theBaseSwitch = theBaseSelector.useThisFilter();

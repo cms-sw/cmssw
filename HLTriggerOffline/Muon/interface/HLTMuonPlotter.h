@@ -66,6 +66,11 @@ class HLTMuonPlotter {
 		                    edm::EDGetTokenT<reco::MuonCollection> >&
 		 );
 
+  ~HLTMuonPlotter() {
+    delete genMuonSelector_;
+    delete recMuonSelector_;
+  }
+
   void beginJob();
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);

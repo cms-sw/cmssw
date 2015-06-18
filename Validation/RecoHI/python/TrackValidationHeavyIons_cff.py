@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # track associator settings
-from Validation.RecoTrack.TrackValidation_cff import trackAssociatorByHitsRecoDenom
+import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
+trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 
 # reco track quality cuts
 from Validation.RecoTrack.cuts_cff import *
@@ -19,6 +20,8 @@ findableSimTracks.ptMin = 2.0
 # setup multi-track validator
 from Validation.RecoTrack.MultiTrackValidator_cff import *
 hiTrackValidator = multiTrackValidator.clone(
+    associators = ["trackAssociatorByHitsRecoDenom"],
+    UseAssociators = True,
     label_tp_effic = cms.InputTag("primaryChgSimTracks"),
     label_tp_fake  = cms.InputTag("cutsTPFake"),
     signalOnlyTP = cms.bool(False),

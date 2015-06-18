@@ -70,7 +70,10 @@ class ReducedEGProducer : public edm::EDProducer {
  
  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > photonIdTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronIdTs_;
- 
+
+ std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > photonPFClusterIsoTs_;
+ std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronPFClusterIsoTs_;
+
  //names for output collections
  std::string outPhotons_;
  std::string outPhotonCores_;
@@ -88,6 +91,8 @@ class ReducedEGProducer : public edm::EDProducer {
  std::string outGsfElectronPfCandMap_;
  std::vector<std::string> outPhotonIds_;
  std::vector<std::string> outGsfElectronIds_;
+ std::vector<std::string> outPhotonPFClusterIsos_;
+ std::vector<std::string> outGsfElectronPFClusterIsos_;
  
  StringCutObjectSelector<reco::Photon> keepPhotonSel_;
  StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 

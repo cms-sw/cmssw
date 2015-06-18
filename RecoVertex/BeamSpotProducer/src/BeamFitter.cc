@@ -625,7 +625,7 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
 
   std::string tmpname = outputTxt_;
   char index[15];
-  if (appendRunTxt_ && !ffilename_changed ) {
+  if (appendRunTxt_ && writeTxt_ && !ffilename_changed ) {
       sprintf(index,"%s%i","_Run", frun );
       tmpname.insert(outputTxt_.length()-4,index);
       fileName = tmpname;

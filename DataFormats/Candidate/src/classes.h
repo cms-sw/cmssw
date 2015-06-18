@@ -57,6 +57,7 @@ namespace DataFormats_Candidate {
     std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
+    edm::reftobase::RefHolder<reco::CandidatePtr> rhptr1;
     edm::reftobase::IndirectVectorHolder<reco::Candidate> rbih2;
     edm::reftobase::RefVectorHolder<reco::CandidateRefVector> rh2;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;

@@ -423,16 +423,32 @@ namespace cms{
 
          viTotHits+=recHits.size();        
 
-	 LogDebug("CkfPattern") << "getting initial state.";
-	 const bool doBackFit = (!doSeedingRegionRebuilding) & (!reverseTrajectories);
-	 std::pair<TrajectoryStateOnSurface, const GeomDet*> && initState = theInitialState->innerState( *it , doBackFit);
 
-	 // temporary protection againt invalid initial states
-	 if ( !initState.first.isValid() || initState.second == nullptr || edm::isNotFinite(initState.first.globalPosition().x())) {
-	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
-	   continue;
-	 }
-	 
+         LogDebug("CkfPattern") << "getting initial state.";
+         Trajectory trialTrajectory = (*it);
+         std::pair<TrajectoryStateOnSurface, const GeomDet*> initState;
+         bool failed = false;
+
+         do {
+           // Drop last hit if previous backFitter was not successful
+           if(failed) {
+             LogDebug("CkfPattern") << "removing last hit";
+             trialTrajectory.pop();
+             LogDebug("CkfPattern") << "hits remaining " << trialTrajectory.foundHits();
+           }
+
+           // Get inner state
+           const bool doBackFit = (!doSeedingRegionRebuilding) & (!reverseTrajectories);
+           initState = theInitialState->innerState(trialTrajectory, doBackFit);
+
+           // Check if that was successful
+           failed =  (!initState.first.isValid()) || initState.second == nullptr || edm::isNotFinite(initState.first.globalPosition().x());
+         } while(failed && trialTrajectory.foundHits() > 3);
+
+         if(failed) continue;
+
+
+
 	 PTrajectoryStateOnDet state;
 	 if(useSplitting && (initState.second != recHits.front().det()) && recHits.front().det() ){	 
 	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";

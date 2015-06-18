@@ -62,5 +62,6 @@ process.myOnDemandExample.MonitorSiStripCabling      = False
 
 
 process.myOnDemandExample.SiStripNoisesDQM_PSet.GainRenormalisation   = False
+process.myOnDemandExample.SiStripNoisesDQM_PSet.SimGainRenormalisation   = False
 process.myOnDemandExample.SiStripNoisesDQM_PSet.CondObj_fillId        = 'onlyProfile'
 process.myOnDemandExample.SiStripPedestalsDQM_PSet.CondObj_fillId        = 'onlyProfile'

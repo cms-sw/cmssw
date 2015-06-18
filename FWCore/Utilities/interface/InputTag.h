@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
 
@@ -63,8 +64,8 @@ namespace edm {
     std::string instance_;
     std::string process_;
 
-    mutable TypeID typeID_;
-    mutable void const* productRegistry_;
+    CMS_THREAD_GUARD(index_) mutable TypeID typeID_;
+    CMS_THREAD_GUARD(index_) mutable void const* productRegistry_;
 
 #ifndef __GCCXML__
     mutable std::atomic<unsigned int> index_;
@@ -72,7 +73,7 @@ namespace edm {
     unsigned int index_;
 #endif
 
-    mutable char branchType_;
+    CMS_THREAD_GUARD(index_) mutable char branchType_;
 
     bool skipCurrentProcess_;
   };

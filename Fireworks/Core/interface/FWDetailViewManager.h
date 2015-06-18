@@ -26,10 +26,15 @@ class FWDetailViewBase;
 class FWModelId;
 class TEveWindow;
 
+namespace fireworks
+{
+class Context;
+}
+
 class FWDetailViewManager
 {
 public:
-   FWDetailViewManager(FWColorManager*);
+   FWDetailViewManager(fireworks::Context*);
    virtual ~FWDetailViewManager();
 
    std::vector<std::string> detailViewsFor(const FWModelId&) const;
@@ -50,7 +55,7 @@ public:
    };
 
 protected:
-   FWColorManager                *m_colorManager;
+   fireworks::Context* m_context;
 
 private:
 

@@ -32,10 +32,6 @@ class METTesterPostProcessor : public DQMEDHarvester {
 
    private:
       virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
-
-      edm::InputTag inputMETLabelRECO_;
-      edm::InputTag inputMETLabelMiniAOD_;
-
       std::vector<std::string> met_dirs;
 
       void FillMETRes(std::string metdir,DQMStore::IGetter &);
@@ -49,22 +45,8 @@ class METTesterPostProcessor : public DQMEDHarvester {
       MonitorElement* mMETDifference_GenMETTrue_MET200to300;
       MonitorElement* mMETDifference_GenMETTrue_MET300to400;
       MonitorElement* mMETDifference_GenMETTrue_MET400to500;
+      MonitorElement* mMETDifference_GenMETTrue_MET500;
       MonitorElement* mMETDifference_GenMETTrue_METResolution; 
-
-      MonitorElement* mMET_MiniAOD_over_Reco;
-      MonitorElement* mMETPhi_MiniAOD_over_Reco;
-      MonitorElement* mSumET_MiniAOD_over_Reco;
-      MonitorElement* mPFPhotonEtFraction_MiniAOD_over_Reco;
-      MonitorElement* mPFNeutralHadronEtFraction_MiniAOD_over_Reco;
-      MonitorElement* mPFChargedHadronEtFraction_MiniAOD_over_Reco;
-      MonitorElement* mPFHFHadronEtFraction_MiniAOD_over_Reco;
-      MonitorElement* mPFHFEMEtFraction_MiniAOD_over_Reco;
-      MonitorElement* mMETDifference_GenMETTrue_MiniAOD_over_Reco;
-      MonitorElement* mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco;
-      MonitorElement* mMETDifference_GenMETTrue_MET20to40_MiniAOD_over_Reco;
-      MonitorElement* mMETDifference_GenMETTrue_MET100to150_MiniAOD_over_Reco;
-      MonitorElement* mMETDifference_GenMETTrue_MET300to400_MiniAOD_over_Reco;
-
 };
 
 #endif

@@ -95,7 +95,7 @@ using namespace edm;
       DetId detid = ((*it)->geographicalId());
       
       //construct the associator object
-      TrackerHitAssociator  associate(e,conf_);
+      TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
       
       if(myid!=999999999){ //if is valid detector
 
@@ -237,7 +237,7 @@ using namespace edm;
 
 
 TestAssociator::TestAssociator(edm::ParameterSet const& conf) : 
-  conf_(conf),
+  trackerHitAssociatorConfig_(conf, consumesCollector()),
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ) {
   cout << " Constructor " << endl;

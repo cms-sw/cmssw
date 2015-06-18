@@ -88,7 +88,7 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
   	  auto_ptr<PFCandToVertexAssMap> PFCand2Vertex = CreatePFCandToVertexMap(pfCandH, iSetup);
-  	  iEvent.put( SortPFCandAssociationMap( &(*PFCand2Vertex) ) );
+	  iEvent.put( SortPFCandAssociationMap( &(*PFCand2Vertex), &iEvent.productGetter() ) );
 	}
 
 	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {

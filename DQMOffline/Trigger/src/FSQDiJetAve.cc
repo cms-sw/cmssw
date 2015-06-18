@@ -279,7 +279,7 @@ class HandlerTemplate: public BaseHandler {
 
             // LogWarning or LogError?
             if (numPathMatches != 1) {
-                  edm::LogError("FSQDiJetAve") << "Problem: found " << numPathMatches
+                  edm::LogInfo("FSQDiJetAve") << "Problem: found " << numPathMatches
                     << " paths matching " << m_pathPartialName << std::endl;
                   return ret;   
             }

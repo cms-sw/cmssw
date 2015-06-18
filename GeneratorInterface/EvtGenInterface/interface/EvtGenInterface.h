@@ -47,10 +47,12 @@ namespace gen {
     static double flat();
     
   private:
-    void addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent);
-    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p);
+    bool addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent,bool allowMixing=true,bool mixforce=false,bool noforced=false);
+    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,bool allowMixing=true,bool mixforce=false,bool noforced=false);
     void SetDefault_m_PDGs();
-    
+    bool findLastinChain(HepMC::GenParticle* &p);    
+    bool hasnoDaughter(HepMC::GenParticle* p);
+
     EvtGen *m_EvtGen;                // EvtGen main  object
 
     std::vector<EvtId> forced_id;     // EvtGen Id's of particles  which are to be forced by EvtGen

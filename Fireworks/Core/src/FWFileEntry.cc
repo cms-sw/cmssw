@@ -128,6 +128,8 @@ void FWFileEntry::closeFile()
    if (m_file) {
       printf("Reading %lld bytes in %d transactions.\n",
              m_file->GetBytesRead(), m_file->GetReadCalls());
+      delete m_file->GetCacheRead(m_eventTree);
+
       m_file->Close();
       delete m_file;
    }

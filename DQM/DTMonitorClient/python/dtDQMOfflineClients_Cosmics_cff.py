@@ -9,6 +9,7 @@ from DQM.DTMonitorClient.dtOfflineSummaryClients_cfi import *
 from DQM.DTMonitorClient.dtResolutionAnalysisTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerEfficiencyTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
+from DQM.DTMonitorClient.dtRunConditionVarClient_cfi import *
 blockedROChannelTest.offlineMode = True;
 from DQM.DTMonitorClient.ALCARECODTCalibSynchCosmicsDQMClient_cff import *
 
@@ -25,6 +26,7 @@ dtClientsCosmics = cms.Sequence(segmentTest+
                                 dtChamberEfficiencyClient+
                                 triggerEffTest+
                                 blockedROChannelTest+
+                                dtRunConditionVarClient+
                                 dtOfflineSummaryClients+
                                 ALCARECODTCalibSynchCosmicsDQMClient)
 

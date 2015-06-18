@@ -124,21 +124,27 @@ namespace pat {
       /// and hcal 
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
+      /// get and set PFCluster isolation
+      float ecalPFClusterIso() const { return ecalPFClusIso_;}
+      float hcalPFClusterIso() const { return hcalPFClusIso_;}
+      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_=ecalPFClus;}
+      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_=hcalPFClus;}
+
       /// PARTICLE FLOW ISOLATION
       /// Returns the isolation calculated with all the PFCandidates
       float patParticleIso() const { return userIsolation(pat::PfAllParticleIso); }
       /// Returns the isolation calculated with only the charged hadron
       /// PFCandidates
-      float patChargedHadronIso() const { return userIsolation(pat::PfChargedHadronIso); }
+      float chargedHadronIso() const { return reco::Photon::chargedHadronIso(); }
       /// Returns the isolation calculated with only the neutral hadron
       /// PFCandidates
-      float patNeutralHadronIso() const { return userIsolation(pat::PfNeutralHadronIso); }        
+      float neutralHadronIso() const { return reco::Photon::neutralHadronIso(); }
       /// Returns the isolation calculated with only the gamma
       /// PFCandidates
-      float patPhotonIso() const { return userIsolation(pat::PfGammaIso); }
+      float photonIso() const { return reco::Photon::photonIso(); }
       /// Returns the isolation calculated with only the pile-up charged hadron
       /// PFCandidates
-      float patPuChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
+      float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
 
       /// Returns a user defined isolation value
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
@@ -382,6 +388,9 @@ namespace pat {
       float cryPhi_;
       float iEta_;
       float iPhi_;
+
+      float ecalPFClusIso_;
+      float hcalPFClusIso_;
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;

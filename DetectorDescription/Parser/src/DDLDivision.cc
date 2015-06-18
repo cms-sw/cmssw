@@ -118,11 +118,11 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
   switch (div.parent().solid().shape()) 
   {
   case ddbox:
-    if (div.axis() == x)
+    if (div.axis() == DDAxes::x)
       dg = new DDDividedBoxX(div,cpv);
-    else if (div.axis() == y)
+    else if (div.axis() == DDAxes::y)
       dg = new DDDividedBoxY(div,cpv);
-    else if (div.axis() == z)
+    else if (div.axis() == DDAxes::z)
       dg = new DDDividedBoxZ(div,cpv);
     else {
       std::string s = "DDLDivision can not divide a ";
@@ -136,11 +136,11 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     break;
 
   case ddtubs:
-    if (div.axis() == rho)
+    if (div.axis() == DDAxes::rho)
       dg = new DDDividedTubsRho(div,cpv);
-    else if (div.axis() == phi)
+    else if (div.axis() == DDAxes::phi)
       dg = new DDDividedTubsPhi(div,cpv);
-    else if (div.axis() == z)
+    else if (div.axis() == DDAxes::z)
       dg = new DDDividedTubsZ(div,cpv);
     else {
       std::string s = "DDLDivision can not divide a ";
@@ -154,11 +154,11 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     break;
 
   case ddtrap:
-    if (div.axis() == x)
+    if (div.axis() == DDAxes::x)
       dg = new DDDividedTrdX(div,cpv);
-    else if (div.axis() == y )
+    else if (div.axis() == DDAxes::y )
       dg = new DDDividedTrdY(div,cpv);
-    else if (div.axis() == z )
+    else if (div.axis() == DDAxes::z )
       dg = new DDDividedTrdZ(div,cpv);
     else {
       std::string s = "DDLDivision can not divide a ";
@@ -173,11 +173,11 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     break;
 
   case ddcons:
-    if (div.axis() == rho)
+    if (div.axis() == DDAxes::rho)
       dg = new DDDividedConsRho(div,cpv);
-    else if (div.axis() == phi)
+    else if (div.axis() == DDAxes::phi)
       dg = new DDDividedConsPhi(div,cpv);
-    else if (div.axis() == z)
+    else if (div.axis() == DDAxes::z)
       dg = new DDDividedConsZ(div,cpv);
     else {
       std::string s = "DDLDivision can not divide a ";
@@ -191,11 +191,11 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     break;
 
   case ddpolycone_rrz:
-    if (div.axis() == rho)
+    if (div.axis() == DDAxes::rho)
       dg = new DDDividedPolyconeRho(div,cpv);
-    else if (div.axis() == phi)
+    else if (div.axis() == DDAxes::phi)
       dg = new DDDividedPolyconePhi(div,cpv);
-    else if (div.axis() == z)
+    else if (div.axis() == DDAxes::z)
       dg = new DDDividedPolyconeZ(div,cpv);
     else {
       std::string s = "DDLDivision can not divide a ";
@@ -210,11 +210,11 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     break;
 
   case ddpolyhedra_rrz:
-    if (div.axis() == rho)
+    if (div.axis() == DDAxes::rho)
       dg = new DDDividedPolyhedraRho(div,cpv);
-    else if (div.axis() == phi)
+    else if (div.axis() == DDAxes::phi)
       dg = new DDDividedPolyhedraPhi(div,cpv);
-    else if (div.axis() == z)
+    else if (div.axis() == DDAxes::z)
       dg = new DDDividedPolyhedraZ(div,cpv);
     else {
       std::string s = "DDLDivision can not divide a ";

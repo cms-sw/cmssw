@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <string>
 
 #include <TString.h>
@@ -10,7 +11,8 @@
 
 
 template<class object >
-TriggerMatchProducer<object>::TriggerMatchProducer(const edm::ParameterSet& iConfig )
+TriggerMatchProducer<object>::TriggerMatchProducer(const edm::ParameterSet& iConfig ) :
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this)
 {
 
   _inputProducer= iConfig.template getParameter<edm::InputTag>("InputProducer");
@@ -66,6 +68,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
   using namespace reco;
   using namespace trigger;
 
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
 
    // Create the output collection
   std::auto_ptr< edm::RefToBaseVector<object> > 
@@ -94,7 +97,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
    event.getByToken(triggerResultsToken_, pTrgResults);
 
    //gracefully choose the single appropriate HLT path from the list of desired paths
-   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
+   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig.triggerNames();
    std::map<std::string, bool> triggerInMenu;
    std::map<std::string, bool> triggerUnprescaled;
 //    for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); 
@@ -112,7 +115,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
        if (TString(*iHLT).Contains(TRegexp(hltTag_)))
 	 {
 	   triggerInMenu[*iHLT] = true;
-	   if (hltConfig_.prescaleValue(event, eventSetup, *iHLT) == 1) 
+	   if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
 	     triggerUnprescaled[*iHLT] = true;         
 	 }
      }
@@ -148,8 +151,8 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
        int triggerIndex=-1;
        edm::InputTag filterTag;
        try { 
-	 filters = hltConfig_.moduleLabels( iMyHLT->first );
-	 triggerIndex = hltConfig_.triggerIndex(iMyHLT->first);	 
+	 filters = hltConfig.moduleLabels( iMyHLT->first );
+	 triggerIndex = hltConfig.triggerIndex(iMyHLT->first);
        }
        catch (std::exception ex) { cout << "bad trigger\n"; }
        // Results from TriggerResults product
@@ -230,14 +233,15 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 template<class object>
 void TriggerMatchProducer<object>::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
 //   std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << triggerEventTag_.process() << ", " << "changed_" << ") in beginRun()" << std::endl;
-  if(!hltConfig_.init(iRun,iSetup,triggerEventTag_.process(),changed_) ){
+  if(!hltPrescaleProvider_.init(iRun,iSetup,triggerEventTag_.process(),changed_) ){
     edm::LogError("TriggerMatchProducer") << 
       "Error! Can't initialize HLTConfigProvider";
     throw cms::Exception("HLTConfigProvider::init() returned non 0");
   }
+// HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
 //   if(printIndex_ && changed_)
 //     std::cout << "HLT configuration changed !" << std::endl;
-//  std::vector<std::string> filters = hltConfig_.moduleLabels( hltTag_.label() );
+//  std::vector<std::string> filters = hltConfig.moduleLabels( hltTag_.label() );
 }
 
 template<class object>

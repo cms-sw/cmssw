@@ -47,7 +47,7 @@ public:
   virtual void endJob();
 
 private:
-  bool select (reco::PhotonCollection, reco::PFJetCollection);                                             
+  bool select(const reco::PhotonCollection&, const reco::PFJetCollection&);
 
   // ----------member data ---------------------------
   
@@ -135,13 +135,24 @@ void AlCaGammaJetProducer::endJob() {
   edm::LogInfo("AlcaGammaJet") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
 }
 
-bool AlCaGammaJetProducer::select (reco::PhotonCollection ph, reco::PFJetCollection jt) {
- 
-  if (jt.size()<1) return false;
-  if (ph.size()<1) return false;
-  if (((jt.at(0)).pt())<minPtJet_)    return false;
-  if (((ph.at(0)).pt())<minPtPhoton_) return false;
-  return true;
+bool AlCaGammaJetProducer::select (const reco::PhotonCollection &ph, const reco::PFJetCollection &jt) {
+
+  // Check the requirement for minimum pT
+  if (ph.size() == 0) return false;
+  bool ok(false);
+  for (reco::PFJetCollection::const_iterator itr=jt.begin();
+       itr!=jt.end(); ++itr) {
+    if (itr->pt() >= minPtJet_) {
+      ok = true;
+      break;
+    }
+  }
+  if (!ok) return ok;
+  for (reco::PhotonCollection::const_iterator itr=ph.begin();
+       itr!=ph.end(); ++itr) {
+    if (itr->pt() >= minPtPhoton_) return ok;
+  }
+  return false;
 }
 // ------------ method called to produce the data  ------------
 void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

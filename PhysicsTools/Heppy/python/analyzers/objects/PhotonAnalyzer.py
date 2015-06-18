@@ -76,9 +76,9 @@ class PhotonAnalyzer( Analyzer ):
                 gamma.idCutBased = keepThisPhoton
                 # we're keeing sigmaietaieta sidebands, but the id is false for them:
                 
-                if abs(gamma.eta())< 1.479 and gamma.sigmaIetaIeta()>0.010 : 
+                if abs(gamma.eta())< 1.479 and gamma.full5x5_sigmaIetaIeta()>0.010 : 
                     gamma.idCutBased = False
-                if abs(gamma.eta())>=1.479 and gamma.sigmaIetaIeta()>0.0321 : 
+                if abs(gamma.eta())>=1.479 and gamma.full5x5_sigmaIetaIeta()>0.0321 : 
                     gamma.idCutBased = False
             else:
               keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
@@ -105,7 +105,7 @@ class PhotonAnalyzer( Analyzer ):
         event.genPhotons = [ x for x in event.genParticles if x.status() == 1 and abs(x.pdgId()) == 22 ]
         event.genPhotonsWithMom = [ x for x in event.genPhotons if x.numberOfMothers()>0 ]
         event.genPhotonsWithoutMom = [ x for x in event.genPhotons if x.numberOfMothers()==0 ]
-        event.genPhotonsMatched = [ x for x in event.genPhotonsWithMom if abs(x.mother(0).pdgId())<23 ]
+        event.genPhotonsMatched = [ x for x in event.genPhotonsWithMom if abs(x.mother(0).pdgId())<23 or x.mother(0).pdgId()==2212 ]
         match = matchObjectCollection3(event.allphotons, event.genPhotonsMatched, deltaRMax = 0.1)
         matchNoMom = matchObjectCollection3(event.allphotons, event.genPhotonsWithoutMom, deltaRMax = 0.1)
         packedGenParts = [ p for p in self.mchandles['packedGen'].product() if abs(p.eta()) < 3.1 ]
@@ -152,8 +152,8 @@ class PhotonAnalyzer( Analyzer ):
             print 'gamma candidate phi: ',event.selectedPhotons[0].phi()
             print 'gamma candidate mass: ',event.selectedPhotons[0].mass()
             print 'gamma candidate HoE: ',event.selectedPhotons[0].hOVERe()
-            print 'gamma candidate r9: ',event.selectedPhotons[0].r9()
-            print 'gamma candidate sigmaIetaIeta: ',event.selectedPhotons[0].sigmaIetaIeta()
+            print 'gamma candidate r9: ',event.selectedPhotons[0].full5x5_r9()
+            print 'gamma candidate sigmaIetaIeta: ',event.selectedPhotons[0].full5x5_sigmaIetaIeta()
             print 'gamma candidate had iso: ',event.selectedPhotons[0].chargedHadronIso()
             print 'gamma candidate neu iso: ',event.selectedPhotons[0].neutralHadronIso()
             print 'gamma candidate gamma iso: ',event.selectedPhotons[0].photonIso()

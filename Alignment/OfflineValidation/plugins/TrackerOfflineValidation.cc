@@ -37,6 +37,7 @@
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -55,6 +56,7 @@
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
@@ -277,6 +279,8 @@ private:
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTecResiduals_;
 
   const edm::EventSetup* lastSetup_;
+
+  TrackerValidationVariables avalidator_;
 };
 
 
@@ -358,7 +362,8 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
     useOverflowForRMS_(parSet_.getParameter<bool>("useOverflowForRMS")),
     dqmMode_(parSet_.getParameter<bool>("useInDqmMode")),
     moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
-    lastSetup_(nullptr)
+    lastSetup_(nullptr),
+    avalidator_(iConfig, consumesCollector())
 {
 }
 
@@ -390,7 +395,7 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<IdealGeometryRecord>().get(tTopoHandle);
+    es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // construct alignable tracker to get access to alignable hierarchy 
@@ -969,12 +974,10 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
   if (useOverflowForRMS_)TH1::StatOverflows(kTRUE);
   this->checkBookHists(iSetup); // check whether hists are booked and do so if not yet done
-  
-  TrackerValidationVariables avalidator_(iSetup,parSet_);
-    
+
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
-  avalidator_.fillTrackQuantities(iEvent, vTrackstruct);
-  
+  avalidator_.fillTrackQuantities(iEvent, iSetup, vTrackstruct);
+
   for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator itT = vTrackstruct.begin();	 
        itT != vTrackstruct.end();
        ++itT) {
@@ -1208,7 +1211,7 @@ TrackerOfflineValidation::endJob()
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   AlignableTracker aliTracker(&(*tkGeom_), tTopo);

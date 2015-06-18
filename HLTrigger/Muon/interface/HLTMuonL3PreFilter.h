@@ -17,13 +17,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-namespace edm {
-   class ConfigurationDescriptions;
-}
 
 class HLTMuonL3PreFilter : public HLTFilter {
-
    public:
       explicit HLTMuonL3PreFilter(const edm::ParameterSet&);
       ~HLTMuonL3PreFilter();
@@ -32,32 +32,30 @@ class HLTMuonL3PreFilter : public HLTFilter {
 
    private:
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands) const;
-
-      edm::InputTag                    beamspotTag_ ;
-      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
-      edm::InputTag                                          candTag_;   // input tag identifying product contains muons
-      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
-      edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
-      int    min_N_;            // minimum number of muons to fire the trigger
-      double max_Eta_;          // Eta cut
-      int    min_Nhits_;        // threshold on number of hits on muon
-      double max_Dr_;           // maximum impact parameter cut
-      double min_Dr_;           // minimum impact parameter cut
-      double max_Dz_;           // dz cut
-      double min_DxySig_;       // dxy significance cut
-      double min_Pt_;           // pt threshold in GeV
-      double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      double max_NormalizedChi2_; // cutoff in normalized chi2
-      double max_DXYBeamSpot_; // cutoff in dxy from the beamspot
-      double min_DXYBeamSpot_; // minimum cut on dxy from the beamspot
-  int min_NmuonHits_; // cutoff in minumum number of chi2 hits
-  double max_PtDifference_; // cutoff in maximum different between global track and tracker track
-  double min_TrackPt_; //cutoff in tracker track pt
-
-  bool devDebug_;
-
-
+      const edm::InputTag                    beamspotTag_ ;
+      const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
+      const edm::InputTag                                          candTag_;   // input tag identifying product contains muons
+      const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
+      const edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
+      const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
+      const int    min_N_;            // minimum number of muons to fire the trigger
+      const double max_Eta_;          // Eta cut
+      const int    min_Nhits_;        // threshold on number of hits on muon
+      const double max_Dr_;           // maximum impact parameter cut
+      const double min_Dr_;           // minimum impact parameter cut
+      const double max_Dz_;           // dz cut
+      const double min_DxySig_;       // dxy significance cut
+      const double min_Pt_;           // pt threshold in GeV
+      const double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
+      const double max_NormalizedChi2_; // cutoff in normalized chi2
+      const double max_DXYBeamSpot_;    // cutoff in dxy from the beamspot
+      const double min_DXYBeamSpot_;    // minimum cut on dxy from the beamspot
+      const int min_NmuonHits_;         // cutoff in minumum number of chi2 hits
+      const double max_PtDifference_;   // cutoff in maximum different between global track and tracker track
+      const double min_TrackPt_;        // cutoff in tracker track pt
+      const bool devDebug_;
+      const edm::InputTag theL3LinksLabel;
+      const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
 };
 
 #endif //HLTMuonL3PreFilter_h

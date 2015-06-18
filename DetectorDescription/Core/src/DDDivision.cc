@@ -48,34 +48,34 @@ DDDivision::DDDivision( const DDName & name) : DDBase<DDName,DDI::Division*>()
   //  DD_NDC(name);
 }
 
-DDDivision::DDDivision(const DDName & name,
-             const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double width,
-	     const double offset ) :  DDBase<DDName,DDI::Division*>()
+DDDivision::DDDivision( const DDName & name,
+			const DDLogicalPart & parent,
+			const DDAxes axis,
+			const int nReplicas,
+			const double width,
+			const double offset ) :  DDBase<DDName,DDI::Division*>()
 {
   DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " nReplicas=" << nReplicas << " width=" << width << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, nReplicas, width, offset)); 
   //  DD_NDC(name);
 } 
 
-DDDivision::DDDivision(const DDName & name,
-	     const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double offset )
+DDDivision::DDDivision( const DDName & name,
+			const DDLogicalPart & parent,
+			const DDAxes axis,
+			const int nReplicas,
+			const double offset )
 {
   DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " nReplicas=" << nReplicas << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, nReplicas, offset)); 
   //  DD_NDC(name);
 }
 
-DDDivision::DDDivision(const DDName & name,
-             const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const double width,
-	     const double offset )
+DDDivision::DDDivision( const DDName & name,
+			const DDLogicalPart & parent,
+			const DDAxes axis,
+			const double width,
+			const double offset )
 {
   DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " width=" << width << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, width, offset)); 

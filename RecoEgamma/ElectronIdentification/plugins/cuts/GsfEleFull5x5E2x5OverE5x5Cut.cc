@@ -54,11 +54,11 @@ GsfEleFull5x5E2x5OverE5x5Cut::GsfEleFull5x5E2x5OverE5x5Cut(const edm::ParameterS
 }
 
 void GsfEleFull5x5E2x5OverE5x5Cut::setConsumes(edm::ConsumesCollector& cc) {
-  auto e5x5 = cc.consumes<double>(contentTags_[e5x5_]);
+  auto e5x5 = cc.consumes<edm::ValueMap<float> >(contentTags_[e5x5_]);
   contentTokens_.emplace(e5x5_,e5x5); 
-  auto e2x5 = cc.consumes<double>(contentTags_[e2x5_]);
+  auto e2x5 = cc.consumes<edm::ValueMap<float> >(contentTags_[e2x5_]);
   contentTokens_.emplace(e2x5_,e2x5); 
-  auto e1x5 = cc.consumes<double>(contentTags_[e1x5_]);
+  auto e1x5 = cc.consumes<edm::ValueMap<float> >(contentTags_[e1x5_]);
   contentTokens_.emplace(e1x5_,e1x5);  
 }
 

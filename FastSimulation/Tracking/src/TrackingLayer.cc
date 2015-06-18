@@ -1,8 +1,6 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
-const TrackingLayer::eqfct TrackingLayer::_eqfct;
-const TrackingLayer::hashfct TrackingLayer::_hashfct;
-
+     
 TrackingLayer::TrackingLayer():
     _subDet(Det::UNKNOWN),
     _side(Side::BARREL),
@@ -184,6 +182,12 @@ TrackingLayer TrackingLayer::createFromString(std::string layerSpecification)
         trackingLayer._side=TrackingLayer::Side::BARREL;
         trackingLayer._layerNumber = std::atoi(layerSpecification.substr(3,1).c_str());
     }
+    else if (layerSpecification.substr(0,4)=="MTOB" )
+      {
+	trackingLayer._subDet=TrackingLayer::Det::TOB;
+	trackingLayer._side=TrackingLayer::Side::BARREL;
+	trackingLayer._layerNumber = std::atoi(layerSpecification.substr(4,1).c_str());
+      }
     else if (layerSpecification.substr(0,3)=="TEC" ) 
     {
         trackingLayer._subDet=TrackingLayer::Det::TEC;

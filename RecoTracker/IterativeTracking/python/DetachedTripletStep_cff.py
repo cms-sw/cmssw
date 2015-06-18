@@ -49,8 +49,8 @@ detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    maxLostHitsFraction = cms.double(1./10.),
-    constantValueForLostHitsFractionFilter = cms.double(0.701),
+#    maxLostHitsFraction = cms.double(1./10.),
+#    constantValueForLostHitsFractionFilter = cms.double(0.701),
     minimumNumberOfHits = 3,
     minPt = 0.075
     )
@@ -60,7 +60,8 @@ detachedTripletStepTrajectoryFilter = cms.PSet(
     ComponentType = cms.string('CompositeTrajectoryFilter'),
     filters = cms.VPSet(
         cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterBase')),
-        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape'))),
+#        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape'))
+    ),
 )
 
 
@@ -115,20 +116,20 @@ detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-
-# TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='detachedTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepVtxLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
             useMVA = cms.bool(True),
-            minMVA = cms.double(-0.5),
-            #res_par = ( 0.003, 0.001 ),
+            minMVA = cms.double(-0.2),
+            useMVAonly = cms.bool(True),
+            mvaType = cms.string("Prompt"),
+            res_par = ( 0.003, 0.001 ),
             #minNumberLayers = 3,
             d0_par1 = ( 1.2, 3.0 ),#sync with mixedTripletStep
             dz_par1 = ( 1.2, 3.0 ),
@@ -138,9 +139,11 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepTrkLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV'),
             useMVA = cms.bool(True),
+            useMVAonly = cms.bool(True),
             minMVA = cms.double(-0.5),
-            #res_par = ( 0.003, 0.001 ),
+            res_par = ( 0.003, 0.001 ),
             #minNumberLayers = 3,
             d0_par1 = ( 1.4, 4.0 ),
             dz_par1 = ( 1.4, 4.0 ),
@@ -150,6 +153,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'detachedTripletStepVtxTight',
             preFilterName = 'detachedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV'),
             chi2n_par = 0.9,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
@@ -163,6 +167,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'detachedTripletStepTrkTight',
             preFilterName = 'detachedTripletStepTrkLoose',
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV'),
             chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -177,15 +182,14 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             name = 'detachedTripletStepVtx',
             preFilterName = 'detachedTripletStepVtxLoose',
             chi2n_par = cms.double(9999),
+            GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
             useMVA = cms.bool(True),
-            minMVA = cms.double(0.5),
+            minMVA = cms.double(0.4),
+            mvaType = cms.string("Prompt"),
+            useMVAonly = cms.bool(True),
             qualityBit = cms.string('highPurity'),
             keepAllTracks = cms.bool(True),
-            #chi2n_par = 0.7,
-            #res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 3,
-            #maxNumberLostLayers = 1,
-            #minNumber3DLayers = 3,
+            res_par = ( 0.003, 0.001 ),
             d0_par1 = ( 1.0, 3.0 ),#sync with mixedTripletStep
             dz_par1 = ( 1.0, 3.0 ),
             d0_par2 = ( 1.1, 3.0 ),
@@ -195,15 +199,13 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             name = 'detachedTripletStepTrk',
             preFilterName = 'detachedTripletStepTrkLoose',
             chi2n_par = cms.double(9999),
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV'),
             useMVA = cms.bool(True),
+            useMVAonly = cms.bool(True),
             minMVA = cms.double(0.5),
             qualityBit = cms.string('highPurity'),
             keepAllTracks = cms.bool(True),
-            #chi2n_par = 0.3,
-            #res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 5,
-            #maxNumberLostLayers = 0,
-            #minNumber3DLayers = 4,
+            res_par = ( 0.003, 0.001 ),
             d0_par1 = ( 1.0, 4.0 ),
             dz_par1 = ( 1.0, 4.0 ),
             d0_par2 = ( 1.0, 4.0 ),

@@ -258,13 +258,16 @@ FamosCalorimetryBlock = cms.PSet(
             ietaShiftHF = cms.int32(29),
             timeShiftHF = cms.vdouble(50.7, 52.5, 52.9, 53.9, 54.5, 55.1, 55.1, 55.7, 55.9, 56.1, 56.1, 56.1, 56.5),
             ),
+            HFShower           = cms.PSet(
+              ProbMax          = cms.double(1.0),
+              CFibre           = cms.double(0.5),
+              OnlyLong          = cms.bool(True)
+            ),
             HFShowerLibrary    = cms.PSet(
               useShowerLibrary = cms.untracked.bool(False),
               useCorrectionSL  = cms.untracked.bool(True),
               FileName = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'),
-              ProbMax          = cms.double(1.0),
               BackProbability  = cms.double(0.2),
-              CFibre           = cms.double(0.5),
               TreeEMID         = cms.string('emParticles'),
               TreeHadID        = cms.string('hadParticles'),
               Verbosity        = cms.untracked.bool(False),

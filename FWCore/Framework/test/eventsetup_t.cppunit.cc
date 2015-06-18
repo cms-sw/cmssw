@@ -48,6 +48,7 @@ CPPUNIT_TEST_SUITE(testEventsetup);
 
 CPPUNIT_TEST(constructTest);
 CPPUNIT_TEST(getTest);
+CPPUNIT_TEST(tryToGetTest);
 CPPUNIT_TEST_EXCEPTION(getExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(recordProviderTest);
 CPPUNIT_TEST(provenanceTest);
@@ -74,6 +75,7 @@ public:
 
   void constructTest();
   void getTest();
+  void tryToGetTest();
   void getExcTest();
   void recordProviderTest();
   void recordValidityTest();
@@ -122,6 +124,21 @@ void testEventsetup::getTest()
    const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
    CPPUNIT_ASSERT(non_null(&gottenRecord));
    CPPUNIT_ASSERT(&dummyRecord == &gottenRecord);
+}
+
+void testEventsetup::tryToGetTest()
+{
+  eventsetup::EventSetupProvider provider;
+  EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  CPPUNIT_ASSERT(non_null(&eventSetup));
+  //eventSetup.get<DummyRecord>();
+  //CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+  
+  DummyRecord dummyRecord;
+  provider.addRecordToEventSetup(dummyRecord);
+  const DummyRecord* gottenRecord = eventSetup.tryToGet<DummyRecord>();
+  CPPUNIT_ASSERT(non_null(gottenRecord));
+  CPPUNIT_ASSERT(&dummyRecord == gottenRecord);
 }
 
 void testEventsetup::getExcTest()

@@ -15,6 +15,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
+
 class DQMStore;
 
 class CentralityDQM : public DQMEDAnalyzer {
@@ -43,6 +45,9 @@ class CentralityDQM : public DQMEDAnalyzer {
   edm::InputTag vertexTag_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertexToken;
   edm::Handle<std::vector<reco::Vertex> > vertex_;
+
+  edm::InputTag  eventplaneTag_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> eventplaneToken;
 
   ///////////////////////////
   // Histograms
@@ -75,6 +80,13 @@ class CentralityDQM : public DQMEDAnalyzer {
   MonitorElement* h_vertex_x;
   MonitorElement* h_vertex_y;
   MonitorElement* h_vertex_z;
+
+  MonitorElement* h_ep_HFm2;
+  MonitorElement* h_ep_HFp2;
+  MonitorElement* h_ep_trackmid2;
+  MonitorElement* h_ep_trackm2;
+  MonitorElement* h_ep_trackp2;
+  MonitorElement* h_ep_castor2;
 };
 
 #endif

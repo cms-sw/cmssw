@@ -77,6 +77,7 @@ public:
 
    FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
+   static void syncAllViews() { s_syncAllViews = true; }
 protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
@@ -103,6 +104,8 @@ private:
    typedef std::vector<boost::shared_ptr<FWEveView > >::iterator EveViewVec_it;
    
    TypeToBuilder            m_typeToBuilder;
+
+   static bool s_syncAllViews;
 
    std::map<int, BuilderVec> m_builders; // key is viewer bit
 

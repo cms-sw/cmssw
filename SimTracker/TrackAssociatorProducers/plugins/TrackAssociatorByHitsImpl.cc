@@ -30,7 +30,8 @@ using namespace std;
 
 /* Constructor */
 
-TrackAssociatorByHitsImpl::TrackAssociatorByHitsImpl(std::unique_ptr<TrackerHitAssociator> iAssociate,
+TrackAssociatorByHitsImpl::TrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
+                                                     std::unique_ptr<TrackerHitAssociator> iAssociate,
                                                      TrackerTopology const* iTopo,
                                                      SimHitTPAssociationList const* iSimHitsTPAssoc,
                                                      SimToRecoDenomType iSimToRecoDenominator,
@@ -42,6 +43,7 @@ TrackAssociatorByHitsImpl::TrackAssociatorByHitsImpl(std::unique_ptr<TrackerHitA
                                                      bool iUseSplitting,
                                                      bool iThreeHitTracksAreSpecial,
                                                      bool iAbsoluteNumberOfHits) :
+  productGetter_(&productGetter),
   associate(std::move(iAssociate)),
   tTopo(iTopo),
   simHitsTPAssoc(iSimHitsTPAssoc),
@@ -96,7 +98,7 @@ TrackAssociatorByHitsImpl::associateRecoToSim(const edm::RefToBaseVector<reco::T
   float quality=0;//fraction or absolute number of shared hits
   std::vector< SimHitIdpr> SimTrackIds;
   std::vector< SimHitIdpr> matchedIds; 
-  RecoToSimCollection  outputCollection;
+  RecoToSimCollection  outputCollection(productGetter_);
   
   //dereference the edm::Refs only once
   std::vector<TrackingParticle const*> tPC;
@@ -176,7 +178,7 @@ TrackAssociatorByHitsImpl::associateSimToReco(const edm::RefToBaseVector<reco::T
   int nshared = 0;
   std::vector< SimHitIdpr> SimTrackIds;
   std::vector< SimHitIdpr> matchedIds; 
-  SimToRecoCollection  outputCollection;
+  SimToRecoCollection  outputCollection(productGetter_);
 
   //dereferene the edm::Refs only once
   std::vector<TrackingParticle const*> tPC;
@@ -327,7 +329,7 @@ TrackAssociatorByHitsImpl::associateRecoToSim(const edm::Handle<edm::View<Trajec
   float quality=0;//fraction or absolute number of shared hits
   std::vector< SimHitIdpr> SimTrackIds;
   std::vector< SimHitIdpr> matchedIds; 
-  RecoToSimCollectionSeed  outputCollection;
+  RecoToSimCollectionSeed  outputCollection(productGetter_);
   
   const TrackingParticleCollection& tPC   = *(TPCollectionH.product());
 
@@ -392,7 +394,7 @@ TrackAssociatorByHitsImpl::associateSimToReco(const edm::Handle<edm::View<Trajec
   int nshared = 0;
   std::vector< SimHitIdpr> SimTrackIds;
   std::vector< SimHitIdpr> matchedIds; 
-  SimToRecoCollectionSeed  outputCollection;
+  SimToRecoCollectionSeed  outputCollection(productGetter_);
 
   const TrackingParticleCollection& tPC =*TPCollectionH.product();
 

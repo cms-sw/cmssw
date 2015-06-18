@@ -445,17 +445,26 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
   const unsigned int n(min(ids.size(),refs.size()));
   for (unsigned int i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
-    if (offset_.find(pid)==offset_.end()) {
+    if (!(pid.isValid())) {
+      LogError("TriggerSummaryProducerAOD")
+	<< "Iinvalid pid: " << pid
+	<< " FilterTag / Key: " << tag.encode()
+	<< " / " << i << "of" << n
+	<< " CollectionTag / Key: "
+	<< " <Unrecoverable>"
+	<< " / " << refs[i].key()
+	<< " CollectionType: " << typeid(C).name();
+    } else if (offset_.find(pid)==offset_.end()) {
       const string&    label(iEvent.getProvenance(pid).moduleLabel());
       const string& instance(iEvent.getProvenance(pid).productInstanceName());
       const string&  process(iEvent.getProvenance(pid).processName());
       LogError("TriggerSummaryProducerAOD")
-	<< "Uunknown pid:"
-	<< " FilterTag/Key: " << tag.encode()
-	<< "/" << i
-	<< " CollectionTag/Key: "
+	<< "Uunknown pid: " << pid
+	<< " FilterTag / Key: " << tag.encode()
+	<< " / " << i << "of" << n
+	<< " CollectionTag / Key: "
 	<< InputTag(label,instance,process).encode()
-	<< "/" << refs[i].key()
+	<< " / " << refs[i].key()
 	<< " CollectionType: " << typeid(C).name();
     } else {
       fillFilterObjectMember(offset_[pid],ids[i],refs[i]);

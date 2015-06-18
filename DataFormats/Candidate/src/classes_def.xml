@@ -6,7 +6,8 @@
    <field name="p4Polar_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double32_t> >" />
    <field name="p4Cartesian_" transient="true" />
   </class>
-  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4Polar_" target="p4Cartesian_">
+  <!--The 'int pdgId_' is a workaround for ROOT bug which affects iorules for split classes-->
+  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4Polar_;int pdgId_" target="p4Cartesian_">
    <![CDATA[newObj->setCartesian();]]>
   </ioread>
 
@@ -119,6 +120,7 @@
   <class name="edm::reftobase::Holder<reco::Candidate, reco::CandidateRef>" />
   <class name="edm::reftobase::IndirectHolder<reco::Candidate>"/>
   <class name="edm::reftobase::RefHolder<reco::CandidateRef>"/>
+  <class name="edm::reftobase::RefHolder<reco::CandidatePtr>"/>
 
   <class name="edm::RefToBase<reco::Candidate>" />
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />

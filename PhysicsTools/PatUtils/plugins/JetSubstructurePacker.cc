@@ -66,8 +66,9 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
 	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
 	  }
+	  break;
 	}
-	break;
+	
       }
 
       outputs->back().addSubjets( nextSubjets, algoLabels_[index] );

@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 
 // system include files
 #include "boost/static_assert.hpp"
@@ -31,6 +32,7 @@
 
 // forward declarations
 namespace edm {
+  class ProductID;
   template <typename T> class PtrVector;
 
   template <typename T>
@@ -161,7 +163,8 @@ namespace edm {
       return *this;
     }
 
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers,
+                  FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(8)
@@ -180,20 +183,23 @@ namespace edm {
 
   template <typename T>
   void
-  PtrVector<T>::fillView(std::vector<void const*>& pointers) const {
+  PtrVector<T>::fillView(std::vector<void const*>& pointers,
+                         FillViewHelperVector& helpers) const {
     pointers.reserve(this->size());
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       Ptr<T> ref = *i;
       T const* address = ref.isNull() ? 0 : &*ref;
       pointers.push_back(address);
+      helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }
   }
 
-  // NOTE: the following implementation has unusual signature!
   template <typename T>
   inline void fillView(PtrVector<T> const& obj,
-                       std::vector<void const*>& pointers) {
-    obj.fillView(pointers);
+                       ProductID const&,
+                       std::vector<void const*>& pointers,
+                       FillViewHelperVector& helpers) {
+    obj.fillView(pointers,helpers);
   }
 
   template <typename T>

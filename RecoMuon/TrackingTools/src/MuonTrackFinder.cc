@@ -102,7 +102,7 @@ MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seed
   
   // clean the clone traj
   LogTrace(metname)<<"Clean the trajectories container"<<endl;
-  if(theTrajCleaner) theTrajCleaner->clean(muonTrajectories, event); //used by reference...
+  if(theTrajCleaner) theTrajCleaner->clean(muonTrajectories, event, seeds); //used by reference...
   
   // convert the trajectories into tracks and load them in to the event
   LogTrace(metname)

@@ -1,10 +1,10 @@
 #include "RecoTracker/GeometryESProducer/plugins/TrackerRecoGeometryESProducer.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,7 +39,7 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( geoLabel, tG );
 
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHand);
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   GeometricSearchTrackerBuilder builder;

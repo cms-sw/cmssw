@@ -20,11 +20,10 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
-#include "DataFormats/Common/interface/RefToPtr.h"
-
 #include <DataFormats/Math/interface/deltaR.h>
+
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template<typename T1>
 HLTEcalPFClusterIsolationProducer<T1>::HLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config):
@@ -77,36 +76,7 @@ void HLTEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<double>("etaStripEndcap", 0.0);
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTEcalPFClusterIsolationProducer<T1>).name()), desc);
-}
-
-template<>
-bool HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
-
-  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 > (drMax_*drMax_))
-    return false;
-
-  if (candRef->superCluster().isNonnull()) {
-    // Exclude clusters that are part of the candidate
-    for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
-      if ((*it)->seed() == pfclu->seed()) {
-	return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-template<typename T1>
-bool HLTEcalPFClusterIsolationProducer<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
-
-  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 > (drMax_*drMax_) || dR2 < drVeto2_)
-    return false;
-  else
-    return true;
+  descriptions.add(defaultModuleLabel<HLTEcalPFClusterIsolationProducer<T1>>(), desc);
 }
 
 template<typename T1>
@@ -130,42 +100,14 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
   iEvent.getByToken(recoCandidateProducer_,recoCandHandle);
   iEvent.getByToken(pfClusterProducer_, clusterHandle);
 
-  T1IsolationMap recoCandMap;
-  
-  drVeto2_ = -1.;
-  float etaStrip = -1;
-  
+  EcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
+  T1IsolationMap recoCandMap(recoCandHandle);
+    
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);
     
-    if (fabs(candRef->eta()) < 1.479) {
-      drVeto2_ = drVetoBarrel_*drVetoBarrel_;
-      etaStrip = etaStripBarrel_;
-    } else {
-      drVeto2_ = drVetoEndcap_*drVetoEndcap_;
-      etaStrip = etaStripEndcap_;
-    }
+    float sum = isoAlgo.getSum(candRef, clusterHandle);
     
-    float sum = 0;
-    for (size_t i=0; i<clusterHandle->size(); i++) {
-      reco::PFClusterRef pfclu(clusterHandle, i);
-
-      if (fabs(candRef->eta()) < 1.479) {
-	if (fabs(pfclu->pt()) < energyBarrel_)
-	  continue;
-      } else {
-	if (fabs(pfclu->energy()) < energyEndcap_)
-	  continue;
-      }
-
-      float dEta = fabs(candRef->eta() - pfclu->eta());
-      if(dEta < etaStrip) continue;
-      if (not computedRVeto(candRef, pfclu))
-	continue;
-
-      sum += pfclu->pt();
-    }
-     
     if (doRhoCorrection_) {
       if (fabs(candRef->eta()) < 1.479) 
 	sum = sum - rho*effectiveAreaBarrel_;

@@ -103,7 +103,7 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
 }
 
 reco::TrackToTrackMap CosmicMuonLinksProducer::mapTracks(const Handle<reco::TrackCollection>& subTracks, const Handle<reco::TrackCollection>& parentTracks) const {
-  reco::TrackToTrackMap map;
+  reco::TrackToTrackMap map(subTracks, parentTracks) ;
   for ( unsigned int position1 = 0; position1 != subTracks->size(); ++position1) {
     TrackRef track1(subTracks, position1);
     for ( unsigned int position2 = 0; position2 != parentTracks->size(); ++position2) {

@@ -166,9 +166,6 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".autodict")
 if options.library is None:
-    if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
-        raise RuntimeError("failed to load libFWCoreFWLite")
-    ROOT.AutoLibraryLoader.enable()
     if options.checkdict :
         print "Dictionary checks require a specific library"
 else:

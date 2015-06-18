@@ -211,11 +211,28 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
 	   signal = asignal;
 	 }
-	 else {
+	 else {  // Any changes made here must be reverse-engineered in EcalSignalGenerator!
 
-	   const double asignal ( // no pedestals for pre-mixing
-				 ecalSamples[i] /( LSB[igain]*icalconst ) );
-	   signal = asignal;
+           if( igain == 1) {
+             const double asignal ( ecalSamples[i]*1000. );  // save low level info                   
+             signal = asignal;
+           }
+           else if( igain == 2) {
+             const double asignal ( ecalSamples[i]/( LSB[1]*icalconst ));
+             signal = asignal;
+           }
+           else if( igain == 3) {   // bet that no pileup hit has an energy over Emax/2             
+             const double asignal ( ecalSamples[i]/( LSB[2]*icalconst ) );
+             signal = asignal;
+           }
+	   else { //not sure we ever get here at gain=0, but hit wil be saturated anyway
+	     const double asignal ( ecalSamples[i]/( LSB[3]*icalconst ) ); // just calculate something
+             signal = asignal;
+	   }
+	   // old version
+	   //const double asignal ( // no pedestals for pre-mixing
+	   //			 ecalSamples[i] /( LSB[igain]*icalconst ) );
+	   //signal = asignal;
 	 }
 
 	 //	 std::cout << " " << ecalSamples[i] << " " << noiseframe[igain-1][i] << std::endl;

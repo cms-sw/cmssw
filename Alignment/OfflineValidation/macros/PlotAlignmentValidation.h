@@ -72,6 +72,7 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
 class PlotAlignmentValidation {
 public:
   //PlotAlignmentValidation(TString *tmp);
+  PlotAlignmentValidation() {}
   PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1);
   ~PlotAlignmentValidation();
   void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
@@ -89,7 +90,7 @@ public:
   THStack* addHists(const char *selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
 private : 
-  TList getTreeList();
+  TList* getTreeList();
   std::string treeBaseDir;
 
   bool useFit_;

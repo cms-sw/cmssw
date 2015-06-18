@@ -9,8 +9,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
-{
+HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
   hltGTseedlabel_      = iConfig.getParameter<edm::InputTag> ("L1GTSeedLabel");
   minDeltaPtL1Jet_     = iConfig.getParameter<double> ("MinDeltaPtL1Jet");
@@ -47,11 +46,11 @@ HLTPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("isolPixelTrackFilter",desc);
 }
 
-bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
+bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+
   if (saveTags())
     filterproduct.addCollectionTag(candTag_);
-
+  
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref;
 
@@ -76,44 +75,47 @@ bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
 
   for (unsigned int p=0; p<l1tauobjref.size(); p++)
-      if (l1tauobjref[p]->pt() > ptTriggered)
-	  ptTriggered = l1tauobjref[p]->pt();
+    if (l1tauobjref[p]->pt() > ptTriggered)
+      ptTriggered = l1tauobjref[p]->pt();
   for (unsigned int p=0; p<l1jetobjref.size(); p++)
-      if (l1jetobjref[p]->pt() > ptTriggered)
-	  ptTriggered = l1jetobjref[p]->pt();
+    if (l1jetobjref[p]->pt() > ptTriggered)
+      ptTriggered = l1jetobjref[p]->pt();
   for (unsigned int p=0; p<l1forjetobjref.size(); p++)
-      if (l1forjetobjref[p]->pt() > ptTriggered)
-          ptTriggered = l1forjetobjref[p]->pt();
+    if (l1forjetobjref[p]->pt() > ptTriggered)
+      ptTriggered = l1forjetobjref[p]->pt();
 
   int n=0;
-  for (unsigned int i=0; i<recotrackcands->size(); i++)
-    {
-      candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
+  for (unsigned int i=0; i<recotrackcands->size(); i++) {
+    candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
 
-      // cut on deltaPT
-      if (ptTriggered-candref->pt()<minDeltaPtL1Jet_) continue;
+    // cut on deltaPT
+    if (ptTriggered-candref->pt()<minDeltaPtL1Jet_) continue;
 
-      // select on transverse momentum
-      if (!filterE_&&(candref->maxPtPxl()<maxptnearby_)&&
-	  (candref->pt()>minpttrack_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_)
-	{
-	  filterproduct.addObject(trigger::TriggerTrack, candref);
-	  n++;
-	}
+    // select on transverse momentum
+    if (!filterE_&&(candref->maxPtPxl()<maxptnearby_)&&
+	(candref->pt()>minpttrack_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_) {
+      filterproduct.addObject(trigger::TriggerTrack, candref);
+      n++;
+      LogDebug("IsoTrk") << "PixelIsolP:Candidate[" << n <<"] pt|eta|phi "
+			 << candref->pt() << "|" << candref->eta() << "|"
+			 << candref->phi() << "\n";
+    }
 
-      // select on momentum
-      if (filterE_){
-	if ((candref->maxPtPxl()<maxptnearby_)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_)
-	  {
-	    filterproduct.addObject(trigger::TriggerTrack, candref);
-	    n++;
-	  }
+    // select on momentum
+    if (filterE_){
+      if ((candref->maxPtPxl()<maxptnearby_)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_) {
+	filterproduct.addObject(trigger::TriggerTrack, candref);
+	n++;
+	LogDebug("IsoTrk") << "PixelIsolE:Candidate[" << n <<"] pt|eta|phi "
+			   << candref->pt() << "|" << candref->eta() << "|"
+			   << candref->phi() << "\n";
       }
+    }
 
-      // stop looping over tracks if max number is reached
-      if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break;
+    // stop looping over tracks if max number is reached
+    if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break;
 
-    } // loop over tracks
+  } // loop over tracks
 
 
   bool accept(n>0);

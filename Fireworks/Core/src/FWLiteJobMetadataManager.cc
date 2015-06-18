@@ -14,6 +14,21 @@ FWLiteJobMetadataManager::FWLiteJobMetadataManager(void)
      m_event(0)
 {}
 
+bool
+FWLiteJobMetadataManager::hasModuleLabel(std::string& moduleLabel)
+{
+   if (m_event) {
+      for ( auto bit = m_event->getBranchDescriptions().begin(); bit !=  m_event->getBranchDescriptions().end(); ++bit)
+      {
+         if (bit->moduleLabel() == moduleLabel) {
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
+
 /** This method inspects the currently opened TFile and for each branch 
     containing products for which we can either build a TCollectionProxy or 
     for which we have a specialized accessor, it registers it as a viewable 

@@ -1,5 +1,8 @@
+//#define DebugLog
 // system include files
 #include <memory>
+#include <string>
+#include <vector>
 
 // Root objects
 #include "TROOT.h"
@@ -16,6 +19,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+
 // Vertices
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -35,6 +39,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -97,7 +102,6 @@ private:
   double                     pTrackMin_, eEcalMax_, eIsolation_;
   bool                       qcdMC;
   int                        nRun, nAll, nGood;
-  std::vector<bool>         *t_trgbits; 
   edm::InputTag              triggerEvent_, theTriggerResultsLabel;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
@@ -119,6 +123,7 @@ private:
   double                     t_mindR2, t_eMipDR, t_eHcal, t_hmaxNearP;
   double                     t_npvtruth, t_npvObserved;
   bool                       t_selectTk,t_qltyFlag,t_qltyMissFlag,t_qltyPVFlag;
+  std::vector<bool>         *t_trgbits; 
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>       *t_HitEnergies, pbin, vbin;
   TProfile                  *h_RecHit_iEta, *h_RecHit_num;
@@ -127,11 +132,11 @@ private:
   TH1F                      *h_Rechit_E, *h_jetp;
   TH1F 			    *h_jetpt[4];
   TH1I                      *h_tketav1[5][6], *h_tketav2[5][6];
-  std::vector<std::string> trgnames;
 };
 
 IsoTrackCalibration::IsoTrackCalibration(const edm::ParameterSet& iConfig) : 
-  changed(false), nRun(0), nAll(0), nGood(0) {
+  changed(false), nRun(0), nAll(0), nGood(0), 
+  t_trgbits(0), t_DetIds(0), t_HitEnergies(0) {
   //now do whatever initialization is needed
   verbosity                           = iConfig.getUntrackedParameter<int>("Verbosity",0);
   trigNames                           = iConfig.getUntrackedParameter<std::vector<std::string> >("Triggers");
@@ -184,6 +189,7 @@ IsoTrackCalibration::IsoTrackCalibration(const edm::ParameterSet& iConfig) :
 
   std::vector<int>dummy(trigNames.size(),0);
   trigKount = trigPass = dummy;
+#ifdef DebugLog
   if (verbosity>=0) {
     std::cout <<"Parameters read from config file \n" 
 	      <<"\t minPt "           << selectionParameters.minPt   
@@ -210,11 +216,15 @@ IsoTrackCalibration::IsoTrackCalibration(const edm::ParameterSet& iConfig) :
       std::cout << ": " << trigNames[k];
     std::cout << std::endl;
   }
+#endif
 }
 
 IsoTrackCalibration::~IsoTrackCalibration() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  if (t_trgbits)     delete t_trgbits;
+  if (t_DetIds)      delete t_DetIds;
+  if (t_HitEnergies) delete t_HitEnergies;
 
 }
 
@@ -224,11 +234,12 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   t_Run   = iEvent.id().run();
   t_Event = iEvent.id().event();
   nAll++;
+#ifdef DebugLog
   if (verbosity%10 > 0) 
     std::cout << "Run " << t_Run << " Event " << t_Event << " Luminosity " 
 	      << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing()
 	      << " starts ==========" << std::endl;
-
+#endif
   //Get magnetic field and ECAL channel status
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
@@ -268,14 +279,18 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   }
   int ivtx = (int)(vbin.size()-2);
   for (unsigned int iv=1; iv<vbin.size(); ++iv) {
+#ifdef DebugLog
+    std::cout << "Bin " << iv << " " << vbin[iv-1] << ":" << vbin[iv] << std::endl;
+#endif
     if (t_npvtruth <= vbin[iv]) {
       ivtx = iv-1; break;
     }
   }
+#ifdef DebugLog
   if (verbosity == 0) 
     std::cout << "PU Vertex " << t_npvtruth << "/" << t_npvObserved << " IV "
-	      << ivtx << std::endl;
-
+	      << ivtx << ":" << vbin.size() << std::endl;
+#endif
   //=== genJet information
   edm::Handle<reco::GenJetCollection> genJets;
   iEvent.getByToken(tok_jets_, genJets);
@@ -304,13 +319,14 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();
   }
+#ifdef DebugLog
   if ((verbosity/100)%10>0) {
     std::cout << "Primary Vertex " << leadPV;
     if (beamSpotH.isValid()) std::cout << " Beam Spot " 
 				       << beamSpotH->position();
     std::cout << std::endl;
   }
-  
+#endif  
   // RecHits
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
@@ -326,7 +342,12 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
     int    rec_depth  = rhitItr->id().depth();
     int    rec_zside  = rhitItr->id().zside();
     double num1_1     = rec_zside*(rec_ieta+0.2*(rec_depth-1));
-    if (verbosity%10>0)  std::cout << "detid/rechit/ieta/zside/depth/num " << " = " << rhitItr->id() << "/" << rec_energy << "/" << rec_ieta << "/" << rec_zside << "/" << rec_depth << "/" << num1_1 << std::endl;
+#ifdef DebugLog
+    if (verbosity%10>0)
+      std::cout << "detid/rechit/ieta/zside/depth/num  = " << rhitItr->id() 
+		<< "/" << rec_energy << "/" << rec_ieta << "/" << rec_zside 
+		<< "/" << rec_depth << "/" << num1_1 << std::endl;
+#endif
     h_iEta->Fill(rec_ieta);
     h_Rechit_E->Fill(rec_energy);
     h_RecHit_iEta->Fill(rec_ieta,rec_energy);
@@ -346,17 +367,25 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
       double tk_p = pTrack->p();
       h_tketa0[0]->Fill(tk_ieta);
+      h_tketav1[ivtx][0]->Fill(tk_ieta);
+#ifdef DebugLog
+      std::cout << "Fill for " << tk_ieta << " in " << ivtx << ":" 
+		<<  h_tketav1[ivtx][0]->GetName() << std::endl;
+#endif
       for (unsigned int k=1; k<pbin.size(); ++k) {
 	if (tk_p >= pbin[k-1] && tk_p < pbin[k]) {
 	  h_tketa0[k]->Fill(tk_ieta);
 	  h_tketav1[ivtx][k]->Fill(tk_ieta);
+#ifdef DebugLog
+	  std::cout << "Fill for " << tk_ieta << ":" << tk_p << " in " << ivtx
+		    << ":" <<  h_tketav1[ivtx][k]->GetName() << std::endl;
+#endif
 	  break;
 	}
       }
     }
   }
 
-  trgnames.clear();
   //Trigger
   t_trgbits->clear();
   for (unsigned int i=0; i<trigNames.size(); ++i) t_trgbits->push_back(false);
@@ -365,8 +394,10 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByToken(tok_trigEvt, triggerEventHandle);
   if (!triggerEventHandle.isValid()) {
+#ifdef DebugLog
     std::cout << "Error! Can't get the product "<< triggerEvent_.label() 
 	      << std::endl;
+#endif
   } else {
     triggerEvent = *(triggerEventHandle.product());
     
@@ -389,10 +420,12 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	      ok = true;
 	      trigPass[i]++;
 	    }
+#ifdef DebugLog
 	    if (verbosity%10 > 0)
 	      std::cout << "This is the trigger we are looking for "
 			<< triggerNames_[iHLT] << " Flag " << hlt << ":"
 			<< ok << std::endl;
+#endif
           }
         }
 
@@ -409,7 +442,9 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	    for (unsigned int imodule=0; imodule<moduleLabels.size(); 
 		 imodule++) {
 	      if (label.find(moduleLabels[imodule]) != std::string::npos) {
+#ifdef DebugLog
 		if (verbosity%10 > 0) std::cout << "FilterName " << label << std::endl;
+#endif
 		for (unsigned int ifiltrKey=0; ifiltrKey<triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
 		  Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
 		  const trigger::TriggerObject& TO(TOC[Keys[ifiltrKey]]);
@@ -432,15 +467,19 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 		      vec[0].push_back(v4);
 		    }
 		  }
+#ifdef DebugLog
 		  if (verbosity%10 > 2)
 		    std::cout << "key " << ifiltrKey << " : pt " << TO.pt() 
 			      << " eta " << TO.eta() << " phi " << TO.phi() 
 			      << " mass " << TO.mass() << " Id " << TO.id() 
 			      << std::endl;
+#endif
 		}
+#ifdef DebugLog
 		if (verbosity%10 > 0) std::cout << "sizes " << vec[0].size() 
 						<< ":" << vec[1].size() << ":" 
 						<< vec[2].size() << std::endl;
+#endif
 	      }
 	    }
 	  }
@@ -451,8 +490,10 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	  for (int lvl=1; lvl<3; lvl++) {
 	    for (unsigned int i=0; i<vec[lvl].size(); i++) {
 	      dr   = dR(vec[0][0],vec[lvl][i]);
+#ifdef DebugLog
 	      if (verbosity%10 > 2)  std::cout << "lvl " <<lvl << " i " << i 
 					       << " dR " << dr << std::endl;
+#endif
 	      if (dr<mindR1) {
 		mindR1    = dr;
 		mindRvec1 = vec[lvl][i];
@@ -476,10 +517,12 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
             math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
 				       pTrack->pz(), pTrack->p());
+#ifdef DebugLog
 	    if (verbosity%10> 0) 
 	      std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" 
 			<< pTrack->pt() << "/" << pTrack->eta() << "/" 
 			<< pTrack->phi() << "/" << pTrack->p() << std::endl;
+#endif
 	    math::XYZTLorentzVector mindRvec2;
 	    t_mindR2 = 999;
 
@@ -491,9 +534,11 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	      }
 	    }
 	    t_mindR1 = dR(vec[0][0],v4);
+#ifdef DebugLog
 	    if (verbosity%10> 2)
 	      std::cout << "Closest L3 object at mindr :" << t_mindR2 << " is "
 			<< mindRvec2 << " and from L1 " << t_mindR1 <<std::endl;
+#endif
 	    
 	    //Selection of good track
 	    t_selectTk = spr::goodTrack(pTrack,leadPV,selectionParameters,((verbosity/100)%10>2));
@@ -516,10 +561,12 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	      HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
 	      t_ieta = detId.ieta();
 	    }
+#ifdef DebugLog
 	    if (verbosity%10 > 0) 
 	      std::cout << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" 
 			<< trkDetItr->okECAL << "/" << trkDetItr->okHCAL 
 			<< std::endl;
+#endif
 	    t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
 	    t_p        = pTrack->p();
 	    h_tketa1[0]->Fill(t_ieta);
@@ -575,6 +622,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 		  }
 		  if (t_mindR1 > 1) {
 		    h_tketa5[0]->Fill(t_ieta);
+		    h_tketav2[ivtx][0]->Fill(t_ieta);
 		    for (unsigned int k=1; k<pbin.size(); ++k) {
 		      if (t_p >= pbin[k-1] && t_p < pbin[k]) {
 			h_tketa5[k]->Fill(t_ieta);
@@ -585,6 +633,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 		  }
 		}
 	      }
+#ifdef DebugLog
 	      if (verbosity%10 > 0) {
 		std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" 
 			  << pTrack->pt() << "/" << pTrack->eta() << "/" 
@@ -600,13 +649,16 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 			    << std::endl;         
 		}
 	      }
+#endif
 	      if (t_p>pTrackMin_ && t_eMipDR<eEcalMax_ && 
 		  t_hmaxNearP<eIsolation_) {
+#ifdef DebugLog
  	        if (verbosity%10> 2) {
 		  for (unsigned int k=0; k<t_trgbits->size(); k++) 
 		    std::cout <<"trigger bit is  = " << t_trgbits->at(k) 
 			      << std::endl; 
 		}
+#endif
 		tree->Fill();
 		nGood++;
 	      }
@@ -614,9 +666,11 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	  }
 	}
       }
+      t_trgbits->clear(); t_DetIds->clear(); t_HitEnergies->clear();
       // check if trigger names in (new) config                       
       if (changed) {
 	changed = false;
+#ifdef DebugLog
 	if (verbosity%10> 1) {
 	  std::cout<<"New trigger menu found !!!" << std::endl;
 	  const unsigned int n(hltConfig_.size());
@@ -629,6 +683,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	      std::cout << "exists" << std::endl;
 	  }
 	}
+#endif
       }
     }
   }
@@ -711,31 +766,32 @@ void IsoTrackCalibration::beginJob() {
 
   t_DetIds      = new std::vector<unsigned int>();
   t_HitEnergies = new std::vector<double>();
-  t_trgbits = new std::vector<bool>();
+  t_trgbits     = new std::vector<bool>();
   tree->Branch("t_DetIds",      "std::vector<unsigned int>", &t_DetIds);
   tree->Branch("t_HitEnergies", "std::vector<double>",       &t_HitEnergies);
-  tree->Branch("t_trgbits","std::vector<bool>", &t_trgbits); 
+  tree->Branch("t_trgbits",     "std::vector<bool>",         &t_trgbits); 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void IsoTrackCalibration::endJob() {
-  std::cout << "Finds " << nGood << " good tracks in " << nAll << " events from " << nRun
-	    << " runs" << std::endl;
+  edm::LogWarning("IsoTrack") << "Finds " << nGood << " good tracks in " 
+			      << nAll << " events from " << nRun << " runs";
   for (unsigned int k=0; k<trigNames.size(); ++k)
-    std::cout << "Trigger[" << k << "]: " << trigNames[k] << " Events " 
-	      << trigKount[k] << " Passed " << trigPass[k] << std::endl;
+    edm::LogWarning("IsoTrack") << "Trigger[" << k << "]: " << trigNames[k] 
+				<< " Events " << trigKount[k] << " Passed " 
+				<< trigPass[k];
 }
 
 // ------------ method called when starting to processes a run  ------------
 void IsoTrackCalibration::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  std::cout  << "Run[" << nRun <<"] " << iRun.run() << " hltconfig.init " 
-	     << hltConfig_.init(iRun,iSetup,processName,changed) << std::endl;;
+  edm::LogWarning("IsoTrack") << "Run[" << nRun <<"] " << iRun.run()
+			      << " hltconfig.init " << hltConfig_.init(iRun,iSetup,processName,changed);
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void IsoTrackCalibration::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   nRun++;
-  std::cout << "endRun[" << nRun << "] " << iRun.run() << std::endl;
+  edm::LogWarning("IsoTrack") << "endRun[" << nRun << "] " << iRun.run();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------

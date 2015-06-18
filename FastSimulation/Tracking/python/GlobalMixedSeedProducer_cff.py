@@ -25,5 +25,4 @@ globalMixedSeeds.layerList = cms.vstring(
     'FPix2_neg+TEC2_neg',
 )
 
-globalMixedSeeds.outputSeedCollectionName = 'GlobalMixed'
 

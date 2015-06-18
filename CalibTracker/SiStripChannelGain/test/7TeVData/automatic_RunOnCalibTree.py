@@ -9,30 +9,31 @@ import ROOT
 def numberOfEvents(file):
 	rootfile = ROOT.TFile.Open(file,'read')
 	tree = ROOT.TTree()
-	rootfile.GetObject("commonCalibrationTree/tree",tree)
+	rootfile.GetObject("gainCalibrationTree/tree",tree)
         NEntries = tree.GetEntries()
         rootfile.Close()
         print file +' --> '+str(NEntries)
 	return NEntries	
 
 
-globaltag = "GR_P_V32" 
-path = "/store/group/tracker/strip/calibration/calibrationtree/GR12" #"/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
-#path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12/"
+globaltag = "GR_P_V53" 
+path = "/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/CRUZET15" #no slash at the end
+#path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12"
+#path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
 firstRun = -1
 #firstRun = 192701	#value of the first run with the new calibration --> this is needed to avoid mixing runs with different calibrations
 lastRun  = -1
 MC=""
-publish = True
+publish = False
 mail = "loic.quertenmont@gmail.com"
 automatic = True;
 
 #go to parent directory = test directory
 os.chdir("..");
 #identify last run of the previous calibration
-if(firstRun<=0):
-	out = commands.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
-	firstRun = int(out[1].split('_')[3])+1
+#if(firstRun<=0):
+#	out = commands.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
+#	firstRun = int(out[1].split('_')[3])+1
 
 #Get List of CalibFiles:
 print("Get the list of calibTree from castor (cmsLs" + path + ")")
@@ -45,17 +46,17 @@ for info in calibTreeInfo:
         if(len(info)<1):continue;
 	subParts = info.split();        
 	size = int(subParts[1])/1048576;
-	if(size < 50): continue	#skip file<50MB
+#	if(size < 50): continue	#skip file<50MB  #commented for CRUZET15
 	run = int(subParts[4].replace(path+'/',"").replace("calibTree_","").replace(".root","")) 
 	if(run<firstRun):continue
         if(lastRun>0 and run>lastRun):continue
-	os.system("stager_get -M " + subParts[4] + " &");	
+#	os.system("stager_get -M " + subParts[4] + " &");	
 	NEvents = numberOfEvents("root://eoscms//eos/cms"+subParts[4]);	
 	if(calibTreeList==""):firstRun=run;
-	calibTreeList += '  "root://eoscms//eos/cms'+subParts[4]+'", #' + str(size).rjust(6)+'MB  NEvents='+str(NEvents/1000).rjust(8)+'K\n'
+	calibTreeList += 'calibTreeList += ["root://eoscms//eos/cms'+subParts[4]+'"] #' + str(size).rjust(6)+'MB  NEvents='+str(NEvents/1000).rjust(8)+'K\n'
 	NTotalEvents += NEvents;
-	if(NTotalEvents>2500000):
-		break;
+#	if(NTotalEvents>2500000): #commented for CRUZET15
+#		break;
 
 if(lastRun<=0):lastRun = run
 

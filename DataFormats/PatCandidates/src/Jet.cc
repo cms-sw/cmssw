@@ -47,6 +47,20 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   tryImportSpecific(*aJetRef);
 }
 
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::RefToBase<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = edm::Ptr<reco::Candidate>(aJetRef.id(), aJetRef.get(), aJetRef.key());
+}
+
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::Ptr<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = aJetRef;
+}
+
 std::ostream& 
 reco::operator<<(std::ostream& out, const pat::Jet& obj) 
 {
@@ -582,7 +596,7 @@ pat::JetPtrCollection const & Jet::subjets( unsigned int index) const {
 pat::JetPtrCollection const & Jet::subjets( std::string label ) const { 
   auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
   if ( found != subjetLabels_.end() ){
-    auto index = std::distance( found , subjetLabels_.begin() );
+    auto index = std::distance( subjetLabels_.begin(), found );
     return subjetCollections_[index]; 
   }
   else {

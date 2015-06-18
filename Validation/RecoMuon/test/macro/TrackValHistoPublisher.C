@@ -1,6 +1,8 @@
 #include <vector>
 #include <algorithm>
 #include "TMath.h"
+#include "PlotHelpers.C"
+
 
 //Uncomment the following line to get some more output
 //#define DEBUG 1
@@ -22,7 +24,7 @@ TList* GetListOfBranches(const char* dataType, TFile* file) {
   }
   else {
     cout << "ERROR: Data type " << dataType << " not allowed: only RECO and HLT are considered" << endl;
-    return;
+    return 0;
   }
 
   TDirectory * dir=gDirectory;
@@ -39,23 +41,22 @@ TList* GetListOfBranches(const char* dataType, TFile* file) {
 
 
 
-void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
+void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="REF_FILE") {
 
   cout << ">> Starting TrackValHistoPublisher(" 
        << newFile << "," << refFile << ")..." << endl;
 
   //====  To be replaced from python ====================
   
-  char* dataType = "DATATYPE";
-  char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
-  char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+  const char* dataType = "DATATYPE";
+  const char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
+  const char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
 
 
   // ==== Initial settings and loads
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
   //gROOT ->Reset();
   gROOT ->SetBatch();
-  gROOT->LoadMacro("macro/PlotHelpers.C");
   gErrorIgnoreLevel = kWarning; // Get rid of the info messages
 
   
@@ -70,7 +71,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
 
   bool ctf=1;
 
-  bool *resol=0;
+  bool resol = false;
 
   // ==== Some cleaning... is this needed?  
   delete gROOT->GetListOfFiles()->FindObject(refFile);
@@ -223,16 +224,16 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
       bool goodAsWell = false;
       if (rcollname.BeginsWith("StandAloneMuons_UpdAtVtx") && 
 	  scollname.BeginsWith("StandAloneMuons_UpdAtVtx")) {
-	if (rcollname.Contains("MuonAssociation")==scollname.Contains("MuonAssociation"));
+	if (rcollname.Contains("MuonAssociation")==scollname.Contains("MuonAssociation")){}
 	goodAsWell = true;
       }
       if (rcollname.BeginsWith("hltL2Muons_UpdAtVtx") && 
 	  scollname.BeginsWith("hltL2Muons_UpdAtVtx")) {
-	if (rcollname.Contains("MuonAssociation")==scollname.Contains("MuonAssociation"));
+	if (rcollname.Contains("MuonAssociation")==scollname.Contains("MuonAssociation")){}
 	goodAsWell = true;
       }
       if (rcollname.BeginsWith("hltL3Tk") && scollname.BeginsWith("hltL3Tk")) {
-	if (rcollname.Contains("MuonAssociation")==scollname.Contains("MuonAssociation"));
+	if (rcollname.Contains("MuonAssociation")==scollname.Contains("MuonAssociation")){}
 	goodAsWell = true;
       }
       //     TString isGood = (goodAsWell? "good": "NOT good");
@@ -241,34 +242,34 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
 	
 	if (rcollname.Contains("SET") && !scollname.Contains("SET")) {
 	  while (rcollname.Contains("SET")) {
-	    if (rKey = (TKey*)iter_r())  rcollname = rKey->GetName();
+	    if ((rKey = (TKey*)iter_r()))  rcollname = rKey->GetName();
 	  }
 	}
 	else if (scollname.Contains("SET") && !rcollname.Contains("SET")) {
 	  while (scollname.Contains("SET")) {
-	    if (sKey = (TKey*)iter_s())  scollname = sKey->GetName();
+	    if ((sKey = (TKey*)iter_s()))  scollname = sKey->GetName();
 	  }
 	}
 	
 	if (rcollname.Contains("dyt") && !scollname.Contains("dyt")) {
 	  while (rcollname.Contains("dyt")) {
-	    if (rKey = (TKey*)iter_r())  rcollname = rKey->GetName();
+	    if ((rKey = (TKey*)iter_r()))  rcollname = rKey->GetName();
 	  }
 	}
 	else if (scollname.Contains("dyt") && !rcollname.Contains("dyt")) {
 	  while (scollname.Contains("dyt")) {
-	    if (sKey = (TKey*)iter_s())  scollname = sKey->GetName();
+	    if ((sKey = (TKey*)iter_s()))  scollname = sKey->GetName();
 	  }
 	}
 	
 	if (rcollname.Contains("refitted") && !scollname.Contains("refitted")) {
 	  while (rcollname.Contains("refitted")) {
-	    if (rKey = (TKey*)iter_r())  rcollname = rKey->GetName();
+	    if ((rKey = (TKey*)iter_r()))  rcollname = rKey->GetName();
 	  }
 	}
 	else if (scollname.Contains("refitted") && !rcollname.Contains("refitted")) {
 	  while (scollname.Contains("refitted")) {
-	    if (sKey = (TKey*)iter_s())  scollname = sKey->GetName();
+	    if ((sKey = (TKey*)iter_s()))  scollname = sKey->GetName();
 	  }
 	}
 	
@@ -309,16 +310,16 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
     if (ctf) {
       //===== building
       
-     const char* plots1[] = {"effic", "fakerate", "efficPt", "fakeratePt"};
-      const char* plotsl1[] = {"efficiency vs #eta", "fakerate vs #eta", "efficiency vs Pt", "fakerate vs Pt"};
-      bool    logy [] = {false,  false, false,  false  };
+     const char* plots0[] = {"effic", "fakerate", "efficPt", "fakeratePt"};
+      const char* plotsl0[] = {"efficiency vs #eta", "fakerate vs #eta", "efficiency vs Pt", "fakerate vs Pt"};
+      bool    logy0 [] = {false,  false, false,  false  };
       Plot4Histograms(newDir + "/building.pdf",
                       rdir, sdir, 
                       rcollname, scollname,
                       "Seeds", "Efficiency Vs Pt and Vs #eta",
                       refLabel, newLabel,
-                      plots1, plotsl1,
-                      logy, doKolmo, norm,0,minx,maxx,miny,maxy);     
+                      plots0, plotsl0,
+                      logy0, doKolmo, norm,0,minx,maxx,miny,maxy);     
       cout<<"HICE EL HISTO "<<endl;
 
       const char* plots1[] = { "effic_vs_hit", "fakerate_vs_hit","effic_vs_phi","fakerate_vs_phi"};
@@ -401,7 +402,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE") {
 		      "residualdis", "residuals vs Pt",
 		      refLabel, newLabel,
 		      plots5, plotsl5,
-		      logyfalse, doKolmo, norm2,resol);    
+		      logyfalse, doKolmo, norm2,&resol);    
       
       
       

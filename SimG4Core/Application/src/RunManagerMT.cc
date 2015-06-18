@@ -29,8 +29,6 @@
 
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
-#include "HepPDT/defs.h"
-#include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "G4GeometryManager.hh"
@@ -179,7 +177,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   if("" != m_WriteFile) {
     G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
-    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), false);
+    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
   }
 
   if("" != m_RegionFile) {

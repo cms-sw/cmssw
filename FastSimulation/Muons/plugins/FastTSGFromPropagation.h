@@ -12,7 +12,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -30,6 +30,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <memory>
 
 
 class LayerMeasurements;
@@ -76,9 +77,9 @@ private:
 
   const LayerMeasurements* tkLayerMeasurements() const { return &theTkLayerMeasurements; } 
 
-  const TrajectoryStateUpdator* updator() const {return theUpdator;}
+  const TrajectoryStateUpdator* updator() const {return theUpdator.get();}
 
-  const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
+  const Chi2MeasurementEstimator* estimator() const { return theEstimator.get(); }
 
   edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
 
@@ -136,16 +137,15 @@ private:
 
   edm::ESHandle<MeasurementTracker> theMeasTracker;
 
-  const DirectTrackerNavigation* theNavigation;
+  std::unique_ptr<const DirectTrackerNavigation> theNavigation;
+
   const TrackerGeometry*  theGeometry;
 
   const MuonServiceProxy* theService;
 
-  const TrajectoryStateUpdator* theUpdator;
+  std::unique_ptr<const TrajectoryStateUpdator> theUpdator;
 
-  const Chi2MeasurementEstimator* theEstimator;
-
-  TrajectoryStateTransform* theTSTransformer;
+  std::unique_ptr<const Chi2MeasurementEstimator> theEstimator;
 
   double theMaxChi2;
 
@@ -157,24 +157,23 @@ private:
 
   bool theUpdateStateFlag;
 
-  edm::InputTag theSimTrackCollectionLabel;
-  edm::InputTag theHitProducer;
-
   std::string theResetMethod; 
 
   bool theSelectStateFlag;
 
   std::string thePropagatorName;
 
-  MuonErrorMatrix * theErrorMatrixAdjuster;
+  std::unique_ptr<MuonErrorMatrix> theErrorMatrixAdjuster;
 
   bool theAdjustAtIp;
 
   double theSigmaZ; 
 
-  edm::ParameterSet theConfig;
-  edm::InputTag beamSpot_;
-  edm::InputTag theMeasurementTrackerEventTag;
+  const edm::ParameterSet theConfig;
+  edm::EDGetTokenT<edm::SimTrackContainer> theSimTrackCollectionToken_;
+  edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection>  theHitProducer;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken_;
 
   edm::Handle<reco::BeamSpot> theBeamSpot;
   edm::Handle<edm::SimTrackContainer> theSimTracks;

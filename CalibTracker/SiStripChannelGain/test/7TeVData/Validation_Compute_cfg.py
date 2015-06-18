@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("APVGAIN")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 #this block is there to solve issue related to SiStripQualityRcd
@@ -29,16 +27,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'XXX_GT_XXX::All'
+process.GlobalTag.globaltag = 'XXX_GT_XXX'
+
+calibTreeList = cms.vstring()
+XXX_CALIBTREE_XXX
 
 process.load("CalibTracker.SiStripChannelGain.computeGain_cff")
-process.SiStripCalibValidation.InputFiles          = cms.vstring(
-XXX_CALIBTREE_XXX
-)
-
-
-
+process.SiStripCalibValidation.InputFiles          = calibTreeList 
 process.SiStripCalibValidation.FirstSetOfConstants = cms.untracked.bool(False)
 process.SiStripCalibValidation.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
 
@@ -47,4 +42,9 @@ process.TFileService = cms.Service("TFileService",
         fileName = cms.string('Validation_Tree.root')  
 )
 
-process.p = cms.Path(process.SiStripCalibValidation)
+process.DQMStore = cms.Service("DQMStore")
+process.load("DQMServices.Components.DQMFileSaver_cfi")
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
+
+process.p = cms.Path(process.SiStripCalibValidation * process.dqmSaver)

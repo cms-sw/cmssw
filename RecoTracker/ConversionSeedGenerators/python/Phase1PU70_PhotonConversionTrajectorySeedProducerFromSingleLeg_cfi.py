@@ -40,6 +40,7 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                   SeedCreatorPSet = cms.PSet(
                                                       ComponentName = cms.string('SeedForPhotonConversion1Leg'),
                                                       SeedMomentumForBOFF = cms.double(5.0),
-                                                      propagator = cms.string('PropagatorWithMaterial')
+                                                      propagator = cms.string('PropagatorWithMaterial'),
+						      TTRHBuilder = cms.string('WithTrackAngle')
                                                       )
                                                   )

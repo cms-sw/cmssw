@@ -7,55 +7,28 @@ echo
 date +%F\ %a\ %T
 echo
 echo "Existing cfg files:"
-ls -l On{Data,Mc}*.py
-
-echo
-echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
-
-foreach gtag ( Data Mc )
-  set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
-  foreach table ( FULL Fake GRun HIon PIon 50nsGRun )
-    set oldfile = On${gtag}_HLT_${table}.py
-    set newfile = OnLine_HLT_${table}_${GTAG}.py
-    rm -f $newfile
-    cp $oldfile $newfile
-    cat >> $newfile <<EOF
-#
-if not ('HLTAnalyzerEndpath' in process.__dict__) :
-    from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtTrigReport,hltTrigReport
-    process.hltL1GtTrigReport = hltL1GtTrigReport
-    process.hltTrigReport = hltTrigReport
-    process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
-    process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport + process.hltTrigReport)
-#
-EOF
-  end
-end
-
-echo
-echo "Created OnLine cfg files:"
 ls -l OnLine*.py
+
+#echo
+#echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
+#
+#foreach gtag ( Data Mc )
+#  set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
+#  foreach table ( FULL GRun 50nsGRun LowPU HIon PIon 25ns14e33_v1 50ns_5e33_v1 Fake )
+#    set oldfile = OnLine_HLT_${table}.py
+#    set newfile = OnLine_HLT_${table}_${GTAG}.py
+#    ln -s $oldfile $newfile
+#  end
+#end
+#
+#echo
+#echo "Created OnLine cfg files:"
+#ls -l OnLine*.py
 
 echo
 echo "Creating offline cfg files with cmsDriver"
 echo "./cmsDriver.csh"
 time  ./cmsDriver.csh
-
-echo
-echo "Creating special FastSim IntegrationTestWithHLT"
-
-foreach task ( IntegrationTestWithHLT_cfg )
-  echo
-  set name = ${task}
-  rm -f $name.py
-
-  if ( -f $CMSSW_BASE/src/FastSimulation/Configuration/test/$name.py ) then
-    cp         $CMSSW_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
-  else
-    cp $CMSSW_RELEASE_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
-  endif
-  ls -l $name.py
-end
 
 echo
 date +%F\ %a\ %T

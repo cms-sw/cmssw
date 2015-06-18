@@ -72,7 +72,7 @@ namespace reco {
 
       Setup::init(alg_, es);
 
-      ::helper::MasterCollection<C1> master(src);
+      ::helper::MasterCollection<C1> master(src, evt);
       auto_ptr<OutputCollection> isolations(new OutputCollection);
       if(src->size()!= 0) {
 	typename OutputCollection::Filler filler(*isolations);

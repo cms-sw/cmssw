@@ -51,6 +51,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     genMETsTrueToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetTrue"));
     genMETsCaloToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetCalo"));
   }
+
   //Events variables
   mNvertex               = 0;
 
@@ -91,6 +92,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mChargedHadEtFraction=0;
   mMuonEtFraction=0; 
   mInvisibleEtFraction=0;
+  
+  //MET variables
+  
   //PFMET variables
   mMETDifference_GenMETTrue_MET0to20=0;
   mMETDifference_GenMETTrue_MET20to40=0;
@@ -101,7 +105,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mMETDifference_GenMETTrue_MET150to200=0;
   mMETDifference_GenMETTrue_MET200to300=0;
   mMETDifference_GenMETTrue_MET300to400=0;
-  mMETDifference_GenMETTrue_MET400to500=0; 
+  mMETDifference_GenMETTrue_MET400to500=0;
+  mMETDifference_GenMETTrue_MET500=0;
+  
  
 } 
 void METTester::bookHistograms(DQMStore::IBooker & ibooker,
@@ -136,6 +142,7 @@ void METTester::bookHistograms(DQMStore::IBooker & ibooker,
       mMETDifference_GenMETTrue_MET200to300 = ibooker.book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500,-500,500); 
       mMETDifference_GenMETTrue_MET300to400 = ibooker.book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500,-500,500); 
       mMETDifference_GenMETTrue_MET400to500 = ibooker.book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500,-500,500); 
+      mMETDifference_GenMETTrue_MET500      = ibooker.book1D("METResolution_GenMETTrue_MET500", "METResolution_GenMETTrue_MET500", 500,-500,500);  
     }
     if ( isCaloMET) { 
       mCaloMaxEtInEmTowers             = ibooker.book1D("CaloMaxEtInEmTowers","CaloMaxEtInEmTowers",300,0,1500);   //5GeV
@@ -182,11 +189,12 @@ void METTester::bookHistograms(DQMStore::IBooker & ibooker,
       }
 
     }
-  }
+}
 
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { //int counter(0);
+
   edm::Handle<reco::VertexCollection> pvHandle;
   iEvent.getByToken(pvToken_, pvHandle);
    if (! pvHandle.isValid())
@@ -249,6 +257,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     genMetTrue=patMET->front().genMET();
     isvalidgenmet=true;
   }
+
   if(isvalidgenmet){
     double genMET = genMetTrue->pt();
     double genMETPhi = genMetTrue->phi();
@@ -268,6 +277,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       else if (MET >200 && MET <300) mMETDifference_GenMETTrue_MET200to300->Fill( MET - genMET );
       else if (MET >300 && MET <400) mMETDifference_GenMETTrue_MET300to400->Fill( MET - genMET );
       else if (MET >400 && MET <500) mMETDifference_GenMETTrue_MET400to500->Fill( MET - genMET );
+      else if (MET >500) mMETDifference_GenMETTrue_MET500->Fill( MET - genMET );
       
     } else {
       edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
@@ -373,7 +383,5 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }  
 }
-
-
 
 

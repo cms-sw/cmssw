@@ -64,8 +64,7 @@ void RPCEfficiencyShiftHisto::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
    for(int w = -2 ; w<3; w++){
      
        meName.str("");
-       if(w <= 0) meName<<globalFolder_<<"Efficiency_Roll_vs_Sector_Wheel_"<<w;
-       else meName<<globalFolder_<<"Efficiency_Roll_vs_Sector_Wheel_+"<<w;
+       meName<<globalFolder_<<"Efficiency_Roll_vs_Sector_Wheel_"<<w;
 
        myMe = igetter.get(meName.str());
 	 

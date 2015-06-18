@@ -13,6 +13,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -60,7 +61,8 @@ class MuonTrackLoader {
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,const std::vector<std::pair<Trajectory*, reco::TrackRef> >&, 
+                                                        edm::Event&,const std::vector<std::pair<Trajectory*, reco::TrackRef> >&,
+                                                        edm::Handle<reco::TrackCollection> const& trackHandle,
 							const std::string& = "", 
 							bool = true);
 

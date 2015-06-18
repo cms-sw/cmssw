@@ -18,6 +18,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+namespace edm {
+  class EDProductGetter;
+}
+
 //
 // constants, enums and typedefs
 //
@@ -50,7 +54,8 @@ class PFCand_AssoMapAlgos : public PF_PU_AssoMapAlgos  {
    std::auto_ptr<VertexToPFCandAssMap> CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection>, const edm::EventSetup&);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
-   std::auto_ptr<PFCandToVertexAssMap> SortPFCandAssociationMap(PFCandToVertexAssMap*);
+   std::auto_ptr<PFCandToVertexAssMap> SortPFCandAssociationMap(PFCandToVertexAssMap*,
+                                                                edm::EDProductGetter const* getter);
 
  protected:
   //protected functions

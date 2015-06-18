@@ -5,8 +5,14 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
+
 // Forward declarations
 class TrackerHitAssociator;
+
+namespace edm {
+  class EDProductGetter;
+}
 
 /** @brief TrackToTrackingParticleAssociator that associates by hits a bit quicker than the normal TrackAssociatorByHitsImpl class.
  *
@@ -55,17 +61,14 @@ class TrackerHitAssociator;
  * Functionality to associate using pre calculated cluster to TrackingParticle maps added by Subir Sarker sometime in 2013.
  * Overhauled to remove mutables to make it thread safe by Mark Grimes 01/May/2014.
  */
-
-  inline bool clusterTPAssociationListGreater(std::pair<OmniClusterRef, TrackingParticleRef> i,std::pair<OmniClusterRef, TrackingParticleRef> j) { return (i.first.rawIndex()>j.first.rawIndex()); }
-
 class QuickTrackAssociatorByHitsImpl : public reco::TrackToTrackingParticleAssociatorBaseImpl
 {
 public:
-  typedef std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > ClusterTPAssociationList;
   enum SimToRecoDenomType {denomnone,denomsim,denomreco};
 
-  QuickTrackAssociatorByHitsImpl(std::shared_ptr<const TrackerHitAssociator> hitAssoc,
-                                 std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap,
+  QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
+                                 std::unique_ptr<const TrackerHitAssociator> hitAssoc,
+                                 const ClusterTPAssociationList *clusterToTPMap,
                                  bool absoluteNumberOfHits,
                                  double qualitySimToReco,
                                  double puritySimToReco,
@@ -183,9 +186,10 @@ public:
    * useClusterTPAssociation_ is no longer changed to false.
    */
   //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociationList>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
-  
-  std::shared_ptr<const TrackerHitAssociator> hitAssociator_;
-  std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap_;
+
+  edm::EDProductGetter const* productGetter_;
+  std::unique_ptr<const TrackerHitAssociator> hitAssociator_;
+  const ClusterTPAssociationList *clusterToTPMap_;
   
   double qualitySimToReco_;
   double puritySimToReco_;

@@ -41,7 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
@@ -95,7 +95,7 @@ private:
 
   bool                       changed;
   edm::Service<TFileService> fs;
-  HLTConfigProvider          hltConfig_;
+  HLTPrescaleProvider hltPrescaleProvider_;
   std::vector<std::string>   trigNames, HLTNames;
   int                        verbosity;
   spr::trackSelectionParameters selectionParameters;
@@ -123,35 +123,18 @@ private:
   std::map<std::pair<unsigned int, std::string>, unsigned int> TrigList;
   std::map<std::pair<unsigned int, std::string>, const std::pair<int, int> > TrigPreList;
   TH1I                       *h_nHLT, *h_HLTAccept;
-  std::vector<TH1I*>         h_HLTAccepts;
+  std::vector<TH1I*>          h_HLTAccepts;
   TH1I                       *g_Pre, *g_PreL1, *g_PreHLT, *g_Accepts;
 
-  TTree* tree;
-  int Run, Event; 
-  std::vector<double> *t_trackP;
-  std::vector<double> *t_trackPx;
-  std::vector<double> *t_trackPy; 
-  std::vector<double> *t_trackPz;
-  std::vector<double> *t_trackPt;
-  std::vector<double> *t_trackEta;
-  std::vector<double> *t_trackPhi;
-  std::vector<double> *t_emip;
-  std::vector<double> *t_neu_iso;
-  std::vector<double> *t_charge_iso;
-  std::vector<double> *t_ehcal;
-  std::vector<double> *t_trkL3mindr; 
-  std::vector<int> *t_ieta;
-  std::vector<double> *t_disthotcell;
-  std::vector<double> *t_ietahotcell;
-  std::vector<double> *t_eventweight;
-  std::vector<double> *t_l1pt;
-  std::vector<double> *t_l1eta;
-  std::vector<double> *t_l1phi;
-  std::vector<double> *t_l3pt;
-  std::vector<double> *t_l3eta;
-  std::vector<double> *t_l3phi;
-  std::vector<double> *t_leadingpt;
-  std::vector<double> *t_leadingeta;
-  std::vector<double> *t_leadingphi;  
+  TTree                      *tree;
+  int                         Run, Event; 
+  std::vector<double>        *t_trackP, *t_trackPx, *t_trackPy, *t_trackPz;
+  std::vector<double>        *t_trackEta, *t_trackPhi, *t_trackPt, *t_neu_iso;
+  std::vector<double>        *t_charge_iso, *t_emip, *t_ehcal, *t_trkL3mindr; 
+  std::vector<int>           *t_ieta;
+  std::vector<double>        *t_disthotcell, *t_ietahotcell, *t_eventweight;
+  std::vector<double>        *t_l1pt, *t_l1eta, *t_l1phi;
+  std::vector<double>        *t_l3pt, *t_l3eta, *t_l3phi;
+  std::vector<double>        *t_leadingpt, *t_leadingeta, *t_leadingphi;  
 };
 #endif

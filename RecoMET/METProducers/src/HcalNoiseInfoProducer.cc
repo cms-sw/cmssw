@@ -46,6 +46,14 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   caloTowerCollName_ = iConfig.getParameter<std::string>("caloTowerCollName");
   trackCollName_     = iConfig.getParameter<std::string>("trackCollName");
 
+  if (iConfig.existsAs<std::string>("jetCollName"))
+  {
+      jetCollName_   = iConfig.getParameter<std::string>("jetCollName");
+      maxNHF_        = iConfig.getParameter<double>("maxNHF");
+      maxjetindex_   = iConfig.getParameter<int>("maxjetindex");
+      jet_token_     = consumes<reco::PFJetCollection>(edm::InputTag(jetCollName_));
+  }
+
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
@@ -156,7 +164,9 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray, summary);
   if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
   if(fillTracks_)     filltracks(iEvent, iSetup, summary);
-  
+
+  filljetinfo(iEvent, iSetup, summary);
+
   // Why is this here?  Shouldn't it have been in the filldigis method? Any reason for TotalCalibCharge to be defined outside filldigis(...) ?-- Jeff, 7/2/12
   //if(fillDigis_)      summary.calibCharge_ = TotalCalibCharge;
 
@@ -565,54 +575,54 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 
     // do some rechit counting and energies
     summary.rechitCount_ = summary.rechitCount_ + 1;
-    summary.rechitEnergy_ = summary.rechitEnergy_ + rechit.energy();
+    summary.rechitEnergy_ = summary.rechitEnergy_ + rechit.eraw();
     if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalBadLaserSignal))==1) // hit comes from a region where no laser calibration pulse is normally seen
       {
 	++summary.hitsInNonLaserRegion_;
-	summary.energyInNonLaserRegion_+=rechit.energy();
+	summary.energyInNonLaserRegion_+=rechit.eraw();
       }
     else // hit comes from region where laser calibration pulse is seen
       {
 	++summary.hitsInLaserRegion_;
-	summary.energyInLaserRegion_+=rechit.energy();
+	summary.energyInLaserRegion_+=rechit.eraw();
       }
 
-    if(rechit.energy() > 1.5)
+    if(rechit.eraw() > 1.5)
     {
       summary.rechitCount15_ = summary.rechitCount15_ + 1;
-      summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.energy();
+      summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.eraw();
     }
 
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
       summary.nisolnoise_++;
-      summary.isolnoisee_ += rechit.energy();
+      summary.isolnoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.isolnoiseet_ += et;
     }
 
     if(rechit.flags() & flatbitset) {
       summary.nflatnoise_++;
-      summary.flatnoisee_ += rechit.energy();
+      summary.flatnoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.flatnoiseet_ += et;
     }
 
     if(rechit.flags() & spikebitset) {
       summary.nspikenoise_++;
-      summary.spikenoisee_ += rechit.energy();
+      summary.spikenoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.spikenoiseet_ += et;
     }
 
     if(rechit.flags() & trianglebitset) {
       summary.ntrianglenoise_++;
-      summary.trianglenoisee_ += rechit.energy();
+      summary.trianglenoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.trianglenoiseet_ += et;
     }
 
@@ -620,18 +630,18 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummaryR45))==0)  // only add to TS4TS5 if the bit is not marked as "HcalCellExcludeFromHBHENoiseSummaryR45"
 	{
 	  summary.nts4ts5noise_++;
-	  summary.ts4ts5noisee_ += rechit.energy();
+	  summary.ts4ts5noisee_ += rechit.eraw();
 	  GlobalPoint gp = geo->getPosition(rechit.id());
-	  double et = rechit.energy()*gp.perp()/gp.mag();
+	  double et = rechit.eraw()*gp.perp()/gp.mag();
 	  summary.ts4ts5noiseet_ += et;
 	}
     }
     
     if(rechit.flags() & negativebitset) {
 	  summary.nnegativenoise_++;
-	  summary.negativenoisee_ += rechit.energy();
+	  summary.negativenoisee_ += rechit.eraw();
 	  GlobalPoint gp = geo->getPosition(rechit.id());
-	  double et = rechit.energy()*gp.perp()/gp.mag();
+	  double et = rechit.eraw()*gp.perp()/gp.mag();
 	  summary.negativenoiseet_ += et;
     }
 
@@ -703,6 +713,47 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   return;
+}
+
+// ------------ fill the summary info from jets
+void
+HcalNoiseInfoProducer::filljetinfo(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
+{
+    bool goodJetFoundInLowBVRegion = false; // checks whether a jet is in
+                                            // a low BV region, where false
+                                            // noise flagging rate is higher.
+    if (!jetCollName_.empty())
+    {
+        edm::Handle<reco::PFJetCollection> pfjet_h;
+        iEvent.getByToken(jet_token_, pfjet_h);
+
+        if (pfjet_h.isValid())
+        {
+            int jetindex=0;
+            for(reco::PFJetCollection::const_iterator jet = pfjet_h->begin();
+                jet != pfjet_h->end(); ++jet)
+            {
+                if (jetindex>maxjetindex_) break; // only look at jets with
+                                                  // indices up to maxjetindex_
+
+                // Check whether jet is in low-BV region (0<eta<1.4, -1.8<phi<-1.4)
+                if (jet->eta()>0.0 && jet->eta()<1.4 &&
+                    jet->phi()>-1.8 && jet->phi()<-1.4)
+                {
+                    // Look for a good jet in low BV region;
+                    // if found, we will keep event
+                    if  (maxNHF_<0.0 || jet->neutralHadronEnergyFraction()<maxNHF_)
+                    {
+                        goodJetFoundInLowBVRegion=true;
+                        break;
+                    }
+                }
+                ++jetindex;
+            }
+        }
+    }
+
+    summary.goodJetFoundInLowBVRegion_ = goodJetFoundInLowBVRegion;
 }
 
 // ------------ fill the summary with track information

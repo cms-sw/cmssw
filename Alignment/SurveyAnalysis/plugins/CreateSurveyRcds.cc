@@ -1,7 +1,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -26,7 +29,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
-  : theParameterSet( cfg )
 {
 	m_inputGeom = cfg.getUntrackedParameter< std::string > ("inputGeom");
 	m_inputSimpleMis = cfg.getUntrackedParameter< double > ("simpleMis");
@@ -38,12 +40,14 @@ void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& s
 
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
+	edm::ESHandle<PTrackerParameters> ptp;
+	setup.get<PTrackerParametersRcd>().get( ptp );
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp );
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_inputGeom == "sqlite"){

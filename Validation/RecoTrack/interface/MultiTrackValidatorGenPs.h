@@ -26,6 +26,8 @@ private:
 
   GenParticleCustomSelector gpSelector;				      
   edm::EDGetTokenT<reco::TrackToGenParticleAssociator> label_gen_associator;
+  edm::EDGetTokenT<reco::GenToRecoCollection> associatormapGtR;
+  edm::EDGetTokenT<reco::RecoToGenCollection> associatormapRtG;
 
 };
 

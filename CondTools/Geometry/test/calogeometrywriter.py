@@ -12,6 +12,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
+process.HcalParametersWriter = cms.EDAnalyzer("PHcalParametersDBBuilder")
 
 process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 process.CondDBCommon.timetype = cms.untracked.string('runnumber')
@@ -22,6 +23,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PHcalParametersRcd'), tag = cms.string('HCALParameters_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_Test01'))
@@ -32,4 +34,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.CaloGeometryWriter)
+process.p1 = cms.Path(process.CaloGeometryWriter*process.HcalParametersWriter)

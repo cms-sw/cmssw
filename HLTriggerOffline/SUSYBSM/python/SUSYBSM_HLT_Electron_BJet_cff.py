@@ -1,37 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
-  trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_Ele10_CaloIdL_TrackIdVL_CentralPFJet30_BTagCSV0p5PF_v'),
-  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter','','HLT'), #the last filter in the sequence HLTSingleEle10CaloIdTrkIdVLSequence 
-  TriggerFilterJet = cms.InputTag('hltCSV0p5FilterSingleEle10','','HLT'), #the last filter in the path
+  TriggerPath = cms.string('HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p5_v1'),
+  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdMTrackIdMDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
+  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
 
+
 SUSY_HLT_Electron_BJet_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
-  trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_Ele10_CaloIdL_TrackIdVL_CentralPFJet30_BTagCSV0p5PF_v'),
-  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter','','HLT'),  
-  TriggerFilterJet = cms.InputTag('hltCSV0p5FilterSingleEle10','','HLT'), #the last filter in the path
+  TriggerPath = cms.string('HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p5_v1'),
+  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdMTrackIdMDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
+  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
 
 SUSY_HLT_Electron_BJet_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Ele10_CaloIdL_TrackIdVL_CentralPFJet30_BTagCSV0p5PF"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p5"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -42,7 +43,7 @@ SUSY_HLT_Electron_BJet_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 
 
 SUSY_HLT_Electron_BJet_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Ele10_CaloIdL_TrackIdVL_CentralPFJet30_BTagCSV0p5PF"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p5"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -50,3 +51,7 @@ SUSY_HLT_Electron_BJet_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient
        "EleTurnOn_eff 'Turn-on vs Mu pT; pT (GeV); #epsilon' EleTurnOn_num EleTurnOn_den",
     )
 )
+
+
+
+

@@ -40,7 +40,7 @@ public:
 int getXbins(const TH1 * h, const double & xMin, const double & xMax)
 {
   // To get the correct integral for rescaling determine the borders
-  TAxis * xAxis = h->GetXaxis();
+  const TAxis * xAxis = h->GetXaxis();
   double xAxisMin = xAxis->GetXmin();
   // The bins have all the same width, therefore we can use this
   double binWidth = xAxis->GetBinWidth(1);

@@ -49,6 +49,24 @@ def customisePostLS1(process):
     # 25ns specific customisation
     if hasattr(process,'digitisation_step'):
         process = customise_Digi_25ns(process)
+    if hasattr(process,'dqmoffline_step'):
+        process = customise_DQM_25ns(process)
+
+    return process
+
+
+def customisePostLS1_lowPU(process):
+
+    # deal with L1 Emulation separately
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_lowPU
+    process = customiseSimL1EmulatorForPostLS1_lowPU(process)
+
+    # common customisations
+    process = customisePostLS1_Common(process)
+
+    # 50ns specific customisation
+    if hasattr(process,'digitisation_step'):
+        process = customise_Digi_50ns(process)
 
     return process
 
@@ -99,6 +117,20 @@ def customise_DQM(process):
     #process.dqmoffline_step.remove(process.jetMETAnalyzer)
     # Turn off flag of gangedME11a
     process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
+    # Turn off "low bias voltage" region in HCAL noise filters
+    if hasattr(process,'HBHENoiseFilterResultProducer'):
+        process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
+    if hasattr(process,'MakeHBHENoiseFilterResult'):
+        process.MakeHBHENoiseFilterResult.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False)
+    return process
+
+
+def customise_DQM_25ns(process):
+    # Switch the default decision of the HCAL noise filter
+    if hasattr(process,'HBHENoiseFilterResultProducer'):
+        process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
+    if hasattr(process,'MakeHBHENoiseFilterResult'):
+        process.MakeHBHENoiseFilterResult.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
     return process
 
 
@@ -651,6 +683,7 @@ def customise_L1Emulator(process):
 
 
 def customise_RawToDigi(process):
+    process.RawToDigi.remove(process.gtEvmDigis)
     return process
 
 
@@ -664,33 +697,34 @@ def customise_HLT(process):
 
 def customise_Reco(process):
     #lowering HO threshold with SiPM
-    for prod in process.particleFlowRecHitHO.producers:
-        prod.qualityTests = cms.VPSet(
-            cms.PSet(
-                name = cms.string("PFRecHitQTestThreshold"),
-                threshold = cms.double(0.05) # new threshold for SiPM HO
-            ),
-            cms.PSet(
-                name = cms.string("PFRecHitQTestHCALChannel"),
-                maxSeverities      = cms.vint32(11),
-                cleaningThresholds = cms.vdouble(0.0),
-                flags              = cms.vstring('Standard')
-            )
-        )
+    if hasattr(process,'particleFlowRecHitHO'):
+        for prod in process.particleFlowRecHitHO.producers:
+            prod.qualityTests = cms.VPSet(
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestThreshold"),
+                    threshold = cms.double(0.05) # new threshold for SiPM HO
+                    ),
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestHCALChannel"),
+                    maxSeverities      = cms.vint32(11),
+                    cleaningThresholds = cms.vdouble(0.0),
+                    flags              = cms.vstring('Standard')
+                    )
+                )
 
     #Lower Thresholds also for Clusters!!!    
 
-    for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
-        p.seedingThreshold = cms.double(0.08)
+        for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
+            p.seedingThreshold = cms.double(0.08)
 
-    for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
-        p.gatheringThreshold = cms.double(0.05)
+        for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
+            p.gatheringThreshold = cms.double(0.05)
 
-    for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
-        p.recHitEnergyNorm = cms.double(0.05)
+        for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
+            p.recHitEnergyNorm = cms.double(0.05)
 
-    process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
-    process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
+        process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
+        process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
 
     return process
 

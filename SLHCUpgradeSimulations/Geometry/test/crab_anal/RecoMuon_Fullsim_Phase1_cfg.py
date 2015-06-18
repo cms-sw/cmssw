@@ -115,8 +115,8 @@ process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
 process.load("Validation.RecoTrack.cutsTPFake_cfi")
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 #process.multiTrackValidator.label = ['generalTracks']
@@ -125,7 +125,7 @@ process.multiTrackValidator.label = ['ctfWithMaterialTracks']
 #process.multiTrackValidator.label = ['cutsRecoTracks']
 #process.multiTrackValidator.label_tp_effic = cms.InputTag("cutsTPEffic")
 #process.multiTrackValidator.label_tp_fake = cms.InputTag("cutsTPFake")
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+process.multiTrackValidator.associators = ['trackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = True
 process.multiTrackValidator.outputFile = "validfullph1g_muon_50GeV.root"
 process.multiTrackValidator.nint = cms.int32(20)
@@ -202,7 +202,7 @@ process.slhcSimpleVertexAnalysis.recoTrackProducer = cms.untracked.string('ctfWi
 process.mix_step = cms.Path(process.mix)
 process.reconstruction_step = cms.Path(process.trackerlocalreco*process.offlineBeamSpot+process.oldTracking_wtriplets)
 process.debug_step = cms.Path(process.anal)
-process.validation_step = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
+process.validation_step = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.trackAssociatorByHits*process.multiTrackValidator)
 #process.user_step = cms.Path(process.vertexreco*process.slhcSimpleVertexAnalysis*process.ReadLocalMeasurement)
 process.user_step = cms.Path(process.vertexreco*process.slhcSimpleVertexAnalysis)
 process.endjob_step = cms.Path(process.endOfProcess)

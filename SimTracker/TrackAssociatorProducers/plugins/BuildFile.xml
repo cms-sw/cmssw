@@ -4,6 +4,7 @@
 <use name="SimDataFormats/Associations"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimTracker/TrackerHitAssociation"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/HepMCCandidate"/>

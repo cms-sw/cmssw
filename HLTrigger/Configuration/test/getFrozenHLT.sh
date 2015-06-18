@@ -1,8 +1,13 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake"
+#TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v2 25ns14e33_v2"
+TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
 HLT_Fake="/dev/CMSSW_7_4_0/Fake"
+HLT_50ns_5e33_v2="/frozen/2015/50ns_5e33/v2.0/HLT"
+HLT_25ns14e33_v2="/frozen/2015/25ns14e33/v2.0/HLT"
+HLT_50ns_5e33_v1="/frozen/2015/50ns_5e33/v1.2/HLT"
+HLT_25ns14e33_v1="/frozen/2015/25ns14e33/v1.2/HLT"
 
 # print extra messages ?
 VERBOSE=false
@@ -22,8 +27,7 @@ function getConfigForCVS() {
   local NAME="$2"
   log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --mc    $CONFIG --type $NAME  > HLT_${NAME}_cff.py
-  hltGetConfiguration --fastsim               $CONFIG --type $NAME  > HLT_${NAME}_Famos_cff.py
+  hltGetConfiguration --cff --offline --data  $CONFIG --type $NAME  > HLT_${NAME}_cff.py
 }
 
 function getConfigForOnline() {
@@ -31,8 +35,12 @@ function getConfigForOnline() {
   local NAME="$2"
   log "  dumping full HLT for $NAME from $CONFIG"
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
-  hltGetConfiguration --full --offline --data $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
-  hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_mc_${NAME}"  --input "file:RelVal_Raw_${NAME}_MC.root" > OnMc_HLT_${NAME}.py
+
+  if [ "$NAME" == "Fake" ]; then
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+  else
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+  fi
 }
 
 # make sure we're using *this* working area
@@ -41,7 +49,7 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
-FILES=$(eval echo HLT_{$TABLES_}_cff.py HLT_{$TABLES_}_Famos_cff.py)
+FILES=$(eval echo HLT_{$TABLES_}_cff.py)
 rm -f $FILES
 for TABLE in $TABLES; do
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
@@ -54,7 +62,7 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
-FILES=$(eval echo On{Data,Mc}_HLT_{$TABLES_}.py)
+FILES=$(eval echo OnLine_HLT_{$TABLES_}.py)
 rm -f $FILES
 for TABLE in $TABLES; do
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))

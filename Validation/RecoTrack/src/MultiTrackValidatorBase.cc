@@ -3,7 +3,7 @@
 MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed){
   //dbe_ = edm::Service<DQMStore>().operator->();
 
-  associators = pset.getParameter< std::vector<std::string> >("associators");
+  associators = pset.getUntrackedParameter< std::vector<edm::InputTag> >("associators");
   label_tp_effic = iC.consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp_effic"));
   label_tp_fake = iC.consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp_fake"));
   label_tv = iC.mayConsume<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));

@@ -15,6 +15,7 @@ int main()
     testSerialization<std::vector<PGeometricDetExtra::Item>>();
     testSerialization<PTrackerParameters>();
     testSerialization<PTrackerParameters::Item>();
+    testSerialization<PHcalParameters>();
 
     return 0;
 }

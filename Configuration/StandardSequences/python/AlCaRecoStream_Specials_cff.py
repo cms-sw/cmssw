@@ -42,28 +42,6 @@ ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-
-# ECAL calibration with phi symmetry 
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_cff import *
-
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
-
-#pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
-pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym)
-
-from Configuration.EventContent.AlCaRecoOutput_cff import *
-
-ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
-        responsible = 'Stefano Argiro',
-        name = 'ALCARECOEcalCalPhiSym',
-        paths  = (pathALCARECOEcalCalPhiSym),
-        content = OutALCARECOEcalCalPhiSym.outputCommands,
-        selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents,
-        dataTier = cms.untracked.string('ALCARECO')
-        )
-
-
-
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
@@ -79,6 +57,24 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
         paths  = (pathALCARECOHcalCalMinBias),
         content = OutALCARECOHcalCalMinBias.outputCommands,
         selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
+# HCAL Pedestals
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
+
+from DQMOffline.Configuration.AlCaRecoDQM_cff import *
+
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
+ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
+        responsible = 'Olga Kodolova',
+        name = 'ALCARECOHcalCalPedestal',
+        paths  = (pathALCARECOHcalCalPedestal),
+        content = OutALCARECOHcalCalPedestal.outputCommands,
+        selectEvents = OutALCARECOHcalCalPedestal.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 

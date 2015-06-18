@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
 
 namespace edm {
@@ -22,28 +23,28 @@ namespace edm {
       explicit RefHolder(REF const& ref);
       void swap(RefHolder& other);
       virtual ~RefHolder();
-      virtual RefHolderBase* clone() const;
+      virtual RefHolderBase* clone() const GCC11_OVERRIDE;
 
-      virtual ProductID id() const;
-      virtual size_t key() const;
-      virtual bool isEqualTo(RefHolderBase const& rhs) const;
+      virtual ProductID id() const GCC11_OVERRIDE;
+      virtual size_t key() const GCC11_OVERRIDE;
+      virtual bool isEqualTo(RefHolderBase const& rhs) const GCC11_OVERRIDE;
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const;
+					  std::string& msg) const GCC11_OVERRIDE;
       REF const& getRef() const;
       void setRef(REF const& r);
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const;
-      virtual EDProductGetter const* productGetter() const;
-      virtual bool hasProductCache() const;
-      virtual void const * product() const;
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const GCC11_OVERRIDE;
+      virtual EDProductGetter const* productGetter() const GCC11_OVERRIDE;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const { return ref_.isAvailable(); }
+      virtual bool isAvailable() const GCC11_OVERRIDE { return ref_.isAvailable(); }
+
+      virtual bool isTransient() const GCC11_OVERRIDE { return ref_.isTransient(); }
 
       //Needed for ROOT storage
       CMS_CLASS_VERSION(10)
     private:
-      virtual void const* pointerToType(TypeWithDict const& iToType) const;
+      virtual void const* pointerToType(TypeWithDict const& iToType) const GCC11_OVERRIDE;
       REF ref_;
     };
 
@@ -112,16 +113,6 @@ namespace edm {
     template<class REF>
     EDProductGetter const* RefHolder<REF>::productGetter() const {
       return ref_.productGetter();
-    }
-
-    template<class REF>
-    bool RefHolder<REF>::hasProductCache() const {
-      return ref_.hasProductCache();
-    }
-
-    template<class REF>
-    void const * RefHolder<REF>::product() const {
-      return ref_.product();
     }
 
     template <class REF>

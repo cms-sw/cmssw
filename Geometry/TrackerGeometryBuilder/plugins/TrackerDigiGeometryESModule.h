@@ -26,7 +26,6 @@ class  TrackerDigiGeometryESModule: public edm::ESProducer{
   boost::shared_ptr<TrackerGeometry> _tracker;
   const std::string alignmentsLabel_;
   const std::string myLabel_;
-  const edm::ParameterSet m_pSet;
   bool applyAlignment_; // Switch to apply alignment corrections
   bool fromDDD_;
 };

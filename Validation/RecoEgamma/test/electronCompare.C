@@ -1,4 +1,7 @@
+#include <sstream>
 #include <TObjArray.h>
+
+using namespace std;
 
 TH1F * DivideHistos
  ( TFile * f,
@@ -21,10 +24,11 @@ TH1F * DivideHistos
   return h_res ;
  }
 
+// ( const TObjArray * tokens, TString & common ) // const with ROOT5
 void Join
- ( const TObjArray * tokens, TString & common )
+ ( TObjArray * tokens, TString & common )
  {
-  tokens->Compress() ;
+  tokens->Compress() ; // if const is used with TObjArray, must be commented with ROOT6
   if (tokens->GetEntries()==0)
    { common = "" ; return ; }
   else
@@ -110,6 +114,8 @@ int electronCompare()
 //  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
   std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
+  std::cout << "CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
+  std::cout << "CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
 //-----
   
 // style:
@@ -158,6 +164,7 @@ int electronCompare()
 
   TString internal_path("DQMData/Run 1/EgammaV/Run summary/") ;
   TString old_internal_path("DQMData/EgammaV/") ;
+//  TString new_internal_path("DQMData/Run 1/EgammaV/Run summary/") ;
 
   TString file_ref_dir ;
   TFile * file_ref = 0 ;
@@ -249,8 +256,8 @@ int electronCompare()
      <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;*/
     web_page
      <<"<p>In all plots below"
-     <<", the "<<CMP_RED_RELEASE<<" histograms are in red"
-     <<", and the "<<CMP_BLUE_RELEASE<<" histograms are in blue." ;
+     <<", the <b><font color='red'>"<<CMP_RED_RELEASE<<"</font></b> histograms are in red"
+     <<", and the <b><font color='blue'>"<<CMP_BLUE_RELEASE<<"</font></b> histograms are in blue." ;
 /*	std::cout <<"<p>In all plots below "
      <<", the "<<CMP_RED_RELEASE<<" histograms are in red"
      <<", and the "<<CMP_BLUE_RELEASE<<" histograms are in blue." << std::endl ;*/
@@ -276,6 +283,8 @@ int electronCompare()
 
   // canvas_name std::string => TString
   TString canvas_name, histo_name, histo_full_path, gif_name, gif_path ;
+  TString Pt1000_path_extension ; Pt1000_path_extension = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
+  TString histo_full_path_Pt1000 ;
   TString short_histo_name ;
   TString first_short_histo_name, first_histo_name ;
   TString dl_short_histo_name, dl_histo_name ;
@@ -389,7 +398,9 @@ int electronCompare()
     if (first==std::string::npos) continue ;
     if (line[first]=='#') continue ;
 
-    std::istrstream linestream(line) ;
+//    std::istrstream linestream(line) ;
+//    istringstream linestream(line) ;
+    std::basic_istringstream<char> linestream(line) ;
     divide = 0 ; num = denom = "" ;
     linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
 
@@ -415,28 +426,39 @@ int electronCompare()
     // search histo_ref
     if ( file_ref != 0 )
      {
-//      std::cout << "\n histo_full_path : " << histo_full_path << std::endl ;
-//      std::cout << "file_ref_dir : " << file_ref_dir << std::endl ;
       if (file_ref_dir.IsNull())
        { histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ }
       else
        { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
-      //std::cout << "histo_full_path : " << histo_full_path << std::endl ;
-      //histo_ref2 = (TH1 *)file_ref->Get(histo_full_path) ;
+   // WARNING
+   // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
+   // before 740pre8 : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidator/ histo name (same as Pt35, Pt10, ....)
+   // after 740pre8  : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidatorPt1000/ histo name
+      histo_full_path_Pt1000 = file_ref_dir ; histo_full_path_Pt1000 += Pt1000_path_extension; histo_full_path_Pt1000 += histo_name ; // for Pt1000 
+   // END WARNING
+//      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
+
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
-//      std::cout << "histo_ref Name : " << histo_ref->GetName() << std::endl ; // A.C. to be removed
-//      std::cout<<histo_ref->GetName()<<" has "<<histo_ref->GetName()->GetEffectiveEntries()<<" entries"
       if (histo_ref!=0)
        {
         // renaming those histograms avoid very strange bugs because they
         // have the same names as the ones loaded from the new file
         histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
 //        std::cout << "histo_ref Name : " << histo_ref->GetName() << " - histo_new Name : " << histo_name << std::endl ; // A.C. to be removed
-  }
-      else
-       {
-        web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
-//        std::cout<<"No "<<histo_path<<" for "<<CMP_BLUE_NAME<<std::endl ;
+      }
+      else // no histo
+      {
+            histo_ref = (TH1 *)file_ref->Get(histo_full_path_Pt1000) ;
+            if (histo_ref!=0)
+            {
+                // renaming those histograms avoid very strange bugs because they
+                // have the same names as the ones loaded from the new file
+                histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
+            }
+            else 
+            {
+                web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
+            }
        }
      }
 
@@ -444,6 +466,8 @@ int electronCompare()
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
 //    std::cout << "histo_new Name : " << histo_new->GetName() << std::endl ; // A.C. to be removed
+//    std::cout << "histo_full_path new : " << histo_full_path << std::endl ;
+//    std::cout << "histo_path.cstr new : " << histo_path.c_str() << std::endl ;
 
     // special treatments
     if ((scaled==1)&&(histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetEntries()!=0))
@@ -581,10 +605,13 @@ int electronCompare()
        } while (cat.empty()) ;
      }
    }
+  std::cout << "on ferme le fichier" << std::endl;
   histo_file2.close() ;
   web_page<<"</td></tr></table>\n" ;
 
   web_page<<"\n</html>"<<std::endl ;
+  std::cout << "on ferme la page" << std::endl;
   web_page.close() ;
-
+  std::cout << "page fermee" << std::endl;
+return 0;
  }

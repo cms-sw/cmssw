@@ -167,7 +167,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   {
     auto pv = pfToPVVector[i];
     auto qual = pfToPVQualityVector[i];
-    if(pv >=0 and qual > PrimaryVertexAssignment::NotReconstructedPrimary){
+    if(pv >=0 and qual >= qualityCut_){
        pvToPFVector[pv].push_back(i);
 //    std::cout << i << std::endl;
 //     const typename  ParticlesCollection::value_type & cp = particles[i];

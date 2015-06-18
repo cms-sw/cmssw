@@ -23,7 +23,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "SimTracker/TrackAssociatorESProducer/src/TrackAssociatorByPositionESProducer.hh"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 #include <DataFormats/GeometrySurface/interface/Surface.h>
 #include <DataFormats/GeometrySurface/interface/GloballyPositioned.h>

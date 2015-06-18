@@ -218,7 +218,7 @@ process.thinningThingProducerO = cms.EDProducer("ThinningThingProducer",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('good.root'),
+    fileName = cms.untracked.string('goodDataFormatsFWLite.root'),
     outputCommands = cms.untracked.vstring(
         'keep *',
         'drop *_thingProducer_*_*',
@@ -234,14 +234,14 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.out2 = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('good2.root')
+    fileName = cms.untracked.string('good2DataFormatsFWLite.root')
 )
 
 process.out_other = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
         'keep edmtestOtherThings_*_*_*', 
         'keep *_TriggerResults_*_*'),
-    fileName = cms.untracked.string('other_only.root')
+    fileName = cms.untracked.string('other_onlyDataFormatsFWLite.root')
 )
 
 process.thinningTestPath = cms.Path(process.thingProducer

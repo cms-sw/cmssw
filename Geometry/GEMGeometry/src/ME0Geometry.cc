@@ -70,8 +70,7 @@ ME0Geometry::add(ME0EtaPartition* etaPartition){
   theEtaPartitions.push_back(etaPartition);
   theEtaPartitionIds.push_back(etaPartition->geographicalId());
   theDetIds.push_back(etaPartition->geographicalId());
-  GeomDetType* _t = const_cast<GeomDetType*>(&etaPartition->type());
-  theEtaPartitionTypes.push_back(_t);
+  theEtaPartitionTypes.push_back(&etaPartition->type());
   theMap.insert(std::pair<DetId,GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
 }

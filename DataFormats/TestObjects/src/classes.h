@@ -1,3 +1,10 @@
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/AssociationMapHelpers.h"
+#include "DataFormats/Common/interface/OneToValue.h"
+#include "DataFormats/Common/interface/OneToOne.h"
+#include "DataFormats/Common/interface/OneToMany.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -85,6 +92,25 @@ struct dictionary {
   edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing> > > vectorHolderThing;
 
   edm::Wrapper<edmtest::DeleteEarly> wrapperDeleteEarly;
+
+  edm::helpers::KeyVal<edm::RefProd<std::vector<int> >,edm::RefProd<std::vector<int> > > keyval1;
+  edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > assoc1;
+  edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > > wrassoc1;
+
+  edm::helpers::Key<edm::RefProd<std::vector<int> > > keyval2;
+  edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> > assoc2;
+  edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> > > wrassoc2;
+
+  edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> > assoc3;
+  edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> > > wrassoc3;
+
+  edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> > assoc4;
+  edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> > > wrassoc4;
+
+  edm::helpers::KeyVal<edm::RefToBaseProd<int>,edm::RefToBaseProd<int> > keyval5;
+  edm::AssociationMap<edm::OneToOne<edm::View<int>,edm::View<int>,unsigned int> > assoc5;
+  edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<int>,edm::View<int>,unsigned int> > > wrassoc5;
+
   edm::Wrapper<edm::EventID> wrapperEventID;
   edm::Wrapper<edm::ProductID> wrapperProductID;
 };

@@ -12,7 +12,7 @@ process.load("RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 

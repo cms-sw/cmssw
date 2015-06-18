@@ -154,7 +154,6 @@ namespace edm {
       virtual const_iterator end() const = 0;
       virtual void push_back(BaseHolder<T> const*) = 0;
       virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const = 0;
-      virtual void const* product() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.

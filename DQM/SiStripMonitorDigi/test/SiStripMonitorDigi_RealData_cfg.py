@@ -72,8 +72,6 @@ process.SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
 process.SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
 
 
-process.SiStripMonitorDigi.OutputMEsInRootFile = True
-
 process.SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 process.SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
 
@@ -94,8 +92,6 @@ process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
 #process.SiStripMonitorDigi.TH2DigiApvCycle.subdetswitchon = True
 #process.SiStripMonitorDigi.TH2DigiApvCycle.yfactor = 0.005
-
-process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 
 process.SiStripMonitorDigi.SelectAllDetectors = True
 

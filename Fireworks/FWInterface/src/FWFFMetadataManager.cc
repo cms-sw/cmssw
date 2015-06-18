@@ -7,6 +7,27 @@
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 
 #include "TClass.h"
+FWFFMetadataManager::FWFFMetadataManager():
+   m_event(0)
+{
+}
+
+bool
+FWFFMetadataManager::hasModuleLabel(std::string& iModuleLabel)
+{
+   if (m_event) {
+      std::vector<edm::Provenance const *> provenances;
+      m_event->getAllProvenance(provenances);
+
+      for (size_t pi = 0, pe = provenances.size(); pi != pe; ++pi)
+      {
+         edm::Provenance const *provenance = provenances[pi];
+         if (provenance && (provenance->branchDescription().moduleLabel() == iModuleLabel))
+            return true;
+      }
+   }
+   return false;
+}
 
 bool
 FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
@@ -19,6 +40,8 @@ FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
    if (!fullRequest)
       return false;
    const edm::Event &event = fullRequest->event();
+   m_event = &event;
+
    typedef std::set<std::string> Purposes;
    Purposes purposes;
    std::vector<edm::Provenance const *> provenances;

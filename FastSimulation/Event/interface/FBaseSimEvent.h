@@ -61,18 +61,14 @@ public:
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
 
-  /// fill the FBaseSimEvent from the current reco::GenParticleCollection
-  void fill(const reco::GenParticleCollection& hev);
-
   /// fill the FBaseSimEvent from SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>&, const std::vector<SimVertex>&);
-  
+
   /// print the original MCTruth event
   void printMCTruth(const HepMC::GenEvent& hev);
 
   /// Add the particles and their vertices to the list
   void addParticles(const HepMC::GenEvent& hev);
-  void addParticles(const reco::GenParticleCollection& myGenParticles);
 
   /// print the FBaseSimEvent in an intelligible way
   void print() const;
@@ -138,11 +134,6 @@ public:
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
-  /// Set the beam spot position
-  inline void setBeamSpot(const math::XYZPoint& aBeamSpot) { 
-    theBeamSpot = aBeamSpot;
-  }
-
  protected:
 
   /// The pointer to the vector of FSimTrack's 
@@ -189,7 +180,6 @@ public:
 
   const ParticleDataTable * pdt;
 
-  math::XYZPoint theBeamSpot;
   double lateVertexPosition;
 
   //  Histos* myHistos;

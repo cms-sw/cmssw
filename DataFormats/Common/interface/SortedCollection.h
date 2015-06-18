@@ -155,7 +155,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
 
     void setPtr(std::type_info const& toType,
                 unsigned long index,
@@ -374,7 +374,7 @@ namespace edm {
   void
   SortedCollection<T, SORT>::fillView(ProductID const& id,
                                      std::vector<void const*>& pointers,
-                                     helper_vector& helpers) const {
+                                     FillViewHelperVector& helpers) const {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
 
@@ -452,7 +452,7 @@ namespace edm {
   fillView(SortedCollection<T, SORT> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

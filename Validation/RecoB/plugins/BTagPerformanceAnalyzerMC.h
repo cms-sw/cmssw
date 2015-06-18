@@ -12,12 +12,12 @@
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "DQMOffline/RecoB/interface/CorrectJet.h"
 #include "DQMOffline/RecoB/interface/MatchJet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 /** \class BTagPerformanceAnalyzerMC
  *
  *  Top level steering routine for b tag performance analysis.
@@ -50,9 +50,10 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
   typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
   
-  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef,
+  bool getJetWithFlavour(const edm::Event& iEvent,
+			 edm::RefToBase<reco::Jet> caloRef,
                          const FlavourMap& _flavours, JetWithFlavour &jetWithFlavour,
-			 const edm::EventSetup & es, 
+			 const reco::JetCorrector * corrector, 
 			 edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched);
   bool getJetWithGenJet(edm::RefToBase<reco::Jet> jetRef, edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched); 
 
@@ -60,7 +61,6 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
   bool useOldFlavourTool;
-  std::string JECsource;
   bool doJEC;
 
   bool ptHatWeight;
@@ -92,6 +92,8 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   //add consumes 
   edm::EDGetTokenT<GenEventInfoProduct> genToken;
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetsMatchedToken;
+  edm::EDGetTokenT<reco::JetCorrector> jecMCToken;
+  edm::EDGetTokenT<reco::JetCorrector> jecDataToken;
   edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetToken;
   edm::EDGetTokenT<reco::JetFlavourMatchingCollection> caloJetToken;
   edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> slInfoToken;

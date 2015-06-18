@@ -310,9 +310,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // Cathode LCTs pretriggers
               if (!preTriggerBXs1a.empty()) {
                 LogTrace("L1CSCTrigger")
-                  << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
-                  << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
-                oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+                  << "Put " << preTriggerBXs1a.size() << " CLCT pretrigger"
+                  << ((preTriggerBXs1a.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_pretrig.put(std::make_pair(preTriggerBXs1a.begin(),preTriggerBXs1a.end()), detid1a);
               }
             } // upgraded TMB
 

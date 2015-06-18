@@ -99,7 +99,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
   hcalHelper_->checkSetup(iSetup);
   hcalHelper_->readEvent(iEvent);
 
-  reco::RecoEcalCandidateIsolationMap isoMap;
+  reco::RecoEcalCandidateIsolationMap isoMap(recoEcalCandHandle);
 
   for(unsigned int iRecoEcalCand=0; iRecoEcalCand <recoEcalCandHandle->size(); iRecoEcalCand++) {
 

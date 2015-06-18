@@ -1,3 +1,6 @@
+import warnings
+warnings.warn('ATTENTION: This job uses Run 1 Geometry.')
+
 import FWCore.ParameterSet.Config as cms
 
 #

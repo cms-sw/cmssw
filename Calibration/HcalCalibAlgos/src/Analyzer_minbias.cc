@@ -66,28 +66,30 @@ namespace cms{
     hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
 
     myTree = new TTree("RecJet","RecJet Tree");
-    myTree->Branch("mydet",  &mydet, "mydet/I");
-    myTree->Branch("mysubd",  &mysubd, "mysubd/I");
-    myTree->Branch("cells", &cells, "cells");
-    myTree->Branch("depth",  &depth, "depth/I");
-    myTree->Branch("ieta",  &ieta, "ieta/I");
-    myTree->Branch("iphi",  &iphi, "iphi/I");
-    myTree->Branch("eta",  &eta, "eta/F");
-    myTree->Branch("phi",  &phi, "phi/F");
-    myTree->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
-    myTree->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
-    myTree->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
-    myTree->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
+    myTree->Branch("mydet",       &mydet,      "mydet/I");
+    myTree->Branch("mysubd",      &mysubd,     "mysubd/I");
+    myTree->Branch("cells",       &cells,      "cells");
+    myTree->Branch("depth",       &depth,      "depth/I");
+    myTree->Branch("ieta",        &ieta,       "ieta/I");
+    myTree->Branch("iphi",        &iphi,       "iphi/I");
+    myTree->Branch("eta",         &eta,        "eta/F");
+    myTree->Branch("phi",         &phi,        "phi/F");
+    myTree->Branch("mom0_MB",     &mom0_MB,    "mom0_MB/F");
+    myTree->Branch("mom1_MB",     &mom1_MB,    "mom1_MB/F");
+    myTree->Branch("mom2_MB",     &mom2_MB,    "mom2_MB/F");
+    myTree->Branch("mom3_MB",     &mom3_MB,    "mom3_MB/F");
+    myTree->Branch("mom4_MB",     &mom4_MB,    "mom4_MB/F");
     myTree->Branch("mom0_Noise",  &mom0_Noise, "mom0_Noise/F");
     myTree->Branch("mom1_Noise",  &mom1_Noise, "mom1_Noise/F");
     myTree->Branch("mom2_Noise",  &mom2_Noise, "mom2_Noise/F");
+    myTree->Branch("mom3_Noise",  &mom2_Noise, "mom3_Noise/F");
     myTree->Branch("mom4_Noise",  &mom4_Noise, "mom4_Noise/F");
-    myTree->Branch("mom0_Diff",  &mom0_Diff, "mom0_Diff/F");
-    myTree->Branch("mom1_Diff",  &mom1_Diff, "mom1_Diff/F");
-    myTree->Branch("mom2_Diff",  &mom2_Diff, "mom2_Diff/F");
-    myTree->Branch("occup",  &occup, "occup/F");
-    myTree->Branch("trigbit", &trigbit, "trigbit/I");
-    myTree->Branch("rnnumber", &rnnumber, "rnnumber/D");
+    myTree->Branch("mom0_Diff",   &mom0_Diff,  "mom0_Diff/F");
+    myTree->Branch("mom1_Diff",   &mom1_Diff,  "mom1_Diff/F");
+    myTree->Branch("mom2_Diff",   &mom2_Diff,  "mom2_Diff/F");
+    myTree->Branch("occup",       &occup,      "occup/F");
+    myTree->Branch("trigbit",     &trigbit,    "trigbit/I");
+    myTree->Branch("rnnumber",    &rnnumber,   "rnnumber/D");
 
     myMap.clear();
     return ;
@@ -110,10 +112,12 @@ namespace cms{
 	mom0_MB = info.theMB0;
 	mom1_MB = info.theMB1;
 	mom2_MB = info.theMB2;
+	mom3_MB = info.theMB3;
 	mom4_MB = info.theMB4;
 	mom0_Noise = info.theNS0;
 	mom1_Noise = info.theNS1;
 	mom2_Noise = info.theNS2;
+	mom3_Noise = info.theNS3;
 	mom4_Noise = info.theNS4;
 	mom0_Diff = info.theDif0;
 	mom1_Diff = info.theDif1;
@@ -128,9 +132,10 @@ namespace cms{
 	LogDebug("AnalyzerMB") << " Result=  " << trigbit << " " << mysubd
 			       << " " << ieta << " " << iphi << " mom0  "
 			       << mom0_MB << " mom1 " << mom1_MB << " mom2 "
-			       << mom2_MB << " mom4 " << mom4_MB 
-			       << " mom0_Noise " << mom0_Noise << " mom1_Noise "
-			       << mom1_Noise << " mom2_Noise " << mom2_Noise
+			       << mom2_MB << " mom3 " << mom3_MB << " mom4 " 
+			       << mom4_MB << " mom0_Noise " << mom0_Noise 
+			       << " mom1_Noise " << mom1_Noise << " mom2_Noise "
+			       << mom2_Noise << " mom3_Noise " << mom3_Noise 
 			       << " mom4_Noise " << mom4_Noise << " mom0_Diff "
 			       << mom0_Diff << " mom1_Diff " << mom1_Diff
 			       << " mom2_Diff " << mom2_Diff;
@@ -318,6 +323,7 @@ namespace cms{
 	    itr1->second.theDif0 = 0;
 	    itr1->second.theMB1 += energyhit;
 	    itr1->second.theMB2 += (energyhit*energyhit);
+	    itr1->second.theMB3 += (energyhit*energyhit*energyhit);
 	    itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
 	    itr1->second.runcheck = rnnum;
 	    float mydiff = 0.0;
@@ -401,6 +407,7 @@ namespace cms{
 	    itr1->second.theDif0 = 0;
 	    itr1->second.theMB1 += energyhit;
 	    itr1->second.theMB2 += (energyhit*energyhit);
+	    itr1->second.theMB3 += (energyhit*energyhit*energyhit);
 	    itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
 	    itr1->second.runcheck = rnnum;
 	    float mydiff = 0.0;

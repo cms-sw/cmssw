@@ -2,9 +2,17 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) : changed(false),
-								 nRun(0) {
+IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) : 
+  changed(false),
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this),
+  nRun(0), t_trackP(0), t_trackPx(0), t_trackPy(0),
+  t_trackPz(0), t_trackEta(0), t_trackPhi(0), t_trackPt(0), t_neu_iso(0),
+  t_charge_iso(0), t_emip(0), t_ehcal(0), t_trkL3mindr(0), t_ieta(0),
+  t_disthotcell(0), t_ietahotcell(0), t_eventweight(0), t_l1pt(0), t_l1eta(0),
+  t_l1phi(0), t_l3pt(0), t_l3eta(0), t_l3phi(0), t_leadingpt(0),
+  t_leadingeta(0), t_leadingphi(0) {
    //now do whatever initialization is needed
   verbosity                           = iConfig.getUntrackedParameter<int>("Verbosity",0);
   trigNames                           = iConfig.getUntrackedParameter<std::vector<std::string> >("Triggers");
@@ -90,6 +98,31 @@ IsoTrackCalib::~IsoTrackCalib() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
+  if (t_trackP)     delete t_trackP;
+  if (t_trackPx)    delete t_trackPx;
+  if (t_trackPy)    delete t_trackPy;
+  if (t_trackPz)    delete t_trackPz;
+  if (t_trackEta)   delete t_trackEta;
+  if (t_trackPhi)   delete t_trackPhi;
+  if (t_trackPt)    delete t_trackPt;
+  if (t_neu_iso)    delete t_neu_iso;
+  if (t_charge_iso) delete t_charge_iso;
+  if (t_emip)       delete t_emip;
+  if (t_ehcal)      delete t_ehcal;
+  if (t_trkL3mindr) delete t_trkL3mindr;
+  if (t_ieta)       delete t_ieta;
+  if (t_disthotcell)delete t_disthotcell;
+  if (t_ietahotcell)delete t_ietahotcell;
+  if (t_eventweight)delete t_eventweight;
+  if (t_l1pt)       delete t_l1pt;
+  if (t_l1eta)      delete t_l1eta;
+  if (t_l1phi)      delete t_l1phi;
+  if (t_l3pt)       delete t_l3pt;
+  if (t_l3eta)      delete t_l3eta;
+  if (t_l3phi)      delete t_l3phi;
+  if (t_leadingpt)  delete t_leadingpt;
+  if (t_leadingeta) delete t_leadingeta;
+  if (t_leadingphi) delete t_leadingphi;
  }
 
 void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -101,6 +134,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			     << " Luminosity " << iEvent.luminosityBlock() 
 			     << " Bunch " << iEvent.bunchCrossing() << " start";
   clearTreeVectors();
+
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
 
   //Get magnetic field and ECAL channel status
   edm::ESHandle<MagneticField> bFieldH;
@@ -184,8 +219,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
       for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
       bool ok(false);
-	unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[iHLT]);
-	const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
+	unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[iHLT]);
+	const std::vector<std::string>& moduleLabels(hltConfig.moduleLabels(triggerindx));
         edm::LogInfo("IsoTrack") << iHLT << "   " <<triggerNames_[iHLT];
 	int ipos = -1;
 	for (unsigned int i=0; i<HLTNames.size(); ++i) {
@@ -219,7 +254,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  edm::LogInfo("IsoTrack") << "Trigger fired? : " << ok;
 	if (ok) {
 	  std::vector<math::XYZTLorentzVector> vec[3];
-	  const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[iHLT]));
+	  const std::pair<int,int> prescales(hltPrescaleProvider_.prescaleValues(iEvent,iSetup,triggerNames_[iHLT]));
 	  int preL1  = prescales.first;
 	  int preHLT = prescales.second;
 	  int prescale = preL1*preHLT;
@@ -441,9 +476,9 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	changed = false;
 	if ((verbosity/10)%10 > 1) {
 	  edm::LogInfo("IsoTrack") <<"New trigger menu found !!!";
-	  const unsigned int n(hltConfig_.size());
+	  const unsigned int n(hltConfig.size());
 	  for (unsigned itrig=0; itrig<triggerNames_.size(); itrig++) {
-	    unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[itrig]);
+	    unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[itrig]);
 	    if (triggerindx >= n)
 	      edm::LogInfo("IsoTrack") << triggerNames_[itrig] << " " 
 				       << triggerindx << " does not exist";
@@ -465,31 +500,31 @@ void IsoTrackCalib::beginJob() {
    
   tree->Branch("Run",&Run,"Run/I");
   tree->Branch("Event",&Event,"Event/I");
-  t_trackP = new std::vector<double>();
-  t_trackPx = new std::vector<double>();
-  t_trackPy = new std::vector<double>();
-  t_trackPz = new std::vector<double>();
-  t_trackEta = new std::vector<double>();
-  t_trackPhi = new std::vector<double>();
-  t_trackPt = new std::vector<double>();
-  t_neu_iso = new std::vector<double>();
-  t_charge_iso = new std::vector<double>();
-  t_emip = new std::vector<double>();
-  t_ehcal = new std::vector<double>(); 
-  t_trkL3mindr = new std::vector<double>();
-  t_ieta = new std::vector<int>();
+  t_trackP      = new std::vector<double>();
+  t_trackPx     = new std::vector<double>();
+  t_trackPy     = new std::vector<double>();
+  t_trackPz     = new std::vector<double>();
+  t_trackEta    = new std::vector<double>();
+  t_trackPhi    = new std::vector<double>();
+  t_trackPt     = new std::vector<double>();
+  t_neu_iso     = new std::vector<double>();
+  t_charge_iso  = new std::vector<double>();
+  t_emip        = new std::vector<double>();
+  t_ehcal       = new std::vector<double>(); 
+  t_trkL3mindr  = new std::vector<double>();
+  t_ieta        = new std::vector<int>();
   t_disthotcell = new std::vector<double>();
   t_ietahotcell = new std::vector<double>(); 
   t_eventweight = new std::vector<double>();
-  t_l1pt = new std::vector<double>();
-  t_l1eta = new std::vector<double>();
-  t_l1phi = new std::vector<double>();
-  t_l3pt = new std::vector<double>();
-  t_l3eta = new std::vector<double>();
-  t_l3phi = new std::vector<double>();
-  t_leadingpt = new std::vector<double>();
-  t_leadingeta = new std::vector<double>();
-  t_leadingphi = new std::vector<double>();
+  t_l1pt        = new std::vector<double>();
+  t_l1eta       = new std::vector<double>();
+  t_l1phi       = new std::vector<double>();
+  t_l3pt        = new std::vector<double>();
+  t_l3eta       = new std::vector<double>();
+  t_l3phi       = new std::vector<double>();
+  t_leadingpt   = new std::vector<double>();
+  t_leadingeta  = new std::vector<double>();
+  t_leadingphi  = new std::vector<double>();
 
   tree->Branch("t_trackP","std::vector<double>",&t_trackP);
   tree->Branch("t_trackPx","std::vector<double>",&t_trackPx);
@@ -543,7 +578,7 @@ void IsoTrackCalib::endJob() {
 // ------------ method called when starting to processes a run  ------------
 void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::LogInfo("IsoTrack") << "Run[" << nRun <<"] " << iRun.run() 
-			   << " hltconfig.init " << hltConfig_.init(iRun,iSetup,"HLT",changed);
+			   << " hltconfig.init " << hltPrescaleProvider_.init(iRun,iSetup,"HLT",changed);
   char  hname[100], htit[100];
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());

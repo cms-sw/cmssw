@@ -107,7 +107,7 @@ getCmssw()
     done;
 
     # workaround for missing fwlite package list
-    for i in CondFormatsSerialization GeometryCommonDetUnit
+    for i in CondFormatsSerialization GeometryCommonDetUnit DataFormatsMuonSeed
     do
 	cp -f $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/*${i}* $tard/lib
 	grep $i  $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
@@ -159,7 +159,7 @@ getSources()
 
    # link to config files
    cd  $tard
-   ln -s  src/Fireworks/Core/macros/default.fwc .
+   ln -s  src/Fireworks/Core/macros/aod.fwc .
    ln -s  src/Fireworks/Core/macros/ispy.fwc .
    ln -s  src/Fireworks/Core/macros/pflow.fwc .
    ln -s  src/Fireworks/Core/macros/miniaod.fwc .
@@ -179,14 +179,14 @@ getDataFiles()
    # sample files
    cd ${tard}
    name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "data", $a, $b, ".root"  '`
-   $dwnCmd data.root  http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
+   $dwnCmd data.root  http://amraktad.web.cern.ch/amraktad/scratch0/data/$name
 
-   mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
-   $dwnCmd mc.root http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
+ #  mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
+ #  $dwnCmd mc.root http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
 
    #geometry files
    cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsSimGeom-* ${tard}
-   cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsGeom* ${tard}
+   cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsGeom10.root ${tard}
 }
 
 #----------------------------------------------------------------

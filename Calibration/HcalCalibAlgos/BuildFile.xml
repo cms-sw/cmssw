@@ -1,7 +1,6 @@
 <use   name="root"/>
 <use   name="rootgraphics"/>
 <use   name="rootminuit"/>
-
 <use   name="hepmc"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>

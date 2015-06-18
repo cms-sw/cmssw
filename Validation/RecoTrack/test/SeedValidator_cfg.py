@@ -58,15 +58,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    placeholder = cms.untracked.bool(True)
 #)
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
-#process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.trackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+#process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 
 process.load("Validation.RecoTrack.cuts_cff")
 
 process.load("Validation.RecoTrack.TrackerSeedValidator_cff")
-process.trackerSeedValidator.associators = cms.vstring('TrackAssociatorByHits')
+process.trackerSeedValidator.associators = ['trackAssociatorByHits']
 process.trackerSeedValidator.label = ['initialStepSeeds']
 process.trackerSeedValidator.outputFile = 'file.root'
 
@@ -78,6 +78,7 @@ process.evtInfo = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.trackingGlobalReco
                      #*process.cutsTPEffic*process.cutsTPFake
+                     *process.trackAssociatorByHits
                      *process.trackerSeedValidator)
 
 process.ep = cms.EndPath(process.evtInfo)

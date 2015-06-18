@@ -39,8 +39,9 @@
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalRecHitsValidation: public edm::EDAnalyzer{
+class EcalRecHitsValidation: public DQMEDAnalyzer{
 
   typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -54,14 +55,9 @@ EcalRecHitsValidation(const edm::ParameterSet& ps);
 
 protected:
 
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob();
-
-// EndJob
-void endJob(void);
 
  uint32_t getUnitWithMaxEnergy(MapType& themap);
  void     findBarrelMatrix(int nCellInEta, int nCellInPhi,
@@ -77,9 +73,7 @@ private:
  std::string hitsProducer_;
  
  bool verbose_;
- 
- DQMStore* dbe_;
- 
+
  std::string outputFile_;
 
  edm::InputTag EBrechitCollection_;

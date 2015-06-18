@@ -18,10 +18,6 @@
 // Basic inclusion
 #include "RecoHI/HiTracking/interface/HICaloCompatibleTrackSelector.h"
 
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

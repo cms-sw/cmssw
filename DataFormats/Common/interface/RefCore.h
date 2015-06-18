@@ -13,6 +13,9 @@ RefCore: The component of edm::Ref containing the product ID and product getter.
 
 #include <algorithm>
 #include <typeinfo>
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 
 namespace edm {
   class RefCoreWithIndex;
@@ -26,16 +29,36 @@ namespace edm {
 
     RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient);
 
+    RefCore( RefCore const&);
+    
+    RefCore& operator=(RefCore const&);
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    RefCore( RefCore&& ) = default;
+    RefCore& operator=(RefCore&&) = default;
+#endif
+    
     ProductID id() const {ID_IMPL;}
 
     /**If productPtr is not 0 then productGetter will be 0 since only one is available at a time */
     void const* productPtr() const {PRODUCTPTR_IMPL;}
 
+    /**This function is 'const' even though it changes an internal value becuase it is meant to be
+     used as a way to store in a thread-safe way a cache of a value. This allows classes which use
+     the RefCore to not have to declare it 'mutable'
+     */
     void setProductPtr(void const* prodPtr) const { 
-      cachePtr_=prodPtr;
-      setCacheIsProductPtr();
+      setCacheIsProductPtr(prodPtr);
     }
 
+    /**This function is 'const' even though it changes an internal value becuase it is meant to be
+     used as a way to store in a thread-safe way a cache of a value. This allows classes which use
+     the RefCore to not have to declare it 'mutable'
+     */
+    bool tryToSetProductPtrForFirstTime(void const* prodPtr) const {
+      return refcoreimpl::tryToSetCacheItemForFirstTime(cachePtr_, prodPtr);
+    }
+    
     // Checks for null
     bool isNull() const {return !isNonnull(); }
 
@@ -78,23 +101,33 @@ namespace edm {
 
     void pushBackItem(RefCore const& productToBeInserted, bool checkPointer);
 
+    void pushBackRefItem(RefCore const& productToBeInserted);
+
  private:
     RefCore(void const* iCache, ProcessIndex iProcessIndex, ProductIndex iProductIndex):
     cachePtr_(iCache), processIndex_(iProcessIndex), productIndex_(iProductIndex) {}
     void setId(ProductID const& iId);
     void setTransient() {SETTRANSIENT_IMPL;}
-    void setCacheIsProductPtr() const {SETCACHEISPRODUCTPTR_IMPL;}
-    void unsetCacheIsProductPtr() const {UNSETCACHEISPRODUCTPTR_IMPL;}
-    bool cacheIsProductPtr() const {CACHEISPRODUCTPTR_IMPL;}
+    void setCacheIsProductPtr(const void* iItem) const {SETCACHEISPRODUCTPTR_IMPL(iItem);}
+    void setCacheIsProductGetter(EDProductGetter const * iGetter) const {SETCACHEISPRODUCTGETTER_IMPL(iGetter);}
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    bool cachePtrIsInvalid() const { return 0 == (reinterpret_cast<std::uintptr_t>(cachePtr_.load()) & refcoreimpl::kCacheIsProductPtrMask); }
+#endif
 
-    
+    //The low bit of the address is used to determine  if the cachePtr_
+    // is storing the productPtr or the EDProductGetter. The bit is set if
+    // the address refers to the EDProductGetter.
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    mutable std::atomic<void const*> cachePtr_; // transient
+#else
     mutable void const* cachePtr_;               // transient
-    //The following are what is stored in a ProductID
-    // the high two bits of processIndex are used to store info on
-    // if this is transient and if the cachePtr_ is storing the productPtr
+#endif
+    //The following is what is stored in a ProductID
+    // the high bit of processIndex is used to store info on
+    // if this is transient.
     //If the type or order of the member data is changes you MUST also update
     // the custom streamer in RefCoreStreamer.cc and RefCoreWithIndex
-    mutable ProcessIndex processIndex_;
+    ProcessIndex processIndex_;
     ProductIndex productIndex_;
 
   };
@@ -117,17 +150,19 @@ namespace edm {
     return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
   }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   inline 
   void
   RefCore::swap(RefCore & other) {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
-    std::swap(cachePtr_, other.cachePtr_);
+    other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));
   }
 
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
     lhs.swap(rhs);
   }
+#endif
 }
 
 #endif

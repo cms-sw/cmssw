@@ -42,14 +42,13 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& iConfig)
+HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& config) :
+  DataInputToken_( consumes<FEDRawDataCollection>( config.getParameter<edm::InputTag>("InputTag") ) ),
+  CalibTypes_( config.getParameter< std::vector<int> >("CalibTypes") ),
+  Summary_(  config.getUntrackedParameter<bool>("FilterSummary", false) ),
+  eventsByType_()
 {
-  //now do what ever initialization is needed
-
-  DataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
-  Summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
-  CalibTypes_   = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
-  DataInputToken_ = consumes<FEDRawDataCollection>(DataInputTag_);
+  for (auto & i : eventsByType_) i = 0;
 }
 
 
@@ -77,7 +76,7 @@ HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
   
@@ -105,19 +104,13 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
       edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
                                              << calibType ; 
-  LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
-  eventsByType.at(calibType)++ ;
+  LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << calibType ;
+  if (Summary_)
+    ++eventsByType_.at(calibType);
+
   for (unsigned int i=0; i<CalibTypes_.size(); i++) 
       if ( calibType == CalibTypes_.at(i) ) return true ;
   return false ; 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTHcalCalibTypeFilter::beginJob(void)
-{
-  eventsByType.clear() ; 
-  eventsByType.resize(8,0) ; 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -125,10 +118,10 @@ void
 HLTHcalCalibTypeFilter::endJob() {
   if ( Summary_ )
     edm::LogWarning("HLTHcalCalibTypeFilter") << "Summary of filter decisions: " 
-					   << eventsByType.at(hc_Null) << "(No Calib), " 
-					   << eventsByType.at(hc_Pedestal) << "(Pedestal), " 
-					   << eventsByType.at(hc_RADDAM) << "(RADDAM), " 
-					   << eventsByType.at(hc_HBHEHPD) << "(HBHE/HPD), " 
-					   << eventsByType.at(hc_HOHPD) << "(HO/HPD), " 
-					   << eventsByType.at(hc_HFPMT) << "(HF/PMT)" ;  
+                                              << eventsByType_.at(hc_Null)      << "(No Calib), " 
+                                              << eventsByType_.at(hc_Pedestal)  << "(Pedestal), " 
+                                              << eventsByType_.at(hc_RADDAM)    << "(RADDAM), " 
+                                              << eventsByType_.at(hc_HBHEHPD)   << "(HBHE/HPD), " 
+                                              << eventsByType_.at(hc_HOHPD)     << "(HO/HPD), " 
+                                              << eventsByType_.at(hc_HFPMT)     << "(HF/PMT)" ;  
 }

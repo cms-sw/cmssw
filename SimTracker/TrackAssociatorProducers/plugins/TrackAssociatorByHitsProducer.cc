@@ -34,7 +34,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackAssociatorByHitsImpl.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
@@ -59,7 +59,7 @@ private:
   virtual void endJob() override;
   
   // ----------member data ---------------------------
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<SimHitTPAssociationList> simHitTpMapToken_;
   TrackAssociatorByHitsImpl::SimToRecoDenomType SimToRecoDenominator;
   const double quality_SimToReco;
@@ -85,19 +85,19 @@ private:
 // constructors and destructor
 //
 TrackAssociatorByHitsProducer::TrackAssociatorByHitsProducer(const edm::ParameterSet& iConfig):
-  conf_(iConfig),
-  simHitTpMapToken_(consumes<SimHitTPAssociationList>(conf_.getParameter<edm::InputTag>("simHitTpMapTag"))),
+  trackerHitAssociatorConfig_(iConfig, consumesCollector()),
+  simHitTpMapToken_(consumes<SimHitTPAssociationList>(iConfig.getParameter<edm::InputTag>("simHitTpMapTag"))),
   SimToRecoDenominator(TrackAssociatorByHitsImpl::denomnone),
-  quality_SimToReco(conf_.getParameter<double>("Quality_SimToReco")),
-  purity_SimToReco(conf_.getParameter<double>("Purity_SimToReco")),
-  cut_RecoToSim(conf_.getParameter<double>("Cut_RecoToSim")),
-  UsePixels(conf_.getParameter<bool>("UsePixels")),
-  UseGrouped(conf_.getParameter<bool>("UseGrouped")),
-  UseSplitting(conf_.getParameter<bool>("UseSplitting")),
-  ThreeHitTracksAreSpecial(conf_.getParameter<bool>("ThreeHitTracksAreSpecial")),
-  AbsoluteNumberOfHits(conf_.getParameter<bool>("AbsoluteNumberOfHits"))
+  quality_SimToReco(iConfig.getParameter<double>("Quality_SimToReco")),
+  purity_SimToReco(iConfig.getParameter<double>("Purity_SimToReco")),
+  cut_RecoToSim(iConfig.getParameter<double>("Cut_RecoToSim")),
+  UsePixels(iConfig.getParameter<bool>("UsePixels")),
+  UseGrouped(iConfig.getParameter<bool>("UseGrouped")),
+  UseSplitting(iConfig.getParameter<bool>("UseSplitting")),
+  ThreeHitTracksAreSpecial(iConfig.getParameter<bool>("ThreeHitTracksAreSpecial")),
+  AbsoluteNumberOfHits(iConfig.getParameter<bool>("AbsoluteNumberOfHits"))
 {
-  std::string tmp = conf_.getParameter<std::string>("SimToRecoDenominator");
+  std::string tmp = iConfig.getParameter<std::string>("SimToRecoDenominator");
   if (tmp=="sim") {
     SimToRecoDenominator = TrackAssociatorByHitsImpl::denomsim;
   } else if (tmp == "reco") {
@@ -110,8 +110,6 @@ TrackAssociatorByHitsProducer::TrackAssociatorByHitsProducer(const edm::Paramete
 
   //register your products  
   produces<reco::TrackToTrackingParticleAssociator>();
-  
-  TrackerHitAssociator temp(conf_, consumesCollector());
 }
 
 
@@ -134,17 +132,18 @@ TrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 {
    using namespace edm;
 
-   std::unique_ptr<TrackerHitAssociator> thAssoc( new TrackerHitAssociator(iEvent,conf_));
+   std::unique_ptr<TrackerHitAssociator> thAssoc( new TrackerHitAssociator(iEvent,trackerHitAssociatorConfig_));
 
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
 
   edm::Handle<SimHitTPAssociationList> simHitsTPAssoc;
   //warning: make sure the TP collection used in the map is the same used in the associator!
   iEvent.getByToken(simHitTpMapToken_,simHitsTPAssoc);
 
   std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl( 
-                   new TrackAssociatorByHitsImpl( std::move(thAssoc),
+                   new TrackAssociatorByHitsImpl( iEvent.productGetter(),
+                                                  std::move(thAssoc),
                                                   &(*tTopoHand),
                                                   &(*simHitsTPAssoc),
                                                   SimToRecoDenominator,

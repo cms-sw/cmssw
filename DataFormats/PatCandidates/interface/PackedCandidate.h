@@ -26,21 +26,52 @@ namespace pat {
 
     typedef unsigned int index;
 
-    /// default constructor  
-  PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { }
-  explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    /// default constructor
+    PackedCandidate() :
+      p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0),
+      qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
+      unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),
+      dzdz_(0),dxydz_(0),dlambdadz_(0), dphidxy_(0),dptdpt_(0),detadeta_(0),
+      dphidphi_(0), packedHits_(0), normalizedChi2_(0) { }
 
-  explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    explicit PackedCandidate( const reco::Candidate & c,
+                              const reco::VertexRefProd &pvRefProd,
+                              reco::VertexRef::key_type pvRefKey) :
+      p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()),
+      dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
+      pvRefKey_(pvRefKey), unpacked_(true), unpackedVtx_(true),
+      unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0), dlambdadz_(0),
+      dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0), packedHits_(0),
+      normalizedChi2_(0) {
+      packBoth();
+    }
 
-  explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
- 
- 
-    
-    
+    explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx,
+                              float phiAtVtx, int pdgId,
+                              const reco::VertexRefProd &pvRefProd,
+                              reco::VertexRef::key_type pvRefKey) :
+      p4_(p4), p4c_(p4_), vertex_(vtx),
+      dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId),
+      qualityFlags_(0), pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
+      unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),
+      dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),
+      detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) {
+      packBoth();
+    }
+
+    explicit PackedCandidate( const LorentzVector &p4, const Point &vtx,
+                              float phiAtVtx, int pdgId,
+                              const reco::VertexRefProd &pvRefProd,
+                              reco::VertexRef::key_type pvRefKey) :
+      p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx),
+      dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0),
+      pvRefProd_(pvRefProd), pvRefKey_(pvRefKey), unpacked_(true),
+      unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),
+      dlambdadz_(0),dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0),
+      packedHits_(0),normalizedChi2_(0) {
+      packBoth();
+    }
+
     /// destructor
     virtual ~PackedCandidate();
     /// number of daughters
@@ -70,10 +101,10 @@ namespace pat {
     virtual int charge() const {
       switch (abs(pdgId_)) {
       case 211: return (pdgId_>0)-(pdgId_<0);
-      case 11:  return (-1)*(pdgId_>0)-(pdgId_<0); //e
-      case 13:  return (-1)*(pdgId_>0)-(pdgId_<0); //mu
-      case 15:  return (-1)*(pdgId_>0)-(pdgId_<0); //tau
-      case 24:  return (-1)*(pdgId_>0)-(pdgId_<0); //W
+      case 11:  return (-1)*(pdgId_>0)+(pdgId_<0); //e
+      case 13:  return (-1)*(pdgId_>0)+(pdgId_<0); //mu
+      case 15:  return (-1)*(pdgId_>0)+(pdgId_<0); //tau
+      case 24:  return (pdgId_>0)-(pdgId_<0); //W
       default:  return 0;  //FIXME: charge is not defined
       }
     }
@@ -200,11 +231,12 @@ namespace pat {
 
     ///This refers to the association to PV=ipv. >=PVLoose corresponds to JME definition, >=PVTight to isolation definition
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
-    const PVAssoc fromPV(size_t ipv=0) const { 
-        if(pvAssociationQuality()==UsedInFitTight and pvRef_.key()==ipv) return PVUsedInFit;
-        if(pvRef_.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
+    const PVAssoc fromPV(size_t ipv=0) const {
+        reco::VertexRef pvRef = vertexRef();
+        if(pvAssociationQuality()==UsedInFitTight and pvRef.key()==ipv) return PVUsedInFit;
+        if(pvRef.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
         if(pvAssociationQuality() == CompatibilityBTag and std::abs(dzAssociatedPV()) >  std::abs(dz(ipv))) return PVTight; // it is not closest, but at least prevents the B assignment stealing
-        if(pvAssociationQuality() < UsedInFitLoose or pvRef_->ndof() < 4.0 ) return PVLoose;
+        if(pvAssociationQuality() < UsedInFitLoose or pvRef->ndof() < 4.0 ) return PVLoose;
         return NoPV;
     }
 
@@ -214,14 +246,12 @@ namespace pat {
     const PVAssociationQuality pvAssociationQuality() const { return PVAssociationQuality((qualityFlags_ & assignmentQualityMask)>>assignmentQualityShift); }
     void setAssociationQuality( PVAssociationQuality q )   {  qualityFlags_ = (qualityFlags_ & ~assignmentQualityMask) | ((q << assignmentQualityShift) & assignmentQualityMask);  }
 
-    /// set reference to the primary vertex                                                                        
-    void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
-    const reco::VertexRef vertexRef() const { return pvRef_; }
+    const reco::VertexRef vertexRef() const { return reco::VertexRef(pvRefProd_, pvRefKey_); }
 
     /// dxy with respect to the PV ref
     virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
     /// dz with respect to the PV[ipv]
-    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_+pvRef_->position().z()-(*pvRef_.product())[ipv].position().z(); }
+    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_ + (*pvRefProd_)[pvRefKey_].position().z()-(*pvRefProd_)[ipv].position().z(); }
     /// dz with respect to the PV ref
     virtual float dzAssociatedPV()  const { maybeUnpackBoth(); return dz_; }
     /// dxy with respect to another point
@@ -375,8 +405,9 @@ namespace pat {
     /// PDG identifier                                                                    
     int pdgId_;
     uint16_t qualityFlags_;
-    /// Ref to primary vertex
-    edm::Ref<reco::VertexCollection> pvRef_;
+    /// Use these to build a Ref to primary vertex
+    reco::VertexRefProd pvRefProd_;
+    reco::VertexRef::key_type pvRefKey_;
     // is the momentum p4 unpacked
     mutable bool unpacked_;
     // are the dxy, dz and vertex unpacked

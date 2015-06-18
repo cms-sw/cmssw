@@ -6,7 +6,7 @@ from ROOT import TFile
 class Events(object):
     '''Event list from a tree in a root file.
     '''
-    def __init__(self, filename, treename):
+    def __init__(self, filename, treename, options=None):
         self.file = TFile(filename)
         if self.file.IsZombie():
             raise ValueError('file {fnam} does not exist'.format(fnam=filename))

@@ -13,8 +13,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 
-process.listGroups = cms.EDFilter("ListGroups")
+process.listGroups = cms.EDAnalyzer("ListGroups",
+                                    SaveSummaryPlot = cms.untracked.bool(True))
 process.path = cms.Path(process.listGroups)

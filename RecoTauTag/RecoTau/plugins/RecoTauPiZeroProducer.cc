@@ -139,8 +139,10 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   std::auto_ptr<reco::JetPiZeroAssociation> association;
 
   if (jetRefs.size()) {
+    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
+    evt.get(jetRefs.id(), pfJetCollectionHandle);
     association.reset(
-        new reco::JetPiZeroAssociation(reco::PFJetRefProd(jetRefs)));
+        new reco::JetPiZeroAssociation(reco::PFJetRefProd(pfJetCollectionHandle)));
   } else {
     association.reset(new reco::JetPiZeroAssociation);
   }

@@ -75,9 +75,8 @@ namespace cms
     
     mixMod.produces<PileupVertexContent>().setBranchAlias(alias);
 
-    const edm::InputTag Mtag("generator");
-
-    iC.consumes<edm::HepMCProduct>(Mtag);
+    Mtag_=edm::InputTag("generator");
+    iC.consumes<edm::HepMCProduct>(Mtag_);
   }
   
   PileupVertexAccumulator::~PileupVertexAccumulator(){  
@@ -98,10 +97,6 @@ namespace cms
 
   void
   PileupVertexAccumulator::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-    edm::Handle<edm::HepMCProduct> MCevt;
-    const edm::InputTag Mtag("generator");
-    iEvent.getByLabel(Mtag, MCevt);
-
     // don't do anything for hard-scatter signal events
   }
 
@@ -109,10 +104,9 @@ namespace cms
   PileupVertexAccumulator::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
 
     edm::Handle<edm::HepMCProduct> MCevt;
-    const edm::InputTag Mtag("generator");
-    iEvent.getByLabel(Mtag, MCevt);
+    iEvent.getByLabel(Mtag_, MCevt);
 
-    HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(MCevt->GetEvent()));
+    const HepMC::GenEvent *myGenEvent = MCevt->GetEvent();
 
     double pthat = myGenEvent->event_scale();
     float pt_hat = float(pthat);
@@ -129,12 +123,12 @@ namespace cms
     if(viter!=vend){
       // The origin vertex (turn it to cm's from GenEvent mm's)
       HepMC::GenVertex* v = *viter;   
-      float zpos = v->position().z()/10.;
+      float zpos = v->position().z()*0.1;
  
       z_posns_.push_back(zpos);
     }
 
-    delete myGenEvent;
+    //    delete myGenEvent;
 
   }
 

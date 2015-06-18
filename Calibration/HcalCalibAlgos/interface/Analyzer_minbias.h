@@ -75,10 +75,12 @@ namespace cms{
     float mom0_Noise,mom1_Noise,mom2_Noise,mom3_Noise,mom4_Noise;
     float mom0_Diff,mom1_Diff,mom2_Diff,mom3_Diff,mom4_Diff;
     struct myInfo{
-      double theMB0, theMB1, theMB2, theMB4, theNS0, theNS1, theNS2, theNS4;
+      double theMB0, theMB1, theMB2, theMB3, theMB4;
+      double theNS0, theNS1, theNS2, theNS3, theNS4;
       double theDif0, theDif1, theDif2, runcheck;
       void MyInfo() {
-	theMB0 = theMB1 = theMB2 = theMB4 = theNS0 = theNS1 = theNS2 = theNS4 = 0;
+	theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0;
+	theNS0 = theNS1 = theNS2 = theNS3 = theNS4 = 0;
 	theDif0 = theDif1 = theDif2 = runcheck = 0;
       }
     };

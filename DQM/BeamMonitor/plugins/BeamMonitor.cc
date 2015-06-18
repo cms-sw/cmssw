@@ -49,10 +49,15 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
   tm * ptm;
   ptm = gmtime ( &t );
   int year = ptm->tm_year;
-  if (year < 1995) {
-    edm::LogError("BadTimeStamp") << "year reported is " << year << "!! resetting to 2011..." << std::endl;
-    year = 2012;
-  }
+ //check if year is ok
+ if (year <= 37) year += 2000;                                                        
+ if (year >= 70 && year <= 137) year += 1900;                                         
+             
+  if (year < 1995){                                                                   
+        edm::LogError("BadTimeStamp") << "year reported is " << year <<" !!"<<std::endl;
+        year = 2015; //overwritten later by BeamFitter.cc for fits but needed here for TH1
+        edm::LogError("BadTimeStamp") << "Resetting to " <<year<<std::endl;
+      } 
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
@@ -263,7 +268,7 @@ void BeamMonitor::beginJob() {
 
   h_vy_dz = dbe_->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
   h_vy_dz->setAxisTitle("dz (cm)",1);
-  h_vy_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
+  h_vy_dz->setAxisTitle("y coordinate of input track at PCA (cm)",2);
 
   h_x0 = dbe_->book1D("BeamMonitorFeedBack_x0","x coordinate of beam spot (Fit)",100,-0.01,0.01);
   h_x0->setAxisTitle("x_{0} (cm)",1);

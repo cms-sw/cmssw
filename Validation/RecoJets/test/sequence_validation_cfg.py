@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("JETVALIDATION")
 
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
 #process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 #process.GlobalTag.globaltag = 'START42_V17::All'
@@ -35,8 +35,7 @@ readFiles.extend( [
        '/store/relval/CMSSW_7_4_0_pre8/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_74_V7-v1/00000/E4EF6410-54BD-E411-8838-002590593920.root',
        '/store/relval/CMSSW_7_4_0_pre8/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_74_V7-v1/00000/FA18AB00-3EBD-E411-AAE8-0025905A608A.root'
        #for MINIAODtests 
-       #'/store/relval/CMSSW_7_4_0_pre8/RelValTTbar_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/C265418B-58BD-E411-8167-0025905A6056.root',
-       #'/store/relval/CMSSW_7_4_0_pre8/RelValTTbar_13/MINIAODSIM/MCRUN2_74_V7-v1/00000/C4BE1C8C-58BD-E411-9D78-0025905A60EE.root' 
+       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/MINIAODSIM/PU50ns_PRE_LS172_V16-v1/00000/9886ACB4-F45E-E411-9E5D-02163E00F01E.root' 
        #test HI sequence for jets
        #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/5C15CC80-0B5A-E411-AF4B-02163E00ECD2.root',
        #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/FC51FED6-B559-E411-9131-02163E006D72.root' 

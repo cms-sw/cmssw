@@ -11,7 +11,7 @@
   
   //This holds the list of files and 'TTree' to process
   TChain c("Events");
-  c.Add("test.root");
+  c.Add("testTFWLiteSelector.root");
   
   //This actually processes the data
   c.Process(sel);

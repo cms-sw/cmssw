@@ -125,7 +125,7 @@ trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
 # dEdx monitoring
-TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon    
+TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon   
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 # track collections
@@ -147,7 +147,7 @@ TrackingDQMSourceTier0 += dqmInfoTracking
 
 TrackingDQMSourceTier0Common = cms.Sequence()
 # dEdx monitoring
-TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon)    
+TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon)    
 ## monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
@@ -157,16 +157,16 @@ for tracks in selectedTracks :
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
 # dEdx monitoring
-TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon    
+TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon    
 #    * lumiProducer
 #    * trackingDQMgoodOfflinePrimaryVertices
 # monitor track collections
@@ -178,7 +178,7 @@ for tracks in selectedTracks :
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'

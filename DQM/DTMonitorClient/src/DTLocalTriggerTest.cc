@@ -51,10 +51,7 @@ DTLocalTriggerTest::~DTLocalTriggerTest(){
 }
 
 
-void DTLocalTriggerTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
-
-  if (bookingdone) return;
+void DTLocalTriggerTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -141,6 +138,8 @@ void DTLocalTriggerTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
 void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+  if (!bookingdone) Bookings(ibooker,igetter);
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -440,7 +439,5 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter & igetter) {
 
 }
 
-
-void DTLocalTriggerTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
 
 

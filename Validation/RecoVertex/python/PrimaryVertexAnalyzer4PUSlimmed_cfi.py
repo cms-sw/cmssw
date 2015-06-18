@@ -13,14 +13,15 @@ selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesW
 #selectedPixelVertices.src = cms.InputTag('pixelVertices')
 
 vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
-                                simG4 = cms.InputTag("g4SimHits"),
                                 use_only_charged_tracks = cms.untracked.bool(True),
-                                use_TP_associator = cms.untracked.bool(False),
                                 verbose = cms.untracked.bool(False),
                                 sigma_z_match = cms.untracked.double(3.0),
                                 abs_z_match = cms.untracked.double(0.1),
                                 root_folder = cms.untracked.string("Vertexing/PrimaryVertexV"),
-                                recoTrackProducer = cms.untracked.string("generalTracks"),
+                                recoTrackProducer = cms.untracked.InputTag("generalTracks"),
+                                trackingParticleCollection = cms.untracked.InputTag("mix", "MergedTrackTruth"),
+                                trackingVertexCollection = cms.untracked.InputTag("mix", "MergedTrackTruth"),
+                                trackAssociatorMap = cms.untracked.InputTag("trackingParticleRecoTrackAsssociation"),
                                 vertexRecoCollections = cms.VInputTag("offlinePrimaryVertices",
                                                                       "offlinePrimaryVerticesWithBS",
 #                                                                      "pixelVertices",
@@ -35,3 +36,4 @@ vertexAnalysisSequence = cms.Sequence(cms.ignore(selectedOfflinePrimaryVertices)
 #                                      * cms.ignore(selectedPixelVertices)
                                       * vertexAnalysis
 )
+

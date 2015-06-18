@@ -71,7 +71,6 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<reco::TrackCollection>          Output_track         ( new reco::TrackCollection );
   std::auto_ptr<TrackToTrajectoryMap>           Output_trackmap      ( new TrackToTrajectoryMap );
 
-  std::auto_ptr<TrackToTrackMap>  	        Output_tracktrackmap ( new TrackToTrackMap );
 
 
 
@@ -170,7 +169,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      return;
   }
 
-
+  std::auto_ptr<TrackToTrackMap>  	        Output_tracktrackmap ( new TrackToTrackMap(Handle_tracks, m_TrajToTrackCollection->refProd().val) );
 
   for(unsigned int i = 0 ; i < Indice_Map.size() ; i++)
   {

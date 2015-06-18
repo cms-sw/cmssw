@@ -1,3 +1,5 @@
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -43,6 +45,7 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
     edm::Wrapper<edm::RefToBaseVector<int> > dummyx21;
     edm::Wrapper<edm::PtrVector<int> > dummyx21_3;
+    edm::Wrapper<std::vector<edm::Ptr<int> > > dummy_vPtrInt;
     edm::Ptr<int> dummyx21_4;
     edm::reftobase::RefVectorHolderBase * dummyx21_0;
     edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
@@ -72,5 +75,8 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::ConditionsInLumiBlock> dum11;
     edm::Wrapper<edm::ConditionsInRunBlock> dum21;
     edm::Wrapper<edm::ConditionsInEventBlock> dum31;
+
+    edm::RefProd<std::vector<int> > rpvi;
+    edm::RefToBaseProd<int> rtbpi;
   };
 }

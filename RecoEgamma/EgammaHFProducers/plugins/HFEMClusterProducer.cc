@@ -38,7 +38,6 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   // create return data
   std::auto_ptr<reco::HFEMClusterShapeCollection> retdata1(new HFEMClusterShapeCollection());
   std::auto_ptr<reco::SuperClusterCollection> retdata2(new SuperClusterCollection());
-  std::auto_ptr<reco::HFEMClusterShapeAssociationCollection> retdata3(new HFEMClusterShapeAssociationCollection());
 
   algo_.isMC(!e.isRealData());
  
@@ -50,6 +49,10 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   // put the results
   ShapeHandle=e.put(retdata1);
   SupHandle=e.put(retdata2);
+
+  std::auto_ptr<reco::HFEMClusterShapeAssociationCollection> retdata3(
+    new HFEMClusterShapeAssociationCollection(SupHandle, ShapeHandle));
+
   for (unsigned int i=0; i < ShapeHandle->size();i++){
     retdata3->insert(edm::Ref<reco::SuperClusterCollection>(SupHandle,i),edm::Ref<reco::HFEMClusterShapeCollection>(ShapeHandle,i));
   }

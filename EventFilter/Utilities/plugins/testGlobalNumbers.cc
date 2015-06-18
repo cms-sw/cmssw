@@ -133,11 +133,11 @@ namespace test{
 	std::cout << "lumiSection;	   "
 		  << dec << (unsigned int)record.getHeader().getData().header.lumiSection;
 	std::cout << "\n";	 
-	std::cout << "nibblesPerLumiSection"
+	std::cout << "nibblesPerLumiSection;"
 		  << hex <<(unsigned int)record.getHeader().getData().header.nibblesPerLumiSection;
 	std::cout << "\n"; 
-	std::cout << "reserved4;	   "
-		  << hex <<(unsigned int)record.getHeader().getData().header. reserved4;
+	std::cout << "triggerTypeFlags;	   "
+		  << hex <<(unsigned int)record.getHeader().getData().header.triggerTypeFlags;
 	std::cout << "\n";	 
 	std::cout << "reserved5;	   "
 		  << hex <<(unsigned int)record.getHeader().getData().header.reserved5;	

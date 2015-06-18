@@ -73,7 +73,7 @@ void TrackingMaterialAnalyser::saveParameters(const char* name)
     std::cout << boost::format("\tnumber of hits:               %9d") % layer.tracks() << std::endl;
     std::cout << boost::format("\tnormalized segment length:    %9.1f ± %9.1f cm")  % layer.averageLength()           % layer.sigmaLength()           << std::endl;
     std::cout << boost::format("\tnormalized radiation lengths: %9.3f ± %9.3f")     % layer.averageRadiationLengths() % layer.sigmaRadiationLengths() << std::endl;
-    std::cout << boost::format("\tnormalized energy loss:       %9.3f ± %9.3f GeV") % layer.averageEnergyLoss()       % layer.sigmaEnergyLoss()       << std::endl;
+    std::cout << boost::format("\tnormalized energy loss:       %6.5fe-03 ± %6.5fe-03 GeV") % layer.averageEnergyLoss()       % layer.sigmaEnergyLoss()       << std::endl;
     parameters << boost::format("%-20s\t%7d\t%5.1f ± %5.1f cm\t%6.4f ± %6.4f \t%6.4fe-03 ± %6.4fe-03 GeV")
                                 % layer.name()
                                 % layer.tracks()

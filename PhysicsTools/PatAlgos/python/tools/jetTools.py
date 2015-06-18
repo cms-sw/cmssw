@@ -392,27 +392,15 @@ class AddJetCollection(ConfigToolBase):
                         requiredTagInfos.append(requiredTagInfo)
             ## load sequences and setups needed for btagging
             ## This loads all available btagger, but the ones we need are added to the process by hand later. Only needed to get the ESProducer. Needs improvement
-            #loadWithPostFix(process,"RecoBTag.Configuration.RecoBTag_cff",postfix)
             if hasattr( process, 'candidateJetProbabilityComputer' ) == False :
-                process.load("RecoBTag.Configuration.RecoBTag_cff")
+                #process.load("RecoBTag.Configuration.RecoBTag_cff") # commented out to prevent loading of IVF modules already run in the standard reconstruction. Instead, loading individual cffs from RecoBTag_cff
+                process.load("RecoBTag.ImpactParameter.impactParameter_cff")
+                process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
+                process.load("RecoBTag.SoftLepton.softLepton_cff")
+                process.load("RecoBTau.JetTagComputer.combinedMVA_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
-            ## Remove IVF modules that were already run by the standard reconstruction to prevent them from re-running in the unscheduled mode
-            if not runIVF and hasattr( process, 'bVertexFilter' ): # 'if' condition preventing jets from removing IVF modules from other jets that want to run them
-                if hasattr( process, 'inclusiveCandidateVertexing' ):
-                    for m in getattr( process, 'inclusiveCandidateVertexing' ).moduleNames():
-                        if hasattr( process, m ):
-                            delattr( process, m )
-                    delattr( process, 'inclusiveCandidateVertexing' )
-                if hasattr( process, 'inclusiveVertexing' ):
-                    for m in getattr( process, 'inclusiveVertexing' ).moduleNames():
-                        if hasattr( process, m ):
-                            delattr( process, m )
-                    delattr( process, 'inclusiveVertexing' )
-            ## the following module is never used explicitly but here it is used to distinguish the first from the subsequent calls to switchJetCollection()/addJetCollection()
-            if hasattr( process, 'bVertexFilter' ):
-                delattr( process, 'bVertexFilter' )
 
             ## setup all required btagInfos : we give a dedicated treatment for different
             ## types of tagInfos here. A common treatment is possible but might require a more

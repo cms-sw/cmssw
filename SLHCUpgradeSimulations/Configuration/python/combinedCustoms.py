@@ -18,24 +18,11 @@ def cust_2019(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
-    process=fixRPCConditions(process)
+    #process=fixRPCConditions(process)
     return process
 
 def noCrossing(process):
     process=customise_NoCrossing(process)
-    return process
-
-
-def fixRPCConditions(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("RPCStripNoisesRcd"),
-                 tag = cms.string("RPCStripNoise_upscope_mc_v2"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_RPC")
-                 )
-        )
-                                    )
     return process
 
 ##### clone aging.py here 

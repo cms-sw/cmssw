@@ -464,7 +464,7 @@
    </config>
   </config>
   <config name="views" version="1">
-   <config name="iSpy" version="2">
+   <config name="3D RecHit" version="9">
     <config name="Overlay Event Info" version="0">
       <string>2</string>
     </config>
@@ -473,27 +473,6 @@
     </config>
     <config name="Line width" version="0">
       <string>2</string>
-    </config>
-    <config name="Show Muon Barrel" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Muon Endcap" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Pixel Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Pixel Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Wire Frame" version="0">
-      <string>0</string>
     </config>
     <config name="Detector Transparency" version="0">
       <string>98</string>

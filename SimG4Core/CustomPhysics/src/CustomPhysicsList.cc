@@ -111,6 +111,7 @@ void CustomPhysicsList::setupRHadronPhycis(G4ParticleDefinition* particle)
       pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
     }
+    pmanager->AddProcess(new G4Decay, 1, -1, 3);
     pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper)); //GHEISHA
   }
   else      LogDebug("CustomPhysics") << "   No pmanager";

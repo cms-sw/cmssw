@@ -91,7 +91,7 @@ LogMessageMonitor::LogMessageMonitor(const edm::ParameterSet& iConfig)
   edm::ConsumesCollector c{ consumesCollector() };
    //now do what ever initialization is needed
   lumiDetails_         = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
-  genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig, consumesCollector());
+  genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig, consumesCollector(), *this);
 }
 
 
@@ -214,6 +214,8 @@ void LogMessageMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
    histname = pluginsMonName_+"ErrorsVsModules";
    CategoriesVsModules = ibooker.book2D(histname, histname, nModules, 0., double(nModules), nCategories, 0., double(nCategories) );
+   CategoriesVsModules->getTH1()->GetXaxis()->SetNoAlphanumeric();
+   CategoriesVsModules->getTH1()->GetYaxis()->SetNoAlphanumeric();
    CategoriesVsModules->setAxisTitle("modules",1);
    for (size_t imodule = 0; imodule < nModules; imodule++)
      CategoriesVsModules->setBinLabel(imodule+1,modules_vector_[imodule],1);

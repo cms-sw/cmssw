@@ -135,8 +135,7 @@ GEMGeometry::add(GEMEtaPartition* etaPartition){
   theEtaPartitions.push_back(etaPartition);
   theEtaPartitionIds.push_back(etaPartition->geographicalId());
   theDetIds.push_back(etaPartition->geographicalId());
-  GeomDetType const* _t = &etaPartition->type();
-  theEtaPartitionTypes.push_back(_t);
+  theEtaPartitionTypes.push_back(&etaPartition->type());
   theMap.insert(std::pair<DetId,const GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
 }

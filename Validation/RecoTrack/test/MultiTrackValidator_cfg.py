@@ -94,8 +94,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
@@ -131,13 +131,13 @@ process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi"
 
 process.validation = cms.Sequence(
     process.tpClusterProducer *
+    process.quickTrackAssociatorByHits *
     process.multiTrackValidator
 )
 
 # paths
 process.val = cms.Path(
-      process.quickTrackAssociatorByHits
-    * process.cutsRecoTracks
+      process.cutsRecoTracks
     * process.validation
 )
 

@@ -2,6 +2,7 @@
 #define HcalCondObjectContainer_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 
 #include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -102,8 +103,7 @@ HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
 }
 
 template<class Item> void
-HcalCondObjectContainer<Item>::initContainer(DetId fId)
-{
+HcalCondObjectContainer<Item>::initContainer(DetId fId) {
   Item emptyItem;
 
   if (fId.det()==DetId::Hcal) {
@@ -129,8 +129,7 @@ HcalCondObjectContainer<Item>::initContainer(DetId fId)
 
 
 template<class Item> const Item*
-HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
-{
+HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
   unsigned int index=indexFor(fId);
   
   const Item* cell = NULL;
@@ -157,14 +156,12 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
     }
   }
   
-  //  Item emptyItem;
-  //  if (cell->rawId() == emptyItem.rawId() ) 
   if ((!cell)) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << textForId(fId);
     } 
-  } else if (cell->rawId() != fId) {
+  } else if (!hcalEqualDetId(cell,fId)) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions mismatch") 
 	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
@@ -176,20 +173,18 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
 }
 
 template<class Item> const bool
-HcalCondObjectContainer<Item>::exists(DetId fId) const
-{
+HcalCondObjectContainer<Item>::exists(DetId fId) const {
   const Item* cell = getValues(fId,false);
 
-  if (cell)
-    if (cell->rawId() == fId ) 
+  if (cell) {
+    if (hcalEqualDetId(cell,fId))
       return true;
-  
+  }
   return false;
 }
 
 template<class Item> bool
-HcalCondObjectContainer<Item>::addValues(const Item& myItem)
-{
+HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
   bool success = false;
   DetId fId(myItem.rawId());
   unsigned int index=indexFor(fId);
@@ -239,53 +234,43 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem)
 }
 
 template<class Item> std::vector<DetId>
-HcalCondObjectContainer<Item>::getAllChannels() const
-{
+HcalCondObjectContainer<Item>::getAllChannels() const {
   std::vector<DetId> channels;
   Item emptyItem;
-  for (unsigned int i=0; i<HBcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HBcontainer.at(i).rawId() )
-	channels.push_back( DetId(HBcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HEcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HEcontainer.at(i).rawId() )
-	channels.push_back( DetId(HEcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HOcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HOcontainer.at(i).rawId() )
-	channels.push_back( DetId(HOcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HFcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HFcontainer.at(i).rawId() )
-	channels.push_back( DetId(HFcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HTcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HTcontainer.at(i).rawId() )
-	channels.push_back( DetId(HTcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<ZDCcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != ZDCcontainer.at(i).rawId() )
-	channels.push_back( DetId(ZDCcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<CALIBcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != CALIBcontainer.at(i).rawId() )
-	channels.push_back( DetId(CALIBcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<CASTORcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != CASTORcontainer.at(i).rawId() )
-	channels.push_back( DetId(CASTORcontainer.at(i).rawId()) );
-    }
+  for (unsigned int i=0; i<HBcontainer.size(); i++) {
+    if (emptyItem.rawId() != HBcontainer.at(i).rawId() )
+      channels.push_back( DetId(HBcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HEcontainer.size(); i++) {
+    if (emptyItem.rawId() != HEcontainer.at(i).rawId() )
+      channels.push_back( DetId(HEcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HOcontainer.size(); i++) {
+    if (emptyItem.rawId() != HOcontainer.at(i).rawId() )
+      channels.push_back( DetId(HOcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HFcontainer.size(); i++) {
+    if (emptyItem.rawId() != HFcontainer.at(i).rawId() )
+      channels.push_back( DetId(HFcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HTcontainer.size(); i++) {
+    if (emptyItem.rawId() != HTcontainer.at(i).rawId() )
+      channels.push_back( DetId(HTcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<ZDCcontainer.size(); i++) {
+    if (emptyItem.rawId() != ZDCcontainer.at(i).rawId() )
+      channels.push_back( DetId(ZDCcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<CALIBcontainer.size(); i++) {
+    if (emptyItem.rawId() != CALIBcontainer.at(i).rawId() )
+      channels.push_back( DetId(CALIBcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<CASTORcontainer.size(); i++) {
+    if (emptyItem.rawId() != CASTORcontainer.at(i).rawId() )
+      channels.push_back( DetId(CASTORcontainer.at(i).rawId()) );
+  }
 
   return channels;
 }
-
 
 #endif

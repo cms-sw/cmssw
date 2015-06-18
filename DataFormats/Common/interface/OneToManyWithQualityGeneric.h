@@ -11,7 +11,6 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-
 #include "DataFormats/Common/interface/MapRefViewTrait.h"
 
 namespace edm {
@@ -51,15 +50,25 @@ namespace edm {
     typedef std::vector<std::vector<std::pair<const typename CVal::value_type *, Q > >
                        > transient_val_vector;
     /// insert in the map
-    static void insert(ref_type & ref, map_type & m,
+    static void insert(ref_type& ref, map_type & m,
 			const key_type & k, const data_type & v) {
       const ValRef & vref = v.first;
       if (k.isNull() || vref.isNull())
 	Exception::throwThis(errors::InvalidReference,
 	  "can't insert null references in AssociationMap");
-      if (ref.key.isNull()) {
-	ref.key = keyrefprod_type(k);
-	ref.val = valrefprod_type(vref);
+      if(ref.key.isNull()) {
+        if(k.isTransient() || vref.isTransient()) {
+          Exception::throwThis(errors::InvalidReference,
+	    "can't insert transient references in uninitialized AssociationMap");
+        }
+        //another thread might cause productGetter() to return a different value
+        EDProductGetter const* getter = ref.key.productGetter();
+        if(getter == nullptr) {
+          Exception::throwThis(errors::LogicError,
+	    "can't insert into AssociationMap unless it was initialized with a getter or RefProd(s) or RefToBaseProd(s)");
+        }
+        ref.key = KeyRefProd(k.id(), getter);
+        ref.val = ValRefProd(vref.id(), ref.val.productGetter());
       }
       helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, vref);
       index_type ik = index_type(k.key()), iv = index_type(vref.key());
@@ -78,7 +87,11 @@ namespace edm {
     }
     /// size of data_type
     static typename map_type::size_type size(const map_assoc & v) { return v.size(); }
+
     /// sort
+    // Note the Framework automatically calls this after putting the object
+    // into the event using AssociationMap::post_insert. It sorts in reverse
+    // order of the quality.
     static void sort(map_type & m) {
       //      using namespace boost::lambda;
       for(typename map_type::iterator i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
@@ -106,38 +119,44 @@ namespace edm {
     /// fill transient map
     static transient_map_type transientMap(const ref_type & ref, const map_type & map) {
       transient_map_type m;
-      const CKey & ckey = * ref.key;
-      const CVal & cval = * ref.val;
-      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
-	const map_assoc & a = i->second;
-	const typename CKey::value_type * k = & ckey[i->first];
-	std::vector<std::pair<const typename CVal::value_type *, Q> > v;
-	for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j) {
-	  const typename CVal::value_type * val = & cval[j->first];
-	  v.push_back(std::make_pair(val, j->second));
-	}
-	m.insert(std::make_pair(k, v));
+      if(!map.empty()) {
+        const CKey & ckey = * ref.key;
+        const CVal & cval = * ref.val;
+        for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+          const map_assoc & a = i->second;
+          const typename CKey::value_type * k = & ckey[i->first];
+          std::vector<std::pair<const typename CVal::value_type *, Q> > v;
+          for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j) {
+            const typename CVal::value_type * val = & cval[j->first];
+            v.push_back(std::make_pair(val, j->second));
+          }
+          m.insert(std::make_pair(k, v));
+        }
       }
       return m;
     }
     /// fill transient key vector
     static transient_key_vector transientKeyVector(const ref_type & ref, const map_type & map) {
       transient_key_vector m;
-      const CKey & ckey = * ref.key;
-      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i)
-	m.push_back(& ckey[i->first]);
+      if(!map.empty()) {
+        const CKey & ckey = * ref.key;
+        for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i)
+          m.push_back(& ckey[i->first]);
+      }
       return m;
     }
     /// fill transient val vector
     static transient_val_vector transientValVector(const ref_type & ref, const map_type & map) {
       transient_val_vector m;
-      const CVal & cval = * ref.val;
-      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
-	const map_assoc & a = i->second;
-	std::vector<std::pair<const typename CVal::value_type *, Q> > v;
-	m.push_back(v);
-	for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j)
-	  m.back().push_back(std::make_pair(& cval[ j->first ], j->second));
+      if(!map.empty()) {
+        const CVal & cval = * ref.val;
+        for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+          const map_assoc & a = i->second;
+          std::vector<std::pair<const typename CVal::value_type *, Q> > v;
+          m.push_back(v);
+          for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j)
+            m.back().push_back(std::make_pair(& cval[ j->first ], j->second));
+        }
       }
       return m;
     }

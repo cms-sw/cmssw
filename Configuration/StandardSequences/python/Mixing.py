@@ -104,6 +104,9 @@ addMixingScenario("E8TeV_2012_ZmumugSkim",{'file': 'SimGeneral.MixingModule.mix_
 addMixingScenario("CSA14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_CSA14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("CSA14_inTimeOnly",{'file': 'SimGeneral.MixingModule.mix_CSA14_inTimeOnly_cfi'})
 addMixingScenario("Phys14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_Phys14_50ns_PoissonOOTPU_cfi'})
+addMixingScenario("2015_25ns_HiLum_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_25ns_HiLum_PoissonOOTPU_cfi'})
+addMixingScenario("2015_25ns_Startup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_25ns_Startup_PoissonOOTPU_cfi'})
+addMixingScenario("2015_50ns_Startup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_50ns_Startup_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 
@@ -148,6 +151,8 @@ addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_
 addMixingScenario("Flat_20_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_50ns_cfi'})
 addMixingScenario("Flat_0_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_25ns_cfi'})
 addMixingScenario("Flat_0_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_50ns_cfi'})
+addMixingScenario("Flat_10_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_25ns_cfi'})
+addMixingScenario("Flat_10_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_50ns_cfi'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 

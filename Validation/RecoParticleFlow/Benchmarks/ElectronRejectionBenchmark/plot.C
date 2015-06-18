@@ -37,25 +37,25 @@ TString dir = "DQMData/PFTask/Benchmarks/PFTauElecRejection/Gen";
 
 TCanvas c1;
 Styles::FormatPad( &c1, false );
-c1->Divide(4,2);
+c1.Divide(4,2);
 
 Styles styles;
 Style* s1 = styles.s1;
 Style* s2 = styles.s2;
 
 //////
-c1->cd(1);
+c1.cd(1);
 f1.cd(dir);
-TH1F* htau_EoP = (TH1F*) gDirectory.Get("EoverP");
+TH1F* htau_EoP = (TH1F*) gDirectory->Get("EoverP");
 //htau_EoP.Rebin(2);
 Styles::FormatHisto(htau_EoP, s1);
-htau_EoP.Draw();
+htau_EoP->Draw();
 
 f2.cd(dir);
-TH1F* helec_EoP = (TH1F*) gDirectory.Get("EoverP");
+TH1F* helec_EoP = (TH1F*) gDirectory->Get("EoverP");
 //helec_EoP.Rebin(2);
 Styles::FormatHisto(helec_EoP, s2);
-helec_EoP.Draw("same");
+helec_EoP->Draw("same");
 
 c1_1->SetLogy(1);
 if (normHists) {
@@ -68,18 +68,18 @@ fillPerfGraphESUM(eopPerf,htau_EoP,helec_EoP);
 
 
 //////
-c1->cd(2);
+c1.cd(2);
 f1.cd(dir);
-TH1F* htau_HoP = (TH1F*) gDirectory.Get("HoverP");
+TH1F* htau_HoP = (TH1F*) gDirectory->Get("HoverP");
 //htau_HoP.Rebin(2);
 Styles::FormatHisto(htau_HoP, s1);
-htau_HoP.Draw();
+htau_HoP->Draw();
 
 f2.cd(dir);
-TH1F* helec_HoP = (TH1F*) gDirectory.Get("HoverP");
+TH1F* helec_HoP = (TH1F*) gDirectory->Get("HoverP");
 //helec_HoP.Rebin(2);
 Styles::FormatHisto(helec_HoP, s2);
-helec_HoP.Draw("same");
+helec_HoP->Draw("same");
 
 c1_2->SetLogy(1);
 if (normHists) {
@@ -92,18 +92,18 @@ fillPerfGraphHoP(h3x3Perf,htau_HoP,helec_HoP);
 
 /*
 //////
-c1->cd(3);
+c1.cd(3);
 f1.cd(dir);
-TH1F* htau_epreid = (TH1F*) gDirectory.Get("ElecPreID");
+TH1F* htau_epreid = (TH1F*) gDirectory->Get("ElecPreID");
 //htau_epreid.Rebin(2);
 Styles::FormatHisto(htau_epreid, s1);
-htau_epreid.Draw();
+htau_epreid->Draw();
 
 f2.cd(dir);
-TH1F* helec_epreid = (TH1F*) gDirectory.Get("ElecPreID");
+TH1F* helec_epreid = (TH1F*) gDirectory->Get("ElecPreID");
 //helec_epreid.Rebin(2);
 Styles::FormatHisto(helec_epreid, s2);
-helec_epreid.Draw("same");
+helec_epreid->Draw("same");
 
 c1_3->SetLogy(1);
 if (normHists) {
@@ -117,18 +117,18 @@ fillPerfGraphEPreID(epreidPerf,htau_epreid,helec_epreid);
 
 
 //////
-c1->cd(4);
+c1.cd(4);
 f1.cd(dir);
-TH1F* htau_etauD = (TH1F*) gDirectory.Get("TauElecDiscriminant");
+TH1F* htau_etauD = (TH1F*) gDirectory->Get("TauElecDiscriminant");
 //htau_etauD.Rebin(2);
 Styles::FormatHisto(htau_etauD, s1);
-htau_etauD.Draw();
+htau_etauD->Draw();
 
 f2.cd(dir);
-TH1F* helec_etauD = (TH1F*) gDirectory.Get("TauElecDiscriminant");
+TH1F* helec_etauD = (TH1F*) gDirectory->Get("TauElecDiscriminant");
 //helec_etauD.Rebin(2);
 Styles::FormatHisto(helec_etauD, s2);
-helec_etauD.Draw("same");
+helec_etauD->Draw("same");
 
 c1_4->SetLogy(1);
 if (normHists) {
@@ -140,13 +140,13 @@ TGraph* discriminantPerf = new TGraph();
 fillPerfGraphDiscr(discriminantPerf,htau_etauD,helec_etauD);
 
 //////
-c1->cd(5);
+c1,cd(5);
 f1.cd(dir);
-TH2F* htau_hvseop_preid0 = (TH2F*) gDirectory.Get("HoPvsEoP_preid0");
+TH2F* htau_hvseop_preid0 = (TH2F*) gDirectory->Get("HoPvsEoP_preid0");
 //htau_hvseop_preid0.Rebin(2);
-htau_hvseop_preid0.SetLineColor(kBlack);
-htau_hvseop_preid0.SetLineWidth(2);
-htau_hvseop_preid0.Draw("box");
+htau_hvseop_preid0->SetLineColor(kBlack);
+htau_hvseop_preid0->SetLineWidth(2);
+htau_hvseop_preid0->Draw("box");
 
 TLine li1;li1.SetLineWidth(2.);li1.SetLineColor(kBlue);
 li1.DrawLine(0.95,0.05,2.,0.05);
@@ -154,47 +154,47 @@ TLine li2;li2.SetLineWidth(2.);li2.SetLineColor(kBlue);
 li2.DrawLine(0.95,0.,0.95,0.05);
 
 //////
-c1->cd(6);
+c1.cd(6);
 f2.cd(dir);
-TH2F* helec_hvseop_preid0 = (TH2F*) gDirectory.Get("HoPvsEoP_preid0");
-helec_hvseop_preid0.SetLineColor(kBlue);
-helec_hvseop_preid0.SetLineWidth(2);
-helec_hvseop_preid0.Draw("box");
+TH2F* helec_hvseop_preid0 = (TH2F*) gDirectory->Get("HoPvsEoP_preid0");
+helec_hvseop_preid0->SetLineColor(kBlue);
+helec_hvseop_preid0->SetLineWidth(2);
+helec_hvseop_preid0->Draw("box");
 
-TLine li1;li1.SetLineWidth(2.);li1.SetLineColor(kBlue);
+li1.SetLineWidth(2.);li1.SetLineColor(kBlue);
 li1.DrawLine(0.95,0.05,2.,0.05);
-TLine li2;li2.SetLineWidth(2.);li2.SetLineColor(kBlue);
+li2.SetLineWidth(2.);li2.SetLineColor(kBlue);
 li2.DrawLine(0.95,0.,0.95,0.05);
 
 
 //////
-c1->cd(7);
+c1.cd(7);
 f1.cd(dir);
-TH2F* htau_hvseop_preid1 = (TH2F*) gDirectory.Get("HoPvsEoP_preid1");
-htau_hvseop_preid1.SetLineColor(kBlack);
-htau_hvseop_preid1.SetLineWidth(2);
-htau_hvseop_preid1.Draw("box");
+TH2F* htau_hvseop_preid1 = (TH2F*) gDirectory->Get("HoPvsEoP_preid1");
+htau_hvseop_preid1->SetLineColor(kBlack);
+htau_hvseop_preid1->SetLineWidth(2);
+htau_hvseop_preid1->Draw("box");
 
-TLine li1;li1.SetLineWidth(2.);li1.SetLineColor(kRed);
+li1.SetLineWidth(2.);li1.SetLineColor(kRed);
 li1.DrawLine(0.8,0.15,2.,0.15);
-TLine li2;li2.SetLineWidth(2.);li2.SetLineColor(kRed);
+li2.SetLineWidth(2.);li2.SetLineColor(kRed);
 li2.DrawLine(0.8,0.,0.8,0.15);
 
 //////
-c1->cd(8);
+c1.cd(8);
 f2.cd(dir);
-TH2F* helec_hvseop_preid1 = (TH2F*) gDirectory.Get("HoPvsEoP_preid1");
-helec_hvseop_preid1.SetLineColor(kBlue);
-helec_hvseop_preid1.SetLineWidth(2);
-helec_hvseop_preid1.Draw("box");
+TH2F* helec_hvseop_preid1 = (TH2F*) gDirectory->Get("HoPvsEoP_preid1");
+helec_hvseop_preid1->SetLineColor(kBlue);
+helec_hvseop_preid1->SetLineWidth(2);
+helec_hvseop_preid1->Draw("box");
 
-TLine li1;li1.SetLineWidth(2.);li1.SetLineColor(kRed);
+li1.SetLineWidth(2.);li1.SetLineColor(kRed);
 li1.DrawLine(0.8,0.15,2.,0.15);
-TLine li2;li2.SetLineWidth(2.);li2.SetLineColor(kRed);
+li2.SetLineWidth(2.);li2.SetLineColor(kRed);
 li2.DrawLine(0.8,0.,0.8,0.15);
 
 //////
-c1->cd();
+c1.cd();
 gPad->SaveAs(plotName+"1.gif");
 
 
@@ -202,21 +202,21 @@ gPad->SaveAs(plotName+"1.gif");
 
 TCanvas c2;
 Styles::FormatPad( &c2, false );
-c2->Divide(3,2);
+c2.Divide(3,2);
 
 //////
-c2->cd(1);
+c2.cd(1);
 f1.cd(dir);
-TH1F* htau_deltaEta = (TH1F*) gDirectory.Get("pfcand_deltaEta");
+TH1F* htau_deltaEta = (TH1F*) gDirectory->Get("pfcand_deltaEta");
 //htau_deltaEta.Rebin(2);
 Styles::FormatHisto(htau_deltaEta, s1);
-htau_deltaEta.Draw();
+htau_deltaEta->Draw();
 
 f2.cd(dir);
-TH1F* helec_deltaEta = (TH1F*) gDirectory.Get("pfcand_deltaEta");
+TH1F* helec_deltaEta = (TH1F*) gDirectory->Get("pfcand_deltaEta");
 //helec_deltaEta.Rebin(2);
 Styles::FormatHisto(helec_deltaEta, s2);
-helec_deltaEta.Draw("same");
+helec_deltaEta->Draw("same");
 
 gPad->SetLogy(1);
 if (normHists) {
@@ -224,18 +224,18 @@ if (normHists) {
 }
 
 //////
-c2->cd(2);
+c2.cd(2);
 f1.cd(dir);
-TH1F* htau_deltaPhiOverQ = (TH1F*) gDirectory.Get("pfcand_deltaPhiOverQ");
+TH1F* htau_deltaPhiOverQ = (TH1F*) gDirectory->Get("pfcand_deltaPhiOverQ");
 //htau_deltaPhiOverQ.Rebin(2);
 Styles::FormatHisto(htau_deltaPhiOverQ, s1);
-htau_deltaPhiOverQ.Draw();
+htau_deltaPhiOverQ->Draw();
 
 f2.cd(dir);
-TH1F* helec_deltaPhiOverQ = (TH1F*) gDirectory.Get("pfcand_deltaPhiOverQ");
+TH1F* helec_deltaPhiOverQ = (TH1F*) gDirectory->Get("pfcand_deltaPhiOverQ");
 //helec_deltaPhiOverQ.Rebin(2);
 Styles::FormatHisto(helec_deltaPhiOverQ, s2);
-helec_deltaPhiOverQ.Draw("same");
+helec_deltaPhiOverQ->Draw("same");
 
 gPad->SetLogy(1);
 if (normHists) {
@@ -243,18 +243,18 @@ if (normHists) {
 }
 
 //////
-c2->cd(4);
+c2.cd(4);
 f1.cd(dir);
-TH1F* htau_leadTk_pt = (TH1F*) gDirectory.Get("leadTk_pt");
+TH1F* htau_leadTk_pt = (TH1F*) gDirectory->Get("leadTk_pt");
 //htau_leadTk_pt.Rebin(2);
 Styles::FormatHisto(htau_leadTk_pt, s1);
-htau_leadTk_pt.Draw();
+htau_leadTk_pt->Draw();
 
 f2.cd(dir);
-TH1F* helec_leadTk_pt = (TH1F*) gDirectory.Get("leadTk_pt");
+TH1F* helec_leadTk_pt = (TH1F*) gDirectory->Get("leadTk_pt");
 //helec_leadTk_pt.Rebin(2);
 Styles::FormatHisto(helec_leadTk_pt, s2);
-helec_leadTk_pt.Draw("same");
+helec_leadTk_pt->Draw("same");
 
 gPad->SetLogy(1);
 if (normHists) {
@@ -262,18 +262,18 @@ if (normHists) {
 }
 
 //////
-c2->cd(5);
+c2.cd(5);
 f1.cd(dir);
-TH1F* htau_leadTk_eta = (TH1F*) gDirectory.Get("leadTk_eta");
+TH1F* htau_leadTk_eta = (TH1F*) gDirectory->Get("leadTk_eta");
 //htau_leadTk_eta.Rebin(2);
 Styles::FormatHisto(htau_leadTk_eta, s1);
-htau_leadTk_eta.Draw();
+htau_leadTk_eta->Draw();
 
 f2.cd(dir);
-TH1F* helec_leadTk_eta = (TH1F*) gDirectory.Get("leadTk_eta");
+TH1F* helec_leadTk_eta = (TH1F*) gDirectory->Get("leadTk_eta");
 //helec_leadTk_eta.Rebin(2);
 Styles::FormatHisto(helec_leadTk_eta, s2);
-helec_leadTk_eta.Draw("same");
+helec_leadTk_eta->Draw("same");
 
 gPad->SetLogy(1);
 if (normHists) {
@@ -281,18 +281,18 @@ if (normHists) {
 }
 
 //////
-c2->cd(6);
+c2.cd(6);
 f1.cd(dir);
-TH1F* htau_leadTk_phi = (TH1F*) gDirectory.Get("leadTk_phi");
+TH1F* htau_leadTk_phi = (TH1F*) gDirectory->Get("leadTk_phi");
 //htau_leadTk_phi.Rebin(2);
 Styles::FormatHisto(htau_leadTk_phi, s1);
-htau_leadTk_phi.Draw();
+htau_leadTk_phi->Draw();
 
 f2.cd(dir);
-TH1F* helec_leadTk_phi = (TH1F*) gDirectory.Get("leadTk_phi");
+TH1F* helec_leadTk_phi = (TH1F*) gDirectory->Get("leadTk_phi");
 //helec_leadTk_phi.Rebin(2);
 Styles::FormatHisto(helec_leadTk_phi, s2);
-helec_leadTk_phi.Draw("same");
+helec_leadTk_phi->Draw("same");
 
 gPad->SetLogy(1);
 if (normHists) {
@@ -300,18 +300,18 @@ if (normHists) {
 }
 
 //////
-c2->cd(3);
+c2.cd(3);
 f1.cd(dir);
-TH1F* htau_mva = (TH1F*) gDirectory.Get("ElecMVA");
+TH1F* htau_mva = (TH1F*) gDirectory->Get("ElecMVA");
 //htau_mva.Rebin(2);
 Styles::FormatHisto(htau_mva, s1);
-htau_mva.Draw();
+htau_mva->Draw();
 
 f2.cd(dir);
-TH1F* helec_mva = (TH1F*) gDirectory.Get("ElecMVA");
+TH1F* helec_mva = (TH1F*) gDirectory->Get("ElecMVA");
 //helec_mva.Rebin(2);
 Styles::FormatHisto(helec_mva, s2);
-helec_mva.Draw("same");
+helec_mva->Draw("same");
 
 
 // fill performance graphs
@@ -331,9 +331,9 @@ if (normHists) {
 
 TCanvas c3;
 Styles::FormatPad( &c3, false );
-c3->Divide(2,1);
+c3.Divide(2,1);
 
-c3->cd(1);
+c3.cd(1);
 gPad->SetLogy(0);
 gPad->DrawFrame(0.58,0.,1.,0.102);
 //gPad->DrawFrame(0.,0.,1.,1.);
@@ -401,7 +401,7 @@ l.SetTextFont(40);
 
 
 //////
-c3->cd(2);
+c3.cd(2);
 
 TLegend* leg = new TLegend(0.1,0.1,0.89,0.89);
 leg->SetHeader("Electron vs. tau efficiency");
@@ -420,7 +420,7 @@ gPad->Update();
 gPad->Modified();
 
 //////
-c3->cd();
+c3.cd();
 gPad->SaveAs(plotName+"2.gif");
 
 

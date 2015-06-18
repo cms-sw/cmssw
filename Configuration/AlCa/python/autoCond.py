@@ -2,84 +2,45 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'DESRUN1_74_V4::All',
+    'run1_design'       :   'DESRUN1_75_V2',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'MCRUN1_74_V4::All',
+    'run1_mc'           :   'MCRUN1_75_V2',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'MCHI1_74_V5::All',
+    'run1_mc_hi'        :   'MCHI1_75_V2',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'MCPA1_74_V5::All',
+    'run1_mc_pa'        :   'MCPA1_75_V2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESRUN2_74_V3::All',
+    'run2_design'       :   'DESRUN2_75_V2',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'MCRUN2_74_V6::All',
+    'run2_mc_50ns'      :   'MCRUN2_75_V4',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'MCRUN2_74_V7::All',
+    'run2_mc'           :   'MCRUN2_75_V5',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   'MCHI2_74_V4::All',
+    'run2_mc_hi'        :   'MCHI2_75_V2',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_74_V10A::All',
+    'run1_data'         :   'GR_R_75_V4A',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_74_V11A::All',
+    'run2_data'         :   'GR_R_75_V5A',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run1_hlt'          :   'GR_H_V55A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run1_hlt'          :   'GR_H_V61A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run2_hlt'          :   'GR_H_V56A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run2_hlt'          :   'GR_H_V62A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
+    'phase1_2017_design' :  'DES17_70_V2', # placeholder (GT not meant for standard RelVal)
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_design' :  'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal) 
+    'phase1_2019_design' :  'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
-    'phase2_design'     :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
+    'phase2_design'     :   'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
 }
 
 aliases = {
-    'MAINGT' : 'FT_P_V42D::All|AN_V4::All',
-    'BASEGT' : 'BASE1_V1::All|BASE2_V1::All'
+    'MAINGT' : 'FT_P_V42D|AN_V4',
+    'BASEGT' : 'BASE1_V1|BASE2_V1'
 }
 
-# dedicated GlobalTags for MC production with the fixed HLT menus
-autoCond['run1_mc_Fake']     = ( autoCond['run1_mc'] )
-
-autoCond['run1_mc_FULL']     = ( autoCond['run1_mc'] )
-autoCond['run1_mc_GRun']     = ( autoCond['run1_mc'] )
-autoCond['run1_mc_HIon']     = ( autoCond['run1_mc_hi'] )
-autoCond['run1_mc_PIon']     = ( autoCond['run1_mc_pa'] )
-
-autoCond['run2_mc_FULL']     = ( autoCond['run2_mc'] )
-autoCond['run2_mc_GRun']     = ( autoCond['run2_mc'] )
-autoCond['run2_mc_50nsGRun'] = ( autoCond['run2_mc_50ns'] )
-autoCond['run2_mc_HIon']     = ( autoCond['run2_mc_hi'] )
-autoCond['run2_mc_PIon']     = ( autoCond['run2_mc'] )
-
-# dedicated GlobalTags for running the fixed HLT menus on data
-autoCond['run1_hlt_Fake']    = ( autoCond['run1_hlt'] )
-
-autoCond['run1_hlt_FULL']    = ( autoCond['run1_hlt'] )
-autoCond['run1_hlt_GRun']    = ( autoCond['run1_hlt'] )
-autoCond['run1_hlt_HIon']    = ( autoCond['run1_hlt'] )
-autoCond['run1_hlt_PIon']    = ( autoCond['run1_hlt'] )
-
-autoCond['run2_hlt_FULL']    = ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_GRun']    = ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_50nsGRun']= ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_HIon']    = ( autoCond['run2_hlt'] )
-autoCond['run2_hlt_PIon']    = ( autoCond['run2_hlt'] )
-
-# dedicated GlobalTags for running RECO and the fixed HLT menus on data
-autoCond['run1_data_Fake']    = ( autoCond['run1_data'] )
-
-autoCond['run1_data_FULL']    = ( autoCond['run1_data'] )
-autoCond['run1_data_GRun']    = ( autoCond['run1_data'] )
-autoCond['run1_data_HIon']    = ( autoCond['run1_data'] )
-autoCond['run1_data_PIon']    = ( autoCond['run1_data'] )
-
-autoCond['run2_data_FULL']    = ( autoCond['run2_data'] )
-autoCond['run2_data_GRun']    = ( autoCond['run2_data'] )
-autoCond['run2_data_50nsGRun']    = ( autoCond['run2_data'] )
-autoCond['run2_data_HIon']    = ( autoCond['run2_data'] )
-autoCond['run2_data_PIon']    = ( autoCond['run2_data'] )
-
+# dedicated GlobalTags for HLT
+from Configuration.HLT.autoCondHLT import autoCondHLT
+autoCond = autoCondHLT(autoCond)
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector
@@ -101,17 +62,3 @@ autoCond['upgradePLS150ns']  = ( autoCond['run2_mc_50ns'] )
 autoCond['upgrade2017']      = ( autoCond['phase1_2017_design'] )
 autoCond['upgrade2019']      = ( autoCond['phase1_2019_design'] )
 autoCond['upgradePLS3']      = ( autoCond['phase2_design'] )
-
-### OLD KEYS ### for HLT
-
-autoCond['startup_GRun']     = ( autoCond['run1_mc_GRun'] )
-autoCond['starthi_HIon']     = ( autoCond['run1_mc_HIon'] )
-autoCond['startup_PIon']     = ( autoCond['run1_mc_PIon'] )
-
-autoCond['hltonline_GRun']   = ( autoCond['run1_hlt_GRun'] )
-autoCond['hltonline_HIon']   = ( autoCond['run1_hlt_HIon'] )
-autoCond['hltonline_PIon']   = ( autoCond['run1_hlt_PIon'] )
-
-autoCond['com10_GRun']       = ( autoCond['run1_data_GRun'] )
-autoCond['com10_HIon']       = ( autoCond['run1_data_HIon'] )
-autoCond['com10_PIon']       = ( autoCond['run1_data_PIon'] )

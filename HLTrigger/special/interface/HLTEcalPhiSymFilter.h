@@ -32,7 +32,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -40,6 +40,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -49,35 +50,29 @@ namespace edm {
 // class decleration
 //
 
-class HLTEcalPhiSymFilter : public edm::EDFilter {
-   public:
-      explicit HLTEcalPhiSymFilter(const edm::ParameterSet&);
-      ~HLTEcalPhiSymFilter();
+class HLTEcalPhiSymFilter : public edm::global::EDFilter<> {
+public:
+  HLTEcalPhiSymFilter(const edm::ParameterSet&);
+  ~HLTEcalPhiSymFilter();
 
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  virtual bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const override final;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-   private:
-      // ----------member data ---------------------------
-
- edm::EDGetTokenT<EBDigiCollection> barrelDigisToken_;
- edm::EDGetTokenT<EEDigiCollection> endcapDigisToken_;
- edm::EDGetTokenT<EcalUncalibratedRecHitCollection> barrelUncalibHitsToken_;
- edm::EDGetTokenT<EcalUncalibratedRecHitCollection> endcapUncalibHitsToken_;
- edm::EDGetTokenT<EBRecHitCollection> barrelHitsToken_;
- edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
- edm::InputTag barrelDigis_;
- edm::InputTag endcapDigis_;
- edm::InputTag barrelUncalibHits_;
- edm::InputTag endcapUncalibHits_;
- edm::InputTag barrelHits_;
- edm::InputTag endcapHits_;
- std::string phiSymBarrelDigis_;
- std::string phiSymEndcapDigis_;
- double ampCut_barl_;
- double ampCut_endc_; 
- uint32_t statusThreshold_; ///< accept channels with up to this status
- bool   useRecoFlag_;       ///< use recoflag instead of DB for bad channels
+private:
+  const edm::EDGetTokenT<EBDigiCollection> barrelDigisToken_;
+  const edm::EDGetTokenT<EEDigiCollection> endcapDigisToken_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> barrelUncalibHitsToken_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> endcapUncalibHitsToken_;
+  const edm::EDGetTokenT<EBRecHitCollection> barrelHitsToken_;
+  const edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
+  const std::string phiSymBarrelDigis_;
+  const std::string phiSymEndcapDigis_;
+  const std::vector<double> ampCut_barlP_;
+  const std::vector<double> ampCut_barlM_;
+  const std::vector<double> ampCut_endcP_; 
+  const std::vector<double> ampCut_endcM_; 
+  const uint32_t statusThreshold_; ///< accept channels with up to this status
+  const bool   useRecoFlag_;       ///< use recoflag instead of DB for bad channels
 };
 
 #endif

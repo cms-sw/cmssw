@@ -27,6 +27,7 @@ HLTExoticaPlotter::HLTExoticaPlotter(const edm::ParameterSet & pset,
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
+    _parametersTurnOnSumEt(pset.getParameter<std::vector<double> >("parametersTurnOnSumEt")),
     _parametersDxy(pset.getParameter<std::vector<double> >("parametersDxy"))
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::constructor()";
@@ -199,10 +200,10 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
 
     if (variable.find("SumEt") != std::string::npos) {
         std::string title = "Sum ET of " + sourceUpper + " " + objType;
-        const size_t nBins = _parametersTurnOn.size() - 1;
+        const size_t nBins = _parametersTurnOnSumEt.size() - 1;
         float * edges = new float[nBins + 1];
         for (size_t i = 0; i < nBins + 1; i++) {
-            edges[i] = _parametersTurnOn[i];
+            edges[i] = _parametersTurnOnSumEt[i];
         }
         h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
         delete[] edges;

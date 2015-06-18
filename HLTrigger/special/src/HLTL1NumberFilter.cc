@@ -32,23 +32,20 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& iConfig)
-{
+HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& config) :
   //now do what ever initialization is needed
-  input_  = iConfig.getParameter<edm::InputTag>("rawInput") ;   
-  period_ = iConfig.getParameter<unsigned int>("period") ;
-  invert_ = iConfig.getParameter<bool>("invert") ;
-  fedId_  = iConfig.getParameter<int>("fedId") ;
-  inputToken_ = consumes<FEDRawDataCollection>(input_);
+  inputToken_( consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("rawInput")) ),
+  period_( config.getParameter<unsigned int>("period") ),
+  fedId_(  config.getParameter<int>("fedId") ),
+  invert_( config.getParameter<bool>("invert") )
+{
 }
 
 
 HLTL1NumberFilter::~HLTL1NumberFilter()
 {
- 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -67,7 +64,7 @@ HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called on each new Event  ------------
 bool
-HLTL1NumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTL1NumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 

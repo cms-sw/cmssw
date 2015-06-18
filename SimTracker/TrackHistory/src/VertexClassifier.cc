@@ -215,35 +215,39 @@ void VertexClassifier::processesAtSimulation()
 
 	// Geant4 process type is selected using first Geant4 vertex assigned to 
         // the TrackingVertex
-	unsigned short process = 0;
+	unsigned int processG4 = 0;
+	
         if((*ivertex)->nG4Vertices() > 0) {
-	  process = (*(*ivertex)->g4Vertices_begin()).processType();
+	  processG4 = (*(*ivertex)->g4Vertices_begin()).processType();
 	}
+	
+	unsigned int process = g4toCMSProcMap_.processId(processG4);
+	
 	// Flagging all the different processes
 	update(
 	       flags_[KnownProcess],
-	       process != G4::Undefined &&
-	       process != G4::Unknown &&
-	       process != G4::Primary
+	       process != CMS::Undefined &&
+	       process != CMS::Unknown &&
+	       process != CMS::Primary
 	       );
 
-	update(flags_[UndefinedProcess], process == G4::Undefined);
-	update(flags_[UnknownProcess], process == G4::Unknown);
-	update(flags_[PrimaryProcess], process == G4::Primary);
-	update(flags_[HadronicProcess], process == G4::Hadronic);
-	update(flags_[DecayProcess], process == G4::Decay);
-	update(flags_[ComptonProcess], process == G4::Compton);
-	update(flags_[AnnihilationProcess], process == G4::Annihilation);
-	update(flags_[EIoniProcess], process == G4::EIoni);
-	update(flags_[HIoniProcess], process == G4::HIoni);
-	update(flags_[MuIoniProcess], process == G4::MuIoni);
-	update(flags_[PhotonProcess], process == G4::Photon);
-	update(flags_[MuPairProdProcess], process == G4::MuPairProd);
-	update(flags_[ConversionsProcess], process == G4::Conversions);
-	update(flags_[EBremProcess], process == G4::EBrem);
-	update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
-	update(flags_[MuBremProcess], process == G4::MuBrem);
-	update(flags_[MuNuclProcess], process == G4::MuNucl);
+	update(flags_[UndefinedProcess], process == CMS::Undefined);
+	update(flags_[UnknownProcess], process == CMS::Unknown);
+	update(flags_[PrimaryProcess], process == CMS::Primary);
+	update(flags_[HadronicProcess], process == CMS::Hadronic);
+	update(flags_[DecayProcess], process == CMS::Decay);
+	update(flags_[ComptonProcess], process == CMS::Compton);
+	update(flags_[AnnihilationProcess], process == CMS::Annihilation);
+	update(flags_[EIoniProcess], process == CMS::EIoni);
+	update(flags_[HIoniProcess], process == CMS::HIoni);
+	update(flags_[MuIoniProcess], process == CMS::MuIoni);
+	update(flags_[PhotonProcess], process == CMS::Photon);
+	update(flags_[MuPairProdProcess], process == CMS::MuPairProd);
+	update(flags_[ConversionsProcess], process == CMS::Conversions);
+	update(flags_[EBremProcess], process == CMS::EBrem);
+	update(flags_[SynchrotronRadiationProcess], process == CMS::SynchrotronRadiation);
+	update(flags_[MuBremProcess], process == CMS::MuBrem);
+	update(flags_[MuNuclProcess], process == CMS::MuNucl);
 
 
         // Loop over the simulated particles
@@ -258,7 +262,7 @@ void VertexClassifier::processesAtSimulation()
             {
 
                 // Special treatment for decays
-                if (process == G4::Decay)
+                if (process == CMS::Decay)
                 {
                     // Get particle type
                     HepPDT::ParticleID particleID(pdgid);

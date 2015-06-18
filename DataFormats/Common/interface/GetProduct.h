@@ -33,9 +33,6 @@ namespace edm {
       static const element_type * address( const iter & i ) {
 	return &*i;
       }
-      static const COLLECTION * product( const COLLECTION & coll ) {
-	return & coll;
-      }
     };
   }
 }

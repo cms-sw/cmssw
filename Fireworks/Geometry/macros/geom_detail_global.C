@@ -1,6 +1,8 @@
 // Author: Matevz Tadel
 // Shows some muon chamber nodes in global coordinate system.
 
+#include "common_foos.C"
+
 void geom_detail_global()
 {
    TEveUtil::LoadMacro("common_foos.C+");

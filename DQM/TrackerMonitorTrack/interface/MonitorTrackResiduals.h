@@ -19,7 +19,7 @@ Monitoring source for track residuals on each detector module
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
+#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 
 class MonitorElement;
 class DQMStore;
@@ -54,5 +54,6 @@ class MonitorTrackResiduals : public DQMEDAnalyzer {
   unsigned long long m_cacheID_;
   bool ModOn;
   GenericTriggerEventFlag* genTriggerEventFlag_;
+  TrackerValidationVariables avalidator_;
 };
 #endif

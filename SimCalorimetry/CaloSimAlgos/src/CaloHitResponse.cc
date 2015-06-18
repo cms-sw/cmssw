@@ -204,8 +204,7 @@ double CaloHitResponse::analogSignalAmplitude(const DetId & detId, float energy,
   double npe = scl * energy * parameters.simHitToPhotoelectrons(detId);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
-    CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
-    npe = randPoissonQ.fire();
+    npe = CLHEP::RandPoissonQ::shoot(engine,npe);
   }
   if(thePECorrection) npe = thePECorrection->correctPE(detId, npe, engine);
   return npe;

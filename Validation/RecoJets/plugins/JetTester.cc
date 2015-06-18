@@ -374,8 +374,8 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mPtRecoOverGen_GenEta_1500_3500 = ibooker.bookProfile("PtRecoOverGen_GenEta_1500_3500", "1500<genpt<3500", 90, etaRange, 0, 2, " ");
     mPtRecoOverGen_GenEta_3500_5000 = ibooker.bookProfile("PtRecoOverGen_GenEta_3500_5000", "3500<genpt<5000", 90, etaRange, 0, 2, " ");
     mPtRecoOverGen_GenEta_5000_6500 = ibooker.bookProfile("PtRecoOverGen_GenEta_5000_6500", "5000<genpt<6500", 90, etaRange, 0, 2, " ");
-    mPtRecoOverGen_GenEta_3500      = ibooker.bookProfile("PtRecoOverGen_GenEta_3500",      "genpt>3500",      90, etaRange, 0, 2, " ");
-    
+    mPtRecoOverGen_GenEta_3500      = ibooker.bookProfile("PtRecoOverGen_GenEta_3500",      "genpt>3500",      90, etaRange, 0, 2, " "); 
+  
     // Some jet algebra
     //------------------------------------------------------------------------
     mEtaFirst   = ibooker.book1D("EtaFirst",   "EtaFirst",   120,   -6,    6); 
@@ -724,7 +724,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   if(!isMiniAODJet){
     if (nJet >= 2)
       {
-	if (mMjj){ mMjj->Fill((p4tmp[0]+p4tmp[1]).mass());}
+	if (mMjj) mMjj->Fill((p4tmp[0]+p4tmp[1]).mass());
       }
   }else{
     if(index_first_jet>-1){
@@ -979,7 +979,7 @@ void JetTester::fillMatchHists(const double GenEta,
       if (GenPt>3500)                mPtRecoOverGen_F_3500->Fill(RecoPt / GenPt);
     }
 
-  if (GenPt > 20 && GenPt < 40)  mPtRecoOverGen_GenEta_20_40   ->Fill(GenEta, RecoPt / GenPt);
+  if (GenPt > 20 && GenPt < 40) mPtRecoOverGen_GenEta_20_40   ->Fill(GenEta, RecoPt / GenPt);
   else if (GenPt <  200)         mPtRecoOverGen_GenEta_40_200  ->Fill(GenEta, RecoPt / GenPt);
   else if (GenPt <  600)         mPtRecoOverGen_GenEta_200_600  ->Fill(GenEta, RecoPt / GenPt);
   else if (GenPt < 1500)         mPtRecoOverGen_GenEta_600_1500 ->Fill(GenEta, RecoPt / GenPt);

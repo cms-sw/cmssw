@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
+#include "GeneratorInterface/ThePEGInterface/interface/HepMCTemplate.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -66,5 +67,11 @@ class ThePEGInterface {
 	const std::string			dumpConfig_;
 	const unsigned int			skipEvents_;
 };
+
+
+
+
+
+
 
 #endif // GeneratorInterface_ThePEGInterface_ThePEGInterface_h

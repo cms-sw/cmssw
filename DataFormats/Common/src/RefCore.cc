@@ -32,17 +32,29 @@ void throwInvalidRefFromNoCache(const edm::TypeID& id, edm::ProductID const& pro
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      cachePtr_(prodPtr?prodPtr:prodGetter),
+      cachePtr_(prodPtr),
       processIndex_(theId.processIndex()),
       productIndex_(theId.productIndex())
       {
         if(transient) {
           setTransient();
         }
-        if(prodPtr!=0 || prodGetter==0) {
-          setCacheIsProductPtr();
+        if(prodPtr==nullptr && prodGetter!=nullptr) {
+          setCacheIsProductGetter(prodGetter);
         }
       }
+  
+  RefCore::RefCore( RefCore const& iOther) :
+      cachePtr_(iOther.cachePtr_.load()),
+      processIndex_(iOther.processIndex_),
+      productIndex_(iOther.productIndex_) {}
+  
+  RefCore& RefCore::operator=( RefCore const& iOther) {
+    cachePtr_ = iOther.cachePtr_.load();
+    processIndex_ = iOther.processIndex_;
+    productIndex_ = iOther.productIndex_;
+    return *this;
+  }
 
   WrapperBase const*
   RefCore::getProductPtr(std::type_info const& type) const {
@@ -67,7 +79,7 @@ namespace edm {
     }
 
     //if (productPtr() == 0 && productGetter() == 0) {
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
     WrapperBase const* product = productGetter()->getIt(tId);
@@ -88,7 +100,7 @@ namespace edm {
       throwInvalidRefFromNullOrInvalidRef(TypeID(type));
     }
 
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
     WrapperBase const* product = productGetter()->getIt(tId);
@@ -159,8 +171,7 @@ namespace edm {
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-    cachePtr_ = prodGetter;
-    unsetCacheIsProductPtr();
+    setCacheIsProductGetter(prodGetter);
   }
   
   void 
@@ -211,11 +222,50 @@ namespace edm {
     //Since productPtr and productGetter actually share the same pointer internally,
     // we want to be sure that if the productPtr is set we use that one and only if
     // it isn't set do we set the productGetter if available
-    if (productPtr() == 0 && productToBeInserted.productPtr() != 0) {
+    if (productPtr() == nullptr && productToBeInserted.productPtr() != nullptr) {
       setProductPtr(productToBeInserted.productPtr());
-    } else if (productPtr() == 0 && productGetter() == 0 && productToBeInserted.productGetter() != 0) {
+    } else {
+      auto getter = productToBeInserted.productGetter();
+      if (cachePtrIsInvalid() && getter != nullptr) {
+        setProductGetter(getter);
+      }
+    }
+  }
+
+  void
+  RefCore::pushBackRefItem(RefCore const& productToBeInserted) {
+    if (productToBeInserted.isNull() && !productToBeInserted.isTransient()) {
+      throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	<< "RefCore::pushBackRefItem: Ref has invalid (zero) product ID, so it cannot be added to RefVector."
+	<< "id should be (" << id() << ")\n";
+    }
+    if (isNonnull() || isTransient()) {
+      if (isTransient() != productToBeInserted.isTransient()) {
+        if (productToBeInserted.isTransient()) {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackRefItem: Transient Ref cannot be added to persistable RefVector. "
+	    << "id should be (" << id() << ")\n";
+        } else {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackRefItem: Persistable Ref cannot be added to transient RefVector. "
+	    << "id is (" << productToBeInserted.id() << ")\n";
+        }
+      }
+      if (!productToBeInserted.isTransient() && id() != productToBeInserted.id()) {
+        throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	  << "RefCore::pushBackRefItem: Ref is inconsistent with RefVector"
+	  << "id = (" << productToBeInserted.id() << ") should be (" << id() << ")\n";
+      }
+    } else {
+      if (productToBeInserted.isTransient()) {
+        setTransient();
+      }
+      if (productToBeInserted.isNonnull()) {
+        setId(productToBeInserted.id());
+      }
+    }
+    if (productGetter() == 0 && productToBeInserted.productGetter() != 0) {
       setProductGetter(productToBeInserted.productGetter());
     }
   }
-  
 }

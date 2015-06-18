@@ -41,8 +41,6 @@
 
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
-#include "HepPDT/defs.h"
-#include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
@@ -295,7 +293,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   if("" != m_WriteFile) {
     G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
-    gdml.Write(m_WriteFile, world->GetWorldVolume(), false);
+    gdml.Write(m_WriteFile, world->GetWorldVolume(), true);
   }
 
   if("" != m_RegionFile) {
@@ -469,12 +467,6 @@ void RunManager::terminateRun()
     delete m_userRunAction; 
     m_userRunAction = 0;
   }
-  /*
-  if (m_currentRun!=0) { 
-    delete m_currentRun; 
-    m_currentRun = 0; 
-  }
-  */
   if (m_kernel!=0 && !m_runTerminated) {
     delete m_currentEvent;
     m_currentEvent = 0;

@@ -1,0 +1,9 @@
+0 13 * * * lxplus5.cern.ch /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/config/SubmitBatchJobs.sh > /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/cronlog/cronjob_`date +\%Y-\%m-\%d_\%H-\%M-\%S`.log 2>&1
+55 0 * * 0 lxplus5.cern.ch /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/config/cleanLogFiles.sh
+
+
+#SiStrip CalibTree Production --> Done everyday
+0 13 * * * lxplus6.cern.ch "python /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/confignew/SubmitJobs.py" > /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/cronlog/cronjob_`date+\%Y-\%m-\%d_\%H-\%M-\%S`.log 2>&1
+#SiStrip CalibTree (check that files are not corrupted, otherwise resprocess these jobs) --> Done once a week on sunday
+0 22 * * 0 lxplus6.cern.ch "python /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/confignew/SubmitJobs.py --corrupted" > /afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/cronlog/cronjob_`date+\%Y-\%m-\%d_\%H-\%M-\%S`.log 2>&1
+

@@ -18,7 +18,6 @@ const std::string RPCMonitorDigi::regionNames_[3] =  {"Endcap-", "Barrel", "Endc
 
 RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
  : counter(0),
-   dcs_(false),
    numberOfDisks_(0),
    numberOfInnerRings_(0){
 
@@ -116,19 +115,10 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
     NumberOfMuon_ = ibooker.book1D("NumberOfMuons", "Number of Muons", 11, -0.5, 10.5);
     NumberOfRecHitMuon_ = ibooker.book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
   }
-   
-  //Clear flags;
-  dcs_ = true;
+
 }
 
 void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setup ){
-  dcs_ = true;
-  //Check HV status
-  this->makeDcsInfo(event);
-  if( !dcs_){
-    edm::LogWarning ("rpcmonitordigi") <<"[RPCMonitorDigi]: DCS bit OFF" ;  
-    return;//if RPC not ON there's no need to continue
-  }
 
   counter++;
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;
@@ -136,7 +126,6 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   //Muons
   edm::Handle<reco::CandidateView> muonCands;
   event.getByToken(muonLabel_, muonCands);
-
 
   std::map<RPCDetId  , std::vector<RPCRecHit> > rechitMuon;
 
@@ -177,9 +166,18 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     
     }
 
-    if( NumberOfMuon_)  NumberOfMuon_->Fill(numMuons);
-    if( NumberOfRecHitMuon_)  NumberOfRecHitMuon_->Fill( numRPCRecHit);
-    
+    //Fill muon counter
+    if( NumberOfMuon_) { NumberOfMuon_->Fill(numMuons);}
+   
+    //Fill rechit counter for muons
+    if( NumberOfRecHitMuon_ && numMuons>0) { NumberOfRecHitMuon_->Fill( numRPCRecHit);}
+
+    //Fill counter of RPC events with rechits associated in with a muon
+    if( muonRPCEvents_ != 0 && numRPCRecHit>0 )  {muonRPCEvents_->Fill(1);}
+
+    //Perform client operation 
+    this->performSourceOperation(rechitMuon, muonFolder_);
+       
   }else{
     edm::LogError ("rpcmonitordigi") <<"[RPCMonitorDigi]: Muons - Product not valid for event" << counter;
   }
@@ -211,11 +209,11 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   }
 
  
-  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(1);
-  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(1);
-
-  if(useMuonDigis_ ) this->performSourceOperation(rechitMuon, muonFolder_);
+  //Fill counter for all RPC events 
+  if( noiseRPCEvents_ != 0 &&  !rechitNoise.empty())  {noiseRPCEvents_->Fill(1);}
+  //Perform client operation 
   this->performSourceOperation(rechitNoise, noiseFolder_);
+
 }
 
 
@@ -223,7 +221,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Performing DQM source operations for "; 
   
-  if(recHitMap.size()==0) return;
+  if(recHitMap.size()==0) {return;} //if  
 
   std::map<std::string, std::map<std::string, MonitorElement*> >  meRollCollection ;
   std::map<std::string, MonitorElement*>   meWheelDisk ;
@@ -245,7 +243,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     return;
   }
 
-
   int totalNumberOfRecHits[3] ={ 0, 0, 0};
   std::stringstream os;
 
@@ -258,11 +255,9 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     //get roll number
     rpcdqm::utils rpcUtils;
     int nr = rpcUtils.detId2RollNr(detId);
- 
-    
+     
     RPCGeomServ geoServ(detId);
     std::string nameRoll = "";
-
 
     if(useRollInfo_) nameRoll = geoServ.name();
     else nameRoll = geoServ.chambername();
@@ -374,10 +369,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	}
       }
 
-   //    os.str("");
-//       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Sector_"<<sector;
-//       if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
-
       os.str("");
       if(geoServ.segment() > 0 && geoServ.segment() < 19 ){ 
 	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH01-CH18";
@@ -391,11 +382,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	}
       }
 
-     //  os.str("");
-//       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring;
-//       if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
-
-      
       // ###################### Wheel/Disk Level #########################‡‡‡
       if(region ==0){
 	os.str("");
@@ -491,29 +477,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 }
 
 
-void  RPCMonitorDigi::makeDcsInfo(const edm::Event& e) {
 
-  edm::Handle<DcsStatusCollection> dcsStatus;
-
-  if ( ! e.getByToken(scalersRawToDigiLabel_, dcsStatus) ){
-    dcs_ = true;
-    return;
-  }
-  
-  if ( ! dcsStatus.isValid() ) 
-  {
-    edm::LogWarning("RPCDcsInfo") << "scalersRawToDigi not found" ;
-    dcs_ = true; // info not available: set to true
-    return;
-  }
-    
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
-                            dcsStatusItr != dcsStatus->end(); ++dcsStatusItr){
-
-      if (!dcsStatusItr->ready(DcsStatus::RPC)) dcs_=false;
-  }
-      
-  return ;
-}
 
 

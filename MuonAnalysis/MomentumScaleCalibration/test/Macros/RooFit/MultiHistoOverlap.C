@@ -6,6 +6,7 @@
 //------------------------------------------//
 
 #include <iostream>
+#include <vector>
 #include "Gtypes.h"
 #include "TROOT.h"
 #include "TStyle.h"
@@ -69,10 +70,11 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  }  
  
 
- TString LegLabels[nOfFiles];    
+ std::vector<TString> LegLabels;
+ LegLabels.reserve(nOfFiles);    
  for(Int_t j=0; j < nOfFiles; j++) {       
    TObjString* legend = (TObjString*)LabelList->At(j);    
-   LegLabels[j] = legend->String();    
+   LegLabels.push_back(legend->String());
    std::cout<<"LegLabels["<<j<<"]"<<LegLabels[j]<<std::endl;  
  }
 
@@ -108,7 +110,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoMassVsPhiPlus[j] = (TH1D*)fin->Get("MassVsPhiPlus/allHistos/meanHisto")){
+   if (( histoMassVsPhiPlus[j] = (TH1D*)fin->Get("MassVsPhiPlus/allHistos/meanHisto"))){
      histoMassVsPhiPlus[j]->SetLineStyle(linestylelist[j]);
      histoMassVsPhiPlus[j]->SetMarkerColor(colorlist[j]);
      histoMassVsPhiPlus[j]->SetLineColor(colorlist[j]);
@@ -146,7 +148,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoMassVsEtaPlus[j] = (TH1D*)fin->Get("MassVsEtaPlus/allHistos/meanHisto")){
+   if (( histoMassVsEtaPlus[j] = (TH1D*)fin->Get("MassVsEtaPlus/allHistos/meanHisto"))){
      histoMassVsEtaPlus[j]->SetLineStyle(linestylelist[j]);
      histoMassVsEtaPlus[j]->SetMarkerColor(colorlist[j]);
      histoMassVsEtaPlus[j]->SetLineColor(colorlist[j]);
@@ -184,7 +186,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoMassVsEtaPlusMinusDiff[j] = (TH1D*)fin->Get("MassVsEtaPlusMinusDiff/allHistos/meanHisto")){
+   if (( histoMassVsEtaPlusMinusDiff[j] = (TH1D*)fin->Get("MassVsEtaPlusMinusDiff/allHistos/meanHisto"))){
      histoMassVsEtaPlusMinusDiff[j]->SetLineStyle(linestylelist[j]);
      histoMassVsEtaPlusMinusDiff[j]->SetMarkerColor(colorlist[j]);
      histoMassVsEtaPlusMinusDiff[j]->SetLineColor(colorlist[j]);
@@ -221,7 +223,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoMassVsPhiMinus[j] = (TH1D*)fin->Get("MassVsPhiMinus/allHistos/meanHisto")){
+   if (( histoMassVsPhiMinus[j] = (TH1D*)fin->Get("MassVsPhiMinus/allHistos/meanHisto"))){
      histoMassVsPhiMinus[j]->SetLineStyle(linestylelist[j]);
      histoMassVsPhiMinus[j]->SetMarkerColor(colorlist[j]);
      histoMassVsPhiMinus[j]->SetLineColor(colorlist[j]);
@@ -259,7 +261,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoMassVsEtaMinus[j] = (TH1D*)fin->Get("MassVsEtaMinus/allHistos/meanHisto")){
+   if (( histoMassVsEtaMinus[j] = (TH1D*)fin->Get("MassVsEtaMinus/allHistos/meanHisto"))){
      histoMassVsEtaMinus[j]->SetLineStyle(linestylelist[j]);
      histoMassVsEtaMinus[j]->SetMarkerColor(colorlist[j]);
      histoMassVsEtaMinus[j]->SetLineColor(colorlist[j]);
@@ -303,7 +305,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoMassVsEtaPhiPlus[j] = (TH2D*)fin->Get("MassVsEtaPhiPlus/allHistos/meanHisto")){
+   if (( histoMassVsEtaPhiPlus[j] = (TH2D*)fin->Get("MassVsEtaPhiPlus/allHistos/meanHisto"))){
      if ( j == 0 ) {
        histoMassVsEtaPhiPlus[j]->SetTitle(LegLabels[j]);
        histoMassVsEtaPhiPlus[j]->GetXaxis()->SetTitle("positive muon #phi (rad)");
@@ -339,7 +341,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
 //  for(Int_t j=0; j < nOfFiles; j++) {     
    
 //    TFile *fin = (TFile*)FileList->At(j);    
-//    if ( histoMassVsEtaPhiMinus[j] = (TH2D*)fin->Get("MassVsEtaPhiMinus/allHistos/meanHisto")){
+//    if (( histoMassVsEtaPhiMinus[j] = (TH2D*)fin->Get("MassVsEtaPhiMinus/allHistos/meanHisto"))){
 //      if ( j == 0 ) {
 //        histoMassVsEtaPhiMinus[j]->GetXaxis()->SetTitle("negative muon #phi (rad)");
 //        histoMassVsEtaPhiMinus[j]->GetYaxis()->SetTitle("negative muon #eta");
@@ -380,7 +382,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
 //  for(Int_t j=0; j < nOfFiles; j++) {     
    
 //    TFile *fin = (TFile*)FileList->At(j);    
-//    if ( histoSigmaVsPhiPlus[j] = (TH1D*)fin->Get("MassVsPhiPlus/allHistos/sigmaHisto")){
+//    if (( histoSigmaVsPhiPlus[j] = (TH1D*)fin->Get("MassVsPhiPlus/allHistos/sigmaHisto"))){
 //      histoSigmaVsPhiPlus[j]->SetLineStyle(linestylelist_resol[j]);
 //      histoSigmaVsPhiPlus[j]->SetMarkerColor(colorlist_resol[j]);
 //      histoSigmaVsPhiPlus[j]->SetLineColor(colorlist_resol[j]);
@@ -419,7 +421,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoSigmaVsEtaPlus[j] = (TH1D*)fin->Get("MassVsEtaPlus/allHistos/sigmaHisto")){
+   if (( histoSigmaVsEtaPlus[j] = (TH1D*)fin->Get("MassVsEtaPlus/allHistos/sigmaHisto"))){
      histoSigmaVsEtaPlus[j]->SetLineStyle(linestylelist_resol[j]);
      histoSigmaVsEtaPlus[j]->SetMarkerColor(colorlist_resol[j]);
      histoSigmaVsEtaPlus[j]->SetLineColor(colorlist_resol[j]);
@@ -457,7 +459,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
 //  for(Int_t j=0; j < nOfFiles; j++) {     
    
 //    TFile *fin = (TFile*)FileList->At(j);    
-//    if ( histoSigmaVsEtaPlusMinusDiff[j] = (TH1D*)fin->Get("MassVsEtaPlusMinusDiff/allHistos/sigmaHisto")){
+//    if (( histoSigmaVsEtaPlusMinusDiff[j] = (TH1D*)fin->Get("MassVsEtaPlusMinusDiff/allHistos/sigmaHisto"))){
 //      histoSigmaVsEtaPlusMinusDiff[j]->SetLineStyle(linestylelist_resol[j]);
 //      histoSigmaVsEtaPlusMinusDiff[j]->SetMarkerColor(colorlist_resol[j]);
 //      histoSigmaVsEtaPlusMinusDiff[j]->SetLineColor(colorlist_resol[j]);
@@ -496,7 +498,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
 //  for(Int_t j=0; j < nOfFiles; j++) {     
    
 //    TFile *fin = (TFile*)FileList->At(j);    
-//    if ( histoSigmaVsPt[j] = (TH1D*)fin->Get("MassVsPt/allHistos/sigmaHisto")){
+//    if (( histoSigmaVsPt[j] = (TH1D*)fin->Get("MassVsPt/allHistos/sigmaHisto"))){
 //      histoSigmaVsPt[j]->SetLineStyle(linestylelist_resol[j]);
 //      histoSigmaVsPt[j]->SetMarkerColor(colorlist_resol[j]);
 //      histoSigmaVsPt[j]->SetLineColor(colorlist_resol[j]);
@@ -536,7 +538,7 @@ void MultiHistoOverlap(TString namesandlabels, Int_t nOfFiles, const TString& ou
  for(Int_t j=0; j < nOfFiles; j++) {     
    
    TFile *fin = (TFile*)FileList->At(j);    
-   if ( histoLineShape[j] = (RooPlot*)fin->Get("hRecBestResAllEvents_Mass_frame")){
+   if (( histoLineShape[j] = (RooPlot*)fin->Get("hRecBestResAllEvents_Mass_frame"))){
      std::cout<<"Writing fit histogrem file n. "<<j<<std::endl;
      histoLineShape[j]->Write();
      cFit->cd(j+1);

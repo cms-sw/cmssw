@@ -34,6 +34,7 @@
 #include "TMVA/Factory.h"
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
+#include "TMVA/MethodBase.h"
 
 class EGammaMvaEleEstimator{
   public:
@@ -86,6 +87,7 @@ class EGammaMvaEleEstimator{
     Double_t mvaValue(const pat::Electron& ele,
 		      const reco::Vertex& vertex,
 		      double rho,
+                      bool useFull5x5 = kFALSE,
 		      bool printDebug = kFALSE);
     
     Double_t isoMvaValue(const reco::GsfElectron& ele, 
@@ -245,6 +247,7 @@ class EGammaMvaEleEstimator{
   private:
 
     std::vector<TMVA::Reader*> fTMVAReader;
+    std::vector<TMVA::MethodBase*> fTMVAMethod;
     std::string                fMethodname;
     Bool_t                     fisInitialized;
     MVAType                    fMVAType;

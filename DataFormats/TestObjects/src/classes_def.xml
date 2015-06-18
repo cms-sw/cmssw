@@ -150,6 +150,36 @@
    <version ClassVersion="3" checksum="1338867524"/>
  </class>
  <class name="edm::Wrapper<edmtest::DeleteEarly>"/>
+
+ <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<int> >,edm::RefProd<std::vector<int> > >"/>
+ <class name="edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > >"/>
+
+ <class name="edm::helpers::Key<edm::RefProd<std::vector<int> > >"/>
+ <class name="edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> > >"/>
+
+ <class name="edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> > >"/>
+
+ <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> > >"/>
+
+ <class name="edm::helpers::KeyVal<edm::RefToBaseProd<int>, edm::RefToBaseProd<int> >"/>
+ <class name="edm::AssociationMap<edm::OneToOne<edm::View<int>, edm::View<int>, unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<int>, edm::View<int>, unsigned int> > >"/>
+
  <class name="edm::Wrapper<edm::EventID>"/>
  <class name="edm::Wrapper<edm::ProductID>"/>
+
 </lcgdict>

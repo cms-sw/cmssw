@@ -40,7 +40,7 @@ class FW3DViewDistanceMeasureTool;
 class FW3DViewBase : public FWEveView
 {
 public:
-   FW3DViewBase(TEveWindowSlot*, FWViewType::EType);
+   FW3DViewBase(TEveWindowSlot*, FWViewType::EType, unsigned int version = 8);
    virtual ~FW3DViewBase();
 
    // ---------- const member functions ---------------------

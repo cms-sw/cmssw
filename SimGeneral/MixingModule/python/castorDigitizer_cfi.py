@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 castorDigitizer = cms.PSet(
     accumulatorType = cms.string("CastorDigiProducer"),
-    hitsProducer = cms.string("g4SimHits"),
+    hitsProducer = cms.InputTag("g4SimHits","CastorFI"),
     makeDigiSimLinks = cms.untracked.bool(False),
     doNoise = cms.bool(True),
     doTimeSlew = cms.bool(True),

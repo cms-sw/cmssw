@@ -35,32 +35,30 @@ class PrimaryVertexAssignment {
 
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices, 
                const reco::TrackRef& trackRef,
-//               const reco::Track & track,
+               const reco::Track * track,
                const edm::View<reco::Candidate> & jets,
               const TransientTrackBuilder & builder) const;
 
-/*  std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices, 
-               const reco::TrackRef & track,
-               const edm::View<reco::Candidate> & jets,
-              const TransientTrackBuilder & builder) const {
-      return chargedHadronVertex(vertices,track,*track,jets,builder);
-  }
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices,
-               const reco::Candidate & baseCand,
+               const reco::TrackRef& trackRef,
                const edm::View<reco::Candidate> & jets,
-              const TransientTrackBuilder & builder) const {
-    if(baseCand.bestTrack()!=0)  
-      return chargedHadronVertex(vertices,edm::Ref<reco::TrackCollection>(),*(baseCand.bestTrack()),jets,builder);
-  }
-*/
+              const TransientTrackBuilder & builder) const
+ {
+	return chargedHadronVertex(vertices,trackRef,&(*trackRef),jets,builder);
+ }
 
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex( const reco::VertexCollection& vertices,
                                    const reco::PFCandidate& pfcand,
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
-      if(pfcand.trackRef().isNull())
-         return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
-      return chargedHadronVertex(vertices,pfcand.trackRef(),jets,builder);
+	  if(pfcand.gsfTrackRef().isNull())
+	  {
+		  if(pfcand.trackRef().isNull())
+			  return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
+		  else 
+			  return chargedHadronVertex(vertices,pfcand.trackRef(),jets,builder);
+	  }
+	  return chargedHadronVertex(vertices,reco::TrackRef(),&(*pfcand.gsfTrackRef()),jets,builder);
   }
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex( const reco::VertexCollection& vertices,
                                    const reco::RecoChargedRefCandidate& chcand,

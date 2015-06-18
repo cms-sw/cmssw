@@ -3,7 +3,11 @@
 // ROOT macro for graphical compariosn of Monitor Elements in a user
 // supplied directory between two files with the same histogram content
 
-#include <iostream.h>
+#include <iostream>
+#include <sstream>
+
+std::vector<TString> histoList( TString currentfile, TString theDir );
+void MEComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString referencefile, TString theDir, TString theHisto);
 
 class HistoCompare {
 
@@ -34,9 +38,10 @@ class HistoCompare {
 
 };
 
+void
 HistoCompare::printRes(TString myName, Double_t mypv, TText * myte)
 {
-  std::strstream buf;
+  std::basic_stringstream<char> buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
@@ -48,6 +53,7 @@ HistoCompare::printRes(TString myName, Double_t mypv, TText * myte)
 }
 
 
+void
 HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
 {
 
@@ -64,6 +70,7 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
 
 }
 
+void
 HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
 {
 
@@ -80,6 +87,7 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
 }
 
 
+void
 HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
 {
 
@@ -112,8 +120,8 @@ void MECompare( TString currentfile = "new.root",
   std::vector<TString> theList =  histoList(currentfile, theDir);
   
   gROOT ->Reset();
-  char*  rfilename = referencefile ;
-  char*  sfilename = currentfile ;
+  const char*  rfilename = referencefile.Data();
+  const char*  sfilename = currentfile.Data();
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -121,7 +129,7 @@ void MECompare( TString currentfile = "new.root",
   TFile * rfile = new TFile(rfilename);
   TFile * sfile = new TFile(sfilename);
   
-  char* baseDir=theDir;
+  const char* baseDir=theDir.Data();
   
   rfile->cd(baseDir);
   gDirectory->ls();
@@ -138,11 +146,9 @@ void MECompare( TString currentfile = "new.root",
 
     TH1* href_;
     rfile->GetObject(theName,href_);
-    href_;
     
     TH1* hnew_;
     sfile->GetObject(theName,hnew_);
-    hnew_;
     
     MEComparePlot(href_, hnew_, currentfile, referencefile, theDir, theList[index]); 
 
@@ -176,10 +182,11 @@ void MEComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString refere
  hnew_->SetMarkerSize(markerSize);
  hnew_->SetMarkerColor(scolor);    
 
+ TCanvas *myPlot = 0;
  if ( href_ && hnew_ ) {
 
  
-   TCanvas *myPlot = new TCanvas("myPlot","Histogram comparison",200,10,700,900);
+   myPlot = new TCanvas("myPlot","Histogram comparison",200,10,700,900);
    TPad *pad1 = new TPad("pad1",
                          "The pad with the function",0.03,0.62,0.50,0.92);
    TPad *pad2 = new TPad("pad2",
@@ -224,7 +231,7 @@ void MEComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString refere
 
  }
  TString plotFile = theHisto+".jpg";
- myPlot->Print(plotFile); 
+ if(myPlot) myPlot->Print(plotFile); 
  
  delete myPV;
  delete myPlot; 
@@ -235,13 +242,13 @@ std::vector<TString> histoList( TString currentfile, TString theDir )
 {
 
  gROOT ->Reset();
- char*  sfilename = currentfile ;
+ const char*  sfilename = currentfile.Data();
 
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
 
  TFile * sfile = new TFile(sfilename);
 
- char* baseDir=theDir;
+ const char* baseDir=theDir.Data();
 
  sfile->cd(baseDir);
 

@@ -1,11 +1,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -42,16 +44,18 @@
 
 #include "TMath.h"
 
+#include <string>
+
 TrackerValidationVariables::TrackerValidationVariables()
 {
 
 }
 
-TrackerValidationVariables::TrackerValidationVariables(const edm::EventSetup& es, const edm::ParameterSet& iSetup) 
-  : conf_(iSetup)
+TrackerValidationVariables::TrackerValidationVariables(const edm::ParameterSet& config,
+                                                       edm::ConsumesCollector && iC)
 {
-  es.get<TrackerDigiGeometryRecord>().get(tkGeom_);
-  es.get<IdealMagneticFieldRecord>().get(magneticField_);
+  trajCollectionToken_ = iC.consumes<std::vector<Trajectory> >(edm::InputTag(config.getParameter<std::string>("trajectoryInput")));
+  trajTracksToken_ = iC.consumes<TrajTrackAssociationCollection>(config.getParameter<edm::InputTag>("Tracks"));
 }
 
 TrackerValidationVariables::~TrackerValidationVariables()
@@ -302,11 +306,15 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 }
 
 void
-TrackerValidationVariables::fillTrackQuantities(const edm::Event& event, std::vector<AVTrackStruct> & v_avtrackout)
+TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
+                                                const edm::EventSetup& eventSetup,
+                                                std::vector<AVTrackStruct> & v_avtrackout)
 {
-  edm::InputTag TrjTrackTag = conf_.getParameter<edm::InputTag>("Tracks");
+  edm::ESHandle<MagneticField> magneticField;
+  eventSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
-  event.getByLabel(TrjTrackTag, TrajTracksMap);
+  event.getByToken(trajTracksToken_, TrajTracksMap);
   LogDebug("TrackerValidationVariables") << "TrajTrack collection size " << TrajTracksMap->size();
   
   const Trajectory* trajectory;
@@ -333,7 +341,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event, std::ve
     trackStruct.chi2Prob= TMath::Prob(track->chi2(),track->ndof());
     trackStruct.normchi2 = track->normalizedChi2();
     GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
-    double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
+    double theLocalMagFieldInInverseGeV = magneticField->inInverseGeV(gPoint).z();
     trackStruct.kappa = -track->charge()*theLocalMagFieldInInverseGeV/track->pt();
     trackStruct.charge = track->charge();
     trackStruct.d0 = track->d0();
@@ -351,7 +359,7 @@ void
 TrackerValidationVariables::fillHitQuantities(const edm::Event& event, std::vector<AVHitStruct> & v_avhitout)
 {
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  event.getByLabel(conf_.getParameter<std::string>("trajectoryInput"), trajCollectionHandle);
+  event.getByToken(trajCollectionToken_, trajCollectionHandle);
   
   LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
 

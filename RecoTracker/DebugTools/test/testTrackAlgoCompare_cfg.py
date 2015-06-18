@@ -17,8 +17,8 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 # Track Associators
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 process.TrackAssociatorByHits.SimToRecoDenominator = 'reco'
 
@@ -47,8 +47,8 @@ process.load("RecoTracker.DebugTools.TrackAlgoCompareUtil_cff")
 #process.trackAlgoCompareUtil.trackingParticleLabel_effic = cms.InputTag("cutsTPEffic")
 #process.trackAlgoCompareUtil.trackingParticleLabel_fakes = cms.InputTag("cutsTPFake")
 process.trackAlgoCompareUtil.UseAssociators = cms.bool(True)
-process.trackAlgoCompareUtil.assocLabel_algoA = cms.untracked.string("TrackAssociationByHits"); 
-process.trackAlgoCompareUtil.assocLabel_algoB = cms.untracked.string("TrackAssociationByHits"); 
+process.trackAlgoCompareUtil.assocLabel_algoA = cms.untracked.string("trackAssociationByHits"); 
+process.trackAlgoCompareUtil.assocLabel_algoB = cms.untracked.string("trackAssociationByHits"); 
 
 process.out = cms.OutputModule("PoolOutputModule", 
     outputCommands = cms.untracked.vstring(
@@ -67,7 +67,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('TrackAlgoCompareOutput.root')
 )
 
-process.p = cms.Path(process.trackAlgoCompareUtil)
+process.p = cms.Path(process.trackAssociationByHits+process.trackAlgoCompareUtil)
 #process.p = cms.Path(process.cutsRTAlgoA + process.cutsRTAlgoB + process.cutsTPEffic + process.cutsTPFake + process.trackAlgoCompareUtil)
 process.ep = cms.EndPath(process.out)
 

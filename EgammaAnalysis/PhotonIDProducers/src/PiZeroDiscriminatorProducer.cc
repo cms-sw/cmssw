@@ -106,7 +106,6 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   if ( debugL_pi0 <= pDEBUG ) {
     cout << "\n PiZeroDiscriminatorProducer: pPreshowerShapeClustersY->size() = " << clustersY->size() << endl;
   }
-  auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap);
 
   Handle< EcalRecHitCollection > pEBRecHits;
   evt.getByToken( barrelRecHitCollectionToken_, pEBRecHits );
@@ -131,6 +130,8 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   if ( debugL_pi0 <= pDEBUG ) {
     cout << " PiZeroDiscriminatorProducer: Photon Collection size : " << corrPhoCollection.size() << endl;
   }
+
+  auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap(correctedPhotonHandle));
 
   for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
 

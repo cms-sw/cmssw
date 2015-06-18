@@ -96,6 +96,10 @@ namespace pat {
       edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
       edm::InputTag reducedEndcapRecHitCollection_;
       edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+      
+      bool addPFClusterIso_;
+      edm::EDGetTokenT<edm::ValueMap<float> > ecalPFClusterIsoT_;
+      edm::EDGetTokenT<edm::ValueMap<float> > hcalPFClusterIsoT_;
 
       /// embed high level selection variables?
       bool          embedHighLevelSelection_;

@@ -97,9 +97,9 @@
   TCanvas c4("c4", "Calo vs Gen");
   Styles::FormatPad( &c4, false );
   gStyle->SetPalette(1);
-  TDirectory* dir = comp.dir1();
+  dir = comp.dir1();
   dir->cd();
-  TH2F *h2 = (TH2F*) dir->Get("RecEt_VS_TrueEt_");
+  h2 = (TH2F*) dir->Get("RecEt_VS_TrueEt_");
   h2->Draw("colz");
   Styles::SavePlot("Calo_vs_Gen", outdir.c_str() );
 
@@ -163,8 +163,8 @@
   Styles::SavePlot("deltaPhi_100_200", outdir.c_str() );
 
   mode = Comparator::GRAPH;
-  Style* style1gr = styles.sgr1;
-  Style* style2gr = styles.sgr2;
+  style1gr = styles.sgr1;
+  style2gr = styles.sgr2;
   comp.SetStyles(style1gr, style2gr, "Particle Flow Met", "Calo Met");
   comp.SetAxis(1, 0.0, 200.);
 

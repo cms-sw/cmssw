@@ -43,6 +43,7 @@ void HcalNZSMonitor::reset()
 {
   meFEDsizeVsLumi_->Reset();
   meFEDsizesNZS_->Reset();
+  meUTCAFEDsizesNZS_->Reset();
   meL1evtNumber_->Reset();
   meIsUS_->Reset();
   meBXtriggered_->Reset();
@@ -72,8 +73,12 @@ void HcalNZSMonitor::setup(DQMStore::IBooker &ib)
   if(debug_>1) std::cout << "<HcalNZSMonitor::setup> About to pushback fedUnpackList_" << std::endl;
 
   selFEDs_.clear();
-  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
+  for (int i=FEDNumbering::MINHCALFEDID; 
+		  i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
     {
+		if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+			continue;
+
       selFEDs_.push_back(i);
     }
 
@@ -90,6 +95,12 @@ void HcalNZSMonitor::setup(DQMStore::IBooker &ib)
       meFEDsizesNZS_->setAxisTitle("FED number",1);
       meFEDsizesNZS_->setAxisTitle("average size (KB)",2);
       meFEDsizesNZS_->getTProfile()->SetMarkerStyle(22);
+
+	  meUTCAFEDsizesNZS_ = ib.bookProfile("uTCA FED sizes",
+			  "uTCA FED sizes", 5, 1117.5, 1122.5,100, -1000., 12000., "");
+      meUTCAFEDsizesNZS_->setAxisTitle("FED number",1);
+      meUTCAFEDsizesNZS_->setAxisTitle("average size (KB)",2);
+      meUTCAFEDsizesNZS_->getTProfile()->SetMarkerStyle(22);
       
       meFEDsizeVsLumi_=ib.bookProfile("FED_size_Vs_lumi_block_number",
 					 "FED size Vs lumi block number;lumiblock number;average HCAL FED size (kB)",
@@ -209,8 +220,16 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
   for (unsigned int k=0; k<selFEDs_.size(); k++)
     {
       const FEDRawData & fedData = rawraw.FEDData(selFEDs_[k]);
+
+	  //	not to include empty FEDs
+	  if (fedData.size()<12)
+		  continue;
+
       hcalSize+=fedData.size();
-      meFEDsizesNZS_->Fill(selFEDs_[k]+0.001,fedData.size()/1024);
+	  if (selFEDs_[k]<FEDNumbering::MINHCALuTCAFEDID)
+	      meFEDsizesNZS_->Fill(selFEDs_[k]+0.001,fedData.size()/1024);
+	  else
+	      meUTCAFEDsizesNZS_->Fill(selFEDs_[k]+0.001,fedData.size()/1024);
 
       const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
       if (dccHeader==0) continue;  // protection against bad data -- saw this happen in file /store/streamer/Data/A/000/131/540/Data.00131540.0200.A.storageManager.00.0000.dat; not yet sure why -- Jeff, 22 March 2010; this was due to empty (masked?) HO FEDs 724 and 727 -- Grigory, 25/03/2010 

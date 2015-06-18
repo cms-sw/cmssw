@@ -22,9 +22,13 @@ namespace edm {
       return Ptr<T>();
     }
     if (ref.isTransient()) {
-      return Ptr<T>(ref.product(), ref.key());
-    } else if (not ref.hasProductCache()) {
-      return Ptr<T>(ref.id(), ref.key(), ref.productGetter());
+      return Ptr<T>(ref.get(), ref.key());
+    } else {
+      //Another thread could change this value so get only once
+      EDProductGetter const* getter = ref.productGetter();
+      if (getter) {
+        return Ptr<T>(ref.id(), ref.key(), getter);
+      }
     }
     return Ptr<T>(ref.id(), ref.get(), ref.key());
   }

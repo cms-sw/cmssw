@@ -14,7 +14,10 @@ using namespace edm;
 using namespace std;
 using namespace trigger;
 
-HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig) {
+HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig) :
+  fL1GtDaqReadoutRecordInputTag(iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag")),
+  fL1GtRecordInputTag(iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag")),
+  m_l1GtUtils(iConfig, consumesCollector(), false, *this, fL1GtRecordInputTag, fL1GtDaqReadoutRecordInputTag, edm::InputTag()) {
   // now do what ever initialization is needed
   LogDebug("HLTSeedL1LogicScalers") << "constructor";
 
@@ -22,14 +25,6 @@ HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig) {
   ///////////////////////////
   fL1BeforeMask = iConfig.getParameter<bool>("l1BeforeMask");
   fProcessname = iConfig.getParameter<std::string>("processname");
-
-  // input tag for GT DAQ product
-  fL1GtDaqReadoutRecordInputTag =
-      iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag");
-
-  // input tag for GT lite product
-  fL1GtRecordInputTag =
-      iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag");
 
   // get untracked parameters
   fDQMFolder = iConfig.getUntrackedParameter(
@@ -198,11 +193,11 @@ bool HLTSeedL1LogicScalers::analyzeL1GtUtils(const edm::Event& iEvent,
   // check flag L1BeforeMask
   if (fL1BeforeMask) {
     decisionAlgTechTrig = m_l1GtUtils.decisionBeforeMask(
-        iEvent, fL1GtRecordInputTag, fL1GtDaqReadoutRecordInputTag, l1AlgoName,
+        iEvent, l1AlgoName,
         iErrorCode);
   } else {
     decisionAlgTechTrig = m_l1GtUtils.decisionAfterMask(
-        iEvent, fL1GtRecordInputTag, fL1GtDaqReadoutRecordInputTag, l1AlgoName,
+        iEvent, l1AlgoName,
         iErrorCode);
   }
 

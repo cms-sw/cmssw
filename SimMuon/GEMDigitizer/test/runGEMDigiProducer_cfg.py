@@ -14,6 +14,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -29,11 +30,31 @@ process.options = cms.untracked.PSet(
 )
 
 # customization of the process.pdigi sequence to add the GEM digitizer 
-from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_gem_only
-#from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
-#process = customize_digi_addGEM(process)  # run all detectors digi
-#process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
-process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+# choose between different options below:
+
+### GEM Only ############
+# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_gem_only
+# process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+#########################
+
+### All Muon Only #######
+from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
+process = customize_digi_addGEM_muon_only(process) 
+# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_d2r_addGEM_muon_only
+# process = customize_d2r_addGEM_muon_only(process) 
+# from SimMuon.GEMDigitizer.customizeGEMDigi import customize_r2d_addGEM_muon_only
+# process = customize_r2d_addGEM_muon_only(process) 
+#########################
+
+### All Detectors #######
+# process = customize_digi_addGEM(process)  # run all detectors digi
+#########################
+
+### Fix RPC Digitization ###
+############################
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions 
+process = fixRPCConditions(process)
+############################
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -71,9 +92,10 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 #process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.digi_step    = cms.Path(process.pdigi)
-process.endjob_step  = cms.Path(process.endOfProcess)
-process.out_step     = cms.EndPath(process.output)
+process.digi_step     = cms.Path(process.pdigi)
+process.digi2raw_step = cms.Path(process.DigiToRaw)
+process.endjob_step   = cms.Path(process.endOfProcess)
+process.out_step      = cms.EndPath(process.output)
 
 
 process.schedule = cms.Schedule(

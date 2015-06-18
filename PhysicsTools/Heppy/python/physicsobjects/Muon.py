@@ -83,6 +83,9 @@ class Muon( Lepton ):
         elif R == 0.4: return self.physObj.pfIsolationR04().sumChargedParticlePt 
         raise RuntimeError, "Muon chargedAllIso missing for R=%s" % R
 
+    def chargedAllIso(self):
+        return self.chargedAllIsoR()
+
     def puChargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationR03().sumPUPt 
         elif R == 0.4: return self.physObj.pfIsolationR04().sumPUPt 

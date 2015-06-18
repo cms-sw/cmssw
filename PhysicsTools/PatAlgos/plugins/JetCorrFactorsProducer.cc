@@ -7,6 +7,7 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -158,7 +159,13 @@ JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, cons
     }
     corrector->setJPTrawP4(p4);
   }
-  corrector->setJetEta(jet->eta()); corrector->setJetPt(jet->pt()); corrector->setJetE(jet->energy());
+  //For PAT jets undo previous jet energy corrections
+  const Jet* patjet = dynamic_cast<Jet const *>( &*jet );
+  if( patjet ){
+    corrector->setJetEta(patjet->correctedP4(0).eta()); corrector->setJetPt(patjet->correctedP4(0).pt()); corrector->setJetE(patjet->correctedP4(0).energy());
+  } else {
+    corrector->setJetEta(jet->eta()); corrector->setJetPt(jet->pt()); corrector->setJetE(jet->energy());
+  }
   if( emf_ && dynamic_cast<const reco::CaloJet*>(&*jet)){
     corrector->setJetEMF(dynamic_cast<const reco::CaloJet*>(&*jet)->emEnergyFraction());
   }

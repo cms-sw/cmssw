@@ -3,5 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # comment
 
 simTrackIdProducer = cms.EDProducer("SimTrackIdProducer",
-                                trackCollection = cms.InputTag("iterativeInitialTracks")                
+#                                    trajectories = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.trajectories,                
+ #                                   TrackQuality= cms.string('highPurity'),
+  #                                  maxChi2=cms.double(9)
                                 )

@@ -10,8 +10,9 @@ Note: this is actually a *const_iterator*
 ----------------------------------------------------------------------*/
 
 #include <memory>
-#include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefTraits.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace edm {
 
@@ -27,16 +28,26 @@ namespace edm {
     typedef RefVectorIterator<C, T, F> iterator;
     typedef std::ptrdiff_t difference;
     typedef typename std::vector<key_type>::const_iterator keyIter;
-    RefVectorIterator() : product_(), iter_() {}
-    explicit RefVectorIterator(RefCore const& product, keyIter const& it) :
-      product_(product), iter_(it) {}
+    typedef typename std::vector<void const*>::const_iterator MemberIter;
+
+    RefVectorIterator() : refVector_(nullptr), nestedRefVector_(nullptr), iter_(0) {}
+
+    explicit RefVectorIterator(RefVector<C, T, F> const* refVector,
+                               typename RefVector<C, T, F>::size_type iter) :
+      refVector_(refVector), nestedRefVector_(nullptr), iter_(iter) {}
+
+    explicit RefVectorIterator(RefVector<RefVector<C, T, F>, T, typename refhelper::FindTrait<RefVector<C, T, F>, T>::value > const* refVector,
+                             typename RefVector<C, T, F>::size_type iter) :
+      refVector_(nullptr), nestedRefVector_(refVector), iter_(iter) {}
+
     reference operator*() const {
-      key_type const& key = *iter_;
-      return value_type(product_, key);
+      if(refVector_) return (*refVector_)[iter_];
+      return (*nestedRefVector_)[iter_];
     }
     reference operator[](difference n) const {
-      key_type const& key = iter_[n];
-      return value_type(product_, key);
+      typename RefVector<C, T, F>::size_type j = iter_ + n;
+      if(refVector_) return (*refVector_)[j];
+      return (*nestedRefVector_)[j];
     }
 
     class RefProxy {
@@ -48,8 +59,8 @@ namespace edm {
     };
 
     RefProxy operator->() const {
-      key_type const& key = *iter_;
-      return RefProxy(value_type(product_, key));
+      if(refVector_) return RefProxy(value_type((*refVector_)[iter_]));
+      return RefProxy(value_type((*nestedRefVector_)[iter_]));
     }
     iterator & operator++() {++iter_; return *this;}
     iterator & operator--() {--iter_; return *this;}
@@ -70,11 +81,15 @@ namespace edm {
     bool operator<=(iterator const& rhs) const {return this->iter_ <= rhs.iter_;}
     bool operator>=(iterator const& rhs) const {return this->iter_ >= rhs.iter_;}
 
-    key_type  key() const { return *iter_;}
+    key_type  key() const {
+      if(refVector_) return (*refVector_)[iter_].key();
+      return (*nestedRefVector_)[iter_].key();
+    }
 
   private:
-    RefCore product_;
-    keyIter iter_;
+    RefVector<C, T, F> const* refVector_;
+    RefVector<RefVector<C, T, F>, T, typename refhelper::FindTrait<RefVector<C, T, F>, T>::value > const* nestedRefVector_;
+    typename RefVector<C, T, F>::size_type iter_;
   };
 
   template <typename C, typename T, typename F>

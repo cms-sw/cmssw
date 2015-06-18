@@ -4,11 +4,11 @@
 #include "G4VDiscreteProcess.hh"
 
 class HadronicProcessHelper;
+class G4FermiPhaseSpaceDecay;
 class HistoHelper;
 class TProfile;
 class TH1D;
 class TH2D;
-
 
 class ToyModelHadronicProcess : public G4VDiscreteProcess
 {
@@ -31,16 +31,11 @@ private:
   
   G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*);
   
-
-  const G4DynamicParticle* FindRhadron(G4ParticleChange*);
-
   int m_verboseLevel;
   HadronicProcessHelper* m_helper;
+  G4FermiPhaseSpaceDecay* m_decay;
   G4ParticleChange m_particleChange;
   bool m_detachCloud;
-  
-
-
 };
 
 #endif

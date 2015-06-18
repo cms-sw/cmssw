@@ -309,7 +309,7 @@ class Process(object):
             return
         if not isinstance(value,_ConfigureComponent):
             raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'\n"
-                            +"an instance of "+str(type(value))+" will not work")
+                            +"an instance of "+str(type(value))+" will not work - requested label is "+name)
         if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper) and not isinstance(value,Schedule):
             if name == value.type_():
                 self.add_(value)
@@ -525,7 +525,9 @@ class Process(object):
                 continue
             item = getattr(other,name)
             if name == "source" or name == "looper" or name == "subProcess":
-                self.__setattr__(name,item)
+                # In these cases 'item' could be None if the specific object was not defined
+                if item is not None:
+                    self.__setattr__(name,item)
             elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
             elif isinstance(item,_Labelable):
@@ -797,7 +799,7 @@ class Process(object):
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
-    def prune(self,verbose=False):
+    def prune(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
         """ Remove clutter from the process which we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
@@ -811,9 +813,9 @@ class Process(object):
             delattr(self, name)
         #first we need to resolve any SequencePlaceholders being used
         for x in self.paths.itervalues():
-            x.resolve(self.__dict__)
+            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         for x in self.endpaths.itervalues():
-            x.resolve(self.__dict__)
+            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         usedModules = set()
         unneededPaths = set()
         if self.schedule_():
@@ -1056,6 +1058,12 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       out += "process = parentProcess"+str(hash(self))+"\n"
       out += "process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +")\n"
       return out
+   def process(self):
+      return self.__process
+   def SelectEvents(self):
+      return self.__SelectEvents
+   def outputCommands(self):
+      return self.__outputCommands
    def type_(self):
       return 'subProcess'
    def nameInProcessDesc_(self,label):
@@ -1861,6 +1869,16 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 'b'))
             self.assert_(hasattr(p, 's'))
             self.assert_(hasattr(p, 'pth'))
+            #test unresolved SequencePlaceholder
+            p = Process("test")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.s = Sequence(SequencePlaceholder("a")+p.b)
+            p.pth = Path(p.s)
+            p.prune(keepUnresolvedSequencePlaceholders=True)
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(hasattr(p, 's'))
+            self.assert_(hasattr(p, 'pth'))
+            self.assertEqual(p.s.dumpPython(''),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
         def testModifier(self):
             m1 = Modifier()
             p = Process("test",m1)

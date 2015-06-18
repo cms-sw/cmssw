@@ -4,14 +4,18 @@
 // system include files
 #include <vector>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 class MagneticField;
-class TrackerGeometry;
 class Trajectory;
+
+namespace edm {
+  class ConsumesCollector;
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}
 
 class TrackerValidationVariables
 { 
@@ -69,20 +73,22 @@ class TrackerValidationVariables
   };
 
   TrackerValidationVariables();
-  TrackerValidationVariables(const edm::EventSetup&, const edm::ParameterSet&);
+  TrackerValidationVariables(const edm::ParameterSet& config,
+                             edm::ConsumesCollector && iC);
   ~TrackerValidationVariables();
 
   void fillHitQuantities(const Trajectory* trajectory, std::vector<AVHitStruct> & v_avhitout);
-  void fillTrackQuantities(const edm::Event&, std::vector<AVTrackStruct> & v_avtrackout);
+  void fillTrackQuantities(const edm::Event&,
+                           const edm::EventSetup&,
+                           std::vector<AVTrackStruct> & v_avtrackout);
 
   // need the following method for MonitorTrackResiduals in DQM/TrackerMonitorTrack
   void fillHitQuantities(const edm::Event&, std::vector<AVHitStruct> & v_avhitout);
 
  private:
 
-  const edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  edm::ESHandle<MagneticField> magneticField_;
+  edm::EDGetTokenT<std::vector<Trajectory> > trajCollectionToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trajTracksToken_;
 };
 
 #endif

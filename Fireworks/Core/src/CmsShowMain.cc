@@ -103,6 +103,7 @@ static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
 static const char* const kAutoSaveType     = "auto-save-type";
 static const char* const kAutoSaveHeight   = "auto-save-height";
+static const char* const kSyncAllViews     = "sync-all-views";
 static const char* const kEnableFPE        = "enable-fpe";
 static const char* const kZeroWinOffsets   = "zero-window-offsets";
 static const char* const kNoVersionCheck   = "no-version-check";
@@ -171,7 +172,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
       (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.<auto-save-type> is appended)")
       (kAutoSaveType,     po::value<std::string>(),       "Image type of auto-saved views, png or jpg (png is default)")
-      (kAutoSaveHeight, po::value<int>(),                 "Screenshots height when auto-save-all-views is enabled");
+      (kAutoSaveHeight, po::value<int>(),                 "Screenshots height when auto-save-all-views is enabled")
+      (kSyncAllViews,                                     "Synchronize all views on new event");
 
  po::options_description debugdesc("Debug");
    debugdesc.add_options()
@@ -374,6 +376,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    if (vm.count(kAutoSaveHeight)) {
       setAutoSaveAllViewsHeight(vm[kAutoSaveHeight].as<int>());
+   }
+   if (vm.count(kSyncAllViews)) {
+       FWEveViewManager::syncAllViews();
    }
    if(vm.count(kNoVersionCheck)) {
       m_noVersionCheck=true;

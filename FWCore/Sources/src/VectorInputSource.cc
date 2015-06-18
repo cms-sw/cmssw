@@ -6,7 +6,7 @@
 namespace edm {
 
   VectorInputSource::VectorInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
-    EDInputSource(pset, desc) {}
+    InputSource(pset, desc) {}
 
   VectorInputSource::~VectorInputSource() {}
 

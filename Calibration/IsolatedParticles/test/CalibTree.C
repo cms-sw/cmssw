@@ -90,9 +90,9 @@ public :
   virtual void     Show(Long64_t entry = -1);
   bool             goodTrack();
   void BookHisto(std::string fname);
+  TFile          *fout;
 
 private:
-  TFile          *fout;
   TProfile       *hprof_ndets;
 
 };

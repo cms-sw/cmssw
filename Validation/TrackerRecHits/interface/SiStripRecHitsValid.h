@@ -33,7 +33,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -41,6 +40,7 @@
 //For RecHit
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 class SiStripDetCabling;
 class SiStripDCSStatus;
@@ -205,8 +205,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
 
   edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   unsigned long long m_cacheID_;
-  edm::ParameterSet Parameters;
   //const StripTopology* topol;
 
   /* static const int MAXHIT = 1000; */
@@ -219,7 +219,6 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   void rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol, TrackerHitAssociator& associate);
   void rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator& associate);
   
-  //edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_; 
   edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedRecHitsToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> rphiRecHitsToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> stereoRecHitsToken_;
