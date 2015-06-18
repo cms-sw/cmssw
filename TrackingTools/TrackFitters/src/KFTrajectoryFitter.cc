@@ -11,6 +11,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -132,7 +134,12 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::RPC )
 	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
-	else
+	else if (hitId.subdetId() == MuonSubdetId::GEM )
+	  LogTrace("TrackFitters") << " I am GEM " << GEMDetId(hitId);
+
+	else if (hitId.subdetId() == MuonSubdetId::ME0 )
+	  LogTrace("TrackFitters") << " I am ME0 " << ME0DetId(hitId);
+	else 
 	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
       }
       else
