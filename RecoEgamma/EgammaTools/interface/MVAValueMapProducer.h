@@ -50,7 +50,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 };
 
 template <class ParticleType>
-MVAValueMapProducer::MVAValueMapProducer(const edm::ParameterSet& iConfig) 
+MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig) 
 {
 
   //
@@ -101,11 +101,11 @@ MVAValueMapProducer::MVAValueMapProducer(const edm::ParameterSet& iConfig)
 }
 
 template <class ParticleType>
-MVAValueMapProducer::~MVAValueMapProducer() {
+MVAValueMapProducer<ParticleType>::~MVAValueMapProducer() {
 }
 
 template <class ParticleType>
-void MVAValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
   
@@ -146,7 +146,7 @@ void MVAValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 template<class ParticleType, typename T>
-void MVAValueMapProducer::writeValueMap(edm::Event &iEvent,
+void MVAValueMapProducer<ParticleType>::writeValueMap(edm::Event &iEvent,
 					     const edm::Handle<edm::View<ParticleType> > & handle,
 					     const std::vector<T> & values,
 					     const std::string    & label) const 
@@ -161,7 +161,7 @@ void MVAValueMapProducer::writeValueMap(edm::Event &iEvent,
 }
 
 template <class ParticleType>
-void MVAValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MVAValueMapProducer<ParticleType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
