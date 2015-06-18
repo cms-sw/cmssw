@@ -14,7 +14,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 # This MVA implementation class name
-mvaPhys14NonTrigClassName = cms.string("ElectronMVAEstimatorRun2Phys14NonTrig")
+mvaPhys14NonTrigClassName = "ElectronMVAEstimatorRun2Phys14NonTrig"
 
 # There are 6 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -38,9 +38,12 @@ mvaPhys14NonTrigWeightFiles_V1 = cms.vstring(
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
 
 # The locatoins of value maps with the actual MVA values and categories
-# for all particles
-mvaValueMapName      = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigValues"
-mvaCategoriesMapName = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigCategories"
+# for all particles.
+# The names for the maps are "<module name>:<MVA class name>Values" 
+# and "<module name>:<MVA class name>Categories"
+mvaProducerModuleLabel = "electronMVAValueMapProducer"
+mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Values"
+mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Categories"
 
 # The working point for this MVA that is expected to have about 80% signal
 # efficiency on average separately for barrel and separately for endcap
@@ -80,8 +83,8 @@ MVA_WP90 = EleMVA_6Categories_WP(
 
 # Create the PSet that will be fed to the MVA value map producer
 mvaEleID_PHYS14_PU20bx25_nonTrig_V1_producer_config = cms.PSet( 
-    mvaName            = mvaPhys14NonTrigClassName,
-    mvaWeightFileNames = mvaPhys14NonTrigWeightFiles_V1
+    mvaName            = cms.string(mvaPhys14NonTrigClassName),
+    weightFileNames    = mvaPhys14NonTrigWeightFiles_V1
     )
 # Create the VPset's for VID cuts
 mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
@@ -95,6 +98,6 @@ mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
 #
 
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.idName,
-                              '293468bd0552c5b1a25c2dbbee4dcafc')
+                              '7fcecb0b036c94288f32e8da93125322')
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.idName,
-                              '7d2112062f92c4ea64d6430fc1fc10e0')
+                              '29b397d5baae679fe747576a9a190c53')
