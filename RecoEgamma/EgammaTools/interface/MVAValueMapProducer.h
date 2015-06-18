@@ -169,4 +169,3 @@ template <class ParticleType>
   descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(MVAValueMapProducer);
