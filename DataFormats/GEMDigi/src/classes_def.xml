@@ -16,8 +16,8 @@
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/> 
 
-<class name="GEMCoPadDigi" ClassVersion="11">
- <version ClassVersion="11" checksum="1150395405"/>
+<class name="GEMCoPadDigi" ClassVersion="12">
+ <version ClassVersion="12" checksum="2678638706"/>
 </class>
 <class name="std::vector<GEMCoPadDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMCoPadDigi> >"/>
