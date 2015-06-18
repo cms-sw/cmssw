@@ -20,6 +20,12 @@ valGtDigis.AlgorithmTriggersUnprescaled = True
 valGtDigis.TechnicalTriggersUnprescaled = True
 valGtDigis.TechnicalTriggersVetoUnmasked = True
 
+valStage1GtDigis.RecordLength = cms.vint32(3, 5)
+valStage1GtDigis.AlternativeNrBxBoardDaq = 0x101
+valStage1GtDigis.AlternativeNrBxBoardEvm = 0x2
+valStage1GtDigis.AlgorithmTriggersUnprescaled = True
+valStage1GtDigis.TechnicalTriggersUnprescaled = True
+valStage1GtDigis.TechnicalTriggersVetoUnmasked = True
 
 # DQM modules
 from DQM.L1TMonitor.L1TDEMON_cfi import *
