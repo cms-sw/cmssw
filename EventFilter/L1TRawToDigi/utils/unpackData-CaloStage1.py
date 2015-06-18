@@ -161,6 +161,7 @@ else:
 
 if (options.dumpDigis):
         process.dumpGctDigis.doRctEm = cms.untracked.bool(True)
+        process.dumpGctDigis.rctEmMinRank = cms.untracked.uint32(1)
         process.dumpGctDigis.doRegions = cms.untracked.bool(True)
         process.dumpGctDigis.doInternEm = cms.untracked.bool(False)
         process.dumpGctDigis.doEm = cms.untracked.bool(False)
