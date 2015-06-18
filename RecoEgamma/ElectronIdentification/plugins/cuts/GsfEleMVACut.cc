@@ -11,6 +11,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -75,4 +77,10 @@ operator()(const reco::GsfElectronPtr& cand) const{
 
   // Apply the cut and return the result
   return mvaValue > cutValue;
+}
+
+double GsfEleMVACut::value(const reco::CandidatePtr& cand) const {
+
+  const float mvaValue = (*_mvaValueMap)[cand];
+  return mvaValue;
 }
