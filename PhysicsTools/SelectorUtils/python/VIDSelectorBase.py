@@ -2,6 +2,8 @@ import ROOT
 import string
 import random
 
+from PhysicsTools.SelectorUtils.VIDCutFlowResult import VIDCutFlowResult
+
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
 ROOT.gSystem.Load("libDataFormatsFWLite.so");
@@ -62,6 +64,9 @@ class VIDSelectorBase:
 
     def cutFlowSize(self):
         return self.__instance.cutFlowSize()
+
+    def cutFlowResult(self):
+        return VIDCutFlowResult(self.__instance.cutFlowResult())
 
     def howFarInCutFlow(self):
         return self.__instance.howFarInCutFlow()

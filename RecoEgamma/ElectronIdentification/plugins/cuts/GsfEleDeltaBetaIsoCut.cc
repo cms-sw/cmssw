@@ -14,6 +14,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -87,4 +89,14 @@ operator()(const reco::GsfElectronPtr& cand) const{
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
   return iso < isoCut;
+}
+
+double GsfEleDeltaBetaIsoCut::value(const reco::CandidatePtr& cand) const {
+  const float chad = (*_chad_iso)[cand];
+  const float nhad = (*_nhad_iso)[cand];
+  const float pho = (*_ph_iso)[cand];
+  const float puchad = (*_PUchad_iso)[cand];
+  float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
+  if( _relativeIso ) iso /= cand->p4().pt();
+  return iso;
 }
