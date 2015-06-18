@@ -83,8 +83,16 @@ class PreexistingValidation(GenericValidation):
 class PreexistingOfflineValidation(PreexistingValidation):
     def __init__(self, valName, config,
                  addDefaults = {}, addMandatories=[]):
+        defaults = {
+            "DMRMethod":"median,rmsNorm",
+            "DMRMinimum":"30",
+            "DMROptions":"",
+            "OfflineTreeBaseDir":"TrackHitFilter",
+            "SurfaceShapes":"none"
+            }
+        defaults.update(addDefaults)
         PreexistingValidation.__init__(self, valName, config, "offline",
-                                       addDefaults, addMandatories)
+                                       defaults, addMandatories)
     def appendToExtendedValidation( self, validationsSoFar = "" ):
         """
         if no argument or "" is passed a string with an instantiation is
