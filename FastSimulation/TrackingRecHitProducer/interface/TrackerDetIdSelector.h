@@ -135,7 +135,7 @@ struct WalkAST
 {
     typedef void result_type;
 
-    void operator()(boost::spirit::qi::info::nil) const {}
+    void operator()() const {}
     void operator()(int n) const { std::cout << n; }
     void operator()(std::string str) const { std::cout << str; }
     void operator()(ExpressionAST const& ast) const
