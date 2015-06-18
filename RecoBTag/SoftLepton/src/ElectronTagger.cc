@@ -41,10 +41,11 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
 	float rndm = dist(random);
 	//for negative tagger, flip 50% of the negative signs to positive value
 	float sip3d = (m_selector.isNegative() && rndm<0.5) ? -properties.sip3d : properties.sip3d;
+	float sip2d = (m_selector.isNegative() && rndm<0.5) ? -properties.sip2d : properties.sip2d;
 	
 	std::map<std::string,float> inputs;
 	inputs["sip3d"] = sip3d;
-	inputs["sip2d"] = properties.sip2d;
+	inputs["sip2d"] = sip2d;
 	inputs["ptRel"] = properties.ptRel;
 	inputs["deltaR"] = properties.deltaR;
 	inputs["ratio"] = properties.ratio;
