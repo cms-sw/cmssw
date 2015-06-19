@@ -48,8 +48,6 @@ namespace l1t {
          }
 
          auto resRCTEMCands_ = static_cast<CaloCollections*>(coll)->getCaloEmCands();
-         resRCTEMCands_->resize(144*nBX);
-
 
          // Initialise index
          int unsigned i = 0;
@@ -89,9 +87,8 @@ namespace l1t {
                   LogDebug("L1T")<<"UNPACKER, CRATE"<<crate<<"NON ISO em rank="<<rank<<", region="<<reg<<", card="<<card<<std::endl;
 
                   L1CaloEmCand em = L1CaloEmCand(rank,reg,card,crate,false,j,bx);
-                  resRCTEMCands_->erase(resRCTEMCands_->begin()+crate*8+2*j+1);
-                  resRCTEMCands_->insert(resRCTEMCands_->begin()+crate*8+2*j+1,em);
-               }
+                  resRCTEMCands_->push_back(em);
+                  }
 
                for(int j = 0; j < 4; j++) {
 
@@ -101,8 +98,7 @@ namespace l1t {
 
                   LogDebug("L1T")<<"UNPACKER, CRATE"<<crate<<"ISO em rank="<<rank<<", region="<<reg<<", card="<<card<<std::endl;
                   L1CaloEmCand em = L1CaloEmCand(rank,reg,card,crate,true,j,bx);
-                  resRCTEMCands_->erase(resRCTEMCands_->begin()+crate*8+2*j);
-                  resRCTEMCands_->insert(resRCTEMCands_->begin()+crate*8+2*j,em); 
+                  resRCTEMCands_->push_back(em);
                }
             }// end if odd
          }// end of loop over BX
@@ -123,8 +119,6 @@ namespace l1t {
          }
 
          auto resRCTRegions_ = static_cast<CaloCollections*>(coll)->getCaloRegions();
-         resRCTRegions_->resize(396*nBX);
-
 
          // Initialise index
          int unsigned i = 0;
@@ -162,8 +156,7 @@ namespace l1t {
                   LogDebug("L1T")<<"UNPACKER, CRATE"<<crate<<"region="<<j<<", rgnEt="<<hfet<<std::endl;
                   L1CaloRegion rgn = L1CaloRegion(hfet,0,crate,j);
                   rgn.setBx(bx);
-                  resRCTRegions_->erase(resRCTRegions_->begin()+crate*22+14+j);
-                  resRCTRegions_->insert(resRCTRegions_->begin()+crate*22+14+j,rgn);
+                  resRCTRegions_->push_back(rgn);
                }
             }// end if odd
 
@@ -185,8 +178,7 @@ namespace l1t {
                      LogDebug("L1T")<<"UNPACKER, CRATE="<<crate<<",region="<<k<<", card="<<j<<", rgnEt="<<RCet<<", overflow="<<overflow<<", tauveto="<<tauveto<<", hadveto="<<hadveto<<std::endl;
                      L1CaloRegion rgn = L1CaloRegion(RCet,overflow,tauveto,hadveto,quiet,crate,j,k);    
                      rgn.setBx(bx); 
-                     resRCTRegions_->erase(resRCTRegions_->begin()+crate*22+(2*j+k));
-                     resRCTRegions_->insert(resRCTRegions_->begin()+crate*22+(2*j+k),rgn);
+                     resRCTRegions_->push_back(rgn);
                   }
                }
             }// end if even
