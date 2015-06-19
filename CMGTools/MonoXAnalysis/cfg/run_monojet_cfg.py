@@ -261,6 +261,9 @@ elif test == '74X-Data':
         selectedComponents = [ MuEG_742 ]
     elif what == "EGamma":
         selectedComponents = [ privEGamma2015A ]
+        lepAna.loose_electron_id = ""
+        lepAna.loose_electron_relIso = 1000.
+        photonAna.gammaID = "POG_PHYS14_25ns_Loose_NoIso"
         monoJetCtrlLepSkim.minLeptons = 0
         monoJetSkim.metCut = 0
     else:
@@ -269,7 +272,7 @@ elif test == '74X-Data':
         if not getHeppyOption("all"):
             comp.files = comp.files[:1]
             comp.splitFactor = 1
-            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 8
 
 ## output histogram
 outputService=[]
