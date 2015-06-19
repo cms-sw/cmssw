@@ -246,12 +246,12 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
 template< typename TEle, typename TCand>
 SelectedElectronFEDListProducer<TEle,TCand>::~SelectedElectronFEDListProducer(){
   
-  if (!electronTags_.empty())            electronTags_.clear() ;
-  if (!recoEcalCandidateTags_.empty())   recoEcalCandidateTags_.clear() ;
-  if (!recoEcalCandidateToken_.empty())  recoEcalCandidateToken_.clear();
-  if (!electronToken_.empty())           electronToken_.clear();
-  if (!fedList_.empty())                 fedList_.clear() ;
-
+  if(!electronTags_.empty())            electronTags_.clear() ;
+  if(!recoEcalCandidateTags_.empty())   recoEcalCandidateTags_.clear() ;
+  if(!recoEcalCandidateToken_.empty())  recoEcalCandidateToken_.clear();
+  if(!electronToken_.empty())           electronToken_.clear();
+  if(!fedList_.empty())                 fedList_.clear() ;
+  if(!pixelModuleVector_.empty())       pixelModuleVector_.clear();
 }
 
 template< typename TEle, typename TCand>
@@ -290,27 +290,28 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   edm::ESHandle<TrackerGeometry> trackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
   
-  if(!pixelModuleVector_.empty()) pixelModuleVector_.clear();
-    
-  // build the tracker pixel module map   
-  std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();   
-  for( ; itTracker !=trackerGeometry->dets().end() ; ++itTracker){
-    int subdet = (*itTracker)->geographicalId().subdetId();
-    if(! (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap) ) continue;
-    PixelModule module ;
-    module.x = (*itTracker)->position().x();
-    module.y = (*itTracker)->position().y();
-    module.z = (*itTracker)->position().z();
-    module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
-    module.Eta = (*itTracker)->position().eta() ;
-    module.DetId  = (*itTracker)->geographicalId().rawId();
-    const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
-    module.Fed = path2det[0].fed;
-    assert(module.Fed<40);
-    pixelModuleVector_.push_back(module);
+  if(pixelModuleVector_.empty()){
+
+    // build the tracker pixel module map   
+    std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();   
+    for( ; itTracker !=trackerGeometry->dets().end() ; ++itTracker){
+      int subdet = (*itTracker)->geographicalId().subdetId();
+      if(! (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap) ) continue;
+      PixelModule module ;
+      module.x = (*itTracker)->position().x();
+      module.y = (*itTracker)->position().y();
+      module.z = (*itTracker)->position().z();
+      module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
+      module.Eta = (*itTracker)->position().eta() ;
+      module.DetId  = (*itTracker)->geographicalId().rawId();
+      const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
+      module.Fed = path2det[0].fed;
+      assert(module.Fed<40);
+      pixelModuleVector_.push_back(module);
+    }
+    std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
   }
-  std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
-  
+
   edm::ESHandle<SiStripRegionCabling> SiStripCablingHandle ;
   iSetup.get<SiStripRegionCablingRcd>().get(SiStripCablingHandle);
   StripRegionCabling_ = SiStripCablingHandle.product();
@@ -541,7 +542,6 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      if(*itElectronCollFlag) momentum = electron.gsfTrack()->momentum();
 	      else momentum = electron.track()->momentum();
 	      PixelRegion region (momentum,dPhiPixelRegion_,dEtaPixelRegion_,maxZPixelRegion_);
-	      
 	      PixelModule lowerBound (normalizedPhi(region.vector.phi())-region.dPhi, region.vector.eta()-region.dEta);
 	      PixelModule upperBound (normalizedPhi(region.vector.phi())+region.dPhi, region.vector.eta()+region.dEta);
 	      
@@ -592,7 +592,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   
   iEvent.put(streamFEDRawProduct,outputLabelModule_);
 
-  if(!fedList_.empty())     fedList_.clear(); 
+  if(!fedList_.empty())   fedList_.clear(); 
  
 }
 
