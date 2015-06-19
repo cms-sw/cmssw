@@ -249,7 +249,7 @@ private:
 
 
   //begin fed vector information
-  static const int crateFED[90];
+  static const int crateFED[108];
   MonitorElement *fedVectorMonitorRUN_;
   MonitorElement *fedVectorMonitorLS_;
   ///////////////////////////////
