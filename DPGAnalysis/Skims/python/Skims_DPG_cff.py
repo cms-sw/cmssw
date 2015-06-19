@@ -281,6 +281,18 @@ SKIMStreamWElectron = cms.FilteredStream(
 
 
 
+from DPGAnalysis.Skims.TopMuEGSkim_cff import *
+TopMuEGPath = cms.Path( TopMuEGsequence )
+SKIMStreamTopMuEG = cms.FilteredStream(
+    responsible = 'BTV',
+    name = 'TopMuEG',
+    paths = ( TopMuEGPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+
 
 from DPGAnalysis.Skims.ZMuSkim_cff import *
 from DPGAnalysis.Skims.ZmmgSkim_cff import *
@@ -351,9 +363,8 @@ SKIMStreamWElectron = cms.FilteredStream(
 #####################
 
 from DPGAnalysis.Skims.ZElectronSkim_cff import *
-#ZElectronPathPhoton = cms.Path( tagPhotonSeq )
-#ZElectronPathTrack = cms.Path( tagTrackSeq )
-ZElectronPathGsf = cms.Path( tagGsfSeq )
+ZElectronPathGsf = cms.Path( zdiElectronSequence )
+
 SKIMStreamZElectron = cms.FilteredStream(
     responsible = 'ECAL DPG',
     name = 'ZElectron',
@@ -367,12 +378,17 @@ SKIMStreamZElectron = cms.FilteredStream(
 #####################
 
 from DPGAnalysis.Skims.HighMETSkim_cff import *
-pfPath = cms.Path(pfMETSelSeq)
-#tcPath = cms.Path(tcMETSelSeq)
+condPath = cms.Path(CondMETSelSeq)
+#pfPath = cms.Path(pfMETSelSeq)
+#caloPath = cms.Path(caloMETSelSeq)
+#miniPath = cms.Path(miniMETSelSeq)
 SKIMStreamHighMET   = cms.FilteredStream(
             responsible = 'MET Group',
             name = 'HighMET',
-            paths = (pfPath),
+            paths = (condPath),
+#           paths = (pfPath),
+#           paths = (caloPath),
+#           paths = (miniPath),
             content = skimContent.outputCommands,
             selectEvents = cms.untracked.PSet(),
             dataTier = cms.untracked.string('RAW-RECO')
@@ -381,7 +397,20 @@ SKIMStreamHighMET   = cms.FilteredStream(
 #####################
 
 
-#####################
+###### MuTau Skim #########
+from DPGAnalysis.Skims.MuTauSkim_cff import *
+MuTauPath = cms.Path( mutauSkimSequence )
+SKIMStreamMuTau = cms.FilteredStream(
+    responsible = 'Tau POG',
+    name = 'MuTau',
+    paths = ( MuTauPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+##########################
+
 
 from DPGAnalysis.Skims.ZHbbSkim_cff import *
 ZHbbSkimPath = cms.Path(ZHbbSkim)
@@ -393,5 +422,7 @@ SKIMStreamZHbb = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+
+
 
 
