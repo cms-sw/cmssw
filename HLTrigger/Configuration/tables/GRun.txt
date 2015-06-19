@@ -146,8 +146,8 @@ HLT_DoublePhoton85_v*						# JIRA: CMSHLT-88
 
 HLT_PFHT750_4JetPt50_v*                                         # JIRA: CMSHLT-355 (prev. version was from CMSHLT-89/90)
 
-HLT_Ele30WP60_Ele8_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-326, CMSHLT-408
-HLT_Ele30WP60_SC4_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-326, CMSHLT-408
+#HLT_Ele30WP60_Ele8_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-326, CMSHLT-408
+#HLT_Ele30WP60_SC4_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-326, CMSHLT-408
 
 HLT_PFHT550_4Jet_v*						# JIRA: CMSHLT-96
 HLT_PFHT650_4Jet_v*						# JIRA: CMSHLT-96
