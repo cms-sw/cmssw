@@ -41,14 +41,7 @@ print 'tau scaling =', tauScaling
 # dataset_files = 'miniAOD-prod_PAT_.*root'
 
 dataset_user = 'CMS'
-# dataset_name = '/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/Phys14DR-PU40bx25_PHYS14_25_V1-v1/MINIAODSIM'
-# dataset_name = '/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/Phys14DR-PU20bx25_tsg_PHYS14_25_V1-v1/MINIAODSIM'
-dataset_name = '/DYJetsToLL_M-50_13TeV-madgraph-pythia8/Phys14DR-PU20bx25_PHYS14_25_V1-v1/MINIAODSIM'
-#dataset_name = '/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/Phys14DR-PU40bx25_PHYS14_25_V1-v2/MINIAODSIM'
-# dataset_name = '/VBF_HToTauTau_M-125_13TeV-powheg-pythia6/Phys14DR-PU20bx25_tsg_PHYS14_25_V1-v2/MINIAODSIM'
-# dataset_name = '/VBF_HToTauTau_M-125_13TeV-powheg-pythia6/Phys14DR-PU40bx25_PHYS14_25_V1-v1/MINIAODSIM'
-# dataset_name = '/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/Phys14DR-PU20bx25_tsg_PHYS14_25_V1-v2/MINIAODSIM' ## also in Marias request
-# dataset_name = '/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/Phys14DR-PU40bx25_PHYS14_25_V1-v1/MINIAODSIM'
+dataset_name = '/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM'
 
 dataset_files = '.*root'
 
@@ -92,7 +85,7 @@ addAK4 = True
 
 # Adding jet collection
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'PHYS14_25_V2::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 # process.GlobalTag.globaltag = 'auto:run2_mc'
 
 
@@ -110,10 +103,10 @@ if addAK4:
 if '25' in dataset_name:
     print 'Using 25 ns MVA MET training'
     process.mvaMETTauMu.inputFileNames = cms.PSet(
-        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/RecoilCor_13TeV.root'),
-        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/PhiCor_13TeV.root'),
-        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/CovU1_13TeV.root'),
-        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/CovU2_13TeV.root')
+        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root')
     )
     # process.mvaMETTauMu.inputRecords = cms.PSet(
     #     U = cms.string("U1Correction"),
