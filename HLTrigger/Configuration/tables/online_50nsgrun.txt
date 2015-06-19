@@ -203,6 +203,8 @@ HLT_PFHT350_PFMET100_NoiseCleaned_v*                          	# JIRA: CMSHLT-10
 HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105
 HLT_PFMET120_NoiseCleaned_BTagCSV0p72_v*			# JIRA: CMSHLT-105, CMSHLT-405
 
+HLT_PFMET170_NoNoiseCleaned_v*                          	# JIRA: CMSHLT-439
+
 HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v*				# JIRA: CMSHLT-121, mod. CMSHLT-179, CMSHLT-204
 
 HLT_PFMET120_NoiseCleaned_Mu5_v*				# JIRA: CMSHLT-120, mod. CMSHLT-190
