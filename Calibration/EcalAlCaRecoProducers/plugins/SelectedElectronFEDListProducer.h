@@ -9,7 +9,8 @@
 // Math
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+// #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 // Message logger
@@ -74,7 +75,7 @@ class PixelModule{
 
 // main class
 template<typename TEle, typename TCand>
-class SelectedElectronFEDListProducer : public edm::EDProducer {
+class SelectedElectronFEDListProducer : public edm::stream::EDProducer< > {
 
  public:
 
