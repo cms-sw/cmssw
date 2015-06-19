@@ -11,6 +11,7 @@ Examples of configurations can be found in:
 * `python/sipixelclustermultiplicityprod_cfi.py`
 * `python/sistripclustermultiplicityprod_cfi.py`
 * `python/sistripdigimultiplicityprod_cfi.py`
+
 The configuration must contain the name of the collection and the parameter `wantedSubDets` which define the subsets of the detector whose multiplicity has to be computed. Each element of this parameter is a `PSet` which contains an integer index, `detSelection`, used to identify the subset by the `EDAnalyzer`s which will use this product, a string, `detLabel`, for the moment dummy, and a vector of strings, `selection` which contains the configuration for a `DetIdSelector` object which define which part of the detector has to be considered. This last parameter can be omitted if the index `detSelection` is between 0 and 6. In that case "0" means the full tracker and "1-6" correspond to the different subdetector according to the detid schema. The optional parameter `withClusterSize` has to be set `True` if instead of counting the number of clusters we want to count the number of digis which compose the clusters. 
 
 ###MultiplicityInvestigator
