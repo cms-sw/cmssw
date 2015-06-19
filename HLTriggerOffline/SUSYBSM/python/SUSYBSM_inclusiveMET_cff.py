@@ -13,6 +13,21 @@ SUSY_HLT_InclusiveMET = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
+SUSY_HLT_InclusiveMET_NoCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
+  pfMETCollection = cms.InputTag("pfMet"),
+  pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
+  caloJetCollection = cms.InputTag("ak4CaloJets"),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
+  TriggerPath = cms.string('HLT_PFMET170_NoNoiseCleaned_v'),
+  TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
+  TriggerFilter = cms.InputTag('hltPFMET170Filter', '', 'HLT'), #the last filter in the path
+  PtThrJet = cms.untracked.double(40.0),
+  EtaThrJet = cms.untracked.double(3.0)
+)
+
+
+
 SUSY_HLT_InclusiveMET_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
