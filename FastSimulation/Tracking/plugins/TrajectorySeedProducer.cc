@@ -93,7 +93,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     
     // The name of the hit producer
     edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
-    recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(recHitTag);
+    recHitToken = consumes<FastTMRecHitCombinations>(recHitTag);
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -390,22 +390,15 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     edm::Handle<edm::SimVertexContainer> theSimVtx;
     e.getByToken(simVertexToken,theSimVtx);
     
-    // edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-    edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-    e.getByToken(recHitToken, theGSRecHits);
+    edm::Handle<FastTMRecHitCombinations> recHitCombinations;
+    e.getByToken(recHitToken, recHitCombinations);
 
     std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
 
-    //if no hits -> directly write empty collection
-    if(theGSRecHits->size() == 0)
-    {
-        e.put(output);
-        return;
-    }
-    for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
+    for (const auto & recHitCombination : *recHitCombinations)
     {
 
-        const unsigned int currentSimTrackId = *itSimTrackId;
+        uint32_t currentSimTrackId = recHitCombination.back().simTrackId(0);
 
         if(skipSimTrackIds.find(currentSimTrackId)!=skipSimTrackIds.end())
         {
@@ -426,19 +419,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         {
             continue;
         }
-        SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(currentSimTrackId);
 
         TrajectorySeedHitCandidate previousTrackerHit;
         TrajectorySeedHitCandidate currentTrackerHit;
         unsigned int layersCrossed=0;
 
         std::vector<TrajectorySeedHitCandidate> trackerRecHits;
-        for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
+        for (const auto & _hit : recHitCombination )
         {
-            const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
             previousTrackerHit=currentTrackerHit;
 
-            currentTrackerHit = TrajectorySeedHitCandidate(&vec,trackerGeometry,trackerTopology);
+            currentTrackerHit = TrajectorySeedHitCandidate(&_hit,trackerGeometry,trackerTopology);
 
             if (!currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
             {

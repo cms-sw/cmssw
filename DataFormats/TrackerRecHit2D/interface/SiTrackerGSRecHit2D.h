@@ -16,7 +16,6 @@ class SiTrackerGSRecHit2D : public GSSiTrackerRecHit2DLocalPos{
     , id_(-1)
     , eeId_(-1)
     , hitCombinationId_(-1)
-    , simTrackIds_(1,-1)
     {}
   
   ~SiTrackerGSRecHit2D() {}
@@ -28,7 +27,6 @@ class SiTrackerGSRecHit2D : public GSSiTrackerRecHit2DLocalPos{
     , id_(-1)
     , eeId_(-1)
     , hitCombinationId_(-1)
-    , simTrackIds_(1,-1)
     {}
   
   virtual SiTrackerGSRecHit2D * clone() const {SiTrackerGSRecHit2D * p = new SiTrackerGSRecHit2D( * this); p->load(); return p;}
