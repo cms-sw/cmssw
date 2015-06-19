@@ -44,11 +44,6 @@ EffectiveAreas::EffectiveAreas(const std::string& filename):
 }
 
 EffectiveAreas::~EffectiveAreas(){
-
-  absEtaMin_.clear();
-  absEtaMax_.clear();
-  effectiveAreaValues_.clear();
-
 }
 
 // Return effective area for given eta
