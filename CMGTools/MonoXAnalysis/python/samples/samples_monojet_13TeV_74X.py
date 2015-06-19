@@ -2,9 +2,10 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 import os
 
 #####COMPONENT CREATOR
-
 from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
+from CMGTools.MonoXAnalysis.samples.ComponentCreatorExtra import ComponentCreatorExtra
+kreatorExtra = ComponentCreatorExtra()
 
 ## ==== 740 RelVals =====
 TT_NoPU = kreator.makeMCComponent("TT_NoPU", "/RelValTTbar_13/CMSSW_7_4_0-MCRUN2_74_V7_GENSIM_7_1_15-v1/MINIAODSIM", "CMS", ".*root",809.1)
@@ -93,6 +94,21 @@ mcSamples_Asymptotic50ns = [ TTJets_50ns, TTJets_LO_50ns, DYJetsToLL_M50_50ns ]
 
 mcSamples = RelVals740 + RelVals741
 
+
+#-----------DATA--------------- 
+dataDir = "$CMSSW_BASE/src/CMGTools/MonoXAnalysis/data"
+#json=dataDir+'/json/Cert_246908-247381_13TeV_PromptReco_Collisions15_ZeroTesla_JSON.txt'
+json="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/DCSOnly/json_DCSONLY.txt"
+
+privEGamma2015Afiles = [ f.strip() for f in open("%s/src/CMGTools/MonoXAnalysis/python/samples/privEGamma_2015A_MINIAOD.txt"  % os.environ['CMSSW_BASE'], "r") ]
+def _grep(x,l): return [ i for i in l if x in i ]
+privEGamma2015A = kreatorExtra.makePrivateDataComponent('EGamma2015A', '/store/group/dpg_ecal/comm_ecal/data13TeV/EGamma/miniaod', _grep('2015A', privEGamma2015Afiles), json )
+
+privDataSamples = [ privEGamma2015A ]
+
+dataSamples = privDataSamples
+
+
 from CMGTools.TTHAnalysis.setup.Efficiencies import *
 dataDir = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data"
 
@@ -104,6 +120,11 @@ for comp in mcSamples:
     comp.puFileMC=dataDir+"/puProfile_Summer12_53X.root"
     comp.puFileData=dataDir+"/puProfile_Data12.root"
     comp.efficiency = eff2012
+for comp in dataSamples:
+    comp.splitFactor = 1000
+    comp.isMC = False
+    comp.isData = True
+
 
 if __name__ == "__main__":
    import sys

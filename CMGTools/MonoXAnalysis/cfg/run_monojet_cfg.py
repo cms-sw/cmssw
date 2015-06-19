@@ -259,10 +259,14 @@ elif test == '74X-Data':
         selectedComponents = [ SingleMuZ_742, DoubleElectronZ_742 ]
     elif what == "MuEG":
         selectedComponents = [ MuEG_742 ]
+    elif what == "EGamma":
+        selectedComponents = [ privEGamma2015A ]
+        monoJetCtrlLepSkim.minLeptons = 0
+        monoJetSkim.metCut = 0
     else:
         selectedComponents = dataSamples742
-    if not getHeppyOption("all"):
-        for comp in selectedComponents:
+    for comp in selectedComponents:
+        if not getHeppyOption("all"):
             comp.files = comp.files[:1]
             comp.splitFactor = 1
             comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
