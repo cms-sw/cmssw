@@ -81,6 +81,14 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config):
 
 }
 
+void TrackingRecHitProducer::beginStream(edm::StreamID id)
+{
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        algo->beginStream(id);
+    }
+}
+
 void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& eventSetup)
 {
     //build pipes for all detIds
@@ -155,6 +163,14 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
     {
         algo->endEvent(event,eventSetup);
+    }
+}
+
+void TrackingRecHitProducer::endStream()
+{
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        algo->endStream();
     }
 }
 

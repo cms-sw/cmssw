@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
@@ -29,8 +31,8 @@ TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(
     _name(name),
     _selectionString(config.getParameter<std::string>("select")),
     _trackerTopology(nullptr),
-    _trackerGeometry(nullptr)
-
+    _trackerGeometry(nullptr),
+    _randomEngine(nullptr)
 {
     
 }
@@ -53,6 +55,20 @@ const TrackerGeometry* TrackingRecHitAlgorithm::getTrackerGeometry() const
     return _trackerGeometry;
 }
 
+const RandomEngineAndDistribution* TrackingRecHitAlgorithm::getRandomEngine() const
+{
+    if (!_randomEngine)
+    {
+        throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": RandomEngineAndDistribution not defined";
+    }
+    return _randomEngine.get();
+}
+
+void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
+{
+    _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
+}
+
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
@@ -68,11 +84,15 @@ std::shared_ptr<TrackingRecHitProduct> TrackingRecHitAlgorithm::process(std::sha
     return product;
 }
 
-
 void TrackingRecHitAlgorithm::endEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+    //set these to 0 -> ensures that beginEvent needs to be executed before accessing these pointers again
     _trackerGeometry=nullptr;
     _trackerTopology=nullptr;
+}
+
+void TrackingRecHitAlgorithm::endStream()
+{
 }
 
 TrackingRecHitAlgorithm::~TrackingRecHitAlgorithm()

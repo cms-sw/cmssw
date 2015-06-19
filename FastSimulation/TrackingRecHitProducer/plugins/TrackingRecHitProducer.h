@@ -60,8 +60,12 @@ class TrackingRecHitProducer:
         TrackingRecHitProducer(const edm::ParameterSet& config);
         
         virtual void beginRun(edm::Run const&, const edm::EventSetup& eventSetup);
+        
+        virtual void beginStream(edm::StreamID id);
 
         virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+        
+        virtual void endStream();
 
         virtual ~TrackingRecHitProducer();
 };
