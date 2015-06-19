@@ -46,6 +46,19 @@ def draw_bx(target_dir, h , ext = ".png", opt = ""):
   h.SetMinimum(1.)
   c.SaveAs(target_dir + c_title + ext)
 
+def draw_col_nostat(target_dir, h, ext =".png", opt = "col"):
+  gStyle.SetStatStyle(0)
+  gStyle.SetOptStat(0)
+  c = TCanvas(h.GetTitle(),h.GetName(),600,600)
+  c_title = c.GetTitle()
+  c.Clear()
+  if not h:
+    sys.exit('h does not exist')
+  h.SetLineWidth(2)
+  h.SetLineColor(kBlue)
+  h.Draw(opt)
+  c.SaveAs(target_dir + c_title + ext)
+
 def draw_col(target_dir, h, ext =".png", opt = "col"):
   gStyle.SetStatStyle(0)
   gStyle.SetOptStat(1110)
@@ -180,6 +193,8 @@ def draw_plot( file, tDir,oDir ) :
   for hist in key_list :
     if hist.find("track_") != -1 :
       draw_occ( oDir,d1.Get(hist)) 
+    elif (hist.find("dcEta") !=-1 ) :
+      draw_col_nostat( oDir,d1.Get(hist))
     elif (hist.find("lx") !=-1 or hist.find("ly") != -1 or hist.find("dphi") != -1 or hist.find("_phi_dist") != -1 ) :
       draw_occ( oDir,d1.Get(hist))
     elif ( hist.find("bx") != -1 ) :

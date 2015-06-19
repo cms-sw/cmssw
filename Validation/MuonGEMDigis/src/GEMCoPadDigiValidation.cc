@@ -45,7 +45,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
 
       TString dcEta_title    = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
       TString dcEta_histname = TString::Format("copad_dcEta%s",histname_suffix2.Data());
-      int nXbins = station->rings()[0]->nSuperChambers()* 2 ;
+      int nXbins = station->rings()[0]->nSuperChambers() ;
 
       int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
       int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
@@ -54,11 +54,9 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
       theCoPad_dcEta[ dcEta_histname.Hash() ] = ibooker.book2D(dcEta_histname, dcEta_title, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
       int idx = 0 ;
       for(unsigned int sCh = 1 ; sCh <= station->superChambers().size() ; sCh++ ) {
-        for( unsigned int Ch =1 ; Ch<=2 ; Ch++) {
           idx++;
-          TString label = TString::Format("ch%d_la%d",sCh, Ch);
+          TString label = TString::Format("ch%d",sCh);
           theCoPad_dcEta[ dcEta_histname.Hash() ]->setBinLabel(idx, label.Data());
-        }
       }
     }
   }
@@ -123,13 +121,13 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     Short_t station = (Short_t) id.station();
     Short_t layer = (Short_t) id.layer();
     Short_t chamber = (Short_t) id.chamber();
-    if ( station ==2 ) station = 3; // For right geometry 
+    if ( station ==2 ) station = 3; // due to gap GEMGeometry and Copad's keep information.
 
     GEMCoPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-      GEMDetId roId = GEMDetId(region, id.ring(), station, id.layer(), chamber,digiItr->roll());
+      GEMDetId roId = GEMDetId(region, id.ring(), station, layer, chamber, digiItr->roll());
       Short_t nroll = roId.roll();  
       LogDebug("GEMCoPadDigiValidation")<<"roId : "<<roId;
       const GeomDet* gdet = GEMGeometry_->idToDet(roId);
@@ -162,8 +160,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       else {
         edm::LogError("GEMCOPadDIGIValidation")<<"region : "<<region<<std::endl;
       }
-      int layer_num = layer-1;
-      int binX = (chamber-1)*2+layer_num;
+      int binX = chamber-1;
       int binY = nroll;
       if ( station== 3 ) station=2;
       int station_num = station-1;
