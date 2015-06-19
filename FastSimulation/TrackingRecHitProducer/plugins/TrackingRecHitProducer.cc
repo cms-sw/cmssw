@@ -117,6 +117,12 @@ void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& ev
 
 void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+    //begin event
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        algo->beginEvent(event,eventSetup);
+    }
+
     //build DetId -> PSimHit map
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
@@ -157,6 +163,12 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
 
     event.put(recHitOutputCollection,"TrackerGSRecHits");
     event.put(matchedRecHitOutputCollection,"TrackerGSMatchedRecHits");
+    
+    //begin event
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        algo->endEvent(event,eventSetup);
+    }
 }
 
 TrackingRecHitProducer::~TrackingRecHitProducer()

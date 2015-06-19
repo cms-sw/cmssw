@@ -47,11 +47,13 @@ class TrackingRecHitAlgorithm
             return _trackerGeometry;
         }
 
-        virtual void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
+        //this function will only be called once per event
+        virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
 
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
 
-        virtual void endEvent(edm::Event& event, edm::EventSetup& eventSetup);
+        //this function will only be called once per event
+        virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);
 
         virtual ~TrackingRecHitAlgorithm();
         

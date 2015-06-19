@@ -25,7 +25,7 @@ TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(
     _selectionString=config.getParameter<std::string>("select");
 }
 
-void TrackingRecHitAlgorithm::beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup)
+void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
 }
 
@@ -35,7 +35,7 @@ std::shared_ptr<TrackingRecHitProduct> TrackingRecHitAlgorithm::process(std::sha
 }
 
 
-void TrackingRecHitAlgorithm::endEvent(edm::Event& event, edm::EventSetup& eventSetup)
+void TrackingRecHitAlgorithm::endEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
 }
 
