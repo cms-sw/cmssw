@@ -53,7 +53,7 @@ namespace evf {
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
-    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",false),
+    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",false)),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -114,7 +114,7 @@ namespace evf {
 
     char * emptyLumiModePtr = getenv("FFF_EMPTYLSMODE");
     if (emptyLumiModePtr) {
-        emptyLumisectionMode_ = true
+        emptyLumisectionMode_ = true;
         edm::LogInfo("Setting empty lumisection mode");
     }
  
@@ -673,7 +673,6 @@ namespace evf {
     else {
       std::string BUEoLSFile = getEoLSFilePathOnBU(ls);
       bool eolFound = (stat(BUEoLSFile.c_str(), &buf) == 0);
-      unsigned int startingLumi = ls;
       while (eolFound) {
 
         // recheck that no raw file appeared in the meantime
