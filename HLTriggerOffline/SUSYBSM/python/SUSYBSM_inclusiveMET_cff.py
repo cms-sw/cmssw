@@ -50,6 +50,14 @@ SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
+SUSY_HLT_InclusiveMET_NoNoiseCleaning_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170"),
+  efficiency = cms.vstring(
+    "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
+    "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
+    ),
+  resolution = cms.vstring("")
+)
 SUSY_HLT_InclusiveMET_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_NoiseCleaned"),
   efficiency = cms.vstring(
