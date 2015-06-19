@@ -162,3 +162,16 @@ An example of configuration can be found in `python/beamspotanalyzer_cfi.py`.
 It produces distributions related to the relative position between vertices and the beam spot. It requires a vertex collection and a beam spot collection as input. By configuration it is possible to control whether the comparison has to take into account the tilt of the beamspot. The distributions are the differences of the vertex and beam spot position coordinates, the average of these differences as a function of the vertex z position and, for each run, the dependence of these differences as a function of the orbit number and of the BX number. Configuration parameters have to be used to activate or de-activate those histograms which are more memory demanding.
 An example of configuration can be found in `python/bspvanalyzer_cfi.py`.
 
+### MCVerticesAnalyzer
+It produces distributions related to the multiplicity of (in-time and out-of-time) pileup vertices (or interactions), to the position of the main MC vertex and to the z position of the pileup vertices. It correlates the average number of pileup interactions with the actual number of pileup interactions. It can be configured to use weights. 
+An example of configuration can be found in `python/mcverticesanalyzer_cfi.py`.
+
+### MCVerticesWeight
+It is an `EDFilter` which computes an event weight based on the MC vertices z position to reproduce a different luminous region length. It can be configured to reject events or the weight can be used to fill the histograms of `MCVerticesAnalyzer`.
+An example of configuration can be found in `python/mcverticesweight_cfi.py`
+
+###MCvsRecoVerticesAnalyzer
+It produces histograms to correlate the number of reconstructted vertices with the number of generated vertices or with the average pileup, to correlate the z position of the reconstructed vertices with that of the MC vertices and to check how many times the closest reco vertex to the main MC vertex is the first one in the vertex collection. It can be configured to fill histograms with weights to be provided with `MCVerticesWeight`.
+An example of configuration can be found in `python/mcvsrecoverticesanalyzer_cfi.py`
+
+## Configurations
