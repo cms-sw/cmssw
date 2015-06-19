@@ -190,8 +190,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetSingleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetSingleMuon_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleMuon_selector.throw      = cms.bool(False)
-streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_L1SingleMuOpen_DT_v1', 
-    'HLT_L1SingleMuOpen_v1')
+streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_L1SingleMuOpen_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_minBias_selector
 streamA_datasetTOTEM_minBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

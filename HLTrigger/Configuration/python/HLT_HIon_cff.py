@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V79 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/HIon/V81 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V79')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V81')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -469,10 +469,13 @@ fragment.transferSystem = cms.PSet(
     emulator = cms.vstring( 'None' )
   )
 )
-fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
-  'InitialPDForHI' ) )
+fragment.streams = cms.PSet( 
+  A = cms.vstring( 'HLTPhysics',
+    'InitialPDForHI' ),
+  DQM = cms.vstring( 'OnlineMonitor' )
+)
 fragment.datasets = cms.PSet( 
-  InitialPD = cms.vstring( 'HLT_Physics_v2' ),
+  HLTPhysics = cms.vstring( 'HLT_Physics_v2' ),
   InitialPDForHI = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
     'HLT_HIL2DoubleMu0_NHitQ_v2',
     'HLT_HIL2DoubleMu0_v2',
@@ -485,7 +488,21 @@ fragment.datasets = cms.PSet(
     'HLT_HIL3DoubleMuOpen_OS_v2',
     'HLT_HIL3DoubleMuOpen_SS_v2',
     'HLT_HIL3DoubleMuOpen_v2',
-    'HLT_HIL3Mu3_v2' )
+    'HLT_HIL3Mu3_v2' ),
+  OnlineMonitor = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
+    'HLT_HIL2DoubleMu0_NHitQ_v2',
+    'HLT_HIL2DoubleMu0_v2',
+    'HLT_HIL2DoubleMu3_v2',
+    'HLT_HIL2Mu15_v2',
+    'HLT_HIL2Mu3_NHitQ_v2',
+    'HLT_HIL2Mu3_v2',
+    'HLT_HIL2Mu7_v2',
+    'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2',
+    'HLT_HIL3DoubleMuOpen_OS_v2',
+    'HLT_HIL3DoubleMuOpen_SS_v2',
+    'HLT_HIL3DoubleMuOpen_v2',
+    'HLT_HIL3Mu3_v2',
+    'HLT_Physics_v2' )
 )
 
 fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
