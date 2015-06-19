@@ -15,10 +15,15 @@ options.register('skipEvents',
                  VarParsing.VarParsing.varType.int,
                  "Number of events to skip")
 options.register('streamer',
-                 0,
+                 False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Use streamer file as input")
+options.register('debug',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print debug messages")
 options.register('dumpRaw',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -86,16 +91,22 @@ process.options = cms.untracked.PSet(
 
 
 # enable debug message logging for our modules
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    threshold  = cms.untracked.string('INFO'),
-    categories = cms.untracked.vstring('L1T', 'L1TCaloEvents'),
-#    debugModules = cms.untracked.vstring(
-#        'mp7BufferDumpToRaw',
-#        'l1tDigis',
-#        'caloStage1Digis'
-#    )
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.categories.append('L1TCaloEvents')
+process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
+if (options.dumpRaw or options.dumpDigis):
+    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
+    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
+      optionalPSet = cms.untracked.bool(True),
+      limit = cms.untracked.int32(10000)
+    )
+
+if (options.debug):
+#    process.MessageLogger.debugModules = cms.untracked.vstring('L1TRawToDigi:caloStage2Digis', 'MP7BufferDumpToRaw:stage2MPRaw', 'MP7BufferDumpToRaw:stage2DemuxRaw')
+    process.MessageLogger.debugModules = cms.untracked.vstring('*')
+    process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+
 
 
 # Other statements
