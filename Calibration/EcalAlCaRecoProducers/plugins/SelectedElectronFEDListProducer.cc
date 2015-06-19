@@ -5,7 +5,6 @@
 
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
-// common 
 //#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -220,8 +219,7 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
   else dumpAllHCALFed_ = false ;
 
   LogDebug("SelectedElectronFEDListProducer")<<" DumpAllEcalFed "<<dumpAllEcalFed_<<" DumpAllTrackerFed "<<dumpAllTrackerFed_<<" Dump all HCAL fed "<<dumpAllHCALFed_<<std::endl;
-  
-  
+    
   // initialize pre-shower fed id --> look up table
   for (int i=0; i<2; ++i) for (int j=0; j<2; ++j) for (int k=0 ;k<40; ++k) for (int m=0; m<40; m++) ES_fedId_[i][j][k][m] = -1;
  
@@ -248,92 +246,84 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
 template< typename TEle, typename TCand>
 SelectedElectronFEDListProducer<TEle,TCand>::~SelectedElectronFEDListProducer(){
   
-  if(!electronTags_.empty())            electronTags_.clear() ;
-  if(!recoEcalCandidateTags_.empty())   recoEcalCandidateTags_.clear() ;
-  if(!recoEcalCandidateToken_.empty())  recoEcalCandidateToken_.clear();
-  if(!electronToken_.empty())           electronToken_.clear();
-  if(!fedList_.empty())                 fedList_.clear() ;
-  if(!RawDataCollection_)               delete RawDataCollection_ ;
+  if (!electronTags_.empty())            electronTags_.clear() ;
+  if (!recoEcalCandidateTags_.empty())   recoEcalCandidateTags_.clear() ;
+  if (!recoEcalCandidateToken_.empty())  recoEcalCandidateToken_.clear();
+  if (!electronToken_.empty())           electronToken_.clear();
+  if (!fedList_.empty())                 fedList_.clear() ;
+//   if (GeometryCalo_)      delete GeometryCalo_;
+//   if (GeometryES_)        delete GeometryES_;
+//   if (EcalMapping_)       delete EcalMapping_;
+//   if (HcalReadoutMap_)    delete HcalReadoutMap_;
+
 }
 
 template< typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle,TCand>::beginJob(){ 
-  eventCounter_ = 0 ; 
-  LogDebug("SelectedElectronFEDListProducer")<<" Begin of the Job : event counter set to"<<eventCounter_<<std::endl;
+  LogDebug("SelectedElectronFEDListProducer")<<" Begin of the Job "<<std::endl;
+
 } 
 
 template< typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup){
 
-  if(!fedList_.empty())   fedList_.clear(); 
-  if(!RawDataCollection_) delete RawDataCollection_ ;
-
-  // Build FED strip map --> just one time
-  // Retrieve FED ids from cabling map and iterate through 
-  SiStripRegionCabling::Cabling cabling_ ;
-
-  //---- loading geometry (begin)
-//   if(eventCounter_ ==0 ){
-    
   // get the hcal electronics map
   edm::ESHandle<HcalDbService> pSetup;
   iSetup.get<HcalDbRecord>().get(pSetup);
-  hcalReadoutMap_ = pSetup->getHcalMapping();
-  
+  HcalReadoutMap_ = pSetup->getHcalMapping();
+
   // get the ecal electronics map
   edm::ESHandle<EcalElectronicsMapping> ecalmapping;
   iSetup.get<EcalMappingRcd >().get(ecalmapping);
-  TheMapping_ = ecalmapping.product();
-  
+  EcalMapping_ = ecalmapping.product();
+
   // get the calo geometry
   edm::ESHandle<CaloGeometry> caloGeometry; 
   iSetup.get<CaloGeometryRecord>().get(caloGeometry);
-  geometry_ = caloGeometry.product();
+  GeometryCalo_ = caloGeometry.product();
   
   //ES geometry
-  geometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
+  GeometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
   
   // pixel tracker cabling map
   edm::ESTransientHandle<SiPixelFedCablingMap> pixelCablingMap;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMap);
-  
+  iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMap);  
   PixelCabling_.reset();
   PixelCabling_ = pixelCablingMap->cablingTree();
-  
+
   edm::ESHandle<TrackerGeometry> trackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
   
   if(!pixelModuleVector_.empty()) pixelModuleVector_.clear();
-  
+    
   // build the tracker pixel module map   
   std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();   
   for( ; itTracker !=trackerGeometry->dets().end() ; ++itTracker){
-   int subdet = (*itTracker)->geographicalId().subdetId();
-   if(! (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap) ) continue;
-   PixelModule module ;
-   module.x = (*itTracker)->position().x();
-   module.y = (*itTracker)->position().y();
-   module.z = (*itTracker)->position().z();
-   module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
-   module.Eta = (*itTracker)->position().eta() ;
-   module.DetId  = (*itTracker)->geographicalId().rawId();
-   const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
-   module.Fed = path2det[0].fed;
-   assert(module.Fed<40);
-   pixelModuleVector_.push_back(module);
+    int subdet = (*itTracker)->geographicalId().subdetId();
+    if(! (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap) ) continue;
+    PixelModule module ;
+    module.x = (*itTracker)->position().x();
+    module.y = (*itTracker)->position().y();
+    module.z = (*itTracker)->position().z();
+    module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
+    module.Eta = (*itTracker)->position().eta() ;
+    module.DetId  = (*itTracker)->geographicalId().rawId();
+    const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
+    module.Fed = path2det[0].fed;
+    assert(module.Fed<40);
+    pixelModuleVector_.push_back(module);
   }
   std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
   
-  edm::ESHandle<SiStripRegionCabling> SiStripCabling ;
-  iSetup.get<SiStripRegionCablingRcd>().get(SiStripCabling);
-  StripRegionCabling_ = SiStripCabling.product();
-  
-  cabling_ = StripRegionCabling_->getRegionCabling();
+  edm::ESHandle<SiStripRegionCabling> SiStripCablingHandle ;
+  iSetup.get<SiStripRegionCablingRcd>().get(SiStripCablingHandle);
+  StripRegionCabling_ = SiStripCablingHandle.product();
+
+  SiStripRegionCabling::Cabling SiStripCabling;  
+  SiStripCabling   = StripRegionCabling_->getRegionCabling();
   regionDimension_ = StripRegionCabling_->regionDimensions();
-  //---- loading geometry (end)
   
   // event by event analysis
-  
   // Get event raw data
   edm::Handle<FEDRawDataCollection> rawdata;
   if(!(rawDataTag_ == edm::InputTag(""))) iEvent.getByToken(rawDataToken_,rawdata);
@@ -343,17 +333,17 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   if(!(beamSpotTag_ == edm::InputTag(""))) iEvent.getByToken(beamSpotToken_, beamSpot); 
   if(!beamSpot.failedToGet()) beamSpotPosition_ = beamSpot->position();
   else beamSpotPosition_.SetXYZ(0,0,0);
- 
+
   // take the calo tower collection
   edm::Handle<HBHERecHitCollection> hbheRecHitHandle;
   if(!(HBHERecHitTag_ == edm::InputTag("")))  iEvent.getByToken(hbheRecHitToken_,hbheRecHitHandle);
   const HBHERecHitCollection* hcalRecHitCollection = NULL;
   if(!hbheRecHitHandle.failedToGet()) hcalRecHitCollection = hbheRecHitHandle.product();   
-  
+
   double radTodeg = 180. / Geom::pi();
 
   if(dumpAllEcalFed_){
-     for(uint32_t iEcalFed = FEDNumbering::MINECALFEDID ; iEcalFed <= FEDNumbering::MAXECALFEDID ; iEcalFed++)
+     for(uint32_t iEcalFed = FEDNumbering::MINECALFEDID    ; iEcalFed <= FEDNumbering::MAXECALFEDID ; iEcalFed++)
       fedList_.push_back(iEcalFed);
      for(uint32_t iESFed = FEDNumbering::MINPreShowerFEDID ; iESFed <= FEDNumbering::MAXPreShowerFEDID ; iESFed++)
       fedList_.push_back(iESFed);
@@ -370,7 +360,6 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
    for(uint32_t iHcalFed = FEDNumbering::MINHCALFEDID ; iHcalFed <=   FEDNumbering::MAXHCALFEDID; iHcalFed++)
      fedList_.push_back(iHcalFed);
   } 
-
 
   // loop on the input electron collection vector
   TEle  electron ;
@@ -392,16 +381,12 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	 ++itElectronColl , ++itElectronCollFlag, ++itRecoEcalCandColl){  
 
       // get ecal candidate collection
-      try { iEvent.getByToken(*itRecoEcalCandColl,triggerRecoEcalCandidateCollection);
-	if(triggerRecoEcalCandidateCollection.failedToGet()) continue ;
-      }
-      catch (cms::Exception &exception){ continue; }
+      iEvent.getByToken(*itRecoEcalCandColl,triggerRecoEcalCandidateCollection);
+      if(triggerRecoEcalCandidateCollection.failedToGet()) continue ;
       
       // get gsf electron collection
-      try { iEvent.getByToken(*itElectronColl,electrons);
-	if(electrons.failedToGet()) continue ;
-      }
-      catch (cms::Exception &exception){ continue; }
+      iEvent.getByToken(*itElectronColl,electrons);
+      if(electrons.failedToGet()) continue ;
 
       triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerCluster, recoEcalCandColl);
       if(recoEcalCandColl.empty()) triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerPhoton,   recoEcalCandColl);
@@ -428,67 +413,71 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	    for( ; itSChits!=hits.end() ; ++itSChits){
 	      if((*itSChits).first.subdetId()== EcalBarrel){ // barrel part
 		EBDetId idEBRaw ((*itSChits).first);
-		GlobalPoint point = geometry_->getPosition(idEBRaw);
-		int hitFED = FEDNumbering::MINECALFEDID + TheMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
+		GlobalPoint point = GeometryCalo_->getPosition(idEBRaw);
+		int hitFED = FEDNumbering::MINECALFEDID + EcalMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
 		if( hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID ) continue;
 		
 		LogDebug("SelectedElectronFEDListProducer")<<" electron hit detID Barrel "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<< double(point.phi())*radTodeg <<" FED "<<hitFED<<std::endl;
 		
 		if(dumpSelectedEcalFed_){
 		  if(!fedList_.empty()){ 
-		    if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED); // in order not to duplicate info
+		    if(std::find(fedList_.begin(),fedList_.end(),hitFED) == fedList_.end()) 
+		      fedList_.push_back(hitFED); // in order not to duplicate info
 		  }
 		  else fedList_.push_back(hitFED);
 		}
 	      }
 	      else if((*itSChits).first.subdetId()== EcalEndcap){ // endcap one
 		EEDetId idEERaw ((*itSChits).first);
-		GlobalPoint point = geometry_->getPosition(idEERaw);
-		int hitFED = FEDNumbering::MINECALFEDID + TheMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
+		GlobalPoint point = GeometryCalo_->getPosition(idEERaw);
+		int hitFED = FEDNumbering::MINECALFEDID + EcalMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
 		if( hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID ) continue;
 		
 		LogDebug("SelectedElectronFEDListProducer")<<" electron hit detID Endcap "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<<double(point.phi())*radTodeg <<" FED "<<hitFED<<std::endl;
 		if(dumpSelectedEcalFed_){
 		  if(!fedList_.empty()){ 
-		    if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
+		    if(std::find(fedList_.begin(),fedList_.end(),hitFED) == fedList_.end()) 
+		      fedList_.push_back(hitFED);
 		  }
 		  else fedList_.push_back(hitFED);
-		  
+
 		  // preshower hit for each ecal endcap hit
-		  DetId tmpX = (dynamic_cast<const EcalPreshowerGeometry*>(geometryES_))->getClosestCellInPlane(point,1);
+		  DetId tmpX = (dynamic_cast<const EcalPreshowerGeometry*>(GeometryES_))->getClosestCellInPlane(point,1);
 		  ESDetId stripX = (tmpX == DetId(0)) ? ESDetId(0) : ESDetId(tmpX);          
 		  int hitFED = ES_fedId_[(3-stripX.zside())/2-1][stripX.plane()-1][stripX.six()-1][stripX.siy()-1];
 		  LogDebug("SelectedElectronFEDListProducer")<<" ES hit plane X (deiID) "<<stripX.rawId()<<" six "<<stripX.six()<<" siy "<<stripX.siy()<<" plane "<<stripX.plane()<<" FED ID "<<hitFED<<std::endl;
 		  if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;
 		  if(hitFED < 0) continue;
 		  if(!fedList_.empty()){ 
-		    if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
+		    if(std::find(fedList_.begin(),fedList_.end(),hitFED) == fedList_.end()) 
+		      fedList_.push_back(hitFED);
 		  }
 		  else fedList_.push_back(hitFED);
 		  
-		  DetId tmpY = (dynamic_cast<const EcalPreshowerGeometry*>(geometryES_))->getClosestCellInPlane(point,2);
+		  DetId tmpY = (dynamic_cast<const EcalPreshowerGeometry*>(GeometryES_))->getClosestCellInPlane(point,2);
 		  ESDetId stripY = (tmpY == DetId(0)) ? ESDetId(0) : ESDetId(tmpY);          
 		  hitFED = ES_fedId_[(3-stripY.zside())/2-1][stripY.plane()-1][stripY.six()-1][stripY.siy()-1];
 		  if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;
 		  LogDebug("SelectedElectronFEDListProducer")<<" ES hit plane Y (deiID) "<<stripY.rawId()<<" six "<<stripY.six()<<" siy "<<stripY.siy()<<" plane "<<stripY.plane()<<" FED ID "<<hitFED<<std::endl;
 		  if(hitFED < 0) continue;
 		  if(!fedList_.empty()){ 
-		    if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
+		    if(std::find(fedList_.begin(),fedList_.end(),hitFED) == fedList_.end()) 
+		      fedList_.push_back(hitFED);
 		  }
 		  else fedList_.push_back(hitFED);      
 		}
 	      } // end endcap  
 	    } // end loop on SC hit   
-	    
+
 	    // check HCAL behind each hit    
 	    if(dumpSelectedHCALFed_) {
 	      HBHERecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
 	      for( ; itHcalRecHit != hcalRecHitCollection->end() ; ++itHcalRecHit) {
 		HcalDetId recHitId(itHcalRecHit->id());
-		const CaloCellGeometry* cellGeometry = geometry_->getSubdetectorGeometry(recHitId)->getGeometry(recHitId);
+		const CaloCellGeometry* cellGeometry = GeometryCalo_->getSubdetectorGeometry(recHitId)->getGeometry(recHitId);
 		float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition().eta(),cellGeometry->getPosition().phi());
 		if(dR <= dRHcalRegion_) {
-		  const HcalElectronicsId electronicId = hcalReadoutMap_->lookup(recHitId);
+		  const HcalElectronicsId electronicId = HcalReadoutMap_->lookup(recHitId);
 		  int hitFED = electronicId.dccid() + FEDNumbering::MINHCALFEDID;
 		  LogDebug("SelectedElectronFEDListProducer")<< " matched hcal recHit : HcalDetId "<<recHitId<<" HcalElectronicsId "<<electronicId<<" dcc id "<<electronicId.dccid()<<" spigot "<<electronicId.spigot()<<" fiber channel "<<electronicId.fiberChanId()<<" fiber index "<<electronicId.fiberIndex()<<std::endl;
 		  if(hitFED < FEDNumbering::MINHCALFEDID || hitFED > FEDNumbering::MAXHCALFEDID) 
@@ -520,14 +509,14 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 		eta = electron.track()->eta();
 		phi = electron.track()->phi();
 	      }
-	      for(uint32_t iCabling = 0; iCabling < cabling_.size(); iCabling++){
+	      for(uint32_t iCabling = 0; iCabling < SiStripCabling.size(); iCabling++){
 		SiStripRegionCabling::Position pos = StripRegionCabling_->position(iCabling);
 		double dphi=fabs(pos.second-phi);
 		if (dphi>acos(-1)) dphi=2*acos(-1)-dphi;
 		double R = sqrt(pow(pos.first-eta,2)+dphi*dphi);
 		if (R-sqrt(pow(regionDimension_.first/2,2)+pow(regionDimension_.second/2,2))>dRStripRegion_) continue;
 		//get vector of subdets within region
-		const SiStripRegionCabling::RegionCabling regSubdets = cabling_[iCabling];
+		const SiStripRegionCabling::RegionCabling regSubdets = SiStripCabling[iCabling];
 		//cycle on subdets
 		for (uint32_t idet=0; idet<SiStripRegionCabling::ALLSUBDETS; idet++){ //cicle between 1 and 4 
 		  //get vector of layers whin subdet of region
@@ -551,7 +540,6 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 		}
 	      }
 	    } // end si strip
-	    
 	    if(dumpSelectedSiPixelFed_){
 	      math::XYZVector momentum;
 	      if(*itElectronCollFlag) momentum = electron.gsfTrack()->momentum();
@@ -586,36 +574,41 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
       } // end loop on the electron collection collection
     } // end loop on the recoEcal candidate
   } // end loop on the recoEcal candidate collection
-  
   // add a set of chosen FED  
   for( unsigned int iFed = 0 ; iFed < addThisSelectedFEDs_.size() ; iFed++){
     if(addThisSelectedFEDs_.at(iFed) == -1 ) continue ;
     fedList_.push_back(addThisSelectedFEDs_.at(iFed));
   }
-  
+
   // make the final raw data collection
-  RawDataCollection_ = new FEDRawDataCollection();
+  std::auto_ptr<FEDRawDataCollection> streamFEDRawProduct(new FEDRawDataCollection());
   std::sort(fedList_.begin(),fedList_.end());
   std::vector<uint32_t>::const_iterator itfedList = fedList_.begin();
   for( ; itfedList!=fedList_.end() ; ++itfedList){
     LogDebug("SelectedElectronFEDListProducer")<<" fed point "<<*itfedList<<"  ";
     const FEDRawData& data = rawdata->FEDData(*itfedList);   
     if(data.size()>0){
-      FEDRawData& fedData = RawDataCollection_->FEDData(*itfedList);
+      FEDRawData& fedData = streamFEDRawProduct->FEDData(*itfedList);
       fedData.resize(data.size());
-    memcpy(fedData.data(),data.data(),data.size());
+      memcpy(fedData.data(),data.data(),data.size());
     } 
   } 
   
-  std::auto_ptr<FEDRawDataCollection> streamFEDRawProduct(RawDataCollection_);
   iEvent.put(streamFEDRawProduct,outputLabelModule_);
-  eventCounter_ ++ ;
+
+  if(!fedList_.empty())     fedList_.clear(); 
+//   if (GeometryCalo_)        delete GeometryCalo_;
+//   if (GeometryES_)          delete GeometryES_;
+//   if (EcalMapping_)         delete EcalMapping_;
+//   if (HcalReadoutMap_)      delete HcalReadoutMap_;
+//   if (hcalRecHitCollection) delete hcalRecHitCollection;
+ 
 }
 
 
 template< typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle,TCand>::endJob(){
-  LogDebug("SelectedElectronFEDListProducer")<<" End of the Job : Counted Events "<<eventCounter_<<std::endl;
+  LogDebug("SelectedElectronFEDListProducer")<<" End of the Job "<<std::endl;
 }
 
 template< typename TEle, typename TCand>
