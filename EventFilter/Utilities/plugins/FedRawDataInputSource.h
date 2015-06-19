@@ -65,7 +65,6 @@ private:
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
   void deleteFile(std::string const&);
   int grabNextJsonFile(boost::filesystem::path const&);
-  void renameToNextFree(std::string const& fileName) const;
 
   void readSupervisor();
   void readWorker(unsigned int tid);
@@ -94,7 +93,6 @@ private:
   const bool verifyAdler32_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
-  const bool testModeNoBuilderUnit_;
 
   const edm::RunNumber_t runNumber_;
 

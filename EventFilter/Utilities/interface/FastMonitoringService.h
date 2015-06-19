@@ -153,11 +153,11 @@ namespace evf{
       void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
       unsigned int getEventsProcessedForLumi(unsigned int lumi, bool * abortFlag=nullptr);
       bool getAbortFlagForLumi(unsigned int lumi);
-      bool shouldWriteFiles(unsigned int lumi, unsigned int& proc=nullptr) const 
+      bool shouldWriteFiles(unsigned int lumi, unsigned int* proc=nullptr)
       {
-        unsigned int processed = (getEventsProcessedForLumi(unsigned int lumi);
-        if (proc) proc = processed;
-        return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_));
+        unsigned int processed = getEventsProcessedForLumi(lumi);
+        if (proc) *proc = processed;
+        return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_);
       }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 

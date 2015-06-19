@@ -94,9 +94,6 @@ namespace evf{
       FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
-      unsigned int getJumpLS() const { return jumpLS_; }
-      unsigned int getJumpIndex() const { return jumpIndex_; }
-      std::string getJumpFilePath() const { return bu_run_dir_ + "/" + fffnaming::inputRawFileName(getRunNumber(),jumpLS_,jumpIndex_); }
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
       void lockInitLock();

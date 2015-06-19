@@ -63,7 +63,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
-  testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
@@ -79,8 +78,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   edm::LogInfo("FedRawDataInputSource") << "Construction. read-ahead chunk size -: "
                                         << std::endl << (eventChunkSize_/1048576)
                                         << " MB on host " << thishost;
-  if (testModeNoBuilderUnit_)
-    edm::LogInfo("FedRawDataInputSource") << "Test mode is ON!";
 
   processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
   setNewRun();
@@ -120,8 +117,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   try {
     daqDirector_ = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
     //set DaqDirector to delete files in preGlobalEndLumi callback
-    if (!testModeNoBuilderUnit_)
-      daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
+    daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
     if (fms_) daqDirector_->setFMS(fms_);
   } catch (...){
     edm::LogWarning("FedRawDataInputSource") << "EvFDaqDirector not found";
@@ -581,33 +577,29 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 void FedRawDataInputSource::deleteFile(std::string const& fileName)
 {
   const boost::filesystem::path filePath(fileName);
-  if (!testModeNoBuilderUnit_) {
-    LogDebug("FedRawDataInputSource") << "Deleting input file -:" << fileName;
+  LogDebug("FedRawDataInputSource") << "Deleting input file -:" << fileName;
+  try {
+    //sometimes this fails but file gets deleted
+    boost::filesystem::remove(filePath);
+  }
+  catch (const boost::filesystem::filesystem_error& ex)
+  {
+    edm::LogError("FedRawDataInputSource") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
+                                           << ". Trying again.";
+    usleep(100000);
     try {
-      //sometimes this fails but file gets deleted
       boost::filesystem::remove(filePath);
     }
-    catch (const boost::filesystem::filesystem_error& ex)
-    {
-      edm::LogError("FedRawDataInputSource") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
-                                               << ". Trying again.";
-      usleep(100000);
-      try {
-        boost::filesystem::remove(filePath);
-      }
-      catch (...) {/*file gets deleted first time but exception is still thrown*/}
-    }
-    catch (std::exception& ex)
-    {
-      edm::LogError("FedRawDataInputSource") << " - deleteFile std::exception CAUGHT -: " << ex.what()
-                                               << ". Trying again.";
-      usleep(100000);
-      try {
-	boost::filesystem::remove(filePath);
-      } catch (...) {/*file gets deleted first time but exception is still thrown*/}
-    }
-  } else {
-    renameToNextFree(fileName);
+    catch (...) {/*file gets deleted first time but exception is still thrown*/}
+  }
+  catch (std::exception& ex)
+  {
+    edm::LogError("FedRawDataInputSource") << " - deleteFile std::exception CAUGHT -: " << ex.what()
+                                           << ". Trying again.";
+    usleep(100000);
+    try {
+      boost::filesystem::remove(filePath);
+    } catch (...) {/*file gets deleted first time but exception is still thrown*/}
   }
 }
 
@@ -750,39 +742,32 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 
     LogDebug("FedRawDataInputSource") << "JSON rename -: " << jsonSourcePath << " to "
                                           << jsonDestPath;
-
-    if ( testModeNoBuilderUnit_ )
+    try {
       boost::filesystem::copy(jsonSourcePath,jsonDestPath);
-    else {
-      try {
-        boost::filesystem::copy(jsonSourcePath,jsonDestPath);
-      }
-      catch (const boost::filesystem::filesystem_error& ex)
-      {
-        // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
-        //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
-        sleep(1);
-        boost::filesystem::copy(jsonSourcePath,jsonDestPath);
-      }
-      daqDirector_->unlockFULocal();
+    }
+    catch (const boost::filesystem::filesystem_error& ex)
+    {
+      // Input dir gone?
+      edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+      //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
+      sleep(1);
+      boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+    }
+    daqDirector_->unlockFULocal();
 
-
-      try {
-        //sometimes this fails but file gets deleted
-        boost::filesystem::remove(jsonSourcePath);
-      }
-      catch (const boost::filesystem::filesystem_error& ex)
-      {
-        // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
-      }
-      catch (std::exception& ex)
-      {
-        // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile std::exception CAUGHT -: " << ex.what();
-      }
-
+    try {
+      //sometimes this fails but file gets deleted
+      boost::filesystem::remove(jsonSourcePath);
+    }
+    catch (const boost::filesystem::filesystem_error& ex)
+    {
+      // Input dir gone?
+      edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+    }
+    catch (std::exception& ex)
+    {
+      // Input dir gone?
+      edm::LogError("FedRawDataInputSource") << "grabNextFile std::exception CAUGHT -: " << ex.what();
     }
 
     boost::filesystem::ifstream ij(jsonDestPath);
@@ -840,17 +825,6 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   }
 
   return -1;
-}
-
-void FedRawDataInputSource::renameToNextFree(std::string const& fileName) const
-{
-  boost::filesystem::path source(fileName);
-  boost::filesystem::path destination( daqDirector_->getJumpFilePath() );
-
-  edm::LogInfo("FedRawDataInputSource") << "Instead of delete, RENAME -: " << fileName
-                                        << " to: " << destination.string();
-  boost::filesystem::rename(source,destination);
-  boost::filesystem::rename(source.replace_extension(".jsn"),destination.replace_extension(".jsn"));
 }
 
 void FedRawDataInputSource::preForkReleaseResources()
