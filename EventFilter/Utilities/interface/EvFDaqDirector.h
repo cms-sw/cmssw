@@ -97,7 +97,6 @@ namespace evf{
       unsigned int getJumpLS() const { return jumpLS_; }
       unsigned int getJumpIndex() const { return jumpIndex_; }
       std::string getJumpFilePath() const { return bu_run_dir_ + "/" + fffnaming::inputRawFileName(getRunNumber(),jumpLS_,jumpIndex_); }
-      bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
       void lockInitLock();
@@ -135,7 +134,6 @@ namespace evf{
       std::string eorFileName() const;
       int getNFilesFromEoLS(std::string BUEoLSFile);
 
-      bool testModeNoBuilderUnit_;
       std::string base_dir_;
       std::string bu_base_dir_;
       bool directorBu_;
@@ -170,7 +168,6 @@ namespace evf{
       DirManager dirManager_;
 
       unsigned long previousFileSize_;
-      unsigned int jumpLS_, jumpIndex_;
 
       struct flock bu_w_flk;
       struct flock bu_r_flk;

@@ -38,10 +38,6 @@ namespace evf {
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 				 edm::ActivityRegistry& reg) :
-    testModeNoBuilderUnit_(
-			   pset.getUntrackedParameter<bool> ("testModeNoBuilderUnit",
-							     false)
-			   ),
     base_dir_(
 	      pset.getUntrackedParameter<std::string> ("baseDir", "/data")
 	      ),
@@ -76,8 +72,6 @@ namespace evf {
     dirManager_(base_dir_),
 
     previousFileSize_(0),
-    jumpLS_(0),
-    jumpIndex_(0),
 
     bu_w_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, 0 )),
     bu_r_flk( make_flock( F_RDLCK, SEEK_SET, 0, 0, 0 )),
@@ -503,64 +497,58 @@ namespace evf {
 
     // if the stream is readable
     if (fu_rw_lock_stream != 0) {
-      unsigned int readLs, readIndex, jumpLs, jumpIndex;
+      unsigned int readLs, readIndex;
       int check = 0;
       // rewind the stream
       check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
       // if rewinded ok
       if (check == 0) {
 	// read its' values
-	if (testModeNoBuilderUnit_)
-	  fscanf(fu_rw_lock_stream, "%u %u %u %u", &readLs, &readIndex,
-		 &jumpLs, &jumpIndex);
-	else {
-	  fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
-	  edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
-        }
+	fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
+	edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
 
 	// try to bump
 	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
         unsigned int lastLs = ls;
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
-	if (bumpedOk || lastLs < readLs) {
+	if (bumpedOk) {
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
 	    ftruncate(fu_readwritelock_fd_, 0);
 	    // write next index in the file, which is the file the next process should take
-	    if (testModeNoBuilderUnit_) {
-	      fprintf(fu_rw_lock_stream, "%u %u %u %u", readLs,
-		      readIndex + 1, readLs + 2, readIndex + 1);
-	      jumpLS_ = readLs + 2;
-	      jumpIndex_ = readIndex;
-	    } else {
-	      fprintf(fu_rw_lock_stream, "%u %u", readLs,
-		      readIndex + 1);
-	    }
+	    fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex + 1);
 	    fflush(fu_rw_lock_stream);
 	    fsync(fu_readwritelock_fd_);
-
-            if (bumpedOk)
-	      fileStatus = newFile;
-
-	    if (testModeNoBuilderUnit_)
-	      edm::LogInfo("EvFDaqDirector") << "Written to file -: " << readLs << ":"
-			                     << readIndex + 1 << " --> " << readLs + 2
-			                     << ":" << readIndex + 1;
-	    else
-	      LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":"
-			                     << readIndex + 1;
-
-	  } else
-	      throw cms::Exception("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
-	                                             << strerror(errno);
+	    fileStatus = newFile;
+	    LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
+	  }
+          else {
+            throw cms::Exception("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error " << strerror(errno);
+          }
 	}
-      } else
-	edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for reading failed with error "
-					<< strerror(errno);
-    } else
+        else if (lastLs < readLs)
+        {
+	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
+	  if (check == 0) {
+	    ftruncate(fu_readwritelock_fd_, 0);
+	    // in this case LS was bumped, but no new file. Thus readIndex is 0 (set by bumpFile)
+	    fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex);
+	    fflush(fu_rw_lock_stream);
+	    fsync(fu_readwritelock_fd_);
+	    LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex;
+	  }
+          else {
+            throw cms::Exception("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error " << strerror(errno);
+          }
+        }
+      } else {
+	edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for reading failed with error " << strerror(errno);
+      }
+    } else {
       edm::LogError("EvFDaqDirector") << "fu read/write lock stream is invalid " << strerror(errno);
+    }
 
 #ifdef DEBUG
     timeval ts_preunlock;
@@ -724,21 +712,6 @@ namespace evf {
 	  // a new file was found at new lumisection, index 0
 	  previousFileSize_ = buf.st_size;
           fsize = buf.st_size;
-
-	  if (testModeNoBuilderUnit_) {
-	    // rename ended lumi to + 2
-            std::string sourceEol = getEoLSFilePathOnBU(startingLumi);
-
-	    std::string destEol = getEoLSFilePathOnBU(startingLumi+2);
-
-	    std::string cpCmd = "cp " + sourceEol + " " + destEol;
-	    edm::LogInfo("EvFDaqDirector") << " testmode: Running copy cmd -: " << cpCmd;
-	    int rc = system(cpCmd.c_str());
-	    if (rc != 0) {
-	      edm::LogError("EvFDaqDirector") << " testmode: COPY EOL FAILED!!!!! -: " << cpCmd;
-	    }
-	  }
-
 	  return true;
 	}
         else {
@@ -759,12 +732,8 @@ namespace evf {
 				      << strerror(errno);
     else {
       edm::LogInfo("EvFDaqDirector") << "Initializing FU LOCK FILE";
-      unsigned int readLs = 1, readIndex = 0, jumpLs = 3, jumpIndex = 0;
-      if (testModeNoBuilderUnit_)
-	fprintf(fu_rw_lock_stream, "%u %u %u %u", readLs, readIndex,
-		jumpLs, jumpIndex);
-      else
-	fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex);
+      unsigned int readLs = 1, readIndex = 0;
+      fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex);
     }
   }
 
