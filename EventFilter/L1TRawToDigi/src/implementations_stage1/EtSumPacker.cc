@@ -29,13 +29,9 @@ namespace stage1 {
           int n = 0;
           
           uint16_t objectTotalEt=0;
-          uint16_t objectTotalHt=0;
-          uint16_t objectMissingEt=0;
-          uint16_t objectMissingEtPhi=0;
-          
+          uint16_t objectTotalHt=0;          
           int flagTotalEt=0;
           int flagTotalHt=0;
-          int flagMissingEt=0;
 
           for (auto j = etSums->begin(i); j != etSums->end(i) && n < 4; ++j, ++n) {
  
@@ -48,19 +44,14 @@ namespace stage1 {
                flagTotalHt=j->hwQual() & 0x1;
                objectTotalHt=std::min(j->hwPt(), 0xFFF)|(flagTotalHt<<12);
             }
-             
-            else if (j->getType()==l1t::EtSum::kMissingEt){
-               flagMissingEt=j->hwQual() & 0x1;
-               objectMissingEt=std::min(j->hwPt(), 0xFFF)|(flagMissingEt<<12); 
-               objectMissingEtPhi=std::min(j->hwPhi(), 0x7F);               
-            }
           }
           
-          uint32_t word0=(objectTotalEt & 0xFFFF) | ((objectMissingEt & 0xFFFF) << 16);
-          uint32_t word1=(objectTotalHt & 0xFFFF) | ((objectMissingEtPhi & 0xFFFF) << 16);
-          
-          word0 |= (1 << 31) | (1 << 15);
-          word1 |= ((i == 0) << 31) | ((i == 0) << 15);
+          uint32_t word0=(objectTotalEt & 0xFFFF);
+          uint32_t word1=(objectTotalHt & 0xFFFF);
+
+          word0 |= (1 << 15);
+          word1 |= ((i == 0) << 15);
+
 
           load.push_back(word0);
           load.push_back(word1);
@@ -68,7 +59,7 @@ namespace stage1 {
 
 
 
-      return {Block(6, load)};
+      return {Block(93, load)};
    }
 }
 }

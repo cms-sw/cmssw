@@ -118,6 +118,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<LUT> egCompressShapesLUT( new LUT(egCompressShapesLUTStream) );
   m_params.setEgCompressShapesLUT(*egCompressShapesLUT);
 
+  m_params.setEgShapeIdType(conf.getParameter<std::string>("egShapeIdType"));
+  m_params.setEgShapeIdVersion(conf.getParameter<unsigned>("egShapeIdVersion"));
   edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
   std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
   std::shared_ptr<LUT> egShapeIdLUT( new LUT(egShapeIdLUTStream) );
@@ -149,6 +151,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   //m_params.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
   m_params.setEgPUSParams(conf.getParameter<std::vector<double>>("egPUSParams"));
 
+  m_params.setEgCalibrationType(conf.getParameter<std::string>("egCalibrationType"));
+  m_params.setEgCalibrationVersion(conf.getParameter<unsigned>("egCalibrationVersion"));
   edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
   std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> egCalibrationLUT( new LUT(egCalibrationLUTStream) );
@@ -176,6 +180,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(*tauCalibrationLUT);
+
+  edm::FileInPath tauEtToHFRingEtLUTFile = conf.getParameter<edm::FileInPath>("tauEtToHFRingEtLUTFile");
+  std::ifstream tauEtToHFRingEtLUTStream(tauEtToHFRingEtLUTFile.fullPath());
+  std::shared_ptr<LUT> tauEtToHFRingEtLUT( new LUT(tauEtToHFRingEtLUTStream) );
+  m_params.setTauEtToHFRingEtLUT(*tauEtToHFRingEtLUT);
 
   m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
   m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));

@@ -39,7 +39,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
 namespace l1t {
@@ -110,6 +110,10 @@ namespace l1t {
 
       amc13::Packet amc13;
 
+      auto bxId = event.bunchCrossing();
+      auto evtId = event.id().event();
+      auto orbit = event.eventAuxiliary().orbitNumber();
+
       // Create all the AMC payloads to pack into the AMC13
       for (const auto& item: setup_->getPackers(fedId_, fwId_)) {
          auto amc_no = item.first.first;
@@ -159,7 +163,7 @@ namespace l1t {
 
          LogDebug("L1T") << "Creating AMC packet";
 
-         amc13.add(amc_no, board, load64);
+         amc13.add(amc_no, board, evtId, orbit, bxId, load64);
       }
 
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
@@ -170,16 +174,12 @@ namespace l1t {
       unsigned char * payload = fed_data.data();
       unsigned char * payload_start = payload;
 
-      auto bxId = event.bunchCrossing();
-      auto evtId = event.id().event();
-
       FEDHeader header(payload);
       header.set(payload, evtType_, evtId, bxId, fedId_);
 
+      amc13.write(event, payload, slinkHeaderSize_, size - slinkHeaderSize_ - slinkTrailerSize_);
+
       payload += slinkHeaderSize_;
-
-      amc13.write(event, payload, size - slinkHeaderSize_ - slinkTrailerSize_);
-
       payload += amc13.size() * 8;
 
       FEDTrailer trailer(payload);
