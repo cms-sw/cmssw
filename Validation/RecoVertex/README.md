@@ -175,3 +175,8 @@ It produces histograms to correlate the number of reconstructted vertices with t
 An example of configuration can be found in `python/mcvsrecoverticesanalyzer_cfi.py`
 
 ## Configurations
+* `test/allanalyzer_example_cfg.py` is a configuration which uses the `AnotherPrimaryVertexAnalyzer`, `AnotherBeamSpotAnalyzer` and `BSvsPVAnalyzer` and that can be used to analyze real data events. It uses VarParsing to pass the input parameters like the input files and the global tag.
+* `test/mcverticesanalyzer_cfg.py` an example of configuration which uses the plugins to study the MC vertices
+* `test/mcverticessimpleanalyzer_cfg.py` an example of configuration which uses the plugins to study the MC vertices
+* `test/mcverticestriggerbiasanalyzer_cfg.py` an example of configuration which uses the plugins to study the MC vertices.
+
