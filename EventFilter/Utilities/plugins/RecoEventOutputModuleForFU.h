@@ -318,7 +318,7 @@ namespace evf {
 
     } else {
       //return if not in empty lumisectio mode
-      if (!edm::Service<evf::EvFDaqDirector>()->emptyLumiSectionMode())
+      if (!edm::Service<evf::EvFDaqDirector>()->emptyLumisectionMode())
         return;
       filelist_ = "";
       fileAdler32_.value()=-1;

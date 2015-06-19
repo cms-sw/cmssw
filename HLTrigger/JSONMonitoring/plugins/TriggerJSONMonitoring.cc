@@ -543,8 +543,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   if (edm::Service<evf::MicroStateService>().isAvailable()) {
     evf::FastMonitoringService * fms = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     if (fms) {
-      //writeFiles = !fms->getAbortFlagForLumi(iLumi.luminosityBlock()) && (fms->getEventsProcessedForLumi(iLs)>0 || fms->emptyLumiMode());
-      writeFiles = !fms->shouldWriteFiles(iLumi.luminosityBlock());
+      writeFiles = fms->shouldWriteFiles(iLumi.luminosityBlock());
     }
   }
 
@@ -635,7 +634,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     IntJ l1JsnFilesize    = 0;
     IntJ l1JsnFileAdler32 = -1;
     if (iSummary->processed->value().at(0)!=0) {
-      l1JsnFilelist.update(ssHltJsnData.str());
+      l1JsnFilelist.update(ssL1JsnData.str());
       l1JsnFilesize    = result.size();
       l1JsnFileAdler32 = cms::Adler32(result.c_str(),result.size());
     }
