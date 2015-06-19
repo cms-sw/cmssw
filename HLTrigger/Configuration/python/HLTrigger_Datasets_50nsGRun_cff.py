@@ -364,6 +364,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMET200_Nois
     'HLT_PFMET120_NoiseCleaned_BTagCSV0p72_v2', 
     'HLT_PFMET120_NoiseCleaned_Mu5_v2', 
     'HLT_PFMET120_PFMHT120_IDTight_v1', 
+    'HLT_PFMET170_NoNoiseCleaned_v2', 
     'HLT_PFMET170_NoiseCleaned_v2', 
     'HLT_PFMET300_NoiseCleaned_v1', 
     'HLT_PFMET400_NoiseCleaned_v1', 
