@@ -3,6 +3,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf):
@@ -195,12 +197,22 @@ void ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
 
-  // Both pat and reco particles have exactly the same accessors.
+  // Both pat and reco particles have exactly the same accessors, so we use a reco ptr 
+  // throughout the code, with a single exception as of this writing, handled separately below.
   auto superCluster = eleRecoPtr->superCluster();
+
+  // To get to CTF track information in pat::Electron, we have to have the pointer
+  // to pat::Electron, it is not accessible from the pointer to reco::GsfElectron.
+  // This behavior is reported and is expected to change in the future (post-7.4.5 some time).
   bool validKF= false; 
   reco::TrackRef myTrackRef = eleRecoPtr->closestCtfTrackRef();
+  const edm::Ptr<pat::Electron> elePatPtr(eleRecoPtr);
+  // Check if this is really a pat::Electron, and if yes, get the track ref from this new
+  // pointer instead
+  if( elePatPtr.isNonnull() )
+    myTrackRef = elePatPtr->closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable() && (myTrackRef.isNonnull()) );  
-	     
+
   _allMVAVars.kfhits         = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
   // Pure ECAL -> shower shapes
   _allMVAVars.see            = eleRecoPtr->full5x5_sigmaIetaIeta();
