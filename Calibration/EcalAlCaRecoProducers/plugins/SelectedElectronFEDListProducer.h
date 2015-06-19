@@ -75,8 +75,9 @@ class PixelModule{
 
 // main class
 template<typename TEle, typename TCand>
+// class SelectedElectronFEDListProducer : public edm::EDProducer {
 class SelectedElectronFEDListProducer : public edm::stream::EDProducer< > {
-
+  
  public:
 
    explicit SelectedElectronFEDListProducer( const edm::ParameterSet &);

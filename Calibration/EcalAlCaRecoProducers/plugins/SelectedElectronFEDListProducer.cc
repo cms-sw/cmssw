@@ -272,65 +272,65 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   // Retrieve FED ids from cabling map and iterate through 
   SiStripRegionCabling::Cabling cabling_ ;
 
-  if(eventCounter_ ==0 ){
+  //---- loading geometry (begin)
+//   if(eventCounter_ ==0 ){
     
-    // get the hcal electronics map
-    edm::ESHandle<HcalDbService> pSetup;
-    iSetup.get<HcalDbRecord>().get(pSetup);
-    hcalReadoutMap_ = pSetup->getHcalMapping();
-    
-    
-    // get the ecal electronics map
-    edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-    iSetup.get<EcalMappingRcd >().get(ecalmapping);
-    TheMapping_ = ecalmapping.product();
-    
-    // get the calo geometry
-    edm::ESHandle<CaloGeometry> caloGeometry; 
-    iSetup.get<CaloGeometryRecord>().get(caloGeometry);
-    geometry_ = caloGeometry.product();
-    
-    //ES geometry
-    geometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
-    
-    // pixel tracker cabling map
-    edm::ESTransientHandle<SiPixelFedCablingMap> pixelCablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMap);
-    
-    PixelCabling_.reset();
-    PixelCabling_ = pixelCablingMap->cablingTree();
-    
-    edm::ESHandle<TrackerGeometry> trackerGeometry;
-    iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-    
-    if(!pixelModuleVector_.empty()) pixelModuleVector_.clear();
-    
-    // build the tracker pixel module map   
-    std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();   
-    for( ; itTracker !=trackerGeometry->dets().end() ; ++itTracker){
-      int subdet = (*itTracker)->geographicalId().subdetId();
-      if(! (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap) ) continue;
-      PixelModule module ;
-      module.x = (*itTracker)->position().x();
-      module.y = (*itTracker)->position().y();
-      module.z = (*itTracker)->position().z();
-      module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
-      module.Eta = (*itTracker)->position().eta() ;
-      module.DetId  = (*itTracker)->geographicalId().rawId();
-      const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
-      module.Fed = path2det[0].fed;
-      assert(module.Fed<40);
-      pixelModuleVector_.push_back(module);
-    }
-    std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
-
-    edm::ESHandle<SiStripRegionCabling> SiStripCabling ;
-    iSetup.get<SiStripRegionCablingRcd>().get(SiStripCabling);
-    StripRegionCabling_ = SiStripCabling.product();
-    
-    cabling_ = StripRegionCabling_->getRegionCabling();
-    regionDimension_ = StripRegionCabling_->regionDimensions();
+  // get the hcal electronics map
+  edm::ESHandle<HcalDbService> pSetup;
+  iSetup.get<HcalDbRecord>().get(pSetup);
+  hcalReadoutMap_ = pSetup->getHcalMapping();
+  
+  // get the ecal electronics map
+  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
+  iSetup.get<EcalMappingRcd >().get(ecalmapping);
+  TheMapping_ = ecalmapping.product();
+  
+  // get the calo geometry
+  edm::ESHandle<CaloGeometry> caloGeometry; 
+  iSetup.get<CaloGeometryRecord>().get(caloGeometry);
+  geometry_ = caloGeometry.product();
+  
+  //ES geometry
+  geometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
+  
+  // pixel tracker cabling map
+  edm::ESTransientHandle<SiPixelFedCablingMap> pixelCablingMap;
+  iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMap);
+  
+  PixelCabling_.reset();
+  PixelCabling_ = pixelCablingMap->cablingTree();
+  
+  edm::ESHandle<TrackerGeometry> trackerGeometry;
+  iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
+  
+  if(!pixelModuleVector_.empty()) pixelModuleVector_.clear();
+  
+  // build the tracker pixel module map   
+  std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();   
+  for( ; itTracker !=trackerGeometry->dets().end() ; ++itTracker){
+   int subdet = (*itTracker)->geographicalId().subdetId();
+   if(! (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap) ) continue;
+   PixelModule module ;
+   module.x = (*itTracker)->position().x();
+   module.y = (*itTracker)->position().y();
+   module.z = (*itTracker)->position().z();
+   module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
+   module.Eta = (*itTracker)->position().eta() ;
+   module.DetId  = (*itTracker)->geographicalId().rawId();
+   const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
+   module.Fed = path2det[0].fed;
+   assert(module.Fed<40);
+   pixelModuleVector_.push_back(module);
   }
+  std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
+  
+  edm::ESHandle<SiStripRegionCabling> SiStripCabling ;
+  iSetup.get<SiStripRegionCablingRcd>().get(SiStripCabling);
+  StripRegionCabling_ = SiStripCabling.product();
+  
+  cabling_ = StripRegionCabling_->getRegionCabling();
+  regionDimension_ = StripRegionCabling_->regionDimensions();
+  //---- loading geometry (end)
   
   // event by event analysis
   
