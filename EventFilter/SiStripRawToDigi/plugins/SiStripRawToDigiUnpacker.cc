@@ -322,10 +322,10 @@ namespace sistrip {
 	  
 	}
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE ||
-                 mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
-                 mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
-                 mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE
+	else if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE ||
+                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8  || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
+                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
+                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE
                 ) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);

@@ -84,7 +84,7 @@ namespace sistrip {
     {
     public:
       static FEDZSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel);
-      static FEDZSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, const FEDReadoutMode& mode=READOUT_MODE_ZERO_SUPPRESSED_LITE);
+      static FEDZSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, const FEDReadoutMode& mode=READOUT_MODE_ZERO_SUPPRESSED_LITE10);
       static FEDZSChannelUnpacker preMixRawModeUnpacker(const FEDChannel& channel);
       FEDZSChannelUnpacker();
       uint8_t sampleNumber() const;

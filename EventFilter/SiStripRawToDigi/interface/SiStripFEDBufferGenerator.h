@@ -113,8 +113,7 @@ namespace sistrip {
                          const FEDReadoutMode readoutMode = READOUT_MODE_ZERO_SUPPRESSED,
                          const FEDHeaderType headerType = HEADER_TYPE_FULL_DEBUG,
                          const FEDBufferFormat bufferFormat = BUFFER_FORMAT_OLD_SLINK,
-                         const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS
-                         /*const FEDDataType dataType = DATA_TYPE_FAKE*/);
+                         const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
       //methods to get and set the defaults
       uint32_t getL1ID() const;
       uint16_t getBXID() const;
@@ -122,14 +121,12 @@ namespace sistrip {
       FEDHeaderType getHeaderType() const;
       FEDBufferFormat getBufferFormat() const;
       FEDDAQEventType getDAQEventType() const;
-      //FEDDataType getFEDDataType() const;
       FEDBufferGenerator& setL1ID(const uint32_t newL1ID);
       FEDBufferGenerator& setBXID(const uint16_t newBXID);
       FEDBufferGenerator& setReadoutMode(const FEDReadoutMode newReadoutMode);
       FEDBufferGenerator& setHeaderType(const FEDHeaderType newHeaderType);
       FEDBufferGenerator& setBufferFormat(const FEDBufferFormat newBufferFormat);
       FEDBufferGenerator& setDAQEventType(const FEDDAQEventType newDAQEventType);
-      //FEDBufferGenerator& setFEDDataType(const FEDDataType newFEDDataType);
       //disabled FE units produce no data at all
       //disabled channels have headers but data is all zeros (raw modes) or have no clusters (ZS)
       bool getFEUnitEnabled(const uint8_t internalFEUnitNumber) const;
@@ -348,11 +345,6 @@ namespace sistrip {
       return defaultDAQHeader_.eventType();
     }
   
-  /*inline FEDDataType FEDBufferGenerator::getFEDDataType() const
-    {
-      return defaultTrackerSpecialHeader_.dataType();
-    }*/
-  
   inline FEDBufferGenerator& FEDBufferGenerator::setL1ID(const uint32_t newL1ID)
     {
       defaultDAQHeader_.setL1ID(newL1ID);
@@ -388,12 +380,6 @@ namespace sistrip {
       defaultDAQHeader_.setEventType(newDAQEventType);
       return *this;
     }
-  
-  /*inline FEDBufferGenerator& FEDBufferGenerator::setFEDDataType(const FEDDataType newFEDDataType)
-    {
-      defaultTrackerSpecialHeader_.setDataType(newFEDDataType);
-      return *this;
-    }*/
   
   inline FEDDAQHeader& FEDBufferGenerator::daqHeader()
     {
