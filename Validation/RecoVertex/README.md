@@ -8,7 +8,7 @@ to give you pre-cooked python configuration files, but to teach you
 how you could use the most common tool available in CMS to perform the
 same. We will mainly use cmsDriver and its powerful option to create
 the python cfg that we will run, and das_client to explore and find
-suitable samples to run upon. Let start with order.
+suitable samples to run upon. At the end of this page there is the description of other standalone analyzers, configurations and Root macros. Let start with order.
 
 PREREQUISITES
 =============
@@ -144,4 +144,21 @@ https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/Validation/RecoVertex/python/Pr
 for the default used in the harvesting step.
 
 Enjoy.
+
+DETAILED DESCRIPTION OF THE CODE
+================================
+## Plugins
+### AnotherPrimaryVertexAnalyzer
+It produces several histograms using a vertex collection as input: the vertex x, y and z  positions, the number of vertices (vs the instantaneous luminosity), the number of tracks per vertex and the sum of the squared pt of the tracks from a vertex (with or without a cut on the track weight), the number of degrees of freedom (also as a function of the number of tracks), the track weights and the average weight and the average values of many of the observables above as a function of the vertex z position. 
+Distributions are produced also per run or per fill: the number of vertices and their position as a function of the orbit number and of the BX number. By configuration it is possible to choose among TProfile or full 2D plots.
+All these histograms can be filled with a weight to be provided by an object defined in the configuration.
+An example of configuration can be found in `python/anotherprimaryvertexanalyzer_cfi.py`.
+
+### AnotherBeamSpotAnalyzer 
+`AnotherBeamSpotAnalyzer` is the plugin name which corresponds to the code in `src/BeamSpotAnalyzer.cc`. It produces several histograms to monitor the beam spot position; the name of a beamspot collection has to be provided as input. The histograms are the beam spot position and width and their dependence as a function of the orbit number (one set of histograms per run).
+An example of configuration can be found in `python/beamspotanalyzer_cfi.py`.
+
+### BSvsPVAnalyzer
+It produces distributions related to the relative position between vertices and the beam spot. It requires a vertex collection and a beam spot collection as input. By configuration it is possible to control whether the comparison has to take into account the tilt of the beamspot. The distributions are the differences of the vertex and beam spot position coordinates, the average of these differences as a function of the vertex z position and, for each run, the dependence of these differences as a function of the orbit number and of the BX number. Configuration parameters have to be used to activate or de-activate those histograms which are more memory demanding.
+An example of configuration can be found in `python/bspvanalyzer_cfi.py`.
 
