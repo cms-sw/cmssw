@@ -27,6 +27,8 @@ public:
   // Simple plots
   std::map< UInt_t , MonitorElement* > Hit_dcEta;
   std::map< UInt_t , MonitorElement* > Hit_simple_zr;
+  std::map< UInt_t,  MonitorElement* > gem_sh_simple_tofMu;
+  std::map< UInt_t,  MonitorElement* > gem_sh_simple_elossMu;
 
   Int_t npart;
   

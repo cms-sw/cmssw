@@ -38,6 +38,20 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
     for( auto& station : region->stations() ){
       if( station->station()==2 ) continue;
       int station_num = ( station->station()==1 ) ? 1 : 2;
+      // TOF and Energy loss part are indepent from Region.
+      if ( region_num == 1 ) {
+        // Labeling TOF and Energy loss
+        TString hist_name_for_tofMu  = TString::Format("gem_sh_simple_tofMuon_st%d",station_num);
+        TString hist_name_for_elossMu  = TString("gem_sh_simple_energylossMuon_st%d",+station_num);
+        TString hist_label_for_tofMu = TString("SimHit TOF(Muon only) station : station %d ; Time of flight [ns] ; entries",station_num);
+        TString hist_label_for_elossMu = TString("SimHit energy loss(Muon only) : station %d ; Energy loss [eV] ; entries",station_num);
+        // Booking
+        double tof_min, tof_max;
+        if( station_num == 0 ) { tof_min = 18; tof_max = 22; }
+        else  { tof_min = 26; tof_max = 30; }
+        gem_sh_simple_tofMu[ hist_name_for_tofMu.Hash()] = ibooker.book1D( hist_name_for_tofMu.Data(), hist_label_for_tofMu.Data(), 40,tof_min,tof_max);
+        gem_sh_simple_elossMu[ hist_name_for_elossMu.Hash()] = ibooker.book1D( hist_name_for_elossMu.Data(), hist_label_for_elossMu.Data(), 60,0.,6000.);
+      }
 
       TString title_suffix2 = title_suffix + TString::Format("  Station%d", station_num);
       TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
@@ -174,6 +188,8 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
+    Float_t energyLoss = hits->energyLoss();
+    Float_t timeOfFlight = hits->timeOfFlight();
 
 //    int region_num = 0;
 //    if( region == -1 ) region_num = 0;
@@ -195,10 +211,13 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     TString dcEta_histname = TString::Format("hit_dcEta%s", histname_suffix.Data());
     Hit_dcEta[ dcEta_histname.Hash() ]->Fill(binX, binY);
 
+    TString tofMu = TString::Format("gem_sh_simple_tofMuon_st%d",station);
+    TString elossMu = TString::Format("gem_sh_simple_elossMuon_st%d",station);
+    gem_sh_simple_tofMu[ tofMu.Hash() ]->Fill( timeOfFlight );
+    gem_sh_simple_elossMu[ elossMu.Hash() ]->Fill( energyLoss );
+
     if( detailPlot_ ){
 //move these here in order to use a GEMDetId - layers, station...
-      Float_t energyLoss = hits->energyLoss();
-      Float_t timeOfFlight = hits->timeOfFlight();
       if (abs(hits-> particleType()) == 13){
         timeOfFlightMuon = hits->timeOfFlight();
         energyLossMuon = hits->energyLoss();
