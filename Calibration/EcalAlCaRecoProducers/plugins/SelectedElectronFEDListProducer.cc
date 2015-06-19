@@ -251,10 +251,6 @@ SelectedElectronFEDListProducer<TEle,TCand>::~SelectedElectronFEDListProducer(){
   if (!recoEcalCandidateToken_.empty())  recoEcalCandidateToken_.clear();
   if (!electronToken_.empty())           electronToken_.clear();
   if (!fedList_.empty())                 fedList_.clear() ;
-//   if (GeometryCalo_)      delete GeometryCalo_;
-//   if (GeometryES_)        delete GeometryES_;
-//   if (EcalMapping_)       delete EcalMapping_;
-//   if (HcalReadoutMap_)    delete HcalReadoutMap_;
 
 }
 
@@ -597,11 +593,6 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   iEvent.put(streamFEDRawProduct,outputLabelModule_);
 
   if(!fedList_.empty())     fedList_.clear(); 
-//   if (GeometryCalo_)        delete GeometryCalo_;
-//   if (GeometryES_)          delete GeometryES_;
-//   if (EcalMapping_)         delete EcalMapping_;
-//   if (HcalReadoutMap_)      delete HcalReadoutMap_;
-//   if (hcalRecHitCollection) delete hcalRecHitCollection;
  
 }
 
