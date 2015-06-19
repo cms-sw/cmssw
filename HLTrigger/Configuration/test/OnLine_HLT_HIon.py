@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V79 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/HIon/V81 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V79')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V81')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -469,10 +469,13 @@ process.transferSystem = cms.PSet(
     emulator = cms.vstring( 'None' )
   )
 )
-process.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
-  'InitialPDForHI' ) )
+process.streams = cms.PSet( 
+  A = cms.vstring( 'HLTPhysics',
+    'InitialPDForHI' ),
+  DQM = cms.vstring( 'OnlineMonitor' )
+)
 process.datasets = cms.PSet( 
-  InitialPD = cms.vstring( 'HLT_Physics_v2' ),
+  HLTPhysics = cms.vstring( 'HLT_Physics_v2' ),
   InitialPDForHI = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
     'HLT_HIL2DoubleMu0_NHitQ_v2',
     'HLT_HIL2DoubleMu0_v2',
@@ -485,7 +488,21 @@ process.datasets = cms.PSet(
     'HLT_HIL3DoubleMuOpen_OS_v2',
     'HLT_HIL3DoubleMuOpen_SS_v2',
     'HLT_HIL3DoubleMuOpen_v2',
-    'HLT_HIL3Mu3_v2' )
+    'HLT_HIL3Mu3_v2' ),
+  OnlineMonitor = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
+    'HLT_HIL2DoubleMu0_NHitQ_v2',
+    'HLT_HIL2DoubleMu0_v2',
+    'HLT_HIL2DoubleMu3_v2',
+    'HLT_HIL2Mu15_v2',
+    'HLT_HIL2Mu3_NHitQ_v2',
+    'HLT_HIL2Mu3_v2',
+    'HLT_HIL2Mu7_v2',
+    'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2',
+    'HLT_HIL3DoubleMuOpen_OS_v2',
+    'HLT_HIL3DoubleMuOpen_SS_v2',
+    'HLT_HIL3DoubleMuOpen_v2',
+    'HLT_HIL3Mu3_v2',
+    'HLT_Physics_v2' )
 )
 
 process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
@@ -3728,7 +3745,20 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring(  ),
+    triggerConditions = cms.vstring( 'HLT_Physics_v2',
+      'HLT_HIL1DoubleMu0_HighQ_v2',
+      'HLT_HIL2Mu3_v2',
+      'HLT_HIL2Mu7_v2',
+      'HLT_HIL2Mu15_v2',
+      'HLT_HIL2Mu3_NHitQ_v2',
+      'HLT_HIL2DoubleMu0_v2',
+      'HLT_HIL2DoubleMu0_NHitQ_v2',
+      'HLT_HIL2DoubleMu3_v2',
+      'HLT_HIL3Mu3_v2',
+      'HLT_HIL3DoubleMuOpen_v2',
+      'HLT_HIL3DoubleMuOpen_SS_v2',
+      'HLT_HIL3DoubleMuOpen_OS_v2',
+      'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2' ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
@@ -3756,6 +3786,43 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_Physics_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputDQM.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIL1DoubleMu0_HighQ_v2',
+  'HLT_HIL2DoubleMu0_NHitQ_v2',
+  'HLT_HIL2DoubleMu0_v2',
+  'HLT_HIL2DoubleMu3_v2',
+  'HLT_HIL2Mu15_v2',
+  'HLT_HIL2Mu3_NHitQ_v2',
+  'HLT_HIL2Mu3_v2',
+  'HLT_HIL2Mu7_v2',
+  'HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2',
+  'HLT_HIL3DoubleMuOpen_OS_v2',
+  'HLT_HIL3DoubleMuOpen_SS_v2',
+  'HLT_HIL3DoubleMuOpen_v2',
+  'HLT_HIL3Mu3_v2',
+  'HLT_Physics_v2' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
+      'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
+      'keep *_hltIter2Merged_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
+      'keep *_hltL3NoFiltersNoVtxMuonCandidates_*_*',
+      'keep *_hltOnlineBeamSpot_*_*',
+      'keep *_hltPFJetForBtag_*_*',
+      'keep *_hltSelector8CentralJetsL1FastJet_*_*',
+      'keep *_hltSiPixelClusters_*_*',
+      'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -3801,7 +3868,7 @@ process.DQMStore.enableMultiThread = True
 process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
-process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart )
+process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 
 
 process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v2, process.HLT_HIL1DoubleMu0_HighQ_v2, process.HLT_HIL2Mu3_v2, process.HLT_HIL2Mu7_v2, process.HLT_HIL2Mu15_v2, process.HLT_HIL2Mu3_NHitQ_v2, process.HLT_HIL2DoubleMu0_v2, process.HLT_HIL2DoubleMu0_NHitQ_v2, process.HLT_HIL2DoubleMu3_v2, process.HLT_HIL3Mu3_v2, process.HLT_HIL3DoubleMuOpen_v2, process.HLT_HIL3DoubleMuOpen_SS_v2, process.HLT_HIL3DoubleMuOpen_OS_v2, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput ))
