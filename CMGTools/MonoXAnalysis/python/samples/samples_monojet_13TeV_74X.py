@@ -4,8 +4,6 @@ import os
 #####COMPONENT CREATOR
 from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
-from CMGTools.MonoXAnalysis.samples.ComponentCreatorExtra import ComponentCreatorExtra
-kreatorExtra = ComponentCreatorExtra()
 
 ## ==== 740 RelVals =====
 TT_NoPU = kreator.makeMCComponent("TT_NoPU", "/RelValTTbar_13/CMSSW_7_4_0-MCRUN2_74_V7_GENSIM_7_1_15-v1/MINIAODSIM", "CMS", ".*root",809.1)
@@ -102,7 +100,7 @@ json="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/DCS
 
 privEGamma2015Afiles = [ f.strip() for f in open("%s/src/CMGTools/MonoXAnalysis/python/samples/privEGamma_2015A_MINIAOD.txt"  % os.environ['CMSSW_BASE'], "r") ]
 def _grep(x,l): return [ i for i in l if x in i ]
-privEGamma2015A = kreatorExtra.makePrivateDataComponent('EGamma2015A', '/store/group/dpg_ecal/comm_ecal/data13TeV/EGamma/miniaod', _grep('2015A', privEGamma2015Afiles), json )
+privEGamma2015A = kreator.makePrivateDataComponent('EGamma2015A', '/store/group/dpg_ecal/comm_ecal/data13TeV/EGamma/miniaod', _grep('2015A', privEGamma2015Afiles), json )
 
 privDataSamples = [ privEGamma2015A ]
 
