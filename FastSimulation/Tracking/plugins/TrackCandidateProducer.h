@@ -55,7 +55,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
 
   // tokens & labels
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
-  edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
+  edm::EDGetTokenT<FastTMRecHitCombinations> recHitToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   std::string propagatorLabel;

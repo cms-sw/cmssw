@@ -52,7 +52,7 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/GSRecHitMatcher.h"
 
 // STL
-#include <memory>
+//#include <memory>
 
 // ROOT
 #include <TFile.h>
@@ -77,7 +77,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
 #endif
 
-  produces<SiTrackerGSMatchedRecHit2DCollection>("TrackerGSMatchedRecHits");
+  produces<FastTMRecHitCombinations>();
 
   //--- PSimHit Containers
   //  trackerContainers.clear();
@@ -587,19 +587,6 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-
-  
-  // Step A: Get Inputs (PSimHit's)
-  /*
-  edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
-  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
-  for(uint32_t i=0; i<trackerContainers.size(); i++){
-    e.getByLabel(trackerContainers[i], cf_simhit);
-    cf_simhitvec.push_back(cf_simhit.product());
-  }
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
-  */
-
   edm::Handle<edm::PSimHitContainer> allTrackerHits_handle;
   e.getByToken(simHitToken,allTrackerHits_handle);
   const edm::PSimHitContainer& allTrackerHits=*allTrackerHits_handle;
@@ -615,27 +602,22 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits);//, allTrackerHits);
 
   // Step D: from the temporary RecHit collection, create the real one.
-  std::auto_ptr<SiTrackerGSRecHit2DCollection> recHitCollection(new SiTrackerGSRecHit2DCollection);
-  std::auto_ptr<SiTrackerGSMatchedRecHit2DCollection> recHitCollectionMatched(new SiTrackerGSMatchedRecHit2DCollection);
+  
+  std::auto_ptr<FastTMRecHitCombinations> recHitCombinations(new FastTMRecHitCombinations());
   if(doMatching){
-    loadMatchedRecHits(temporaryMatchedRecHits, *recHitCollectionMatched);
-    loadRecHits(temporaryRecHits, *recHitCollection);
+    loadMatchedRecHits(temporaryMatchedRecHits, *recHitCombinations);
   }
-  else {
-    //might need to have a "matched" hit collection containing the simple hits
-    loadRecHits(temporaryRecHits, *recHitCollection);
-  }
-  
-  
-
-  //std::cout << "****** TrackerGSRecHits hits are =\t" <<  (*recHitCollection).size()<<std::endl;
-  //std::cout << "****** TrackerGSRecHitsMatched hits are =\t" <<  (*recHitCollectionMatched).size()<< std::endl;
-  
-  
 
   // Step E: write output to file
-  e.put(recHitCollectionMatched,"TrackerGSMatchedRecHits");
-  
+  /*
+  for(size_t cindex = 0;cindex < recHitCombinations->size();cindex++){
+    std::cout << "---------------"<< std::endl;
+    for(size_t hindex = 0;hindex < recHitCombinations->at(cindex).size();++hindex){
+      std::cout << recHitCombinations->at(cindex)[hindex].hitCombinationId() << " " << recHitCombinations->at(cindex)[hindex].id() << " " << recHitCombinations->at(cindex)[hindex].simTrackId(0) << std::endl;
+    }
+  }
+  */
+  e.put(recHitCombinations);
 }
 
 
@@ -1141,35 +1123,27 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 
 
 void 
-SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
-     std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
-     SiTrackerGSRecHit2DCollection& theRecHitCollection) const
-{
-  std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
-    it = theRecHits.begin();
-  std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
-    lastRecHit = theRecHits.end();
-
-  for( ; it != lastRecHit ; ++it ) { 
-    theRecHitCollection.put(it->first,(it->second).begin(),(it->second).end());
-  }
-
-}
-
-void 
 SiTrackerGaussianSmearingRecHitConverter::loadMatchedRecHits(
      std::map<unsigned,edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& theRecHits, 
-     SiTrackerGSMatchedRecHit2DCollection& theRecHitCollection) const
+     FastTMRecHitCombinations & recHitCombinations) const
 {
   std::map<unsigned,edm::OwnVector<SiTrackerGSMatchedRecHit2D> >::const_iterator 
     it = theRecHits.begin();
   std::map<unsigned,edm::OwnVector<SiTrackerGSMatchedRecHit2D> >::const_iterator 
     lastRecHit = theRecHits.end();
 
+  int hitCombinationId = 0;
+  int hitId = 0;
   for( ; it != lastRecHit ; ++it ) { 
-    theRecHitCollection.put(it->first,(it->second).begin(),(it->second).end());
+    recHitCombinations.push_back(FastTMRecHitCombination());
+    for(auto hit = it->second.begin();hit!=it->second.end();++hit){
+      recHitCombinations.back().push_back(*hit);
+      recHitCombinations.back().back().setHitCombinationId(hitCombinationId);
+      recHitCombinations.back().back().setId(hitId);
+      hitId++;
+    }
+    hitCombinationId++;
   }
-
 }
 
 

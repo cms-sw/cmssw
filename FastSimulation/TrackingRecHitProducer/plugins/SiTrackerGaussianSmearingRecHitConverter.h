@@ -75,11 +75,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::stream::EDProducer 
 		  //		  std::vector<PSimHit>& simhits); 
 		  //		  edm::Handle<std::vector<PSimHit> >& simhits);
 
-  void loadRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
-		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
-
   void loadMatchedRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& theRecHits, 
-		   SiTrackerGSMatchedRecHit2DCollection& theRecHitCollection) const;
+		   FastTMRecHitCombinations & recHitCombinations) const;
 
   private:
   //
