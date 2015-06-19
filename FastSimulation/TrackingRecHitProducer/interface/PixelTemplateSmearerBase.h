@@ -68,8 +68,7 @@ public:
 				RandomEngineAndDistribution const*) const;
 
   //--- Process one merge group.
-  SiTrackerGSRecHit2D smearMergeGroup( MergeGroup* mg, 
-				       const PixelGeomDetUnit* detUnit ) const;
+  void smearMergeGroup( MergeGroup* mg) const;
 
   //--- Method to decide if the two hits on the same DetUnit are merged, or not.
   bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;

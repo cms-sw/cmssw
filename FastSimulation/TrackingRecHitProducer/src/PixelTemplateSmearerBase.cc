@@ -185,6 +185,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //--- We now have two lists: a list of hits that are unmerged, and
   //    the list of merge groups.  Process each separately.
   //
+  /*
   product = processUnmergedHits( listOfUnmergedHits, product,
 				 boundX, boundY,
 				 randomEngine );
@@ -192,7 +193,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   product = processMergeGroups(  listOfMergeGroups,  product,
 				 boundX, boundY,
 				 randomEngine );
-
+  */
   //--- We're done with this det unit, and ought to clean up used
   //    memory.  We don't own the PSimHits, and the vector of
   //    listOfUnmergedHits simply goes out of scope.  However, we
