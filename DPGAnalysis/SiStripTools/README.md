@@ -35,7 +35,7 @@ It produces histograms to correlate the multiplicities obtained from `Multiplici
 * `test/OccupancyPlotsTest_cfg.py` to measure the hit occupancy and multiplicity in the different detector region (rZ view). It requires the macros described below to show its results.
 
 ## ROOT Macros
-This package contains a library of ROOT macros that can be loaded by executing `gSystem->Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libDPGAnalysisSiStripToolsMacros.so")`
+This package contains a library of ROOT macros that can be loaded by executing `gSystem->Load("libDPGAnalysisSiStripToolsMacros.so")`
 in the root interactive section, followed by 
 `#include "DPGAnalysis/SiStripTools/bin/DPGAnalysisSiStripToolsMacrosLinkDef.h"` in case Root 6 is used.
 
