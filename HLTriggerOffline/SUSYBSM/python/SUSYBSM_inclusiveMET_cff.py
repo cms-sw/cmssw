@@ -13,7 +13,7 @@ SUSY_HLT_InclusiveMET = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveMET_NoNoise = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveMET_NoNoiseCleaning = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
