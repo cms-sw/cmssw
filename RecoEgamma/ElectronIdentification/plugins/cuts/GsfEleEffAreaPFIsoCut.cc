@@ -83,14 +83,11 @@ operator()(const reco::GsfElectronPtr& cand) const{
   const float chad = pfIso.sumChargedHadronPt;
   const float nhad = pfIso.sumNeutralHadronEt;
   const float pho = pfIso.sumPhotonEt;
-  float  eA = _effectiveAreas.getEffectiveArea( absEta );
-  float rho = (float)(*_rhoHandle); // std::max likes float arguments
-  float iso = chad + std::max(0.0f, nhad + pho - rho*eA);
+  const float  eA = _effectiveAreas.getEffectiveArea( absEta );
+  const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle) : 0; // std::max likes float arguments
+  const float iso = chad + std::max(0.0f, nhad + pho - rho*eA);
   
-  // Divide by pT if the relative isolation is requested
-  if( _isRelativeIso )
-    iso /= cand->pt();
-
   // Apply the cut and return the result
-  return iso < isoCut;
+  // Scale by pT if the relative isolation is requested but avoid division by 0
+  return iso < isoCut*(_isRelativeIso ? cand->pt() : 1.);
 }

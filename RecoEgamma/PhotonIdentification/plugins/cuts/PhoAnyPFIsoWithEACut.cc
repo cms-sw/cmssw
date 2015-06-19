@@ -82,7 +82,7 @@ operator()(const reco::PhotonPtr& cand) const{
 
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
-  double absEta = std::abs(cand->superCluster()->eta());
+  const double absEta = std::abs(cand->superCluster()->eta());
   const float anyPFIsoWithEACutValue = 
     ( absEta < _barrelCutOff ? 
       _C1_EB + cand->pt() * _C2_EB
@@ -91,17 +91,14 @@ operator()(const reco::PhotonPtr& cand) const{
       );
   
   // Retrieve the variable value for this particle
-  float anyPFIso = (*_anyPFIsoMap)[cand];
+  float anyPFIso = _anyPFIsoMap.isValid() ? (*_anyPFIsoMap)[cand] : 0;
 
   // Apply pile-up correction
-  double eA = _effectiveAreas.getEffectiveArea( absEta );
-  double rho = *_rhoHandle;
-  float anyPFIsoWithEA = std::max(0.0, anyPFIso - rho * eA);
-
-  // Divide by pT if the relative isolation is requested
-  if( _useRelativeIso )
-    anyPFIsoWithEA /= cand->pt();
+  const double eA = _effectiveAreas.getEffectiveArea( absEta );
+  const double rho = _rhoHandle.isValid() ? *_rhoHandle : 0;
+  const float anyPFIsoWithEA = std::max(0.0, anyPFIso - rho * eA);
 
   // Apply the cut and return the result
-  return anyPFIsoWithEA < anyPFIsoWithEACutValue;
+  // Scale by pT if the relative isolation is requested but avoid division by 0
+  return anyPFIsoWithEA < anyPFIsoWithEACutValue*(_useRelativeIso ? cand->pt() : 1.);
 }
