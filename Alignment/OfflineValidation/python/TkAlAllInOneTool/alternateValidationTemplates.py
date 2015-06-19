@@ -125,7 +125,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
  ## GlobalTag Conditions (if needed)
  ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 #process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 # process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
@@ -291,7 +291,7 @@ process.AlignmentTrackSelector.maxMultiplicity = 1
 
 ## GlobalTag Conditions (if needed)
 ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 
@@ -446,7 +446,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
  ## GlobalTag Conditions (if needed)
  ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 # process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 
@@ -1034,7 +1034,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
  ## GlobalTag Conditions (if needed)
  ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 

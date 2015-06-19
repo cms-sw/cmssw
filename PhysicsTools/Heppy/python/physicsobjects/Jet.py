@@ -16,21 +16,21 @@ loose_53X_WP = [
     ]
 
 _btagWPs = {
-    "TCHEL": ("trackCountingHighEffBJetTags", 1.7),
-    "TCHEM": ("trackCountingHighEffBJetTags", 3.3),
-    "TCHPT": ("trackCountingHighPurBJetTags", 3.41),
-    "JPL": ("jetProbabilityBJetTags", 0.275),
-    "JPM": ("jetProbabilityBJetTags", 0.545),
-    "JPT": ("jetProbabilityBJetTags", 0.790),
+    "TCHEL": ("pfTrackCountingHighEffBJetTags", 1.7),
+    "TCHEM": ("pfTrackCountingHighEffBJetTags", 3.3),
+    "TCHPT": ("pfTrackCountingHighPurBJetTags", 3.41),
+    "JPL": ("pfJetProbabilityBJetTags", 0.275),
+    "JPM": ("pfJetProbabilityBJetTags", 0.545),
+    "JPT": ("pfJetProbabilityBJetTags", 0.790),
     "CSVL": ("combinedSecondaryVertexBJetTags", 0.244),
     "CSVM": ("combinedSecondaryVertexBJetTags", 0.679),
     "CSVT": ("combinedSecondaryVertexBJetTags", 0.898),
-    "CSVv2IVFL": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.423),
-    "CSVv2IVFM": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.814),
-    "CSVv2IVFT": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.941),
-    "CMVAL": ("combinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
-    "CMVAM": ("combinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
-    "CMVAT": ("combinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
+    "CSVv2IVFL": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.423),
+    "CSVv2IVFM": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.814),
+    "CSVv2IVFT": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.941),
+    "CMVAL": ("pfCombinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
+    "CMVAM": ("pfCombinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+    "CMVAT": ("pfCombinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
 
 }
 
@@ -97,12 +97,15 @@ class Jet(PhysicsObject):
         self._rawFactorMultiplier = factor/self.jecFactor('Uncorrected')
 
     def btag(self,name):
-        return self.bDiscriminator(name) 
+        ret = self.bDiscriminator(name)
+        if ret == -1000 and name.startswith("pf"):
+            ret = self.bDiscriminator(name[2].lower()+name[3:])
+        return ret
  
     def btagWP(self,name):
         global _btagWPs
         (disc,val) = _btagWPs[name]
-        return self.bDiscriminator(disc) > val
+        return self.btag(disc) > val
 
     def leadingTrack(self):
         if self._leadingTrackSearched :
