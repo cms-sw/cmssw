@@ -59,7 +59,6 @@ class TrackingRecHitNoSmearingPlugin:
             }
             return product;
         }
-
 };
 
 DEFINE_EDM_PLUGIN(

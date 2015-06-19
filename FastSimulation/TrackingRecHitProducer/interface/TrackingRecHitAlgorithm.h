@@ -6,6 +6,8 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
 
+
+
 #include <string>
 
 namespace edm
@@ -22,7 +24,8 @@ namespace edm
 class TrackingRecHitAlgorithm
 {
     protected:
-        std::string _selectionString;
+        const std::string _name;
+        const std::string _selectionString;
         const TrackerTopology* _trackerTopology;
         const TrackerGeometry* _trackerGeometry;
 
@@ -30,22 +33,9 @@ class TrackingRecHitAlgorithm
         TrackingRecHitAlgorithm(const std::string& name,
             const edm::ParameterSet& config,
             edm::ConsumesCollector& consumesCollector);
-            
-        inline void setupTopologyAndGeometry(const TrackerTopology* trackerTopology, const TrackerGeometry* trackerGeometry)
-        {
-            _trackerTopology=trackerTopology;
-            _trackerGeometry=trackerGeometry;
-        }
         
-        inline const TrackerTopology* getTrackerTopology() const
-        {
-            return _trackerTopology;
-        }
-
-        inline const TrackerGeometry* getTrackerGeometry() const
-        {
-            return _trackerGeometry;
-        }
+        const TrackerTopology* getTrackerTopology() const;
+        const TrackerGeometry* getTrackerGeometry() const;
 
         //this function will only be called once per event
         virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);

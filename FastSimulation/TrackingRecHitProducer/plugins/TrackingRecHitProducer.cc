@@ -83,19 +83,6 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config):
 
 void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& eventSetup)
 {
-    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-    eventSetup.get<IdealGeometryRecord>().get(trackerTopologyHandle);
-    _trackerGeometry = trackerGeometryHandle.product();
-    _trackerTopology = trackerTopologyHandle.product();
-    
-    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
-    {
-        algo->setupTopologyAndGeometry(_trackerTopology,_trackerGeometry);
-    }
-    
-    
     //build pipes for all detIds
     const std::vector<DetId>& detIds = _trackerGeometry->detIds();
     
