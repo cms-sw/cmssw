@@ -1,0 +1,31 @@
+#!/bin/env python
+# usage: cmgListEosZombies listfilesonEOS.txt
+import sys,ROOT,os
+from glob import iglob
+ROOT.gROOT.SetBatch(True)
+
+# http://stackoverflow.com/questions/16582194/python-version-of-freopen
+def freopen(f,option,stream):
+    oldf = open(f,option)
+    oldfd = oldf.fileno()
+    newfd = stream.fileno()
+    os.close(newfd)
+    os.dup2(oldfd, newfd)
+freopen("/dev/null","w",sys.stderr)
+
+with open(sys.argv[1]) as f:
+    files = f.read().splitlines()
+
+for file in files:
+    if not file.endswith(".root"): continue
+    pfn=file
+    if file.startswith("/store"): 
+        pfn = file.replace("/store","root://eoscms.cern.ch//eos/cms/store",1)
+    print "testing file ",pfn
+    tfile = ROOT.TFile.Open(pfn)
+    if not tfile or tfile.IsZombie():
+        print file, "is dead or Zombie"
+    try:
+        tfile.Close()
+    except:
+        pass
