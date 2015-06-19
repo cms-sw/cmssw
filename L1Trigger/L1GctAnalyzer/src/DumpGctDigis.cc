@@ -40,8 +40,8 @@ DumpGctDigis::DumpGctDigis(const edm::ParameterSet& iConfig) :
   doInternEM_( iConfig.getUntrackedParameter<bool>("doInternEm", true) ),
   doFibres_( iConfig.getUntrackedParameter<bool>("doFibres", false) ),
   doEnergySums_( iConfig.getUntrackedParameter<bool>("doEnergySums", false) ),
-  emMinRank_( iConfig.getUntrackedParameter<unsigned>("emMinRank", 0) ),
-  jetMinRank_( iConfig.getUntrackedParameter<unsigned>("jetMinRank", 0) )
+  emMinRank_( iConfig.getUntrackedParameter<unsigned>("emMinRank", 1) ),
+  jetMinRank_( iConfig.getUntrackedParameter<unsigned>("jetMinRank", 1) )
 {
   //now do what ever initialization is needed
 
