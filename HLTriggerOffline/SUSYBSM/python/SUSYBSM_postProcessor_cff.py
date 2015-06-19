@@ -31,6 +31,7 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_alphaT_cff import *
 SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_InclusiveHT_POSTPROCESSING +
                               SUSY_HLT_InclusiveMET_POSTPROCESSING +
+                              SUSY_HLT_InclusiveMET_NoNoiseCleaning_POSTPROCESSING +
                               SUSY_HLT_MET_BTAG_POSTPROCESSING + 
                               SUSY_HLT_MET_MUON_POSTPROCESSING +
                               SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING +
