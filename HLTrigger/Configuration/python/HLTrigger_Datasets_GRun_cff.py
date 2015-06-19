@@ -110,8 +110,6 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v2', 
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v2', 
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v2', 
-    'HLT_Ele30WP60_Ele8_Mass55_v1', 
-    'HLT_Ele30WP60_SC4_Mass55_v2', 
     'HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v2', 
     'HLT_Ele33_CaloIdM_TrackIdM_PFJet30_v2', 
     'HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v2', 

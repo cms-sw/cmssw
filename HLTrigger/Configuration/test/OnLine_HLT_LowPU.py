@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V37 (CMSSW_7_4_3)
+# /dev/CMSSW_7_4_0/LowPU/V38 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTLowPU" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V37')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V38')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -13193,22 +13193,14 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltAlCaEtaEBRechitsToDigisLowPU_*_*',
       'keep *_hltAlCaEtaEBRechitsToDigis_*_*',
-      'keep *_hltAlCaEtaEBUncalibratorLowPU_*_*',
-      'keep *_hltAlCaEtaEBUncalibrator_*_*',
       'keep *_hltAlCaEtaEERechitsToDigisLowPU_*_*',
       'keep *_hltAlCaEtaEERechitsToDigis_*_*',
-      'keep *_hltAlCaEtaEEUncalibratorLowPU_*_*',
-      'keep *_hltAlCaEtaEEUncalibrator_*_*',
       'keep *_hltAlCaEtaRecHitsFilterEEonlyRegionalLowPU_etaEcalRecHitsES_*',
       'keep *_hltAlCaEtaRecHitsFilterEEonlyRegional_etaEcalRecHitsES_*',
       'keep *_hltAlCaPi0EBRechitsToDigisLowPU_*_*',
       'keep *_hltAlCaPi0EBRechitsToDigis_*_*',
-      'keep *_hltAlCaPi0EBUncalibratorLowPU_*_*',
-      'keep *_hltAlCaPi0EBUncalibrator_*_*',
       'keep *_hltAlCaPi0EERechitsToDigisLowPU_*_*',
       'keep *_hltAlCaPi0EERechitsToDigis_*_*',
-      'keep *_hltAlCaPi0EEUncalibratorLowPU_*_*',
-      'keep *_hltAlCaPi0EEUncalibrator_*_*',
       'keep *_hltAlCaPi0RecHitsFilterEEonlyRegionalLowPU_pi0EcalRecHitsES_*',
       'keep *_hltAlCaPi0RecHitsFilterEEonlyRegional_pi0EcalRecHitsES_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
