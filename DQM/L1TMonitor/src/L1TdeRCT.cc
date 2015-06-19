@@ -73,25 +73,25 @@ const float CHNLMIN = -0.5;
 const float CHNLMAX = 395.5;
 
 
-const int L1TdeRCT::crateFED[90]=
-    {613, 614, 603, 702, 1118,
-     611, 612, 602, 700, 1118,
-     627, 610, 601,716,  1122,
-     625, 626, 609, 714, 1122,
-     623, 624, 608, 712, 1122,
-     621, 622, 607, 710, 1120,
-     619, 620, 606, 708, 1120,
-     617, 618, 605, 706, 1120,
-     615, 616, 604, 704, 1118,
-     631, 632, 648, 703, 1118,
-     629, 630, 647, 701, 1118,
-     645, 628, 646, 717, 1122,
-     643, 644, 654, 715, 1122,
-     641, 642, 653, 713, 1122,
-     639, 640, 652, 711, 1120,
-     637, 638, 651, 709, 1120,
-     635, 636, 650, 707, 1120,
-     633, 634, 649, 705, 1118
+const int L1TdeRCT::crateFED[108]=
+    {613, 614, 603, 702,  718,1118,
+     611, 612, 602, 700, 718, 1118,
+     627, 610, 601,716,  722, 1122,
+     625, 626, 609, 714, 722, 1122,
+     623, 624, 608, 712, 722, 1122,
+     621, 622, 607, 710, 720, 1120,
+     619, 620, 606, 708, 720, 1120,
+     617, 618, 605, 706, 720, 1120,
+     615, 616, 604, 704, 718, 1118,
+     631, 632, 648, 703, 719, 1118,
+     629, 630, 647, 701, 719, 1118,
+     645, 628, 646, 717, 723, 1122,
+     643, 644, 654, 715, 723, 1122,
+     641, 642, 653, 713, 723, 1122,
+     639, 640, 652, 711, 721, 1120,
+     637, 638, 651, 709, 721, 1120,
+     635, 636, 650, 707, 721, 1120,
+     633, 634, 649, 705, 719, 1118
 };
 
 
@@ -1801,10 +1801,10 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , 
 
 
   ibooker.setCurrentFolder(histFolder_+"/DBData");
-  fedVectorMonitorRUN_ = ibooker.book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",90,0,90,2,0,2);
-  fedVectorMonitorLS_ = ibooker.book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",90,0,90,2,0,2);
+  fedVectorMonitorRUN_ = ibooker.book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",108,0,108,2,0,2);
+  fedVectorMonitorLS_ = ibooker.book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",108,0,108,2,0,2);
 
-  for(unsigned int i=0;i<90;++i) {
+  for(unsigned int i=0;i<108;++i) {
     char fed[10];
     sprintf(fed,"%d",crateFED[i]);
     fedVectorMonitorRUN_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
@@ -1919,7 +1919,7 @@ void L1TdeRCT::readFEDVector(MonitorElement* histogram,const edm::EventSetup& es
       caloFeds.push_back(fedNum);
   }
   
-  for(unsigned int i=0;i<90;++i) {
+  for(unsigned int i=0;i<108;++i) {
     std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[i]);
     if(fv!=caloFeds.end()) {
       histogram->setBinContent(i+1,2,1);
