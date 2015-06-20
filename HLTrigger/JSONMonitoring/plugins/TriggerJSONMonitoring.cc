@@ -589,7 +589,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     //HLT jsn entries
     StringJ hltJsnFilelist;
     IntJ hltJsnFilesize    = 0;
-    IntJ hltJsnFileAdler32 = -1;
+    unsigned int hltJsnFileAdler32 = 1;
     if (iSummary->processed->value().at(0)!=0) {
       hltJsnFilelist.update(ssHltJsnData.str());
       hltJsnFilesize    = result.size();
@@ -628,7 +628,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     //L1 jsn entries
     StringJ l1JsnFilelist;
     IntJ l1JsnFilesize    = 0;
-    IntJ l1JsnFileAdler32 = -1;
+    unsigned int l1JsnFileAdler32 = 1;
     if (iSummary->processed->value().at(0)!=0) {
       l1JsnFilelist.update(ssL1JsnData.str());
       l1JsnFilesize    = result.size();
@@ -658,7 +658,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist.value());
     hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize.value());
     hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnFileAdler32);
     hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
 
     result = writer.write(hltDaqJsn);
@@ -683,7 +683,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist.value());
     l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize.value());
     l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnFileAdler32);
     l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
 
     result = writer.write(l1DaqJsn);
