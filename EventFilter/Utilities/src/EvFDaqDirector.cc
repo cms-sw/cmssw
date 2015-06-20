@@ -507,13 +507,37 @@ namespace evf {
 	fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
 	edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
 
-	// try to bump
-	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
-        unsigned int lastLs = ls;
-	ls = readLs;
-	// there is a new file to grab or lumisection ended
+        unsigned int currentLs = readLs;
+        bool bumpedOk = false;
+        //if next lumisection in a lock file is not +1 wrt. source, cycle through the next empty one, unless initial lumi not yet set
+        //no lock file write in this case
+        if (ls && ls+1 < currentLs) ls++;
+        else {
+	  // try to bump (look for new index or EoLS file)
+	  bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
+          //avoid 2 lumisections jump
+          if (ls && readLs>currentLs && currentLs > ls) {
+            ls++;
+            readLs=currentLs=ls;
+            readIndex=0;
+            bumpedOk=false;
+            //no write to lock file
+          }
+          else {
+            if (ls==0 && readLs>currentLs) {
+              //make sure to intialize always with LS found in the lock file, with possibility of grabbing index file immediately
+              //in this case there is no new file in the same LS
+              readLs=currentLs;
+              readIndex=0;
+              bumpedOk=false;
+              //no write to lock file
+            }
+            //update return LS value
+	    ls = readLs;
+          }
+        }
 	if (bumpedOk) {
-	  // write new data
+	  // there is a new index file to grab, lock file needs to be updated
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
 	    ftruncate(fu_readwritelock_fd_, 0);
@@ -528,8 +552,8 @@ namespace evf {
             throw cms::Exception("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error " << strerror(errno);
           }
 	}
-        else if (lastLs < readLs)
-        {
+        else if (currentLs < readLs) {
+          //there is no new file in next LS (yet), but lock file can be updated to the next LS
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
 	    ftruncate(fu_readwritelock_fd_, 0);
