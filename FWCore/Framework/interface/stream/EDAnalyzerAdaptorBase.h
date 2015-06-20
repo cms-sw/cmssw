@@ -78,6 +78,7 @@ namespace edm {
       template<typename T> void createStreamModules(T iFunc) {
         for(auto& m: m_streamModules) {
           m = iFunc();
+          setModuleDescriptionPtr(m);
         }
       }
       
@@ -158,6 +159,7 @@ namespace edm {
                                          ThinnedAssociationsHelper&) { }
 
       // ---------- member data --------------------------------
+      void setModuleDescriptionPtr(EDAnalyzerBase* m);
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }
