@@ -3,32 +3,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 PhotonMVAEstimatorRun2Phys14NonTrig::PhotonMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf):
-  AnyMVAEstimatorRun2Base(conf),
-  // All tokens for event content needed by this MVA
-  // Cluster shapes
-  _full5x5SigmaIEtaIEtaMapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("full5x5SigmaIEtaIEtaMap"))),
-  _full5x5SigmaIEtaIPhiMapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("full5x5SigmaIEtaIPhiMap"))),
-  _full5x5E1x3MapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("full5x5E1x3Map"))),
-  _full5x5E2x2MapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("full5x5E2x2Map"))),
-  _full5x5E2x5MaxMapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("full5x5E2x5MaxMap"))),
-  _full5x5E5x5MapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("full5x5E5x5Map"))),
-  _esEffSigmaRRMapToken(consumes <edm::ValueMap<float> >
-				(conf.getParameter<edm::InputTag>("esEffSigmaRRMap"))),
-  // Isolations
-  _phoChargedIsolationToken(consumes <edm::ValueMap<float> >
-			    (conf.getParameter<edm::InputTag>("phoChargedIsolation"))),
-  _phoPhotonIsolationToken(consumes <edm::ValueMap<float> >
-			   (conf.getParameter<edm::InputTag>("phoPhotonIsolation"))),
-  _phoWorstChargedIsolationToken(consumes <edm::ValueMap<float> >
-				 (conf.getParameter<edm::InputTag>("phoWorstChargedIsolation"))),
-  // Pileup
-  _rhoToken(consumes<double> (conf.getParameter<edm::InputTag>("rho")))
+  AnyMVAEstimatorRun2Base(conf)
 {
 
   //
@@ -58,8 +33,6 @@ PhotonMVAEstimatorRun2Phys14NonTrig::PhotonMVAEstimatorRun2Phys14NonTrig(const e
 
   }
 
-  
-
 }
 
 PhotonMVAEstimatorRun2Phys14NonTrig::
@@ -67,6 +40,86 @@ PhotonMVAEstimatorRun2Phys14NonTrig::
   
   _tmvaReaders.clear();
 }
+
+void PhotonMVAEstimatorRun2Phys14NonTrig::setConsumes(edm::ConsumesCollector&& cc){
+
+  // All tokens for event content needed by this MVA
+  // Cluster shapes
+  _full5x5SigmaIEtaIEtaMapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("full5x5SigmaIEtaIEtaMap"));
+
+  _full5x5SigmaIEtaIPhiMapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("full5x5SigmaIEtaIPhiMap"));
+
+  _full5x5E1x3MapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("full5x5E1x3Map"));
+
+  _full5x5E2x2MapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("full5x5E2x2Map"));
+
+  _full5x5E2x5MaxMapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("full5x5E2x5MaxMap"));
+
+  _full5x5E5x5MapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("full5x5E5x5Map"));
+
+  _esEffSigmaRRMapToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("esEffSigmaRRMap"));
+
+  // Isolations
+  _phoChargedIsolationToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("phoChargedIsolation"));
+
+  _phoPhotonIsolationToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("phoPhotonIsolation"));
+
+  _phoWorstChargedIsolationToken = cc.consumes <edm::ValueMap<float> >
+    (_conf.getParameter<edm::InputTag>("phoWorstChargedIsolation"));
+
+  // Pileup
+  _rhoToken = cc.consumes<double> (_conf.getParameter<edm::InputTag>("rho"));
+  
+}
+
+void PhotonMVAEstimatorRun2Phys14NonTrig::getEventContent(const edm::Event& iEvent){
+
+  // Get the full5x5 and ES maps
+  iEvent.getByToken(_full5x5SigmaIEtaIEtaMapToken, _full5x5SigmaIEtaIEtaMap);
+  iEvent.getByToken(_full5x5SigmaIEtaIPhiMapToken, _full5x5SigmaIEtaIPhiMap);
+  iEvent.getByToken(_full5x5E1x3MapToken, _full5x5E1x3Map);
+  iEvent.getByToken(_full5x5E2x2MapToken, _full5x5E2x2Map);
+  iEvent.getByToken(_full5x5E2x5MaxMapToken, _full5x5E2x5MaxMap);
+  iEvent.getByToken(_full5x5E5x5MapToken, _full5x5E5x5Map);
+  iEvent.getByToken(_esEffSigmaRRMapToken, _esEffSigmaRRMap);
+
+  // Get the isolation maps
+  iEvent.getByToken(_phoChargedIsolationToken, _phoChargedIsolationMap);
+  iEvent.getByToken(_phoPhotonIsolationToken, _phoPhotonIsolationMap);
+  iEvent.getByToken(_phoWorstChargedIsolationToken, _phoWorstChargedIsolationMap);
+
+  // Get rho
+  iEvent.getByToken(_rhoToken,_rho);
+
+  // Make sure everything is retrieved successfully
+  if(! (_full5x5SigmaIEtaIEtaMap.isValid()
+	|| _full5x5SigmaIEtaIPhiMap.isValid()
+	|| _full5x5E1x3Map.isValid()
+	|| _full5x5E2x2Map.isValid()
+	|| _full5x5E2x5MaxMap.isValid()
+	|| _full5x5E5x5Map.isValid()
+	|| _esEffSigmaRRMap.isValid()
+	|| _phoChargedIsolationMap.isValid()
+	|| _phoPhotonIsolationMap.isValid()
+	|| _phoWorstChargedIsolationMap.isValid()
+	|| _rho.isValid() ) )
+    throw cms::Exception("MVA failure: ")
+      << "Failed to retrieve event content needed for this MVA" 
+      << std::endl
+      << "Check python MVA configuration file and make sure all needed"
+      << std::endl
+      << "producers are running upstream" << std::endl;
+}
+
 
 float PhotonMVAEstimatorRun2Phys14NonTrig::
 mvaValue( const edm::Ptr<reco::Candidate>& particle){
@@ -229,7 +282,7 @@ void PhotonMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::
   _allMVAVars.varSCPhiWidth   = superCluster->phiWidth(); 
   _allMVAVars.varESEnOverRawE = superCluster->preshowerEnergy() / superCluster->rawEnergy();
   _allMVAVars.varESEffSigmaRR = (*_esEffSigmaRRMap)[ phoRecoPtr ];
-  _allMVAVars.varRho          = _rho; 
+  _allMVAVars.varRho          = *_rho; 
   _allMVAVars.varPhoIsoRaw    = (*_phoPhotonIsolationMap)[phoRecoPtr];  
   _allMVAVars.varChIsoRaw     = (*_phoChargedIsolationMap)[phoRecoPtr];
   _allMVAVars.varWorstChRaw   = (*_phoWorstChargedIsolationMap)[phoRecoPtr];

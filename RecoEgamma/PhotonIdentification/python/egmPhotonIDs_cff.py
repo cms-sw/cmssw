@@ -6,4 +6,10 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 # else is needed for IDs
 from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
 
-egmPhotonIDSequence = cms.Sequence(photonIDValueMapProducer * egmPhotonIDs)
+# Load the producer for MVA IDs. Make sure it is also added to the sequence!
+from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
+
+# The sequence below is important. The MVA ValueMapProducer
+# needs to be downstream from the ID ValueMapProducer because it relies 
+# on some of its products
+egmPhotonIDSequence = cms.Sequence(photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs)

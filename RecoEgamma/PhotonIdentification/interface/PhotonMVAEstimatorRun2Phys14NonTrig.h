@@ -79,6 +79,11 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   // within reasonable bounds
   void constrainMVAVariables();
 
+  // Call this function once after the constructor to declare
+  // the needed event content pieces to the framework
+  void setConsumes(edm::ConsumesCollector&&) override;
+  // Call this function once per event to retrieve all needed
+  // event content pices
   void getEventContent(const edm::Event& iEvent) override;
 
   
@@ -125,14 +130,14 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   edm::Handle<edm::ValueMap<float> > _full5x5E2x5MaxMap;
   edm::Handle<edm::ValueMap<float> > _full5x5E5x5Map;
   edm::Handle<edm::ValueMap<float> > _esEffSigmaRRMap;
-  ;;
-  edm::Handle<edm::ValueMap<float> > _phoPhotonIsolationMap;
+  //
   edm::Handle<edm::ValueMap<float> > _phoChargedIsolationMap;
+  edm::Handle<edm::ValueMap<float> > _phoPhotonIsolationMap;
   edm::Handle<edm::ValueMap<float> > _phoWorstChargedIsolationMap;
 
   // Rho will be pulled from the event content
   edm::EDGetTokenT<double> _rhoToken;
-  float _rho;
+  edm::Handle<float> _rho;
 
 };
 

@@ -72,6 +72,12 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
       // The factory below constructs the MVA of the appropriate type based
       // on the "mvaName" which is the name of the derived MVA class (plugin)
       AnyMVAEstimatorRun2Base *estimator = AnyMVAEstimatorRun2Factory::get()->create(pName, imva);
+      // Declare all event content, such as ValueMaps produced upstream or other,
+      // original event data pieces, that is needed (if any is implemented in the specific
+      // MVA classes)
+      //edm::ConsumesCollector &cc = consumesCollector();
+      estimator->setConsumes( consumesCollector() );
+
       thisEstimator.reset(estimator);
       
     } else 
@@ -125,6 +131,11 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
  
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
+    
+    // Set up all event content, such as ValueMaps produced upstream or other,
+    // original event data pieces, that is needed (if any is implemented in the specific
+    // MVA classes)
+    mvaEstimators_[iEstimator]->getEventContent( iEvent );
 
     std::vector<float> mvaValues;
     std::vector<int> mvaCategories;

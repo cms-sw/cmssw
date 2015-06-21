@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -12,7 +13,7 @@ class AnyMVAEstimatorRun2Base {
 
  public:
   // Constructor, destructor
-  AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf){};
+ AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf) : _conf(conf){};
   virtual ~AnyMVAEstimatorRun2Base(){};
 
   // Functions that must be provided in derived classes
@@ -34,10 +35,22 @@ class AnyMVAEstimatorRun2Base {
   // it is found as a const data member in a derived class.
   virtual const std::string getName() = 0;
 
+  //
+  // Extra event content - if needed.
+  //
   // Some MVA implementation may require direct access to event content.
-  // Implement this method only if needed in the derived classes (use "override"
+  // Implement these methods only if needed in the derived classes (use "override"
   // for certainty).
+  // This method needs to be used only once after this MVA estimator is constructed
+  virtual void setConsumes(edm::ConsumesCollector &&cc){};
+  // This method needs to be called for each event
   virtual void getEventContent(const edm::Event& iEvent){};
+
+  //
+  // Data members
+  //
+  // Configuration
+  const edm::ParameterSet& _conf;
 
 };
 
