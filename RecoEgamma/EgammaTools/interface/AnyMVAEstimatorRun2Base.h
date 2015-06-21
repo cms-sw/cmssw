@@ -3,6 +3,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 class AnyMVAEstimatorRun2Base {
@@ -30,6 +33,11 @@ class AnyMVAEstimatorRun2Base {
   // The name is a unique name associated with a particular MVA implementation,
   // it is found as a const data member in a derived class.
   virtual const std::string getName() = 0;
+
+  // Some MVA implementation may require direct access to event content.
+  // Implement this method only if needed in the derived classes (use "override"
+  // for certainty).
+  virtual void getEventContent(const edm::Event& iEvent){};
 
 };
 
