@@ -137,7 +137,7 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Rho will be pulled from the event content
   edm::EDGetTokenT<double> _rhoToken;
-  edm::Handle<float> _rho;
+  edm::Handle<double> _rho;
 
 };
 
