@@ -17,6 +17,8 @@
 //
 
 // system include files
+#include <iostream>
+#include <iomanip>
 #include <memory>
 
 #define EDM_ML_DEBUG 1
@@ -34,7 +36,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
@@ -70,6 +72,7 @@ namespace l1t {
          int amc13TrailerSize_;
 
          bool ctp7_mode_;
+         bool debug_;
    };
 }
 
@@ -103,6 +106,8 @@ namespace l1t {
       amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 0);
       amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header", 8);
       amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer", 8);
+
+      debug_ = config.getUntrackedParameter<bool>("debug", false);
    }
 
 
@@ -127,7 +132,7 @@ namespace l1t {
       event.getByToken(fedData_, feds);
 
       if (!feds.isValid()) {
-         LogError("L1T") << "Cannot unpack: no collection found";
+         LogError("L1T") << "Cannot unpack: no FEDRawDataCollection found";
          return;
       }
 
@@ -139,8 +144,7 @@ namespace l1t {
          if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
             LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
                << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
-	    continue;
-            //return;
+            continue;
          }
 
          const unsigned char *data = l1tRcd.data();
@@ -171,8 +175,11 @@ namespace l1t {
 
          amc13::Packet packet;
          if (!packet.parse(
+                  (const uint64_t*) data,
                   (const uint64_t*) (data + slinkHeaderSize_),
-                  (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8)) {
+                  (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
+                  header.lvl1ID(),
+                  header.bxID())) {
             LogError("L1T")
                << "Could not extract AMC13 Packet.";
             return;
@@ -181,6 +188,8 @@ namespace l1t {
          for (auto& amc: packet.payload()) {
             auto payload64 = amc.data();
             const uint32_t * start = (const uint32_t*) payload64.get();
+            // Want to have payload size in 32 bit words, but AMC measures
+            // it in 64 bit words → factor 2.
             const uint32_t * end = start + (amc.size() * 2);
 
             std::auto_ptr<Payload> payload;
@@ -197,27 +206,34 @@ namespace l1t {
             if (fwId_ > 0)
                fw = fwId_;
 
-            unsigned board = amc.header().getBoardID();
-            unsigned amc_no = amc.header().getAMCNumber();
+            unsigned board = amc.blockHeader().getBoardID();
+            unsigned amc_no = amc.blockHeader().getAMCNumber();
 
             auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 
             // getBlock() returns a non-null auto_ptr on success
             std::auto_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
-               // skip empty filler blocks
-               if (block->header().getID() == 0 and block->header().getSize() == 0)
-                  continue;
+               if (debug_) {
+                  std::cout << ">>> block to unpack <<<" << std::endl
+                     << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
+                     << " (ID " << block->header().getID() << ", size " << block->header().getSize()
+                     << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
+                     << ")" << std::dec << std::endl;
+                  for (const auto& word: block->payload()) {
+                     std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
+                  }
+               }
 
                auto unpacker = unpackers.find(block->header().getID());
 
                block->amc(amc.header());
 
                if (unpacker == unpackers.end()) {
-                  LogDebug("L1T") << "Cannot find an unpacker for block ID "
-                     << block->header().getID() << ", AMC # " << amc_no
-                     << ", board ID " << board << ", FED ID " << fedId
-                     << ", and FW ID " << fw << "!";
+                  LogDebug("L1T") << "Cannot find an unpacker for"
+                     << "\n\tblock: ID " << block->header().getID() << ", size " << block->header().getSize()
+                     << "\n\tAMC: # " << amc_no << ", board ID 0x" << std::hex << board << std::dec
+                     << "\n\tFED ID " << fedId << ", and FW ID " << fw;
                   // TODO Handle error
                } else if (!unpacker->second->unpack(*block, coll.get())) {
                   LogDebug("L1T") << "Error unpacking data for block ID "
