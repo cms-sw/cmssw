@@ -260,7 +260,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      break;
 	      
 	    case hfFed:	
-            if(useUpgradedHF) break;
+	      if(useUpgradedHF) break;
 
 	      eta_min = minHF;
 	      eta_max = maxHF;
@@ -270,16 +270,16 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      ecal = false;
 	      break;
 
-          case hfFedUp:
-            if(!useUpgradedHF) break;
+	    case hfFedUp:
+	      if(!useUpgradedHF) break;
 
-            eta_min = minHF;
-            eta_max = maxHF;
+	      eta_min = minHF;
+	      eta_max = maxHF;
 
-            phi_even[0] = true;
-            phi_even[1] = true;
-            ecal = false;
-            break;
+	      phi_even[0] = true;
+	      phi_even[1] = true;
+	      ecal = false;
+	      break;
 
 
 	    default:
