@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 HltBTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = cms.vstring(
 	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v',
-	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_',
+	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_',
 	'HLT_QuadPFJet_VBF',
 	'HLT_Ele32_eta2p1_',
 	'HLT_IsoMu24_eta2p1_'
