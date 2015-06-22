@@ -100,20 +100,24 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof)
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
   const char* const highTag = "HighTof";
+  unsigned int tofBin; 
+  edm::EDConsumerBase::Labels labels;
   for(auto const& cfToken : config.cfTokens_) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     int Nhits = 0;
     if (theEvent.getByToken(cfToken, cf_simhit)) {
-      std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
+      std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product())); 
+      theEvent.labelsForToken(cfToken, labels);
+      if(std::strstr(labels.productInstance, highTag) != NULL) {
+        tofBin = StripDigiSimLink::HighTof;
+      } else {
+        tofBin = StripDigiSimLink::LowTof; 
+      }    
       for (auto const& isim : *thisContainerHits) {
         DetId theDet(isim.detUnitId());
         if (assocHitbySimTrack_) {
           SimHitMap[theDet].push_back(isim);
         } else {
-          edm::EDConsumerBase::Labels labels;
-          theEvent.labelsForToken(cfToken, labels);
-          unsigned int tofBin = StripDigiSimLink::LowTof; 
-          if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
@@ -126,15 +130,17 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
     edm::Handle<std::vector<PSimHit> > simHits;
     int Nhits = 0;
     if(theEvent.getByToken(simHitToken, simHits)) {
+      theEvent.labelsForToken(simHitToken, labels);
+      if(std::strstr(labels.productInstance, highTag) != NULL) {
+        tofBin = StripDigiSimLink::HighTof;
+      } else {
+        tofBin = StripDigiSimLink::LowTof; 
+      }
       for (auto const& isim : *simHits) {
         DetId theDet(isim.detUnitId());
         if (assocHitbySimTrack_) {
           SimHitMap[theDet].push_back(isim);
         } else {
-          edm::EDConsumerBase::Labels labels;
-          theEvent.labelsForToken(simHitToken, labels);
-          unsigned int tofBin = StripDigiSimLink::LowTof; 
-          if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
