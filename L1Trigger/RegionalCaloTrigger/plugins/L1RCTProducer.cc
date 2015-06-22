@@ -207,7 +207,6 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
   
     }
 
-  // Try to 
   for(int  cr = 0; cr < 18; ++cr)
     {
       
