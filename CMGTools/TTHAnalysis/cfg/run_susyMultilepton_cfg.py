@@ -27,7 +27,7 @@ lepAna.miniIsolationVetoLeptons = None # use 'inclusive' to veto inclusive lepto
 # Lepton Preselection
 lepAna.loose_electron_id = "POG_MVA_ID_Run2_NonTrig_VLoose"
 
-isolation = "relIso03"
+isolation = "miniIso"
 #isolation = "ptRel"
 if isolation == "ptRel": 
     # delay isolation cut for leptons of pt > 10, for which we do pTrel recovery
@@ -130,7 +130,8 @@ susyCoreSequence.insert(susyCoreSequence.index(skimAnalyzer),
 #-------- SAMPLES AND TRIGGERS -----------
 
 
-from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import triggers_mumu_iso, triggers_mumu_noniso, triggers_ee, triggers_3e, triggers_mue, triggers_1mu_iso, triggers_1e
+from CMGTools.TTHAnalysis.samples.triggers_13TeV_PHYS14 import triggers_mumu_iso, triggers_mumu_noniso, triggers_ee, triggers_3e, triggers_mue, triggers_1mu_iso, triggers_1e
+from CMGTools.TTHAnalysis.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV;
 triggerFlagsAna.triggerBits = {
     'DoubleMu' : triggers_mumu_iso,
     'DoubleMuNoIso' : triggers_mumu_noniso,
@@ -139,12 +140,18 @@ triggerFlagsAna.triggerBits = {
     'MuEG'     : triggers_mue,
     'SingleMu' : triggers_1mu_iso,
     'SingleEl' : triggers_1e,
+    'SingleMu_8TeV' : triggers_1mu_8TeV,
+    'DoubleMu_8TeV' : triggers_mumu_8TeV,
+    'MuEG_8TeV'     : triggers_mue_8TeV,
 }
 
 from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+from CMGTools.TTHAnalysis.samples.samples_13TeV_74X_susySignalsPriv import *
 from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
 
-selectedComponents = [ TTJets, TTJets_LO, WJetsToLNu, DYJetsToLL_M50 ] + WJetsToLNuHT 
+selectedComponents = [ SingleMu_742, MuEG_742, DoubleMu_742 ] 
+selectedComponents = [ TTJets, TTJets_LO, WJetsToLNu, DYJetsToLL_M10to50,  DYJetsToLL_M50,  ] + SingleTop + DiBosons
+selectedComponents = mcSamplesPriv 
 #  selectedComponents = [
 #    ] + WJetsToLNuHT + DYJetsM50HT + [ #DYJetsToLL_M50,
 #     TTJets ]+ SingleTop +[
