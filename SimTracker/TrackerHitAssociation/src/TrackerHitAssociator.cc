@@ -99,7 +99,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
   //  The collections are specified via ROUList in the configuration, and can
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof)
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
-  const char* highTag = "HighTof";
+  const char* const highTag = "HighTof";
   for(auto const& cfToken : config.cfTokens_) {
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     int Nhits = 0;
@@ -112,9 +112,8 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
         } else {
           edm::EDConsumerBase::Labels labels;
           theEvent.labelsForToken(cfToken, labels);
-          std::string trackerContainer(labels.productInstance);
-          unsigned int tofBin = StripDigiSimLink::LowTof;
-          if (trackerContainer.find(highTag) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
+          unsigned int tofBin = StripDigiSimLink::LowTof; 
+	  if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
@@ -134,9 +133,8 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
         } else {
           edm::EDConsumerBase::Labels labels;
           theEvent.labelsForToken(simHitToken, labels);
-          std::string trackerContainer(labels.productInstance);
-          unsigned int tofBin = StripDigiSimLink::LowTof;
-          if (trackerContainer.find(highTag) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
+          unsigned int tofBin = StripDigiSimLink::LowTof; 
+	  if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
