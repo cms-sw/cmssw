@@ -115,7 +115,6 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 # hotline skim workflows
 ###############################################################
 from Calibration.Hotline.hotlineSkims_cff import *
-from Calibration.Hotline.hotlineMETSkims_cff import *
 
 # NOTE: the ALCARECO DQM modules can not be placed together in a single path 
 # because the non-DQM sequences act as filters.
@@ -632,22 +631,12 @@ ALCARECOStreamHotline = cms.FilteredStream(
             pathHotlineSkimMassiveDimuon,
             pathHotlineSkimMassiveDielectron,
             pathHotlineSkimMassiveEMu,
-            ),
-        content = OutALCARECOHotline.outputCommands,
-        selectEvents = OutALCARECOHotline.SelectEvents,
-        dataTier = cms.untracked.string('ALCARECO')
-        )
-
-ALCARECOStreamMETHotline = cms.FilteredStream(
-        responsible = 'Dustin Anderson',
-        name = 'METHotline',
-        paths = (
             pathHotlineSkimPFMET,
             pathHotlineSkimCaloMET,
             pathHotlineSkimCondMET
             ),
-        content = OutALCARECOMETHotline.outputCommands,
-        selectEvents = OutALCARECOMETHotline.SelectEvents,
+        content = OutALCARECOHotline.outputCommands,
+        selectEvents = OutALCARECOHotline.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 

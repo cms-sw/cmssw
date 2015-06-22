@@ -20,7 +20,10 @@ OutALCARECOHotline = cms.PSet(
             "pathHotlineSkimHT",
             "pathHotlineSkimMassiveDimuon",
             "pathHotlineSkimMassiveDielectron",
-            "pathHotlineSkimMassiveEMu"
+            "pathHotlineSkimMassiveEMu",
+            "pathHotlineSkimPFMET",
+            "pathHotlineSkimCaloMET",
+            "pathHotlineSkimCondMET",
         ),
     ),
     outputCommands = FEVTEventContent.outputCommands 
