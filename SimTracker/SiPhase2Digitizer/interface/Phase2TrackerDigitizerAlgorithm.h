@@ -12,6 +12,10 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 #include "DataFormats/Math/interface/approx_exp.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+
 #include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizerFwd.h"
 #include "SimTracker/SiPhase2Digitizer/interface/DigitizerUtility.h"
 
@@ -55,10 +59,10 @@ class Phase2TrackerDigitizerAlgorithm  {
 				 const unsigned int tofBin,
 				 const Phase2TrackerGeomDetUnit* pixdet,
 				 const GlobalVector& bfield) = 0;
-  virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
-			std::vector<Phase2TrackerDigi>& digis,
-			std::vector<Phase2TrackerDigiSimLink>& simlinks,
-			const TrackerTopology* tTopo) = 0;
+ virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
+		       std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
+		       const TrackerTopology* tTopo);
+
  protected:
   // Accessing Lorentz angle from DB:
   edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
@@ -171,12 +175,7 @@ class Phase2TrackerDigitizerAlgorithm  {
   void fluctuateEloss(int particleId, float momentum, float eloss, 
 		      float length, int NumberOfSegments,
 		      float elossVector[]) const;
-  void add_noise(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
-  void make_digis(float thePixelThresholdInE,
-		  uint32_t detID,
-		  std::vector<Phase2TrackerDigi>& digis,
-		  std::vector<Phase2TrackerDigiSimLink>& simlinks,
-		  const TrackerTopology* tTopo) const;
+  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
   virtual void pixel_inefficiency(const SubdetEfficiencies& eff,
 				  const Phase2TrackerGeomDetUnit* pixdet,
 				  const TrackerTopology* tTopo);
@@ -206,5 +205,6 @@ class Phase2TrackerDigitizerAlgorithm  {
     auto xx = std::min(0.5f * x * x,12.5f);
     return 0.5 * (1.0-std::copysign(std::sqrt(1.f- unsafe_expf<4>(-xx * (1.f + 0.2733f/(1.f + 0.147f * xx)))), x));
   }
+  bool pixelFlag;
 };
 #endif

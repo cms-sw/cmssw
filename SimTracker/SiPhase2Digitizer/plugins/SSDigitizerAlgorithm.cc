@@ -74,6 +74,7 @@ SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP:
 				  conf.getParameter<ParameterSet>("SSDigitizerAlgorithm"),
 				  eng)
 {
+  pixelFlag = false;
   LogInfo("SSDigitizerAlgorithm ") << "SSDigitizerAlgorithm constructed "
 				   << "Configuration parameters:"
 				   << "Threshold/Gain = "
@@ -125,64 +126,4 @@ void SSDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
       induce_signal(*it, simHitGlobalIndex, tofBin, pixdet, collection_points); // *ihit needed only for SimHit<-->Digi link
     }
   }
-}
-void SSDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* pixdet,
-				    std::vector<Phase2TrackerDigi>& digis,
-				    std::vector<Phase2TrackerDigiSimLink>& simlinks, 
-				    const TrackerTopology* tTopo) {
-  // Pixel Efficiency moved from the constructor to this method because
-  // the information of the det are not available in the constructor
-  // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
-
-  uint32_t detID = pixdet->geographicalId().rawId();
-  // check validity before query
-  const signal_map_type& theSignal = _signal[detID];
-
-  const Phase2TrackerTopology* topol = &pixdet->specificTopology();
-  int numColumns = topol->ncolumns();  // det module number of cols&rows
-  int numRows = topol->nrows();
-
-  // Noise already defined in electrons
-  // thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons ;
-  // Find the threshold in noise units, needed for the noiser.
-
-  unsigned int Sub_detid = DetId(detID).subdetId();
-
-  float theThresholdInE = 0.;
-
-  // can we generalize it
-  if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
-    if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
-    else theThresholdInE = theThresholdInE_Barrel; // no smearing
-  } 
-  else { // Forward disks modules
-    if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
-    else theThresholdInE = theThresholdInE_Endcap; // no smearing
-  }
-
-  // full detector thickness
-  float moduleThickness = pixdet->specificSurface().bounds().thickness();
-  LogDebug("SSDigitizerAlgorithm")
-    << " PixelDigitizer "
-    << numColumns << " " << numRows << " " << moduleThickness;
-
-    if (addNoise) add_noise(pixdet, theThresholdInE/theNoiseInElectrons);  // generate noise
-
-    // Do only if needed
-    if (AddPixelInefficiency && theSignal.size() > 0) {
-      if (use_ineff_from_db_) 
-	pixel_inefficiency_db(detID);
-      else                    
-	pixel_inefficiency(subdetEfficiencies_, pixdet, tTopo);
-    }
-
-    if (use_module_killing_) {
-      if (use_deadmodule_DB_)    // remove dead modules using DB
-        module_killing_DB(detID);
-      else                       // remove dead modules using the list in cfg file
-        module_killing_conf(detID);
-    }
-    make_digis(theThresholdInE, detID, digis, simlinks, tTopo);
-
-    LogDebug("SSDigitizerAlgorithm") << "[SSDigitizerAlgorithm] converted " << digis.size() << " PixelDigis in DetUnit" << detID;
 }
