@@ -64,6 +64,8 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     tree->Branch("LN",&LNNo,"LN/I");
     tree->Branch("timeStamp_begin",&timeStamp_begin,"timeStamp_begin/i");
     tree->Branch("timeStamp_end",&timeStamp_end,"timeStamp_end/i");
+    tree->Branch("eventCounter",&eventCounter,"eventCounter/I");
+    tree->Branch("BXNo","map<int,int>",&BXNo);
     if (saveType=="Event"){
         tree->Branch("event",&eventNo,"eventNo/i");
         tree->Branch("orbit",&orbitNo,"orbitNo/I");
@@ -90,7 +92,6 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     }
 
     if(includePixels){
-        tree->Branch("BXNo","map<int,int>",&BXNo);
         tree->Branch("nPixelClusters","map<std::pair<int,int>,int>",&nPixelClusters);
         tree->Branch("nClusters",     "map<std::pair<int,int>,int>",&nClusters);
         //tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
@@ -190,8 +191,10 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     if(timeStamp_end  <timeStamp_local) timeStamp_end   =timeStamp_local;
     if(timeStamp_begin>timeStamp_local) timeStamp_begin =timeStamp_local;
     orbitNo = iEvent.orbitNumber();
-    LNNo    = ((int) (orbitNo/pow(2,12)) % 64); //-99; // FIXME need the luminibble
-    
+    //LNNo    = ((int) (orbitNo/pow(2,12)) % 64);
+    //int LNNo2    = iEvent.nibble;
+    LNNo    = ((int) (orbitNo >> 12) % 64); // FIXME need the luminibble
+   
     bxModKey.first=bxNo;
     bxModKey.second=-1;
    
@@ -261,7 +264,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
         iEvent.getByToken(pixelToken,hClusterColl);
         
-        const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
+        const edmNew::DetSetVector<SiPixelCluster>& clustColl = *(hClusterColl.product());
         
         
         // ----------------------------------------------------------------------
