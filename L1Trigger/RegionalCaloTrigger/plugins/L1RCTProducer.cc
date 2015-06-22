@@ -192,6 +192,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 //   std::cout << " FED vector" << std::endl;
 //   printFedVector(Feds);
 
+  bool useUpgradedHF=false;
+
   std::vector<int> caloFeds;  // pare down the feds to the interesting ones
   // is this unneccesary?
   // Mike B : This will decrease the find speed so better do it
@@ -200,6 +202,9 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
       int fedNum = *cf;
       if((fedNum > 600 && fedNum <724) || fedNum==1118 || fedNum == 1120 || fedNum == 1122) 
 	caloFeds.push_back(fedNum);
+
+      if(fedNum==1118 || fedNum == 1120 || fedNum == 1122) useUpgradedHF=true;
+  
     }
 
   // Try to 
@@ -255,6 +260,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      break;
 	      
 	    case hfFed:	
+            if(useUpgradedHF) break;
+
 	      eta_min = minHF;
 	      eta_max = maxHF;
 	      
@@ -264,6 +271,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      break;
 
           case hfFedUp:
+            if(!useUpgradedHF) break;
+
             eta_min = minHF;
             eta_max = maxHF;
 
