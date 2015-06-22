@@ -113,7 +113,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
           edm::EDConsumerBase::Labels labels;
           theEvent.labelsForToken(cfToken, labels);
           unsigned int tofBin = StripDigiSimLink::LowTof; 
-	  if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
+          if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
@@ -134,7 +134,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
           edm::EDConsumerBase::Labels labels;
           theEvent.labelsForToken(simHitToken, labels);
           unsigned int tofBin = StripDigiSimLink::LowTof; 
-	  if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
+          if(std::strstr(labels.productInstance, highTag) != NULL) tofBin = StripDigiSimLink::HighTof;
           simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
           SimHitCollMap[theSimHitCollID].push_back(isim);
         }
