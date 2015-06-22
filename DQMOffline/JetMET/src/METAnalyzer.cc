@@ -1930,19 +1930,45 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	meHFHadF_Minus=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionMinus"]; if(meHFHadF_Minus && meHFHadF_Minus->getRootObject()) meHFHadF_Minus->Fill(pt_sum_HFH_minus/pfmet.sumEt()); 
 	meHFEMF_Plus=map_of_MEs[DirName+"/"+"PfHFEMEtFractionPlus"]; if(meHFEMF_Plus && meHFEMF_Plus->getRootObject()) meHFEMF_Plus->Fill(pt_sum_HFE_plus/pfmet.sumEt()); 
 	meHFEMF_Minus=map_of_MEs[DirName+"/"+"PfHFEMEtFractionMinus"]; if(meHFEMF_Minus && meHFEMF_Minus->getRootObject()) meHFEMF_Minus->Fill(pt_sum_HFE_minus/pfmet.sumEt());
-	meMETPhiChargedHadronsBarrel     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel"];if(meMETPhiChargedHadronsBarrel  && meMETPhiChargedHadronsBarrel ->getRootObject())meMETPhiChargedHadronsBarrel->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
-	meMETPhiChargedHadronsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus"];if(meMETPhiChargedHadronsEndcapPlus  && meMETPhiChargedHadronsEndcapPlus ->getRootObject())meMETPhiChargedHadronsEndcapPlus->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
-	meMETPhiChargedHadronsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus"];if(meMETPhiChargedHadronsEndcapMinus  && meMETPhiChargedHadronsEndcapMinus ->getRootObject())meMETPhiChargedHadronsEndcapMinus->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
-	meMETPhiNeutralHadronsBarrel     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel"];if(meMETPhiNeutralHadronsBarrel  && meMETPhiNeutralHadronsBarrel ->getRootObject())meMETPhiNeutralHadronsBarrel->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
-	meMETPhiNeutralHadronsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus"];if(meMETPhiNeutralHadronsEndcapPlus  && meMETPhiNeutralHadronsEndcapPlus ->getRootObject())meMETPhiNeutralHadronsEndcapPlus->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
-	meMETPhiNeutralHadronsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus"];if(meMETPhiNeutralHadronsEndcapMinus  && meMETPhiNeutralHadronsEndcapMinus ->getRootObject())meMETPhiNeutralHadronsEndcapMinus->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
-	meMETPhiPhotonsBarrel     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel"];if(meMETPhiPhotonsBarrel  && meMETPhiPhotonsBarrel ->getRootObject())meMETPhiPhotonsBarrel->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
-	meMETPhiPhotonsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus"];if(meMETPhiPhotonsEndcapPlus  && meMETPhiPhotonsEndcapPlus ->getRootObject())meMETPhiPhotonsEndcapPlus->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
-	meMETPhiPhotonsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus"];if(meMETPhiPhotonsEndcapMinus  && meMETPhiPhotonsEndcapMinus ->getRootObject())meMETPhiPhotonsEndcapMinus->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
-	meMETPhiHFHadronsPlus     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus"];if(meMETPhiHFHadronsPlus  && meMETPhiHFHadronsPlus ->getRootObject())meMETPhiHFHadronsPlus->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
-	meMETPhiHFHadronsMinus     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus"];if(meMETPhiHFHadronsMinus  && meMETPhiHFHadronsMinus ->getRootObject())meMETPhiHFHadronsMinus->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
-	meMETPhiHFEGammasPlus     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus"];if(meMETPhiHFEGammasPlus  && meMETPhiHFEGammasPlus ->getRootObject())meMETPhiHFEGammasPlus->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
-	meMETPhiHFEGammasMinus     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus"];if(meMETPhiHFEGammasMinus  && meMETPhiHFEGammasMinus ->getRootObject())meMETPhiHFEGammasMinus->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	if(pt_sum_CHF_Barrel>0){
+	  meMETPhiChargedHadronsBarrel     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel"];if(meMETPhiChargedHadronsBarrel  && meMETPhiChargedHadronsBarrel ->getRootObject())meMETPhiChargedHadronsBarrel->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	}
+	if(pt_sum_CHF_Endcap_plus>0){
+	  meMETPhiChargedHadronsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus"];if(meMETPhiChargedHadronsEndcapPlus  && meMETPhiChargedHadronsEndcapPlus ->getRootObject())meMETPhiChargedHadronsEndcapPlus->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	}
+	if(pt_sum_CHF_Endcap_minus>0){
+	  meMETPhiChargedHadronsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus"];if(meMETPhiChargedHadronsEndcapMinus  && meMETPhiChargedHadronsEndcapMinus ->getRootObject())meMETPhiChargedHadronsEndcapMinus->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	}
+	if(pt_sum_NHF_Barrel>0){
+	  meMETPhiNeutralHadronsBarrel     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel"];if(meMETPhiNeutralHadronsBarrel  && meMETPhiNeutralHadronsBarrel ->getRootObject())meMETPhiNeutralHadronsBarrel->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	}
+	if(pt_sum_NHF_Endcap_plus>0){
+	  meMETPhiNeutralHadronsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus"];if(meMETPhiNeutralHadronsEndcapPlus  && meMETPhiNeutralHadronsEndcapPlus ->getRootObject())meMETPhiNeutralHadronsEndcapPlus->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	}
+	if(pt_sum_NHF_Endcap_minus>0){
+	  meMETPhiNeutralHadronsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus"];if(meMETPhiNeutralHadronsEndcapMinus  && meMETPhiNeutralHadronsEndcapMinus ->getRootObject())meMETPhiNeutralHadronsEndcapMinus->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	}
+	if(pt_sum_PhF_Barrel>0){
+	  meMETPhiPhotonsBarrel     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel"];if(meMETPhiPhotonsBarrel  && meMETPhiPhotonsBarrel ->getRootObject())meMETPhiPhotonsBarrel->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	}
+	if(pt_sum_PhF_Endcap_plus>0){
+	  meMETPhiPhotonsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus"];if(meMETPhiPhotonsEndcapPlus  && meMETPhiPhotonsEndcapPlus ->getRootObject())meMETPhiPhotonsEndcapPlus->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	}
+	if(pt_sum_PhF_Endcap_minus>0){
+	  meMETPhiPhotonsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus"];if(meMETPhiPhotonsEndcapMinus  && meMETPhiPhotonsEndcapMinus ->getRootObject())meMETPhiPhotonsEndcapMinus->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	}
+	if(pt_sum_HFH_plus>0){
+	  meMETPhiHFHadronsPlus     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus"];if(meMETPhiHFHadronsPlus  && meMETPhiHFHadronsPlus ->getRootObject())meMETPhiHFHadronsPlus->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	}
+	if(pt_sum_HFH_minus>0){
+	  meMETPhiHFHadronsMinus     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus"];if(meMETPhiHFHadronsMinus  && meMETPhiHFHadronsMinus ->getRootObject())meMETPhiHFHadronsMinus->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	}
+	if(pt_sum_HFE_plus>0){
+	  meMETPhiHFEGammasPlus     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus"];if(meMETPhiHFEGammasPlus  && meMETPhiHFEGammasPlus ->getRootObject())meMETPhiHFEGammasPlus->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	}
+	if(pt_sum_HFE_minus>0){
+	  meMETPhiHFEGammasMinus     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus"];if(meMETPhiHFEGammasMinus  && meMETPhiHFEGammasMinus ->getRootObject())meMETPhiHFEGammasMinus->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	}
 
 	//fill other diagnostic plots based on trigger decision
 	if(techTriggerCase[0]){//techTriggerResultBx0 && techTriggerResultBxM2 && techTriggerResultBxM1
@@ -1964,19 +1990,45 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  meChargedHadronEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Filled"];     if (  meChargedHadronEtFraction_BXm2BXm1Filled  && meChargedHadronEtFraction_BXm2BXm1Filled ->getRootObject())  meChargedHadronEtFraction_BXm2BXm1Filled  ->Fill(pfmet.chargedHadronEtFraction());
 	  meMET_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Filled"];     if (  meMET_BXm2BXm1Filled  && meMET_BXm2BXm1Filled ->getRootObject())  meMET_BXm2BXm1Filled  ->Fill(pfmet.pt());
 	  meSumET_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Filled"];     if (  meSumET_BXm2BXm1Filled  && meSumET_BXm2BXm1Filled ->getRootObject())  meSumET_BXm2BXm1Filled  ->Fill(pfmet.sumEt());
-	  meMETPhiChargedHadronsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiChargedHadronsBarrel_BXm2BXm1Filled  && meMETPhiChargedHadronsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsBarrel_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
-	  meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled  && meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
-	  meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled  && meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
-	  meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled  && meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
-	  meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled  && meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
-	  meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled  && meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
-	  meMETPhiPhotonsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Filled"];if(meMETPhiPhotonsBarrel_BXm2BXm1Filled  && meMETPhiPhotonsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiPhotonsBarrel_BXm2BXm1Filled->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
-	  meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled  && meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
-	  meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled  && meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
-	  meMETPhiHFHadronsPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Filled"];if(meMETPhiHFHadronsPlus_BXm2BXm1Filled  && meMETPhiHFHadronsPlus_BXm2BXm1Filled ->getRootObject())meMETPhiHFHadronsPlus_BXm2BXm1Filled->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
-	  meMETPhiHFHadronsMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Filled"];if(meMETPhiHFHadronsMinus_BXm2BXm1Filled  && meMETPhiHFHadronsMinus_BXm2BXm1Filled ->getRootObject())meMETPhiHFHadronsMinus_BXm2BXm1Filled->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
-	  meMETPhiHFEGammasPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Filled"];if(meMETPhiHFEGammasPlus_BXm2BXm1Filled  && meMETPhiHFEGammasPlus_BXm2BXm1Filled ->getRootObject())meMETPhiHFEGammasPlus_BXm2BXm1Filled->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
-	  meMETPhiHFEGammasMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Filled"];if(meMETPhiHFEGammasMinus_BXm2BXm1Filled  && meMETPhiHFEGammasMinus_BXm2BXm1Filled ->getRootObject())meMETPhiHFEGammasMinus_BXm2BXm1Filled->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  if(pt_sum_CHF_Barrel>0){
+	    meMETPhiChargedHadronsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiChargedHadronsBarrel_BXm2BXm1Filled  && meMETPhiChargedHadronsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsBarrel_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  }
+	  if(pt_sum_CHF_Endcap_plus>0){
+	    meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled  && meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  }
+	  if(pt_sum_CHF_Endcap_minus>0){
+	    meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled  && meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  }
+	  if(pt_sum_NHF_Barrel>0){
+	    meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled  && meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  }
+	  if(pt_sum_NHF_Endcap_plus>0){
+	    meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled  && meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  }
+	  if(pt_sum_NHF_Endcap_minus>0){
+	    meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled  && meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  }
+	  if(pt_sum_PhF_Barrel>0){
+	    meMETPhiPhotonsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Filled"];if(meMETPhiPhotonsBarrel_BXm2BXm1Filled  && meMETPhiPhotonsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiPhotonsBarrel_BXm2BXm1Filled->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  }
+	  if(pt_sum_PhF_Endcap_plus>0){
+	    meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled  && meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  }
+	  if(pt_sum_PhF_Endcap_minus>0){
+	    meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled  && meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  }
+	  if(pt_sum_HFH_plus>0){
+	    meMETPhiHFHadronsPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Filled"];if(meMETPhiHFHadronsPlus_BXm2BXm1Filled  && meMETPhiHFHadronsPlus_BXm2BXm1Filled ->getRootObject())meMETPhiHFHadronsPlus_BXm2BXm1Filled->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  }
+	  if(pt_sum_HFH_minus>0){
+	    meMETPhiHFHadronsMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Filled"];if(meMETPhiHFHadronsMinus_BXm2BXm1Filled  && meMETPhiHFHadronsMinus_BXm2BXm1Filled ->getRootObject())meMETPhiHFHadronsMinus_BXm2BXm1Filled->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  }
+	  if(pt_sum_HFE_plus>0){
+	    meMETPhiHFEGammasPlus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Filled"];if(meMETPhiHFEGammasPlus_BXm2BXm1Filled  && meMETPhiHFEGammasPlus_BXm2BXm1Filled ->getRootObject())meMETPhiHFEGammasPlus_BXm2BXm1Filled->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  }
+	  if(pt_sum_HFE_minus>0){
+	    meMETPhiHFEGammasMinus_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Filled"];if(meMETPhiHFEGammasMinus_BXm2BXm1Filled  && meMETPhiHFEGammasMinus_BXm2BXm1Filled ->getRootObject())meMETPhiHFEGammasMinus_BXm2BXm1Filled->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  }
 	}
 	if(techTriggerCase[1]){//techTriggerResultBx0 && techTriggerResultBxM1
 	  meCHF_Barrel_BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm1Filled"]; if(meCHF_Barrel_BXm1Filled && meCHF_Barrel_BXm1Filled->getRootObject()) meCHF_Barrel_BXm1Filled->Fill(pt_sum_CHF_Barrel/pfmet.sumEt()); 
@@ -1997,21 +2049,47 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  meChargedHadronEtFraction_BXm1Filled    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm1Filled"];     if (  meChargedHadronEtFraction_BXm1Filled  && meChargedHadronEtFraction_BXm1Filled ->getRootObject())  meChargedHadronEtFraction_BXm1Filled  ->Fill(pfmet.chargedHadronEtFraction());
 	  meMET_BXm1Filled    = map_of_MEs[DirName+"/"+"MET_BXm1Filled"];     if (  meMET_BXm1Filled  && meMET_BXm1Filled ->getRootObject())  meMET_BXm1Filled  ->Fill(pfmet.pt());
 	  meSumET_BXm1Filled    = map_of_MEs[DirName+"/"+"SumET_BXm1Filled"];     if (  meSumET_BXm1Filled  && meSumET_BXm1Filled ->getRootObject())  meSumET_BXm1Filled  ->Fill(pfmet.sumEt());
-	  meMETPhiChargedHadronsBarrel_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Filled"];if(meMETPhiChargedHadronsBarrel_BXm1Filled  && meMETPhiChargedHadronsBarrel_BXm1Filled ->getRootObject())meMETPhiChargedHadronsBarrel_BXm1Filled->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
-	  meMETPhiChargedHadronsEndcapPlus_BXm1Filled  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Filled"];if(meMETPhiChargedHadronsEndcapPlus_BXm1Filled  && meMETPhiChargedHadronsEndcapPlus_BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm1Filled->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
-	  meMETPhiChargedHadronsEndcapMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Filled"];if(meMETPhiChargedHadronsEndcapMinus_BXm1Filled  && meMETPhiChargedHadronsEndcapMinus_BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm1Filled->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
-	  meMETPhiNeutralHadronsBarrel_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Filled"];if(meMETPhiNeutralHadronsBarrel_BXm1Filled  && meMETPhiNeutralHadronsBarrel_BXm1Filled ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm1Filled->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
-	  meMETPhiNeutralHadronsEndcapPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Filled"];if(meMETPhiNeutralHadronsEndcapPlus_BXm1Filled  && meMETPhiNeutralHadronsEndcapPlus_BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm1Filled->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
-	  meMETPhiNeutralHadronsEndcapMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Filled"];if(meMETPhiNeutralHadronsEndcapMinus_BXm1Filled  && meMETPhiNeutralHadronsEndcapMinus_BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm1Filled->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
-	  meMETPhiPhotonsBarrel_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm1Filled"];if(meMETPhiPhotonsBarrel_BXm1Filled  && meMETPhiPhotonsBarrel_BXm1Filled ->getRootObject())meMETPhiPhotonsBarrel_BXm1Filled->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
-	  meMETPhiPhotonsEndcapPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Filled"];if(meMETPhiPhotonsEndcapPlus_BXm1Filled  && meMETPhiPhotonsEndcapPlus_BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm1Filled->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
-	  meMETPhiPhotonsEndcapMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Filled"];if(meMETPhiPhotonsEndcapMinus_BXm1Filled  && meMETPhiPhotonsEndcapMinus_BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm1Filled->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
-	  meMETPhiHFHadronsPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm1Filled"];if(meMETPhiHFHadronsPlus_BXm1Filled  && meMETPhiHFHadronsPlus_BXm1Filled ->getRootObject())meMETPhiHFHadronsPlus_BXm1Filled->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
-	  meMETPhiHFHadronsMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm1Filled"];if(meMETPhiHFHadronsMinus_BXm1Filled  && meMETPhiHFHadronsMinus_BXm1Filled ->getRootObject())meMETPhiHFHadronsMinus_BXm1Filled->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
-	  meMETPhiHFEGammasPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm1Filled"];if(meMETPhiHFEGammasPlus_BXm1Filled  && meMETPhiHFEGammasPlus_BXm1Filled ->getRootObject())meMETPhiHFEGammasPlus_BXm1Filled->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
-	  meMETPhiHFEGammasMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm1Filled"];if(meMETPhiHFEGammasMinus_BXm1Filled  && meMETPhiHFEGammasMinus_BXm1Filled ->getRootObject())meMETPhiHFEGammasMinus_BXm1Filled->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  if(pt_sum_CHF_Barrel>0){
+	    meMETPhiChargedHadronsBarrel_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Filled"];if(meMETPhiChargedHadronsBarrel_BXm1Filled  && meMETPhiChargedHadronsBarrel_BXm1Filled ->getRootObject())meMETPhiChargedHadronsBarrel_BXm1Filled->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  }
+	  if(pt_sum_CHF_Endcap_plus>0){
+	    meMETPhiChargedHadronsEndcapPlus_BXm1Filled  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Filled"];if(meMETPhiChargedHadronsEndcapPlus_BXm1Filled  && meMETPhiChargedHadronsEndcapPlus_BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm1Filled->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  }
+	  if(pt_sum_CHF_Endcap_minus>0){
+	    meMETPhiChargedHadronsEndcapMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Filled"];if(meMETPhiChargedHadronsEndcapMinus_BXm1Filled  && meMETPhiChargedHadronsEndcapMinus_BXm1Filled ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm1Filled->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  }
+	  if(pt_sum_NHF_Barrel>0){
+	    meMETPhiNeutralHadronsBarrel_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Filled"];if(meMETPhiNeutralHadronsBarrel_BXm1Filled  && meMETPhiNeutralHadronsBarrel_BXm1Filled ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm1Filled->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  }
+	  if(pt_sum_NHF_Endcap_plus>0){
+	    meMETPhiNeutralHadronsEndcapPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Filled"];if(meMETPhiNeutralHadronsEndcapPlus_BXm1Filled  && meMETPhiNeutralHadronsEndcapPlus_BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm1Filled->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  }
+	  if(pt_sum_NHF_Endcap_minus>0){
+	    meMETPhiNeutralHadronsEndcapMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Filled"];if(meMETPhiNeutralHadronsEndcapMinus_BXm1Filled  && meMETPhiNeutralHadronsEndcapMinus_BXm1Filled ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm1Filled->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  }
+	  if(pt_sum_PhF_Barrel>0){
+	    meMETPhiPhotonsBarrel_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm1Filled"];if(meMETPhiPhotonsBarrel_BXm1Filled  && meMETPhiPhotonsBarrel_BXm1Filled ->getRootObject())meMETPhiPhotonsBarrel_BXm1Filled->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  }
+	  if(pt_sum_PhF_Endcap_plus>0){
+	    meMETPhiPhotonsEndcapPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Filled"];if(meMETPhiPhotonsEndcapPlus_BXm1Filled  && meMETPhiPhotonsEndcapPlus_BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm1Filled->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  }
+	  if(pt_sum_PhF_Endcap_minus>0){
+	    meMETPhiPhotonsEndcapMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Filled"];if(meMETPhiPhotonsEndcapMinus_BXm1Filled  && meMETPhiPhotonsEndcapMinus_BXm1Filled ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm1Filled->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  }
+	  if(pt_sum_HFH_plus>0){
+	    meMETPhiHFHadronsPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm1Filled"];if(meMETPhiHFHadronsPlus_BXm1Filled  && meMETPhiHFHadronsPlus_BXm1Filled ->getRootObject())meMETPhiHFHadronsPlus_BXm1Filled->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  }
+	  if(pt_sum_HFH_minus>0){
+	    meMETPhiHFHadronsMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm1Filled"];if(meMETPhiHFHadronsMinus_BXm1Filled  && meMETPhiHFHadronsMinus_BXm1Filled ->getRootObject())meMETPhiHFHadronsMinus_BXm1Filled->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  }
+	  if(pt_sum_HFE_plus>0){
+	    meMETPhiHFEGammasPlus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm1Filled"];if(meMETPhiHFEGammasPlus_BXm1Filled  && meMETPhiHFEGammasPlus_BXm1Filled ->getRootObject())meMETPhiHFEGammasPlus_BXm1Filled->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  }
+	  if(pt_sum_HFE_minus>0){
+	    meMETPhiHFEGammasMinus_BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm1Filled"];if(meMETPhiHFEGammasMinus_BXm1Filled  && meMETPhiHFEGammasMinus_BXm1Filled ->getRootObject())meMETPhiHFEGammasMinus_BXm1Filled->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  }
 	}
-	if(techTriggerCase[2]){//techTriggerResultBx0 && !techTriggerResultBxM2 && !techTriggerResultBxM1
+	if(techTriggerCase[3]){//techTriggerResultBx0 && !techTriggerResultBxM2 && !techTriggerResultBxM1
 	  meCHF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm2BXm1Empty"]; if(meCHF_Barrel_BXm2BXm1Empty && meCHF_Barrel_BXm2BXm1Empty->getRootObject()) meCHF_Barrel_BXm2BXm1Empty->Fill(pt_sum_CHF_Barrel/pfmet.sumEt()); 
 	  meCHF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapPlus_BXm2BXm1Empty"]; if(meCHF_EndcapPlus_BXm2BXm1Empty && meCHF_EndcapPlus_BXm2BXm1Empty->getRootObject()) meCHF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_CHF_Endcap_plus/pfmet.sumEt()); 
 	  meCHF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapMinus_BXm2BXm1Empty"]; if(meCHF_EndcapMinus_BXm2BXm1Empty && meCHF_EndcapMinus_BXm2BXm1Empty->getRootObject()) meCHF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_CHF_Endcap_minus/pfmet.sumEt()); 
@@ -2030,21 +2108,47 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  meChargedHadronEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"];     if (  meChargedHadronEtFraction_BXm2BXm1Empty  && meChargedHadronEtFraction_BXm2BXm1Empty ->getRootObject())  meChargedHadronEtFraction_BXm2BXm1Empty  ->Fill(pfmet.chargedHadronEtFraction());
 	  meMET_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Empty"];     if (  meMET_BXm2BXm1Empty  && meMET_BXm2BXm1Empty ->getRootObject())  meMET_BXm2BXm1Empty  ->Fill(pfmet.pt());
 	  meSumET_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Empty"];     if (  meSumET_BXm2BXm1Empty  && meSumET_BXm2BXm1Empty ->getRootObject())  meSumET_BXm2BXm1Empty  ->Fill(pfmet.sumEt());
-	  meMETPhiChargedHadronsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiChargedHadronsBarrel_BXm2BXm1Empty  && meMETPhiChargedHadronsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsBarrel_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
-	  meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty  && meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
-	  meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty  && meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
-	  meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty  && meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
-	  meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty  && meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
-	  meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty  && meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
-	  meMETPhiPhotonsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Empty"];if(meMETPhiPhotonsBarrel_BXm2BXm1Empty  && meMETPhiPhotonsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiPhotonsBarrel_BXm2BXm1Empty->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
-	  meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty  && meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
-	  meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty  && meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
-	  meMETPhiHFHadronsPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Empty"];if(meMETPhiHFHadronsPlus_BXm2BXm1Empty  && meMETPhiHFHadronsPlus_BXm2BXm1Empty ->getRootObject())meMETPhiHFHadronsPlus_BXm2BXm1Empty->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
-	  meMETPhiHFHadronsMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Empty"];if(meMETPhiHFHadronsMinus_BXm2BXm1Empty  && meMETPhiHFHadronsMinus_BXm2BXm1Empty ->getRootObject())meMETPhiHFHadronsMinus_BXm2BXm1Empty->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
-	  meMETPhiHFEGammasPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Empty"];if(meMETPhiHFEGammasPlus_BXm2BXm1Empty  && meMETPhiHFEGammasPlus_BXm2BXm1Empty ->getRootObject())meMETPhiHFEGammasPlus_BXm2BXm1Empty->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
-	  meMETPhiHFEGammasMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Empty"];if(meMETPhiHFEGammasMinus_BXm2BXm1Empty  && meMETPhiHFEGammasMinus_BXm2BXm1Empty ->getRootObject())meMETPhiHFEGammasMinus_BXm2BXm1Empty->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  if(pt_sum_CHF_Barrel>0){
+	    meMETPhiChargedHadronsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiChargedHadronsBarrel_BXm2BXm1Empty  && meMETPhiChargedHadronsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsBarrel_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  }	
+	  if(pt_sum_CHF_Endcap_plus>0){
+	    meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty  && meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  }
+	  if(pt_sum_CHF_Endcap_minus>0){
+	    meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty  && meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  }
+	  if(pt_sum_NHF_Barrel>0){
+	    meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty  && meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  }
+	  if(pt_sum_NHF_Endcap_plus>0){
+	    meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty  && meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  }
+	  if(pt_sum_NHF_Endcap_minus>0){
+	    meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty  && meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  }
+	  if(pt_sum_PhF_Barrel>0){
+	    meMETPhiPhotonsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Empty"];if(meMETPhiPhotonsBarrel_BXm2BXm1Empty  && meMETPhiPhotonsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiPhotonsBarrel_BXm2BXm1Empty->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  }
+	  if(pt_sum_PhF_Endcap_plus>0){
+	    meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty  && meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  }
+	  if(pt_sum_PhF_Endcap_minus>0){
+	    meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty  && meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  }
+	  if(pt_sum_HFH_plus>0){
+	    meMETPhiHFHadronsPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Empty"];if(meMETPhiHFHadronsPlus_BXm2BXm1Empty  && meMETPhiHFHadronsPlus_BXm2BXm1Empty ->getRootObject())meMETPhiHFHadronsPlus_BXm2BXm1Empty->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  }
+	  if(pt_sum_HFH_minus>0){
+	    meMETPhiHFHadronsMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Empty"];if(meMETPhiHFHadronsMinus_BXm2BXm1Empty  && meMETPhiHFHadronsMinus_BXm2BXm1Empty ->getRootObject())meMETPhiHFHadronsMinus_BXm2BXm1Empty->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  }
+	  if(pt_sum_HFE_plus>0){
+	    meMETPhiHFEGammasPlus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Empty"];if(meMETPhiHFEGammasPlus_BXm2BXm1Empty  && meMETPhiHFEGammasPlus_BXm2BXm1Empty ->getRootObject())meMETPhiHFEGammasPlus_BXm2BXm1Empty->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  }
+	  if(pt_sum_HFE_minus>0){
+	    meMETPhiHFEGammasMinus_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Empty"];if(meMETPhiHFEGammasMinus_BXm2BXm1Empty  && meMETPhiHFEGammasMinus_BXm2BXm1Empty ->getRootObject())meMETPhiHFEGammasMinus_BXm2BXm1Empty->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  }
 	}
-	if(techTriggerCase[3]){//techTriggerResultBx0 && !techTriggerResultBxM1
+	if(techTriggerCase[2]){//techTriggerResultBx0 && !techTriggerResultBxM1
 	  meCHF_Barrel_BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm1Empty"]; if(meCHF_Barrel_BXm1Empty && meCHF_Barrel_BXm1Empty->getRootObject()) meCHF_Barrel_BXm1Empty->Fill(pt_sum_CHF_Barrel/pfmet.sumEt()); 
 	  meCHF_EndcapPlus_BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapPlus_BXm1Empty"]; if(meCHF_EndcapPlus_BXm1Empty && meCHF_EndcapPlus_BXm1Empty->getRootObject()) meCHF_EndcapPlus_BXm1Empty->Fill(pt_sum_CHF_Endcap_plus/pfmet.sumEt()); 
 	  meCHF_EndcapMinus_BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapMinus_BXm1Empty"]; if(meCHF_EndcapMinus_BXm1Empty && meCHF_EndcapMinus_BXm1Empty->getRootObject()) meCHF_EndcapMinus_BXm1Empty->Fill(pt_sum_CHF_Endcap_minus/pfmet.sumEt()); 
@@ -2063,23 +2167,46 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  meChargedHadronEtFraction_BXm1Empty    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm1Empty"];     if (  meChargedHadronEtFraction_BXm1Empty  && meChargedHadronEtFraction_BXm1Empty ->getRootObject())  meChargedHadronEtFraction_BXm1Empty  ->Fill(pfmet.chargedHadronEtFraction());
 	  meMET_BXm1Empty    = map_of_MEs[DirName+"/"+"MET_BXm1Empty"];     if (  meMET_BXm1Empty  && meMET_BXm1Empty ->getRootObject())  meMET_BXm1Empty  ->Fill(pfmet.pt());
 	  meSumET_BXm1Empty    = map_of_MEs[DirName+"/"+"SumET_BXm1Empty"];     if (  meSumET_BXm1Empty  && meSumET_BXm1Empty ->getRootObject())  meSumET_BXm1Empty  ->Fill(pfmet.sumEt());
-	  meMETPhiChargedHadronsBarrel_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Empty"];if(meMETPhiChargedHadronsBarrel_BXm1Empty  && meMETPhiChargedHadronsBarrel_BXm1Empty ->getRootObject())meMETPhiChargedHadronsBarrel_BXm1Empty->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
-	  meMETPhiChargedHadronsEndcapPlus_BXm1Empty  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Empty"];if(meMETPhiChargedHadronsEndcapPlus_BXm1Empty  && meMETPhiChargedHadronsEndcapPlus_BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm1Empty->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
-	  meMETPhiChargedHadronsEndcapMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Empty"];if(meMETPhiChargedHadronsEndcapMinus_BXm1Empty  && meMETPhiChargedHadronsEndcapMinus_BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm1Empty->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
-	  meMETPhiNeutralHadronsBarrel_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Empty"];if(meMETPhiNeutralHadronsBarrel_BXm1Empty  && meMETPhiNeutralHadronsBarrel_BXm1Empty ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm1Empty->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
-	  meMETPhiNeutralHadronsEndcapPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Empty"];if(meMETPhiNeutralHadronsEndcapPlus_BXm1Empty  && meMETPhiNeutralHadronsEndcapPlus_BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm1Empty->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
-	  meMETPhiNeutralHadronsEndcapMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Empty"];if(meMETPhiNeutralHadronsEndcapMinus_BXm1Empty  && meMETPhiNeutralHadronsEndcapMinus_BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm1Empty->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
-	  meMETPhiPhotonsBarrel_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm1Empty"];if(meMETPhiPhotonsBarrel_BXm1Empty  && meMETPhiPhotonsBarrel_BXm1Empty ->getRootObject())meMETPhiPhotonsBarrel_BXm1Empty->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
-	  meMETPhiPhotonsEndcapPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Empty"];if(meMETPhiPhotonsEndcapPlus_BXm1Empty  && meMETPhiPhotonsEndcapPlus_BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm1Empty->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
-	  meMETPhiPhotonsEndcapMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Empty"];if(meMETPhiPhotonsEndcapMinus_BXm1Empty  && meMETPhiPhotonsEndcapMinus_BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm1Empty->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
-	  meMETPhiHFHadronsPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm1Empty"];if(meMETPhiHFHadronsPlus_BXm1Empty  && meMETPhiHFHadronsPlus_BXm1Empty ->getRootObject())meMETPhiHFHadronsPlus_BXm1Empty->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
-	  meMETPhiHFHadronsMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm1Empty"];if(meMETPhiHFHadronsMinus_BXm1Empty  && meMETPhiHFHadronsMinus_BXm1Empty ->getRootObject())meMETPhiHFHadronsMinus_BXm1Empty->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
-	  meMETPhiHFEGammasPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm1Empty"];if(meMETPhiHFEGammasPlus_BXm1Empty  && meMETPhiHFEGammasPlus_BXm1Empty ->getRootObject())meMETPhiHFEGammasPlus_BXm1Empty->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
-	  meMETPhiHFEGammasMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm1Empty"];if(meMETPhiHFEGammasMinus_BXm1Empty  && meMETPhiHFEGammasMinus_BXm1Empty ->getRootObject())meMETPhiHFEGammasMinus_BXm1Empty->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  if(pt_sum_CHF_Barrel>0){
+	    meMETPhiChargedHadronsBarrel_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Empty"];if(meMETPhiChargedHadronsBarrel_BXm1Empty  && meMETPhiChargedHadronsBarrel_BXm1Empty ->getRootObject())meMETPhiChargedHadronsBarrel_BXm1Empty->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  }
+	  if(pt_sum_CHF_Endcap_plus>0){
+	    meMETPhiChargedHadronsEndcapPlus_BXm1Empty  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Empty"];if(meMETPhiChargedHadronsEndcapPlus_BXm1Empty  && meMETPhiChargedHadronsEndcapPlus_BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapPlus_BXm1Empty->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  }
+	  if(pt_sum_CHF_Endcap_minus>0){
+	    meMETPhiChargedHadronsEndcapMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Empty"];if(meMETPhiChargedHadronsEndcapMinus_BXm1Empty  && meMETPhiChargedHadronsEndcapMinus_BXm1Empty ->getRootObject())meMETPhiChargedHadronsEndcapMinus_BXm1Empty->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  }
+	  if(pt_sum_NHF_Barrel>0){
+	    meMETPhiNeutralHadronsBarrel_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Empty"];if(meMETPhiNeutralHadronsBarrel_BXm1Empty  && meMETPhiNeutralHadronsBarrel_BXm1Empty ->getRootObject())meMETPhiNeutralHadronsBarrel_BXm1Empty->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  }
+	  if(pt_sum_NHF_Endcap_plus>0){
+	    meMETPhiNeutralHadronsEndcapPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Empty"];if(meMETPhiNeutralHadronsEndcapPlus_BXm1Empty  && meMETPhiNeutralHadronsEndcapPlus_BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_BXm1Empty->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  }
+	  if(pt_sum_NHF_Endcap_minus>0){
+	    meMETPhiNeutralHadronsEndcapMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Empty"];if(meMETPhiNeutralHadronsEndcapMinus_BXm1Empty  && meMETPhiNeutralHadronsEndcapMinus_BXm1Empty ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_BXm1Empty->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  }
+	  if(pt_sum_PhF_Barrel>0){
+	    meMETPhiPhotonsBarrel_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm1Empty"];if(meMETPhiPhotonsBarrel_BXm1Empty  && meMETPhiPhotonsBarrel_BXm1Empty ->getRootObject())meMETPhiPhotonsBarrel_BXm1Empty->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  }
+	  if(pt_sum_PhF_Endcap_plus>0){
+	    meMETPhiPhotonsEndcapPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Empty"];if(meMETPhiPhotonsEndcapPlus_BXm1Empty  && meMETPhiPhotonsEndcapPlus_BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapPlus_BXm1Empty->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  }
+	  if(pt_sum_PhF_Endcap_minus>0){
+	    meMETPhiPhotonsEndcapMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Empty"];if(meMETPhiPhotonsEndcapMinus_BXm1Empty  && meMETPhiPhotonsEndcapMinus_BXm1Empty ->getRootObject())meMETPhiPhotonsEndcapMinus_BXm1Empty->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  }
+	  if(pt_sum_HFH_plus>0){
+	    meMETPhiHFHadronsPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm1Empty"];if(meMETPhiHFHadronsPlus_BXm1Empty  && meMETPhiHFHadronsPlus_BXm1Empty ->getRootObject())meMETPhiHFHadronsPlus_BXm1Empty->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  }
+	  if(pt_sum_HFH_minus>0){
+	    meMETPhiHFHadronsMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm1Empty"];if(meMETPhiHFHadronsMinus_BXm1Empty  && meMETPhiHFHadronsMinus_BXm1Empty ->getRootObject())meMETPhiHFHadronsMinus_BXm1Empty->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  }
+	  if(pt_sum_HFE_plus>0){
+	    meMETPhiHFEGammasPlus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm1Empty"];if(meMETPhiHFEGammasPlus_BXm1Empty  && meMETPhiHFEGammasPlus_BXm1Empty ->getRootObject())meMETPhiHFEGammasPlus_BXm1Empty->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  }
+	  if(pt_sum_HFE_minus>0){
+	    meMETPhiHFEGammasMinus_BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm1Empty"];if(meMETPhiHFEGammasMinus_BXm1Empty  && meMETPhiHFEGammasMinus_BXm1Empty ->getRootObject())meMETPhiHFEGammasMinus_BXm1Empty->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	  }
 	}
-
-
-
       }//fill candidate plots only then
       
       // PFMET getters
