@@ -116,7 +116,6 @@ from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import
 # hotline skim workflows
 ###############################################################
 from Calibration.Hotline.hotlineSkims_Output_cff import *
-from Calibration.Hotline.hotlineMETSkims_Output_cff import *
 
 ALCARECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
@@ -166,7 +165,6 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputComma
 ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOLumiPixels_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOHotline.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMETHotline.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBiasHI_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBiasHI_noDrop.outputCommands)
 
