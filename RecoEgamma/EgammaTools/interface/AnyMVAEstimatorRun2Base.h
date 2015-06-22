@@ -50,7 +50,7 @@ class AnyMVAEstimatorRun2Base {
   // Data members
   //
   // Configuration
-  const edm::ParameterSet& _conf;
+  const edm::ParameterSet _conf;
 
 };
 
