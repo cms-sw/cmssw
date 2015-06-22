@@ -6,7 +6,7 @@
 #include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalParametersFromDD.h"
+#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
 void
 PHcalParametersDBBuilder::beginRun( const edm::Run&, edm::EventSetup const& es ) 

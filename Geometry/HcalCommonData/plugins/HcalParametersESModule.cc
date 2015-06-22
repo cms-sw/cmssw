@@ -1,14 +1,35 @@
-#include "HcalParametersESModule.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PHcalParametersRcd.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalParametersFromDD.h"
-#include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
+#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
+
+#include <boost/shared_ptr.hpp>
+ 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+class PHcalParameters;
+class PHcalParametersRcd;
+
+class  HcalParametersESModule : public edm::ESProducer
+{
+ public:
+  HcalParametersESModule( const edm::ParameterSet & );
+  ~HcalParametersESModule( void );
+  
+  typedef boost::shared_ptr<PHcalParameters> ReturnType;
+
+  static void fillDescriptions( edm::ConfigurationDescriptions & );
+  
+  ReturnType produce( const PHcalParametersRcd & );
+};
 
 HcalParametersESModule::HcalParametersESModule( const edm::ParameterSet& )
 {
