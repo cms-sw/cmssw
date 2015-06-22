@@ -183,7 +183,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 
 //   // adding fed mask into channel mask
   
-  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup); // so can create/initialize/assign const quantity in one line accounting for if statement
+  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup); 
+  // so can create/initialize/assign const quantity in one line accounting for if statement
   // wikipedia says this is exactly what it's for: http://en.wikipedia.org/wiki/%3F:#C.2B.2B
 
 //   std::cout << "Contents of ";
