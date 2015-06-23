@@ -14,6 +14,7 @@ void configureIt(const edm::ParameterSet& conf,
   constexpr char adcSaturation[]    = "adcSaturation";
   constexpr char tdcNbits[]         = "tdcNbits";
   constexpr char tdcSaturation[]    = "tdcSaturation";
+  constexpr char tdcOnset[]         = "tdcOnset";
   constexpr char toaLSB_ns[]        = "toaLSB_ns";
   
   if( conf.exists(isSiFE) ) {
@@ -34,10 +35,13 @@ void configureIt(const edm::ParameterSet& conf,
   if( conf.exists(tdcNbits) ) {
     uint32_t nBits    = conf.getParameter<uint32_t>(tdcNbits);
     double saturation = conf.getParameter<double>(tdcSaturation);
+    double onset      = conf.getParameter<double>(tdcOnset); // in fC
     float tdcLSB      = saturation/pow(2.,nBits); 
     maker.set_TDCLSB(tdcLSB);
+    maker.set_tdcOnsetfC(onset);
   } else {
     maker.set_TDCLSB(-1.);
+    maker.set_tdcOnsetfC(-1.);
   } 
     
   if( conf.exists(toaLSB_ns) ) {
