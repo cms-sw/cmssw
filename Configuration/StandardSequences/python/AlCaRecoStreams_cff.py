@@ -151,8 +151,11 @@ pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIso
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalPhisymDQM)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
+pathALCARECOMuAlCalIsolatedMuGeneralTracks = cms.Path(seqALCARECOMuAlCalIsolatedMuGeneralTracks)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
+pathALCARECOMuAlZMuMuGeneralTracks = cms.Path(seqALCARECOMuAlZMuMuGeneralTracks)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
+pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECODtCalib = cms.Path(seqALCARECODtCalib*ALCARECODTCalibSynchDQM)
 pathALCARECODtCalibCosmics = cms.Path(seqALCARECODtCalibCosmics*ALCARECODTCalibSynchCosmicsDQM)
@@ -174,7 +177,9 @@ pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARE
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
 pathALCARECOTkAlCosmicsRegional0THLT = cms.Path(seqALCARECOTkAlCosmicsRegional0THLT*ALCARECOTkAlCosmicsRegional0TDQM)
 pathALCARECOMuAlGlobalCosmicsInCollisions = cms.Path(seqALCARECOMuAlGlobalCosmicsInCollisions*ALCARECOMuAlGlobalCosmicsInCollisionsDQM)
+pathALCARECOMuAlGlobalCosmicsInCollisionsTracks = cms.Path(seqALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks*seqALCARECOMuAlGlobalCosmicsInCollisionsCombinatorialTF*seqALCARECOMuAlGlobalCosmicsInCollisionsCosmicTF*seqALCARECOMuAlGlobalCosmicsInCollisionsRegionalTF)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
+pathALCARECOMuAlGlobalCosmicsTracks = cms.Path(seqALCARECOMuAlGlobalCosmicsGeneralTracks*seqALCARECOMuAlGlobalCosmicsCombinatorialTF*seqALCARECOMuAlGlobalCosmicsCosmicTF*seqALCARECOMuAlGlobalCosmicsRegionalTF)
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
 pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
 pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
@@ -393,27 +398,27 @@ ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
     )
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
-	responsible = 'Javier Fernandez',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlCalIsolatedMu',
-	paths  = (pathALCARECOMuAlCalIsolatedMu),
+	paths  = (pathALCARECOMuAlCalIsolatedMu, pathALCARECOMuAlCalIsolatedMuGeneralTracks),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
 	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
 ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
-	responsible = 'Javier Fernandez',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlZMuMu',
-	paths  = (pathALCARECOMuAlZMuMu),
+	paths  = (pathALCARECOMuAlZMuMu,pathALCARECOMuAlZMuMuGeneralTracks),
 	content = OutALCARECOMuAlZMuMu.outputCommands,
 	selectEvents = OutALCARECOMuAlZMuMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
 ALCARECOStreamMuAlOverlaps = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlOverlaps',
-	paths  = (pathALCARECOMuAlOverlaps),
+	paths  = (pathALCARECOMuAlOverlaps,pathALCARECOMuAlOverlapsGeneralTracks),
 	content = OutALCARECOMuAlOverlaps.outputCommands,
 	selectEvents = OutALCARECOMuAlOverlaps.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -492,18 +497,18 @@ ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlGlobalCosmics',
-	paths  = (pathALCARECOMuAlGlobalCosmics),
+	paths  = (pathALCARECOMuAlGlobalCosmics,pathALCARECOMuAlGlobalCosmicsTracks),
 	content = OutALCARECOMuAlGlobalCosmics.outputCommands,
 	selectEvents = OutALCARECOMuAlGlobalCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
 ALCARECOStreamMuAlGlobalCosmicsInCollisions = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlGlobalCosmicsInCollisions',
-	paths  = (pathALCARECOMuAlGlobalCosmicsInCollisions),
+	paths  = (pathALCARECOMuAlGlobalCosmicsInCollisions,pathALCARECOMuAlGlobalCosmicsInCollisionsTracks),
 	content = OutALCARECOMuAlGlobalCosmicsInCollisions.outputCommands,
 	selectEvents = OutALCARECOMuAlGlobalCosmicsInCollisions.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -519,7 +524,7 @@ ALCARECOStreamTkAlBeamHalo = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlBeamHalo',
 	paths  = (pathALCARECOMuAlBeamHalo),
 	content = OutALCARECOMuAlBeamHalo.outputCommands,
@@ -528,7 +533,7 @@ ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlBeamHaloOverlaps = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Yuriy Pakhotin',
 	name = 'MuAlBeamHaloOverlaps',
 	paths  = (pathALCARECOMuAlBeamHaloOverlaps),
 	content = OutALCARECOMuAlBeamHaloOverlaps.outputCommands,
