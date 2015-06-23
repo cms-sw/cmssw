@@ -4,7 +4,7 @@
 #include "Cintex/Cintex.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 
 #include "PhysicsTools/CondLiteIO/interface/RecordWriter.h"
@@ -16,7 +16,7 @@
 
 int main(int argc, char ** argv)
 {
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   std::cout << "Test!!!" << std::endl << std::endl;
   TFile f("performance_ssvm.root","READ");

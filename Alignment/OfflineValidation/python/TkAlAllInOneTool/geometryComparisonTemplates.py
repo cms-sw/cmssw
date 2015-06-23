@@ -9,10 +9,7 @@ process = cms.Process("ValidationIntoNTuples")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
-process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
-
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
@@ -50,10 +47,7 @@ process = cms.Process("validation")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
-process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
-
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
@@ -117,3 +111,55 @@ dbOutputTemplate= """
     }
 """
 
+######################################################################
+######################################################################
+visualizationTrackerTemplate= """
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/visualizationTracker.C"
+void TkAl3DVisualization_.oO[name]Oo.(){
+            //------------------------------ONLY NEEDED INPUTS-------------------------------//
+//------Tree Read In--------
+    TString inputFileName = ".oO[outputFile]Oo.";
+    //output file name
+    string outputFileName = ".oO[name]Oo..Visualization";
+    //title
+    string line1 = ".oO[alignmentTitle]Oo.";
+    string line2 = "vs. .oO[referenceTitle]Oo.";
+    //set subdetectors to see
+    int subdetector1 = .oO[3DSubdetector1]Oo.;
+    int subdetector2 = .oO[3DSubdetector2]Oo.;
+    //translation scale factor
+    int sclftr = .oO[3DTranslationalScaleFactor]Oo.;
+    //rotation scale factor
+    int sclfrt = 1;
+    //module size scale factor
+    float sclfmodulesizex = 1;
+    float sclfmodulesizey = 1;
+    float sclfmodulesizez = 1;
+    //beam pipe radius
+    float piperadius = 2.25;
+    //beam pipe xy coordinates
+    float pipexcoord = 0;
+    float pipeycoord = 0;
+    //beam line xy coordinates
+    float linexcoord = 0;
+    float lineycoord = 0;
+//------------------------------End of ONLY NEEDED INPUTS-------------------------------//
+    cout << "running visualizer" << endl;
+    runVisualizer(inputFileName,
+                    outputFileName,
+                    line1,
+                    line2,
+                    subdetector1,
+                    subdetector2,
+                    sclftr,
+                    sclfrt,
+                    sclfmodulesizex,
+                    sclfmodulesizey,
+                    sclfmodulesizez,
+                    piperadius,
+                    pipexcoord,
+                    pipeycoord,
+                    linexcoord,
+                    lineycoord );
+}
+"""

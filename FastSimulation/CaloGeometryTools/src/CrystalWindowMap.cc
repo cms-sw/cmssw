@@ -15,7 +15,7 @@ CrystalWindowMap::CrystalWindowMap(const CaloGeometryHelper *calo,const std::vec
 
   for(unsigned ic=0; ic<size_; ++ic)
     {
-      const std::vector<DetId>& neighbours=myCalorimeter_->getNeighbours(cw[ic].getDetId());
+      const CaloGeometryHelper::NeiVect& neighbours=myCalorimeter_->getNeighbours(cw[ic].getDetId());
       myNeighbours_[ic].reserve(8);
       for(unsigned in=0; in<8;++in)
 	{

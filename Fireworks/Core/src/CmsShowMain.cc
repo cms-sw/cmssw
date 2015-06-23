@@ -28,6 +28,7 @@
 #include "TEveManager.h"
 #include "TFile.h"
 #include "TGClient.h"
+#include <KeySymbols.h>
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -60,7 +61,7 @@
 
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #if defined(R__LINUX)
 #include "TGX11.h" // !!!! AMT has to be at the end to pass build
@@ -288,7 +289,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
    //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
    // open any graphics or build dictionaries
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
 
    TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
 
@@ -319,6 +320,20 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
    startupTasks()->addTask(f);
 
+
+
+   if(vm.count(kLiveCommandOpt))
+   {
+      f = boost::bind(&CmsShowMain::setLiveMode, this);
+      startupTasks()->addTask(f);
+   }
+      
+   if(vm.count(kFieldCommandOpt)) 
+   {
+      m_context->getField()->setSource(FWMagField::kUser);
+      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
+   }
+
    if ( m_inputFiles.empty()) {
       f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
       startupTasks()->addTask(f);
@@ -348,17 +363,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       startupTasks()->addTask(f);
    }
 
-   if(vm.count(kLiveCommandOpt))
-   {
-      f = boost::bind(&CmsShowMain::setLiveMode, this);
-      startupTasks()->addTask(f);
-   }
-      
-   if(vm.count(kFieldCommandOpt)) 
-   {
-      m_context->getField()->setSource(FWMagField::kUser);
-      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
-   }
    if(vm.count(kAutoSaveAllViews)) {
       std::string type = "png";
       if(vm.count(kAutoSaveType)) {
@@ -785,12 +789,22 @@ CmsShowMain::notified(TSocket* iSocket)
 }
 
 void
+CmsShowMain::checkKeyBindingsOnPLayEventsStateChanged()
+{
+    if (m_live) {
+        Int_t keycode = gVirtualX->KeysymToKeycode((int)kKey_Space);
+        Window_t id = FWGUIManager::getGUIManager()->getMainFrame()->GetId();
+        gVirtualX->GrabKey(id, keycode, 0, isPlaying());
+    }
+}
+
+void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
    if (m_live)
       m_navigator->resetNewFileOnNextEvent();
-   setIsPlaying(false);
+   CmsShowMainBase::stopPlaying();
    guiManager()->enableActions();
    checkPosition();
 }

@@ -17,9 +17,7 @@ public:
   
   ~DDFilteredView();
   
-  enum log_op { AND, OR };
-  
-  void addFilter(const DDFilter &, log_op op=AND);
+  void addFilter(const DDFilter &, DDLogOp op = DDLogOp::AND);
   
     //! The logical-part of the current node in the filtered-view
   const DDLogicalPart & logicalPart() const;
@@ -81,18 +79,12 @@ public:
      
 private:
   bool filter();
-  
-private:
+
   DDExpandedView epv_;
   const DDScope * scope_;
-  typedef DDFilter const * criterion_type;
-  typedef std::vector<criterion_type> criteria_type;
-  typedef std::vector<log_op> logops_type;
-  
-  criteria_type criteria_;
-  logops_type logOps_; // logical operation for merging the result of 2 filters
+  std::vector<DDFilter const *> criteria_;
+  std::vector<DDLogOp> logOps_; // logical operation for merging the result of 2 filters
   std::vector<DDGeoHistory> parents_; // filtered-parents
-
 };
 
 #endif

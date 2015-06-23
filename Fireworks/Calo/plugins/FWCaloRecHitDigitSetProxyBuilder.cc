@@ -11,7 +11,7 @@
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 
 FWCaloRecHitDigitSetProxyBuilder::FWCaloRecHitDigitSetProxyBuilder()
-   : m_invertBox(false), m_ignoreGeoShapeSize(false) 
+   : m_invertBox(false), m_ignoreGeoShapeSize(false), m_enlarge(1.0)
 {} 
 
 //______________________________________________________________________________
@@ -19,12 +19,16 @@ FWCaloRecHitDigitSetProxyBuilder::FWCaloRecHitDigitSetProxyBuilder()
 void FWCaloRecHitDigitSetProxyBuilder::setItem(const FWEventItem* iItem)
 {
    FWProxyBuilderBase::setItem(iItem);
-   // if (iItem) iItem->getConfig()->assertParam( "IgnoreShapeSize", false);
+   if (iItem) {
+      iItem->getConfig()->assertParam( "Enlarge", 1.0, 1.0, 5.0);
+      // iItem->getConfig()->assertParam( "IgnoreShapeSize", false);
+   }
 }
 //______________________________________________________________________________
 
 void FWCaloRecHitDigitSetProxyBuilder::viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*)
 {
+   scale *= m_enlarge;
    if ( m_ignoreGeoShapeSize)
    {
       // Same functionality as fireworks::energyTower3DCorners()
@@ -141,6 +145,7 @@ FWCaloRecHitDigitSetProxyBuilder::build( const FWEventItem* iItem, TEveElementLi
    if (!size) return;
 
    // m_ignoreGeoShapeSize = item()->getConfig()->value<bool>("IgnoreShapeSize");
+   m_enlarge = item()->getConfig()->value<double>("Enlarge");
 
    std::vector<float> scaledCorners(24);
 

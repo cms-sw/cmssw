@@ -252,7 +252,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
   trackToken = consumes<reco::TrackCollection>(trackTag_);
 
-  produces<reco::EvtPlaneCollection>("recoLevel");
+  produces<reco::EvtPlaneCollection>();
   for(int i = 0; i<NumEPNames; i++ ) {
     rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
   }
@@ -296,7 +296,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iSetup.get<HeavyIonRcd>().get(centralityLabel_,centDB_);
     nCentBins_ = centDB_->m_table.size();
     for(int i = 0; i<NumEPNames; i++) {
-      flat[i]->setCaloCentRefBins(-1,-1);
       if(caloCentRef_>0) {
 	int minbin = (caloCentRef_-caloCentRefWidth_/2.)*nCentBins_/100.;
 	int maxbin = (caloCentRef_+caloCentRefWidth_/2.)*nCentBins_/100.;
@@ -311,11 +310,13 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //
     //Get flattening parameter file.  
     //
-    edm::ESHandle<RPFlatParams> flatparmsDB_;
-    iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
-    LoadEPDB db(flatparmsDB_,flat);
-    if(!db.IsSuccess()) {
-      loadDB_ = kFALSE;
+    if ( loadDB_ ) {
+	edm::ESHandle<RPFlatParams> flatparmsDB_;
+	iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
+	LoadEPDB db(flatparmsDB_,flat);
+	if(!db.IsSuccess()) {
+	  loadDB_ = kFALSE;
+	}
     }
 
   } //rp record change
@@ -333,18 +334,21 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //
   //Get Vertex
   //
-  int vs_sell;
+  int vs_sell = 0.;
   float vzr_sell;
   iEvent.getByToken(vertexToken,vertex_);
-  const reco::VertexCollection * vertices3 = vertex_.product();
-  vs_sell = vertices3->size();
+  const reco::VertexCollection * vertices3 = nullptr;
+  if ( vertex_.isValid() ) {
+	vertices3 = vertex_.product();
+	vs_sell = vertices3->size();
+  }
   if(vs_sell>0) {
     vzr_sell = vertices3->begin()->z();
   } else
     vzr_sell = -999.9;
   //
   for(int i = 0; i<NumEPNames; i++) rp[i]->reset();
-  if(vzr_sell>minvtx_ && vzr_sell<maxvtx_) {
+  if(vzr_sell<minvtx_ or vzr_sell>maxvtx_) return;
 
     //calorimetry part
 
@@ -421,7 +425,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     double vzErr2 =0.0, vxyErr=0.0;
     math::XYZPoint vtxPoint(0.0,0.0,0.0);
-    if(vertex_->size()>0) {
+    if(vertex_.isValid() && vertex_->size()>0) {
 	    vtxPoint=vertex_->begin()->position();
 	    vzErr2= (vertex_->begin()->zError())*(vertex_->begin()->zError());
 	    vxyErr=vertex_->begin()->xError() * vertex_->begin()->yError();
@@ -506,8 +510,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       evtplaneOutput->back().addLevel(3, 0., svNoWgt, cvNoWgt);
     }
 
-    iEvent.put(evtplaneOutput, "recoLevel");
-  }
+    iEvent.put(evtplaneOutput);
 }
 
 //define this as a plug-in

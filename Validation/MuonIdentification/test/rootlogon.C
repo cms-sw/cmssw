@@ -4,7 +4,7 @@
    gSystem->Load("libCintex");
    Cintex::Enable();
    gSystem->Load("libFWCoreFWLite");
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
    gSystem->Load("libRooFit.so");
    using namespace RooFit;
 }

@@ -102,6 +102,26 @@ class TrackerTopology {
     unsigned int sterMask_;
   };
 
+  class SameLayerComparator {
+  public:
+    explicit SameLayerComparator(const TrackerTopology *topo): topo_(topo) {}
+
+    bool operator()(DetId i1, DetId i2) const {
+      if(i1.det() == i2.det() &&
+         i1.subdetId() == i2.subdetId() &&
+         topo_->side(i1) == topo_->side(i2) &&
+         topo_->layer(i1) == topo_->layer(i2)) {
+        return false;
+      }
+      return i1 < i2;
+    }
+
+    bool operator()(uint32_t i1, uint32_t i2) const {
+      return operator()(DetId(i1), DetId(i2));
+    }
+  private:
+    const TrackerTopology *topo_;
+  };
 
   
   TrackerTopology( const PixelBarrelValues& pxb, const PixelEndcapValues& pxf,
@@ -459,6 +479,30 @@ class TrackerTopology {
       (module& tobVals_.moduleMask_) << tobVals_.moduleStartBit_ |
       (ster& tobVals_.sterMask_) << tobVals_.sterStartBit_ ;
     return DetId(rawid);
+  }
+
+  std::pair<DetId, SameLayerComparator> pxbDetIdLayerComparator(uint32_t layer) const {
+    return std::make_pair(pxbDetId(layer, 1,1), SameLayerComparator(this));
+  }
+
+  std::pair<DetId, SameLayerComparator> pxfDetIdDiskComparator(uint32_t side, uint32_t disk) const {
+    return std::make_pair(pxfDetId(side, disk, 1,1,1), SameLayerComparator(this));
+  }
+
+  std::pair<DetId, SameLayerComparator> tecDetIdWheelComparator(uint32_t side, uint32_t wheel) const {
+    return std::make_pair(tecDetId(side, wheel, 1,1,1,1,1), SameLayerComparator(this));
+  }
+
+  std::pair<DetId, SameLayerComparator> tibDetIdLayerComparator(uint32_t layer) const {
+    return std::make_pair(tibDetId(layer, 1,1,1,1,1), SameLayerComparator(this));
+  }
+
+  std::pair<DetId, SameLayerComparator> tidDetIdWheelComparator(uint32_t side, uint32_t wheel) const {
+    return std::make_pair(tidDetId(side, wheel, 1,1,1,1), SameLayerComparator(this));
+  }
+
+  std::pair<DetId, SameLayerComparator> tobDetIdLayerComparator(uint32_t layer) const {
+    return std::make_pair(tobDetId(layer, 1,1,1,1), SameLayerComparator(this));
   }
 
   std::string print(DetId detid) const;

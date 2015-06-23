@@ -23,10 +23,10 @@
   <class name="std::vector<edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > > >"/>
   <class name="edm::Wrapper< std::vector<edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > > > >"/>
 
-  <class name="edm::reftobase::Holder<reco::Candidate, CaloTowerRef> " />
-  <class name="edm::reftobase::RefHolder<CaloTowerRef> " />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, CaloTowerRefs> " />
-  <class name="edm::reftobase::RefVectorHolder<CaloTowerRefs> " />
+  <class name="edm::reftobase::Holder<reco::Candidate, CaloTowerRef>" />
+  <class name="edm::reftobase::RefHolder<CaloTowerRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, CaloTowerRefs>" />
+  <class name="edm::reftobase::RefVectorHolder<CaloTowerRefs>" />
   <class name="edm::Ptr<CaloTower>"/>
   <class name="edm::PtrVector<CaloTower>"/>
   <class name="std::vector<edm::Ptr<CaloTower> >"/>
@@ -34,4 +34,9 @@
   <class name="std::vector<edm::FwdPtr<CaloTower> >"/>
 
   <class name="std::vector<CaloTowerDetId>"/>
+
+  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+  <class name="edm::AtomicPtrCache<std::vector<CaloTowerPtr> >">
+    <field name="m_data" transient="true"/>
+  </class>
 </lcgdict>

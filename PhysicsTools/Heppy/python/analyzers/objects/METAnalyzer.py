@@ -22,10 +22,11 @@ class METAnalyzer( Analyzer ):
 
     def declareHandles(self):
         super(METAnalyzer, self).declareHandles()
-        self.handles['met'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
-        self.handles['nopumet'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
+        self.handles['met'] = AutoHandle( self.cfg_ana.metCollection, 'std::vector<pat::MET>' )
+        self.handles['nopumet'] = AutoHandle( self.cfg_ana.noPUMetCollection, 'std::vector<pat::MET>' )
         self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
+        self.mchandles['packedGen'] = AutoHandle( 'packedGenParticles', 'std::vector<pat::PackedGenParticle>' )
 
     def beginLoop(self, setup):
         super(METAnalyzer,self).beginLoop(setup)
@@ -33,8 +34,11 @@ class METAnalyzer( Analyzer ):
         count = self.counters.counter('events')
         count.register('all events')
 
+    def applyDeltaMet(self, met, deltaMet):
+        px,py = self.met.px()+deltaMet[0], self.met.py()+deltaMet[1]
+        met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+
     def makeTkMETs(self, event):
-        event.tkMet = 0  
 
         charged = []
         chargedchs = []
@@ -62,16 +66,30 @@ class METAnalyzer( Analyzer ):
                     chargedPVTight.append(pfcands.at(i))
 
         import ROOT
-        event.tkMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, math.hypot((sum([x.px() for x in charged])),(sum([x.py() for x in charged]))) )
-        event.tkMetchs = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedchs])) , -1.*(sum([x.py() for x in chargedchs])), 0, math.hypot((sum([x.px() for x in chargedchs])),(sum([x.py() for x in chargedchs]))) )
-        event.tkMetPVLoose = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVLoose])) , -1.*(sum([x.py() for x in chargedPVLoose])), 0, math.hypot((sum([x.px() for x in chargedPVLoose])),(sum([x.py() for x in chargedPVLoose]))) )
-        event.tkMetPVTight = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) )
-##        print 'tkmet',event.tkMet.pt(),'tkmetphi',event.tkMet.phi()
+        setattr(event, "tkMet"+self.cfg_ana.collectionPostFix, \
+          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, math.hypot((sum([x.px() for x in charged])),(sum([x.py() for x in charged]))) ))
+        setattr(event, "tkMetPVchs"+self.cfg_ana.collectionPostFix, \
+          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedchs])) , -1.*(sum([x.py() for x in chargedchs])), 0, math.hypot((sum([x.px() for x in chargedchs])),(sum([x.py() for x in chargedchs]))) ))
+        setattr(event, "tkMetPVLoose"+self.cfg_ana.collectionPostFix, \
+          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVLoose])) , -1.*(sum([x.py() for x in chargedPVLoose])), 0, math.hypot((sum([x.px() for x in chargedPVLoose])),(sum([x.py() for x in chargedPVLoose]))) ))
+        setattr(event, "tkMetPVTight"+self.cfg_ana.collectionPostFix, \
+          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) ))
+##        print 'tkmet',self.tkMet.pt(),'tkmetphi',self.tkMet.phi()
 
+
+        event.tkSumEt = sum([x.pt() for x in charged])
+        event.tkPVchsSumEt = sum([x.pt() for x in chargedchs])
+        event.tkPVLooseSumEt = sum([x.pt() for x in chargedPVLoose])
+        event.tkPVTightSumEt = sum([x.pt() for x in chargedPVTight])
+
+
+    def makeGenTkMet(self, event):
+        genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
+        event.tkGenMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in genCharged])) , -1.*(sum([x.py() for x in genCharged])), 0, math.hypot((sum([x.px() for x in genCharged])),(sum([x.py() for x in genCharged]))) )
 
     def makeMETNoMu(self, event):
-        event.metNoMu = copy.deepcopy(event.met)
-        event.metNoMuNoPU = copy.deepcopy(event.metNoPU)
+        self.metNoMu = copy.deepcopy(self.met)
+        if self.cfg_ana.doMetNoPU: self.metNoMuNoPU = copy.deepcopy(self.metNoPU)
 
         mupx = 0
         mupy = 0
@@ -81,14 +99,36 @@ class METAnalyzer( Analyzer ):
             mupy += mu.py()
 
         #subtract muon momentum and construct met                                                                                                                                                                                                     
-        px,py = event.metNoMu.px()-mupx, event.metNoMu.py()-mupy
-        event.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        px,py = event.metNoMuNoPU.px()-mupx, event.metNoMuNoPU.py()-mupy
-        event.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        px,py = self.metNoMu.px()+mupx, self.metNoMu.py()+mupy
+        self.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        px,py = self.metNoMuNoPU.px()+mupx, self.metNoMuNoPU.py()+mupy
+        self.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        setattr(event, "metNoMu"+self.cfg_ana.collectionPostFix, self.metNoMu)
+        if self.cfg_ana.doMetNoPU: setattr(event, "metNoMuNoPU"+self.cfg_ana.collectionPostFix, self.metNoMuNoPU)
+
+
+    def makeMETNoEle(self, event):
+        self.metNoEle = copy.deepcopy(self.met)
+        if self.cfg_ana.doMetNoPU: self.metNoEleNoPU = copy.deepcopy(self.metNoPU)
+
+        elepx = 0
+        elepy = 0
+        #sum electron momentum                                                                                                                                                                                                                            
+        for ele in event.selectedElectrons:
+            elepx += ele.px()
+            elepy += ele.py()
+
+        #subtract electron momentum and construct met                                                                                                                                                                                                     
+        px,py = self.metNoEle.px()+elepx, self.metNoEle.py()+elepy
+        self.metNoEle.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+
+        px,py = self.metNoEleNoPU.px()+elepx, self.metNoEleNoPU.py()+elepy
+        self.metNoEleNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        setattr(event, "metNoEle"+self.cfg_ana.collectionPostFix, self.metNoEle)
+        if self.cfg_ana.doMetNoPU: setattr(event, "metNoEleNoPU"+self.cfg_ana.collectionPostFix, self.metNoEleNoPU)
 
     def makeMETNoPhoton(self, event):
-        event.metNoPhoton = copy.deepcopy(event.met)
-        event.metNoPhotonNoPU = copy.deepcopy(event.metNoPU)
+        self.metNoPhoton = copy.deepcopy(self.met)
 
         phopx = 0
         phopy = 0
@@ -97,46 +137,72 @@ class METAnalyzer( Analyzer ):
             phopx += pho.px()
             phopy += pho.py()
 
-        #subtract photon momentum and construct met                                                                                                                                                                                                     
-        px,py = event.metNoPhoton.px()-phopx, event.metNoPhoton.py()-phopy
-        event.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        px,py = event.metNoPhotonNoPU.px()-phopx, event.metNoPhotonNoPU.py()-phopy
-        event.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        #subtract photon momentum and construct met
+        px,py = self.metNoPhoton.px()+phopx, self.metNoPhoton.py()+phopy
+        self.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        setattr(event, "metNoPhoton"+self.cfg_ana.collectionPostFix, self.metNoPhoton)
+        if self.cfg_ana.doMetNoPU: 
+          self.metNoPhotonNoPU = copy.deepcopy(self.metNoPU)
+          px,py = self.metNoPhotonNoPU.px()+phopx, self.metNoPhotonNoPU.py()+phopy
+          self.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+          setattr(event, "metNoPhotonNoPU"+self.cfg_ana.collectionPostFix, self.metNoPhotonNoPU)
 
 
     def makeMETs(self, event):
-        event.met = self.handles['met'].product()[0]
-        event.metNoPU = self.handles['nopumet'].product()[0]
+        import ROOT
+        if self.cfg_ana.copyMETsByValue:
+          self.met = ROOT.pat.MET(self.handles['met'].product()[0])
+          if self.cfg_ana.doMetNoPU: self.metNoPU = ROOT.pat.MET(self.handles['nopumet'].product()[0])
+        else:
+          self.met = self.handles['met'].product()[0]
+          if self.cfg_ana.doMetNoPU: self.metNoPU = self.handles['nopumet'].product()[0]
 
         #Shifted METs
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
-        for i in range(event.met.METUncertaintySize):
-            m = ROOT.pat.MET(event.met)
-            px  = m.shiftedPx(i);
-            py  = m.shiftedPy(i);
-            m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            setattr(event, "met_shifted_{0}".format(i), m)
-        event.met_sig = event.met.significance()
-        event.met_sumet = event.met.sumEt()
-        #event.met_sigm = event.met.getSignificanceMatrix()
+        #event.met_shifted = []
+        if not self.cfg_ana.copyMETsByValue:
+          for i in range(self.met.METUncertaintySize):
+              m = ROOT.pat.MET(self.met)
+              px  = m.shiftedPx(i);
+              py  = m.shiftedPy(i);
+              m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+              #event.met_shifted += [m]
+              setattr(event, "met{0}_shifted_{1}".format(self.cfg_ana.collectionPostFix, i), m)
+
+        self.met_sig = self.met.significance()
+        self.met_sumet = self.met.sumEt()
+
 
         ###https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h
-        event.metraw = event.met.shiftedPt(12, 0)
-        event.metType1chs = event.met.shiftedPt(12, 1)
+        if not self.cfg_ana.copyMETsByValue:
+          self.metraw = self.met.shiftedPt(12, 0)
+          self.metType1chs = self.met.shiftedPt(12, 1)
+          setattr(event, "metraw"+self.cfg_ana.collectionPostFix, self.metraw)
+          setattr(event, "metType1chs"+self.cfg_ana.collectionPostFix, self.metType1chs)
 
-        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'):
-            px,py = event.met.px()+event.deltaMetFromJetSmearing[0], event.met.py()+event.deltaMetFromJetSmearing[1]
-            event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            px,py = event.metNoPU.px()+event.deltaMetFromJetSmearing[0], event.metNoPU.py()+event.deltaMetFromJetSmearing[1]
-            event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
-            px,py = event.met.px()+event.deltaMetFromJEC[0], event.met.py()+event.deltaMetFromJEC[1]
-            event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            px,py = event.metNoPU.px()+event.deltaMetFromJEC[0], event.metNoPU.py()+event.deltaMetFromJEC[1]
-            event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
+          deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+          self.applyDeltaMet(self.met, deltaMetSmear)
+          if self.cfg_ana.doMetNoPU:
+            self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
+          deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
+#          print 'before JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
+          self.applyDeltaMet(self.met, deltaMetJEC)
+          if self.cfg_ana.doMetNoPU: 
+            self.applyDeltaMet(self.metNoPU, deltaMetJEC)
+#          print 'after JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
+
+        setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
+        if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
+        setattr(event, "met_sig"+self.cfg_ana.collectionPostFix, self.met_sig)
+        setattr(event, "met_sumet"+self.cfg_ana.collectionPostFix, self.met_sumet)
         
         if self.cfg_ana.doMetNoMu and hasattr(event, 'selectedMuons'):
             self.makeMETNoMu(event)
+
+        if self.cfg_ana.doMetNoEle and hasattr(event, 'selectedElectrons'):
+            self.makeMETNoEle(event)
 
         if self.cfg_ana.doMetNoPhoton and hasattr(event, 'selectedPhotons'):
             self.makeMETNoPhoton(event)
@@ -146,24 +212,31 @@ class METAnalyzer( Analyzer ):
         self.counters.counter('events').inc('all events')
 
         self.makeMETs(event)
-        event.tkMet = 0 
 
         if self.cfg_ana.doTkMet: 
             self.makeTkMETs(event);
 
-
+            if self.cfg_comp.isMC and hasattr(event, 'genParticles'):
+                self.makeGenTkMet(event)
 
         return True
 
 
 setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = METAnalyzer,
+    metCollection     = "slimmedMETs",
+    noPUMetCollection = "slimmedMETs",
+    copyMETsByValue = False,
     recalibrate = True,
+    jetAnalyzerCalibrationPostFix = "",
     doTkMet = False,
+    doMetNoPU = True,  
     doMetNoMu = False,  
+    doMetNoEle = False,  
     doMetNoPhoton = False,  
     candidates='packedPFCandidates',
     candidatesTypes='std::vector<pat::PackedCandidate>',
     dzMax = 0.1,
+    collectionPostFix = "",
     )
 )

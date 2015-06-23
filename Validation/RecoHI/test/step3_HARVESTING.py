@@ -44,7 +44,7 @@ process.GlobalTag.globaltag = 'MC_37Y_V0::All'
 # Path and EndPath definitions
 process.edmtome_step = cms.Path(process.EDMtoME)
 process.validationHarvesting = cms.Path(process.recoMuonPostProcessors
-                                        +process.postProcessorTrack)
+                                        +process.postProcessorTrackSequence)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition

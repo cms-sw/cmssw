@@ -91,7 +91,7 @@
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Photon> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Photon>" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > >"/>
-  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > "/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
   <!--
   <class name="std::pair<reco::PFCandidateRef,bool>"/>
   <class name="std::vector<std::pair<reco::PFCandidateRef,bool> >"/>

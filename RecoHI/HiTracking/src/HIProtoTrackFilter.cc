@@ -10,7 +10,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h" 	 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"    
@@ -82,10 +83,12 @@ void HIProtoTrackFilter::update(const edm::Event& ev, const edm::EventSetup& es)
   // Estimate multiplicity
   edm::Handle<SiPixelRecHitCollection> recHitColl;
   ev.getByToken(theSiPixelRecHitsToken, recHitColl);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<TrackerTopologyRcd>().get(httopo);
   
   vector<const TrackingRecHit*> theChosenHits; 	 
-  TrackerLayerIdAccessor acc; 	 
-  edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
+  edmNew::copyDetSetRange(*recHitColl,theChosenHits, httopo->pxbDetIdLayerComparator(1));
   float estMult = theChosenHits.size();
   
   theVariablePtMin=thePtMin;

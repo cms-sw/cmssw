@@ -67,7 +67,7 @@ mixData = cms.EDProducer("DataMixingModule",
           ecal_sim_parameter_map,
           ecal_notCont_sim,
           es_electronics_sim,
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         producers = cms.VPSet(cms.convertToVPSet(
                                              ecalDigis = ecalDigis,
                                              ecalPreshowerDigis = ecalPreshowerDigis,

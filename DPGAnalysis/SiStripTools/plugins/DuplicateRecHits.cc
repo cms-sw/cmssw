@@ -111,7 +111,7 @@ DuplicateRecHits::DuplicateRecHits(const edm::ParameterSet& iConfig):
 
   m_nduplicate = tfserv->make<TH1F>("nduplicate","Number of duplicated clusters per track",10,-0.5,9.5);
   m_nduplmod = tfserv->make<TH1F>("nduplmod","Number of duplicated clusters per module",10,-0.5,9.5);
-  m_nduplmod->SetBit(TH1::kCanRebin);
+  m_nduplmod->SetCanExtend(TH1::kXaxis);
 }
 
 

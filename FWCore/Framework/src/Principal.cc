@@ -100,7 +100,7 @@ namespace edm {
 
   namespace {
     void failedToRegisterConsumesMany(edm::TypeID const& iType) {
-      LogInfo("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
+      LogError("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
     }
     
     void failedToRegisterConsumes(KindOfType kindOfType,
@@ -108,7 +108,7 @@ namespace edm {
                                   std::string const& moduleLabel,
                                   std::string const& productInstanceName,
                                   std::string const& processName) {
-      LogInfo("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
+      LogError("GetByLabelWithoutRegistration")<<"::getByLabel without corresponding call to consumes or mayConsumes for this module.\n"
       << (kindOfType == PRODUCT_TYPE ? "  type: " : " type: edm::View<")<<productType
       << (kindOfType == PRODUCT_TYPE ? "\n  module label: " : ">\n  module label: ")<<moduleLabel
       <<"\n  product instance name: '"<<productInstanceName
@@ -390,7 +390,17 @@ namespace edm {
   ProductHolderBase*
   Principal::getExistingProduct(ProductHolderBase const& productHolder) {
     ProductHolderBase* phb = getExistingProduct(productHolder.branchDescription().branchID());
-    assert(nullptr == phb || BranchKey(productHolder.branchDescription()) == BranchKey(phb->branchDescription()));
+    if(nullptr != phb && BranchKey(productHolder.branchDescription()) != BranchKey(phb->branchDescription())) {
+      BranchDescription const& newProduct = phb->branchDescription();
+      BranchDescription const& existing = productHolder.branchDescription();
+      if(newProduct.branchName() != existing.branchName() && newProduct.branchID() == existing.branchID()) {
+        throw cms::Exception("HashCollision") << "Principal::getExistingProduct\n" <<
+          " Branch " << newProduct.branchName() << " has same branch ID as branch " << existing.branchName() << "\n" <<
+          "Workaround: change process name or product instance name of " << newProduct.branchName() << "\n";
+      } else {
+        assert(nullptr == phb || BranchKey(productHolder.branchDescription()) == BranchKey(phb->branchDescription()));
+      }
+    }
     return phb;
   }
 

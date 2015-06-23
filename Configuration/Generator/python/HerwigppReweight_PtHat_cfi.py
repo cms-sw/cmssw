@@ -9,7 +9,7 @@ herwigppReweightSettingsBlock = cms.PSet(
 		'create ThePEG::ReweightMinPT /Herwig/Weights/reweightMinPT ReweightMinPT.so',
 		'set /Herwig/Weights/reweightMinPT:Power 4.5',
 		'set /Herwig/Weights/reweightMinPT:Scale 15*GeV',
-		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightMinPT',
+		'insert /Herwig/MatrixElements/SimpleQCD:Reweights[0] /Herwig/Weights/reweightMinPT',
 	),
 )
 

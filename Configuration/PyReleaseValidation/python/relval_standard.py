@@ -175,6 +175,7 @@ workflows[34] = ['', ['QQH1352T','DIGI','RECO','HARVEST']]
 #workflows[46] = ['', ['ZmumuJets_Pt_20_300']]
 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
+workflows[7.1]= ['', ['CosmicsSPLoose','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
 workflows[28] = ['', ['QCD_Pt_80_120','DIGI','RECO','HARVEST']]
@@ -217,6 +218,7 @@ workflows[1333] = ['', ['PhotonJets_Pt_10_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows[1334] = ['', ['QQH1352T_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 
 workflows[1307]  = ['', ['Cosmics_UP15','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
+workflows[1307.1]= ['', ['CosmicsSPLoose_UP15','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
 workflows[1308]  = ['', ['BeamHalo_13','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
 workflows[1311] = ['', ['MinBias_13','DIGIUP15','RECOMINUP15','HARVESTUP15','ALCAMIN','MINIAODMCUP15']]
 workflows[1328] = ['', ['QCD_Pt_80_120_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]

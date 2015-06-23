@@ -7,14 +7,3 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/TrackReco"/>
-# for FED list selector
-<use   name="CalibFormats/SiStripObjects"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="TrackingTools/TrackAssociator"/>

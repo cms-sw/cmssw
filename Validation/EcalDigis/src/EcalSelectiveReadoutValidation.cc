@@ -1378,7 +1378,13 @@ EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
     double etSum = ttEtSums[iEta0][iPhi0];
 
     int iE = meTp_->getTProfile()->FindFixBin(tpEt);
-    ++tpEtCount[iE];
+    if ((iE >= 0) && (iE < 100)) {
+      ++tpEtCount[iE];
+    } else {
+      // FindFixBin might return an overflow bin (outside tpEtCount range).
+      // To prevent a memory overflow / segfault, these values are ignored.
+      std::cout << "EcalSelectiveReadoutValidation: Invalid iE value: " << iE << std::endl;
+    }
 
     fill(meTpVsEtSum_, etSum, tpEt);
     ++TTFlagCount[it->ttFlag()];

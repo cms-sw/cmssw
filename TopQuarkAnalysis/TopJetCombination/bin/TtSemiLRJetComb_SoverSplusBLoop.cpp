@@ -15,7 +15,7 @@
 #include <TStyle.h>
 #include <TKey.h>
 #include <vector>
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
@@ -73,7 +73,7 @@ std::vector<const char*> obsFits;
 
 int main() { 
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   
   // define all histograms & fit functions

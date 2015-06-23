@@ -47,6 +47,9 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = pset.getParameter<bool>("UseCMSSWPixelParametrization");
 
+  thePixelResolutionFile1=0;
+  thePixelResolutionFile2=0;
+
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
      isForward = false;
      thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile1" );
@@ -82,6 +85,17 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   else
      throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
        <<"Not a pixel detector"<<endl;
+
+  if ( thePixelResolutionFile2) {
+    thePixelResolutionFile2->Close();
+    delete thePixelResolutionFile2;
+  }
+  if ( thePixelResolutionFile1) {
+    thePixelResolutionFile1->Close();
+    delete thePixelResolutionFile1;
+  }
+  thePixelResolutionFile1=0;
+  thePixelResolutionFile2=0;
 }
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitConverterAlgorithm()

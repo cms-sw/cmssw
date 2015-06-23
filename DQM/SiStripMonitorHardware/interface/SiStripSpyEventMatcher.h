@@ -161,7 +161,7 @@ namespace sistrip {
       edm::InputTag reorderedDigisTag_;
       edm::InputTag virginRawDigisTag_;
       uint32_t counterDiffMax_;
-      std::unique_ptr<edm::ProductRegistry> productRegistry_;
+      std::shared_ptr<edm::ProductRegistry> productRegistry_;
       std::unique_ptr<edm::VectorInputSource> const source_;
       std::unique_ptr<edm::ProcessConfiguration> processConfiguration_;
       std::unique_ptr<edm::EventPrincipal> eventPrincipal_;

@@ -21,7 +21,7 @@ from DQMOffline.RecoB.dqmCollector_cff import *
 
 postValidation = cms.Sequence(
       recoMuonPostProcessors
-    + postProcessorTrack
+    + postProcessorTrackSequence
     + postProcessorVertex
     + MuIsoValPostProcessor
     + calotowersPostProcessor
@@ -38,14 +38,14 @@ postValidation = cms.Sequence(
 
 postValidation_preprod = cms.Sequence(
     recoMuonPostProcessors
-  + postProcessorTrack
+  + postProcessorTrackSequence
   + MuIsoValPostProcessor
 )  
 
 
 postValidation_fastsim = cms.Sequence(
       recoMuonPostProcessorsFastSim
-    + postProcessorTrack
+    + postProcessorTrackSequence
     + MuIsoValPostProcessor
     + fastSimPhotonPostProcessor
     + bTagCollectorSequenceMC
@@ -55,4 +55,8 @@ postValidation_fastsim = cms.Sequence(
  
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor
+)
+
+postValidationCosmics = cms.Sequence(
+      postProcessorMuonMultiTrack
 )

@@ -40,7 +40,7 @@ process.mix = cms.EDFilter("MixingModule",
         input = cms.untracked.int32(1)
     ),
     
-    input = cms.SecSource("PoolRASource",
+    input = cms.SecSource("EmbeddedRootSource",
     
 #    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/RelVal/2007/7/11/RelVal-RelVal160pre4SingleEPt35-1184176348/0000/5EF3794C-7530-DC11-833F-000423D6C8EE.root'),
     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root'),

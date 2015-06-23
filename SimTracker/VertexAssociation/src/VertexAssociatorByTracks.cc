@@ -46,12 +46,12 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
     const edm::Handle<TrackingVertexCollection> & trackingVertexes
 ) const
 {
-    reco::VertexRecoToSimCollection  outputCollection;
+    reco::VertexRecoToSimCollection  outputCollection(productGetter_);
 
     std::map<TrackingVertexRef,std::pair<double, std::size_t> > matches;
 
-    std::cout << "reco::VertexCollection size = " << recoVertexes->size();
-    std::cout << " ; TrackingVertexCollection size = " << trackingVertexes->size() << std::endl << std::endl;
+    LogDebug("VertexAssociation") << "reco::VertexCollection size = " << recoVertexes->size()
+                                  << " ; TrackingVertexCollection size = " << trackingVertexes->size() << std::endl;
 
     // Loop over RecoVertex
     for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex)
@@ -133,19 +133,18 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
             outputCollection.insert(recoVertex, std::make_pair(trackingVertex, quality));
 
-            std::cout << "R2S: INDEX " << assoIndex;
-            std::cout << " ; SimDaughterCounter = " << simDaughterCounter;
-            std::cout << " ; RecoDaughterWeight = " << recoDaughterWeight;
-            std::cout << " ; MatchedDaughterCounter = " << matchedDaughterCounter;
-            std::cout << " ; MatchedDaughterWeight = " << matchedDaughterWeight;
-            std::cout << " ; quality = " << quality << std::endl;
+            LogTrace("VertexAssociation") << "R2S: INDEX " << assoIndex
+                                          << " ; SimDaughterCounter = " << simDaughterCounter
+                                          << " ; RecoDaughterWeight = " << recoDaughterWeight
+                                          << " ; MatchedDaughterCounter = " << matchedDaughterCounter
+                                          << " ; MatchedDaughterWeight = " << matchedDaughterWeight
+                                          << " ; quality = " << quality;
 
             assoIndex++;
         }
     } // Loop on RecoVertex
 
-    std::cout << std::endl;
-    std::cout << "RecoToSim OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl << std::endl;
+    LogTrace("VertexAssociation") << "\nRecoToSim OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl;
 
     return outputCollection;
 }
@@ -157,7 +156,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
     const edm::Handle<TrackingVertexCollection> & trackingVertexes
 ) const
 {
-    reco::VertexSimToRecoCollection  outputCollection;
+    reco::VertexSimToRecoCollection  outputCollection(productGetter_);
 
     // Loop over TrackingVertexes
     std::map<std::size_t,std::pair<double, std::size_t> > matches;
@@ -261,18 +260,18 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
             outputCollection.insert(trackingVertex, std::make_pair(recoVertex, quality));
 
-            std::cout << "R2S: INDEX " << assoIndex;
-            std::cout << " ; SimDaughterCounter = " << simDaughterCounter;
-            std::cout << " ; RecoDaughterWeight = " << recoDaughterWeight;
-            std::cout << " ; MatchedDaughterCounter = " << matchedDaughterCounter;
-            std::cout << " ; MatchedDaughterWeight = " << matchedDaughterWeight;
-            std::cout << " ; quality = " << quality << std::endl;
+            LogTrace("VertexAssociation") << "R2S: INDEX " << assoIndex
+                                          << " ; SimDaughterCounter = " << simDaughterCounter
+                                          << " ; RecoDaughterWeight = " << recoDaughterWeight
+                                          << " ; MatchedDaughterCounter = " << matchedDaughterCounter
+                                          << " ; MatchedDaughterWeight = " << matchedDaughterWeight
+                                          << " ; quality = " << quality;
 
             assoIndex++;
         }
     } // loop over TrackingVertexes
 
-    std::cout << "SimToReco OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl << std::endl;
+    LogTrace("VertexAssociation") << "SimToReco OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl;
 
     return outputCollection;
 }
