@@ -84,8 +84,8 @@ def customiseSimL1EmulatorForPostLS1_lowPU(process):
     return process
 
 def customiseSimL1EmulatorForPostLS1_50ns(process):
-    # move to the 50ns v3 L1 menu once the HLT has been updated accordingly
-    process = L1Menu_Collisions2015_50ns_v3(process)
+    # move to the 50ns v1 L1 menu once the HLT has been updated accordingly
+    process = L1Menu_Collisions2015_50ns_v1(process)
     return process
 
 def customiseSimL1EmulatorForPostLS1_25ns(process):
