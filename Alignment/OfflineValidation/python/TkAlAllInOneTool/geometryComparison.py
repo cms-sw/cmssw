@@ -133,7 +133,7 @@ class GeometryComparison(GenericValidation):
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/CrossTalk\n")
                         
-                   ### At the moment translations are immages with suffix _1 and _2, rotations _3 and _4, and cross talk _5 and _6
+                   ### At the moment translations are images with suffix _1 and _2, rotations _3 and _4, and cross talk _5 and _6
                    ### The numeration depends on the order of the MakePlots(x, y) commands in comparisonScript.C
                    ### If comparisonScript.C is changed, check if the following lines need to be changed as well
                    repMap["runComparisonScripts"] += \
@@ -160,6 +160,14 @@ class GeometryComparison(GenericValidation):
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name \"*_6*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*_7*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*_8*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
                    
