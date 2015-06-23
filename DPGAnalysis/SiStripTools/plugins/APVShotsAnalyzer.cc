@@ -405,7 +405,7 @@ APVShotsAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 
   if(_nShotsVsTimerun && *_nShotsVsTimerun) {
     (*_nShotsVsTimerun)->GetXaxis()->SetTitle("Orbit");  (*_nShotsVsTimerun)->GetYaxis()->SetTitle("Number of Shots");
-    (*_nShotsVsTimerun)->SetCanExtend(TH1::kXaxis);
+    (*_nShotsVsTimerun)->SetBit(TH1::kCanRebin);
   }
 
   if(_whichAPVrun && *_whichAPVrun) {
