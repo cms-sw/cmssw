@@ -1095,11 +1095,12 @@ EmDQM::findEgammaPaths()
          int scCount = countSubstring(path, "_SC");
          int eleCount = countSubstring(path, "Ele");
          int doubleEleCount = countSubstring(path, "DoubleEle");
+         int doubleSCCount = countSubstring(path, "DiSC");
          int tripleEleCount = countSubstring(path, "TripleEle");
          int photonCount = countSubstring(path, "hoton");
          int doublePhotonCount = countSubstring(path, "DoublePhoton") + countSubstring(path, "Diphoton");
 
-         int totEleCount = 2*tripleEleCount + doubleEleCount + eleCount + scCount;
+         int totEleCount = 2*tripleEleCount + doubleEleCount + eleCount + scCount + 2*doubleSCCount;
          int totPhotonCount = doublePhotonCount + photonCount;
 
          if (totEleCount + totPhotonCount < 1) continue;
