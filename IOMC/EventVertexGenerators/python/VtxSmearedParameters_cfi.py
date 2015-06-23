@@ -406,7 +406,7 @@ NominalCollision2015VtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.0),
     Z0 = cms.double(0.0)
 )
-ZeroTeslaDNDEtaCollision2015VtxSmearingParameters = cms.PSet(
+ZeroTeslaRun247324CollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(80.0),
     Emittance = cms.double(1.070e-5),
@@ -450,18 +450,4 @@ Shifted15mmCollision2015VtxSmearingParameters = cms.PSet(
     X0 = cms.double(1.5),
     Y0 = cms.double(0.0),
     Z0 = cms.double(0.0)
-)
-
-# Estimate for 2015 PbPb collisions, based on feedback from accelerator                                                                                  
-# Beamspot centroid shifted to match pp expectation for 2015                                                                                             
-NominalHICollision2015VtxSmearingParameters = cms.PSet(
-    Phi = cms.double(0.0),
-    BetaStar = cms.double(60.0),
-    Emittance = cms.double(1.70e-07),
-    Alpha = cms.double(0.0),
-    SigmaZ = cms.double(7.06),
-    TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.0322),
-    Y0 = cms.double(0.),
-    Z0 = cms.double(0.)
 )
