@@ -46,8 +46,10 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
   std::string name = "HcalHits";
-  hfshower.reset(new HFShowerLibrary(name,*cpv,fast));
-  numberingFromDDD.reset(new HcalNumberingFromDDD(name, *cpv));  
+  HcalNumberingFromDDD *numbering = new HcalNumberingFromDDD(name, *cpv);  
+  const HcalDDDSimConstants& hcons = numbering->ddConstants();
+  hfshower.reset(new HFShowerLibrary(name,*cpv,hcons,fast));
+  numberingFromDDD.reset(numbering);  
   
   // Geant4 particles
   G4DecayPhysics decays;
