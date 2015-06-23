@@ -13,6 +13,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalUncalibRecHitRecAbsAlgo.h"
 #include "Math/SVector.h"
 #include <vector>
+#include <cmath>
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
@@ -28,6 +29,8 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
   virtual void set_TDCLSB(const double tdclsb) { tdcLSB_ = tdclsb; }
 
   virtual void set_toaLSBToNS(const double lsb2ns) { toaLSBToNS_ = lsb2ns; }
+
+  virtual void set_tdcOnsetfC(const double tdcOnset) { tdcOnsetfC_ = tdcOnset; }
 
   /// Compute parameters
   virtual HGCUncalibratedRecHit makeRecHit( const C& dataFrame ) {
@@ -45,7 +48,11 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
       // mode == true means TDC readout was activated
       if( sample.mode() ) {
 	flag       = !sample.threshold();  //raise flag if busy cell
-	amplitude_ = double(sample.data()) * tdcLSB_;
+        // LG (23/06/2015): 
+        //to get a continuous energy spectrum we must add here the maximum value in fC ever
+        //reported by the ADC. Namely: floor(tdcOnset/adcLSB_) * adcLSB_
+        // need to increment by one so TDC doesn't overlap with ADC last bin
+	amplitude_ = ( std::floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(sample.data()) * tdcLSB_;
 	jitter_    = double(sample.toa()) * toaLSBToNS_;
 	if(debug) 
 	  std::cout << "TDC+: set the energy to: " << amplitude_ << ' ' << sample.data() 
@@ -72,6 +79,6 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
   
  private:
    bool   isSiFESim_;
-   double adcLSB_, tdcLSB_, fCToMIP_, toaLSBToNS_;
+   double adcLSB_, tdcLSB_, fCToMIP_, toaLSBToNS_, tdcOnsetfC_;
 };
 #endif
