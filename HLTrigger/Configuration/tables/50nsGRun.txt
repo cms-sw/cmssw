@@ -149,8 +149,8 @@ HLT_DoublePhoton85_v*						# JIRA: CMSHLT-88
 
 HLT_PFHT750_4JetPt50_v*                                         # JIRA: CMSHLT-355 (prev. version was from CMSHLT-89/90)
 
-HLT_Ele25WP60_Ele8_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-265, mod CMSHLT-326
-HLT_Ele25WP60_SC4_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-265, mod CMSHLT-326
+HLT_Ele25WP60_Ele8_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-265, mod CMSHLT-326, CMSHLT-436
+HLT_Ele25WP60_SC4_Mass55_v*					# JIRA: CMSHLT-95, mod CMSHLT-265, mod CMSHLT-326, CMSHLT-436
 
 HLT_PFHT550_4Jet_v*						# JIRA: CMSHLT-96
 HLT_PFHT650_4Jet_v*						# JIRA: CMSHLT-96
@@ -458,7 +458,7 @@ HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343
 
 HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-369
 
-#HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-431
+HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-431
 
 HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261 (for commissioning)
