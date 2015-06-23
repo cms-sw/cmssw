@@ -83,7 +83,7 @@ class JetAnalyzer( Analyzer ):
     
     def beginLoop(self, setup):
         super(JetAnalyzer,self).beginLoop(setup)
-        
+
     def process(self, event):
         self.readCollections( event.input )
         rho  = float(self.handles['rho'].product()[0])
@@ -123,8 +123,8 @@ class JetAnalyzer( Analyzer ):
                 if self.testJetID (jet ):
                     
                     if(self.cfg_ana.doQG):
-                        self.computeQGvars(jet)
-                        jet.qgl = self.qglcalc.computeQGLikelihood(jet, rho)
+                        jet.qgl_calc =  self.qglcalc.computeQGLikelihood
+			jet.qgl_rho =  rho
 
 
                     self.jets.append(jet)
@@ -355,7 +355,6 @@ class JetAnalyzer( Analyzer ):
 
         self.heaviestQCDFlavour = 5 if len(self.bqObjects) else (4 if len(self.cqObjects) else 1);
  
-
     def matchJets(self, event, jets):
         match = matchObjectCollection2(jets,
                                        event.genbquarks + event.genwzquarks,
