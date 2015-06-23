@@ -129,10 +129,10 @@ void DiTauWithSVFitProducer<T, U>::produce(edm::Event& iEvent, const edm::EventS
       std::cout << "\t\tMET = " << met.et() << ", phi_MET = " << met.phi() << std::endl;
     }
 
-    double massSVFit=0.;
+    double massSVFit = 0.;
     float det=tmsig.Determinant();
     if(det>1e-8) {
-      if (SVFitVersion_ == 2) {
+      if (SVFitVersion_ >= 1) {
         //Note that this works only for di-objects where the tau is the leg1 and mu is leg2
         std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
         int leg1DecayMode = -1;
@@ -196,8 +196,6 @@ void DiTauWithSVFitProducer<T, U>::produce(edm::Event& iEvent, const edm::EventS
           diTau.addUserFloat("fittedPhi" , -99.);
         }
 
-      } else {
-        std::cout << " Unrecognized SVFitVersion !!!!!!!!!!!!" << std::endl;
       }
     }
     // This is now handled via the user floats so we can keep the visible mass

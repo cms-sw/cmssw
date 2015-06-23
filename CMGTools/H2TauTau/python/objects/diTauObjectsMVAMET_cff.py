@@ -19,7 +19,8 @@ tauPreSelectionDiTau = tauPreSelection.clone(
 
 # mva MET
 
-mvaMETDiTau = pfMVAMEt.clone()
+mvaMETDiTau = cms.EDProducer('PFMETProducerMVATauTau', 
+                             **pfMVAMEt.parameters_())
 
 mvaMETDiTau.srcPFCandidates = cms.InputTag("packedPFCandidates")
 mvaMETDiTau.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")

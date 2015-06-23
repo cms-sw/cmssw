@@ -14,7 +14,8 @@ from RecoMET.METPUSubtraction.mvaPFMET_cff import pfMVAMEt
 muonPreSelectionDiMu = muonPreSelection.clone()
 
 # mva MET
-mvaMETDiMu = pfMVAMEt.clone()
+mvaMETDiMu = cms.EDProducer('PFMETProducerMVATauTau', 
+                             **pfMVAMEt.parameters_())
 
 mvaMETDiMu.srcPFCandidates = cms.InputTag("packedPFCandidates")
 mvaMETDiMu.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")

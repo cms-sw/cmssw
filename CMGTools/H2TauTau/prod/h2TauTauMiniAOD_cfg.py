@@ -18,12 +18,11 @@ debugEventContent = False
 
 # choose from 'tau-mu' 'di-tau' 'tau-ele' 'mu-ele' 'all-separate', 'all'
 # channel = 'all'
-channel = 'di-mu'
+channel = 'di-tau'
 
-# newSVFit enables the svfit mass reconstruction used for the H->tau tau analysis.
-# if false, much faster processing but mass is wrong. 
-newSVFit = False
-tauScaling = 0 # JAN: to be implemented downstream
+# runSVFit enables the svfit mass reconstruction used for the H->tau tau analysis.
+# if false, no mass calculation is carried out
+runSVFit = False
 
 # increase to 1000 before running on the batch, to reduce size of log files
 # on your account
@@ -31,8 +30,7 @@ reportInterval = 100
 
 print sep_line
 print 'channel', channel
-print 'newSVFit', newSVFit
-print 'tau scaling =', tauScaling
+print 'runSVFit', runSVFit
 
 # Input & JSON             -------------------------------------------------
 
@@ -79,7 +77,6 @@ process.load('CMGTools.H2TauTau.h2TauTau_cff')
 #                        enable=recoilEnabled, is53X=isNewerThan('CMSSW_5_2_X'))
 
 
-
 isEmbedded = setupEmbedding(process, channel)
 addAK4 = True
 
@@ -100,26 +97,22 @@ if addAK4:
     addAK4Jets(process)
     process.mvaMetInputPath.insert(0, process.jetSequenceAK4)
 
-if '25' in dataset_name:
-    print 'Using 25 ns MVA MET training'
-    process.mvaMETTauMu.inputFileNames = cms.PSet(
-        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root')
-    )
-    # process.mvaMETTauMu.inputRecords = cms.PSet(
-    #     U = cms.string("U1Correction"),
-    #     DPhi = cms.string("PhiCorrection"),
-    #     CovU1 = cms.string("CovU1"),
-    #     CovU2 = cms.string("CovU2")
-    # )
-    # process.mvaMETTauMu.inputFileNames = cms.PSet(
-    #     U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_53_Sep2013_type1.root'),
-    #     DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmetphi_53_June2013_type1.root'),
-    #     CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_53_Dec2012.root'),
-    #     CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_53_Dec2012.root')
-    # )
+# if '25' in dataset_name:
+#     print 'Using 25 ns MVA MET training'
+#     for mvaMetCfg in [process.mvaMETTauMu, process.mvaMETTauEle, process.mvaMETDiTau,
+#                       process.mvaMETMuEle, process.mvaMETDiMu]:
+#         mvaMetCfg.inputFileNames = cms.PSet(
+#             U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+#             DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+#             CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+#             CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root')
+#         )
+#         mvaMetCfg.inputRecords = cms.PSet(
+#             U = cms.string("RecoilCor"),
+#             DPhi = cms.string("PhiCorrection"),
+#             CovU1 = cms.string("CovU1"),
+#             CovU2 = cms.string("CovU2")
+#         )
 
 
 
@@ -196,16 +189,16 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = reportInterval
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
-if newSVFit:
+if runSVFit:
     process.cmgTauMuCorSVFitPreSel.SVFitVersion = 2
     process.cmgTauEleCorSVFitPreSel.SVFitVersion = 2
     process.cmgDiTauCorSVFitPreSel.SVFitVersion = 2
     process.cmgMuEleCorSVFitPreSel.SVFitVersion = 2
 else:
-    process.cmgTauMuCorSVFitPreSel.SVFitVersion = 1
-    process.cmgTauEleCorSVFitPreSel.SVFitVersion = 1
-    process.cmgDiTauCorSVFitPreSel.SVFitVersion = 1
-    process.cmgMuEleCorSVFitPreSel.SVFitVersion = 1
+    process.cmgTauMuCorSVFitPreSel.SVFitVersion = 0
+    process.cmgTauEleCorSVFitPreSel.SVFitVersion = 0
+    process.cmgDiTauCorSVFitPreSel.SVFitVersion = 0
+    process.cmgMuEleCorSVFitPreSel.SVFitVersion = 0
 
 print sep_line
 print 'INPUT:'

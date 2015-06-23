@@ -16,7 +16,8 @@ muonPreSelectionMuEle = muonPreSelection.clone()
 electronPreSelectionMuEle = electronPreSelection.clone()
 
 # mva MET
-mvaMETMuEle = pfMVAMEt.clone()
+mvaMETMuEle = cms.EDProducer('PFMETProducerMVATauTau', 
+                             **pfMVAMEt.parameters_())
 
 mvaMETMuEle.srcPFCandidates = cms.InputTag("packedPFCandidates")
 mvaMETMuEle.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
