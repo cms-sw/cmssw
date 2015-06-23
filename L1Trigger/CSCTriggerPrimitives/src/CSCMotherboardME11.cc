@@ -69,9 +69,9 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
 
   // special configuration parameters for ME11 treatment
-  smartME1aME1b = commonParams.getUntrackedParameter<bool>("smartME1aME1b", true);
-  disableME1a = commonParams.getUntrackedParameter<bool>("disableME1a", false);
-  gangedME1a = commonParams.getUntrackedParameter<bool>("gangedME1a", false);
+  smartME1aME1b = commonParams.getParameter<bool>("smartME1aME1b");
+  disableME1a = commonParams.getParameter<bool>("disableME1a");
+  gangedME1a = commonParams.getParameter<bool>("gangedME1a");
 
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME11 constructed while isSLHC is not set! +++\n";
@@ -82,24 +82,24 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
   edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
 
-  clct1a = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
+  clct1a.reset( new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams) );
   clct1a->setRing(4);
 
-  match_earliest_alct_me11_only = tmbParams.getUntrackedParameter<bool>("matchEarliestAlctME11Only",true);
-  match_earliest_clct_me11_only = tmbParams.getUntrackedParameter<bool>("matchEarliestClctME11Only",true);
+  match_earliest_alct_me11_only = tmbParams.getParameter<bool>("matchEarliestAlctME11Only");
+  match_earliest_clct_me11_only = tmbParams.getParameter<bool>("matchEarliestClctME11Only");
 
   // if true: use regular CLCT-to-ALCT matching in TMB
   // if false: do ALCT-to-CLCT matching
-  clct_to_alct = tmbParams.getUntrackedParameter<bool>("clctToAlct",true);
+  clct_to_alct = tmbParams.getParameter<bool>("clctToAlct");
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedClcts",true);
+  drop_used_clcts = tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
-  tmb_cross_bx_algo = tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm");
+  tmb_cross_bx_algo = tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME11: 2, 3, 4 or 999
-  max_me11_lcts = tmbParams.getUntrackedParameter<unsigned int>("maxME11LCTs",4);
+  max_me11_lcts = tmbParams.getParameter<unsigned int>("maxME11LCTs");
 
   pref[0] = match_trig_window_size/2;
   for (unsigned int m=2; m<match_trig_window_size; m+=2)
@@ -114,7 +114,7 @@ CSCMotherboardME11::CSCMotherboardME11() : CSCMotherboard()
 {
   // Constructor used only for testing.
 
-  clct1a = new CSCCathodeLCTProcessor();
+  clct1a.reset( new CSCCathodeLCTProcessor() );
   clct1a->setRing(4);
 
   pref[0] = match_trig_window_size/2;
@@ -128,7 +128,6 @@ CSCMotherboardME11::CSCMotherboardME11() : CSCMotherboard()
 
 CSCMotherboardME11::~CSCMotherboardME11()
 {
-  if (clct1a) delete clct1a;
 }
 
 

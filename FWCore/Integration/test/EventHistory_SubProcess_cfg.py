@@ -260,3 +260,13 @@ process6.p2 = cms.Path(process6.historytest*process6.analyzerOnPath)
 process6.ep61 = cms.EndPath(process6.out)
 process6.ep62 = cms.EndPath(process6.producerOnEndPath*process6.filterOnEndPath*process6.out*process6.historytest)
 process6.ep63 = cms.EndPath(process6.analyzerOnEndPath*process6.out2*process6.out)
+
+process7 = cms.Process("SEVENTH")
+
+process6.subProcess = cms.SubProcess(process7)
+
+process7.dummyproducerxxx = cms.EDProducer("IntProducer",
+    ivalue = cms.int32(2)
+)
+
+process7.p1 = cms.Path(process7.dummyproducerxxx)

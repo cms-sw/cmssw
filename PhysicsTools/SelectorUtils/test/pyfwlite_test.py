@@ -30,10 +30,16 @@ print selectElectron
 # try muons!
 from RecoMuon.MuonIdentification.VIDMuonSelector import VIDMuonSelector
 from RecoMuon.MuonIdentification.Identification.globalMuonPromptTight_V0_cff import globalMuonPromptTight_V0
+from RecoMuon.MuonIdentification.Identification.cutBasedMuonId_MuonPOG_V0_cff import *
 
-selectMuon = VIDMuonSelector(globalMuonPromptTight_V0)
-print 'Initialized VID Selector for Muons'
-print selectMuon
+selectMuons = [VIDMuonSelector(globalMuonPromptTight_V0)]
+for selectMuon in [cutBasedMuonId_MuonPOG_V0_loose, cutBasedMuonId_MuonPOG_V0_medium, cutBasedMuonId_MuonPOG_V0_tight,
+                   cutBasedMuonId_MuonPOG_V0_soft, cutBasedMuonId_MuonPOG_V0_highpt]:
+    for cf in selectMuon.cutFlow:
+        cf.vertexSrc = "offlineSlimmedPrimaryVertices"
+    selectMuons.append(VIDMuonSelector(selectMuon))
+    print 'Initialized VID Selector for Muons'
+    print selectMuon
 
 # open file (you can use 'edmFileUtil -d /store/whatever.root' to get the physical file name)
 #events = Events("root://eoscms//eos/cms/store/cmst3/user/gpetrucc/miniAOD/74X/miniAOD-new_ZTT.root")
@@ -58,8 +64,9 @@ for iev,event in enumerate(events):
         if mu.pt() < 5 or not mu.isLooseMuon(): continue
         print "muon %2d: pt %4.1f, POG loose id %d." % (
             i, mu.pt(), mu.isLooseMuon())
-        selectMuon(muons.product(),i,event)
-        print selectMuon
+        for selectMuon in selectMuons:
+            selectMuon(muons.product(),i,event)
+            print selectMuon
 
     # Electrons
     for i,el in enumerate(electrons.product()):
@@ -68,9 +75,4 @@ for iev,event in enumerate(events):
                     i, el.pt(), el.superCluster().eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto())
         selectElectron(electrons.product(),i,event)
         print selectElectron
-
-
-
-
-
 

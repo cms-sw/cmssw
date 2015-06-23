@@ -2,6 +2,7 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
+<use   name="CondFormats/SiPixelObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="DataFormats/CSCDigi"/>
