@@ -13,7 +13,7 @@
 
 
 DDHCalLinearXY::DDHCalLinearXY() {
-  LogDebug("HCalGeom") <<"DDHCalLinearXY info: Creating an instance";
+  edm::LogInfo("HCalGeom") <<"DDHCalLinearXY info: Creating an instance";
 }
 
 DDHCalLinearXY::~DDHCalLinearXY() {}
@@ -33,16 +33,16 @@ void DDHCalLinearXY::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childName   = vsArgs["Child"]; 
   DDName parentName = parent().name();
-  LogDebug("HCalGeom") << "DDHCalLinearXY debug: Parent " << parentName
-		       << "\twith " << childName.size() << " children";
+  edm::LogInfo("HCalGeom") << "DDHCalLinearXY debug: Parent " << parentName
+			   << "\twith " << childName.size() << " children";
   for (unsigned int i=0; i<childName.size(); ++i) 
-    LogDebug("HCalGeom") << "DDHCalLinearXY debug: Child[" << i << "] = "
-			 << childName[i];
-  LogDebug("HCalGeom") << "DDHCalLinearXY debug: NameSpace " 
-		       << idNameSpace << "\tNumber along X/Y " << numberX
-		       << "/" << numberY << "\tDelta along X/Y " << deltaX
-		       << "/" << deltaY << "\tCentre " << centre[0] << ", " 
-		       << centre[1] << ", "	<< centre[2];
+    edm::LogInfo("HCalGeom") << "DDHCalLinearXY debug: Child[" << i << "] = "
+			     << childName[i];
+  edm::LogInfo("HCalGeom") << "DDHCalLinearXY debug: NameSpace " 
+			   << idNameSpace << "\tNumber along X/Y " << numberX
+			   << "/" << numberY << "\tDelta along X/Y " << deltaX
+			   << "/" << deltaY << "\tCentre " << centre[0] << ", "
+			   << centre[1] << ", "	<< centre[2];
 }
 
 void DDHCalLinearXY::execute(DDCompactView& cpv) {
@@ -69,12 +69,12 @@ void DDHCalLinearXY::execute(DDCompactView& cpv) {
       copy++;
       if (place) {
 	cpv.position(child, mother, copy, tran, rot);
-	LogDebug("HCalGeom") << "DDHCalLinearXY test: " << child 
-			     << " number " << copy << " positioned in "
-			     << mother << " at " << tran << " with " << rot;
+	edm::LogInfo("HCalGeom") << "DDHCalLinearXY test: " << child 
+				 << " number " << copy << " positioned in "
+				 << mother << " at " << tran << " with " << rot;
       } else {
-	LogDebug("HCalGeom") << "DDHCalLinearXY test: No child placed for ["
-			     << copy << "]";
+	edm::LogInfo("HCalGeom") << "DDHCalLinearXY test: No child placed for ["
+				 << copy << "]";
       }
     }
   }
