@@ -52,7 +52,7 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 
     // instantiate standard on-fly SR LUTs from CSC TF emulator package
     bzero(srLUTs_ , sizeof(srLUTs_));
-    int sector=1;    // assume SR LUTs are all same for every sector
+    //int sector=1;    // assume SR LUTs are all same for every sector
     bool TMB07=true; // specific TMB firmware
     // Create a pset for SR/PT LUTs: if you do not change the value in the
     // configuration file, it will load the default minitLUTs
@@ -63,26 +63,30 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 
     // positive endcap
     int endcap = 1;
-    for(int station=1,fpga=0; station<=4 && fpga<5; station++) {
+    for(int sector=0; sector<6; sector++) {
+      for(int station=1,fpga=0; station<=4 && fpga<5; station++) {
         if(station==1)
             for(int subSector=0; subSector<2 && fpga<5; subSector++)
-                srLUTs_[fpga++][1] = new CSCSectorReceiverLUT(endcap,sector,subSector+1,
+                srLUTs_[fpga++][1][sector] = new CSCSectorReceiverLUT(endcap,sector+1,subSector+1,
                         station, srLUTset, TMB07);
         else
-            srLUTs_[fpga++][1]   = new CSCSectorReceiverLUT(endcap,  sector,   0,
+            srLUTs_[fpga++][1][sector]   = new CSCSectorReceiverLUT(endcap,  sector+1,   0,
                     station, srLUTset, TMB07);
+      }
     }
 
     // negative endcap
     endcap = 2;
-    for(int station=1,fpga=0; station<=4 && fpga<5; station++) {
+    for(int sector=0; sector<6; sector++) {
+      for(int station=1,fpga=0; station<=4 && fpga<5; station++) {
         if(station==1)
             for(int subSector=0; subSector<2 && fpga<5; subSector++)
-                srLUTs_[fpga++][0] = new CSCSectorReceiverLUT(endcap,sector,subSector+1,
+                srLUTs_[fpga++][0][sector] = new CSCSectorReceiverLUT(endcap,sector+1,subSector+1,
                         station, srLUTset, TMB07);
         else
-            srLUTs_[fpga++][0]   = new CSCSectorReceiverLUT(endcap,  sector,   0,
+            srLUTs_[fpga++][0][sector]   = new CSCSectorReceiverLUT(endcap,  sector+1,   0,
                     station, srLUTset, TMB07);
+      }
     }
 
 
@@ -106,7 +110,8 @@ L1TCSCTF::~L1TCSCTF()
 
   for(unsigned int j=0; j<2; j++)
     for(unsigned int i=0; i<5; i++)
-      delete srLUTs_[i][j]; //free the array of pointers
+      for(unsigned int s=0; s<6; s++)
+        delete srLUTs_[i][j][s]; //free the array of pointers
 
 }
 
@@ -833,21 +838,21 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
               lclphidat lclPhi;
               try {
-                lclPhi = srLUTs_[fpga][EndCapLUT]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend(), gangedME11a_);
+                lclPhi = srLUTs_[fpga][EndCapLUT][sector]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend(), gangedME11a_);
               } catch(cms::Exception &) {
                 bzero(&lclPhi,sizeof(lclPhi));
               }
 
               gblphidat gblPhi;
               try {
-                gblPhi = srLUTs_[fpga][EndCapLUT]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1, gangedME11a_);
+                gblPhi = srLUTs_[fpga][EndCapLUT][sector]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1, gangedME11a_);
               } catch(cms::Exception &) {
                 bzero(&gblPhi,sizeof(gblPhi));
               }
 
               gbletadat gblEta;
               try {
-                gblEta = srLUTs_[fpga][EndCapLUT]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1, gangedME11a_);
+                gblEta = srLUTs_[fpga][EndCapLUT][sector]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1, gangedME11a_);
               } catch(cms::Exception &) {
                 bzero(&gblEta,sizeof(gblEta));
               }

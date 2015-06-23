@@ -7,7 +7,7 @@ l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
     outputFile = cms.untracked.string(''),
     lctProducer = cms.InputTag("csctfDigis"),
     verbose = cms.untracked.bool(False),
-    gangedME11a = cms.untracked.bool(True),
+    gangedME11a = cms.untracked.bool(False), ## Run2: False; Run1: True
     trackProducer = cms.InputTag("csctfDigis"),
     mbProducer = cms.InputTag("csctfDigis:DT"),
     DQMStore = cms.untracked.bool(True),
@@ -17,5 +17,6 @@ l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
 #
 # Make changes for running in Run 2
 #
-from Configuration.StandardSequences.Eras import eras
-eras.run2_common.toModify( l1tCsctf, gangedME11a = False )
+# This is not working
+#from Configuration.StandardSequences.Eras import eras
+#eras.run2_common.toModify( l1tCsctf, gangedME11a = False )
