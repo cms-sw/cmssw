@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V39 (CMSSW_7_4_5)
+# /dev/CMSSW_7_4_0/LowPU/V40 (CMSSW_7_4_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTLowPU" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V39')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V40')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -488,7 +488,6 @@ process.streams = cms.PSet(
     'HcalHPDNoise',
     'HcalNZS',
     'HighMultiplicity',
-    'InitialPDForHI',
     'L1MinimumBias',
     'NoBPTX',
     'SingleMuon',
@@ -588,10 +587,6 @@ process.datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity160_v2',
     'HLT_PixelTracks_Multiplicity60_v2',
     'HLT_PixelTracks_Multiplicity85_v2' ),
-  InitialPDForHI = cms.vstring( 'HLT_HIL1DoubleMu0_v1',
-    'HLT_HIL2DoubleMu0_v2',
-    'HLT_HIL2Mu3_v2',
-    'HLT_HIL3Mu3_v2' ),
   L1Accept = cms.vstring( 'DST_Physics_v1' ),
   L1MinimumBias = cms.vstring( 'HLT_L1MinimumBiasHF1AND_v1',
     'HLT_L1MinimumBiasHF1OR_v1',
@@ -11907,7 +11902,7 @@ process.hltAlCaEtaRecHitsFilterEBonlyRegionalLowPU = cms.EDFilter( "HLTRegionalE
       seleIsoBarrel_region2 = cms.double( 0.5 ),
       seleMinvMaxBarrel = cms.double( 0.8 ),
       seleIsoBarrel_region1 = cms.double( 0.5 ),
-      seleMinvMinBarrel = cms.double( 0.3 ),
+      seleMinvMinBarrel = cms.double( 0.2 ),
       selePtPairBarrel_region2 = cms.double( 2.5 ),
       seleS9S25Gamma = cms.double( 0.8 ),
       selePtPairBarrel_region1 = cms.double( 2.5 ),
@@ -12035,7 +12030,7 @@ process.hltAlCaEtaRecHitsFilterEEonlyRegionalLowPU = cms.EDFilter( "HLTRegionalE
       seleS9S25GammaEndCap = cms.double( 0.85 ),
       seleBeltDREndCap = cms.double( 0.3 ),
       region1_EndCap = cms.double( 1.8 ),
-      seleMinvMinEndCap = cms.double( 0.3 ),
+      seleMinvMinEndCap = cms.double( 0.2 ),
       store5x5RecHitEE = cms.bool( True ),
       seleMinvMaxEndCap = cms.double( 0.8 ),
       selePtPairEndCap_region1 = cms.double( 2.7 ),
