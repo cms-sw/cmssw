@@ -229,7 +229,6 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     vector<PSimHit>::const_iterator simHitIterEnd = (it->second).end();
     unsigned int simHitid;
     EncodedEventId simHiteid;
- // √berlegen ob ich den zeiger √berarbeite ngrenz (PSimHit&)
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       const PSimHit& ihit = *simHitIter;
       simHitid = ihit.trackId();
@@ -375,7 +374,6 @@ void TrackerHitAssociator::associateCluster(const SiStripCluster* clust,
 					    std::vector<PSimHit>& simhit) const {
   std::vector<simhitAddr> simhitCFPos;
   associateSimpleRecHitCluster(clust, detid, simtrackid, &simhitCFPos);
-// nachdenken ob varibal f√rs array notwendig ist ngrenz
 
   simhitAddr theSimHitAddr;
   simhit_collectionMap::const_iterator it;
@@ -417,7 +415,6 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
       std::vector<simhitAddr> CFposcachev;
       simHitCollectionID theSimHitCollID;
       simhitAddr currentAddr;
-// schoauen ob eine besser ifbedingung aufgestllt werden kann ngrenz
       for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
 	if( (int)(linkiter->channel()) >= first  && (int)(linkiter->channel()) < last ){
 	  
