@@ -162,6 +162,14 @@ class GeometryComparison(GenericValidation):
                        ("find . -maxdepth 1 -name \"*_6*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*_7*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*_8*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
                    
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name "
