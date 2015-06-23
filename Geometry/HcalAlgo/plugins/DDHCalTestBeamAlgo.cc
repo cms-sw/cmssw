@@ -14,7 +14,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalTestBeamAlgo::DDHCalTestBeamAlgo() {
-  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo test: Creating an instance";
 }
 
 DDHCalTestBeamAlgo::~DDHCalTestBeamAlgo() {}
@@ -33,18 +33,19 @@ void DDHCalTestBeamAlgo::initialize(const DDNumericArguments & nArgs,
   dz         = nArgs["Dz"];
   copyNumber = int (nArgs["Number"]);
   dist       = (distance+distanceZ/sin(theta));
-  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo debug: Parameters for position"
-		       << "ing--" << " Eta " << eta << "\tPhi " 
-		       << phi/CLHEP::deg << "\tTheta " << theta/CLHEP::deg 
-		       << "\tDistance " << distance << "/" << distanceZ << "/"
-		       << dist <<"\tDz " << dz <<"\tcopyNumber " << copyNumber;
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo debug: Parameters for positi"
+			   << "oning--" << " Eta " << eta << "\tPhi " 
+			   << phi/CLHEP::deg << "\tTheta " << theta/CLHEP::deg 
+			   << "\tDistance " << distance << "/" << distanceZ 
+			   << "/" << dist <<"\tDz " << dz <<"\tcopyNumber " 
+			   << copyNumber;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo debug: Parent " << parentName
-		       << "\tChild " << childName << " NameSpace "
-		       << idNameSpace;
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo debug: Parent " << parentName
+			   << "\tChild " << childName << " NameSpace "
+			   << idNameSpace;
 }
 
 void DDHCalTestBeamAlgo::execute(DDCompactView& cpv) {
@@ -61,11 +62,11 @@ void DDHCalTestBeamAlgo::execute(DDCompactView& cpv) {
   
   DDRotation rotation;
   string rotstr = childName;
-  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: Creating a new rotation "
-		       << rotstr << "\t" << thetax/CLHEP::deg << "," 
-		       << phix/CLHEP::deg << "," << thetay/CLHEP::deg << "," 
-		       << phiy/CLHEP::deg << "," << thetaz/CLHEP::deg <<"," 
-		       << phiz/CLHEP::deg;
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo test: Creating a new rotation "
+			   << rotstr << "\t" << thetax/CLHEP::deg << "," 
+			   << phix/CLHEP::deg << "," << thetay/CLHEP::deg <<","
+			   << phiy/CLHEP::deg << "," << thetaz/CLHEP::deg <<","
+			   << phiz/CLHEP::deg;
   rotation = DDrot(DDName(rotstr, idNameSpace), thetax, phix, thetay, phiy,
 		   thetaz, phiz);
 	
@@ -77,10 +78,10 @@ void DDHCalTestBeamAlgo::execute(DDCompactView& cpv) {
   
   DDName parentName = parent().name(); 
  cpv.position(DDName(childName,idNameSpace), parentName,copyNumber, tran,rotation);
-  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: " 
-		       << DDName(childName, idNameSpace) << " number " 
-		       << copyNumber << " positioned in " << parentName 
-		       << " at " << tran << " with " << rotation;
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo test: " 
+			   << DDName(childName, idNameSpace) << " number " 
+			   << copyNumber << " positioned in " << parentName 
+			   << " at " << tran << " with " << rotation;
 
   xpos = (dist-dz)*sin(theta)*cos(phi);
   ypos = (dist-dz)*sin(theta)*sin(phi);

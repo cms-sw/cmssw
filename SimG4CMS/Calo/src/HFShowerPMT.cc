@@ -20,38 +20,22 @@
 //#define DebugLog
 
 HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
+			 const HcalDDDSimConstants& hcons,
 			 edm::ParameterSet const & p) : cherenkov(0) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter0;
-  DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDCompOp::equals);
-  DDFilteredView fv0(cpv);
-  fv0.addFilter(filter0);
-  if (fv0.firstChild()) {
-    DDsvalues_type sv0(fv0.mergedSpecifics());
+  //Special Geometry parameters
+  rTable   = hcons.getRTableHF();
+  edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
+			   << " rTable (cm)";
+  for (unsigned int ig=0; ig<rTable.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
+			     << rTable[ig]/cm << " cm";
 
-    //Special Geometry parameters
-    rTable   = getDDDArray("rTable",sv0);
-    edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
-			     << " rTable (cm)";
-    for (unsigned int ig=0; ig<rTable.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
-			       << rTable[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerPMT: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << value;
-    throw cms::Exception("Unknown", "HFShowerPMT")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-
-  attribute = "Volume";
-  value     = "HFPMT";
+  std::string attribute = "Volume";
+  std::string value     = "HFPMT";
   DDSpecificsFilter filter1;
   DDValue           ddv1(attribute,value,0);
   filter1.setCriteria(ddv1,DDCompOp::equals);

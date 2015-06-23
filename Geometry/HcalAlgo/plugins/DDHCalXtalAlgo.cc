@@ -14,7 +14,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalXtalAlgo::DDHCalXtalAlgo() {
-  LogDebug("HCalGeom") << "DDHCalXtalAlgo info: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalXtalAlgo info: Creating an instance";
 }
 
 DDHCalXtalAlgo::~DDHCalXtalAlgo() {}
@@ -33,19 +33,19 @@ void DDHCalXtalAlgo::initialize(const DDNumericArguments & nArgs,
   iaxis      = int (nArgs["Axis"]);
   names      = vsArgs["Names"];
 
-  LogDebug("HCalGeom") << "DDHCalXtalAlgo debug: Parameters for positioning:: "
-		       << "Axis " << iaxis << "\tRadius " << radius 
-		       << "\tOffset " << offset << "\tDx " << dx << "\tDz " 
-		       << dz << "\tAngWidth " << angwidth/CLHEP::deg 
-		       << "\tNumbers " << names.size();
+  edm::LogInfo("HCalGeom") << "DDHCalXtalAlgo debug: Parameters for position"
+			   << "ing:: Axis " << iaxis << "\tRadius " << radius 
+			   << "\tOffset " << offset << "\tDx " << dx << "\tDz "
+			   << dz << "\tAngWidth " << angwidth/CLHEP::deg 
+			   << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
-    LogDebug("HCalGeom") << "\tnames[" << i << "] = " << names[i];
+    edm::LogInfo("HCalGeom") << "\tnames[" << i << "] = " << names[i];
 
   idNameSpace = DDCurrentNamespace::ns();
   idName      = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalXtalAlgo debug: Parent " << parentName 
-		       << "\tChild " << idName << " NameSpace " << idNameSpace;
+  edm::LogInfo("HCalGeom") << "DDHCalXtalAlgo debug: Parent " << parentName 
+			   << "\tChild " << idName << " NameSpace " << idNameSpace;
 }
 
 void DDHCalXtalAlgo::execute(DDCompactView& cpv) {
@@ -75,18 +75,20 @@ void DDHCalXtalAlgo::execute(DDCompactView& cpv) {
     DDName parentName = parent().name(); 
 
     if (abs(angle) > 0.01*CLHEP::deg) {
-      LogDebug("HCalGeom") << "DDHCalXtalAlgo test: Creating a new rotation " 
-			   << rotstr << "\t" << theta[0]/CLHEP::deg << "," 
-			   << phi[0]/CLHEP::deg << "," << theta[1]/CLHEP::deg 
-			   << "," << phi[1]/CLHEP::deg << "," 
-			   << theta[2]/CLHEP::deg << ","  << phi[2]/CLHEP::deg;
+      edm::LogInfo("HCalGeom") << "DDHCalXtalAlgo test: Creating a new rotation " 
+			       << rotstr << "\t" << theta[0]/CLHEP::deg << "," 
+			       << phi[0]/CLHEP::deg << "," 
+			       << theta[1]/CLHEP::deg << "," 
+			       << phi[1]/CLHEP::deg << "," 
+			       << theta[2]/CLHEP::deg << ","  
+			       << phi[2]/CLHEP::deg;
       rotation = DDrot(DDName(rotstr, idNameSpace), theta[0], phi[0], theta[1],
 		       phi[1], theta[2], phi[2]);
     }
     cpv.position(DDName(idName, idNameSpace), parentName, i+1, tran, rotation);
-    LogDebug("HCalGeom") << "DDHCalXtalAlgo test: "
-			 << DDName(idName,idNameSpace) << " number " << i+1 
-			 << " positioned in " << parentName << " at " << tran
-			 << " with " << rotation;
+    edm::LogInfo("HCalGeom") << "DDHCalXtalAlgo test: "
+			     << DDName(idName,idNameSpace) << " number " << i+1
+			     << " positioned in " << parentName << " at " 
+			     << tran << " with " << rotation;
   }
 }

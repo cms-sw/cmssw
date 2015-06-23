@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 class DDCompactView;    
 class G4Step;
@@ -21,6 +22,7 @@ class HFShowerFibreBundle {
 public:    
 
   HFShowerFibreBundle(std::string & name, const DDCompactView & cpv, 
+		      const HcalDDDSimConstants& hcons,
 		      edm::ParameterSet const & p);
   virtual ~HFShowerFibreBundle();
   double                getHits(G4Step * aStep, bool type);

@@ -5,9 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/HFShowerParam.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -28,6 +25,7 @@
 //#define mkdebug
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
+			     const HcalDDDSimConstants& hcons,
                              edm::ParameterSet const & p) : showerLibrary(0), 
                                                             fibre(0), gflash(0),
                                                             fillHisto(false) { 
@@ -80,32 +78,16 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   }
 #endif
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-    //Special Geometry parameters
-    gpar      = getDDDArray("gparHF",sv);
-    edm::LogInfo("HFShower") << "HFShowerParam: " <<gpar.size() <<" gpar (cm)";
-    for (unsigned int ig=0; ig<gpar.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
-                               << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerParam: cannot get filtered "
-                              << " view for " << attribute << " matching " << name;
-    throw cms::Exception("Unknown", "HFShowerParam") << "cannot match " << attribute
-                                                     << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  gpar      = hcons.getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerParam: " << gpar.size() <<" gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
+			     << gpar[ig]/cm << " cm";
   
-  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
+  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name,cpv,hcons,p);
   if (useGflash)        gflash        = new HFGflash(p);
-  fibre = new HFFibre(name, cpv, p);
+  fibre = new HFFibre(name, cpv, hcons, p);
   attLMeanInv = fibre->attLength(lambdaMean);
   edm::LogInfo("HFShower") << "att. length used for (lambda=" << lambdaMean
                            << ") = " << 1/(attLMeanInv*cm) << " cm";
@@ -412,32 +394,4 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
     }
   }
   return hits;
-}
-
-std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 
-                                               const DDsvalues_type & sv)
-{
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerParam:getDDDArray called for " << str;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value))
-  {
-#ifdef DebugLog
-    LogDebug("HFShower") << value;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nval < 2) {
-      edm::LogError("HFShower") << "HFShowerParam : # of " << str 
-                                << " bins " << nval << " < 2 ==> illegal";
-      throw cms::Exception("Unknown", "HFShowerParam") << "nval < 2 for array "
-                                                       << str << "\n";
-    }
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShowerParam : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShowerParam")  << "cannot get array "
-                                                      << str << "\n";
-  }
 }

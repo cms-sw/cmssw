@@ -30,11 +30,11 @@ uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id){
   uint32_t index = HcalDetId(subdet,etaR,id.phis,id.depth).rawId();
 
 #ifdef DebugLog
-  LogDebug("HcalSim") << "HcalNumberingScheme det = " << id.subdet 
-		      << " depth/lay = " << id.depth << "/" << id.lay 
-		      << " zside = " << id.zside << " eta/R = " << id.etaR 
-		      << " phi = " << id.phis << " oldphi = " << id.phi
-		      << " packed index = 0x" << std::hex << index << std::dec;
+  edm::LogInfo("HcalSim") << "HcalNumberingScheme det = " << id.subdet 
+			  << " depth/lay = " << id.depth << "/" << id.lay 
+			  << " zside = " << id.zside << " eta/R = " << id.etaR 
+			  << " phi = " << id.phis << " oldphi = " << id.phi
+			  << " packed index = 0x" << std::hex << index << std::dec;
 #endif
   return index;
 
