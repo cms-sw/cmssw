@@ -406,7 +406,7 @@ NominalCollision2015VtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.0),
     Z0 = cms.double(0.0)
 )
-ZeroTeslaDNDEtaCollision2015VtxSmearingParameters = cms.PSet(
+ZeroTeslaRun247324CollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(80.0),
     Emittance = cms.double(1.070e-5),
