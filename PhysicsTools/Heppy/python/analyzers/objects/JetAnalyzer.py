@@ -124,7 +124,7 @@ class JetAnalyzer( Analyzer ):
                     
                     if(self.cfg_ana.doQG):
                         jet.qgl_calc =  self.qglcalc.computeQGLikelihood
-			jet.qgl_rho =  rho
+                        jet.qgl_rho =  rho
 
 
                     self.jets.append(jet)
