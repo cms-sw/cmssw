@@ -83,7 +83,7 @@ class JetAnalyzer( Analyzer ):
     
     def beginLoop(self, setup):
         super(JetAnalyzer,self).beginLoop(setup)
-        
+
     def process(self, event):
         self.readCollections( event.input )
         rho  = float(self.handles['rho'].product()[0])
@@ -123,8 +123,8 @@ class JetAnalyzer( Analyzer ):
                 if self.testJetID (jet ):
                     
                     if(self.cfg_ana.doQG):
-                        self.computeQGvars(jet)
-                        jet.qgl = self.qglcalc.computeQGLikelihood(jet, rho)
+                        jet.qgl_calc =  self.qglcalc.computeQGLikelihood
+                        jet.qgl_rho =  rho
 
 
                     self.jets.append(jet)
@@ -255,71 +255,6 @@ class JetAnalyzer( Analyzer ):
         return jet.pt() > self.cfg_ana.jetPt and \
                abs( jet.eta() ) < self.cfg_ana.jetEta;
 
-    def computeQGvars(self, jet):
-
-       jet.mult = 0
-       sum_weight = 0.
-       sum_pt = 0.
-       sum_deta = 0.
-       sum_dphi = 0.
-       sum_deta2 = 0.
-       sum_detadphi = 0.
-       sum_dphi2 = 0.
-
-
-
-       for ii in range(0, jet.numberOfDaughters()) :
-
-         part = jet.daughter(ii)
-
-         if part.charge() == 0 : # neutral particles 
-
-           if part.pt() < 1.: continue
-
-         else : # charged particles
-
-           if part.trackHighPurity()==False: continue
-           if part.fromPV()<=1: continue
-
-
-         jet.mult += 1
-
-         deta = part.eta() - jet.eta()
-         dphi = deltaPhi(part.phi(), jet.phi())
-         partPt = part.pt()
-         weight = partPt*partPt
-         sum_weight += weight
-         sum_pt += partPt
-         sum_deta += deta*weight
-         sum_dphi += dphi*weight
-         sum_deta2 += deta*deta*weight
-         sum_detadphi += deta*dphi*weight
-         sum_dphi2 += dphi*dphi*weight
-
-
-
-
-       a = 0.
-       b = 0.
-       c = 0.
-
-       if sum_weight > 0 :
-         jet.ptd = math.sqrt(sum_weight)/sum_pt
-         ave_deta = sum_deta/sum_weight
-         ave_dphi = sum_dphi/sum_weight
-         ave_deta2 = sum_deta2/sum_weight
-         ave_dphi2 = sum_dphi2/sum_weight
-         a = ave_deta2 - ave_deta*ave_deta
-         b = ave_dphi2 - ave_dphi*ave_dphi
-         c = -(sum_detadphi/sum_weight - ave_deta*ave_dphi)
-       else: jet.ptd = 0.
-
-       delta = math.sqrt(math.fabs((a-b)*(a-b)+4.*c*c))
-
-       if a+b-delta > 0: jet.axis2 = -math.log(math.sqrt(0.5*(a+b-delta)))
-       else: jet.axis2 = -1.
-
-
     def jetFlavour(self,event):
         def isFlavour(x,f):
             id = abs(x.pdgId())
@@ -355,7 +290,6 @@ class JetAnalyzer( Analyzer ):
 
         self.heaviestQCDFlavour = 5 if len(self.bqObjects) else (4 if len(self.cqObjects) else 1);
  
-
     def matchJets(self, event, jets):
         match = matchObjectCollection2(jets,
                                        event.genbquarks + event.genwzquarks,
