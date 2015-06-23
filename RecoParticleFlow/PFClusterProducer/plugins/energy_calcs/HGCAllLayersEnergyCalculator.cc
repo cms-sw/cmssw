@@ -52,8 +52,12 @@ class HGCAllLayersEnergyCalibrator : public PFClusterEnergyCorrectorBase {
 		fIn->Close();
 	      }
 	  }
-         const edm::ParameterSet& masking_info = conf.getParameter<edm::ParameterSet>("masking_info");
+        // setup the layer masking information
+        const edm::ParameterSet& masking_info = conf.getParameter<edm::ParameterSet>("masking_info");
         mask_.reset(new MaskedLayerManager(masking_info));
+        ee_ganging = mask_->buildAbsorberGanging(HGCEE);
+        fh_ganging = mask_->buildAbsorberGanging(HGCHEF);
+        bh_ganging = mask_->buildAbsorberGanging(HGCHEB);
       }
   HGCAllLayersEnergyCalibrator(const HGCAllLayersEnergyCalibrator&) = delete;
   HGCAllLayersEnergyCalibrator& operator=(const HGCAllLayersEnergyCalibrator&) = delete;
@@ -82,6 +86,7 @@ class HGCAllLayersEnergyCalibrator : public PFClusterEnergyCorrectorBase {
   void correctEnergyActual(reco::PFCluster&) const;
 
   std::unique_ptr<MaskedLayerManager> mask_;
+  std::multimap<unsigned,unsigned> ee_ganging, fh_ganging, bh_ganging;
   
 };
 
@@ -104,7 +109,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
   double e_ee(0.0), e_hef(0.0), e_heb(0.0);
   const double clus_eta = cluster.positionREP().eta();
   const double abs_eta = std::abs(clus_eta);
-  //  const double effMIP_to_InvGeV = _coef_a/(1.0 + std::exp(-_coef_c - _coef_b*std::cosh(clus_eta)));  
+  //const double effMIP_to_InvGeV = _coef_a/(1.0 + std::exp(-_coef_c - _coef_b*std::cosh(clus_eta)));  
   const double effMIP_to_InvGeV = _coef_a*fabs(std::tanh(clus_eta))/(1.-(_coef_c*pow(clus_eta,2)+_coef_d*abs_eta+_coef_e));
   for( const auto& rhf : cluster.recHitFractions() ) {
     const std::vector<double>* weights = nullptr;
@@ -114,6 +119,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
     double mip_value = 0.0;
     double mip2gev = 0.0;
     double hgcOverburdenWeight = 0.0;
+    double energy_in_layer = 0.0;
     switch( theid.subdetId() ) {
     case HGCEE:
       weights = &_weights_ee;
@@ -129,30 +135,57 @@ correctEnergyActual(reco::PFCluster& cluster) const {
 	  hgcOverburdenWeight = _hgcLambdaOverburdenParam->Eval(abs_eta);
 	}
 	
-      }    
-      e_ee += ((*weights)[zside_layer.second-1] + hgcOverburdenWeight)*hit.energy()/(mip_value*std::tanh(abs_eta));
+      }
+      {
+        double temp_weight = hgcOverburdenWeight;
+        auto range = ee_ganging.equal_range(zside_layer.second);
+        for( auto itr = range.first; itr != range.second; ++itr ) {
+          const unsigned layer = itr->second;
+          temp_weight += (*weights)[layer-1];
+        }
+        energy_in_layer = temp_weight*hit.energy()/(mip_value*std::tanh(abs_eta));
+        e_ee += energy_in_layer;       
+      }
       break;
     case HGCHEF:
       weights = &_weights_hef;
       zside_layer = getlayer<HGCHEDetId>(hit.detId());
       mip_value = _mipValueInGeV_hef;
       mip2gev = effMIP_to_InvGeV;
-      e_hef += ((*weights)[zside_layer.second-1])*hit.energy()/(mip_value*std::tanh(abs_eta));
+      {
+        double temp_weight = 0.0;
+        auto range = fh_ganging.equal_range(zside_layer.second);
+        for( auto itr = range.first; itr != range.second; ++itr ) {
+          const unsigned layer = itr->second;
+          temp_weight += (*weights)[layer];
+        }
+        energy_in_layer = temp_weight*hit.energy()/(mip_value*std::tanh(abs_eta));
+        e_hef += energy_in_layer;
+      }
       break;
     case HGCHEB:
       weights = &_weights_heb;
       zside_layer = getlayer<HGCHEDetId>(hit.detId());
       mip_value = _mipValueInGeV_heb;
       mip2gev = effMIP_to_InvGeV;
-      e_heb += ((*weights)[zside_layer.second-1])*hit.energy()/(mip_value*std::tanh(abs_eta));
+      {
+        double temp_weight = 0.0;
+        auto range = bh_ganging.equal_range(zside_layer.second);
+        for( auto itr = range.first; itr != range.second; ++itr ) {
+          const unsigned layer = itr->second;
+          temp_weight += (*weights)[layer];
+        }
+        energy_in_layer = temp_weight*hit.energy()/(mip_value*std::tanh(abs_eta));;
+        e_heb += energy_in_layer;
+      }
       break;
     default:
       throw cms::Exception("BadRecHit")
 	<< "This module only accepts HGC EE, HEF, or HEB hits" << std::endl;
     }
-    const int layer = zside_layer.second;
-    const double energy_MIP = hit.energy()/mip_value; 
-    const double added_energy = ((*weights)[layer-1]+hgcOverburdenWeight)*energy_MIP/mip2gev;
+    //const int layer = zside_layer.second;
+    //const double energy_MIP = hit.energy()/mip_value; 
+    const double added_energy = energy_in_layer*std::tanh(abs_eta)/mip2gev;
     eCorr += added_energy;
   }
 

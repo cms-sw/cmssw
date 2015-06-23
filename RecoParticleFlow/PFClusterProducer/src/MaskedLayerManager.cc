@@ -70,7 +70,7 @@ MaskedLayerManager::buildAbsorberGanging(const ForwardSubdetector& det ) const {
   for( const auto& layer : idet->second ) {
     if( layer.second ) {
       result.insert(std::make_pair(layer.first,layer.first));
-      for( unsigned skipped_layer : skipped_layers ) {
+      for( const unsigned skipped_layer : skipped_layers ) {
         result.insert(std::make_pair(layer.first,skipped_layer));
       }
       skipped_layers.clear();
