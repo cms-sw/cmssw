@@ -331,7 +331,7 @@ try {
     const sistrip::FEDReadoutMode mode = buffer->readoutMode();
     
     
-    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 ) { 
 	
 	try {
 	  // create unpacker
