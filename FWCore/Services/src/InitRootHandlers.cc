@@ -7,7 +7,6 @@
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
@@ -272,7 +271,7 @@ namespace edm {
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
       if (!hasDictionary(typeid(std::vector<std::vector<unsigned int> >))) {
-         edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + "std::vector<std::vector<unsigned int> >");
+         TypeWithDict::byName("std::vector<std::vector<unsigned int> >");
       }
 
       int debugLevel = pset.getUntrackedParameter<int>("DebugLevel");
