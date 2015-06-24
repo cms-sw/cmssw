@@ -61,9 +61,6 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep *_TriggerResults_*_*',
     'keep *_hltTriggerSummaryAOD_*_HLT',
     # pfisolation CMSSW_5_3_X
-    'keep *_elPFIsoValueCharged03PFId*_*_*',
-    'keep *_elPFIsoValueGamma03PFId*_*_*',
-    'keep *_elPFIsoValueNeutral03PFId*_*_*',
     'keep *EcalRecHit*_alCaIsolatedElectrons_*_*',
     'keep *EcalRecHit*_reducedEcalRecHitsES_alCaRecHitsES_*',
     )
