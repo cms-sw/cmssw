@@ -34,34 +34,33 @@ TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(
     _trackerGeometry(nullptr),
     _randomEngine(nullptr)
 {
-    
 }
 
-const TrackerTopology* TrackingRecHitAlgorithm::getTrackerTopology() const
+const TrackerTopology& TrackingRecHitAlgorithm::getTrackerTopology() const
 {
     if (!_trackerTopology)
     {
         throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": TrackerTopology not defined";
     }
-    return _trackerTopology;
+    return *_trackerTopology;
 }
 
-const TrackerGeometry* TrackingRecHitAlgorithm::getTrackerGeometry() const
+const TrackerGeometry& TrackingRecHitAlgorithm::getTrackerGeometry() const
 {
     if (!_trackerGeometry)
     {
         throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": TrackerGeometry not defined";
     }
-    return _trackerGeometry;
+    return *_trackerGeometry;
 }
 
-const RandomEngineAndDistribution* TrackingRecHitAlgorithm::getRandomEngine() const
+const RandomEngineAndDistribution& TrackingRecHitAlgorithm::getRandomEngine() const
 {
     if (!_randomEngine)
     {
         throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": RandomEngineAndDistribution not defined";
     }
-    return _randomEngine.get();
+    return *_randomEngine;
 }
 
 void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
@@ -93,6 +92,7 @@ void TrackingRecHitAlgorithm::endEvent(edm::Event& event, const edm::EventSetup&
 
 void TrackingRecHitAlgorithm::endStream()
 {
+    _randomEngine.reset();
 }
 
 TrackingRecHitAlgorithm::~TrackingRecHitAlgorithm()

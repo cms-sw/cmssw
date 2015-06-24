@@ -37,7 +37,6 @@
 //#define FAMOS_DEBUG
 
 const double microntocm = 0.0001;
-using namespace std;
 
 //------------------------------------------------------------------------------
 //  Constructor.  Only one is possible, since its signature needs to
@@ -97,12 +96,12 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //--- getSimHits() returns a reference to a vector of pointers to
   //    PSimHits.  Since we need to keep track of various locations in
   //    this array, we need to use either indices or iterators.
-  vector<const PSimHit*> & simHits = product->getSimHits();  
+  std::vector<const PSimHit*> & simHits = product->getSimHits();  
 
   int nHits = simHits.size();         //  Number of hits on this DetUnit
 
-  vector< const PSimHit* > listOfUnmergedHits; // this that were not merged
-  vector< MergeGroup* > listOfMergeGroups;     // groups of hits that should be merged
+  std::vector< const PSimHit* > listOfUnmergedHits; // this that were not merged
+  std::vector< MergeGroup* > listOfMergeGroups;     // groups of hits that should be merged
   MergeGroup* mergeGroupByHit[ nHits ];        // fixed size array, 0 if hit is unmerged
 
   
@@ -199,7 +198,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //    listOfUnmergedHits simply goes out of scope.  However, we
   //    created the MergeGroups and thus we need to get rid of them.
   //
-  for ( vector<MergeGroup*>::iterator 
+  for ( std::vector<MergeGroup*>::iterator 
 	  mg_it = listOfMergeGroups.begin(),
 	  mg_end = listOfMergeGroups.end();
 	mg_it != mg_end;
@@ -585,12 +584,23 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
   do {
     //
     // Smear the hit Position
-    const SimpleHistogramGenerator * xgen = theXHistos[theXHistN];
+    
+    std::map<unsigned int, const SimpleHistogramGenerator*>::const_iterator xgenIt = theXHistos.find(theXHistN);
+    std::map<unsigned int, const SimpleHistogramGenerator*>::const_iterator ygenIt = theYHistos.find(theYHistN);
+    if (xgenIt==theXHistos.cend() || ygenIt==theYHistos.cend())
+    {
+        throw cms::Exception("FastSimulation/TrackingRecHitProducer") << "Histogram ("<<theXHistN<<","<<theYHistN<<") was not found for PixelTemplateSmearer. Check if the smearing template exists.";
+    }
+    
+    
+    const SimpleHistogramGenerator* xgen = xgenIt->second;
+    const SimpleHistogramGenerator* ygen = ygenIt->second;
+    
     thePositionX = xgen->generate(random);
     //thePositionX = theXHistos[theXHistN]->generate(random);
     ///thePositionX = 0.0;  // &&&  just to make it compile
     
-    const SimpleHistogramGenerator * ygen = theYHistos[theYHistN];
+
     thePositionY = ygen->generate(random);
     //thePositionY = theYHistos[theYHistN]->generate(random);
     ///thePositionY = 0.0;  // &&&  just to make it compile
@@ -699,7 +709,7 @@ TrackingRecHitProductPtr PixelTemplateSmearerBase::
 processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
                     TrackingRecHitProductPtr product ) const
 {
-  for ( vector<MergeGroup*>::iterator 
+  for ( std::vector<MergeGroup*>::iterator 
 	  mg_it = mergeGroups.begin(),
 	  mg_end = mergeGroups.end();
 	mg_it != mg_end;

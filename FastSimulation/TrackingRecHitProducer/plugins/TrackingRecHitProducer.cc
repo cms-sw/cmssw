@@ -159,7 +159,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     event.put(recHitOutputCollection,"TrackerGSRecHits");
     event.put(matchedRecHitOutputCollection,"TrackerGSMatchedRecHits");
     
-    //begin event
+    //end event
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
     {
         algo->endEvent(event,eventSetup);

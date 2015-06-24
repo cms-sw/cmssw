@@ -41,7 +41,7 @@ class TrackingRecHitNoSmearingPlugin:
             {
                 const Local3DPoint& position = simHit->localPosition();
                 LocalError error(_error2,_error2,_error2);
-                const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
+                const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
 
                 //TODO: this is only a minimal example
                 SiTrackerGSRecHit2D recHit(

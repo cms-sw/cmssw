@@ -45,9 +45,9 @@ class TrackingRecHitAlgorithm
             return _selectionString;
         }
         
-        const TrackerTopology* getTrackerTopology() const;
-        const TrackerGeometry* getTrackerGeometry() const;
-        const RandomEngineAndDistribution* getRandomEngine() const;
+        const TrackerTopology& getTrackerTopology() const;
+        const TrackerGeometry& getTrackerGeometry() const;
+        const RandomEngineAndDistribution& getRandomEngine() const;
 
         //this function will only be called once per stream
         virtual void beginStream(const edm::StreamID& id);

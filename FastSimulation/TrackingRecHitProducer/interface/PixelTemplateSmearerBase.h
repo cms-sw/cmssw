@@ -98,10 +98,8 @@ protected:
   // Useful private members
   GeomDetType::SubDetector thePixelPart;
 
-  // &&& Petar: must be mutable, otherwise operator[] on the map won't
-  // &&&        work (and I have no idea why)
-  mutable std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
-  mutable std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
+  std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
+  std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
 
   TFile* thePixelResolutionFile1;
   std::string thePixelResolutionFileName1;
