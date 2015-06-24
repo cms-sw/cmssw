@@ -173,6 +173,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
 {
    const static float  currentToField = 3.8/18160;
    bool available = false;
+   m_source = kNone;
    try
    {
       edm::InputTag conditionsTag("conditionsInEdm");
@@ -188,6 +189,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
       {
          available = true;
          m_eventField = currentToField * runCond->BAvgCurrent;
+         m_source = kEvent;
          fwLog( fwlog::kDebug ) << "Magnetic field info found in ConditionsInEdm branch : "<< m_eventField << std::endl;
       }
       else
@@ -204,6 +206,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
 
             available = true;
             m_eventField = currentToField * sum/dcsStatus->size();
+            m_source = kEvent;
             fwLog( fwlog::kDebug) << "Magnetic field info found in DcsStatus branch: " << m_eventField << std::endl;
          }
 
@@ -216,7 +219,6 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
 
    if (!available)
    {
-      m_source = kNone;
       fwLog( fwlog::kDebug ) << "No magnetic field info available in Event\n";
    }
 }
