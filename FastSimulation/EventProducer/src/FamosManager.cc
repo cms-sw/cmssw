@@ -30,7 +30,6 @@
 // FAMOS Header
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
-#include "FastSimulation/PileUpProducer/interface/PileUpSimulator.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
