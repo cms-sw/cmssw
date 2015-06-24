@@ -5,6 +5,9 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
    std::vector<std::pair<double, double> > &TS4TS5UpperCut,
    std::vector<std::pair<double, double> > &TS4TS5LowerCut,
    double minRBXRechitR45E)
+  :r45Count_(0)
+  ,r45Fraction_(0)
+  ,r45EnergyFraction_(0)
 {
   // energy
   energy_ = rbx.recHitEnergy(minRecHitE); 
