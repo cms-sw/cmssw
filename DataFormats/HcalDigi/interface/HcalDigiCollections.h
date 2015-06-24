@@ -38,12 +38,13 @@ template <class Digi>
 class HcalDataFrameContainer : protected edm::DataFrameContainer {
 public:
   HcalDataFrameContainer() { }
-  HcalDataFrameContainer(int nsamples_per_digi) : edm::DataFrameContainer(nsamples_per_digi*Digi::WORDS_PER_SAMPLE+Digi::HEADER_WORDS) { }
+  HcalDataFrameContainer(int nsamples_per_digi) : edm::DataFrameContainer(nsamples_per_digi*Digi::WORDS_PER_SAMPLE+Digi::HEADER_WORDS+Digi::FLAG_WORDS) { }
 
   int size() const { return int(edm::DataFrameContainer::size()); }
   Digi operator[](size_type i) const { return Digi(edm::DataFrameContainer::operator[](i));}
   void addDataFrame(DetId detid, const uint16_t* data) { push_back(detid.rawId(),data); }
-  int samples() const { return int((stride()-Digi::HEADER_WORDS)/Digi::WORDS_PER_SAMPLE); }
+  void addDataFrame(DetId detid) { push_back(detid.rawId()); }
+  int samples() const { return int((stride()-Digi::HEADER_WORDS-Digi::FLAG_WORDS)/Digi::WORDS_PER_SAMPLE); }
   void sort() { edm::DataFrameContainer::sort(); }
 };
 
