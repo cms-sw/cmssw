@@ -173,7 +173,6 @@ for dataclassfunc in sorted(dataclassfuncs):
 				exact= r"^" + re.escape(flaggedclass) + r"$"
 				exactmatch=re.match(exact,dataclass)
 				if exactmatch:
-				if re.match(flaggedclass,dataclass):
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",
 					path = nx.shortest_path(G,tfunc,dataclassfunc)
 					for p in path:
