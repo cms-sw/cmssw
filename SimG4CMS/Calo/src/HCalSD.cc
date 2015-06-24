@@ -41,9 +41,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit"),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
-  showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
-  m_HFDarkening(0) {
+  numberingFromDDD(nullptr), numberingScheme(nullptr), showerLibrary(nullptr),
+  hfshower(nullptr), showerParam(nullptr), showerPMT(nullptr), 
+  showerBundle(nullptr), m_HEDarkening(nullptr), m_HFDarkening(nullptr) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -109,7 +109,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   const HcalDDDSimConstants& hcons = numberingFromDDD->ddConstants(); 
-  HcalNumberingScheme* scheme;
+  HcalNumberingScheme* scheme=nullptr;
   if (testNumber || forTBH2) 
     scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(forTBH2));
   else 
@@ -589,7 +589,7 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 }
 
 void HCalSD::setNumberingScheme(HcalNumberingScheme * scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;

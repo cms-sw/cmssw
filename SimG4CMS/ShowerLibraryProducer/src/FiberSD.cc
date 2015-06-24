@@ -33,8 +33,7 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 		       << "\n"
 		       << "***************************************************";
   HcalNumberingFromDDD* numbering = new HcalNumberingFromDDD(name, cpv);
-  const HcalDDDSimConstants& hcons = numbering->ddConstants(); 
-  theShower = new HFShower(name, cpv, hcons, p, 1);
+  theShower = new HFShower(name, cpv, numbering->ddConstants(), p, 1);
 
   //
   // Now attach the right detectors (LogicalVolumes) to me

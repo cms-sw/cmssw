@@ -42,7 +42,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager, 
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")*ns,
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0){
+  numberingScheme(nullptr) {
 
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
@@ -94,9 +94,8 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   if (tempS.size() > 0) depth2Name = tempS[0];
   else                  depth2Name = " ";
 
-  EcalNumberingScheme* scheme=0;
+  EcalNumberingScheme* scheme=nullptr;
   if (nullNS) {
-    scheme = 0;
   } else if (name == "EcalHitsEB") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme()); isEB = true;
   } else if (name == "EcalHitsEE") {
@@ -289,7 +288,7 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep) {
 }
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
-  if (numberingScheme == 0) {
+  if (numberingScheme == nullptr) {
     return EBDetId(1,1)();
   } else {
     getBaseNumber(aStep);
@@ -298,7 +297,7 @@ uint32_t ECalSD::setDetUnitId(G4Step * aStep) {
 }
 
 void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("EcalSim") << "EcalSD: updates numbering scheme for " 
 			    << GetName() << "\n";
     if (numberingScheme) delete numberingScheme;
