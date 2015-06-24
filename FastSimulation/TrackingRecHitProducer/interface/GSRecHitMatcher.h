@@ -16,10 +16,10 @@ class GSRecHitMatcher {
   GSRecHitMatcher() {}
   ~GSRecHitMatcher() {}
 
-  SiTrackerGSMatchedRecHit2D * match( const SiTrackerGSRecHit2D *monoRH,
-				      const SiTrackerGSRecHit2D *stereoRH,
-				      const GluedGeomDet* gluedDet,
-				      LocalVector& trackdirection) const;
+  SiTrackerGSMatchedRecHit2D match( const SiTrackerGSRecHit2D *monoRH,
+				    const SiTrackerGSRecHit2D *stereoRH,
+				    const GluedGeomDet* gluedDet,
+				    LocalVector& trackdirection) const;
   
   
   StripPosition project(const GeomDetUnit *det,
@@ -27,10 +27,10 @@ class GSRecHitMatcher {
 			const StripPosition& strip,
 			const LocalVector& trackdirection) const;
   
-  SiTrackerGSMatchedRecHit2D * projectOnly( const SiTrackerGSRecHit2D *monoRH,
-					    const GeomDet * monoDet,
-					    const GluedGeomDet* gluedDet,
-					    LocalVector& ldir) const;
+  SiTrackerGSMatchedRecHit2D projectOnly( const SiTrackerGSRecHit2D *monoRH,
+					  const GeomDet * monoDet,
+					  const GluedGeomDet* gluedDet,
+					  LocalVector& ldir) const;
   
 };
 

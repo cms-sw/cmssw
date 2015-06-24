@@ -6,10 +6,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include <cfloat>
 
-SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match(const SiTrackerGSRecHit2D *monoRH,
-						    const SiTrackerGSRecHit2D *stereoRH,
-						    const GluedGeomDet* gluedDet,
-					            LocalVector& trackdirection) const
+SiTrackerGSMatchedRecHit2D GSRecHitMatcher::match(const SiTrackerGSRecHit2D *monoRH,
+						  const SiTrackerGSRecHit2D *stereoRH,
+						  const GluedGeomDet* gluedDet,
+						  LocalVector& trackdirection) const
 {
 
 
@@ -91,44 +91,22 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match(const SiTrackerGSRecHit2D *m
   float yy=invdet2*(sigmap12*c2*c2+sigmap22*c1*c1);
   LocalError error=LocalError(xx,xy,yy);
 
- //  if((gluedDet->surface()).bounds().inside(position,error,3)){
-//     std::cout<<"  ERROR ok "<< std::endl;
-//   }
-//   else {
-//     std::cout<<" ERROR not ok " << std::endl;
-//   }
-  
   //Added by DAO to make sure y positions are zero.
   DetId det(monoRH->geographicalId());
   if(det.subdetId() > 2) {
-    SiTrackerGSRecHit2D *adjustedMonoRH = new SiTrackerGSRecHit2D(LocalPoint(monoRH->localPosition().x(),0,0),
-								  monoRH->localPositionError(),
-								  *monoRH->det(),
-								  monoRH->simhitId(),
-								  monoRH->simtrackId(),
-								  monoRH->eeId(),
-								  monoRH->cluster(),
-								  monoRH->simMultX(),
-								  monoRH->simMultY()
-								  );
+    SiTrackerGSRecHit2D adjustedMonoRH(LocalPoint(monoRH->localPosition().x(),0,0),
+				       monoRH->localPositionError(),
+				       *monoRH->det());
+    adjustedMonoRH.addSimTrackIds(monoRH->simTrackIds());
+    SiTrackerGSRecHit2D adjustedStereoRH(LocalPoint(stereoRH->localPosition().x(),0,0),
+					 stereoRH->localPositionError(),
+					 *stereoRH->det());
+    adjustedStereoRH.addSimTrackIds(stereoRH->simTrackIds());
     
-    SiTrackerGSRecHit2D *adjustedStereoRH = new SiTrackerGSRecHit2D(LocalPoint(stereoRH->localPosition().x(),0,0),
-								    stereoRH->localPositionError(),
-								    *stereoRH->det(),
-								    stereoRH->simhitId(),
-								    stereoRH->simtrackId(),
-								    stereoRH->eeId(),
-								    stereoRH->cluster(),
-								    stereoRH->simMultX(),
-								    stereoRH->simMultY()
-								    );
-    
-    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(position, error, *gluedDet, monoRH->simhitId(), 
-								   monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(), 
-								   monoRH->simMultX(), monoRH->simMultY(), 
-								   true, adjustedMonoRH, adjustedStereoRH);
-    delete adjustedMonoRH;
-    delete adjustedStereoRH;
+    SiTrackerGSMatchedRecHit2D rV(position, error, *gluedDet,
+				  true, adjustedMonoRH, adjustedStereoRH);
+    rV.addSimTrackIds(monoRH->simTrackIds());
+    rV.addSimTrackIds(stereoRH->simTrackIds());
     return rV;
   }
   
@@ -164,10 +142,10 @@ GSRecHitMatcher::project(const GeomDetUnit *det,
 
 
 
-SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *monoRH,
-						    const GeomDet * monoDet,
-						    const GluedGeomDet* gluedDet,
-					            LocalVector& ldir) const
+SiTrackerGSMatchedRecHit2D GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *monoRH,
+							 const GeomDet * monoDet,
+							 const GluedGeomDet* gluedDet,
+							 LocalVector& ldir) const
 {
   LocalPoint position(monoRH->localPosition().x(), 0.,0.);
   const BoundPlane& gluedPlane = gluedDet->surface();
@@ -198,39 +176,27 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecH
   //Added by DAO to make sure y positions are zero and correct Mono or stereo Det is filled.
   
   auto otherDet = isMono ? gluedDet->stereoDet() : gluedDet->monoDet();
-  //Good for debugging.
-  //std::cout << "The monoDet = " << monoDet->geographicalId() << ". The gluedMonoDet = " << gluedMonoDet->geographicalId() << ". The gluedStereoDet = " << gluedStereoDet->geographicalId()
-  //    << ". isMono = " << isMono << ". isStereo = " << isStereo <<"." << std::endl;
-
-  SiTrackerGSRecHit2D *adjustedRH = new SiTrackerGSRecHit2D(LocalPoint(monoRH->localPosition().x(),0,0),
-							    monoRH->localPositionError(),
-							    *monoRH->det(),
-							    monoRH->simhitId(),
-							    monoRH->simtrackId(),
-							    monoRH->eeId(),
-							    monoRH->cluster(),
-							    monoRH->simMultX(),
-							    monoRH->simMultY()
-							    );
+  SiTrackerGSRecHit2D adjustedRH(LocalPoint(monoRH->localPosition().x(),0,0),
+				 monoRH->localPositionError(),
+				 *monoRH->det());
+  adjustedRH.addSimTrackIds(monoRH->simTrackIds());
   
   //DAO: Not quite sure what to do about the cluster ref, so I will fill it with the monoRH for now...
-  SiTrackerGSRecHit2D *otherRH = new SiTrackerGSRecHit2D(LocalPoint(-10000,-10000,-10000), LocalError(0,0,0),*otherDet, 0,0,0,monoRH->cluster(),0,0);
+  SiTrackerGSRecHit2D otherRH(LocalPoint(-10000,-10000,-10000), LocalError(0,0,0),*otherDet);
   if ((isMono && isStereo)||(!isMono&&!isStereo)) throw cms::Exception("GSRecHitMatcher") << "Something wrong with DetIds.";
   else if (isMono) {
-    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, *gluedDet, 
-								   monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(),
-								   monoRH->simMultX(), monoRH->simMultY(), false, adjustedRH, otherRH);
-    delete adjustedRH;
-    delete otherRH;
+    SiTrackerGSMatchedRecHit2D rV(projectedHitPos, rotatedError, *gluedDet, 
+				  false, adjustedRH, otherRH);
+    rV.addSimTrackIds(monoRH->simTrackIds());
+    rV.addSimTrackIds(otherRH.simTrackIds());
     return rV;
   }
   
   else{
-    SiTrackerGSMatchedRecHit2D *rV=new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, *gluedDet, 
-								 monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(),
-								 monoRH->simMultX(), monoRH->simMultY(), false, otherRH, adjustedRH);
-    delete adjustedRH;
-    delete otherRH;
+    SiTrackerGSMatchedRecHit2D rV(projectedHitPos, rotatedError, *gluedDet, 
+				  false, otherRH, adjustedRH);
+    rV.addSimTrackIds(monoRH->simTrackIds());
+    rV.addSimTrackIds(otherRH.simTrackIds());
     return rV;
   }
 }

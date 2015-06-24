@@ -8,7 +8,6 @@
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-typedef edm::RangeMap <DetId, edm::OwnVector<SiTrackerGSRecHit2D> > SiTrackerFullGSRecHit2DCollection;
 typedef edm::RangeMap <unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > SiTrackerGSRecHit2DCollection;
 
 #endif
