@@ -31,6 +31,8 @@ public:
     std::vector<HOTriggerPrimitiveDigi>* tphoCont;
     std::vector<HcalTTPDigi>* ttp;
     QIE10DigiCollection* qie10;
+    QIE11DigiCollection* qie11;
+
   };
 
   /// for normal data
