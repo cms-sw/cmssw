@@ -69,8 +69,6 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   edm::EDGetTokenT<EcalRecHitCollection> theBarrelRecHitToken_;
   edm::EDGetTokenT<EcalRecHitCollection> theEndcapRecHitToken_;
 
-  int num_events_in_run;
-
   // Histograms
   MonitorElement* h_triggers_passed;
   MonitorElement* h_photon_et_beforeCuts;

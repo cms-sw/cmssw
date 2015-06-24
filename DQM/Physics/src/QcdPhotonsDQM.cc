@@ -254,8 +254,6 @@ void QcdPhotonsDQM::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
-  num_events_in_run++;
-
   LogTrace(logTraceName) << "Analysis of event # ";
 
   ////////////////////////////////////////////////////////////////////
@@ -530,9 +528,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 }
 
 void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (num_events_in_run > 0) {
-    h_triggers_passed->getTH1F()->Scale(1.0 / num_events_in_run);
-  }
   h_photon_et_ratio_co_cs->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),
                                              h_photon_et_jetcs->getTH1F());
   h_photon_et_ratio_fo_fs->getTH1F()->Divide(h_photon_et_jetfo->getTH1F(),
