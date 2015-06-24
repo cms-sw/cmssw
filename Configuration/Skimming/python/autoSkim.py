@@ -1,14 +1,52 @@
 autoSkim = {
     'Commissioning':'DT+LogError',
-    'Cosmics':'CosmicSP+CosmicTP+LogError',
-    'CosmicsSP':'CosmicSP+LogError',
-    'TopMuEG':'TopMuEG+LogError',
-    'ZElectron' : 'ZElectron+LogError',
-    'ZMu' : 'ZMu+LogError',
-    'HighMET': 'HighMET+LogError',
-    'MuTau': 'MuTau+LogError',
+    'MuonEG':'TopMuEG+LogError',
+    'DoubleElectron' : 'ZElectron+LogError',
+    'SingleMuon' : 'ZMu+MuTau+LogError',
+    'JetHT': 'HighMET+LogError',
     
     }
+
+
+
+autoSkimRunI = {
+    'MinBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
+    'ZeroBias':'LogError',
+    'Commissioning':'DT+LogError',
+    'Cosmics':'CosmicSP+CosmicTP+LogError',
+    'Mu' : 'WMu+ZMu+HighMET+LogError',    
+    'EG':'WElectron+ZElectron+HighMET+LogError',
+    'TopMuEG':'TopMuEG+LogError',
+    'Electron':'WElectron+ZElectron+HighMET+LogError',
+    'Photon':'WElectron+ZElectron+HighMET+LogError+DiPhoton+EXOHPTE',
+    'JetMETTau':'LogError+Tau',
+    'JetMET':'HighMET+LogError',
+    'BTau':'LogError+Tau',
+    'Jet':'HighMET+LogError',
+    'METFwd':'HighMET+LogError',
+    'SingleMu' : 'WMu+ZMu+HighMET+LogError+HWW+HZZ+DiTau+EXOHSCP',
+    'DoubleMu' : 'WMu+ZMu+HighMET+LogError+HWW+HZZ+EXOHSCP',
+    'SingleElectron' : 'WElectron+HighMET+LogError+HWW+HZZ+Tau',
+    'DoubleElectron' : 'ZElectron+LogError+HWW+HZZ',
+    'MuEG' : 'LogError+HWW+HZZ',
+    'METBTag': 'HighMET+LogError+EXOHSCP',
+    'BTag': 'LogError+EXOHSCP',
+    'MET': 'HighMET+LogError+EXOHSCP',
+    'HighMET': 'HighMET+LogError',
+
+    'HT': 'HighMET+LogError',
+
+    'Tau': 'LogError',
+    'MuTau': 'MuTau+LogError',
+    'PhotonHad': 'LogError',
+    'MuHad': 'LogError',
+    'MultiJet': 'LogError',
+    'MuOnia': 'LogError',
+    'ElectronHad': 'LogError',
+    'TauPlusX': 'LogError',
+    
+    }
+
 
 
 autoSkimPDWG = {
