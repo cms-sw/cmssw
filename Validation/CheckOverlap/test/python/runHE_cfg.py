@@ -3,18 +3,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
+process.load("Geometry.HcalCommonData.testHcalOnlyGeometryXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr'),
+    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'SimG4CoreGeometry', 'HCalGeom'),
+    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -23,8 +26,14 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
+        ),
+        SimG4CoreGeometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         )
-    )
+    ),
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")
@@ -60,6 +69,6 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type       = cms.string('CheckOverlap'),
     Resolution = cms.untracked.int32(1000),
-    NodeNames  = cms.untracked.vstring('PixelBarrel')
+    NodeNames  = cms.untracked.vstring('CALO')
 ))
 
