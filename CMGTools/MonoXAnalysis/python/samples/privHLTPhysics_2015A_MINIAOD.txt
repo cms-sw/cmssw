@@ -313,7 +313,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1284.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1285.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1286.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1287.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1288.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1289.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_129.root
@@ -947,7 +946,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1870.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1871.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1872.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1873.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1874.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1876.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_1877.root
@@ -1262,7 +1260,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2165.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2166.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2168.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2169.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_217.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2170.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2171.root
@@ -1276,7 +1273,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2179.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_218.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2180.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2181.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2182.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2183.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_2184.root
@@ -2150,7 +2146,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3001.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3002.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3003.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3004.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3005.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3006.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3007.root
@@ -2323,7 +2318,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3163.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3164.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3167.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3168.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3169.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_317.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3170.root
@@ -3080,7 +3074,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3864.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3865.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3866.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3867.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3869.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_387.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3870.root
@@ -3119,7 +3112,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3901.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3902.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3903.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3904.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3905.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3906.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3907.root
@@ -3214,7 +3206,6 @@
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3989.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_399.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3990.root
-/store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3991.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3992.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3993.root
 /store/group/dpg_ecal/comm_ecal/data13TeV/HLTPhysics/MINIAOD/HLTPhysics_3994.root
