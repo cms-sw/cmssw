@@ -46,7 +46,6 @@ using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
-      myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
@@ -66,9 +65,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
 			  p.getParameter<edm::ParameterSet>("ActivateDecays"));
 
-  // Initialize PileUp Producer (if requested)
-  myPileUpSimulator = new PileUpSimulator(mySimEvent);
-
   // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
     myCalorimetry = 
@@ -83,7 +79,6 @@ FamosManager::~FamosManager()
 { 
   if ( mySimEvent ) delete mySimEvent; 
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
-  if ( myPileUpSimulator ) delete myPileUpSimulator;
   if ( myCalorimetry) delete myCalorimetry;
 }
 
@@ -153,7 +148,6 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
 
 void 
 FamosManager::reconstruct(const HepMC::GenEvent* evt,
-			  const HepMC::GenEvent* pu,
 			  const TrackerTopology *tTopo,
                           RandomEngineAndDistribution const* random)
 {
@@ -166,10 +160,6 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
   // Fill the event from the original generated event
   mySimEvent->fill(*evt,id);
         
-  // Get the pileup events and add the particles to the main event
-  if(pu)
-    myPileUpSimulator->produce(pu);
-    
   // And propagate the particles through the detector
   myTrajectoryManager->reconstruct(tTopo, random);
 
