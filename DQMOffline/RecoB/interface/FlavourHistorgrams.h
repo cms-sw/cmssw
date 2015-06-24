@@ -57,10 +57,8 @@ public:
 
   void epsPlot(const std::string& name);
 
-  // needed for efficiency computations -> this / b
-  // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
-  //void divide ( const FlavourHistograms<T> & bHD ) const ;
   void divide ( const FlavourHistograms<T> & bHD ) ;
+  void setEfficiencyFlag();
 
   inline void SetMaximum(const double& max) { theMax = max;}
   inline void SetMinimum(const double& min) { theMin = min;}
@@ -528,7 +526,7 @@ void FlavourHistograms<T>::ComputeEfficiency(TH1F* num, TH1F* den, int bin){
   double errVal = 0.;
   if (den->GetBinContent(bin)>0) {
     effVal = num->GetBinContent(bin)/den->GetBinContent(bin); 
-    errVal = ClopperPearsonUnc(a, b, bin);
+    errVal = ClopperPearsonUnc(num, den, bin);
   }
   num->SetBinContent(bin, effVal);
   num->SetBinError(bin, errVal);
@@ -553,6 +551,26 @@ void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) {
       ComputeEfficiency(theHisto_pu   ->getTH1F(), bHD.histo_pu  (), bin) ;
     }
   }
+}
+
+template <class T>
+void FlavourHistograms<T>::setEfficiencyFlag(){
+  if(theHisto_all) theHisto_all  ->setEfficiencyFlag();
+  if (mcPlots_) {
+    if (mcPlots_>2 ) {
+      theHisto_d    ->setEfficiencyFlag();
+      theHisto_u    ->setEfficiencyFlag();
+      theHisto_s    ->setEfficiencyFlag();
+      theHisto_g    ->setEfficiencyFlag();
+      theHisto_dus  ->setEfficiencyFlag();
+    }
+    theHisto_c    ->setEfficiencyFlag();
+    theHisto_b    ->setEfficiencyFlag();
+    theHisto_ni   ->setEfficiencyFlag();
+    theHisto_dusg ->setEfficiencyFlag();
+    theHisto_pu   ->setEfficiencyFlag();
+  }
+
 }
 
 template <class T>
