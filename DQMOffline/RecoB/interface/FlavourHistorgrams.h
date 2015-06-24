@@ -99,8 +99,8 @@ public:
 protected:
 
   void fillVariable ( const int & flavour , const T & var , const T & w) const;
-  double ClopperPearsonUnc(TH1F* a, TH1F* b, int bin);
-  void ComputeEfficiency(TH1F* a, TH1F* b, int bin);
+  double ClopperPearsonUnc(TH1F* num, TH1F* den, int bin);
+  void ComputeEfficiency(TH1F* num, TH1F* den, int bin);
   
   //
   // the data members
@@ -510,56 +510,28 @@ void FlavourHistograms<T>::epsPlot(const std::string& name)
    tc.Print((name + theBaseNameTitle + ".eps").c_str());
 }
 
-/*
-// needed for efficiency computations -> this / b
-// (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
 template <class T>
-void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
-  // divide histos using binomial errors
-  //
-  // ATTENTION: It's the responsability of the user to make sure that the HistoDescriptions
-  //            involved in this operation have been constructed with the statistics option switched on!!
-  //
-  if(theHisto_all) theHisto_all  ->getTH1F()-> Divide ( theHisto_all->getTH1F()  , bHD.histo_all () , 1.0 , 1.0 , "b" ) ;    
-    if (mcPlots_) {
-      if (mcPlots_>2 ) {
-	theHisto_d    ->getTH1F()-> Divide ( theHisto_d ->getTH1F()   , bHD.histo_d   () , 1.0 , 1.0 , "b" ) ;    
-	theHisto_u    ->getTH1F()-> Divide ( theHisto_u ->getTH1F()   , bHD.histo_u   () , 1.0 , 1.0 , "b" ) ;
-	theHisto_s    ->getTH1F()-> Divide ( theHisto_s ->getTH1F()   , bHD.histo_s   () , 1.0 , 1.0 , "b" ) ;
-	theHisto_g    ->getTH1F()-> Divide ( theHisto_g  ->getTH1F()  , bHD.histo_g   () , 1.0 , 1.0 , "b" ) ;
-	theHisto_dus  ->getTH1F()-> Divide ( theHisto_dus->getTH1F()  , bHD.histo_dus () , 1.0 , 1.0 , "b" ) ;
-      }
-      theHisto_c    ->getTH1F()-> Divide ( theHisto_c ->getTH1F()   , bHD.histo_c   () , 1.0 , 1.0 , "b" ) ;
-      theHisto_b    ->getTH1F()-> Divide ( theHisto_b ->getTH1F()   , bHD.histo_b   () , 1.0 , 1.0 , "b" ) ;
-      theHisto_ni   ->getTH1F()-> Divide ( theHisto_ni->getTH1F()   , bHD.histo_ni  () , 1.0 , 1.0 , "b" ) ;
-      theHisto_dusg ->getTH1F()-> Divide ( theHisto_dusg->getTH1F() , bHD.histo_dusg() , 1.0 , 1.0 , "b" ) ;
-      theHisto_pu   ->getTH1F()-> Divide ( theHisto_pu->getTH1F() , bHD.histo_pu() , 1.0 , 1.0 , "b" ) ;
-    }
-}
-*/  
-template <class T>
-double FlavourHistograms<T>::ClopperPearsonUnc(TH1F* a, TH1F* b, int bin){
-  double effVal = a->GetBinContent(bin)/b->GetBinContent(bin);
-  double errLo = TEfficiency::ClopperPearson((int)b->GetBinContent(bin), 
-					     (int)a->GetBinContent(bin),
+double FlavourHistograms<T>::ClopperPearsonUnc(TH1F* num, TH1F* den, int bin){
+  double effVal = num->GetBinContent(bin)/den->GetBinContent(bin);
+  double errLo = TEfficiency::ClopperPearson((int)den->GetBinContent(bin), 
+					     (int)num->GetBinContent(bin),
 					     0.683,false);
-  double errUp = TEfficiency::ClopperPearson((int)b->GetBinContent(bin), 
-					     (int)a->GetBinContent(bin),
+  double errUp = TEfficiency::ClopperPearson((int)den->GetBinContent(bin), 
+					     (int)num->GetBinContent(bin),
 					     0.683,true);
   return (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal; 
 }
 
 template <class T>
-void FlavourHistograms<T>::ComputeEfficiency(TH1F* a, TH1F* b, int bin){
+void FlavourHistograms<T>::ComputeEfficiency(TH1F* num, TH1F* den, int bin){
   double effVal = 1.;
   double errVal = 0.;
-  if (b->GetBinContent(bin)>0) {
-    effVal = a->GetBinContent(bin)/b->GetBinContent(bin); 
+  if (den->GetBinContent(bin)>0) {
+    effVal = num->GetBinContent(bin)/den->GetBinContent(bin); 
     errVal = ClopperPearsonUnc(a, b, bin);
   }
-  a->SetBinContent(bin, effVal);
-  //a->SetBinEntries(bin, 1);
-  a->SetBinError(bin, errVal);
+  num->SetBinContent(bin, effVal);
+  num->SetBinError(bin, errVal);
 }
 
 template <class T>
