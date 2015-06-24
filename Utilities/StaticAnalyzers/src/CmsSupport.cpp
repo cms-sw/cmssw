@@ -112,8 +112,9 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
 bool support::isSafeClassName(const std::string &cname) {
 
   static const std::vector<std::string> names = {
-    "std::atomic",
-    "struct std::atomic",
+    "atomic<",
+    "std::atomic<",
+    "struct std::atomic<",
     "std::__atomic_",
     "std::mutex",
     "std::recursive_mutex",
