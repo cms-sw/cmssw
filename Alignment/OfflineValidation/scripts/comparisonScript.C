@@ -48,6 +48,7 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     y.push_back("rdphi");	trans->SetBranchSF("rdphi",10000);      trans->SetBranchUnits("rdphi", "#mum rad");
     y.push_back("dx");		trans->SetBranchSF("dx", 	10000);     trans->SetBranchUnits("dx",    "#mum");    //trans->SetBranchMax("dx", 10); trans->SetBranchMin("dx", -10);
     y.push_back("dy");		trans->SetBranchSF("dy", 	10000);     trans->SetBranchUnits("dy",    "#mum");    //trans->SetBranchMax("dy", 10); trans->SetBranchMin("dy", -10);
+    trans->SetGrid(1,1);
     trans->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
@@ -68,6 +69,7 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");      
     b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");     
     b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");    
+    rot->SetGrid(1,1);
     rot->MakePlots(a, b); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
@@ -89,12 +91,21 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     dy.push_back("rdphi");	cross->SetBranchSF("rdphi",10000);      cross->SetBranchUnits("rdphi", "#mum rad");
     dy.push_back("dx");		cross->SetBranchSF("dx", 	10000);     cross->SetBranchUnits("dx",    "#mum");  
     dy.push_back("dy");		cross->SetBranchSF("dy", 	10000);     cross->SetBranchUnits("dy",    "#mum");     
+    cross->SetGrid(1,1);
     cross->MakePlots(dx,dy); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
     cross->SetGrid(1,1);
     cross->SetPrintOption("png");
     cross->MakePlots(dx, dy);
+
+    //Additional cross talk plots with dangles on y-axis
+    cross->SetPrintOption("pdf");
+    cross->MakePlots(dy,dx);
+    
+    cross->SetGrid(1,1);
+    cross->SetPrintOption("png");
+    cross->MakePlots(dy, dx);
 
     // now the same object can be reused with other specifications/cuts
     //void SetPrint               (const bool);           // activates the printing of the individual and global pdf
