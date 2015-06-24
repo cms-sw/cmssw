@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V129 (CMSSW_7_4_5)
+# /dev/CMSSW_7_4_0/50nsGRun/V130 (CMSSW_7_4_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V129')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V130')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -470,37 +470,6 @@ fragment.transferSystem = cms.PSet(
   )
 )
 fragment.streams = cms.PSet( 
-  A = cms.vstring( 'BTagCSV',
-    'BTagMu',
-    'Charmonium',
-    'Commissioning',
-    'DisplacedJet',
-    'DoubleEG',
-    'DoubleMuon',
-    'DoubleMuonLowMass',
-    'EGMLowPU',
-    'FullTrack',
-    'HINCaloJetsOther',
-    'HINMuon',
-    'HINPFJetsOther',
-    'HINPhoton',
-    'HLTPhysics',
-    'HTMHT',
-    'HcalHPDNoise',
-    'HcalNZS',
-    'HighMultiplicity',
-    'JetHT',
-    'MET',
-    'MonteCarlo',
-    'MuOnia',
-    'MuonEG',
-    'NoBPTX',
-    'SingleElectron',
-    'SingleMuon',
-    'SinglePhoton',
-    'Tau',
-    'ToTOTEM',
-    'ZeroBias' ),
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
@@ -512,6 +481,37 @@ fragment.streams = cms.PSet(
   Express = cms.vstring( 'ExpressPhysics' ),
   LookArea = cms.vstring( 'LookAreaPD' ),
   NanoDST = cms.vstring( 'L1Accept' ),
+  PhysicsEGammaCommissioning = cms.vstring( 'Commissioning',
+    'DoubleEG',
+    'EGMLowPU',
+    'FullTrack',
+    'HINCaloJetsOther',
+    'HINMuon',
+    'HINPFJetsOther',
+    'HINPhoton',
+    'HLTPhysics',
+    'HcalHPDNoise',
+    'HcalNZS',
+    'HighMultiplicity',
+    'MonteCarlo',
+    'NoBPTX',
+    'SingleElectron',
+    'SinglePhoton',
+    'ToTOTEM',
+    'ZeroBias' ),
+  PhysicsHadronsTaus = cms.vstring( 'BTagCSV',
+    'BTagMu',
+    'DisplacedJet',
+    'HTMHT',
+    'JetHT',
+    'MET',
+    'Tau' ),
+  PhysicsMuons = cms.vstring( 'Charmonium',
+    'DoubleMuon',
+    'DoubleMuonLowMass',
+    'MuOnia',
+    'MuonEG',
+    'SingleMuon' ),
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 fragment.datasets = cms.PSet( 

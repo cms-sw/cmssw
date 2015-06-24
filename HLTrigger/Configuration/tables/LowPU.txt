@@ -131,7 +131,7 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 #RatesMonitoring						# CMSHLT-344, only in 'online'
-AOutput
+PhysicsEGammaCommissioningOutput
 DQMOutput							# online DQMFileSaver
 DQMEventDisplayOutput
 DQMCalibrationOutput

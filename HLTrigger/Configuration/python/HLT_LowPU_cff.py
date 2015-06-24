@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V40 (CMSSW_7_4_5)
+# /dev/CMSSW_7_4_0/LowPU/V41 (CMSSW_7_4_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V40')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V41')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -470,7 +470,18 @@ fragment.transferSystem = cms.PSet(
   )
 )
 fragment.streams = cms.PSet( 
-  A = cms.vstring( 'CastorJets',
+  ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
+  Calibration = cms.vstring( 'TestEnablesEcalHcal' ),
+  DQM = cms.vstring( 'OnlineMonitor' ),
+  DQMCalibration = cms.vstring( 'TestEnablesEcalHcalDQM' ),
+  DQMEventDisplay = cms.vstring( 'EventDisplay' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
+  LookArea = cms.vstring( 'LookAreaPD' ),
+  NanoDST = cms.vstring( 'L1Accept' ),
+  PhysicsEGammaCommissioning = cms.vstring( 'CastorJets',
     'Commissioning',
     'DoubleEG',
     'EGMLowPU',
@@ -490,22 +501,10 @@ fragment.streams = cms.PSet(
     'HighMultiplicity',
     'L1MinimumBias',
     'NoBPTX',
-    'SingleMuon',
     'TOTEM_minBias',
     'TOTEM_romanPots',
     'ToTOTEM',
-    'ZeroBias' ),
-  ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
-  Calibration = cms.vstring( 'TestEnablesEcalHcal' ),
-  DQM = cms.vstring( 'OnlineMonitor' ),
-  DQMCalibration = cms.vstring( 'TestEnablesEcalHcalDQM' ),
-  DQMEventDisplay = cms.vstring( 'EventDisplay' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
-  LookArea = cms.vstring( 'LookAreaPD' ),
-  NanoDST = cms.vstring( 'L1Accept' )
+    'ZeroBias' )
 )
 fragment.datasets = cms.PSet( 
   AlCaLumiPixels = cms.vstring( 'AlCa_LumiPixels_Random_v1',
@@ -762,7 +761,6 @@ fragment.datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity85_v2',
     'HLT_Random_v1',
     'HLT_ZeroBias_v1' ),
-  SingleMuon = cms.vstring( 'HLT_L1SingleMuOpen_v1' ),
   TOTEM_minBias = cms.vstring( 'HLT_L1TOTEM1_MinBias_v1',
     'HLT_L1TOTEM3_ZeroBias_v1' ),
   TOTEM_romanPots = cms.vstring( 'HLT_L1RomanPots_SinglePixelTrack02_v2',
