@@ -235,17 +235,17 @@ bool PVFitter::runBXFitter() {
     // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
     //
     MnUserParameters upar;
-    upar.Add("x", 0., 0.02, -10., 10.);       // 0
-    upar.Add("y", 0., 0.02, -10., 10.);       // 1
-    upar.Add("z", 0., 0.20, -30., 30.);       // 2
-    upar.Add("ex", 0.015, 0.01, 0., 10.);     // 3
-    upar.Add("corrxy", 0., 0.02, -1., 1.);    // 4
-    upar.Add("ey", 0.015, 0.01, 0., 10.);     // 5
-    upar.Add("dxdz", 0., 0.0002, -0.1, 0.1);  // 6
-    upar.Add("dydz", 0., 0.0002, -0.1, 0.1);  // 7
-    upar.Add("ez", 1., 0.1, 0., 30.);         // 8
-    upar.Add("scale", errorScale_, errorScale_/10.,
-             errorScale_/2., errorScale_*2.); // 9
+    upar.Add("x"     , 0.   , 0.02  , -10., 10.);  // 0
+    upar.Add("y"     , 0.   , 0.02  , -10., 10.);  // 1
+    upar.Add("z"     , 0.   , 0.20  , -30., 30.);  // 2
+    upar.Add("ex"    , 0.015, 0.01  , 0.  , 10.);  // 3
+    upar.Add("corrxy", 0.   , 0.02  , -1. , 1. );  // 4
+    upar.Add("ey"    , 0.015, 0.01  , 0.  , 10.);  // 5
+    upar.Add("dxdz"  , 0.   , 0.0002, -0.1, 0.1);  // 6
+    upar.Add("dydz"  , 0.   , 0.0002, -0.1, 0.1);  // 7
+    upar.Add("ez"    , 1.   , 0.1   , 0.  , 30.);  // 8
+    upar.Add("scale", errorScale_   , errorScale_/10.,
+                      errorScale_/2., errorScale_*2.);      // 9
     MnMigrad migrad(*fcn, upar);
 
     //
