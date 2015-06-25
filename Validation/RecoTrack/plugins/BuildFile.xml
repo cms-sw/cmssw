@@ -3,7 +3,6 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="DQMServices/Core"/>

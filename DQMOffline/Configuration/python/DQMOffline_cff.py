@@ -46,7 +46,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
-from Validation.RecoTrack.tracksDQMMiniAOD_cff import *
+from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 
 DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  muonMonitors *
