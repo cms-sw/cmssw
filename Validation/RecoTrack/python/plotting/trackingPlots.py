@@ -54,7 +54,8 @@ _effvspos = PlotGroup("effvspos", [
                       legendDy=-0.025
 )
 
-_common = {"stat": True, "drawStyle": "hist"}
+# These don't exist in FastSim
+_common = {"stat": True, "drawStyle": "hist", "ignoreIfMissing": True}
 _dedx = PlotGroup("dedx", [
     Plot("h_dedx_estim1", normalizeToUnitArea=True, xtitle="dE/dx, harm2", **_common),
     Plot("h_dedx_estim2", normalizeToUnitArea=True, xtitle="dE/dx, trunc40", **_common),

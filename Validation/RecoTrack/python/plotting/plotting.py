@@ -448,6 +448,7 @@ class Plot:
         ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
+        ignoreIfMissing -- If this plot is missing from DQM file, ignoring this plot is safe regardless of the global missingOk setting (default False)
         """
         self._name = name
 
@@ -502,6 +503,8 @@ class Plot:
 
         _set("histogramModifier", None)
 
+        _set("ignoreIfMissing", False)
+
         self._histograms = []
 
     def getNumberOfHistograms(self):
@@ -528,7 +531,7 @@ class Plot:
         # Check the histogram exists
         if th1 == None:
             print "Did not find {histo} from {dir}".format(histo=self._name, dir=tdir.GetPath())
-            if missingOk:
+            if missingOk or self._ignoreIfMissing:
                 return None
             else:
                 sys.exit(1)
