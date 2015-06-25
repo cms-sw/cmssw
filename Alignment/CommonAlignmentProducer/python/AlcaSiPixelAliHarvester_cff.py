@@ -1,6 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
+
+
+
+
+SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
+    #FIXME: handle with an InputLabel instead of 
+    fileBlobModule = cms.string("SiPixelAliMillePedeFileConverter"),
+    fileBlobLabel  = cms.string(''),
+    outputBinaryFile = cms.string('pippo2.dat'))
+
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer
 SiPixelAliPedeAlignmentProducer = copy.deepcopy(AlignmentProducer)
@@ -89,7 +99,7 @@ SiPixelAliPedeAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliPedeAlignmentProducer.algoConfig.mode = 'pede'
 # FIXME: this needs to be addressed
 SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles = [
-				'milleBinary0.dat'
+				SiPixelAliMilleFileExtractor.outputBinaryFile.value()
 				]
 SiPixelAliPedeAlignmentProducer.algoConfig.monitorFile = 'millePedeMonitor_pede.root'
 SiPixelAliPedeAlignmentProducer.algoConfig.binaryFile = ''
@@ -110,7 +120,6 @@ SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 SiPixelAliPedeAlignmentProducer.algoConfig.minNumHits = 8
 
 
-from Alignment.FileConverterPlaceHolder.fileconverterplaceholder_cfi import *
 
-ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliPedeAlignmentProducer*
-                                     demo)
+ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
+                                     SiPixelAliPedeAlignmentProducer)
