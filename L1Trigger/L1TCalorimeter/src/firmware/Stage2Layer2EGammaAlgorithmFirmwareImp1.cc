@@ -193,11 +193,24 @@ bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluste
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShapeLutIndex(int iEta, int E, int shape)
 /*****************************************************************/
 {
-  unsigned int iEtaNormed = abs(iEta);
-  if(iEtaNormed>28) iEtaNormed = 28;
-  if(E>255) E = 255;
-  unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
-  return E+compressedShape*256+(iEtaNormed-1)*256*64;
+  if(params_->egShapeIdType()=="compressed")
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    unsigned int compressedE     = params_->egCompressShapesLUT()->data((0x1<<7)+E);
+    unsigned int compressedEta   = params_->egCompressShapesLUT()->data((0x1<<12)+iEtaNormed);
+    return (compressedShape | compressedE | compressedEta);
+  }
+  else // Uncompressed (kept for backward compatibility)
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    return E+compressedShape*256+(iEtaNormed-1)*256*64;
+  }
 }
 
 //calculates the footprint of the electron in hardware values
@@ -279,13 +292,26 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(int iEta, int E, int shape)
 /*****************************************************************/
 {
-  unsigned int iEtaNormed = abs(iEta);
-  if(iEtaNormed>28) iEtaNormed = 28;
-  if(E>255) E = 255;
-  if(E<22) E = 22;
-  unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
-  if(compressedShape>31) compressedShape = 31;
-  return (E-20)+compressedShape*236+(iEtaNormed-1)*236*32;
+  if(params_->egCalibrationType()=="compressed")
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    unsigned int compressedE     = params_->egCompressShapesLUT()->data((0x1<<7)+E);
+    unsigned int compressedEta   = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+iEtaNormed);
+    return (compressedShape | compressedE | compressedEta);
+  }
+  else // Uncompressed (kept for backward compatibility)
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    if(E<22) E = 22;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    if(compressedShape>31) compressedShape = 31;
+    return (E-20)+compressedShape*236+(iEtaNormed-1)*236*32;
+  }
 }
 
 /*****************************************************************/
