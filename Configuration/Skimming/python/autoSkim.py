@@ -1,3 +1,29 @@
+
+autoSkim = {
+ 'BTagCSV' : 'LogError',
+ 'BTagMu' : 'LogError',
+ 'HTMHT' : 'LogError',
+ 'JetHT' : 'HighMET+LogError',
+ 'DisplacedJet' : 'LogError',
+ 'MET' : 'LogError',
+ 'SingleElectron' : 'LogError',
+ 'SinglePhoton' : 'LogError',
+ 'DoubleEG' : 'ZElectron+LogError',
+ 'Tau' : 'LogError',
+ 'SingleMuon' : 'ZMu+MuTau+LogError',
+ 'DoubleMuon' : 'LogError',
+ 'MuonEG' : 'TopMuEG+LogError',
+ 'DoubleMuonLowMass' : 'LogError',
+ 'MuOnia' : 'LogError',
+ 'Charmonium' : 'LogError',
+ 'NoBPTX' : 'LogError',
+ 'HcalHPDNoise' : 'LogError',
+ 'HcalNZS' : 'LogError',
+ 'HLTPhysics' : 'LogError',
+ 'ZeroBias' : 'LogError',
+ 'Commissioning' : 'DT+LogError'
+}
+
 autoSkimRunI = {
     'MinBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
     'ZeroBias':'LogError',
