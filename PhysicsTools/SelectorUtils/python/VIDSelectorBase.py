@@ -7,7 +7,7 @@ from PhysicsTools.SelectorUtils.VIDCutFlowResult import VIDCutFlowResult
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
 ROOT.gSystem.Load("libDataFormatsFWLite.so");
-ROOT.AutoLibraryLoader.enable()
+ROOT.FWLiteEnabler.enable()
 
 config_template = """
 import FWCore.ParameterSet.Config as cms
@@ -39,6 +39,8 @@ class VIDSelectorBase:
         self.__selectorBuilder = vidSelectorBuilder()
         self.__instance = None
         if pythonpset is not None:
+            if hasattr(pythonpset,'isPOGApproved'):
+                 del pythonpset.isPOGApproved
             self.__instance = process_pset( self.__selectorBuilder, pythonpset ) 
             self.__initialized = True
         else:
@@ -59,6 +61,8 @@ class VIDSelectorBase:
             print 'VID Selector is already initialized, doing nothing!'
             return
         del process.__instance
+        if hasattr(pythonpset,'isPOGApproved'):
+            del pythonpset.isPOGApproved
         self.__instance = process_pset( self.__selectorBuilder, pythonpset )         
         self.__initialized = True
 
