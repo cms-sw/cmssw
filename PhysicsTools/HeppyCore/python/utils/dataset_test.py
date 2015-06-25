@@ -29,15 +29,19 @@ class TestDataset(unittest.TestCase):
         # shutil.rmtree('datasets')
 
     def test_eos(self):
-        ds1 = EOSDataset('/eos/cms/store/cmst3/user/cbern/EOSTests/ds1', 
+        ds1 = EOSDataset('/EOSTests/ds1', 
+                         '/eos/cms/store/cmst3/user/cbern',
                          '.*root') 
         self.assertEqual(len(ds1.listOfGoodFiles()), 10)
 
     def test_eos_fail(self):
         self.assertRaises( ValueError, 
-                           EOSDataset, 'not_existing_path', '.*root')
+                           EOSDataset, 
+                           'not_existing_basedir',
+                           'not_exiting_dataset',
+                           '.*root')
         # should test that we fail when a plain file is provided 
-        # instead ofa directory.. but eostools not set up for that yet.
+        # instead of a directory.. but eostools not set up for that yet.
 
 
 if __name__ == '__main__':
