@@ -744,7 +744,8 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
         // Check if it is needed this object for this trigger
         if( ! TString(hltPath).Contains(objTypeStr) )
         {
-            if( (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("CSV") ) ||   // fix for ZnnHbb PFJET            
+            if( (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("WHbbBoost") ) ||   // fix for HLT_Ele27_WPLoose_Gsf_WHbbBoost_v
+                (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("CSV") ) ||   // fix for ZnnHbb PFJET            
                 (objtriggernames[i] == EVTColContainer::PFMET && TString(hltPath).Contains("MHT")) )        // fix for ZnnHbb PFMET
                 objsType.insert(objtriggernames[i]);
             else if (objtriggernames[i] == EVTColContainer::PHOTON && TString(hltPath).Contains("Diphoton") ) objsType.insert(objtriggernames[i]);    //case of the New Diphoton paths
