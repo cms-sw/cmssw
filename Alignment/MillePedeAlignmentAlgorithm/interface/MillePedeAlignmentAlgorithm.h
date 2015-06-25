@@ -71,6 +71,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Call at end of job
   virtual void terminate(const edm::EventSetup& iSetup);
+  virtual void terminate();
 
   virtual bool processesEvents() override;
   /// Run the algorithm on trajectories and tracks

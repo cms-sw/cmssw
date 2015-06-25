@@ -240,12 +240,8 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   }
 }
 
-//_____________________________________________________________________________
-void MillePedeAlignmentAlgorithm
-::addCalibrations(const Calibrations& iCals)
-{
-  theCalibrations.insert(theCalibrations.end(), iCals.begin(), iCals.end());
-  thePedeLabels->addCalibrations(iCals);
+bool MillePedeAlignmentAlgorithm::supportsCalibrations() {
+  return true;
 }
 
 //____________________________________________________
@@ -292,7 +288,11 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
+void MillePedeAlignmentAlgorithm::terminate() 
+{
+  terminate();
+}
+void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) 
 {
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
