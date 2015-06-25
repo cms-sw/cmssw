@@ -226,7 +226,7 @@ initialize( const edm::ParameterSet& conf ) {
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 template<class T> 
 vid::CutFlowResult VersionedSelector<T>::cutFlowResult() const {
-  std::unordered_map<std::string,unsigned> names_to_index;
+  std::map<std::string,unsigned> names_to_index;
   std::map<std::string,unsigned> cut_counter;
   for( unsigned idx = 0; idx < cuts_.size(); ++idx ) {
     const std::string& name = cuts_[idx]->name();
