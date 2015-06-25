@@ -532,6 +532,7 @@ namespace cscdqm {
       if(checkHistoValue(p, "SetXLabels", s)) {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
+        th->GetXaxis()->SetNoAlphanumeric(); // For ROOT6 to prevent getting zero means values
         for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
           th->GetXaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
         }
@@ -539,6 +540,7 @@ namespace cscdqm {
       if(checkHistoValue(p, "SetYLabels", s)) {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
+        th->GetYaxis()->SetNoAlphanumeric(); // For ROOT6 to prevent getting zero means values
         for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
           th->GetYaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
         }

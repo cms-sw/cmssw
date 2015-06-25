@@ -99,50 +99,87 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
   //  The collections are specified via ROUList in the configuration, and can
   //  be either crossing frames (e.g., mix/g4SimHitsTrackerHitsTIBLowTof)
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
-
-  for(auto const& cfToken : config.cfTokens_) {
-    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
-    int Nhits = 0;
-    if (theEvent.getByToken(cfToken, cf_simhit)) {
-      std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
-      for (auto const& isim : *thisContainerHits) {
-        DetId theDet(isim.detUnitId());
-        if (assocHitbySimTrack_) {
-          SimHitMap[theDet].push_back(isim);
+  const char* const highTag = "HighTof";
+  unsigned int tofBin; 
+  edm::EDConsumerBase::Labels labels;
+  if (assocHitbySimTrack_) {
+    for(auto const& cfToken : config.cfTokens_) {
+      edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+      //int Nhits = 0;
+      if (theEvent.getByToken(cfToken, cf_simhit)) {
+        std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product())); 
+        theEvent.labelsForToken(cfToken, labels);
+        if(std::strstr(labels.productInstance, highTag) != NULL) {
+          tofBin = StripDigiSimLink::HighTof;
         } else {
-          edm::EDConsumerBase::Labels labels;
-          theEvent.labelsForToken(cfToken, labels);
-          std::string trackerContainer(labels.productInstance);
-          unsigned int tofBin = StripDigiSimLink::LowTof;
-          if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
-          simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
-          SimHitCollMap[theSimHitCollID].push_back(isim);
+          tofBin = StripDigiSimLink::LowTof; 
+        }    
+        for (auto const& isim : *thisContainerHits) {
+          DetId theDet(isim.detUnitId());
+          SimHitMap[theDet].push_back(isim);
+        //  ++Nhits;
         }
-        ++Nhits;
-      }
       // std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
-    }
-  }
-  for(auto const& simHitToken : config.simHitTokens_) {
-    edm::Handle<std::vector<PSimHit> > simHits;
-    int Nhits = 0;
-    if(theEvent.getByToken(simHitToken, simHits)) {
-      for (auto const& isim : *simHits) {
-        DetId theDet(isim.detUnitId());
-        if (assocHitbySimTrack_) {
-          SimHitMap[theDet].push_back(isim);
-        } else {
-          edm::EDConsumerBase::Labels labels;
-          theEvent.labelsForToken(simHitToken, labels);
-          std::string trackerContainer(labels.productInstance);
-          unsigned int tofBin = StripDigiSimLink::LowTof;
-          if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = StripDigiSimLink::HighTof;
-          simHitCollectionID theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
-          SimHitCollMap[theSimHitCollID].push_back(isim);
-        }
-        ++Nhits;
       }
+    }
+    for(auto const& simHitToken : config.simHitTokens_) {
+      edm::Handle<std::vector<PSimHit> > simHits;
+      //int Nhits = 0;
+      if(theEvent.getByToken(simHitToken, simHits)) {
+        theEvent.labelsForToken(simHitToken, labels);
+        if(std::strstr(labels.productInstance, highTag) != NULL) {
+          tofBin = StripDigiSimLink::HighTof;
+        } else {
+          tofBin = StripDigiSimLink::LowTof; 
+        }
+        for (auto const& isim : *simHits) {
+          DetId theDet(isim.detUnitId());
+          SimHitMap[theDet].push_back(isim);
+        //++Nhits;
+        }
       // std::cout << "simHits from prompt collections; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+      }
+    }
+  } else {
+    simHitCollectionID theSimHitCollID;
+    for(auto const& cfToken : config.cfTokens_) {
+      edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+      //int Nhits = 0;
+      if (theEvent.getByToken(cfToken, cf_simhit)) {
+        std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product())); 
+        theEvent.labelsForToken(cfToken, labels);
+        if(std::strstr(labels.productInstance, highTag) != NULL) {
+          tofBin = StripDigiSimLink::HighTof;
+        } else {
+          tofBin = StripDigiSimLink::LowTof; 
+        }    
+        for (auto const& isim : *thisContainerHits) {
+          DetId theDet(isim.detUnitId());
+          theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
+          SimHitCollMap[theSimHitCollID].push_back(isim);
+        //++Nhits;
+        }
+      // std::cout << "simHits from crossing frames; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+      }
+    }
+    for(auto const& simHitToken : config.simHitTokens_) {
+      edm::Handle<std::vector<PSimHit> > simHits;
+      //int Nhits = 0;
+      if(theEvent.getByToken(simHitToken, simHits)) {
+        theEvent.labelsForToken(simHitToken, labels);
+        if(std::strstr(labels.productInstance, highTag) != NULL) {
+          tofBin = StripDigiSimLink::HighTof;
+        } else {
+          tofBin = StripDigiSimLink::LowTof; 
+        }
+        for (auto const& isim : *simHits) {
+          DetId theDet(isim.detUnitId());
+          theSimHitCollID = std::make_pair(theDet.subdetId(), tofBin);
+          SimHitCollMap[theSimHitCollID].push_back(isim);
+        //++Nhits;
+        }
+      // std::cout << "simHits from prompt collections; map size = " << SimHitCollMap.size() << ", Hit count = " << Nhits << std::endl;
+      }
     }
   }
 }
