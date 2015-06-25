@@ -239,7 +239,7 @@ process = customizeHLTforAll(process,_customInfo)
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
 
-    if self.config.type not in ('Fake',) :
+    if self.config.type not in ('Fake','FULL') :
       procfrag = self.labels['process'].split('.')[0]
       if '50ns' in self.config.type :
         self.data += """
