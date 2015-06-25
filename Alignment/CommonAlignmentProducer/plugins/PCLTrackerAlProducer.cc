@@ -860,8 +860,9 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::readInSurveyRcds(const edm::EventSetup& setup)
 {
+/*
   // Get Survey Rcds and add Survey Info
-  if (doTracker_ && useSurvey_){
+  if (doTracker_ && useSurvey_) {
     bool tkSurveyBool    = watchTkSurveyRcd_.check(setup);
     bool tkSurveyErrBool = watchTkSurveyErrExtRcd_.check(setup);
 
@@ -918,6 +919,7 @@ void PCLTrackerAlProducer
       }
     }
   }
+*/
 }
 
 //_____________________________________________________________________________
