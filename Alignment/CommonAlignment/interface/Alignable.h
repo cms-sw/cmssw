@@ -243,4 +243,6 @@ private:
 
 };
 
+typedef std::vector<Alignable*> Alignables;
+
 #endif
