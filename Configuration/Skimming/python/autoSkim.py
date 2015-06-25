@@ -1,4 +1,3 @@
-
 autoSkim = {
  'BTagCSV' : 'LogError',
  'BTagMu' : 'LogError',
@@ -21,7 +20,8 @@ autoSkim = {
  'HcalNZS' : 'LogError',
  'HLTPhysics' : 'LogError',
  'ZeroBias' : 'LogError',
- 'Commissioning' : 'DT+LogError'
+ 'Commissioning' : 'LogError', #DT skim does not exist and was requested by none I know
+ 'Cosmics':'CosmicSP+CosmicTP+LogError'
 }
 
 autoSkimRunI = {
