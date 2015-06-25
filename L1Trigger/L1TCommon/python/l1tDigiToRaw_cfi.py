@@ -5,7 +5,9 @@ l1tDigiToRaw = cms.EDProducer(
     Setup = cms.string("stage1::CaloSetup"),
     InputLabel = cms.InputTag("caloStage2FinalDigis"),
     FedId = cms.int32(1352),
-    FWId = cms.uint32(2)
+    FWId = cms.uint32(2),
+    RegionInputLabel = cms.InputTag("caloStage1Digis", ""),
+    EmCandInputLabel = cms.InputTag("caloStage1Digis", "")
 )
 
 #
