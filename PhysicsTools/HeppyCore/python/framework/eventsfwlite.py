@@ -1,5 +1,13 @@
 from DataFormats.FWLite import Events as FWLiteEvents
 
+from ROOT import gSystem, AutoLibraryLoader
+
+print "Loading FW Lite setup."
+gSystem.Load("libFWCoreFWLite");
+AutoLibraryLoader.enable();
+gSystem.Load("libDataFormatsFWLite");
+gSystem.Load("libDataFormatsPatCandidates");
+
 class Events(object):
     def __init__(self, files, tree_name,  options=None):
 	if options is not None :
@@ -22,3 +30,4 @@ class Events(object):
     def __getitem__(self, iEv):
         self.events.to(iEv)
         return self
+
