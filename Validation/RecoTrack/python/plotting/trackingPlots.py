@@ -8,9 +8,9 @@ _effandfake1 = PlotGroup("effandfake1", [
     Plot("effic", xtitle="#eta", ytitle="efficiency vs #eta", ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_eta", assoc="num_assoc(recoToSim)_eta", dup="num_duplicate_eta", reco="num_reco_eta", title="fake+duplicates vs #eta"),
          xtitle="#eta", ytitle="fake+duplicates vs #eta", ymax=_maxFake),
-    Plot("efficPt", title="", xtitle="p_{t}", ytitle="efficiency vs p_{t}", xmax=300, xlog=True),
+    Plot("efficPt", title="", xtitle="p_{t}", ytitle="efficiency vs p_{t}", xlog=True),
     Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title=""),
-         xtitle="p_{t}", ytitle="fake+duplicates rate vs p_{t}", ymax=_maxFake, xmin=0.2, xmax=300, xlog=True),
+         xtitle="p_{t}", ytitle="fake+duplicates rate vs p_{t}", ymax=_maxFake, xlog=True),
     Plot("effic_vs_hit", xtitle="hits", ytitle="efficiency vs hits"),
     Plot(FakeDuplicate("fakeduprate_vs_hit", assoc="num_assoc(recoToSim)_hit", dup="num_duplicate_hit", reco="num_reco_hit", title="fake+duplicates vs hit"),
          xtitle="hits", ytitle="fake+duplicates rate vs hits", ymax=_maxFake),
@@ -30,8 +30,8 @@ _effandfake2 = PlotGroup("effandfake2", [
 _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakerate", xtitle="#eta", ytitle="fakerate vs #eta", ymax=_maxFake),
     Plot("duplicatesRate", xtitle="#eta", ytitle="duplicates rate vs #eta", ymax=_maxFake),
-    Plot("fakeratePt", xtitle="p_{t}", ytitle="fakerate vs p_{t}", xmax=300, xlog=True, ymax=_maxFake),
-    Plot("duplicatesRate_Pt", title="", xtitle="p_{t}", ytitle="duplicates rate vs p_{t}", xmin=0.2, xmax=300, ymax=_maxFake, xlog=True),
+    Plot("fakeratePt", xtitle="p_{t}", ytitle="fakerate vs p_{t}", xlog=True, ymax=_maxFake),
+    Plot("duplicatesRate_Pt", title="", xtitle="p_{t}", ytitle="duplicates rate vs p_{t}", ymax=_maxFake, xlog=True),
     Plot("fakerate_vs_hit", xtitle="hits", ytitle="fakerate vs hits", ymax=_maxFake),
     Plot("duplicatesRate_hit", xtitle="hits", ytitle="duplicates rate vs hits", ymax=_maxFake)
 ])
@@ -54,7 +54,8 @@ _effvspos = PlotGroup("effvspos", [
                       legendDy=-0.025
 )
 
-_common = {"stat": True, "drawStyle": "hist"}
+# These don't exist in FastSim
+_common = {"stat": True, "drawStyle": "hist", "ignoreIfMissing": True}
 _dedx = PlotGroup("dedx", [
     Plot("h_dedx_estim1", normalizeToUnitArea=True, xtitle="dE/dx, harm2", **_common),
     Plot("h_dedx_estim2", normalizeToUnitArea=True, xtitle="dE/dx, trunc40", **_common),
@@ -95,12 +96,12 @@ _ntracks = PlotGroup("ntracks", [
                             legendDy=-0.02, legendDh=-0.01
 )
 _tuning = PlotGroup("tuning", [
-    Plot("chi2", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="#chi^{2}"),
-    Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
+    Plot("chi2", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=[0.1, 0.2, 0.5, 1.0001], drawStyle="hist", xtitle="#chi^{2}", ratioUncertainty=False),
+    Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})", ratioUncertainty=False),
     Plot("chi2_vs_eta", stat=True, profileX=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
     Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{t} / p_{t} > [%]", ymin=-1.5, ymax=1.5)
 ])
-_common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]}
+_common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [
     Plot("pullPt", **_common),
     Plot("pullQoverp", **_common),
