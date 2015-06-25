@@ -12,7 +12,7 @@ from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 
 #looper = cms.Looper("AlignmentProducer",
-AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
+AlignmentProducer = cms.EDAnalyzer("TrackerAlignmentProducerForPCL",
                     AlignmentParameterStore, # configuration of AlignmentParameterStore
                     useExtras = cms.untracked.bool(False),
                     # Read survey info from DB: true requires configuration of PoolDBESSource
