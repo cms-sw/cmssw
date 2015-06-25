@@ -27,7 +27,7 @@ options.register('skipFirstLumis',
 # Parameters for runType
 
 options.register ('runkey',
-          'cosmic_run',
+          'pp_run',
           VarParsing.VarParsing.multiplicity.singleton,
           VarParsing.VarParsing.varType.string,
           "Run Keys of CMS")
