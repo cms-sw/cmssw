@@ -7,7 +7,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 ALCARECOTkAlMinBiasFilterForSiPixelAli = copy.deepcopy(hltHighLevel)
 ALCARECOTkAlMinBiasFilterForSiPixelAli.HLTPaths = ['pathALCARECOTkAlMinBias']
 ALCARECOTkAlMinBiasFilterForSiPixelAli.throw = True ## dont throw on unknown path names
-ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
+ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","reRECO")
 
 
 
