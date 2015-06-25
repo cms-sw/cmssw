@@ -74,14 +74,6 @@ ALCAHARVESTSiStripGains_dbOutput = cms.PSet(record = cms.string('SiStripApvGainR
 
     #
 ALCAHARVESTSiPixelAli_metadata = cms.PSet(record              = cms.untracked.string('TrackerAlignmentRcd'),
-#                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_STRIP"),
-#                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_STRIP"),
-#                                               tag                 = cms.untracked.string("SiStripBadChannel_PCL_v0_offline"),
-#                                               Timetype            = cms.untracked.string("runnumber"),
-#                                               IOVCheck            = cms.untracked.string("All"),
-#                                               DuplicateTagHLT     = cms.untracked.string("SiStripBadChannel_PCL_v0_hlt"),
-#                                               DuplicateTagEXPRESS = cms.untracked.string(""),
-#                                               DuplicateTagPROMPT  = cms.untracked.string("SiStripBadChannel_PCL_v0_prompt"),
                                               )
 
 
