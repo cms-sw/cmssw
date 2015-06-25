@@ -5,19 +5,6 @@
   <use   name="CondFormats/Alignment"/>
   <use   name="CondFormats/AlignmentRecord"/>
 </library>
-<library   name="AlignmentCommonAlignmentProducerPlugin" file="AlignmentProducer.cc">
-  <use   name="Alignment/CommonAlignment"/>
-  <use   name="Alignment/CommonAlignmentAlgorithm"/>
-  <use   name="Alignment/CommonAlignmentMonitor"/>
-  <use   name="Alignment/CommonAlignmentParametrization"/>
-  <use   name="Alignment/MuonAlignment"/>
-  <use   name="Alignment/TrackerAlignment"/>
-  <use   name="CondCore/DBOutputService"/>
-  <use   name="CondFormats/Alignment"/>
-  <use   name="CondFormats/AlignmentRecord"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="boost"/>
-</library>
 <library   name="AlignmentPCLTrackerAlProducerPlugin" file="PCLTrackerAlProducer.cc">
   <use   name="Alignment/CommonAlignment"/>
   <use   name="Alignment/CommonAlignmentAlgorithm"/>
