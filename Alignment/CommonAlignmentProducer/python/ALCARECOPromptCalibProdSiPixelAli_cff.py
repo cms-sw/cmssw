@@ -177,11 +177,19 @@ SiPixelAliTrackFitter = fitWithMaterial.ctfWithMaterialTracks.clone(
 ##        binaryFile = looper.algoConfig.binaryFile,
 ##        )
 
+SiPixelAliMillePedeFileConverter = cms.EDProducer("MillePedeFileConverter",
+                                                  #FIXME: convert to untracked?
+                                                  fileDir = cms.string(SiPixelAliMilleAlignmentProducer.algoConfig.fileDir.value()),
+                                                  inputBinaryFile = cms.string(SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile.value()),
+                                                  fileBlobLabel = cms.string(''))
+
+
+
 seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAli*
                                                     offlineBeamSpot*
                                                     AlignmentTrackSelector*
                                                     SiPixelAliTrackRefitter0*
                                                     SiPixelAliTrackerTrackHitFilter*
                                                     SiPixelAliTrackFitter*
-                                                    SiPixelAliMilleAlignmentProducer)
-                                                    ##SiPixelAliMillePedeFileConverter)
+                                                    SiPixelAliMilleAlignmentProducer*
+                                                    SiPixelAliMillePedeFileConverter)
