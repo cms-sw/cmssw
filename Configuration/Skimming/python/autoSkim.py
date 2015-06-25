@@ -1,4 +1,4 @@
-autoSkim = {
+autoSkimRunI = {
     'MinBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
     'ZeroBias':'LogError',
     'Commissioning':'DT+LogError',
