@@ -36,11 +36,10 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-
-#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 /*** Records for ESWatcher ***/
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
