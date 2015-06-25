@@ -11,16 +11,21 @@ process.MessageLogger = process.MessageLogger.clone(
         )
 
 # Limit our test to 5 events (we work on run level anyway)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:myOutputFile.root'
+        'file:/afs/cern.ch/work/c/cerminar/pcl/ali/frombroen/new/CMSSW_7_4_4/src/PromptCalibProdSiPixelAli.root',
+        'file:/afs/cern.ch/work/c/cerminar/pcl/ali/frombroen/new/CMSSW_7_4_4/src/PromptCalibProdSiPixelAli_2.root'
     )
 )
 
 from Alignment.MillePedeFileExtractor.millePedeFileExtractor_cfi import millePedeFileExtractor
 process.testMillePedeFileExtractor = millePedeFileExtractor.clone(
-               fileBlobModule = cms.string("testMillePedeFileConverter"))
+    #FIXME: handle with an InputLabel instead of 
+    fileBlobModule = cms.string("SiPixelAliMillePedeFileConverter"),
+    fileBlobLabel  = cms.string(''),
+    outputBinaryFile = cms.string('pippo.dat'),
+    fileDir = cms.string('/afs/cern.ch/work/c/cerminar/pcl/ali/frombroen/new/CMSSW_7_4_4/src/'))
 
 process.p = cms.Path(process.testMillePedeFileExtractor)
