@@ -1,7 +1,7 @@
 #ifndef __DataFormats_PatCandidates_VIDResult_H__
 #define __DataFormats_PatCandidates_VIDResult_H__
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -12,7 +12,7 @@ namespace vid {
 
     CutFlowResult() : bitmap_(0) {}
     CutFlowResult(const std::string& name,
-                  const std::unordered_map<std::string,unsigned>& n2idx,
+                  const std::map<std::string,unsigned>& n2idx,
                   unsigned bitmap, 
                   const std::vector<double>& values) : 
       name_(name),
@@ -45,7 +45,7 @@ namespace vid {
     std::string name_;
     unsigned bitmap_;
     std::vector<double> values_;
-    std::unordered_map<std::string,unsigned> name_to_index_;
+    std::map<std::string,unsigned> name_to_index_;
 
     bool getCutBit(const unsigned idx) const { 
       return (bool)(0x1&(bitmap_>>idx)); 
