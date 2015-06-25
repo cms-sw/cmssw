@@ -65,12 +65,14 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
 			  AlignmentParameterStore *store);
 
+  virtual bool supportsCalibrations() override;
   /// pass integrated calibrations to Millepede (they are not owned by Millepede!)
-  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals);
+  virtual void addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals);
 
   /// Call at end of job
   virtual void terminate(const edm::EventSetup& iSetup);
 
+  virtual bool processesEvents() override;
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 

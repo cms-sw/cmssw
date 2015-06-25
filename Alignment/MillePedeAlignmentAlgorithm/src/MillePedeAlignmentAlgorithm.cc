@@ -240,12 +240,30 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   }
 }
 
-//____________________________________________________
-bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals)
+//_____________________________________________________________________________
+void MillePedeAlignmentAlgorithm
+::addCalibrations(const Calibrations& iCals)
 {
   theCalibrations.insert(theCalibrations.end(), iCals.begin(), iCals.end());
   thePedeLabels->addCalibrations(iCals);
-  return true;
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals)
+{
+  theCalibrations.insert(theCalibrations.end(), iCals.begin(), iCals.end());
+  thePedeLabels->addCalibrations(iCals);
+}
+
+//_____________________________________________________________________________
+bool MillePedeAlignmentAlgorithm
+::processesEvents()
+{
+  if (isMode(myMilleBit)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 //____________________________________________________
