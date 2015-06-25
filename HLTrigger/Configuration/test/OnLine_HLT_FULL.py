@@ -59875,10 +59875,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
-process = loadL1menu(process)
-
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTFULL' )
