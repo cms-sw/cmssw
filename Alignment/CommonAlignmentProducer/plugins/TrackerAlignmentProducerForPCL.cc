@@ -30,10 +30,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
@@ -277,7 +277,7 @@ void TrackerAlignmentProducerForPCL::init(const edm::EventSetup& setup) {
     setup.get<GlobalPositionRcd>().get(globalPositionRcd);
     globalPositions = new Alignments(*globalPositionRcd);
 
-    applyDB<TrackerGeometry, TrackerAlignmentRcd, TrackerAlignmentErrorRcd>(
+    applyDB<TrackerGeometry, TrackerAlignmentRcd, TrackerAlignmentErrorExtendedRcd>(
         &(*theTracker),
         setup,
         align::DetectorGlobalPosition(*globalPositions, DetId(DetId::Tracker))
@@ -658,7 +658,7 @@ void TrackerAlignmentProducerForPCL::writeForRunRange(cond::Time_t time) {
     AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
 
     writeDB(alignments, "TrackerAlignmentRcd",
-            alignmentErrors, "TrackerAlignmentErrorRcd",
+            alignmentErrors, "TrackerAlignmentErrorExtendedRcd",
             trackerGlobal, time);
 
 
@@ -860,7 +860,7 @@ void TrackerAlignmentProducerForPCL::readInSurveyRcds(const edm::EventSetup& set
       edm::ESHandle<SurveyErrors> surveyErrors;
 
       setup.get<TrackerSurveyRcd>().get(surveys);
-      setup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
+      setup.get<TrackerSurveyErrorExtendedRcd>().get(surveyErrors);
 
       theSurveyIndex  = 0;
       theSurveyValues = &*surveys;
