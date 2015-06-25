@@ -25,6 +25,8 @@ class JetReCalibrator:
         self.JetCorrector = ROOT.FactorizedJetCorrector(self.vPar)
         if os.path.exists("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour)):
             self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour));
+        elif os.path.exists("%s/Uncertainty_FAKE.txt" % path):
+            self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/Uncertainty_FAKE.txt" % path);
         else:
             print 'Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour)
             self.JetUncertainty = None
@@ -38,11 +40,10 @@ class JetReCalibrator:
             print "Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets))
         for bj in badJets:
             jets.remove(bj)
-    def correct(self,jet,rho,delta=0,metShift=[0,0]):
-        """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
-           If a two-component list is passes as 'metShift', it will be modified adding to the first and second
-           component the change to the MET along x and y due to the JEC, defined as the negative difference 
-           between the new and old jet 4-vectors, for jets with corrected pt > 10."""
+
+    def getCorrection(self,jet,rho,delta=0,metShift=[0,0]):
+        """Calculates the correction factor of a jet without modifying it
+        """
         self.JetCorrector.setJetEta(jet.eta())
         self.JetCorrector.setJetPt(jet.pt() * jet.rawFactor())
         self.JetCorrector.setJetA(jet.jetArea())
@@ -67,6 +68,14 @@ class JetReCalibrator:
                 metShift[0] -= jet.px()*jet.rawFactor()*corr*delta*jet.jetEnergyCorrUncertainty
                 metShift[1] -= jet.py()*jet.rawFactor()*corr*delta*jet.jetEnergyCorrUncertainty
         #print "   jet with raw pt %6.2f eta %+5.3f phi %+5.3f: previous corr %.4f, my corr %.4f " % (jet.pt()*jet.rawFactor(), jet.eta(), jet.phi(), 1./jet.rawFactor(), corr)
+        return corr
+
+    def correct(self,jet,rho,delta=0,metShift=[0,0]):
+        """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
+           If a two-component list is passes as 'metShift', it will be modified adding to the first and second
+           component the change to the MET along x and y due to the JEC, defined as the negative difference
+           between the new and old jet 4-vectors, for jets with corrected pt > 10."""
+        corr = self.getCorrection(jet,rho,delta,metShift)
         if corr <= 0:
             return False
         jet.setP4(jet.p4() * (corr * jet.rawFactor()))
