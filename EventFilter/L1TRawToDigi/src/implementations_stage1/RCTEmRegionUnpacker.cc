@@ -35,24 +35,16 @@ namespace l1t {
       void
       unpack_em(const Block& block, UnpackerCollections *coll)
       {
-         int nBX = int(ceil(block.header().getSize() / 6.)); 
-
-         // Find the first and last BXs
-
-         int firstBX = -(ceil((double)nBX/2.)-1);
-         int lastBX;
-         if (nBX % 2 == 0) {
-            lastBX = ceil((double)nBX/2.)+1;
-         } else {
-            lastBX = ceil((double)nBX/2.);
-         }
+         int nBX, firstBX, lastBX;
+         nBX = int(ceil(block.header().getSize() / 6.)); 
+         getBXRange(nBX, firstBX, lastBX);
 
          auto resRCTEMCands_ = static_cast<CaloCollections*>(coll)->getCaloEmCands();
 
          // Initialise index
          int unsigned i = 0;
 
-         for (int bx=firstBX; bx<lastBX; bx++){
+         for (int bx=firstBX; bx<=lastBX; bx++){
 
             unsigned int crate;
             bool even=0;
@@ -107,16 +99,9 @@ namespace l1t {
       void
       unpack_region(const Block& block, UnpackerCollections *coll)
       {
-         int nBX = int(ceil(block.header().getSize() / 6.)); 
-
-         // Find the first and last BXs
-         int firstBX = -(ceil((double)nBX/2.)-1);
-         int lastBX;
-         if (nBX % 2 == 0) {
-            lastBX = ceil((double)nBX/2.)+1;
-         } else {
-            lastBX = ceil((double)nBX/2.);
-         }
+         int nBX, firstBX, lastBX;
+         nBX = int(ceil(block.header().getSize() / 6.)); 
+         getBXRange(nBX, firstBX, lastBX);
 
          auto resRCTRegions_ = static_cast<CaloCollections*>(coll)->getCaloRegions();
 
@@ -125,7 +110,7 @@ namespace l1t {
          std::vector <uint32_t> uint;
          uint.reserve(6);
 
-         for (int bx=firstBX; bx<lastBX; bx++){
+         for (int bx=firstBX; bx<=lastBX; bx++){
 
             unsigned int crate;
             bool even=0;

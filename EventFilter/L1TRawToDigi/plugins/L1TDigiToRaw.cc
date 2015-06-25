@@ -30,7 +30,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/CRC16.h"
@@ -43,19 +43,17 @@
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
 namespace l1t {
-   class L1TDigiToRaw : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+   class L1TDigiToRaw : public edm::stream::EDProducer<> {
       public:
          explicit L1TDigiToRaw(const edm::ParameterSet&);
          ~L1TDigiToRaw();
 
          static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-         using edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>::consumes;
+         using edm::stream::EDProducer<>::consumes;
 
       private:
-         virtual void beginJob() override;
          virtual void produce(edm::Event&, const edm::EventSetup&) override;
-         virtual void endJob() override;
 
          virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
          virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
@@ -132,9 +130,10 @@ namespace l1t {
          LogDebug("L1T") << "Concatenating blocks";
 
          std::vector<uint32_t> load32;
-         // TODO this is an empty word to be replaced with a proper MP7
-         // header containing at least the firmware version
+         // TODO Infrastructure firmware version.  Currently not used.
+         // Would change the way the payload has to be unpacked.
          load32.push_back(0);
+         load32.push_back(fwId_);
          for (const auto& block: block_load) {
             LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
             auto load = block.payload();
@@ -156,8 +155,11 @@ namespace l1t {
          std::vector<uint64_t> load64;
          for (unsigned int i = 0; i < load32.size(); i += 2) {
             uint64_t word = load32[i];
-            if (i + 1 < load32.size())
+            if (i + 1 < load32.size()) {
                word |= static_cast<uint64_t>(load32[i + 1]) << 32;
+            } else {
+               word |= static_cast<uint64_t>(0xffffffff) << 32;
+            }
             load64.push_back(word);
          }
 
@@ -186,17 +188,6 @@ namespace l1t {
       trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
 
       event.put(raw_coll);
-   }
-
-   // ------------ method called once each job just before starashtting event loop  ------------
-   void 
-   L1TDigiToRaw::beginJob()
-   {
-   }
-
-   // ------------ method called once each job just after ending the event loop  ------------
-   void 
-   L1TDigiToRaw::endJob() {
    }
 
    // ------------ method called when starting to processes a run  ------------
@@ -234,11 +225,18 @@ namespace l1t {
    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
    void
    L1TDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-     //The following says we do not know what parameters are allowed so do no validation
-     // Please change this to state exactly what you do use, even if it is no parameters
      edm::ParameterSetDescription desc;
-     desc.setUnknown();
-     descriptions.addDefault(desc);
+     desc.add<unsigned int>("FWId", -1);
+     desc.add<int>("FedId");
+     desc.addUntracked<int>("eventType", 1);
+     desc.add<std::string>("Setup");
+     desc.addOptional<edm::InputTag>("InputLabel");
+     desc.addUntracked<int>("lenSlinkHeader", 8);
+     desc.addUntracked<int>("lenSlinkTrailer", 8);
+
+     PackingSetupFactory::get()->fillDescription(desc);
+
+     descriptions.add("l1tDigiToRaw", desc);
    }
 }
 

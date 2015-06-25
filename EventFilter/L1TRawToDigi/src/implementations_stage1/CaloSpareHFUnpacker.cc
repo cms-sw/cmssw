@@ -6,7 +6,7 @@
 
 namespace l1t {
   namespace stage1 {
-    class EtSumUnpacker : public Unpacker {
+    class CaloSpareHFUnpacker : public Unpacker {
       public:
         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
     };
@@ -18,7 +18,7 @@ namespace l1t {
 namespace l1t {
   namespace stage1 {
     bool
-      EtSumUnpacker::unpack(const Block& block, UnpackerCollections *coll)
+      CaloSpareHFUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
 
         LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
@@ -27,9 +27,12 @@ namespace l1t {
         nBX = int(ceil(block.header().getSize() / 2.)); 
         getBXRange(nBX, firstBX, lastBX);
 
-        auto res_ = static_cast<CaloCollections*>(coll)->getEtSums();
-        res_->setBXRange(firstBX, lastBX);
+        auto resHFBitCounts_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFBitCounts();
+        resHFBitCounts_->setBXRange(firstBX, lastBX);
 
+        auto resHFRingSums_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFRingSums();
+        resHFRingSums_->setBXRange(firstBX, lastBX);
+        
         LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
         // Initialise index
@@ -37,9 +40,6 @@ namespace l1t {
 
         // Loop over multiple BX and then number of jets filling jet collection
         for (int bx=firstBX; bx<=lastBX; bx++){
-
-          res_->resize(bx,4);
-
           uint32_t raw_data0 = block.payload()[i++];
           uint32_t raw_data1 = block.payload()[i++];        
 
@@ -49,28 +49,20 @@ namespace l1t {
           candbit[0] = raw_data0 & 0xFFFF;
           candbit[1] = raw_data1 & 0xFFFF;
 
-          int totet=candbit[0] & 0xFFF;
-          int overflowtotet=(candbit[0]>>12) & 0x1;
-          int totht=candbit[1] & 0xFFF;
-          int overflowtotht=(candbit[1]>>12) & 0x1;
-
-          l1t::EtSum et = l1t::EtSum();
-          et.setHwPt(totet);
-          et.setType(l1t::EtSum::kTotalEt);      
-          int flagtotet=et.hwQual();
-          flagtotet|= overflowtotet;
-          et.setHwQual(flagtotet);       
-          LogDebug("L1T") << "ET: pT " << et.hwPt()<<"is overflow "<<overflowtotet<<std::endl;
-          res_->set(bx, 2,et);
-
-          l1t::EtSum ht = l1t::EtSum();
-          ht.setHwPt(totht);
-          ht.setType(l1t::EtSum::kTotalHt);       
-          int flagtotht=ht.hwQual();
-          flagtotht|= overflowtotht;
-          ht.setHwQual(flagtotht);       
-          LogDebug("L1T") << "HT: pT " << ht.hwPt()<<"is overflow "<<overflowtotht<<std::endl;
-          res_->set(bx, 3,ht);
+          int hfbitcount=candbit[0] & 0xFFF;
+          int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[1] & 0x1FF) << 3);
+          
+          l1t::CaloSpare hfbc= l1t::CaloSpare();
+          hfbc.setHwPt(hfbitcount);
+          hfbc.setType(l1t::CaloSpare::HFBitCount);  
+          LogDebug("L1T") << "hfbc pT " << hfbc.hwPt(); 
+          resHFBitCounts_->push_back(bx,hfbc);        
+          
+          l1t::CaloSpare hfrs= l1t::CaloSpare();
+          hfrs.setHwPt(hfringsum);
+          hfrs.setType(l1t::CaloSpare::HFRingSum);  
+          LogDebug("L1T") << "hfrs pT " << hfrs.hwPt();  
+          resHFRingSums_->push_back(bx,hfrs);       
 
         }
 
@@ -80,4 +72,4 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::EtSumUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::CaloSpareHFUnpacker);

@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <map>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,7 +19,7 @@ namespace amc13 {
    }
 
    bool
-   Header::valid()
+   Header::check() const
    {
       return (getNumberOfAMCs() <= max_amc) && (getFormatVersion() == fov);
    }
@@ -31,8 +32,8 @@ namespace amc13 {
          (static_cast<uint64_t>(bx & BX_mask) << BX_shift);
    }
 
-   void
-   Trailer::check(unsigned int crc, unsigned int block, unsigned int lv1_id, unsigned int bx)
+   bool
+   Trailer::check(unsigned int crc, unsigned int block, unsigned int lv1_id, unsigned int bx) const
    {
       if ((crc != 0 && crc != getCRC()) || block != getBlock() || (lv1_id & LV1_mask) != getLV1ID() || (bx & BX_mask) != getBX()) {
          edm::LogWarning("L1T")
@@ -42,7 +43,9 @@ namespace amc13 {
             << "\nBut expected:"
             << "\n\tBX " << (bx & BX_mask) << ", LV1 ID " << (lv1_id & LV1_mask) << ", block # " << block
             << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << crc;
+         return false;
       }
+      return true;
    }
 
    void
@@ -64,7 +67,7 @@ namespace amc13 {
    }
 
    bool
-   Packet::parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx)
+   Packet::parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc)
    {
       // Need at least a header and trailer
       // TODO check if this can be removed
@@ -73,14 +76,16 @@ namespace amc13 {
          return false;
       }
 
+      std::map<int, int> amc_index;
+
       header_ = Header(data++);
 
-      if (!header_.valid()) {
+      if (!header_.check()) {
          edm::LogError("AMC")
             << "Invalid header for AMC13 packet: "
             << "format version " << header_.getFormatVersion()
             << ", " << header_.getNumberOfAMCs()
-            << " AMC packets, orbit " << header_.getOrbitNumber();
+            << " AMC packets";
          return false;
       }
 
@@ -91,6 +96,7 @@ namespace amc13 {
       // first payload follows afterwards.
       for (unsigned int i = 0; i < header_.getNumberOfAMCs(); ++i) {
          payload_.push_back(amc::Packet(data++));
+         amc_index[payload_.back().blockHeader().getAMCNumber()] = i;
       }
 
       unsigned int tot_size = 0; // total payload size
@@ -151,7 +157,7 @@ namespace amc13 {
 
          check_crc = false;
          for (const auto& amc: headers) {
-            payload_[amc.getAMCNumber() - 1].addPayload(data, amc.getBlockSize());
+            payload_[amc_index[amc.getAMCNumber()]].addPayload(data, amc.getBlockSize());
             data += amc.getBlockSize();
 
             if (amc.validCRC())
@@ -173,7 +179,7 @@ namespace amc13 {
       }
 
       for (auto& amc: payload_) {
-         amc.finalize(lv1, bx);
+         amc.finalize(lv1, bx, legacy_mc);
       }
 
       return true;

@@ -166,8 +166,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # buffer dump to RAW
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
-mpOffsets = cms.untracked.vint32()
+# skip events
+dmOffset = options.dmOffset + (options.skipEvents * options.dmFramesPerEvent)
 
+mpOffsets = cms.untracked.vint32()
 for i in range (0,options.nMP):
     offset = options.mpOffset + (options.skipEvents / options.nMP)
     if (i < options.skipEvents % options.nMP):
@@ -207,7 +209,8 @@ if (options.doDemux):
     print "dmLatency     = ", options.dmLatency
     print " "
 
-process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
+process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
+process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
@@ -246,11 +249,9 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 # object analyser
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
+process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 
 # Path and EndPath definitions
 process.path = cms.Path(

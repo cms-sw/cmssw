@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,7 +41,7 @@
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
 namespace l1t {
-   class L1TRawToDigi : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+   class L1TRawToDigi : public edm::stream::EDProducer<> {
       public:
          explicit L1TRawToDigi(const edm::ParameterSet&);
          ~L1TRawToDigi();
@@ -59,7 +59,8 @@ namespace l1t {
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          std::vector<int> fedIds_;
-         int fwId_;
+         unsigned int fwId_;
+         bool fwOverride_;
 
          std::auto_ptr<PackingSetup> prov_;
 
@@ -83,18 +84,16 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      fwId_(config.getUntrackedParameter<int>("FWId", -1)),
+      fedIds_(config.getParameter<std::vector<int>>("FedIds")),
+      fwId_(-1),
+      fwOverride_(false),
       ctp7_mode_(config.getUntrackedParameter<bool>("CTP7", false))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      if (config.exists("FedId") and config.exists("FedIds")) {
-         throw edm::Exception(edm::errors::Configuration, "PSet")
-            << "Cannot have FedId and FedIds as parameter at the same time";
-      } else if (config.exists("FedId")) {
-         fedIds_ = {config.getParameter<int>("FedId")};
-      } else {
-         fedIds_ = config.getParameter<std::vector<int>>("FedIds");
+      if (config.exists("FWId")) {
+         fwId_ = config.getParameter<unsigned int>("FWId");
+         fwOverride_ = true;
       }
 
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
@@ -173,13 +172,19 @@ namespace l1t {
             LogWarning("L1T") << "Did not find a SLink trailer!";
          }
 
+         // FIXME Hard-coded firmware version for first 74x MC campaigns.
+         // Will account for differences in the AMC payload, MP7 payload,
+         // and unpacker setup.
+         bool legacy_mc = fwOverride_ && (fwId_ & 0xff000000);
+
          amc13::Packet packet;
          if (!packet.parse(
                   (const uint64_t*) data,
                   (const uint64_t*) (data + slinkHeaderSize_),
                   (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
                   header.lvl1ID(),
-                  header.bxID())) {
+                  header.bxID(),
+                  legacy_mc)) {
             LogError("L1T")
                << "Could not extract AMC13 Packet.";
             return;
@@ -198,12 +203,12 @@ namespace l1t {
                payload.reset(new CTP7Payload(start, end));
             } else {
                LogDebug("L1T") << "Using MP7 mode";
-               payload.reset(new MP7Payload(start, end));
+               payload.reset(new MP7Payload(start, end, legacy_mc));
             }
-            unsigned fw = payload->getFirmwareId();
+            unsigned fw = payload->getAlgorithmFWVersion();
 
             // Let parameterset value override FW version
-            if (fwId_ > 0)
+            if (fwOverride_)
                fw = fwId_;
 
             unsigned board = amc.blockHeader().getBoardID();
@@ -250,11 +255,20 @@ namespace l1t {
    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-     //The following says we do not know what parameters are allowed so do no validation
-     // Please change this to state exactly what you do use, even if it is no parameters
      edm::ParameterSetDescription desc;
-     desc.setUnknown();
-     descriptions.addDefault(desc);
+     desc.addOptional<unsigned int>("FWId")->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format");
+     desc.addUntracked<bool>("CTP7", false);
+     desc.add<edm::InputTag>("InputLabel");
+     desc.add<std::vector<int>>("FedIds", {});
+     desc.add<std::string>("Setup", "");
+     desc.addUntracked<int>("lenSlinkHeader", 8);
+     desc.addUntracked<int>("lenSlinkTrailer", 8);
+     desc.addUntracked<int>("lenAMCHeader", 8);
+     desc.addUntracked<int>("lenAMCTrailer", 0);
+     desc.addUntracked<int>("lenAMC13Header", 8);
+     desc.addUntracked<int>("lenAMC13Trailer", 8);
+     desc.addUntracked<bool>("debug", false)->setComment("turn on verbose output");
+     descriptions.add("l1tRawToDigi", desc);
    }
 }
 

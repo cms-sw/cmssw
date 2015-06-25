@@ -48,12 +48,19 @@ namespace l1t {
       return res;
    }
 
-   MP7Payload::MP7Payload(const uint32_t * data, const uint32_t * end) : Payload(data, end)
+   MP7Payload::MP7Payload(const uint32_t * data, const uint32_t * end, bool legacy_mc) : Payload(data, end)
    {
-      // FIXME extract firmware version here
-      // skip header for now
-      LogTrace("L1T") << "Skipping " << std::hex << *data_;
-      ++data_;
+      // For legacy MC (74 first MC campaigns) skip one empty word that was
+      // reserved for the header.  With data, read out infrastructure
+      // version and algorithm version.
+      if (legacy_mc) {
+         LogTrace("L1T") << "Skipping " << std::hex << *data_;
+         ++data_;
+      } else {
+         infra_ = data_[0];
+         algo_ = data_[1];
+         data_ += 2;
+      }
    }
 
    BlockHeader

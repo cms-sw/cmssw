@@ -27,6 +27,11 @@ options.register('histos',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Produce standard histograms")
+options.register('debug',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "More verbose output")
 options.register('edm',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -102,6 +107,7 @@ process.load('EventFilter.L1TRawToDigi.caloStage1Raw_cfi')
 process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
 process.newCaloStage1Digis = process.caloStage1Digis.clone()
 process.newCaloStage1Digis.InputLabel = cms.InputTag('caloStage1Raw')
+process.newCaloStage1Digis.debug = cms.untracked.bool(options.debug)
 
 # Path and EndPath definitions
 process.path = cms.Path(

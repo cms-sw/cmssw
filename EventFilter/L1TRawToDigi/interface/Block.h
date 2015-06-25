@@ -69,9 +69,10 @@ namespace l1t {
 
    class Payload {
       public:
-         Payload(const uint32_t * data, const uint32_t * end) : data_(data), end_(end), fw_(0) {};
+         Payload(const uint32_t * data, const uint32_t * end) : data_(data), end_(end), algo_(0), infra_(0) {};
 
-         unsigned getFirmwareId() const { return fw_; };
+         virtual unsigned getAlgorithmFWVersion() const { return algo_; };
+         virtual unsigned getInfrastructureFWVersion() const { return infra_; };
          virtual unsigned getHeaderSize() const = 0;
          // Read header from data_ and advance data_ to point behind the
          // header.  Called by getBlock(), which also checks that data_ !=
@@ -82,12 +83,13 @@ namespace l1t {
          const uint32_t * data_;
          const uint32_t * end_;
 
-         unsigned fw_;
+         unsigned algo_;
+         unsigned infra_;
    };
 
    class MP7Payload : public Payload {
       public:
-         MP7Payload(const uint32_t * data, const uint32_t * end);
+         MP7Payload(const uint32_t * data, const uint32_t * end, bool legacy_mc=false);
          virtual unsigned getHeaderSize() const override { return 1; };
          virtual BlockHeader getHeader() override;
    };
