@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.packedCandidateTrackValidator_cfi import *
+from DQM.TrackingMonitor.packedCandidateTrackValidator_cfi import *
 
 packedCandidateTrackValidatorLostTracks = packedCandidateTrackValidator.clone(
     trackToPackedCandiadteAssociation = "lostTracks",
