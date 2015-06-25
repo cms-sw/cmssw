@@ -135,11 +135,11 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     template<class G, class DeformationRcd>
     void applyDB(G*, const edm::EventSetup&) const;
 
-    /// Add survey info to an alignable
-    void addSurveyInfo(Alignable*);
-
     /// read in survey records
     void readInSurveyRcds(const edm::EventSetup&);
+    
+    /// Add survey info to an alignable
+    void addSurveyInfo(Alignable*);
 
 
 
