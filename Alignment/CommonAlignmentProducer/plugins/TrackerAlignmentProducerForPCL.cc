@@ -138,7 +138,7 @@ void TrackerAlignmentProducerForPCL::beginJob() {
 
 void TrackerAlignmentProducerForPCL::endJob() {
   printf("(TrackerAlignmentProducerForPCL) function %s in %s was called\n", __FUNCTION__, __FILE__);
-  finish();
+
 }
 
 void TrackerAlignmentProducerForPCL::analyze(const edm::Event&      event,
@@ -148,12 +148,13 @@ void TrackerAlignmentProducerForPCL::analyze(const edm::Event&      event,
   //std::cout << "TrackerAlignmentProducerForPCL::analyze " <<std::endl;
 
 
-  if (nevent_ == 0) {
-    init(setup);
-  }
+  // if (nevent_ == 0) {
+  //   init(setup);
+  // }
   ++nevent_;
 
-  // reading in survey records
+  //FIXME: what about this one? Shall this one be moved in the beginRun???
+// reading in survey records
   readInSurveyRcds(setup);
 
   // Printout event number
@@ -212,6 +213,7 @@ void TrackerAlignmentProducerForPCL::analyze(const edm::Event&      event,
 void TrackerAlignmentProducerForPCL::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   printf("(TrackerAlignmentProducerForPCL) function %s in %s was called\n", __FUNCTION__, __FILE__);
   theAlignmentAlgo->beginRun(setup);
+  init(setup);
 }
 
 void TrackerAlignmentProducerForPCL::endRun(const edm::Run& run, const edm::EventSetup& setup) {
@@ -233,6 +235,9 @@ void TrackerAlignmentProducerForPCL::endRun(const edm::Run& run, const edm::Even
                   << "No Tk LAS beams to forward to algorithm.";
     theAlignmentAlgo->endRun(EndRunInfo(run.id(), 0, 0), setup);
   }
+
+  finish();
+
 }
 
 void TrackerAlignmentProducerForPCL::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
@@ -393,17 +398,17 @@ void TrackerAlignmentProducerForPCL::finish() {
   edm::LogInfo("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::finish";
 
   /* 1) Former: Status AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop) */
-  if (0 == nevent_) {
-    // beginOfJob is usually called by the framework in the first event of the first loop
-    // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
-    // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
-    // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
-    // some geometry information that is not defined either without having seen an event.
-    edm::LogError("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::endJob"
-                               << "Did not process any events, "
-                               << "stop processing without terminating algorithm.";
-    return;
-  }
+  // if (0 == nevent_) {
+  //   // beginOfJob is usually called by the framework in the first event of the first loop
+  //   // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
+  //   // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
+  //   // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
+  //   // some geometry information that is not defined either without having seen an event.
+  //   edm::LogError("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::endJob"
+  //                              << "Did not process any events, "
+  //                              << "stop processing without terminating algorithm.";
+  //   return;
+  // }
 
   printf("(TrackerAlignmentProducerForPCL) function %s in %s was called\n", __FUNCTION__, __FILE__);
   edm::LogInfo("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::endJob"
@@ -423,10 +428,10 @@ void TrackerAlignmentProducerForPCL::finish() {
 
   /* 2) Former: void AlignmentProducer::endOfJob() */
 
-  if (0 == nevent_) {
-    edm::LogError("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::finish" << "Did not process any "
-                               << "events in last loop, do not dare to store to DB.";
-  } else {
+  // if (0 == nevent_) {
+  //   edm::LogError("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::finish" << "Did not process any "
+  //                              << "events in last loop, do not dare to store to DB.";
+  // } else {
     // Expand run ranges and make them unique
     edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
     RunRanges uniqueRunRanges(makeNonOverlappingRunRanges(runRangeSelectionVPSet));
@@ -459,7 +464,7 @@ void TrackerAlignmentProducerForPCL::finish() {
           beamSpotParameters.push_back(beamSpotAliPars->parameters());
         }
       }
-    }
+    // }
 
     if (theAlignableExtras) {
       std::ostringstream bsOutput;
