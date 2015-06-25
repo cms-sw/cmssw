@@ -323,12 +323,12 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      
      histoname = "HLTMinusRECO_PVz";
      title = "online z(PV) - offline z(PV) "+trigPath;
-     MonitorElement * PVz_HLTMinusRECO =  iBooker.book1D(histoname.c_str(),title.c_str(),80,-0.5,0.5);
+     MonitorElement * PVz_HLTMinusRECO =  iBooker.book1D(histoname.c_str(),title.c_str(),200,-0.5,0.5);
      PVz_HLTMinusRECO->getTH1();
      
      histoname = "HLTMinusRECO_fastPVz";
      title = "online z(fastPV) - offline z(PV) "+trigPath;
-     MonitorElement * fastPVz_HLTMinusRECO =  iBooker.book1D(histoname.c_str(),title.c_str(),80,-2,2);
+     MonitorElement * fastPVz_HLTMinusRECO =  iBooker.book1D(histoname.c_str(),title.c_str(),100,-2,2);
      fastPVz_HLTMinusRECO->getTH1();
     
      v->setHistos(CSV,Pt,Eta,CSV_RECOvsHLT,PVz,fastPVz,PVz_HLTMinusRECO,fastPVz_HLTMinusRECO);  
