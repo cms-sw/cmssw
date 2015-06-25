@@ -374,7 +374,6 @@ SKIMStreamZElectron = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
-
 #####################
 
 from DPGAnalysis.Skims.HighMETSkim_cff import *
@@ -395,7 +394,6 @@ SKIMStreamHighMET   = cms.FilteredStream(
             )
 
 #####################
-
 
 ###### MuTau Skim #########
 from DPGAnalysis.Skims.MuTauSkim_cff import *
