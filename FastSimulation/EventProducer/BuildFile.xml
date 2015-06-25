@@ -12,7 +12,6 @@
 <use   name="FastSimulation/Event"/>
 <use   name="FastSimulation/Particle"/>
 <use   name="FastSimulation/ParticlePropagator"/>
-<use   name="FastSimulation/PileUpProducer"/>
 <use   name="FastSimulation/TrajectoryManager"/>
 <use   name="FastSimulation/Utilities"/>
 <use   name="Geometry/CaloGeometry"/>
