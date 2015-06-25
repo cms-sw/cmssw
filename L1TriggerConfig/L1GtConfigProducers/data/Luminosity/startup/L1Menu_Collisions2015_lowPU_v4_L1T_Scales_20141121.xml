@@ -2,10 +2,10 @@
 <def>
 <header>
     <MenuInterface>L1Menu_Collisions2015_lowPU_v4</MenuInterface>
-    <MenuInterface_CreationDate>2015-06-23</MenuInterface_CreationDate>
+    <MenuInterface_CreationDate>2015-06-25</MenuInterface_CreationDate>
     <MenuInterface_CreationAuthor>V. M. Ghete, T. Matsushita</MenuInterface_CreationAuthor>
     <MenuInterface_Description>L1 menu for pp data taking 2015, GCT version</MenuInterface_Description>
-    <Menu_CreationDate>2015-06-23T09:09:43.000000Z</Menu_CreationDate>
+    <Menu_CreationDate>2015-06-25</Menu_CreationDate>
     <Menu_CreationAuthor>V. M. Ghete, T. Matsushita</Menu_CreationAuthor>
     <Menu_Description>L1 menu for pp data taking 2015</Menu_Description>
     <AlgImplementation>Imp0</AlgImplementation>
@@ -271,14 +271,6 @@
         CASTOR_HaloMuon.v0
         <output_pin nr="78" pin="a" />
       </L1_CastorMuon>
-      <L1_DoubleHfBitCountsRing1_P1N1 algAlias="L1_DoubleHfBitCountsRing1_P1N1">
-        ( HfBitCounts_Ind0_0x1 AND HfBitCounts_Ind1_0x1 )
-        <output_pin nr="63" pin="a" />
-      </L1_DoubleHfBitCountsRing1_P1N1>
-      <L1_DoubleHfBitCountsRing2_P1N1 algAlias="L1_DoubleHfBitCountsRing2_P1N1">
-        ( HfBitCounts_Ind2_0x1 AND HfBitCounts_Ind3_0x1 )
-        <output_pin nr="64" pin="a" />
-      </L1_DoubleHfBitCountsRing2_P1N1>
       <L1_DoubleJet20 algAlias="L1_DoubleJet20">
         DoubleCenJet_0x05 OR DoubleForJet_0x05 OR DoubleTauJet_0x05 OR ( SingleCenJet_0x05 AND ( SingleForJet_0x05 OR SingleTauJet_0x05 ) ) OR ( SingleForJet_0x05 AND SingleTauJet_0x05 )
         <output_pin nr="71" pin="a" />
@@ -307,6 +299,10 @@
         ETT_0x0B4
         <output_pin nr="44" pin="a" />
       </L1_ETT90>
+      <L1_MinimumBiasHF1_AND_NoBptxGating algAlias="L1_MinimumBiasHF1_AND_NoBptxGating">
+        ( HfBitCounts_Ind0_0x1 AND HfBitCounts_Ind1_0x1 )
+        <output_pin nr="63" pin="a" />
+      </L1_MinimumBiasHF1_AND_NoBptxGating>
       <L1_MinimumBiasHF1_AND_v1 algAlias="L1_MinimumBiasHF1_AND">
         ( HfBitCounts_Ind0_0x1 AND HfBitCounts_Ind1_0x1 ) AND BPTX_plus_AND_minus.v0
         <output_pin nr="7" pin="a" />
@@ -315,14 +311,26 @@
         ( HfBitCounts_Ind0_0x1 OR HfBitCounts_Ind1_0x1 ) AND BPTX_plus_AND_minus.v0
         <output_pin nr="5" pin="a" />
       </L1_MinimumBiasHF1_OR>
+      <L1_MinimumBiasHF1_OR_NoBptxGating algAlias="L1_MinimumBiasHF1_OR_NoBptxGating">
+        HfBitCounts_Ind0_0x1 OR HfBitCounts_Ind1_0x1
+        <output_pin nr="61" pin="a" />
+      </L1_MinimumBiasHF1_OR_NoBptxGating>
       <L1_MinimumBiasHF2_AND algAlias="L1_MinimumBiasHF2_AND">
         ( HfBitCounts_Ind2_0x1 AND HfBitCounts_Ind3_0x1 ) AND BPTX_plus_AND_minus.v0
         <output_pin nr="8" pin="a" />
       </L1_MinimumBiasHF2_AND>
+      <L1_MinimumBiasHF2_AND_NoBptxGating algAlias="L1_MinimumBiasHF2_AND_NoBptxGating">
+        ( HfBitCounts_Ind2_0x1 AND HfBitCounts_Ind3_0x1 )
+        <output_pin nr="64" pin="a" />
+      </L1_MinimumBiasHF2_AND_NoBptxGating>
       <L1_MinimumBiasHF2_OR algAlias="L1_MinimumBiasHF2_OR">
         ( HfBitCounts_Ind2_0x1 OR HfBitCounts_Ind3_0x1 ) AND BPTX_plus_AND_minus.v0
         <output_pin nr="6" pin="a" />
       </L1_MinimumBiasHF2_OR>
+      <L1_MinimumBiasHF2_OR_NoBptxGating algAlias="L1_MinimumBiasHF2_OR_NoBptxGating">
+        ( HfBitCounts_Ind2_0x1 OR HfBitCounts_Ind3_0x1 )
+        <output_pin nr="62" pin="a" />
+      </L1_MinimumBiasHF2_OR_NoBptxGating>
       <L1_SingleEG20 algAlias="L1_SingleEG20">
         SingleNoIsoEG_0x14 OR SingleIsoEG_0x14
         <output_pin nr="33" pin="a" />
@@ -335,14 +343,6 @@
         SingleNoIsoEG_0x05 OR SingleIsoEG_0x05
         <output_pin nr="32" pin="a" />
       </L1_SingleEG5>
-      <L1_SingleHfBitCountsRing1_1 algAlias="L1_SingleHfBitCountsRing1_1">
-        HfBitCounts_Ind0_0x1 OR HfBitCounts_Ind1_0x1
-        <output_pin nr="61" pin="a" />
-      </L1_SingleHfBitCountsRing1_1>
-      <L1_SingleHfBitCountsRing2_1 algAlias="L1_SingleHfBitCountsRing2_1">
-        ( HfBitCounts_Ind2_0x1 OR HfBitCounts_Ind3_0x1 )
-        <output_pin nr="62" pin="a" />
-      </L1_SingleHfBitCountsRing2_1>
       <L1_SingleJet12_BptxAND algAlias="L1_SingleJet12_BptxAND">
         ( SingleCenJet_0x03 OR SingleForJet_0x03 OR SingleTauJet_0x03 ) AND BPTX_plus_AND_minus.v0
         <output_pin nr="12" pin="a" />
@@ -1608,6 +1608,248 @@
 <!--TTCablingFkL1TechTrigCabling_2015_Jun_01-->
 <!--ExtCondCablingFkL1ExternalConditionsCabling_2015_Jun_01-->
 <!--AlgoDBLock
+L1_AlwaysTrue
+L1_CastorHighJet_v1
+L1_CastorMediumJet_v1
+L1_CastorMuon
+L1_DoubleJet20
+L1_DoubleJet28
+L1_DoubleJet32
+L1_DoubleMuOpen
+L1_ETT130
+L1_ETT15
+L1_ETT40
+L1_ETT60
+L1_ETT90
+L1_MinimumBiasHF1_AND_v1
+L1_MinimumBiasHF1_OR
+L1_MinimumBiasHF2_AND
+L1_MinimumBiasHF2_OR
+L1_SingleEG20
+L1_SingleEG2_BptxAND
+L1_SingleEG5
+L1_SingleJet12_BptxAND
+L1_SingleJet16
+L1_SingleJet20
+L1_SingleJet200
+L1_SingleJet36
+L1_SingleJet68
+L1_SingleJet8_BptxAND
+L1_SingleJetC20_NotBptxOR
+L1_SingleJetC32_NotBptxOR
+L1_SingleMu3p5
+L1_SingleMuBeamHalo
+L1_SingleMuOpen
+L1_SingleMuOpen_NotBptxOR
+L1_TOTEM_0
+L1_TOTEM_1
+L1_TOTEM_3
+L1_ZeroBias
+L1_AlwaysTrue
+L1_CastorHighJet_v1
+L1_CastorMediumJet_v1
+L1_CastorMuon
+L1_DoubleJet20
+L1_DoubleJet28
+L1_DoubleJet32
+L1_DoubleMuOpen
+L1_ETT130
+L1_ETT15
+L1_ETT40
+L1_ETT60
+L1_ETT90
+L1_MinimumBiasHF1_AND_v1
+L1_MinimumBiasHF1_OR
+L1_MinimumBiasHF2_AND
+L1_MinimumBiasHF2_OR
+L1_SingleEG20
+L1_SingleEG2_BptxAND
+L1_SingleEG5
+L1_SingleJet12_BptxAND
+L1_SingleJet16
+L1_SingleJet20
+L1_SingleJet200
+L1_SingleJet36
+L1_SingleJet68
+L1_SingleJet8_BptxAND
+L1_SingleJetC20_NotBptxOR
+L1_SingleJetC32_NotBptxOR
+L1_SingleMu3p5
+L1_SingleMuBeamHalo
+L1_SingleMuOpen
+L1_SingleMuOpen_NotBptxOR
+L1_TOTEM_0
+L1_TOTEM_1
+L1_TOTEM_3
+L1_ZeroBias
+L1_AlwaysTrue
+L1_CastorHighJet_v1
+L1_CastorMediumJet_v1
+L1_CastorMuon
+L1_DoubleHfBitCountsRing1_P1N1
+L1_DoubleHfBitCountsRing2_P1N1
+L1_DoubleJet20
+L1_DoubleJet28
+L1_DoubleJet32
+L1_DoubleMuOpen
+L1_ETT130
+L1_ETT15_BptxAND
+L1_ETT40
+L1_ETT60
+L1_ETT90
+L1_MinimumBiasHF1_AND_v1
+L1_MinimumBiasHF1_OR
+L1_MinimumBiasHF2_AND
+L1_MinimumBiasHF2_OR
+L1_SingleEG20
+L1_SingleEG2_BptxAND
+L1_SingleEG5
+L1_SingleHfBitCountsRing1_1
+L1_SingleHfBitCountsRing2_1
+L1_SingleJet12_BptxAND
+L1_SingleJet16
+L1_SingleJet20
+L1_SingleJet200
+L1_SingleJet36
+L1_SingleJet68
+L1_SingleJet8_BptxAND
+L1_SingleJetC20_NotBptxOR
+L1_SingleJetC32_NotBptxOR
+L1_SingleMu3p5
+L1_SingleMuBeamHalo
+L1_SingleMuOpen
+L1_SingleMuOpen_NotBptxOR
+L1_TOTEM_0
+L1_TOTEM_1
+L1_TOTEM_2
+L1_TOTEM_3
+L1_ZeroBias
+L1_AlwaysTrue
+L1_CastorHighJet_v1
+L1_CastorMediumJet_v1
+L1_CastorMuon
+L1_DoubleHfBitCountsRing1_P1N1
+L1_DoubleHfBitCountsRing2_P1N1
+L1_DoubleJet20
+L1_DoubleJet28
+L1_DoubleJet32
+L1_DoubleMuOpen
+L1_ETT130
+L1_ETT15_BptxAND
+L1_ETT40
+L1_ETT60
+L1_ETT90
+L1_MinimumBiasHF1_AND_v1
+L1_MinimumBiasHF1_OR
+L1_MinimumBiasHF2_AND
+L1_MinimumBiasHF2_OR
+L1_SingleEG20
+L1_SingleEG2_BptxAND
+L1_SingleEG5
+L1_SingleHfBitCountsRing1_1
+L1_SingleHfBitCountsRing2_1
+L1_SingleJet12_BptxAND
+L1_SingleJet16
+L1_SingleJet20
+L1_SingleJet200
+L1_SingleJet36
+L1_SingleJet68
+L1_SingleJet8_BptxAND
+L1_SingleJetC20_NotBptxOR
+L1_SingleJetC32_NotBptxOR
+L1_SingleMu3p5
+L1_SingleMuBeamHalo
+L1_SingleMuOpen
+L1_SingleMuOpen_NotBptxOR
+L1_TOTEM_0
+L1_TOTEM_1
+L1_TOTEM_2
+L1_TOTEM_3
+L1_ZeroBias
+L1_AlwaysTrue
+L1_CastorHighJet_v1
+L1_CastorMediumJet_v1
+L1_CastorMuon
+L1_DoubleJet20
+L1_DoubleJet28
+L1_DoubleJet32
+L1_DoubleMuOpen
+L1_ETT130
+L1_ETT15_BptxAND
+L1_ETT40
+L1_ETT60
+L1_ETT90
+L1_MinimumBiasHF1_AND_NoBptxGating
+L1_MinimumBiasHF1_AND_v1
+L1_MinimumBiasHF1_OR
+L1_MinimumBiasHF1_OR_NoBptxGating
+L1_MinimumBiasHF2_AND
+L1_MinimumBiasHF2_AND_NoBptxGating
+L1_MinimumBiasHF2_OR
+L1_MinimumBiasHF2_OR_NoBptxGating
+L1_SingleEG20
+L1_SingleEG2_BptxAND
+L1_SingleEG5
+L1_SingleJet12_BptxAND
+L1_SingleJet16
+L1_SingleJet20
+L1_SingleJet200
+L1_SingleJet36
+L1_SingleJet68
+L1_SingleJet8_BptxAND
+L1_SingleJetC20_NotBptxOR
+L1_SingleJetC32_NotBptxOR
+L1_SingleMu3p5
+L1_SingleMuBeamHalo
+L1_SingleMuOpen
+L1_SingleMuOpen_NotBptxOR
+L1_TOTEM_0
+L1_TOTEM_1
+L1_TOTEM_2
+L1_TOTEM_3
+L1_ZeroBias
+L1_AlwaysTrue
+L1_CastorHighJet_v1
+L1_CastorMediumJet_v1
+L1_CastorMuon
+L1_DoubleJet20
+L1_DoubleJet28
+L1_DoubleJet32
+L1_DoubleMuOpen
+L1_ETT130
+L1_ETT15_BptxAND
+L1_ETT40
+L1_ETT60
+L1_ETT90
+L1_MinimumBiasHF1_AND_NoBptxGating
+L1_MinimumBiasHF1_AND_v1
+L1_MinimumBiasHF1_OR
+L1_MinimumBiasHF1_OR_NoBptxGating
+L1_MinimumBiasHF2_AND
+L1_MinimumBiasHF2_AND_NoBptxGating
+L1_MinimumBiasHF2_OR
+L1_MinimumBiasHF2_OR_NoBptxGating
+L1_SingleEG20
+L1_SingleEG2_BptxAND
+L1_SingleEG5
+L1_SingleJet12_BptxAND
+L1_SingleJet16
+L1_SingleJet20
+L1_SingleJet200
+L1_SingleJet36
+L1_SingleJet68
+L1_SingleJet8_BptxAND
+L1_SingleJetC20_NotBptxOR
+L1_SingleJetC32_NotBptxOR
+L1_SingleMu3p5
+L1_SingleMuBeamHalo
+L1_SingleMuOpen
+L1_SingleMuOpen_NotBptxOR
+L1_TOTEM_0
+L1_TOTEM_1
+L1_TOTEM_2
+L1_TOTEM_3
+L1_ZeroBias
 AlgoDBLockEnd-->
 <!--CondDBLock
 BPTX_minus.v0:BPTX_minus.v0
@@ -1631,13 +1873,10 @@ BSC_minBias_threshold1.v0:BSC_minBias_threshold1.v0
 BSC_minBias_threshold2.v0:BSC_minBias_threshold2.v0
 BSC_splash_beam1.v0:BSC_splash_beam1.v0
 BSC_splash_beam2.v0:BSC_splash_beam2.v0
-CASTOR_0.v0:CASTOR_0.v0
-CASTOR_EM.v0:CASTOR_EM.v0
 CASTOR_Gap.v0:CASTOR_Gap.v0
 CASTOR_HaloMuon.v0:CASTOR_HaloMuon.v0
 CASTOR_HighJet.v0:CASTOR_HighJet.v0
 CASTOR_MediumJet.v0:CASTOR_MediumJet.v0
-CASTOR_TotalEnergy.v0:CASTOR_TotalEnergy.v0
 DoubleCenJet_0x05:DoubleCenJet_0x05
 DoubleCenJet_0x07:DoubleCenJet_0x07
 DoubleCenJet_0x08:DoubleCenJet_0x08
