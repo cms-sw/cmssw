@@ -28,7 +28,11 @@ namespace edm {
         if(item != nullptr) {
           return item;
         }
+#ifndef __GCCXML__
         auto prodGetter = product.productGetter();
+#else
+        EDProductGetter* prodGetter = product.productGetter();
+#endif
         if(nullptr == prodGetter) {
           item = static_cast<T const*>(product.productPtr());
           if(item != nullptr) {
@@ -56,9 +60,17 @@ namespace edm {
         if(item != nullptr) {
           return item;
         }
+#ifndef __GCCXML__
         auto getter = product.productGetter();
+#else
+        EDProductGetter const* getter = product.productGetter();
+#endif
         if(getter == nullptr) {
+#ifndef __GCCXML__
           auto prod = product.productPtr();
+#else
+          void const* prod = product.productPtr();
+#endif
           if(prod != nullptr) {
             //another thread updated the value since we last checked.
             return static_cast<T const*>(prod);
@@ -104,7 +116,11 @@ namespace edm {
         if (ref.isTransient()) {
           return false;
         }
+#ifndef __GCCXML__
         auto getter = ref.productGetter();
+#else
+        EDProductGetter const* getter = ref.productGetter();
+#endif
         if(getter != nullptr) {
           return ref.isThinnedAvailable(key,getter);
         }

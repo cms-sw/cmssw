@@ -77,7 +77,7 @@ public:
 
     CSCDetId cscDetId() const { return  geographicalId(); }
     
-    void print() const;		
+    //void print() const;		
     
  private:
     std::vector<GEMRecHit> theGEMRecHits;      // store GEM Rechits

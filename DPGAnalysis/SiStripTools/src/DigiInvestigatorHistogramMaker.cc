@@ -149,7 +149,7 @@ void DigiInvestigatorHistogramMaker::beginRun(const edm::Run& iRun) {
     if(_runHisto) {
       if(*_nmultvsorbrun[i]) {
 	(*_nmultvsorbrun[i])->GetXaxis()->SetTitle("time [orbit#]");    (*_nmultvsorbrun[i])->GetYaxis()->SetTitle("Hits");
-	(*_nmultvsorbrun[i])->SetCanExtend(TH1::kXaxis);
+	(*_nmultvsorbrun[i])->SetBit(TH1::kCanRebin);
       }
       if(*_nmultvsbxrun[i]) {
 	(*_nmultvsbxrun[i])->GetXaxis()->SetTitle("BX#");  (*_nmultvsbxrun[i])->GetYaxis()->SetTitle("Mean Number of Hits"); 

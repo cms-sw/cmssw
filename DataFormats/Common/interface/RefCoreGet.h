@@ -44,7 +44,11 @@ namespace edm {
     if (ref.isTransient()) {
       ref.nullPointerForTransientException(typeid(T));
     }
+#ifndef __GCCXML__
     auto productGetter = ref.productGetter();
+#else
+    EDProductGetter const* productGetter = ref.productGetter();
+#endif
     if(nullptr == productGetter) {
       p =static_cast<T const*>(ref.productPtr());
       if(p != nullptr) {
