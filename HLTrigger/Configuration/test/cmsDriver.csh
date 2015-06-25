@@ -161,7 +161,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun2pp50ns
-      set Custom2 = " "
+      set Custom2 = "L1Trigger/Configuration/customise_overwriteL1Menu.L1Menu_Collisions2015_50ns_v3"
       set L1REPACK = L1REPACK:GCTGT
     else if ( $table == 50ns_5e33_v1 ) then
       set XL1T = $XL1TPP3
