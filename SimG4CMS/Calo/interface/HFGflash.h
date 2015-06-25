@@ -34,21 +34,19 @@ public:
   virtual ~HFGflash();
 
   struct Hit {
-    Hit() {}
+    Hit() {depth = 0; time = edep = pez = 0;}
     G4ThreeVector       position;
-    int                 depth = 0;
-    double              time = 0.;
-    double              edep = 0.;
-    double              pez = 0.;
+    int                 depth;
+    double              time, edep, pez;
   };
 
   std::vector<Hit> gfParameterization(G4Step * aStep, bool & ok, bool onlyLong=false);
 
 private:    
 
-  GflashTrajectory* theHelix;
-  G4Step *theGflashStep;
-  G4Navigator *theGflashNavigator;
+  GflashTrajectory  *theHelix;
+  G4Step            *theGflashStep;
+  G4Navigator       *theGflashNavigator;
   G4TouchableHandle  theGflashTouchableHandle;
 
   Gflash::CalorimeterNumber jCalorimeter;

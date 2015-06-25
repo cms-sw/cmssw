@@ -71,11 +71,11 @@
 		</LogicalPart>
 		<LogicalPart name="HFFibreS" category="unspecified">
 			<rSolid name="HFFibreS"/>
-			<rMaterial name="hcalforwardmaterial:QuartzF"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
 		</LogicalPart>
 		<LogicalPart name="HFFibreL" category="unspecified">
 			<rSolid name="HFFibreL"/>
-			<rMaterial name="hcalforwardmaterial:QuartzF"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
 		</LogicalPart>
 	</LogicalPartSection>
 	<PosPartSection label="hcalforwardshower.xml">

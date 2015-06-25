@@ -18,8 +18,7 @@ HcalTestNumberingScheme::~HcalTestNumberingScheme() {
   edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme";
 }
 
-uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& 
-					    id) {
+uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id) {
 
   //pack it into an integer
   uint32_t index = 0;
@@ -40,11 +39,11 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID&
 					     id.etaR, id.phis, id.lay);
   }
 
-  LogDebug("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
-		      << " depth/lay = " << id.depth << "/" << id.lay 
-		      << " zside = " << id.zside << " eta/R = " << id.etaR 
-		      << " phi = " << id.phis << " packed index = 0x" 
-		      << std::hex << index << std::dec;
+  edm::LogInfo("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
+			  << " depth/lay = " << id.depth << "/" << id.lay 
+			  << " zside = " << id.zside << " eta/R = " << id.etaR 
+			  << " phi = " << id.phis << " packed index = 0x" 
+			  << std::hex << index << std::dec;
 
   return index;
 

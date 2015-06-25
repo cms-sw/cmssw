@@ -36,6 +36,7 @@ public:
   void                              setNumberingScheme(EcalNumberingScheme*);
   virtual int                       getTrackID(G4Track*);
   virtual uint16_t                  getDepth(G4Step*);
+  virtual uint16_t                  getLayerIDForTimeSim(G4Step *);
 
 private:    
 
@@ -50,6 +51,7 @@ private:
 						   const DDsvalues_type&);
 
   EcalNumberingScheme *             numberingScheme;
+  bool                              isEB, isEE, storeLayerTimeSim;
   bool                              useWeight, storeTrack, storeRL;
   bool                              useBirk, useBirkL3;
   double                            birk1, birk2, birk3, birkSlope, birkCut;

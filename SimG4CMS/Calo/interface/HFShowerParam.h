@@ -11,6 +11,7 @@
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimG4CMS/Calo/interface/HFGflash.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
@@ -28,17 +29,16 @@ class HFShowerParam {
 public:    
 
   HFShowerParam(std::string & name, const DDCompactView & cpv, 
-		edm::ParameterSet const & p);
+		const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
   virtual ~HFShowerParam();
 
 public:    
 
   struct Hit {
-    Hit() {}
+    Hit() { depth = 0; time = edep = 0;}
     G4ThreeVector       position;
     int                 depth;
-    double              time;
-    double              edep;
+    double              time, edep;
   };
 
   void                  initRun(G4ParticleTable *);

@@ -14,7 +14,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalAngular::DDHCalAngular() {
-  LogDebug("HCalGeom") << "DDHCalAngular test: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalAngular test: Creating an instance";
 }
 
 DDHCalAngular::~DDHCalAngular() {}
@@ -33,21 +33,21 @@ void DDHCalAngular::initialize(const DDNumericArguments & nArgs,
   n           = int (nArgs["n"]);
   startCopyNo = int (nArgs["startCopyNo"]);
   incrCopyNo  = int (nArgs["incrCopyNo"]);
-  LogDebug("HCalGeom") << "DDHCalAngular debug: Parameters for positioning-- "
-		       << n << " copies in " << rangeAngle/CLHEP::deg 
-		       << " from " << startAngle/CLHEP::deg << "\tShifts " 
-		       << shiftX << ", " << shiftY 
-		       << " along x, y axes; \tZoffest " << zoffset
-		       << "\tStart and inremental copy nos " << startCopyNo 
-		       << ", " << incrCopyNo;
+  edm::LogInfo("HCalGeom") << "DDHCalAngular debug: Parameters for positioning-- "
+			   << n << " copies in " << rangeAngle/CLHEP::deg 
+			   << " from " << startAngle/CLHEP::deg << "\tShifts " 
+			   << shiftX << ", " << shiftY 
+			   << " along x, y axes; \tZoffest " << zoffset
+			   << "\tStart and inremental copy nos " << startCopyNo
+			   << ", " << incrCopyNo;
 
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalAngular debug: Parent " << parentName 
-		       << "\tChild " << childName << "\tNameSpace "
-		       << idNameSpace << "\tRotation Namespace " << rotns;
+  edm::LogInfo("HCalGeom") << "DDHCalAngular debug: Parent " << parentName 
+			   << "\tChild " << childName << "\tNameSpace "
+			   << idNameSpace << "\tRotation Namespace " << rotns;
 }
 
 void DDHCalAngular::execute(DDCompactView& cpv) {
@@ -73,9 +73,9 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
       rotstr = rotstr + dbl_to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
-        LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
-			     << DDName(rotstr, idNameSpace) << "\t90, " 
-			     << phideg << ", 90, " << (phideg+90) << ", 0, 0";
+        edm::LogInfo("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
+				 << DDName(rotstr, idNameSpace) << "\t90, " 
+				 << phideg << ", 90, " << (phideg+90) << ", 0, 0";
         rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
 			 phideg*CLHEP::deg, 90*CLHEP::deg, 
 			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
@@ -88,10 +88,10 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
   
     DDName parentName = parent().name(); 
    cpv.position(DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
-    LogDebug("HCalGeom") << "DDHCalAngular test: " 
-			 << DDName(childName, idNameSpace) << " number " 
-			 << copyNo << " positioned in " << parentName << " at "
-			 << tran << " with " << rotation;
+    edm::LogInfo("HCalGeom") << "DDHCalAngular test: " 
+			     << DDName(childName, idNameSpace) << " number " 
+			     << copyNo << " positioned in " << parentName 
+			     << " at " << tran << " with " << rotation;
     phi    += dphi;
     copyNo += incrCopyNo;
   }

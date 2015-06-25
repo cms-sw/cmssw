@@ -10,6 +10,7 @@
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
@@ -31,13 +32,13 @@ public:
   
   //Constructor and Destructor
   HFShowerLibrary(std::string & name, const DDCompactView & cpv,
-		  edm::ParameterSet const & p);
+		  const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
   ~HFShowerLibrary();
 
 public:
 
   struct Hit {
-    Hit() {}
+    Hit() { depth = 0; time = 0; }
     G4ThreeVector             position;
     int                       depth;
     double                    time;
@@ -57,8 +58,6 @@ protected:
   void                interpolate(int, double);
   void                extrapolate(int, double);
   void                storePhoton(int j);
-  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
-				  int&);
 
 private:
 
@@ -80,9 +79,9 @@ private:
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 npe;
-  HFShowerPhotonCollection pe;
-  HFShowerPhotonCollection* photo;
-  HFShowerPhotonCollection photon;
+  HFShowerPhotonCollection  pe;
+  HFShowerPhotonCollection *photo;
+  HFShowerPhotonCollection  photon;
 
 };
 #endif

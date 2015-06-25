@@ -1,0 +1,10 @@
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/HcalCommonData"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="CoralBase"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="HcalSimNumberingTester.cc" name="testGeometryHcalSimNumbering">
+</library>
+<library   file="HcalRecNumberingTester.cc" name="testGeometryHcalRecNumbering">
+</library>

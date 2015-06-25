@@ -16,7 +16,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalTBZposAlgo::DDHCalTBZposAlgo() {
-  LogDebug("HCalGeom") << "DDHCalTBZposAlgo test: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalTBZposAlgo test: Creating an instance";
 }
 
 DDHCalTBZposAlgo::~DDHCalTBZposAlgo() {}
@@ -35,19 +35,19 @@ void DDHCalTBZposAlgo::initialize(const DDNumericArguments & nArgs,
   dist       = nArgs["Distance"];
   tilt       = nArgs["TiltAngle"];
   copyNumber = int (nArgs["Number"]);
-  LogDebug("HCalGeom") << "DDHCalTBZposAlgo debug: Parameters for position"
-		       << "ing--" << " Eta " << eta << "\tTheta " 
-		       << theta/CLHEP::deg << "\tShifts " << shiftX << ", " 
-		       << shiftY  << " along x, y axes; \tZoffest " << zoffset
-		       << "\tRadial Distance " << dist << "\tTilt angle "
-		       << tilt/CLHEP::deg << "\tcopyNumber " << copyNumber;
+  edm::LogInfo("HCalGeom") << "DDHCalTBZposAlgo debug: Parameters for position"
+			   << "ing--" << " Eta " << eta << "\tTheta " 
+			   << theta/CLHEP::deg << "\tShifts " << shiftX << ", "
+			   << shiftY  << " along x, y axes; \tZoffest " << zoffset
+			   << "\tRadial Distance " << dist << "\tTilt angle "
+			   << tilt/CLHEP::deg << "\tcopyNumber " << copyNumber;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalTBZposAlgo debug: Parent " << parentName
-		       << "\tChild " << childName << " NameSpace "
-		       << idNameSpace;
+  edm::LogInfo("HCalGeom") << "DDHCalTBZposAlgo debug: Parent " << parentName
+			   << "\tChild " << childName << " NameSpace "
+			   << idNameSpace;
 }
 
 void DDHCalTBZposAlgo::execute(DDCompactView& cpv) {
@@ -69,15 +69,15 @@ void DDHCalTBZposAlgo::execute(DDCompactView& cpv) {
     rotstr = rotstr + dbl_to_string(tiltdeg);
     rot    = DDRotation(DDName(rotstr, idNameSpace)); 
     if (!rot) {
-      LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
-			   << DDName(rotstr,idNameSpace) << "\t90, " << tiltdeg
-			   << ", 90, " << (tiltdeg+90) << ", 0, 0";
+      edm::LogInfo("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
+			       << DDName(rotstr,idNameSpace) << "\t90, " 
+			       << tiltdeg << ", 90, " << (tiltdeg+90) << ", 0, 0";
       rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, tilt, 
 		  90*CLHEP::deg, (90*CLHEP::deg+tilt), 0.0,  0.0);
     }
   }
  cpv.position(child, mother, copyNumber, tran, rot);
-  LogDebug("HCalGeom") << "DDHCalTBZposAlgo test: " << child << " number " 
-		       << copyNumber << " positioned in " << mother
-		       << " at " << tran << " with " << rot;
+  edm::LogInfo("HCalGeom") << "DDHCalTBZposAlgo test: " << child << " number " 
+			   << copyNumber << " positioned in " << mother
+			   << " at " << tran << " with " << rot;
 }

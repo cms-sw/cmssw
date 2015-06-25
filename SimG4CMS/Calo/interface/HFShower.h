@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4ThreeVector.hh"
 #include "G4String.hh"
@@ -23,7 +24,8 @@ class HFShower {
 public:    
 
   HFShower(std::string & name, const DDCompactView & cpv, 
-	     edm::ParameterSet const & p, int chk=0);
+	   const HcalDDDSimConstants& hcons, edm::ParameterSet const & p,
+	   int chk=0);
   virtual ~HFShower();
 
 public:
@@ -45,7 +47,6 @@ public:
 
 private:    
 
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &, int &);
   bool                applyFidCut;
 
 private:    

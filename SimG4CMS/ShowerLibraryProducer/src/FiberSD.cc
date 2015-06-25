@@ -1,6 +1,8 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/FiberSD.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
@@ -30,7 +32,8 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 		       << "*                                                 *"
 		       << "\n"
 		       << "***************************************************";
-  theShower = new HFShower(name, cpv, p, 1);
+  HcalNumberingFromDDD* numbering = new HcalNumberingFromDDD(name, cpv);
+  theShower = new HFShower(name, cpv, numbering->ddConstants(), p, 1);
 
   //
   // Now attach the right detectors (LogicalVolumes) to me

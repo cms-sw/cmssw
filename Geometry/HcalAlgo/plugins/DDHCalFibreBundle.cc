@@ -17,7 +17,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalFibreBundle::DDHCalFibreBundle() {
-  LogDebug("HCalGeom") <<"DDHCalFibreBundle info: Creating an instance";
+  edm::LogInfo("HCalGeom") <<"DDHCalFibreBundle info: Creating an instance";
 }
 
 DDHCalFibreBundle::~DDHCalFibreBundle() {}
@@ -41,23 +41,23 @@ void DDHCalFibreBundle::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childPrefix = sArgs["Child"]; 
   DDName parentName = parent().name();
-  LogDebug("HCalGeom") << "DDHCalFibreBundle debug: Parent " << parentName
-		       << " with " << bundle.size() << " children with prefix "
-		       << childPrefix << ", material " << material << " with "
-		       << numberPhi << " bundles along phi; width of mother "
-		       << deltaZ << " along Z, " << deltaPhi/CLHEP::deg 
-		       << " along phi and with " << rStart.size()
-		       << " different bundle types";
+  edm::LogInfo("HCalGeom") << "DDHCalFibreBundle debug: Parent " << parentName
+			   << " with " << bundle.size() << " children with prefix "
+			   << childPrefix << ", material " << material << " with "
+			   << numberPhi << " bundles along phi; width of mother "
+			   << deltaZ << " along Z, " << deltaPhi/CLHEP::deg 
+			   << " along phi and with " << rStart.size()
+			   << " different bundle types";
   for (unsigned int i=0; i<areaSection.size(); ++i) 
-    LogDebug("HCalGeom") << "DDHCalFibreBundle debug: Child[" << i << "] Area "
-			 << areaSection[i] << " R at Start " << rStart[i]
-			 << " R at End " << rEnd[i];
-  LogDebug("HCalGeom") << "DDHCalFibreBundle debug: NameSpace " 
-		       << idNameSpace << " Tilt Angle " << tilt/CLHEP::deg
-		       << " Bundle type at different positions";
+    edm::LogInfo("HCalGeom") << "DDHCalFibreBundle debug: Child[" << i << "] Area "
+			     << areaSection[i] << " R at Start " << rStart[i]
+			     << " R at End " << rEnd[i];
+  edm::LogInfo("HCalGeom") << "DDHCalFibreBundle debug: NameSpace " 
+			   << idNameSpace << " Tilt Angle " << tilt/CLHEP::deg
+			   << " Bundle type at different positions";
   for (unsigned int i=0; i<bundle.size(); ++i) {
-    LogDebug("HCalGeom") << "DDHCalFibreBundle debug: Position[" << i << "] "
-			 << " with Type " << bundle[i];
+    edm::LogInfo("HCalGeom") << "DDHCalFibreBundle debug: Position[" << i << "] "
+			     << " with Type " << bundle[i];
   }
 }
 
@@ -76,10 +76,10 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
     std::string rotstr = "R0"+ dbl_to_string(phideg);
     DDRotation  rot = DDRotation(DDName(rotstr, idNameSpace));
     if (!rot) {
-      LogDebug("HCalGeom") << "DDHCalFibreBundle test: Creating a new "
-			   << "rotation " << rotstr << "\t" << 90 << ","
-			   << phideg << ","  << 90 << "," << (phideg+90)
-			   << ", 0, 0";
+      edm::LogInfo("HCalGeom") << "DDHCalFibreBundle test: Creating a new "
+			       << "rotation " << rotstr << "\t" << 90 << ","
+			       << phideg << ","  << 90 << "," << (phideg+90)
+			       << ", 0, 0";
       rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, phi, 
 		  90*CLHEP::deg, (90*CLHEP::deg+phi), 0,  0);
     }
@@ -96,11 +96,11 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
     DDSolid solid = DDSolidFactory::cons(DDName(name, idNameSpace), 0.5*deltaZ,
 					 rStart[i]-dStart, rStart[i]+dStart,
 					 r0-dEnd, r0+dEnd, -0.5*dPhi, dPhi);
-    LogDebug("HCalGeom") << "DDHCalFibreBundle test: Creating a new solid "
-			 << name << " a cons with dZ " << deltaZ << " rStart "
-			 << rStart[i]-dStart << ":"  << rStart[i]+dStart
-			 << " rEnd " << r0-dEnd << ":" << r0+dEnd << " Phi " 
-			 << -0.5*dPhi/CLHEP::deg << ":" << 0.5*dPhi/CLHEP::deg;
+    edm::LogInfo("HCalGeom") << "DDHCalFibreBundle test: Creating a new solid "
+			     << name << " a cons with dZ " << deltaZ << " rStart "
+			     << rStart[i]-dStart << ":"  << rStart[i]+dStart
+			     << " rEnd " << r0-dEnd << ":" << r0+dEnd << " Phi " 
+			     << -0.5*dPhi/CLHEP::deg << ":" << 0.5*dPhi/CLHEP::deg;
     DDLogicalPart log(DDName(name, idNameSpace), matter, solid);
     logs.push_back(log);
   }
@@ -116,10 +116,10 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
     copy++;
     if (ib>=0 && ib<(int)(logs.size())) {
       cpv.position(logs[ib], mother, copy, tran, rotation[ir]);
-      LogDebug("HCalGeom") << "DDHCalFibreBundle test: " << logs[ib].name() 
-			   << " number " << copy << " positioned in "
-			   << mother << " at " << tran << " with " 
-			   << rotation[ir];
+      edm::LogInfo("HCalGeom") << "DDHCalFibreBundle test: " << logs[ib].name()
+			       << " number " << copy << " positioned in "
+			       << mother << " at " << tran << " with " 
+			       << rotation[ir];
     }
   }
 }
