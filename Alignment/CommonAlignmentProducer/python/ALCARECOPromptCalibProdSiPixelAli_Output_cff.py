@@ -5,8 +5,7 @@ OutALCARECOPromptCalibProdSiPixelAli_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiPixelAli')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_alcaBeamSpotProducer_*_*',
-        'keep *_MEtoEDMConvertSiStrip_*_*')
+        'keep *_SiPixelAliMillePedeFileConverter_*_*')
 )
 
 import copy
