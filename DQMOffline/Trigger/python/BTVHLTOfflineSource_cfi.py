@@ -12,7 +12,7 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     offlineCSVLabelPF = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     offlineCSVLabelCalo = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
     hltFastPVLabel = cms.InputTag("hltFastPrimaryVertex"),
-    hltPFPVLabel = cms.InputTag("hltOnlinePrimaryVertices"),
+    hltPFPVLabel = cms.InputTag("hltGoodOnlinePVs"),
     hltCaloPVLabel = cms.InputTag("hltVerticesL3"),    
     offlinePVLabel = cms.InputTag("offlinePrimaryVertices"),    
     
@@ -23,8 +23,8 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
             pathtype = cms.string("PF"),
         ),
         cms.PSet(
-            pathname = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV07"),
-            #pathname = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV0p72"),
+            #pathname = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV07"),
+            pathname = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV0p72"),
 	    pathtype = cms.string("Calo"),
         )    
     )
