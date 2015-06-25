@@ -5,554 +5,663 @@
 ///  last update: $Date: 2012/08/10 09:25:23 $
 ///  by         : $Author: flucke $
 
+// TODO: Update Doxygen description
+
+/*** Header file ***/
 #include "PCLTrackerAlProducer.h"
-#include "FWCore/Framework/interface/LooperFactory.h" 
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h" 
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
-#include "Alignment/CommonAlignment/interface/Alignable.h" 
 
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+/*** Core framework functionality ***/
 
-// System include files
-#include <memory>
-#include <sstream>
-
-// Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Parse.h"
-
-// Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-// Geometry
+/*** Alignment ***/
+#include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
+#include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
+#include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+/*** Geometry ***/
+#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
 
-// Tracking, LAS and cluster flag map (fwd is enough!) 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
-#include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
-#include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
+/*** Logging ***/
+#define PRINT(msg) PRINT_TO_LOGFILE(msg) \
+                   PRINT_TO_STDOUT(msg)
+#define PRINT_TO_LOGFILE(msg) \
+edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::" \
+                          << __FUNCTION__ << ": " msg;
+#define PRINT_TO_STDOUT(msg) \
+printf("(%s) Function %s: %s \n", typeid(*this).name(), __FUNCTION__, msg);
 
-// Alignment
-#include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
-#include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
-#include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
-#include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+
 
 //_____________________________________________________________________________
-PCLTrackerAlProducer::PCLTrackerAlProducer(const edm::ParameterSet& iConfig) :
-  theAlignmentAlgo(0), theAlignmentParameterStore(0),
-  theAlignableExtras(0), theAlignableTracker(0), theAlignableMuon(0), 
+PCLTrackerAlProducer
+::PCLTrackerAlProducer(const edm::ParameterSet& config) :
+  theAlignmentAlgo(0),
+  theAlignmentParameterStore(0),
+  theTrackerAlignables(0),
+  theMuonAlignables(0),
+  theExtraAlignables(0),
   globalPositions_(0),
-  nevent_(0), theParameterSet(iConfig),
-  theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops") ),
-  stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
-  stRandomShift_(iConfig.getParameter<double>("randomShift")),
-  stRandomRotation_(iConfig.getParameter<double>("randomRotation")),
-  applyDbAlignment_( iConfig.getUntrackedParameter<bool>("applyDbAlignment")),
-  checkDbAlignmentValidity_( iConfig.getUntrackedParameter<bool>("checkDbAlignmentValidity")),
-  doMisalignmentScenario_(iConfig.getParameter<bool>("doMisalignmentScenario")),
-  saveToDB_(iConfig.getParameter<bool>("saveToDB")),
-  saveApeToDB_(iConfig.getParameter<bool>("saveApeToDB")),
-  saveDeformationsToDB_(iConfig.getParameter<bool>("saveDeformationsToDB")),
-  doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
-  doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
-  useExtras_( iConfig.getUntrackedParameter<bool>("useExtras") ),
-  useSurvey_( iConfig.getParameter<bool>("useSurvey") ),
-  tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
-  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
-  tkLasBeamTag_(iConfig.getParameter<edm::InputTag>("tkLasBeamTag")),
-  clusterValueMapTag_(iConfig.getParameter<edm::InputTag>("hitPrescaleMapTag"))
+
+  /* Steering parameters */
+  theParameterSet(config),
+  stNFixAlignables_        (config.getParameter<int>          ("nFixAlignables")),
+  stRandomShift_           (config.getParameter<double>       ("randomShift")),
+  stRandomRotation_        (config.getParameter<double>       ("randomRotation")),
+  applyDbAlignment_        (config.getUntrackedParameter<bool>("applyDbAlignment")),
+  checkDbAlignmentValidity_(config.getUntrackedParameter<bool>("checkDbAlignmentValidity")),
+  doMisalignmentScenario_  (config.getParameter<bool>         ("doMisalignmentScenario")),
+  saveToDB_                (config.getParameter<bool>         ("saveToDB")),
+  saveApeToDB_             (config.getParameter<bool>         ("saveApeToDB")),
+  saveDeformationsToDB_    (config.getParameter<bool>         ("saveDeformationsToDB")),
+  doTracker_               (config.getUntrackedParameter<bool>("doTracker") ),
+  doMuon_                  (config.getUntrackedParameter<bool>("doMuon") ),
+  useExtras_               (config.getUntrackedParameter<bool>("useExtras")),
+  useSurvey_               (config.getParameter<bool>         ("useSurvey")),
+
+  /* Event input tags */
+  tjTkAssociationMapTag_   (config.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
+  beamSpotTag_             (config.getParameter<edm::InputTag>("beamSpotTag")),
+  tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
+  clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag"))
 {
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::PCLTrackerAlProducer";
+  PRINT("called")
 
-
-
-  // Create the alignment algorithm
-  edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
-  edm::VParameterSet iovSelection = iConfig.getParameter<edm::VParameterSet>( "RunRangeSelection" );
-  algoConfig.addUntrackedParameter<edm::VParameterSet>( "RunRangeSelection", iovSelection );
-  std::string algoName = algoConfig.getParameter<std::string>( "algoName" );
-  theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get( )->create( algoName, algoConfig  );
-
-  // Check if found
-  if ( !theAlignmentAlgo )
-	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
-
-  // Now create monitors:
-  edm::ParameterSet monitorConfig = iConfig.getParameter<edm::ParameterSet>( "monitorConfig" );
-  std::vector<std::string> monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
-  for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
-    AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
-
-    if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
-
-    theMonitors.push_back(newMonitor);
-  }
-
-  // Finally create integrated calibrations:
-  edm::VParameterSet calibrations = iConfig.getParameter<edm::VParameterSet>("calibrations");
-  for (auto iCalib = calibrations.begin(); iCalib != calibrations.end(); ++iCalib) {
-    const std::string name(iCalib->getParameter<std::string>("calibrationName"));
-    theCalibrations.push_back(IntegratedCalibrationPluginFactory::get()->create(name, *iCalib));
-    // exception comes from line before: if (!theCalibrations.back()) throw cms::Exception(..) << ..;
-  }
-
+  createAlignmentAlgorithm(config);
+  createCalibrations      (config);
+  createMonitors          (config);
 }
 
-
 //_____________________________________________________________________________
-// Delete new objects
-PCLTrackerAlProducer::~PCLTrackerAlProducer()
+PCLTrackerAlProducer
+::~PCLTrackerAlProducer()
 {
+  PRINT("called")
+
   delete theAlignmentAlgo;
 
-  // Delete monitors as well??
-
-  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
-    delete *iCal; // delete integrated calibration pointed to by (*iCal)
+  for (auto iCal  = theCalibrations.begin();
+            iCal != theCalibrations.end();
+          ++iCal) {
+    delete *iCal;
   }
+  // TODO: Delete monitors as well?
 
   delete theAlignmentParameterStore;
-  delete theAlignableExtras;
-  delete theAlignableTracker;
-  delete theAlignableMuon;
-
+  delete theTrackerAlignables;
+  delete theMuonAlignables;
+  delete theExtraAlignables;
   delete globalPositions_;
 }
 
 
 
+/******************************************************************************
+ *** INTERFACE IMPLEMENTATION                                               ***
+ ******************************************************************************/
 
 //_____________________________________________________________________________
-// Initialize algorithm
-void PCLTrackerAlProducer::beginOfJob()
+void PCLTrackerAlProducer
+::beginJob()
 {
-}
-
-
-void PCLTrackerAlProducer::init(const edm::EventSetup& iSetup) {
-  printf("(TProdPCL) function %s in %s was called\n", __func__, __FILE__);
-
-
-  /* 1) Former: AlignmentProducer::beginOfJob(const edm::EventSetup& setup) */
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob";
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  // Create the geometries from the ideal geometries (first time only)
-  this->createGeometries_( iSetup );
-  
-  // Retrieve and apply alignments, if requested (requires DB setup)
-  if ( applyDbAlignment_ ) {
-    // we need GlobalPositionRcd - and have to keep track for later removal
-    // before writing again to DB...
-    edm::ESHandle<Alignments> globalPositionRcd;
-    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
-    globalPositions_ = new Alignments(*globalPositionRcd);
-
-    if ( doTracker_ ) {     // apply to tracker
-      this->applyDB<TrackerGeometry,TrackerAlignmentRcd,TrackerAlignmentErrorExtendedRcd>
-    (&(*theTracker), iSetup,
-     align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
-      this->applyDB<TrackerGeometry,TrackerSurfaceDeformationRcd>(&(*theTracker), iSetup);
-    }
-    
-    if ( doMuon_ ) { // apply to tracker
-      this->applyDB<DTGeometry,DTAlignmentRcd,DTAlignmentErrorExtendedRcd>
-    (&(*theMuonDT), iSetup,
-     align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
-      this->applyDB<CSCGeometry,CSCAlignmentRcd,CSCAlignmentErrorExtendedRcd>
-    (&(*theMuonCSC), iSetup,
-     align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
-    }
-  }
-
-  // Create alignable tracker and muon 
-  if (doTracker_) {
-    theAlignableTracker = new AlignableTracker( &(*theTracker), tTopo );
-  }
-
-  if (doMuon_) {
-     theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
-  }
-
-  if (useExtras_) {
-    theAlignableExtras = new AlignableExtras();
-  }
-
-  // Create alignment parameter builder
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
-                            << "Creating AlignmentParameterBuilder";
-  edm::ParameterSet aliParamBuildCfg = 
-    theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
-  AlignmentParameterBuilder alignmentParameterBuilder(theAlignableTracker,
-                                                      theAlignableMuon,
-                                                      theAlignableExtras,
-                              aliParamBuildCfg );
-  // Fix alignables if requested
-  if (stNFixAlignables_>0) alignmentParameterBuilder.fixAlignables(stNFixAlignables_);
-
-  // Get list of alignables
-  Alignables theAlignables = alignmentParameterBuilder.alignables();
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
-                            << "got " << theAlignables.size() << " alignables";
-
-  // Create AlignmentParameterStore 
-  edm::ParameterSet aliParamStoreCfg = 
-    theParameterSet.getParameter<edm::ParameterSet>("ParameterStore");
-  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables, aliParamStoreCfg);
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
-                            << "AlignmentParameterStore created!";
-
-  // Apply misalignment scenario to alignable tracker and muon if requested
-  // WARNING: this assumes scenarioConfig can be passed to both muon and tracker
-  if (doMisalignmentScenario_ && (doTracker_ || doMuon_)) {
-    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
-                              << "Applying misalignment scenario to "
-                              << (doTracker_ ? "tracker" : "")
-                              << (doMuon_    ? (doTracker_ ? " and muon" : "muon") : ".");
-    edm::ParameterSet scenarioConfig 
-      = theParameterSet.getParameter<edm::ParameterSet>( "MisalignmentScenario" );
-    if (doTracker_) {
-      TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
-      scenarioBuilder.applyScenario( scenarioConfig );
-    }
-    if (doMuon_) {
-      MuonScenarioBuilder muonScenarioBuilder( theAlignableMuon );
-      muonScenarioBuilder.applyScenario( scenarioConfig );
-    }
-  } else {
-    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
-                              << "NOT applying misalignment scenario!";
-  }
-
-  // Apply simple misalignment
-  const std::string sParSel(theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
-  this->simpleMisalignment_(theAlignables, sParSel, stRandomShift_, stRandomRotation_, true);
-
-  // Initialize alignment algorithm and integrated calibration and pass the latter to algorithm
-  theAlignmentAlgo->initialize( iSetup, 
-                theAlignableTracker, theAlignableMuon, theAlignableExtras,
-                theAlignmentParameterStore );
-  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
-    (*iCal)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignableExtras);
-  }
-  // Not all algorithms support calibrations - so do not pass empty vector
-  // and throw if non-empty and not supported:
-  if (!theCalibrations.empty() && !theAlignmentAlgo->addCalibrations(theCalibrations)) {
-    throw cms::Exception("BadConfig") << "[PCLTrackerAlProducer::beginOfJob]\n"
-                      << "Configured " << theCalibrations.size() << " calibration(s) "
-                      << "for algorithm not supporting it.";
-  }
-
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
-       monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignmentParameterStore);
-  }
-
-
-
-
-  /* 1) Former: AlignmentProducer::startingNewLoop(unsigned int iLoop) */
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::startingNewLoop";
+  PRINT("called")
 
   nevent_ = 0;
 
-  theAlignmentAlgo->startNewLoop();
-  // FIXME: Should this be done in algorithm::startNewLoop()??
-  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
-    (*iCal)->startNewLoop();
+  for (auto iCal  = theCalibrations.begin();
+            iCal != theCalibrations.end();
+          ++iCal) {
+    (*iCal)->beginOfJob(theTrackerAlignables,
+                        theMuonAlignables,
+                        theExtraAlignables);
   }
 
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->startingNewLoop();
-  }
-
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::startingNewLoop"
-                            << "Now physically apply alignments to  geometry...";
-
-
-  // Propagate changes to reconstruction geometry (from initialisation or iteration)
-  GeometryAligner aligner;
-  if ( doTracker_ ) {
-    std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
-    std::auto_ptr<AlignmentErrorsExtended> alignmentErrors(theAlignableTracker->alignmentErrors());
-    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors), AlignTransform() ); // don't apply global a second time!
-    std::auto_ptr<AlignmentSurfaceDeformations> aliDeforms(theAlignableTracker->surfaceDeformations());
-    aligner.attachSurfaceDeformations<TrackerGeometry>(&(*theTracker), &(*aliDeforms));
-
-  }
-  if ( doMuon_ ) {
-    std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
-    std::auto_ptr<AlignmentErrorsExtended> dtAlignmentErrorsExtended(  theAlignableMuon->dtAlignmentErrorsExtended());
-    std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
-    std::auto_ptr<AlignmentErrorsExtended> cscAlignmentErrorsExtended( theAlignableMuon->cscAlignmentErrorsExtended());
-
-    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrorsExtended), AlignTransform() ); // don't apply global a second time!
-    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrorsExtended), AlignTransform() ); // nope!
+  for (auto monitor  = theMonitors.begin();
+            monitor != theMonitors.end();
+          ++monitor) {
+     (*monitor)->beginOfJob(theTrackerAlignables,
+                            theMuonAlignables,
+                            theAlignmentParameterStore);
   }
 }
 
 //_____________________________________________________________________________
-// Terminate algorithm
-void PCLTrackerAlProducer::endOfJob()
+void PCLTrackerAlProducer
+::endJob()
 {
-  /* 1) Former: Status AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop) */
-  if (0 == nevent_) {
-    // beginOfJob is usually called by the framework in the first event of the first loop
-    // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
-    // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
-    // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
-    // some geometry information that is not defined either without having seen an event.
-    edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::endOfLoop"
-                               << "Did not process any events in loop"
-                               << ", stop processing without terminating algorithm.";
+  PRINT("called")
+  printf("Events processed: %d", nevent_);
+
+  finish();
+
+  for (auto monitor  = theMonitors.begin();
+            monitor != theMonitors.end();
+          ++monitor) {
+    (*monitor)->endOfJob();
+  }
+
+  for (auto iCal  = theCalibrations.begin();
+            iCal != theCalibrations.end();
+          ++iCal) {
+    (*iCal)->endOfJob();
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::beginRun(const edm::Run& run, const edm::EventSetup& setup)
+{
+  PRINT("called")
+  // Do not forward edm::Run
+  theAlignmentAlgo->beginRun(setup);
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::endRun(const edm::Run& run, const edm::EventSetup& setup)
+{
+  PRINT("called")
+
+  // TODO: Either MP nor HIP is implementing the endRun() method... so this
+  //       seems to be useless?
+
+  if (tkLasBeamTag_.encode().size()) {
+    edm::Handle<TkFittedLasBeamCollection> lasBeams;
+    edm::Handle<TsosVectorCollection> tsoses;
+    run.getByLabel(tkLasBeamTag_, lasBeams);
+    run.getByLabel(tkLasBeamTag_, tsoses);
+
+    theAlignmentAlgo->endRun(EndRunInfo(run.id(), &(*lasBeams),
+                                        &(*tsoses)), setup);
+  } else {
+    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::endRun"
+                              << "No Tk LAS beams to forward to algorithm.";
+    theAlignmentAlgo->endRun(EndRunInfo(run.id(), 0, 0), setup);
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
+                       const edm::EventSetup     & setup)
+{
+  PRINT("called")
+  // Do not forward edm::LuminosityBlock
+  theAlignmentAlgo->beginLuminosityBlock(setup);
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
+                     const edm::EventSetup&      setup)
+{
+  PRINT("called")
+  // Do not forward edm::LuminosityBlock
+  theAlignmentAlgo->endLuminosityBlock(setup);
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::analyze(const edm::Event& event, const edm::EventSetup& setup)
+{
+  PRINT("called")
+  ++nevent_;
+
+  if (setupChanged(setup)) {
+    initAlignmentAlgorithm(setup);
+    initBeamSpot(event);
+  }
+
+  if (!theAlignmentAlgo->processesEvents()) {
+    edm::LogWarning("BadConfig") << "@SUB=PCLTrackerAlProducer::analyze"
+                                 << "Skipping event. The current configuration "
+                                 << "of the alignment algorithm does not need "
+                                 << "to process any events.";
     return;
   }
 
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::endOfLoop"
-                            << "Terminating algorithm.";
-
-  theAlignmentAlgo->terminate();
-  // FIXME: Should this be done in algorithm::terminate(const edm::EventSetup& iSetup)??
-  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
-    (*iCal)->endOfLoop();
-  }
-
-  /*
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->endOfLoop(iSetup);
-  }
-  */
-
-
-
-
-
-  /* 2) Former: void AlignmentProducer::endOfJob() */
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::endOfJob";
-
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->endOfJob();
-  }
-
-  if (0 == nevent_) {
-    edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::endOfJob" << "Did not process any "
-                               << "events in last loop, do not dare to store to DB.";
-  } else {
-    
-    // Expand run ranges and make them unique
-    edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
-    RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
-    if (uniqueRunRanges.empty()) { // create dummy IOV
-      const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-			      cond::timeTypeSpecs[cond::runnumber].endValue);
-      uniqueRunRanges.push_back(runRange);
-    }
-
-    std::vector<AlgebraicVector> beamSpotParameters;
-
-    for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-	 iRunRange != uniqueRunRanges.end();
-	 ++iRunRange) {
-
-      theAlignmentAlgo->setParametersForRunRange(*iRunRange);
-
-      // Save alignments to database
-      if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_)
-        this->writeForRunRange((*iRunRange).first);
-      
-      // Deal with extra alignables, e.g. beam spot
-      if (theAlignableExtras) {
-	Alignables &alis = theAlignableExtras->beamSpot();
-	if (!alis.empty()) {
-	  BeamSpotAlignmentParameters *beamSpotAliPars = dynamic_cast<BeamSpotAlignmentParameters*>(alis[0]->alignmentParameters());
-	  beamSpotParameters.push_back(beamSpotAliPars->parameters());
-	}
-      }
-    }
-    
-    if (theAlignableExtras) {
-      std::ostringstream bsOutput;
-      
-      std::vector<AlgebraicVector>::const_iterator itPar = beamSpotParameters.begin();
-      for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-	   iRunRange != uniqueRunRanges.end();
-	   ++iRunRange, ++itPar) {
-	bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
-	bsOutput << "  Displacement: x=" << (*itPar)[0] << ", y=" << (*itPar)[1] << "\n"; 
-	bsOutput << "  Slope: dx/dz=" << (*itPar)[2] << ", dy/dz=" << (*itPar)[3] << "\n"; 
-      }
-      
-      edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::endOfJob"
-				<< "Parameters for alignable beamspot:\n"
-				<< bsOutput.str();
-    }
-
-    for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
-      (*iCal)->endOfJob();
-    }
-
-  }
-}
-
-
-
-//_____________________________________________________________________________
-// Called at each event
-void PCLTrackerAlProducer::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{
-  ++nevent_;
-  if (watchTrackerAlRcd.check(setup)) {
-    printf("(TProdPCL) PCLTrackerAlProducer::analyze | "
-           "TrackerAlignmentRcd has changed (event nr: %d)\n", nevent_);
-    init(setup);
-  }
-
-
   // reading in survey records
   this->readInSurveyRcds(setup);
-	
-  // Printout event number
-  for ( int i=10; i<10000000; i*=10 )
-    if ( nevent_<10*i && (nevent_%i)==0 )
-      edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::analyze"
-                                << "Events processed: " << nevent_;
-  
+
   // Retrieve trajectories and tracks from the event
   // -> merely skip if collection is empty
-  edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-  if (event.getByLabel(tjTkAssociationMapTag_, m_TrajTracksMap)) {
-    
+  edm::Handle<TrajTrackAssociationCollection> handleTrajTracksCollection;
+
+  if (event.getByLabel(tjTkAssociationMapTag_, handleTrajTracksCollection)) {
     // Form pairs of trajectories and tracks
-    ConstTrajTrackPairCollection trajTracks;
-    for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-          iPair != m_TrajTracksMap->end(); ++iPair) {
-      trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
-    }
-    edm::Handle<reco::BeamSpot> beamSpot;
-    event.getByLabel(beamSpotTag_, beamSpot);
-
-    if (nevent_==1 && theAlignableExtras) {
-      edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::analyze"
-				<< "initializing AlignableBeamSpot" << std::endl;
-      theAlignableExtras->initializeBeamSpot(beamSpot->x0(), beamSpot->y0(), beamSpot->z0(),
-					     beamSpot->dxdz(), beamSpot->dydz());
+    ConstTrajTrackPairs trajTracks;
+    for (auto iter  = handleTrajTracksCollection->begin();
+              iter != handleTrajTracksCollection->end();
+            ++iter) {
+      trajTracks.push_back(ConstTrajTrackPair(&(*(*iter).key), &(*(*iter).val)));
     }
 
-    // Run the alignment algorithm with its input
-    const AliClusterValueMap *clusterValueMapPtr = 0;
-    if(clusterValueMapTag_.encode().size()){//check that the input tag is not empty
+    //check that the input tag is not empty
+    const AliClusterValueMap* clusterValueMapPtr = 0;
+    if (clusterValueMapTag_.encode().size()) {
       edm::Handle<AliClusterValueMap> clusterValueMap;
       event.getByLabel(clusterValueMapTag_, clusterValueMap);
       clusterValueMapPtr = &(*clusterValueMap);
     }
 
-    const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot,
-						      clusterValueMapPtr);
+    const EventInfo eventInfo(event.id(),
+                              trajTracks,
+                              *theBeamSpot,
+                              clusterValueMapPtr);
+
+    // Run the alignment algorithm with its input
     theAlignmentAlgo->run(setup, eventInfo);
 
-
-    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
-	 monitor != theMonitors.end();  ++monitor) {
+    for (auto monitor  = theMonitors.begin();
+              monitor != theMonitors.end();
+            ++monitor) {
       (*monitor)->duringLoop(event, setup, trajTracks); // forward eventInfo?
     }
+
   } else {
     edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::analyze"
-			       << "No track collection found: skipping event";
+                               << "No track collection found: skipping event";
   }
 }
 
 
 
+/******************************************************************************
+ *** PRIVATE METHOD IMPLEMENTATION                                          ***
+ ******************************************************************************/
 
-// ----------------------------------------------------------------------------
-void PCLTrackerAlProducer::beginRun(const edm::Run &run, const edm::EventSetup &setup)
+/*** Code which is independent of Event & Setup
+     Called from constructor ***/
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::createAlignmentAlgorithm(const edm::ParameterSet& config)
 {
-  theAlignmentAlgo->beginRun(setup); // do not forward edm::Run...
+  edm::ParameterSet algoConfig    = config.getParameter<edm::ParameterSet>("algoConfig");
+  edm::VParameterSet iovSelection = config.getParameter<edm::VParameterSet>("RunRangeSelection");
+  algoConfig.addUntrackedParameter<edm::VParameterSet>("RunRangeSelection", iovSelection);
+
+  std::string algoName = algoConfig.getParameter<std::string>("algoName");
+  theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
+
+  if (!theAlignmentAlgo) {
+    throw cms::Exception("BadConfig")
+      << "Couldn't find the called alignment algorithm: " << algoName;
+  }
 }
 
-// ----------------------------------------------------------------------------
-void PCLTrackerAlProducer::endRun(const edm::Run &run, const edm::EventSetup &setup)
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::createMonitors(const edm::ParameterSet& config)
 {
-  // call with or without las beam info...
-  typedef AlignmentAlgorithmBase::EndRunInfo EndRunInfo;
-  if (tkLasBeamTag_.encode().size()) { // non-empty InputTag
-    edm::Handle<TkFittedLasBeamCollection> lasBeams;
-    edm::Handle<TsosVectorCollection> tsoses;
-    run.getByLabel(tkLasBeamTag_, lasBeams);
-    run.getByLabel(tkLasBeamTag_, tsoses);
-    
-    theAlignmentAlgo->endRun(EndRunInfo(run.id(), &(*lasBeams), &(*tsoses)), setup);
+  edm::ParameterSet monitorConfig   = config.getParameter<edm::ParameterSet>("monitorConfig");
+  std::vector<std::string> monitors = monitorConfig.getUntrackedParameter<std::vector<std::string>>("monitors");
+
+  for (auto miter  = monitors.begin();
+            miter != monitors.end();
+          ++miter) {
+    AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(
+      *miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(*miter)
+    );
+
+    if (!newMonitor) {
+      throw cms::Exception("BadConfig") << "Couldn't find monitor named "
+                                        << *miter;
+    }
+
+    theMonitors.push_back(newMonitor);
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::createCalibrations(const edm::ParameterSet& config)
+{
+  edm::VParameterSet calibrations = config.getParameter<edm::VParameterSet>("calibrations");
+
+  for (auto iCalib  = calibrations.begin();
+            iCalib != calibrations.end();
+          ++iCalib) {
+    theCalibrations.push_back(
+      IntegratedCalibrationPluginFactory::get()->create(
+        iCalib->getParameter<std::string>("calibrationName"), *iCalib
+      )
+    );
+  }
+
+  // Not all algorithms support calibrations - so do not pass empty vector
+  // and throw if non-empty and not supported:
+  if (!theCalibrations.empty()) {
+    if (theAlignmentAlgo->supportsCalibrations()) {
+      theAlignmentAlgo->addCalibrations(theCalibrations);
+
+    } else {
+      throw cms::Exception("BadConfig")
+        << "[TrackerAlignmentProducerForPCL::init]\n"
+        << "Configured " << theCalibrations.size() << " calibration(s) "
+        << "for algorithm not supporting it.";
+    }
+  }
+}
+
+
+
+/*** Code which is dependent of Event & Setup
+     Called and checked for each Event ***/
+
+//_____________________________________________________________________________
+bool PCLTrackerAlProducer
+::setupChanged(const edm::EventSetup& setup)
+{
+  PRINT("Checking EventSetup")
+
+  if (watchTrackerAlRcd.check(setup)) {
+    PRINT("TrackerAlignmentRcd has changed")
+
+    /*
+    const auto& rcd = setup.get<TrackerAlignmentRcd>();
+
+    const edm::ValidityInterval& validity = rcd.validityInterval();
+    const edm::IOVSyncValue      first    = validity.first();
+    const edm::IOVSyncValue      last     = validity.last();
+
+    auto eID1 = first.eventID();
+    printf("(TProdPCL) first runnumber: %u\n", eID1.run());
+    printf("(TProdPCL) first event:     %llu\n", eID1.event());
+
+    auto eID2 = last.eventID();
+    printf("(TProdPCL) last runnumber: %u\n", eID2.run());
+    printf("(TProdPCL) last event:     %llu\n", eID2.event());
+    */
+
+    return true;
+  }
+
+  if (watchTrackerAlErrorExtRcd.check(setup)) {
+    PRINT("TrackerAlignmentErrorExtendedRcd has changed")
+    return true;
+  }
+
+  /*
+  if (watchTrackerSurDeRcd.check(setup)) {
+    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
+           "TrackerSurfaceDeformationRcd has changed (event nr: %d)\n", nevent_);
+    return true;
+  }
+  if (watchDTAlRcd.check(setup)) {
+    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
+           "DTAlignmentRcd has changed (event nr: %d)\n", nevent_);
+    return true;
+  }
+  if (watchTrackerDigiGeoRcd.check(setup)) {
+    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
+           "TrackerDigiGeometryRcd has changed (event nr: %d)\n", nevent_);
+    return true;
+  }
+  if (watchGlobalPosRcd.check(setup)) {
+    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
+           "GlobalPositionRcd has changed (event nr: %d)\n", nevent_);
+    return true;
+  }
+  if (watchIdealGeoRcd.check(setup)) {
+    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
+           "IdealGeometryRecord has changed (event nr: %d)\n", nevent_);
+    return true;
+  }
+  */
+
+  return false;
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::initAlignmentAlgorithm(const edm::EventSetup& setup)
+{
+  PRINT("called")
+
+  /* 1) Former: AlignmentProducer::beginOfJob(const edm::EventSetup& setup) */
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob";
+
+  // Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
+
+  // Create the geometries from the ideal geometries (first time only)
+  //std::shared_ptr<TrackingGeometry> theTrackerGeometry;
+  createGeometries(setup);
+
+
+  applyAlignmentsToDB(setup);
+  createAlignables(tTopo);
+  buildParameterStore();
+  applyMisalignment();
+
+
+  // Initialize alignment algorithm and integrated calibration and pass the latter to algorithm
+  theAlignmentAlgo->initialize(setup,
+                               theTrackerAlignables,
+                               theMuonAlignables,
+                               theExtraAlignables,
+                               theAlignmentParameterStore);
+
+  applyAlignmentsToGeometry();
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::initBeamSpot(const edm::Event& event)
+{
+  event.getByLabel(beamSpotTag_, theBeamSpot);
+
+  if (theExtraAlignables) {
+    edm::LogInfo("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::initBeamSpot"
+                              << "Initializing AlignableBeamSpot";
+
+    theExtraAlignables->initializeBeamSpot(theBeamSpot->x0(),
+                                           theBeamSpot->y0(),
+                                           theBeamSpot->z0(),
+                                           theBeamSpot->dxdz(),
+                                           theBeamSpot->dydz());
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::createGeometries(const edm::EventSetup& setup)
+{
+  if (doTracker_) {
+    edm::ESHandle<GeometricDet> geometricDet;
+    setup.get<IdealGeometryRecord>().get(geometricDet);
+
+    TrackerGeomBuilderFromGeometricDet trackerBuilder;
+    theTrackerGeometry = boost::shared_ptr<TrackerGeometry>(
+      trackerBuilder.build(&(*geometricDet), theParameterSet)
+    );
+  }
+
+  if (doMuon_) {
+    edm::ESTransientHandle<DDCompactView> cpv;
+    edm::ESHandle<MuonDDDConstants> mdc;
+
+    setup.get<IdealGeometryRecord>().get(cpv);
+    setup.get<MuonNumberingRecord>().get(mdc);
+
+    theMuonDTGeometry  = boost::shared_ptr<DTGeometry> (new DTGeometry);
+    theMuonCSCGeometry = boost::shared_ptr<CSCGeometry>(new CSCGeometry);
+
+    DTGeometryBuilderFromDDD  DTGeometryBuilder;
+    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+    DTGeometryBuilder.build (theMuonDTGeometry,  &(*cpv), *mdc);
+    CSCGeometryBuilder.build(theMuonCSCGeometry, &(*cpv), *mdc);
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::applyAlignmentsToDB(const edm::EventSetup& setup)
+{
+  // Retrieve and apply alignments, if requested (requires z setup)
+  if (applyDbAlignment_) {
+    // we need GlobalPositionRcd - and have to keep track for later removal
+    // before writing again to DB...
+    edm::ESHandle<Alignments> globalPositionRcd;
+    setup.get<GlobalPositionRcd>().get(globalPositionRcd);
+    globalPositions_ = new Alignments(*globalPositionRcd);
+
+    if (doTracker_) {
+      applyDB<TrackerGeometry,
+              TrackerAlignmentRcd,
+              TrackerAlignmentErrorExtendedRcd>(
+        &(*theTrackerGeometry),
+        setup,
+        align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker))
+      );
+
+      applyDB<TrackerGeometry,
+              TrackerSurfaceDeformationRcd>(
+          &(*theTrackerGeometry),
+          setup
+      );
+    }
+
+    if (doMuon_) {
+      applyDB<DTGeometry,
+              DTAlignmentRcd,
+              DTAlignmentErrorExtendedRcd> (
+        &(*theMuonDTGeometry),
+        setup,
+        align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon))
+      );
+
+      applyDB<CSCGeometry,
+              CSCAlignmentRcd,
+              CSCAlignmentErrorExtendedRcd> (
+        &(*theMuonCSCGeometry),
+        setup,
+        align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon))
+      );
+    }
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::createAlignables(const TrackerTopology* const tTopo)
+{
+  if (doTracker_) {
+    theTrackerAlignables = new AlignableTracker(&(*theTrackerGeometry), tTopo);
+  }
+
+  if (doMuon_) {
+     theMuonAlignables = new AlignableMuon(&(*theMuonDTGeometry), &(*theMuonCSCGeometry));
+  }
+
+  if (useExtras_) {
+    theExtraAlignables = new AlignableExtras();
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::buildParameterStore()
+{
+  // Create alignment parameter builder
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::buildParameterStore"
+                            << "Creating AlignmentParameterBuilder";
+
+  edm::ParameterSet alParamBuildCfg = theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
+  edm::ParameterSet alParamStoreCfg = theParameterSet.getParameter<edm::ParameterSet>("ParameterStore");
+
+  AlignmentParameterBuilder alignmentParameterBuilder(theTrackerAlignables,
+                                                      theMuonAlignables,
+                                                      theExtraAlignables,
+                                                      alParamBuildCfg);
+
+  // Fix alignables if requested
+  if (stNFixAlignables_ > 0) {
+    alignmentParameterBuilder.fixAlignables(stNFixAlignables_);
+  }
+
+  // Get list of alignables
+  Alignables theAlignables = alignmentParameterBuilder.alignables();
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::buildParameterStore"
+                            << "got " << theAlignables.size() << " alignables";
+
+  // Create AlignmentParameterStore
+  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables, alParamStoreCfg);
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::buildParameterStore"
+                            << "AlignmentParameterStore created!";
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::applyMisalignment()
+{
+  // Apply misalignment scenario to alignable tracker and muon if requested
+  // WARNING: this assumes scenarioConfig can be passed to both muon and tracker
+
+  if (doMisalignmentScenario_ && (doTracker_ || doMuon_)) {
+    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
+                              << "Applying misalignment scenario to "
+                              << (doTracker_ ? "tracker" : "")
+                              << (doMuon_    ? (doTracker_ ? " and muon" : "muon") : ".");
+    edm::ParameterSet scenarioConfig = theParameterSet.getParameter<edm::ParameterSet>("MisalignmentScenario");
+
+    if (doTracker_) {
+      TrackerScenarioBuilder scenarioBuilder(theTrackerAlignables);
+      scenarioBuilder.applyScenario(scenarioConfig);
+    }
+    if (doMuon_) {
+      MuonScenarioBuilder muonScenarioBuilder(theMuonAlignables);
+      muonScenarioBuilder.applyScenario(scenarioConfig);
+    }
+
   } else {
-    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::endRun"
-			      << "No Tk LAS beams to forward to algorithm.";
-    theAlignmentAlgo->endRun(EndRunInfo(run.id(), 0, 0), setup);
+    edm::LogInfo("Alignment") << "@SUB=TrackerAlignmentProducerForPCL::beginOfJob"
+                              << "NOT applying misalignment scenario!";
   }
+
+  // Apply simple misalignment
+  const std::string sParSel(theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
+  //simpleMisalignment(theAlignables, sParSel, stRandomShift_, stRandomRotation_, true);
+  simpleMisalignment(theAlignmentParameterStore->alignables(), sParSel, stRandomShift_, stRandomRotation_, true);
 }
 
-// ----------------------------------------------------------------------------
-void PCLTrackerAlProducer::beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
-				    const edm::EventSetup &setup)
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::simpleMisalignment(const Alignables& alivec, const std::string& selection,
+                     float shift, float rot, bool local)
 {
-  theAlignmentAlgo->beginLuminosityBlock(setup); // do not forward edm::LuminosityBlock
-}
-
-// ----------------------------------------------------------------------------
-void PCLTrackerAlProducer::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
-				  const edm::EventSetup &setup)
-{
-  theAlignmentAlgo->endLuminosityBlock(setup); // do not forward edm::LuminosityBlock
-}
-
-// ----------------------------------------------------------------------------
-
-void PCLTrackerAlProducer::simpleMisalignment_(const Alignables &alivec, const std::string &selection,
-                                            float shift, float rot, bool local)
-{
-
   std::ostringstream output; // collecting output
 
   if (shift > 0. || rot > 0.) {
@@ -563,42 +672,50 @@ void PCLTrackerAlProducer::simpleMisalignment_(const Alignables &alivec, const s
     if (selection != "-1") {
       AlignmentParameterSelector aSelector(0,0); // no alignable needed here...
       const std::vector<char> cSel(aSelector.convertParamSel(selection));
+
       if (cSel.size() < RigidBodyAlignmentParameters::N_PARAM) {
-	throw cms::Exception("BadConfig") 
-	  << "[PCLTrackerAlProducer::simpleMisalignment_]\n"
-	  << "Expect selection string '" << selection << "' to be at least of length " 
-	  << RigidBodyAlignmentParameters::N_PARAM << " or to be '-1'.\n"
-	  << "(Most probably you have to adjust the parameter 'parameterSelectorSimple'.)";
+        throw cms::Exception("BadConfig")
+          << "[PCLTrackerAlProducer::simpleMisalignment_]\n"
+          << "Expect selection string '" << selection << "' to be at least of length "
+          << RigidBodyAlignmentParameters::N_PARAM << " or to be '-1'.\n"
+          << "(Most probably you have to adjust the parameter 'parameterSelectorSimple'.)";
       }
-      for (std::vector<char>::const_iterator cIter = cSel.begin(); cIter != cSel.end(); ++cIter) {
+
+      for (auto cIter  = cSel.begin();
+                cIter != cSel.end();
+              ++cIter) {
         commSel.push_back(*cIter == '0' ? false : true);
       }
-      output << "parameters defined by (" << selection 
+      output << "parameters defined by (" << selection
              << "), representing (x,y,z,alpha,beta,gamma),";
+
     } else {
       output << "the active parameters of each alignable,";
     }
     output << " in " << (local ? "local" : "global") << " frame.";
 
-    for (std::vector<Alignable*>::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
-      Alignable* ali=(*it);
+    for (auto it  = alivec.begin();
+              it != alivec.end();
+            ++it) {
+      Alignable* ali = (*it);
       std::vector<bool> mysel(commSel.empty() ? ali->alignmentParameters()->selector() : commSel);
-      
+
       if (std::abs(shift)>0.00001) {
-	double s0 = 0., s1 = 0., s2 = 0.;
+        double s0 = 0., s1 = 0., s2 = 0.;
+
         if (mysel[RigidBodyAlignmentParameters::dx]) s0 = shift * double(random()%1000-500)/500.;
         if (mysel[RigidBodyAlignmentParameters::dy]) s1 = shift * double(random()%1000-500)/500.;
         if (mysel[RigidBodyAlignmentParameters::dz]) s2 = shift * double(random()%1000-500)/500.;
-        
-        if (local) ali->move( ali->surface().toGlobal(align::LocalVector(s0,s1,s2)) );
-	else       ali->move( align::GlobalVector(s0,s1,s2) );
 
-      //AlignmentPositionError ape(dx,dy,dz);
-      //ali->addAlignmentPositionError(ape);
+        if (local) ali->move( ali->surface().toGlobal(align::LocalVector(s0,s1,s2)) );
+        else       ali->move( align::GlobalVector(s0,s1,s2) );
+
+        //AlignmentPositionError ape(dx,dy,dz);
+        //ali->addAlignmentPositionError(ape);
       }
 
       if (std::abs(rot)>0.00001) {
-	align::EulerAngles r(3);
+        align::EulerAngles r(3);
         if (mysel[RigidBodyAlignmentParameters::dalpha]) r(1)=rot*double(random()%1000-500)/500.;
         if (mysel[RigidBodyAlignmentParameters::dbeta])  r(2)=rot*double(random()%1000-500)/500.;
         if (mysel[RigidBodyAlignmentParameters::dgamma]) r(3)=rot*double(random()%1000-500)/500.;
@@ -606,203 +723,131 @@ void PCLTrackerAlProducer::simpleMisalignment_(const Alignables &alivec, const s
         const align::RotationType mrot = align::toMatrix(r);
         if (local) ali->rotateInLocalFrame(mrot);
         else       ali->rotateInGlobalFrame(mrot);
-        
-      //ali->addAlignmentPositionErrorFromRotation(mrot);
+        //ali->addAlignmentPositionErrorFromRotation(mrot);
       }
-    } // end loop on alignables
+    }
+
   } else {
     output << "No simple misalignment added!";
   }
+
   edm::LogInfo("Alignment")  << "@SUB=PCLTrackerAlProducer::simpleMisalignment_" << output.str();
 }
 
-
-//__________________________________________________________________________________________________
-void PCLTrackerAlProducer::createGeometries_( const edm::EventSetup& iSetup )
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::applyAlignmentsToGeometry()
 {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get( cpv );
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::startingNewLoop"
+                            << "Now physically apply alignments to  geometry...";
 
-   if (doTracker_) {
-     edm::ESHandle<GeometricDet> geometricDet;
-     iSetup.get<IdealGeometryRecord>().get( geometricDet );
-     edm::ESHandle<PTrackerParameters> ptp;
-     iSetup.get<PTrackerParametersRcd>().get( ptp );
-     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp ));
-   }
+  // Propagate changes to reconstruction geometry (from initialisation or iteration)
+  GeometryAligner aligner;
 
-   if (doMuon_) {
-     edm::ESHandle<MuonDDDConstants> mdc;
-     iSetup.get<MuonNumberingRecord>().get(mdc);
-     DTGeometryBuilderFromDDD DTGeometryBuilder;
-     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-     theMuonDT = boost::shared_ptr<DTGeometry>(new DTGeometry );
-     DTGeometryBuilder.build( theMuonDT, &(*cpv), *mdc);
-     theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
-     CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
-   }
-}
+  if (doTracker_) {
+    std::auto_ptr<Alignments>                   alignments(     theTrackerAlignables->alignments());
+    std::auto_ptr<AlignmentErrorsExtended>      alignmentErrExt(theTrackerAlignables->alignmentErrors());
+    std::auto_ptr<AlignmentSurfaceDeformations> aliDeforms(     theTrackerAlignables->surfaceDeformations());
 
-void PCLTrackerAlProducer::addSurveyInfo_(Alignable* ali)
-{
-  const std::vector<Alignable*>& comp = ali->components();
+    aligner.applyAlignments<TrackerGeometry>(
+      &(*theTrackerGeometry),
+      &(*alignments),
+      &(*alignmentErrExt),
+      AlignTransform()
+    ); // don't apply global a second time!
 
-  unsigned int nComp = comp.size();
-
-  for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo_(comp[i]);
-
-  const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
-
-  if ( ali->id() != error.rawId() ||
-       ali->alignableObjectId() != error.structureType() )
-  {
-    throw cms::Exception("DatabaseError")
-      << "Error reading survey info from DB. Mismatched id!";
+    aligner.attachSurfaceDeformations<TrackerGeometry>(
+      &(*theTrackerGeometry),
+      &(*aliDeforms)
+    );
   }
 
-  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
-  const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
+  if (doMuon_) {
+    std::auto_ptr<Alignments> dtAlignments( theMuonAlignables->dtAlignments());
+    std::auto_ptr<Alignments> cscAlignments(theMuonAlignables->cscAlignments());
 
-  AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
-			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
-					      rot.yx(), rot.yy(), rot.yz(),
-					      rot.zx(), rot.zy(), rot.zz() ) );
+    std::auto_ptr<AlignmentErrorsExtended> dtAlignmentErrExt(
+      theMuonAlignables->dtAlignmentErrorsExtended()
+    );
+    std::auto_ptr<AlignmentErrorsExtended> cscAlignmentErrExt(
+      theMuonAlignables->cscAlignmentErrorsExtended()
+    );
 
-  surf.setWidth( ali->surface().width() );
-  surf.setLength( ali->surface().length() );
+    aligner.applyAlignments<DTGeometry>(
+      &(*theMuonDTGeometry),
+      &(*dtAlignments),
+      &(*dtAlignmentErrExt),
+      AlignTransform()
+    ); // don't apply global a second time!
 
-  ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
-
-  ++theSurveyIndex;
+    aligner.applyAlignments<CSCGeometry>(
+      &(*theMuonCSCGeometry),
+      &(*cscAlignments),
+      &(*cscAlignmentErrExt),
+      AlignTransform()
+    ); // nope!
+  }
 }
 
-void PCLTrackerAlProducer::readInSurveyRcds( const edm::EventSetup& iSetup ){
-	
-  // Get Survey Rcds and add Survey Info
-  if ( doTracker_ && useSurvey_ ){
-    bool tkSurveyBool = watchTkSurveyRcd_.check(iSetup);
-    bool tkSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-    edm::LogInfo("Alignment") << "watcher tksurveyrcd: " << tkSurveyBool;
-    edm::LogInfo("Alignment") << "watcher tksurveyerrrcd: " << tkSurveyErrBool;
-    if ( tkSurveyBool || tkSurveyErrBool){
-      
-      edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
-      edm::ESHandle<Alignments> surveys;
-      edm::ESHandle<SurveyErrors> surveyErrors;
-      
-      iSetup.get<TrackerSurveyRcd>().get(surveys);
-      iSetup.get<TrackerSurveyErrorExtendedRcd>().get(surveyErrors);
-      
-      theSurveyIndex  = 0;
-      theSurveyValues = &*surveys;
-      theSurveyErrors = &*surveyErrors;
-      addSurveyInfo_(theAlignableTracker);
-    }
-  }
-  
-  if ( doMuon_ && useSurvey_) {
-    bool DTSurveyBool = watchTkSurveyRcd_.check(iSetup);
-    bool DTSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-    bool CSCSurveyBool = watchTkSurveyRcd_.check(iSetup);
-    bool CSCSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-    
-    if ( DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool ){
-      edm::ESHandle<Alignments> dtSurveys;
-      edm::ESHandle<SurveyErrors> dtSurveyErrors;
-      edm::ESHandle<Alignments> cscSurveys;
-      edm::ESHandle<SurveyErrors> cscSurveyErrors;
-      
-      iSetup.get<DTSurveyRcd>().get(dtSurveys);
-      iSetup.get<DTSurveyErrorExtendedRcd>().get(dtSurveyErrors);
-      iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-      iSetup.get<CSCSurveyErrorExtendedRcd>().get(cscSurveyErrors);
-      
-      theSurveyIndex  = 0;
-      theSurveyValues = &*dtSurveys;
-      theSurveyErrors = &*dtSurveyErrors;
-      std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
-      for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-	addSurveyInfo_(*iter);
-      }
-      
-      theSurveyIndex  = 0;
-      theSurveyValues = &*cscSurveys;
-      theSurveyErrors = &*cscSurveyErrors;
-      std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
-      for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-	addSurveyInfo_(*iter);
-      }
-    }
-  }
-
-}
-
-
-//////////////////////////////////////////////////
-// a templated method - but private, so not accessible from outside
-// ==> does not have to be in header file
+//_____________________________________________________________________________
 template<class G, class Rcd, class ErrRcd>
-void PCLTrackerAlProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
-				const AlignTransform &globalCoordinates) const
+void PCLTrackerAlProducer
+::applyDB(G* geometry, const edm::EventSetup& setup,
+          const AlignTransform& globalCoordinates) const
 {
   // 'G' is the geometry class for that DB should be applied,
-  // 'Rcd' is the record class for its Alignments 
+  // 'Rcd' is the record class for its Alignments
   // 'ErrRcd' is the record class for its AlignmentErrorsExtended
   // 'globalCoordinates' are global transformation for this geometry
 
-  const Rcd & record = iSetup.get<Rcd>();
+  const Rcd& record = setup.get<Rcd>();
   if (checkDbAlignmentValidity_) {
     const edm::ValidityInterval & validity = record.validityInterval();
     const edm::IOVSyncValue first = validity.first();
     const edm::IOVSyncValue last = validity.last();
-    if (first!=edm::IOVSyncValue::beginOfTime() ||
-	last!=edm::IOVSyncValue::endOfTime()) {
+
+    if (first != edm::IOVSyncValue::beginOfTime() ||
+        last  != edm::IOVSyncValue::endOfTime()) {
       throw cms::Exception("DatabaseError")
-	<< "@SUB=PCLTrackerAlProducer::applyDB"
-	<< "\nTrying to apply "
-	<< record.key().name()
-	<< " with multiple IOVs in tag.\n"
-	<< "Validity range is "
-	<< first.eventID().run() << " - " << last.eventID().run();
+        << "@SUB=PCLTrackerAlProducer::applyDB"
+        << "\nTrying to apply " << record.key().name()
+        << " with multiple IOVs in tag.\nValidity range is "
+        << first.eventID().run() << " - " << last.eventID().run();
     }
   }
 
   edm::ESHandle<Alignments> alignments;
   record.get(alignments);
 
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<ErrRcd>().get(alignmentErrors);
+  edm::ESHandle<AlignmentErrorsExtended> alignmentErrExt;
+  setup.get<ErrRcd>().get(alignmentErrExt);
 
   GeometryAligner aligner;
-  aligner.applyAlignments<G>(geometry, &(*alignments), &(*alignmentErrors),
-			     globalCoordinates);
+  aligner.applyAlignments<G>(geometry, &(*alignments), &(*alignmentErrExt),
+                             globalCoordinates);
 }
 
-
-//////////////////////////////////////////////////
-// a templated method - but private, so not accessible from outside
-// ==> does not have to be in header file
+//_____________________________________________________________________________
 template<class G, class DeformationRcd>
-void PCLTrackerAlProducer::applyDB(G* geometry, const edm::EventSetup &iSetup) const
+void PCLTrackerAlProducer
+::applyDB(G* geometry, const edm::EventSetup& setup) const
 {
   // 'G' is the geometry class for that DB should be applied,
-  // 'DeformationRcd' is the record class for its surface deformations 
+  // 'DeformationRcd' is the record class for its surface deformations
 
-  const DeformationRcd & record = iSetup.get<DeformationRcd>();
+  const DeformationRcd & record = setup.get<DeformationRcd>();
   if (checkDbAlignmentValidity_) {
     const edm::ValidityInterval & validity = record.validityInterval();
     const edm::IOVSyncValue first = validity.first();
     const edm::IOVSyncValue last = validity.last();
-    if (first!=edm::IOVSyncValue::beginOfTime() ||
-	last!=edm::IOVSyncValue::endOfTime()) {
+
+    if (first != edm::IOVSyncValue::beginOfTime() ||
+        last  != edm::IOVSyncValue::endOfTime()) {
       throw cms::Exception("DatabaseError")
-	<< "@SUB=PCLTrackerAlProducer::applyDB"
-	<< "\nTrying to apply "
-	<< record.key().name()
-	<< " with multiple IOVs in tag.\n"
-	<< "Validity range is "
-	<< first.eventID().run() << " - " << last.eventID().run();
+        << "@SUB=PCLTrackerAlProducer::applyDB"
+        << "\nTrying to apply " << record.key().name()
+        << " with multiple IOVs in tag.\nValidity range is "
+        << first.eventID().run() << " - " << last.eventID().run();
     }
   }
   edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
@@ -812,111 +857,412 @@ void PCLTrackerAlProducer::applyDB(G* geometry, const edm::EventSetup &iSetup) c
   aligner.attachSurfaceDeformations<G>(geometry, &(*surfaceDeformations));
 }
 
-//////////////////////////////////////////////////
-void PCLTrackerAlProducer::writeForRunRange(cond::Time_t time)
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::readInSurveyRcds(const edm::EventSetup& setup)
 {
-  if ( doTracker_ ) { // first tracker
-    const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
-    if (globalPositions_) { // i.e. applied before in applyDB
-      trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
-						     DetId(DetId::Tracker));
+  // Get Survey Rcds and add Survey Info
+  if (doTracker_ && useSurvey_){
+    bool tkSurveyBool    = watchTkSurveyRcd_.check(setup);
+    bool tkSurveyErrBool = watchTkSurveyErrExtRcd_.check(setup);
+
+    if (tkSurveyBool || tkSurveyErrBool) {
+      edm::ESHandle<Alignments>   surveys;
+      edm::ESHandle<SurveyErrors> surveyErrors;
+      setup.get<TrackerSurveyRcd>().             get(surveys);
+      setup.get<TrackerSurveyErrorExtendedRcd>().get(surveyErrors);
+
+      theSurveyIndex  = 0;
+      theSurveyValues = &(*surveys);
+      theSurveyErrors = &(*surveyErrors);
+
+      addSurveyInfo(theTrackerAlignables);
     }
-	
-    Alignments *alignments = theAlignableTracker->alignments();
-    AlignmentErrorsExtended *alignmentErrors = theAlignableTracker->alignmentErrors();
-    this->writeDB(alignments, "TrackerAlignmentRcd",
-		  alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal,
-		  time);	
   }
-      
-  if ( doMuon_ ) { // now muon
-    const AlignTransform *muonGlobal = 0; // will be 'removed' from constants 
-    if (globalPositions_) { // i.e. applied before in applyDB
-      muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
-						  DetId(DetId::Muon));
+
+  if (doMuon_ && useSurvey_) {
+    bool DTSurveyBool     = watchTkSurveyRcd_.check(setup);
+    bool DTSurveyErrBool  = watchTkSurveyErrExtRcd_.check(setup);
+    bool CSCSurveyBool    = watchTkSurveyRcd_.check(setup);
+    bool CSCSurveyErrBool = watchTkSurveyErrExtRcd_.check(setup);
+
+    if (DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool){
+      edm::ESHandle<Alignments>   dtSurveys;
+      edm::ESHandle<SurveyError>  dtSurveyErrors;
+      edm::ESHandle<Alignments>   cscSurveys;
+      edm::ESHandle<SurveyErrors> cscSurveyErrors;
+      setup.get<DTSurveyRcd>().              get(dtSurveys);
+      setup.get<DTSurveyErrorExtendedRcd>(). get(dtSurveyErrors);
+      setup.get<CSCSurveyRcd>().             get(cscSurveys);
+      setup.get<CSCSurveyErrorExtendedRcd>().get(cscSurveyErrors);
+
+      theSurveyIndex  = 0;
+      theSurveyValues = &(*dtSurveys);
+      theSurveyErrors = &(*dtSurveyErrors);
+
+      Alignables barrels = theMuonAlignables->DTBarrel();
+      for (auto iter  = barrels.begin();
+                iter != barrels.end();
+              ++iter) {
+        addSurveyInfo(*iter);
+      }
+
+      theSurveyIndex  = 0;
+      theSurveyValues = &(*cscSurveys);
+      theSurveyErrors = &(*cscSurveyErrors);
+
+      Alignables endcaps = theMuonAlignables->CSCEndcaps();
+      for (auto iter  = endcaps.begin();
+                iter != endcaps.end();
+              ++iter) {
+        addSurveyInfo(*iter);
+      }
     }
-    // Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
-    Alignments      *alignments       = theAlignableMuon->dtAlignments();
-    AlignmentErrorsExtended *alignmentErrors  = theAlignableMuon->dtAlignmentErrorsExtended();
-    this->writeDB(alignments, "DTAlignmentRcd",
-		  alignmentErrors, "DTAlignmentErrorExtendedRcd", muonGlobal,
-		  time);
-    
-    // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
-    alignments       = theAlignableMuon->cscAlignments();
-    alignmentErrors  = theAlignableMuon->cscAlignmentErrorsExtended();
-    this->writeDB(alignments, "CSCAlignmentRcd",
-		  alignmentErrors, "CSCAlignmentErrorExtendedRcd", muonGlobal,
-		  time);
-  }
-      
-  // Save surface deformations to database
-  if (saveDeformationsToDB_ && doTracker_) {
-    AlignmentSurfaceDeformations *alignmentSurfaceDeformations = theAlignableTracker->surfaceDeformations();
-    this->writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd", time);
   }
 }
 
-//////////////////////////////////////////////////
-void PCLTrackerAlProducer::writeDB(Alignments *alignments,
-				const std::string &alignRcd,
-				AlignmentErrorsExtended *alignmentErrors,
-				const std::string &errRcd,
-				const AlignTransform *globalCoordinates,
-				cond::Time_t time) const
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::addSurveyInfo(Alignable* alignable)
 {
-  Alignments * tempAlignments = alignments;
-  AlignmentErrorsExtended * tempAlignmentErrorsExtended = alignmentErrors;
+  edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
+
+  const std::vector<Alignable*>& comp = alignable->components();
+  for (size_t i = 0; i < comp.size(); ++i) {
+    addSurveyInfo(comp[i]);
+  }
+
+  const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
+
+  if (alignable->id()                != error.rawId() ||
+      alignable->alignableObjectId() != error.structureType()) {
+    throw cms::Exception("DatabaseError")
+      << "Error reading survey info from DB. Mismatched id!";
+  }
+
+  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
+  const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
+
+  AlignableSurface surf(align::PositionType(pos.x(),  pos.y(),  pos.z()),
+                        align::RotationType(rot.xx(), rot.xy(), rot.xz(),
+                                            rot.yx(), rot.yy(), rot.yz(),
+                                            rot.zx(), rot.zy(), rot.zz()));
+  surf.setWidth (alignable->surface().width());
+  surf.setLength(alignable->surface().length());
+
+  alignable->setSurvey(new SurveyDet(surf, error.matrix()));
+
+  ++theSurveyIndex;
+}
+
+/* TODO: One method for applying alignments to a given geometry?
+ *
+template<typename Geometry>
+void PCLTrackerAlProducer::applyAlignmentsToGeometry2(Geometry* geometry,
+                                                     Alignments* al,
+                                                     AlignmentErrors* alErrs,
+                                                     AlignTransform& globalCoordinates) {
+  GeometryAligner aligner;
+
+  aligner.applyAlignments<Geometry>(
+      geometry,
+      al,
+      alErrs,
+      globalCoordinates
+  );
+}
+*/
+
+
+
+/*** Code for writing results to database
+     Called from endJob() ***/
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::finish()
+{
+  PRINT("called")
+
+  /* 1) Former: Status AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop) */
+  if (theAlignmentAlgo->processesEvents()) {
+    if (nevent_ == 0) {
+        // beginOfJob is usually called by the framework in the first event of the first loop
+        // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
+        // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
+        // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
+        // some geometry information that is not defined either without having seen an event.
+        edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
+                                   << "Did not process any events, stop "
+                                   << "without terminating algorithm.";
+        return;
+      }
+
+      edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
+                                << "Terminating algorithm.";
+      theAlignmentAlgo->terminate();
+  }
+
+  /* !!! TODO: HACK for MillePede !!!
+     Because the pede-part of MillePede needs at least 1 Event for initializing
+     the geometry */
+  if (nevent_ == 0) return;
+
+  /* 2) Former: void AlignmentProducer::endOfJob() */
+  storeAlignmentsToDB();
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::storeAlignmentsToDB()
+{
+  if (theAlignmentAlgo->processesEvents() && nevent_ == 0) {
+    edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::endOfJob"
+                               << "Did not process any events in last loop, "
+                               << "do not dare to store to DB.";
+  } else {
+
+    // Expand run ranges and make them unique
+    edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
+    RunRanges uniqueRunRanges(makeNonOverlappingRunRanges(runRangeSelectionVPSet));
+
+    // create dummy IOV
+    if (uniqueRunRanges.empty()) {
+      const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
+                              cond::timeTypeSpecs[cond::runnumber].endValue);
+      uniqueRunRanges.push_back(runRange);
+    }
+
+    std::vector<AlgebraicVector> beamSpotParameters;
+
+    for (auto iRunRange  = uniqueRunRanges.begin();
+              iRunRange != uniqueRunRanges.end();
+            ++iRunRange) {
+
+      theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+
+      // Save alignments to database
+      if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
+        writeForRunRange((*iRunRange).first);
+      }
+
+      // Deal with extra alignables, e.g. beam spot
+      if (theExtraAlignables) {
+        Alignables &alis = theExtraAlignables->beamSpot();
+        if (!alis.empty()) {
+          BeamSpotAlignmentParameters *beamSpotAliPars = dynamic_cast<BeamSpotAlignmentParameters*>(alis[0]->alignmentParameters());
+          beamSpotParameters.push_back(beamSpotAliPars->parameters());
+        }
+      }
+    }
+
+
+
+    if (theExtraAlignables) {
+      std::ostringstream bsOutput;
+
+      auto itPar = beamSpotParameters.begin();
+      for (auto iRunRange = uniqueRunRanges.begin();
+                iRunRange != uniqueRunRanges.end();
+              ++iRunRange, ++itPar) {
+        bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
+        bsOutput << "  Displacement: x=" << (*itPar)[0] << ", y=" << (*itPar)[1] << "\n";
+        bsOutput << "  Slope: dx/dz=" << (*itPar)[2] << ", dy/dz=" << (*itPar)[3] << "\n";
+      }
+
+      edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::endOfJob"
+                                << "Parameters for alignable beamspot:\n"
+                                << bsOutput.str();
+    }
+  }
+}
+
+//_____________________________________________________________________________
+RunRanges PCLTrackerAlProducer
+::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
+{
+  static bool oldRunRangeSelectionWarning = false;
+
+  const RunNumber beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
+  const RunNumber endValue   = cond::timeTypeSpecs[cond::runnumber].endValue;
+
+  RunRanges uniqueRunRanges;
+  if (!RunRangeSelectionVPSet.empty()) {
+
+    std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
+
+    for (auto ipset  = RunRangeSelectionVPSet.begin();
+              ipset != RunRangeSelectionVPSet.end();
+            ++ipset) {
+      const std::vector<std::string> RunRangeStrings = (*ipset).getParameter<std::vector<std::string> >("RunRanges");
+
+      for (auto irange  = RunRangeStrings.begin();
+                irange != RunRangeStrings.end();
+              ++irange) {
+
+        if ((*irange).find(':') == std::string::npos) {
+
+          RunNumber first = beginValue;
+          long int temp = strtol((*irange).c_str(), 0, 0);
+          if (temp!=-1) first = temp;
+          uniqueFirstRunNumbers[first] = first;
+
+        } else {
+          if (!oldRunRangeSelectionWarning) {
+            edm::LogWarning("BadConfig") << "@SUB=PCLTrackerAlProducer::makeNonOverlappingRunRanges"
+                         << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
+                         << "number is used internally. The number of the last run is ignored and can be\n"
+                         << "safely removed from the config file.\n";
+            oldRunRangeSelectionWarning = true;
+          }
+
+          std::vector<std::string> tokens = edm::tokenize(*irange, ":");
+          long int temp;
+          RunNumber first = beginValue;
+          temp = strtol(tokens[0].c_str(), 0, 0);
+          if (temp!=-1) first = temp;
+          uniqueFirstRunNumbers[first] = first;
+        }
+      }
+    }
+
+    for (auto iFirst  = uniqueFirstRunNumbers.begin();
+              iFirst != uniqueFirstRunNumbers.end();
+            ++iFirst) {
+      uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, endValue));
+    }
+
+    for (size_t i = 0; i < uniqueRunRanges.size()-1; ++i) {
+      uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
+    }
+
+  } else {
+    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
+  }
+
+  return uniqueRunRanges;
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::writeForRunRange(cond::Time_t time)
+{
+  // first tracker
+  if (doTracker_) {
+    const AlignTransform* trackerGlobal = 0; // will be 'removed' from constants
+    if (globalPositions_) { // i.e. applied before in applyDB
+      trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+                                                     DetId(DetId::Tracker));
+    }
+
+    // theTrackerAlignables->alignments calls new
+    Alignments*              alignments      = theTrackerAlignables->alignments();
+    AlignmentErrorsExtended* alignmentErrExt = theTrackerAlignables->alignmentErrors();
+
+    writeDB(alignments, "TrackerAlignmentRcd",
+            alignmentErrExt, "TrackerAlignmentErrorExtendedRcd",
+            trackerGlobal,
+            time);
+  }
+
+  // Save surface deformations to database
+  if (doTracker_ && saveDeformationsToDB_) {
+    AlignmentSurfaceDeformations* alignmentSurfaceDeformations = theTrackerAlignables->surfaceDeformations();
+    writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd", time);
+  }
+
+  // now muon
+  if (doMuon_) {
+    const AlignTransform* muonGlobal = 0; // will be 'removed' from constants
+    if (globalPositions_) { // i.e. applied before in applyDB
+      muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+                                                  DetId(DetId::Muon));
+    }
+
+    // Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
+    Alignments*              alignments      = theMuonAlignables->dtAlignments();
+    AlignmentErrorsExtended* alignmentErrExt = theMuonAlignables->dtAlignmentErrorsExtended();
+
+    writeDB(alignments, "DTAlignmentRcd",
+            alignmentErrExt, "DTAlignmentErrorExtendedRcd",
+            muonGlobal,
+            time);
+
+    // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
+    alignments      = theMuonAlignables->cscAlignments();
+    alignmentErrExt = theMuonAlignables->cscAlignmentErrorsExtended();
+
+    writeDB(alignments, "CSCAlignmentRcd",
+            alignmentErrExt, "CSCAlignmentErrorExtendedRcd",
+            muonGlobal,
+            time);
+  }
+}
+
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::writeDB(Alignments* alignments, const std::string &alignRcd,
+          AlignmentErrorsExtended* alignmentErrExt, const std::string &errRcd,
+          const AlignTransform *globalCoordinates,
+          cond::Time_t time) const
+{
+  Alignments*              tempAlignments      = alignments;
+  AlignmentErrorsExtended* tempAlignmentErrExt = alignmentErrExt;
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
-  if (!poolDb.isAvailable()) { // Die if not available
+  if (!poolDb.isAvailable()) {  // Die if not available
     delete tempAlignments;      // promised to take over ownership...
-    delete tempAlignmentErrorsExtended; // dito
+    delete tempAlignmentErrExt; // dito
+
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   }
 
-  if (globalCoordinates  // happens only if (applyDbAlignment_ == true)
-      && globalCoordinates->transform() != AlignTransform::Transform::Identity) {
+  if (globalCoordinates && // happens only if (applyDbAlignment_ == true)
+      globalCoordinates->transform() != AlignTransform::Transform::Identity) {
 
-    tempAlignments = new Alignments();            // temporary storage for
-    tempAlignmentErrorsExtended = new AlignmentErrorsExtended();  // final alignments and errors
+    tempAlignments      = new Alignments();               // temporary storage for
+    tempAlignmentErrExt = new AlignmentErrorsExtended();  // final alignments and errors
 
     GeometryAligner aligner;
-    aligner.removeGlobalTransform(alignments, alignmentErrors,
+    aligner.removeGlobalTransform(alignments, alignmentErrExt,
                                   *globalCoordinates,
-                                  tempAlignments, tempAlignmentErrorsExtended);
-    
-    delete alignments;       // have to delete original alignments
-    delete alignmentErrors;  // same thing for the errors
+                                  tempAlignments, tempAlignmentErrExt);
+
+    delete alignments;      // have to delete original alignments
+    delete alignmentErrExt; // same thing for the errors
 
     edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::writeDB"
-			      << "globalCoordinates removed from alignments (" << alignRcd
-			      << ") and errors (" << alignRcd << ").";
+                              << "globalCoordinates removed from alignments ("
+                              << alignRcd << ") and errors (" << alignRcd << ").";
   }
-  
+
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments for run " << time
                               << " to " << alignRcd << ".";
     poolDb->writeOne<Alignments>(tempAlignments, time, alignRcd);
-  } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
+
+  } else {
+    // poolDb->writeOne(..) takes over 'alignments' ownership, ...
     delete tempAlignments; // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
-    edm::LogInfo("Alignment") << "Writing AlignmentErrorsExtended for run " << time
-                              << " to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrorsExtended>(tempAlignmentErrorsExtended, time, errRcd);
-  } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
-    delete tempAlignmentErrorsExtended; // ...otherwise we have to delete, as promised!
+    edm::LogInfo("Alignment") << "Writing AlignmentErrorsExtended for run "
+                              << time << " to " << errRcd << ".";
+    poolDb->writeOne<AlignmentErrorsExtended>(tempAlignmentErrExt, time, errRcd);
+
+  } else {
+    // poolDb->writeOne(..) takes over 'alignmentErrors' ownership, ...
+    delete tempAlignmentErrExt; // ...otherwise we have to delete, as promised!
   }
 }
 
-
-//////////////////////////////////////////////////
-void PCLTrackerAlProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
-				const std::string &surfaceDeformationRcd,
-				cond::Time_t time) const
+//_____________________________________________________________________________
+void PCLTrackerAlProducer
+::writeDB(AlignmentSurfaceDeformations* alignmentSurfaceDeformations,
+          const std::string &surfaceDeformationRcd,
+          cond::Time_t time) const
 {
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
@@ -924,81 +1270,19 @@ void PCLTrackerAlProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfac
     delete alignmentSurfaceDeformations; // promised to take over ownership...
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   }
-  
+
   if (saveDeformationsToDB_) {
-    edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations for run " << time
-                              << " to " << surfaceDeformationRcd  << ".";
+    edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations for run "
+                              << time << " to " << surfaceDeformationRcd  << ".";
     poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, time,
-						   surfaceDeformationRcd);
-  } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
+                                                   surfaceDeformationRcd);
+
+  } else {
+    // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!
   }
 }
 
-PCLTrackerAlProducer::RunRanges
-PCLTrackerAlProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
-{
-  static bool oldRunRangeSelectionWarning = false;
 
-  const RunNumber beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
-  const RunNumber endValue = cond::timeTypeSpecs[cond::runnumber].endValue;
-  
-  RunRanges uniqueRunRanges;
-  if (!RunRangeSelectionVPSet.empty()) {
-
-    std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
-    
-    for (std::vector<edm::ParameterSet>::const_iterator ipset = RunRangeSelectionVPSet.begin();
-	 ipset != RunRangeSelectionVPSet.end();
-	 ++ipset) {
-      const std::vector<std::string> RunRangeStrings = (*ipset).getParameter<std::vector<std::string> >("RunRanges");
-      for (std::vector<std::string>::const_iterator irange = RunRangeStrings.begin();
-	   irange != RunRangeStrings.end();
-	   ++irange) {
-	
-	if ((*irange).find(':')==std::string::npos) {
-	  
-	  RunNumber first = beginValue;
-	  long int temp = strtol((*irange).c_str(), 0, 0);
-	  if (temp!=-1) first = temp;
-	  uniqueFirstRunNumbers[first] = first;
-	  
-	} else {
-	  
-	  if (!oldRunRangeSelectionWarning) {
-	    edm::LogWarning("BadConfig") << "@SUB=PCLTrackerAlProducer::makeNonOverlappingRunRanges"
-					 << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
-					 << "number is used internally. The number of the last run is ignored and can be\n"
-					 << "safely removed from the config file.\n";
-	    oldRunRangeSelectionWarning = true;
-	  }
-	  
-	  std::vector<std::string> tokens = edm::tokenize(*irange, ":");
-	  long int temp;
-	  RunNumber first = beginValue;
-	  temp = strtol(tokens[0].c_str(), 0, 0);
-	  if (temp!=-1) first = temp;
-	  uniqueFirstRunNumbers[first] = first;
-	}
-      }
-    }
-
-    for (std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
-	 iFirst!=uniqueFirstRunNumbers.end();
-	 ++iFirst) {
-      uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, endValue));
-    }
-    for (unsigned int i = 0;i<uniqueRunRanges.size()-1;++i) {
-      uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
-    }
-    
-  } else {
-        
-    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
-    
-  }
-  
-  return uniqueRunRanges;
-}
 
 DEFINE_FWK_MODULE(PCLTrackerAlProducer);
