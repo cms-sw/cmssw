@@ -95,7 +95,7 @@ setupEnv()
      export CMSSW_SEARCH_PATH=".:$CMSSW_BASE"
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
-     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
+     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib
      export DYLD_FALLBACK_LIBRARY_PATH=/opt/X11/lib:${LD_LIBRARY_PATH}
 
      if [ -n "$DYLD_LIBRARY_PATH" ]; then
@@ -104,6 +104,7 @@ setupEnv()
      fi
      export  DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
      export PATH=${ROOTSYS}/bin:$PATH
+     export ROOT_INCLUDE_PATH=${CMSSW_BASE}/external/gcc/include:${CMSSW_BASE}/external/gcc/include/x86_64-redhat-linux-gnu:${CMSSW_BASE}/external/gcc/include/backward:${CMSSW_BASE}/external/var-inc:$CMSSW_BASE/external/var-inc/sigc++:$CMSSW_BASE/external/var-inc/HepMC/include:${CMSSW_BASE}/src
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
    else
@@ -192,7 +193,7 @@ if [ "X$debuginteractiveflag" = Xon ] ; then
   if [[ `uname` == 'Linux' ]]; then
       gdbCmd="gdb --args $SHELLDIR/cmsShow.exe $originalOptions"
   else
-      gdbCmd="lldb $SHELLDIR/cmsShow.exe $originalOptions"
+      gdbCmd="lldb -- $SHELLDIR/cmsShow.exe $originalOptions"
   fi
   exec $gdbCmd 
 elif [ "X$valgrindflag" = Xon ] ; then

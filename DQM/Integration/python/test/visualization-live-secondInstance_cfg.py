@@ -8,7 +8,6 @@ Example configuration for online reconstruction meant for visualization clients.
 from DQM.Integration.test.inputsource_cfi import options,runType,source
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
-#scenarios = {'pp_run': 'ppRun2B0T','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
 scenarios = {'pp_run': 'ppRun2','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
 
 if not runType.getRunTypeName() in scenarios.keys():
@@ -40,7 +39,7 @@ process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
 process.source.skipFirstLumis                = cms.untracked.bool(True)
 process.source.minEventsPerLumi              = cms.untracked.int32(0)
 process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
-process.source.streamLabel                   = cms.untracked.string('streamDQM')
+process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
 
 m = re.search(r"\((\w+)\)", str(source.runNumber))
 runno = str(m.group(1))
@@ -72,7 +71,7 @@ process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
     fileName = oldo.fileName,
     dataset = oldo.dataset,
     runNumber = cms.untracked.uint32(int(runno)),
-    streamLabel = cms.untracked.string("streamEvDOutput_dqmcluster"),
+    streamLabel = cms.untracked.string("streamEvDOutput2_dqmcluster"),
     # output path must exist!
     outputPath = cms.untracked.string(outDir),
 )

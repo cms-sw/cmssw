@@ -21,23 +21,13 @@ using namespace edm;
 const double L1TGMT::piconv_ = 180. / acos(-1.);
 
 L1TGMT::L1TGMT(const ParameterSet& ps)
+  :   verbose_(ps.getUntrackedParameter<bool>("verbose", false))   // verbosity switch
+  , gmtSource_(consumes<L1MuGMTReadoutCollection>(ps.getParameter< InputTag >("gmtSource")))
+  , bxnum_old_(0)
+  , obnum_old_(0)
+  , trsrc_old_(0)
  {
-   gmtSource_ = consumes<L1MuGMTReadoutCollection>(ps.getParameter< InputTag >("gmtSource"));
-
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
   if(verbose_) cout << "L1TGMT: constructor...." << endl;
-
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
-    cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
-
-  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
-  if(disable){
-    outputFile_="";
-  }
 }
 
 L1TGMT::~L1TGMT()
@@ -58,7 +48,6 @@ void L1TGMT::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventS
 void L1TGMT::analyze(const Event& e, const EventSetup& c)
 {
   
-  nev_++; 
   if(verbose_) cout << "L1TGMT: analyze...." << endl;
 
 
@@ -120,7 +109,6 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     
     // get the absolute bx number of the L1A
     int Bx = RRItr->getBxNr();
-    int Ev = RRItr->getEvNr();
     
     bx_number->Fill(double(Bx));
  
@@ -231,7 +219,6 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     }
     
     // save quantities for the next event
-    evnum_old_ = Ev;
     bxnum_old_ = Bx;
     obnum_old_ = e.orbitNumber();
     trsrc_old_ = 0;
