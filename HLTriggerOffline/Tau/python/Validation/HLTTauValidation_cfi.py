@@ -10,8 +10,11 @@ hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     L1Plotter = cms.untracked.PSet(
         DQMFolder             = cms.untracked.string('L1'),
         L1Taus                = cms.untracked.InputTag("l1extraParticles", "Tau"),
+	L1IsoTaus             = cms.untracked.InputTag("l1extraParticles", "IsoTau"),
         L1Jets                = cms.untracked.InputTag("l1extraParticles", "Central"),
         L1JetMinEt            = cms.untracked.double(40), # this value is arbitrary at the moment
+        L1ETM                 = cms.untracked.InputTag("l1extraParticles", "MET"),
+        L1ETMMin              = cms.untracked.double(50),
     ),
     Paths = cms.untracked.string("PFTau"),
     PathSummaryPlotter = cms.untracked.PSet(
@@ -31,6 +34,10 @@ hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
                                     cms.untracked.PSet(
                                         FilterName        = cms.untracked.InputTag("TauMCProducer","LeptonicTauMuons"),
                                         matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauMCProducer","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),
                                     ),
                                 ),
     ),
@@ -52,6 +59,10 @@ hltTauValIdealMonitorPF = hltTauValIdealMonitorMC.clone(
                                     cms.untracked.PSet(
                                         FilterName        = cms.untracked.InputTag("TauMCProducer","LeptonicTauMuons"),
                                         matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauMCProducer","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),
                                     ),
                                 ),
     ),

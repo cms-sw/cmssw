@@ -42,6 +42,10 @@ in Offline Trigger DQM etc
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+//MET Includes
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
 #include <vector>
 #include <string>
 
@@ -100,6 +104,10 @@ public:
   double ptMinTower_;
   double towerIsol_;
 
+  edm::EDGetTokenT<reco::CaloMETCollection> MET_;
+  bool doMET_;
+  double ptMinMET_;
+
   double etaMax;
 
   void doPFTaus(edm::Event&,const edm::EventSetup&);
@@ -110,7 +118,7 @@ public:
   void doJets(edm::Event&,const edm::EventSetup&);
   void doPhotons(edm::Event&,const edm::EventSetup&);
   void doTowers(edm::Event&,const edm::EventSetup&);
-
+  void doMET(edm::Event&,const edm::EventSetup&);
 };
 
 #endif
