@@ -1,0 +1,19 @@
+#process.AlignmentProducer.algoConfig.max2Dcorrelation = 2. # switch off diagonalization
+process.AlignmentProducer.algoConfig.pedeSteerer.method = 'sparseMINRES-QLP 3  0.8'
+#process.AlignmentProducer.algoConfig.pedeSteerer.method = 'inversion 3 0.8'
+#process.AlignmentProducer.algoConfig.pedeSteerer.options = ['entries 100', 'chisqcut  30.  6.','regularisation 1.0 0.05' ]#['entries 25', 'chisqcut 30. 6.']#, 'regularisation 1 0.04']
+#process.AlignmentProducer.algoConfig.pedeSteerer.options = ['entries 100', 'chisqcut 30. 6.']
+process.AlignmentProducer.algoConfig.pedeSteerer.options = [ 
+    'entries 15 10 2',
+    'outlierdownweighting 3',
+    'dwfractioncut 0.1',
+    'compress',
+    'pairentries 1 0 10',
+    'threads 10',
+    'matiter 1',
+	'printcounts',
+    'chisqcut  30.  6.']
+
+process.AlignmentProducer.algoConfig.minNumHits = 8
+process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = '/afs/cern.ch/user/c/ckleinw/bin/rev137/pede'
+
