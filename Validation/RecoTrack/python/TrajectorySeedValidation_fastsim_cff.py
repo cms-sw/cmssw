@@ -13,7 +13,6 @@ _seedProducerLabels = ["initialStepSeeds",
                        "pixelLessStepSeeds",
                        "tobTecStepSeedsPair",
                        "tobTecStepSeedsTripl",
-                       "jetCoreRegionalStepSeeds",
                        ]
 
 _moduleNames = []
