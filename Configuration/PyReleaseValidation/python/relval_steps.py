@@ -936,10 +936,13 @@ steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpr
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                           },steps['TIER0']])
 
-steps['RECOCOSD']=merge([{'--scenario':'cosmics',
-                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:MuAlCalIsolatedMu+DtCalib',
-                          '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
-                          },dataReco])
+dataRecoCosmics=merge([{'--scenario':'cosmics',
+                        '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:MuAlCalIsolatedMu+DtCalib',
+                        '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData',
+                        '--datatier':'RECO,DQMIO',                # no miniAOD for cosmics scenario
+                        '--eventcontent':'RECO,DQM',
+                        },dataReco])
+steps['RECOCOSD'] = remove(dataRecoCosmics,'--runUnscheduled')    # no miniAOD for cosmics scenario
 
 step2HImixDefaults=merge([{'-n':'2', #too slow for 10 events/hour
                            '--himix':'',
