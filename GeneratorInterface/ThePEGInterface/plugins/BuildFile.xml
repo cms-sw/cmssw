@@ -7,9 +7,3 @@
 	<use name="boost"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfaceThePEGHadronisation" file="ThePEGHadronisation.cc ThePEGLesHouchesInterface.cc">
-	<use name="GeneratorInterface/Core"/>
-	<use name="GeneratorInterface/LHEInterface"/>
-	<use name="boost"/>
-	<flags EDM_PLUGIN="1"/>
-</library>
