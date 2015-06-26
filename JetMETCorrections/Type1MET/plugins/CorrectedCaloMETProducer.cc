@@ -18,7 +18,7 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class CorrectedCaloMETProducer : public edm::EDProducer
+class CorrectedCaloMETProducer : public edm::stream::EDProducer<>
 {
 
 public:

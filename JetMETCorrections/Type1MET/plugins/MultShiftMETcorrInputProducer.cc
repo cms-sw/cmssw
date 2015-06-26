@@ -43,12 +43,13 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
     TString corrPyFormula = v->getParameter<std::string>("fy");
     std::vector<double> corrPxParams = v->getParameter<std::vector<double> >("px");
     std::vector<double> corrPyParams = v->getParameter<std::vector<double> >("py");
-    TF1 * fx = new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPx").c_str(), v->getParameter<std::string>("fx").c_str());    
-    TF1 * fy = new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPy").c_str(), v->getParameter<std::string>("fy").c_str());    
-    for (unsigned i=0; i<corrPxParams.size();i++) fx->SetParameter(i, corrPxParams[i]);
-    for (unsigned i=0; i<corrPyParams.size();i++) fy->SetParameter(i, corrPyParams[i]);
-    formula_x_.push_back(fx);
-    formula_y_.push_back(fy);
+  
+    formula_x_.push_back( std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPx").c_str(), v->getParameter<std::string>("fx").c_str()) ) );
+    formula_y_.push_back( std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPy").c_str(), v->getParameter<std::string>("fy").c_str()) ) );
+
+    for (unsigned i=0; i<corrPxParams.size();i++) formula_x_.back()->SetParameter(i, corrPxParams[i]);
+    for (unsigned i=0; i<corrPyParams.size();i++) formula_y_.back()->SetParameter(i, corrPyParams[i]);
+
     counts_.push_back(0);
     sumPt_.push_back(0.);
     etaMin_.push_back(v->getParameter<double>("etaMin"));
@@ -60,8 +61,6 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
 
 MultShiftMETcorrInputProducer::~MultShiftMETcorrInputProducer()
 {
-  for (unsigned i=0; i<formula_x_.size();i++) delete formula_x_[i];
-  for (unsigned i=0; i<formula_y_.size();i++) delete formula_y_[i];
 }
 
 void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)

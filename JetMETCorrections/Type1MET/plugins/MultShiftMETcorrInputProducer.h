@@ -12,7 +12,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-class MultShiftMETcorrInputProducer : public edm::EDProducer  
+class MultShiftMETcorrInputProducer : public edm::stream::EDProducer<>  
 {
  public:
 
@@ -37,7 +37,7 @@ class MultShiftMETcorrInputProducer : public edm::EDProducer
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static int translateTypeToAbsPdgId( reco::PFCandidate::ParticleType type );
 
 
@@ -50,8 +50,8 @@ class MultShiftMETcorrInputProducer : public edm::EDProducer
   std::vector<double> etaMin_, etaMax_;
   std::vector<int> type_, counts_, varType_;
   std::vector<double> sumPt_;
-  std::vector<TF1*> formula_x_;
-  std::vector<TF1*> formula_y_;
+  std::vector<std::unique_ptr<TF1> > formula_x_;
+  std::vector<std::unique_ptr<TF1> > formula_y_;
 };
 
 #endif
