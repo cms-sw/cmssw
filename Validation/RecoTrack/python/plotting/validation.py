@@ -79,16 +79,37 @@ _globalTags = {
     "CMSSW_7_4_3_patch1_unsch": {"default": "MCRUN2_74_V9_unsch", "fullsim_50ns": "MCRUN2_74_V8_unsch"},
     "CMSSW_7_4_4": {"default": "MCRUN2_74_V9_38Tbis", "fullsim_50ns": "MCRUN2_74_V8_38Tbis"},
     "CMSSW_7_4_4_0T": {"default": "MCRUN2_740TV1_0Tv2", "fullsim_50ns": "MCRUN2_740TV0_0TV2", "fullsim_25ns": "MCRUN2_740TV1_0TV2"},
+    "CMSSW_7_4_6_patch6": {"default": "MCRUN2_74_V9_scheduled", "fullsim_50ns": "MCRUN2_74_V8_scheduled"},
+    "CMSSW_7_4_6_patch6_unsch": {"default": "MCRUN2_74_V9", "fullsim_50ns": "MCRUN2_74_V8"},
+    "CMSSW_7_4_6_patch6_noCCC": {"default": "MCRUN2_74_V9_unsch_noCCC", "fullsim_50ns": "MCRUN2_74_V8_unsch_noCCC"},
+    "CMSSW_7_4_6_patch6_noCCC_v3": {"default": "MCRUN2_74_V9_unsch_noCCC_v3", "fullsim_50ns": "MCRUN2_74_V8_unsch_noCCC_v3"},
+    "CMSSW_7_4_6_patch6_BS": {"default": "74X_mcRun2_asymptotic_realisticBS_v0_2015Jul24", "fullsim_50ns": "74X_mcRun2_startup_realisticBS_v0_2015Jul24PU", "fullsim_25ns": "74X_mcRun2_asymptotic_realisticBS_v0_2015Jul24PU"},
+    "CMSSW_7_4_8_patch1_MT": {"default": "MCRUN2_74_V11_mulTrh", "fullsim_50ns": "MCRUN2_74_V10_mulTrh",},
+    "CMSSW_7_4_12": {"default": "74X_mcRun2_asymptotic_v2", "fullsim_25ns": "74X_mcRun2_asymptotic_v2_v2", "fullsim_50ns": "74X_mcRun2_startup_v2_v2"},
     "CMSSW_7_5_0_pre1": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
     "CMSSW_7_5_0_pre2": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
     "CMSSW_7_5_0_pre3": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
     "CMSSW_7_5_0_pre3_pmx": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
     "CMSSW_7_5_0_pre4": {"default": "MCRUN2_75_V1", "fullsim_50ns": "MCRUN2_75_V0"},
     "CMSSW_7_5_0_pre4_pmx": {"default": "MCRUN2_75_V1", "fullsim_50ns": "MCRUN2_75_V0"},
+    "CMSSW_7_5_0_pre5": {"default": "MCRUN2_75_V5", "fullsim_50ns": "MCRUN2_75_V4"},
+    "CMSSW_7_5_0_pre5_pmx": {"default": "MCRUN2_75_V5", "fullsim_50ns": "MCRUN2_75_V4"},
+    "CMSSW_7_5_0_pre6": {"default": "75X_mcRun2_asymptotic_v1", "fullsim_50ns": "75X_mcRun2_startup_v1"},
+    "CMSSW_7_5_0_pre6_pmx": {"default": "75X_mcRun2_asymptotic_v1", "fullsim_50ns": "75X_mcRun2_startup_v1"},
+    "CMSSW_7_5_0": {"default": "75X_mcRun2_asymptotic_v1", "fullsim_50ns": "75X_mcRun2_startup_v1"},
+    "CMSSW_7_5_0_pmx": {"default": "75X_mcRun2_asymptotic_v1", "fullsim_50ns": "75X_mcRun2_startup_v1"},
+    "CMSSW_7_5_0_71XGENSIM": {"default": "75X_mcRun2_asymptotic_v1_gs7115", "fullsim_50ns": "75X_mcRun2_startup_v1_gs7115"},
+    "CMSSW_7_5_1": {"default": "75X_mcRun2_asymptotic_v3", "fullsim_50ns": "75X_mcRun2_startup_v3"},
+    "CMSSW_7_5_1_71XGENSIM": {"default": "75X_mcRun2_asymptotic_v3_gs7118", "fullsim_50ns": "75X_mcRun2_startup_v3_gs7118"},
+    "CMSSW_7_5_2": {"default": "75X_mcRun2_asymptotic_v5", "fullsim_50ns": "75X_mcRun2_startup_v4"},
+    "CMSSW_7_6_0_pre1": {"default": "75X_mcRun2_asymptotic_v1", "fullsim_50ns": "75X_mcRun2_startup_v1"},
+    "CMSSW_7_6_0_pre1_pmx": {"default": "75X_mcRun2_asymptotic_v1", "fullsim_50ns": "75X_mcRun2_startup_v1"},
+    "CMSSW_7_6_0_pre2": {"default": "75X_mcRun2_asymptotic_v2", "fullsim_50ns": "75X_mcRun2_startup_v2"},
+    "CMSSW_7_6_0_pre2_pmx": {"default": "75X_mcRun2_asymptotic_v2", "fullsim_50ns": "75X_mcRun2_startup_v2"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -137,6 +158,7 @@ _relvalUrls = {
     "7_3_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_3_x/",
     "7_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_4_x/",
     "7_5_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_5_x/",
+    "7_6_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_6_x/",
 }
 
 def _getRelValUrl(release):
