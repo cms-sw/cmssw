@@ -608,15 +608,6 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
     loadMatchedRecHits(temporaryMatchedRecHits, *recHitCombinations);
   }
 
-  // Step E: write output to file
-  /*
-  for(size_t cindex = 0;cindex < recHitCombinations->size();cindex++){
-    std::cout << "---------------"<< std::endl;
-    for(size_t hindex = 0;hindex < recHitCombinations->at(cindex).size();++hindex){
-      std::cout << recHitCombinations->at(cindex)[hindex].hitCombinationId() << " " << recHitCombinations->at(cindex)[hindex].id() << " " << recHitCombinations->at(cindex)[hindex].simTrackId(0) << std::endl;
-    }
-  }
-  */
   e.put(recHitCombinations);
 }
 
@@ -1297,14 +1288,6 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
       //      else  matchedMap[it->first].push_back( rit->clone() );  // if not strip place the original one in vector
       else { //need to copy the original in a "matched" type rechit
 
-	/*
-	std::cout << "branch B" << std::endl;
-	std::cout << rit->localPosition().x() << std::endl;
-	std::cout << rit->localPositionError().xx() << std::endl;
-	std::cout << rit->det()->index() << std::endl;
-	std::cout << rit->simTrackId(0);
-	exit(0);
-	*/
 	SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
 									      *rit->det());	
 	rit_copy->addSimTrackId(rit->simTrackId(0));
