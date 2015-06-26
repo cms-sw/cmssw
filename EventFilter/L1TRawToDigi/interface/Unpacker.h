@@ -8,6 +8,8 @@
 namespace l1t {
    class UnpackerCollections;
 
+   void getBXRange(int nbx, int& first, int& last);
+
    class Unpacker {
       public:
          virtual bool unpack(const Block& block, UnpackerCollections *coll) = 0;
