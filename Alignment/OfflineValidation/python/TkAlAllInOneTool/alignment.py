@@ -24,6 +24,9 @@ class Alignment:
             self.title = config.get(section,"title")
         else:
             self.title = self.name
+        if (int(runGeomComp) != 1):
+            self.name += "_run" + runGeomComp
+            self.title += " run " + runGeomComp
         if "|" in self.title or "," in self.title or '"' in self.title:
             msg = "The characters '|', '\"', and ',' cannot be used in the alignment title!"
             raise AllInOneError(msg)
