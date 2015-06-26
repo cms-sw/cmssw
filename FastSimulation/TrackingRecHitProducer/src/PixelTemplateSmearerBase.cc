@@ -51,13 +51,11 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
   //const edm::ParameterSet& pset,
   //GeomDetType::SubDetector pixelPart) :
   pset_(config),   // &&& obviously now a duplicate of a base class variable
-  thePixelPart(GeomDetEnumerators::PixelBarrel)  // &&& temporary: for development
+  thePixelPart(GeomDetEnumerators::PixelBarrel)  // default.  Derived classes will fix it.
 {
-  const edm::ParameterSet& pset = config;        // &&& temporary: backward compatibility
-
   std::cout << "PixelTemplateSmearerBase"<< std::endl;
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
-  useCMSSWPixelParameterization = pset.getParameter<bool>("UseCMSSWPixelParametrization");
+  useCMSSWPixelParameterization = pset_.getParameter<bool>("UseCMSSWPixelParametrization");
 }
 
 
@@ -98,23 +96,31 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //    this array, we need to use either indices or iterators.
   std::vector<const PSimHit*> & simHits = product->getSimHits();  
 
-  const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
-  const PixelGeomDetUnit * pixelGeomDet = dynamic_cast< const PixelGeomDetUnit* >( geomDet );
-  if (pixelGeomDet == 0) {
-    // throw up ...  &&&
-  }
-  const double boundX = 33;  // &&& just to get it to compile
-  const double boundY = 77;  // &&& just to get it to compile
 
+  //--- Random engine
+  //
   RandomEngineAndDistribution const & randomEngine = getRandomEngine();
 
 
+  //--- Geometry of our pixel DetUnit
+  //
+  const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
+  const PixelGeomDetUnit * pixelGeomDet = dynamic_cast< const PixelGeomDetUnit* >( geomDet );
+  if (pixelGeomDet == 0) {
+    throw cms::Exception("FastSimulation/TrackingRecHitProducer") << "The GeomDetUnit is not a PixelGeomDetUnit.  This should never happen!";
+  }
+  const BoundPlane& theDetPlane = pixelGeomDet->surface();
+  const Bounds& theBounds = theDetPlane.bounds();
+  const double boundX = theBounds.width()/2.;
+  const double boundY = theBounds.length()/2.;
 
-  int nHits = simHits.size();         //  Number of hits on this DetUnit
 
+  //--- Make some collections
+  //
   std::vector< const PSimHit* > listOfUnmergedHits; // this that were not merged
   std::vector< MergeGroup* > listOfMergeGroups;     // groups of hits that should be merged
-  MergeGroup* mergeGroupByHit[ nHits ];        // fixed size array, 0 if hit is unmerged
+  int nHits = simHits.size();                       //  Number of hits on this DetUnit
+  MergeGroup* mergeGroupByHit[ nHits ];             // fixed size array, 0 if hit is unmerged
 
   
   //--- Check special cases (nHits = 0 or 1), and finish them off first.
@@ -609,13 +615,11 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
     const SimpleHistogramGenerator* ygen = ygenIt->second;
     
     thePositionX = xgen->generate(random);
-    //thePositionX = theXHistos[theXHistN]->generate(random);
-    ///thePositionX = 0.0;  // &&&  just to make it compile
-    
-
     thePositionY = ygen->generate(random);
-    //thePositionY = theYHistos[theYHistN]->generate(random);
-    ///thePositionY = 0.0;  // &&&  just to make it compile
+
+    // The old version:
+    //    thePositionX = theXHistos[theXHistN]->generate(random);
+    //    thePositionY = theYHistos[theYHistN]->generate(random);
 
 
     if( isForward ) thePositionY *= sign;
@@ -652,10 +656,7 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
 
   //--- We now have everything to make a SiTrackerGSRecHit2D
   //
-  // const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
-  
-  //TODO: this is only a minimal example
-  SiTrackerGSRecHit2D recHit( thePosition, //const LocalPoint &     (LocalPoint is a typedef for Local3DPoint)
+  SiTrackerGSRecHit2D recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
 			      theError,    //const LocalError &
 			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
 			      0,           //const int simhitId
@@ -665,8 +666,6 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
 			      theClslenx,  //const int pixelMultiplicityX
 			      theClsleny   //const int pixelMultiplicityY
 			      );
-  // product->getRecHits().push_back(recHit);
-  //
   return recHit;
 }
 
@@ -765,9 +764,7 @@ smearMergeGroup( MergeGroup* mg,
 // 	  merged = False;
 // 	}
 // 	else {
-// 	  // throw a random number, decide if merged or not
-// 	  // &&& Need a code to do this
-// 	  merged = True;  // for testing
+//        // run the code below ... 
 // 	}
 //-----------------------------------------------------------------------------
 bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const
