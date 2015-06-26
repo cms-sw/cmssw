@@ -173,7 +173,6 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
 {
    const static float  currentToField = 3.8/18160;
    bool available = false;
-   m_source = kNone;
    try
    {
       edm::InputTag conditionsTag("conditionsInEdm");
@@ -183,6 +182,8 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
       const fwlite::Event *fwEvent = dynamic_cast<const fwlite::Event*>(event);
       if (!fwEvent)
          return;
+
+      m_source = kNone;
       fwEvent->getRun().getByLabel(conditionsTag, runCond);
       
       if( runCond.isValid())
@@ -223,3 +224,13 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
    }
 }
 
+
+//______________________________________________________________________________
+void FWMagField::setFFFieldMag(float mag)
+{
+   // AMT this is a workaround for seting FF in FFLooper
+   // Correct imeplementation is having a base class of  FWMagField amd do implementation for FF and FWLite version
+
+   m_source = kEvent;
+   m_eventField = mag;
+}

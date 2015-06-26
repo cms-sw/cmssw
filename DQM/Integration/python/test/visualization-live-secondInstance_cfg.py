@@ -39,7 +39,7 @@ process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
 process.source.skipFirstLumis                = cms.untracked.bool(True)
 process.source.minEventsPerLumi              = cms.untracked.int32(0)
 process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
-process.source.streamLabel                   = cms.untracked.string('streamDQM')
+process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
 
 m = re.search(r"\((\w+)\)", str(source.runNumber))
 runno = str(m.group(1))
@@ -71,7 +71,7 @@ process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
     fileName = oldo.fileName,
     dataset = oldo.dataset,
     runNumber = cms.untracked.uint32(int(runno)),
-    streamLabel = cms.untracked.string("streamEvDOutput_dqmcluster"),
+    streamLabel = cms.untracked.string("streamEvDOutput2_dqmcluster"),
     # output path must exist!
     outputPath = cms.untracked.string(outDir),
 )
