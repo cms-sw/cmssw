@@ -3,18 +3,18 @@ import imp, os
 # datasets to run as defined from run_susyMT2.cfg
 # number of jobs to run per dataset decided based on splitFactor and fineSplitFactor from cfg file
 # in principle one only needs to modify the following two lines:
-production_label = "testSplit"
-cmg_version = 'MT2_CMGTools-from-CMSSW_7_2_3'
+production_label = "prod74Xdata_noJSON"
+cmg_version = 'MT2_CMGTools-from-CMSSW_7_4_3'
 
 debug  = False
-useAAA = True
+useAAA = False
 
 handle = open("heppy_config.py", 'r')
 cfo = imp.load_source("heppy_config", "heppy_config.py", handle)
 conf = cfo.config
 handle.close()
 
-#os.system("scramv1 runtime -sh")
+os.system("scramv1 runtime -sh")
 os.system("source /cvmfs/cms.cern.ch/crab3/crab.sh")
 
 os.environ["PROD_LABEL"]  = production_label
