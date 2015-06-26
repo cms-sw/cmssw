@@ -211,7 +211,8 @@ from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 2
+test = 3
+isData = False
 if test==0:
     # ------------------------------------------------------------------------------------------- #
     # --- all this lines taken from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 
@@ -300,7 +301,12 @@ QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt1000to1400, QCD_Pt1400to180
         #comp.files = comp.files[57:58]  # to process only file [57]  
         comp.triggers = triggers_HT900 + triggers_HTMET + triggers_photon155 + triggers_1mu_isolow + triggers_MT2_mumu + triggers_MT2_ee + triggers_MT2_mue # to apply trigger skimming
 
-
+elif test==3:
+    # run on data
+    isData = True
+    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+    selectedComponents = [ jetHT_0T ]
+  
 
 
 
@@ -312,8 +318,7 @@ if doSpecialSettingsForMECCA==1:
     photonAna.do_randomCone = False
 
 
-isData = 0
-if isData==1:
+if isData:
     jetAna.recalibrateJets = False
     photonAna.do_mc_match = False
     for comp in mcSamples:
