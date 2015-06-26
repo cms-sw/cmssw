@@ -152,6 +152,15 @@ from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
 selectedComponents = [ SingleMu_742, MuEG_742, DoubleMu_742 ] 
 selectedComponents = [ TTJets, TTJets_LO, WJetsToLNu, DYJetsToLL_M10to50,  DYJetsToLL_M50,  ] + SingleTop + DiBosons
 selectedComponents = mcSamplesPriv 
+
+if False: # select only a subset of a sample, corresponding to a given luminosity (assuming ~30k events per MiniAOD file, which is ok for central production)
+    target_lumi = 5000 # in inverse picobarns
+    for c in selectedComponents:
+        nfiles = int(min(ceil(target_lumi * c.xSection / 30e3), len(c.files)))
+        print "For component %s, will want %d/%d files" % (c.name, nfiles, len(c.files))
+        c.files = c.files[:nfiles]
+        c.splitFactor = len(c.files)
+
 #  selectedComponents = [
 #    ] + WJetsToLNuHT + DYJetsM50HT + [ #DYJetsToLL_M50,
 #     TTJets ]+ SingleTop +[
