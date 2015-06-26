@@ -1865,8 +1865,8 @@ fragment.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     Setup = cms.string( "stage1::CaloSetup" ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
-    FWId = cms.untracked.int32( 2 ),
-    FedIds = cms.vint32( 1352 ),
+    #FWId = cms.untracked.int32( 2 ),
+    #FedIds = cms.vint32( 1352 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
     lenAMCTrailer = cms.untracked.int32( 0 )
 )
