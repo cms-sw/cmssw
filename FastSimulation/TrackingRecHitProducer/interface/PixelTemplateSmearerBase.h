@@ -56,11 +56,19 @@ public:
 
   //--- Process all unmerged hits.  Calls smearHit() for each.
   TrackingRecHitProductPtr processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
-						TrackingRecHitProductPtr process ) const;
-
+						TrackingRecHitProductPtr product,
+						const PixelGeomDetUnit * detUnit,
+						const double boundX, const double boundY,
+						RandomEngineAndDistribution const * random
+						) const ;
   //--- Process all groups of merged hits.
   TrackingRecHitProductPtr processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
-					       TrackingRecHitProductPtr process ) const;
+					       TrackingRecHitProductPtr product,
+					       const PixelGeomDetUnit * detUnit,
+					       const double boundX, const double boundY,
+					       RandomEngineAndDistribution const * random
+					       ) const ;
+
 
   //--- Process one umerged hit.  The core of the code :)
   SiTrackerGSRecHit2D smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
@@ -68,7 +76,11 @@ public:
 				RandomEngineAndDistribution const*) const;
 
   //--- Process one merge group.
-  void smearMergeGroup( MergeGroup* mg) const;
+  SiTrackerGSRecHit2D smearMergeGroup( MergeGroup* mg,
+			const PixelGeomDetUnit * detUnit,
+			const double boundX, const double boundY,
+			RandomEngineAndDistribution const * random
+			) const ;
 
   //--- Method to decide if the two hits on the same DetUnit are merged, or not.
   bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;

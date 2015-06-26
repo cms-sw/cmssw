@@ -98,6 +98,18 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //    this array, we need to use either indices or iterators.
   std::vector<const PSimHit*> & simHits = product->getSimHits();  
 
+  const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
+  const PixelGeomDetUnit * pixelGeomDet = dynamic_cast< const PixelGeomDetUnit* >( geomDet );
+  if (pixelGeomDet == 0) {
+    // throw up ...  &&&
+  }
+  const double boundX = 33;  // &&& just to get it to compile
+  const double boundY = 77;  // &&& just to get it to compile
+
+  RandomEngineAndDistribution const & randomEngine = getRandomEngine();
+
+
+
   int nHits = simHits.size();         //  Number of hits on this DetUnit
 
   std::vector< const PSimHit* > listOfUnmergedHits; // this that were not merged
@@ -184,15 +196,15 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //--- We now have two lists: a list of hits that are unmerged, and
   //    the list of merge groups.  Process each separately.
   //
-  /*
   product = processUnmergedHits( listOfUnmergedHits, product,
-				 boundX, boundY,
-				 randomEngine );
+				 pixelGeomDet, boundX, boundY,
+				 &randomEngine );
+
 
   product = processMergeGroups(  listOfMergeGroups,  product,
-				 boundX, boundY,
-				 randomEngine );
-  */
+				 pixelGeomDet, boundX, boundY,
+				 &randomEngine );
+
   //--- We're done with this det unit, and ought to clean up used
   //    memory.  We don't own the PSimHits, and the vector of
   //    listOfUnmergedHits simply goes out of scope.  However, we
@@ -660,43 +672,24 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
 
 
 //------------------------------------------------------------------------------
-//   Process all unmerged hits.  Calls smearHit() for each.
+//   Process all unmerged hits.  Calls smearHit() for each PSimHit, which returns
+//   a RecHit, which we then append to the product.
 //------------------------------------------------------------------------------
 TrackingRecHitProductPtr PixelTemplateSmearerBase::
 processUnmergedHits( std::vector< const PSimHit* > & unmergedHits, 
-                     TrackingRecHitProductPtr product ) const
+                     TrackingRecHitProductPtr product,
+		     const PixelGeomDetUnit * detUnit,
+		     const double boundX, const double boundY,
+		     RandomEngineAndDistribution const * random
+		     )  const
 {
-  // &&& @ALICE: please implement.  This should be straightforward, since
-  // &&& it is basically the same as the old code that called SiPixelGaussianBlahBlah
-  // &&& You iterate over unmergedHits vector, and call smearHit() for each
-  // &&& dereferenced iterator.  The only problem is that, then, smearHit() may
-  // &&& have to become "const", and that may be a problem.
-#if 0
-
+  //--- Iterate over unmergedHits vector, and call smearHit() for each
+  //    dereferenced iterator. 
+  //
   for (const PSimHit* simHit : unmergedHits) {
-    const Local3DPoint& position = simHit->localPosition();
-    const GeomDet* geomDet = getTrackerGeometry()->idToDetUnit(product->getDetId());
-    
-    //SiPixelRecHit recHit = smearHit( .... );
-
-    // &&& problem is that smearHit() is not const and it must be... maybe it
-    // &&& should return recHit...
-
-    // &&& check the constructor 
-    SiPixelRecHit recHit(
-			       position,   //const LocalPoint &
-			       error,      //const LocalError &
-			       *geomDet,    //GeomDet const &idet
-			       0,          //const int simhitId
-			       0,          //const int simtrackId
-			       0,          //const uint32_t eeId
-			       SiTrackerGSRecHit2D::ClusterRef(),//ClusterRef const &cluster
-			       -1,         //const int pixelMultiplicityX
-			       -1          //const int pixelMultiplicityY
-			       );
-    product->getRecHits().push_back(recHit);
+    SiTrackerGSRecHit2D recHit = smearHit( *simHit, detUnit, boundX, boundY, random );
+    product->getRecHits().push_back( recHit );
   }
-#endif
   return product;
 }
 
@@ -707,7 +700,11 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
 //------------------------------------------------------------------------------
 TrackingRecHitProductPtr PixelTemplateSmearerBase::
 processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
-                    TrackingRecHitProductPtr product ) const
+		    TrackingRecHitProductPtr product,
+		    const PixelGeomDetUnit * detUnit,
+		    const double boundX, const double boundY,
+		    RandomEngineAndDistribution const * random
+		    )  const
 {
   for ( std::vector<MergeGroup*>::iterator 
 	  mg_it = mergeGroups.begin(),
@@ -715,7 +712,8 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
 	mg_it != mg_end;
 	++mg_it ) {
     //
-    smearMergeGroup( *mg_it );
+    SiTrackerGSRecHit2D recHit = smearMergeGroup( *mg_it, detUnit, boundX, boundY, random );
+    product->getRecHits().push_back( recHit );
   }
   return product;
 }
@@ -724,16 +722,32 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
 //------------------------------------------------------------------------------
 //   Process all groups of merged hits.
 //------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::
-smearMergeGroup( MergeGroup* mg ) const 
+SiTrackerGSRecHit2D PixelTemplateSmearerBase::
+smearMergeGroup( MergeGroup* mg,
+		 const PixelGeomDetUnit * detUnit,
+		 const double boundX, const double boundY,
+		 RandomEngineAndDistribution const * random
+		 ) const 
 {
-  // &&& @ALICE: please implement
+  // &&& TOY EXAMPLE -- just to make the code compile, with the correct return value.  
+  // &&& @ALICE: please implement.
   // &&& For each merge group, iterate over hits, find those with max y and min y
   // &&& and hits with max x and min x, and then take the average of the two,
   // &&& with appropriate errors.
+  LocalPoint position(-1,-1,-1);
+  LocalError error(-1,-1,-1);
 
-   // SiPixelRecHit recHit = ( .... );
-  
+  SiTrackerGSRecHit2D recHit( position, //const LocalPoint &     (LocalPoint is a typedef for Local3DPoint)
+			      error,    //const LocalError &
+			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
+			      0,           //const int simhitId
+			      0,           //const int simtrackId
+			      0,           //const uint32_t eeId
+			      SiTrackerGSRecHit2D::ClusterRef(),   //ClusterRef const &cluster
+			      -1,  //const int pixelMultiplicityX
+			      -1   //const int pixelMultiplicityY
+			      );
+  return recHit;
 }
 
 
