@@ -175,7 +175,7 @@ namespace l1t {
          // FIXME Hard-coded firmware version for first 74x MC campaigns.
          // Will account for differences in the AMC payload, MP7 payload,
          // and unpacker setup.
-         bool legacy_mc = fwOverride_ && (fwId_ & 0xff000000);
+         bool legacy_mc = fwOverride_ && ((fwId_ >> 24) == 0xff);
 
          amc13::Packet packet;
          if (!packet.parse(
@@ -202,7 +202,7 @@ namespace l1t {
                LogDebug("L1T") << "Using CTP7 mode";
                payload.reset(new CTP7Payload(start, end));
             } else {
-               LogDebug("L1T") << "Using MP7 mode";
+               LogDebug("L1T") << "Using MP7 mode; legacy MC bit: " << legacy_mc;
                payload.reset(new MP7Payload(start, end, legacy_mc));
             }
             unsigned fw = payload->getAlgorithmFWVersion();
