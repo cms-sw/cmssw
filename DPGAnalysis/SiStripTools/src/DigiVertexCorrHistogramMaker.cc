@@ -147,7 +147,7 @@ void DigiVertexCorrHistogramMaker::fill(const edm::Event& iEvent, const unsigned
       m_nmultvsnvtx[i]->Fill(nvtx,digi->second);
       m_nmultvsnvtxprof[i]->Fill(nvtx,digi->second);
 
-      if(m_nmultvsnvtxvsbxprofrun[i] && *m_nmultvsnvtxvsbxprofrun[i]) (*m_nmultvsnvtxvsbxprofrun[i])->Fill(iEvent.bunchCrossing(),nvtx,digi->second);
+      if(m_nmultvsnvtxvsbxprofrun[i] && *m_nmultvsnvtxvsbxprofrun[i]) (*m_nmultvsnvtxvsbxprofrun[i])->Fill(iEvent.bunchCrossing()%3564,nvtx,digi->second);
 
     }
 
