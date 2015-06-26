@@ -236,6 +236,7 @@ namespace sistrip {
     uint16_t sample = getSample(sampleNumber);
     // one start shifting the word
     switch (mode) {
+      case READOUT_MODE_ZERO_SUPPRESSED:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
         break;
