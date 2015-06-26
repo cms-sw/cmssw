@@ -94,6 +94,7 @@ class ValidationJob:
             else:
                 firstRun = "1"
             firstAlign = Alignment( firstAlignName, self.__config, firstRun )
+            firstAlignName = firstAlign.name
             secondAlignList = alignmentsList[1].split()
             secondAlignName = secondAlignList[0].strip()
             if len( secondAlignList ) > 1:
@@ -105,6 +106,7 @@ class ValidationJob:
             else:
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
+                secondAlignName = secondAlign.name
             # check if alignment was already compared previously
             try:
                 randomWorkdirPart = \
