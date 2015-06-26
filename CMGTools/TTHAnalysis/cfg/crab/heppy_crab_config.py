@@ -19,12 +19,12 @@ config.JobType.outputFiles = ['output.log.tgz'] # mt2.root is automatically send
 config.section_("Data")
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventBased'
-config.Data.outLFN = '/store/user/' + os.environ["USER"]
+config.Data.outLFNDirBase = '/store/user/' + os.environ["USER"]
 config.Data.publication = False
 
 config.section_("Site")
 #config.Site.whitelist = ["T2_CH_CSCS"]
-config.Site.whitelist = ["T2_CH_CSCS", "T2_IT_Legnaro", "T2_UK_London_IC", "T2_UK_SGrid_Bristol", "T2_DE_DESY", "T2_ES_CIEMAT", "T2_IT_Rome", "T2_AT_Vienna","T2_DE_RWTH","T2_FR_GRIF_IRFU", "T2_HU_Budapest"] #, "T2_FR_IPHC", "T2_BE_IIHE", "T2_IT_Pisa", "T2_ES_IFCA", "T2_UK_London_Brunel"] , "T2_PK_NCP", "T2_US_Purdue", "T2_UA_KIPT", "T2_KR_KNU", "T2_RU_IHEP", "T2_RU_INR", "T2_RU_JINR", "T2_US_MIT", "T2_US_Wisconsin", "T2_US_UCSD", "T2_US_Vanderbilt", "T2_US_Caltech"]
+config.Site.whitelist = ["T2_CH_CSCS"] #, "T2_IT_Legnaro", "T2_UK_London_IC", "T2_UK_SGrid_Bristol", "T2_DE_DESY", "T2_ES_CIEMAT", "T2_IT_Rome", "T2_AT_Vienna","T2_DE_RWTH","T2_FR_GRIF_IRFU", "T2_HU_Budapest", "T2_FR_IPHC", "T2_BE_IIHE", "T2_IT_Pisa", "T2_ES_IFCA", "T2_UK_London_Brunel", "T2_US_Purdue", "T2_UA_KIPT", "T2_US_MIT", "T2_US_Wisconsin", "T2_US_UCSD", "T2_US_Vanderbilt", "T2_US_Caltech"]
 config.Site.storageSite = "T3_CH_PSI"
 #config.Data.ignoreLocality = True
 
