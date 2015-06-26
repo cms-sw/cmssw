@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 
 //the selectores used to select the tracks
 #include "Calibration/TkAlCaRecoProducers/interface/CalibrationTrackSelector.h"
@@ -54,6 +54,6 @@ private:
 
 };
 
-typedef ObjectSelector<SiStripCalTrackConfigSelector>  CalibrationTrackSelectorModule;
+typedef ObjectSelectorStream<SiStripCalTrackConfigSelector>  CalibrationTrackSelectorModule;
 
 DEFINE_FWK_MODULE( CalibrationTrackSelectorModule );
