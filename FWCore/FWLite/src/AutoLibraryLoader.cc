@@ -11,8 +11,11 @@
 //
 
 // system include files
-
 #include <iostream>
+#include "TROOT.h"
+#include "TInterpreter.h"
+#include "TApplication.h"
+
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
@@ -29,11 +32,13 @@
 // static data member definitions
 //
 
+bool AutoLibraryLoader::enabled_(false);
 
 //
 // constructors and destructor
 //
-AutoLibraryLoader::AutoLibraryLoader() {
+AutoLibraryLoader::AutoLibraryLoader()
+{
 }
 
 

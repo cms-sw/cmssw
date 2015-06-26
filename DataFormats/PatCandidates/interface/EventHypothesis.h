@@ -7,7 +7,9 @@
 #include <boost/shared_ptr.hpp>
 #include <typeinfo>
 #include <iostream>
+#ifndef __GCCXML__
 #include <type_traits>
+#endif
 #include <cxxabi.h>
 
 namespace pat {
@@ -146,6 +148,7 @@ namespace pat {
    std::string
    EventHypothesis::createExceptionMessage(const CandRefType &ref) const {
      std::stringstream message;
+#ifndef __GCCXML__
      char *currentType = getDemangledSymbol(typeid(std::remove_reference<decltype(ref)>::type::value_type).name());
      char *targetType = getDemangledSymbol(typeid(T).name());
      if (currentType != nullptr && targetType != nullptr) {
@@ -156,6 +159,7 @@ namespace pat {
        message << "You can't convert a '" << typeid(ref).name() << "' to a '" << typeid(T).name() << "'" << std::endl;
        message << "Note: you can use 'c++filt -t' command to convert the above in human readable types." << std::endl;
      }
+#endif
      return message.str();
    }
 

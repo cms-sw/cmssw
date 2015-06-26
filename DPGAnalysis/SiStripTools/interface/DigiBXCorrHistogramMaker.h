@@ -326,7 +326,7 @@ void DigiBXCorrHistogramMaker<T>::beginRun(const unsigned int nrun) {
     if(m_runHisto) {
       if(m_ndigivscycletime[i]) {
 	(*m_ndigivscycletime[i])->GetXaxis()->SetTitle("Event 1 BX mod(70)"); (*m_ndigivscycletime[i])->GetYaxis()->SetTitle("time [Orb#]");
-	(*m_ndigivscycletime[i])->SetCanExtend(TH1::kAllAxes);
+	(*m_ndigivscycletime[i])->SetBit(TH1::kCanRebin);
       }
     }
   }

@@ -168,17 +168,17 @@ void BSvsPVPlots(const char* fullname,const char* module, const char* label, con
 
   // Summary histograms
   TH1D* deltaxsum = new TH1D("deltaxsum","(PV-BS) Fitted X position vs run",10,0.,10.);
-  deltaxsum->SetCanExtend(TH1::kAllAxes);
+  deltaxsum->SetBit(TH1::kCanRebin);
   TH1D* deltaysum = new TH1D("deltaysum","(PV-BS) Fitted Y position vs run",10,0.,10.);
-  deltaysum->SetCanExtend(TH1::kAllAxes);
+  deltaysum->SetBit(TH1::kCanRebin);
 
   TH1D* deltaxmeansum = new TH1D("deltaxmeansum","(PV-BS) Mean X position vs run",10,0.,10.);
-  deltaxmeansum->SetCanExtend(TH1::kAllAxes);
+  deltaxmeansum->SetBit(TH1::kCanRebin);
   TH1D* deltaymeansum = new TH1D("deltaymeansum","(PV-BS) Mean Y position vs run",10,0.,10.);
-  deltaymeansum->SetCanExtend(TH1::kAllAxes);
+  deltaymeansum->SetBit(TH1::kCanRebin);
 
   TH1D* deltazmeansum = new TH1D("deltazmeansum","(PV-BS) Mean Z position vs run",10,0.,10.);
-  deltazmeansum->SetCanExtend(TH1::kAllAxes);
+  deltazmeansum->SetBit(TH1::kCanRebin);
 
   std::vector<unsigned int> runs = castat.getRunList();
   std::sort(runs.begin(),runs.end());

@@ -6,6 +6,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 
+#ifndef __GCCXML__
+#include <unordered_set>
+#endif
 
 #include <iostream>
 
@@ -179,7 +182,11 @@ public:
   void fillGenStatusFlags(const P &p, reco::GenStatusFlags &statusFlags);
   
 protected:
+#ifndef __GCCXML__
   std::unordered_set<const P*> dupCheck_;
+#else
+  std::set<const P*> dupCheck_;
+#endif
 
 };
   
