@@ -18,16 +18,18 @@ process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
 
 
-process.dumpRaw = cms.OutputModule( "DumpFEDRawDataProduct",
-  feds = cms.untracked.vint32( 745 ),
-  dumpPayload = cms.untracked.bool( True )
+process.dumpRaw = cms.EDAnalyzer( 
+    "DumpFEDRawDataProduct",
+    label = cms.untracked.string("rct"),
+    feds = cms.untracked.vint32 ( 1350 ),
+    dumpPayload = cms.untracked.bool ( True )
 )
 
 # unpacker
 process.load( "EventFilter.RctRawToDigi.l1RctHwDigis_cfi" )
 process.l1RctHwDigis.inputLabel = cms.InputTag( "rawDataCollector" )
 process.l1RctHwDigis.verbose = cms.untracked.bool( True )
-process.l1RctHwDigis.rctFedId = cms.untracked.int32( 745 )
+process.l1RctHwDigis.rctFedId = cms.untracked.int32( 1350 )
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -45,7 +47,8 @@ process.output = cms.OutputModule( "PoolOutputModule",
 )
 
 process.p = cms.Path( 
-    process.l1RctHwDigis + process.dumpRaw
+    process.l1RctHwDigis 
+    #process.dumpRaw
  )
 
 process.out = cms.EndPath( process.output )
