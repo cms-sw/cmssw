@@ -30,5 +30,11 @@ _moduleNames.extend([\"{0}Tracks\",\"{0}Association\",\"{0}Validator\"])
 """.format(_label)
     exec(_lines)
 
-_line = "seedValidationSequence = cms.Sequence(quickTrackAssociatorByHits+{0})".format("+".join(_moduleNames))
+_line = "trajectorySeedValidation = cms.Sequence(quickTrackAssociatorByHits+{0})".format("+".join(_moduleNames))
 exec(_line)
+
+
+trackAndTrajectorySeedValidationStandalone = cms.Sequence(
+    tracksValidationStandalone +
+    trajectorySeedValidation
+)

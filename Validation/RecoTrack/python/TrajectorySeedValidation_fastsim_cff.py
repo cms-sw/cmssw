@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.seedTracks_cfi import seedTracks as _seedTracks
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackAssociation
-from Validation.RecoTrack.TrackValidation_cff import *
+from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 
 _seedProducerLabels = ["initialStepSeeds",
                        "detachedTripletStepSeeds",
@@ -30,5 +30,10 @@ _moduleNames.extend([\"{0}Tracks\",\"{0}Association\",\"{0}Validator\"])
 """.format(_label)
     exec(_lines)
 
-_line = "seedValidationSequence = cms.Sequence(quickTrackAssociatorByHits+{0})".format("+".join(_moduleNames))
+_line = "trajectorySeedValidation = cms.Sequence(quickTrackAssociatorByHits+{0})".format("+".join(_moduleNames))
 exec(_line)
+
+tracksAndTrajectorySeedsValidationStandalone = cms.Sequence(
+    tracksValidationStandalone +
+    trajectorySeedValidation
+)
