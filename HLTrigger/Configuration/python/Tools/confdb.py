@@ -244,7 +244,7 @@ process = customizeHLTforAll(process,_customInfo)
       if '50ns' in self.config.type :
         self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v3 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v4 as loadL1Menu
 %s = loadL1Menu(%s)
 """ %(procfrag,procfrag)
       elif 'HIon' in self.config.type :
