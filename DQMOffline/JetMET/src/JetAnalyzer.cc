@@ -81,8 +81,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   isPFJet_   = (std::string("pf") ==jetType_);
   isMiniAODJet_   = (std::string("miniaod") ==jetType_);
   jetCorrectorTag_=pSet.getParameter<edm::InputTag>("JetCorrections");
+
+
+
   if(!isMiniAODJet_){//in MiniAOD jet is already corrected
     jetCorrectorToken_ = consumes<reco::JetCorrector>(jetCorrectorTag_);
+    jetsToken_  =consumes< edm::View<reco::Jet> >(mInputCollection_);
   }
   
   if (isCaloJet_){ 
@@ -1804,6 +1808,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     pass_correction_flag=true;
   }
 
+  Handle<View<Jet> > jetHandle;
+  if(!isMiniAODJet_){
+    iEvent.getByToken(jetsToken_,jetHandle);
+  }
   for (unsigned int ijet=0; ijet<collSize; ijet++) {
     //bool thiscleaned=false;
     Jet correctedJet;
@@ -1844,6 +1852,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //fill only corrected jets -> check ID for uncorrected jets
     if(pass_corrected){
       recoJets.push_back(correctedJet);
+    }
+
+    if(!pass_corrected && !pass_uncorrected){
+      continue;
     }
     bool jetpassid=true;
     bool Thiscleaned=true;
@@ -1956,29 +1968,23 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
     if(isPFJet_){
+      const View<Jet> & jets= *jetHandle;
+
       reco::PFJetRef pfjetref(pfJets, ijet);
       float puidmva=-1;
       float puidcut=-1;
       int puidmvaflag=-10;
       int puidcutflag=-10;
+  
       puidmva=(*puJetIdMva)[pfjetref];
       puidcut=(*puJetId)[pfjetref];
       puidmvaflag=(*puJetIdFlagMva)[pfjetref];
       puidcutflag=(*puJetIdFlag)[pfjetref];
+      //std::cout<<" pumvia/cut/flag/flagCut "<<puidmva<<"/"<<puidcut<<"/"<<puidmvaflag<<"/"<<puidcutflag<<" pt/ptcorr/eta "<<(*pfJets)[ijet].pt()<<"/"<<correctedJet.pt()<<"/"<< (*pfJets)[ijet].eta()<<" index "<<ijet<<"/"<<(*puJetIdFlagMva)[pfjetref]<<"/"<<(*puJetIdFlag)[pfjetref]<<std::endl;
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
       if((*pfJets)[ijet].muonEnergyFraction()>0.8){
 	jetpassid =false;
       }
-      //int QGmulti=-1;
-      //float QGLikelihood=-10;
-      //float QGptD=-10;
-      //float QGaxis2=-10;
-      //if(fill_CHS_histos){
-      //QGmulti=(*qgMultiplicity)[pfjetref];
-      //QGLikelihood=(*qgLikelihood)[pfjetref];
-      //QGptD=(*qgptD)[pfjetref];
-      //QGaxis2=(*qgaxis2)[pfjetref];
-      //}
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
 	JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
