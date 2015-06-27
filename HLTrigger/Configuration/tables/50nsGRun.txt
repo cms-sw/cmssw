@@ -475,9 +475,9 @@ HLT_HIL2Mu3_v*                                                  # JIRA: CMSHLT-2
 HLT_HIL2DoubleMu0_v*                                            # JIRA: CMSHLT-258,CMSHLT-404
 HLT_HIL3Mu3_v*                                                  # JIRA: CMSHLT-258,CMSHLT-404
 
-HLT_HISinglePhoton10ForEndOfFill_v*                             # JIRA: CMSHLT-279,CMSHLT-404
-HLT_HISinglePhoton15ForEndOfFill_v*                             # JIRA: CMSHLT-279,CMSHLT-404
-HLT_HISinglePhoton20ForEndOfFill_v*                             # JIRA: CMSHLT-279,CMSHLT-404
+HLT_HISinglePhoton10_v*                                         # JIRA: CMSHLT-279,CMSHLT-404, CMSHLT-455
+HLT_HISinglePhoton15_v*                                         # JIRA: CMSHLT-279,CMSHLT-404, CMSHLT-455
+HLT_HISinglePhoton20_v*                                         # JIRA: CMSHLT-279,CMSHLT-404, CMSHLT-455
 HLT_HISinglePhoton40_v*                                         # JIRA: CMSHLT-279,CMSHLT-404
 HLT_HISinglePhoton60_v*                                         # JIRA: CMSHLT-279,CMSHLT-404
 
