@@ -268,6 +268,13 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   oneOverptPull = ibooker.book1D("Pull_TkSta_oneOverpt", "(1/pt)_{TKfromGLB} - (1/pt)_{STAfromGLB} / error", 100,-10,10);
   
   //////////////////////////////////////////////////////////////
+  // monitoring of the phi-eta
+  phiVsetaGlbTrack.push_back(ibooker.book2D(histname+"Glb_phiVSeta",      "#phi vs #eta (GLB)",        etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
+  phiVsetaGlbTrack.push_back(ibooker.book2D(histname+"Tk_phiVSeta",       "#phi vs #eta (TKfromGLB)",  etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
+  phiVsetaGlbTrack.push_back(ibooker.book2D(histname+"Sta_phiVseta",      "#phi vs #eta (STAfromGLB)", etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
+  
+  
+  //////////////////////////////////////////////////////////////
   // monitoring of the recHits provenance
   rhAnalysis.push_back(ibooker.book1D("StaRh_Frac_inGlb",          "recHits_{STAinGLB} / recHits_{GLB}",                         rhBin, rhMin, rhMax));
   rhAnalysis.push_back(ibooker.book1D("TkRh_Frac_inGlb",           "recHits_{TKinGLB} / recHits_{GLB}",                          rhBin, rhMin, rhMax));
@@ -356,7 +363,11 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       etaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta());
       etaGlbTrack[1]->Fill(recoTkGlbTrack->eta());
       etaGlbTrack[2]->Fill(recoStaGlbTrack->eta());
-
+      
+      phiVsetaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta(), recoCombinedGlbTrack->phi());
+      phiVsetaGlbTrack[1]->Fill(recoTkGlbTrack->eta()      , recoTkGlbTrack->phi());
+      phiVsetaGlbTrack[2]->Fill(recoStaGlbTrack->eta()     , recoStaGlbTrack->phi());
+      
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "eta", res, pull);
       etaResolution[0]->Fill(res);
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "eta", res, pull);
