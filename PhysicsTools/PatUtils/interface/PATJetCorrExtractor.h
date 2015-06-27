@@ -76,6 +76,9 @@ class PATJetCorrExtractor
 	double corrFactor = corrJetP4.pt()/rawJetP4.pt();
 	corrJetP4 = (*rawJetP4_specified);
 	corrJetP4 *= corrFactor;
+	if(corrFactor<0) {
+	  edm::LogWarning("PATJetCorrExtractor") << "Negative jet energy scale correction noticed" << ".\n";
+	}
       }
     } catch( cms::Exception e ) {
       throw cms::Exception("InvalidRequest")

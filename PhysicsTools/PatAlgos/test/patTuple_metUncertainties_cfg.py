@@ -13,15 +13,20 @@ switchJetCollection(process,
                     jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], '')
                     )
 
-# apply type I/type I + II PFMEt corrections to pat::MET object
+# apply type I PFMEt corrections to pat::MET object
 # and estimate systematic uncertainties on MET
-from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
-runType1PFMEtUncertainties(process,addToPatDefaultSequence=False,
-                           jetCollection="selectedPatJets",
-                           electronCollection="selectedPatElectrons",
-                           muonCollection="selectedPatMuons",
-                           tauCollection="selectedPatTaus")
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
 
+runMETCorrectionsAndUncertainties(process, metType="PF",
+                                  correctionLevel=["T1"],
+                                  computeUncertainties=True,
+                                  produceIntermediateCorrections=False,
+                                  addToPatDefaultSequence=False,
+                                  jetCollectionUnskimmed="patJets",
+                                  jetCollection="selectedPatJets",
+                                  postfix="",
+                                  )
+    
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

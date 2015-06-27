@@ -1434,7 +1434,11 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
-	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+
+        if sequence == 'pdigi_valid':
+		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
+	else:
+		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
