@@ -232,6 +232,13 @@ namespace edm
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
 
+    // Validation
+
+    produces< std::vector<TrackingParticle> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
+    produces< std::vector<TrackingVertex> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
+
+    TrackingParticleWorker_ = new DataMixingTrackingParticleWorker(ps, consumesCollector());
+
   }
 
   void DataMixingModule::getSubdetectorNames() {
@@ -329,6 +336,8 @@ namespace edm
       delete GeneralTrackWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
+
+    delete TrackingParticleWorker_;
   }
 
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
@@ -371,6 +380,8 @@ namespace edm
       GeneralTrackWorker_->accumulate(e,ES);
     }
     AddedPileup_ = false;
+
+    TrackingParticleWorker_->addTrackingParticleSignals(e);
 
   } // end of addSignals
 
@@ -438,6 +449,7 @@ namespace edm
       GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
     }
     
+    TrackingParticleWorker_->addTrackingParticlePileups(bcr, &ep, eventNr, &moduleCallingContext);
     
   }
 
@@ -485,7 +497,7 @@ namespace edm
 
 	if(!MergeTrackerDigis_)
 	  GeneralTrackWorker_->finalizeBunchCrossing(e, ES, bunchCrossing);
-	
+	      
       }
     }
 
@@ -540,6 +552,7 @@ namespace edm
       GeneralTrackWorker_->finalizeEvent(e,ES);
     }
 
+    TrackingParticleWorker_->putTrackingParticle(e);
 
   }
 

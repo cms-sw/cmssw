@@ -120,7 +120,7 @@ def customisePostLS1_B0T_lowPU(process):
 def digiEventContent(process):
     #extend the event content
 
-    alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
+    alist=['RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
     for a in alist:
         b = a + 'output'
         if hasattr(process,b):

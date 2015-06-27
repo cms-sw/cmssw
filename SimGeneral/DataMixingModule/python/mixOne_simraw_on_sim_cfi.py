@@ -107,7 +107,11 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     # Input Specifications:
     #
-
+    #
+    # Tracking particles
+    #
+    TrackingParticleLabelSig = cms.InputTag("mix","MergedTrackTruth"),
+    #                     
     PileupInfoInputTag = cms.InputTag("addPileupInfo"),
     BunchSpacingInputTag = cms.InputTag("addPileupInfo","bunchSpacing"),
     CFPlaybackInputTag = cms.InputTag("mix"),
@@ -153,6 +157,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HOdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     HFdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
+
+    TrackingParticlePileInputTag = cms.InputTag("mix","MergedTrackTruth"),
 
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
@@ -202,6 +208,7 @@ mixData = cms.EDProducer("DataMixingModule",
     CSCStripDigiCollectionDM = cms.string('MuonCSCStripDigisDM'),
     CSCComparatorDigiCollectionDM = cms.string('MuonCSCComparatorDigisDM'),
     RPCDigiCollectionDM = cms.string('muonRPCDigisDM'),
+    TrackingParticleCollectionDM = cms.string('MergedTrackTruth'),
     #
     #  Calorimeter Digis
     #               
