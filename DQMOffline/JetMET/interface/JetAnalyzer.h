@@ -120,8 +120,6 @@ class JetAnalyzer : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
 
- edm::EDGetTokenT< edm::View<reco::Jet> >         jetsToken_;
-
   edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
   edm::EDGetTokenT<pat::METCollection>           patMetToken_; 
