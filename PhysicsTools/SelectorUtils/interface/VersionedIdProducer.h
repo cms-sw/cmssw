@@ -13,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
+
 #include "DataFormats/Common/interface/View.h"
 
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
@@ -120,6 +122,7 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
     produces<edm::ValueMap<unsigned> >(idname);  
     produces<edm::ValueMap<unsigned> >(idname+std::string(bitmap_label));
     produces<edm::ValueMap<vid::CutFlowResult> >(idname);
+    //produces<UserDataCollection>(idname);
   }
 }
 
@@ -139,6 +142,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
     std::auto_ptr<edm::ValueMap<unsigned> > outBitmap(new edm::ValueMap<unsigned>() );
     std::auto_ptr<edm::ValueMap<vid::CutFlowResult> > out_cfrs(new edm::ValueMap<vid::CutFlowResult>() );
+    //std::auto_ptr<edm::ValueMap<pat::UserData> > out_usrd(new edm::ValueMap<pat::UserData>);
 
     std::vector<bool> passfail;
     std::vector<float> passfailf;
