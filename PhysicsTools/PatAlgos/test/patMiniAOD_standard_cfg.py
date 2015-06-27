@@ -24,6 +24,7 @@ miniAOD_customizeMC(process)
 #                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
 process.source.fileNames = filesRelValTTbarPileUpGENSIMRECO
+
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##
