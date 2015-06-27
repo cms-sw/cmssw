@@ -75,7 +75,7 @@ def cust_phase2_BE5DPixel10DLHCCNoDefect(process):
     process=jetCustoms.customise_jets(process)
     return process
 
-def cust_phase2_BE5DPixel10Defect(process):
+def cust_phase2_BE5DPixel10DDefect(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10DDefect(process)
     process=customise_HcalPhase2(process)
