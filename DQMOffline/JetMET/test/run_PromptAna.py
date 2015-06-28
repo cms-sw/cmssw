@@ -23,8 +23,9 @@ process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNa
 readFiles.extend( [
        #'/store/relval/CMSSW_7_4_6_patch1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_unsch-v1/00000/28F53E5E-321D-E511-AEF1-0026189438F7.root',
        #'/store/relval/CMSSW_7_4_6_patch1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_unsch-v1/00000/4236E25F-321D-E511-92B6-0026189438B0.root' 
-       '/store/relval/CMSSW_7_4_3_patch1/JetHT/RECO/GR_R_74_V12A_unsch_RelVal_jet2012D-v1/00000/00648F9F-9D06-E511-A11C-0026189438C9.root',
-       '/store/relval/CMSSW_7_4_3_patch1/JetHT/RECO/GR_R_74_V12A_unsch_RelVal_jet2012D-v1/00000/026D63AD-A606-E511-B290-00261894386B.root',
+       #'/store/relval/CMSSW_7_4_3_patch1/JetHT/RECO/GR_R_74_V12A_unsch_RelVal_jet2012D-v1/00000/00648F9F-9D06-E511-A11C-0026189438C9.root',
+       #'/store/relval/CMSSW_7_4_3_patch1/JetHT/RECO/GR_R_74_V12A_unsch_RelVal_jet2012D-v1/00000/026D63AD-A606-E511-B290-00261894386B.root',
+       '/store/relval/CMSSW_7_4_6/RelValZMM_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V9-v2/00000/28CBB168-411A-E511-B2A2-002618943869.root'
        ] );
 
 

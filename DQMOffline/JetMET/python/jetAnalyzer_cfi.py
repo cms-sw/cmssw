@@ -135,7 +135,7 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     filljetHighLevel =cms.bool(True),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJetsCHS"),
-    METCollectionLabel     = cms.InputTag("pfMetT1"),
+    METCollectionLabel     = cms.InputTag("pfMETT1"),
     #actually done only for PFJets at the moment
     InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullDiscriminant"),
     InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedDiscriminant"),
