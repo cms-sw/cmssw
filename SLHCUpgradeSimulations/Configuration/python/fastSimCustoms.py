@@ -5,12 +5,6 @@ def customise_fastSimPostLS1(process):
     if hasattr(process,'famosSimHits'):
        process=customise_fastSimProducer(process)
        
-    from FastSimulation.PileUpProducer.PileUpFiles_cff import puFileNames_13TeV
-    process.genMixPileUpFiles = cms.PSet(fileNames = puFileNames_13TeV)
-    if hasattr(process,'famosPileUp'):
-        if hasattr(process.famosPileUp,"PileUpSimulator"):
-            process.famosPileUp.PileUpSimulator.fileNames = puFileNames_13TeV
-    
     return process
 
 
