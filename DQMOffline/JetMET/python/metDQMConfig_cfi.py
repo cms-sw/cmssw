@@ -12,6 +12,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     METCollectionLabel     = cms.InputTag("caloMet"),
     JetCollectionLabel  = cms.InputTag("ak4CaloJets"),
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
+    muonsrc = cms.InputTag("muons"),
 
     ptMinCand      = cms.double(1.),
     hcalMin      =cms.double(1.),
@@ -76,15 +77,15 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    cms.PSet(label = cms.string('singleEle'),
-        andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
-        dbLabel        = cms.string("JetMETDQMTrigger"),
-        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+    #cms.PSet(label = cms.string('singleEle'),
+    #    andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
+    #    dbLabel        = cms.string("JetMETDQMTrigger"),
+    #    hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_ele' ),#overrides hltPaths!
-        hltPaths       = cms.vstring('HLT_Ele27_WP80_v*' ), 
-        andOrHlt       = cms.bool( True ),
-        errorReplyHlt  = cms.bool( False ),
-    ),
+    #    hltPaths       = cms.vstring('HLT_Ele27_WP80_v*' ), 
+    #    andOrHlt       = cms.bool( True ),
+    #    errorReplyHlt  = cms.bool( False ),
+    #),
     cms.PSet(label = cms.string('singleMu'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
@@ -97,12 +98,14 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     ),
     
     HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),
+    #HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun2Loose"),  
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),  
 
 #    HighPtJetThreshold = cms.double(60.),
 #    LowPtJetThreshold  = cms.double(15.),
 #    HighMETThreshold   = cms.double(110.),
 
+    #if changed here, change certification module input in same manner and injetDQMconfig
     pVBin       = cms.int32(100),
     pVMax       = cms.double(100.0),
     pVMin       = cms.double(0.0),
@@ -136,7 +139,7 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
 #both CaloMET and type1 MET only cleaned plots are filled
 pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
     METType=cms.untracked.string('pf'),
-    METCollectionLabel     = cms.InputTag("pfMetT1"),
+    METCollectionLabel     = cms.InputTag("pfMETT1"),
     srcPFlow = cms.InputTag('particleFlow', ''),
     JetCollectionLabel  = cms.InputTag("ak4PFJetsCHS"),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
@@ -148,7 +151,7 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
-    fillMetHighLevel = cms.bool(True),
+    fillMetHighLevel = cms.bool(False),
     fillCandidateMaps = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
@@ -158,4 +161,3 @@ pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     JetCollectionLabel  = cms.InputTag("slimmedJets"),
     JetCorrections = cms.InputTag(""),#not called, since corrected by default
 )
-
