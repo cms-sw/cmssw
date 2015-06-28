@@ -133,8 +133,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
       } else {
 	if(zside_layer.second==1 && _hgcOverburdenParam) {
 	  hgcOverburdenWeight = _hgcLambdaOverburdenParam->Eval(abs_eta);
-	}
-	
+	}	
       }
       {
         double temp_weight = hgcOverburdenWeight;
@@ -157,7 +156,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
         auto range = fh_ganging.equal_range(zside_layer.second);
         for( auto itr = range.first; itr != range.second; ++itr ) {
           const unsigned layer = itr->second;
-          temp_weight += (*weights)[layer];
+          temp_weight += (*weights)[layer-1];
         }
         energy_in_layer = temp_weight*hit.energy()/(mip_value*std::tanh(abs_eta));
         e_hef += energy_in_layer;
@@ -173,7 +172,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
         auto range = bh_ganging.equal_range(zside_layer.second);
         for( auto itr = range.first; itr != range.second; ++itr ) {
           const unsigned layer = itr->second;
-          temp_weight += (*weights)[layer];
+          temp_weight += (*weights)[layer-1];
         }
         energy_in_layer = temp_weight*hit.energy()/(mip_value*std::tanh(abs_eta));;
         e_heb += energy_in_layer;
