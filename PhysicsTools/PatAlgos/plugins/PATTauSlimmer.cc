@@ -13,6 +13,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
 
 namespace pat {
 
@@ -30,7 +31,8 @@ namespace pat {
       bool dropPiZeroRefs_;
       bool dropTauChargedHadronRefs_;
       bool dropPFSpecific_;
-
+      bool modifyTau_;
+      std::unique_ptr<pat::ObjectModifier<pat::Tau> > tauModifier_;
 
   };
 
@@ -38,8 +40,17 @@ namespace pat {
 
 pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<edm::View<pat::Tau> >(iConfig.getParameter<edm::InputTag>("src"))),
-    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
+    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    modifyTau_(iConfig.getParameter<bool>("modifyTaus"))
 {
+    edm::ConsumesCollector sumes(consumesCollector());
+    if( modifyTau_ ) {
+      const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
+      tauModifier_.reset(new pat::ObjectModifier<pat::Tau>(mod_config) );
+      tauModifier_->setConsumes(sumes);
+    } else {
+      tauModifier_.reset(nullptr);
+    }
     produces<std::vector<pat::Tau> >();
     if (linkToPackedPF_) pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
     dropPiZeroRefs_ = iConfig.exists("dropPiZeroRefs") ? iConfig.getParameter<bool>("dropPiZeroRefs") : true;
@@ -62,9 +73,14 @@ pat::PATTauSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     auto_ptr<vector<pat::Tau> >  out(new vector<pat::Tau>());
     out->reserve(src->size());
 
+    if( modifyTau_ ) { tauModifier_->setEvent(iEvent); }
+
     for (View<pat::Tau>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
 	pat::Tau & tau = out->back();
+
+        if( modifyTau_ ) { tauModifier_->modify(tau); }
+
 	// clearing the pat isolation which is not used by taus
 	tau.isolations_.clear();
 	tau.isoDeposits_.clear();
