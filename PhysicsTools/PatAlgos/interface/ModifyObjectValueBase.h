@@ -9,10 +9,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Common/interface/EventBase.h"
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#endif
 
 #include <string>
 
@@ -23,30 +22,29 @@ class ModifyObjectValueBase {
 
   virtual ~ModifyObjectValueBase() {}
 
-  virtual void setEvent(const edm::EventBase&) {}
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  virtual void setEvent(const edm::Event&) {}
+  virtual void setEventContent(const edm::EventSetup&) {}
   virtual void setConsumes(edm::ConsumesCollector&) {}
-#endif
-
+  
   virtual void modifyObject(pat::Electron&) const { 
     throw cms::Exception("InvalidConfiguration") 
-      << "This modifier is not configured to handle electrons!"; 
+      << name_ << " is not configured to handle electrons!"; 
   }
   virtual void modifyObject(pat::Photon&)   const { 
     throw cms::Exception("InvalidConfiguration") 
-      << "This modifier is not configured to handle photons!"; 
+      << name_ << " is not configured to handle photons!"; 
   }
   virtual void modifyObject(pat::Muon&)     const { 
     throw cms::Exception("InvalidConfiguration") 
-      << "This modifier is not configured to handle muons!"; 
+      << name_ << " is not configured to handle muons!"; 
   }
   virtual void modifyObject(pat::Tau&)      const { 
     throw cms::Exception("InvalidConfiguration") 
-      << "This modifier is not configured to handle taus!"; 
+      << name_ << " is not configured to handle taus!"; 
   }
   virtual void modifyObject(pat::Jet&)      const { 
     throw cms::Exception("InvalidConfiguration") 
-      << "This modifier is not configured to handle jets!"; 
+      << name_ << " is not configured to handle jets!"; 
   }
 
   const std::string& name() const { return name_; }
