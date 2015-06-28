@@ -144,3 +144,79 @@ def cust_2023HGCalPandoraMuon(process):
     process = cust_2023HGCalPandora_common(process)
     process = customise_me0(process)
     return process
+
+def mask_layer(mask,layer):
+    mask[layer-1] = 0
+
+def mask_layers(layer_mask,masked_layers):
+    for det in layer_mask.keys():
+        for layer in masked_layers[det]:
+            mask_layer(layer_mask[det],layer)
+
+def propagate_layerdropping(process,layer_mask):
+    process.pandorapfanew.DoLayerMasking = cms.bool(True)
+    process.pandorapfanew.LayerMaskingParams = cms.PSet( EE_layerMask  = cms.vuint32(layer_mask['EE']),
+                                                         HEF_layerMask = cms.vuint32(layer_mask['HEF']),
+                                                         HEB_layerMask = cms.vuint32(layer_mask['HEB']) )
+    for i in range(3): #reset HGC PFRecHit masking
+        process.particleFlowRecHitHGCEE.producers[i].qualityTests[1].masking_info = process.pandorapfanew.LayerMaskingParams
+    process.particleFlowClusterHGCEE.initialClusteringStep.emEnergyCalibration.masking_info = process.pandorapfanew.LayerMaskingParams
+    process.particleFlowClusterHGCEE.initialClusteringStep.hadEnergyCalibration.masking_info = process.pandorapfanew.LayerMaskingParams
+    return process
+
+def cust_2023HGCalPandoraMuonScopeDoc_ee28_fh12(process):    
+    layer_mask = {}
+    layer_mask['EE']  = [1 for x in range(30)]
+    layer_mask['HEF'] = [1 for x in range(12)]
+    layer_mask['HEB'] = [1 for x in range(12)] 
+    
+    masked_layers = {}
+    masked_layers['EE']  = []
+    masked_layers['HEF'] = []
+    masked_layers['HEB'] = []
+    
+    mask_layers(layer_mask,masked_layers)
+
+    process = cust_2023HGCalPandora_common(process)
+    process = customise_me0(process)    
+    process = propagate_layerdropping(process,layer_mask)
+    
+    return process
+
+def cust_2023HGCalPandoraMuonScopeDoc_ee24_fh11(process):
+    layer_mask = {}
+    layer_mask['EE']  = [1 for x in range(30)]
+    layer_mask['HEF'] = [1 for x in range(12)]
+    layer_mask['HEB'] = [1 for x in range(12)] 
+    
+    masked_layers = {}
+    masked_layers['EE']  = [2, 11, 16 , 26, 28]
+    masked_layers['HEF'] = [11]
+    masked_layers['HEB'] = []
+    
+    mask_layers(layer_mask,masked_layers)
+
+    process = cust_2023HGCalPandora_common(process)
+    process = customise_me0(process)
+    process = propagate_layerdropping(process,layer_mask)
+    
+    return process
+
+def cust_2023HGCalPandoraMuonScopeDoc_ee18_fh9(process):
+    layer_mask = {}
+    layer_mask['EE']  = [1 for x in range(30)]
+    layer_mask['HEF'] = [1 for x in range(12)]
+    layer_mask['HEB'] = [1 for x in range(12)] 
+    
+    masked_layers = {}
+    masked_layers['EE']  = [2, 4, 6, 8, 11, 13, 16, 19, 21, 24, 26, 28]
+    masked_layers['HEF'] = [7, 9, 11]
+    masked_layers['HEB'] = []
+    
+    mask_layers(layer_mask,masked_layers)
+    
+    process = cust_2023HGCalPandora_common(process)
+    process = customise_me0(process)
+    process = propagate_layerdropping(process,layer_mask)
+    
+    return process
