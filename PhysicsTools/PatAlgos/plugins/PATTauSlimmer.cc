@@ -23,6 +23,7 @@ namespace pat {
       virtual ~PATTauSlimmer() { }
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
 
     private:
       edm::EDGetTokenT<edm::View<pat::Tau> > src_;
@@ -57,6 +58,11 @@ pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet & iConfig) :
     dropTauChargedHadronRefs_ = iConfig.exists("dropTauChargedHadronRefs") ? iConfig.getParameter<bool>("dropTauChargedHadronRefs") : true;
     dropPFSpecific_ = iConfig.exists("dropPFSpecific") ? iConfig.getParameter<bool>("dropPFSpecific"): true;
 
+}
+
+void 
+pat::PATTauSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
+  if( modifyTau_ ) tauModifier_->setEventContent(iSetup);
 }
 
 void 

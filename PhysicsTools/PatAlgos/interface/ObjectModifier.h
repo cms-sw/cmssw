@@ -13,18 +13,21 @@ namespace pat {
     ObjectModifier(const edm::ParameterSet& conf);
     ~ObjectModifier() {}
 
-    void setEvent(const edm::EventBase& event) {
+    void setEvent(const edm::Event& event) {
       for( unsigned i = 0; i < modifiers_.size(); ++i )
         modifiers_[i]->setEvent(event);
     }
-    
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+
+    void setEventContent(const edm::EventSetup& setup) {
+      for( unsigned i = 0; i < modifiers_.size(); ++i )
+        modifiers_[i]->setEventContent(setup);
+    }
+
     void setConsumes(edm::ConsumesCollector& sumes) {
       for( unsigned i = 0; i < modifiers_.size(); ++i )
         modifiers_[i]->setConsumes(sumes);
     }
-#endif
-    
+
     void modify(T& obj) const {
       for( unsigned i = 0; i < modifiers_.size(); ++i ) 
         modifiers_[i]->modifyObject(obj);
@@ -41,10 +44,8 @@ namespace pat {
     for(unsigned i = 0; i < mods.size(); ++i ) {
       const edm::ParameterSet& iconf = mods[i];
       const std::string& mname = iconf.getParameter<std::string>("name");
-      ModifyObjectValueBase* plugin = nullptr;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      plugin = ModifyObjectValueFactory::get()->create(mname,iconf);
-#endif
+      ModifyObjectValueBase* plugin = 
+        ModifyObjectValueFactory::get()->create(mname,iconf);
       if( nullptr != plugin ) {
         modifiers_.push_back(ModifierPointer(plugin));
       } else {

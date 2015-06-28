@@ -28,6 +28,7 @@ namespace pat {
     virtual ~PATMuonSlimmer() { }
     
     virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
     
   private:
     edm::EDGetTokenT<pat::MuonCollection> src_;
@@ -60,6 +61,11 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
         pf_    = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandidates"));
         pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
     }
+}
+
+void 
+pat::PATMuonSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
+  if( modifyMuon_ ) muonModifier_->setEventContent(iSetup);
 }
 
 void 

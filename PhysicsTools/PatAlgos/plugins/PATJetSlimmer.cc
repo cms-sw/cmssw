@@ -29,6 +29,7 @@ namespace pat {
       virtual ~PATJetSlimmer() { }
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
 
     private:
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
@@ -61,6 +62,11 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
       jetModifier_.reset(nullptr);
     }
     produces<std::vector<pat::Jet> >();
+}
+
+void 
+pat::PATJetSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
+  if( modifyJet_ ) jetModifier_->setEventContent(iSetup);
 }
 
 void 
