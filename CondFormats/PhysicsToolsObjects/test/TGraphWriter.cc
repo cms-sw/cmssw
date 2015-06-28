@@ -1,4 +1,4 @@
-#include "RecoTauTag/TauTagTools/plugins/TGraphWriter.h"
+#include "CondFormats/PhysicsToolsObjects/test/TGraphWriter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

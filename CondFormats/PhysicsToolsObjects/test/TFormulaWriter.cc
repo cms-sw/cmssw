@@ -1,4 +1,4 @@
-#include "RecoTauTag/TauTagTools/plugins/TFormulaWriter.h"
+#include "CondFormats/PhysicsToolsObjects/test/TFormulaWriter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
