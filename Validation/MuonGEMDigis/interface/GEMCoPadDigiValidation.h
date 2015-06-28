@@ -27,7 +27,7 @@ public:
   // Simple plots
   std::map< UInt_t , MonitorElement* > theCoPad_dcEta;
   std::map< UInt_t , MonitorElement* > theCoPad_simple_zr;
-
+  int minBXGEM_, maxBXGEM_;
 };
 
 #endif

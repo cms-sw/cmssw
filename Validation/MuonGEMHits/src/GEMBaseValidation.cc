@@ -26,6 +26,16 @@ GEMBaseValidation::GEMBaseValidation( const edm::ParameterSet& ps)
 GEMBaseValidation::~GEMBaseValidation() {
 }
 
+TH2F* GEMBaseValidation::getSimpleZR() {
+    std::vector<double> xbins_vector;
+    for( int i= 550 ; i< 820; i++  ) {
+      xbins_vector.push_back(i);
+      if ( i > 580 && i<780 )  i = 780; 
+    }
+    TH2F* simpleZR_templ = new TH2F("","", xbins_vector.size()-1, (double*)&xbins_vector[0], 50,100,330);
+    return simpleZR_templ;
+}
+
 MonitorElement* GEMBaseValidation::BookHistZR( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {
   string hist_name, hist_label;
   if ( layer_num == 0 || layer_num==1 ) {

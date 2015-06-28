@@ -31,6 +31,6 @@ public:
   TProfile* ComputeEff(TH1F* num, TH1F* denum );
 
 private:
-  std::string dbe_path_,outputFile_;
+  std::string dbe_path_,dbe_hist_prefix_,compareable_dbe_path_,compareable_dbe_hist_prefix_ ,outputFile_;
 };
 #endif

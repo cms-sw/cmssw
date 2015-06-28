@@ -10,6 +10,7 @@ GEMTrackMatch::GEMTrackMatch(const edm::ParameterSet& ps)
   minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
   minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
   maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
+  detailPlot_ = ps.getParameter<bool>("detailPlot");
 }
 
 
@@ -29,12 +30,12 @@ void GEMTrackMatch::FillWithTrigger( MonitorElement* hist[3][3],Float_t eta, Flo
   for( unsigned int i=0 ; i<nstation ; i++) {
     int station = i+1;
     if ( odd[i] && eta > getEtaRange(station,1).first&& eta < getEtaRange(station,1).second ) {
-      hist[i][1]->Fill(phi);
-      hist[i][2]->Fill(phi);
+      hist[i][0]->Fill(phi);
+      if( hist[i][1] != nullptr) hist[i][1]->Fill(phi);
     }
     if ( even[i] && eta > getEtaRange(station,2).first&& eta < getEtaRange(station,2).second ) {
       hist[i][0]->Fill(phi);
-      hist[i][2]->Fill(phi);
+      if( hist[i][2] != nullptr) hist[i][2]->Fill(phi);
     }
   }
   return;
@@ -56,16 +57,40 @@ void GEMTrackMatch::FillWithTrigger( MonitorElement* hist[4][3][3], bool array[3
   for( unsigned int i=0 ; i<nstation ; i++) {
     int station = i+1;
     if ( odd[i] && eta > getEtaRange(station,1).first&& eta < getEtaRange(station,1).second ) {
-      if ( array[i][0] ) { hist[0][i][1]->Fill(phi); hist[0][i][2]->Fill(phi); }
-      if ( array[i][1] ) { hist[1][i][1]->Fill(phi); hist[1][i][2]->Fill(phi); }
-      if ( array[i][0] || array[i][1] ) { hist[2][i][1]->Fill(phi); hist[2][i][2]->Fill(phi); }
-      if ( array[i][0] && array[i][1] ) { hist[3][i][1]->Fill(phi); hist[3][i][2]->Fill(phi); }
+      if ( array[i][0] ) { 
+        hist[0][i][0]->Fill(phi);
+        if ( hist[0][i][1] != nullptr) hist[0][i][1]->Fill(phi); 
+      }
+      if ( array[i][1] ) { 
+        hist[1][i][0]->Fill(phi); 
+        if( hist[1][i][1] != nullptr ) hist[1][i][1]->Fill(phi); 
+      }
+      if ( array[i][0] || array[i][1] ) { 
+        hist[2][i][0]->Fill(phi); 
+        if ( hist[2][i][1] != nullptr) hist[2][i][1]->Fill(phi); 
+      }
+      if ( array[i][0] && array[i][1] ) { 
+        hist[3][i][0]->Fill(phi); 
+        if ( hist[3][i][1] != nullptr) hist[3][i][1]->Fill(phi); 
+      }
     }
     if ( even[i] && eta > getEtaRange(station,2).first&& eta < getEtaRange(station,2).second ) {
-      if ( array[i][0] ) { hist[0][i][0]->Fill(phi); hist[0][i][2]->Fill(phi); }
-      if ( array[i][1] ) { hist[1][i][0]->Fill(phi); hist[1][i][2]->Fill(phi); }
-      if ( array[i][0] || array[i][1] ) { hist[2][i][0]->Fill(phi); hist[2][i][2]->Fill(phi); }
-      if ( array[i][0] && array[i][1] ) { hist[3][i][0]->Fill(phi); hist[3][i][2]->Fill(phi); }
+      if ( array[i][0] ) { 
+        hist[0][i][0]->Fill(phi); 
+        if ( hist[0][i][2]!=nullptr) hist[0][i][2]->Fill(phi); 
+      }
+      if ( array[i][1] ) { 
+        hist[1][i][0]->Fill(phi); 
+        if( hist[1][i][2]!=nullptr ) hist[1][i][2]->Fill(phi); 
+      }
+      if ( array[i][0] || array[i][1] ) { 
+        hist[2][i][0]->Fill(phi); 
+        if( hist[2][i][2]!=nullptr) hist[2][i][2]->Fill(phi); 
+      }
+      if ( array[i][0] && array[i][1] ) { 
+        hist[3][i][0]->Fill(phi); 
+        if( hist[3][i][2]!=nullptr) hist[3][i][2]->Fill(phi);
+      }
     }
   }
   return;
@@ -96,7 +121,7 @@ std::pair<double,double> GEMTrackMatch::getEtaRange( int station, int chamber )
     return std::make_pair(eta1,eta2);
   }
   else { std::cout<<"Failed to get geometry information"<<std::endl;
-  return std::make_pair(0,0);
+    return std::make_pair(0,0);
   }
 }
 
@@ -119,7 +144,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
 {
 
   edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId<<"\n";
-  
+
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId,useRoll_).rawId());
 
@@ -127,7 +152,7 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
   neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId,useRoll_).rawId());
 
   // VK: I would really suggest getting phis from GEMGeometry
-  
+
   std::vector<float> phis;
   phis.push_back(0.);
   for(int i=1; i<maxChamberId+1; ++i)
@@ -143,13 +168,13 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
 
 void GEMTrackMatch::setGeometry(const GEMGeometry& geom)
 {
-   gem_geom_ = &geom;
-	 bool isEvenOK = true;
-	 bool isOddOK  = true;
-   useRoll_=1;
-	 if ( geom.etaPartition( GEMDetId(1,1,1,1,1,1) ) == nullptr) isOddOK = false;
-	 if ( geom.etaPartition( GEMDetId(1,1,1,1,2,1) ) == nullptr) isEvenOK = false;
-	 if ( !isEvenOK || !isOddOK) useRoll_=2;
+  gem_geom_ = &geom;
+  bool isEvenOK = true;
+  bool isOddOK  = true;
+  useRoll_=1;
+  if ( geom.etaPartition( GEMDetId(1,1,1,1,1,1) ) == nullptr) isOddOK = false;
+  if ( geom.etaPartition( GEMDetId(1,1,1,1,2,1) ) == nullptr) isEvenOK = false;
+  if ( !isEvenOK || !isOddOK) useRoll_=2;
 
   const auto top_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(1,1,1,1,1,useRoll_))); 
   const int nEtaPartitions(geom.chamber(GEMDetId(1,1,1,1,1,useRoll_))->nEtaPartitions());
@@ -179,11 +204,11 @@ std::pair<int,int> GEMTrackMatch::getClosestChambers(const int maxChamberId , in
 
 std::pair<double, double> GEMTrackMatch::getEtaRangeForPhi( int station ) 
 {
-	std::pair<double, double> range;
-	if( station== 0 )      range = std::make_pair( etaRangeForPhi[0],etaRangeForPhi[1]) ; 
-	else if( station== 1 ) range = std::make_pair( etaRangeForPhi[2],etaRangeForPhi[3]) ; 
-	else if( station== 2 ) range = std::make_pair( etaRangeForPhi[4],etaRangeForPhi[5]) ; 
+  std::pair<double, double> range;
+  if( station== 0 )      range = std::make_pair( etaRangeForPhi[0],etaRangeForPhi[1]) ; 
+  else if( station== 1 ) range = std::make_pair( etaRangeForPhi[2],etaRangeForPhi[3]) ; 
+  else if( station== 2 ) range = std::make_pair( etaRangeForPhi[4],etaRangeForPhi[5]) ; 
 
-	return range;
+  return range;
 }
 

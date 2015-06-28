@@ -49,7 +49,11 @@
 using namespace GEMDetLabel;
 MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
 {
-  dbe_path_ = std::string("MuonGEMDigisV/GEMDigisTask/");
+  dbe_path_ = ps.getParameter<std::string>("dbePath");
+  dbe_hist_prefix_ = ps.getParameter<std::string>("dbeHistPrefix");
+  compareable_dbe_path_ = ps.getParameter<std::string>("compareDBEPath");
+  compareable_dbe_hist_prefix_ = ps.getParameter<std::string>("compareDBEHistPrefix");
+
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
@@ -74,7 +78,7 @@ TProfile* MuonGEMDigisHarvestor::ComputeEff(TH1F* num, TH1F* denum )
       double temp = nDenum;
       nDenum = nNum;
       nNum = temp;
-      std::cout<<"Alert! specific bin's num is bigger than denum"<<std::endl;
+      LogDebug("MuonGEMDigisHarvestor")<<"Alert! specific bin's num is bigger than denum";
     }
     const double effVal = nNum/nDenum;
     efficHist->SetBinContent(i, effVal);
@@ -105,9 +109,9 @@ void MuonGEMDigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore
     ibooker.bookProfile( profile_sh->GetName(),profile_sh); 
   }
   else {
-    std::cout<<"Can not found histogram of "<<dbe_label<<std::endl; 
-    if ( track_hist == nullptr) std::cout<<"track not found"<<std::endl;
-    if ( sh_hist    == nullptr) std::cout<<"sh_hist not found"<<std::endl;
+    LogDebug("MuonGEMDigisHarvestor")<<"Can not found histogram of "<<dbe_label; 
+    if ( track_hist == nullptr) LogDebug("MuonGEMDigisHarvestor")<<"track not found";
+    if ( sh_hist    == nullptr) LogDebug("MuonGEMDigisHarvestor")<<"sh_hist not found";
   }
   return;
 }
@@ -122,7 +126,36 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
 
   TH1F* sh_eta[3][4];
   TH1F* sh_phi[3][4][3];
-  
+
+
+
+  // simplePlots
+  for( int region = -1 ; region <= 1 ; region = region+2) {
+    for ( int station = 0 ; station <2 ; station++) {
+      if ( station ==1 ) station=2 ;
+      TString dcEta_label = TString::Format("%s%s_r%d%s",dbe_path_.c_str(),dbe_hist_prefix_.c_str(), region, s_suffix[station].c_str());
+      TString denum_dcEta_label = TString::Format("%s%s_r%d%s",compareable_dbe_path_.c_str(),compareable_dbe_hist_prefix_.c_str(), region, s_suffix[station].c_str());
+      if ( ig.get( dcEta_label.Data()) != nullptr && ig.get( denum_dcEta_label.Data()) != nullptr) {
+        TH2F* dcEta = (TH2F*)ig.get( dcEta_label.Data())->getTH2F()->Clone();
+        TH2F* denum_dcEta = (TH2F*)ig.get( denum_dcEta_label.Data())->getTH2F()->Clone();
+        dcEta->Divide(denum_dcEta);
+        TH2F* eff_dcEta = (TH2F*)dcEta->Clone();
+        TString eff_dcEta_title = TString::Format("Hits Efficiency on detector component at r%d%s",region,s_suffix[station].c_str());
+        TString eff_dcEta_label = TString::Format("eff_DigiHit_r%d%s",region,s_suffix[station].c_str());
+        eff_dcEta->SetName( eff_dcEta_label.Data());
+        eff_dcEta->SetTitle( eff_dcEta_title.Data());
+        ibooker.book2D(eff_dcEta->GetName(), eff_dcEta);
+      }
+      else {
+        std::cout<<"Failed to get histograms"<<std::endl;
+        std::cout<<dcEta_label<<std::endl;
+        std::cout<<denum_dcEta_label<<std::endl;
+      }
+    }
+  }
+
+
+  // detailPlots
   for( int i = 0 ; i < 3 ; i++) {
     TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];
     TString phi_label;
@@ -130,16 +163,16 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
       gem_trk_eta[i] = (TH1F*)ig.get(eta_label.Data())->getTH1F()->Clone();
       gem_trk_eta[i]->Sumw2();
     }
-    else std::cout<<"Can not found track_eta"<<std::endl;
+    else LogDebug("MuonGEMDigisHarvestor")<<"Can not found track_eta";
     for ( int k=0 ; k <3 ; k++) {
       phi_label = TString(dbe_path_.c_str())+"track_phi"+s_suffix[i]+c_suffix[k];
       if ( ig.get(phi_label.Data()) !=nullptr ) {
         gem_trk_phi[i][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
         gem_trk_phi[i][k]->Sumw2();
       }
-      else std::cout<<"Can not found track_phi"<<std::endl;
+      else LogDebug("MuonGEMDigisHarvestor")<<"Can not found track_phi";
     }
-    
+
     if ( ig.get(eta_label.Data()) != nullptr && ig.get(phi_label.Data()) !=nullptr ) {
       for( int j = 0; j < 4 ; j++) { 
         TString suffix = TString( s_suffix[i] )+TString( l_suffix[j]);
@@ -148,7 +181,7 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           sh_eta[i][j] = (TH1F*)ig.get(eta_label.Data())->getTH1F()->Clone();
           sh_eta[i][j]->Sumw2();
         }
-        else std::cout<<"Can not found eta histogram : "<<eta_label<<std::endl;
+        else LogDebug("MuonGEMDigisHarvestor")<<"Can not found eta histogram : "<<eta_label;
         ProcessBooking( ibooker, ig, "dg_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
         ProcessBooking( ibooker, ig, "pad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
         ProcessBooking( ibooker, ig, "copad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
@@ -156,17 +189,17 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           suffix = TString( s_suffix[i])+TString( l_suffix[j]) +TString(c_suffix[k]);
           TString phi_label = TString(dbe_path_)+"dg_sh_phi"+suffix;
           if( ig.get(phi_label.Data()) !=nullptr ) {
-           sh_phi[i][j][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
-           sh_phi[i][j][k]->Sumw2();
+            sh_phi[i][j][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
+            sh_phi[i][j][k]->Sumw2();
           }
-          else { std::cout<<"Can not found phi plots : "<<phi_label<<std::endl; continue; }
+          else { LogDebug("MuonGEMDigisHarvestor")<<"Can not found phi plots : "<<phi_label; continue; }
           ProcessBooking( ibooker, ig, "dg_phi",suffix, gem_trk_phi[i][k], sh_phi[i][j][k]);      
           ProcessBooking( ibooker, ig, "pad_phi",suffix,gem_trk_phi[i][k], sh_phi[i][j][k]);
           ProcessBooking( ibooker, ig, "copad_phi",suffix,gem_trk_phi[i][k], sh_phi[i][j][k]);
         }
       }
     }
-    else std::cout<<"Can not find eta or phi of all track"<<std::endl;
+    else LogDebug("MuonGEMDigisHarvestor")<<"Can not find eta or phi of all track";
   }
 }
 

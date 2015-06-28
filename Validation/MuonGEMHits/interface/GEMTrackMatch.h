@@ -78,6 +78,7 @@ public:
   int useRoll_;
   unsigned int nstation;
   const GEMGeometry* gem_geom_;
+  bool detailPlot_;
 
 };
 

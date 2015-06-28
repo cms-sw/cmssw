@@ -5,7 +5,7 @@ gemStripValidation = cms.EDAnalyzer('GEMStripDigiValidation',
   stripLabel= cms.InputTag('simMuonGEMDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
   nBinGlobalZR = cms.untracked.vdouble(200,200,200,150,180,250), 
-  RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,794,802,110,260,170,350,100,350), 
+  RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,786,802,110,260,170,350,100,350), 
   nBinGlobalXY = cms.untracked.int32(360),
   detailPlot = cms.bool(False), 
 )
@@ -14,7 +14,7 @@ gemPadValidation = cms.EDAnalyzer('GEMPadDigiValidation',
   PadLabel = cms.InputTag('simMuonGEMPadDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
   nBinGlobalZR = cms.untracked.vdouble(200,200,200,150,180,250), 
-  RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,794,802,110,260,170,350,100,350), 
+  RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,786,802,110,260,170,350,100,350), 
   nBinGlobalXY = cms.untracked.int32(360), 
   detailPlot = cms.bool(False), 
 )
@@ -23,9 +23,11 @@ gemCoPadValidation = cms.EDAnalyzer('GEMCoPadDigiValidation',
   CopadLabel = cms.InputTag('simCscTriggerPrimitiveDigis') ,
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
   nBinGlobalZR = cms.untracked.vdouble(200,200,200,150,180,250), 
-  RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,794,802,110,260,170,350,100,350), 
+  RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,786,802,110,260,170,350,100,350), 
   nBinGlobalXY = cms.untracked.int32(360), 
   detailPlot = cms.bool(False), 
+  minBXGEM = cms.int32(-1),
+  maxBXGEM = cms.int32(1),
 )
 
 gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
@@ -44,9 +46,12 @@ gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
   gemMinPt = cms.untracked.double(5.0),
   gemMinEta = cms.untracked.double(1.55),
   gemMaxEta = cms.untracked.double(2.45),
+  detailPlot = cms.bool(False), 
 )
 
-gemGeometryChecker = cms.EDAnalyzer('GEMCheckGeometry')
+gemGeometryChecker = cms.EDAnalyzer('GEMCheckGeometry',
+  detailPlot = cms.bool(False), 
+)
 
 gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemCoPadValidation+gemDigiTrackValidation+gemGeometryChecker)
 

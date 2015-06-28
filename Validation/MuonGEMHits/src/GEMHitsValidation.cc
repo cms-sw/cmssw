@@ -9,6 +9,7 @@ GEMHitsValidation::GEMHitsValidation(const edm::ParameterSet& cfg):  GEMBaseVali
    detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 
+
 void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
    edm::ESHandle<GEMGeometry> hGeom;
    iSetup.get<MuonGeometryRecord>().get(hGeom);
@@ -34,7 +35,12 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
     TString histname_suffix = TString::Format("_r%d", region_num);
     TString simpleZR_title = TString::Format("ZR Occupancy%s; |Z|(cm); R(cm)", title_suffix.Data());
     TString simpleZR_histname = TString::Format("hit_simple_zr%s", histname_suffix.Data());
-    Hit_simple_zr[simpleZR_histname.Hash()] = ibooker.book2D(simpleZR_histname, simpleZR_title, 100, 550, 820, 100, 100, 300);
+
+    TH2F* simpleZR_templ = getSimpleZR();
+    simpleZR_templ->SetName( simpleZR_histname);
+    simpleZR_templ->SetTitle(simpleZR_title);
+    Hit_simple_zr[simpleZR_histname.Hash()] = ibooker.book2D(simpleZR_histname, simpleZR_templ);
+  
     for( auto& station : region->stations() ){
       if( station->station()==2 ) continue;
       int station_num = ( station->station()==1 ) ? 1 : 2;

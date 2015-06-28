@@ -36,7 +36,8 @@ public:
   double GE11PhiBegin_; 
   double GE11PhiStep_;
   double minPhi_;
-  double maxPhi_; 
+  double maxPhi_;
+  bool detailPlot_; 
 };
 
 #endif

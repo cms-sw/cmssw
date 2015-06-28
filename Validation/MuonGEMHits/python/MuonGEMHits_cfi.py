@@ -22,6 +22,7 @@ gemSimTrackValidation = cms.EDAnalyzer('GEMSimTrackMatch',
     gemMinPt = cms.untracked.double(5.0),
     gemMinEta = cms.untracked.double(1.55),
     gemMaxEta = cms.untracked.double(2.45),
+    detailPlot = cms.bool(False), 
 )
 
 gemSimValidation = cms.Sequence( gemSimHitValidation+gemSimTrackValidation)

@@ -8,12 +8,13 @@ GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet& gc)
   GE11PhiStep_ = gc.getUntrackedParameter< double >("GE11PhiStep",10) ;
   minPhi_ = gc.getUntrackedParameter< double >("minPhi",-180.);
   maxPhi_ = gc.getUntrackedParameter< double >("maxPhi",+180.);
-  
+  detailPlot_ = gc.getParameter< bool >("detailPlot"); 
 }
 
 
 void GEMCheckGeometry::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup) {
 
+  if ( !detailPlot_ ) return ; 
   const GEMGeometry* GEMGeometry_;
 
   try{

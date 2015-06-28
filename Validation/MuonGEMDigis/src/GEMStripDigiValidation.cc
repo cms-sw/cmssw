@@ -42,7 +42,11 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
     TString histname_suffix = TString::Format("_r%d",region_num);
     TString simpleZR_title    = TString::Format("ZR Occupancy%s; |Z|(cm) ; R(cm)",title_suffix.Data());
     TString simpleZR_histname = TString::Format("strip_simple_zr%s",histname_suffix.Data());
-    theStrip_simple_zr[simpleZR_histname.Hash() ] = ibooker.book2D(simpleZR_histname, simpleZR_title, 100, 550, 820, 100, 100, 380);
+    TH2F* simpleZR = getSimpleZR();
+    simpleZR->SetName( simpleZR_histname);
+    simpleZR->SetTitle( simpleZR_title);
+    theStrip_simple_zr[simpleZR_histname.Hash() ] = ibooker.book2D(simpleZR_histname, simpleZR);
+
     for( auto& station : region->stations()) {
       if ( station->station()==2) continue;
       int station_num = (station->station()==1) ? 1 : 2;   // 1 = station 1, 3 = station2l. Should be 2.
