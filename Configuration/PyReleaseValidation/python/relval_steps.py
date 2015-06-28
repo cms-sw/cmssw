@@ -342,7 +342,7 @@ baseDataSetRelease=[
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',            # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_5_0_pre6-PU25ns_75X_mcRun2_asymptotic_v1-v1',  # 5 - fullSim PU 25ns premix
     'CMSSW_7_5_0_pre6-PU50ns_75X_mcRun2_startup_v1-v1',     # 6 - fullSim PU 50ns premix
-    'CMSSW_7_5_0_pre5-MCRUN2_75_V5_FastSim-v1'              # 7 - fastSim premix
+    'CMSSW_7_5_0_pre6-75X_mcRun2_asymptotic_v1_FastSim-v1'  # 7 - fastSim premix
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
