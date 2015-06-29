@@ -88,21 +88,45 @@ def miniAOD_customizeCommon(process):
     #
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
-    # FIXME: are we 100% sure this should still be PF and not PFchs? 
-    from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
+    # FIXME: are we 100% sure this should still be PF and not PFchs? -> MM: Yes for <=75X
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
     process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
-    runType1PFMEtUncertainties(process,
-                               addToPatDefaultSequence=False,
-                               jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
-                               jetCollection="selectedPatJetsAK4PFForMetUnc",
-                               electronCollection="selectedPatElectrons",
-                               muonCollection="selectedPatMuons",
-                               tauCollection="selectedPatTaus",
-                               makeType1p2corrPFMEt=True,
-                               doSmearJets=False,
-                               outputModule=None)
 
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
+    
+    #MET flavors
+    runMETCorrectionsAndUncertainties(process, metType="PF",
+                                      correctionLevel=["T0","T1","T2","Smear","Txy"],
+                                      computeUncertainties=False,
+                                      produceIntermediateCorrections=True,
+                                      addToPatDefaultSequence=False,
+                                      jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
+                                      jetCollection="selectedPatJetsAK4PFForMetUnc",
+                                      postfix="",
+                                      )
+    
+    #MET T1 uncertainties
+    runMETCorrectionsAndUncertainties(process, metType="PF",
+                                      correctionLevel=["T1"],
+                                      computeUncertainties=True,
+                                      produceIntermediateCorrections=False,
+                                      addToPatDefaultSequence=False,
+                                      jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
+                                      jetCollection="selectedPatJetsAK4PFForMetUnc",
+                                      postfix="",
+                                      )
+    
+    #MET T1 Smeared JER uncertainties
+    runMETCorrectionsAndUncertainties(process, metType="PF",
+                                      correctionLevel=["T1","Smear"],
+                                      computeUncertainties=True,
+                                      produceIntermediateCorrections=False,
+                                      addToPatDefaultSequence=False,
+                                      jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
+                                      jetCollection="selectedPatJetsAK4PFForMetUnc",
+                                      postfix="",
+                                      )
+    
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process,
                      labelName = "patCaloMet",
@@ -205,7 +229,7 @@ def miniAOD_customizeCommon(process):
     process.pfMetPuppi = process.pfMet.clone()
     process.pfMetPuppi.src = cms.InputTag("puppi")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-    ## type1 correction, from puppi jets
+    # type1 correction, from puppi jets
     process.corrPfMetType1Puppi = process.corrPfMetType1.clone(
         src = 'ak4PFJetsPuppi',
         jetCorrLabel = 'ak4PFCHSL2L3Corrector',
@@ -223,9 +247,17 @@ def miniAOD_customizeCommon(process):
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     process.slimmedMETsPuppi = process.slimmedMETs.clone()
     process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
-    process.slimmedMETsPuppi.rawUncertainties   = cms.InputTag("patPFMetPuppi") # only central value
-    process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1")    # only central value for now
-    del process.slimmedMETsPuppi.type1p2Uncertainties # not available
+    process.slimmedMETsPuppi.rawVariation   = cms.InputTag("patPFMetPuppi") # only central value
+    # only central values for puppi met
+    del process.slimmedMETsPuppi.t01Variation
+    del process.slimmedMETsPuppi.t1SmearedVarsAndUncs
+    del process.slimmedMETsPuppi.tXYUncForRaw
+    del process.slimmedMETsPuppi.tXYUncForT1
+    del process.slimmedMETsPuppi.tXYUncForT01
+    del process.slimmedMETsPuppi.tXYUncForT1Smear
+    del process.slimmedMETsPuppi.tXYUncForT01Smear
+    del process.slimmedMETsPuppi.caloMET
+
 
 
 def miniAOD_customizeMC(process):
