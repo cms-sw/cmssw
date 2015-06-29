@@ -174,18 +174,20 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 
   CTP7Format ctp7Format;
   RctDataDecoder rctDataDecoder;
-  uint32_t nBX = 0; 
+  uint32_t nBXTemp = 0; 
   uint32_t ctp7FWVersion;
   uint32_t L1ID, L1aBCID;
   std::vector<RCTInfo> allCrateRCTInfo[5];
   
   L1ID          =  data[1+of];                      // extract the L1 ID number
   L1aBCID       =  data[5+of] & 0x00000FFF;         // extract the BCID number of L1A
-  nBX           = (data[5+of] & 0x00FF0000) >> 16;  // extract number of BXs readout per L1A 
+  nBXTemp       = (data[5+of] & 0x00FF0000) >> 16;  // extract number of BXs readout per L1A 
   ctp7FWVersion =  data[4+of];
   
-  if(nBX != 1 && nBX != 3 && nBX != 5)
-    nBX = 1;
+  if(nBXTemp != 1 && nBXTemp != 3 && nBXTemp != 5)
+    nBXTemp = 1;
+
+  const uint32_t nBX = nBXTemp;
 
   LogDebug("L1T") << "CTP7 L1ID = " << L1ID << " L1A BCID = " << L1aBCID << " BXs in capture = " << nBX << " CTP7 DAQ FW = " << ctp7FWVersion;
   
