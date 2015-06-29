@@ -1,0 +1,40 @@
+import FWCore.ParameterSet.Config as cms
+
+from Validation.RecoTrack.seedTracks_cfi import seedTracks as _seedTracks
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackAssociation
+from Validation.RecoTrack.TrackValidation_cff import *
+
+_seedProducerLabels = ["initialStepSeeds",
+                       "detachedTripletStepSeeds",
+                       "lowPtTripletStepSeeds",
+                       "pixelPairStepSeeds",
+                       "mixedTripletStepSeedsA",
+                       "mixedTripletStepSeedsB",
+                       "pixelLessStepSeeds",
+                       "tobTecStepSeedsPair",
+                       "tobTecStepSeedsTripl",
+                       "jetCoreRegionalStepSeeds",
+                       ]
+
+_moduleNames = []
+for _label in _seedProducerLabels:
+    _lines = """
+{0}Tracks = _seedTracks.clone(src = cms.InputTag(\"{0}\"))
+{0}Association = _trackAssociation.clone(label_tr = cms.InputTag(\"{0}Tracks\"))
+{0}Validator = trackValidator.clone(
+   trackCollectionForDrCalculation = cms.InputTag("{0}Tracks"),
+   label = [cms.InputTag("{0}Tracks")],
+   associators = [cms.InputTag(\"{0}Association\")])
+
+_moduleNames.extend([\"{0}Tracks\",\"{0}Association\",\"{0}Validator\"])
+""".format(_label)
+    exec(_lines)
+
+_line = "trajectorySeedValidation = cms.Sequence(quickTrackAssociatorByHits+{0})".format("+".join(_moduleNames))
+exec(_line)
+
+
+trackAndTrajectorySeedValidationStandalone = cms.Sequence(
+    tracksValidationStandalone +
+    trajectorySeedValidation
+)

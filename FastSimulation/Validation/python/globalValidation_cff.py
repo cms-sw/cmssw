@@ -14,6 +14,7 @@ from Validation.RecoMET.METRelValForDQM_cff import *
 
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
+from Validation.RecoTrack.TrajectorySeedValidation_fastsim_cff import *
 from Validation.RecoJets.JetValidation_cff import *
 from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
