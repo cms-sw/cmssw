@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.seedTracks_cfi import seedTracks as _seedTracks
-from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackAssociation
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 
 _seedProducerLabels = ["initialStepSeeds",
@@ -13,26 +12,30 @@ _seedProducerLabels = ["initialStepSeeds",
                        "pixelLessStepSeeds",
                        "tobTecStepSeedsPair",
                        "tobTecStepSeedsTripl",
+                       "jetCoreRegionalStepSeeds",
                        ]
 
 _moduleNames = []
 for _label in _seedProducerLabels:
     _lines = """
 {0}Tracks = _seedTracks.clone(src = cms.InputTag(\"{0}\"))
-{0}Association = _trackAssociation.clone(label_tr = cms.InputTag(\"{0}Tracks\"))
-{0}Validator = trackValidator.clone(
-   trackCollectionForDrCalculation = cms.InputTag("{0}Tracks"),
-   label = [cms.InputTag("{0}Tracks")],
-   associators = [cms.InputTag(\"{0}Association\")])
-
-_moduleNames.extend([\"{0}Tracks\",\"{0}Association\",\"{0}Validator\"])
+_moduleNames.extend([\"{0}Tracks\"])
 """.format(_label)
     exec(_lines)
 
-_line = "trajectorySeedValidation = cms.Sequence(quickTrackAssociatorByHits+{0})".format("+".join(_moduleNames))
+
+trajectorySeedValidator = trackValidator.clone(
+    dodEdxPlots = False,
+    label = [cms.InputTag(x) for x in _moduleNames],
+    UseAssociators=True, 
+    associators=[cms.InputTag("quickTrackAssociatorByHits")]
+    )
+
+_line = "trajectorySeedValidation = cms.Sequence(quickTrackAssociatorByHits+{0}+trajectorySeedValidator)".format("+".join(_moduleNames))
 exec(_line)
 
-tracksAndTrajectorySeedsValidationStandalone = cms.Sequence(
+
+trackAndTrajectorySeedValidationStandalone = cms.Sequence(
     tracksValidationStandalone +
     trajectorySeedValidation
 )
