@@ -234,7 +234,8 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 
     // Fix track association for sorted candidates
     for(size_t i=0,ntk=mappingTk.size();i<ntk;i++){
-        mappingTk[i]=reverseOrder[mappingTk[i]]; 
+        if(mappingTk[i] >= 0)
+          mappingTk[i]=reverseOrder[mappingTk[i]];
     }
 
     for(size_t i=0,ntk=mappingPuppi.size();i<ntk;i++){
