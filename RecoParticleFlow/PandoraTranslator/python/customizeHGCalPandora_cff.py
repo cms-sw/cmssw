@@ -178,8 +178,9 @@ def cust_2023HGCalPandoraMuonScopeDoc_ee28_fh12(process):
     mask_layers(layer_mask,masked_layers)
 
     process = cust_2023HGCalPandora_common(process)
-    process = customise_me0(process)    
-    process = propagate_layerdropping(process,layer_mask)
+    process = customise_me0(process)   
+    if hasattr(process,'reconstruction_step'):
+        process = propagate_layerdropping(process,layer_mask)
     
     return process
 
@@ -198,7 +199,8 @@ def cust_2023HGCalPandoraMuonScopeDoc_ee24_fh11(process):
 
     process = cust_2023HGCalPandora_common(process)
     process = customise_me0(process)
-    process = propagate_layerdropping(process,layer_mask)
+    if hasattr(process,'reconstruction_step'):
+        process = propagate_layerdropping(process,layer_mask)
     
     return process
 
@@ -217,6 +219,7 @@ def cust_2023HGCalPandoraMuonScopeDoc_ee18_fh9(process):
     
     process = cust_2023HGCalPandora_common(process)
     process = customise_me0(process)
-    process = propagate_layerdropping(process,layer_mask)
+    if hasattr(process,'reconstruction_step'):
+        process = propagate_layerdropping(process,layer_mask)
     
     return process
