@@ -13,7 +13,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1Trigger/interface/L1TriggerError.h"
-
+#include "TList.h"
 
 class RctUnpackCollections
 {
