@@ -1,46 +1,70 @@
+// -*- C++ -*-
 
-/** \class CorrectedPFMETProducer
- *
- * Instantiate CorrectedMETProducer template for PFMET
- *
- * NOTE: This file also defines concrete implementation of CorrectedMETFactory template
- *       specific to PFMET
- *
- *
- * \authors Michael Schmitt, Richard Cavanaugh, The University of Florida
- *          Florent Lacroix, University of Illinois at Chicago
- *          Christian Veelken, LLR
- *
- *
- *
- */
+//____________________________________________________________________________||
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/CorrMETData.h"
 
-#include "JetMETCorrections/Type1MET/interface/CorrectedMETProducerT.h"
+#include "JetMETCorrections/Type1MET/interface/AddCorrectionsToGenericMET.h"
 
-namespace CorrectedMETProducer_namespace
+#include <vector>
+
+//____________________________________________________________________________||
+class CorrectedPFMETProducer : public edm::stream::EDProducer<>
 {
-  template <>
-  class CorrectedMETFactoryT<reco::PFMET>
+
+public:
+
+  explicit CorrectedPFMETProducer(const edm::ParameterSet& cfg)
+    : corrector(),
+      token_(consumes<METCollection>(cfg.getParameter<edm::InputTag>("src")))
   {
-   public:
-
-    reco::PFMET operator()(const reco::PFMET& rawMEt, const CorrMETData& correction) const
-    {
-      reco::PFMET ret(rawMEt.getSpecific(), 
-			 correctedSumEt(rawMEt, correction), 
-			 correctedP4(rawMEt, correction), 
-			 rawMEt.vertex());
-      ret.setSignificanceMatrix(rawMEt.getSignificanceMatrix()); 
-      return ret;
+    std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections");
+    std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens;
+    for (std::vector<edm::InputTag>::const_iterator inputTag = corrInputTags.begin(); inputTag != corrInputTags.end(); ++inputTag) {
+      corrTokens.push_back(consumes<CorrMETData>(*inputTag));
     }
-  };
-}
+    
+    corrector.setCorTokens(corrTokens);
 
-typedef CorrectedMETProducerT<reco::PFMET> CorrectedPFMETProducer;
+    produces<METCollection>("");
+  }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
+  ~CorrectedPFMETProducer() { }
+
+private:
+
+  AddCorrectionsToGenericMET corrector;
+
+  typedef std::vector<reco::PFMET> METCollection;
+
+  edm::EDGetTokenT<METCollection> token_;
+ 
+
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
+  {
+    edm::Handle<METCollection> srcMETCollection;
+    evt.getByToken(token_, srcMETCollection);
+
+    const reco::PFMET& srcMET = (*srcMETCollection)[0];
+        
+    reco::PFMET outMET= corrector.getCorrectedPFMET(srcMET, evt, es);
+    
+    std::auto_ptr<METCollection> product(new METCollection);
+    product->push_back(outMET);
+    evt.put(product);
+  }
+
+};
+
+//____________________________________________________________________________||
 
 DEFINE_FWK_MODULE(CorrectedPFMETProducer);
-

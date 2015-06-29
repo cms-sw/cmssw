@@ -7,7 +7,6 @@
 
 #include "DQMProvInfo.h"
 #include <TSystem.h>
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -81,7 +80,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
   reportSummaryMap_->setBinLabel(25,"ZDC",2);
   reportSummaryMap_->setBinLabel(26,"PhysDecl",2);
-  reportSummaryMap_->setBinLabel(27,"8 TeV",2);
+  reportSummaryMap_->setBinLabel(27,"13 TeV",2);
   reportSummaryMap_->setBinLabel(28,"Stable B",2);
   reportSummaryMap_->setBinLabel(29,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
@@ -150,11 +149,11 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 void DQMProvInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
   if(!gotProcessParameterSet_){
     gotProcessParameterSet_=true;
-    edm::ParameterSet ps;
-    //fetch the real process name
-    nameProcess_ = e.processHistory()[e.processHistory().size()-1].processName();
-    e.getProcessParameterSet(nameProcess_,ps);
-    globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag").getParameter<std::string>("globaltag");
+
+    globalTag_ =
+      edm::getProcessParameterSetContainingModule(moduleDescription()).
+      getParameterSet("PoolDBESSource@GlobalTag").
+      getParameter<std::string>("globaltag");
     versGlobaltag_->Fill(globalTag_);
   }
   

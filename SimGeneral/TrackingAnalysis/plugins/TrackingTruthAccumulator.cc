@@ -723,7 +723,7 @@ namespace // Unnamed namespace for things only used in this file
 
 	bool ::TrackingParticleFactory::vectorIsInsideVolume( const math::XYZTLorentzVectorD& vector ) const
 	{
-		return ( vector.Pt()<volumeRadius_ && vector.z()<volumeZ_ );
+		return ( vector.Pt()<volumeRadius_ && std::abs( vector.z() )<volumeZ_ );
 	}
 
 	//---------------------------------------------------------------------------------

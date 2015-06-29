@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB"),
     histDirectory  = cms.string("HLT/Higgs"),
     
-    # -- The instance name of the reco::GenParticles collection
+    # -- The instance name of the reco::GenParticles collection 
     genParticleLabel = cms.string("genParticles"),
     
     # -- The instance name of the reco::GenJets collection
@@ -175,8 +175,12 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
      DoubleHinTaus = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_Mu17_Mu8_SameSign_v",
-            "HLT_Mu17_Mu8_SameSign_DPhi_v"
+            "HLT_Mu17_Mu8_v",
+            "HLT_Mu17_Mu8_DZ_v",
+            "HLT_Mu17_Mu8_SameSign_DZ_v",
+            "HLT_Mu20_Mu10_v",
+            "HLT_Mu20_Mu10_DZ_v",
+            "HLT_Mu20_Mu10_SameSign_DZ_v"
         ),
         recMuonLabel  = cms.string("muons"),
         # -- Analysis specific cuts
@@ -290,7 +294,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV0p7_v",
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV0p72_v",
             "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v"
             "HLT_PFMET120_PFMHT120_IDTight_v",
             "HLT_PFMET110_PFMHT110_IDTight_v",
@@ -307,10 +311,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     X4b  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_DoubleJet90_Double30_TripleCSV0p5_v",
-            "HLT_DoubleJet90_Double30_DoubleCSV0p5_v",
-            "HLT_QuadJet45_TripleCSV0p5_v",
-            "HLT_QuadJet45_DoubleCSV0p5_v",
+            "HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v",
+            "HLT_DoubleJet90_Double30_DoubleBTagCSV0p67_v",
+            "HLT_QuadJet45_TripleBTagCSV0p67_v",
+            "HLT_QuadJet45_DoubleBTagCSV0p67_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
@@ -335,8 +339,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     AHttH  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_PFHT450_SixJet40_PFBTagCSV_v",
-            "HLT_PFHT400_SixJet30_BTagCSV0p5_2PFBTagCSV_v",
+            "HLT_PFHT450_SixJet40_PFBTagCSV0p72_v",
+            "HLT_PFHT400_SixJet30_BTagCSV0p55_2PFBTagCSV0p72_v",
             "HLT_PFHT450_SixJet40_v",
             "HLT_PFHT400_SixJet30_v",
             ),
@@ -345,5 +349,13 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
         ## -- Analysis specific cuts
         minCandidates = cms.uint32(6), 
+        ),
+    WHToENuBB  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_Ele27_WPLoose_Gsf_WHbbBoost_v",
+            ),
+        recElecLabel   = cms.string("gedGsfElectrons"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        minCandidates = cms.uint32(1),
         ),
 )

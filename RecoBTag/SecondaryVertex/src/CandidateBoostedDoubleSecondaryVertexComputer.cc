@@ -20,7 +20,14 @@ CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVe
   uses(2, "muonTagInfos");
   uses(3, "elecTagInfos");
 
-  mvaID.reset(new MvaBoostedDoubleSecondaryVertexEstimator(weightFile_.fullPath()));
+  mvaID.reset(new TMVAEvaluator());
+
+  // variable order needs to be the same as in the training
+  std::vector<std::string> variables({"PFLepton_ptrel", "z_ratio1", "tau_dot", "SV_mass_0", "SV_vtx_EnergyRatio_0",
+                                      "SV_vtx_EnergyRatio_1","PFLepton_IP2D", "tau2/tau1", "nSL", "jetNTracksEtaRel"});
+  std::vector<std::string> spectators({"massGroomed", "flavour", "nbHadrons", "ptGroomed", "etaGroomed"});
+
+  mvaID->initialize("Color:Silent:Error", "BDTG", weightFile_.fullPath(), variables, spectators);
 }
 
 
@@ -35,7 +42,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   // default discriminator value
   float value = -10.;
 
-  // MvaBoostedDoubleSecondaryVertexEstimator is not thread safe
+  // TMVAEvaluator is not thread safe
   std::lock_guard<std::mutex> lock(m_mutex);
 
   // default variable values
@@ -143,8 +150,20 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     }
   }
 
+  std::map<std::string,float> inputs;
+  inputs["z_ratio1"] = z_ratio;
+  inputs["tau_dot"] = tau_dot;
+  inputs["SV_mass_0"] = SV_mass_0;
+  inputs["SV_vtx_EnergyRatio_0"] = SV_EnergyRatio_0;
+  inputs["SV_vtx_EnergyRatio_1"] = SV_EnergyRatio_1;
+  inputs["jetNTracksEtaRel"] = vertexNTracks;
+  inputs["PFLepton_ptrel"] = PFLepton_ptrel;
+  inputs["PFLepton_IP2D"] = PFLepton_IP2D;
+  inputs["nSL"] = nSL;
+  inputs["tau2/tau1"] = tau21;
+
   // evaluate the MVA
-  value = mvaID->mvaValue(PFLepton_ptrel, z_ratio, tau_dot, SV_mass_0, SV_EnergyRatio_0, SV_EnergyRatio_1, PFLepton_IP2D, tau21, nSL, vertexNTracks);
+  value = mvaID->evaluate(inputs);
 
   // return the final discriminator value
   return value;

@@ -36,8 +36,8 @@ private:
   void flagMothers(const reco::GenParticle &, int);
   void recursiveFlagDaughters(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &);
   void recursiveFlagMothers(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &);
-  void addDaughterRefs(std::vector<size_t> &, reco::GenParticle&, reco::GenParticleRefProd, const reco::GenParticleRefVector&) const;
-  void addMotherRefs(std::vector<size_t> &, reco::GenParticle&, reco::GenParticleRefProd, const reco::GenParticleRefVector&) const;
+  void getDaughterKeys(std::vector<size_t> &, const reco::GenParticleRefVector&) const;
+  void getMotherKeys(std::vector<size_t> &, const reco::GenParticleRefVector&) const;
 };
 
 using namespace edm;
@@ -248,9 +248,15 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
     // which would result in an infinite loop. The list is checked to
     // avoid this.
     vector<size_t> daIndxs;
-    addDaughterRefs(daIndxs, newGen, outRef, gen.daughterRefVector());
+    getDaughterKeys(daIndxs, gen.daughterRefVector());
+    std::sort(daIndxs.begin(),daIndxs.end());
+    for(size_t i=0; i<daIndxs.size(); ++i)
+      newGen.addDaughter( GenParticleRef(outRef, daIndxs[i]) );
     vector<size_t> moIndxs;
-    addMotherRefs(moIndxs, newGen, outRef, gen.motherRefVector());
+    getMotherKeys(moIndxs, gen.motherRefVector());
+    std::sort(moIndxs.begin(),moIndxs.end());
+    for(size_t i=0; i<moIndxs.size(); ++i)
+      newGen.addMother( GenParticleRef(outRef, moIndxs[i]) );
   }
 
 
@@ -265,47 +271,38 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
 }
 
 
-void GenParticlePruner::addDaughterRefs(vector<size_t> & daIndxs,
-					GenParticle& newGen, GenParticleRefProd outRef,
+void GenParticlePruner::getDaughterKeys(vector<size_t> & daIndxs,
 					const GenParticleRefVector& daughters) const {
   for(GenParticleRefVector::const_iterator j = daughters.begin();
       j != daughters.end(); ++j) {
     GenParticleRef dau = *j;
-    if ( find(daIndxs.begin(), daIndxs.end(), dau.key()) == daIndxs.end() ) {
-      int idx = flags_[dau.key()];
-      daIndxs.push_back( dau.key() );
-      if(idx > 0) {
-	GenParticleRef newDau(outRef, static_cast<size_t>(idx));
-	newGen.addDaughter(newDau);
-      } else {
-	const GenParticleRefVector daus = dau->daughterRefVector();
-	if(daus.size()>0) {
-	  addDaughterRefs(daIndxs, newGen, outRef, daus);
-	}
-      }
+    int idx = flags_[dau.key()];
+    if (find(daIndxs.begin(), daIndxs.end(), idx) != daIndxs.end()) continue;
+    if (idx > 0 ) {
+      daIndxs.push_back( idx );
+    } else {
+      const GenParticleRefVector & daus = dau->daughterRefVector();
+      if(daus.size()>0)
+        getDaughterKeys(daIndxs, daus);
     }
   }
 }
 
 
 
-void GenParticlePruner::addMotherRefs(vector<size_t> & moIndxs,
-				      GenParticle& newGen, GenParticleRefProd outRef,
+void GenParticlePruner::getMotherKeys(vector<size_t> & moIndxs,
 				      const GenParticleRefVector& mothers) const {
   for(GenParticleRefVector::const_iterator j = mothers.begin();
       j != mothers.end(); ++j) {
     GenParticleRef mom = *j;
-    if ( find(moIndxs.begin(), moIndxs.end(), mom.key()) == moIndxs.end() ) {
-      int idx = flags_[mom.key()];
-      moIndxs.push_back( mom.key() );
-      if(idx >= 0) {
-	GenParticleRef newMom(outRef, static_cast<size_t>(idx));
-	newGen.addMother(newMom);
-      } else {
-	const GenParticleRefVector moms = mom->motherRefVector();
-	if(moms.size()>0)
-	  addMotherRefs(moIndxs, newGen, outRef, moms);
-      }
+    int idx = flags_[mom.key()];
+    if (find(moIndxs.begin(), moIndxs.end(), idx) != moIndxs.end()) continue;
+    if (idx >= 0 ) {
+      moIndxs.push_back( idx );
+    } else {
+      const GenParticleRefVector & moms = mom->motherRefVector();
+      if(moms.size()>0)
+        getMotherKeys(moIndxs, moms);
     }
   }
 }

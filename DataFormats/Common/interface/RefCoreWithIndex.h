@@ -92,8 +92,8 @@ namespace edm {
       toRefCore().setProductGetter(prodGetter);
     }
 
-    WrapperBase const* getProductPtr(std::type_info const& type) const {
-      return toRefCore().getProductPtr(type);
+    WrapperBase const* getProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const {
+      return toRefCore().getProductPtr(type,prodGetter);
     }
 
     void productNotFoundException(std::type_info const& type) const {

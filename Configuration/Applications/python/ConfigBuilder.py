@@ -645,18 +645,10 @@ class ConfigBuilder(object):
 	if self._options.pileup:
 		pileupSpec=self._options.pileup.split(',')[0]
 
-		# FastSim: GEN-mixing or DIGI-RECO mixing?
-		GEN_mixing = False
-		if self._options.fast and pileupSpec.find("GEN_") == 0:
-                        GEN_mixing = True
-                        pileupSpec = pileupSpec[4:]
-
 		# Does the requested pile-up scenario exist?
 		from Configuration.StandardSequences.Mixing import Mixing,defineMixing
 		if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:
 			message = pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys())
-			if self._options.fast:
-				message += "\n-"*20+"\n additional options for FastSim (gen-mixing):\n" + "-"*20 + "\n" + '\n'.join(["GEN_" + x for x in Mixing.keys()]) + "\n"
 			raise Exception(message)
 
 		# Put mixing parameters in a dictionary
@@ -681,10 +673,7 @@ class ConfigBuilder(object):
 
 		# FastSim: transform cfg of MixingModule from FullSim to FastSim 
 		if self._options.fast:
-			if GEN_mixing:
-				self._options.customisation_file.insert(0,"FastSimulation/Configuration/MixingModule_Full2Fast.prepareGenMixing")
-			else:   
-				self._options.customisation_file.insert(0,"FastSimulation/Configuration/MixingModule_Full2Fast.prepareDigiRecoMixing")
+			self._options.customisation_file.insert(0,"FastSimulation/Configuration/MixingModule_Full2Fast.prepareDigiRecoMixing")
 
 		mixingDict.pop('file')
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
@@ -1120,9 +1109,6 @@ class ConfigBuilder(object):
 	if self._options.pileup=='default':
 		from Configuration.StandardSequences.Mixing import MixingDefaultKey
 		self._options.pileup=MixingDefaultKey
-		# temporary, until digi-reco mixing becomes standard in RelVals
-		if self._options.fast:
-			self._options.pileup="GEN_" + MixingDefaultKey
 		
 
 	#not driven by a default cff anymore
@@ -1448,7 +1434,11 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
-	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+
+        if sequence == 'pdigi_valid':
+		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
+	else:
+		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
