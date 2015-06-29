@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.seedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
+from Validation.RecoTrack.trajectorySeedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackAssociation
 from Validation.RecoTrack.TrackValidation_cff import *
 

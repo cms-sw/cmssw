@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.seedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
+from Validation.RecoTrack.trajectorySeedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 
 _seedProducerLabels = ["initialStepSeeds",
@@ -18,7 +18,7 @@ _seedProducerLabels = ["initialStepSeeds",
 _moduleNames = []
 for _label in _seedProducerLabels:
     _lines = """
-{0}Tracks = _seedTracks.clone(src = cms.InputTag(\"{0}\"))
+{0}Tracks = _trajectorySeedTracks.clone(src = cms.InputTag(\"{0}\"))
 _moduleNames.extend([\"{0}Tracks\"])
 """.format(_label)
     exec(_lines)
