@@ -17,6 +17,9 @@ def main(opts):
     files = opts.files
     labels = [f.replace(".root", "") for f in files]
 
+    if opts.ignoreMissing:
+        plotting.missingOk = True
+
     drawArgs={}
     if opts.ratio:
         drawArgs["ratio"] = True
@@ -34,6 +37,8 @@ if __name__ == "__main__":
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default="plots",
                         help="Plot output directory (default: 'plots')")
+    parser.add_argument("--ignoreMissing", action="store_true",
+                        help="Ignore missing histograms and directories")
     parser.add_argument("--ratio", action="store_true",
                         help="Create ratio pads")
     parser.add_argument("--separate", action="store_true",
