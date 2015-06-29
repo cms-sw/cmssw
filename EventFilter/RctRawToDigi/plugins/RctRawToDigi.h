@@ -29,6 +29,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/RctRawToDigi/src/RctUnpackCollections.h"
 #include "EventFilter/RctRawToDigi/src/RCTInfo.hh"
+#include "EventFilter/RctRawToDigi/src/CTP7Format.hh"
+#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 #include "EventFilter/RctRawToDigi/src/RctDataDecoder.hh"
 
 // *******************************************************************
@@ -53,7 +55,7 @@ private: // methods
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
   void unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollections * const colls);
 
-  void unpackCTP7(const unsigned char *data, const unsigned block_id, const unsigned size, RctUnpackCollections * const colls);
+  void unpackCTP7(const uint32_t *data, const unsigned block_id, const unsigned size, RctUnpackCollections * const colls);
 
   bool decodeLinkID(const uint32_t inputValue, uint32_t &crateNumber, uint32_t &linkNumber, bool &even);
 
