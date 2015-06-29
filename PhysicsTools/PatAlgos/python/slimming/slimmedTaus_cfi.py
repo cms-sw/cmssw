@@ -8,6 +8,6 @@ slimmedTaus = cms.EDProducer("PATTauSlimmer",
    dropPFSpecific = cms.bool(True),
    packedPFCandidates = cms.InputTag("packedPFCandidates"), 
    modifyTaus = cms.bool(True),
-   modifierConfig = cms.PSet()    
+   modifierConfig = cms.PSet( modifications = cms.VPSet() )    
 )
 

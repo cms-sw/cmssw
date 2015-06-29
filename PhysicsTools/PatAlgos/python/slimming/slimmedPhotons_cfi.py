@@ -14,5 +14,5 @@ slimmedPhotons = cms.EDProducer("PATPhotonSlimmer",
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     modifyPhotons = cms.bool(True),
-    modifierConfig = cms.PSet()
+    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )

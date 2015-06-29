@@ -7,6 +7,6 @@ slimmedMuons = cms.EDProducer("PATMuonSlimmer",
     packedPFCandidates = cms.InputTag("packedPFCandidates"), 
     saveTeVMuons = cms.string("pt > 100"), # you can put a cut to slim selectively, e.g. pt > 10
     modifyMuons = cms.bool(True),
-    modifierConfig = cms.PSet()                              
+    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 
