@@ -285,9 +285,19 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 
   if(nCratesFound != 18)
     LogError("L1T") << "Warning -- only found "<< nCratesFound << " valid crates";
+
+  //start assuming 1 BX readout
+ uint32_t startBX = 2;
+  if(nBX == 1)
+    startBX = 2;
+  else if(nBX == 3)
+    startBX = 1;
+  else if(nBX == 5)
+    startBX = 0;  
   
   //Step 3: Create Collections from RCTInfo Objects  
-  for (uint32_t iBX=0; iBX<nBX; iBX++){
+  for (uint32_t iBX=0; iBX<nBX; iBX++, startBX++){
+
     for(unsigned int iCrate = 0; iCrate < nCratesFound; iCrate++ ){
       
       RCTInfo rctInfo = allCrateRCTInfo[iBX].at(iCrate);
@@ -298,7 +308,7 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 				       rctInfo.neCard[j], 
 				       rctInfo.crateID, 
 				       false);
-	em.setBx(iBX);
+	em.setBx(startBX);
 	colls->rctEm()->push_back(em);
       }
       
@@ -308,7 +318,7 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 				       rctInfo.ieCard[j], 
 				       rctInfo.crateID, 
 				       true);
-	em.setBx(iBX);
+	em.setBx(startBX);
 	colls->rctEm()->push_back(em);
       }
       
@@ -319,7 +329,7 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 	  bool m = (((rctInfo.mBits >> (j * 2 + k)) & 0x1) == 0x1);
 	  bool q = (((rctInfo.qBits >> (j * 2 + k)) & 0x1) == 0x1);
 	  L1CaloRegion rgn = L1CaloRegion(rctInfo.rgnEt[j][k], o, t, m, q, rctInfo.crateID , j, k);
-	  rgn.setBx(iBX);
+	  rgn.setBx(startBX);
 	  colls->rctCalo()->push_back(rgn);
 	}
       }
@@ -328,7 +338,7 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 	for(int k = 0; k < 4; k++) {
 	  bool fg=(((rctInfo.hfQBits>> (j * 4 + k)) & 0x1)  == 0x1); 
 	  L1CaloRegion rgn = L1CaloRegion(rctInfo.hfEt[j][k], fg,  rctInfo.crateID , (j * 4 +  k));
-	  rgn.setBx(iBX);
+	  rgn.setBx(startBX);
 	  colls->rctCalo()->push_back(rgn);
 	}
       }
