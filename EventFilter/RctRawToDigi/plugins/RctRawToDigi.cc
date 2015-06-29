@@ -32,15 +32,12 @@ using std::hex;
 using edm::LogWarning;
 using edm::LogError;
 
-#define EVENT_HEADER_WORDS 6
-#define CHANNEL_HEADER_WORDS 2
-#define CHANNEL_DATA_WORDS_PER_BX 6
-#define NIntsBRAMDAQ 1024*2
+
 #define slinkHeaderSize_ 8
 #define slinkTrailerSize_ 8
 #define amc13HeaderSize_ 8
 #define amc13TrailerSize_ 8
-#define NLinks 36
+
 
 RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
@@ -56,7 +53,7 @@ RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
 
   // Error collection
   consumes<FEDRawDataCollection>(inputLabel_);
-  std::cout<<"finishde initialization"<<std::endl;
+
 }
 
 
@@ -70,7 +67,7 @@ RctRawToDigi::~RctRawToDigi()
 // ------------ method called to produce the data  ------------
 void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout<<"Produce"<<std::endl;
+
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
@@ -79,7 +76,6 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get raw data collection
   edm::Handle<FEDRawDataCollection> feds;
   iEvent.getByLabel(inputLabel_, feds);
-  //colls()->gctHfBitCounts()->push_back( CONTINUE HERE
 
   // if raw data collection is present, check the headers and do the unpacking
   if (feds.isValid()) {
@@ -116,18 +112,11 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollections * const colls)
 {
 
-  // We should now have a valid formatTranslator pointer
-  //formatTranslator_->setUnpackCollections(colls);
-  std::cout<<"Unpacking"<<std::endl;
   const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
-
   // Data offset - starts at 16 as there is a 64-bit S-Link header followed
   // by a 64-bit software-controlled header (for pipeline format version
   // info that is not yet used).
-  //unsigned dPtr = 16;
 
-  //const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
-  ///Do unpacking here 
   
   FEDHeader header(data);
   
@@ -155,30 +144,15 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
   }
   
   //amc13::Packet packet;
-  //if (!packet.parse((const uint64_t*) (data + slinkHeaderSize_),
-  //		    (d.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8)) {
+  //if (!packet.parse((const uint64_t*) d.data(),d.size())) {
   //LogError("L1T") << "Could not extract AMC13 Packet.";
   //return;
   //}
-
-  //std::unique_ptr<uint64_t[]> payload64 = amc.data();
-  //const uint32_t * start = (const uint32_t*) payload64.get();
-  //const uint32_t * end = start + (amc.size() * 2);
-  
-  //std::auto_ptr<Payload> payload;
-  
-  //unsigned fw = payload->getFirmwareId();
-  
-  // Let parameterset value override FW version
-  //if (fwId_ > 0)
-  //fw = fwId_;
-  
-  //unsigned board = amc.header().getBoardID();
-  //unsigned amc_no = amc.header().getAMCNumber();
-	 
-  //unpackCTP7(data, block_id, data.size(), colls)
-  //d or data?
-  printAll(data, d.size());
+    
+  size_t theSize = d.size();
+  uint32_t ch[(theSize+sizeof(uint32_t)-1)/sizeof(uint32_t)];
+  memcpy(ch,data,theSize);
+  unpackCTP7(ch, 0, sizeof(data), colls);
 
 }
 
@@ -187,209 +161,181 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
 
 void RctRawToDigi::doVerboseOutput(const RctUnpackCollections * const colls) const
 {
-  std::ostringstream os;
 
-  //for (unsigned i=0, size = bHdrs.size(); i < size; ++i)
-  // {
-  //os << "RCT Raw Data Block : " << formatTranslator_->getBlockDescription(bHdrs[i]) << " : " << bHdrs[i] << endl;
-  //}
-  //os << *colls << endl;
-  //edm::LogVerbatim("RCT") << os.str();
 }
 
 
 
 void
-RctRawToDigi::unpackCTP7(const unsigned char *data, const unsigned block_id, const unsigned size, RctUnpackCollections * const colls)
+RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const unsigned size, RctUnpackCollections * const colls)
 {
+  uint32_t of = 6;
+  LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
 
-     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+  CTP7Format ctp7Format;
+  RctDataDecoder rctDataDecoder;
+  uint32_t nBX = 0; 
+  uint32_t ctp7FWVersion;
+  uint32_t L1ID, L1aBCID;
+  std::vector<RCTInfo> allCrateRCTInfo[5];
+  
+  L1ID          =  data[1+of];                      // extract the L1 ID number
+  L1aBCID       =  data[5+of] & 0x00000FFF;         // extract the BCID number of L1A
+  nBX           = (data[5+of] & 0x00FF0000) >> 16;  // extract number of BXs readout per L1A 
+  ctp7FWVersion =  data[4+of];
+  
+  if(nBX != 1 && nBX != 3 && nBX != 5)
+    nBX = 1;
 
-     RctDataDecoder rctDataDecoder;
-     uint32_t nBX = 0; 
-     uint32_t ctp7FWVersion;
-     uint32_t L1ID, L1aBCID;
-     
-     L1ID          =  data[1];                      // extract the L1 ID number
-     L1aBCID       =  data[5] & 0x00000FFF;         // extract the BCID number of L1A
-     nBX           = (data[5] & 0x00FF0000) >> 16;  // extract number of BXs readout per L1A 
-     ctp7FWVersion =  data[4];
-     
-     LogDebug("L1T") << "L1ID = " << L1ID << " L1A BCID = " << L1aBCID << " BXs in capture = " << nBX << " CTP7 DAQ FW = " << ctp7FWVersion;
+  LogDebug("L1T") << "CTP7 L1ID = " << L1ID << " L1A BCID = " << L1aBCID << " BXs in capture = " << nBX << " CTP7 DAQ FW = " << ctp7FWVersion;
+  
+  struct link_data{
+    bool even;
+    unsigned int crateID;
+    unsigned int ctp7LinkNumber;
+    std::vector <unsigned int> uint;
+  };
 
-     //getBXNumbers handles special cases, for example:
-     //if L1A is 3563, nBX = 3 then BCs = 3562, 3563, 0
-     //uint32_t firstBX = 0; uint32_t lastBX = 1; 
+  //nBX max 5, nLinks max 36 [nBX][nLinks]
+  link_data allLinks[5][36];
+  uint32_t NLinks = ctp7Format.NLINKS;
+  
+  //change this implementation
+  uint32_t iDAQBuffer = 0;
 
-     std::vector<RCTInfo> allCrateRCTInfo[nBX];
+  //Step 1: Grab all data from ctp7 buffer and put into link format
+  for(unsigned int iLink = 0; iLink < NLinks; iLink++ ){
+    iDAQBuffer = of +
+                 ctp7Format.EVENT_HEADER_WORDS + iLink * (ctp7Format.CHANNEL_HEADER_WORDS + 
+							  nBX * ctp7Format.CHANNEL_DATA_WORDS_PER_BX);
+    
+    //first decode linkID 
+    uint32_t linkID     = data[iDAQBuffer++];
+    uint32_t tmp        = data[iDAQBuffer++];
+    uint32_t CRCErrCnt  =  tmp & 0x0000FFFF;
+    //uint32_t linkStatus = (tmp & 0xFFFF0000) >> 16;
 
-     struct link_data{
-       unsigned int ctp7LinkNumber;
-       //full 32-bit linkID
-       unsigned int capturedLinkID;
-       //decoded linkID from the oRSC
-       unsigned int capturedLinkNumber;
-       bool even;
-       unsigned int crateID;
-       std::vector <unsigned int> uint;
-     };
+    uint32_t crateID = 0;    uint32_t expectedCrateID = 0;
+    bool even = false; bool expectedEven = false;
 
-     link_data allLinks[nBX][NLinks];
+    //getExpected Link ID
+    rctDataDecoder.getExpectedLinkID(iLink, expectedCrateID, expectedEven);
+    //getDecodedLink ID
+    rctDataDecoder.decodeLinkID(linkID, crateID, even);
 
-     //change this implementation
-     uint32_t iDAQBuffer = 0;
+    if(expectedCrateID!=crateID || even!=expectedEven ){
+      LogError("L1T") <<"Expected Crate ID "<< expectedCrateID <<" expectedEven "<< expectedEven 
+		      <<"does not match actual Crate ID "<<crateID<<" even "<<even;
+    }
 
-     //Step 1: Grab all data from ctp7 buffer and put into link format
-     for(unsigned int iLink = 0; iLink < NLinks; iLink++ ){
-       
-       iDAQBuffer = EVENT_HEADER_WORDS + iLink * (CHANNEL_HEADER_WORDS + 
-						  nBX * CHANNEL_DATA_WORDS_PER_BX);
-       
-       //first decode linkID 
-       uint32_t linkID     = data[iDAQBuffer++];//pop here?
-       uint32_t tmp        = data[iDAQBuffer++];
-       uint32_t CRCErrCnt  =  tmp & 0x0000FFFF;
-       uint32_t linkStatus = (tmp & 0xFFFF0000) >> 16;
-       
-       if(verbose_) LogDebug("L1T")<< std::hex<< "linkID "<< linkID << " CRCErrCnt " << CRCErrCnt << " linkStatus "<< linkStatus;
-       
-       uint32_t capturedLinkID = 0;
-       uint32_t crateID = 0;
-       uint32_t capturedLinkNumber = 0;
-       bool even = false;
+    if(CRCErrCnt!=0)
+      LogError("L1T")<<"WARNING CRC ErrorFound linkID "<< linkID<<" expected crateID "<< expectedCrateID;
+    
+    // Loop over multiple BX                                                                        
+    for (uint32_t iBX=0; iBX<nBX; iBX++){
+      allLinks[iBX][iLink].uint.reserve(6);
+      allLinks[iBX][iLink].ctp7LinkNumber     = iLink;
+      allLinks[iBX][iLink].crateID            = expectedCrateID;
+      allLinks[iBX][iLink].even               = expectedEven;
 
-       //Using normal method for decoding oRSC Captured LinkID
-       //Input linkID, output: crateID, capturedLinkNumber, Even or Odd
-       decodeLinkID(linkID, crateID, capturedLinkNumber, even);
-            
-       // Loop over multiple BX                                                                        
-       for (uint32_t iBX=0; iBX<nBX; iBX++){
-	 allLinks[iLink][iBX].uint.reserve(6);
-	 allLinks[iLink][iBX].ctp7LinkNumber     = iLink;
-	 allLinks[iLink][iBX].capturedLinkID     = capturedLinkID;
-	 allLinks[iLink][iBX].crateID            = crateID;
-	 allLinks[iLink][iBX].capturedLinkNumber = capturedLinkNumber;
-	 allLinks[iLink][iBX].even               = even;
-	 
-	 for(unsigned int iWord = 0; iWord < 6 ; iWord++ ){
-	   allLinks[iLink][iBX].uint.push_back(data[iDAQBuffer+iWord]);
-	 }
-       }
-     }
-     
-     //Step 2: Dynamically match links and create RCTInfo Objects 
-     uint32_t nCratesFound = 0;
-     for(unsigned int iCrate = 0; iCrate < 18 ; iCrate++){
-       
-       bool foundEven = false, foundOdd = false;
-       link_data even[nBX];
-       link_data odd[nBX];
-       
-       for(unsigned int iLink = 0; iLink < NLinks; iLink++){
-	 
-	 if( (allLinks[iLink][0].crateID==iCrate) && (allLinks[iLink][0].even == true) ){
+      //Notice 6 words per BX
+      for(unsigned int iWord = 0; iWord < 6 ; iWord++ ){
+	allLinks[iBX][iLink].uint.push_back(data[iDAQBuffer+iWord+iBX*6]);
+      }
+    }
+  }
+
+  //Step 2: Dynamically match links and create RCTInfo Objects 
+  uint32_t nCratesFound = 0;
+  for(unsigned int iCrate = 0; iCrate < 18 ; iCrate++){
+    
+    bool foundEven = false, foundOdd = false;
+    link_data even[5];
+    link_data odd[5];
+    
+    for(unsigned int iLink = 0; iLink < NLinks; iLink++){
+      
+      if( (allLinks[0][iLink].crateID==iCrate) && (allLinks[0][iLink].even == true) ){
+	foundEven = true;
+	for (unsigned int iBX=0; iBX<nBX; iBX++)
+	  even[iBX] = allLinks[iBX][iLink];
+      }
+      else if( (allLinks[0][iLink].crateID==iCrate) && (allLinks[0][iLink].even == false) ){
+	foundOdd = true;
+	for (unsigned int iBX=0; iBX<nBX; iBX++)
+	  odd[iBX] = allLinks[iBX][iLink];
+      } 
+
+      //if success then create RCTInfoVector and fill output object
+      if(foundEven && foundOdd){
+	nCratesFound++;
 	   
-	   foundEven = true;
-	   for (unsigned int iBX=0; iBX<nBX; iBX++)
-	     even[iBX] = allLinks[iLink][iBX];
-	     
-	 }
-	 else if( (allLinks[iLink][0].crateID==iCrate) && (allLinks[iLink][0].even == false) ){
-	   
-	   foundOdd = true;
-	   for (unsigned int iBX=0; iBX<nBX; iBX++)
-	     odd[iBX] = allLinks[iLink][iBX];
-	   
-	 } 
-	 //if success then create RCTInfoVector and fill output object
-	 if(foundEven && foundOdd){
-	   nCratesFound++;
-	   
-	   //fill rctInfoVector for all BX read out
-	   for (unsigned int iBX=0; iBX<nBX; iBX++){
-	     std::vector <RCTInfo> rctInfoData;
-	     rctDataDecoder.decodeLinks(even[iBX].uint, odd[iBX].uint, rctInfoData);
-	     allCrateRCTInfo[iBX].push_back(rctInfoData.at(0));
-	   }
-	   break;
-	 }
-       }
-     }
-     
-     if(nCratesFound != 18)
-       LogDebug("L1T") << "Warning -- only found "<< nCratesFound << " valid crates";
-   
-     //Step 3: Create Collections from RCTInfo Objects  
-     for (uint32_t iBX=0; iBX<nBX; iBX++){
-       for(unsigned int iCrate = 0; iCrate < nCratesFound; iCrate++ ){
+	//fill rctInfoVector for all BX read out
+	for (unsigned int iBX=0; iBX<nBX; iBX++){
+	  //RCTInfoFactory rctInfoFactory;
+	  std::vector <RCTInfo> rctInfoData;
+	  rctDataDecoder.decodeLinks(even[iBX].uint, odd[iBX].uint, rctInfoData);
+	  rctDataDecoder.setRCTInfoCrateID(rctInfoData, iCrate);
+	  allCrateRCTInfo[iBX].push_back(rctInfoData.at(0));
+	}
+	break;
+      }
+    }
+  }
 
-	 RCTInfo rctInfo = allCrateRCTInfo[iBX].at(iCrate);
-	 //Use Crate ID to identify eta/phi of candidate
-	 for(int j = 0; j < 4; j++) {
-	   L1CaloEmCand em = L1CaloEmCand(rctInfo.neRank[j], 
-					  rctInfo.neRegn[j], 
-					  rctInfo.neCard[j], 
-					  rctInfo.crateID, 
-					  false);
-	   em.setBx(iBX);
-	   colls->rctEm()->push_back(em);
-	 }
-
-	 for(int j = 0; j < 4; j++) {
-	   L1CaloEmCand em = L1CaloEmCand(rctInfo.ieRank[j], 
-					  rctInfo.ieRegn[j], 
-					  rctInfo.ieCard[j], 
-					  rctInfo.crateID, 
-					  true);
-	   em.setBx(iBX);
-	   colls->rctEm()->push_back(em);
-	 }
-
-	 for(int j = 0; j < 7; j++) {
-	   for(int k = 0; k < 2; k++) {
-	     bool o = (((rctInfo.oBits >> (j * 2 + k)) & 0x1) == 0x1);
-	     bool t = (((rctInfo.tBits >> (j * 2 + k)) & 0x1) == 0x1);
-	     bool m = (((rctInfo.mBits >> (j * 2 + k)) & 0x1) == 0x1);
-	     bool q = (((rctInfo.qBits >> (j * 2 + k)) & 0x1) == 0x1);
-	     L1CaloRegion rgn = L1CaloRegion(rctInfo.rgnEt[j][k], o, t, m, q, rctInfo.crateID , j, k);
-	     rgn.setBx(iBX);
-	     colls->rctCalo()->push_back(rgn);
-	   }
-	 }
-
-	 for(int j = 0; j < 2; j++) {
-	   for(int k = 0; k < 4; k++) {
-	     bool fg=(((rctInfo.hfQBits>> (j * 4 + k)) & 0x1)  == 0x1); 
-	     L1CaloRegion rgn = L1CaloRegion(rctInfo.hfEt[j][k], fg,  rctInfo.crateID , (j * 4 +  k));
-	     rgn.setBx(iBX);
-	     colls->rctCalo()->push_back(rgn);
-	   }
-	 }
-       }
-     }
-
+  if(nCratesFound != 18)
+    LogError("L1T") << "Warning -- only found "<< nCratesFound << " valid crates";
+  
+  //Step 3: Create Collections from RCTInfo Objects  
+  for (uint32_t iBX=0; iBX<nBX; iBX++){
+    for(unsigned int iCrate = 0; iCrate < nCratesFound; iCrate++ ){
+      
+      RCTInfo rctInfo = allCrateRCTInfo[iBX].at(iCrate);
+      //Use Crate ID to identify eta/phi of candidate
+      for(int j = 0; j < 4; j++) {
+	L1CaloEmCand em = L1CaloEmCand(rctInfo.neRank[j], 
+				       rctInfo.neRegn[j], 
+				       rctInfo.neCard[j], 
+				       rctInfo.crateID, 
+				       false);
+	em.setBx(iBX);
+	colls->rctEm()->push_back(em);
+      }
+      
+      for(int j = 0; j < 4; j++) {
+	L1CaloEmCand em = L1CaloEmCand(rctInfo.ieRank[j], 
+				       rctInfo.ieRegn[j], 
+				       rctInfo.ieCard[j], 
+				       rctInfo.crateID, 
+				       true);
+	em.setBx(iBX);
+	colls->rctEm()->push_back(em);
+      }
+      
+      for(int j = 0; j < 7; j++) {
+	for(int k = 0; k < 2; k++) {
+	  bool o = (((rctInfo.oBits >> (j * 2 + k)) & 0x1) == 0x1);
+	  bool t = (((rctInfo.tBits >> (j * 2 + k)) & 0x1) == 0x1);
+	  bool m = (((rctInfo.mBits >> (j * 2 + k)) & 0x1) == 0x1);
+	  bool q = (((rctInfo.qBits >> (j * 2 + k)) & 0x1) == 0x1);
+	  L1CaloRegion rgn = L1CaloRegion(rctInfo.rgnEt[j][k], o, t, m, q, rctInfo.crateID , j, k);
+	  rgn.setBx(iBX);
+	  colls->rctCalo()->push_back(rgn);
+	}
+      }
+      
+      for(int j = 0; j < 2; j++) {
+	for(int k = 0; k < 4; k++) {
+	  bool fg=(((rctInfo.hfQBits>> (j * 4 + k)) & 0x1)  == 0x1); 
+	  L1CaloRegion rgn = L1CaloRegion(rctInfo.hfEt[j][k], fg,  rctInfo.crateID , (j * 4 +  k));
+	  rgn.setBx(iBX);
+	  colls->rctCalo()->push_back(rgn);
+	}
+      }
+    }
+  }
 }
 
-bool RctRawToDigi::decodeLinkID(const uint32_t inputValue, uint32_t &crateNumber, uint32_t &linkNumber, bool &even)
-{
-  //if crateNumber not valid set to 0xFF
-  crateNumber = ( inputValue >> 8 ) & 0xFF;
-  if(crateNumber > 17)
-    crateNumber = 0xFF;
-  
-  //if linkNumber not valid set to 0xFF
-  linkNumber = ( inputValue ) & 0xFF;
-  
-  if(linkNumber > 12)
-    linkNumber = 0xFF;
-  
-  if((linkNumber&0x1) == 0)
-    even=true;
-  else
-    even=false;
-  
-  return true;
-};
 
 
 bool

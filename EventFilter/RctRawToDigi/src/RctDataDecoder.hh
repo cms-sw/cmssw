@@ -105,8 +105,118 @@ public:
     rctInfoData.push_back(rctInfo);
   }
   return true;
+  
+  }
+
+  bool setRCTInfoCrateID(std::vector<RCTInfo> &rctInfoVector, unsigned int crateID)
+  {
+    for( unsigned int i = 0 ; i < rctInfoVector.size() ; i++ ){
+      rctInfoVector.at(i).crateID = crateID;
+    }
+    
+    return true;
 
   }
+
+  bool decodeLinkID(const uint32_t inputValue, uint32_t &crateNumber, bool &even)
+  {
+    uint32_t linkNumber;
+    //if crateNumber not valid set to 0xFF
+    crateNumber = ( inputValue >> 8 ) & 0xFF;
+    if(crateNumber > 17)
+      crateNumber = 0xFF;
+    
+    //if linkNumber not valid set to 0xFF
+    linkNumber = ( inputValue ) & 0xFF;
+    
+    if(linkNumber > 12)
+      linkNumber = 0xFF;
+    
+    if((linkNumber&0x1) == 0)
+      even=true;
+    else
+      even=false;
+    
+    return true;
+  };
+
+  bool getExpectedLinkID(const uint32_t iLink, uint32_t &crateID, bool &even)
+  {
+    if(iLink == 0)//: 90a 
+      {crateID = 9; even = true;}
+    else if(iLink == 1) //a0a
+      {crateID = 10; even = true;}
+    else if(iLink == 2)// 60a
+      {crateID = 6; even = true;}
+    else if(iLink == 3)// 90b
+      {crateID = 9; even = false;}
+    else if(iLink == 4)// 60b
+      {crateID = 6; even = false;}
+    else if(iLink == 5)// 706
+      {crateID = 7; even = true;}
+    else if(iLink == 6)// b0a
+      {crateID = 11; even = true;}
+    else if(iLink == 7)// 70b
+      {crateID = 7; even = false;}
+    else if(iLink == 8)// 80b
+      {crateID = 8; even = false;}
+    else if(iLink == 9)// a0b
+      {crateID = 10; even = false;}
+    else if(iLink == 10)// 80a
+      {crateID = 8; even = true;}
+    else if(iLink == 11)// b0b
+      {crateID = 11; even = false;}
+    else if(iLink == 12)// 30a
+      {crateID = 3; even = true;}
+    else if(iLink == 13)// 40a
+      {crateID = 4; even = true;}
+    else if(iLink == 14)// 30b
+      {crateID = 3; even = false;}
+    else if(iLink == 15)// a
+      {crateID = 0; even = true;}
+    else if(iLink == 16)// b
+      {crateID = 0; even = false;}
+    else if(iLink == 17)// 50a
+      {crateID = 5; even = true;}
+    else if(iLink == 18)// 10a
+      {crateID = 1; even = true;}
+    else if(iLink == 19)// 10b
+      {crateID = 1; even = false;}
+    else if(iLink == 20)// 20a
+      {crateID = 2; even = true;}
+    else if(iLink == 21)// 20b
+      {crateID = 2; even = false;}
+    else if(iLink == 22)// 50b
+      {crateID = 5; even = false;}
+    else if(iLink == 23)// 40b
+      {crateID = 4; even = false;}
+    else if(iLink == 24)// f0a
+      {crateID = 15; even = true;}
+    else if(iLink == 25)// 100a
+      {crateID = 16; even = true;}
+    else if(iLink == 26)// f0b
+      {crateID = 15; even = false;}
+    else if(iLink == 27)// c0a
+      {crateID = 12; even = true;}
+    else if(iLink == 28)// c0b
+      {crateID = 12; even = false;}
+    else if(iLink == 29)// 110a
+      {crateID = 17; even = true;}
+    else if(iLink == 30)// d0a
+      {crateID = 13; even = true;}
+    else if(iLink == 31)// d0b
+      {crateID = 13; even = false;}
+    else if(iLink == 32)// e0a
+      {crateID = 14; even = true;}
+    else if(iLink == 33)// e0b
+      {crateID = 14; even = false;}
+    else if(iLink == 34)// 110b
+      {crateID = 17; even = false;}
+    else if(iLink == 35)// 100b
+      {crateID = 16; even = false;}
+    return true;
+  };
+
 };
 
 #endif
