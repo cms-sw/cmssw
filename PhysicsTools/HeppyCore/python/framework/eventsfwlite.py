@@ -8,6 +8,10 @@ AutoLibraryLoader.enable();
 gSystem.Load("libDataFormatsFWLite");
 gSystem.Load("libDataFormatsPatCandidates");
 
+from ROOT import gInterpreter
+gInterpreter.ProcessLine("using namespace reco;")
+gInterpreter.ProcessLine("using edm::refhelper::FindUsingAdvance;")
+
 class Events(object):
     def __init__(self, files, tree_name,  options=None):
 	if options is not None :
