@@ -200,7 +200,7 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 
   //nBX max 5, nLinks max 36 [nBX][nLinks]
   link_data allLinks[5][36];
-  uint32_t NLinks = ctp7Format.NLINKS;
+  const uint32_t NLinks = ctp7Format.NLINKS;
   assert(NLinks <= 36);
 
   //change this implementation
