@@ -753,7 +753,11 @@ class SimpleValidation:
             print "Did not find any of %s directories from file %s" % (",".join(self._plotter.getPossibleDirectoryNames()), tf.GetName())
             sys.exit(1)
 
-        subdirs = [key.GetName() for key in theDir.GetListOfKeys()]
+        subdirs = []
+        for key in theDir.GetListOfKeys():
+            if isinstance(key.ReadObj(), ROOT.TDirectory):
+                subdirs.append(key.GetName())
+
         for s in subdirs:
             self._doPlots(*subdirToAlgoQuality(s), subdir=s)
 
