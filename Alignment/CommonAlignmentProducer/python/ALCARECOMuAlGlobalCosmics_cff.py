@@ -31,42 +31,34 @@ ALCARECOMuAlGlobalCosmics = Alignment.CommonAlignmentProducer.AlignmentMuonSelec
     etaMax    = cms.double(100.0),
 )
 
-#________________________________Track selection____________________________________
-# AlCaReco selected general tracks for track based muon alignment
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
-ALCARECOMuAlGlobalCosmicsGeneralTracks = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
-    src             = cms.InputTag("generalTracks"),
-    filter          = cms.bool(True),
-    ptMin           = cms.double(8.0),
-    etaMin          = cms.double(-100.0),
-    etaMax          = cms.double(100.0),
-    nHitMin         = cms.double(7),
-    applyNHighestPt = cms.bool(True), ## select only 3 highest pT tracks
-    nHighestPt      = cms.int32(3),
-)
-
 # AlCaReco selected Combinatorial Track Finder tracks for track based muon alignment
 # (same cuts)
-ALCARECOMuAlGlobalCosmicsCombinatorialTF = ALCARECOMuAlGlobalCosmicsGeneralTracks.clone(
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+ALCARECOMuAlGlobalCosmicsCombinatorialTF = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'ctfWithMaterialTracksP5',
-)
+    filter = cms.bool(True),
+    ptMin = cms.double(8.0),
+    etaMin = cms.double(-100.0),
+    etaMax = cms.double(100.0),
+    nHitMin = cms.double(7),
+    applyNHighestPt = cms.bool(True), ## select only 3 highest pT tracks
+    nHighestPt = cms.int32(3),
+    )
 
 # AlCaReco selected Cosmic Track Finder tracks for track based muon alignment
 # (same cuts)
-ALCARECOMuAlGlobalCosmicsCosmicTF = ALCARECOMuAlGlobalCosmicsGeneralTracks.clone(
+ALCARECOMuAlGlobalCosmicsCosmicTF = ALCARECOMuAlGlobalCosmicsCombinatorialTF.clone(
     src = 'cosmictrackfinderP5'
 )
 
 # AlCaReco selected Regional Cosmic Tracking tracks for track based muon alignment
 # (same cuts)
-ALCARECOMuAlGlobalCosmicsRegionalTF = ALCARECOMuAlGlobalCosmicsGeneralTracks.clone(
+ALCARECOMuAlGlobalCosmicsRegionalTF = ALCARECOMuAlGlobalCosmicsCombinatorialTF.clone(
     src = 'regionalCosmicTracks'
 )
 
 #________________________________Sequences____________________________________  
 seqALCARECOMuAlGlobalCosmics = cms.Sequence(ALCARECOMuAlGlobalCosmicsHLT + ALCARECOMuAlGlobalCosmicsDCSFilter + ALCARECOMuAlGlobalCosmics)
-
-seqALCARECOMuAlGlobalCosmicsGeneralTracks   = cms.Sequence(ALCARECOMuAlGlobalCosmicsGeneralTracks)
 seqALCARECOMuAlGlobalCosmicsCombinatorialTF = cms.Sequence(ALCARECOMuAlGlobalCosmicsCombinatorialTF)
 seqALCARECOMuAlGlobalCosmicsCosmicTF        = cms.Sequence(ALCARECOMuAlGlobalCosmicsCosmicTF)
 seqALCARECOMuAlGlobalCosmicsRegionalTF      = cms.Sequence(ALCARECOMuAlGlobalCosmicsRegionalTF)
