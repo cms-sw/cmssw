@@ -7,8 +7,8 @@ photon_moduleName ="hltEG30R9Id90HE10IsoMTrackIsoFilter"
 muon_pathName = "HLT_IsoMu27"
 muon_moduleName = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
 
-l2muon_pathName = "HLT_L2DoubleMu23_NoVertex"
-l2muon_moduleName = "hltL2fL1sDoubleMu103p5L1f0L2NoVtxPreFiltered23"
+l2muon_pathName = "HLT_L2Mu10"
+l2muon_moduleName = "hltL2fL1sMu16L1f0L2Filtered10Q"
 
 l2NoBPTXmuon_pathName = "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo"
 l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
