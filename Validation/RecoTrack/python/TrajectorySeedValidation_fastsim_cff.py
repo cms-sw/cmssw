@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.seedTracks_cfi import seedTracks as _seedTracks
+from Validation.RecoTrack.seedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 
 _seedProducerLabels = ["initialStepSeeds",
@@ -35,7 +35,7 @@ _line = "trajectorySeedValidation = cms.Sequence(quickTrackAssociatorByHits+{0}+
 exec(_line)
 
 
-trackAndTrajectorySeedValidationStandalone = cms.Sequence(
+tracksAndTrajectorySeedsValidationStandalone = cms.Sequence(
     tracksValidationStandalone +
     trajectorySeedValidation
 )
