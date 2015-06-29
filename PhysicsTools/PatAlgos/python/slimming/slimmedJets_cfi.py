@@ -10,7 +10,7 @@ slimmedJets = cms.EDProducer("PATJetSlimmer",
    dropSpecific = cms.string("0"),
    dropTagInfos = cms.string("1"),
    modifyJets = cms.bool(True),
-   modifierConfig = cms.PSet()
+   modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 slimmedJetsAK8 = cms.EDProducer("PATJetSlimmer",
    src = cms.InputTag("packedPatJetsAK8"),
@@ -22,6 +22,6 @@ slimmedJetsAK8 = cms.EDProducer("PATJetSlimmer",
    dropSpecific = cms.string("0"),
    dropTagInfos = cms.string("0"),
    modifyJets = cms.bool(True),
-   modifierConfig = cms.PSet()
+   modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 
