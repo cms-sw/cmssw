@@ -33,7 +33,6 @@ dtunpacker.readOutParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
-dtunpacker.fedbyType = False
 dtunpacker.inputLabel = 'rawDataCollector'
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
