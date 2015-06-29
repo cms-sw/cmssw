@@ -115,11 +115,12 @@ QCD_Pt3200toInf_50ns
 
 ### ----------------------------- summary ----------------------------------------
 
-mcSamples = RelVals740
-
 mcSamples_Asymptotic25ns = [ TTJets, TTJets_LO, WJetsToLNu, DYJetsToLL_M50, DYJetsToLL_M50_Flat10to50_25ns] + WJetsToLNuHT + QCDPt
 
 mcSamples_Asymptotic50ns = [ TTJets_50ns, TTJets_LO_50ns, WJetsToLNu_50ns, DYJetsToLL_M50_50ns ] + QCDPt_50ns
+
+mcSamples = RelVals740 + mcSamples_Asymptotic25ns + mcSamples_Asymptotic50ns
+
 
 ### ---------------------------------------------------------------------
 
@@ -127,7 +128,7 @@ from CMGTools.TTHAnalysis.setup.Efficiencies import *
 dataDir = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data"
 
 #Define splitting
-for comp in mcSamples + mcSamples_Asymptotic25ns + mcSamples_Asymptotic50ns:
+for comp in mcSamples:
     comp.isMC = True
     comp.isData = False
     comp.splitFactor = 250 #  if comp.name in [ "WJets", "DY3JetsM50", "DY4JetsM50","W1Jets","W2Jets","W3Jets","W4Jets","TTJetsHad" ] else 100
