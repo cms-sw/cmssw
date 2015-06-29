@@ -1,8 +1,5 @@
 #include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigiCommon.h"
 #include "DataFormats/DetId/interface/DetId.h"
-//#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-//#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace phase2trackerdigi {
