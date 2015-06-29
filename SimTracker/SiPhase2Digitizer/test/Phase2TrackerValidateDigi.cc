@@ -54,7 +54,8 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
   dqmStore_(edm::Service<DQMStore>().operator->()),
   config_(iConfig)
 {
-  digiSrc_ = config_.getParameter<edm::InputTag>("DigiSource");
+  pixDigiSrc_ = config_.getParameter<edm::InputTag>("PixelDigiSource");
+  otDigiSrc_ = config_.getParameter<edm::InputTag>("OuterTrackerDigiSource");
   digiSimLinkSrc_ = config_.getParameter<edm::InputTag>("DigiSimLinkSource");
   etaCut_  = config_.getParameter<double>("EtaCutOff");
   ptCut_  = config_.getParameter<double>("PtCutOff");
@@ -88,14 +89,16 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
   using namespace edm;
 
   // Get digis
-  edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > digiHandle;
-  iEvent.getByLabel(digiSrc_, digiHandle);
-  const DetSetVector<Phase2TrackerDigi>* digis = digiHandle.product();
+  edm::Handle< edm::DetSetVector<PixelDigi> > pixDigiHandle;
+  iEvent.getByLabel(pixDigiSrc_, pixDigiHandle);
+  edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle;
+  iEvent.getByLabel(otDigiSrc_, otDigiHandle);
+  const DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle.product();
 
 
   // DigiSimLink
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> > simLinks;
-  iEvent.getByLabel(digiSrc_,   simLinks);
+  iEvent.getByLabel(pixDigiSrc_,   simLinks);
   
 
   // PSimHits

@@ -5,6 +5,5 @@
 
 namespace phase2trackerdigi {
   unsigned int getLayerNumber(unsigned int& detid, const TrackerTopology* topo);
-  unsigned int getLayerNumber(unsigned int& detid);
 }
 #endif

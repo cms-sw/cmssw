@@ -32,10 +32,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -55,7 +51,8 @@ Phase2TrackerMonitorDigi::Phase2TrackerMonitorDigi(const edm::ParameterSet& iCon
   dqmStore_(edm::Service<DQMStore>().operator->()),
   config_(iConfig)
 {
-  digiSrc_ = config_.getParameter<edm::InputTag>("DigiSource");
+  pixDigiSrc_ = config_.getParameter<edm::InputTag>("PixelDigiSource");
+  otDigiSrc_ = config_.getParameter<edm::InputTag>("OuterTrackerDigiSource");
   edm::LogInfo("Phase2TrackerMonitorDigi") << ">>> Construct Phase2TrackerMonitorDigi ";
 }
 
@@ -87,17 +84,20 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 
 
   // Get digis
-  edm::Handle< edm::DetSetVector<PixelDigi> > digiHandle;
-  iEvent.getByLabel(digiSrc_, digiHandle);
+  edm::Handle< edm::DetSetVector<PixelDigi> > pixDigiHandle;
+  iEvent.getByLabel(pixDigiSrc_, pixDigiHandle);
 
-  const DetSetVector<PixelDigi>* digis = digiHandle.product();
+  edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle;
+  iEvent.getByLabel(otDigiSrc_, otDigiHandle);
+
+  const DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle.product();
 
   // Tracker Topology 
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* tTopo = tTopoHandle.product();
 
-  edm::DetSetVector<PixelDigi>::const_iterator DSViter;
+  edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter;
   for(DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
@@ -117,9 +117,9 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
     int width = 0;
     int position = 0; 
     unsigned short charge = 0; 
-    for (DetSet<PixelDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
-      unsigned short adc = di->adc();    // charge, modified to unsiged short
-      //      unsigned short adc = 255;    // charge, modified to unsiged short
+    for (DetSet<Phase2TrackerDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+      //      unsigned short adc = di->adc();    // charge, modified to unsiged short
+      unsigned short adc = 255;    // charge, modified to unsiged short
       int col = di->column(); // column
       int row = di->row();    // row
       nDigi++;

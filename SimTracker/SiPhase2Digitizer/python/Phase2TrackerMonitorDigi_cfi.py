@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
     Verbosity = cms.bool(False),
     TopFolderName = cms.string("Phase2Tracker"),
-    DigiSource    = cms.InputTag("simSiPixelDigis"),                           
+    PixelDigiSource    = cms.InputTag("simSiPixelDigis","Pixel"),                          
+    OuterTrackerDigiSource    = cms.InputTag("mix", "Tracker"),                          
     NumbeOfDigisH = cms.PSet(
            Nbins = cms.int32(200),
            xmin = cms.double(-0.5),

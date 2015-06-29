@@ -81,7 +81,8 @@ private:
   DQMStore* dqmStore_;
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
-  edm::InputTag digiSrc_; 
+  edm::InputTag pixDigiSrc_; 
+  edm::InputTag otDigiSrc_; 
   edm::InputTag digiSimLinkSrc_; 
 };
 #endif

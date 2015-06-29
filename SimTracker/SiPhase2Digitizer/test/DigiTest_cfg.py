@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
 #)
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-         'file:step2_new.root'
+         'file:step2.root'
        )
 )
 process.load('Configuration.StandardSequences.Services_cff')
@@ -40,14 +40,11 @@ process.dqmSaver.saveAtJobEnd = cms.bool(True)
 
 process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerMonitorDigi_cfi')
 process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerValidateDigi_cfi')
-process.digiValid.DigiSource = cms.InputTag("simSiPixelDigis", "Pixel")
-process.digiValid.DigiSimLinkSource = cms.InputTag("simSiPixelDigis", "Pixel")
-process.digiMon.DigiSource = cms.InputTag("simSiPixelDigis", "Pixel")
 
 process.digiana_seq = cms.Sequence(process.digiMon*process.dqmEnv*process.dqmSaver)
 
 #process.digi_step = cms.Sequence(process.siPixelRawData*process.siPixelDigis)
-process.p = cms.Path(process.digiana_seq)
+process.p = cms.Path(process.digiana_seq)  
 
 # customisation of the process.                                                                                                                              
 
