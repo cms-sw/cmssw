@@ -824,182 +824,136 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   ibooker.setCurrentFolder(mainShifterFolder);
 
   //wall time
-  TH1F * hist_wallTime = new TH1F("wallTime","wall time per event",1000,0,0.01);
-  hist_wallTime->SetMinimum(0);
-  wallTimePerEvent_ = ibooker.book1D("wallTime",hist_wallTime);
+  wallTimePerEvent_ = ibooker.book1D("wallTime","wall time per event",1000,0,0.01);
+  wallTimePerEvent_->setAxisTitle("wall time per event [seconds]");
 
   //photon pt
   if (lookupIndex.count(photonPlots_pathName) > 0)
     {
-      TH1F * hist_photonPt = new TH1F("Photon_pT",photonPlots_pathName.c_str(),photonPt_TH1.getParameter<int>("NbinsX"),photonPt_TH1.getParameter<int>("Xmin"),photonPt_TH1.getParameter<int>("Xmax"));
-      hist_photonPt->GetXaxis()->SetTitle("photon p_{T} [GeV]");
-      hist_photonPt->SetMinimum(0);
-      photonPt_ = ibooker.book1D("Photon_pT",hist_photonPt);
+      photonPt_ = ibooker.book1D("Photon_pT",photonPlots_pathName.c_str(),photonPt_TH1.getParameter<int>("NbinsX"),photonPt_TH1.getParameter<int>("Xmin"),photonPt_TH1.getParameter<int>("Xmax"));
+      photonPt_->setAxisTitle("photon p_{T} [GeV]");
     }
   //muon pt
   if (lookupIndex.count(muonPlots_pathName) > 0)
     {
-      TH1F * hist_muonPt = new TH1F("Muon_pT",muonPlots_pathName.c_str(),muonPt_TH1.getParameter<int>("NbinsX"),muonPt_TH1.getParameter<int>("Xmin"),muonPt_TH1.getParameter<int>("Xmax"));
-      hist_muonPt->GetXaxis()->SetTitle("muon p_{T} [GeV]");
-      hist_muonPt->SetMinimum(0);
-      muonPt_ = ibooker.book1D("Muon_pT",hist_muonPt);
+      muonPt_ = ibooker.book1D("Muon_pT",muonPlots_pathName.c_str(),muonPt_TH1.getParameter<int>("NbinsX"),muonPt_TH1.getParameter<int>("Xmin"),muonPt_TH1.getParameter<int>("Xmax"));
+      muonPt_->setAxisTitle("muon p_{T} [GeV]");
     }
   //l2 muon pt
   if (lookupIndex.count(l2muonPlots_pathName) > 0)
     {
-      TH1F * hist_l2muonPt = new TH1F("L2Muon_pT",l2muonPlots_pathName.c_str(),l2muonPt_TH1.getParameter<int>("NbinsX"),l2muonPt_TH1.getParameter<int>("Xmin"),l2muonPt_TH1.getParameter<int>("Xmax"));
-      hist_l2muonPt->GetXaxis()->SetTitle("L2 muon p_{T} [GeV]");
-      hist_l2muonPt->SetMinimum(0);
-      l2muonPt_ = ibooker.book1D("L2Muon_pT",hist_l2muonPt);
+      l2muonPt_ = ibooker.book1D("L2Muon_pT",l2muonPlots_pathName.c_str(),l2muonPt_TH1.getParameter<int>("NbinsX"),l2muonPt_TH1.getParameter<int>("Xmin"),l2muonPt_TH1.getParameter<int>("Xmax"));
+      l2muonPt_->setAxisTitle("L2 muon p_{T} [GeV]");
     }
   //l2 NoBPTX muon pt
   if (lookupIndex.count(l2NoBPTXmuonPlots_pathName) > 0)
     {
-      TH1F * hist_l2NoBPTXmuonPt = new TH1F("L2NoBPTXMuon_pT",l2NoBPTXmuonPlots_pathName.c_str(),l2NoBPTXmuonPt_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonPt_TH1.getParameter<int>("Xmin"),l2NoBPTXmuonPt_TH1.getParameter<int>("Xmax"));
-      hist_l2NoBPTXmuonPt->GetXaxis()->SetTitle("L2 No BPTX muon p_{T} [GeV]");
-      hist_l2NoBPTXmuonPt->SetMinimum(0);
-      l2NoBPTXmuonPt_ = ibooker.book1D("L2NoBPTXMuon_pT",hist_l2NoBPTXmuonPt);
+      l2NoBPTXmuonPt_ = ibooker.book1D("L2NoBPTXMuon_pT",l2NoBPTXmuonPlots_pathName.c_str(),l2NoBPTXmuonPt_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonPt_TH1.getParameter<int>("Xmin"),l2NoBPTXmuonPt_TH1.getParameter<int>("Xmax"));
+      l2NoBPTXmuonPt_->setAxisTitle("L2 No BPTX muon p_{T} [GeV]");
     }
   //electron pt
   if (lookupIndex.count(electronPlots_pathName) > 0)
     {
-      TH1F * hist_electronPt = new TH1F("Electron_pT",electronPlots_pathName.c_str(),electronPt_TH1.getParameter<int>("NbinsX"),electronPt_TH1.getParameter<int>("Xmin"),electronPt_TH1.getParameter<int>("Xmax"));
-      hist_electronPt->GetXaxis()->SetTitle("electron p_{T} [GeV]");
-      hist_electronPt->SetMinimum(0);
-      electronPt_ = ibooker.book1D("Electron_pT",hist_electronPt);
+      electronPt_ = ibooker.book1D("Electron_pT",electronPlots_pathName.c_str(),electronPt_TH1.getParameter<int>("NbinsX"),electronPt_TH1.getParameter<int>("Xmin"),electronPt_TH1.getParameter<int>("Xmax"));
+      electronPt_->setAxisTitle("electron p_{T} [GeV]");
     }
   //jet pt
   if (lookupIndex.count(jetPt_pathName) > 0)
     {
-      TH1F * hist_jetPt = new TH1F("Jet_pT",jetPt_pathName.c_str(),jetPt_TH1.getParameter<int>("NbinsX"),jetPt_TH1.getParameter<int>("Xmin"),jetPt_TH1.getParameter<int>("Xmax"));
-      hist_jetPt->GetXaxis()->SetTitle("jet p_{T} [GeV]");
-      hist_jetPt->SetMinimum(0);
-      jetPt_ = ibooker.book1D("Jet_pT",hist_jetPt);
+      jetPt_ = ibooker.book1D("Jet_pT",jetPt_pathName.c_str(),jetPt_TH1.getParameter<int>("NbinsX"),jetPt_TH1.getParameter<int>("Xmin"),jetPt_TH1.getParameter<int>("Xmax"));
+      jetPt_->setAxisTitle("jet p_{T} [GeV]");
     }
   //jetAK8 pt + mass
   if (lookupIndex.count(jetAK8Plots_pathName) > 0)
     {
       //ak8 jet pt
-      TH1F * hist_jetAK8Pt = new TH1F("JetAK8_pT",jetAK8Plots_pathName.c_str(),jetAK8Pt_TH1.getParameter<int>("NbinsX"),jetAK8Pt_TH1.getParameter<int>("Xmin"),jetAK8Pt_TH1.getParameter<int>("Xmax"));
-      hist_jetAK8Pt->GetXaxis()->SetTitle("AK8 jet p_{T} [GeV]");
-      hist_jetAK8Pt->SetMinimum(0);
-      jetAK8Pt_ = ibooker.book1D("JetAK8_pT",hist_jetAK8Pt);
+      jetAK8Pt_ = ibooker.book1D("JetAK8_pT",jetAK8Plots_pathName.c_str(),jetAK8Pt_TH1.getParameter<int>("NbinsX"),jetAK8Pt_TH1.getParameter<int>("Xmin"),jetAK8Pt_TH1.getParameter<int>("Xmax"));
+      jetAK8Pt_->setAxisTitle("AK8 jet p_{T} [GeV]");
       //ak8 jet mass
-      TH1F * hist_jetAK8Mass = new TH1F("JetAK8_mass",jetAK8Plots_pathName.c_str(),jetAK8Mass_TH1.getParameter<int>("NbinsX"),jetAK8Mass_TH1.getParameter<int>("Xmin"),jetAK8Mass_TH1.getParameter<int>("Xmax"));
-      hist_jetAK8Mass->GetXaxis()->SetTitle("AK8 jet mass [GeV]");
-      hist_jetAK8Mass->SetMinimum(0);
-      jetAK8Mass_ = ibooker.book1D("JetAK8_mass",hist_jetAK8Mass);
+      jetAK8Mass_ = ibooker.book1D("JetAK8_mass",jetAK8Plots_pathName.c_str(),jetAK8Mass_TH1.getParameter<int>("NbinsX"),jetAK8Mass_TH1.getParameter<int>("Xmin"),jetAK8Mass_TH1.getParameter<int>("Xmax"));
+      jetAK8Mass_->setAxisTitle("AK8 jet mass [GeV]");
     }
   //tau pt
   if (lookupIndex.count(tauPt_pathName) > 0)
     {
-      TH1F * hist_tauPt = new TH1F("Tau_pT",tauPt_pathName.c_str(),tauPt_TH1.getParameter<int>("NbinsX"),tauPt_TH1.getParameter<int>("Xmin"),tauPt_TH1.getParameter<int>("Xmax"));
-      hist_tauPt->GetXaxis()->SetTitle("tau p_{T} [GeV]");
-      hist_tauPt->SetMinimum(0);
-      tauPt_ = ibooker.book1D("Tau_pT",hist_tauPt);
+      tauPt_ = ibooker.book1D("Tau_pT",tauPt_pathName.c_str(),tauPt_TH1.getParameter<int>("NbinsX"),tauPt_TH1.getParameter<int>("Xmin"),tauPt_TH1.getParameter<int>("Xmax"));
+      tauPt_->setAxisTitle("tau p_{T} [GeV]");
     }
   //dimuon low mass
   if (lookupIndex.count(diMuonLowMass_pathName) > 0)
     {
-      TH1F * hist_dimuonLowMass = new TH1F("Dimuon_LowMass",diMuonLowMass_pathName.c_str(),diMuonLowMass_TH1.getParameter<int>("NbinsX"),diMuonLowMass_TH1.getParameter<double>("Xmin"),diMuonLowMass_TH1.getParameter<double>("Xmax"));
-      hist_dimuonLowMass->GetXaxis()->SetTitle("di-muon low mass [GeV]");
-      hist_dimuonLowMass->SetMinimum(0);
-      diMuonLowMass_ = ibooker.book1D("Dimuon_LowMass",hist_dimuonLowMass);
+      diMuonLowMass_ = ibooker.book1D("Dimuon_LowMass",diMuonLowMass_pathName.c_str(),diMuonLowMass_TH1.getParameter<int>("NbinsX"),diMuonLowMass_TH1.getParameter<double>("Xmin"),diMuonLowMass_TH1.getParameter<double>("Xmax"));
+      diMuonLowMass_->setAxisTitle("di-muon low mass [GeV]");
     }
   //alphaT
   if (lookupIndex.count(alphaT_pathName) > 0)
     {
-      TH1F * hist_alphaT = new TH1F("alphaT",alphaT_pathName.c_str(),alphaT_TH1.getParameter<int>("NbinsX"),alphaT_TH1.getParameter<int>("Xmin"),alphaT_TH1.getParameter<int>("Xmax"));
-      hist_alphaT->GetXaxis()->SetTitle("Alpha_{T}");
-      hist_alphaT->SetMinimum(0);
-      alphaT_ = ibooker.book1D("AlphaT",hist_alphaT);
+      alphaT_ = ibooker.book1D("alphaT",alphaT_pathName.c_str(),alphaT_TH1.getParameter<int>("NbinsX"),alphaT_TH1.getParameter<int>("Xmin"),alphaT_TH1.getParameter<int>("Xmax"));
+      alphaT_->setAxisTitle("Alpha_{T}");
     }
   //caloMET pt
   if (lookupIndex.count(caloMetPlots_pathName) >0)
     {
-      TH1F * hist_caloMetPt = new TH1F("CaloMET_pT",caloMetPlots_pathName.c_str(),caloMetPt_TH1.getParameter<int>("NbinsX"),caloMetPt_TH1.getParameter<int>("Xmin"),caloMetPt_TH1.getParameter<int>("Xmax"));
-      hist_caloMetPt->GetXaxis()->SetTitle("calo MET p_{T} [GeV]");
-      hist_caloMetPt->SetMinimum(0);
-      caloMetPt_ = ibooker.book1D("CaloMET_pT",hist_caloMetPt);
+      caloMetPt_ = ibooker.book1D("CaloMET_pT",caloMetPlots_pathName.c_str(),caloMetPt_TH1.getParameter<int>("NbinsX"),caloMetPt_TH1.getParameter<int>("Xmin"),caloMetPt_TH1.getParameter<int>("Xmax"));
+      caloMetPt_->setAxisTitle("calo MET p_{T} [GeV]");
     }
   //caloHT pt
   if (lookupIndex.count(caloHtPt_pathName) >0)
     {
-      TH1F * hist_caloHtPt = new TH1F("CaloHT_pT",caloHtPt_pathName.c_str(),caloHtPt_TH1.getParameter<int>("NbinsX"),caloHtPt_TH1.getParameter<int>("Xmin"),caloHtPt_TH1.getParameter<int>("Xmax"));
-      hist_caloHtPt->GetXaxis()->SetTitle("calo HT p_{T} [GeV]");
-      hist_caloHtPt->SetMinimum(0);
-      caloHtPt_ = ibooker.book1D("CaloHT_pT",hist_caloHtPt);
+      caloHtPt_ = ibooker.book1D("CaloHT_pT",caloHtPt_pathName.c_str(),caloHtPt_TH1.getParameter<int>("NbinsX"),caloHtPt_TH1.getParameter<int>("Xmin"),caloHtPt_TH1.getParameter<int>("Xmax"));
+      caloHtPt_->setAxisTitle("calo HT p_{T} [GeV]");
     }
   //PFHT pt
   if (lookupIndex.count(pfHtPt_pathName) > 0)
     {
-      TH1F * hist_pfHtPt = new TH1F("PFHT_pT",pfHtPt_pathName.c_str(),pfHtPt_TH1.getParameter<int>("NbinsX"),pfHtPt_TH1.getParameter<int>("Xmin"),pfHtPt_TH1.getParameter<int>("Xmax"));
-      hist_pfHtPt->GetXaxis()->SetTitle("PF HT p_{T} [GeV]");
-      hist_pfHtPt->SetMinimum(0);
-      pfHtPt_ = ibooker.book1D("PFHT_pT",hist_pfHtPt);
+      pfHtPt_ = ibooker.book1D("PFHT_pT",pfHtPt_pathName.c_str(),pfHtPt_TH1.getParameter<int>("NbinsX"),pfHtPt_TH1.getParameter<int>("Xmin"),pfHtPt_TH1.getParameter<int>("Xmax"));
+      pfHtPt_->setAxisTitle("PF HT p_{T} [GeV]");
     }
   //PFMET pt
   if (lookupIndex.count(pfMetPlots_pathName) >0)
     {
-      TH1F * hist_PFMetPt = new TH1F("PFMET_pT",pfMetPlots_pathName.c_str(),pfMetPt_TH1.getParameter<int>("NbinsX"),pfMetPt_TH1.getParameter<int>("Xmin"),pfMetPt_TH1.getParameter<int>("Xmax"));
-      hist_PFMetPt->GetXaxis()->SetTitle("PF MET p_{T} [GeV]");
-      hist_PFMetPt->SetMinimum(0);
-      pfMetPt_ = ibooker.book1D("PFMET_pT",hist_PFMetPt);
+      pfMetPt_ = ibooker.book1D("PFMET_pT",pfMetPlots_pathName.c_str(),pfMetPt_TH1.getParameter<int>("NbinsX"),pfMetPt_TH1.getParameter<int>("Xmin"),pfMetPt_TH1.getParameter<int>("Xmax"));
+      pfMetPt_->setAxisTitle("PF MET p_{T} [GeV]");
     }
   //dimuon mass
   if (lookupIndex.count(diMuonMass_pathName) >0 || lookupIndex.count(diMuonMass_pathNameOR) >0)
     {
       std::string title_paths_diMuonMass = diMuonMass_pathName + " + " + diMuonMass_pathNameOR;
-      TH1F * hist_diMuonMass = new TH1F("diMuon_Mass",title_paths_diMuonMass.c_str(),diMuonMass_TH1.getParameter<int>("NbinsX"),diMuonMass_TH1.getParameter<int>("Xmin"),diMuonMass_TH1.getParameter<int>("Xmax"));
-      hist_diMuonMass->GetXaxis()->SetTitle("dimuon mass [GeV]");
-      hist_diMuonMass->SetMinimum(0);
-      diMuonMass_ = ibooker.book1D("diMuon_Mass",hist_diMuonMass);
+      diMuonMass_ = ibooker.book1D("diMuon_Mass",title_paths_diMuonMass.c_str(),diMuonMass_TH1.getParameter<int>("NbinsX"),diMuonMass_TH1.getParameter<int>("Xmin"),diMuonMass_TH1.getParameter<int>("Xmax"));
+      diMuonMass_->setAxisTitle("dimuon mass [GeV]");
     }
   //razor
   if (lookupIndex.count(razor_pathName) > 0)
     {
-      TH1F * hist_rsq = new TH1F("rsq",razor_pathName.c_str(), rsq_TH1.getParameter<int>("NbinsX"), rsq_TH1.getParameter<int>("Xmin"), rsq_TH1.getParameter<int>("Xmax"));
-      hist_rsq->GetXaxis()->SetTitle("R^{2}");
-      hist_rsq->SetMinimum(0);
-      rsq_ = ibooker.book1D("rsq",hist_rsq);
+      rsq_ = ibooker.book1D("rsq",razor_pathName.c_str(), rsq_TH1.getParameter<int>("NbinsX"), rsq_TH1.getParameter<int>("Xmin"), rsq_TH1.getParameter<int>("Xmax"));
+      rsq_->setAxisTitle("R^{2}");
 
-      TH1F * hist_mr = new TH1F("mr",razor_pathName.c_str(), mr_TH1.getParameter<int>("NbinsX"), mr_TH1.getParameter<int>("Xmin"), mr_TH1.getParameter<int>("Xmax"));
-      hist_mr->GetXaxis()->SetTitle("M_{R} [GeV]");
-      hist_mr->SetMinimum(0);
-      mr_ = ibooker.book1D("mr",hist_mr);
+      mr_ = ibooker.book1D("mr",razor_pathName.c_str(), mr_TH1.getParameter<int>("NbinsX"), mr_TH1.getParameter<int>("Xmin"), mr_TH1.getParameter<int>("Xmax"));
+      mr_->setAxisTitle("M_{R} [GeV]");
     }
   //dielectron mass
   if (lookupIndex.count(diElecMass_pathName) >0)
     {
-      TH1F * hist_diElecMass = new TH1F("diElec_Mass",diElecMass_pathName.c_str(),diElecMass_TH1.getParameter<int>("NbinsX"),diElecMass_TH1.getParameter<int>("Xmin"),diElecMass_TH1.getParameter<int>("Xmax"));
-      hist_diElecMass->GetXaxis()->SetTitle("dielectron mass [GeV]");
-      hist_diElecMass->SetMinimum(0);
-      diElecMass_ = ibooker.book1D("diElec_Mass",hist_diElecMass);
+      diElecMass_ = ibooker.book1D("diElec_Mass",diElecMass_pathName.c_str(),diElecMass_TH1.getParameter<int>("NbinsX"),diElecMass_TH1.getParameter<int>("Xmin"),diElecMass_TH1.getParameter<int>("Xmax"));
+      diElecMass_->setAxisTitle("dielectron mass [GeV]");
     }
   // muon dxy
   if (lookupIndex.count(muonDxyPlots_pathName) > 0)
     {
-      TH1F * hist_muonDxy = new TH1F("Muon_dxy",muonDxyPlots_pathName.c_str(),muonDxy_TH1.getParameter<int>("NbinsX"),muonDxy_TH1.getParameter<int>("Xmin"),muonDxy_TH1.getParameter<int>("Xmax"));
-      hist_muonDxy->GetXaxis()->SetTitle("muon d_{xy} [mm]");
-      hist_muonDxy->SetMinimum(0);
-      muonDxy_ = ibooker.book1D("Muon_dxy",hist_muonDxy);
+      muonDxy_ = ibooker.book1D("Muon_dxy",muonDxyPlots_pathName.c_str(),muonDxy_TH1.getParameter<int>("NbinsX"),muonDxy_TH1.getParameter<int>("Xmin"),muonDxy_TH1.getParameter<int>("Xmax"));
+      muonDxy_->setAxisTitle("muon d_{xy} [mm]");
     }
   //CSV
   if (lookupIndex.count(bJetPlots_pathNameCalo) >0)
     {
-      TH1F * hist_bJetCSVCalo = new TH1F("bJetCSVCalo",bJetPlots_pathNameCalo.c_str(),bJetCSVCalo_TH1.getParameter<int>("NbinsX"),bJetCSVCalo_TH1.getParameter<int>("Xmin"),bJetCSVCalo_TH1.getParameter<int>("Xmax"));
-      hist_bJetCSVCalo->GetXaxis()->SetTitle("calo b-jet CSV");
-      hist_bJetCSVCalo->SetMinimum(0);
-      bJetCSVCalo_ = ibooker.book1D("bJetCSVCalo",hist_bJetCSVCalo);
+      bJetCSVCalo_ = ibooker.book1D("bJetCSVCalo",bJetPlots_pathNameCalo.c_str(),bJetCSVCalo_TH1.getParameter<int>("NbinsX"),bJetCSVCalo_TH1.getParameter<int>("Xmin"),bJetCSVCalo_TH1.getParameter<int>("Xmax"));
+      bJetCSVCalo_->setAxisTitle("calo b-jet CSV");
     } 
   if (lookupIndex.count(bJetPlots_pathNamePF) >0)
     {
-      TH1F * hist_bJetCSVPF = new TH1F("bJetCSVPF",bJetPlots_pathNamePF.c_str(),bJetCSVPF_TH1.getParameter<int>("NbinsX"),bJetCSVPF_TH1.getParameter<int>("Xmin"),bJetCSVPF_TH1.getParameter<int>("Xmax"));
-      hist_bJetCSVPF->GetXaxis()->SetTitle("PF b-jet CSV");
-      hist_bJetCSVPF->SetMinimum(0);
-      bJetCSVPF_ = ibooker.book1D("bJetCSVPF",hist_bJetCSVPF);
+      bJetCSVPF_ = ibooker.book1D("bJetCSVPF",bJetPlots_pathNamePF.c_str(),bJetCSVPF_TH1.getParameter<int>("NbinsX"),bJetCSVPF_TH1.getParameter<int>("Xmin"),bJetCSVPF_TH1.getParameter<int>("Xmax"));
+      bJetCSVPF_->setAxisTitle("PF b-jet CSV");
     }
-
 
   ////////////////////////////////
   ///
@@ -1011,98 +965,70 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   if (lookupIndex.count(photonPlots_pathName) > 0)
     {
       //photon eta
-      TH1F * hist_photonEta = new TH1F("Photon_eta",photonPlots_pathName.c_str(),photonEta_TH1.getParameter<int>("NbinsX"),photonEta_TH1.getParameter<int>("Xmin"),photonEta_TH1.getParameter<int>("Xmax"));
-      hist_photonEta->GetXaxis()->SetTitle("photon eta");
-      hist_photonEta->SetMinimum(0);
-      photonEta_ = ibooker.book1D("Photon_eta",hist_photonEta);
+      photonEta_ = ibooker.book1D("Photon_eta",photonPlots_pathName.c_str(),photonEta_TH1.getParameter<int>("NbinsX"),photonEta_TH1.getParameter<int>("Xmin"),photonEta_TH1.getParameter<int>("Xmax"));
+      photonEta_->setAxisTitle("photon eta");
       //photon phi
-      TH1F * hist_photonPhi = new TH1F("Photon_phi",photonPlots_pathName.c_str(),photonPhi_TH1.getParameter<int>("NbinsX"),photonPhi_TH1.getParameter<double>("Xmin"),photonPhi_TH1.getParameter<double>("Xmax"));
-      hist_photonPhi->GetXaxis()->SetTitle("photon phi");
-      hist_photonPhi->SetMinimum(0);
-      photonPhi_ = ibooker.book1D("Photon_phi",hist_photonPhi);
+      photonPhi_ = ibooker.book1D("Photon_phi",photonPlots_pathName.c_str(),photonPhi_TH1.getParameter<int>("NbinsX"),photonPhi_TH1.getParameter<double>("Xmin"),photonPhi_TH1.getParameter<double>("Xmax"));
+      photonPhi_->setAxisTitle("photon phi");
     }
   if (lookupIndex.count(muonPlots_pathName) > 0)
     {
       //muon eta
-      TH1F * hist_muonEta = new TH1F("Muon_eta",muonPlots_pathName.c_str(),muonEta_TH1.getParameter<int>("NbinsX"),muonEta_TH1.getParameter<int>("Xmin"),muonEta_TH1.getParameter<int>("Xmax"));
-      hist_muonEta->GetXaxis()->SetTitle("muon eta");
-      hist_muonEta->SetMinimum(0);
-      muonEta_ = ibooker.book1D("Muon_eta",hist_muonEta);
+      muonEta_ = ibooker.book1D("Muon_eta",muonPlots_pathName.c_str(),muonEta_TH1.getParameter<int>("NbinsX"),muonEta_TH1.getParameter<int>("Xmin"),muonEta_TH1.getParameter<int>("Xmax"));
+      muonEta_->setAxisTitle("muon eta");
       //muon phi
-      TH1F * hist_muonPhi = new TH1F("Muon_phi",muonPlots_pathName.c_str(),muonPhi_TH1.getParameter<int>("NbinsX"),muonPhi_TH1.getParameter<double>("Xmin"),muonPhi_TH1.getParameter<double>("Xmax"));
-      hist_muonPhi->GetXaxis()->SetTitle("muon phi");
-      hist_muonPhi->SetMinimum(0);
-      muonPhi_ = ibooker.book1D("Muon_phi",hist_muonPhi);
+      muonPhi_ = ibooker.book1D("Muon_phi",muonPlots_pathName.c_str(),muonPhi_TH1.getParameter<int>("NbinsX"),muonPhi_TH1.getParameter<double>("Xmin"),muonPhi_TH1.getParameter<double>("Xmax"));
+      muonPhi_->setAxisTitle("muon phi");
     }
   if (lookupIndex.count(l2muonPlots_pathName) > 0)
     {
       //l2 muon eta
-      TH1F * hist_l2muonEta = new TH1F("L2Muon_eta",l2muonPlots_pathName.c_str(),l2muonEta_TH1.getParameter<int>("NbinsX"),l2muonEta_TH1.getParameter<int>("Xmin"),l2muonEta_TH1.getParameter<int>("Xmax")); 
-      hist_l2muonEta->GetXaxis()->SetTitle("L2muon eta");
-      hist_l2muonEta->SetMinimum(0); 
-      l2muonEta_ = ibooker.book1D("L2Muon_eta",hist_l2muonEta);
+      l2muonEta_ = ibooker.book1D("L2Muon_eta",l2muonPlots_pathName.c_str(),l2muonEta_TH1.getParameter<int>("NbinsX"),l2muonEta_TH1.getParameter<int>("Xmin"),l2muonEta_TH1.getParameter<int>("Xmax")); 
+      l2muonEta_->setAxisTitle("L2muon eta");
       //l2 muon phi
-      TH1F * hist_l2muonPhi = new TH1F("L2Muon_phi",l2muonPlots_pathName.c_str(),l2muonPhi_TH1.getParameter<int>("NbinsX"),l2muonPhi_TH1.getParameter<double>("Xmin"),l2muonPhi_TH1.getParameter<double>("Xmax"));
-      hist_l2muonPhi->GetXaxis()->SetTitle("L2muon phi");
-      hist_l2muonPhi->SetMinimum(0);
-      l2muonPhi_ = ibooker.book1D("L2Muon_phi",hist_l2muonPhi);
+      l2muonPhi_ = ibooker.book1D("L2Muon_phi",l2muonPlots_pathName.c_str(),l2muonPhi_TH1.getParameter<int>("NbinsX"),l2muonPhi_TH1.getParameter<double>("Xmin"),l2muonPhi_TH1.getParameter<double>("Xmax"));
+      l2muonPhi_->setAxisTitle("L2muon phi");
     }
   if (lookupIndex.count(l2NoBPTXmuonPlots_pathName) > 0)
     {
       //l2NoBPTXmuon eta
-      TH1F * hist_l2NoBPTXmuonEta = new TH1F("L2NoBPTXMuon_eta",l2NoBPTXmuonPlots_pathName.c_str(),l2NoBPTXmuonEta_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonEta_TH1.getParameter<int>("Xmin"),l2NoBPTXmuonEta_TH1.getParameter<int>("Xmax"));
-      hist_l2NoBPTXmuonEta->GetXaxis()->SetTitle("L2NoBPTXmuon eta");
-      hist_l2NoBPTXmuonEta->SetMinimum(0);
-      l2NoBPTXmuonEta_ = ibooker.book1D("L2NoBPTXMuon_eta",hist_l2NoBPTXmuonEta);
+      l2NoBPTXmuonEta_ = ibooker.book1D("L2NoBPTXMuon_eta",l2NoBPTXmuonPlots_pathName.c_str(),l2NoBPTXmuonEta_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonEta_TH1.getParameter<int>("Xmin"),l2NoBPTXmuonEta_TH1.getParameter<int>("Xmax"));
+      l2NoBPTXmuonEta_->setAxisTitle("L2NoBPTXmuon eta");
       //l2NoBPTXmuon phi
-      TH1F * hist_l2NoBPTXmuonPhi = new TH1F("L2NoBPTXMuon_phi",l2NoBPTXmuonPlots_pathName.c_str(),l2NoBPTXmuonPhi_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonPhi_TH1.getParameter<double>("Xmin"),l2NoBPTXmuonPhi_TH1.getParameter<double>("Xmax"));
-      hist_l2NoBPTXmuonPhi->GetXaxis()->SetTitle("L2NoBPTXmuon phi");
-      hist_l2NoBPTXmuonPhi->SetMinimum(0);
-      l2NoBPTXmuonPhi_ = ibooker.book1D("L2NoBPTXMuon_phi",hist_l2NoBPTXmuonPhi);
+      l2NoBPTXmuonPhi_ = ibooker.book1D("L2NoBPTXMuon_phi",l2NoBPTXmuonPlots_pathName.c_str(),l2NoBPTXmuonPhi_TH1.getParameter<int>("NbinsX"),l2NoBPTXmuonPhi_TH1.getParameter<double>("Xmin"),l2NoBPTXmuonPhi_TH1.getParameter<double>("Xmax"));
+      l2NoBPTXmuonPhi_->setAxisTitle("L2NoBPTXmuon phi");
     }
   if (lookupIndex.count(electronPlots_pathName) > 0)
     {
       //electron eta
-      TH1F * hist_electronEta = new TH1F("Electron_eta",electronPlots_pathName.c_str(),electronEta_TH1.getParameter<int>("NbinsX"),electronEta_TH1.getParameter<int>("Xmin"),electronEta_TH1.getParameter<int>("Xmax"));
-      hist_electronEta->GetXaxis()->SetTitle("electron eta");
-      hist_electronEta->SetMinimum(0);
-      electronEta_ = ibooker.book1D("Electron_eta",hist_electronEta);
+      electronEta_ = ibooker.book1D("Electron_eta",electronPlots_pathName.c_str(),electronEta_TH1.getParameter<int>("NbinsX"),electronEta_TH1.getParameter<int>("Xmin"),electronEta_TH1.getParameter<int>("Xmax"));
+      electronEta_->setAxisTitle("electron eta");
       //electron phi
-      TH1F * hist_electronPhi = new TH1F("Electron_phi",electronPlots_pathName.c_str(),electronPhi_TH1.getParameter<int>("NbinsX"),electronPhi_TH1.getParameter<double>("Xmin"),electronPhi_TH1.getParameter<double>("Xmax"));
-      hist_electronPhi->GetXaxis()->SetTitle("electron phi");
-      hist_electronPhi->SetMinimum(0);
-      electronPhi_ = ibooker.book1D("Electron_phi",hist_electronPhi);
+      electronPhi_ = ibooker.book1D("Electron_phi",electronPlots_pathName.c_str(),electronPhi_TH1.getParameter<int>("NbinsX"),electronPhi_TH1.getParameter<double>("Xmin"),electronPhi_TH1.getParameter<double>("Xmax"));
+      electronPhi_->setAxisTitle("electron phi");
     }
   if (lookupIndex.count(caloMetPlots_pathName) >0)
     {
       //caloMET phi
-      TH1F * hist_caloMetPhi = new TH1F("CaloMET_phi",caloMetPlots_pathName.c_str(),caloMetPhi_TH1.getParameter<int>("NbinsX"),caloMetPhi_TH1.getParameter<double>("Xmin"),caloMetPhi_TH1.getParameter<double>("Xmax"));
-      hist_caloMetPhi->GetXaxis()->SetTitle("calo MET phi");
-      hist_caloMetPhi->SetMinimum(0);
-      caloMetPhi_ = ibooker.book1D("CaloMET_phi",hist_caloMetPhi);
+      caloMetPhi_ = ibooker.book1D("CaloMET_phi",caloMetPlots_pathName.c_str(),caloMetPhi_TH1.getParameter<int>("NbinsX"),caloMetPhi_TH1.getParameter<double>("Xmin"),caloMetPhi_TH1.getParameter<double>("Xmax"));
+      caloMetPhi_->setAxisTitle("calo MET phi");
     }
   if (lookupIndex.count(pfMetPlots_pathName) >0)
     {
       //PFMET phi
-      TH1F * hist_PFMetPhi = new TH1F("PFMET_phi",pfMetPlots_pathName.c_str(),pfMetPhi_TH1.getParameter<int>("NbinsX"),pfMetPhi_TH1.getParameter<double>("Xmin"),pfMetPhi_TH1.getParameter<double>("Xmax"));
-      hist_PFMetPhi->GetXaxis()->SetTitle("PF MET phi");
-      hist_PFMetPhi->SetMinimum(0);
-      pfMetPhi_ = ibooker.book1D("PFMET_phi",hist_PFMetPhi);
+      pfMetPhi_ = ibooker.book1D("PFMET_phi",pfMetPlots_pathName.c_str(),pfMetPhi_TH1.getParameter<int>("NbinsX"),pfMetPhi_TH1.getParameter<double>("Xmin"),pfMetPhi_TH1.getParameter<double>("Xmax"));
+      pfMetPhi_->setAxisTitle("PF MET phi");
     }
   if (lookupIndex.count(bJetPlots_pathNameCalo) >0 || lookupIndex.count(bJetPlots_pathNamePF) >0) 
     //  if (lookupIndex.count(bJetPlots_pathName) >0 || lookupIndex.count(bJetPlots_pathNameOR) >0) 
     {
       std::string bJet_pathsTitle = bJetPlots_pathNameCalo + " + " + bJetPlots_pathNamePF;
       //bJet phi
-      TH1F * hist_bJetPhi = new TH1F("bJet_phi",bJet_pathsTitle.c_str(),bJetPhi_TH1.getParameter<int>("NbinsX"),bJetPhi_TH1.getParameter<double>("Xmin"),bJetPhi_TH1.getParameter<double>("Xmax"));
-      hist_bJetPhi->GetXaxis()->SetTitle("b-jet phi");
-      hist_bJetPhi->SetMinimum(0);
-      bJetPhi_ = ibooker.book1D("bJet_phi",hist_bJetPhi);
+      bJetPhi_ = ibooker.book1D("bJet_phi",bJet_pathsTitle.c_str(),bJetPhi_TH1.getParameter<int>("NbinsX"),bJetPhi_TH1.getParameter<double>("Xmin"),bJetPhi_TH1.getParameter<double>("Xmax"));
+      bJetPhi_->setAxisTitle("b-jet phi");
       //bJet eta
-      TH1F * hist_bJetEta = new TH1F("bJet_eta",bJet_pathsTitle.c_str(),bJetEta_TH1.getParameter<int>("NbinsX"),bJetEta_TH1.getParameter<int>("Xmin"),bJetEta_TH1.getParameter<int>("Xmax"));
-      hist_bJetEta->GetXaxis()->SetTitle("b-jet eta");
-      hist_bJetEta->SetMinimum(0);
-      bJetEta_ = ibooker.book1D("bJet_eta",hist_bJetEta);
+      bJetEta_ = ibooker.book1D("bJet_eta",bJet_pathsTitle.c_str(),bJetEta_TH1.getParameter<int>("NbinsX"),bJetEta_TH1.getParameter<int>("Xmin"),bJetEta_TH1.getParameter<int>("Xmax"));
+      bJetEta_->setAxisTitle("b-jet eta");
     }
 }
 
