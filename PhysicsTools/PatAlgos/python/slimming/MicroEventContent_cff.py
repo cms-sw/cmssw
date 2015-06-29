@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 MicroEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'drop *',
