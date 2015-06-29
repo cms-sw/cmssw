@@ -10,4 +10,6 @@ modifyPrimaryPhysicsObjects = cms.Sequence( slimmedElectrons *
                                             slimmedPhotons   *
                                             slimmedMuons     *
                                             slimmedTaus      *
-                                            slimmedJets        )
+                                            slimmedJets      *
+                                            slimmedJetsAK8   *
+                                            slimmedJetsPuppi   )
