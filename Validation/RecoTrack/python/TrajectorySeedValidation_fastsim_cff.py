@@ -12,7 +12,7 @@ _seedProducerLabels = ["initialStepSeeds",
                        "pixelLessStepSeeds",
                        "tobTecStepSeedsPair",
                        "tobTecStepSeedsTripl",
-                       "jetCoreRegionalStepSeeds",
+                       #"jetCoreRegionalStepSeeds", this step only exists in FullSim
                        ]
 
 _moduleNames = []
