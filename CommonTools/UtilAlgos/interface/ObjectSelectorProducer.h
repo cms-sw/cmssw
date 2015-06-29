@@ -1,12 +1,10 @@
 #ifndef CommonTools_UtilAlgos_ObjectSelectorProducer_h
 #define CommonTools_UtilAlgos_ObjectSelectorProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"
 #include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
 #include "CommonTools/UtilAlgos/interface/NullPostProcessor.h"
@@ -24,11 +22,11 @@
  * EDFilters.
  */
 template<typename Selector,
-         typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
-         typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::EDProducer>,
-         typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDProducer>::type,
-         typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDProducer>::base,
-         typename Init = typename ::reco::modules::EventSetupInit<Selector>::type
+         typename OutputCollection,
+         typename PostProcessor,
+         typename StoreManager,
+         typename Base,
+         typename Init
          >
 class ObjectSelectorProducer : public Base {
 public:
