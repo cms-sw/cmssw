@@ -7,6 +7,8 @@
 
 // TODO: Update Doxygen description
 
+
+
 /*** Header file ***/
 #include "PCLTrackerAlProducer.h"
 
@@ -48,13 +50,30 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
 /*** Logging ***/
-#define PRINT(msg) PRINT_TO_LOGFILE(msg) \
-                   PRINT_TO_STDOUT(msg)
-#define PRINT_TO_LOGFILE(msg) \
-edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::" \
-                          << __FUNCTION__ << ": " msg;
-#define PRINT_TO_STDOUT(msg) \
-printf("(%s) Function %s: %s \n", typeid(*this).name(), __FUNCTION__, msg);
+template <typename T>
+void buildMessage(std::ostream& oss, T t)
+{
+  oss << t;
+}
+
+template<typename T, typename... Args>
+void buildMessage(std::ostream& oss, T t, Args... args)
+{
+  buildMessage(oss, t);
+  buildMessage(oss, args...);
+}
+
+template<typename... Args>
+void PRINT_INFO(std::string func, Args... args)
+{
+  std::ostringstream oss;
+  buildMessage(oss, args...);
+
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::"<< func.c_str()
+                            << ": " << oss.str() << std::endl;
+  printf("%s::%s: %s\n", "PCLTrackerAlProducer", func.c_str(),
+                         oss.str().c_str());
+}
 
 
 
@@ -90,7 +109,7 @@ PCLTrackerAlProducer
   tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
   clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag"))
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
 
   createAlignmentAlgorithm(config);
   createCalibrations      (config);
@@ -101,7 +120,7 @@ PCLTrackerAlProducer
 PCLTrackerAlProducer
 ::~PCLTrackerAlProducer()
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
 
   delete theAlignmentAlgo;
 
@@ -129,7 +148,7 @@ PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginJob()
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
 
   nevent_ = 0;
 
@@ -154,8 +173,8 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::endJob()
 {
-  PRINT("called")
-  printf("Events processed: %d", nevent_);
+  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(__FUNCTION__, "Events processed: ", nevent_);
 
   finish();
 
@@ -176,7 +195,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
   // Do not forward edm::Run
   theAlignmentAlgo->beginRun(setup);
 }
@@ -185,7 +204,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::endRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
 
   // TODO: Either MP nor HIP is implementing the endRun() method... so this
   //       seems to be useless?
@@ -208,9 +227,9 @@ void PCLTrackerAlProducer
 //_____________________________________________________________________________
 void PCLTrackerAlProducer
 ::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
-                       const edm::EventSetup     & setup)
+                       const edm::EventSetup&      setup)
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
   // Do not forward edm::LuminosityBlock
   theAlignmentAlgo->beginLuminosityBlock(setup);
 }
@@ -220,7 +239,7 @@ void PCLTrackerAlProducer
 ::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                      const edm::EventSetup&      setup)
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
   // Do not forward edm::LuminosityBlock
   theAlignmentAlgo->endLuminosityBlock(setup);
 }
@@ -229,12 +248,33 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
   ++nevent_;
+  PRINT_INFO(__FUNCTION__, "event number: ", nevent_);
 
   if (setupChanged(setup)) {
     initAlignmentAlgorithm(setup);
     initBeamSpot(event);
+
+
+    const auto& rcd = setup.get<TrackerAlignmentRcd>();
+    edm::ESHandle<Alignments> handle;
+    rcd.get(handle);
+
+
+
+    const edm::ValidityInterval& validity = rcd.validityInterval();
+    const edm::IOVSyncValue      first    = validity.first();
+    const edm::IOVSyncValue      last     = validity.last();
+
+    auto eID1 = first.eventID();
+    printf("(TProdPCL) first runnumber: %u\n", eID1.run());
+    printf("(TProdPCL) first event:     %llu\n", eID1.event());
+
+    auto eID2 = last.eventID();
+    printf("(TProdPCL) last runnumber: %u\n", eID2.run());
+    printf("(TProdPCL) last event:     %llu\n", eID2.event());
+
   }
 
   if (!theAlignmentAlgo->processesEvents()) {
@@ -246,7 +286,7 @@ void PCLTrackerAlProducer
   }
 
   // reading in survey records
-  this->readInSurveyRcds(setup);
+  readInSurveyRcds(setup);
 
   // Retrieve trajectories and tracks from the event
   // -> merely skip if collection is empty
@@ -378,92 +418,74 @@ void PCLTrackerAlProducer
 bool PCLTrackerAlProducer
 ::setupChanged(const edm::EventSetup& setup)
 {
-  PRINT("Checking EventSetup")
+  bool changed = false;
 
-  if (watchTrackerAlRcd.check(setup)) {
-    PRINT("TrackerAlignmentRcd has changed")
+  if (doTracker_) {
+    if (watchTrackerAlRcd.check(setup)) {
+        PRINT_INFO(__FUNCTION__, "TrackerAlignmentRcd has changed");
+        changed = true;
+      }
 
-    /*
-    const auto& rcd = setup.get<TrackerAlignmentRcd>();
+      if (watchTrackerAlErrorExtRcd.check(setup)) {
+        PRINT_INFO(__FUNCTION__, "TrackerAlignmentErrorExtendedRcd has changed");
+        changed = true;
+      }
 
-    const edm::ValidityInterval& validity = rcd.validityInterval();
-    const edm::IOVSyncValue      first    = validity.first();
-    const edm::IOVSyncValue      last     = validity.last();
-
-    auto eID1 = first.eventID();
-    printf("(TProdPCL) first runnumber: %u\n", eID1.run());
-    printf("(TProdPCL) first event:     %llu\n", eID1.event());
-
-    auto eID2 = last.eventID();
-    printf("(TProdPCL) last runnumber: %u\n", eID2.run());
-    printf("(TProdPCL) last event:     %llu\n", eID2.event());
-    */
-
-    return true;
+      if (watchTrackerSurDeRcd.check(setup)) {
+        PRINT_INFO(__FUNCTION__, "TrackerSurfaceDeformationRcd has changed");
+        changed = true;
+      }
   }
 
-  if (watchTrackerAlErrorExtRcd.check(setup)) {
-    PRINT("TrackerAlignmentErrorExtendedRcd has changed")
-    return true;
+  if (doMuon_) {
+    if (watchDTAlRcd.check(setup)) {
+      PRINT_INFO(__FUNCTION__, "DTAlignmentRcd has changed");
+      changed = true;
+    }
+
+    if (watchDTAlErrExtRcd.check(setup)) {
+      PRINT_INFO(__FUNCTION__, "DTAlignmentErrorExtendedRcd has changed");
+      changed = true;
+    }
+
+    if (watchCSCAlRcd.check(setup)) {
+      PRINT_INFO(__FUNCTION__, "CSCAlignmentRcd has changed");
+      changed = true;
+    }
+
+    if (watchCSCAlErrExtRcd.check(setup)) {
+      PRINT_INFO(__FUNCTION__, "CSCAlignmentErrorExtendedRcd has changed");
+      changed = true;
+    }
   }
 
-  /*
-  if (watchTrackerSurDeRcd.check(setup)) {
-    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
-           "TrackerSurfaceDeformationRcd has changed (event nr: %d)\n", nevent_);
-    return true;
-  }
-  if (watchDTAlRcd.check(setup)) {
-    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
-           "DTAlignmentRcd has changed (event nr: %d)\n", nevent_);
-    return true;
-  }
-  if (watchTrackerDigiGeoRcd.check(setup)) {
-    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
-           "TrackerDigiGeometryRcd has changed (event nr: %d)\n", nevent_);
-    return true;
-  }
-  if (watchGlobalPosRcd.check(setup)) {
-    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
-           "GlobalPositionRcd has changed (event nr: %d)\n", nevent_);
-    return true;
-  }
-  if (watchIdealGeoRcd.check(setup)) {
-    printf("(TProdPCL) AlignmentProducerForPCL::analyze | "
-           "IdealGeometryRecord has changed (event nr: %d)\n", nevent_);
-    return true;
-  }
+  /* TODO: ExtraAlignables: Which record(s) to check?
+   *
+  if (useExtras_) {}
   */
 
-  return false;
+  return changed;
 }
 
 //_____________________________________________________________________________
 void PCLTrackerAlProducer
 ::initAlignmentAlgorithm(const edm::EventSetup& setup)
 {
-  PRINT("called")
-
-  /* 1) Former: AlignmentProducer::beginOfJob(const edm::EventSetup& setup) */
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob";
+  PRINT_INFO(__FUNCTION__, "called");
 
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   setup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-
-
   // Create the geometries from the ideal geometries (first time only)
   //std::shared_ptr<TrackingGeometry> theTrackerGeometry;
   createGeometries(setup);
-
 
   applyAlignmentsToDB(setup);
   createAlignables(tTopo);
   buildParameterStore();
   applyMisalignment();
-
 
   // Initialize alignment algorithm and integrated calibration and pass the latter to algorithm
   theAlignmentAlgo->initialize(setup,
@@ -863,8 +885,8 @@ void PCLTrackerAlProducer
 /*
   // Get Survey Rcds and add Survey Info
   if (doTracker_ && useSurvey_) {
-    bool tkSurveyBool    = watchTkSurveyRcd_.check(setup);
-    bool tkSurveyErrBool = watchTkSurveyErrExtRcd_.check(setup);
+    bool tkSurveyBool    = watchTkSurveyRcd.check(setup);
+    bool tkSurveyErrBool = watchTkSurveyErrExtRcd.check(setup);
 
     if (tkSurveyBool || tkSurveyErrBool) {
       edm::ESHandle<Alignments>   surveys;
@@ -881,10 +903,10 @@ void PCLTrackerAlProducer
   }
 
   if (doMuon_ && useSurvey_) {
-    bool DTSurveyBool     = watchTkSurveyRcd_.check(setup);
-    bool DTSurveyErrBool  = watchTkSurveyErrExtRcd_.check(setup);
-    bool CSCSurveyBool    = watchTkSurveyRcd_.check(setup);
-    bool CSCSurveyErrBool = watchTkSurveyErrExtRcd_.check(setup);
+    bool DTSurveyBool     = watchTkSurveyRcd.check(setup);
+    bool DTSurveyErrBool  = watchTkSurveyErrExtRcd.check(setup);
+    bool CSCSurveyBool    = watchTkSurveyRcd.check(setup);
+    bool CSCSurveyErrBool = watchTkSurveyErrExtRcd.check(setup);
 
     if (DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool){
       edm::ESHandle<Alignments>   dtSurveys;
@@ -983,7 +1005,7 @@ void PCLTrackerAlProducer::applyAlignmentsToGeometry2(Geometry* geometry,
 void PCLTrackerAlProducer
 ::finish()
 {
-  PRINT("called")
+  PRINT_INFO(__FUNCTION__, "called");
 
   /* 1) Former: Status AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop) */
   if (theAlignmentAlgo->processesEvents()) {
