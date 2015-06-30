@@ -30,7 +30,7 @@ class RPCPointProducer : public edm::stream::EDProducer<> {
       const edm::EDGetTokenT<reco::TrackCollection> tracks;
       const edm::InputTag tracks_;
    private:
-      void beginStream(edm::StreamID) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
       const bool debug;
       const bool incldt;

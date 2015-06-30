@@ -12,8 +12,7 @@
 #include <RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h>
 #include <ctime>
 
-ObjectMap::ObjectMap(){
-}
+
 
 ObjectMap::ObjectMap(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;

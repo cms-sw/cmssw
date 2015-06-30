@@ -16,8 +16,7 @@
 #include <ctime>
 #include <TMath.h>
 
-ObjectMap2::ObjectMap2(){
-}
+
 
 ObjectMap2::ObjectMap2(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;

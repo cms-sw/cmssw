@@ -81,7 +81,10 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     iEvent.getByToken(cscSegments, allCSCSegments);
     
-    if (MuonGeometryWatcher.check(iSetup)) TheCSCObjectsMap_->fillObjectMapCSC(iSetup);
+      if (MuonGeometryWatcher.check(iSetup)) {
+          std::cout << "test  geom" << std::endl;
+          TheCSCObjectsMap_->fillObjectMapCSC(iSetup);
+      }
       
     if(allCSCSegments.isValid()){
       CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent, debug, ExtrapolatedRegion, TheCSCObjectsMap_);
@@ -111,11 +114,11 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
  
 }
 
-void  RPCPointProducer::beginStream(edm::StreamID iID){
-    TheDTObjectsMap_  = new ObjectMap();
-    TheCSCObjectsMap_ = new ObjectMapCSC();
-    TheDTtrackObjectsMap_ = new ObjectMap2();
-    TheCSCtrackObjectsMap_ = new ObjectMap2CSC();
+void  RPCPointProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
+    TheDTObjectsMap_  = new ObjectMap(iSetup);
+    TheCSCObjectsMap_ = new ObjectMapCSC(iSetup);
+    TheDTtrackObjectsMap_ = new ObjectMap2(iSetup);
+    TheCSCtrackObjectsMap_ = new ObjectMap2CSC(iSetup);
 
     
 }

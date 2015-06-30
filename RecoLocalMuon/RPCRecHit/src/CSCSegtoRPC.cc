@@ -11,8 +11,7 @@
 #include <DataFormats/RPCRecHit/interface/RPCRecHitCollection.h>
 #include <RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h>
 
-ObjectMapCSC::ObjectMapCSC(){
-}
+
 
 ObjectMapCSC::ObjectMapCSC(const edm::EventSetup& iSetup){
   edm::ESHandle<RPCGeometry> rpcGeo;
