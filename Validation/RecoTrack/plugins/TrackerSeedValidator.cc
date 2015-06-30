@@ -152,10 +152,6 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
     }
   }
 
-  edm::Handle<TrackingVertexCollection> tvH;
-  event.getByToken(label_tv,tvH);
-  TrackingVertexCollection tv = *tvH;
-
   // Calculate the number of 3D layers for TPs
   //
   // I would have preferred to produce the ValueMap to Event and read

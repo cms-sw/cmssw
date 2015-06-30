@@ -68,6 +68,11 @@ multiTrackValidator = cms.EDAnalyzer(
     ### for fake rate vs dR ###
     trackCollectionForDrCalculation = cms.InputTag("generalTracks"),
 
+    ### Do plots only if first reco vertex is from hard scatter?
+    doPlotsOnlyForTruePV = cms.untracked.bool(False),
+    label_vertex = cms.untracked.InputTag("offlinePrimaryVertices"),
+    vertexAssociator = cms.untracked.InputTag("VertexAssociatorByPositionAndTracks"),
+
     ### Allow switching off particular histograms
     doSimPlots = cms.untracked.bool(True),
     doSimTrackPlots = cms.untracked.bool(True),

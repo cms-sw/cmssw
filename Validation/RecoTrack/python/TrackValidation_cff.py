@@ -187,7 +187,8 @@ trackValidatorFromPV = trackValidator.clone(
     label_tp_effic = "trackingParticlesSignal",
     label_tp_fake = "trackingParticlesSignal",
     associators = ["trackingParticleRecoTrackAsssociationSignal"],
-    trackCollectionForDrCalculation = "generalTracksFromPV"
+    trackCollectionForDrCalculation = "generalTracksFromPV",
+    doPlotsOnlyForTruePV = True
 )
 
 # the track selectors

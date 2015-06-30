@@ -23,7 +23,6 @@ trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
-    label_tv = cms.InputTag("mix","MergedTrackTruth"),
     label_pileupinfo = cms.InputTag("addPileupInfo"),
     sim = cms.VInputTag(
       cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),

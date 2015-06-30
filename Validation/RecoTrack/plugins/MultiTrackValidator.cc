@@ -45,6 +45,7 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   MultiTrackValidatorBase(pset,consumesCollector()),
   parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+  doPlotsOnlyForTruePV_(pset.getUntrackedParameter<bool>("doPlotsOnlyForTruePV")),
   doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
   doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
   doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
@@ -62,6 +63,12 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   if(dodEdxPlots_) {
     m_dEdx1Tag = consumes<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx1Tag"));
     m_dEdx2Tag = consumes<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx2Tag"));
+  }
+
+  if(doPlotsOnlyForTruePV_) {
+    label_tv = consumes<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));
+    recoVertexToken_ = consumes<edm::View<reco::Vertex> >(pset.getUntrackedParameter<edm::InputTag>("label_vertex"));
+    vertexAssociatorToken_ = consumes<reco::VertexToTrackingVertexAssociator>(pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
   }
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
@@ -238,6 +245,24 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
 
+  if(doPlotsOnlyForTruePV_) {
+    edm::Handle<TrackingVertexCollection> htv;
+    event.getByToken(label_tv, htv);
+
+    edm::Handle<edm::View<reco::Vertex> > hvertex;
+    event.getByToken(recoVertexToken_, hvertex);
+
+    edm::Handle<reco::VertexToTrackingVertexAssociator> hvassociator;
+    event.getByToken(vertexAssociatorToken_, hvassociator);
+
+    auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);
+    auto pvPtr = hvertex->refAt(0);
+    if(pvPtr->isFake() || pvPtr->ndof() < 0) // skip junk vertices
+      return;
+    auto pvFound = v_r2s.find(pvPtr);
+    if(pvFound == v_r2s.end())
+      return;
+  }
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   event.getByToken(bsSrc,recoBeamSpotHandle);
