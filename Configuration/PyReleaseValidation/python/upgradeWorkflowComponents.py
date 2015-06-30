@@ -32,9 +32,9 @@ upgradeKeys=['2017',
              'Extended2023HGCalMuonPandoraPU',
              'Extended2023SHCalNoTaperFast',
              'Extended2023HGCalNoExtPix',
-	     'BE5DPixel10DLHCCNoDefect',
-	     'BE5DPixel10DDefect',
-	     'BE5DPixel10DCoolingDefect',
+             'BE5DPixel10DLHCCNoDefect',
+             'BE5DPixel10DDefect',
+             'BE5DPixel10DCoolingDefect',
              'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12PU',
              'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11PU',
              'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9PU'
@@ -287,9 +287,9 @@ howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(9,100),
            'WM_14TeV_cfi':Kby(9,100),
            'ZMM_14TeV_cfi':Kby(18,100),
-            'QCDForPF_14TeV_cfi':Kby(9,50),
-            'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
-            'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100)
+           'QCDForPF_14TeV_cfi':Kby(9,50),
+           'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
+           'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100)
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
