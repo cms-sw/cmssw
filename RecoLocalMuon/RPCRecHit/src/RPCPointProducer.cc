@@ -66,8 +66,11 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(incldt){
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByToken(dt4DSegments, all4DSegments);
+      
+    if (MuonGeometryWatcher.check(iSetup)) TheDTObjectsMap_->fillObjectMapDT(iSetup);
+      
     if(all4DSegments.isValid()){
-      DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
+      DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion, TheDTObjectsMap_);
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
       iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
     }else{
@@ -104,6 +107,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 void  RPCPointProducer::beginStream(edm::StreamID iID){
+    TheDTObjectsMap_  = new ObjectMap();
     TheCSCObjectsMap_ = new ObjectMapCSC();
 
     

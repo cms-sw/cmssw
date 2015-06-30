@@ -46,6 +46,7 @@ class RPCPointProducer : public edm::stream::EDProducer<> {
       // ----------member data ---------------------------
     
     ObjectMapCSC* TheCSCObjectsMap_;
+    ObjectMap*    TheDTObjectsMap_;
     edm::ESWatcher<MuonGeometryRecord> MuonGeometryWatcher;
 };
 
