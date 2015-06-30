@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/PHcalParametersRcd.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalParametersFromDD.h"
-#include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
+#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
+#include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 
 HcalParametersESModule::HcalParametersESModule( const edm::ParameterSet& )
 {
@@ -28,14 +28,15 @@ HcalParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descr
 }
 
 HcalParametersESModule::ReturnType
-HcalParametersESModule::produce( const PHcalParametersRcd& iRecord )
+HcalParametersESModule::produce( const HcalParametersRcd& iRecord )
 {
-  //edm::LogInfo("HcalParametersESModule")
-  std::cout <<  "HcalParametersESModule::produce(const PHcalParametersRcd& iRecord)" << std::endl;
+  //edm::LogInfo("HcalParametersESModule") 
+  std::cout 
+    << "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)" << std::endl;
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   
-  PHcalParameters* ptp = new PHcalParameters();
+  HcalParameters* ptp = new HcalParameters();
   HcalParametersFromDD builder;
   builder.build( &(*cpv), *ptp );
   

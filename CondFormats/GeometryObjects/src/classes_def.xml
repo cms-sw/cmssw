@@ -42,6 +42,52 @@
  <class name="PTrackerParameters::Item"/>
  <class name="std::vector<PTrackerParameters::Item>"/>
 
+ <class name="HcalParameters" class_version="0"> 
+   <field name="rHB"              mapping="blob"/>
+   <field name="drHB"             mapping="blob"/>
+   <field name="zHE"              mapping="blob"/>
+   <field name="dzHE"             mapping="blob"/>
+   <field name="zHO"              mapping="blob"/>
+   <field name="rhoxHB"           mapping="blob"/>
+   <field name="zxHB"             mapping="blob"/>
+   <field name="dyHB"             mapping="blob"/>
+   <field name="dxHB"             mapping="blob"/>
+   <field name="rhoxHE"           mapping="blob"/>
+   <field name="zxHE"             mapping="blob"/>
+   <field name="dyHE"             mapping="blob"/>
+   <field name="dx1HE"            mapping="blob"/>
+   <field name="dx2HE"            mapping="blob"/>
+   <field name="rHO"              mapping="blob"/>
+   <field name="phioff"           mapping="blob"/>
+   <field name="etaTable"         mapping="blob"/>
+   <field name="rTable"           mapping="blob"/>
+   <field name="phibin"           mapping="blob"/>
+   <field name="phitable"         mapping="blob"/>
+   <field name="etaRange"         mapping="blob"/>
+   <field name="gparHF"           mapping="blob"/>
+   <field name="Layer0Wt"         mapping="blob"/>
+   <field name="HBGains"          mapping="blob"/>
+   <field name="HEGains"          mapping="blob"/>
+   <field name="HFGains"          mapping="blob"/>
+   <field name="modHB"            mapping="blob"/>
+   <field name="modHE"            mapping="blob"/>
+   <field name="maxDepth"         mapping="blob"/>
+   <field name="layHB"            mapping="blob"/>
+   <field name="layHE"            mapping="blob"/>
+   <field name="etaMin"           mapping="blob"/>
+   <field name="etaMax"           mapping="blob"/>
+   <field name="noff"             mapping="blob"/>
+   <field name="HBShift"          mapping="blob"/>
+   <field name="HEShift"          mapping="blob"/>
+   <field name="HFShift"          mapping="blob"/>
+   <field name="etagroup"         mapping="blob"/>
+   <field name="phigroup"         mapping="blob"/>
+   <field name="layerGroupEtaSim" mapping="blob"/>
+   <field name="layerGroupEtaRec" mapping="blob"/>
+ </class>
+ <class name="HcalParameters::LayerItem"/>
+ <class name="std::vector<HcalParameters::LayerItem>"/>
+
  <class name="PHcalParameters" class_version="0"> 
    <field name="phioff" mapping="blob"/>
    <field name="etaTable" mapping="blob"/>
