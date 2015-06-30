@@ -15,7 +15,7 @@ electronMVAValueMapProducer = cms.EDProducer('ElectronMVAValueMapProducer',
                                              #
                                              # miniAOD case
                                              #
-                                             srcMiniAOD = cms.InputTag('slimmedElectrons'),
+                                             srcMiniAOD = cms.InputTag('slimmedElectrons',processName=cms.InputTag.skipCurrentProcess()),
                                              #
                                              # MVA configurations
                                              #
