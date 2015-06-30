@@ -9,7 +9,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHGCalRecHitCreator.h"
 
 
-EDM_REGISTER_PLUGINFACTORY(PFRecHitFactory, "PFRecHitFactory");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEERecHitCreator, "PFEERecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEKRecHitCreator, "PFEKRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEBRecHitCreator, "PFEBRecHitCreator");

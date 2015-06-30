@@ -61,6 +61,7 @@ class HGCalGeometry;
 class MagneticField;
 class TrackerGeometry;
 class PropagatorWithMaterial;
+class MaskedLayerManager;
 
 // namespace pandora {class Pandora;}
 
@@ -221,8 +222,9 @@ public:
   
   void preparePFO(edm::Event& iEvent);
   void prepareGeometry();
+  unsigned int GetHGCLayer(const DetId& detid, const ForwardSubdetector& subdet) const;
   void SetDefaultSubDetectorParameters(const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
-  void CalculateCornerSubDetectorParameters(const CaloSubdetectorGeometry* geom,  const std::vector<DetId>& cells, const pandora::SubDetectorType subDetectorType, 
+  void CalculateCornerSubDetectorParameters(const CaloSubdetectorGeometry* geom,  const std::vector<DetId>& cells, const pandora::SubDetectorType subDetectorType, const ForwardSubdetector& subdet,
                                             double& min_innerRadius, double& max_outerRadius, double& min_innerZ, double& max_outerZ,
                                             bool doLayers, std::vector<double>& min_innerR_depth, std::vector<double>& min_innerZ_depth) const;
   void SetCornerSubDetectorParameters(PandoraApi::Geometry::SubDetector::Parameters &parameters, 
@@ -307,6 +309,11 @@ private:
   std::vector<ReferenceCountingPointer<BoundDisk> > _plusSurface,_minusSurface;
   std::unique_ptr<PropagatorWithMaterial> _mat_prop;  
 
+  //for layer masking
+  bool DoLayerMasking;
+  MaskedLayerManager* LayerManager;
+  std::unordered_map<unsigned,unsigned> m_LayerGangingEE, m_LayerGangingHEF, m_LayerGangingHEB;
+  
   TFile * file;
   TTree *mytree;
   double ene_track, ene_match_track,ene_match_em,ene_match_had, ene_had,ene_em,ene_match,mass_match,pid_match,pT_match,charge_match;
