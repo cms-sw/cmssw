@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys,os,tempfile,shutil,subprocess,glob
 import argparse
 
@@ -33,7 +35,7 @@ if __name__ == "__main__":
     print "# running cmsDriver" + "\n" + cmsDriverCommand
     
     # run it
-    subprocess.call(cmsDriverCommand,shell=True)
+    subprocess.call(cmsDriverCommand.split(" "))
 
     # find the output and move it to the specified output file path
     ofiles = glob.glob("DQM*.root")
