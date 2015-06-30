@@ -15,7 +15,7 @@ process.load('Configuration.Geometry.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
+process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 ### conditions
