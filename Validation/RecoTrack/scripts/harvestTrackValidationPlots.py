@@ -41,7 +41,7 @@ if __name__ == "__main__":
     ofiles = glob.glob("DQM*.root")
     if len(ofiles) != 1:
         print "ERROR: expecting exactly one output file matching DQM*.root"
-        print "  ls of current directory:"
+        print "  ls of current directory({0}):".format(_tempdir)
         os.system("ls -lt")
         sys.exit()
     shutil.move(ofiles[0],outputFile)
