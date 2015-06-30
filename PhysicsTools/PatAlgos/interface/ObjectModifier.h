@@ -43,7 +43,7 @@ namespace pat {
       conf.getParameterSetVector("modifications");
     for(unsigned i = 0; i < mods.size(); ++i ) {
       const edm::ParameterSet& iconf = mods[i];
-      const std::string& mname = iconf.getParameter<std::string>("name");
+      const std::string& mname = iconf.getParameter<std::string>("modifierName");
       ModifyObjectValueBase* plugin = 
         ModifyObjectValueFactory::get()->create(mname,iconf);
       if( nullptr != plugin ) {

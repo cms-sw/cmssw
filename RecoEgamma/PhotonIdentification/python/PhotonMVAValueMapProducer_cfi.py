@@ -19,7 +19,7 @@ photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
                                            #
                                            # miniAOD case
                                            #
-                                           srcMiniAOD = cms.InputTag('slimmedPhotons'),
+                                           srcMiniAOD = cms.InputTag('slimmedPhotons',processName=cms.InputTag.skipCurrentProcess()),
                                            #
                                            # MVA configurations
                                            #
