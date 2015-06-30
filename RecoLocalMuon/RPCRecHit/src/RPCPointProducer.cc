@@ -95,8 +95,14 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(incltrack){
     edm::Handle<reco::TrackCollection> alltracks;
     iEvent.getByToken(tracks,alltracks);
+      
+    if (MuonGeometryWatcher.check(iSetup)) {
+        TheDTtrackObjectsMap_->fillObjectMapDT(iSetup);
+        TheCSCtrackObjectsMap_->fillObjectMapCSC(iSetup);
+    }
+      
     if(!(alltracks->empty())){
-      TracktoRPC TrackClass(alltracks,iSetup,iEvent,debug,trackTransformerParam,tracks_);
+      TracktoRPC TrackClass(alltracks,iSetup,iEvent,trackTransformerParam,tracks_, TheDTtrackObjectsMap_, TheCSCtrackObjectsMap_);
       std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
       iEvent.put(TheTrackPoints,"RPCTrackExtrapolatedPoints");
     }else{
@@ -109,6 +115,8 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 void  RPCPointProducer::beginStream(edm::StreamID iID){
     TheDTObjectsMap_  = new ObjectMap();
     TheCSCObjectsMap_ = new ObjectMapCSC();
+    TheDTtrackObjectsMap_ = new ObjectMap2();
+    TheCSCtrackObjectsMap_ = new ObjectMap2CSC();
 
     
 }
