@@ -661,7 +661,7 @@ namespace sistrip {
     if (eventTypeNibble == READOUT_MODE_PREMIX_RAW) return FEDReadoutMode(eventTypeNibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
-      const uint8_t mode = (eventTypeNibble & 0xE);
+      const uint8_t mode = (eventTypeNibble & 0xF); //LoicQ:  Was 0xE but I don't think it make sense anymore and it is actually causing problems with READOUT_MODE_ZERO_SUPPRESSED_LITE10
       switch(mode) {
       case READOUT_MODE_VIRGIN_RAW:
       case READOUT_MODE_PROC_RAW:
