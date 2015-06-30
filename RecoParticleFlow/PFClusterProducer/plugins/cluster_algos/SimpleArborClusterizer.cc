@@ -89,7 +89,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	<< "Made cluster: " << current << std::endl;
     }
   }
-  edm::LogError("ArborInfo") << "Made " << output.size() << " clusters!";
+  edm::LogInfo("ArborInfo") << "Made " << output.size() << " clusters!";
   //clean up arbor mem use
   arbor::ArborFreeMem();
 }
