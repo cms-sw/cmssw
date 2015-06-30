@@ -3,25 +3,33 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.PixelLessStep_cff
 
-# simtrack id producer                                                                                                                                                         
-import FastSimulation.Tracking.SimTrackIdProducer_cfi
-pixelLessStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+# fast tracking mask producer                                                                                                                                                         
+import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
+pixelLessStepFastTrackingMasks=FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("mixedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
-    maxChi2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.maxChi2,
     overrideTrkQuals = cms.InputTag('mixedTripletStep')
 )
+
+ # simtrack id producer                                                                                                                                                         
+#import FastSimulation.Tracking.SimTrackIdProducer_cfi
+#pixelLessStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+#    trackCollection = cms.InputTag("mixedTripletStepTracks"),
+#    TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
+#    maxChi2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.maxChi2,
+#    overrideTrkQuals = cms.InputTag('mixedTripletStep')
+#)
 
 # trajectory seeds 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        skipSimTrackIds = [
-            cms.InputTag("detachedTripletStepSimTrackIds"),
-            cms.InputTag("lowPtTripletStepSimTrackIds"),
-            cms.InputTag("pixelPairStepSimTrackIds"),
-            cms.InputTag("mixedTripletStepSimTrackIds"),
-            cms.InputTag("pixelLessStepSimTrackIds")],
+        #skipSimTrackIds = [
+        #    cms.InputTag("detachedTripletStepSimTrackIds"),
+        #    cms.InputTag("lowPtTripletStepSimTrackIds"),
+        #    cms.InputTag("pixelPairStepSimTrackIds"),
+        #    cms.InputTag("mixedTripletStepSimTrackIds"),
+        #    cms.InputTag("pixelLessStepSimTrackIds")],
         pTMin = 0.3,
         maxD0 = -1,
         maxZ0 = -1
@@ -52,7 +60,7 @@ pixelLessStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 pixelLessStep = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStep.clone()
 
 # Final sequence 
-PixelLessStep = cms.Sequence(pixelLessStepSimTrackIds
+PixelLessStep = cms.Sequence(pixelLessStepFastTrackingMasks
                              +pixelLessStepSeeds
                              +pixelLessStepTrackCandidates
                              +pixelLessStepTracks

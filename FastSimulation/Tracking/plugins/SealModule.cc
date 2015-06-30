@@ -3,6 +3,7 @@
 #include "FastSimulation/Tracking/plugins/TrackCandidateProducer.h"
 #include "FastSimulation/Tracking/plugins/PixelTracksProducer.h"
 #include "FastSimulation/Tracking/plugins/SimTrackIdProducer.h"
+#include "FastSimulation/Tracking/plugins/FastTrackingMaskProducer.h"
 #include "FastSimulation/Tracking/plugins/ElectronSeedTrackRefFix.h"
 #include "FastSimulation/Tracking/plugins/ConversionTrackRefFix.h"
 // reco::Track accumulator:

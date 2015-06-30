@@ -67,8 +67,8 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<FastTMRecHitCombinations> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
-        std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
-
+	edm::EDGetTokenT<std::vector<bool> > hitMasksToken;        
+        edm::EDGetTokenT<std::vector<bool> > hitCombinationMasksToken;
     public:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
