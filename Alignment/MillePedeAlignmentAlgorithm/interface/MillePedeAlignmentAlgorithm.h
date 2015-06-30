@@ -60,31 +60,36 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Destructor
   virtual ~MillePedeAlignmentAlgorithm();
 
-  /// Call at beginning of job
+  /// Called at beginning of job
   virtual void initialize(const edm::EventSetup &setup,
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
 			  AlignmentParameterStore *store);
 
+  /// Returns whether MP supports calibrations
   virtual bool supportsCalibrations() override;
-  /// pass integrated calibrations to Millepede (they are not owned by Millepede!)
-  virtual void addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals);
+  /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
+  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals);
 
-  /// Call at end of job
+  /// Called at end of job
   virtual void terminate(const edm::EventSetup& iSetup);
+  /// Called at end of job
   virtual void terminate();
 
+  /// Returns whether MP should process events in the current configuration
   virtual bool processesEvents() override;
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 
+  // TODO: This method does NOT match endRun() in base class! Nobody is
+  //       calling this?
   /// Run on run products, e.g. TkLAS
-  virtual void endRun(const EventInfo &eventInfo, const EndRunInfo &runInfo,
-		      const edm::EventSetup &setup);
+  virtual void endRun(const EventInfo&, const EndRunInfo&,
+                      const edm::EventSetup&); //override;
 
 /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
 /*   virtual void endLuminosityBlock(const edm::EventSetup &setup) {} */
 
-  /// called in order to pass parameters to alignables for a specific run
+  /// Called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.
   virtual bool setParametersForRunRange(const RunRange &runrange);
 
