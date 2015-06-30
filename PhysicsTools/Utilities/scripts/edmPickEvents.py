@@ -5,6 +5,7 @@
 # Charles Plager     Sept  7, 2010
 # Volker Adler       Apr  16, 2014
 # Raman Khurana      June 18, 2015
+# Dinko Ferencek     June 27, 2015
 import os
 import sys
 import optparse
@@ -158,7 +159,7 @@ crabTemplate = '''
 ## CRAB 3 parameters : https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile#CRAB_configuration_parameters
 ##
 ## Once you are happy with this file, please run
-## crab submit                                                                                                                                                
+## crab submit
 
 ## In CRAB3 the configuration file is in Python language. It consists of creating a Configuration object imported from the WMCore library: 
 
@@ -206,7 +207,7 @@ if __name__ == "__main__":
     email = guessEmail()
     parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program
 facilitates picking specific events from a data set.  For full details, please visit
-https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
     parser.add_option ('--output', dest='base', type='string',
                        default='pickevents',
                        help='Base name to use for output files (root, JSON, run and event list, etc.; default "%default")')
@@ -214,6 +215,9 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
                        help = 'Call "cmsRun" command if possible.  Can take a long time.')
     parser.add_option ('--printInteractive', dest='printInteractive', action='store_true',
                        help = 'Print "cmsRun" command instead of running it.')
+    parser.add_option ('--maxEventsInteractive', dest='maxEventsInteractive', type='int',
+                       default=20,
+                       help = 'Maximum number of events allowed to be processed interactively.')
     parser.add_option ('--crab', dest='crab', action='store_true',
                        help = 'Force CRAB setup instead of interactive mode')
     parser.add_option ('--crabCondor', dest='crabCondor', action='store_true',
@@ -256,7 +260,11 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
             eventList.append(event)
         source.close()
 
-    if len (eventList) > 20:
+    if not eventList:
+        print "No events defined.  Aborting."
+        sys.exit()
+
+    if len (eventList) > options.maxEventsInteractive:
         options.crab = True
 
     if options.crab:
@@ -265,7 +273,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
         ## CRAB ##
         ##########
         if options.runInteractive:
-            raise RuntimeError, "This job is can not be run interactive, but rather by crab.  Please call without '--runInteractive' flag."
+            raise RuntimeError, "This job cannot be run interactively, but rather by crab.  Please call without the '--runInteractive' flag or increase the '--maxEventsInteractive' value."
         runsAndLumis = [ (event.run, event.lumi) for event in eventList]
         json = LumiList (lumis = runsAndLumis)
         eventsToProcess = '\n'.join(\
@@ -283,7 +291,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
             print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n"
             if not os.path.exists ('%s/.profile' % os.environ.get('HOME')):
                 print "** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n"
-        print "Setup your environment for CRAB.  Then edit %(crabcfg)s to make any desired changed.  The run:\n\n\ncrab submit -c %(crabcfg)s\n" % crabDict
+        print "Setup your environment for CRAB and edit %(crabcfg)s to make any desired changed.  Then run:\n\ncrab submit -c %(crabcfg)s\n" % crabDict
 
     else:
 
@@ -291,11 +299,17 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
         ## Interactive ##
         #################
         files = []
+        eventPurgeList = []
         for event in eventList:
-            files.extend( getFileNames (event) )
-        if not eventList:
-            print "No events defind.  Aborting."
-            sys.exit()
+            eventFiles = getFileNames (event)
+            if eventFiles == ['[]']: # event not contained in the input dataset
+                print "** WARNING: ** According to a DAS query, run = %i; lumi = %i; event = %i not contained in %s.  Skipping."%(event.run,event.lumi,event.event,event.dataset)
+                eventPurgeList.append( event )
+            else:
+                files.extend( eventFiles )
+        # Purge events
+        for event in eventPurgeList:
+            eventList.remove( event )
         # Purge duplicate files
         fileSet = set()
         uniqueFiles = []
