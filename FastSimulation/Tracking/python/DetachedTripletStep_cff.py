@@ -11,22 +11,10 @@ detachedTripletStepFastTrackingMasks = FastSimulation.Tracking.FastTrackingMaskP
     overrideTrkQuals =  cms.InputTag('initialStep')
     )
 
-
-
-# simtrack id producer
-#import FastSimulation.Tracking.SimTrackIdProducer_cfi
-#detachedTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
-    #tracjectories = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.trajectories.value(),
-#    trackCollection = cms.InputTag("initialStepTracks"),
-#    TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
-#    maxChi2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.maxChi2,
-#    overrideTrkQuals =  cms.InputTag('initialStep')
-#    )
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        #skipSimTrackIds = [cms.InputTag("detachedTripletStepSimTrackIds")],
         pTMin = 0.02,
         maxD0 = 30.0,
         maxZ0 = 50

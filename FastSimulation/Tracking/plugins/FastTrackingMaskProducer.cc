@@ -1,13 +1,14 @@
 // -*- C++ -*-                                                                                                                   
 //                                                                                                                               
-// Package:    FastSimulation/FastTrackingMaskProducer                                                                                 
+// Package:    FastSimulation/FastTrackingMaskProducer                                                                           
 // Class:      FastTrackingMaskProducer                                                                                                
 //                                                                                                                               
-/**\class  FastTrackingMaskProducer FastTrackingMaskProducer.cc FastSimulation/SimTrackIdProducer/plugins/FastTrackingMaskProducer.cc               
-                                                                                                                                 
- Description: FILL IN THE DESCRIPTION  
- TODO: Consider implementing Chi2 method ascit is done in the FullSim                                                                               
-                                                                                                                                  
+/**\class  FastTrackingMaskProducer FastTrackingMaskProducer.cc FastSimulation/Tracking/plugins/FastTrackingMaskProducer.cc                                                                                                                                
+ Description: The class creates two vectors with booleans - hitMasks and hitCombinationMasks. Both of the vectors are filled
+ with 'false' values unless the id of a specific rechit has to be masked. The number of entry inside a vector represents the
+ id of a hit.
+  
+ TODO: Consider implementing Chi2 method ascit is done in the FullSim                                                                                                                                                                                             
 */
 //                                                                                                                                
 // Original Author:  Vilius Kripas                                                                                                
@@ -74,7 +75,7 @@ FastTrackingMaskProducer::FastTrackingMaskProducer(const edm::ParameterSet& conf
 void
 FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
-  // The input track collection handle                                                                                            
+  // The input track collection handle                                                                                           
   edm::Handle<reco::TrackCollection> trackCollection;
   e.getByToken(trackToken,trackCollection);
 
@@ -88,14 +89,14 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
   std::auto_ptr<std::vector<bool> > hitCombinationMasks(new std::vector<bool>());
 
   // The input hitMasks handle
-  if (oldHitMasks_exist = true){
+  if (oldHitMasks_exist == true){
     edm::Handle<std::vector<bool> > oldHitMasks;
     e.getByToken(hitMasksToken,oldHitMasks);
     hitMasks->insert(hitMasks->begin(),oldHitMasks->begin(),oldHitMasks->end());
   }
 
   // The input hitCombinationMasks handle
-  if (oldHitCombinationMasks_exist = true){
+  if (oldHitCombinationMasks_exist == true){
     edm::Handle<std::vector<bool> > oldHitCombinationMasks;
     e.getByToken(hitCombinationMasksToken,oldHitCombinationMasks);   // NOTE: in the 2nd iteration there is no 'oldhitmasks'
     hitCombinationMasks->insert(hitCombinationMasks->begin(),oldHitCombinationMasks->begin(),oldHitCombinationMasks->end());
@@ -127,7 +128,7 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
       for (auto hitIt = track.recHitsBegin() ;  hitIt != track.recHitsEnd(); ++hitIt) {
 
 	const SiTrackerGSMatchedRecHit2D* hit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(*hitIt);
-	if (hit = 0){
+	if (hit == 0){
 	  std::cout << "Error in FastTrackingMaskProducer: dynamic hit cast failed" << std::endl;
 	}
 

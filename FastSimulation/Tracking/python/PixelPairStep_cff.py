@@ -11,23 +11,10 @@ pixelPairStepFastTrackingMasks=FastSimulation.Tracking.FastTrackingMaskProducer_
     overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')
 )
 
-
-# simtrack id producer                                                                                                                                                         
-#import FastSimulation.Tracking.SimTrackIdProducer_cfi
-#pixelPairStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
-#    trackCollection = cms.InputTag("lowPtTripletStepTracks"),
-#    TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
-#    maxChi2 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.maxChi2,
-#    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')
-#)
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        #skipSimTrackIds = [
-        #    cms.InputTag("detachedTripletStepSimTrackIds"),
-        #    cms.InputTag("lowPtTripletStepSimTrackIds"),
-        #    cms.InputTag("pixelPairStepSimTrackIds")],
         pTMin = 0.3,
         maxD0 = 5.0,
         maxZ0 = 50
