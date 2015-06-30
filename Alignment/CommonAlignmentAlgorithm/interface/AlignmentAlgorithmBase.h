@@ -127,7 +127,7 @@ class AlignmentAlgorithmBase {
     virtual bool supportsCalibrations() { return false; }
     /// Pass integrated calibrations to algorithm, to be called after initialize()
     /// Calibrations' ownership is NOT passed to algorithm
-    virtual void addCalibrations(const Calibrations&) {}
+    virtual bool addCalibrations(const Calibrations&) { return false; }
 
     // TODO: DEPRECATED: Actually, there are no iterative algorithms, use
     //                   initialze() and terminate()
