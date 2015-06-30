@@ -100,10 +100,8 @@
   <class name="std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >" />
 
   <class name="reco::PFTauTransverseImpactParameter" ClassVersion="11">
-   <version ClassVersion="11" checksum="572950680"/>
-   <version ClassVersion="10" checksum="0000000000"/>
-    <!-- <field name = "transientVector_" transient="true"/> -->
-
+   <version ClassVersion="11" checksum="2154806108"/>
+   <version ClassVersion="10" checksum="572950680"/>
   </class>
 
   <class name="std::vector<reco::PFTauTransverseImpactParameter>"/>
