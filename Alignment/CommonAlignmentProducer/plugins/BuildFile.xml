@@ -19,7 +19,7 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="boost"/>
 </library>
-<library   name="AlignmentPCLTrackerAlProducerPlugin" file="PCLTrackerAlProducer.cc">
+<library   name="AlignmentPCLTrackerAlignmentProducerPlugin" file="PCLTrackerAlProducer.cc">
   <use   name="Alignment/CommonAlignment"/>
   <use   name="Alignment/CommonAlignmentAlgorithm"/>
   <use   name="Alignment/CommonAlignmentMonitor"/>
