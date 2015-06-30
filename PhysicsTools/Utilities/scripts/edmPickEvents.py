@@ -4,7 +4,7 @@
 # Oleksiy Atramentov June 21, 2008
 # Charles Plager     Sept  7, 2010
 # Volker Adler       Apr  16, 2014
-
+# Raman Khurana      June 18, 2015
 import os
 import sys
 import optparse
@@ -14,6 +14,7 @@ from FWCore.PythonUtilities.LumiList   import LumiList
 import das_client
 import json
 from pprint import pprint
+from datetime import datetime
 
 
 help = """
@@ -126,15 +127,17 @@ def guessEmail():
 
 
 def setupCrabDict (options):
+    date = datetime.now().strftime('%Y%m%d_%H%M%S')
     crab = {}
     base = options.base
-    crab['runEvent']      = '%s_runEvents.txt' % base
-    crab['copyPickMerge'] = fullCPMpath()
-    crab['output']        = '%s.root' % base
-    crab['crabcfg']       = '%s_crab.config' % base
-    crab['json']          = '%s.json' % base
-    crab['dataset']       = Event.dataset
-    crab['email']         = options.email
+    crab['runEvent']        = '%s_runEvents.txt' % base
+    crab['copyPickMerge']   = fullCPMpath()
+    crab['output']          = '%s.root' % base
+    crab['crabcfg']         = '%s_crab.py' % base
+    crab['json']            = '%s.json' % base
+    crab['dataset']         = Event.dataset
+    crab['email']           = options.email
+    crab['WorkArea']        = date
     if options.crabCondor:
         crab['scheduler'] = 'condor'
 #        crab['useServer'] = ''
@@ -145,39 +148,51 @@ def setupCrabDict (options):
     return crab
 
 
+
 # crab template
 crabTemplate = '''
-# CRAB documentation:
-# https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCrab
-#
-# Once you are happy with this file, please run
-# crab -create -cfg %(crabcfg)s
-# crab -submit -cfg %(crabcfg)s
+## Edited By Raman Khurana
+##
+## CRAB documentation : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCrab
+##
+## CRAB 3 parameters : https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile#CRAB_configuration_parameters
+##
+## Once you are happy with this file, please run
+## crab submit                                                                                                                                                
 
-[CMSSW]
-pycfg_params = eventsToProcess_load=%(runEvent)s outputFile=%(output)s
+## In CRAB3 the configuration file is in Python language. It consists of creating a Configuration object imported from the WMCore library: 
 
-lumi_mask               = %(json)s
-total_number_of_lumis   = -1
-lumis_per_job           = 1
-pset                    = %(copyPickMerge)s
-datasetpath             = %(dataset)s
-output_file             = %(output)s
+from WMCore.Configuration import Configuration
+config = Configuration()
 
-[USER]
-return_data             = 1
-email                   = %(email)s
-
-# if you want to copy the data or put it in a storage element, do it
-# here.
+##  Once the Configuration object is created, it is possible to add new sections into it with corresponding parameters
+config.section_("General")
+config.General.requestName = 'pickEvents'
+config.General.workArea = 'crab_pickevents_%(WorkArea)s'
 
 
-[CRAB]
-# use "glite" in general; you can "condor" if you run on CAF at FNAL or USG
-# site AND you know the files are available locally
-scheduler               = %(scheduler)s
-jobtype                 = cmssw
-%(useServer)s
+
+config.section_("JobType")
+config.JobType.pluginName = 'Analysis'
+config.JobType.psetName = '%(copyPickMerge)s'
+config.JobType.pyCfgParams = ['eventsToProcess_load=%(runEvent)s', 'outputFile=%(output)s']
+
+config.section_("Data")
+config.Data.inputDataset = '%(dataset)s'
+
+config.Data.inputDBS = 'global'
+config.Data.splitting = 'LumiBased'
+config.Data.unitsPerJob = 5
+config.Data.lumiMask = '%(json)s'
+#config.Data.publication = True
+#config.Data.publishDbsUrl = 'phys03'
+#config.Data.publishDataName = 'CRAB3_CSA_DYJets'
+#config.JobType.allowNonProductionCMSSW=True
+
+config.section_("Site")
+## Change site name accordingly
+config.Site.storageSite = "T2_US_Wisconsin"
+
 '''
 
 
@@ -268,7 +283,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
             print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n"
             if not os.path.exists ('%s/.profile' % os.environ.get('HOME')):
                 print "** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n"
-        print "Setup your environment for CRAB.  Then edit %(crabcfg)s to make any desired changed.  The run:\n\ncrab -create -cfg %(crabcfg)s\ncrab -submit\n" % crabDict
+        print "Setup your environment for CRAB.  Then edit %(crabcfg)s to make any desired changed.  The run:\n\n\ncrab submit -c %(crabcfg)s\n" % crabDict
 
     else:
 
