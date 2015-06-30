@@ -22,3 +22,203 @@
   <use   name="RecoParticleFlow/PFClusterProducer"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_cluster_algos" file="cluster_algos/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_energy_calcs" file="energy_calcs/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_navigators" file="navigators/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_position_calcs" file="position_calcs/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_rechit_importers" file="rechit_importers/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_rechit_qtests" file="rechit_qtests/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_seeding_algos" file="seeding_algos/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoParticleFlowPFClusterProducerPlugins_topo_cleaners" file="topo_cleaners/*.cc">
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="DataFormats/CaloTowers"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="DataFormats/HcalDetId"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/EcalAlgo"/>
+  <use   name="Geometry/Records"/>
+  <use   name="RecoLocalCalo/HcalRecAlgos"/>
+  <use   name="RecoParticleFlow/PFClusterProducer"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

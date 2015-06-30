@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #### PF CLUSTER HGCEE ####
+from RecoParticleFlow.PFClusterProducer.hgcLayerMaskingConfig_cff import *
 
 #cleaning 
 _densityBasedCleaner = cms.PSet(
@@ -131,7 +132,8 @@ _HGCEE_EMEnergyCalibrator = cms.PSet(
     had_residual = cms.vdouble(0.0251215,-0.000263843,-0.00585159),
     #overburden / driver
     hgcOverburdenParamFile = cms.FileInPath('RecoParticleFlow/PFClusterProducer/data/HGCMaterialOverburden.root'),
-    isEMCalibration = cms.bool(True)
+    isEMCalibration = cms.bool(True),
+    masking_info = hgcLayerMasking
 )
 
 # -0.00585159*eta^2-0.000263843*eta+0.0251215
