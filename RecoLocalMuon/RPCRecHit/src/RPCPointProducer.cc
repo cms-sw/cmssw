@@ -71,7 +71,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
       iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
     }else{
-      if(debug) std::cout<<"RPCHLT Invalid DTSegments collection"<<std::endl;
+      LogDebug("RPCPointProducer") <<  std::cout<<"RPCHLT Invalid DTSegments collection"<<std::endl;
     }
   }
 
@@ -79,14 +79,14 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     iEvent.getByToken(cscSegments, allCSCSegments);
     
-    if (MuonGeometryWatcher.check(iSetup)) TheCSCObjectsMap_->FillObjectMapCSC(iSetup);
+    if (MuonGeometryWatcher.check(iSetup)) TheCSCObjectsMap_->fillObjectMapCSC(iSetup);
       
     if(allCSCSegments.isValid()){
       CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion, TheCSCObjectsMap_);
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
       iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
     }else{
-      if(debug) std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
+      LogDebug("RPCPointProducer") << std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
     }
   }
   if(incltrack){
@@ -97,7 +97,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
       iEvent.put(TheTrackPoints,"RPCTrackExtrapolatedPoints");
     }else{
-      std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
+      LogDebug("RPCPointProducer") <<"RPCHLT Invalid Tracks collection"<<std::endl;
     }
   }
  

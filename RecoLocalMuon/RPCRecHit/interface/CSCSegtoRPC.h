@@ -1,7 +1,7 @@
 #ifndef  CSCSEGTORPC_H
 #define  CSCSEGTORPC_H
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -41,18 +41,18 @@ private:
 
 class ObjectMapCSC{
 public:
-    ObjectMapCSC* GetInstance(const edm::EventSetup& iSetup);
-    std::set<RPCDetId> GetRolls(CSCStationIndex cscstationindex){return rollstoreCSC[cscstationindex];}
+    ObjectMapCSC* getInstance(const edm::EventSetup& iSetup);
+    const std::set<RPCDetId>  getRolls(CSCStationIndex cscstationindex) const {return rollstoreCSC.find(cscstationindex)->second;}
     //protected:
-    std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
+    std::map<CSCStationIndex,const std::set<RPCDetId> > rollstoreCSC;
     ObjectMapCSC(const edm::EventSetup& iSetup);
     ObjectMapCSC();
-    void FillObjectMapCSC(const edm::EventSetup& iSetup);
+    void fillObjectMapCSC(const edm::EventSetup& iSetup);
 };
 
 class CSCSegtoRPC {
 public:
-  explicit CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments,const edm::EventSetup& iSetup, const edm::Event& iEvent, bool debug, double eyr, ObjectMapCSC* TheObjectCSC);
+  explicit CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments,const edm::EventSetup& iSetup, const edm::Event& iEvent, bool debug, double eyr,  const ObjectMapCSC *TheObjectCSC);
   ~CSCSegtoRPC();
   RPCRecHitCollection* thePoints(){return _ThePoints;}
    
