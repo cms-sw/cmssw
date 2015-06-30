@@ -145,36 +145,41 @@ namespace sistrip {
     case READOUT_MODE_ZERO_SUPPRESSED:
       os << "Zero suppressed";
       break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
       os << "Zero suppressed lite";
       break;
     case READOUT_MODE_SPY:
       os << "Spy channel";
+      break;
+    /*case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      os << "Zero suppressed CM Override";
+      break;*/
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      os << "Zero suppressed lite (8 bit, top-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, top-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      os << "Zero suppressed lite (8 bit, bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      os << "Zero suppressed lite (8 bit, top/bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, top/bottom-stripped)";
       break;
     case READOUT_MODE_PREMIX_RAW:
       os << "PreMix raw";
       break;
     case READOUT_MODE_INVALID:
       os << "Invalid";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
-    }
-    return os;
-  }
-
-  std::ostream& operator<<(std::ostream& os, const FEDDataType& value)
-  {
-    switch (value) {
-    case DATA_TYPE_REAL:
-      os << "Real data";
-      break;
-    case DATA_TYPE_FAKE:
-      os << "Fake data";
       break;
     default:
       os << "Unrecognized";
@@ -365,7 +370,19 @@ namespace sistrip {
     if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE") ||
          (readoutModeString == "ZERO_SUPPRESSED_LITE") ||
          (readoutModeString == "Zero suppressed lite") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED_LITE;
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE") ||
+         (readoutModeString == "ZERO_SUPPRESSED_CMOVERRIDE") ||
+         (readoutModeString == "ZERO_SUPPRESSED_CMO") ||
+         (readoutModeString == "Zero suppressed CM Override") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMO") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
+         (readoutModeString == "Zero suppressed lite CM Override") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
     }
     if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
          (readoutModeString == "PREMIX_RAW") ||
@@ -379,24 +396,6 @@ namespace sistrip {
     }
     //if it was none of the above then return invalid
     return READOUT_MODE_INVALID;
-  }
-  
-  FEDDataType fedDataTypeFromString(const std::string& dataTypeString)
-  {
-    if ( (dataTypeString == "REAL") ||
-         (dataTypeString == "DATA_TYPE_REAL") ||
-         (dataTypeString == "Real data") ) {
-      return DATA_TYPE_REAL;
-    }
-    if ( (dataTypeString == "FAKE") ||
-         (dataTypeString == "DATA_TYPE_FAKE") ||
-         (dataTypeString == "Fake data") ) {
-      return DATA_TYPE_FAKE;
-    }
-    //if it was none of the above then throw an exception (there is no invalid value for the data type since it is represented as a single bit in the buffer)
-    std::ostringstream ss;
-    ss << "Trying to convert to a FEDDataType from an invalid string: " << dataTypeString;
-    throw cms::Exception("FEDDataType") << ss.str();
   }
   
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString)
@@ -667,7 +666,15 @@ namespace sistrip {
       case READOUT_MODE_VIRGIN_RAW:
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_ZERO_SUPPRESSED:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
       case READOUT_MODE_SPY:
 	return FEDReadoutMode(mode);
       default:
@@ -676,15 +683,6 @@ namespace sistrip {
     }   
   }
 
-  FEDDataType TrackerSpecialHeader::dataType() const
-  {
-    const uint8_t eventTypeNibble = trackerEventTypeNibble();
-    //if it is scope mode then it is always real
-    if (eventTypeNibble == READOUT_MODE_SCOPE) return DATA_TYPE_REAL;
-    //in other modes it is the lowest order bit of event type nibble
-    else return FEDDataType(eventTypeNibble & 0x1);
-  }
-  
   TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat)
   {
     //check if order in buffer is different
@@ -737,18 +735,23 @@ namespace sistrip {
     case READOUT_MODE_SCOPE:
       //scope mode is always real
       setReadoutModeBits(readoutMode);
-      setDataTypeBit(true);
     case READOUT_MODE_VIRGIN_RAW:
     case READOUT_MODE_PROC_RAW:
-    case READOUT_MODE_ZERO_SUPPRESSED:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE:
     case READOUT_MODE_SPY:
+    case READOUT_MODE_ZERO_SUPPRESSED:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
       setReadoutModeBits(readoutMode);
       break;
     case READOUT_MODE_PREMIX_RAW:
       //special mode for simulation
       setReadoutModeBits(readoutMode);
-      setDataTypeBit(true);
       break;
     default:
       std::ostringstream ss;
@@ -757,23 +760,6 @@ namespace sistrip {
       throw cms::Exception("FEDBuffer") << ss.str();
     }
     return *this;
-  }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setDataType(const FEDDataType dataType)
-  {
-    //if mode is scope then this bit can't be changed
-    if (readoutMode() == READOUT_MODE_SCOPE) return *this;
-    switch (dataType) {
-    case DATA_TYPE_REAL:
-    case DATA_TYPE_FAKE:
-      setDataTypeBit(dataType);
-      return *this;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid data type: ";
-      printHex(&dataType,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
   }
   
   TrackerSpecialHeader& TrackerSpecialHeader::setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error)
@@ -801,7 +787,7 @@ namespace sistrip {
   }
   
   TrackerSpecialHeader::TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode,
-                                             const FEDHeaderType headerType, const FEDDataType dataType,
+                                             const FEDHeaderType headerType,
                                              const uint8_t address, const uint8_t addressErrorRegister,
                                              const uint8_t feEnableRegister, const uint8_t feOverflowRegister,
                                              const FEDStatusRegister fedStatusRegister)
@@ -813,7 +799,6 @@ namespace sistrip {
     setBufferFormatByte(bufferFormat);
     setReadoutMode(readoutMode);
     setHeaderType(headerType);
-    setDataType(dataType);
     setAPVEAddress(address);
     setAPVEAddressErrorRegister(addressErrorRegister);
     setFEEnableRegister(feEnableRegister);
@@ -1305,7 +1290,6 @@ namespace sistrip {
     os << "Source ID: " << daqSourceID() << std::endl;
     os << "Header type: " << headerType() << std::endl;
     os << "Readout mode: " << readoutMode() << std::endl;
-    os << "Data type: " << dataType() << std::endl;
     os << "DAQ event type: " << daqEventType() << std::endl;
     os << "TTS state: " << daqTTSState() << std::endl;
     os << "L1 ID: " << daqLvl1ID() << std::endl;

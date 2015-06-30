@@ -252,6 +252,13 @@ std::string SiStripEnumsAndStrings::fedReadoutMode( const sistrip::FedReadoutMod
   else if ( mode == sistrip::FED_PROC_RAW ) { return sistrip::fedProcRaw_; }
   else if ( mode == sistrip::FED_ZERO_SUPPR ) { return sistrip::fedZeroSuppr_; }
   else if ( mode == sistrip::FED_ZERO_SUPPR_LITE ) { return sistrip::fedZeroSupprLite_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE_CMO ) { return sistrip::fedZeroSupprLiteCMO_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE8_TT ) { return sistrip::fedZeroSupprLite8TT_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE8_TT_CMO ) { return sistrip::fedZeroSupprLite8TTCMO_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE8_TB ) { return sistrip::fedZeroSupprLite8TB_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE8_TB_CMO ) { return sistrip::fedZeroSupprLite8TBCMO_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE8_BB ) { return sistrip::fedZeroSupprLite8BB_; }
+  else if ( mode == sistrip::FED_ZERO_SUPPR_LITE8_BB_CMO ) { return sistrip::fedZeroSupprLite8BBCMO_; }
   else if ( mode == sistrip::UNDEFINED_FED_READOUT_MODE ) { return sistrip::undefinedFedReadoutMode_; }
   else { return sistrip::unknownFedReadoutMode_; }
 }
@@ -264,6 +271,13 @@ sistrip::FedReadoutMode SiStripEnumsAndStrings::fedReadoutMode( const std::strin
   else if ( mode.find( sistrip::fedProcRaw_ ) != std::string::npos ) { return sistrip::FED_PROC_RAW; } 
   else if ( mode.find( sistrip::fedZeroSuppr_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR; } 
   else if ( mode.find( sistrip::fedZeroSupprLite_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE; } 
+  else if ( mode.find( sistrip::fedZeroSupprLiteCMO_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE_CMO; }
+  else if ( mode.find( sistrip::fedZeroSupprLite8TT_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE8_TT; }
+  else if ( mode.find( sistrip::fedZeroSupprLite8TTCMO_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE8_TT_CMO; }
+  else if ( mode.find( sistrip::fedZeroSupprLite8TB_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE8_TB; }
+  else if ( mode.find( sistrip::fedZeroSupprLite8TBCMO_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE8_TB_CMO; }
+  else if ( mode.find( sistrip::fedZeroSupprLite8BB_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE8_BB; }
+  else if ( mode.find( sistrip::fedZeroSupprLite8BBCMO_ ) != std::string::npos ) { return sistrip::FED_ZERO_SUPPR_LITE8_BB_CMO; }
   else if ( mode.find( sistrip::undefinedFedReadoutMode_ ) != std::string::npos ) { return sistrip::UNDEFINED_FED_READOUT_MODE; } 
   else if ( mode.empty() ) { return sistrip::UNDEFINED_FED_READOUT_MODE; } 
   else { return sistrip::UNKNOWN_FED_READOUT_MODE; }
