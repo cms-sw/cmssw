@@ -9,8 +9,8 @@
 namespace edm {
   class ConfigurationDescriptions;
 }
-class PHcalParameters;
-class PHcalParametersRcd;
+class HcalParameters;
+class HcalParametersRcd;
 
 class  HcalParametersESModule : public edm::ESProducer
 {
@@ -18,11 +18,11 @@ class  HcalParametersESModule : public edm::ESProducer
   HcalParametersESModule( const edm::ParameterSet & );
   ~HcalParametersESModule( void );
   
-  typedef boost::shared_ptr<PHcalParameters> ReturnType;
+  typedef boost::shared_ptr<HcalParameters> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   
-  ReturnType produce( const PHcalParametersRcd & );
+  ReturnType produce( const HcalParametersRcd & );
 };
  
 #endif
