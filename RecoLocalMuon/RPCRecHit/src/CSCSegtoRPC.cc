@@ -99,7 +99,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
   
   MaxD=80.;
 
-  //edm::LogDebug("RPCPointProducer") <<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
+   LogDebug("RPCPointProducer") <<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
 
   _ThePoints = new RPCRecHitCollection();
 
@@ -306,7 +306,6 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	      }
 	    }
 	  }
-    //  delete TheObjectCSC;
 	}
       }
     }

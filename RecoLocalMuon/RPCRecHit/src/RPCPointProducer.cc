@@ -45,7 +45,6 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig) :
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
     
-  //TheCSCObjectsMap_ = new ObjectMapCSC(iSetup);
 }
 
 
@@ -70,7 +69,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (MuonGeometryWatcher.check(iSetup)) TheDTObjectsMap_->fillObjectMapDT(iSetup);
       
     if(all4DSegments.isValid()){
-      DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion, TheDTObjectsMap_);
+      DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent, debug, ExtrapolatedRegion, TheDTObjectsMap_);
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
       iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
     }else{
@@ -85,7 +84,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (MuonGeometryWatcher.check(iSetup)) TheCSCObjectsMap_->fillObjectMapCSC(iSetup);
       
     if(allCSCSegments.isValid()){
-      CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion, TheCSCObjectsMap_);
+      CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent, debug, ExtrapolatedRegion, TheCSCObjectsMap_);
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
       iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
     }else{

@@ -41,7 +41,7 @@ private:
 
 class ObjectMap{
 public:
-    ObjectMap* GetInstance(const edm::EventSetup& iSetup);
+    ObjectMap* getInstance(const edm::EventSetup& iSetup);
     const std::set<RPCDetId> getRolls(DTStationIndex dtstationindex) const {return rollstoreDT.find(dtstationindex)->second;}
     //protected:
     std::map<DTStationIndex,const std::set<RPCDetId> > rollstoreDT;
@@ -52,7 +52,7 @@ public:
 
 class DTSegtoRPC {
 public:
-  explicit DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, double eyr,const ObjectMap*);
+  explicit DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments,const edm::EventSetup& iSetup, const edm::Event& iEvent, bool debug, double eyr,const ObjectMap*);
   ~DTSegtoRPC();
   RPCRecHitCollection* thePoints(){return _ThePoints;}
    

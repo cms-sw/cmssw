@@ -94,7 +94,7 @@ int distwheel(int wheel1,int wheel2){
   return distance;
 }
 
-DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,double eyr, const ObjectMap *TheObjectMap){
+DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug, double eyr, const ObjectMap *TheObjectMap){
 
   /*
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
@@ -509,7 +509,7 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 			    LogDebug("RPCPointProducer") << "MB4 \t \t \t \t roll already extrapolated "<<rpcId<<std::endl;
 			  }
 			  LogDebug("RPCPointProducer") << "MB4 \t \t \t \t Extrapolations done after this point = "<<extrapolatedRolls.size()<<std::endl;
-			  for(uint32_t m=0;m<extrapolatedRolls.size();m++) LogDebug("RPCPointProducer") <<"MB4 \t \t \t \t"<< extrapolatedRolls.at(m)<<std::endl;
+			  if (debug) for(uint32_t m=0;m<extrapolatedRolls.size();m++) LogDebug("RPCPointProducer") <<"MB4 \t \t \t \t"<< extrapolatedRolls.at(m)<<std::endl;
 			}else{
 			  LogDebug("RPCPointProducer") << "MB4 \t \t \t \t No the prediction is outside of this roll"<<std::endl;
 			}
