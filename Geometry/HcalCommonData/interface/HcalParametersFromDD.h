@@ -1,5 +1,5 @@
-#ifndef HcalTowerAlgo_HcalParametersFromDD_h
-#define HcalTowerAlgo_HcalParametersFromDD_h
+#ifndef HcalCommonData_HcalParametersFromDD_h
+#define HcalCommonData_HcalParametersFromDD_h
 
 class DDCompactView;
 class PHcalParameters;
