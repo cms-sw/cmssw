@@ -492,11 +492,11 @@ HLT_AK4PFJet50ForEndOfFill_v*                                   # JIRA: CMSHLT-2
 HLT_AK4PFJet80_v*                                               # JIRA: CMSHLT-279,CMSHLT-404
 HLT_AK4PFJet100_v*                                              # JIRA: CMSHLT-279,CMSHLT-404
 
-HLT_PixelTracks_Multiplicity60_v*                               # JIRA: CMSHLT-150,CMSHLT-404
-HLT_PixelTracks_Multiplicity85_v*                               # JIRA: CMSHLT-150,CMSHLT-404
-HLT_PixelTracks_Multiplicity110ForEndOfFill_v*                  # JIRA: CMSHLT-150,CMSHLT-404
-HLT_PixelTracks_Multiplicity135ForEndOfFill_v*                  # JIRA: CMSHLT-150,CMSHLT-404
-HLT_PixelTracks_Multiplicity160ForEndOfFill_v*                  # JIRA: CMSHLT-150,CMSHLT-404
+HLT_PixelTracks_Multiplicity60ForEndOfFill_v*                   # JIRA: CMSHLT-150,CMSHLT-404,CMSHLT-460
+HLT_PixelTracks_Multiplicity85ForEndOfFill_v*                   # JIRA: CMSHLT-150,CMSHLT-404,CMSHLT-460
+HLT_PixelTracks_Multiplicity110ForEndOfFill_v*                  # JIRA: CMSHLT-150,CMSHLT-404,CMSHLT-460
+HLT_PixelTracks_Multiplicity135ForEndOfFill_v*                  # JIRA: CMSHLT-150,CMSHLT-404,CMSHLT-460
+HLT_PixelTracks_Multiplicity160ForEndOfFill_v*                  # JIRA: CMSHLT-150,CMSHLT-404,CMSHLT-460
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V45 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/LowPU/V47 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V45')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V47')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -6061,8 +6061,8 @@ fragment.hltSinglePFJet15NoCaloMatched = cms.EDFilter( "HLT1PFJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-fragment.hltL1sETT15 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_ETT15" ),
+fragment.hltL1sETT15BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ETT15_BptxAND" ),
     saveTags = cms.bool( True ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -12309,9 +12309,9 @@ fragment.HLT_L1Tech_DT_GlobalOR_v1 = cms.Path( fragment.HLTBeginSequence + fragm
 fragment.HLT_L1CastorMediumJet_PFJet15_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1CASTORMediumJetANDL1SingleJet12 + fragment.hltPreL1CastorMediumJetPFJet15 + fragment.HLTAK4PFJetsSequence + fragment.hltSinglePFJet15wCastorJet + fragment.HLTEndSequence )
 fragment.HLT_L1RomanPots_SinglePixelTrack04_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1RomanPots + fragment.hltPreL1RomanPotsSinglePixelTrack04 + fragment.HLTDoLocalPixelSequence + fragment.HLTPixelTrackingForMinBiasSequence + fragment.hltPixelCandsForMinBias + fragment.hltMinBiasPixelFilterPT04 + fragment.HLTEndSequence )
 fragment.HLT_PFJet15_NoCaloMatched_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleJet8BptxAND + fragment.hltPrePFJet15NoCaloMatched + fragment.HLTAK4PFJetsSequence + fragment.hltSinglePFJet15NoCaloMatched + fragment.HLTEndSequence )
-fragment.HLT_PixelTracks_Multiplicity60_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15 + fragment.hltPrePixelTracksMultiplicity60 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult60 + fragment.HLTEndSequence )
-fragment.HLT_PixelTracks_Multiplicity85_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15 + fragment.hltPrePixelTracksMultiplicity85 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult85 + fragment.HLTEndSequence )
-fragment.HLT_PixelTracks_Multiplicity110_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15 + fragment.hltPrePixelTracksMultiplicity110 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult110 + fragment.HLTEndSequence )
+fragment.HLT_PixelTracks_Multiplicity60_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15BptxAND + fragment.hltPrePixelTracksMultiplicity60 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult60 + fragment.HLTEndSequence )
+fragment.HLT_PixelTracks_Multiplicity85_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15BptxAND + fragment.hltPrePixelTracksMultiplicity85 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult85 + fragment.HLTEndSequence )
+fragment.HLT_PixelTracks_Multiplicity110_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15BptxAND + fragment.hltPrePixelTracksMultiplicity110 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult110 + fragment.HLTEndSequence )
 fragment.HLT_PixelTracks_Multiplicity135_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT90 + fragment.hltPrePixelTracksMultiplicity135 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult135 + fragment.HLTEndSequence )
 fragment.HLT_PixelTracks_Multiplicity160_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT130 + fragment.hltPrePixelTracksMultiplicity160 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult160 + fragment.HLTEndSequence )
 fragment.HLT_Ele5_SC5_JPsi_Mass2to4p5_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG5 + fragment.hltPreEle5SC5JPsiMass2to4p5 + fragment.HLTEle5SC5JPsiMass2to4p5Sequence + fragment.HLTEndSequence )
