@@ -1,4 +1,4 @@
-#include "Geometry/HcalTowerAlgo/interface/HcalParametersFromDD.h"
+#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 #include "Geometry/CaloTopology/interface/HcalTopologyMode.h"
 #include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
