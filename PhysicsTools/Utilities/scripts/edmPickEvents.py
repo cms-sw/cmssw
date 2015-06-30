@@ -27,7 +27,6 @@ edmPickEvent.py dataset run1:lumi1:event1 run2:lumi2:event2
 
 edmPickEvent.py dataset listOfEvents.txt
 
-
 listOfEvents is a text file:
 # this line is ignored as a comment
 # since '#' is a valid comment character
@@ -126,7 +125,6 @@ def guessEmail():
     return '%s@%s' % (commands.getoutput ('whoami'),
                       '.'.join(commands.getoutput('hostname').split('.')[-2:]))
 
-
 def setupCrabDict (options):
     date = datetime.now().strftime('%Y%m%d_%H%M%S')
     crab = {}
@@ -148,8 +146,6 @@ def setupCrabDict (options):
     crab['useServer'] = ''
     return crab
 
-
-
 # crab template
 crabTemplate = '''
 ## Edited By Raman Khurana
@@ -170,7 +166,6 @@ config = Configuration()
 config.section_("General")
 config.General.requestName = 'pickEvents'
 config.General.workArea = 'crab_pickevents_%(WorkArea)s'
-
 
 
 config.section_("JobType")
@@ -195,7 +190,6 @@ config.section_("Site")
 config.Site.storageSite = "T2_US_Wisconsin"
 
 '''
-
 
 ########################
 ## ################## ##
