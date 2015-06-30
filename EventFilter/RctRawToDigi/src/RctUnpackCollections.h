@@ -1,4 +1,4 @@
-#ifndef RctUnpackCollections_h
+0;95;c#ifndef RctUnpackCollections_h
 #define RctUnpackCollections_h
 
 /*!
@@ -13,6 +13,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1Trigger/interface/L1TriggerError.h"
+#incldue "TList.h"
 
 class RctUnpackCollections
 {
