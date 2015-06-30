@@ -40,9 +40,6 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
-  // Divide histograms
-  void endRun(const edm::Run&, const edm::EventSetup&);
-
  private:
   // ----------member data ---------------------------
 
@@ -69,8 +66,6 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   edm::EDGetTokenT<EcalRecHitCollection> theBarrelRecHitToken_;
   edm::EDGetTokenT<EcalRecHitCollection> theEndcapRecHitToken_;
 
-  int num_events_in_run;
-
   // Histograms
   MonitorElement* h_triggers_passed;
   MonitorElement* h_photon_et_beforeCuts;
@@ -95,13 +90,6 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   MonitorElement* h_photon_et_jetco;
   MonitorElement* h_photon_et_jetfs;
   MonitorElement* h_photon_et_jetfo;
-
-  MonitorElement* h_photon_et_ratio_co_cs;
-  MonitorElement* h_photon_et_ratio_fo_fs;
-  MonitorElement* h_photon_et_ratio_cs_fs;
-  MonitorElement* h_photon_et_ratio_co_fs;
-  MonitorElement* h_photon_et_ratio_cs_fo;
-  MonitorElement* h_photon_et_ratio_co_fo;
 };
 #endif
 
