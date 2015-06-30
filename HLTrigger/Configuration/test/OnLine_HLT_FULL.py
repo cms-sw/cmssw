@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V242 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/HLT/V244 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V242')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V244')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -56891,7 +56891,7 @@ process.hltTriggerStreamResultsFilter = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_Ele27_eta2p1_WPLoose_Gsf_v1' ),
+    triggerConditions = cms.vstring( 'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2' ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
@@ -56908,7 +56908,7 @@ process.hltSelectedElectronFEDListProducerGsf = cms.EDProducer( "SelectedElectro
     ESLookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ),
     dumpSelectedSiPixelFed = cms.bool( True ),
     isGsfElectronCollection = cms.vint32( 1 ),
-    recoEcalCandidateTags = cms.VInputTag( 'hltEle27WPLooseGsfTrackIsoFilter' ),
+    recoEcalCandidateTags = cms.VInputTag( 'hltEle17Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter' ),
     outputLabelModule = cms.string( "StreamElectronRawFed" ),
     dumpAllTrackerFed = cms.bool( False ),
     rawDataTag = cms.InputTag( "rawDataCollector" ),
@@ -58470,10 +58470,10 @@ process.hltOutputElectronStream = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Ele27_eta2p1_WPLoose_Gsf_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_*addPileupInfo*_*bunchSpacing*_*',
-      'keep *_*hltFixedGridRhoFastjetAllCaloForMuons*_*_*',
-      'keep *_SelectedElectronFEDListProducerGsf_*StreamElectronRawFed*_*',
+      'keep *_hltFixedGridRhoFastjetAllCaloForMuons_*_*',
       'keep *_hltL1GtObjectMap_*_*',
+      'keep *_hltMet_*_*',
+      'keep *_hltSelectedElectronFEDListProducerGsf_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",

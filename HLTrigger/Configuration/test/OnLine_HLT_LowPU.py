@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V45 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/LowPU/V47 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTLowPU" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V45')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V47')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -6451,8 +6451,8 @@ process.hltSinglePFJet15NoCaloMatched = cms.EDFilter( "HLT1PFJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-process.hltL1sETT15 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_ETT15" ),
+process.hltL1sETT15BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ETT15_BptxAND" ),
     saveTags = cms.bool( True ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -13411,9 +13411,9 @@ process.HLT_L1Tech_DT_GlobalOR_v1 = cms.Path( process.HLTBeginSequence + process
 process.HLT_L1CastorMediumJet_PFJet15_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1CASTORMediumJetANDL1SingleJet12 + process.hltPreL1CastorMediumJetPFJet15 + process.HLTAK4PFJetsSequence + process.hltSinglePFJet15wCastorJet + process.HLTEndSequence )
 process.HLT_L1RomanPots_SinglePixelTrack04_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1RomanPots + process.hltPreL1RomanPotsSinglePixelTrack04 + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForMinBiasSequence + process.hltPixelCandsForMinBias + process.hltMinBiasPixelFilterPT04 + process.HLTEndSequence )
 process.HLT_PFJet15_NoCaloMatched_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet8BptxAND + process.hltPrePFJet15NoCaloMatched + process.HLTAK4PFJetsSequence + process.hltSinglePFJet15NoCaloMatched + process.HLTEndSequence )
-process.HLT_PixelTracks_Multiplicity60_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT15 + process.hltPrePixelTracksMultiplicity60 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult60 + process.HLTEndSequence )
-process.HLT_PixelTracks_Multiplicity85_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT15 + process.hltPrePixelTracksMultiplicity85 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult85 + process.HLTEndSequence )
-process.HLT_PixelTracks_Multiplicity110_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT15 + process.hltPrePixelTracksMultiplicity110 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult110 + process.HLTEndSequence )
+process.HLT_PixelTracks_Multiplicity60_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT15BptxAND + process.hltPrePixelTracksMultiplicity60 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult60 + process.HLTEndSequence )
+process.HLT_PixelTracks_Multiplicity85_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT15BptxAND + process.hltPrePixelTracksMultiplicity85 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult85 + process.HLTEndSequence )
+process.HLT_PixelTracks_Multiplicity110_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT15BptxAND + process.hltPrePixelTracksMultiplicity110 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult110 + process.HLTEndSequence )
 process.HLT_PixelTracks_Multiplicity135_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT90 + process.hltPrePixelTracksMultiplicity135 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult135 + process.HLTEndSequence )
 process.HLT_PixelTracks_Multiplicity160_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sETT130 + process.hltPrePixelTracksMultiplicity160 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hlt1HighMult160 + process.HLTEndSequence )
 process.HLT_Ele5_SC5_JPsi_Mass2to4p5_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5 + process.hltPreEle5SC5JPsiMass2to4p5 + process.HLTEle5SC5JPsiMass2to4p5Sequence + process.HLTEndSequence )
