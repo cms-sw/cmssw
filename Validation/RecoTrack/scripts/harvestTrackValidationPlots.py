@@ -1,25 +1,6 @@
 import sys,os,tempfile,shutil,subprocess,glob
 import argparse
 
-"""
-cfgfilename = dqmfile.replace(".root","")+"_harvest_cfg.py"
-CFGFILE = open(cfgfilename,"w")
-CFGFILE.write(cfgstr)
-CFGFILE.close()
-
-# run the harvesting
-os.system("cmsRun " + cfgfilename)
-
-# move the output
-os.system("mv DQM*.root " +  ofile)
-
-# move back to the original directory
-os.chdir(_cwd)
-
-# and get rid of the temporary directory
-shutil.rmtree(_tempdir)
-"""
-
 if __name__ == "__main__":
 
     # define options
