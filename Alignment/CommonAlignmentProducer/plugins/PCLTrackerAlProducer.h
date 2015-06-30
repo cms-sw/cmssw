@@ -14,10 +14,12 @@
 // TODO: Update Doxygen description
 
 
+
 /*** System includes ***/
 #include <vector>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 /*** Core framework functionality ***/
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -134,7 +136,7 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     template<class G, class DeformationRcd>
     void applyDB(G*, const edm::EventSetup&) const;
 
-    /// read in survey records
+    /// Read in survey records
     void readInSurveyRcds(const edm::EventSetup&);
     
     /// Add survey info to an alignable
@@ -219,26 +221,20 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
 
     /*** ESWatcher ***/
 
-    // TODO: Which Record to watch for changes? (see setupChanged()-method)
-
     edm::ESWatcher<TrackerAlignmentRcd>              watchTrackerAlRcd;
     edm::ESWatcher<TrackerAlignmentErrorExtendedRcd> watchTrackerAlErrorExtRcd;
+    edm::ESWatcher<TrackerSurfaceDeformationRcd>     watchTrackerSurDeRcd;
     edm::ESWatcher<DTAlignmentRcd>                   watchDTAlRcd;
     edm::ESWatcher<DTAlignmentErrorExtendedRcd>      watchDTAlErrExtRcd;
     edm::ESWatcher<CSCAlignmentRcd>                  watchCSCAlRcd;
     edm::ESWatcher<CSCAlignmentErrorExtendedRcd>     watchCSCAlErrExtRcd;
 
-    edm::ESWatcher<TrackerSurfaceDeformationRcd> watchTrackerSurDeRcd;
-    edm::ESWatcher<TrackerDigiGeometryRecord>    watchTrackerDigiGeoRcd;
-    edm::ESWatcher<GlobalPositionRcd>            watchGlobalPosRcd;
-    edm::ESWatcher<IdealGeometryRecord>          watchIdealGeoRcd;
-
-    edm::ESWatcher<TrackerSurveyRcd>              watchTkSurveyRcd_;
-    edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrExtRcd_;
-    edm::ESWatcher<DTSurveyRcd>                   watchDTSurveyRcd_;
-    edm::ESWatcher<DTSurveyErrorExtendedRcd>      watchDTSurveyErrExtRcd_;
-    edm::ESWatcher<CSCSurveyRcd>                  watchCSCSurveyRcd_;
-    edm::ESWatcher<CSCSurveyErrorExtendedRcd>     watchCSCSurveyErrExtRcd_;
+    edm::ESWatcher<TrackerSurveyRcd>              watchTkSurveyRcd;
+    edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrExtRcd;
+    edm::ESWatcher<DTSurveyRcd>                   watchDTSurveyRcd;
+    edm::ESWatcher<DTSurveyErrorExtendedRcd>      watchDTSurveyErrExtRcd;
+    edm::ESWatcher<CSCSurveyRcd>                  watchCSCSurveyRcd;
+    edm::ESWatcher<CSCSurveyErrorExtendedRcd>     watchCSCSurveyErrExtRcd;
 
 
 
