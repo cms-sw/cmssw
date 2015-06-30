@@ -256,7 +256,7 @@ from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsH
       elif 'LowPU' in self.config.type :
         self.data += """
 # load 2015 Run-2 L1 Menu for LowPU
-from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v3 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v4 as loadL1Menu
 %s = loadL1Menu(%s)
 """ %(procfrag,procfrag)
       else :

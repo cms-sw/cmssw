@@ -12400,7 +12400,7 @@ fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT
 
 
 # load 2015 Run-2 L1 Menu for LowPU
-from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v3 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v4 as loadL1Menu
 fragment = loadL1Menu(fragment)
 
 # dummyfy hltGetConditions in cff's
