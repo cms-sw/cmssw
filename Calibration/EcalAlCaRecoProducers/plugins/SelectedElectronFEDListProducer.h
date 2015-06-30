@@ -9,7 +9,8 @@
 // Math
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+// #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 // Message logger
@@ -74,7 +75,7 @@ class PixelModule{
 
 // main class
 template<typename TEle, typename TCand>
-class SelectedElectronFEDListProducer : public edm::EDProducer {
+  class SelectedElectronFEDListProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -110,10 +111,11 @@ class SelectedElectronFEDListProducer : public edm::EDProducer {
   edm::InputTag              beamSpotTag_ ;
   edm::InputTag              rawDataTag_ ;
 
+  edm::InputTag              HBHERecHitTag_;
+
+
   std::vector<int> isGsfElectronCollection_ ;
   std::vector<int> addThisSelectedFEDs_ ;
-
-  edm::InputTag              HBHERecHitTag_;
 
   edm::FileInPath ESLookupTable_ ; 
 
@@ -136,12 +138,11 @@ class SelectedElectronFEDListProducer : public edm::EDProducer {
   // Token for the input collection
   edm::EDGetTokenT<FEDRawDataCollection>     rawDataToken_ ;
   edm::EDGetTokenT<reco::BeamSpot>           beamSpotToken_ ;
-  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitToken_;
+  edm::EDGetTokenT<HBHERecHitCollection>     hbheRecHitToken_;
   std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> > recoEcalCandidateToken_ ;
   std::vector<edm::EDGetTokenT<TEleColl> >   electronToken_; 
 
   // used inside the producer
-  uint32_t eventCounter_ ;
   math::XYZVector beamSpotPosition_;
 
   // internal info for ES geometry
@@ -150,23 +151,19 @@ class SelectedElectronFEDListProducer : public edm::EDProducer {
   // fed list and output raw data
   std::vector<uint32_t> fedList_ ;
 
-  // get the raw data
-  FEDRawDataCollection* RawDataCollection_ ;
   // get calo geomentry and electronic map
-  const EcalElectronicsMapping* TheMapping_ ;
-  const CaloGeometry* geometry_ ;
-  const CaloSubdetectorGeometry *geometryES_ ;
+  const EcalElectronicsMapping*  EcalMapping_ ;
+  const CaloGeometry*            GeometryCalo_ ;
+  const CaloSubdetectorGeometry* GeometryES_ ;
+  const SiStripRegionCabling*    StripRegionCabling_;
+  const HcalElectronicsMap*      HcalReadoutMap_;
 
   // get pixel geometry and electronic map
   std::unique_ptr<SiPixelFedCablingTree> PixelCabling_;
   std::vector<PixelModule>               pixelModuleVector_ ;
 
   // get strip geometry and electronic map
-  const SiStripRegionCabling*   StripRegionCabling_;
-  std::pair<double,double>      regionDimension_ ;
-
-  // get hcal geometry and electronic map
-  const HcalElectronicsMap* hcalReadoutMap_;
+  std::pair<double,double>  regionDimension_ ;
 
 };
 
