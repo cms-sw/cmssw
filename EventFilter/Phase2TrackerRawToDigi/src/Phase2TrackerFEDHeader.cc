@@ -56,7 +56,7 @@ namespace Phase2Tracker
       ss << "WARNING: Skipping FED ";
       ss << "Cause: Invalid Data Format Version in Tracker Header : ";
       printHex(&header_first_word_,1,ss);
-      // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+			LogTrace("Phase2TrackerFEDHeader") << ss.str() << std::endl;
       valid_ = 0;
     }
     return Version;
@@ -85,13 +85,13 @@ namespace Phase2Tracker
         return READ_MODE(FULL_DEBUG);
       case CBC_ERROR:
         return READ_MODE(CBC_ERROR);
-      default: // else create Exception
+      default: // else mark as invalid
         std::ostringstream ss;
         ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] ";
         ss << "WARNING: Skipping FED ";
-        ss << "Cause: Invalid Header Format in Traker Header : ";
+        ss << "Cause: Invalid Header Format in Tracker Header : ";
         printHex(&header_first_word_,1,ss);
-        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+				LogTrace("Phase2TrackerFEDHeader") << ss.str() << std::endl;
         valid_ = 0;
     }
 
@@ -126,7 +126,7 @@ namespace Phase2Tracker
         ss << "WARNING: Skipping FED ";
         ss << "Cause: Invalid Readout Mode in Tracker Header : ";
         printHex(&header_first_word_,1,ss);
-        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+				LogTrace("Phase2TrackerFEDHeader") << ss.str() << std::endl;
         valid_ = 0;
         return FEDReadoutMode(READOUT_MODE_INVALID);
     }

@@ -196,6 +196,7 @@ namespace Phase2Tracker
         ss << "Cause: FED Buffer Size does not match data => missing condition data? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ - bufferDiff << " bytes" << "\n";
+				LogTrace("Phase2TrackerFEDBuffer") << ss.str() << std::endl;
         valid_ = 0;
       }
     }
@@ -212,6 +213,7 @@ namespace Phase2Tracker
         ss << "Cause: FED Buffer Size does not match data => corrupted buffer? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ - bufferDiff << " bytes" << "\n";
+				LogTrace("Phase2TrackerFEDBuffer") << ss.str() << std::endl;
         valid_ = 0;
       }
     } 
@@ -258,6 +260,7 @@ namespace Phase2Tracker
           ss << "Cause: Number of condition data does not match the announced value!"<< "\n";
           ss << "Expected condition data Size " << size << " entries" << "\n";
           ss << "Computed condition data Size " << cdata.size() << " entries" << "\n";
+					LogTrace("Phase2TrackerFEDBuffer") << ss.str() << std::endl;
           valid_ = 0;
         }
       }
