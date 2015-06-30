@@ -5,6 +5,93 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
 
+#include <chrono>
+
+// ================================================================================
+
+class Timer {
+
+public:
+    Timer( const std::string &nameIn ) : name(nameIn) { reset(); }
+    void reset() { start = std::chrono::steady_clock::now(); intervals.clear(); intervalNames.clear(); interval("start"); }
+
+    void interval(const std::string & intName ) { intervals.push_back(std::chrono::steady_clock::now()); intervalNames.push_back(intName); }
+
+    void fetchInt(size_t sizeIn) { fetchTime.push_back(std::chrono::steady_clock::now()); fetchNum.push_back(sizeIn); }
+    void deserInt(size_t sizeIn) { deserTime.push_back(std::chrono::steady_clock::now()); deserNum.push_back(sizeIn); }
+
+    void show(std::ostream &os=std::cout) { showIntervals(os); showFetchInfo(os); showDeserInfo(os); }
+    void showIntervals(std::ostream &os=std::cout);
+    void showFetchInfo (std::ostream &os=std::cout);
+    void showDeserInfo (std::ostream &os=std::cout);
+
+private:
+    
+    std::string name;
+    
+    std::chrono::time_point<std::chrono::steady_clock> start;
+
+    std::vector< std::chrono::time_point<std::chrono::steady_clock> > intervals;
+    std::vector< std::string > intervalNames;
+
+    std::vector< std::chrono::time_point<std::chrono::steady_clock> > fetchTime;
+    std::vector< int > fetchNum;
+
+    std::vector< std::chrono::time_point<std::chrono::steady_clock> > deserTime;
+    std::vector< int > deserNum;
+
+};
+
+void Timer::showIntervals(std::ostream &os) {
+    
+    os << std::endl;
+    os << "Serialization type: " << name << std::endl;
+    for (size_t i=1; i<intervals.size(); i++) {
+        os << intervalNames[i] << " : " << std::chrono::duration<double, std::milli>(intervals[i] - intervals[i-1]).count() << " msec. " << std::endl;        
+    }
+    os << "\noverall time elapsed" << " : " << std::chrono::duration<double, std::milli>(intervals[intervals.size()-1] - intervals[0]).count() << " msec. " << std::endl;
+    os << std::endl;    
+}
+
+void Timer::showFetchInfo(std::ostream &os) {
+    os << std::endl;
+    os << "Serialization type: " << name << std::endl;
+    if (fetchTime.size() < 1) {
+      os << "No fetch info available." << std::endl;
+      return;
+    }
+    int totSize = 0;
+    for (size_t i=1; i<fetchTime.size(); i++) {
+        totSize += fetchNum[i];
+        auto delta = std::chrono::duration<double, std::milli>(fetchTime[i] - fetchTime[i-1]).count();
+        os << fetchNum[i] << " : " << delta << " ms (" << float(fetchNum[i])/(1024.*float(delta)) << " MB/s)" << std::endl;
+    }
+    auto deltaAll = std::chrono::duration<double, std::milli>(fetchTime[fetchTime.size()-1] - fetchTime[0]).count();
+    os << "\noverall time for "<< totSize << " bytes : " << deltaAll << " ms (" << float(totSize)/(1024.*float(deltaAll)) << " MB/s)" << std::endl;
+    os << std::endl;    
+}
+
+void Timer::showDeserInfo(std::ostream &os) {
+    os << std::endl;
+    os << "Serialization type: " << name << std::endl;
+    if (deserTime.size() < 1) {
+      os << "No deserialization info available." << std::endl;
+      return;
+    }
+    int totSize = 0;
+    for (size_t i=1; i<deserTime.size(); i++) {
+        totSize += deserNum[i];
+        auto delta = std::chrono::duration<double, std::milli>(deserTime[i] - deserTime[i-1]).count();
+        os << deserNum[i] << " : " << delta << " ms (" << float(deserNum[i])/(1024.*float(delta)) << " MB/s)" << std::endl;
+    }
+    auto deltaAll = std::chrono::duration<double, std::milli>(deserTime[deserTime.size()-1] - deserTime[0]).count();
+    os << "\noverall time for "<< totSize << " bytes : " << deltaAll << " ms (" << float(totSize)/(1024.*float(deltaAll)) << " MB/s)" << std::endl;
+    os << std::endl;    
+}
+
+// ================================================================================
+
+
 namespace cond {
 
   using namespace persistency;
@@ -154,7 +241,7 @@ int cond::TestGTLoad::execute(){
   bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
   bool verbose = hasOptionValue("verbose");
-  size_t n = 10;
+  size_t n = 1;
   if(hasOptionValue("iterations")) n = getOptionValue<size_t>("iterations"); 
   Time_t startRun= 150005;
   if(hasOptionValue("start_run")) startRun = getOptionValue<Time_t>("start_run");
@@ -168,6 +255,8 @@ int cond::TestGTLoad::execute(){
   if(hasOptionValue("start_lumi")) startLumi = getOptionValue<Time_t>("start_lumi");
   Time_t stepLumi= 10000000000;
   if(hasOptionValue("step_lumi")) stepLumi = getOptionValue<Time_t>("step_lumi");
+
+  Timer timex("condDBv1");
 
   ConnectionPool connPool;
   if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
@@ -233,17 +322,22 @@ int cond::TestGTLoad::execute(){
     }
   }
 
+  timex.interval("iterations done");
+  timex.showIntervals();
+
   std::cout <<std::endl;
   std::cout <<"*** End of job."<<std::endl;
   std::cout <<"*** GT: "<<gtag<<" Tags:"<<gt.size()<<" Loaded:"<<proxies.size()<<std::endl;
   std::cout<<std::endl;
-  for( auto p: proxies ){
-    auto r = requests.find( p.tag() );
-    if( r != requests.end() ){
-      std::cout <<"*** Tag: "<<p.tag()<<" Requests processed:"<<r->second<<" Queries:"<<p.numberOfQueries()<<std::endl;
-      if( verbose ){
-	const std::vector<std::string>& hist = p.history();
-	for( auto e: p.history() ) std::cout <<"    "<<e<<std::endl;
+  if( verbose ){
+    for( auto p: proxies ){
+      auto r = requests.find( p.tag() );
+      if( r != requests.end() ){
+        std::cout <<"*** Tag: "<<p.tag()<<" Requests processed:"<<r->second<<" Queries:"<<p.numberOfQueries()<<std::endl;
+        if( verbose ){
+    	const std::vector<std::string>& hist = p.history();
+    	for( auto e: p.history() ) std::cout <<"    "<<e<<std::endl;
+        }
       }
     }
   }
