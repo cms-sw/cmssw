@@ -52,7 +52,8 @@ private:
     bool doRefAnalysis_;
     struct RefObject {
       int objID;
-      edm::EDGetTokenT<LVColl> token;
+      edm::InputTag inputTag;
+      //edm::EDGetTokenT<LVColl> token;
     };
     std::vector<RefObject> refObjects_;
 
