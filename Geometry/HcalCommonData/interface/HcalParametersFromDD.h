@@ -10,8 +10,6 @@ public:
   virtual ~HcalParametersFromDD() {}
 
   bool build(const DDCompactView*,  HcalParameters& );
-private:
-  static const int nEtaMax=100;
 };
 
 #endif

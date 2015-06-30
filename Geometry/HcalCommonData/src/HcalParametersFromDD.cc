@@ -72,6 +72,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   DDFilteredView fv1(*cpv);
   fv1.addFilter(filter1);
   bool ok = fv1.firstChild();
+  const int nEtaMax=100;
 
   if (ok) {
     php.phioff   = DDVectorGetter::get( "phioff" );
