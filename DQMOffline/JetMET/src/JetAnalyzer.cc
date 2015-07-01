@@ -81,6 +81,9 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   isPFJet_   = (std::string("pf") ==jetType_);
   isMiniAODJet_   = (std::string("miniaod") ==jetType_);
   jetCorrectorTag_=pSet.getParameter<edm::InputTag>("JetCorrections");
+
+
+
   if(!isMiniAODJet_){//in MiniAOD jet is already corrected
     jetCorrectorToken_ = consumes<reco::JetCorrector>(jetCorrectorTag_);
   }
@@ -1845,6 +1848,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(pass_corrected){
       recoJets.push_back(correctedJet);
     }
+
+    if(!pass_corrected && !pass_uncorrected){
+      continue;
+    }
     bool jetpassid=true;
     bool Thiscleaned=true;
     bool JetIDWPU=true;
@@ -1961,6 +1968,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       float puidcut=-1;
       int puidmvaflag=-10;
       int puidcutflag=-10;
+  
       puidmva=(*puJetIdMva)[pfjetref];
       puidcut=(*puJetId)[pfjetref];
       puidmvaflag=(*puJetIdFlagMva)[pfjetref];
@@ -1969,16 +1977,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if((*pfJets)[ijet].muonEnergyFraction()>0.8){
 	jetpassid =false;
       }
-      //int QGmulti=-1;
-      //float QGLikelihood=-10;
-      //float QGptD=-10;
-      //float QGaxis2=-10;
-      //if(fill_CHS_histos){
-      //QGmulti=(*qgMultiplicity)[pfjetref];
-      //QGLikelihood=(*qgLikelihood)[pfjetref];
-      //QGptD=(*qgptD)[pfjetref];
-      //QGaxis2=(*qgaxis2)[pfjetref];
-      //}
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
 	JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
