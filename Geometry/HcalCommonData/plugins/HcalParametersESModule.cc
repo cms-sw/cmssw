@@ -12,11 +12,6 @@
 
 #include <boost/shared_ptr.hpp>
  
-namespace edm {
-  class ConfigurationDescriptions;
-}
-class HcalParameters;
-class HcalParametersRcd;
 
 class  HcalParametersESModule : public edm::ESProducer {
 public:
