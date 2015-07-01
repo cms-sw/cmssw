@@ -22,6 +22,16 @@ Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripl
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
 
+def newdirname(algo, quality):
+    ret = ""
+    if quality != "":
+        ret += "_"+quality
+    if not (algo == "ootb" and quality != ""):
+        ret += "_"+algo
+
+    return ret
+
+
 val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
-val.doPlots(Algos, Qualities, trackingPlots.plotter, algoDirMap=trackingPlots._tracks_map)
+val.doPlots(Algos, Qualities, trackingPlots.plotter, algoDirMap=trackingPlots._tracks_map, newdirFunc=newdirname)
 

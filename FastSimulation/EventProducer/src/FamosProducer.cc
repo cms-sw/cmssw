@@ -47,10 +47,6 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     edm::InputTag sourceLabel = p.getParameter<edm::InputTag>("SourceLabel");
     sourceToken = consumes<edm::HepMCProduct>(sourceLabel);
     
-    // for gen-mixing
-    edm::InputTag _label = edm::InputTag("famosPileUp","PileUpEvents");
-    puToken = consumes<edm::HepMCProduct>(_label);
-
     // famos manager
     famosManager_ = new FamosManager(p);
 }
@@ -80,13 +76,8 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    iEvent.getByToken(sourceToken,theHepMCProduct);
    const HepMC::GenEvent * myGenEvent = theHepMCProduct->GetEvent();
    
-   // get the pu event (for gen-mixing)
-   Handle<HepMCProduct> thePileUpEvents;
-   bool isPileUp = iEvent.getByToken(puToken,thePileUpEvents);
-   const HepMC::GenEvent * thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
-
    // do the simulation
-   famosManager_->reconstruct(myGenEvent,thePUEvents,tTopo, &random);
+   famosManager_->reconstruct(myGenEvent,tTopo, &random);
 
    // get the hits, simtracks and simvertices and put in the event
    CalorimetryManager * calo = famosManager_->calorimetryManager();

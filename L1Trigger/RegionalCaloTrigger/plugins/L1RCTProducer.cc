@@ -13,27 +13,25 @@ using std::vector;
 
 using std::cout;
 using std::endl;
-const int L1RCTProducer::crateFED[18][5]=
-      {{613, 614, 603, 702, 1118},
-    {611, 612, 602, 700, 1118},
-    {627, 610, 601, 716, 1122},
-    {625, 626, 609, 714, 1122},
-    {623, 624, 608, 712, 1122},
-    {621, 622, 607, 710, 1120},
-    {619, 620, 606, 708, 1120},
-    {617, 618, 605, 706, 1120},
-    {615, 616, 604, 704, 1118},
-    {631, 632, 648, 703, 1118},
-    {629, 630, 647, 701, 1118},
-    {645, 628, 646, 717, 1122},
-    {643, 644, 654, 715, 1122},
-    {641, 642, 653, 713, 1122},
-    {639, 640, 652, 711, 1120},
-    {637, 638, 651, 709, 1120},
-    {635, 636, 650, 707, 1120},
-    {633, 634, 649, 705, 1118}};
-
-
+const int L1RCTProducer::crateFED[18][6]=
+    {{613, 614, 603, 702, 718, 1118},
+    {611, 612, 602, 700, 718, 1118},
+    {627, 610, 601, 716, 722, 1122},
+    {625, 626, 609, 714, 722, 1122},
+    {623, 624, 608, 712, 722, 1122},
+    {621, 622, 607, 710, 720, 1120},
+    {619, 620, 606, 708, 720, 1120},
+    {617, 618, 605, 706, 720, 1120},
+    {615, 616, 604, 704, 718, 1118},
+    {631, 632, 648, 703, 719, 1118},
+    {629, 630, 647, 701, 719, 1118},
+    {645, 628, 646, 717, 723, 1122},
+    {643, 644, 654, 715, 723, 1122},
+    {641, 642, 653, 713, 723, 1122},
+    {639, 640, 652, 711, 721, 1120},
+    {637, 638, 651, 709, 721, 1120},
+    {635, 636, 650, 707, 721, 1120},
+    {633, 634, 649, 705, 719, 1118}};
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   rctLookupTables(new L1RCTLookupTables),
@@ -185,13 +183,16 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 
 //   // adding fed mask into channel mask
   
-  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup); // so can create/initialize/assign const quantity in one line accounting for if statement
+  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup); 
+  // so can create/initialize/assign const quantity in one line accounting for if statement
   // wikipedia says this is exactly what it's for: http://en.wikipedia.org/wiki/%3F:#C.2B.2B
 
 //   std::cout << "Contents of ";
 //   std::cout << (getFromOmds ? "OMDS RunInfo" : "standard RunInfo");
 //   std::cout << " FED vector" << std::endl;
 //   printFedVector(Feds);
+
+  bool useUpgradedHF=false;
 
   std::vector<int> caloFeds;  // pare down the feds to the interesting ones
   // is this unneccesary?
@@ -201,6 +202,9 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
       int fedNum = *cf;
       if((fedNum > 600 && fedNum <724) || fedNum==1118 || fedNum == 1120 || fedNum == 1122) 
 	caloFeds.push_back(fedNum);
+
+      if(fedNum==1118 || fedNum == 1120 || fedNum == 1122) useUpgradedHF=true;
+  
     }
 
   for(int  cr = 0; cr < 18; ++cr)
@@ -210,12 +214,13 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	{
 	  bool fedFound = false;
 	  
-	  
 	  //Try to find the FED
-	  std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
+	  std::vector<int>::iterator fv= std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
 	  if(fv!=caloFeds.end())
 	    fedFound = true;
-	  
+	 
+
+ 
 	  if(!fedFound) {
 	    int eta_min=0;
 	    int eta_max=0;
@@ -254,6 +259,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      break;
 	      
 	    case hfFed:	
+	      if(useUpgradedHF) break;
+
 	      eta_min = minHF;
 	      eta_max = maxHF;
 	      
@@ -261,6 +268,19 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      phi_even[1] = true;
 	      ecal = false;
 	      break;
+
+	    case hfFedUp:
+	      if(!useUpgradedHF) break;
+
+	      eta_min = minHF;
+	      eta_max = maxHF;
+
+	      phi_even[0] = true;
+	      phi_even[1] = true;
+	      ecal = false;
+	      break;
+
+
 	    default:
 	      break;
 	      

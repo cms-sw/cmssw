@@ -6,6 +6,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 using namespace sistrip;
 
@@ -30,7 +31,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( tkgeom );
   
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //here build an object of type SiStripRegionCabling using the information from class SiStripDetCabling **PLUS** the geometry.

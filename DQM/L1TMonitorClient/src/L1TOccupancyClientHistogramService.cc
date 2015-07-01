@@ -373,6 +373,7 @@ void L1TOccupancyClientHistogramService::updateHistogramEndLS(DQMStore::IGetter 
     delete mHistograms[iHistName].first;            //delete old cumulateive histo 
     mHistograms[iHistName].first=histo_old;         //save old as new
     mHistograms[iHistName].second->Add(histo_curr); //save new as current
+    delete histo_curr;
   }  
 }
 

@@ -83,12 +83,5 @@ protected:
 
 }
 
-#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup);
-
-
-
 #endif 
-
 

@@ -703,7 +703,7 @@ void PrimaryVertexPlots(const char* fullname,const char* module, const char* pos
 	bool first=true;
 	int mcount=20;
 	int ccount=1;
-	for(unsigned int bx=1;bx<3564;++bx) {
+	for(unsigned int bx=0;bx<3564;++bx) {
 	  char hname[300];
 	  sprintf(hname,"bx_%d",bx);
 	  TH1D* slice = nvtxvsbxvsorb->ProjectionY(hname,bx+1,bx+1);
