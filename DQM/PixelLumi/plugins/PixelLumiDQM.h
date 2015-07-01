@@ -173,21 +173,17 @@ private:
   MonitorElement *fHistBunchCrossingsLastLumi;
   MonitorElement *fHistClusterCountByBxLastLumi;
   MonitorElement *fHistClusterCountByBxCumulative;
-  std::vector<MonitorElement *> fLumiByBxPerLS;
   MonitorElement *fHistClusByLS;
   MonitorElement *fHistTotalRecordedLumiByLS;
   MonitorElement *fHistRecordedByBxLastLumi;
   MonitorElement *fHistRecordedByBxCumulative;
 
-  std::string mylabel;
   std::vector<bool> bunchTriggerMask;
   unsigned int filledAndUnmaskedBunches;
   bool useInnerBarrelLayer;
   unsigned int fFillNumber;
   std::string  fLogFileName_;
-  bool newLS;
 
-  std::string  fBeamMode;
   std::ofstream logFile_;
 };
 

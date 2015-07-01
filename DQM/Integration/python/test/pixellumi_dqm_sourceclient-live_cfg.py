@@ -113,7 +113,7 @@ process.load("DQM.PixelLumi.ZeroBiasSelector_cfi")
 #--------------------------
 # Scheduling
 #--------------------------
-process.Reco = cms.Sequence(process.siPixelDigis)
+process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 process.DQMmodules = cms.Sequence(process.dqmEnv*
   process.zerobias_selector*
   process.pixel_lumi_dqm*

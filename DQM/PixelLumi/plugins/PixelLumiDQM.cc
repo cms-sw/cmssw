@@ -70,8 +70,7 @@ PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
   filledAndUnmaskedBunches(0),
   useInnerBarrelLayer(iConfig.getUntrackedParameter<bool>("useInnerBarrelLayer", false)),
   fFillNumber(0),
-  fLogFileName_(iConfig.getUntrackedParameter<std::string>("logFileName","/tmp/pixel_lumi.txt")),
-  newLS(true)
+  fLogFileName_(iConfig.getUntrackedParameter<std::string>("logFileName","/tmp/pixel_lumi.txt"))
 {
   edm::LogInfo("Configuration")
     << "PixelLumiDQM looking for pixel clusters in '"
@@ -507,7 +506,6 @@ void
 PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const&lumiBlock,
 				   edm::EventSetup const&)
 {
-  newLS = true;
   // Only reset and fill every fResetIntervalInLumiSections (default is 1 LS)
   // Return unless the PREVIOUS LS was at the right modulo value 
   // (e.g. is resetinterval = 5 the rest will only be executed at LS=6
@@ -600,9 +598,6 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
 					rXSEC_PIXEL_CLUSTER ))
 				      ) / CM2_TO_NANOBARN ;
     
-    //AR: do not fill LumiByBxPerLS to save on rate
-    //fLumiByBxPerLS[(*it).first]->setBinContent(ls,pixel_bx_lumi_per_ls);
-    //fLumiByBxPerLS[(*it).first]->setBinError(ls,pixel_bx_lumi_per_ls_unc);
     fHistRecordedByBxLastLumi->setBinContent((*it).first,pixel_bx_lumi_per_ls);
     fHistRecordedByBxLastLumi->setBinError((*it).first,pixel_bx_lumi_per_ls_unc);
     
