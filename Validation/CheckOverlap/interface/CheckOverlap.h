@@ -9,16 +9,13 @@
 #include <map>
 #include <string>
 
-class BeginOfJob;
 class BeginOfRun;
-class BeginOfEvent;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 
 typedef std::multimap< G4LogicalVolume*, G4VPhysicalVolume*, std::less<G4LogicalVolume*> > mmlvpv;
 
 class CheckOverlap : public SimWatcher,
-		     //		     public Observer<const BeginOfEvent *> {
   		     public Observer<const BeginOfRun *> {
 
 public:
@@ -28,8 +25,7 @@ public:
 
 private:
 
-    void update(const BeginOfRun * run);
-    //void update(const BeginOfEvent * event);
+  void update(const BeginOfRun * run);
   void checkHierarchyLeafPVLV(G4LogicalVolume * lv, unsigned int leafDepth);
   void checkPV(G4VPhysicalVolume * pv, unsigned int leafDepth);
   G4VPhysicalVolume * getTopPV();
