@@ -99,9 +99,8 @@
   <class name="std::pair<reco::PFTauRef, reco::PFTauDecayMode>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >" />
 
-  <class name="reco::PFTauTransverseImpactParameter" ClassVersion="11">
-   <version ClassVersion="11" checksum="2154806108"/>
-   <version ClassVersion="10" checksum="572950680"/>
+  <class name="reco::PFTauTransverseImpactParameter" ClassVersion="2">
+   <version ClassVersion="2" checksum="2154806108"/>
   </class>
 
   <class name="std::vector<reco::PFTauTransverseImpactParameter>"/>
