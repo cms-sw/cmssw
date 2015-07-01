@@ -49,6 +49,7 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
 					pset.getParameter<double>("lipTP"),
 					pset.getParameter<int>("minHitTP"),
 					pset.getParameter<bool>("signalOnlyTP"),
+					pset.getParameter<bool>("intimeOnlyTP"),
 					pset.getParameter<bool>("chargedOnlyTP"),
 					pset.getParameter<bool>("stableOnlyTP"),
 					pset.getParameter<std::vector<int> >("pdgIdTP"));
