@@ -9,7 +9,7 @@ mixedTripletStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTr
     trackCollection = cms.InputTag("pixelPairStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.maxChi2,
-    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep')
+    trackClassifier                          = cms.InputTag('pixelPairStep',"QualityMasks")
 )
 
 # trajectory seeds
@@ -69,8 +69,11 @@ mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixe
 )
 
 # final selection
-mixedTripletStepSelector = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSelector.clone()
-mixedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+mixedTripletStepClassifier1 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier1.clone()
+mixedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+mixedTripletStepClassifier2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier2.clone()
+mixedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
 mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
 
 # Final sequence 
@@ -80,6 +83,6 @@ MixedTripletStep =  cms.Sequence(mixedTripletStepSimTrackIds
                                  +mixedTripletStepSeeds
                                  +mixedTripletStepTrackCandidates
                                  +mixedTripletStepTracks
-                                 +mixedTripletStepSelector
+                                 +mixedTripletStepClassifier1*mixedTripletStepClassifier2
                                  +mixedTripletStep                                 
                              )

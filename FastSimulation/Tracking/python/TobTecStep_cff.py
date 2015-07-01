@@ -9,7 +9,7 @@ tobTecStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackI
     trackCollection = cms.InputTag("pixelLessStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.maxChi2,
-    overrideTrkQuals = cms.InputTag('pixelLessStep'),
+    trackClassifier                          = cms.InputTag('pixelLessStep',"QualityMasks")
 )
 
 # trajectory seeds 
@@ -73,8 +73,14 @@ tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks
 )
 
 # final selection
-tobTecStepSelector = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSelector.clone()
-tobTecStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+tobTecStepClassifier1 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClassifier1.clone()
+tobTecStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+tobTecStepClassifier2 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClassifier2.clone()
+tobTecStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
+tobTecStep = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStep.clone()
+
+
 
 # Final sequence 
 TobTecStep = cms.Sequence(tobTecStepSimTrackIds
@@ -83,5 +89,6 @@ TobTecStep = cms.Sequence(tobTecStepSimTrackIds
                           +tobTecStepSeeds
                           +tobTecStepTrackCandidates
                           +tobTecStepTracks
-                          +tobTecStepSelector                          
+                          +tobTecStepClassifier1*tobTecStepClassifier2
+                          +tobTecStep
                       )

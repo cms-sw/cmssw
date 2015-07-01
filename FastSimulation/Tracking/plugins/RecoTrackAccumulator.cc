@@ -34,7 +34,7 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
   newTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
   newHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
   newTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
-  newMVAVals_.clear();
+  newMVAVals_ = std::auto_ptr<MVACollection>(new MVACollection);
   
   // this is needed to get the ProductId of the TrackExtra and TrackingRecHit and Track collections
   rNewTracks=const_cast<edm::Event&>( e ).getRefBeforePut<reco::TrackCollection>(outputLabel);
@@ -54,15 +54,10 @@ void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventS
 
 void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& iSetup) {
   
-  std::auto_ptr< edm::ValueMap<float> > _newMVAVals(new edm::ValueMap<float>);
-  edm::ValueMap<float>::Filler filler(*_newMVAVals);
-  edm::TestHandle<reco::TrackCollection> newTracksHandle(newTracks_.get(),rNewTracks.id());
-  filler.insert(newTracksHandle,newMVAVals_.begin(),newMVAVals_.end());
-  filler.fill();
   e.put( newTracks_, outputLabel );
   e.put( newHits_, outputLabel );
   e.put( newTrackExtras_, outputLabel );
-  e.put(_newMVAVals,MVAOutputLabel);
+  e.put( newMVAVals_,MVAOutputLabel);
 }
 
 
@@ -71,7 +66,7 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
   edm::Handle<reco::TrackCollection> tracks;
   edm::Handle<TrackingRecHitCollection> hits;
   edm::Handle<reco::TrackExtraCollection> trackExtras;
-  edm::Handle<edm::ValueMap<float> > mvaVals;
+  edm::Handle<MVACollection> mvaVals;
   if(!(e.getByLabel(label, tracks) and e.getByLabel(label, hits) and e.getByLabel(label, trackExtras))){
     edm::LogError ("RecoTrackAccumulator") << "Failed to find track, hit or trackExtra collections with inputTag " << label;
     exit(1);
@@ -87,12 +82,9 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
   if (tracks->size()==0)
     return;
 
-  // crude way to get the track product id
-  // (for PU events, the usual reco::TrackRef(tracks,t) does not result in a proper product id in the TrackRef)
-  edm::ProductID tracksProdId = mvaVals->begin().id();
   
   for (size_t t = 0; t < tracks->size();++t){
-    const reco::Track & track = tracks->at(t);
+    const reco::Track & track = (*tracks)[t];
     newTracks_->push_back(track);
     // track extras:
     auto const& extra = trackExtras->at(track.extra().key());
@@ -119,7 +111,7 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
     // crude way to get the mva value that belongs to the track
     // the usual way valueMap[trackref] does not work in PU events, 
     // see earlier comment about track id
-    float _val = mvaVals->get(tracksProdId,t);
-    newMVAVals_.push_back(_val);
+    float _val = (*mvaVals)[t];
+    newMVAVals_->push_back(_val);
   }
 }
