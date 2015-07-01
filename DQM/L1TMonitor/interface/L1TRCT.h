@@ -61,18 +61,11 @@ private:
   // trigger type information
   MonitorElement *triggerType_;
 
-  // region global coordinates
+  // RCT
+  // regions
   MonitorElement* rctRegionsEtEtaPhi_;
   MonitorElement* rctRegionsOccEtaPhi_;
-
-  // region local coordinates
-  MonitorElement* rctRegionsLocalEtEtaPhi_;
-  MonitorElement* rctRegionsLocalOccEtaPhi_;
-  MonitorElement* rctTauVetoLocalEtaPhi_;
-
-  // Region rank
   MonitorElement* rctRegionRank_;
-
   MonitorElement* rctOverFlowEtaPhi_;
   MonitorElement* rctTauVetoEtaPhi_;
   MonitorElement* rctMipEtaPhi_;
@@ -84,22 +77,41 @@ private:
   MonitorElement *rctEmBx_;
 
   // em
-  // HW coordinates
-  MonitorElement *rctEmCardRegion_;
-
-
   MonitorElement* rctIsoEmEtEtaPhi_;
   MonitorElement* rctIsoEmOccEtaPhi_;
   MonitorElement* rctNonIsoEmEtEtaPhi_;
   MonitorElement* rctNonIsoEmOccEtaPhi_;
   MonitorElement* rctIsoEmRank_;
   MonitorElement* rctNonIsoEmRank_;
+
+
+  // Layer2
+  // regions
+  MonitorElement* layer2RegionsEtEtaPhi_;
+  MonitorElement* layer2RegionsOccEtaPhi_;
+  MonitorElement* layer2RegionRank_;
+  MonitorElement* layer2OverFlowEtaPhi_;
+  MonitorElement* layer2TauVetoEtaPhi_;
+  MonitorElement* layer2MipEtaPhi_;
+  MonitorElement* layer2QuietEtaPhi_;
+  MonitorElement* layer2HfPlusTauEtaPhi_;
+
+  // Bx
+  MonitorElement *layer2RegionBx_;
+  MonitorElement *layer2EmBx_;
+
+  // em
+  MonitorElement* layer2IsoEmEtEtaPhi_;
+  MonitorElement* layer2IsoEmOccEtaPhi_;
+  MonitorElement* layer2NonIsoEmEtEtaPhi_;
+  MonitorElement* layer2NonIsoEmOccEtaPhi_;
+  MonitorElement* layer2IsoEmRank_;
+  MonitorElement* layer2NonIsoEmRank_;
+
+  // run/lumi
   MonitorElement* runId_;
   MonitorElement* lumisecId_;
 
-   MonitorElement* hREGIONSALL;
-   MonitorElement*  hREGIONSNOHFALL;
-   MonitorElement* hREGIONSCENTRAL;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
