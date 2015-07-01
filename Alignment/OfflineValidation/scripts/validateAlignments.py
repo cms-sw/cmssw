@@ -431,7 +431,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
                                        %( iniFile ) )
             else:
                 raise AllInOneError, ( "'%s' does exist, but parsing of the "
-                                       "content failed!" )
+                                       "content failed!" ) % iniFile
 
     # get the job name
     if options.Name == None:
