@@ -384,6 +384,11 @@ namespace sistrip {
          (readoutModeString == "Zero suppressed lite CM Override") ) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
     }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8_TOPBOT") ||
+         (readoutModeString == "Zero suppressed lite8 TobBot") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+    }
     if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
          (readoutModeString == "PREMIX_RAW") ||
          (readoutModeString == "PreMix Raw") ) {
