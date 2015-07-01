@@ -44,7 +44,7 @@ private:
 TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName, int lColor, int lStyle)
 {
   lineColor = lColor;
-  lineStyle = lStyle;
+  lineStyle = lStyle % 100;
   if (legName=="") {
     int start = 0;
     if (fileName.find('/') ) start =fileName.find_last_of('/')+1;

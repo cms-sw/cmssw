@@ -23,13 +23,15 @@
 #include "TPaveText.h"
 #include "TString.h"
 #include "TStyle.h"
+#include <iostream>
 
 
 // Publication status: determines what is plotted in title
-enum PublicationStatus { INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED };
+enum PublicationStatus { UNSET, INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED };
 TString toTString(const PublicationStatus status) {
   TString str = "";
-  if(      status == INTERNAL )            str = "internal";
+  if(      status == UNSET )               str = "Status not set yet!";
+  else if( status == INTERNAL )            str = "internal";
   else if( status == INTERNAL_SIMULATION ) str = "simulation (internal)";
   else if( status == PRELIMINARY )         str = "preliminary";
   else if( status == PUBLIC      )         str = "public";
@@ -234,7 +236,7 @@ private:
   static TPaveText* label(const int nEntries, const double relWidth, const bool leftt, const bool top);
 };
 
-PublicationStatus TkAlStyle::publicationStatus_ = PRELIMINARY;
+PublicationStatus TkAlStyle::publicationStatus_ = UNSET;
 double TkAlStyle::lineHeight_ = 0.042;
 double TkAlStyle::margin_ = 0.04;
 double TkAlStyle::textSize_ = 0.035;
@@ -337,7 +339,9 @@ TPaveText* TkAlStyle::title(const TString& txt) {
 // --------------------------------------------------------------
 TString TkAlStyle::header(const PublicationStatus status, const Era era) {
   TString txt;
-  if( status == INTERNAL_SIMULATION ) {
+  if( status == UNSET ) {
+    std::cout << "Status not set yet!  Can't draw the title!" << std::endl;
+  } else if( status == INTERNAL_SIMULATION ) {
     txt = "Simulation";
   } else if( status == PRELIMINARY ) {
     txt = "CMS Preliminary";

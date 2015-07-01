@@ -6,11 +6,10 @@ Table Of Contents
 3. Axis Label
 4. Axis Limits
 5. Place Legend
-6. TDR Style
 ***********************************/
 
-#include <vector>
 #include "trackSplitPlot.h"
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //===================
 //0. Track Split Plot
@@ -20,6 +19,10 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                         Bool_t relative,Bool_t resolution,Bool_t pull,
                         TString saveas)
 {
+    if (TkAlStyle::status() == UNSET)
+        TkAlStyle::set(INTERNAL);
+    gStyle->SetMarkerSize(1.5);
+    setupcolors();
     stufftodelete->SetOwner(true);
     cout << xvar << " " << yvar << endl;
     if (xvar == "" && yvar == "")
@@ -34,21 +37,6 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     if (nFiles < 1) nFiles = 1;
 
     const Int_t n = nFiles;
-
-    setTDRStyle();
-    gStyle->SetOptStat(0);        //for histograms, the mean and rms are included in the legend
-    //for a scatterplot, this is needed to show the z axis scale
-    //for non-pull histograms or when run number is on the x axis, this is needed so that 10^-? on the right is not cut off
-    if (type == ScatterPlot || (type == Histogram && !pull) || xvar == "runNumber")
-    {
-        gStyle->SetCanvasDefW(678);
-        gStyle->SetPadRightMargin(0.115);
-    }
-    else
-    {
-        gStyle->SetCanvasDefW(600);
-        gStyle->SetPadRightMargin(0.04);
-    }
 
     Bool_t nHits = (xvar[0] == 'n' && xvar[1] == 'H' && xvar[2] == 'i'    //This includes nHits, nHitsTIB, etc.
                                    && xvar[3] == 't' && xvar[4] == 's');
@@ -148,6 +136,25 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 
             }
         }
+
+        p[i]->SetLineColor(colors[i]);
+        if (type == Resolution || type == Profile)
+        {
+            p[i]->SetMarkerStyle(styles[i] / 100);
+            p[i]->SetMarkerColor(colors[i]);
+            p[i]->SetLineStyle(styles[i] % 100);
+        }
+        else
+        {
+            if (styles[i] >= 100)
+            {
+                p[i]->SetMarkerStyle(styles[i] / 100);
+                p[i]->SetMarkerColor(colors[i]);
+                p[i]->Sumw2();
+            }
+            p[i]->SetLineStyle(styles[i] % 100);
+        }
+
         stufftodelete->Add(p[i]);
         p[i]->SetBit(kCanDelete,true);
 
@@ -176,6 +183,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 
         if (!relative && !pull && (yvar == "dz" || yvar == "dxy"))
             rel = 1e-4;                                     //it's in cm but we want it in um, so divide by 1e-4
+        if (!relative && !pull && (yvar == "phi" || yvar == "theta" || yvar == "qoverpt"))
+            rel = 1e-3;                                     //make the axis labels manageable
 
         tree->SetBranchAddress("runNumber",&runNumber);
         if (type == Profile || type == ScatterPlot || type == Resolution || type == OrgHistogram)
@@ -324,19 +333,6 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
 
         setAxisLabels(p[i],type,xvar,yvar,relative,pull);
-
-        p[i]->SetLineColor(colors[i]);
-        p[i]->SetLineStyle(styles[i]);
-        if (type == Resolution || type == Profile)
-        {
-            p[i]->SetMarkerColor(colors[i]);
-            p[i]->SetMarkerStyle(20+i);
-        }
-        else
-        {
-            p[i]->SetMarkerColor(kWhite);
-            p[i]->SetMarkerStyle(1);
-        }
     }
 
     TH1 *firstp = 0;
@@ -421,24 +417,29 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 maxp->SetBinContent(i,TMath::Max(maxp->GetBinContent(i),p[j]->GetBinContent(i)));
             }
         }
+        maxp->SetMarkerStyle(0);
         maxp->SetMinimum(0);
-        maxp->Draw();
+        maxp->Draw("");
         if (xvar == "runNumber")
         {
             maxp->GetXaxis()->SetNdivisions(505);
-            maxp->Draw();
+            maxp->Draw("");
         }
     }
 
-    TLegend *legend = new TLegend(.6,.7,.9,.9,"","br");
+    int nEntries = 0;
+    for (int i = 0; i < n; i++)
+        if (used[i])
+            nEntries++;
+    double width = 0.5;
+    if (type == Histogram || type == OrgHistogram)
+        width *= 2;
+    TLegend *legend = TkAlStyle::legend(nEntries, width);
+    if (type == Histogram || type == OrgHistogram)
+        legend->SetNColumns(2);
     stufftodelete->Add(legend);
     legend->SetBit(kCanDelete,true);
-    if (n == 1 && !used[0])
-    {
-        deleteCanvas(c1);
-        stufftodelete->Clear();
-        return 0;
-    }
+
     for (Int_t i = 0; i < n; i++)
     {
         if (!used[i])
@@ -453,8 +454,16 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         else if (type == Histogram || type == OrgHistogram)
         {
-            p[i]->Draw("same");
-            legend->AddEntry(p[i],names[i],"l");
+            if (styles[i] >= 100)
+            {
+                p[i]->Draw("same P0E");
+                legend->AddEntry(p[i],names[i],"pl");
+            }
+            else
+            {
+                p[i]->Draw("same");
+                legend->AddEntry(p[i],names[i],"l");
+            }
             legend->AddEntry((TObject*)0,meansrmss[i],"");
         }
     }
@@ -465,25 +474,21 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         return 0;
     }
 
+    c1->Update();
+    legend->Draw();
+
+    double legendfraction = legend->GetY2() - legend->GetY1(); //apparently GetY1 and GetY2 give NDC coordinates.  This is not a mistake on my part
+    double padheight = gPad->GetUymax() - gPad->GetUymin();
+    //legendfraction = legendheight / padheight = newlegendheight / newpadheight
+    //newpadheight = padheight + x
+    //newlegendheight = newpadheight - padheight = x so it doesn't cover anything
+    //==>legendfraction = x/(padheight+x)
+    /* ==> */ double x = padheight*legendfraction / (1-legendfraction) * 1.5; //1.5 to give extra room
+    maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(), gPad->GetUymax() + x);
+
+    TkAlStyle::drawStandardTitle();
 
     c1->Update();
-    Double_t x1min  = .98*gPad->GetUxmin() + .02*gPad->GetUxmax();
-    Double_t x2max  = .02*gPad->GetUxmin() + .98*gPad->GetUxmax();
-    Double_t y1min  = .98*gPad->GetUymin() + .02*gPad->GetUymax();
-    Double_t y2max  = .02*gPad->GetUymin() + .98*gPad->GetUymax();
-    Double_t width  = .4*(x2max-x1min);
-    Double_t height = (1./20)*legend->GetListOfPrimitives()->GetEntries()*(y2max-y1min);
-    if (type == Histogram || type == OrgHistogram)
-    {
-        width *= 2;
-        height /= 2;
-        legend->SetNColumns(2);
-    }
-    Double_t newy2max = placeLegend(legend,width,height,x1min,y1min,x2max,y2max);
-    maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(),(newy2max-.02*gPad->GetUymin())/.98);
-
-    legend->SetFillStyle(0);
-    legend->Draw();
 
     if (saveas != "")
         saveplot(c1,saveas);
@@ -530,25 +535,6 @@ TCanvas *trackSplitPlot(TString file,TString var,
     return trackSplitPlot(nFiles,files,names,var,relative,pull,saveas);
 }
 
-void placeholder(TString saveas,Bool_t wide)
-{
-    setTDRStyle();
-    if (wide)
-        gStyle->SetCanvasDefW(678);
-    else
-        gStyle->SetCanvasDefW(600);
-    TText line1(.5,.6,"This is a placeholder so that when there are");
-    TText line2(.5,.4,"4 plots per line it lines up nicely");
-    line1.SetTextAlign(22);
-    line2.SetTextAlign(22);
-    TCanvas *c1 = TCanvas::MakeDefCanvas();
-    line1.Draw();
-    line2.Draw();
-    if (saveas != "")
-        saveplot(c1,saveas);
-    deleteCanvas(c1);
-}
-
 void saveplot(TCanvas *c1,TString saveas)
 {
     if (saveas == "")
@@ -583,6 +569,22 @@ void deleteCanvas(TObject *canvas)
     list->SetOwner(true);
     list->Clear();
     delete c1;
+}
+
+void setupcolors()
+{
+    if (colorsset) return;
+    colorsset = true;
+    colors.clear();
+    styles.clear();
+    Color_t array[15] = {1,2,3,4,6,7,8,9,
+                         kYellow+3,kOrange+10,kPink-2,kTeal+9,kAzure-8,kViolet-6,kSpring-1};
+    for (int i = 0; i < 15; i++)
+    {
+        colors.push_back(array[i]);
+        styles.push_back(1);       //Set the default to 1
+                                   //This is to be consistent with the other validation
+    }
 }
 
 //This makes a plot, of Delta_yvar vs. runNumber, zoomed in to between firstrun and lastrun.
@@ -654,18 +656,12 @@ void misalignmentDependence(TCanvas *c1old,
     //const int n = list->GetEntries() - 2 - (xvar == "");
     const int n = nFiles;
 
-    setTDRStyle();
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
     gStyle->SetFitFormat("5.4g");
     gStyle->SetFuncColor(2);
     gStyle->SetFuncStyle(1);
     gStyle->SetFuncWidth(1);
-    if (!drawfits)
-    {
-        gStyle->SetCanvasDefW(678);
-        gStyle->SetPadRightMargin(0.115);
-    }
 
     TH1 **p = new TH1*[n];
     TF1 **f = new TF1*[n];
@@ -1053,7 +1049,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->SetParameter(0,6e-4);
             nParameters = 2;
             Int_t tempParameters[2] = {0,2};
-            TString tempParameterNames[2] = {"A","B"};
+            TString tempParameterNames[2] = {"A;mrad","B"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
             functionname = "#Delta#phi=-Acos(#phi_{org}+B)";
@@ -1071,7 +1067,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("sine","[0]*sin([1]*x+[2])");
             f->FixParameter(1,2);
             f->FixParameter(2,0);
-            parametername = "A";
+            parametername = "A;mrad";
             functionname = "#Delta#theta=-Asin(2#theta_{org})";
             parameter = 0;
         }
@@ -1142,7 +1138,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
         {
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,0);
-            parametername = "A;cm^{-1}";
+            parametername = "A;mrad/cm";
             functionname = "#Delta#phi=-A(d_{xy})_{org}";
             parameter = 0;
         }
@@ -1163,7 +1159,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(1,2);
             nParameters = 3;
             Int_t tempParameters[3] = {0,2,3};
-            TString tempParameterNames[3] = {"A","B","C"};
+            TString tempParameterNames[3] = {"A;mrad","B","C;mrad"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
             functionname = "#sigma(#Delta#theta)=Asin(2#phi_{org}+B)+C";
@@ -1174,7 +1170,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(1,2);
             nParameters = 3;
             Int_t tempParameters[3] = {0,2,3};
-            TString tempParameterNames[3] = {"A","B","C"};
+            TString tempParameterNames[3] = {"A;mrad","B","C;mrad"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
             functionname = "#sigma(#Delta#eta)=Asin(2#phi_{org}+B)+C";
@@ -1231,7 +1227,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(3,0);
             nParameters = 2;
             Int_t tempParameters[2] = {0,1};
-            TString tempParameterNames[2] = {"A;e/GeV","B;GeV/e"};
+            TString tempParameterNames[2] = {"A;10^{-3}e/GeV","B;GeV/e"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
             functionname = "#Delta(q/p_{T})=Asech(B(q/p_{T})_{org})";
@@ -1249,7 +1245,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(3,0);
             nParameters = 2;
             Int_t tempParameters[2] = {0,1};
-            TString tempParameterNames[2] = {"A","B"};
+            TString tempParameterNames[2] = {"A;mrad","B"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
             functionname = "#Delta#theta=Aexp(-(B(#theta_{org}-#pi/2))^{2})";
@@ -1506,10 +1502,10 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory, Boo
 
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory,Bool_t matrix[xsize][ysize])
 {
+    setupcolors();
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
-    setTDRStyle();
     vector<Color_t> tempcolors = colors;
     vector<Style_t> tempstyles = styles;
     for (int i = 0; i < n; i++)
@@ -1585,10 +1581,10 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory,
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory,
                TString xvar,TString yvar)
 {
+    setupcolors();
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
-    setTDRStyle();
     vector<Color_t> tempcolors = colors;
     vector<Style_t> tempstyles = styles;
     for (int i = 0; i < n; i++)
@@ -1642,10 +1638,10 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory)
 
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory)
 {
+    setupcolors();
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
-    setTDRStyle();
     vector<Color_t> tempcolors = colors;
     vector<Style_t> tempstyles = styles;
     for (int i = 0; i < n; i++)
@@ -1720,7 +1716,14 @@ TString units(TString variable,Char_t axis)
             return "cm";
     }
     if (variable == "qoverpt")
-        return "e/GeV";
+    {
+        if (axis == 'y')
+            return "#times10^{-3}e/GeV";   //e/TeV is not particularly intuitive
+        if (axis == 'x')
+            return "e/GeV";
+    }
+    if (axis == 'y' && (variable == "phi" || variable == "theta"))
+        return "mrad";
     return "";
 }
 
@@ -1880,6 +1883,8 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
 
     if (!relative && !pull && (variable == "Delta_dxy" || variable == "Delta_dz"))
         rel = 1e-4;                                           //it's in cm but we want um
+    if (!relative && !pull && (variable == "Delta_phi" || variable == "Delta_theta" || variable == "Delta_qoverpt"))
+        rel = 1e-3;                                           //make the axis labels manageable
 
     for (Int_t j = 0; j < nFiles; j++)
     {
@@ -2109,8 +2114,8 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
         }
         else if (var == "qoverpt")
         {
-            min = -.0025;
-            max = .0025;
+            min = -2.5;
+            max = 2.5;
         }
         else if (var == "dxy")
         {
@@ -2134,12 +2139,12 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
         }
         else if (var == "theta")
         {
-            min = -.01;
-            max = .01;
+            min = -10;
+            max = 10;
             if (pixel)
             {
-                min = -.005;
-                max = .005;
+                min = -5;
+                max = 5;
             }
         }
         else if (var == "eta")
@@ -2154,8 +2159,8 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
         }
         else if (var == "phi")
         {
-            min = -.002;
-            max = .002;
+            min = -2;
+            max = 2;
         }
         else
         {
@@ -2268,193 +2273,4 @@ Bool_t fitsHere(TLegend *l,Double_t x1, Double_t y1, Double_t x2, Double_t y2)
         }
     }
     return fits;
-}
-
-//============
-//6. TDR Style
-//============
-
-void setTDRStyle() {
-
-  if (styleset) return;
-  styleset = true;
-  // For the canvas:
-  gStyle->SetCanvasBorderMode(0);
-  gStyle->SetCanvasColor(kWhite);
-  gStyle->SetCanvasDefH(600); //Height of canvas
-  gStyle->SetCanvasDefW(600); //Width of canvas
-  gStyle->SetCanvasDefX(0);   //POsition on screen
-  gStyle->SetCanvasDefY(0);
-
-  // For the Pad:
-  gStyle->SetPadBorderMode(1);
-  // gStyle->SetPadBorderSize(Width_t size = 1);
-  gStyle->SetPadColor(kWhite);
-  gStyle->SetPadGridX(false);
-  gStyle->SetPadGridY(false);
-  gStyle->SetGridColor(0);
-  gStyle->SetGridStyle(3);
-  gStyle->SetGridWidth(1);
-
-  // For the frame:
-  gStyle->SetFrameBorderMode(0);
-  gStyle->SetFrameBorderSize(1);
-  gStyle->SetFrameFillColor(0);
-  gStyle->SetFrameFillStyle(0);
-  gStyle->SetFrameLineColor(1);
-  gStyle->SetFrameLineStyle(1);
-  gStyle->SetFrameLineWidth(1);
-
-  // For the histo:
-  // gStyle->SetHistFillColor(1);
-  // gStyle->SetHistFillStyle(0);
-  gStyle->SetHistLineColor(1);
-  gStyle->SetHistLineStyle(0);
-  //gStyle->SetHistLineWidth(1);
-  // gStyle->SetLegoInnerR(Float_t rad = 0.5);
-  // gStyle->SetNumberContours(Int_t number = 20);
-
-  gStyle->SetEndErrorSize(2);
-  //gStyle->SetErrorMarker(20);
-  gStyle->SetErrorX(0.);
-
-  gStyle->SetMarkerStyle(7);
-
-  //For the fit/function:
-  gStyle->SetOptFit(1);
-  gStyle->SetFitFormat("5.4g");
-  gStyle->SetFuncColor(2);
-  gStyle->SetFuncStyle(1);
-  gStyle->SetFuncWidth(1);
-
-  //For the date:
-  gStyle->SetOptDate(0);
-  // gStyle->SetDateX(Float_t x = 0.01);
-  // gStyle->SetDateY(Float_t y = 0.01);
-
-
-  /*
-  // For the statistics box:
-  gStyle->SetOptFile(0);
-  gStyle->SetOptStat("mr");
-  gStyle->SetStatColor(kWhite);
-  gStyle->SetStatFont(42);
-  gStyle->SetStatFontSize(0.04);///---> gStyle->SetStatFontSize(0.025);
-  gStyle->SetStatTextColor(1);
-  gStyle->SetStatFormat("6.4g");
-  gStyle->SetStatBorderSize(1);
-  gStyle->SetStatH(0.1);
-  gStyle->SetStatW(0.2);///---> gStyle->SetStatW(0.15);
-  */
-
-  // gStyle->SetStatStyle(Style_t style = 1001);
-  // gStyle->SetStatX(Float_t x = 0);
-  // gStyle->SetStatY(Float_t y = 0);
-
-  // Margins:
-  gStyle->SetPadTopMargin(0.05);
-  gStyle->SetPadBottomMargin(0.13);
-  gStyle->SetPadLeftMargin(0.16);
-  gStyle->SetPadRightMargin(0.04);
-
-  // For the Global title:
-
-  gStyle->SetOptTitle(0);
-  gStyle->SetTitleFont(42);
-  gStyle->SetTitleColor(1);
-  gStyle->SetTitleTextColor(1);
-  gStyle->SetTitleFillColor(10);
-  gStyle->SetTitleFontSize(0.05);
-  // gStyle->SetTitleH(0); // Set the height of the title box
-  // gStyle->SetTitleW(0); // Set the width of the title box
-  // gStyle->SetTitleX(0); // Set the position of the title box
-  // gStyle->SetTitleY(0.985); // Set the position of the title box
-  // gStyle->SetTitleStyle(Style_t style = 1001);
-  // gStyle->SetTitleBorderSize(2);
-
-  // For the axis titles:
-
-  gStyle->SetTitleColor(1, "XYZ");
-  gStyle->SetTitleFont(42, "XYZ");
-  gStyle->SetTitleSize(0.06, "XYZ");
-  // gStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
-  // gStyle->SetTitleYSize(Float_t size = 0.02);
-  gStyle->SetTitleXOffset(0.9);
-  gStyle->SetTitleYOffset(1.25);
-  // gStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
-
-  // For the axis labels:
-
-  gStyle->SetLabelColor(1, "XYZ");
-  gStyle->SetLabelFont(42, "XYZ");
-  gStyle->SetLabelOffset(0.007, "XYZ");
-  gStyle->SetLabelSize(0.05, "XYZ");
-
-  // For the axis:
-
-  gStyle->SetAxisColor(1, "XYZ");
-  gStyle->SetStripDecimals(true);
-  gStyle->SetTickLength(0.03, "XYZ");
-  gStyle->SetNdivisions(510, "XYZ");
-  gStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
-  gStyle->SetPadTickY(1);
-
-  // Change for log plots:
-  gStyle->SetOptLogx(0);
-  gStyle->SetOptLogy(0);
-  gStyle->SetOptLogz(0);
-
-  // Postscript options:
-
-  gStyle->SetPaperSize(20.,20.);
-  // gStyle->SetLineScalePS(Float_t scale = 3);
-  // gStyle->SetLineStyleString(Int_t i, const char* text);
-  // gStyle->SetHeaderPS(const char* header);
-  // gStyle->SetTitlePS(const char* pstitle);
-
-  // gStyle->SetBarOffset(Float_t baroff = 0.5);
-  // gStyle->SetBarWidth(Float_t barwidth = 0.5);
-  // gStyle->SetPaintTextFormat(const char* format = "g");
-  // gStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
-  // gStyle->SetTimeOffset(Double_t toffset);
-  // gStyle->SetHistMinimumZero(true);
-
-  gStyle->SetPalette(1);
-
-  set_plot_style();
-
-  gROOT->ForceStyle();
-
-  TGaxis::SetMaxDigits(4);
-  setupcolors();
-}
-
-
-//source: http://ultrahigh.org/2007/08/making-pretty-root-color-palettes/
-
-void set_plot_style()
-{
-    const Int_t NRGBs = 5;
-    const Int_t NCont = 255;
-
-    Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
-    Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
-    Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
-    Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
-    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-    gStyle->SetNumberContours(NCont);
-}
-
-void setupcolors()
-{
-    colors.clear();
-    styles.clear();
-    Color_t array[15] = {1,2,3,4,6,7,8,9,
-                         kYellow+3,kOrange+10,kPink-2,kTeal+9,kAzure-8,kViolet-6,kSpring-1};
-    for (int i = 0; i < 15; i++)
-    {
-        colors.push_back(array[i]);
-        styles.push_back(1);       //Set the default to 1
-                                   //This is to be consistent with the other validation
-    }
 }

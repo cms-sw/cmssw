@@ -36,7 +36,7 @@ enum Statistic {Minimum, Maximum, Average, RMS};
 const Double_t pi = TMath::Pi();
 vector<Color_t> colors;
 vector<Style_t> styles;
-bool styleset = false;
+bool colorsset = false;
 Int_t minrun = -1;
 Int_t maxrun = -1;
 const Int_t xsize = 10;
@@ -67,7 +67,6 @@ Table Of Contents
 3. Axis Label
 4. Axis Limits
 5. Place Legend
-6. TDR Style
 ***********************************/
 
 #include "trackSplitPlot.h"
@@ -90,6 +89,7 @@ TCanvas *trackSplitPlot(TString file,TString var,
 void placeholder(TString saveas = "",Bool_t wide = false);
 void saveplot(TCanvas *c1,TString saveas);
 void deleteCanvas(TObject *canvas);
+void setupcolors();
 void runNumberZoomed(Int_t nFiles,TString *files,TString *names,TString yvar,
                      Bool_t relative = false,Bool_t resolution = false,Bool_t pull = false,
                      Int_t firstRun = -1,Int_t lastRun = -1,TString saveas = "");
@@ -197,13 +197,5 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
 
 Double_t placeLegend(TLegend *l, Double_t width, Double_t height, Double_t x1min, Double_t y1min, Double_t x2max, Double_t y2max);
 Bool_t fitsHere(TLegend *l,Double_t x1, Double_t y1, Double_t x2, Double_t y2);
-
-//============
-//6. TDR Style
-//============
-
-void setTDRStyle();
-void set_plot_style();
-void setupcolors();
 
 #endif
