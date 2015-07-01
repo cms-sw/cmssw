@@ -141,10 +141,6 @@ namespace reco {
     template<typename I>
     HitPattern(const I & begin, const I & end, const TrackerTopology& ttopo) { set(begin, end, ttopo); }
 
-    // constructor from hit collection
-    template<typename C>
-    HitPattern(const C & c) { set(c); }
-
     // set pattern from iterator (begin, end) pair
     // init hit pattern array as 0x00000000, ..., 0x00000000
     // loop over the hits and set hit pattern
