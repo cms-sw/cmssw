@@ -211,8 +211,9 @@ from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 3
+test = 0
 isData = False
+doSpecialSettingsForMECCA = 1
 if test==0:
     # ------------------------------------------------------------------------------------------- #
     # --- all this lines taken from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 
@@ -312,8 +313,8 @@ elif test==3:
 
 # ------------------------------------------------------------------------------------------- #
 
-doSpecialSettingsForMECCA = 0
-if doSpecialSettingsForMECCA==1:
+
+if doSpecialSettingsForMECCA:
     jetAna.doQG = False
     photonAna.do_randomCone = False
 
