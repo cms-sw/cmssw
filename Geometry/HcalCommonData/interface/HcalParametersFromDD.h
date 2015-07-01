@@ -2,15 +2,14 @@
 #define HcalCommonData_HcalParametersFromDD_h
 
 class DDCompactView;
-class PHcalParameters;
+class HcalParameters;
 
 class HcalParametersFromDD {
- public:
+public:
   HcalParametersFromDD() {}
   virtual ~HcalParametersFromDD() {}
 
-  bool build( const DDCompactView*,
-	      PHcalParameters& );
+  bool build(const DDCompactView*,  HcalParameters& );
 };
 
 #endif
