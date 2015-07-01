@@ -135,6 +135,7 @@ private:
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
+  edm::ParameterSet m_g4overlap;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
 
