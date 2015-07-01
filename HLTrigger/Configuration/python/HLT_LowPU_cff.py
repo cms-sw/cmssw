@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V49 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/LowPU/V50 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V49')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V50')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -481,7 +481,7 @@ fragment.streams = cms.PSet(
   Express = cms.vstring( 'ExpressPhysics' ),
   LookArea = cms.vstring( 'LookAreaPD' ),
   NanoDST = cms.vstring( 'L1Accept' ),
-  PhysicsEGammaCommissioning = cms.vstring( 'CastorJets',
+  Physics = cms.vstring( 'CastorJets',
     'Commissioning',
     'DoubleEG',
     'EGMLowPU',
