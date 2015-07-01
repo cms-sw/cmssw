@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V87 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/GRun/V88 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V87')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V88')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -631,8 +631,10 @@ fragment.datasets = cms.PSet(
     'HLT_Photon175_v2' ),
   ExpressPhysics = cms.vstring( 'HLT_HT2000_v1',
     'HLT_HT2500_v1',
+    'HLT_IsoMu24_eta2p1_v2',
     'HLT_MET250_v1',
     'HLT_MET300_v1',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
     'HLT_Mu300_v1',
     'HLT_Mu350_v1',
     'HLT_PFMET300_NoiseCleaned_v1',

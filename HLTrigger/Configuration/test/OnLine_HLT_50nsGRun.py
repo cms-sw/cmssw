@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V135 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/50nsGRun/V136 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V135')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V136')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -656,8 +656,10 @@ process.datasets = cms.PSet(
     'HLT_PFMET170_NoiseCleaned_v2' ),
   ExpressPhysics = cms.vstring( 'HLT_HT2000_v1',
     'HLT_HT2500_v1',
+    'HLT_IsoMu24_eta2p1_v2',
     'HLT_MET250_v1',
     'HLT_MET300_v1',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
     'HLT_Mu300_v1',
     'HLT_Mu350_v1',
     'HLT_PFMET300_NoiseCleaned_v1',
@@ -55472,7 +55474,9 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_Physics_v1 / 2',
+    triggerConditions = cms.vstring( 'HLT_IsoMu24_eta2p1_v2 / 3',
+      'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
+      'HLT_Physics_v1 / 2',
       'HLT_Random_v1',
       'HLT_ZeroBias_v1',
       'HLT_Photon500_v1',
@@ -56991,8 +56995,10 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HT2000_v1',
   'HLT_HT2500_v1',
+  'HLT_IsoMu24_eta2p1_v2',
   'HLT_MET250_v1',
   'HLT_MET300_v1',
+  'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
   'HLT_Mu300_v1',
   'HLT_Mu350_v1',
   'HLT_PFMET300_NoiseCleaned_v1',
