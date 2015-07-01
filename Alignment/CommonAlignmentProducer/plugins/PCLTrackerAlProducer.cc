@@ -50,6 +50,9 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
 /*** Logging ***/
+#define CLASS_NAME typeid(*this).name()
+#define FUNC_NAME  __FUNCTION__
+
 template <typename T>
 void buildMessage(std::ostream& oss, T t)
 {
@@ -64,14 +67,18 @@ void buildMessage(std::ostream& oss, T t, Args... args)
 }
 
 template<typename... Args>
-void PRINT_INFO(std::string func, Args... args)
+void PRINT_INFO(std::string funcName, Args... args)
 {
+  std::string className = "PCLTrackerAlProducer";
+
   std::ostringstream oss;
   buildMessage(oss, args...);
 
-  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::"<< func.c_str()
-                            << ": " << oss.str() << std::endl;
-  printf("%s::%s: %s\n", "PCLTrackerAlProducer", func.c_str(),
+  edm::LogInfo("Alignment") << "@SUB=" << className.c_str() << "::"
+                            << funcName.c_str() << ": "
+                            << oss.str() << std::endl;
+  printf("%s::%s: %s\n", className.c_str(),
+                         funcName.c_str(),
                          oss.str().c_str());
 }
 
@@ -109,7 +116,7 @@ PCLTrackerAlProducer
   tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
   clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag"))
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
 
   createAlignmentAlgorithm(config);
   createCalibrations      (config);
@@ -120,7 +127,7 @@ PCLTrackerAlProducer
 PCLTrackerAlProducer
 ::~PCLTrackerAlProducer()
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
 
   delete theAlignmentAlgo;
 
@@ -148,7 +155,7 @@ PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginJob()
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
 
   nevent_ = 0;
 
@@ -173,8 +180,8 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::endJob()
 {
-  PRINT_INFO(__FUNCTION__, "called");
-  PRINT_INFO(__FUNCTION__, "Events processed: ", nevent_);
+  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(FUNC_NAME, "Events processed: ", nevent_);
 
   finish();
 
@@ -195,7 +202,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
   // Do not forward edm::Run
   theAlignmentAlgo->beginRun(setup);
 }
@@ -204,7 +211,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::endRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
 
   // TODO: Either MP nor HIP is implementing the endRun() method... so this
   //       seems to be useless?
@@ -229,7 +236,7 @@ void PCLTrackerAlProducer
 ::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                        const edm::EventSetup&      setup)
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
   // Do not forward edm::LuminosityBlock
   theAlignmentAlgo->beginLuminosityBlock(setup);
 }
@@ -239,7 +246,7 @@ void PCLTrackerAlProducer
 ::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                      const edm::EventSetup&      setup)
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
   // Do not forward edm::LuminosityBlock
   theAlignmentAlgo->endLuminosityBlock(setup);
 }
@@ -248,9 +255,9 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
   ++nevent_;
-  PRINT_INFO(__FUNCTION__, "event number: ", nevent_);
+  PRINT_INFO(FUNC_NAME, "event number: ", nevent_);
 
   if (setupChanged(setup)) {
     initAlignmentAlgorithm(setup);
@@ -422,39 +429,39 @@ bool PCLTrackerAlProducer
 
   if (doTracker_) {
     if (watchTrackerAlRcd.check(setup)) {
-        PRINT_INFO(__FUNCTION__, "TrackerAlignmentRcd has changed");
+        PRINT_INFO(FUNC_NAME, "TrackerAlignmentRcd has changed");
         changed = true;
       }
 
       if (watchTrackerAlErrorExtRcd.check(setup)) {
-        PRINT_INFO(__FUNCTION__, "TrackerAlignmentErrorExtendedRcd has changed");
+        PRINT_INFO(FUNC_NAME, "TrackerAlignmentErrorExtendedRcd has changed");
         changed = true;
       }
 
       if (watchTrackerSurDeRcd.check(setup)) {
-        PRINT_INFO(__FUNCTION__, "TrackerSurfaceDeformationRcd has changed");
+        PRINT_INFO(FUNC_NAME, "TrackerSurfaceDeformationRcd has changed");
         changed = true;
       }
   }
 
   if (doMuon_) {
     if (watchDTAlRcd.check(setup)) {
-      PRINT_INFO(__FUNCTION__, "DTAlignmentRcd has changed");
+      PRINT_INFO(FUNC_NAME, "DTAlignmentRcd has changed");
       changed = true;
     }
 
     if (watchDTAlErrExtRcd.check(setup)) {
-      PRINT_INFO(__FUNCTION__, "DTAlignmentErrorExtendedRcd has changed");
+      PRINT_INFO(FUNC_NAME, "DTAlignmentErrorExtendedRcd has changed");
       changed = true;
     }
 
     if (watchCSCAlRcd.check(setup)) {
-      PRINT_INFO(__FUNCTION__, "CSCAlignmentRcd has changed");
+      PRINT_INFO(FUNC_NAME, "CSCAlignmentRcd has changed");
       changed = true;
     }
 
     if (watchCSCAlErrExtRcd.check(setup)) {
-      PRINT_INFO(__FUNCTION__, "CSCAlignmentErrorExtendedRcd has changed");
+      PRINT_INFO(FUNC_NAME, "CSCAlignmentErrorExtendedRcd has changed");
       changed = true;
     }
   }
@@ -471,7 +478,7 @@ bool PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::initAlignmentAlgorithm(const edm::EventSetup& setup)
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
 
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -1005,7 +1012,7 @@ void PCLTrackerAlProducer::applyAlignmentsToGeometry2(Geometry* geometry,
 void PCLTrackerAlProducer
 ::finish()
 {
-  PRINT_INFO(__FUNCTION__, "called");
+  PRINT_INFO(FUNC_NAME, "called");
 
   /* 1) Former: Status AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop) */
   if (theAlignmentAlgo->processesEvents()) {
@@ -1021,6 +1028,7 @@ void PCLTrackerAlProducer
         return;
       }
 
+      PRINT_INFO(FUNC_NAME, "terminating algorithm");
       edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
                                 << "Terminating algorithm.";
       theAlignmentAlgo->terminate();
