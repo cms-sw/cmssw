@@ -67,6 +67,14 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
   setup.get<IdealMagneticFieldRecord>().get(theMF);
   setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 
+  {
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "simulation");
+
+    //Booking histograms concerning with simulated tracks
+    histoProducerAlgo_->bookSimHistos(ibook);
+  }
+
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
@@ -89,15 +97,6 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
 
-      ibook.setCurrentFolder(dirName.c_str());
-
-      string subDirName = dirName + "/simulation";
-      ibook.setCurrentFolder(subDirName.c_str());
-
-      //Booking histograms concerning with simulated tracks
-      histoProducerAlgo_->bookSimHistos(ibook);
-
-      ibook.cd();
       ibook.setCurrentFolder(dirName.c_str());
 
       //Booking histograms concerning with reconstructed tracks
@@ -223,7 +222,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
           st++;
         }
 
-	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->eventId().bunchCrossing());
+        if(w == 0)
+          histoProducerAlgo_->fill_generic_simTrack_histos(momentumTP,vertexTP, tp->eventId().bunchCrossing());
 
 	const TrajectorySeed* matchedSeedPointer=0;
 	std::vector<std::pair<edm::RefToBase<TrajectorySeed>, double> > rt;
@@ -279,7 +279,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 
-      histoProducerAlgo_->fill_simTrackBased_histos(w, st);
+      if(w == 0)
+        histoProducerAlgo_->fill_simTrackBased_histos(st);
 
       //
       //fill reconstructed seed histograms
