@@ -1,0 +1,8 @@
+jet110: nJetClean30 >= 1 && JetClean1_pt > 110 && abs(JetClean1_eta) < 2.5 && jetclean1 > 0.5
+dphijj: nJetClean30 == 1 || (nJetClean30>=2 && abs(dphijj)<2.5 && jetclean2 > 0.5)
+njets<=2: nJetClean30 <= 2
+ele veto: nEle10V==0
+tau veto: nTauClean18V==0
+muon veto: nMu10V==0
+1G: nGamma175T == 1
+Fake MET>200: phmet_pt > 200

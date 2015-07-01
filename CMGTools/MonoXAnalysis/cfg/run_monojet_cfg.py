@@ -190,19 +190,37 @@ elif test == 'synch-74X': # sync
     monoJetSkim.metCut = 0  
     what = getHeppyOption("sample")
     if what == "ADD":
-        selectedComponents = [ ADD_MJ ]
+        comp = ADD_MJ
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValADDMonoJet_d3MD3_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/80CF5456-B9EC-E411-93DA-002618FDA248.root' ]
+        selectedComponents = [ comp ]
     elif what == "TTLep":
-        selectedComponents = [ TTLep ]
+        comp = TTLep
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
+        selectedComponents = [ comp ]
+    elif what == "DYJets":
+        comp = DYJetsToLL_M50_50ns
+        comp.files = [ 'root://eoscms//eos/cms/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/04963444-D107-E511-B245-02163E00F339.root' ]
+        jetAna.mcGT = "MCRUN2_74_V9A"
+        selectedComponents = [ comp ]
+    elif what == "TTbar":
+        comp = TTbar
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root' ]
+        selectedComponents = [ comp ]
+    elif what == "WJets":
+        comp = WJetsToLNu_HT400to600
+        comp.files = [ 'root://eoscms//eos/cms/store/mc/RunIISpring15DR74/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v3/00000/6408230F-9F08-E511-A1A6-D4AE526A023A.root' ]
+        selectedComponents = [ comp ]
+    elif what == "RSGrav":
+        comp = RSGravGaGa
+        comp.files = [ 'root://eoscms//eos/cms/store/relval/CMSSW_7_4_1/RelValRSGravitonToGaGa_13TeV/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/189277BA-DCEC-E411-B3B8-0025905B859E.root' ]
+        selectedComponents = [ comp ]
     else:
         selectedComponents = RelVals741
-    jetAna.recalibrateJets = False 
-    jetAna.smearJets       = False 
-    if not getHeppyOption("all"):
-        for comp in selectedComponents:
-            comp.files = comp.files[:1]
-            comp.splitFactor = 1
-            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
-    #    comp.files = [ 'root://eoscms//eos/cms/store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root' ]
+    jetAna.recalibrateJets = True
+    jetAna.smearJets       = False
+    for comp in selectedComponents:
+        comp.splitFactor = 1
+        comp.fineSplitFactor = 10
 elif test == 'SR':
     selectedComponents = backgroundSamples + signalSamples
     #selectedComponents = backgroundSamples
@@ -241,13 +259,20 @@ elif test == '74X-Data':
         selectedComponents = [ SingleMuZ_742, DoubleElectronZ_742 ]
     elif what == "MuEG":
         selectedComponents = [ MuEG_742 ]
+    elif what == "EGamma":
+        selectedComponents = [ privEGamma2015A ]
+        lepAna.loose_electron_id = ""
+        lepAna.loose_electron_relIso = 1000.
+        photonAna.gammaID = "POG_PHYS14_25ns_Loose_NoIso"
+        monoJetCtrlLepSkim.minLeptons = 0
+        monoJetSkim.metCut = 0
     else:
         selectedComponents = dataSamples742
-    if not getHeppyOption("all"):
-        for comp in selectedComponents:
+    for comp in selectedComponents:
+        if not getHeppyOption("all"):
             comp.files = comp.files[:1]
             comp.splitFactor = 1
-            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
+            comp.fineSplitFactor = 1 if getHeppyOption("single") else 8
 
 ## output histogram
 outputService=[]
