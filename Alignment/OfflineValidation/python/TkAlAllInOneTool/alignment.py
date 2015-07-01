@@ -9,8 +9,7 @@ class Alignment:
             "TrackerAlignmentErrorExtendedRcd":
                 {"zeroAPE":{"connectString": ("frontier://FrontierProd"
                                               "/CMS_CONDITIONS"),
-                            "tagName": "TrackerAlignmentExtendedErr_2009_v2_express_IOVs",
-
+                            "tagName": "TrackerIdealGeometryErrorsExtended210_mc",
                             "labelName": ""}}}
         section = "alignment:%s"%name
         if not config.has_section( section ):
