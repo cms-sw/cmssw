@@ -394,8 +394,7 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v1', 
     'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele32_eta2p1_WPLoose_Gsf_v1', 
-    'HLT_Ele32_eta2p1_WPTight_Gsf_v1', 
-    'HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v2')
+    'HLT_Ele32_eta2p1_WPTight_Gsf_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleMuon_selector
 streamA_datasetSingleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -442,7 +441,6 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v2', 
     'HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Tight_v2', 
     'HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v2', 
-    'HLT_Mu40_eta2p1_PFJet200_PFJet50_v2', 
     'HLT_Mu45_eta2p1_v2', 
     'HLT_Mu50_v2', 
     'HLT_TkMu20_v2', 
