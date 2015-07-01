@@ -79,6 +79,9 @@ typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 
+
+
+
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
 MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg) :
@@ -290,11 +293,11 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::terminate() 
+void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
   terminate();
 }
-void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) 
+void MillePedeAlignmentAlgorithm::terminate()
 {
   terminate();
 }
