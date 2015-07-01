@@ -97,6 +97,9 @@ private:
   MonitorElement* runId_;
   MonitorElement* lumisecId_;
 
+   MonitorElement* hREGIONSALL;
+   MonitorElement*  hREGIONSNOHFALL;
+   MonitorElement* hREGIONSCENTRAL;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
@@ -106,10 +109,12 @@ private:
   
   edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSource_L1CEMCollection_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSource_GCT_L1CRCollection_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSource_GCT_L1CEMCollection_;
   
   /// filter TriggerType
   int filterTriggerType_;
-
+  int selectBX_;
 };
 
 #endif

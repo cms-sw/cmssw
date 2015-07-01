@@ -37,7 +37,10 @@ const float ETAMAX = 21.5;
 L1TRCT::L1TRCT(const ParameterSet & ps) :
    rctSource_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
    rctSource_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") )),
-   filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
+   rctSource_GCT_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("gctSource") )),
+   rctSource_GCT_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("gctSource") )),
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType")),
+   selectBX_ (ps.getUntrackedParameter< int >("selectBX",2))
 {
 
   // verbosity switch
@@ -120,9 +123,11 @@ void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
 //				   256, -127.5, 127.5);
 
     // bx histos
-  rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
-  rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 256, -0.5, 4095.5);
- 
+//  rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
+//  rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 256, -0.5, 4095.5);
+  rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 11, -0.5, 10.5);
+  rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 11, -0.5, 10.5); 
+
   //}
 }
 
@@ -176,20 +181,39 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   bool doHd = true;
 
   e.getByToken(rctSource_L1CRCollection_,rgn);
+  e.getByToken(rctSource_L1CEMCollection_,em);
+
+  if(!rgn.isValid() || rgn->size()==0)  {edm::LogInfo("L1TRCT") <<"using gctRegions"; e.getByToken(rctSource_GCT_L1CRCollection_,rgn); selectBX_=-1;}
+  if(!em.isValid() || em->size()==0)  {edm::LogInfo("L1TRCT") <<"using gctEM"; e.getByToken(rctSource_GCT_L1CEMCollection_,em); selectBX_=-1;}
  
   if (!rgn.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
+    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection - RCT";
     doHd = false;
   }
+
+  if (!em.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
+    doEm = false;
+  }
+
 
   if ( doHd ) {
     // Fill the RCT histograms
 
-    // Regions
     for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
-	 ireg != rgn->end(); ireg++) {
+       ireg != rgn->end(); ireg++) {
+
       if(ireg->et()>0)
       {
+      rctRegionBx_->Fill(ireg->bx());
+      } 
+
+      if(selectBX_!=-1 && selectBX_!=ireg->bx()) continue;
+
+      //std::cout<<ireg->rctCrate()<<"   "<<ireg->rctCard()<<"   "<<ireg->rctRegionIndex()<<"  "<<ireg->et()<<std::endl;
+
+      if(ireg->et()>0){
+
       rctRegionRank_->Fill(ireg->et());
       if(ireg->et()>5){
 	rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -204,7 +228,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 //				     ireg->et());
 //      rctTauVetoLocalEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(),
 //				   ireg->tauVeto());
-      rctRegionBx_->Fill(ireg->bx());
       }
 
     if(ireg->overFlow())  rctOverFlowEtaPhi_ ->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -214,21 +237,22 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     if(ireg->fineGrain()) rctHfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
     
     }
-  }
 
-  
-  e.getByToken(rctSource_L1CEMCollection_,em);
-  
-  if (!em.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
-    doEm = false;
-  }
+//  std::cout<<nregionsALL<<"    "<<nregionsNOHFALL<<"  "<<nregionsCENTRAL<<"  "<<nregionsWITHENERGY<<std::endl;
+
+ } 
+
   if ( ! doEm ) return;
   // Isolated and non-isolated EM
   for (L1CaloEmCollection::const_iterator iem = em->begin();
        iem != em->end(); iem++) {
-    
- //   rctEmCardRegion_->Fill((iem->rctRegion()==0?1:-1)*(iem->rctCard()));
+
+      if(iem->rank()>0)
+      {
+      rctEmBx_->Fill(iem->bx());
+      }
+      if(selectBX_!=-1 && selectBX_!=iem->bx()) continue;
+
 
     if (iem->isolated()) {
       if(iem->rank()>0)
@@ -240,7 +264,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi());
       }
-      rctEmBx_->Fill(iem->bx());
       }
     }
     else {
@@ -253,7 +276,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				    iem->regionId().iphi());
       }
-      rctEmBx_->Fill(iem->bx());
       }
     }
 
