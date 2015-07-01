@@ -28,6 +28,8 @@ from DQM.L1TMonitor.BxTiming_cfi import *
 
 # RCT DQM module 
 from DQM.L1TMonitor.L1TRCT_cfi import *
+l1trct.rctSource = 'l1RctHwDigis'
+l1trct.gctSource = 'gctDigis'
 
 # GCT DQM module 
 from DQM.L1TMonitor.L1TGCT_cfi import *

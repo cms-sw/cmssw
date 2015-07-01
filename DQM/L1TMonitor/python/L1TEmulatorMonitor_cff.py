@@ -27,7 +27,8 @@ from DQM.L1TMonitor.L1TDEMON_cfi import *
 from DQM.L1TMonitor.L1TdeGCT_cfi import *
 
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
-l1TdeRCT.rctSourceData = 'gctDigis'
+l1TdeRCT.rctSourceData = 'l1RctHwDigis'
+l1TdeRCT.gctSourceData = 'gctDigis'
 l1TdeRCT.rctSourceEmul = 'valRctDigis'
 
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
