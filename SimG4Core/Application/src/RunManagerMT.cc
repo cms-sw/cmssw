@@ -46,9 +46,6 @@
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4CascadeInterface.hh"
-//#include "G4LogicalVolumeStore.hh"
-//#include "G4PhysicalVolumeStore.hh"
-
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
