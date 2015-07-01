@@ -68,6 +68,9 @@
   <Vector name="Layer0Wt" type="numeric" nEntries="2">
     0.5, 0.5
   </Vector>
+  <Vector name="MaxDepth" type="numeric" nEntries="4">
+    2,  3, 2, 4
+  </Vector>
   <Vector name="HBGains" type="numeric" nEntries="4">
     117.0, 117.0, 117.0, 217.0
   </Vector>
