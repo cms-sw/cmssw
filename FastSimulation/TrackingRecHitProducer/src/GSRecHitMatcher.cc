@@ -96,14 +96,16 @@ SiTrackerGSMatchedRecHit2D GSRecHitMatcher::match(const SiTrackerGSRecHit2D *mon
   if(det.subdetId() > 2) {
     SiTrackerGSRecHit2D adjustedMonoRH(LocalPoint(monoRH->localPosition().x(),0,0),
 				       monoRH->localPositionError(),
-				       *monoRH->det());
+				       *monoRH->det(),
+				       monoRH->id());
     adjustedMonoRH.addSimTrackIds(monoRH->simTrackIds());
     SiTrackerGSRecHit2D adjustedStereoRH(LocalPoint(stereoRH->localPosition().x(),0,0),
 					 stereoRH->localPositionError(),
-					 *stereoRH->det());
+					 *stereoRH->det(),
+					 stereoRH->id());
     adjustedStereoRH.addSimTrackIds(stereoRH->simTrackIds());
     
-    SiTrackerGSMatchedRecHit2D rV(position, error, *gluedDet,
+    SiTrackerGSMatchedRecHit2D rV(position, error, *gluedDet,-1,
 				  true, adjustedMonoRH, adjustedStereoRH);
     rV.addSimTrackIds(monoRH->simTrackIds());
     rV.addSimTrackIds(stereoRH->simTrackIds());
@@ -178,14 +180,15 @@ SiTrackerGSMatchedRecHit2D GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit
   auto otherDet = isMono ? gluedDet->stereoDet() : gluedDet->monoDet();
   SiTrackerGSRecHit2D adjustedRH(LocalPoint(monoRH->localPosition().x(),0,0),
 				 monoRH->localPositionError(),
-				 *monoRH->det());
+				 *monoRH->det(),
+				 monoRH->id());
   adjustedRH.addSimTrackIds(monoRH->simTrackIds());
   
   //DAO: Not quite sure what to do about the cluster ref, so I will fill it with the monoRH for now...
-  SiTrackerGSRecHit2D otherRH(LocalPoint(-10000,-10000,-10000), LocalError(0,0,0),*otherDet);
+  SiTrackerGSRecHit2D otherRH(LocalPoint(-10000,-10000,-10000), LocalError(0,0,0),*otherDet,-1);
   if ((isMono && isStereo)||(!isMono&&!isStereo)) throw cms::Exception("GSRecHitMatcher") << "Something wrong with DetIds.";
   else if (isMono) {
-    SiTrackerGSMatchedRecHit2D rV(projectedHitPos, rotatedError, *gluedDet, 
+    SiTrackerGSMatchedRecHit2D rV(projectedHitPos, rotatedError, *gluedDet, -1,
 				  false, adjustedRH, otherRH);
     rV.addSimTrackIds(monoRH->simTrackIds());
     rV.addSimTrackIds(otherRH.simTrackIds());
@@ -193,7 +196,7 @@ SiTrackerGSMatchedRecHit2D GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit
   }
   
   else{
-    SiTrackerGSMatchedRecHit2D rV(projectedHitPos, rotatedError, *gluedDet, 
+    SiTrackerGSMatchedRecHit2D rV(projectedHitPos, rotatedError, *gluedDet, -1,
 				  false, otherRH, adjustedRH);
     rV.addSimTrackIds(monoRH->simTrackIds());
     rV.addSimTrackIds(otherRH.simTrackIds());
