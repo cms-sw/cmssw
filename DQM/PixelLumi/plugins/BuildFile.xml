@@ -1,0 +1,26 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/L1GlobalTrigger"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/Records"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondTools/L1Trigger"/>
+<use name="DQMServices/Core"/>
+<use name="RecoLuminosity/LumiProducer"/>
+<use name="clhep"/>
+<use name="root"/>
+
+<library name="DQMPLumDQMPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g"/>
+</library>
