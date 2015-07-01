@@ -38,6 +38,9 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
 ###############################################################
 # ECAL calibration with isol. electrons
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff import *
+
 # The following paths are obsoleted since pi0 calibration
 # has a HLT path (argiro,20080314 )
 # ECAL calibration with pi0 
@@ -104,3 +107,4 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import 
 
 # stream for the LumiPixels workflow
 from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *

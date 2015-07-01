@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
-
+from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
 #    return (process)
@@ -81,12 +81,22 @@ def customiseExpressRun2(process):
     process = customiseDataRun2Common(process)
     return process
 
+def customiseExpressRun2B0T(process):
+    process=customiseForRunI(process)
+    process=customiseExpressRun2(process)
+    return process
+
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
 
     #add the lumi producer in the prompt reco only configuration
+    if not hasattr(process,'lumiProducer'):
+        #unscheduled..
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
+
     return process
 
 ##############################################################################
@@ -94,6 +104,12 @@ def customisePromptRun2(process):
     process = customisePrompt(process)
     process = customiseDataRun2Common(process)
     return process
+
+def customisePromptRun2B0T(process):
+    process=customiseForRunI(process)
+    process=customisePromptRun2(process)
+    return process
+
 
 ##############################################################################
 
@@ -118,7 +134,12 @@ def customisePromptHI(process):
     process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
      #add the lumi producer in the prompt reco only configuration
+    if not hasattr(process,'lumiProducer'):
+        #unscheduled..
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
+        
 
     return process
 

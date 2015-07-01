@@ -8,7 +8,7 @@
 #include "Calibration/EcalCalibAlgos/interface/Pi0FixedMassWindowCalibration.h"
 
 DEFINE_FWK_MODULE(miscalibExample);
-DEFINE_FWK_MODULE(ElectronRecalibSuperClusterAssociator);
+//DEFINE_FWK_MODULE(ElectronRecalibSuperClusterAssociator);
 DEFINE_FWK_MODULE(PhiSymmetryCalibration);
 DEFINE_FWK_LOOPER(Pi0FixedMassWindowCalibration);
 DEFINE_FWK_LOOPER(ZeeCalibration);

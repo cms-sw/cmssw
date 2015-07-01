@@ -123,7 +123,7 @@ trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
 # dEdx monitoring
-TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon    
+TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon   
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 # track collections
@@ -145,7 +145,7 @@ TrackingDQMSourceTier0 += dqmInfoTracking
 
 TrackingDQMSourceTier0Common = cms.Sequence()
 # dEdx monitoring
-TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon)    
+TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon)    
 ## monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
@@ -164,7 +164,7 @@ TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
 # dEdx monitoring
-TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon    
+TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon    
 #    * lumiProducer
 #    * trackingDQMgoodOfflinePrimaryVertices
 # monitor track collections

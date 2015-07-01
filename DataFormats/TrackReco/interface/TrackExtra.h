@@ -12,6 +12,7 @@
  *
  */
 #include <Rtypes.h>
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"

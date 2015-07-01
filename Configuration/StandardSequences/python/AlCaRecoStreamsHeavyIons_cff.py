@@ -37,8 +37,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBiasHI_cff import *
 ###############################################################
 # ECAL Calibration
 ###############################################################
-# ECAL calibration with isol. electrons
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
+
 ###############################################################
 # HCAL Calibration
 ###############################################################
@@ -108,7 +107,7 @@ pathALCARECOTkAlMinBiasHI = cms.Path(seqALCARECOTkAlMinBiasHI*ALCARECOTkAlMinBia
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
-pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron*ALCARECOEcalCalElectronCalibDQM)
+
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJetsDQM)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
@@ -217,15 +216,6 @@ ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	paths  = (pathALCARECOSiStripCalZeroBias),
 	content = OutALCARECOSiStripCalZeroBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalZeroBias.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamEcalCalElectron = cms.FilteredStream(
-	responsible = 'Pietro Govoni',
-	name = 'EcalCalElectron',
-	paths  = (pathALCARECOEcalCalElectron),
-	content = OutALCARECOEcalCalElectron.outputCommands,
-	selectEvents = OutALCARECOEcalCalElectron.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

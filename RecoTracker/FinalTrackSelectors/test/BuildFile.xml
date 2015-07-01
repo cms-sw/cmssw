@@ -1,0 +1,2 @@
+<use name="DataFormats/TrackReco"/>
+<bin file="trackAlgoPriorityOrder_t.cpp"/>

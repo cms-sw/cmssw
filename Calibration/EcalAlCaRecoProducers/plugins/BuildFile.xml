@@ -1,0 +1,20 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="clhep"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/RecoCandidate"/>
+# for FED list selector
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="Geometry/EcalMapping"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="CalibTracker/Records"/>
+<flags   EDM_PLUGIN="1"/>

@@ -13,18 +13,18 @@ class AutoHandle( Handle, object ):
         self.fallbackLabel = fallbackLabel
         self.type = type
         self.mayFail = mayFail
-	self.lazy = lazy
+        self.lazy = lazy
         Handle.__init__(self, self.type)
     def product(self):
-	if not self.isLoaded :
-		self.ReallyLoad(self.event)
-		self.isLoaded=True
-	return super(AutoHandle,self).product()
+        if not self.isLoaded :
+                self.ReallyLoad(self.event)
+                self.isLoaded=True
+        return super(AutoHandle,self).product()
 
     def Load(self, event):  #is actually a reset state
-	self.event=event
- 	self.isLoaded=False
-	if self.lazy==False: self.ReallyLoad(self.event)
+        self.event=event
+        self.isLoaded=False
+        if self.lazy==False: self.ReallyLoad(self.event)
 
     def ReallyLoad(self, event):
         '''Load self from a given event.

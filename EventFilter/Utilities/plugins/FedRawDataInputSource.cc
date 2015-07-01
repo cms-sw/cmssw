@@ -545,6 +545,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     uint32_t crc=0;
     crc = crc32c(crc,(const unsigned char*)event_->payload(),event_->eventSize());
     if ( crc != event_->crc32c() ) {
+      if (fms_) fms_->setExceptionDetected(currentLumiSection_);
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
         "Found a wrong crc32c checksum: expected 0x" << std::hex << event_->crc32c() <<
         " but calculated 0x" << crc;
@@ -556,6 +557,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     adler = adler32(adler,(Bytef*)event_->payload(),event_->eventSize());
 
     if ( adler != event_->adler32() ) {
+      if (fms_) fms_->setExceptionDetected(currentLumiSection_);
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
         "Found a wrong Adler32 checksum: expected 0x" << std::hex << event_->adler32() <<
         " but calculated 0x" << adler;
@@ -895,6 +897,10 @@ void FedRawDataInputSource::readSupervisor()
     uint32_t ls;
     uint32_t fileSize;
 
+    uint32_t monLS=1;
+    uint32_t lockCount=0;
+    uint64_t sumLockWaitTimeUs=0.;
+
     if (fms_) fms_->startedLookingForFile();
 
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
@@ -904,14 +910,27 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      
-      status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+     
+      uint64_t thisLockWaitTimeUs=0.;
+      status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+
+      //monitoring of lock wait time
+      if (thisLockWaitTimeUs>0.)
+        sumLockWaitTimeUs+=thisLockWaitTimeUs;
+      lockCount++;
+      if (ls>monLS) {
+          monLS=ls;
+          if (lockCount)
+            if (fms_) fms_->reportLockWait(monLS,sumLockWaitTimeUs,lockCount);
+          lockCount=0;
+          sumLockWaitTimeUs=0;
+      }
 
       //check again for any remaining index/EoLS files after EoR file is seen
       if ( status == evf::EvFDaqDirector::runEnded) {
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
       }
 
       if ( status == evf::EvFDaqDirector::runEnded) {
