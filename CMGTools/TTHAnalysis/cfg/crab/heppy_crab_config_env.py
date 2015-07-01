@@ -33,7 +33,7 @@ config.JobType.scriptArgs = ["dataset="+dataset, "total="+str(NJOBS), "useAAA="+
 
 # output will be .../$outLFN/$PRIMARY_DS/$PUBLISH_NAME/$TIMESTAMP/$COUNTER/$FILENAME
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/Crab3DataHandling
-config.Data.outLFN += '/babies/' + cmg_version
+config.Data.outLFNDirBase += '/babies/' + cmg_version
 config.Data.primaryDataset =  production_label
 config.Data.publishDataName = dataset
 #final output: /store/user/$USER/babies/cmg_version/production_label/dataset/150313_114158/0000/foo.bar
