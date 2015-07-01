@@ -158,6 +158,8 @@ trackValidator.dodEdxPlots = True
 #trackValidator.maxpT = cms.double(3)
 #trackValidator.nintpT = cms.int32(40)
 
+# For efficiency of signal TPs vs. signal tracks, and fake rate of
+# signal tracks vs. signal TPs
 trackValidatorFromPV = trackValidator.clone(
     dirName = "Tracking/TrackFromPV/",
     label = [
@@ -190,6 +192,31 @@ trackValidatorFromPV = trackValidator.clone(
     trackCollectionForDrCalculation = "generalTracksFromPV",
     doPlotsOnlyForTruePV = True
 )
+
+# For fake rate of signal tracks vs. all TPs, and pileup rate of
+# signal tracks vs. non-signal TPs
+trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
+    dirName = "Tracking/TrackFromPVAllTP/",
+    label_tp_effic = trackValidator.label_tp_effic.value(),
+    label_tp_fake = trackValidator.label_tp_fake.value(),
+    associators = trackValidator.associators.value(),
+    doSimPlots = False,
+    doSimTrackPlots = False,
+)
+
+# For efficiency of all TPs vs. all tracks
+trackValidatorAllTPEffic = trackValidator.clone(
+    dirName = "Tracking/TrackAllTPEffic/",
+    doSimPlots = False,
+    doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
+)
+trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False
+trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsEta.signalOnly = False
+trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPhi.signalOnly = False
+trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPt.signalOnly = False
+trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXR.signalOnly = False
+trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.signalOnly = False
+
 
 # the track selectors
 tracksValidationSelectors = cms.Sequence(
@@ -273,7 +300,12 @@ tracksPreValidationFS = cms.Sequence(
 )
 
 # selectors go into separate "prevalidation" sequence
-tracksValidation = cms.Sequence( trackValidator + trackValidatorFromPV )
+tracksValidation = cms.Sequence(
+    trackValidator +
+    trackValidatorFromPV +
+    trackValidatorFromPVAllTP +
+    trackValidatorAllTPEffic
+)
 tracksValidationFS = cms.Sequence( trackValidator )
 
 tracksValidationStandalone = cms.Sequence(
