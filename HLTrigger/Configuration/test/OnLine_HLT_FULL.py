@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V244 (CMSSW_7_4_6)
+# /dev/CMSSW_7_4_0/HLT/V247 (CMSSW_7_4_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V244')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V247')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -663,9 +663,11 @@ process.datasets = cms.PSet(
     'HLT_Photon175_v2' ),
   ExpressPhysics = cms.vstring( 'HLT_HT2000_v1',
     'HLT_HT2500_v1',
+    'HLT_IsoMu24_eta2p1_v2',
     'HLT_L1MinimumBiasHF1AND_v1',
     'HLT_MET250_v1',
     'HLT_MET300_v1',
+    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
     'HLT_Mu300_v1',
     'HLT_Mu350_v1',
     'HLT_PFMET300_NoiseCleaned_v1',
@@ -56886,12 +56888,12 @@ process.hltPreElectronStreamOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltTriggerStreamResultsFilter = cms.EDFilter( "TriggerResultsFilter",
+process.hltPreElectronStreamOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2' ),
+    triggerConditions = cms.vstring(  ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
@@ -56927,7 +56929,11 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_Random_v1',
+    triggerConditions = cms.vstring( 'HLT_IsoMu24_eta2p1_v2 / 8',
+      'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2 / 2',
+      'HLT_Physics_v2 / 2',
+      'HLT_Random_v1',
+      'HLT_ZeroBias_v2',
       'HLT_L1MinimumBiasHF1AND_v1 / 200',
       'HLT_Photon500_v1',
       'HLT_Photon600_v1',
@@ -58485,9 +58491,11 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HT2000_v1',
   'HLT_HT2500_v1',
+  'HLT_IsoMu24_eta2p1_v2',
   'HLT_L1MinimumBiasHF1AND_v1',
   'HLT_MET250_v1',
   'HLT_MET300_v1',
+  'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
   'HLT_Mu300_v1',
   'HLT_Mu350_v1',
   'HLT_PFMET300_NoiseCleaned_v1',
@@ -59833,7 +59841,7 @@ process.TrackerCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hlt
 process.ALCAPHISYMOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
 process.ALCAP0Output = cms.EndPath( process.hltGtDigis + process.hltPreALCAP0Output + process.hltOutputALCAP0 )
-process.ElectronStreamOutput = cms.EndPath( process.hltGtDigis + process.hltPreElectronStreamOutput + process.hltTriggerStreamResultsFilter + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputElectronStream )
+process.ElectronStreamOutput = cms.EndPath( process.hltGtDigis + process.hltPreElectronStreamOutput + process.hltPreElectronStreamOutputSmart + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputElectronStream )
 process.ExpressOutput = cms.EndPath( process.hltGtDigis + process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
 process.LookAreaOutput = cms.EndPath( process.hltGtDigis + process.hltPreLookAreaOutput + process.hltPreLookAreaOutputSmart + process.hltOutputLookArea )
 process.NanoDSTOutput = cms.EndPath( process.hltGtDigis + process.hltPreNanoDSTOutput + process.hltOutputNanoDST )
