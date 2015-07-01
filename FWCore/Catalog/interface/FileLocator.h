@@ -5,7 +5,7 @@
 #include <list>
 #include <map>
 #include <utility>
-#include <boost/regex.hpp>
+#include <regex>
 #include <xercesc/dom/DOM.hpp>
 
 namespace edm {
@@ -26,8 +26,8 @@ namespace edm {
     static int s_numberOfInstances;
 
     struct Rule {
-      boost::regex pathMatch;
-      boost::regex destinationMatch;
+      std::regex pathMatch;
+      std::regex destinationMatch;
       std::string result;
       std::string chain;
     };
