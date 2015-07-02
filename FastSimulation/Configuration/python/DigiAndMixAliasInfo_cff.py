@@ -14,6 +14,7 @@ generalTracksAliasInfo = cms.VPSet(
                                     toProductInstance = cms.string('') )
                            )
         )
+    )
 
 ecalPreShowerDigisAliasInfo = cms.VPSet(
     cms.PSet(

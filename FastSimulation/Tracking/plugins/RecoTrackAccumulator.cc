@@ -9,7 +9,7 @@
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   signalTracksTag(conf.getParameter<edm::InputTag>("signalTracks")),
   pileUpTracksTag(conf.getParameter<edm::InputTag>("pileUpTracks")),
-  outputLabel(conf.getParameter<std::string>("outputLabel")),
+  outputLabel(conf.getParameter<std::string>("outputLabel"))
 {
   mixMod.produces<reco::TrackCollection>(outputLabel);
   mixMod.produces<TrackingRecHitCollection>(outputLabel);
