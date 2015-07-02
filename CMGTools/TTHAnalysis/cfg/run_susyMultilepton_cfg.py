@@ -130,19 +130,30 @@ susyCoreSequence.insert(susyCoreSequence.index(skimAnalyzer),
 #-------- SAMPLES AND TRIGGERS -----------
 
 
-from CMGTools.TTHAnalysis.samples.triggers_13TeV_PHYS14 import triggers_mumu_iso, triggers_mumu_noniso, triggers_ee, triggers_3e, triggers_mue, triggers_1mu_iso, triggers_1e
-from CMGTools.TTHAnalysis.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV;
+from CMGTools.TTHAnalysis.samples.triggers_13TeV_Spring15 import *
+from CMGTools.TTHAnalysis.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV, triggers_ee_8TeV;
 triggerFlagsAna.triggerBits = {
     'DoubleMu' : triggers_mumu_iso,
+    'DoubleMuSS' : triggers_mumu_ss,
     'DoubleMuNoIso' : triggers_mumu_noniso,
     'DoubleEl' : triggers_ee,
-    'TripleEl' : triggers_3e,
     'MuEG'     : triggers_mue,
+    'DoubleMuHT' : triggers_mumu_ht,
+    'DoubleElHT' : triggers_ee_ht,
+    'MuEGHT' : triggers_mue_ht,
+    'TripleEl' : triggers_3e,
+    'TripleMu' : triggers_3mu,
+    'TripleMuA' : triggers_3mu_alt,
+    'DoubleMuEl' : triggers_2mu1e,
+    'DoubleElMu' : triggers_2e1mu,
     'SingleMu' : triggers_1mu_iso,
-    'SingleEl' : triggers_1e,
-    'SingleMu_8TeV' : triggers_1mu_8TeV,
-    'DoubleMu_8TeV' : triggers_mumu_8TeV,
-    'MuEG_8TeV'     : triggers_mue_8TeV,
+    'SingleMu50ns' : triggers_1mu_iso_50ns,
+    'SingleEl'     : triggers_1e,
+    'SingleEl50ns' : triggers_1e_50ns,
+    'SingleMu_8TeV' : triggers_1mu_8TeV + triggers_1mu_iso_r,
+    'DoubleMu_8TeV' : triggers_mumu_8TeV + triggers_mumu_run1,
+    'MuEG_8TeV'     : triggers_mue_8TeV + triggers_mue_run1,
+    'DoubleEl_8TeV' : triggers_ee_8TeV + triggers_ee_run1,
 }
 
 from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
@@ -190,7 +201,7 @@ sequence = cfg.Sequence(susyCoreSequence+[
         ttHEventAna,
         treeProducer,
     ])
-
+preprocessor = None
 
 #-------- HOW TO RUN -----------
 
@@ -264,7 +275,22 @@ elif test == '74X-Data':
             comp.files = comp.files[:1]
             comp.splitFactor = 1
             comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
-
+elif test == "express":
+    selectedComponents = [ MuEG_740p9 ]
+    comp = selectedComponents[0]
+    comp.files = [ 'root://eoscms//eos/cms/store/express/Run2015A/ExpressPhysics/FEVT/Express-v1/000/246/908/00000/04B152E7-DE09-E511-8B18-02163E011D4A.root' ]
+    comp.name  = 'ExpressPhysics'
+    comp.triggers = []
+    comp.json     = None
+    jetAna.recalibrateJets = False 
+    jetAna.smearJets       = False 
+    ttHLepSkim.minLeptons = 0
+    sequence.remove(jsonAna)
+    # preprocessor cfg to be created with
+    #    cmsDriver.py miniAOD-data -s PAT --data --runUnscheduled --eventcontent MINIAOD --conditions GR_P_V56 --no_exec
+    #    sed -i 's/process.MINIAODoutput_step/process.endpath/' miniAOD-data_PAT.py
+    from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
+    preprocessor = CmsswPreprocessor("miniAOD-data_PAT.py")
 
 ## output histogram
 outputService=[]
@@ -286,5 +312,6 @@ if getHeppyOption("nofetch"):
     event_class = Events 
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence,
-                     services = outputService,  
+                     services = outputService, 
+                     preprocessor = preprocessor, 
                      events_class = event_class)
