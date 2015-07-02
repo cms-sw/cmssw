@@ -55,10 +55,11 @@ class JetAnalyzer( Analyzer ):
         dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "GR_70_V2_AN1"
         self.shiftJEC = self.cfg_ana.shiftJEC if hasattr(self.cfg_ana, 'shiftJEC') else 0
         self.recalibrateJets = self.cfg_ana.recalibrateJets
+        self.addJECShifts = self.cfg_ana.addJECShifts
         if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
         elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
         elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
-        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0)
+        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0) or self.addJECShifts
         if self.doJEC:
           if self.cfg_comp.isMC:
             self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationType, False,cfg_ana.jecPath)
@@ -103,21 +104,14 @@ class JetAnalyzer( Analyzer ):
         self.deltaMetFromJEC = [0.,0.]
 #        print "before. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
         if self.doJEC:
-            for delta, shift in [(1.0, "JECUp"), (0.0, ""), (-1.0, "JECDown")]:
-                for j1 in allJets:
-                    corr = self.jetReCalibrator.getCorrection(j1, rho, delta, self.deltaMetFromJEC)
-                    setattr(j1, "corr"+shift, corr)
-            #apply nominal corrections on jets
-            for jet in allJets:
-                corr = jet.corr
-                if corr > 0:
-                    jet.setP4(jet.p4() * (corr * jet.rawFactor()))
-                    jet.setRawFactor(1.0/corr)
-                else:
-                    badjets += [jet]
-        #remove jet as in JetRecalibrator.correctAll
-        for jet in badjets:
-            allJets.remove(jet)
+#            print "\nCalibrating jets %s for lumi %d, event %d" % (self.cfg_ana.jetCol, event.lumi, event.eventId)
+            self.jetReCalibrator.correctAll(allJets, rho, delta=self.shiftJEC, metShift=self.deltaMetFromJEC)
+
+        if self.addJECShifts:
+           for delta, shift in [(1.0, "JECUp"), (0.0, ""), (-1.0, "JECDown")]:
+              for j1 in allJets:
+                corr = self.jetReCalibrator.getCorrection(j1, rho, delta, self.deltaMetFromJEC)
+                setattr(j1, "corr"+shift, corr)
 
         self.allJetsUsedForMET = allJets
 #        print "after. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
@@ -377,7 +371,8 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     doQG = False, 
     recalibrateJets = False,
     recalibrationType = "AK4PFchs",
-    shiftJEC = 0, # set to +1 or -1 to get +/-1 sigma shifts
+    shiftJEC = 0, # set to +1 or -1 to apply +/-1 sigma shift to the nominal jet energies
+    addJECShifts = False, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
     smearJets = True,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts    
     cleanJetsFromFirstPhoton = False,
