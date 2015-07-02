@@ -54,7 +54,7 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFTauTransverseImpactParameters : public EDProducer {
+class PFTauTransverseImpactParameters : public edm::stream::EDProducer<> {
  public:
   enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
