@@ -48,8 +48,8 @@ for selectMuon in [cutBasedMuonId_MuonPOG_V0_loose, cutBasedMuonId_MuonPOG_V0_me
     print selectMuon
 
 # open file (you can use 'edmFileUtil -d /store/whatever.root' to get the physical file name)
-#events = Events("root://eoscms//eos/cms/store/cmst3/user/gpetrucc/miniAOD/74X/miniAOD-new_ZTT.root")
-events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
+events = Events("file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_5_0_pre6/src/matrix_tests/135.4_ZEE_13+ZEEFS_13+HARVESTUP15FS+MINIAODMCUP15FS/step4.root")
+#events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
 
 muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
 electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
@@ -59,7 +59,6 @@ for iev,event in enumerate(events):
     if iev > 10: break
     event.getByLabel(muonLabel, muons)
     event.getByLabel(electronLabel, electrons)
-    
     
     print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), 
                                                          event.eventAuxiliary().luminosityBlock(),
@@ -79,6 +78,7 @@ for iev,event in enumerate(events):
         if el.pt() < 5: continue
         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % (
                     i, el.pt(), el.superCluster().eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto())
+        passfail_byvalue = selectElectron(el,event)
         passfail = selectElectron(electrons.product(),i,event)       
         print selectElectron
         testExprEval(electrons.product(),i,event)
@@ -87,7 +87,7 @@ for iev,event in enumerate(events):
         cf_result = selectElectron.cutFlowResult()
         for i in range(cf_result.cutFlowSize()):
             print '%d : %s : %d'%(i,cf_result.getNameAtIndex(i),cf_result.getCutResultByName(cf_result.getNameAtIndex(i)))
-        print passfail
+        print passfail, passfail_byvalue
         print cf_result.cutFlowPassed()
         masked_cf_ints = cf_result.getCutFlowResultMasking([2,3,4,9])
         masked_cf_strs = cf_result.getCutFlowResultMasking(['GsfEleDEtaInCut_0',

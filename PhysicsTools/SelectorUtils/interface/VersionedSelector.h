@@ -110,6 +110,17 @@ class VersionedSelector : public Selector<T> {
   
   //repeat the other operator() we left out here
   //in the base class here so they are exposed to ROOT
+
+  /* VID BY VALUE */
+  bool operator()( typename T::value_type const & t ) {
+    const T temp(&t,0); // assuming T is edm::Ptr
+    return this->operator()(temp);
+  }
+
+  bool operator()( typename T::value_type const & t, edm::EventBase const & e) {
+    const T temp(&t,0);
+    return this->operator()(temp,e);
+  }
   
   virtual bool operator()( T const & t ) CINT_GUARD(override final) {
     this->retInternal_.set(false);
