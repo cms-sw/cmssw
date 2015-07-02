@@ -341,8 +341,7 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    #'CMSSW_7_4_0_pre7-MCRUN2_74_V7-v1',                     # 3 - 13 TeV samples with GEN-SIM from 740_p6; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_4_6_patch1-MCRUN2_74_V9-v1',  # temporary change to this release for T1tttt test. 
+    'CMSSW_7_4_0_pre7-MCRUN2_74_V7-v1',                     # 3 - 13 TeV samples with GEN-SIM from 740_p6; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',            # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_4_3-PU25ns_MCRUN2_74_V9-v9',                   # 5 - fullSim premix 25ns
     'CMSSW_7_4_3-PU50ns_MCRUN2_74_V8-v9',                   # 6 - fullSim premix 50ns
