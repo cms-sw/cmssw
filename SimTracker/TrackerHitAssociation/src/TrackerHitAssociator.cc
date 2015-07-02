@@ -379,15 +379,10 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vect
 	}
       }
     //check if these are GSRecHits (from FastSim)
-    if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
+    if(const GSSiTrackerRecHit2DLocalPos * rechit = dynamic_cast<const GSSiTrackerRecHit2DLocalPos *>(&thit))
       {
 	simtkid = associateGSRecHit(rechit);
       }  
-    if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
-      {
-	simtkid = associateGSMatchedRecHit(rechit);
-      }
-
 }
 
 template<typename T>
@@ -614,19 +609,6 @@ void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrech
   }
 }
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit) const
-{
-  //GSRecHit is the FastSimulation RecHit that contains the TrackId already
-
-  vector<SimHitIdpr> simtrackid;
-  simtrackid.clear();
-  for(size_t index =0;index<gsrechit->nSimTrackIds();++index){
-    SimHitIdpr currentId(gsrechit->simTrackId(index), EncodedEventId(gsrechit->eeId()));
-    simtrackid.push_back(currentId);
-  }
-  return simtrackid;
-}
-
 std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const{
   std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
   //        std::vector<PSimHit> assimhits;
@@ -652,10 +634,9 @@ std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTra
   return simhitid;
 }
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsrechit) const
+ // fastsim
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const GSSiTrackerRecHit2DLocalPos * gsrechit) const
 {
-  //GSRecHit is the FastSimulation RecHit that contains the TrackId already
-  
   vector<SimHitIdpr> simtrackid;
   simtrackid.clear();
   for(size_t index =0;index<gsrechit->nSimTrackIds();++index){
@@ -664,4 +645,3 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const Si
   }
   return simtrackid;
 }
-
