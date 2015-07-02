@@ -126,24 +126,11 @@ jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
     )
 
 # Final selection
-import RecoTracker.IterativeTracking.LowPtTripletStep_cff
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='jetCoreRegionalStepTracks',
-    trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'jetCoreRegionalStepLoose',
-            ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'jetCoreRegionalStepTight',
-            preFilterName = 'jetCoreRegionalStepLoose',
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'jetCoreRegionalStep',
-            preFilterName = 'jetCoreRegionalStepTight',
-            ),
-        ) #end of vpset
-    ) #end of clone
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepClassifier1
+
+jetCoreRegionalStep = initialStepClassifier1.clone()
+jetCoreRegionalStep.src='jetCoreRegionalStepTracks'
+
 
 # Final sequence
 JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*jetsForCoreTracking*
@@ -153,4 +140,4 @@ JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*je
                                    jetCoreRegionalStepSeeds*
                                    jetCoreRegionalStepTrackCandidates*
                                    jetCoreRegionalStepTracks*
-                                   jetCoreRegionalStepSelector)
+                                   jetCoreRegionalStep)

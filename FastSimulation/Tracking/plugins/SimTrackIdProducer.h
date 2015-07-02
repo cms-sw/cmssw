@@ -16,9 +16,11 @@ namespace edm {
   class EventSetup;
 }
 
-class SimTrackIdProducer : public edm::stream::EDProducer <>
+class SimTrackIdProducer final : public edm::stream::EDProducer <>
  {
    public:
+
+   using QualityMaskCollection = std::vector<unsigned char>;
 
       explicit SimTrackIdProducer(const edm::ParameterSet& conf);
 
@@ -31,8 +33,8 @@ private:
 
       // consumes 
       edm::EDGetTokenT<reco::TrackCollection>  trackToken;
+      edm::EDGetTokenT<QualityMaskCollection> srcQuals;
       double maxChi2_;
-      std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
       bool filterTracks_ = false;
       reco::TrackBase::TrackQuality trackQuality_;
      

@@ -285,5 +285,5 @@ FASTPUEventContent = cms.PSet(
 
 PREMIXEventContent.outputCommands.extend(
     ['keep *_mix_generalTracks_*',
-     'keep *_mix_generalTracksMVAVals_*']
+     'keep *_mix_generalTracksMVAValues_*']
     )

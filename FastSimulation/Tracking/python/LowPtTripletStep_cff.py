@@ -9,7 +9,7 @@ lowPtTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.sim
     trackCollection = cms.InputTag("detachedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.maxChi2,
-    overrideTrkQuals = cms.InputTag('detachedTripletStep')
+    trackClassifier                          = cms.InputTag('detachedTripletStep',"QualityMasks")
 )
 
 # trajectory seeds
@@ -45,13 +45,13 @@ lowPtTripletStepTracks = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowP
 )
 
 # final selection
-lowPtTripletStepSelector = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSelector.clone()
-lowPtTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+lowPtTripletStep = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStep.clone()
+lowPtTripletStep.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final swquence 
 LowPtTripletStep = cms.Sequence(lowPtTripletStepSimTrackIds
                                 +lowPtTripletStepSeeds
                                 +lowPtTripletStepTrackCandidates
                                 +lowPtTripletStepTracks  
-                                +lowPtTripletStepSelector   
+                                +lowPtTripletStep   
                                 )

@@ -46,7 +46,6 @@ class FamosManager
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
-		   const HepMC::GenEvent* pu,
 		   const TrackerTopology *tTopo,
                    RandomEngineAndDistribution const*);
   
@@ -63,7 +62,6 @@ class FamosManager
   //  const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
-  PileUpSimulator* myPileUpSimulator;
   CalorimetryManager * myCalorimetry;
 
  private:
