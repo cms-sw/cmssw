@@ -32,6 +32,7 @@
 <use   name="SimCalorimetry/EcalSimAlgos"/>
 <use   name="SimCalorimetry/EcalSimProducers"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <library   file="*.cc" name="SimGeneralDataMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
