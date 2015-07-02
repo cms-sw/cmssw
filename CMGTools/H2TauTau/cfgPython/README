@@ -1,0 +1,1 @@
+This folder contains configuration files for the python analysis step (aka ntuplisation) with subfolders for the different channels and specific analysis tasks (e.g. stitching the W+jets sample and the ersatz method)
