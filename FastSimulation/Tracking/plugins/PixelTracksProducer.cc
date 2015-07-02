@@ -4,11 +4,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //Pixel Specific stuff
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
@@ -82,6 +86,10 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   TracksWithRecHits pixeltracks;
   TracksWithRecHits cleanedTracks;
+
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
   
   edm::Handle<TrajectorySeedCollection> theSeeds;
   e.getByToken(seedProducerToken,theSeeds);
@@ -142,7 +150,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     for (unsigned int k = 0; k < hits.size(); k++) {
       TrackingRecHit *hit = (hits.at(k))->clone();
-      track->appendHitPattern(*hit);
+      track->appendHitPattern(*hit, ttopo);
       recHits->push_back(hit);
     }
 

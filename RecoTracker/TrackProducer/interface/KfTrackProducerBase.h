@@ -29,6 +29,7 @@ public:
 			std::auto_ptr<reco::TrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&, TransientTrackingRecHitBuilder const*,
+                        const TrackerTopology *ttopo,
 			//allow to fill different tracks collections if necessary ::
 			//0: not needed
 			//1: Before DAF

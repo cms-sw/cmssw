@@ -41,7 +41,7 @@ public:
 			std::auto_ptr<reco::GsfTrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&, TransientTrackingRecHitBuilder const*,
-			const reco::BeamSpot&);
+			const reco::BeamSpot&, const TrackerTopology *ttopo);
 
 
 protected:

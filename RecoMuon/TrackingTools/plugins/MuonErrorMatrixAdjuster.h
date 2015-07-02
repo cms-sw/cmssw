@@ -78,7 +78,8 @@ class MuonErrorMatrixAdjuster : public edm::EDProducer {
   bool attachRecHits(const reco::Track & recotrack_orig,
 		     reco::Track & recotrack,
 		     reco::TrackExtra & trackextra,
-		     TrackingRecHitCollection& RHcol);
+		     TrackingRecHitCollection& RHcol,
+                     const TrackerTopology& ttopo);
       
   // ----------member data ---------------------------
   /// log category: MuonErrorMatrixAdjuster

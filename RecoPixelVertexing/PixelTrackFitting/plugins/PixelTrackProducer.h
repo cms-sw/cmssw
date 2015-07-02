@@ -6,6 +6,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
 
 namespace edm { class Event; class EventSetup; class ParameterSet; }
+class TrackerTopology;
 
 class PixelTrackProducer :  public edm::stream::EDProducer<> {
 
@@ -19,7 +20,7 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
-  void store(edm::Event& ev, const pixeltrackfitting::TracksWithTTRHs& selectedTracks);
+  void store(edm::Event& ev, const pixeltrackfitting::TracksWithTTRHs& selectedTracks, const TrackerTopology& ttopo);
   PixelTrackReconstruction theReconstruction;
 };
 #endif
