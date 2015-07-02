@@ -221,6 +221,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totrechitrphi += detsetIter->size();
     //loop over rechits-rphi in the same subdetector
     // SiStripRecHit2DCollection::DetSet::const_iterator iterrphi
+    rechitrphi.clear();
     for(auto iterrphi= detsetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
       const GeomDetUnit *  det = tracker.idToDetUnit(detid);
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
@@ -271,6 +272,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     auto detsetIter = rechitsstereo->find(detid);
     totrechitstereo += detsetIter->size();
     //loop over rechits-stereo in the same subdetector
+    rechitstereo.clear();
     for(auto iterstereo=detsetIter->begin(), iterEnd = detsetIter->end(); iterstereo!=iterEnd; ++iterstereo){
       const GeomDetUnit *  det = tracker.idToDetUnit(detid);
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
@@ -321,6 +323,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     auto detsetIter = rechitsmatched->find(detid);
     totrechitmatched += detsetIter->size();
     //loop over rechits-matched in the same subdetector
+    rechitmatched.clear();
     for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
       SiStripMatchedRecHit2D const rechit=*itermatched;
       const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
