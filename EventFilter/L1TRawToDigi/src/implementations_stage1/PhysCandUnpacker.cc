@@ -160,10 +160,6 @@ namespace l1t {
     CentralJetUnpackerLeft::unpack(const Block& block, UnpackerCollections *coll)
     {
        auto res = static_cast<CaloCollections*>(coll)->getJets();
-
-       if (res->size(0) != 0)
-          edm::LogWarning("L1T") << "Need to unpack central jets before forward ones";
-
        return process(block, res, [](const l1t::Jet& j) { return j; },true,true,false);
     }
 
@@ -171,10 +167,6 @@ namespace l1t {
     ForwardJetUnpackerLeft::unpack(const Block& block, UnpackerCollections *coll)
     {
        auto res = static_cast<CaloCollections*>(coll)->getJets();
-
-       if (res->size(0) != 4)
-          edm::LogWarning("L1T") << "Need to unpack central jets before forward ones";
-
        return process(block, res, [](l1t::Jet j) { j.setHwQual(j.hwQual() | 2); return j; },true,false,false);
     }
 
@@ -210,10 +202,6 @@ namespace l1t {
     CentralJetUnpackerRight::unpack(const Block& block, UnpackerCollections *coll)
     {
        auto res = static_cast<CaloCollections*>(coll)->getJets();
-
-       if (res->size(0) != 0)
-          edm::LogWarning("L1T") << "Need to unpack central jets before forward ones";
-
        return process(block, res, [](const l1t::Jet& j) { return j; },false,true,false);
     }
 
@@ -221,10 +209,6 @@ namespace l1t {
     ForwardJetUnpackerRight::unpack(const Block& block, UnpackerCollections *coll)
     {
        auto res = static_cast<CaloCollections*>(coll)->getJets();
-
-       if (res->size(0) != 4)
-          edm::LogWarning("L1T") << "Need to unpack central jets before forward ones";
-
        return process(block, res, [](l1t::Jet j) { j.setHwQual(j.hwQual() | 2); return j; },false,false,false);
     }
 
