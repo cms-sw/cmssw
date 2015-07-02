@@ -145,7 +145,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 	miniMap.push_back(thisPair);
       }
     }
-    theTrackLoader->loadTracks(trajectories,event,miniMap,theRefits[ww]);
+    theTrackLoader->loadTracks(trajectories,event,miniMap, *tTopo, theRefits[ww]);
   }
     
   LogTrace(metname) << "Done." << endl;    

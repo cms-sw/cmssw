@@ -77,14 +77,15 @@ MuonTrackLoader::~MuonTrackLoader(){
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event, const string& instance, bool reallyDoSmoothing) {
+			    Event& event, const TrackerTopology& ttopo, const string& instance, bool reallyDoSmoothing) {
   std::vector<bool> dummyVecBool;
-  return loadTracks(trajectories, event, dummyVecBool, instance, reallyDoSmoothing);
+  return loadTracks(trajectories, event, dummyVecBool, ttopo, instance, reallyDoSmoothing);
 }
   
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    Event& event,  std::vector<bool>& tkBoolVec, 
+                            const TrackerTopology& ttopo,
 			    const string& instance, bool reallyDoSmoothing) {
   
   const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
@@ -228,8 +229,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	 recHit != transHits.end(); ++recHit) {
       TrackingRecHit *singleHit = (**recHit).hit()->clone();
-      track.appendHitPattern( *singleHit);
-      if(theUpdatingAtVtx && updateResult.first) updateResult.second.appendHitPattern(*singleHit);
+      track.appendHitPattern( *singleHit, ttopo);
+      if(theUpdatingAtVtx && updateResult.first) updateResult.second.appendHitPattern(*singleHit, ttopo);
       recHitCollection->push_back( singleHit );  
       // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
       trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
@@ -290,7 +291,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
 OrphanHandle<reco::MuonTrackLinksCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
-			    Event& event) {
+			    Event& event,
+                            const TrackerTopology& ttopo) {
 
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
   
@@ -311,7 +313,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     if(thePutTkTrackFlag){
       //will take care of putting nothing in the event but the empty collection
       TrajectoryContainer trackerTrajs;
-      loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
+      loadTracks(trackerTrajs, event, ttopo, theL2SeededTkLabel, theSmoothTkTrackFlag);
     } 
 
     return event.put(trackLinksCollection);
@@ -343,14 +345,14 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   // FIXME: could this be done one track at a time in the previous loop?
   LogTrace(metname) << "Build combinedTracks";
   std::vector<bool> combTksVec(combinedTrajs.size(), false); 
-  OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event, combTksVec);
+  OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event, combTksVec, ttopo);
 
   OrphanHandle<reco::TrackCollection> trackerTracks;
   std::vector<bool> trackerTksVec(trackerTrajs.size(), false); 
   if(thePutTkTrackFlag) {
     LogTrace(metname) << "Build trackerTracks: "
 		      << trackerTrajs.size();
-    trackerTracks = loadTracks(trackerTrajs, event, trackerTksVec, theL2SeededTkLabel, theSmoothTkTrackFlag);
+    trackerTracks = loadTracks(trackerTrajs, event, trackerTksVec, ttopo, theL2SeededTkLabel, theSmoothTkTrackFlag);
   } else {
     for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
         if(*it) delete *it;
@@ -406,7 +408,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event, const std::vector<std::pair<Trajectory*,reco::TrackRef> >& miniMap, const string& instance, bool reallyDoSmoothing) {
+			    Event& event, const std::vector<std::pair<Trajectory*,reco::TrackRef> >& miniMap, const TrackerTopology& ttopo, const string& instance, bool reallyDoSmoothing) {
   
   const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
   
@@ -536,8 +538,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	 recHit != transHits.end(); ++recHit) {
 	TrackingRecHit *singleHit = (**recHit).hit()->clone();
-	track.appendHitPattern( *singleHit);
-	if(theUpdatingAtVtx && updateResult.first) updateResult.second.appendHitPattern( *singleHit); // i was already incremented
+	track.appendHitPattern( *singleHit, ttopo);
+	if(theUpdatingAtVtx && updateResult.first) updateResult.second.appendHitPattern( *singleHit, ttopo); // i was already incremented
 	recHitCollection->push_back( singleHit );  
 	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));

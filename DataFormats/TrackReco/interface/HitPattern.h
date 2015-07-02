@@ -118,6 +118,7 @@
 #include <algorithm>
 #include <ostream>
 
+class TrackerTopology;
 
 namespace reco {
   class HitPattern {
@@ -138,22 +139,18 @@ namespace reco {
 
     // constructor from iterator (begin, end) pair
     template<typename I>
-    HitPattern(const I & begin, const I & end) { set(begin, end); }
-
-    // constructor from hit collection
-    template<typename C>
-    HitPattern(const C & c) { set(c); }
+    HitPattern(const I & begin, const I & end, const TrackerTopology& ttopo) { set(begin, end, ttopo); }
 
     // set pattern from iterator (begin, end) pair
     // init hit pattern array as 0x00000000, ..., 0x00000000
     // loop over the hits and set hit pattern
     template<typename I>
-    void set(const I & begin, const I & end) {
+    void set(const I & begin, const I & end, const TrackerTopology& ttopo) {
       for (int i=0; i<PatternSize; i++) hitPattern_[i] = 0;
       unsigned int counter = 0;
       for (I hit=begin; hit!=end && counter<32*PatternSize/HitSize;
 	   hit++, counter++)
-	set(*hit, counter);
+	set(*hit, counter, ttopo);
     }
 
 
@@ -204,10 +201,10 @@ namespace reco {
     void print (std::ostream &stream = std::cout) const;
 
     // set the pattern of the i-th hit
-    void set(const TrackingRecHit &hit, unsigned int i){setHitPattern(i, encode(hit,i));}
+    void set(const TrackingRecHit &hit, unsigned int i, const TrackerTopology& ttopo){setHitPattern(i, encode(hit,i, ttopo));}
     
     // append a hit to the hit pattern
-    void appendHit(const TrackingRecHit & hit);
+    void appendHit(const TrackingRecHit & hit, const TrackerTopology& ttopo);
 
     // get the pattern of the position-th hit
     uint32_t getHitPattern(int position) const; 
@@ -415,13 +412,13 @@ namespace reco {
     void setHitPattern(int position, uint32_t pattern);
 
     // set pattern for i-th hit passing a reference
-    void set(const TrackingRecHitRef & ref, unsigned int i) { set(* ref, i); }
+    void set(const TrackingRecHitRef & ref, unsigned int i, const TrackerTopology& ttopo) { set(* ref, i, ttopo); }
 
     // detector side for tracker modules (mono/stereo)
-    static uint32_t isStereo (DetId);
+    static uint32_t isStereo (DetId, const TrackerTopology& ttopo);
 
     // encoder for pattern
-    uint32_t encode(const TrackingRecHit &,unsigned int);
+    uint32_t encode(const TrackingRecHit &,unsigned int, const TrackerTopology& ttopo);
   };
 
   // inline function

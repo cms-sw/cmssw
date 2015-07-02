@@ -35,6 +35,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 template<class T>
@@ -82,6 +84,10 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
+    edm::ESHandle<TrackerTopology> httopo;
+    iSetup.get<IdealGeometryRecord>().get(httopo);
+    const TrackerTopology& ttopo = *httopo;
+
     Handle<vector<T> > src;
     iEvent.getByLabel(src_, src);
 
@@ -107,7 +113,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         int charge = state.localParameters().charge();
         out->push_back(reco::Track(1.0,1.0,x,p,charge,reco::Track::CovarianceMatrix()));
         TrajectorySeed::range hits = getHits(mu);
-        out->back().setHitPattern(hits.first, hits.second);
+        out->back().setHitPattern(hits.first, hits.second, ttopo);
         // Now Track Extra
         const TrackingRecHit *hit0 =  &*hits.first;
         const TrackingRecHit *hit1 = &*(hits.second-1);

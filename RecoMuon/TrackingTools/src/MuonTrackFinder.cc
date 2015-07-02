@@ -24,6 +24,9 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 using namespace std;
 using namespace edm;
 
@@ -62,30 +65,36 @@ void MuonTrackFinder::setEvent(const Event& event) {
 // convert the trajectories into tracks and load them in to the event
 edm::OrphanHandle<reco::TrackCollection>  
 MuonTrackFinder::load(const TrajectoryContainer& trajectories, 
-		      edm::Event& event) {
-  
-  return theTrackLoader->loadTracks(trajectories, event);
+		      edm::Event& event,
+                      const TrackerTopology& ttopo) {
+
+  return theTrackLoader->loadTracks(trajectories, event, ttopo);
 }
 
 // convert the trajectories into tracks and load them in to the event
 void MuonTrackFinder::load(const CandidateContainer& muonCands,
-			   Event& event) {
-                           
-    theTrackLoader->loadTracks(muonCands, event);
+			   Event& event,
+                           const TrackerTopology& ttopo) {
+
+  theTrackLoader->loadTracks(muonCands, event, ttopo);
 
 }
 
 // reconstruct trajectories
 edm::OrphanHandle<reco::TrackCollection>
 MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seeds,
-			     edm::Event& event){
-  
+			     edm::Event& event,
+                             const edm::EventSetup& es){
+
   const string metname = "Muon|RecoMuon|MuonTrackFinder";
   LogTrace(metname)<<"SA Recostruction starting from: "<<seeds->size()<<endl;  
   
   // Percolate the event 
   setEvent(event);
-  
+
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<IdealGeometryRecord>().get(httopo);
+
   // Trajectory container
   TrajectoryContainer muonTrajectories;
   TrajectorySeedCollection::size_type nSeed = 0;
@@ -109,19 +118,23 @@ MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seed
   // convert the trajectories into tracks and load them in to the event
   LogTrace(metname)
     <<"Convert the trajectories into tracks and load them in to the event"<<endl;
-  return load(muonTrajectories,event);
+  return load(muonTrajectories,event, *httopo);
   
 }
 
 
 // reconstruct trajectories
 void MuonTrackFinder::reconstruct(const std::vector<TrackCand>& staCandColl,
-				  Event& event){
+				  Event& event,
+                                  const edm::EventSetup& es){
 
   const string metname = "Muon|RecoMuon|MuonTrackFinder";
 
   // percolate the event 
   setEvent(event);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<IdealGeometryRecord>().get(httopo);
 
   // Muon Candidate container
   CandidateContainer muonCandidates;
@@ -137,6 +150,6 @@ void MuonTrackFinder::reconstruct(const std::vector<TrackCand>& staCandColl,
 
   // convert the trajectories into staTracks and load them into the event
   LogTrace(metname)<<"Load Muon Candidates into the event"<<endl;
-  load(muonCandidates,event);
+  load(muonCandidates,event, *httopo);
 
 }
