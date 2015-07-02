@@ -20,6 +20,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -31,6 +32,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 
@@ -48,10 +50,6 @@ class FakeTrackProducer : public edm::stream::EDProducer<> {
 
       /// Muon selection
       //StringCutObjectSelector<T> selector_;
-
-      // EventSetup
-      edm::ESHandle<TrackerGeometry> theGeometry;
-      edm::ESHandle<MagneticField>   theMagField;
 
       const PTrajectoryStateOnDet & getState(const TrajectorySeed &seed) const { return seed.startingState(); }
       const PTrajectoryStateOnDet & getState(const TrackCandidate &seed) const { return seed.trajectoryStateOnDet(); }
@@ -77,8 +75,13 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     using namespace std;
 
 
+    edm::ESHandle<TrackerGeometry> theGeometry;
     iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
+    edm::ESHandle<MagneticField>   theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+    edm::ESHandle<TrackerTopology> httopo;
+    iSetup.get<TrackerTopologyRcd>().get(httopo);
+    const TrackerTopology& ttopo = *httopo;
 
     Handle<vector<T> > src;
     iEvent.getByToken(src_, src);
@@ -105,7 +108,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         int charge = state.localParameters().charge();
         out->push_back(reco::Track(1.0,1.0,x,p,charge,reco::Track::CovarianceMatrix()));
         TrajectorySeed::range hits = getHits(mu);
-        out->back().appendHits(hits.first, hits.second);
+        out->back().appendHits(hits.first, hits.second, ttopo);
         // Now Track Extra
         const TrackingRecHit *hit0 =  &*hits.first;
         const TrackingRecHit *hit1 = &*(hits.second-1);

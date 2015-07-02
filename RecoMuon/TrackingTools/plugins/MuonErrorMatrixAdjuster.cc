@@ -13,6 +13,9 @@
 #include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 MuonErrorMatrixAdjuster::MuonErrorMatrixAdjuster(const edm::ParameterSet& iConfig)
 {
   theCategory="MuonErrorMatrixAdjuster";
@@ -136,7 +139,8 @@ reco::TrackExtra * MuonErrorMatrixAdjuster::makeTrackExtra(const reco::Track & r
 bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track & recotrack_orig,
 				       reco::Track & recotrack,
 				       reco::TrackExtra & trackextra,
-				       TrackingRecHitCollection& RHcol){
+                                       TrackingRecHitCollection& RHcol,
+                                       const TrackerTopology& ttopo){
   //loop over the hits of the original track
   trackingRecHit_iterator recHit = recotrack_orig.recHitsBegin();
   auto const firstHitIndex = theRHi;
@@ -145,7 +149,7 @@ bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track & recotrack_orig,
     TrackingRecHit * hit = (*recHit)->clone();
     
     //put it on the new track
-    recotrack.appendHitPattern(*hit);
+    recotrack.appendHitPattern(*hit, ttopo);
     //copy them in the new collection
     RHcol.push_back(hit);
     ++theRHi;
@@ -172,7 +176,11 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   //get the mag field
   iSetup.get<IdealMagneticFieldRecord>().get( theField);
-  
+
+  edm::ESHandle<TrackerTopology> httopo;
+  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
+
   //prepare the output collection
   std::auto_ptr<reco::TrackCollection> Toutput(new reco::TrackCollection());
   std::auto_ptr<TrackingRecHitCollection> TRHoutput(new TrackingRecHitCollection());
@@ -209,7 +217,7 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	continue;}
       
       //attach the collection of rechits
-      if (!attachRecHits(recotrack_orig,recotrackref,*extra,*TRHoutput)){
+      if (!attachRecHits(recotrack_orig,recotrackref,*extra,*TRHoutput, ttopo)){
 	edm::LogError( theCategory)<<"cannot attach any rechits on this track";
 	//pop the inserted track
 	Toutput->pop_back();

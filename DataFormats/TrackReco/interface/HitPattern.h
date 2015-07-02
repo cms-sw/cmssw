@@ -129,6 +129,8 @@
 #include <ostream>
 #include <memory>
 
+class TrackerTopology;
+
 namespace reco
 {
 
@@ -214,10 +216,26 @@ public:
     HitPattern &operator=(const HitPattern &other);
 
     template<typename I>
-    bool appendHits(const I &begin, const I &end);
-    bool appendHit(const TrackingRecHit &hit);
-    bool appendHit(const TrackingRecHitRef &ref);
-    bool appendHit(const DetId &id, TrackingRecHit::Type hitType);
+    bool appendHits(const I &begin, const I &end, const TrackerTopology& ttopo);
+    bool appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo);
+    bool appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo);
+    bool appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. MiniAOD PackedCandidate, and the IO rule for
+     * reading old versions of HitPattern)
+     */
+    bool appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
+
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. the IO rule for reading old versions of
+     * HitPattern)
+     */
+    bool appendMuonHit(const DetId& id, TrackingRecHit::Type hitType);
 
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
@@ -391,11 +409,12 @@ private:
 
 
     // detector side for tracker modules (mono/stereo)
-    static uint16_t isStereo(DetId i);
+    static uint16_t isStereo(DetId i, const TrackerTopology& ttopo);
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
 
-    static uint16_t encode(const TrackingRecHit &hit);
-    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType);
+    static uint16_t encode(const TrackingRecHit &hit, const TrackerTopology& ttopo);
+    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+    static uint16_t encode(uint16_t det, uint16_t subdet, uint16_t layer, uint16_t side, TrackingRecHit::Type hitType);
 
     // generic count methods
     typedef bool filterType(uint16_t);
@@ -410,6 +429,7 @@ private:
     bool insertExpectedInnerHit(const uint16_t pattern);
     bool insertExpectedOuterHit(const uint16_t pattern);
     void insertHit(const uint16_t pattern);
+    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     uint16_t getHitPatternByAbsoluteIndex(int position) const;
 
@@ -443,10 +463,10 @@ inline std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory
 }
 
 template<typename I>
-bool HitPattern::appendHits(const I &begin, const I &end)
+bool HitPattern::appendHits(const I &begin, const I &end, const TrackerTopology& ttopo)
 {
     for (I hit = begin; hit != end; hit++) {
-        if unlikely((!appendHit(*hit))) {
+      if unlikely((!appendHit(*hit, ttopo))) {
             return false;
         }
     }
