@@ -80,8 +80,7 @@ class InputInfo(object):
         if len(self.run) is not 0:
             return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
         else:
-            return ["file {0}={1}".format(query_by, query_source)]
-            #return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
+            return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
 
     def __str__(self):
         if self.ib_block:
