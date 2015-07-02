@@ -30,19 +30,9 @@
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Provenance/interface/RunID.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "TObject.h"
-
-class TTree;
-class TH2D;
-class MonitorElement;
+class ConfigurationDescriptions;
 
 class PixelLumiDQM : public DQMEDAnalyzer {
 public:
@@ -61,12 +51,10 @@ public:
   static constexpr double CM2_TO_NANOBARN = 1.d/1.e-33d;
   static const unsigned int lastBunchCrossing = 3564;
 
-
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const&) override;
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -126,8 +114,6 @@ private:
   edm::InputTag fVtxLabel;
   edm::InputTag fPixelClusterLabel;
   edm::InputTag fGtEvmLabel;
-
-  TTree* fTree;
 
   UInt_t fRunNo;
   UInt_t fEvtNo;

@@ -8,48 +8,39 @@
 
 #include "PixelLumiDQM.h"
 
-#include <memory>
-#include <string>
-#include <sstream>
-
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/DetSetNew.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-//DIP lumi stuff
-#include "RecoLuminosity/LumiProducer/interface/DIPLumiSummary.h"
-#include "RecoLuminosity/LumiProducer/interface/DIPLumiDetail.h"
-#include "RecoLuminosity/LumiProducer/interface/DIPLuminosityRcd.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
-
-#include <time.h>
+#include <fstream>
+#include <map>
+#include <string>
 #include <sys/time.h>
+#include <time.h>
+#include <vector>
 
 // Constructors and destructor.
 PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
