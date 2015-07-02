@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="13">
-   <version ClassVersion="13" checksum="641505164"/>
+  <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="14">
+   <version ClassVersion="14" checksum="641505164"/>
+   <version ClassVersion="13" checksum="2851199532"/>
    <version ClassVersion="12" checksum="1712216203"/>
    <version ClassVersion="11" checksum="834943006"/>
    <version ClassVersion="10" checksum="2474445311"/>
