@@ -1,5 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsutils.ElectronMVAID import *
+from PhysicsTools.HeppyCore.utils.deltar import deltaR
 import ROOT
 
 class Electron( Lepton ):
@@ -221,8 +222,6 @@ class Electron( Lepton ):
             else: raise RuntimeError, "Ele MVA ID type not found"
 
 
-    def mvaIDZZ(self):
-        return self.mvaIDLoose() and (self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()<=1)
 
     def chargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumChargedHadronPt
@@ -250,6 +249,28 @@ class Electron( Lepton ):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumPUPt
         elif R == 0.4: return self.physObj.puChargedHadronIso()
         raise RuntimeError, "Electron chargedHadronIso missing for R=%s" % R
+
+
+    def absIsoWithFSR(self, R=0.4, puCorr="rhoArea", dBetaFactor=0.5):
+        '''
+        Calculate Isolation, subtract FSR, apply specific PU corrections" 
+        '''
+        photonIso = self.photonIsoR(R)
+        if hasattr(self,'fsrPhotons'):
+            for gamma in self.fsrPhotons:
+                dr = deltaR(gamma.eta(), gamma.phi(), self.physObj.eta(), self.physObj.phi())
+                if (self.isEB() or dr > 0.08) and dr < R:
+                    photonIso = max(photonIso-gamma.pt(),0.0)                
+        if puCorr == "deltaBeta":
+            offset = dBetaFactor * self.puChargedHadronIsoR(R)
+        elif puCorr == "rhoArea":
+            offset = self.rho*getattr(self,"EffectiveArea"+(str(R).replace(".","")))
+        elif puCorr in ["none","None",None]:
+            offset = 0
+        else:
+             raise RuntimeError, "Unsupported PU correction scheme %s" % puCorr
+        return self.chargedHadronIsoR(R)+max(0.,photonIso+self.neutralHadronIsoR(R)-offset)            
+
 
     def dxy(self, vertex=None):
         '''Returns dxy.
