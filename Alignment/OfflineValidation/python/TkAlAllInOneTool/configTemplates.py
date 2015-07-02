@@ -221,6 +221,10 @@ extendedValidationTemplate="""
 #include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
 void TkAlExtendedOfflineValidation()
 {
+  TkAlStyle::set(.oO[publicationstatus]Oo.);
+  gStyle->SetTitleH        ( 0.07 );
+  gStyle->SetTitleW        ( 1.00 );
+  gStyle->SetTitleFont     (  132 );
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();
