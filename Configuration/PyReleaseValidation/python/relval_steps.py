@@ -907,7 +907,7 @@ dataReco={'--conditions':'auto:run1_data',
           '--scenario':'pp',
           }
 
-dataRecoAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,DQM'}, dataReco])
+dataRecoAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,DQM'}, dataReco])
 
 
 hltKey='fake'
@@ -978,7 +978,7 @@ step3Defaults = {
                   '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM'
                   }
-step3DefaultsAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,VALIDATION,DQM'}, step3Defaults])
+step3DefaultsAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION,DQM'}, step3Defaults])
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
@@ -992,7 +992,7 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  }
 step3Up2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015Defaults])
 
-step3Up2015DefaultsAlCaEle = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,VALIDATION,DQM'},step3Up2015Defaults])
+step3Up2015DefaultsAlCaEle = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION,DQM'},step3Up2015Defaults])
 step3Up2015DefaultsAlCaEle50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015DefaultsAlCaEle])
 
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
