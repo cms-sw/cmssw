@@ -123,36 +123,58 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	if ( !goodTk) continue;
       }
     
-      //std::cout <<"track: " << trackCollection->at(i) << std::endl;
        
       // Loop over the recHits                                                                     
       for (auto hitIt = track.recHitsBegin() ;  hitIt != track.recHitsEnd(); ++hitIt) {
+
+	unsigned int hit_id;
+	unsigned int hitCombination_id;
+	
 	const SiTrackerGSMatchedRecHit2D* hit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(*hitIt);
-
-	std::cout << "########### CHECK IF COUTS WORK: TEST-2  ##########" << std::endl;
-	std::cout << "hit:  " << hit << std::endl;
-	std::cout << "hit_id:  " << hit->id() << std::endl;
-	std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
-
-	if (hit == 0){
-	  std::cout << "Error in FastTrackingMaskProducer: dynamic hit cast failed" << std::endl;
+	if(hit){
+	  hit_id = hit->id();	
+	  hitCombination_id = hit->hitCombinationId();
+	  
+	  std::cout << "########### INITIALLY: T-1  ##########" << std::endl;
+	  std::cout << "hit:  " << hit << std::endl;
+	  std::cout << "hit_id:  " << hit_id<< std::endl;
+	  std::cout << "hitCombination_id:  " << hitCombination_id<< std::endl;
+	  std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
+	  
+	  if (hitCombination_id >= hitCombinationMasks->size()) { 
+	    hitCombinationMasks->resize(hitCombination_id+1,false);
+	  }
+	  
+	  if (hit_id >= hitMasks->size()) { 
+	    hitMasks->resize(hit_id+1,false);   
+	  }
+	  
+	  hitCombinationMasks->at(hitCombination_id) = true;
+	  hitMasks->at(hit_id) = true;
 	}
-	unsigned int hit_id(hit->id());	
-
-	if (hit_id >= hitMasks->size()) { 
-	  hitMasks->resize(hit_id+1,false);   
-	}
-
-	if (hit_id >= hitCombinationMasks->size()) { 
-	   hitCombinationMasks->resize(hit_id+1,false);
-	}
-
-
-
-	 hitMasks->at(hit->id()) = true;
-	 hitCombinationMasks->at(hit->hitCombinationId()) = true;
+	else
+	  continue;
       }
     }
+  //std::cout << "put hitMasks:  " << hitMasks << std::endl;
+  //std::cout << "put hitCombinationMasks:  " << hitCombinationMasks << std::endl;
+  
   e.put(hitMasks,"hitMasks");
   e.put(hitCombinationMasks,"hitCombinationMasks");
 }
+
+/*
+	  else{
+	    const SiTrackerGSRecHit2D* hit = dynamic_cast<const SiTrackerGSRecHit2D*>(*hitIt);
+	    if(hit){
+	      hit_id = hit->id();	
+	      //hitCombination_id = hit->hitCombinationId();	
+	      std::cout << "########### CHECK COUTS: T-2  ##########" << std::endl;
+	      std::cout << "hit:  " << hit << std::endl;
+	      std::cout << "hit_id:  " << hit_id<< std::endl;
+	      std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
+	   }
+	    else
+	    continue;
+	  
+*/
