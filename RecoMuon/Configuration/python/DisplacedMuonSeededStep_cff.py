@@ -55,43 +55,9 @@ muonSeededTracksOutInDisplaced = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 )
 
 #for displaced global muons
-muonSeededTracksOutInDisplacedSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='muonSeededTracksOutInDisplaced',
-    trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'muonSeededTracksOutInDisplacedLoose',
-            applyAdaptedPVCuts = cms.bool(False),
-            chi2n_par = 10.0,
-            minNumberLayers = 3,
-            min_nhits = 5,
-            maxNumberLostLayers = 4,
-            minNumber3DLayers = 0,
-            minHitsToBypassChecks = 7
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'muonSeededTracksOutInDisplacedTight',
-            preFilterName = 'muonSeededTracksOutInDisplacedLoose',
-            applyAdaptedPVCuts = cms.bool(False),
-            chi2n_par = 1.0,
-            minNumberLayers = 5,
-            min_nhits = 6,
-            maxNumberLostLayers = 3,
-            minNumber3DLayers = 2,
-            minHitsToBypassChecks = 10
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'muonSeededTracksOutInDisplacedHighPurity',
-            preFilterName = 'muonSeededTracksOutInDisplacedTight',
-            applyAdaptedPVCuts = cms.bool(False),
-            chi2n_par = 0.4,
-            minNumberLayers = 5,
-            min_nhits = 7,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 2,
-            minHitsToBypassChecks = 20
-            ),
-        ) #end of vpset
-    ) #end of clone
+muonSeededTracksOutInDisplacedClassifier = muonSeededTracksOutInClassifier.clone()
+muonSeededTracksOutInDisplacedClassifier.src='muonSeededTracksOutInDisplaced'
+
 
 #for displaced global muons
 muonSeededStepCoreDisplaced = cms.Sequence(
@@ -101,8 +67,8 @@ muonSeededStepCoreDisplaced = cms.Sequence(
 
 #for displaced global muons
 muonSeededStepExtraDisplaced = cms.Sequence(
-    muonSeededTracksInOutSelector +
-    muonSeededTracksOutInDisplacedSelector
+    muonSeededTracksInOutClassifier +
+    muonSeededTracksOutInDisplacedClassifier
 )
 #for displaced global muons
 muonSeededStepDisplaced = cms.Sequence(

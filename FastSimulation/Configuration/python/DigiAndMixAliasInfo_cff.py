@@ -12,9 +12,9 @@ generalTracksAliasInfo = cms.VPSet(
                            cms.PSet(type=cms.string('TrackingRecHitsOwned'),
                                     fromProductInstance = cms.string('generalTracks'),
                                     toProductInstance = cms.string('') ),
-                           cms.PSet(type=cms.string('floatedmValueMap'),
-                                    fromProductInstance = cms.string('generalTracksMVAVals'),
-                                    toProductInstance = cms.string('MVAVals') ) )
+                           cms.PSet(type=cms.string('vector<float>'),
+                                    fromProductInstance = cms.string('generalTracksMVAValues'),
+                                    toProductInstance = cms.string('MVAValues') ) )
         )
     )
 
