@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import PhysicsTools.HeppyCore.framework.config as cfg
 #cfg.Analyzer.nosubdir=True
 
 import ROOT
@@ -8,13 +7,6 @@ from DataFormats.FWLite import *
 import sys
 import re
 #import PSet
-
-ROOT.gSystem.Load("libCMGToolsTTHAnalysis")
-ROOT.gSystem.Load("libFWCoreFWLite.so")
-ROOT.gSystem.Load("libDataFormatsFWLite.so")
-ROOT.gSystem.Load("libPhysicsToolsHeppy")
-ROOT.gSystem.Load("libCMGToolsRootTools")
-ROOT.AutoLibraryLoader.enable()
 
 dataset = ""
 total = 0  # total number of jobs for given dataset, not used at the moment
@@ -37,8 +29,8 @@ for arg in sys.argv[2:]:
         nevents = int(arg.split("=")[1])
         print "selected to run over", nevents, "events"
     elif arg.split("=")[0] == "useAAA":
-        useAAA = bool(arg.split("=")[1])
-        print "chosen to run via xrootd"
+        useAAA = not (arg.split("=")[1] == 'False') # 'True' by default
+        if useAAA: print "chosen to run via xrootd"
 
 print "dataset:", dataset
 print "job", job , " out of", total
@@ -68,7 +60,8 @@ if len(selectedComponents) == 0:
     print "   - components:", config.components
 if len(selectedComponents)>1:
     print "More than one selected component:"
-    cfg.printComps(selectedComponents)
+    from PhysicsTools.HeppyCore.framework.config import printComps
+    printComps(selectedComponents)
 else:
     print "Selected component:"
     print selectedComponents[0]
@@ -101,7 +94,7 @@ os.system("tar czf output.log.tgz Output/")
 
 import ROOT
 f=ROOT.TFile.Open('mt2.root')
-entries=f.Get('tree').GetEntries()
+entries=f.Get('mt2').GetEntries()
 f.Close()
 
 print entries, "events processed"

@@ -6,6 +6,7 @@ susyFullHad_globalVariables = susyCore_globalVariables + [
     ## Generator information
     ##--------------------------------------------------
 ##    NTupleVariable("genQScale", lambda ev : ev.genQScale, help="Generator level binning quantity, QScale"),
+    NTupleVariable("LHEweight_original", lambda ev: ev.LHE_originalWeight, help="original LHE weight"),
     
     ##--------------------------------------------------
     ## energy sums
@@ -155,6 +156,7 @@ susyFullHad_collections.update({
         "selectedIsoTrack"    : NTupleCollection("isoTrack", isoTrackType, 50, help="isoTrack, sorted by pt"),
         "genParticles" : NTupleCollection("genPart", genParticleWithMotherId, 300, help="all pruned genparticles"),
 ##        "ivf"       : NTupleCollection("SV",     svType, 20, help="SVs from IVF", filter=lambda l : l.pt()>5),
+        "LHE_weights"    : NTupleCollection("LHEweight",  weightsInfoType, 1000, help="LHE weight info"),
 })
         
             
