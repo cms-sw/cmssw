@@ -2,12 +2,12 @@
 #define RecoBTag_SecondaryVertex_CandidateBoostedDoubleSecondaryVertexComputer_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/Utils/interface/TMVAEvaluator.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-#include "RecoBTag/SecondaryVertex/interface/MvaBoostedDoubleSecondaryVertexEstimator.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
 
 #include "fastjet/PseudoJet.hh"
@@ -38,7 +38,7 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 
     edm::FileInPath weightFile_;
     mutable std::mutex m_mutex;
-    [[cms::thread_guard("m_mutex")]] std::unique_ptr<MvaBoostedDoubleSecondaryVertexEstimator> mvaID;
+    [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVAEvaluator> mvaID;
 };
 
 #endif // RecoBTag_SecondaryVertex_CandidateBoostedDoubleSecondaryVertexComputer_h
