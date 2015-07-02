@@ -12,7 +12,7 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     offlineCSVLabelPF = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     offlineCSVLabelCalo = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
     hltFastPVLabel = cms.InputTag("hltFastPrimaryVertex"),
-    hltPFPVLabel = cms.InputTag("hltVerticesPF"),
+    hltPFPVLabel = cms.InputTag("hltVerticesPFSelector"),
     hltCaloPVLabel = cms.InputTag("hltVerticesL3"),    
     offlinePVLabel = cms.InputTag("offlinePrimaryVertices"),    
     
