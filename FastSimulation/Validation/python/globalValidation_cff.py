@@ -31,7 +31,7 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 globalPrevalidation = cms.Sequence( 
     simHitTPAssocProducer
-    *tracksValidationSelectors
+    *tracksPreValidationFS
     *recoMuonAssociationFastSim     # resides in other sequence in FullSim
     #photonPrevalidationSequence    # not used by FastSim
     *produceDenoms

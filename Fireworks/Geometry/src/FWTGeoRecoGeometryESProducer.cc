@@ -12,7 +12,7 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
-// #include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -31,7 +31,8 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-// #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -804,42 +805,40 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 void
 FWTGeoRecoGeometryESProducer::addME0Geometry( )
 {
-   /*
-   TGeoVolume* tv =  GetTopHolder("Muon", kMuonCSC);
-   TGeoVolume *assembly = GetDaughter(tv, "ME0", kMuonME0);
+  TGeoVolume* tv =  GetTopHolder("Muon", kMuonME0);
+  TGeoVolume *assembly = GetDaughter(tv, "ME0", kMuonME0);
 
-   DetId detId( DetId::Muon, 5 );
-   try 
-   {
+  DetId detId( DetId::Muon, 5 );
+  try 
+    {
       const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
-  
+
       for(auto roll : me0Geom->etaPartitions())
-      { 
-         if( roll )
-         {
-            unsigned int rawid = roll->geographicalId().rawId();
-            // std::cout << "AMT FWTTTTRecoGeometryES\n" << rawid ;
+	{ 
+	  if( roll )
+	    {
+	      unsigned int rawid = roll->geographicalId().rawId();
+	      //std::cout << "AMT FWTTTTRecoGeometryES\n" << rawid ;
                         
-            ME0DetId detid(rawid);
-            std::stringstream s;
-            s << detid;
-            std::string name = s.str();
-            TGeoVolume* child = createVolume( name, roll, kMuonME0 );
+	      ME0DetId detid(rawid);
+	      std::stringstream s;
+	      s << detid;
+	      std::string name = s.str();
+	      TGeoVolume* child = createVolume( name, roll, kMuonME0 );
 
-            TGeoVolume* holder  = GetDaughter(assembly, "Region", kMuonME0, detid.region());
-            holder = GetDaughter(holder, "Layer", kMuonME0, detid.layer()); 
-            holder = GetDaughter(holder, "Chamber", kMuonME0, detid.chamber()); 
-            AddLeafNode(holder, child, name.c_str(),  createPlacement(roll));
+	      TGeoVolume* holder  = GetDaughter(assembly, "Region", kMuonME0, detid.region());
+	      holder = GetDaughter(holder, "Layer", kMuonME0, detid.layer()); 
+	      holder = GetDaughter(holder, "Chamber", kMuonME0, detid.chamber()); 
+	      AddLeafNode(holder, child, name.c_str(),  createPlacement(roll));
 
 
-         }
-      }
-   }
-   catch( cms::Exception &exception )
-   {
+	    }
+	}
+    }
+  catch( cms::Exception &exception )
+    {
       edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
-   }
-   */
+    }
 }
 
 

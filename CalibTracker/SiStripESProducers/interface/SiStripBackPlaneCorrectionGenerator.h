@@ -4,8 +4,10 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
+#include "CondTools/SiStrip/interface/SiStripDepCondObjBuilderBase.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include <string>
 
 /**
@@ -13,17 +15,17 @@
  * It receives input values for each module geometry type and it creates a per detIt reccord. <br>
  */
 
-class SiStripBackPlaneCorrectionGenerator : public SiStripCondObjBuilderBase<SiStripBackPlaneCorrection> {
+class SiStripBackPlaneCorrectionGenerator : public SiStripDepCondObjBuilderBase<SiStripBackPlaneCorrection,TrackerTopology> {
  public:
 
   explicit SiStripBackPlaneCorrectionGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripBackPlaneCorrectionGenerator();
   
-  void getObj(SiStripBackPlaneCorrection* & obj){obj=createObject();}
+  void getObj(SiStripBackPlaneCorrection* & obj, const TrackerTopology* tTopo){obj=createObject(tTopo);}
 
  private:
 
-  SiStripBackPlaneCorrection*  createObject();
+  SiStripBackPlaneCorrection*  createObject(const TrackerTopology* tTopo);
 };
 
 #endif 

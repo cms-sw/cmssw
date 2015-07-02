@@ -4,7 +4,7 @@
 #include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 #include <string>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include <TROOT.h>
 #include <TFile.h>
 #include <TSystem.h>
@@ -209,7 +209,7 @@ void TrackingHDQMInspector( const string & dbName, const string & tagName, const
 int main (int argc, char* argv[])
 {
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   if (argc != 6 && argc != 7) {
     std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << std::endl;

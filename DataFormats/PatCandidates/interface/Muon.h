@@ -160,6 +160,7 @@ namespace pat {
       /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
       bool isTightMuon(const reco::Vertex&) const;
       bool isLooseMuon() const;
+      bool isMediumMuon() const;
       bool isSoftMuon(const reco::Vertex&) const;
       bool isHighPtMuon(const reco::Vertex&) const;
 
@@ -208,15 +209,15 @@ namespace pat {
 	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4
 	  } IpType; 
 	void initImpactParameters(void); // init IP defaults in a constructor
-	double dB(IpType type) const;
-	double edB(IpType type) const;
+	double dB(IPTYPE type) const;
+	double edB(IPTYPE type) const;
 
         /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
 	double dB() const { return std::abs(dB(PV2D)); }
         /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
 	double edB() const { return std::abs(edB(PV2D)); }
 
-	void   setDB ( double dB, double edB, IpType type = PV2D ) { 
+	void   setDB ( double dB, double edB, IPTYPE type = PV2D ) { 
 	  ip_[type] = dB; eip_[type] = edB; cachedIP_ |= (1 << int(type));
 	}
 

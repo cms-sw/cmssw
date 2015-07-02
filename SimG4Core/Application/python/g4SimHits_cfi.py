@@ -38,7 +38,7 @@ common_UseLuminosity = cms.PSet(
     DelivLuminosity = cms.double(5000.)
 )
 
-g4SimHits = cms.EDProducer("OscarProducer",
+g4SimHits = cms.EDProducer("OscarMTProducer",
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
     G4StackManagerVerbosity = cms.untracked.int32(0),

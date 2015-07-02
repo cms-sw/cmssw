@@ -42,7 +42,7 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
     simHitTPAssocProducer
-  * tracksValidationSelectors
+  * tracksPreValidation
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
@@ -50,7 +50,7 @@ globalPrevalidation = cms.Sequence(
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
-    tracksValidationSelectors
+    tracksPreValidation
 )
 
 globalValidation = cms.Sequence(   trackerHitsValidation 
@@ -103,21 +103,23 @@ globalValidationLiteTracking.replace(trackValidator,liteTrackValidator)
 
 #lite pre-validation
 globalPrevalidationLiteTracking = cms.Sequence(globalPrevalidation)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksZero)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksZeroHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksFirst)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksFirstHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksSecond)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksSecondHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksThird)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksThirdHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksFourth)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksFourthHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksFifth)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksFifthHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksSixth)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksSixthHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksNinth)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksNinthHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksTenth)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksTenthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksInitialStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksInitialStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksLowPtTripletStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksLowPtTripletStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelPairStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelPairStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedTripletStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedTripletStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksMixedTripletStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksMixedTripletStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelLessStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelLessStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksTobTecStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksTobTecStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksJetCoreRegionalStep)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksJetCoreRegionalStepHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepInOut)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepInOutHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutIn)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutInHp)

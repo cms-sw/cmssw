@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_7_4_0/HLT"        # no explicit version, take te most recent
-TARGET="/dev/CMSSW_7_4_0/\$TABLE"    # no explicit version, take te most recent
-TABLES="GRun HIon PIon 50nsGRun"     # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_7_4_0/HLT"              # no explicit version, take te most recent
+TARGET="/dev/CMSSW_7_4_0/\$TABLE"          # no explicit version, take te most recent
+TABLES="GRun HIon PIon 50nsGRun LowPU"     # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -44,7 +44,6 @@ function getConfigForCVS() {
 
   # do not use any conditions or L1 override
   hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
-  hltGetConfiguration --fastsim              $CONFIG --type $NAME > HLT_${NAME}_Famos_cff.py
 }
 
 function getContentForCVS() {
@@ -99,7 +98,7 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
-FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLT_FULL_Famos_cff.py HLT_{$TABLES_}_Famos_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
+FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
 rm -f $FILES
 getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER

@@ -52,19 +52,22 @@
 #include <vector>
 
 typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
-
 class TrackerHitAssociator {
   
  public:
+  struct Config {
+    Config(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+    Config(edm::ConsumesCollector && iC);
+    bool doPixel_, doStrip_, doTrackAssoc_, assocHitbySimTrack_;
+    edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > stripToken_;
+    edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > pixelToken_;
+    std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit> > > cfTokens_;
+    std::vector<edm::EDGetTokenT<std::vector<PSimHit> > > simHitTokens_;
+  };
 
-  // Constructor for consumes.. it can be better..eg, this should replace the other constructors 
-  // but there are too many consts 
-  // in all the wrong places
-  TrackerHitAssociator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
-  // Simple constructor
-  TrackerHitAssociator(const edm::Event& e); // deprecated
-  // Constructor with configurables
-  TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf); // deprecated
+  // The constructor supporting the consumes interface and tokens
+  TrackerHitAssociator(const edm::Event& e, const Config& config);
+
   // Destructor
   virtual ~TrackerHitAssociator(){}
   
@@ -96,8 +99,6 @@ class TrackerHitAssociator {
   std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const;
   std::vector<SimHitIdpr> associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit) const;
   
-  void processEvent(const edm::Event& theEvent);
-
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
   simhit_map SimHitMap;
   typedef std::map<simHitCollectionID, std::vector<PSimHit> > simhit_collectionMap;
@@ -106,21 +107,10 @@ class TrackerHitAssociator {
  private:
   typedef std::vector<std::string> vstring;
 
-  void makeMaps(const edm::Event& theEvent);
-
-  void makeMaps(const edm::Event& theEvent, const vstring& trackerContainers); // deprecated
-
+  void makeMaps(const edm::Event& theEvent, const Config& config);
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
-  
   bool doPixel_, doStrip_, doTrackAssoc_, assocHitbySimTrack_;
-  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > stripToken_;
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > pixelToken_;
-  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit> > > cfTokens_;
-  std::vector<edm::EDGetTokenT<std::vector<PSimHit> > > simHitTokens_;
-  
-};  
-
+};
 
 #endif
-

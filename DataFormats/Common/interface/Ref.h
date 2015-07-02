@@ -292,7 +292,7 @@ namespace edm {
     // or derived from it.
     void checkTypeAtCompileTime(C const*) {}
 
-    mutable RefCore product_;
+    RefCore product_;
     key_type index_;
   };
 
@@ -448,7 +448,7 @@ namespace edm {
     // or derived from it.
     void checkTypeAtCompileTime(product_type const*) {}
 
-    mutable RefCoreWithIndex product_;
+    RefCoreWithIndex product_;
   };
 }
 

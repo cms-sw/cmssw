@@ -309,7 +309,7 @@ class Process(object):
             return
         if not isinstance(value,_ConfigureComponent):
             raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'\n"
-                            +"an instance of "+str(type(value))+" will not work")
+                            +"an instance of "+str(type(value))+" will not work - requested label is "+name)
         if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper) and not isinstance(value,Schedule):
             if name == value.type_():
                 self.add_(value)
@@ -525,7 +525,9 @@ class Process(object):
                 continue
             item = getattr(other,name)
             if name == "source" or name == "looper" or name == "subProcess":
-                self.__setattr__(name,item)
+                # In these cases 'item' could be None if the specific object was not defined
+                if item is not None:
+                    self.__setattr__(name,item)
             elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
             elif isinstance(item,_Labelable):
@@ -1056,6 +1058,12 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       out += "process = parentProcess"+str(hash(self))+"\n"
       out += "process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +")\n"
       return out
+   def process(self):
+      return self.__process
+   def SelectEvents(self):
+      return self.__SelectEvents
+   def outputCommands(self):
+      return self.__outputCommands
    def type_(self):
       return 'subProcess'
    def nameInProcessDesc_(self,label):

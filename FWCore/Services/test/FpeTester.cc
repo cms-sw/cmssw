@@ -53,6 +53,7 @@ namespace edmtest {
   FpeTester::~FpeTester() {
   }
 
+  [[clang::optnone]]
   void
   FpeTester::analyze(edm::Event const&, edm::EventSetup const&) {
     if (testname_ == "division") {

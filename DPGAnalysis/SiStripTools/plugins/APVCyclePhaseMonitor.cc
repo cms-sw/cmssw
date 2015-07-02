@@ -185,7 +185,7 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        sprintf(hname,"phasevsorbit_%s",phase->first.c_str());
        edm::LogInfo("TProfileBeingBooked") << "TProfile " << hname << " being booked" ;
        _hphasevsorbit[phase->first] = subrun.make<TProfile>(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
-       _hphasevsorbit[phase->first]->SetBit(TH1::kCanRebin);
+       _hphasevsorbit[phase->first]->SetCanExtend(TH1::kXaxis);
        _hphasevsorbit[phase->first]->GetXaxis()->SetTitle("time [orbit#]"); _hphasevsorbit[phase->first]->GetYaxis()->SetTitle("Phase");
 
      }
@@ -242,7 +242,7 @@ APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   }
   for(std::map<std::string,TProfile**>::const_iterator prof=_hselectedphasevsorbit.begin();prof!=_hselectedphasevsorbit.end();++prof) {
     if(*(prof->second)) {
-      (*(prof->second))->SetBit(TH1::kCanRebin);
+      (*(prof->second))->SetCanExtend(TH1::kXaxis);
       (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]");
       (*(prof->second))->GetYaxis()->SetTitle("Phase");
     }
@@ -259,7 +259,7 @@ APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   }
   for(std::map<std::string,TProfile**>::const_iterator prof=_hselectedphasevectorvsorbit.begin();prof!=_hselectedphasevectorvsorbit.end();++prof) {
     if(*(prof->second)) {
-      (*(prof->second))->SetBit(TH1::kCanRebin);
+      (*(prof->second))->SetCanExtend(TH1::kXaxis);
       (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]");
       (*(prof->second))->GetYaxis()->SetTitle("Phase");
     }

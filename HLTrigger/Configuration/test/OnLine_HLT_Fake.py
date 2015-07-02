@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/Fake/V7 (CMSSW_7_4_0)
+# /dev/CMSSW_7_4_0/Fake/V11 (CMSSW_7_4_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V7')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V11')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -432,7 +432,6 @@ _customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "auto:run1_hlt_Fake"
 _customInfo['inputFile' ]=  ['file:RelVal_Raw_Fake_DATA.root']
 _customInfo['realData'  ]=  True
-_customInfo['fastSim'   ]=  False
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,_customInfo)
 

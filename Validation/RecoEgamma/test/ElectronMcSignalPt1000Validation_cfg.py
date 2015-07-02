@@ -37,10 +37,8 @@ process.GlobalTag.globaltag = autoCond[os.environ['TEST_GLOBAL_AUTOCOND']]
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcSignalPt1000Validator_cfi")
 
-process.electronMcSignalValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
-#process.electronMcSignalValidator.OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
+process.electronMcSignalValidatorPt1000.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
-#process.p = cms.Path(process.electronMcSignalValidator*process.dqmStoreStats)
-process.p = cms.Path(process.electronIsoFromDeps*process.electronMcSignalValidator*process.dqmStoreStats)
+process.p = cms.Path(process.electronIsoFromDeps*process.electronMcSignalValidatorPt1000*process.dqmStoreStats)
 
 

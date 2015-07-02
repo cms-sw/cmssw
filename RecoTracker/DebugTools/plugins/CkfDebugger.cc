@@ -34,7 +34,7 @@
 
 using namespace std;
 
-CkfDebugger::CkfDebugger( edm::EventSetup const & es ):totSeeds(0)
+CkfDebugger::CkfDebugger( edm::EventSetup const & es, edm::ConsumesCollector&& iC):trackerHitAssociatorConfig_(std::move(iC)), totSeeds(0)
 {
   file = new TFile("out.root","recreate");
   hchi2seedAll = new TH1F("hchi2seedAll","hchi2seedAll",2000,0,200);
@@ -157,7 +157,7 @@ void CkfDebugger::printSimHits( const edm::Event& iEvent)
 {
   edm::LogVerbatim("CkfDebugger") << "\nEVENT #" << iEvent.id();
 
-  hitAssociator = new TrackerHitAssociator(iEvent);//delete deleteHitAssociator() in TrackCandMaker.cc
+  hitAssociator = new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_);//delete deleteHitAssociator() in TrackCandMaker.cc
 
   std::map<unsigned int, std::vector<PSimHit> >& theHitsMap = hitAssociator->SimHitMap;
   idHitsMap.clear();

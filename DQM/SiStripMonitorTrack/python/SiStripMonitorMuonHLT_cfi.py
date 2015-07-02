@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 sistripMonitorMuonHLT = cms.EDAnalyzer("SiStripMonitorMuonHLT",
-    outputFile = cms.untracked.string('./SiStripMuonHLTDQM.root'),
-    #disableROOToutput = cms.untracked.bool(False),
     verbose = cms.untracked.bool(False),
     normalize = cms.untracked.bool(True),
     printNormalize = cms.untracked.bool(False),

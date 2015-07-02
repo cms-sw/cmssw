@@ -6,6 +6,7 @@
 //#include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/Stage1TauIsolationLUT.h"
 
 //	This is the implementation of the Stage1Layer2TauAlgorithm abstract base class.
 //	This class will be used to find sngle high pt tracks in heavy ion collisions.
@@ -39,7 +40,6 @@ namespace l1t {
 
     CaloParamsStage1* const params_;
 
-
     string findNESW(int ieta, int iphi, int neta, int nphi) const;
 
     double JetIsolation(int et, int ieta, int iphi,
@@ -64,6 +64,7 @@ namespace l1t {
   private:
 
     CaloParamsStage1* const params_;
+    Stage1TauIsolationLUT* isoTauLut;    
 
 
     string findNESW(int ieta, int iphi, int neta, int nphi) const;

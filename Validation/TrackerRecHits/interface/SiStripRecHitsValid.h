@@ -34,17 +34,16 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
-#include <memory>
 #include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 //For RecHit
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 class SiStripDetCabling;
 class SiStripDCSStatus;
-class TrackerHitAssociator;
 
 class SiStripRecHitsValid : public DQMEDAnalyzer {
 
@@ -206,7 +205,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
 
   edm::ParameterSet conf_;
-  std::unique_ptr<TrackerHitAssociator> trackerHitAssociator_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   unsigned long long m_cacheID_;
   //const StripTopology* topol;
 

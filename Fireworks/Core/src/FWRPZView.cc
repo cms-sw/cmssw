@@ -61,6 +61,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showRpcEndcap(this, "Show RPC Endcap", false ),
    m_showGEM(this, "Show GEM", false ),
+   m_showME0(this, "Show ME0", false ),
 
    m_shiftOrigin(this,"Shift origin to beam-spot", false),
    m_fishEyeDistortion(this,"Distortion",0., 0., 100.),
@@ -178,6 +179,7 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    m_showTrackerEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerEndcap,m_geometryList,_1));
    m_showRpcEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showRpcEndcap,m_geometryList,_1));
    m_showGEM.changed_.connect(boost::bind(&FWRPZViewGeometry::showGEM,m_geometryList,_1));
+   m_showME0.changed_.connect(boost::bind(&FWRPZViewGeometry::showME0,m_geometryList,_1));
 
 }
 
@@ -408,6 +410,8 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
       det.addParam(&m_showRpcEndcap);
       bool showGEM = m_context->getGeom()->versionInfo().haveExtraDet("GEM");
       if (showGEM) det.addParam(&m_showGEM);
+      bool showME0 = m_context->getGeom()->versionInfo().haveExtraDet("ME0");
+      if (showME0) det.addParam(&m_showME0);
    }
 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE

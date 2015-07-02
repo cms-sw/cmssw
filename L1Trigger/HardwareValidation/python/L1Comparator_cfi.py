@@ -27,6 +27,7 @@ l1compare = cms.EDProducer("L1Comparator",
     DumpFile = cms.untracked.string('dump.txt'),
     
     VerboseFlag = cms.untracked.int32(0),
+    stage1_layer2_ = cms.bool(False),
     
     # ECAL TPG (ETP), HCAL TPG (HTP), CSC TF (CTF) LTC, GT not supported - expert modules in DQM
     COMPARE_COLLS = cms.untracked.vuint32(

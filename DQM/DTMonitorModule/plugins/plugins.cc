@@ -3,9 +3,6 @@
 #include <DQM/DTMonitorModule/interface/DTDigiTask.h>
 DEFINE_FWK_MODULE(DTDigiTask);
 
-#include <DQM/DTMonitorModule/interface/DTTestPulsesTask.h>
-DEFINE_FWK_MODULE(DTTestPulsesTask);
-
 #include <DQM/DTMonitorModule/src/DTSegmentAnalysisTask.h>
 DEFINE_FWK_MODULE(DTSegmentAnalysisTask);
 
@@ -27,23 +24,11 @@ DEFINE_FWK_MODULE(DTChamberEfficiency);
 #include <DQM/DTMonitorModule/src/DTRunConditionVar.h>
 DEFINE_FWK_MODULE(DTRunConditionVar);
 
-#include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
-DEFINE_FWK_MODULE(DTTriggerCheck);
-
-#include "DQM/DTMonitorModule/src/DTDigiForNoiseTask.h"
-DEFINE_FWK_MODULE(DTDigiForNoiseTask);
-
 #include "DQM/DTMonitorModule/src/DTNoiseTask.h"
 DEFINE_FWK_MODULE(DTNoiseTask);
 
-#include "DQM/DTMonitorModule/src/DTAlbertoBenvenutiTask.h"
-DEFINE_FWK_MODULE(DTAlbertoBenvenutiTask);
-
 #include "DQM/DTMonitorModule/interface/DTCalibValidation.h"
 DEFINE_FWK_MODULE(DTCalibValidation);
-
-#include "DQM/DTMonitorModule/src/DTROMonitorFilter.h"
-DEFINE_FWK_MODULE(DTROMonitorFilter);
 
 #include <DQM/DTMonitorModule/src/DTTriggerEfficiencyTask.h>
 DEFINE_FWK_MODULE(DTTriggerEfficiencyTask);

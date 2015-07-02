@@ -176,14 +176,14 @@ process.cutsRecoTracksHpwbtagc.ptMin = cms.double(1.0)
 process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksHp"),
                                            cms.InputTag("cutsRecoTracksHpwbtagc"),
-                                           cms.InputTag("cutsRecoTracksZeroHp"),
-                                           cms.InputTag("cutsRecoTracksFirstHp"),
-                                           cms.InputTag("cutsRecoTracksSecondHp"),
-                                           cms.InputTag("cutsRecoTracksThirdHp"),
-                                           cms.InputTag("cutsRecoTracksFourthHp")
+                                           cms.InputTag("cutsRecoTracksInitialStepHp"),
+                                           cms.InputTag("cutsRecoTracksLowPtTripletStepHp"),
+                                           cms.InputTag("cutsRecoTracksPixelPairStepHp"),
+                                           cms.InputTag("cutsRecoTracksDetachedTripletHp"),
+                                           cms.InputTag("cutsRecoTracksMixedTripletHp")
                                            )
 #process.trackValidator.associators = ['trackAssociatorByHits']
-process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
+process.trackValidator.associators = ['quickTrackAssociatorByHits']
 process.trackValidator.UseAssociators = True
 ## options to match with 363 histos for comparison
 process.trackValidator.histoProducerAlgoBlock.nintEta = cms.int32(20)
@@ -215,11 +215,11 @@ process.trackValidator.ptMinTP = cms.double(0.9)
 
 process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksHpwbtagc*
-                                 process.cutsRecoTracksZeroHp*
-                                 process.cutsRecoTracksFirstHp*
-                                 process.cutsRecoTracksSecondHp*
-                                 process.cutsRecoTracksThirdHp*
-                                 process.cutsRecoTracksFourthHp*
+                                 process.cutsRecoTracksInitialStepHp*
+                                 process.cutsRecoTracksLowPtTripletStepHp*
+                                 process.cutsRecoTracksPixelPairStepHp*
+                                 process.cutsRecoTracksDetachedTripletHp*
+                                 process.cutsRecoTracksMixedTripletHp*
                                  process.quickTrackAssociatorByHits*
                                  process.trackValidator)
 

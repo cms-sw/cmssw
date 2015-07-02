@@ -175,7 +175,7 @@ FEDBadModuleFilter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 
     m_rhm.beginRun(iRun);
     if(*m_nbadvsorbrun) {
-      (*m_nbadvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_nbadvsorbrun)->SetCanExtend(TH1::kXaxis);
       (*m_nbadvsorbrun)->GetXaxis()->SetTitle("time [Orb#]");
       (*m_nbadvsorbrun)->GetYaxis()->SetTitle("Bad Channels");
     }

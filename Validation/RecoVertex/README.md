@@ -70,7 +70,7 @@ command that will dynamically prepare it for you. To obtain such a cfg
 file, issue the following command:
 
 ```
-cmsDriver.py step3  --conditions auto:run2_mc -n 100 --eventcontent DQM -s RAW2DIGI,RECO,VALIDATION:vertexValidation --datatier DQMIO --filein filelist:gen_sim_digi_raw_files.txt --fileout step3_VertexValidation.root --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1
+cmsDriver.py step3  --conditions auto:run2_mc -n 100 --eventcontent DQM -s RAW2DIGI,RECO,VALIDATION:vertexValidationStandalone --datatier DQMIO --filein filelist:gen_sim_digi_raw_files.txt --fileout step3_VertexValidation.root --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1
 ```
 
 This will create the python configuration file **and will
@@ -102,7 +102,7 @@ das_client.py --limit 0 --query='file dataset=/RelValTTbar_13/CMSSW_7_2_0_pre1-P
 The configuration can then be generated with
 
 ```
-cmsDriver.py step3  --conditions auto:run2_mc -n 100 --eventcontent DQM -s VALIDATION:vertexValidation --datatier DQMIO --filein filelist:gen_sim_reco_files.txt --secondfilein filelist:gen_sim_digi_raw_files.txt --fileout step3_VertexValidation.root --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1 --no_exec
+cmsDriver.py step3  --conditions auto:run2_mc -n 100 --eventcontent DQM -s VALIDATION:vertexValidationStandalone --datatier DQMIO --filein filelist:gen_sim_reco_files.txt --secondfilein filelist:gen_sim_digi_raw_files.txt --fileout step3_VertexValidation.root --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1 --no_exec
 ```
 
 Note the `secondfilein` parameter for specifying the RAW files for the
@@ -120,7 +120,7 @@ sequence. Again, we think it is better to provide you with the
 cmsDriver command to do that:
 
 ```
-cmsDriver.py step4  --scenario pp --filetype DQM --conditions auto:run2_mc --mc  -s HARVESTING:postProcessorVertexStandAlone -n -1 --filein file:step3_VertexValidation.root
+cmsDriver.py step4  --scenario pp --filetype DQM --conditions auto:run2_mc --mc  -s HARVESTING:postProcessorVertexStandAlone -n -1 --filein file:step3_VertexValidation.root -no_exec
 ```
 This command will create a final, plain, ROOT file named:
 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root that will contain

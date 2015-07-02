@@ -38,27 +38,45 @@ def recoGeoLoad(score):
        process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
        process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
        # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-       from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2017 
+       #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2017 
+       #process.load("SLHCUpgradeSimulations.Configuration.combinedCustoms.cust_2017")
       # process = cust_2017(process)
 
     elif  score == "2019":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
       process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+      #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019
 
     elif score ==  "PhaseIPixel":
       from Configuration.AlCa.GlobalTag import GlobalTag
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
       process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
 
+    elif  score == "2023":
+      from Configuration.AlCa.autoCond import autoCond
+      process.GlobalTag.globaltag = autoCond['mc']
+      #from Configuration.AlCa.GlobalTag import GlobalTag
+      #process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V6::All', '')
+      process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+      #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019
+      #process = cust_2019(process)
+      
     elif  score == "2023Muon":
-      from Configuration.AlCa.GlobalTag import GlobalTag
-      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+      from Configuration.AlCa.autoCond import autoCond
+      process.GlobalTag.globaltag = autoCond['mc']
+      #from Configuration.AlCa.GlobalTag import GlobalTag
+      #process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V6::All', '')
       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
       # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-      from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
+      #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
       #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-     # process = cust_2023Muon(process)
+      #process = cust_2023Muon(process)
+
+    elif  score == "GEMDev":
+      from Configuration.AlCa.autoCond import autoCond
+      process.GlobalTag.globaltag = autoCond['mc']
+      process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 
     elif score == "SLHCDB": # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'

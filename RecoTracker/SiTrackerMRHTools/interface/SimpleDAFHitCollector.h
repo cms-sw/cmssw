@@ -7,6 +7,7 @@
 #include "RecoTracker/SiTrackerMRHTools/interface//SiTrackerMultiRecHitUpdator.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <vector>
+#include <memory>
 
 class Propagator;
 class MeasurementEstimator;
@@ -33,7 +34,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
         //If measurements are found a SiTrackerMultiRecHit is built.
 	//All the components will lay on the same detector  
 	
-	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const;
+	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const override;
 
 	const SiTrackerMultiRecHitUpdator* getUpdator() const {return theUpdator;}
 	const MeasurementEstimator* getEstimator() const {return theEstimator;}
@@ -45,30 +46,31 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 	//TransientTrackingRecHit::ConstRecHitContainer buildMultiRecHits(const std::vector<TrajectoryMeasurementGroup>& measgroup) const;
 	//void buildMultiRecHits(const std::vector<TrajectoryMeasurement>& measgroup, std::vector<TrajectoryMeasurement>& result) const;
 
-        TrackingRecHit * rightdimension( TrackingRecHit const & hit ) const{
+        std::unique_ptr<TrackingRecHit> rightdimension( TrackingRecHit const & hit ) const{
           if( !hit.isValid() || ( hit.dimension()!=2) ) {
-            return hit.clone();
+            return std::unique_ptr<TrackingRecHit>{hit.clone()};
           }
           auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
           auto const & clus = thit.firstClusterRef();
-          if (clus.isPixel()) return hit.clone();
+          if (clus.isPixel()) return std::unique_ptr<TrackingRecHit>{hit.clone()};
           else if (thit.isMatched()) {
             LogDebug("MultiRecHitCollector") << " SiStripMatchedRecHit2D to check!!!";
-            return hit.clone();
+            return std::unique_ptr<TrackingRecHit>{hit.clone()};
           } else  if (thit.isProjected()) {
             edm::LogError("MultiRecHitCollector") << " ProjectedSiStripRecHit2D should not be present at this stage!!!";
-            return hit.clone();
+            return std::unique_ptr<TrackingRecHit>{hit.clone()};
           } else return clone(thit);
        }
 	
-       TrackingRecHit * clone(BaseTrackerRecHit const & hit2D ) const {
+        std::unique_ptr<TrackingRecHit> clone(BaseTrackerRecHit const & hit2D ) const {
          auto const & detU = *hit2D.detUnit();
          //Use 2D SiStripRecHit in endcap
          bool endcap = detU.type().isEndcap();
-         if (endcap) return hit2D.clone();
-         return new SiStripRecHit1D(hit2D.localPosition(),
-                                LocalError(hit2D.localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
-                                *hit2D.det(), hit2D.firstClusterRef());
+         if (endcap) return std::unique_ptr<TrackingRecHit>{hit2D.clone()};
+         return std::unique_ptr<TrackingRecHit>{
+                   new SiStripRecHit1D(hit2D.localPosition(),
+                                       LocalError(hit2D.localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
+                                       *hit2D.det(), hit2D.firstClusterRef()) };
  
         }
 

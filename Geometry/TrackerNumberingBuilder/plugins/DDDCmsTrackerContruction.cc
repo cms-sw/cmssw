@@ -18,7 +18,7 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> 
   std::string value = "any";
   DDSpecificsFilter filter;
   DDValue ddv( attribute, value, 0 );
-  filter.setCriteria( ddv, DDSpecificsFilter::not_equals );
+  filter.setCriteria( ddv, DDCompOp::not_equals );
   
   DDFilteredView fv( *cpv ); 
   fv.addFilter( filter );

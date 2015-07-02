@@ -68,6 +68,9 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mPtCorrOverReco_Eta_200_600         = 0;
   mPtCorrOverReco_Eta_600_1500        = 0;
   mPtCorrOverReco_Eta_1500_3500       = 0;
+  mPtCorrOverReco_Eta_3500_5000       = 0;
+  mPtCorrOverReco_Eta_5000_6500       = 0;
+  mPtCorrOverReco_Eta_3500       = 0;
   mPtCorrOverGen_GenPt_B          = 0;
   mPtCorrOverGen_GenPt_E          = 0;
   mPtCorrOverGen_GenPt_F          = 0;
@@ -76,6 +79,9 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mPtCorrOverGen_GenEta_200_600   = 0;
   mPtCorrOverGen_GenEta_600_1500  = 0;
   mPtCorrOverGen_GenEta_1500_3500 = 0;
+  mPtCorrOverGen_GenEta_3500_5000 = 0;
+  mPtCorrOverGen_GenEta_5000_6500 = 0;
+  mPtCorrOverGen_GenEta_3500 = 0;
 
   // Generation
   mGenEta      = 0;
@@ -103,6 +109,13 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mPtRecoOverGen_B_1500_3500 = 0;
   mPtRecoOverGen_E_1500_3500 = 0;
   mPtRecoOverGen_F_1500_3500 = 0;
+  mPtRecoOverGen_B_3500_5000 = 0;
+  mPtRecoOverGen_E_3500_5000 = 0;
+  mPtRecoOverGen_B_5000_6500 = 0;
+  mPtRecoOverGen_E_5000_6500 = 0;
+  mPtRecoOverGen_B_3500 = 0;
+  mPtRecoOverGen_E_3500 = 0;
+  mPtRecoOverGen_F_3500 = 0;
 
   // Generation profiles
   mPtRecoOverGen_GenPt_B          = 0;
@@ -116,6 +129,9 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mPtRecoOverGen_GenEta_200_600   = 0;
   mPtRecoOverGen_GenEta_600_1500  = 0;
   mPtRecoOverGen_GenEta_1500_3500 = 0;
+  mPtRecoOverGen_GenEta_3500_5000 = 0;
+  mPtRecoOverGen_GenEta_5000_6500 = 0;
+  mPtRecoOverGen_GenEta_3500 = 0;
 
   // Some jet algebra
   mEtaFirst   = 0;
@@ -249,6 +265,7 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     double log10PtMax  = 3.75;
     int    log10PtBins = 26; 
 
+    //if eta range changed here need change in JetTesterPostProcessor as well
     double etaRange[91] = {-6.0, -5.8, -5.6, -5.4, -5.2, -5.0, -4.8, -4.6, -4.4, -4.2,
 		     -4.0, -3.8, -3.6, -3.4, -3.2, -3.0, -2.9, -2.8, -2.7, -2.6,
 		     -2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6,
@@ -291,16 +308,22 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
       mPtCorrOverReco_Eta_200_600   = ibooker.bookProfile("PtCorrOverReco_Eta_200_600",   "200<genPt<600",   90, etaRange, 0, 5, " ");
       mPtCorrOverReco_Eta_600_1500  = ibooker.bookProfile("PtCorrOverReco_Eta_600_1500",  "600<genPt<1500",  90, etaRange, 0, 5, " ");
       mPtCorrOverReco_Eta_1500_3500 = ibooker.bookProfile("PtCorrOverReco_Eta_1500_3500", "1500<genPt<3500", 90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_3500_5000 = ibooker.bookProfile("PtCorrOverReco_Eta_3500_5000", "3500<genPt<5000", 90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_5000_6500 = ibooker.bookProfile("PtCorrOverReco_Eta_5000_6500", "5000<genPt<6500", 90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_3500      = ibooker.bookProfile("PtCorrOverReco_Eta_3500",      "genPt>3500",      90, etaRange, 0, 5, " ");
 
       mPtCorrOverGen_GenPt_B = ibooker.bookProfile("PtCorrOverGen_GenPt_B", "0<|eta|<1.5", log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
       mPtCorrOverGen_GenPt_E = ibooker.bookProfile("PtCorrOverGen_GenPt_E", "1.5<|eta|<3", log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
       mPtCorrOverGen_GenPt_F = ibooker.bookProfile("PtCorrOverGen_GenPt_F", "3<|eta|<6",   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
-
+      //if eta range changed here need change in JetTesterPostProcessor as well
       mPtCorrOverGen_GenEta_20_40    = ibooker.bookProfile("PtCorrOverGen_GenEta_20_40",      "20<genPt<40;#eta",    90, etaRange, 0.8, 1.2, " ");
       mPtCorrOverGen_GenEta_40_200    = ibooker.bookProfile("PtCorrOverGen_GenEta_40_200",    "40<genPt<200;#eta",    90, etaRange, 0.8, 1.2, " ");
       mPtCorrOverGen_GenEta_200_600   = ibooker.bookProfile("PtCorrOverGen_GenEta_200_600",   "200<genPt<600;#eta",   90, etaRange, 0.8, 1.2, " ");
       mPtCorrOverGen_GenEta_600_1500  = ibooker.bookProfile("PtCorrOverGen_GenEta_600_1500",  "600<genPt<1500;#eta",  90, etaRange, 0.8, 1.2, " ");
       mPtCorrOverGen_GenEta_1500_3500 = ibooker.bookProfile("PtCorrOverGen_GenEta_1500_3500", "1500<genPt<3500;#eta", 90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_3500_5000 = ibooker.bookProfile("PtCorrOverGen_GenEta_3500_5000", "3500<genPt<5000;#eta", 90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_5000_6500 = ibooker.bookProfile("PtCorrOverGen_GenEta_5000_6500", "5000<genPt<6500;#eta", 90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_3500      = ibooker.bookProfile("PtCorrOverGen_GenEta_3500",      "genPt>3500;#eta",      90, etaRange, 0.8, 1.2, " ");
     }
 
     mGenEta      = ibooker.book1D("GenEta",      "GenEta",      120,   -6,    6);
@@ -328,6 +351,13 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mPtRecoOverGen_B_1500_3500 = ibooker.book1D("PtRecoOverGen_B_1500_3500", "1500<genpt<3500", 90, 0, 2);
     mPtRecoOverGen_E_1500_3500 = ibooker.book1D("PtRecoOverGen_E_1500_3500", "1500<genpt<3500", 90, 0, 2);
     mPtRecoOverGen_F_1500_3500 = ibooker.book1D("PtRecoOverGen_F_1500_3500", "1500<genpt<3500", 90, 0, 2);
+    mPtRecoOverGen_B_3500_5000 = ibooker.book1D("PtRecoOverGen_B_3500_5000", "3500<genpt<5000", 90, 0, 2);
+    mPtRecoOverGen_E_3500_5000 = ibooker.book1D("PtRecoOverGen_E_3500_5000", "3500<genpt<5000", 90, 0, 2);
+    mPtRecoOverGen_B_5000_6500 = ibooker.book1D("PtRecoOverGen_B_5000_6500", "5000<genpt<6500", 90, 0, 2);
+    mPtRecoOverGen_E_5000_6500 = ibooker.book1D("PtRecoOverGen_E_5000_6500", "5000<genpt<6500", 90, 0, 2);
+    mPtRecoOverGen_B_3500      = ibooker.book1D("PtRecoOverGen_B_3500",      "genpt>3500",      90, 0, 2);
+    mPtRecoOverGen_E_3500      = ibooker.book1D("PtRecoOverGen_E_3500",      "genpt>3500",      90, 0, 2);
+    mPtRecoOverGen_F_3500      = ibooker.book1D("PtRecoOverGen_F_3500",      "genpt>3500",      90, 0, 2);
 
     // Generation profiles
     mPtRecoOverGen_GenPt_B          = ibooker.bookProfile("PtRecoOverGen_GenPt_B",          "0<|eta|<1.5",     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
@@ -336,12 +366,16 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mPtRecoOverGen_GenPhi_B         = ibooker.bookProfile("PtRecoOverGen_GenPhi_B",         "0<|eta|<1.5",     70, -3.5, 3.5, 0, 2, " ");
     mPtRecoOverGen_GenPhi_E         = ibooker.bookProfile("PtRecoOverGen_GenPhi_E",         "1.5<|eta|<3",     70, -3.5, 3.5, 0, 2, " ");
     mPtRecoOverGen_GenPhi_F         = ibooker.bookProfile("PtRecoOverGen_GenPhi_F",         "3<|eta|<6",       70, -3.5, 3.5, 0, 2, " ");
+    //if eta range changed here need change in JetTesterPostProcessor as well
     mPtRecoOverGen_GenEta_20_40    = ibooker.bookProfile("PtRecoOverGen_GenEta_20_40",    "20<genpt<40",    90, etaRange, 0, 2, " ");
     mPtRecoOverGen_GenEta_40_200    = ibooker.bookProfile("PtRecoOverGen_GenEta_40_200",    "40<genpt<200",    90, etaRange, 0, 2, " ");
     mPtRecoOverGen_GenEta_200_600   = ibooker.bookProfile("PtRecoOverGen_GenEta_200_600",   "200<genpt<600",   90, etaRange, 0, 2, " ");
     mPtRecoOverGen_GenEta_600_1500  = ibooker.bookProfile("PtRecoOverGen_GenEta_600_1500",  "600<genpt<1500",  90, etaRange, 0, 2, " ");
     mPtRecoOverGen_GenEta_1500_3500 = ibooker.bookProfile("PtRecoOverGen_GenEta_1500_3500", "1500<genpt<3500", 90, etaRange, 0, 2, " ");
-    
+    mPtRecoOverGen_GenEta_3500_5000 = ibooker.bookProfile("PtRecoOverGen_GenEta_3500_5000", "3500<genpt<5000", 90, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenEta_5000_6500 = ibooker.bookProfile("PtRecoOverGen_GenEta_5000_6500", "5000<genpt<6500", 90, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenEta_3500      = ibooker.bookProfile("PtRecoOverGen_GenEta_3500",      "genpt>3500",      90, etaRange, 0, 2, " "); 
+  
     // Some jet algebra
     //------------------------------------------------------------------------
     mEtaFirst   = ibooker.book1D("EtaFirst",   "EtaFirst",   120,   -6,    6); 
@@ -785,6 +819,9 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       else if (ijetPt <  600) mPtCorrOverReco_Eta_200_600  ->Fill(ijetEta, ratio);
       else if (ijetPt < 1500) mPtCorrOverReco_Eta_600_1500 ->Fill(ijetEta, ratio);
       else if (ijetPt < 3500) mPtCorrOverReco_Eta_1500_3500->Fill(ijetEta, ratio);
+      else if (ijetPt < 5000) mPtCorrOverReco_Eta_3500_5000->Fill(ijetEta, ratio);
+      else if (ijetPt < 6500) mPtCorrOverReco_Eta_5000_6500->Fill(ijetEta, ratio);
+      if (ijetPt > 3500) mPtCorrOverReco_Eta_3500->Fill(ijetEta, ratio);
     }
   }
 
@@ -873,6 +910,9 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
               else if (gjet->pt() <  600) mPtCorrOverGen_GenEta_200_600  ->Fill(gjet->eta(), response);
               else if (gjet->pt() < 1500) mPtCorrOverGen_GenEta_600_1500 ->Fill(gjet->eta(), response);
               else if (gjet->pt() < 3500) mPtCorrOverGen_GenEta_1500_3500->Fill(gjet->eta(), response);
+              else if (gjet->pt() < 5000) mPtCorrOverGen_GenEta_3500_5000->Fill(gjet->eta(), response);
+              else if (gjet->pt() < 6500) mPtCorrOverGen_GenEta_5000_6500->Fill(gjet->eta(), response);
+              if (gjet->pt() > 3500) mPtCorrOverGen_GenEta_3500->Fill(gjet->eta(), response);
             }
           }
         }
@@ -908,6 +948,9 @@ void JetTester::fillMatchHists(const double GenEta,
       else if (GenPt <  600)         mPtRecoOverGen_B_200_600  ->Fill(RecoPt / GenPt);
       else if (GenPt < 1500)         mPtRecoOverGen_B_600_1500 ->Fill(RecoPt / GenPt);
       else if (GenPt < 3500)         mPtRecoOverGen_B_1500_3500->Fill(RecoPt / GenPt);
+      else if (GenPt < 5000)         mPtRecoOverGen_B_3500_5000->Fill(RecoPt / GenPt);
+      else if (GenPt < 6500)         mPtRecoOverGen_B_5000_6500->Fill(RecoPt / GenPt);
+      if (GenPt>3500)         mPtRecoOverGen_B_3500->Fill(RecoPt / GenPt);
     }
   else if (fabs(GenEta) < 3.0)
     {
@@ -919,6 +962,9 @@ void JetTester::fillMatchHists(const double GenEta,
       else if (GenPt <  600)         mPtRecoOverGen_E_200_600  ->Fill(RecoPt / GenPt);
       else if (GenPt < 1500)         mPtRecoOverGen_E_600_1500 ->Fill(RecoPt / GenPt);
       else if (GenPt < 3500)         mPtRecoOverGen_E_1500_3500->Fill(RecoPt / GenPt);
+      else if (GenPt < 5000)         mPtRecoOverGen_E_3500_5000->Fill(RecoPt / GenPt);
+      else if (GenPt < 6500)         mPtRecoOverGen_E_5000_6500->Fill(RecoPt / GenPt);
+      if (GenPt>3500)         mPtRecoOverGen_E_3500->Fill(RecoPt / GenPt);
     }
   else if (fabs(GenEta) < 6.0)
     {
@@ -930,6 +976,7 @@ void JetTester::fillMatchHists(const double GenEta,
       else if (GenPt <  600)         mPtRecoOverGen_F_200_600  ->Fill(RecoPt / GenPt);
       else if (GenPt < 1500)         mPtRecoOverGen_F_600_1500 ->Fill(RecoPt / GenPt);
       else if (GenPt < 3500)         mPtRecoOverGen_F_1500_3500->Fill(RecoPt / GenPt);
+      if (GenPt>3500)                mPtRecoOverGen_F_3500->Fill(RecoPt / GenPt);
     }
 
   if (GenPt > 20 && GenPt < 40) mPtRecoOverGen_GenEta_20_40   ->Fill(GenEta, RecoPt / GenPt);
@@ -937,4 +984,7 @@ void JetTester::fillMatchHists(const double GenEta,
   else if (GenPt <  600)         mPtRecoOverGen_GenEta_200_600  ->Fill(GenEta, RecoPt / GenPt);
   else if (GenPt < 1500)         mPtRecoOverGen_GenEta_600_1500 ->Fill(GenEta, RecoPt / GenPt);
   else if (GenPt < 3500)         mPtRecoOverGen_GenEta_1500_3500->Fill(GenEta, RecoPt / GenPt);
+  else if (GenPt < 5000)         mPtRecoOverGen_GenEta_3500_5000->Fill(GenEta, RecoPt / GenPt);
+  else if (GenPt < 6500)         mPtRecoOverGen_GenEta_5000_6500->Fill(GenEta, RecoPt / GenPt);
+  if (GenPt > 3500)              mPtRecoOverGen_GenEta_3500->Fill(GenEta, RecoPt / GenPt);
 }

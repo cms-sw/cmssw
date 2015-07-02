@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
@@ -176,8 +175,13 @@
     // set our own root plugins
     TPluginManager* mgr = gROOT->GetPluginManager();
 
+    // Make sure ROOT parses system directories first.
+    mgr->LoadHandlersFromPluginDirs("TFile");
+    mgr->LoadHandlersFromPluginDirs("TSystem");
+
     if (!native("file"))      addType(mgr, "^file:");
     if (!native("http"))      addType(mgr, "^http:");
+    if (!native("http"))      addType(mgr, "^http[s]?:");
     if (!native("ftp"))       addType(mgr, "^ftp:");
     /* always */              addType(mgr, "^web:");
     /* always */              addType(mgr, "^gsiftp:");
@@ -189,9 +193,8 @@
     if (!native("storm"))     addType(mgr, "^storm:");
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
     if (!native("lstore"))    addType(mgr, "^lstore:");
-    // This is ready to go from a code point-of-view.
-    // Waiting on the validation "OK" from Computing.
     if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
+    if (!native("root"))      addType(mgr, "^[x]?root:", 1); // See comments in addType
   }
 
   void
@@ -268,7 +271,3 @@ TFileAdaptorUI::~TFileAdaptorUI() {}
 void TFileAdaptorUI::stats() const {
   me->stats(std::cout); std::cout << std::endl;
 }
-
-typedef TFileAdaptor AdaptorConfig;
-
-DEFINE_FWK_SERVICE(AdaptorConfig);

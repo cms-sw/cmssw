@@ -78,8 +78,9 @@ HcalParametersFromDD::build( const DDCompactView* cpv,
   DDValue val( attribute, value, 0.0 );
   
   DDSpecificsFilter filter;
-  filter.setCriteria( val, DDSpecificsFilter::not_equals,
-		      DDSpecificsFilter::AND, true, // compare strings 
+  filter.setCriteria( val,
+		      DDCompOp::not_equals,
+		      DDLogOp::AND, true, // compare strings 
 		      true  // use merged-specifics or simple-specifics
 		     );
   DDFilteredView fv( *cpv );

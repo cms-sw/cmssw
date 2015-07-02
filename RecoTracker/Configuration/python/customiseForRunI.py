@@ -101,4 +101,12 @@ def customiseForRunI(process):
     process.ak4CaloJetsForTrk.srcPVs = 'pixelVertices'
     process.photonConvTrajSeedFromSingleLeg.primaryVerticesTag = 'pixelVertices'
 
+    # ... and finally turn off all possible references to CCC: this is
+    # done by switching off the Tight and Loose reftoPSet, rather than
+    # following all the places in which they are effectively used in
+    # release. The RunI-like tracking already uses CCCNone: this will
+    # be useful mainly for conversions.
+    process.SiStripClusterChargeCutTight.value = -1.
+    process.SiStripClusterChargeCutLoose.value = -1.
+
     return process

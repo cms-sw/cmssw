@@ -8,11 +8,11 @@
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), trackerHitAssociator_(iPSet, consumesCollector()), count(0)
+  printProvenanceInfo(false), trackerHitAssociatorConfig_(iPSet, consumesCollector()), count(0)
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_GlobalRecHitsProducer";
 
@@ -873,7 +873,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -892,8 +892,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     return;
   }  
 
-  TrackerHitAssociator& associate = trackerHitAssociator_;
-  associate.processEvent(iEvent);
+  TrackerHitAssociator associate(iEvent, trackerHitAssociatorConfig_);
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);

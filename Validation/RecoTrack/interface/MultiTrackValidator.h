@@ -23,25 +23,28 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
   /// Method called once per event
   void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  /// Method called at the end of the event loop
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   /// Method called to book the DQM histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 
  protected:
   //these are used by MTVGenPs
-  edm::InputTag assMapInput;
-  edm::EDGetTokenT<reco::SimToRecoCollection> associatormapStR;
-  edm::EDGetTokenT<reco::RecoToSimCollection> associatormapRtS;
   bool UseAssociators;
+  const bool parametersDefinerIsCosmic_;
+  const bool doSimPlots_;
+  const bool doSimTrackPlots_;
+  const bool doRecoTrackPlots_;
+  const bool dodEdxPlots_;
   MTVHistoProducerAlgo* histoProducerAlgo_;
 
  private:
+  std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associatorTokens;
+  std::vector<edm::EDGetTokenT<reco::SimToRecoCollection>> associatormapStRs;
+  std::vector<edm::EDGetTokenT<reco::RecoToSimCollection>> associatormapRtSs;
+
   std::string dirName_;
 
   bool useGsf;
-  bool runStandalone;
   // select tracking particles 
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
@@ -51,6 +54,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
   edm::EDGetTokenT<edm::View<reco::Track> > labelTokenForDrCalculation;
 
+  std::vector<MonitorElement *> h_reco_coll, h_assoc_coll, h_assoc2_coll, h_simul_coll, h_looper_coll, h_pileup_coll;
 };
 
 

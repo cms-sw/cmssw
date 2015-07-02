@@ -21,7 +21,7 @@ class CMSDummyDeexcitation : public G4VPreCompoundModel
 { 
 public:
 
-  CMSDummyDeexcitation() {}; 
+  CMSDummyDeexcitation():G4VPreCompoundModel(0, "PRECO") {}; 
 
   virtual ~CMSDummyDeexcitation() {};
 

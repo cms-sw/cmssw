@@ -32,20 +32,32 @@ void throwInvalidRefFromNoCache(const edm::TypeID& id, edm::ProductID const& pro
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      cachePtr_(prodPtr?prodPtr:prodGetter),
+      cachePtr_(prodPtr),
       processIndex_(theId.processIndex()),
       productIndex_(theId.productIndex())
       {
         if(transient) {
           setTransient();
         }
-        if(prodPtr!=0 || prodGetter==0) {
-          setCacheIsProductPtr();
+        if(prodPtr==nullptr && prodGetter!=nullptr) {
+          setCacheIsProductGetter(prodGetter);
         }
       }
+  
+  RefCore::RefCore( RefCore const& iOther) :
+      cachePtr_(iOther.cachePtr_.load()),
+      processIndex_(iOther.processIndex_),
+      productIndex_(iOther.productIndex_) {}
+  
+  RefCore& RefCore::operator=( RefCore const& iOther) {
+    cachePtr_ = iOther.cachePtr_.load();
+    processIndex_ = iOther.processIndex_;
+    productIndex_ = iOther.productIndex_;
+    return *this;
+  }
 
   WrapperBase const*
-  RefCore::getProductPtr(std::type_info const& type) const {
+  RefCore::getProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
     // EDProductGetter::instance() is called will be one where a
@@ -67,10 +79,10 @@ namespace edm {
     }
 
     //if (productPtr() == 0 && productGetter() == 0) {
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
-    WrapperBase const* product = productGetter()->getIt(tId);
+    WrapperBase const* product = prodGetter->getIt(tId);
     if (product == nullptr) {
       productNotFoundException(type);
     }
@@ -81,17 +93,17 @@ namespace edm {
   }
 
   WrapperBase const*
-  RefCore::tryToGetProductPtr(std::type_info const& type) const {
+  RefCore::tryToGetProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const {
     ProductID tId = id();
     assert (!isTransient());
     if (!tId.isValid()) {
       throwInvalidRefFromNullOrInvalidRef(TypeID(type));
     }
 
-    if (cachePtr_ == 0) {
+    if (cachePtrIsInvalid()) {
       throwInvalidRefFromNoCache(TypeID(type),tId);
     }
-    WrapperBase const* product = productGetter()->getIt(tId);
+    WrapperBase const* product = prodGetter->getIt(tId);
     if(product != nullptr && !(type == product->dynamicTypeInfo())) {
       wrongTypeException(type, product->dynamicTypeInfo());
     }
@@ -99,10 +111,10 @@ namespace edm {
   }
 
   WrapperBase const*
-  RefCore::getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey) const {
+  RefCore::getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey, EDProductGetter const* prodGetter) const {
 
     ProductID tId = id();
-    WrapperBase const* product = productGetter()->getThinnedProduct(tId, thinnedKey);
+    WrapperBase const* product = prodGetter->getThinnedProduct(tId, thinnedKey);
 
     if (product == nullptr) {
       productNotFoundException(type);
@@ -114,12 +126,13 @@ namespace edm {
   }
 
   bool
-  RefCore::isThinnedAvailable(unsigned int thinnedKey) const {
+  RefCore::isThinnedAvailable(unsigned int thinnedKey, EDProductGetter const* prodGetter) const {
     ProductID tId = id();
-    if(!tId.isValid() || productGetter() == nullptr) {
-      return false;
+    if(!tId.isValid() || prodGetter == nullptr) {
+      //another thread may have changed it
+      return nullptr != productPtr();
     }
-    WrapperBase const* product = productGetter()->getThinnedProduct(tId, thinnedKey);
+    WrapperBase const* product = prodGetter->getThinnedProduct(tId, thinnedKey);
     return product != nullptr;
   }
 
@@ -154,13 +167,17 @@ namespace edm {
   bool
   RefCore::isAvailable() const {
     ProductID tId = id();
-    return productPtr() != nullptr || (tId.isValid() && productGetter() != nullptr && productGetter()->getIt(tId) != nullptr);
+    //If another thread changes the cache, it will change a non-null productGetter
+    // into a null productGeter but productPtr will be non-null
+    // Therefore reading productGetter() first is the safe order
+    auto prodGetter = productGetter();
+    auto prodPtr = productPtr();
+    return prodPtr != nullptr || (tId.isValid() && prodGetter != nullptr && prodGetter->getIt(tId) != nullptr);
   }
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-    cachePtr_ = prodGetter;
-    unsetCacheIsProductPtr();
+    setCacheIsProductGetter(prodGetter);
   }
   
   void 
@@ -211,10 +228,13 @@ namespace edm {
     //Since productPtr and productGetter actually share the same pointer internally,
     // we want to be sure that if the productPtr is set we use that one and only if
     // it isn't set do we set the productGetter if available
-    if (productPtr() == 0 && productToBeInserted.productPtr() != 0) {
+    if (productPtr() == nullptr && productToBeInserted.productPtr() != nullptr) {
       setProductPtr(productToBeInserted.productPtr());
-    } else if (productPtr() == 0 && productGetter() == 0 && productToBeInserted.productGetter() != 0) {
-      setProductGetter(productToBeInserted.productGetter());
+    } else {
+      auto getter = productToBeInserted.productGetter();
+      if (cachePtrIsInvalid() && getter != nullptr) {
+        setProductGetter(getter);
+      }
     }
   }
 
@@ -250,8 +270,9 @@ namespace edm {
         setId(productToBeInserted.id());
       }
     }
-    if (productGetter() == 0 && productToBeInserted.productGetter() != 0) {
-      setProductGetter(productToBeInserted.productGetter());
+    auto prodGetter = productToBeInserted.productGetter();
+    if (productGetter() == 0 &&  prodGetter != 0) {
+      setProductGetter(prodGetter);
     }
   }
 }

@@ -128,6 +128,11 @@ namespace edm {
           iOther.productGetter(),
           iOther.isTransient()),
     key_(iOther.key()) {
+      //make sure a race condition didn't happen where between the call to hasProductCache() and
+      // productGetter() the object was gotten
+      if(iOther.hasProductCache() and not hasProductCache()) {
+        core_.setProductPtr(static_cast<T const*>(iOther.get()) );
+      }
     }
 
     template<typename U>
@@ -180,7 +185,7 @@ namespace edm {
 
     key_type key() const {return key_;}
 
-    bool hasProductCache() const { return 0 != core_.productPtr(); }
+    bool hasProductCache() const { return nullptr != core_.productPtr(); }
 
     RefCore const& refCore() const {return core_;}
     // ---------- member functions ---------------------------
@@ -196,11 +201,12 @@ namespace edm {
     T const* getItem_(C const* product, key_type iKey);
 
     void getData_(bool throwIfNotFound = true) const {
-      if(!hasProductCache() && productGetter() != nullptr) {
-        WrapperBase const* prod = productGetter()->getIt(core_.id());
+      EDProductGetter const* getter = productGetter();
+      if(getter != nullptr) {
+        WrapperBase const* prod = getter->getIt(core_.id());
         unsigned int iKey = key_;
         if(prod == nullptr) {
-          prod = productGetter()->getThinnedProduct(core_.id(), iKey);
+          prod = getter->getThinnedProduct(core_.id(), iKey);
           if(prod == nullptr) {
             if(throwIfNotFound) {
               core_.productNotFoundException(typeid(T));

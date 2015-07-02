@@ -19,29 +19,37 @@ multiTrackValidator = cms.EDAnalyzer(
     # if the track collectio is missing (e.g. HLT):
     ignoremissingtrackcollection=cms.untracked.bool(False),
     
-    # set true if you do not want efficiency fakes and resolution fit
-    # to be calculated in the end run (for automated validation):
-    skipHistoFit=cms.untracked.bool(True),
-
-    runStandalone = cms.bool(False),
-
     useGsf=cms.bool(False),
 
     
     ### matching configuration ###
-    associatormap = cms.InputTag("trackingParticleRecoTrackAsssociation"),
-    #associatormap = cms.InputTag("assoc2secStepTk"),
-    #associatormap = cms.InputTag("assoc2thStepTk"),
-    #associatormap = cms.InputTag("assoc2GsfTracks"),
-    associators = cms.vstring('trackAssociatorByHitsRecoDenom'),    
-    UseAssociators = cms.bool(True), # if False, the TP-RecoTrack maps has to be specified 
+    # Example of TP-Track map
+    associators = cms.untracked.VInputTag("trackingParticleRecoTrackAsssociation"),
+    # Example of associator
+    #associators = cms.untracked.VInputTag("quickTrackAssociatorByHits"),
+    # if False, the src's above should specify the TP-RecoTrack association
+    # if True, the src's above should specify the associator
+    UseAssociators = cms.bool(False),
 
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
     label_tv = cms.InputTag("mix","MergedTrackTruth"),
     label_pileupinfo = cms.InputTag("addPileupInfo"),
-    sim = cms.string('g4SimHits'),
+    sim = cms.VInputTag(
+      cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTECLowTof"),
+      cms.InputTag("g4SimHits", "TrackerHitsTECHighTof"),
+    ),
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),          # collision like tracks
     # parametersDefiner = cms.string('CosmicParametersDefinerForTP'),     # cosmics tracks
     simHitTpMapTag = cms.InputTag("simHitTPAssocProducer"),               # needed by CosmicParametersDefinerForTP
@@ -56,8 +64,13 @@ multiTrackValidator = cms.EDAnalyzer(
     
     ### output configuration
     dirName = cms.string('Tracking/Track/'),
-    outputFile = cms.string(''),
 
     ### for fake rate vs dR ###
-    trackCollectionForDrCalculation = cms.InputTag("generalTracks")
+    trackCollectionForDrCalculation = cms.InputTag("generalTracks"),
+
+    ### Allow switching off particular histograms
+    doSimPlots = cms.untracked.bool(True),
+    doSimTrackPlots = cms.untracked.bool(True),
+    doRecoTrackPlots = cms.untracked.bool(True),
+    dodEdxPlots = cms.untracked.bool(False),
 )

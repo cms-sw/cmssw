@@ -56,6 +56,7 @@
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
@@ -394,7 +395,7 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<IdealGeometryRecord>().get(tTopoHandle);
+    es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // construct alignable tracker to get access to alignable hierarchy 
@@ -1210,7 +1211,7 @@ TrackerOfflineValidation::endJob()
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   AlignableTracker aliTracker(&(*tkGeom_), tTopo);

@@ -15,7 +15,7 @@ public:
   template<typename... Args>
     BasicSingleTrajectoryState(Args && ...args) : BasicTrajectoryState(std::forward<Args>(args)...){/* assert(weight()>0);*/}
 
-  pointer clone() const {
+  pointer clone() const GCC11_OVERRIDE {
     return build<BasicSingleTrajectoryState>(*this);
   }
 #else

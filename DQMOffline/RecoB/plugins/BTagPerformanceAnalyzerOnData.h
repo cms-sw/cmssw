@@ -9,6 +9,7 @@
 #include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 /** \class BTagPerformanceAnalyzerOnData
  *
@@ -42,7 +43,6 @@ class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
   std::vector<std::string> tiDataFormatType;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
-  std::string JECsource;
   bool doJEC;
   edm::InputTag slInfoTag;
 
@@ -57,6 +57,8 @@ class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
   std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
   //add consumes
+  edm::EDGetTokenT<reco::JetCorrector> jecMCToken;
+  edm::EDGetTokenT<reco::JetCorrector> jecDataToken;
   edm::EDGetTokenT<GenEventInfoProduct> genToken;
   edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> slInfoToken;
   std::vector< edm::EDGetTokenT<reco::JetTagCollection> > jetTagToken;

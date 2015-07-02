@@ -70,6 +70,10 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+
+// tracker hit associator
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
 // ecal / hcal
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -149,6 +153,8 @@ private:
   int    debugTrks_;
   bool   printTrkHitPattern_;
   int    myverbose_;
+
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extTauJet_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extCenJet_;

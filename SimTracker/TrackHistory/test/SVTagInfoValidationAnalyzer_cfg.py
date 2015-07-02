@@ -34,7 +34,7 @@ process.GlobalTag.globaltag = 'MC_38Y_V9::All'
 process.svTagInfoValidationAnalyzer.enableSimToReco = cms.untracked.bool(True)
 process.svTagInfoValidationAnalyzer.vertexProducer = cms.untracked.InputTag('svTagInfoProxy')
 
-process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoValidationAnalyzer)
+process.p = cms.Path(process.playback * process.svTagInfoProxy * process.trackAssociatorByHits * process.vertexAssociatorSequence * process.svTagInfoValidationAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 readFiles = cms.untracked.vstring()

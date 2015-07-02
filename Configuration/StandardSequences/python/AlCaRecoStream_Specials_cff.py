@@ -60,6 +60,24 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
+# HCAL Pedestals
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
+
+from DQMOffline.Configuration.AlCaRecoDQM_cff import *
+
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
+ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
+        responsible = 'Olga Kodolova',
+        name = 'ALCARECOHcalCalPedestal',
+        paths  = (pathALCARECOHcalCalPedestal),
+        content = OutALCARECOHcalCalPedestal.outputCommands,
+        selectEvents = OutALCARECOHcalCalPedestal.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
 
 
 # AlCaReco for LumiPixel stream

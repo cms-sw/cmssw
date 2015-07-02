@@ -6,14 +6,22 @@ HltVertexValidationVerticesFastSim= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer
         SimVertexCollection = cms.InputTag("famosSimHits"),
 	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
 	HLTPathNames =cms.vstring(
-		'HLT_PFMET120_NoiseCleaned_BTagCSV07_', 
-	#	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v', 
-		'HLT_PFMET120_NoiseCleaned_BTagCSV07_'
+	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v',
+#	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v',
+	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v',
+	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_',
+#	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_',
+	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_',
+	'HLT_QuadPFJet_VBF',
+#	'HLT_QuadPFJet_VBF',
+	'HLT_QuadPFJet_VBF',
+	'HLT_Ele32_eta2p1_',
+	'HLT_IsoMu24_eta2p1_'
 		),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
-#		cms.InputTag("hltFastPrimaryVertex"), 
 		cms.InputTag("hltFastPVPixelVertices"),
+		cms.InputTag("hltVerticesPF"), 
 	)
 )
 

@@ -100,6 +100,7 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
       CondObj_name      = cms.string('noise'),
 
       GainRenormalisation               = cms.bool(False),
+      SimGainRenormalisation               = cms.bool(False),
       
       FillSummaryAtLayerLevel           = cms.bool(True),
       FillSummaryProfileAtLayerLevel    = cms.bool(True),

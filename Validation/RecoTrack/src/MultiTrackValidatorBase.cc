@@ -3,12 +3,15 @@
 MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed){
   //dbe_ = edm::Service<DQMStore>().operator->();
 
-  associators = pset.getParameter< std::vector<std::string> >("associators");
+  associators = pset.getUntrackedParameter< std::vector<edm::InputTag> >("associators");
   label_tp_effic = iC.consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp_effic"));
   label_tp_fake = iC.consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp_fake"));
   label_tv = iC.mayConsume<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));
   label_pileupinfo = iC.consumes<std::vector<PileupSummaryInfo> >(pset.getParameter< edm::InputTag >("label_pileupinfo"));
-  sim = pset.getParameter<std::string>("sim");
+  for(const auto& tag: pset.getParameter<std::vector<edm::InputTag>>("sim")) {
+    simHitTokens_.push_back(iC.consumes<std::vector<PSimHit>>(tag));
+  }
+
   parametersDefiner = pset.getParameter<std::string>("parametersDefiner");
 
 
@@ -20,9 +23,5 @@ MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset, 
   }
   bsSrc = iC.consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>( "beamSpot" ));
 
-  out = pset.getParameter<std::string>("outputFile");   
-
   ignoremissingtkcollection_ = pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false);
-  skipHistoFit = pset.getUntrackedParameter<bool>("skipHistoFit",false);    
-
 }

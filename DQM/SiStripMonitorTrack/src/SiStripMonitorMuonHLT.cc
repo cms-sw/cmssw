@@ -16,7 +16,8 @@
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //
 // constructors and destructor
@@ -59,15 +60,6 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
 	"\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like" "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")" "\n------------------------------------------";
     }
   tkdetmap_ = edm::Service < TkDetMap > ().operator-> ();
-  //////////////////////////
-
-  outputFile_ = parameters_.getUntrackedParameter < std::string > ("outputFile","");
-  if (outputFile_.size () != 0) edm::LogWarning ("HLTMuonDQMSource") << "Muon HLT Monitoring histograms will be saved to " << outputFile_ << std::endl;
-  else outputFile_ = "MuonHLTDQM.root";
-
-  bool disable = parameters_.getUntrackedParameter < bool > ("disableROOToutput",false);
-  if (disable) outputFile_ = "";
-
 }
 
 
@@ -604,7 +596,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<std::string> v_LabelHisto;

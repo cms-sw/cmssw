@@ -39,6 +39,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   neventsDDU = 0;
   neventsROS25 = 0;
 
+  FEDIDmin = FEDNumbering::MINDTFEDID;
+  FEDIDMax = FEDNumbering::MAXDTFEDID;
+
 //   If you want info VS time histos
 //   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
 //   Plot quantities about SC
@@ -66,7 +69,6 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 }
 
 
-
 DTDataIntegrityTask::~DTDataIntegrityTask() {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     <<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
@@ -90,8 +92,6 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask] Get DQMStore service" << endl;
 
   // Loop over the DT FEDs
-  int FEDIDmin = FEDNumbering::MINDTFEDID;
-  int FEDIDMax = FEDNumbering::MAXDTFEDID;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " FEDS: " << FEDIDmin  << " to " <<  FEDIDMax << " in the RO" << endl;
@@ -469,7 +469,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     // SC data Size
     histoType = "SCSizeVsROSSize";
     histoName = "FED" + dduID_s.str() + "_SCSizeVsROSSize";
-    histoTitle = "SC size - ROS size vs SC (FED " + dduID_s.str() + ")";
+    histoTitle = "SC size vs SC (FED " + dduID_s.str() + ")";
     rosHistos[histoType][code.getSCID()] = ibooker.book2D(histoName,histoTitle,12,1,13,51,-1,50);
     rosHistos[histoType][code.getSCID()]->setAxisTitle("SC",1);
 
@@ -763,7 +763,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   if (mode <= 1 && getSCInfo) {
     // NumberOf16bitWords counts the # of words + 1 subheader
     // the SC includes the SC "private header" and the ROS header and trailer (= NumberOf16bitWords +3)
-    rosHistos["SCSizeVsROSSize"][code.getSCID()]->Fill(ros,data.getSCPrivHeader().NumberOf16bitWords()+3-data.getSCTrailer().wordCount());
+    rosHistos["SCSizeVsROSSize"][code.getSCID()]->Fill(ros,data.getSCTrailer().wordCount());
 
   }
 }
@@ -779,7 +779,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   DTROChainCoding code;
   code.setDDU(ddu);
   if(code.getDDUID() < FEDIDmin || code.getDDUID() > FEDIDMax) return;
-  
+
   hFEDEntry->Fill(code.getDDUID());
 
   FEDTrailer trailer = data.getDDUTrailer();

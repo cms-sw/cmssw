@@ -66,7 +66,7 @@ process.trackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 process.load("Validation.RecoTrack.cuts_cff")
 
 process.load("Validation.RecoTrack.TrackerSeedValidator_cff")
-process.trackerSeedValidator.associators = cms.vstring('trackAssociatorByHits')
+process.trackerSeedValidator.associators = ['trackAssociatorByHits']
 process.trackerSeedValidator.label = ['initialStepSeeds']
 process.trackerSeedValidator.outputFile = 'file.root'
 

@@ -94,19 +94,19 @@
   </class>
   <class name="edm::Wrapper<L1GtTechnicalTriggerRecord>" splitLevel="0"/>
 
-  <class name="std::vector<L1GtObject> "/>
+  <class name="std::vector<L1GtObject>"/>
   <class name="std::vector<std::vector<L1GtObject> >"/>
 
   <class name="L1GtLogicParser::OperandToken" ClassVersion="10">
    <version ClassVersion="10" checksum="599247693"/>
   </class>
-  <class name="std::vector<L1GtLogicParser::OperandToken> "/>
+  <class name="std::vector<L1GtLogicParser::OperandToken>"/>
 
   <class name="L1GtLogicParser::TokenRPN" ClassVersion="11">
    <version ClassVersion="11" checksum="1759531300"/>
    <version ClassVersion="10" checksum="535147936"/>
   </class>
-  <class name="std::vector<L1GtLogicParser::TokenRPN> "/>
+  <class name="std::vector<L1GtLogicParser::TokenRPN>"/>
 
   <class name="L1GtTriggerMenuLite" ClassVersion="10">
    <version ClassVersion="10" checksum="851367861"/>

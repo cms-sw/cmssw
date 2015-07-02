@@ -431,6 +431,11 @@ bool Muon::isLooseMuon() const {
 
 }
 
+bool Muon::isMediumMuon() const {
+  return muon::isMediumMuon(*this);
+
+}
+
 bool Muon::isSoftMuon(const reco::Vertex& vtx) const {
   return muon::isSoftMuon(*this, vtx);
 }

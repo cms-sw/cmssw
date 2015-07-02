@@ -90,6 +90,7 @@ private:
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
   const bool verifyAdler32_;
+  const bool verifyChecksum_;
   const bool useL1EventID_;
   const bool testModeNoBuilderUnit_;
 

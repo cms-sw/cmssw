@@ -114,7 +114,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   G4String value     = name;
   DDSpecificsFilter filter;
   DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
+  filter.setCriteria(ddv,DDCompOp::equals);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool dodet = fv.firstChild();

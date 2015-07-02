@@ -73,11 +73,9 @@ namespace edmtest {
 
     edm::Handle<std::vector<int> > inputCollection1;
     event.getByToken(inputToken1_, inputCollection1);
-    std::vector<int> const& vint1 = *inputCollection1;
 
     edm::Handle<std::vector<int> > inputCollection2;
     event.getByToken(inputToken2_, inputCollection2);
-    std::vector<int> const& vint2 = *inputCollection2;
 
     // Readout some entries from some AssociationMaps and check that
     // we readout the same content as was was put in. We know the values

@@ -14,7 +14,7 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const & config,
         hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") ),
         beamSpotLabel_( config.getUntrackedParameter<edm::InputTag>("beamSpot") ),
         tracer_(config,std::move(collector)),
-        quality_(config)
+        quality_(config, collector)
 {
     collector.consumes<edm::HepMCProduct>(hepMCLabel_);
     collector.consumes<reco::BeamSpot>(beamSpotLabel_);
@@ -68,7 +68,7 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHand;
-    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    setup.get<TrackerTopologyRcd>().get(tTopoHand);
     tTopo_=tTopoHand.product();
 }
 

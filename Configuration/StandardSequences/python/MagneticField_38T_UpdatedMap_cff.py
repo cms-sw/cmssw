@@ -1,8 +1,10 @@
-import FWCore.ParameterSet.Config as cms
+print """####################################################################
+# WARNING: the module                                              #
+# Configuration.StandardSequences.MagneticField_38T_UpdatedMap_cff #
+# is deprecated. Please use                                        #
+# Configuration.StandardSequences.MagneticField_cff.py             #
+####################################################################"""
 
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine.
-#version coming from updated TOSCA simulation after CRAFT08 analysis
-from MagneticField.Engine.volumeBasedMagneticField_1103l_090216_cfi import *
+from Configuration.StandardSequences.MagneticField_38T_cff import *
 
 

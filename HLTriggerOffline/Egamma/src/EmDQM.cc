@@ -324,8 +324,11 @@ EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                     }
                     // if ncandcut is -1 (when parsing for the number of particles in the name of the L1seed filter fails),
                     // fall back to setting ncandcut to the number of particles needed for the given path.
-                    if (filterPSet.getParameter<int>("ncandcut") < 0) filterPSet.addParameter<int>("ncandcut", paramSet.getParameter<int>("cutnum"));
-                    else if (filterPSet.getParameter<int>("ncandcut") > paramSet.getParameter<int>("cutnum")) {
+                    if (filterPSet.getParameter<int>("ncandcut") < 0) {
+                      edm::LogPrint("EmDQM") << "No number of candidates for filter " << moduleLabel << " found. Set to " << paramSet.getParameter<int>("cutnum") << ", determined from path name.";
+                      filterPSet.addParameter<int>("ncandcut", paramSet.getParameter<int>("cutnum"));
+                    } else if (filterPSet.getParameter<int>("ncandcut") > paramSet.getParameter<int>("cutnum")) {
+                      edm::LogPrint("EmDQM") << "Changed required number of candidates from " << paramSet.getParameter<int>("cutnum") << " to " << filterPSet.getParameter<int>("ncandcut") << " for filter " << moduleLabel;
                       paramSet.addParameter<int>("cutnum", filterPSet.getParameter<int>("ncandcut"));
                       paramSet.addParameter<unsigned>("reqNum", (unsigned)filterPSet.getParameter<int>("ncandcut"));
                     }
@@ -1193,15 +1196,18 @@ EmDQM::makePSetForL1SeedFilter(const std::string& moduleName)
   
   // as HLTLevel1GTSeed has no parameter ncandcut we determine the value from the name of the filter
 
-  int orCount = countSubstring(moduleName, "OR");
+  int orCount = countSubstring(moduleName, "OR") + countSubstring(moduleName, "Or");
   int egCount = countSubstring(moduleName, "EG");
   int dEgCount = countSubstring(moduleName, "DoubleEG");
   int tEgCount = countSubstring(moduleName, "TripleEG");
 
   int candCount = 2*tEgCount + dEgCount + egCount;
-  // if L1 is and OR of triggers try the assumption that all of them are similar first and, if not successful, let the path name decide
+  // if L1 is and OR of triggers try the assumption that all of them are similar first and if not take the lowest number. If this is not successful, let the path name decide
   if (orCount > 0 && candCount > 0) {
      if (egCount % (orCount+1) == 0 && dEgCount % (orCount+1) == 0 && tEgCount % (orCount+1) == 0) candCount /= (orCount+1);
+     else if (egCount-dEgCount-tEgCount > 0) candCount = 1; // at least one singleEG present
+     else if (dEgCount > 0) candCount = 2; // at least one doubleEG and no singleEG present
+     else if (tEgCount > 0) candCount = 3; // only tripleEG present
      else candCount = -1;
   }
 

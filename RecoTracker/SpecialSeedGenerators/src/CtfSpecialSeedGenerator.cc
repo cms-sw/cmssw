@@ -1,6 +1,6 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
@@ -204,7 +204,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const edm::EventSetup &es ){
 
         edm::ESHandle<TrackerTopology> tTopo;
-        es.get<IdealGeometryRecord>().get(tTopo);
+        es.get<TrackerTopologyRcd>().get(tTopo);
 
 	std::vector<std::pair<unsigned int, unsigned int> > vSubdetLayer;
 	//std::vector<std::string> vSeedLayerNames;

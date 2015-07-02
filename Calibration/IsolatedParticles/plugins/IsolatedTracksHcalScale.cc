@@ -14,7 +14,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) {
+IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) :
+   trackerHitAssociatorConfig_(consumesCollector()) {
 
   //now do what ever initialization is needed
   doMC                                = iConfig.getUntrackedParameter<bool>("DoMC", false); 
@@ -155,7 +156,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<edm::PCaloHitContainer> pcalohh;
 
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate=0;
+  std::unique_ptr<TrackerHitAssociator> associate;
  
   if (doMC) {
     iEvent.getByToken(tok_simTk_,SimTk);
@@ -163,7 +164,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
     iEvent.getByToken(tok_caloEB_, pcaloeb);
     iEvent.getByToken(tok_caloEE_, pcaloee);
     iEvent.getByToken(tok_caloHH_, pcalohh);
-    associate = new TrackerHitAssociator(iEvent);
+    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
   }
  
   unsigned int nTracks=0;
@@ -326,8 +327,6 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
     }
   }
 
-  //  delete associate;
-  if (associate) delete associate;
   tree->Fill();
 }
 

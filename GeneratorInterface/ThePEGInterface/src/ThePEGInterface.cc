@@ -30,6 +30,8 @@
 #include <ThePEG/PDF/PartonExtractor.h>
 #include <ThePEG/PDF/PDFBase.h>
 #include <ThePEG/Utilities/UtilityBase.h>
+#include <ThePEG/Vectors/HepMCConverter.h>
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -37,7 +39,6 @@
 
 #include "GeneratorInterface/ThePEGInterface/interface/Proxy.h"
 #include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
-#include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
 using namespace std;

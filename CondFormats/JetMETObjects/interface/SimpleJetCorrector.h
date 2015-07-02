@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <TFormula.h>
+#include <RVersion.h>
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 class JetCorrectorParameters;
@@ -29,7 +30,11 @@ class SimpleJetCorrector
   //-------- Member functions -----------
   SimpleJetCorrector(const SimpleJetCorrector&);
   SimpleJetCorrector& operator= (const SimpleJetCorrector&);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,03,00)
+  float    invert(const Double_t *args, const Double_t *params) const;
+#else
   float    invert(const std::vector<float>& fX, TFormula&) const;
+#endif
   float    correctionBin(unsigned fBin,const std::vector<float>& fY) const;
   unsigned findInvertVar();
   void     setFuncParameters();

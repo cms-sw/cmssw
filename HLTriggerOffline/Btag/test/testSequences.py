@@ -8,11 +8,12 @@ process.load("HLTriggerOffline.Btag.HltBtagValidation_cff")
 process.load("HLTriggerOffline.Btag.HltBtagValidationFastSim_cff")
 process.load("HLTriggerOffline.Btag.HltBtagPostValidation_cff")
 
-process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal)
+process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal + process.dqmSaver)
 
 
 process.source = cms.Source("PoolSource",
-	fileNames = cms.untracked.vstring("root://xrootd.ba.infn.it///store/relval/CMSSW_7_2_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS172_V15-v1/00000/8A425442-2A50-E411-A51B-0025905A60B2.root")
+	fileNames = cms.untracked.vstring("root://xrootd.ba.infn.it///store/relval/CMSSW_7_5_0_pre2/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/MCRUN2_74_V7-v1/00000/3472D399-B3E3-E411-8CF5-003048FFD76E.root")
+#	fileNames = cms.untracked.vstring("file:RelVal750pre3.root")
 )
 
 

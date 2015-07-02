@@ -8,8 +8,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 
 #ifdef EDM_ML_DEBUG
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -46,9 +44,6 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
   const std::vector<TM> & avtm = aTraj.measurements();
   
-  Trajectory ret(aTraj.seed(), usePropagator->propagationDirection());
-  Trajectory & myTraj = ret;
-  myTraj.reserve(avtm.size());
   
   
   
@@ -64,14 +59,28 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 #endif // EDM_ML_DEBUG
   
   
-  TSOS predTsos = avtm.back().forwardPredictedState();
-  predTsos.rescaleError(theErrorRescaling);
-  TSOS currTsos;
   
   TrajectoryStateCombiner combiner;
-  
-  unsigned int hitcounter = avtm.size();
-  for(std::vector<TM>::const_reverse_iterator itm = avtm.rbegin(); itm != (avtm.rend()); ++itm,--hitcounter) {
+  bool retry=false;
+  auto start = avtm.rbegin();
+
+  do {
+    auto hitSize = avtm.rend()-start;
+    if unlikely( hitSize < minHits_ ) {
+      LogDebug("TrackFitters") << " killing trajectory" << "\n";
+      return Trajectory();
+    }
+    Trajectory ret(aTraj.seed(), usePropagator->propagationDirection());
+    Trajectory & myTraj = ret;
+    myTraj.reserve(hitSize);
+    retry=false;
+
+   TSOS predTsos = (*start).forwardPredictedState();
+   predTsos.rescaleError(theErrorRescaling);
+   TSOS currTsos;
+
+    auto hitCounter = hitSize;
+    for(std::vector<TM>::const_reverse_iterator itm = start; itm != (avtm.rend()); ++itm,--hitCounter) {
 
     TransientTrackingRecHit::ConstRecHitPointer hit = itm->recHit();
 
@@ -83,26 +92,27 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       }
 
 
-
-    if (hitcounter != avtm.size())//no propagation needed for first smoothed (==last fitted) hit 
+    if (itm != start)//no propagation needed for first smoothed (==last fitted) hit 
       predTsos = usePropagator->propagate( currTsos, *(hit->surface()) );
 
     if unlikely(!predTsos.isValid()) {
-	LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
-	if( myTraj.foundHits() >= minHits_ ) {
-	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	} else {        
-	  LogDebug("TrackFitters") << " killing trajectory" << "\n";      
-	  return Trajectory();
-	}
-	break;      
-      }
+      LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
+      LogDebug("TrackFitters") << " retry with last hit removed" << "\n";
+      LogDebug("TrackFitters")
+      // std::cout 
+                << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' 
+                << hitSize << ' ' << hitCounter << ' ' << hit->geographicalId() << ' '  
+                << hit->surface()->position().perp() << ' ' << hit->surface()->eta() << ' ' << hit->surface()->phi() << std::endl;
+      start++;
+      retry = true;        
+      break;
+    }
 
     if(hit->isValid()) {
  
 #ifdef EDM_ML_DEBUG
       LogDebug("TrackFitters")
-	<< "----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+	<< "----------------- HIT #" << hitCounter << " (VALID)-----------------------\n"
 	<< "HIT IS AT R   " << hit->globalPosition().perp() << "\n"
 	<< "HIT IS AT Z   " << hit->globalPosition().z() << "\n"
 	<< "HIT IS AT Phi " << hit->globalPosition().phi() << "\n"
@@ -158,8 +168,8 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       //forward predicted state for first smoothed (last fitted) hit
       //backward predicted state for last smoothed (first fitted) hit
       //combination of forward and backward predictions for other hits
-      if (hitcounter == avtm.size()) combTsos = itm->forwardPredictedState();
-      else if (hitcounter == 1) combTsos = predTsos;
+      if (itm == start) combTsos = itm->forwardPredictedState();
+      else if (hitCounter == 1) combTsos = predTsos;
       else combTsos = combiner(predTsos, itm->forwardPredictedState());
       
       if unlikely(!combTsos.isValid()) {
@@ -168,13 +178,9 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	    "pred Tsos pos: " << predTsos.globalPosition() << "\n" <<
 	    "pred Tsos mom: " << predTsos.globalMomentum() << "\n" <<
 	    "TrackingRecHit: " << hit->surface()->toGlobal(hit->localPosition()) << "\n" ;
-	  if( myTraj.foundHits() >= minHits_ ) {
-	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	  } else {        
-	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	    return Trajectory();
-	  }
-	  break;      
+          start++;
+          retry = true;
+          break;
 	}
       
         assert( (hit->geographicalId()!=0U) | (!hit->canImproveWithTrack()) );
@@ -208,23 +214,19 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	  }
 	
 	//smooTsos updates the N-1 hits prediction with the hit
-	if (hitcounter == avtm.size()) smooTsos = itm->updatedState();
-	else if (hitcounter == 1) smooTsos = currTsos;
+	if (itm == start) smooTsos = itm->updatedState();
+	else if (hitCounter == 1) smooTsos = currTsos;
 	else smooTsos = combiner(itm->forwardPredictedState(), currTsos); 
 	
 	if unlikely(!smooTsos.isValid()) {
 	    LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
-	    if( myTraj.foundHits() >= minHits_ ) {
-	      LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	    } else {        
-	      LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	      return Trajectory();  
-	    }
-	    break;
+            start++;
+            retry = true;
+            break;
 	  }
 	
 	double estimate;
-	if (hitcounter != avtm.size()) estimate = estimator()->estimate(combTsos, *preciseHit ).second;//correct?
+	if (itm != start) estimate = estimator()->estimate(combTsos, *preciseHit ).second;//correct?
 	else estimate = itm->estimate();
 	
 	LogTrace("TrackFitters")
@@ -258,13 +260,13 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       }
     } else {
       LogDebug("TrackFitters") 
-	<< "----------------- HIT #" << hitcounter << " (INVALID)-----------------------";      
+	<< "----------------- HIT #" << hitCounter << " (INVALID)-----------------------";      
       
       //no update
       currTsos = predTsos;
       TSOS combTsos;
-      if (hitcounter == avtm.size()) combTsos = itm->forwardPredictedState();
-      else if (hitcounter == 1) combTsos = predTsos;
+      if (itm == start) combTsos = itm->forwardPredictedState();
+      else if (hitCounter == 1) combTsos = predTsos;
       else combTsos = combiner(predTsos, itm->forwardPredictedState());
       
       if unlikely(!combTsos.isValid()) {
@@ -288,7 +290,10 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
     }
   } // for loop
+
+   if (!retry) return ret;
+  } while(true);
   
-  return ret; 
+  return Trajectory(); 
   
 }

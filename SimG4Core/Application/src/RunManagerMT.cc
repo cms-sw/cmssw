@@ -29,8 +29,6 @@
 
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
-#include "HepPDT/defs.h"
-#include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "G4GeometryManager.hh"
@@ -136,10 +134,18 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   // adding GFlash, Russian Roulette for eletrons and gamma, 
   // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
+
+  m_physicsList->ResetStoredInAscii();
+  if (m_RestorePhysicsTables) {
+    m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
+  }
+  edm::LogInfo("SimG4CoreApplication") 
+    << "RunManagerMT: start initialisation of PhysicsList for master";
   
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
+
   // The following line was with the following comment in
   // G4MTRunManager::InitializePhysics() in 10.00.p01; in practice
   // needed to initialize certain singletons during the master thread
@@ -147,12 +153,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   //
   //BERTINI, this is needed to create pseudo-particles, to be removed
   G4CascadeInterface::Initialize();
-  //
-
-  m_physicsList->ResetStoredInAscii();
-  if (m_RestorePhysicsTables) {
-    m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
-  }
 
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
   else { 
@@ -171,15 +171,16 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   initializeUserActions();
 
-  for (unsigned it=0; it<m_G4Commands.size(); it++) {
-    edm::LogInfo("SimG4CoreApplication") << "RunManagerMT:: Requests UI: "
-                                         << m_G4Commands[it];
-    G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+  if(0 < m_G4Commands.size()) {
+    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
+    for (unsigned it=0; it<m_G4Commands.size(); ++it) {
+      G4cout << "    " << m_G4Commands[it] << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+    }
   }
-
   if("" != m_WriteFile) {
     G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
-    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), false);
+    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
   }
 
   if("" != m_RegionFile) {
@@ -189,8 +190,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   // If the Geant4 particle table is needed, decomment the lines below
   //
-  //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
-  //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
+  //G4ParticleTable::GetParticleTable()->DumpTable("ALL");
+  //
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run(); 
   m_userRunAction->BeginOfRunAction(m_currentRun); 
@@ -198,7 +199,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
 void RunManagerMT::initializeUserActions() {
   m_runInterface.reset(new SimRunInterface(this, true));
-
   m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get());
   Connect(m_userRunAction);
 }

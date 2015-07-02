@@ -132,24 +132,38 @@ def miniAOD_customizeCommon(process):
     process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
 
+    ## CaloJets
+    process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+         src = process.patJets.jetSource,
+         matched = cms.InputTag("ak4CaloJets"),
+         distMax = cms.double(0.4),
+         values = cms.vstring('pt','emEnergyFraction'),
+	 valueLabels = cms.vstring('pt','emEnergyFraction'),
+	 lazyParser = cms.bool(True) )
+    process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
+
     #VID Electron IDs
-    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
-    switchOnVIDElectronIdProducer(process)
+    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.electronIDValueMapProducer.src = \
-        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.electronIDValueMapProducer.ebReducedRecHitCollection = \
-        cms.InputTag("reducedEgamma","reducedEBRecHits")
-    process.electronIDValueMapProducer.eeReducedRecHitCollection = \
-        cms.InputTag("reducedEgamma","reducedEERecHits")
-    process.electronIDValueMapProducer.esReducedRecHitCollection = \
-        cms.InputTag("reducedEgamma","reducedESRecHits")
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+
+    #VID Photon IDs
+    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) 
+    process.egmPhotonIDs.physicsObjectSrc = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonIDValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonIDValueMapProducer.srcMiniAOD = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonIDValueMapProducer.particleBasedIsolation = \
+        cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")    
+    for idmod in photon_ids:
+        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')

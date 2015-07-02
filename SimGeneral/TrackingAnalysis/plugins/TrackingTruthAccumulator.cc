@@ -15,6 +15,9 @@
  * @date circa Oct/2012 to Feb/2013
  *
  * Changelog:
+ * 05/May/2015 Mark Grimes - Added functionality to add a collection of just the initial vertices
+ * for FastTimer studies.
+ *
  * 17/Jul/2014 Dominik Nowatschin (dominik.nowatschin@cern.ch) - added SimVertex and a ref to
  * HepMC::Genvertex to TrackingVertex in TrackingParticleFactory::createTrackingVertex; handle to
  * edm::HepMCProduct is created directly in TrackingTruthAccumulator::accumulate and not in 
@@ -22,10 +25,10 @@
  * 
  * 07/Feb/2013 Mark Grimes - Reorganised and added a bit more documentation. Still not enough
  * though.
- * 12/Mar/2012 (branch NewTrackingParticle only) Mark Grimes - Updated TrackingParticle creation
- * to fit in with Subir Sarkar's re-implementation of TrackingParticle.
+ * 12/Mar/2012 Mark Grimes - Updated TrackingParticle creation to fit in with Subir Sarkar's
+ * re-implementation of TrackingParticle.
  */
-#include "SimGeneral/TrackingAnalysis/interface/TrackingTruthAccumulator.h"
+#include "SimGeneral/TrackingAnalysis/plugins/TrackingTruthAccumulator.h"
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,7 +49,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
@@ -224,6 +227,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		maximumSubsequentBunchCrossing_( config.getParameter<unsigned int>("maximumSubsequentBunchCrossing") ),
 		createUnmergedCollection_( config.getParameter<bool>("createUnmergedCollection") ),
 		createMergedCollection_(config.getParameter<bool>("createMergedBremsstrahlung") ),
+		createInitialVertexCollection_(config.getParameter<bool>("createInitialVertexCollection") ),
 		addAncestors_( config.getParameter<bool>("alwaysAddAncestors") ),
 		removeDeadModules_( config.getParameter<bool>("removeDeadModules") ),
 		simTrackLabel_( config.getParameter<edm::InputTag>("simTrackCollection") ),
@@ -287,6 +291,11 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		mixMod.produces<TrackingVertexCollection>("MergedTrackTruth");
 	}
 
+	if( createInitialVertexCollection_ )
+	{
+		mixMod.produces<TrackingVertexCollection>("InitialVertices");
+	}
+
 	iC.consumes<std::vector<SimTrack> >(simTrackLabel_);
 	iC.consumes<std::vector<SimVertex> >(simVertexLabel_);
 	iC.consumes<std::vector<reco::GenParticle> >(genParticleLabel_);
@@ -325,6 +334,11 @@ void TrackingTruthAccumulator::initializeEvent( edm::Event const& event, edm::Ev
 		mergedOutput_.pTrackingVertices.reset( new TrackingVertexCollection );
 		mergedOutput_.refTrackingParticles=const_cast<edm::Event&>( event ).getRefBeforePut<TrackingParticleCollection>("MergedTrackTruth");
 		mergedOutput_.refTrackingVertexes=const_cast<edm::Event&>( event ).getRefBeforePut<TrackingVertexCollection>("MergedTrackTruth");
+	}
+
+	if( createInitialVertexCollection_ )
+	{
+		pInitialVertices_.reset( new TrackingVertexCollection );
 	}
 }
 
@@ -378,6 +392,12 @@ void TrackingTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup
 		event.put( mergedOutput_.pTrackingVertices, "MergedTrackTruth" );
 	}
 
+	if( createInitialVertexCollection_ )
+	{
+		edm::LogInfo("TrackingTruthAccumulator") << "Adding " << pInitialVertices_->size() << " initial TrackingVertexs to the event.";
+
+		event.put( pInitialVertices_, "InitialVertices" );
+	}
 }
 
 template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct)
@@ -411,7 +431,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -469,6 +489,25 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 		// passes the selection criteria specified in the configuration. If the config
 		// specifies adding ancestors, the function is called recursively to do that.
 		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_, tTopo );
+	}
+
+	// If configured to create a collection of initial vertices, add them from this bunch
+	// crossing. No selection is applied on this collection, but it also has no links to
+	// the TrackingParticle decay products.
+	// There are a lot of "initial vertices", I'm not entirely sure what they all are
+	// (nuclear interactions in the detector maybe?), but the one for the main event is
+	// the one with vertexId==0.
+	if( createInitialVertexCollection_ )
+	{
+		// Pretty sure the one with vertexId==0 is always the first one, but doesn't hurt to check
+		for( const auto& pRootVertex : decayChain.rootVertices )
+		{
+			const SimVertex& vertex=hSimVertices->at(decayChain.rootVertices[0]->simVertexIndex);
+			if( vertex.vertexId()!=0 ) continue;
+
+			pInitialVertices_->push_back( objectFactory.createTrackingVertex(pRootVertex) );
+			break;
+		}
 	}
 }
 
@@ -684,7 +723,7 @@ namespace // Unnamed namespace for things only used in this file
 
 	bool ::TrackingParticleFactory::vectorIsInsideVolume( const math::XYZTLorentzVectorD& vector ) const
 	{
-		return ( vector.Pt()<volumeRadius_ && vector.z()<volumeZ_ );
+		return ( vector.Pt()<volumeRadius_ && std::abs( vector.z() )<volumeZ_ );
 	}
 
 	//---------------------------------------------------------------------------------

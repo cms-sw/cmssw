@@ -31,7 +31,9 @@ hbheprereco = cms.EDProducer(
     setTimingShapedCutsFlags  = cms.bool(True),
     setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags        = cms.bool(True),
-    setNegativeFlags          = cms.bool(True), # only in HBHE
+
+    # Enable negative energy filter
+    setNegativeFlags          = cms.bool(True),
 
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(1.0), #GeV
@@ -77,13 +79,6 @@ hbheprereco = cms.EDProducer(
                                     UseDualFit = cms.bool(True),
                                     TriangleIgnoreSlow = cms.bool(False)),
 
-    negativeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
-                                  TS4TS5ChargeThreshold = cms.double(70),
-                                  First = cms.int32(4),
-                                  Last = cms.int32(6),
-                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500, 1.0e4),
-                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100, -1.0e6)),
-
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.
     # win_gain is applied to both threshold values before win_offset.
@@ -120,19 +115,24 @@ hbheprereco = cms.EDProducer(
     applyPulseJitter      = cms.bool(False),  
     applyUnconstrainedFit = cms.bool(False),   #Turn on original Method 2
     applyTimeSlew         = cms.bool(True),   #units
-    ts4Min                = cms.double(5.),   #fC
-    ts4Max                = cms.double(500.),   #fC
+    ts4Min                = cms.double(0.),   #fC
+    ts4Max                = cms.double(100.),   #fC
     pulseJitter           = cms.double(1.),   #GeV/bin
-    meanTime              = cms.double(-5.5), #ns
+    meanTime              = cms.double(0.), #ns
     timeSigma             = cms.double(5.),  #ns
     meanPed               = cms.double(0.),   #GeV
     pedSigma              = cms.double(0.5),  #GeV
     noise                 = cms.double(1),    #fC
-    timeMin               = cms.double(-18),  #ns
-    timeMax               = cms.double( 7),  #ns
+    timeMin               = cms.double(-12.5),  #ns
+    timeMax               = cms.double(12.5),  #ns
     ts3chi2               = cms.double(5.),   #chi2 (not used)
     ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
     ts345chi2             = cms.double(100.), #chi2 (not used)
     chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
-    fitTimes              = cms.int32(1)       # -1 means no constraint on number of fits per channel
+    fitTimes              = cms.int32(1),       # -1 means no constraint on number of fits per channel
+    # add some of the Method 3 parameters here
+    pedestalSubtractionType = cms.int32(1),
+    pedestalUpperLimit      = cms.double(2.7),
+    timeSlewParsType        = cms.int32(3), # 0: TestStand, 1:Data, 2:MC, 3:InputPars. Parametrization function is par0 + par1*log(fC). Default value is par0 = 9.27638, par1 = -2.05585.
+    timeSlewPars            = cms.vdouble(9.27638, -2.05585, 9.27638, -2.05585, 9.27638, -2.05585)# HB par0, HB par1, BE par0, BE par1, HE par0, HEpar1
     )

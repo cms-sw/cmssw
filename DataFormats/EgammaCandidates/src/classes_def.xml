@@ -59,8 +59,8 @@
    <version ClassVersion="15" checksum="2042715570"/>
   </class>
 
- 
-  <class name="std::vector<reco::PhotonCore>"/>  
+
+  <class name="std::vector<reco::PhotonCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::PhotonCore>"/>
   <class name="edm::RefToBase<reco::PhotonCore>"/>
   <class name="edm::reftobase::IndirectHolder<reco::PhotonCore>" />
@@ -73,7 +73,7 @@
   <class name="edm::RefProd<std::vector<reco::PhotonCore> >"/>
   <class name="edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> > >"/>
-  
+
 
 
   <class name="std::vector<reco::Photon>"/>
@@ -90,12 +90,12 @@
   <class name="edm::RefToBaseVector<reco::Photon>" />
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Photon> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Photon>" />
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > >"/> 
-  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > "/>
-  <!-- 
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > >"/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
+  <!--
   <class name="std::pair<reco::PFCandidateRef,bool>"/>
   <class name="std::vector<std::pair<reco::PFCandidateRef,bool> >"/>
-  <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/> 
+  <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/>
   <class name="edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > >"/>
    -->
 
@@ -127,9 +127,9 @@
   </class>
   <ioread sourceClass="reco::GsfElectronCore" version="[1-10]" targetClass="reco::GsfElectronCore" source="reco::SuperClusterRef pflowSuperCluster_;" target="parentSuperCluster_">
     <![CDATA[parentSuperCluster_ = onfile.pflowSuperCluster_;]]>
-  </ioread>  
+  </ioread>
 
-  <class name="std::vector<reco::GsfElectronCore>"/>  
+  <class name="std::vector<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>
   <class name="edm::RefToBase<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectronCore>" />
@@ -143,7 +143,7 @@
   <class name="edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> > >"/>
 
-  
+
   <class name="reco::GsfElectron::TrackClusterMatching" ClassVersion="10">
    <version ClassVersion="10" checksum="1073796225"/>
   </class>
@@ -230,7 +230,7 @@
    <version ClassVersion="12" checksum="2835360780"/>
    <version ClassVersion="11" checksum="1755683850"/>
   </class>
-  <class name="std::vector<reco::GsfElectron>"/>  
+  <class name="std::vector<reco::GsfElectron>"/>
   <class name="edm::reftobase::BaseHolder<reco::GsfElectron>"/>
   <class name="edm::RefToBase<reco::GsfElectron>"/>
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectron>" />
@@ -269,7 +269,7 @@
   <class name="edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >"/>
 
- 
+
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float, unsigned int > >">
       <field name="transientMap_" transient="true" />
   </class>
@@ -321,9 +321,18 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Photon> >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Photon>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
- 
+
   <class name="edm::Ptr<reco::Photon>" />
   <class name="edm::PtrVector<reco::Photon>" />
-  
-</lcgdict>
 
+  <class name="reco::HIPhotonIsolation" ClassVersion="2">
+    <version ClassVersion="2" checksum="1971638020"/>
+  </class>
+  <class name="edm::Wrapper<reco::HIPhotonIsolation>"/>
+  <class name="edm::ValueMap<reco::HIPhotonIsolation>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> >"/>
+  <class name="std::vector<reco::HIPhotonIsolation>" />
+  <class name="edm::Wrapper<std::vector<reco::HIPhotonIsolation> >" />
+
+
+</lcgdict>

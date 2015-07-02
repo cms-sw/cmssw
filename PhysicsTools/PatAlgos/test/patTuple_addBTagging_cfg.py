@@ -116,6 +116,18 @@ addJetCollection(
 )
 process.patJetsAK4PF.addTagInfos = True
 
+# uncomment the following lines to add ak8PFJetsCHS with new b-tags to your PAT output
+addJetCollection(
+   process,
+   labelName = 'AK8PFCHS',
+   jetSource = cms.InputTag('ak8PFJetsCHS'),
+   jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   algo = 'AK',
+   rParam = 0.8,
+   btagDiscriminators = ['pfBoostedDoubleSecondaryVertexAK8BJetTags']
+)
+process.patJetsAK8PFCHS.addTagInfos = True
+
 # uncomment the following lines to add subjets of ak8PFJetsCHSSoftDrop with new b-tags to your PAT output
 addJetCollection(
    process,

@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
@@ -88,7 +88,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<IdealGeometryRecord>().get(tTopoHand);
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;

@@ -906,16 +906,25 @@ void HcalDeadCellMonitor::process_Digi(DIGI& digi)
   int depth=digi.id().depth();
 
   // Fill occupancy counter
-  ++recentoccupancy_digi[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1];
+  auto eta_index = CalcEtaBin(digi.id().subdet(), ieta, depth);
+  if (eta_index < 0) {
+    // invalid index, return
+    if (debug_ > 0)
+      std::cout << "<HcalDeadCellMonitor::process_Digi> Invalid bin returned, eta_index = " << eta_index << std::endl;
+
+    return;
+  }
+
+  ++recentoccupancy_digi[eta_index][iphi-1][depth-1];
 
   // If previously-missing digi found, change boolean status and fill histogram
-  if (present_digi[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]==false)
+  if (present_digi[eta_index][iphi-1][depth-1]==false)
     {
       if (DigiPresentByDepth.depth[depth-1])
 	{
-	  DigiPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(digi.id().subdet(),ieta,depth)+1,iphi,1);
+	  DigiPresentByDepth.depth[depth-1]->setBinContent(eta_index+1,iphi,1);
 	}
-      present_digi[CalcEtaBin(digi.id().subdet(),ieta,depth)][iphi-1][depth-1]=true;
+      present_digi[eta_index][iphi-1][depth-1]=true;
     }
   return;
 }
@@ -931,14 +940,23 @@ void HcalDeadCellMonitor::process_RecHit(RECHIT& rechit)
   int iphi = id.iphi();
   int depth = id.depth();
   
+  int eta_index = CalcEtaBin(id.subdet(),ieta,depth);
+  if (eta_index < 0) {
+    // invalid index, return
+    if (debug_ > 0)
+      std::cout << "<HcalDeadCellMonitor::process_Digi> Invalid bin returned, eta_index = " << eta_index << std::endl;
+
+    return;
+  }
+
   if (id.subdet()==HcalBarrel)
     {
       if (en>=HBenergyThreshold_)
 	{
-	  ++recentoccupancy_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  present_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	  ++recentoccupancy_rechit[eta_index][iphi-1][depth-1];
+	  present_rechit[eta_index][iphi-1][depth-1]=true;
 	  if (RecHitPresentByDepth.depth[depth-1])
-	    RecHitPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1);
+	    RecHitPresentByDepth.depth[depth-1]->setBinContent(eta_index+1,iphi,1);
 	}      
       /////////////////////////////
       // RBX index, HB RBX indices are 0-35
@@ -951,10 +969,10 @@ void HcalDeadCellMonitor::process_RecHit(RECHIT& rechit)
     {
       if (en>=HEenergyThreshold_)
 	{
-	++recentoccupancy_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	present_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	++recentoccupancy_rechit[eta_index][iphi-1][depth-1];
+	present_rechit[eta_index][iphi-1][depth-1]=true;
 	if (RecHitPresentByDepth.depth[depth-1])
-	  RecHitPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1);
+	  RecHitPresentByDepth.depth[depth-1]->setBinContent(eta_index+1,iphi,1);
 	}
       /////////////////////////////
       // RBX index, HE RBX indices are 36-71
@@ -967,11 +985,11 @@ void HcalDeadCellMonitor::process_RecHit(RECHIT& rechit)
     {
       if (en>=HFenergyThreshold_)
 	{
-	  ++recentoccupancy_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  ++recentoccupancy_rechit[eta_index][iphi-1][depth-1];
 	
-	  present_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	  present_rechit[eta_index][iphi-1][depth-1]=true;
 	  if (RecHitPresentByDepth.depth[depth-1])
-	    RecHitPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1);
+	    RecHitPresentByDepth.depth[depth-1]->setBinContent(eta_index+1,iphi,1);
 	}
       /////////////////////////////
       // RBX index, HF RBX indices are 132-155
@@ -984,10 +1002,10 @@ void HcalDeadCellMonitor::process_RecHit(RECHIT& rechit)
     {
       if (en>=HOenergyThreshold_)
 	{
-	  ++recentoccupancy_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  present_rechit[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	  ++recentoccupancy_rechit[eta_index][iphi-1][depth-1];
+	  present_rechit[eta_index][iphi-1][depth-1]=true;
 	  if (RecHitPresentByDepth.depth[depth-1])
-	    RecHitPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1); 
+	    RecHitPresentByDepth.depth[depth-1]->setBinContent(eta_index+1,iphi,1); 
 	}
       /////////////////////////////
       // RBX index, HO RBX indices are 73-95 (odd), 96-107 (all), 108-119 (odd), 120-130 (EXCL), 131

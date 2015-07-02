@@ -1,5 +1,6 @@
 <use   name="RecoHI/HiTracking"/>
 <use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
+<use   name="CondFormats/EgammaObjects"/>
 <library   file="*.cc" name="RecoHIHiTrackingPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -28,7 +28,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -99,7 +99,7 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup.get<IdealGeometryRecord>().get(tTopoHand);
+  setup.get<TrackerTopologyRcd>().get(tTopoHand);
   tTopo_=tTopoHand.product();
 }
 

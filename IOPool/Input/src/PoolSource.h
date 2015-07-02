@@ -8,9 +8,10 @@ PoolSource: This is an InputSource
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
-#include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
 #include <array>
@@ -18,24 +19,21 @@ PoolSource: This is an InputSource
 #include <string>
 #include <vector>
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 namespace edm {
 
   class ConfigurationDescriptions;
   class FileCatalogItem;
-  class RootInputFileSequence;
+  class RootPrimaryFileSequence;
+  class RootSecondaryFileSequence;
 
-  class PoolSource : public VectorInputSource {
+  class PoolSource : public InputSource {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
-    using InputSource::processHistoryRegistryUpdate;
+    using InputSource::processHistoryRegistryForUpdate;
     using InputSource::productRegistryUpdate;
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     virtual void readEvent_(EventPrincipal& eventPrincipal);
@@ -51,23 +49,18 @@ namespace edm {
     virtual void skip(int offset);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();
-    virtual void readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*) override;
-    virtual bool readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine*) override;
-    virtual bool readOneSequential(EventPrincipal& cache, size_t& fileNameHash);
-    virtual bool readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& lumiID);
-    virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id);
-    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
 
     SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const override;
-
     
     RootServiceChecker rootServiceChecker_;
-    std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
-    std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
+    InputFileCatalog catalog_;
+    InputFileCatalog secondaryCatalog_;
+    std::unique_ptr<RootPrimaryFileSequence> primaryFileSequence_;
+    std::unique_ptr<RootSecondaryFileSequence> secondaryFileSequence_;
     std::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
     std::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
@@ -75,6 +68,5 @@ namespace edm {
     
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_;
   }; // class PoolSource
-  typedef PoolSource PoolRASource;
 }
 #endif

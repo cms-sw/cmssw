@@ -13,6 +13,8 @@
 <lib name="Geom"/>
 <lib name="Eve"/>
 <lib name="RGL"/>
+<lib name="GuiHtml"/>
+<lib name="GX11"/>
 <export>
 <lib name="1"/>
 </export>

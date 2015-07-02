@@ -72,7 +72,8 @@
 				  std::vector<float> &vterr,
 				  std::vector<float> &vzerr) const;
 
-	    void processMVA(edm::Event& evt, const edm::EventSetup& es, std::vector<float> & mvaVals_) const;
+	    void processMVA(edm::Event& evt, const edm::EventSetup& es,const  reco::BeamSpot& beamspot,const reco::VertexCollection& vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
+	    Point getBestVertex(const reco::TrackBaseRef,const reco::VertexCollection) const;
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
@@ -137,14 +138,13 @@
 
 	    //setup mva selector
 	    std::vector<bool> useMVA_;
-	    //std::vector<TMVA::Reader*> mvaReaders_;
+            std::vector<bool> useMVAonly_;
 
 	    std::vector<double> min_MVA_;
 
-	    //std::vector<std::string> mvaType_;
-	    std::string mvaType_;
-	    std::string forestLabel_;
-	    GBRForest * forest_;
+	    std::vector<std::string> mvaType_;
+	    std::vector<std::string> forestLabel_;
+	    std::vector<GBRForest*> forest_;
 	    bool useForestFromDB_;
 	    std::string dbFileName_;
 

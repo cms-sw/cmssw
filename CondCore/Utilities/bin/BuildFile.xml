@@ -63,3 +63,6 @@
 <bin   file="conddb_copy_iov.cpp" name="conddb_copy_iov">
   <use   name="CondCore/CondDB"/>
 </bin>
+<bin   file="conddb_test.cpp" name="conddb_test">
+  <use   name="CondCore/CondDB"/>
+</bin>

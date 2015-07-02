@@ -176,14 +176,39 @@ namespace cond {
       }
     }
 
-    void SessionImpl::openGTDb(){
+    void SessionImpl::openGTDb( SessionImpl::FailureOnOpeningPolicy policy ){
       if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::open" );
       if( !transaction->gtDbOpen ){
 	transaction->gtDbExists = gtSchemaHandle->exists();
 	transaction->gtDbOpen = true;
       }
       if( !transaction->gtDbExists ){
-	throwException( "GT Database does not exist.","SessionImpl::openGTDb");
+        if( policy==CREATE ){
+          gtSchemaHandle->create();
+          transaction->gtDbExists = true;
+        } else {
+          if( policy==THROW) throwException( "GT Database does not exist.","SessionImpl::openGTDb");
+	}
+      }
+    }
+
+    void SessionImpl::openDb(){
+      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::openIovDb" );
+      if( !transaction->iovDbOpen ){
+        transaction->iovDbExists = iovSchemaHandle->exists();
+        transaction->iovDbOpen = true;
+      }
+      if( !transaction->gtDbOpen ){
+        transaction->gtDbExists = gtSchemaHandle->exists();
+        transaction->gtDbOpen = true;
+      }
+      if( !transaction->iovDbExists ){
+	iovSchemaHandle->create();
+	transaction->iovDbExists = true;
+	if( !transaction->gtDbExists ){
+	  gtSchemaHandle->create();
+	  transaction->gtDbExists = true;
+	}
       }
     }
     

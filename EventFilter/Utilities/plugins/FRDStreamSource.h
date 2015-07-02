@@ -46,6 +46,7 @@ private:
   std::auto_ptr<FEDRawDataCollection> rawData_;
   std::vector<char> buffer_;
   const bool verifyAdler32_;
+  const bool verifyChecksum_;
   const bool useL1EventID_;
   unsigned int detectedFRDversion_=0;
 };

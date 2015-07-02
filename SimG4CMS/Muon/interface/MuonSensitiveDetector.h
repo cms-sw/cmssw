@@ -15,6 +15,7 @@
  * Add SimTracks selection
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"

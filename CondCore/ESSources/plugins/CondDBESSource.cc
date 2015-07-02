@@ -17,6 +17,7 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/Types.h"
+#include "CondCore/CondDB/interface/Utils.h"
 
 #include "CondCore/ESSources/interface/ProxyFactory.h"
 #include "CondCore/ESSources/interface/DataProxy.h"
@@ -120,20 +121,30 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 
   Stats s = {0,0,0,0,0,0,0,0};
   m_stats = s;	
-  /*parameter set parsing and pool environment setting
-   */
-  
-  // default connection string
-  // inproduction used for the global tag
-  m_connectionString= iConfig.getParameter<std::string>("connect");
-  
+
+  /*parameter set parsing
+   */  
+  std::string globaltag("");
+  if( iConfig.exists( "globaltag" ) ) {
+    globaltag = iConfig.getParameter<std::string>( "globaltag" );
+   // the global tag _requires_ a connection string
+   m_connectionString= iConfig.getParameter<std::string>("connect");
+  } else if( iConfig.exists("connect") ) // default connection string
+    m_connectionString= iConfig.getParameter<std::string>("connect");
+
+  // snapshot
+  boost::posix_time::ptime snapshotTime;
+  if( iConfig.exists( "snapshotTime" ) ) 
+    snapshotTime = boost::posix_time::time_from_string( iConfig.getParameter<std::string>("snapshotTime" ) );
 
   // connection configuration
-  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>( "DBParameters" );
-  m_connection.setParameters( connectionPset );
+  if( iConfig.exists("DBParameters") ) {
+    edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>( "DBParameters" );
+    m_connection.setParameters( connectionPset );
+  }
   m_connection.configure();
   
-  // load additional record/tag info it will overwrite the global tag
+  // load specific record/tag info - it will overwrite the global tag ( if any )
   std::map<std::string,cond::GTEntry_t> replacements;
   if( iConfig.exists( "toGet" ) ) {
     typedef std::vector< edm::ParameterSet > Parameters;
@@ -142,10 +153,11 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       std::string recordname = itToGet->getParameter<std::string>( "record" );
       std::string labelname = itToGet->getUntrackedParameter<std::string>( "label", "" );
       std::string tag = itToGet->getParameter<std::string>( "tag" );
-      std::string pfn = itToGet->getUntrackedParameter<std::string>( "connect", m_connectionString );
+      std::string pfn("");
+      if( m_connectionString.empty() || itToGet->exists("connect") ) pfn = itToGet->getParameter<std::string>( "connect" );
       std::string recordLabelKey = joinRecordAndLabel( recordname, labelname );
-      std::string fullyQualifiedTag = tag+"@["+pfn+"]";
-      replacements.insert( std::make_pair( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fullyQualifiedTag )  ) ) );
+      std::string fqTag = cond::persistency::fullyQualifiedTag(tag,pfn);
+      replacements.insert( std::make_pair( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fqTag )  ) ) );
     }
   }
   
@@ -154,21 +166,28 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   std::vector<std::string> connectList;
   std::vector<std::string> pfnPrefixList;
   std::vector<std::string> pfnPostfixList;
-  if( iConfig.exists( "globaltag" ) ) {
+  if( !globaltag.empty() ) {
     std::string pfnPrefix(iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ));
     std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ));
-    std::string globaltag(iConfig.getParameter<std::string>( "globaltag" ));
     boost::split( globaltagList, globaltag, boost::is_any_of("|"), boost::token_compress_off );
     fillList(m_connectionString, connectList, globaltagList.size(), "connection");
     fillList(pfnPrefix, pfnPrefixList, globaltagList.size(), "pfnPrefix");
     fillList(pfnPostfix, pfnPostfixList, globaltagList.size(), "pfnPostfix");
   }
 
+  cond::GTMetadata_t gtMetadata;
   fillTagCollectionFromDB(connectList,
 			  pfnPrefixList,
 			  pfnPostfixList,
 			  globaltagList,
-			  replacements);
+			  replacements,
+			  gtMetadata);
+  // if no job specific setting has been found, use the GT timestamp
+  if(snapshotTime.is_not_a_date_time()) 
+    snapshotTime = gtMetadata.snapshotTime;
+  // finally, if the snapshot is set to infinity, reset the snapshot to null, to take the full iov set...
+  if(snapshotTime == boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP) ) )
+    snapshotTime = boost::posix_time::ptime();
   
   TagCollection::iterator it;
   TagCollection::iterator itBeg = m_tagCollection.begin();
@@ -205,6 +224,12 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     std::map<std::string, cond::persistency::Session>::iterator p = sessions.find( connStr );
     cond::persistency::Session nsess;
     if (p == sessions.end()) {
+      std::string oracleConnStr = cond::persistency::convertoToOracleConnection( connStr );
+      std::tuple<std::string,std::string,std::string> connPars = cond::persistency::parseConnectionString( oracleConnStr );
+      std::string dbService = std::get<1>( connPars );
+      std::string dbAccount = std::get<2>( connPars );
+      if( (dbService == "cms_orcon_prod" || dbService == "cms_orcon_adg") && dbAccount != "CMS_CONDITIONS" )
+	edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are reading tag \""<<tag<<"\" from V1 account \""<<connStr<<"\". The concerned Conditions might be out of date."<<std::endl;
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createReadOnlySession( connStr, "" );
       sessions.insert(std::make_pair( connStr, nsess));
@@ -215,7 +240,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
    //  instert in the map
     m_proxies.insert(std::make_pair(it->second.recordName(), proxy));
     // initialize
-    proxy->lateInit(nsess, tag, it->second.recordLabel(), connStr);
+    proxy->lateInit(nsess, tag, snapshotTime, it->second.recordLabel(), connStr);
   }
 
   // one loaded expose all other tags to the Proxy! 
@@ -368,11 +393,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     cond::Time_t abtime = cond::time::fromIOVSyncValue( iTime, timetype );
     userTime = ( 0 == abtime );
     
-    //std::cout<<"abtime "<<abtime<<std::endl;
-
     if (userTime) return; //  oInterval invalid to avoid that make is called...
-
-
     
     if( doRefresh ) {
 
@@ -530,14 +551,22 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
                                               const std::string & prefix,
                                               const std::string & postfix,
                                               const std::string & roottag,
-                                              std::set< cond::GTEntry_t > & tagcoll )
+                                              std::set< cond::GTEntry_t > & tagcoll,
+					      cond::GTMetadata_t& gtMetadata )
 {
   if ( !roottag.empty() ) {
     if ( connectionString.empty() )
       throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
+    std::tuple<std::string,std::string,std::string> connPars = cond::persistency::parseConnectionString( connectionString );
+    if( std::get<2>( connPars ) == "CMS_COND_31X_GLOBALTAG" ){
+      edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are reading Global Tag \""<<roottag<<"\" from V1 account \"CMS_COND_31X_GLOBALTAG\". The concerned Conditions might be out of date."<<std::endl;
+    } else if( roottag.rfind("::All")!=std::string::npos && std::get<2>( connPars ) == "CMS_CONDITIONS" ){
+      edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are trying to read Global Tag \""<<roottag<<"\" - postfix \"::All\" should not be used for V2."<<std::endl;      
+    }
     cond::persistency::Session session = m_connection.createSession( connectionString );
     session.transaction().start( true );
-    cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix ); 
+    cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix );
+    gtMetadata.snapshotTime = gtp.snapshotTime(); 
     for( const auto& gte : gtp ){
       tagcoll.insert( gte );
     }
@@ -551,7 +580,8 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
                                               const std::vector<std::string> & prefixList,
                                               const std::vector<std::string> & postfixList,
                                               const std::vector<std::string> & roottagList,
-                                              std::map<std::string,cond::GTEntry_t>& replacement )
+                                              std::map<std::string,cond::GTEntry_t>& replacement,
+					      cond::GTMetadata_t& gtMetadata )
 {
   std::set< cond::GTEntry_t > tagcoll;
  
@@ -559,7 +589,7 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
   auto prefix = prefixList.begin();
   auto postfix = postfixList.begin();
   for( auto roottag = roottagList.begin(); roottag != roottagList.end(); ++roottag, ++connectionString, ++prefix, ++postfix) {
-    fillTagCollectionFromGT(*connectionString, *prefix, *postfix, *roottag, tagcoll);
+    fillTagCollectionFromGT(*connectionString, *prefix, *postfix, *roottag, tagcoll, gtMetadata);
   }
 
   std::set<cond::GTEntry_t>::iterator tagCollIter;
@@ -587,11 +617,6 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
   std::map<std::string,cond::GTEntry_t>::iterator replacementBegin = replacement.begin();
   std::map<std::string,cond::GTEntry_t>::iterator replacementEnd = replacement.end();
   for( replacementIter = replacementBegin; replacementIter != replacementEnd; ++replacementIter ){
-    // std::cout<<"appending"<<std::endl;
-    // std::cout<<"pfn "<<replacementIter->second.pfn<<std::endl;
-    // std::cout<<"objectname "<<replacementIter->second.objectname<<std::endl;
-    // std::cout<<"tag "<<replacementIter->second.tag<<std::endl;
-    // std::cout<<"recordname "<<replacementIter->second.recordname<<std::endl;
     m_tagCollection.insert( *replacementIter );
   }
 }

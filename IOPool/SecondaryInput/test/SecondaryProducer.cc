@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -26,6 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
@@ -52,12 +52,11 @@ namespace edm {
         secInput_(makeSecInput(pset)),
         processConfiguration_(new ProcessConfiguration(std::string("PROD"), getReleaseVersion(), getPassID())),
         eventPrincipal_(),
-        sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
+        sequential_(pset.getUntrackedParameter<bool>("seq", false)),
         specified_(pset.getUntrackedParameter<bool>("specified", false)),
-        lumiSpecified_(pset.getUntrackedParameter<bool>("lumiSpecified", false)),
         firstEvent_(true),
         firstLoop_(true),
-        expectedEventNumber_(1) {
+        expectedEventNumber_(sequential_ ? pset.getParameterSet("input").getUntrackedParameter<unsigned int>("skipEvents", 0) + 1 : 1) {
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processConfiguration_->setProcessConfigurationID();
  
@@ -70,8 +69,8 @@ namespace edm {
 
   void SecondaryProducer::beginJob() {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
-                                             secInput_->branchIDListHelper(),
-                                             secInput_->thinnedAssociationsHelper(),
+                                             std::make_shared<BranchIDListHelper>(),
+                                             std::make_shared<ThinnedAssociationsHelper>(),
                                              *processConfiguration_,
                                              nullptr));
 
@@ -85,36 +84,25 @@ namespace edm {
     using std::placeholders::_1;
     size_t fileNameHash = 0U;
 
-    if(sequential_) {
-      if(lumiSpecified_) {
-        // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopSequentialWithID(*eventPrincipal_, fileNameHash, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
-      } else {
-        secInput_->loopSequential(*eventPrincipal_, fileNameHash, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
-      }
-    } else if(specified_) {
+    if(specified_) {
       // Just for simplicity, we use the event ID from the primary to read the secondary.
       std::vector<SecondaryEventIDAndFileInfo> events(1, SecondaryEventIDAndFileInfo(e.id(), fileNameHash));
       secInput_->loopSpecified(*eventPrincipal_, fileNameHash, events.begin(), events.end(), std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
     } else {
-
-      edm::Service<edm::RandomNumberGenerator> rng;
-      if ( ! rng.isAvailable()) {
-        throw cms::Exception("Configuration")
-          << "SecondaryProducer in its random mode requires the RandomNumberGeneratorService\n"
-             "which is not present in the configuration file.  You must add the service\n"
-             "in the configuration file or remove the modules that require it.";
+      CLHEP::HepRandomEngine* engine = nullptr;
+      if (!sequential_) {
+        edm::Service<edm::RandomNumberGenerator> rng;
+        if (!rng.isAvailable()) {
+          throw cms::Exception("Configuration")
+            << "SecondaryProducer requires the RandomNumberGeneratorService,\n"
+               "which is not present in the configuration file.  You must add the service\n"
+               "in the configuration file or remove the modules that require it.";
+        }
+        engine = &rng->getEngine(e.streamID());
       }
-      CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-
-      if(lumiSpecified_) {
-        // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopRandomWithID(*eventPrincipal_, fileNameHash, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1,
-                                    std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)),
-                                    engine);
-      } else {
-        secInput_->loopRandom(*eventPrincipal_, fileNameHash, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)), engine);
-      }
+      // Just for simplicity, we use the event ID from the primary to read the secondary.
+      EventID id = e.id();
+      secInput_->loopOverEvents(*eventPrincipal_, fileNameHash, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)), engine, &id);
     }
   }
 
@@ -171,15 +159,9 @@ namespace edm {
   std::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet const& sec_input = ps.getParameterSet("input");
     PreallocationConfiguration dummy;
-    InputSourceDescription desc(ModuleDescription(),
-                                *productRegistry_,
-				std::make_shared<BranchIDListHelper>(),
-                                std::make_shared<ThinnedAssociationsHelper>(),
-				std::make_shared<ActivityRegistry>(),
-				-1, -1, -1, dummy);
+    VectorInputSourceDescription desc(productRegistry_, dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
-      (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
-      desc).release()));
+      (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input, desc).release()));
     return input_;
   }
 

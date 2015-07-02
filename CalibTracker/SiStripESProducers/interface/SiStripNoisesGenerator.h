@@ -3,25 +3,26 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
+#include "CondTools/SiStrip/interface/SiStripDepCondObjBuilderBase.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include <string>
 #include <map>
 
-class SiStripNoisesGenerator : public SiStripCondObjBuilderBase<SiStripNoises> {
+class SiStripNoisesGenerator : public SiStripDepCondObjBuilderBase<SiStripNoises,TrackerTopology> {
  public:
 
   explicit SiStripNoisesGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripNoisesGenerator();
   
-  void getObj(SiStripNoises* & obj){obj=createObject();}
+  void getObj(SiStripNoises* & obj, const TrackerTopology* tTopo){obj=createObject(tTopo);}
 
  private:
 
-  SiStripNoises*  createObject();
+  SiStripNoises*  createObject(const TrackerTopology* tTopo);
   /// Given the map and the detid it returns the corresponding layer/ring
-  std::pair<int, int> subDetAndLayer(const uint32_t detit) const;
+  std::pair<int, int> subDetAndLayer(const uint32_t detit, const TrackerTopology* tTopo) const;
   /// Fills the parameters read from cfg and matching the name in the given map
   void fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const;
   /**

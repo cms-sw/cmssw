@@ -6,12 +6,12 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 #include "CommonTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "CommonTools/Utils/interface/EtComparator.h"
 
-typedef ObjectSelector<
+typedef ObjectSelectorStream<
           SortCollectionSelector<
             reco::CaloJetCollection, 
               GreaterByEt<reco::CaloJet> 

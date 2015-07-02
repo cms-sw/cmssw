@@ -23,6 +23,7 @@ class StripClusterizerAlgorithm {
   virtual ~StripClusterizerAlgorithm() {}
   virtual void initialize(const edm::EventSetup&);
 
+
   //Offline DetSet interface
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
   void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &);
@@ -40,7 +41,8 @@ class StripClusterizerAlgorithm {
   virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) {}
   virtual void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::FastFiller & out) {}
   virtual void stripByStripEnd(output_t::FastFiller & out) {}
-
+  
+  virtual void cleanState(){}
 
   struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
 
