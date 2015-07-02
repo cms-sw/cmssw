@@ -144,7 +144,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   }
 
   if (Debug) {
-    std::cout << "CosMuoGenSource.cc: CosMuoGen->EventWeight=" << CosMuoGen->EventWeight 
+    std::cout << "CosMuoGenProducer.cc: CosMuoGen->EventWeight=" << CosMuoGen->EventWeight 
 	      << "  CosMuoGen: Nmuons=" << CosMuoGen->Id_sf.size() << std::endl; 
     std::cout << "CosMuoGen->Id_at=" << CosMuoGen->Id_at
 	      << "  CosMuoGen->Vx_at=" << CosMuoGen->Vx_at 
@@ -183,7 +183,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   							     CosMuoGen->Vy_at, //[mm]
   							     CosMuoGen->Vz_at, //[mm]
   							     CosMuoGen->T0_at)); //[mm]
-  //cout << "CosMuoGenSource.cc: Vy_at=" << CosMuoGen->Vy_at << endl;
+  //cout << "CosMuoGenProducer.cc: Vy_at=" << CosMuoGen->Vy_at << endl;
   HepMC::FourVector p_at(CosMuoGen->Px_at,CosMuoGen->Py_at,CosMuoGen->Pz_at,CosMuoGen->E_at);
   HepMC::GenParticle* Part_at =
     new HepMC::GenParticle(p_at,CosMuoGen->Id_at, 3);//Comment mother particle in
