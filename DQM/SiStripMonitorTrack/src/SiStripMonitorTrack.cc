@@ -610,7 +610,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
       LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
       //	type=Matched;
 
-      GluedGeomDet * gdet=(GluedGeomDet *)tkgeom_->idToDet(matchedhit->geographicalId());
+      const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tkgeom_->idToDet(matchedhit->geographicalId()));
       GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
       //mono side
       const GeomDetUnit * monodet=gdet->monoDet();
@@ -628,7 +628,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
     else if(projhit){
       LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
       //	type=Projected;
-      GluedGeomDet * gdet=(GluedGeomDet *)tkgeom_->idToDet(projhit->geographicalId());
+      const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tkgeom_->idToDet(projhit->geographicalId()));
 
       GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
       const SiStripRecHit2D  originalhit=projhit->originalHit();
@@ -674,7 +674,7 @@ void SiStripMonitorTrack::hitStudy(const edm::EventSetup& es,
   if(matchedhit){     // type=Matched;
     LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;    
 
-    GluedGeomDet * gdet=(GluedGeomDet *)tkgeom_->idToDet(matchedhit->geographicalId());
+    const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tkgeom_->idToDet(matchedhit->geographicalId()));
 
     GlobalVector gtrkdirup=gdet->toGlobal(localMomentum);
 
@@ -693,7 +693,7 @@ void SiStripMonitorTrack::hitStudy(const edm::EventSetup& es,
   else if(projhit){    // type=Projected;
       LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;      
 
-      GluedGeomDet * gdet=(GluedGeomDet *)tkgeom_->idToDet(projhit->geographicalId());      
+      const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tkgeom_->idToDet(projhit->geographicalId()));
 
       GlobalVector gtrkdirup=gdet->toGlobal(localMomentum);
       const SiStripRecHit2D  originalhit=projhit->originalHit();
@@ -1034,7 +1034,7 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
     // https://indico.cern.ch/event/342236/session/5/contribution/10/material/slides/0.pdf
     float dQdx_fromTrack = siStripClusterTools::chargePerCM(detid, *cluster, LV);
     // from straigth line origin-sensor centre
-    const StripGeomDetUnit* DetUnit = (const StripGeomDetUnit*) tkgeom_->idToDetUnit(DetId(detid));
+    const StripGeomDetUnit* DetUnit = static_cast<const StripGeomDetUnit*>(tkgeom_->idToDetUnit(DetId(detid)));
     LocalPoint locVtx = DetUnit->toLocal(GlobalPoint(0.0, 0.0, 0.0));
     LocalVector locDir(locVtx.x(), locVtx.y(), locVtx.z());
     float dQdx_fromOrigin = siStripClusterTools::chargePerCM(detid, *cluster, locDir);
