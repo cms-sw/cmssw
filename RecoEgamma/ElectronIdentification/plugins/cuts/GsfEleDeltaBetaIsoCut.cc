@@ -82,20 +82,25 @@ operator()(const reco::GsfElectronPtr& cand) const{
 	_isoCutEBLowPt : _isoCutEELowPt ) :
       ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?
 	_isoCutEBHighPt : _isoCutEEHighPt ) );
-  const float chad = (*_chad_iso)[cand];
-  const float nhad = (*_nhad_iso)[cand];
-  const float pho = (*_ph_iso)[cand];
-  const float puchad = (*_PUchad_iso)[cand];
+  const reco::GsfElectron::PflowIsolationVariables& pfIso =
+    cand->pfIsolationVariables();
+  const float chad   = _chad_iso.isValid()   ? (*_chad_iso)[cand]   : pfIso.sumChargedHadronPt;
+  const float nhad   = _nhad_iso.isValid()   ? (*_nhad_iso)[cand]   : pfIso.sumNeutralHadronEt;
+  const float pho    = _ph_iso.isValid()     ? (*_ph_iso)[cand]     : pfIso.sumPhotonEt;
+  const float puchad = _PUchad_iso.isValid() ? (*_PUchad_iso)[cand] : pfIso.sumPUPt;
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
   return iso < isoCut;
 }
 
 double GsfEleDeltaBetaIsoCut::value(const reco::CandidatePtr& cand) const {
-  const float chad = (*_chad_iso)[cand];
-  const float nhad = (*_nhad_iso)[cand];
-  const float pho = (*_ph_iso)[cand];
-  const float puchad = (*_PUchad_iso)[cand];
+  edm::Ptr<reco::GsfElectron> ele(cand);
+  const reco::GsfElectron::PflowIsolationVariables& pfIso =
+    ele->pfIsolationVariables();
+  const float chad   = _chad_iso.isValid()   ? (*_chad_iso)[cand]   : pfIso.sumChargedHadronPt;
+  const float nhad   = _nhad_iso.isValid()   ? (*_nhad_iso)[cand]   :pfIso.sumNeutralHadronEt;
+  const float pho    = _ph_iso.isValid()     ? (*_ph_iso)[cand]     : pfIso.sumPhotonEt;
+  const float puchad = _PUchad_iso.isValid() ? (*_PUchad_iso)[cand] : pfIso.sumPUPt;
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
   return iso;

@@ -61,7 +61,7 @@ operator()(const reco::PhotonPtr& cand) const{
       _cutValueEB : _cutValueEE );
   
   // Retrieve the variable value for this particle
-  const float full5x5SigmaIEtaIEta = _full5x5SigmaIEtaIEtaMap.isValid() ? (*_full5x5SigmaIEtaIEtaMap)[cand] : 0;
+  const float full5x5SigmaIEtaIEta = _full5x5SigmaIEtaIEtaMap.isValid() ? (*_full5x5SigmaIEtaIEtaMap)[cand] : cand->full5x5_sigmaIetaIeta();
   
   // Apply the cut and return the result
   return full5x5SigmaIEtaIEta < cutValue;
@@ -70,5 +70,5 @@ operator()(const reco::PhotonPtr& cand) const{
 double PhoFull5x5SigmaIEtaIEtaValueMapCut::
 value(const reco::CandidatePtr& cand) const {
   reco::PhotonPtr pho(cand);
-  return (*_full5x5SigmaIEtaIEtaMap)[cand];
+  return _full5x5SigmaIEtaIEtaMap.isValid() ? (*_full5x5SigmaIEtaIEtaMap)[cand] : pho->full5x5_sigmaIetaIeta();
 }
