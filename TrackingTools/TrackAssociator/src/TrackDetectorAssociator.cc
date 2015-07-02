@@ -203,18 +203,13 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    cachedTrajectory_.setMinDetectorRadius(minR);
    cachedTrajectory_.setMinDetectorLength(minZ*2.);
 
-   double maxR(0);
-   double maxZ(0);
-
    if (parameters.useMuon) {
-     maxR = muonDetIdAssociator_->volume().maxR();
-     maxZ = muonDetIdAssociator_->volume().maxZ();
+     double maxR = muonDetIdAssociator_->volume().maxR();
+     double maxZ = muonDetIdAssociator_->volume().maxZ();
      cachedTrajectory_.setMaxDetectorRadius(maxR);
      cachedTrajectory_.setMaxDetectorLength(maxZ*2.);
    }
    else {
-     maxR = HOmaxR;
-     maxZ = HOmaxZ;
      cachedTrajectory_.setMaxDetectorRadius(HOmaxR);
      cachedTrajectory_.setMaxDetectorLength(HOmaxZ*2.);
    }

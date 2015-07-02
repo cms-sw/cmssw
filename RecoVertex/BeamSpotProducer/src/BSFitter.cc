@@ -742,7 +742,6 @@ for( iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam)
                                            tracksfixed++; }
 
                        function = function + log(tot_pdf);
-                       tot_pdf=0.0;
 
 
        }//loop over tracks

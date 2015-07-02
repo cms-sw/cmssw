@@ -420,7 +420,6 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 	if(nvalidhits >= int(minimumHits_)){
 	  output->push_back( makeCandidate ( *trk, begin, end ) );
 	}
-	nvalidhits=0;
       }
       else{//all invalid hits have been already kicked out
 	if ((end - begin) >= int(minimumHits_)) {
