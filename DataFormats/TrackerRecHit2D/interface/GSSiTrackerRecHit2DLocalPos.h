@@ -19,7 +19,7 @@ public:
   GSSiTrackerRecHit2DLocalPos( const LocalPoint& p, const LocalError&e, GeomDet const & idet,int32_t id,trackerHitRTTI::RTTI rt) 
     : BaseTrackerRecHit(p,e,idet,rt) 
     , id_(id)
-    , eeId_(-1)
+    , eeId_(0)
     , hitCombinationId_(-1)
   {store();}
 
