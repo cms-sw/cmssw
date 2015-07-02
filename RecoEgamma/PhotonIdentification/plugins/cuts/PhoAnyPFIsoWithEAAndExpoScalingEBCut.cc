@@ -84,6 +84,10 @@ CutApplicatorBase::result_type
 PhoAnyPFIsoWithEAAndExpoScalingEBCut::
 operator()(const reco::PhotonPtr& cand) const{  
 
+  // in case we are by-value
+  const std::string& inst_name = contentTags_.find(anyPFIsoWithEA_)->second.instance();
+  edm::Ptr<pat::Photon> pat(cand);
+
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
   const float pt = cand->pt();
@@ -98,7 +102,7 @@ operator()(const reco::PhotonPtr& cand) const{
       : _C1_EE + pt * _C2_EE);
   
   // Retrieve the variable value for this particle
-  float anyPFIso = (*_anyPFIsoMap)[cand];
+  float anyPFIso = _anyPFIsoMap.isValid() ? (*_anyPFIsoMap)[cand] : pat->userFloat(inst_name);
 
   // Apply pile-up correction
   double eA = _effectiveAreas.getEffectiveArea( absEta );
@@ -116,6 +120,11 @@ operator()(const reco::PhotonPtr& cand) const{
 double PhoAnyPFIsoWithEAAndExpoScalingEBCut::
 value(const reco::CandidatePtr& cand) const {
   reco::PhotonPtr pho(cand);
+
+  // in case we are by-value
+  const std::string& inst_name = contentTags_.find(anyPFIsoWithEA_)->second.instance();
+  edm::Ptr<pat::Photon> pat(cand);
+
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
   const float pt = pho->pt();
@@ -126,7 +135,7 @@ value(const reco::CandidatePtr& cand) const {
   double absEta = std::abs(pho->superCluster()->eta());
   
   // Retrieve the variable value for this particle
-  float anyPFIso = (*_anyPFIsoMap)[pho];
+  float anyPFIso = _anyPFIsoMap.isValid() ? (*_anyPFIsoMap)[pho] : pat->userFloat(inst_name);
 
   // Apply pile-up correction
   double eA = _effectiveAreas.getEffectiveArea( absEta );
