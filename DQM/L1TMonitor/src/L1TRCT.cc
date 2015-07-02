@@ -123,8 +123,16 @@ void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
   rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 10, -2.5, 7.5);
   rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 10, -2.5, 7.5); 
 
+  // NOT CENTRAL BXs
+  rctNotCentralRegionsEtEtaPhi_ = ibooker.book2D("rctNotCentralRegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralRegionsOccEtaPhi_ = ibooker.book2D("rctNotCentralRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralIsoEmEtEtaPhi_ =   ibooker.book2D("rctNotCentralEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralIsoEmOccEtaPhi_ = ibooker.book2D("rctNotCentralEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralNonIsoEmEtEtaPhi_ = ibooker.book2D("rctNotCentralEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralNonIsoEmOccEtaPhi_ = ibooker.book2D("rctNotCentralEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-  // RCT UNPACKER
+
+  // GCT UNPACKER
 
   // electrons
   layer2IsoEmEtEtaPhi_ =   ibooker.book2D("Layer2EmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -238,6 +246,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   }
 
 
+  std::cout<<doHd<<doEm<<doHdLayer2<<doEmLayer2<<std::endl;
+
 
   if ( doHd ) {
     // Fill the RCT histograms
@@ -250,7 +260,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       rctRegionBx_->Fill(ireg->bx());
       } 
 
-      if(selectBX_!=-1 && selectBX_!=ireg->bx()) continue;
+      if(selectBX_==-1 || selectBX_==ireg->bx()) {
 
       if(ireg->et()>0){
 
@@ -268,23 +278,26 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     if(ireg->fineGrain()) rctHfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
     
     }
+    else if (selectBX_!=-1 && selectBX_!=ireg->bx()){
+      if(ireg->et()>5) rctNotCentralRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      rctNotCentralRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
+    } 
+
+
+ }
 
  } 
 
-  if ( ! doEm ) return;
+  if (doEm){
   // Isolated and non-isolated EM
   for (L1CaloEmCollection::const_iterator iem = em->begin();
        iem != em->end(); iem++) {
 
-      if(iem->rank()>0)
-      {
+      if(iem->rank()==0) continue;
       rctEmBx_->Fill(iem->bx());
-      }
-      if(selectBX_!=-1 && selectBX_!=iem->bx()) continue;
+      if(selectBX_==-1 || selectBX_==iem->bx()) {
 
     if (iem->isolated()) {
-      if(iem->rank()>0)
-      {
       rctIsoEmRank_->Fill(iem->rank());
       rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 			      iem->regionId().iphi(), iem->rank());
@@ -292,11 +305,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi());
       }
-      }
     }
     else {
-      if(iem->rank()>0)
-      { 
       rctNonIsoEmRank_->Fill(iem->rank());
       rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi(), iem->rank());
@@ -304,10 +314,29 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				    iem->regionId().iphi());
       }
+    }
+    }
+    else if (selectBX_!=-1 && selectBX_!=iem->bx()) {
+    if (iem->isolated()) {
+      rctNotCentralIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+                        iem->regionId().iphi(), iem->rank());
+      if(iem->rank()>10){
+      rctNotCentralIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+                         iem->regionId().iphi());
       }
     }
-
+    else {
+      rctNotCentralNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+                         iem->regionId().iphi(), iem->rank());
+      if(iem->rank()>10){
+      rctNotCentralNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+                            iem->regionId().iphi());
+      }
+      }
+    }
   }
+
+}
 
   // Layer2 Histograms
   
@@ -317,12 +346,9 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     for (L1CaloRegionCollection::const_iterator ireg = rgnLayer2->begin();
        ireg != rgnLayer2->end(); ireg++) {
 
-      if(ireg->et()>0)
-      {
-      layer2RegionBx_->Fill(ireg->bx());
-      } 
-
       if(ireg->et()>0){
+
+      layer2RegionBx_->Fill(ireg->bx());
 
       layer2RegionRank_->Fill(ireg->et());
       if(ireg->et()>5){
@@ -341,19 +367,15 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 
  } 
 
-  if ( ! doEmLayer2 ) return;
+  if (doEmLayer2 ) {
   // Isolated and non-isolated EM
   for (L1CaloEmCollection::const_iterator iem = emLayer2->begin();
        iem != emLayer2->end(); iem++) {
 
-      if(iem->rank()>0)
-      {
+      if(iem->rank()==0) continue;
       layer2EmBx_->Fill(iem->bx());
-      }
 
     if (iem->isolated()) {
-      if(iem->rank()>0)
-      {
       layer2IsoEmRank_->Fill(iem->rank());
       layer2IsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 			      iem->regionId().iphi(), iem->rank());
@@ -361,11 +383,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	layer2IsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi());
       }
-      }
     }
     else {
-      if(iem->rank()>0)
-      { 
       layer2NonIsoEmRank_->Fill(iem->rank());
       layer2NonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi(), iem->rank());
@@ -373,12 +392,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	layer2NonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				    iem->regionId().iphi());
       }
-      }
     }
 
   }
 
-
-
+  }
 
 }
