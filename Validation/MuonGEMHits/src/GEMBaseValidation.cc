@@ -28,11 +28,17 @@ GEMBaseValidation::~GEMBaseValidation() {
 
 TH2F* GEMBaseValidation::getSimpleZR() {
     std::vector<double> xbins_vector;
-    for( int i= 550 ; i< 820; i++  ) {
+    //std::vector<const char*> xbins_label;
+    double station1_xmin = RangeZR_[ 0 ];
+    double station1_xmax = RangeZR_[ 1 ];
+    double station2_xmin = RangeZR_[ 4 ];
+    double station2_xmax = RangeZR_[ 5 ];
+
+    for( double i= station1_xmin-1 ; i< station2_xmax+1; i=i+0.25  ) {
+      if ( i > station1_xmax+1 && i<station2_xmin-1 ) continue; 
       xbins_vector.push_back(i);
-      if ( i > 580 && i<780 )  i = 780; 
     }
-    TH2F* simpleZR_templ = new TH2F("","", xbins_vector.size()-1, (double*)&xbins_vector[0], 50,100,330);
+    TH2F* simpleZR_templ = new TH2F("","", xbins_vector.size()-1, (double*)&xbins_vector[0], 50,120,330);
     return simpleZR_templ;
 }
 

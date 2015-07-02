@@ -46,6 +46,34 @@ def draw_bx(target_dir, h , ext = ".png", opt = ""):
   h.SetMinimum(1.)
   c.SaveAs(target_dir + c_title + ext)
 
+def draw_simple_zr(target_dir, h, ext =".png",opt="colz"):
+  gStyle.SetOptStat(0)
+  c = TCanvas(h.GetName(),h.GetName(),600,600)
+  c.Divide(2,1)
+  c_title = c.GetTitle()
+  #c.Clear()
+  if not h:
+    sys.exit('h does not exist')
+  h.SetLineWidth(2)
+  h.SetLineColor(kBlue)
+  c.cd(1)
+  gPad.SetRightMargin(0)
+  gPad.SetBorderMode(0)
+  h1 = h.Clone()
+  h1.SetAxisRange(564,572)
+  h1.Draw("col")
+  c.cd(2)
+  h2 = h.Clone()
+  gPad.SetLeftMargin(0)
+  gPad.SetBorderMode(0)
+  h2.SetAxisRange(793,800)
+  h2.Draw(opt)
+  #c.cd()
+  #c.Draw()
+  #c.Update()
+  c.SaveAs(target_dir + c_title + ext)
+
+
 def draw_col_nostat(target_dir, h, ext =".png", opt = "colz"):
   gStyle.SetOptStat(0)
   c = TCanvas(h.GetTitle(),h.GetName(),800,600)
@@ -207,8 +235,10 @@ def draw_plot( file, tDir,oDir ) :
   for hist in key_list :
     if hist.find("track_") != -1 :
       draw_occ( oDir,d1.Get(hist)) 
-    elif (hist.find("dcEta") !=-1 or hist.find("simple_zr")!= -1 ) :
+    elif (hist.find("dcEta") !=-1 ) :
       draw_col_nostat( oDir,d1.Get(hist))
+    elif (hist.find("simple_zr")!= -1 ) :
+      draw_simple_zr( oDir,d1.Get(hist))
     elif (hist.find("eff_DigiHit") != -1 ) :
       draw_col_eff( oDir, d1.Get(hist))
     elif (hist.find("lx") !=-1 or hist.find("ly") != -1 or hist.find("dphi") != -1 or hist.find("_phi_dist") != -1 ) :
