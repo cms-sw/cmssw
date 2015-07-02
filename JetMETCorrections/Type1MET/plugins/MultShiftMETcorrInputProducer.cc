@@ -25,11 +25,12 @@ int MultShiftMETcorrInputProducer::translateTypeToAbsPdgId( reco::PFCandidate::P
 
 
 MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::ParameterSet& cfg):
-  pflow_ ( cfg.getParameter< edm::InputTag >("srcPFlow") ),
-  vertices_ ( cfg.getParameter< edm::InputTag >("vertexCollection") ),
   moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   
+  pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter< edm::InputTag >("srcPFlow") );
+  vertices_ = consumes<edm::View<reco::Vertex> >( cfg.getParameter< edm::InputTag >("vertexCollection") );
+
   cfgCorrParameters_ = cfg.getParameter<std::vector<edm::ParameterSet> >("parameters");
   etaMin_.clear(); 
   etaMax_.clear();
@@ -68,7 +69,7 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   //get primary vertices
   edm::Handle<edm::View<reco::Vertex> > hpv;
   try {
-    evt.getByLabel( vertices_, hpv );
+    evt.getByToken( vertices_, hpv );
   } catch ( cms::Exception & e ) {
     std::cout <<"[MultShiftMETcorrInputProducer] error: " << e.what() << std::endl;
   }
@@ -85,7 +86,7 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   for (unsigned i=0;i<sumPt_.size();i++) sumPt_[i]=0.;
 
   edm::Handle<edm::View<reco::Candidate> > particleFlow;
-  evt.getByLabel(pflow_, particleFlow);
+  evt.getByToken(pflow_, particleFlow);
   for (unsigned i = 0; i < particleFlow->size(); ++i) {
     const reco::Candidate& c = particleFlow->at(i);
     for (unsigned j=0; j<type_.size(); j++) {
