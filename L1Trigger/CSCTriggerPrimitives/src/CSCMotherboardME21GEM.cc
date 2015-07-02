@@ -999,7 +999,7 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
     
     // find the corresponding id with layer=2
     GEMDetId co_id(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
-    
+   
     auto co_pads_range = out_pads->get(co_id);
     // empty range = no possible coincidence pads
     if (co_pads_range.first == co_pads_range.second) continue;
@@ -1014,6 +1014,7 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
         
         // make a new coincidence pad digi
+        LogDebug("CSCMotherboardME21GEM")<<"GE21's first  ID : "<<id;
         gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
         out_co_pads.insertDigi(id, GEMCoPadDigi(id.roll(),*p,*co_p));
       }
