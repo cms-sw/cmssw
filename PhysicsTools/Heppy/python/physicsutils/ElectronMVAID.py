@@ -77,6 +77,16 @@ ElectronMVAID_NonTrigPhys14 = ElectronMVAID("BDT", "NonTrigPhys14",
         "EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EB2_10_oldscenario2phys14_BDT.weights.xml.gz",
         "EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EE_10_oldscenario2phys14_BDT.weights.xml.gz",
 )
+ElectronMVAID_NonTrigPhys14Fix = ElectronMVAID("BDT", "NonTrigPhys14", 
+        "EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB1_5_oldscenario2phys14FIX_BDT.weights.xml.gz",
+        "EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB2_5_oldscenario2phys14FIX_BDT.weights.xml.gz",
+        "EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EE_5_oldscenario2phys14FIX_BDT.weights.xml.gz",
+        "EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB1_10_oldscenario2phys14FIX_BDT.weights.xml.gz",
+        "EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB2_10_oldscenario2phys14FIX_BDT.weights.xml.gz",
+        "EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EE_10_oldscenario2phys14FIX_BDT.weights.xml.gz",
+)
+
+
 
 ElectronMVAID_ByName = {
     'Trig':ElectronMVAID_Trig,
@@ -87,4 +97,5 @@ ElectronMVAID_ByName = {
     'NonTrigCSA14bx25':ElectronMVAID_NonTrigCSA14bx25,
     'NonTrigCSA14bx50':ElectronMVAID_NonTrigCSA14bx50,
     'NonTrigPhys14':ElectronMVAID_NonTrigPhys14,
+    'NonTrigPhys14Fix':ElectronMVAID_NonTrigPhys14Fix,
 }
