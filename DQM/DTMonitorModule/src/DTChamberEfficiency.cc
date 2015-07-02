@@ -75,11 +75,12 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 
   thedt4DSegments = pSet.getParameter<InputTag>("dt4DSegments");
   thecscSegments = pSet.getParameter<InputTag>("cscSegments");
+  labelGEMHits = pSet.getParameter<InputTag>("thegemRecHits");
 
   edm::ConsumesCollector iC = consumesCollector();
 
   theMeasurementExtractor = new MuonDetLayerMeasurements(thedt4DSegments,thecscSegments,
-							 labelRPCRecHits,iC,true,false,false);
+							 labelRPCRecHits,labelGEMHits,iC,true,false,false,false);
 
   theNavigationType = pSet.getParameter<string>("NavigationType");
 
