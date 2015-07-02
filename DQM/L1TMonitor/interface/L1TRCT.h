@@ -84,6 +84,13 @@ private:
   MonitorElement* rctIsoEmRank_;
   MonitorElement* rctNonIsoEmRank_;
 
+  MonitorElement* rctNotCentralRegionsEtEtaPhi_;
+  MonitorElement* rctNotCentralRegionsOccEtaPhi_;
+  MonitorElement* rctNotCentralIsoEmEtEtaPhi_;
+  MonitorElement* rctNotCentralIsoEmOccEtaPhi_;
+  MonitorElement* rctNotCentralNonIsoEmEtEtaPhi_;
+  MonitorElement* rctNotCentralNonIsoEmOccEtaPhi_;
+
 
   // Layer2
   // regions
