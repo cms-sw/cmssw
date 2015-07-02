@@ -201,7 +201,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
 void SiStripQualityHotStripIdentifierRoot::algoBeginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   tTopo = tTopoHandle.product();
  
   iSetup.get<TrackerDigiGeometryRecord> ().get (theTrackerGeom);
@@ -227,7 +227,6 @@ void SiStripQualityHotStripIdentifierRoot::algoEndJob(){
 
 void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] " << dirpath << std::endl;
-
   std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(dirpath);
 							       //"DQMData/Run 50908/SiStrip/MechanicalView");
     //							       "/DQMData/Run 50908/SiStrip/Run summary/MechanicalView/TID/side_2/wheel_3/ring_2/mono_modules/module_402676874");
