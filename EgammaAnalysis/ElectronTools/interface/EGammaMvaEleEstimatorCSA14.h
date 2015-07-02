@@ -59,7 +59,8 @@ class EGammaMvaEleEstimatorCSA14{
     void     initialize( std::string methodName,
                          EGammaMvaEleEstimatorCSA14::MVAType type,
                          Bool_t useBinnedVersion,
-                         std::vector<std::string> weightsfiles );
+                         std::vector<std::string> weightsfiles,
+                         Bool_t useFixedEoPDef = true);
     
     Bool_t   isInitialized() const { return fisInitialized; }
     UInt_t   GetMVABin(double eta,double pt ) const;
@@ -90,6 +91,7 @@ class EGammaMvaEleEstimatorCSA14{
     std::string                fMethodname;
     Bool_t                     fisInitialized;
     MVAType                    fMVAType;
+    Bool_t                     fUseFixedEoPDef;
     Bool_t                     fUseBinnedVersion;
     UInt_t                     fNMVABins;
 

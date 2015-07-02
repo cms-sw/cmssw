@@ -12,6 +12,7 @@ EGammaMvaEleEstimatorCSA14::EGammaMvaEleEstimatorCSA14() :
 fMethodname("BDTG method"),
 fisInitialized(kFALSE),
 fMVAType(kTrig),
+fUseFixedEoPDef(kFALSE),
 fUseBinnedVersion(kTRUE),
 fNMVABins(0)
 {
@@ -43,7 +44,8 @@ void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
 void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
                                        EGammaMvaEleEstimatorCSA14::MVAType type,
                                        Bool_t useBinnedVersion,
-				       std::vector<std::string> weightsfiles
+				       std::vector<std::string> weightsfiles,
+                                       Bool_t useFixedEoPDef
   ) {
 
   //clean up first
@@ -58,6 +60,7 @@ void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
   fMVAType = type;
   fMethodname = methodName;
   fUseBinnedVersion = useBinnedVersion;
+  fUseFixedEoPDef = useFixedEoPDef;
 
   //Define expected number of bins
   UInt_t ExpectedNBins = 0;
@@ -425,7 +428,7 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     // Energy matching
     fMVAVar_HoE             =  ele.hadronicOverEm();
     fMVAVar_EoP             =  ele.eSuperClusterOverP();
-    fMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / ele.trackMomentumAtVtx().R());
+    fMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / (fUseFixedEoPDef ? ele.trackMomentumAtVtx().R() : ele.p()));
     fMVAVar_eleEoPout       =  ele.eEleClusterOverPout();
     fMVAVar_PreShowerOverRaw=  ele.superCluster()->preshowerEnergy() / ele.superCluster()->rawEnergy();
     
