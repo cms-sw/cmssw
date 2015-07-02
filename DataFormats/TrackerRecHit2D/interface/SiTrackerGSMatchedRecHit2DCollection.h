@@ -8,7 +8,9 @@
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-typedef edm::RangeMap <unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> > SiTrackerGSMatchedRecHit2DCollection;
+typedef SiTrackerGSMatchedRecHit2D                   FastTMRecHit; //Fast Tracker Matched RecHit
+typedef std::vector<FastTMRecHit>                    FastTMRecHitCombination;
+typedef std::vector<FastTMRecHitCombination>         FastTMRecHitCombinations;  
 
 #endif
 
