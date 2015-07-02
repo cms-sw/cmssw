@@ -80,13 +80,19 @@ dmMonoJet_globalVariables = dmCore_globalVariables + [
     NTupleVariable("nTaus20",    lambda ev: sum([l.pt() > 20 for l in ev.selectedTaus]), int, help="Number of taus with pt > 20"),
     NTupleVariable("nGammas20",  lambda ev: sum([l.pt() > 20 for l in ev.selectedPhotons]), int, help="Number of photons with pt > 20"),
 
+    
+    ##--------------------------------------------------
+    # Generator variables
+    ##--------------------------------------------------
+    NTupleVariable("LHEorigWeight",    lambda ev: ev.LHE_originalWeight, float, help="Central LHE weight of the sample"),
+
 
 ]
 
 
 dmMonoJet_globalObjects = dmCore_globalObjects.copy()
 dmMonoJet_globalObjects.update({
-            # put more here
+        # put more here
 })
 
 dmMonoJet_collections = dmCore_collections.copy()
@@ -107,7 +113,7 @@ dmMonoJet_collections.update({
             ##------------------------------------------------
             #"selectedIsoTrack"    : NTupleCollection("isoTrack", isoTrackType, 50, help="isoTrack, sorted by pt"),
             ##------------------------------------------------
-            #"LHE_weights"    : NTupleCollection("LHEweight",  weightsInfoType, 1000, help="LHE weight info"),
+            "LHE_weights"    : NTupleCollection("LHEweight",  weightsInfoType, 1000, help="LHE weight info"),
             ##------------------------------------------------
             #"genBHadrons"  : NTupleCollection("GenBHad", heavyFlavourHadronType, 20, mcOnly=True, help="Gen-level B hadrons"),
             #"genDHadrons"  : NTupleCollection("GenDHad", heavyFlavourHadronType, 20, mcOnly=True, help="Gen-level D hadrons"),
