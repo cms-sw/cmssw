@@ -90,11 +90,11 @@ pileUpAna = cfg.Analyzer(
 genAna = cfg.Analyzer(
     GeneratorAnalyzer, name="GeneratorAnalyzer",
     # BSM particles that can appear with status <= 2 and should be kept
-    stableBSMParticleIds = { 1000022 },
+    stableBSMParticleIds = [ 1000022 ],
     # Particles of which we want to save the pre-FSR momentum (a la status 3).
     # Note that for quarks and gluons the post-FSR doesn't make sense,
     # so those should always be in the list
-    savePreFSRParticleIds = { 1,2,3,4,5, 11,12,13,14,15,16, 21 },
+    savePreFSRParticleIds = [ 1,2,3,4,5, 11,12,13,14,15,16, 21 ],
     # Make also the list of all genParticles, for other analyzers to handle
     makeAllGenParticles = True,
     # Make also the splitted lists
