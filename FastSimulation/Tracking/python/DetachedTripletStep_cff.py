@@ -3,13 +3,14 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.DetachedTripletStep_cff
 
-# fast tracking mask producer
-import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
-detachedTripletStepFastTrackingMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
+# fast tracking mask producer                                                                                                                                                                                                                                       
+from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
+detachedTripletStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("initialStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
     overrideTrkQuals =  cms.InputTag('initialStep')
-    )
+
+)
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -20,6 +21,8 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
         maxZ0 = 50
         ),
     minLayersCrossed = 3,
+    hitMasks = cms.InputTag("detachedTripletStepFastTrackingMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("detachedTripletStepFastTrackingMasks","hitCombinationMasks"),
     ptMin = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originHalfLength = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
     originRadius = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,

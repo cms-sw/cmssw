@@ -21,9 +21,17 @@ globalPixelWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracks.TrajectoryInEvent = cms.bool(True)
 
 # simtrack id producer
-globalPixelStepIds = cms.EDProducer("SimTrackIdProducer",
-                                     trackCollection = cms.InputTag("globalPixelWithMaterialTracks"),
-                                   )
+#globalPixelStepIds = cms.EDProducer("SimTrackIdProducer",
+#                                     trackCollection = cms.InputTag("globalPixelWithMaterialTracks"),
+#                                   )
+
+# fast tracking mask producer                                                                                                                                                                                                                                        
+from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
+globalPixelStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
+    trackCollection = cms.InputTag("globalPixelWithMaterialTracks"),
+    #    TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
+    #    overrideTrkQuals = cms.InputTag('detachedTripletStep') 
+)
 
 ###################
 
@@ -58,7 +66,8 @@ globalPixelWithMaterialTracksForPhotons.TrajectoryInEvent = cms.bool(True)
 globalPixelTracking = cms.Sequence(globalPixelSeeds*
                                    globalPixelTrackCandidates*
                                    globalPixelWithMaterialTracks*
-                                   globalPixelStepIds*
+                                   #globalPixelStepIds*
+                                   globalPixelStepFastTrackingMasks*
                                    globalPixelSeedsForPhotons*
                                    globalPixelTrackCandidatesForPhotons*
                                    globalPixelWithMaterialTracksForPhotons*

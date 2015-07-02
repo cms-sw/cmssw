@@ -56,7 +56,9 @@ class TrajectorySeedProducer:
         double ptMin;
         double originHalfLength;
         double nSigmaZ;
-        
+
+	bool hitMasks_exist;
+	bool hitCombinationMasks_exist;
         bool testBeamspotCompatibility;
         const reco::BeamSpot* beamSpot;
         bool testPrimaryVertexCompatibility;

@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.PixelPairStep_cff
 
-# fast tracking mask producer                                                                                                                                                         
-import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
-pixelPairStepFastTrackingMasks=FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
+# fast tracking mask producer                                                                                                                                                                                                                                        
+from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
+pixelPairStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("lowPtTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
     overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')
 )
-
+  
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
@@ -20,7 +20,9 @@ pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
         maxZ0 = 50
         ),
     minLayersCrossed = 2,
-    nSigmaZ = 3, 
+    nSigmaZ = 3,
+    hitMasks = cms.InputTag("pixelPairStepFastTrackingMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("pixelPairStepFastTrackingMasks","hitCombinationMasks"), 
     ptMin = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
     layerList = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.layerList.value()

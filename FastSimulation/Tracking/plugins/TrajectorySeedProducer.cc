@@ -52,20 +52,23 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
 
-
-
     const edm::ParameterSet& simTrackSelectionConfig = conf.getParameter<edm::ParameterSet>("simTrackSelection");
     // The smallest pT,dxy,dz for a simtrack
     simTrack_pTMin = simTrackSelectionConfig.getParameter<double>("pTMin");
     simTrack_maxD0 = simTrackSelectionConfig.getParameter<double>("maxD0");
     simTrack_maxZ0 = simTrackSelectionConfig.getParameter<double>("maxZ0");
 
+    hitMasks_exist = conf.exists("hitMasks");
+    hitCombinationMasks_exist = conf.exists("hitCombinationMasks");
+
+    if (hitMasks_exist){
     edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");   
     hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
-
+    }
+    if (hitCombinationMasks_exist){
     edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag> ("hitCombinationMasks");   
     hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
-   
+    }
 
     // The smallest number of hits for a track candidate
     minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
@@ -92,7 +95,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     // The name of the hit producer
     edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
     recHitTokens = consumes<FastTMRecHitCombinations>(recHitTag);
-    recHitToken = consumes<FastTMRecHitCombination>(recHitTag);
+    //recHitToken = consumes<FastTMRecHitCombination>(recHitTag);
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -357,14 +360,21 @@ void
 TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) 
 {        
   PTrajectoryStateOnDet initialState;
+  std::auto_ptr<std::vector<bool> > hitMasks(new std::vector<bool>());
+  std::auto_ptr<std::vector<bool> > hitCombinationMasks(new std::vector<bool>());
   
-  // the tracks to be skipped  
+
+  // the tracks to be skipped
+  if (hitMasks_exist){  
   edm::Handle<std::vector<bool> > hitMasks;
   e.getByToken(hitMasksToken,hitMasks);
+  }
 
+  if (hitCombinationMasks_exist){ 
   edm::Handle<std::vector<bool> > hitCombinationMasks;
   e.getByToken(hitCombinationMasksToken,hitCombinationMasks);	
-  
+  }
+
     // Beam spot
     if (testBeamspotCompatibility)
       {
@@ -396,10 +406,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
     {
-
-      if(hitCombinationMasks->at(icomb) == true)
-	continue;
-
+      if(hitCombinationMasks_exist){
+	if(hitCombinationMasks->at(icomb) == true)
+	  continue;
+      }
       FastTMRecHitCombination recHitCombination = recHitCombinations->at(icomb);
       const SimTrack& theSimTrack = (*theSimTracks)[icomb];
       int vertexIndex = theSimTrack.vertIndex();
@@ -422,7 +432,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
       std::vector<TrajectorySeedHitCandidate> trackerRecHits;
       for (const auto & _hit : recHitCombination )
 	{
-	  if (hitMasks->at(_hit.id()) == true) continue;
+	  if(hitMasks_exist){
+	    if (hitMasks->at(_hit.id()) == true) 
+	      continue;
+	  }
 	  previousTrackerHit=currentTrackerHit;
 	  
 	  currentTrackerHit = TrajectorySeedHitCandidate(&_hit,trackerGeometry,trackerTopology);

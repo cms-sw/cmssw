@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.MixedTripletStep_cff
 
-# fast tracking mask producer                                                                                                                                                         
-import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
-mixedTripletStepFastTrackingMasks=FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
+# fast tracking mask producer                                                                                                                                                                                                                                        
+from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
+mixedTripletStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("pixelPairStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep')
+    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep')  
 )
 
 # trajectory seeds
@@ -20,6 +20,8 @@ mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
         maxZ0 = 30
         ),
     minLayersCrossed = 3,
+    hitMasks = cms.InputTag("mixedTripletStepFastTrackingMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("mixedTripletStepFastTrackingMasks","hitCombinationMasks"),
     ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius,
     originHalfLength = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength,
@@ -35,6 +37,8 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
         maxZ0 = 30
         ),
     minLayersCrossed = 3,
+    hitMasks = cms.InputTag("mixedTripletStepFastTrackingMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("mixedTripletStepFastTrackingMasks","hitCombinationMasks"),
     ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius,
     originHalfLength = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength,

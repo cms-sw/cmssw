@@ -104,7 +104,7 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   for (size_t i = 0 ; i!=trackCollection->size();++i)
     {
-
+      
       const reco::Track & track = trackCollection->at(i);
       reco::TrackRef trackRef(trackCollection,i);
       if (filterTracks_) {
@@ -122,26 +122,35 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	  goodTk=(track.quality(trackQuality_));
 	if ( !goodTk) continue;
       }
- 
-
+    
+      //std::cout <<"track: " << trackCollection->at(i) << std::endl;
+       
       // Loop over the recHits                                                                     
       for (auto hitIt = track.recHitsBegin() ;  hitIt != track.recHitsEnd(); ++hitIt) {
-
 	const SiTrackerGSMatchedRecHit2D* hit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(*hitIt);
+
+	std::cout << "########### CHECK IF COUTS WORK: TEST-2  ##########" << std::endl;
+	std::cout << "hit:  " << hit << std::endl;
+	std::cout << "hit_id:  " << hit->id() << std::endl;
+	std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
+
 	if (hit == 0){
 	  std::cout << "Error in FastTrackingMaskProducer: dynamic hit cast failed" << std::endl;
 	}
+	unsigned int hit_id(hit->id());	
 
-	if (hit->id() >= abs(hitMasks->size()+1)) {
-	  hitMasks->resize(hit->id()+1,false);   
+	if (hit_id >= hitMasks->size()) { 
+	  hitMasks->resize(hit_id+1,false);   
 	}
 
-	if (hit->id() >= abs(hitCombinationMasks->size()+1)) {
-	  hitCombinationMasks->resize(hit->id()+1,false);   
+	if (hit_id >= hitCombinationMasks->size()) { 
+	   hitCombinationMasks->resize(hit_id+1,false);
 	}
 
-	hitMasks->at(hit->id()) = true;
-	hitCombinationMasks->at(hit->hitCombinationId()) = true;
+
+
+	 hitMasks->at(hit->id()) = true;
+	 hitCombinationMasks->at(hit->hitCombinationId()) = true;
       }
     }
   e.put(hitMasks,"hitMasks");

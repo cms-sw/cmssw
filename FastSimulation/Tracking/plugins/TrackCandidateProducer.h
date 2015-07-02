@@ -50,6 +50,9 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
 
   bool rejectOverlaps;
   bool splitHits;
+  bool hitMasks_exist;
+  bool hitCombinationMasks_exist;
+
  
   edm::InputTag simTracks_;
 
@@ -58,6 +61,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   edm::EDGetTokenT<FastTMRecHitCombinations> recHitToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
+  edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
   std::string propagatorLabel;
   
 };
