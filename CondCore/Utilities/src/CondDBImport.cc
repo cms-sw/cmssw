@@ -257,6 +257,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
       IMPORT_PAYLOAD_CASE( PCaloGeometry )
       IMPORT_PAYLOAD_CASE( PHcalParameters )
+      IMPORT_PAYLOAD_CASE( HcalParameters )
       IMPORT_PAYLOAD_CASE( PGeometricDet )
       IMPORT_PAYLOAD_CASE( PGeometricDetExtra )
       IMPORT_PAYLOAD_CASE( PTrackerParameters )
