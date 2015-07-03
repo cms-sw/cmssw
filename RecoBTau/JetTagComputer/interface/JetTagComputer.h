@@ -15,8 +15,16 @@ class JetTagComputer {
     public:
 	class TagInfoHelper {
 	    public:
-		TagInfoHelper(const std::vector<const reco::BaseTagInfo*> &infos) :
-			m_tagInfos(infos) {}
+		TagInfoHelper(const std::vector<const reco::BaseTagInfo*> &infos, std::vector<std::string> &labels) :
+			m_tagInfos(infos),
+			m_labels(labels) {}
+
+		TagInfoHelper(const std::vector<const reco::BaseTagInfo*> &infos):
+			m_tagInfos(infos),
+			m_labels()
+			{}
+
+
 		~TagInfoHelper() {}
 
 		const reco::BaseTagInfo &getBase(unsigned int index) const
@@ -51,8 +59,25 @@ class JetTagComputer {
 			return *castInfo;
 		}
 
+		template<class T>
+		const T &get(std::string label) const
+		{
+			size_t idx=0;
+			for(; idx <= m_labels.size(); idx++){
+				if(idx < m_labels.size() && m_labels[idx] == label) break;
+			}
+					
+			if(idx == m_labels.size()) {		
+				throw cms::Exception("ProductMissing")
+					<< "Missing TagInfo with label: " << label <<
+					" in call to JetTagComputer::get." << std::endl;
+			}
+			return get<T>(idx);
+		}
+
 	    private:
 		const std::vector<const reco::BaseTagInfo*>	&m_tagInfos;
+		std::vector<std::string> m_labels;
 	};
 
 	// default constructor

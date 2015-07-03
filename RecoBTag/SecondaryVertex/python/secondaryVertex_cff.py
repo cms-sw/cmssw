@@ -108,3 +108,8 @@ from RecoBTag.SecondaryVertex.pfPositiveCombinedInclusiveSecondaryVertexBJetTags
 from RecoBTag.SecondaryVertex.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfPositiveCombinedSecondaryVertexSoftLeptonBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfPositiveCombinedSecondaryVertexSoftLeptonCtagLJetTags_cfi import *
+
+#charm tagger
+from RecoBTag.CTagging.charmTaggerProducer_cfi import * #ESSource
+from RecoBTag.CTagging.charmTagJetTags_cfi import * #EDProducer
+
