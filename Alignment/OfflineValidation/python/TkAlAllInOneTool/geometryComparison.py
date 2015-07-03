@@ -58,9 +58,11 @@ class GeometryComparison(GenericValidation):
         if alignment == None:
             alignment = self.alignmentToValidate
         repMap = GenericValidation.getRepMap( self, alignment )
-        referenceName = "IDEAL"
+        referenceName  = "IDEAL"
+        referenceTitle = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
-            referenceName = self.referenceAlignment.name
+            referenceName  = self.referenceAlignment.name
+            referenceTitle = self.referenceAlignment.title
 
         repMap.update({
             "comparedGeometry": (".oO[alignmentName]Oo."
@@ -68,7 +70,7 @@ class GeometryComparison(GenericValidation):
             "referenceGeometry": "IDEAL", # will be replaced later
                                           #  if not compared to IDEAL
             "reference": referenceName,
-            "referenceTitle": self.referenceAlignment.title,
+            "referenceTitle": referenceTitle,
 	    "alignmentTitle": self.alignmentToValidate.title
             })
         if not referenceName == "IDEAL":
