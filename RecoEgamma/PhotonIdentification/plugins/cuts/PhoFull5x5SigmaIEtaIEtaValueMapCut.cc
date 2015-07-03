@@ -59,9 +59,20 @@ operator()(const reco::PhotonPtr& cand) const{
   const float cutValue = 
     ( std::abs(cand->superCluster()->eta()) < _barrelCutOff ? 
       _cutValueEB : _cutValueEE );
+  float sihihval = -1.0;
+  if( _full5x5SigmaIEtaIEtaMap.isValid() && _full5x5SigmaIEtaIEtaMap->contains( cand.id() ) ) {
+    sihihval = (*_full5x5SigmaIEtaIEtaMap)[cand];
+  } else if ( _full5x5SigmaIEtaIEtaMap.isValid() && _full5x5SigmaIEtaIEtaMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    sihihval = _full5x5SigmaIEtaIEtaMap->begin()[cand.key()];
+  } else if ( _full5x5SigmaIEtaIEtaMap.isValid() ){ // throw an exception
+    sihihval = (*_full5x5SigmaIEtaIEtaMap)[cand];
+  }
   
   // Retrieve the variable value for this particle
-  const float full5x5SigmaIEtaIEta = _full5x5SigmaIEtaIEtaMap.isValid() ? (*_full5x5SigmaIEtaIEtaMap)[cand] : cand->full5x5_sigmaIetaIeta();
+  const float full5x5SigmaIEtaIEta = _full5x5SigmaIEtaIEtaMap.isValid() ? sihihval : cand->full5x5_sigmaIetaIeta();
   
   // Apply the cut and return the result
   return full5x5SigmaIEtaIEta < cutValue;
@@ -70,5 +81,17 @@ operator()(const reco::PhotonPtr& cand) const{
 double PhoFull5x5SigmaIEtaIEtaValueMapCut::
 value(const reco::CandidatePtr& cand) const {
   reco::PhotonPtr pho(cand);
-  return _full5x5SigmaIEtaIEtaMap.isValid() ? (*_full5x5SigmaIEtaIEtaMap)[cand] : pho->full5x5_sigmaIetaIeta();
+  float sihihval = -1.0;
+  if( _full5x5SigmaIEtaIEtaMap.isValid() && _full5x5SigmaIEtaIEtaMap->contains( cand.id() ) ) {
+    sihihval = (*_full5x5SigmaIEtaIEtaMap)[cand];
+  } else if ( _full5x5SigmaIEtaIEtaMap.isValid() && _full5x5SigmaIEtaIEtaMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    sihihval = _full5x5SigmaIEtaIEtaMap->begin()[cand.key()];
+  } else if ( _full5x5SigmaIEtaIEtaMap.isValid() ){ // throw an exception
+    sihihval = (*_full5x5SigmaIEtaIEtaMap)[cand];
+  }
+
+  return _full5x5SigmaIEtaIEtaMap.isValid() ? sihihval : pho->full5x5_sigmaIetaIeta();
 }

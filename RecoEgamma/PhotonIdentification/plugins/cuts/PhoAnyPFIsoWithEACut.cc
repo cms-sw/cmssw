@@ -85,6 +85,17 @@ operator()(const reco::PhotonPtr& cand) const{
   // in case we are by-value
   const std::string& inst_name = contentTags_.find(anyPFIsoWithEA_)->second.instance();
   edm::Ptr<pat::Photon> pat(cand);
+  float anyisoval = -1.0;
+  if( _anyPFIsoMap.isValid() && _anyPFIsoMap->contains( cand.id() ) ) {
+    anyisoval = (*_anyPFIsoMap)[cand];
+  } else if ( _anyPFIsoMap.isValid() && _anyPFIsoMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    anyisoval = _anyPFIsoMap->begin()[cand.key()];
+  } else if ( _anyPFIsoMap.isValid() ){ // throw an exception
+    anyisoval = (*_anyPFIsoMap)[cand];
+  }
 
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
@@ -97,7 +108,7 @@ operator()(const reco::PhotonPtr& cand) const{
       );
   
   // Retrieve the variable value for this particle
-  float anyPFIso = _anyPFIsoMap.isValid() ? (*_anyPFIsoMap)[cand] : pat->userFloat(inst_name);
+  float anyPFIso = _anyPFIsoMap.isValid() ? anyisoval : pat->userFloat(inst_name);
   
   // Apply pile-up correction
   double eA = _effectiveAreas.getEffectiveArea( absEta );
@@ -119,13 +130,24 @@ value(const reco::CandidatePtr& cand) const {
   // in case we are by-value
   const std::string& inst_name = contentTags_.find(anyPFIsoWithEA_)->second.instance();
   edm::Ptr<pat::Photon> pat(cand);
+  float anyisoval = -1.0;
+  if( _anyPFIsoMap.isValid() && _anyPFIsoMap->contains( cand.id() ) ) {
+    anyisoval = (*_anyPFIsoMap)[cand];
+  } else if ( _anyPFIsoMap.isValid() && _anyPFIsoMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    anyisoval = _anyPFIsoMap->begin()[cand.key()];
+  } else if ( _anyPFIsoMap.isValid() ){ // throw an exception
+    anyisoval = (*_anyPFIsoMap)[cand];
+  }
 
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
   double absEta = std::abs(pho->superCluster()->eta());  
   
   // Retrieve the variable value for this particle
-  float anyPFIso = _anyPFIsoMap.isValid() ? (*_anyPFIsoMap)[pho] : pat->userFloat(inst_name);
+  float anyPFIso = _anyPFIsoMap.isValid() ? anyisoval : pat->userFloat(inst_name);
 
   // Apply pile-up correction
   double eA = _effectiveAreas.getEffectiveArea( absEta );
