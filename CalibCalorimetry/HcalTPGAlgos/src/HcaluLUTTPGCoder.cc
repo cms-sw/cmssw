@@ -262,19 +262,12 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                   frame.setSize(1);
                   CaloSamples samples(cell, 1);
 
-                  float one_adc2fC = 0.0;
-                  for (int capId = 0; capId < 4; ++capId)
-                     one_adc2fC += channelCoder->charge(*shape, 1, capId) - channelCoder->charge(*shape, 0, capId);
-                  one_adc2fC /= 4.0;
-                  // Lumi offset of 1 adc (in fC) for the four rings used to measure lumi
-                  float offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? one_adc2fC : 0; 
-                  
                   for (int adc = 0; adc <= 0x7F; ++adc) {
                      frame.setSample(0,HcalQIESample(adc));
                      coder.adc2fC(frame,samples);
                      float adc2fC = samples[0];
                      if (isMasked) inputLUT_[lutId][adc] = 0;
-                     else inputLUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped + offset) * gain * rcalib / lsb_ / cosh_ieta[abs(ieta)] )), 0x3FF);
+                     else inputLUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped) * gain * rcalib / lsb_ / cosh_ieta[abs(ieta)] )), 0x3FF);
                   }
                } // endif HF
             } // for depth
